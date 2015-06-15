@@ -21,22 +21,26 @@ package org.sonar.server.computation.measure;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.SetMultimap;
 import javax.annotation.CheckForNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
+import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.debt.Characteristic;
 import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
@@ -55,7 +59,6 @@ import static org.mockito.Mockito.when;
 public class MeasureRepositoryImplTest {
   @ClassRule
   public static final DbTester dbTester = new DbTester();
-  public static final String SOME_DATA = "some data";
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
@@ -72,6 +75,9 @@ public class MeasureRepositoryImplTest {
   private static final long OTHER_SNAPSHOT_ID = 369;
   private static final long COMPONENT_ID = 567;
   private static final Measure SOME_MEASURE = Measure.builder().create(Measure.Level.OK);
+  private static final String SOME_DATA = "some data";
+  private static final RuleDto SOME_RULE = RuleDto.createFor(RuleKey.of("A", "1")).setId(963);
+  private static final Characteristic SOME_CHARACTERISTIC = new Characteristic(741, "key");
 
   private DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new MeasureDao(), new SnapshotDao(), new MetricDao(), new ComponentDao());
   private MetricRepository metricRepository = mock(MetricRepository.class);
@@ -211,8 +217,8 @@ public class MeasureRepositoryImplTest {
     String value = "trololo";
 
     reportReader.putMeasures(FILE_COMPONENT.getRef(), ImmutableList.of(
-        BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue(value).build()
-    ));
+      BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue(value).build()
+      ));
 
     Optional<Measure> res = underTest.getRawMeasure(FILE_COMPONENT, metric1);
 
@@ -227,8 +233,8 @@ public class MeasureRepositoryImplTest {
   @Test
   public void getRawMeasure_retrieves_added_measure_over_batch_measure() {
     reportReader.putMeasures(FILE_COMPONENT.getRef(), ImmutableList.of(
-        BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build()
-    ));
+      BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build()
+      ));
 
     Measure addedMeasure = SOME_MEASURE;
     underTest.add(FILE_COMPONENT, metric1, addedMeasure);
@@ -239,11 +245,89 @@ public class MeasureRepositoryImplTest {
     assertThat(res.get()).isSameAs(addedMeasure);
   }
 
+  @Test(expected = NullPointerException.class)
+  public void getRawMeasure_for_rule_throws_NPE_if_Component_arg_is_null() {
+    underTest.getRawMeasure(null, metric1, SOME_RULE);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void getRawMeasure_for_rule_throws_NPE_if_Metric_arg_is_null() {
+    underTest.getRawMeasure(FILE_COMPONENT, null, SOME_RULE);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void getRawMeasure_for_rule_throws_NPE_if_Characteristic_arg_is_null() {
+    underTest.getRawMeasure(FILE_COMPONENT, metric1, (RuleDto) null);
+  }
+
+  @Test
+  public void getRawMeasure_for_rule_returns_absent_if_repository_is_empty() {
+    assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric1, SOME_RULE)).isAbsent();
+  }
+
+  @Test
+  public void getRawMeasure_for_rule_returns_measure_for_specified_rule() {
+    Measure measure = Measure.builder().forRule(SOME_RULE.getId()).createNoValue();
+
+    underTest.add(FILE_COMPONENT, metric1, measure);
+    underTest.add(FILE_COMPONENT, metric1, Measure.builder().forRule(222).createNoValue());
+
+    assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric1, SOME_RULE).get()).isSameAs(measure);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void getRawMeasure_for_characteristic_throws_NPE_if_Component_arg_is_null() {
+    underTest.getRawMeasure(null, metric1, SOME_CHARACTERISTIC);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void getRawMeasure_for_characteristic_throws_NPE_if_Metric_arg_is_null() {
+    underTest.getRawMeasure(FILE_COMPONENT, null, SOME_CHARACTERISTIC);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void getRawMeasure_for_characteristic_throws_NPE_if_Characteristic_arg_is_null() {
+    underTest.getRawMeasure(FILE_COMPONENT, metric1, (Characteristic) null);
+  }
+
+  @Test
+  public void getRawMeasure_for_characteristic_returns_absent_if_repository_is_empty() {
+    assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric1, SOME_CHARACTERISTIC)).isAbsent();
+  }
+
+  @Test
+  public void getRawMeasure_for_characteristic_returns_measure_for_specified_rule() {
+    Measure measure = Measure.builder().forCharacteristic(SOME_CHARACTERISTIC.getId()).createNoValue();
+
+    underTest.add(FILE_COMPONENT, metric1, measure);
+    underTest.add(FILE_COMPONENT, metric1, Measure.builder().forCharacteristic(333).createNoValue());
+
+    assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric1, SOME_CHARACTERISTIC).get()).isSameAs(measure);
+  }
+
+  @Test
+  public void getRawMeasures_returns_added_measures_over_batch_measures() {
+    BatchReport.Measure batchMeasure1 = BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build();
+    BatchReport.Measure batchMeasure2 = BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_2).setStringValue("some value").build();
+    reportReader.putMeasures(FILE_COMPONENT.getRef(), ImmutableList.of(batchMeasure1, batchMeasure2));
+
+    Measure addedMeasure = SOME_MEASURE;
+    underTest.add(FILE_COMPONENT, metric1, addedMeasure);
+    Measure addedMeasure2 = Measure.builder().forCharacteristic(SOME_CHARACTERISTIC.getId()).createNoValue();
+    underTest.add(FILE_COMPONENT, metric1, addedMeasure2);
+
+    SetMultimap<String, Measure> rawMeasures = underTest.getRawMeasures(FILE_COMPONENT);
+
+    assertThat(rawMeasures.keySet()).hasSize(2);
+    assertThat(rawMeasures.get(METRIC_KEY_1)).containsOnly(addedMeasure, addedMeasure2);
+    assertThat(rawMeasures.get(METRIC_KEY_2)).containsOnly(Measure.builder().create("some value"));
+  }
+
   private static MeasureDto createMeasureDto(int metricId, long snapshotId) {
     return new MeasureDto()
-        .setComponentId(COMPONENT_ID)
-        .setSnapshotId(snapshotId)
-        .setData(SOME_DATA)
-        .setMetricId(metricId);
+      .setComponentId(COMPONENT_ID)
+      .setSnapshotId(snapshotId)
+      .setData(SOME_DATA)
+      .setMetricId(metricId);
   }
 }
