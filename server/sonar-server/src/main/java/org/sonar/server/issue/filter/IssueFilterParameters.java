@@ -68,11 +68,15 @@ public class IssueFilterParameters {
   public static final String PAGE_INDEX = "pageIndex";
   public static final String SORT = "sort";
   public static final String ASC = "asc";
+  public static final String FACET_MODE = "facetMode";
+
+  public static final String FACET_MODE_COUNT = "count";
+  public static final String FACET_MODE_DEBT = "debt";
 
   public static final String FACET_ASSIGNED_TO_ME = "assigned_to_me";
 
   public static final List<String> ALL = ImmutableList.of(ISSUES, SEVERITIES, STATUSES, RESOLUTIONS, RESOLVED, COMPONENTS, COMPONENT_ROOTS, RULES, ACTION_PLANS, REPORTERS, TAGS,
-    ASSIGNEES, LANGUAGES, ASSIGNED, PLANNED, HIDE_RULES, CREATED_AT, CREATED_AFTER, CREATED_BEFORE, CREATED_IN_LAST, COMPONENT_UUIDS, COMPONENT_ROOT_UUIDS,
+    ASSIGNEES, LANGUAGES, ASSIGNED, PLANNED, HIDE_RULES, CREATED_AT, CREATED_AFTER, CREATED_BEFORE, CREATED_IN_LAST, COMPONENT_UUIDS, COMPONENT_ROOT_UUIDS, FACET_MODE,
     PROJECTS, PROJECT_UUIDS, PROJECT_KEYS, COMPONENT_KEYS, MODULE_UUIDS, DIRECTORIES, FILE_UUIDS, AUTHORS, HIDE_COMMENTS, PAGE_SIZE, PAGE_INDEX, SORT, ASC);
 
   public static final List<String> ALL_WITHOUT_PAGINATION = newArrayList(Iterables.filter(ALL, new Predicate<String>() {

@@ -55,6 +55,7 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.ws.ComponentJsonWriter;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.IssueQuery;
@@ -126,6 +127,10 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(WebService.Param.FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
       .setPossibleValues(IssueIndex.SUPPORTED_FACETS);
+    action.createParam(IssueFilterParameters.FACET_MODE)
+      .setDefaultValue(IssueFilterParameters.FACET_MODE_COUNT)
+      .setDescription("Choose the returned value for facet items, either count of issues or sum of debt.")
+      .setPossibleValues(IssueFilterParameters.FACET_MODE_COUNT, IssueFilterParameters.FACET_MODE_DEBT);
     action.addSortParams(IssueQuery.SORTS, null, true);
     action.addFieldsParam(IssueJsonWriter.SELECTABLE_FIELDS);
 
@@ -286,6 +291,10 @@ public class SearchAction implements IssuesWsAction {
   }
 
   private void writeResponse(Request request, SearchResult<IssueDoc> result, JsonWriter json) {
+    if (result.getFacets().contains(IssueIndex.DEBT_AGGREGATION_NAME)) {
+      json.prop("debtTotal", result.getFacets().get(IssueIndex.DEBT_AGGREGATION_NAME).get(Facets.TOTAL));
+    }
+
     List<String> issueKeys = newArrayList();
     Set<RuleKey> ruleKeys = newHashSet();
     Set<String> projectUuids = newHashSet();

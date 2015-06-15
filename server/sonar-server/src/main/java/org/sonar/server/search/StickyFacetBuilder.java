@@ -20,29 +20,41 @@
 package org.sonar.server.search;
 
 import com.google.common.base.Joiner;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.ArrayUtils;
 import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-
-import java.util.Map;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms.Order;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 
 public class StickyFacetBuilder {
 
   private static final int FACET_DEFAULT_MIN_DOC_COUNT = 1;
   private static final int FACET_DEFAULT_SIZE = 10;
+  private static final Order FACET_DEFAULT_ORDER = Terms.Order.count(false);
 
   private final QueryBuilder query;
   private final Map<String, FilterBuilder> filters;
+  private final AbstractAggregationBuilder subAggregation;
+  private final Order order;
 
   public StickyFacetBuilder(QueryBuilder query, Map<String, FilterBuilder> filters) {
+    this(query, filters, null, FACET_DEFAULT_ORDER);
+  }
+
+  public StickyFacetBuilder(QueryBuilder query, Map<String, FilterBuilder> filters, @Nullable AbstractAggregationBuilder subAggregation, @Nullable Order order) {
     this.query = query;
     this.filters = filters;
+    this.subAggregation = subAggregation;
+    this.order = order;
   }
 
   public QueryBuilder query() {
@@ -78,23 +90,31 @@ public class StickyFacetBuilder {
   }
 
   public FilterAggregationBuilder buildTopFacetAggregation(String fieldName, String facetName, BoolFilterBuilder facetFilter, int size) {
+    TermsBuilder termsAggregation = AggregationBuilders.terms(facetName)
+      .field(fieldName)
+      .order(order)
+      // .order(Terms.Order.aggregation("debt", false))
+      .size(size)
+      .minDocCount(FACET_DEFAULT_MIN_DOC_COUNT);
+    if (subAggregation != null) {
+      termsAggregation = termsAggregation.subAggregation(subAggregation);
+    }
     return AggregationBuilders
       .filter(facetName + "_filter")
       .filter(facetFilter)
-      .subAggregation(
-        AggregationBuilders.terms(facetName)
-          .field(fieldName)
-          .order(Terms.Order.count(false))
-          .size(size)
-          .minDocCount(FACET_DEFAULT_MIN_DOC_COUNT));
+      .subAggregation(termsAggregation);
   }
 
   public FilterAggregationBuilder addSelectedItemsToFacet(String fieldName, String facetName, FilterAggregationBuilder facetTopAggregation, Object... selected) {
     if (selected.length > 0) {
+      TermsBuilder selectedTerms = AggregationBuilders.terms(facetName + "_selected")
+        .field(fieldName)
+        .include(Joiner.on('|').join(selected));
+      if (subAggregation != null) {
+        selectedTerms = selectedTerms.subAggregation(subAggregation);
+      }
       facetTopAggregation.subAggregation(
-        AggregationBuilders.terms(facetName + "_selected")
-          .field(fieldName)
-          .include(Joiner.on('|').join(selected)));
+        selectedTerms);
     }
     return facetTopAggregation;
   }

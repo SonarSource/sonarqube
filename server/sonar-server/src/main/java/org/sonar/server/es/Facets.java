@@ -19,6 +19,11 @@
  */
 package org.sonar.server.es;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.CheckForNull;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.elasticsearch.action.search.SearchResponse;
@@ -27,14 +32,11 @@ import org.elasticsearch.search.aggregations.HasAggregations;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.aggregations.bucket.missing.Missing;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-
-import javax.annotation.CheckForNull;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 
 public class Facets {
+
+  public static final String TOTAL = "total";
 
   private final Map<String, LinkedHashMap<String, Long>> facetsByName = new LinkedHashMap<>();
 
@@ -59,6 +61,8 @@ public class Facets {
       processSubAggregations((HasAggregations) aggregation);
     } else if (DateHistogram.class.isAssignableFrom(aggregation.getClass())) {
       processDateHistogram((DateHistogram) aggregation);
+    } else if (Sum.class.isAssignableFrom(aggregation.getClass())) {
+      processSum((Sum) aggregation);
     } else {
       throw new IllegalArgumentException("Aggregation type not supported yet: " + aggregation.getClass());
     }
@@ -67,7 +71,12 @@ public class Facets {
   private void processMissingAggregation(Missing aggregation) {
     long docCount = aggregation.getDocCount();
     if (docCount > 0L) {
-      getOrCreateFacet(aggregation.getName().replace("_missing", "")).put("", docCount);
+      LinkedHashMap<String, Long> facet = getOrCreateFacet(aggregation.getName().replace("_missing", ""));
+      if (aggregation.getAggregations().getAsMap().containsKey("debt")) {
+        facet.put("", Math.round(((Sum) aggregation.getAggregations().get("debt")).getValue()));
+      } else {
+        facet.put("", docCount);
+      }
     }
   }
 
@@ -80,7 +89,11 @@ public class Facets {
     facetName = facetName.replace("_selected", "");
     LinkedHashMap<String, Long> facet = getOrCreateFacet(facetName);
     for (Terms.Bucket value : aggregation.getBuckets()) {
-      facet.put(value.getKey(), value.getDocCount());
+      if (value.getAggregations().getAsMap().containsKey("debt")) {
+        facet.put(value.getKey(), Math.round(((Sum) value.getAggregations().get("debt")).getValue()));
+      } else {
+        facet.put(value.getKey(), value.getDocCount());
+      }
     }
   }
 
@@ -93,8 +106,16 @@ public class Facets {
   private void processDateHistogram(DateHistogram aggregation) {
     LinkedHashMap<String, Long> facet = getOrCreateFacet(aggregation.getName());
     for (DateHistogram.Bucket value : aggregation.getBuckets()) {
-      facet.put(value.getKeyAsText().toString(), value.getDocCount());
+      if (value.getAggregations().getAsMap().containsKey("debt")) {
+        facet.put(value.getKey(), Math.round(((Sum) value.getAggregations().get("debt")).getValue()));
+      } else {
+        facet.put(value.getKey(), value.getDocCount());
+      }
     }
+  }
+
+  private void processSum(Sum aggregation) {
+    getOrCreateFacet(aggregation.getName()).put(TOTAL, Math.round(aggregation.getValue()));
   }
 
   public boolean contains(String facetName) {

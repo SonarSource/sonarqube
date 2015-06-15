@@ -95,7 +95,7 @@ public class SearchActionMediumTest {
     assertThat(show.isPost()).isFalse();
     assertThat(show.isInternal()).isFalse();
     assertThat(show.responseExampleAsString()).isNotEmpty();
-    assertThat(show.params()).hasSize(39);
+    assertThat(show.params()).hasSize(40);
   }
 
   @Test
@@ -369,6 +369,31 @@ public class SearchActionMediumTest {
       .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans")
       .execute();
     result.assertJson(this.getClass(), "display_facets.json");
+  }
+
+  @Test
+  public void display_facets_in_debt_mode() throws Exception {
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    IssueDto issue = IssueTesting.newDto(newRule(), file, project)
+      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
+      .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"))
+      .setDebt(10L)
+      .setStatus("OPEN")
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
+      .setSeverity("MAJOR");
+    db.issueDao().insert(session, issue);
+    session.commit();
+    tester.get(IssueIndexer.class).indexAll();
+
+    userSessionRule.login("john");
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam("resolved", "false")
+      .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans")
+      .setParam("facetMode", "debt")
+      .execute();
+    result.assertJson(this.getClass(), "display_facets_debt.json");
   }
 
   @Test

@@ -132,6 +132,12 @@ public class IssueQueryService {
         builder.sort(sort);
         builder.asc(RubyUtils.toBoolean(params.get(IssueFilterParameters.ASC)));
       }
+      String facetMode = (String) params.get(IssueFilterParameters.FACET_MODE);
+      if (!Strings.isNullOrEmpty(facetMode)) {
+        builder.facetMode(facetMode);
+      } else {
+        builder.facetMode(IssueFilterParameters.FACET_MODE_COUNT);
+      }
       return builder.build();
 
     } finally {
@@ -168,7 +174,8 @@ public class IssueQueryService {
         .planned(request.paramAsBoolean(IssueFilterParameters.PLANNED))
         .createdAt(request.paramAsDateTime(IssueFilterParameters.CREATED_AT))
         .createdAfter(buildCreatedAfter(request.paramAsDateTime(IssueFilterParameters.CREATED_AFTER), request.param(IssueFilterParameters.CREATED_IN_LAST)))
-        .createdBefore(request.paramAsDateTime(IssueFilterParameters.CREATED_BEFORE));
+        .createdBefore(request.paramAsDateTime(IssueFilterParameters.CREATED_BEFORE))
+        .facetMode(request.mandatoryParam(IssueFilterParameters.FACET_MODE));
 
       Set<String> allComponentUuids = Sets.newHashSet();
       boolean effectiveOnComponentOnly = mergeDeprecatedComponentParameters(session,

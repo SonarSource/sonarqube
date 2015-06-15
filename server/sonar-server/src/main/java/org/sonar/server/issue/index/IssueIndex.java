@@ -57,8 +57,10 @@ import org.elasticsearch.search.aggregations.bucket.global.Global;
 import org.elasticsearch.search.aggregations.bucket.global.GlobalBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms.Order;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.elasticsearch.search.aggregations.metrics.min.Min;
+import org.elasticsearch.search.aggregations.metrics.sum.SumBuilder;
 import org.joda.time.Duration;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Scopes;
@@ -90,6 +92,7 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class IssueIndex extends BaseIndex {
 
+
   private static final String SUBSTRING_MATCH_REGEXP = ".*%s.*";
 
   public static final List<String> SUPPORTED_FACETS = ImmutableList.of(
@@ -115,6 +118,10 @@ public class IssueIndex extends BaseIndex {
   private static final String FACET_SUFFIX_MISSING = "_missing";
 
   private static final String IS_ASSIGNED_FILTER = "__isAssigned";
+
+  public static final String DEBT_AGGREGATION_NAME = "debt";
+  private static final SumBuilder DEBT_AGGREGATION = AggregationBuilders.sum(DEBT_AGGREGATION_NAME).field(IssueIndexDefinition.FIELD_ISSUE_DEBT);
+  private static final Order DEBT_AGGREGATION_ORDER = Order.aggregation(DEBT_AGGREGATION_NAME, false);
 
   private static final int DEFAULT_FACET_SIZE = 15;
   private static final Duration TWENTY_DAYS = Duration.standardDays(20L);
@@ -373,7 +380,7 @@ public class IssueIndex extends BaseIndex {
 
   private void configureStickyFacets(IssueQuery query, SearchOptions options, Map<String, FilterBuilder> filters, QueryBuilder esQuery, SearchRequestBuilder esSearch) {
     if (!options.getFacets().isEmpty()) {
-      StickyFacetBuilder stickyFacetBuilder = new StickyFacetBuilder(esQuery, filters);
+      StickyFacetBuilder stickyFacetBuilder = newStickyFacetBuilder(query, filters, esQuery);
       // Execute Term aggregations
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         IssueFilterParameters.SEVERITIES, IssueIndexDefinition.FIELD_ISSUE_SEVERITY, Severity.ALL.toArray());
@@ -402,7 +409,7 @@ public class IssueIndex extends BaseIndex {
       }
 
       if (options.getFacets().contains(IssueFilterParameters.RESOLUTIONS)) {
-        esSearch.addAggregation(createResolutionFacet(filters, esQuery));
+        esSearch.addAggregation(createResolutionFacet(query, filters, esQuery));
       }
       if (options.getFacets().contains(IssueFilterParameters.ASSIGNEES)) {
         esSearch.addAggregation(createAssigneesFacet(query, filters, esQuery));
@@ -415,6 +422,20 @@ public class IssueIndex extends BaseIndex {
         esSearch.addAggregation(getCreatedAtFacet(query, filters, esQuery));
       }
     }
+
+    if (IssueFilterParameters.FACET_MODE_DEBT.equals(query.facetMode())) {
+      esSearch.addAggregation(DEBT_AGGREGATION);
+    }
+  }
+
+  private StickyFacetBuilder newStickyFacetBuilder(IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
+    StickyFacetBuilder stickyFacetBuilder;
+    if (IssueFilterParameters.FACET_MODE_DEBT.equals(query.facetMode())) {
+      stickyFacetBuilder = new StickyFacetBuilder(esQuery, filters, DEBT_AGGREGATION, DEBT_AGGREGATION_ORDER);
+    } else {
+      stickyFacetBuilder = new StickyFacetBuilder(esQuery, filters);
+    }
+    return stickyFacetBuilder;
   }
 
   private void addSimpleStickyFacetIfNeeded(SearchOptions options, StickyFacetBuilder stickyFacetBuilder, SearchRequestBuilder esSearch,
@@ -422,6 +443,13 @@ public class IssueIndex extends BaseIndex {
     if (options.getFacets().contains(facetName)) {
       esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(fieldName, facetName, DEFAULT_FACET_SIZE, selectedValues));
     }
+  }
+
+  private AggregationBuilder addDebtAggregationIfNeeded(IssueQuery query, AggregationBuilder aggregation) {
+    if (IssueFilterParameters.FACET_MODE_DEBT.equals(query.facetMode())) {
+      aggregation.subAggregation(DEBT_AGGREGATION);
+    }
+    return aggregation;
   }
 
   private AggregationBuilder getCreatedAtFacet(IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
@@ -445,7 +473,7 @@ public class IssueIndex extends BaseIndex {
       bucketSize = DateHistogram.Interval.MONTH;
     }
 
-    return AggregationBuilders.dateHistogram(IssueFilterParameters.CREATED_AT)
+    AggregationBuilder dateHistogram = AggregationBuilders.dateHistogram(IssueFilterParameters.CREATED_AT)
       .field(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
       .interval(bucketSize)
       .minDocCount(0L)
@@ -453,6 +481,8 @@ public class IssueIndex extends BaseIndex {
       .preZone(timeZoneString)
       .postZone(timeZoneString)
       .extendedBounds(startTime, endTime);
+    dateHistogram = addDebtAggregationIfNeeded(query, dateHistogram);
+    return dateHistogram;
   }
 
   private long getMinCreatedAt(Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
@@ -490,7 +520,7 @@ public class IssueIndex extends BaseIndex {
     Map<String, FilterBuilder> assigneeFilters = Maps.newHashMap(filters);
     assigneeFilters.remove(IS_ASSIGNED_FILTER);
     assigneeFilters.remove(fieldName);
-    StickyFacetBuilder assigneeFacetBuilder = new StickyFacetBuilder(queryBuilder, assigneeFilters);
+    StickyFacetBuilder assigneeFacetBuilder = newStickyFacetBuilder(query, assigneeFilters, queryBuilder);
     BoolFilterBuilder facetFilter = assigneeFacetBuilder.getStickyFacetFilter(fieldName);
     FilterAggregationBuilder facetTopAggregation = assigneeFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, DEFAULT_FACET_SIZE);
 
@@ -501,9 +531,9 @@ public class IssueIndex extends BaseIndex {
 
     // Add missing facet for unassigned issues
     facetTopAggregation.subAggregation(
-      AggregationBuilders
+      addDebtAggregationIfNeeded(query, AggregationBuilders
         .missing(facetName + FACET_SUFFIX_MISSING)
-        .field(fieldName)
+        .field(fieldName))
       );
 
     return AggregationBuilders
@@ -531,20 +561,20 @@ public class IssueIndex extends BaseIndex {
     String facetName = IssueFilterParameters.FACET_ASSIGNED_TO_ME;
 
     // Same as in super.stickyFacetBuilder
-    StickyFacetBuilder assignedToMeFacetBuilder = new StickyFacetBuilder(queryBuilder, filters);
+    StickyFacetBuilder assignedToMeFacetBuilder = newStickyFacetBuilder(query, filters, queryBuilder);
     BoolFilterBuilder facetFilter = assignedToMeFacetBuilder.getStickyFacetFilter(IS_ASSIGNED_FILTER, fieldName);
 
     FilterAggregationBuilder facetTopAggregation = AggregationBuilders
       .filter(facetName + "__filter")
       .filter(facetFilter)
-      .subAggregation(AggregationBuilders.terms(facetName + "__terms").field(fieldName).include(login));
+      .subAggregation(addDebtAggregationIfNeeded(query, AggregationBuilders.terms(facetName + "__terms").field(fieldName).include(login)));
 
     builder.addAggregation(
       AggregationBuilders.global(facetName)
         .subAggregation(facetTopAggregation));
   }
 
-  private AggregationBuilder createResolutionFacet(Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
+  private AggregationBuilder createResolutionFacet(IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
     String fieldName = IssueIndexDefinition.FIELD_ISSUE_RESOLUTION;
     String facetName = IssueFilterParameters.RESOLUTIONS;
 
@@ -552,16 +582,16 @@ public class IssueIndex extends BaseIndex {
     Map<String, FilterBuilder> resolutionFilters = Maps.newHashMap(filters);
     resolutionFilters.remove("__isResolved");
     resolutionFilters.remove(fieldName);
-    StickyFacetBuilder assigneeFacetBuilder = new StickyFacetBuilder(esQuery, resolutionFilters);
+    StickyFacetBuilder assigneeFacetBuilder = newStickyFacetBuilder(query, resolutionFilters, esQuery);
     BoolFilterBuilder facetFilter = assigneeFacetBuilder.getStickyFacetFilter(fieldName);
     FilterAggregationBuilder facetTopAggregation = assigneeFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, DEFAULT_FACET_SIZE);
     facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, Issue.RESOLUTIONS.toArray());
 
     // Add missing facet for unresolved issues
     facetTopAggregation.subAggregation(
-      AggregationBuilders
+      addDebtAggregationIfNeeded(query, AggregationBuilders
         .missing(facetName + FACET_SUFFIX_MISSING)
-        .field(fieldName)
+        .field(fieldName))
       );
 
     return AggregationBuilders
@@ -577,16 +607,16 @@ public class IssueIndex extends BaseIndex {
     Map<String, FilterBuilder> actionPlanFilters = Maps.newHashMap(filters);
     actionPlanFilters.remove("__isPlanned");
     actionPlanFilters.remove(fieldName);
-    StickyFacetBuilder actionPlanFacetBuilder = new StickyFacetBuilder(esQuery, actionPlanFilters);
+    StickyFacetBuilder actionPlanFacetBuilder = newStickyFacetBuilder(query, actionPlanFilters, esQuery);
     BoolFilterBuilder facetFilter = actionPlanFacetBuilder.getStickyFacetFilter(fieldName);
     FilterAggregationBuilder facetTopAggregation = actionPlanFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, DEFAULT_FACET_SIZE);
     facetTopAggregation = actionPlanFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, query.actionPlans().toArray());
 
     // Add missing facet for unresolved issues
     facetTopAggregation.subAggregation(
-      AggregationBuilders
+      addDebtAggregationIfNeeded(query, AggregationBuilders
         .missing(facetName + FACET_SUFFIX_MISSING)
-        .field(fieldName)
+        .field(fieldName))
       );
 
     return AggregationBuilders
