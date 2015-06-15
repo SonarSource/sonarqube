@@ -76,13 +76,13 @@ public final class Measure {
   @CheckForNull
   private final String description;
   @CheckForNull
-  private QualityGateStatus qualityGateStatus;
+  private final QualityGateStatus qualityGateStatus;
   @CheckForNull
-  private MeasureVariations variations;
+  private final MeasureVariations variations;
 
   private Measure(ValueType valueType, @Nullable Integer ruleId, @Nullable Integer characteristicId,
     @Nullable Double value, @Nullable String data, @Nullable Level dataLevel,
-    @Nullable String description) {
+    @Nullable String description, @Nullable QualityGateStatus qualityGateStatus, @Nullable MeasureVariations variations) {
     this.valueType = valueType;
     this.ruleId = ruleId;
     this.characteristicId = characteristicId;
@@ -90,17 +90,26 @@ public final class Measure {
     this.data = data;
     this.dataLevel = dataLevel;
     this.description = description;
+    this.qualityGateStatus = qualityGateStatus;
+    this.variations = variations;
   }
 
-  public static Builder builder() {
-    return new Builder();
+  public static NewMeasureBuilder newMeasure() {
+    return new NewMeasureBuilder();
   }
 
-  public static final class Builder {
-    public static final String RULE_AND_CHARACTERISTIC_ERROR_MSG = "A measure can not be associated to both a Characteristic and a Rule";
+  public static UpdateMeasureBuilder updateMeasure(Measure measure) {
+    return new UpdateMeasureBuilder(measure);
+  }
+
+  public static final class NewMeasureBuilder {
+    private static final String RULE_AND_CHARACTERISTIC_ERROR_MSG = "A measure can not be associated to both a Characteristic and a Rule";
+
     private Integer ruleId;
     private Integer characteristicId;
     private String description;
+    private QualityGateStatus qualityGateStatus;
+    private MeasureVariations variations;
 
     /**
      * Sets the rule this measure is associated to.
@@ -109,7 +118,7 @@ public final class Measure {
      *
      * @see #forCharacteristic(int)
      */
-    public Builder forRule(int ruleId) {
+    public NewMeasureBuilder forRule(int ruleId) {
       if (characteristicId != null) {
         throw new UnsupportedOperationException(RULE_AND_CHARACTERISTIC_ERROR_MSG);
       }
@@ -124,7 +133,7 @@ public final class Measure {
      *
      * @see #forCharacteristic(int)
      */
-    public Builder forCharacteristic(int characteristicId) {
+    public NewMeasureBuilder forCharacteristic(int characteristicId) {
       if (ruleId != null) {
         throw new UnsupportedOperationException(RULE_AND_CHARACTERISTIC_ERROR_MSG);
       }
@@ -137,37 +146,93 @@ public final class Measure {
      *
      * @throws NullPointerException if the specified argument is {@code null}
      */
-    public Builder withDescription(String description) {
+    public NewMeasureBuilder setDescription(String description) {
       this.description = requireNonNull(description, "description can not be set to null");
       return this;
     }
 
+    public NewMeasureBuilder setQualityGateStatus(QualityGateStatus qualityGateStatus) {
+      this.qualityGateStatus = requireNonNull(qualityGateStatus, "QualityGateStatus can not be set to null");
+      return this;
+    }
+
+    public NewMeasureBuilder setVariations(MeasureVariations variations) {
+      this.variations = requireNonNull(variations, "Variations can not be set to null");
+      return this;
+    }
+
     public Measure create(boolean value, @Nullable String data) {
-      return new Measure(ValueType.BOOLEAN, ruleId, characteristicId, value ? 1.0d : 0.0d, data, null, description);
+      return new Measure(ValueType.BOOLEAN, ruleId, characteristicId, value ? 1.0d : 0.0d, data, null, description, qualityGateStatus, variations);
     }
 
     public Measure create(int value, @Nullable String data) {
-      return new Measure(ValueType.INT, ruleId, characteristicId, (double) value, data, null, description);
+      return new Measure(ValueType.INT, ruleId, characteristicId, (double) value, data, null, description, qualityGateStatus, variations);
     }
 
     public Measure create(long value, @Nullable String data) {
-      return new Measure(ValueType.LONG, ruleId, characteristicId, (double) value, data, null, description);
+      return new Measure(ValueType.LONG, ruleId, characteristicId, (double) value, data, null, description, qualityGateStatus, variations);
     }
 
     public Measure create(double value, @Nullable String data) {
-      return new Measure(ValueType.DOUBLE, ruleId, characteristicId, value, data, null, description);
+      return new Measure(ValueType.DOUBLE, ruleId, characteristicId, value, data, null, description, qualityGateStatus, variations);
     }
 
     public Measure create(String value) {
-      return new Measure(ValueType.STRING, ruleId, characteristicId, null, requireNonNull(value), null, description);
+      return new Measure(ValueType.STRING, ruleId, characteristicId, null, requireNonNull(value), null, description, qualityGateStatus, variations);
     }
 
     public Measure create(Level level) {
-      return new Measure(ValueType.LEVEL, ruleId, characteristicId, null, null, requireNonNull(level), description);
+      return new Measure(ValueType.LEVEL, ruleId, characteristicId, null, null, requireNonNull(level), description, qualityGateStatus, variations);
     }
 
     public Measure createNoValue() {
-      return new Measure(ValueType.NO_VALUE, ruleId, characteristicId, null, null, null, description);
+      return new Measure(ValueType.NO_VALUE, ruleId, characteristicId, null, null, null, description, qualityGateStatus, variations);
+    }
+  }
+
+  public static final class UpdateMeasureBuilder {
+    private final Measure source;
+    private QualityGateStatus qualityGateStatus;
+    private MeasureVariations variations;
+
+    public UpdateMeasureBuilder(Measure source) {
+      this.source = requireNonNull(source, "Can not create a measure from null");
+    }
+
+    /**
+     * Sets the QualityGateStatus of the updated Measure to create.
+     *
+     * @throws NullPointerException if the specified {@link QualityGateStatus} is {@code null}
+     * @throws UnsupportedOperationException if the source measure already has a {@link QualityGateStatus}
+     */
+    public UpdateMeasureBuilder setQualityGateStatus(QualityGateStatus qualityGateStatus) {
+      if (source.qualityGateStatus != null) {
+        throw new UnsupportedOperationException("QualityGate status can not be changed if already set on source Measure");
+      }
+      this.qualityGateStatus = requireNonNull(qualityGateStatus, "QualityGateStatus can not be set to null");
+      return this;
+    }
+
+    /**
+     * Sets the MeasureVariations of the updated Measure to create.
+     *
+     * @throws NullPointerException if the specified {@link MeasureVariations} is {@code null}
+     * @throws UnsupportedOperationException if the source measure already has a {@link MeasureVariations}
+     */
+    public UpdateMeasureBuilder setVariations(MeasureVariations variations) {
+      if (source.variations != null) {
+        throw new UnsupportedOperationException("Variations can not be changed if already set on source Measure");
+      }
+      this.variations = requireNonNull(variations, "Variations can not be set to null");
+      return this;
+    }
+
+    public Measure create() {
+      return new Measure(source.valueType, source.ruleId, source.characteristicId,
+          source.value, source.data, source.dataLevel,
+          source.description,
+          source.qualityGateStatus == null ? qualityGateStatus : source.qualityGateStatus,
+          source.variations == null ? variations : source.variations);
     }
   }
 
@@ -269,11 +334,6 @@ public final class Measure {
     }
   }
 
-  public Measure setQualityGateStatus(QualityGateStatus qualityGateStatus) {
-    this.qualityGateStatus = requireNonNull(qualityGateStatus, "Can not set a null QualityGate status");
-    return this;
-  }
-
   /**
    * Any Measure, which ever is its value type, can have a QualityGate status.
    */
@@ -290,17 +350,6 @@ public final class Measure {
   public QualityGateStatus getQualityGateStatus() {
     checkState(qualityGateStatus != null, "Measure does not have an QualityGate status");
     return this.qualityGateStatus;
-  }
-
-  /**
-   * Sets the variations of this Measure.
-   *
-   * @throws NullPointerException if the specified argument is {@code null}
-   * @throws IllegalStateException if the variations have already been set
-   */
-  public Measure setVariations(MeasureVariations variations) {
-    this.variations = requireNonNull(variations, "Can not set null MeasureVariations");
-    return this;
   }
 
   /**
@@ -330,7 +379,7 @@ public final class Measure {
 
   /**
    * a Metric is equal to another Metric if it has the same ruleId/characteristicId paar (both being potentially
-   * {@code null} but only one of them can be non {@code null}.
+   * {@code null} but only one of them can be non {@code null}).
    */
   @Override
   public boolean equals(@Nullable Object o) {

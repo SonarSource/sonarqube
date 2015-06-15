@@ -74,7 +74,7 @@ public class MeasureRepositoryImplTest {
   private static final long LAST_SNAPSHOT_ID = 123;
   private static final long OTHER_SNAPSHOT_ID = 369;
   private static final long COMPONENT_ID = 567;
-  private static final Measure SOME_MEASURE = Measure.builder().create(Measure.Level.OK);
+  private static final Measure SOME_MEASURE = Measure.newMeasure().create(Measure.Level.OK);
   private static final String SOME_DATA = "some data";
   private static final RuleDto SOME_RULE = RuleDto.createFor(RuleKey.of("A", "1")).setId(963);
   private static final Characteristic SOME_CHARACTERISTIC = new Characteristic(741, "key");
@@ -267,10 +267,10 @@ public class MeasureRepositoryImplTest {
 
   @Test
   public void getRawMeasure_for_rule_returns_measure_for_specified_rule() {
-    Measure measure = Measure.builder().forRule(SOME_RULE.getId()).createNoValue();
+    Measure measure = Measure.newMeasure().forRule(SOME_RULE.getId()).createNoValue();
 
     underTest.add(FILE_COMPONENT, metric1, measure);
-    underTest.add(FILE_COMPONENT, metric1, Measure.builder().forRule(222).createNoValue());
+    underTest.add(FILE_COMPONENT, metric1, Measure.newMeasure().forRule(222).createNoValue());
 
     assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric1, SOME_RULE).get()).isSameAs(measure);
   }
@@ -297,10 +297,10 @@ public class MeasureRepositoryImplTest {
 
   @Test
   public void getRawMeasure_for_characteristic_returns_measure_for_specified_rule() {
-    Measure measure = Measure.builder().forCharacteristic(SOME_CHARACTERISTIC.getId()).createNoValue();
+    Measure measure = Measure.newMeasure().forCharacteristic(SOME_CHARACTERISTIC.getId()).createNoValue();
 
     underTest.add(FILE_COMPONENT, metric1, measure);
-    underTest.add(FILE_COMPONENT, metric1, Measure.builder().forCharacteristic(333).createNoValue());
+    underTest.add(FILE_COMPONENT, metric1, Measure.newMeasure().forCharacteristic(333).createNoValue());
 
     assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric1, SOME_CHARACTERISTIC).get()).isSameAs(measure);
   }
@@ -313,14 +313,14 @@ public class MeasureRepositoryImplTest {
 
     Measure addedMeasure = SOME_MEASURE;
     underTest.add(FILE_COMPONENT, metric1, addedMeasure);
-    Measure addedMeasure2 = Measure.builder().forCharacteristic(SOME_CHARACTERISTIC.getId()).createNoValue();
+    Measure addedMeasure2 = Measure.newMeasure().forCharacteristic(SOME_CHARACTERISTIC.getId()).createNoValue();
     underTest.add(FILE_COMPONENT, metric1, addedMeasure2);
 
     SetMultimap<String, Measure> rawMeasures = underTest.getRawMeasures(FILE_COMPONENT);
 
     assertThat(rawMeasures.keySet()).hasSize(2);
     assertThat(rawMeasures.get(METRIC_KEY_1)).containsOnly(addedMeasure, addedMeasure2);
-    assertThat(rawMeasures.get(METRIC_KEY_2)).containsOnly(Measure.builder().create("some value"));
+    assertThat(rawMeasures.get(METRIC_KEY_2)).containsOnly(Measure.newMeasure().create("some value"));
   }
 
   private static MeasureDto createMeasureDto(int metricId, long snapshotId) {

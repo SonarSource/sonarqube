@@ -36,19 +36,18 @@ import org.sonar.server.computation.measure.Measure.ValueType;
 
 import static com.google.common.collect.FluentIterable.from;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.computation.measure.Measure.builder;
 
 @RunWith(DataProviderRunner.class)
 public class MeasureTest {
 
-  private static final Measure INT_MEASURE = builder().create((int) 1, null);
-  private static final Measure LONG_MEASURE = builder().create(1l, null);
-  private static final Measure DOUBLE_MEASURE = builder().create(1d, null);
-  private static final Measure STRING_MEASURE = builder().create("some_sT ring");
-  private static final Measure TRUE_MEASURE = builder().create(true, null);
-  private static final Measure FALSE_MEASURE = builder().create(false, null);
-  private static final Measure LEVEL_MEASURE = builder().create(Measure.Level.OK);
-  private static final Measure NO_VALUE_MEASURE = builder().createNoValue();
+  private static final Measure INT_MEASURE = Measure.newMeasure().create((int) 1, null);
+  private static final Measure LONG_MEASURE = Measure.newMeasure().create(1l, null);
+  private static final Measure DOUBLE_MEASURE = Measure.newMeasure().create(1d, null);
+  private static final Measure STRING_MEASURE = Measure.newMeasure().create("some_sT ring");
+  private static final Measure TRUE_MEASURE = Measure.newMeasure().create(true, null);
+  private static final Measure FALSE_MEASURE = Measure.newMeasure().create(false, null);
+  private static final Measure LEVEL_MEASURE = Measure.newMeasure().create(Measure.Level.OK);
+  private static final Measure NO_VALUE_MEASURE = Measure.newMeasure().createNoValue();
 
   private static final List<Measure> MEASURES = ImmutableList.of(
     INT_MEASURE, LONG_MEASURE, DOUBLE_MEASURE, STRING_MEASURE, TRUE_MEASURE, FALSE_MEASURE, NO_VALUE_MEASURE, LEVEL_MEASURE
@@ -110,7 +109,7 @@ public class MeasureTest {
     executionException.expect(UnsupportedOperationException.class);
     executionException.expectMessage("A measure can not be associated to both a Characteristic and a Rule");
 
-    builder().forCharacteristic(SOME_CHARACTERISTIC_ID).forRule(SOME_RULE_ID);
+    Measure.newMeasure().forCharacteristic(SOME_CHARACTERISTIC_ID).forRule(SOME_RULE_ID);
   }
 
   @Test
@@ -118,34 +117,34 @@ public class MeasureTest {
     executionException.expect(UnsupportedOperationException.class);
     executionException.expectMessage("A measure can not be associated to both a Characteristic and a Rule");
 
-    builder().forRule(SOME_RULE_ID).forCharacteristic(SOME_CHARACTERISTIC_ID);
+    Measure.newMeasure().forRule(SOME_RULE_ID).forCharacteristic(SOME_CHARACTERISTIC_ID);
   }
 
   @Test
   public void getRuleId_returns_null_when_ruleKey_has_not_been_set() {
-    assertThat(builder().createNoValue().getRuleId()).isNull();
-    assertThat(builder().forCharacteristic(SOME_CHARACTERISTIC_ID).createNoValue().getRuleId()).isNull();
+    assertThat(Measure.newMeasure().createNoValue().getRuleId()).isNull();
+    assertThat(Measure.newMeasure().forCharacteristic(SOME_CHARACTERISTIC_ID).createNoValue().getRuleId()).isNull();
   }
 
   @Test
   public void getRuleId_returns_key_set_in_builder() {
-    assertThat(builder().forRule(SOME_RULE_ID).createNoValue().getRuleId()).isEqualTo(SOME_RULE_ID);
+    assertThat(Measure.newMeasure().forRule(SOME_RULE_ID).createNoValue().getRuleId()).isEqualTo(SOME_RULE_ID);
   }
 
   @Test
   public void getCharacteristicId_returns_null_when_ruleKey_has_not_been_set() {
-    assertThat(builder().createNoValue().getCharacteristicId()).isNull();
-    assertThat(builder().forRule(SOME_RULE_ID).createNoValue().getCharacteristicId()).isNull();
+    assertThat(Measure.newMeasure().createNoValue().getCharacteristicId()).isNull();
+    assertThat(Measure.newMeasure().forRule(SOME_RULE_ID).createNoValue().getCharacteristicId()).isNull();
   }
 
   @Test
   public void getCharacteristicId_returns_id_set_in_builder() {
-    assertThat(builder().forCharacteristic(SOME_CHARACTERISTIC_ID).createNoValue().getCharacteristicId()).isEqualTo(SOME_CHARACTERISTIC_ID);
+    assertThat(Measure.newMeasure().forCharacteristic(SOME_CHARACTERISTIC_ID).createNoValue().getCharacteristicId()).isEqualTo(SOME_CHARACTERISTIC_ID);
   }
 
   @Test(expected = NullPointerException.class)
   public void create_from_String_throws_NPE_if_arg_is_null() {
-    builder().create((String) null);
+    Measure.newMeasure().create((String) null);
   }
 
   @Test
@@ -260,33 +259,79 @@ public class MeasureTest {
   }
 
   @Test
-  public void getAlertStatus_returns_argument_from_setAlertStatus() {
+  public void getAlertStatus_returns_argument_from_setQualityGateStatus() {
     QualityGateStatus someStatus = new QualityGateStatus(Measure.Level.OK);
 
-    assertThat(builder().create(true, null).setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);
-    assertThat(builder().create(false, null).setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);
-    assertThat(builder().create((int) 1, null).setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);
-    assertThat(builder().create((long) 1, null).setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);
-    assertThat(builder().create((double) 1, null).setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);
-    assertThat(builder().create("str").setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);
-    assertThat(builder().create(Measure.Level.OK).setQualityGateStatus(someStatus).getQualityGateStatus()).isEqualTo(someStatus);
+    assertThat(Measure.newMeasure().setQualityGateStatus(someStatus).create(true, null).getQualityGateStatus()).isEqualTo(someStatus);
+    assertThat(Measure.newMeasure().setQualityGateStatus(someStatus).create(false, null).getQualityGateStatus()).isEqualTo(someStatus);
+    assertThat(Measure.newMeasure().setQualityGateStatus(someStatus).create((int) 1, null).getQualityGateStatus()).isEqualTo(someStatus);
+    assertThat(Measure.newMeasure().setQualityGateStatus(someStatus).create((long) 1, null).getQualityGateStatus()).isEqualTo(someStatus);
+    assertThat(Measure.newMeasure().setQualityGateStatus(someStatus).create((double) 1, null).getQualityGateStatus()).isEqualTo(someStatus);
+    assertThat(Measure.newMeasure().setQualityGateStatus(someStatus).create("str").getQualityGateStatus()).isEqualTo(someStatus);
+    assertThat(Measure.newMeasure().setQualityGateStatus(someStatus).create(Measure.Level.OK).getQualityGateStatus()).isEqualTo(someStatus);
   }
 
   @Test(expected = NullPointerException.class)
+  public void newMeasureBuilder_setQualityGateStatus_throws_NPE_if_arg_is_null() {
+    Measure.newMeasure().setQualityGateStatus(null);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void newMeasureBuilder_setVariations_throws_NPE_if_arg_is_null() {
+    Measure.newMeasure().setVariations(null);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void newMeasureBuilder_setDescription_throws_NPE_if_arg_is_null() {
+    Measure.newMeasure().setDescription(null);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void updateMeasureBuilder_setQualityGateStatus_throws_NPE_if_arg_is_null() {
+    Measure.updateMeasure(Measure.newMeasure().createNoValue()).setQualityGateStatus(null);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void updateMeasureBuilder_setVariations_throws_NPE_if_arg_is_null() {
+    Measure.updateMeasure(Measure.newMeasure().createNoValue()).setVariations(null);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void updateMeasureBuilder_setQualityGateStatus_throws_USO_if_measure_already_has_a_QualityGateStatus() {
+    QualityGateStatus qualityGateStatus = new QualityGateStatus(Measure.Level.ERROR);
+
+    Measure.updateMeasure(Measure.newMeasure().setQualityGateStatus(qualityGateStatus).createNoValue()).setQualityGateStatus(qualityGateStatus);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void updateMeasureBuilder_setVariations_throws_USO_if_measure_already_has_Variations() {
+    MeasureVariations variations = new MeasureVariations(1d);
+
+    Measure.updateMeasure(Measure.newMeasure().setVariations(variations).createNoValue()).setVariations(variations);
+  }
+
+  @Test
   @UseDataProvider("all")
-  public void setAlertStatus_throws_NPE_if_arg_is_null(Measure measure) {
-    measure.setQualityGateStatus(null);
+  public void updateMeasureBuilder_creates_Measure_with_same_immutable_properties(Measure measure) {
+    Measure newMeasure = Measure.updateMeasure(measure).create();
+
+    assertThat(newMeasure.getValueType()).isEqualTo(measure.getValueType());
+    assertThat(newMeasure.getRuleId()).isEqualTo(measure.getRuleId());
+    assertThat(newMeasure.getCharacteristicId()).isEqualTo(measure.getCharacteristicId());
+    assertThat(newMeasure.getDescription()).isEqualTo(measure.getDescription());
+    assertThat(newMeasure.hasQualityGateStatus()).isEqualTo(measure.hasQualityGateStatus());
+    assertThat(newMeasure.hasVariations()).isEqualTo(measure.hasVariations());
   }
 
   @Test
   public void getData_returns_argument_from_factory_method() {
     String someData = "lololool";
 
-    assertThat(builder().create(true, someData).getData()).isEqualTo(someData);
-    assertThat(builder().create(false, someData).getData()).isEqualTo(someData);
-    assertThat(builder().create((int) 1, someData).getData()).isEqualTo(someData);
-    assertThat(builder().create((long) 1, someData).getData()).isEqualTo(someData);
-    assertThat(builder().create((double) 1, someData).getData()).isEqualTo(someData);
+    assertThat(Measure.newMeasure().create(true, someData).getData()).isEqualTo(someData);
+    assertThat(Measure.newMeasure().create(false, someData).getData()).isEqualTo(someData);
+    assertThat(Measure.newMeasure().create((int) 1, someData).getData()).isEqualTo(someData);
+    assertThat(Measure.newMeasure().create((long) 1, someData).getData()).isEqualTo(someData);
+    assertThat(Measure.newMeasure().create((double) 1, someData).getData()).isEqualTo(someData);
   }
 
   @Test

@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.server.computation.metric.Metric;
 
+import static com.google.common.base.Optional.of;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.computation.measure.Measure.Level.toLevel;
@@ -62,66 +63,66 @@ public class MeasureDtoToMeasure {
 
   private static Optional<Measure> toIntegerMeasure(MeasureDto measureDto, @Nullable Double value, String data) {
     if (value == null) {
-      return toMeasure(Measure.builder().createNoValue(), measureDto);
+      return toNoValueMeasure(measureDto);
     }
-    return toMeasure(Measure.builder().create(value.intValue(), data), measureDto);
+    return of(setCommonProperties(Measure.newMeasure(), measureDto).create(value.intValue(), data));
   }
 
   private static Optional<Measure> toLongMeasure(MeasureDto measureDto, @Nullable Double value, String data) {
     if (value == null) {
-      return toMeasure(Measure.builder().createNoValue(), measureDto);
+      return toNoValueMeasure(measureDto);
     }
-    return toMeasure(Measure.builder().create(value.longValue(), data), measureDto);
+    return of(setCommonProperties(Measure.newMeasure(), measureDto).create(value.longValue(), data));
   }
 
   private static Optional<Measure> toDoubleMeasure(MeasureDto measureDto, @Nullable Double value, String data) {
     if (value == null) {
-      return toMeasure(Measure.builder().createNoValue(), measureDto);
+      return toNoValueMeasure(measureDto);
     }
-    return toMeasure(Measure.builder().create(value.doubleValue(), data), measureDto);
+    return of(setCommonProperties(Measure.newMeasure(), measureDto).create(value.doubleValue(), data));
   }
 
   private static Optional<Measure> toBooleanMeasure(MeasureDto measureDto, @Nullable Double value, String data) {
     if (value == null) {
-      return toMeasure(Measure.builder().createNoValue(), measureDto);
+      return toNoValueMeasure(measureDto);
     }
-    return toMeasure(Measure.builder().create(value == 1.0d, data), measureDto);
+    return of(setCommonProperties(Measure.newMeasure(), measureDto).create(value == 1.0d, data));
   }
 
   private static Optional<Measure> toStringMeasure(MeasureDto measureDto, @Nullable String data) {
     if (data == null) {
-      return toMeasure(Measure.builder().createNoValue(), measureDto);
+      return toNoValueMeasure(measureDto);
     }
-    return toMeasure(Measure.builder().create(data), measureDto);
+    return of(setCommonProperties(Measure.newMeasure(), measureDto).create(data));
   }
 
   private static Optional<Measure> toLevelMeasure(MeasureDto measureDto, @Nullable String data) {
     if (data == null) {
-      return toMeasure(Measure.builder().createNoValue(), measureDto);
+      return toNoValueMeasure(measureDto);
     }
     Optional<Measure.Level> level = toLevel(data);
     if (!level.isPresent()) {
-      return toMeasure(Measure.builder().createNoValue(), measureDto);
+      return toNoValueMeasure(measureDto);
     }
-    return toMeasure(Measure.builder().create(level.get()), measureDto);
+    return of(setCommonProperties(Measure.newMeasure(), measureDto).create(level.get()));
   }
 
   private static Optional<Measure> toNoValueMeasure(MeasureDto measureDto) {
-    return toMeasure(Measure.builder().createNoValue(), measureDto);
+    return of(setCommonProperties(Measure.newMeasure(), measureDto).createNoValue());
   }
 
-  private static Optional<Measure> toMeasure(Measure measure, MeasureDto measureDto) {
-    if (measureDto.getAlertStatus() != null && !measure.hasQualityGateStatus()) {
+  private static Measure.NewMeasureBuilder setCommonProperties(Measure.NewMeasureBuilder builder, MeasureDto measureDto) {
+    if (measureDto.getAlertStatus() != null) {
       Optional<Measure.Level> qualityGateStatus = toLevel(measureDto.getAlertStatus());
       if (qualityGateStatus.isPresent()) {
-        measure.setQualityGateStatus(new QualityGateStatus(qualityGateStatus.get(), measureDto.getAlertText()));
+        builder.setQualityGateStatus(new QualityGateStatus(qualityGateStatus.get(), measureDto.getAlertText()));
       }
     }
     if (hasAnyVariation(measureDto)) {
-      measure.setVariations(createVariations(measureDto));
+      builder.setVariations(createVariations(measureDto));
     }
 
-    return Optional.of((Measure) measure);
+    return builder;
   }
 
   private static boolean hasAnyVariation(MeasureDto measureDto) {
