@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
@@ -34,17 +35,19 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.measure.custom.persistence.CustomMeasureDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.measure.custom.persistence.CustomMeasureDao;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.measure.custom.persistence.CustomMeasureTesting.newCustomMeasureDto;
 import static org.sonar.server.measure.custom.ws.DeleteAction.PARAM_ID;
 
+@Category(DbTests.class)
 public class DeleteActionTest {
 
   public static final String ACTION = "delete";
