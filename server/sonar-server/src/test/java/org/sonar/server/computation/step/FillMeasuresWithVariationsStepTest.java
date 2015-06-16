@@ -342,7 +342,7 @@ public class FillMeasuresWithVariationsStepTest {
   }
 
   private static Period newPeriod(int index, SnapshotDto snapshotDto) {
-    return new Period(index, null, null, snapshotDto.getCreatedAt(), snapshotDto.getId());
+    return new Period(index, "mode", null, snapshotDto.getCreatedAt(), snapshotDto.getId());
   }
 
   private void addRawMeasure(Component component, MetricDto metric, Measure measure) {
