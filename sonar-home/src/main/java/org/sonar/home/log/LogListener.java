@@ -17,38 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.utils;
+package org.sonar.home.log;
 
-import javax.annotation.Nullable;
-
-import java.io.File;
-
-import org.sonar.api.batch.BatchSide;
-
-
-/**
- * Use this component to deal with temp files/folders that have a scope linked to each
- * project analysis.
- * Root location will typically be the working directory (see sonar.working.directory)
-
- * @since 5.2
- *
- */
-@BatchSide
-public interface ProjectTempFolder {
-
-  /**
-   * Create a directory in temp folder with a random unique name.
-   */
-  File newDir();
-
-  /**
-   * Create a directory in temp folder using provided name.
-   */
-  File newDir(String name);
-
-  File newFile();
-
-  File newFile(@Nullable String prefix, @Nullable String suffix);
-
+public interface LogListener {
+  public void log(String msg, Level level);
+  
+  public static enum Level {
+    ERROR, WARN, INFO, DEBUG, TRACE;
+  }
 }

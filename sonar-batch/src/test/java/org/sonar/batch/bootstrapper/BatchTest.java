@@ -19,8 +19,12 @@
  */
 package org.sonar.batch.bootstrapper;
 
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
+import org.sonar.home.log.LogListener;
+
+import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -60,5 +64,12 @@ public class BatchTest {
   @Test
   public void loggingConfigurationShouldBeEnabledByDefault() {
     assertNotNull(newBatch().getLoggingConfiguration());
+  }
+
+  @Test
+  public void shoudSetLogListener() {
+    LogListener listener = mock(LogListener.class);
+    Batch batch = Batch.builder().setLogListener(listener).build();
+    assertThat(batch.getLoggingConfiguration().listener).isEqualTo(listener);
   }
 }
