@@ -82,7 +82,7 @@ public class QualityGateLoadingStep implements ComputationStep {
     }
 
     try {
-      long qualityGateId = Long.valueOf(qualityGateSetting.trim());
+      long qualityGateId = Long.parseLong(qualityGateSetting.trim());
       qualityGateHolder.setQualityGate(qualityGateService.findById(qualityGateId).or(DEFAULT_QUALITY_GATE));
     } catch (NumberFormatException e) {
       LOGGER.error(String.format("Unsupported value in property %s, using empty Quality Gate", PROPERTY_QUALITY_GATE));
