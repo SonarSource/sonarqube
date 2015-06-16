@@ -1,5 +1,4 @@
 language: java
-sudo: false
 install: true
 
 jdk:
@@ -16,6 +15,7 @@ script:
 cache:
   directories:
     - '$HOME/.m2/repository'
+
 before_cache:
   - 'rm -rf $HOME/.m2/repository/org/codehaus/sonar'
 

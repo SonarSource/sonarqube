@@ -3,8 +3,7 @@
 set -euo pipefail
 
 function installTravisTools {
-  curl -sSL https://raw.githubusercontent.com/dgageot/travis-utils/v1/install.sh | sh
-  source /tmp/travis-utils/utils.sh
+  curl -sSL https://raw.githubusercontent.com/dgageot/travis-utils/v2/install.sh | bash
 }
 
 case "$DATABASE" in
@@ -18,7 +17,7 @@ POSTGRES)
 
   psql -c 'create database sonar;' -U postgres
 
-  runDatabaseCI "postgresql" "jdbc:postgresql://localhost/sonar" "postgres" ''
+  travis_runDatabaseCI "postgresql" "jdbc:postgresql://localhost/sonar" "postgres" ''
   ;;
 
 MYSQL)
@@ -29,7 +28,7 @@ MYSQL)
   mysql -e "GRANT ALL ON sonar.* TO 'sonar'@'localhost';" -uroot
   mysql -e "FLUSH PRIVILEGES;" -uroot
 
-  runDatabaseCI "mysql" "jdbc:mysql://localhost/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance" "sonar" 'sonar'
+  travis_runDatabaseCI "mysql" "jdbc:mysql://localhost/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance" "sonar" 'sonar'
   ;;
 
 *)
