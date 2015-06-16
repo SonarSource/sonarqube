@@ -13,11 +13,6 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'batch_bootstrap/index', :controller => 'api/java_ws', :action => 'index', :wspath => 'batch', :wsaction => 'index'
   map.connect 'batch/:name', :controller => 'api/java_ws', :action => 'index', :wspath => 'batch', :wsaction => 'file', :requirements => { :name => /.*/ }
 
-  map.connect 'api/metrics', :controller => 'api/metrics', :action => 'index', :conditions => { :method => :get }
-  map.connect 'api/metrics/:id', :controller => 'api/metrics', :action => 'show', :conditions => { :method => :get }
-  map.connect 'api/metrics/:id', :controller => 'api/metrics', :action => 'create', :conditions => { :method => :post }
-  map.connect 'api/metrics/:id', :controller => 'api/metrics', :action => 'update', :conditions => { :method => :put }
-  map.connect 'api/metrics/:id', :controller => 'api/metrics', :action => 'destroy', :conditions => { :method => :delete }
   map.connect 'api/server/:action', :controller => 'api/server'
   map.connect 'api/resoures', :controller => 'api/resources', :action => 'index'
   map.connect 'api/sources', :controller => 'api/sources', :action => 'index'
