@@ -199,7 +199,11 @@ public class MeasureRepositoryImpl implements MeasureRepository {
       }
       , null);
 
-    return batchMeasureToMeasure.toMeasure(batchMeasure, metric);
+    Optional<Measure> res = batchMeasureToMeasure.toMeasure(batchMeasure, metric);
+    if (res.isPresent()) {
+      addLocal(component, metric, res.get());
+    }
+    return res;
   }
 
   private Optional<Measure> findLocal(Component component, Metric metric,

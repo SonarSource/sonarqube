@@ -303,6 +303,17 @@ public class MeasureRepositoryImplTest {
     assertThat(res.get()).isSameAs(addedMeasure);
   }
 
+  @Test
+  public void getRawMeasure_retrieves_measure_from_batch_and_caches_it_locally_so_that_it_can_be_updated() {
+    reportReader.putMeasures(FILE_COMPONENT.getRef(), ImmutableList.of(
+        BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build()
+    ));
+
+    Optional<Measure> measure = underTest.getRawMeasure(FILE_COMPONENT, metric1);
+
+    underTest.update(FILE_COMPONENT, metric1, Measure.updateMeasure(measure.get()).create());
+  }
+
   @Test(expected = NullPointerException.class)
   public void getRawMeasure_for_rule_throws_NPE_if_Component_arg_is_null() {
     underTest.getRawMeasure(null, metric1, SOME_RULE);
