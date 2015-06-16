@@ -35,4 +35,6 @@ public interface CustomMeasureMapper {
   List<CustomMeasureDto> selectByComponentId(long id);
 
   void delete(long id);
+
+  int countByComponentIdAndMetricId(@Param("componentUuid") String componentUuid, @Param("metricId") int metricId);
 }

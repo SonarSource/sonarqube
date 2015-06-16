@@ -23,8 +23,11 @@ package org.sonar.server.measure.custom.ws;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.Durations;
+import org.sonar.api.utils.System2;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.util.TypeValidations;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +41,8 @@ public class CustomMeasuresWsTest {
     DbClient dbClient = mock(DbClient.class);
     UserSession userSession = mock(UserSession.class);
     ws = new WsTester(new CustomMeasuresWs(
-      new DeleteAction(dbClient, userSession)
+      new DeleteAction(dbClient, userSession),
+      new CreateAction(dbClient, userSession, System2.INSTANCE, mock(TypeValidations.class), mock(Durations.class))
       ));
   }
 
@@ -47,12 +51,18 @@ public class CustomMeasuresWsTest {
     WebService.Controller controller = ws.controller("api/custom_measures");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(1);
+    assertThat(controller.actions()).hasSize(2);
   }
 
   @Test
   public void delete_action_properties() {
     WebService.Action deleteAction = ws.controller("api/custom_measures").action("delete");
     assertThat(deleteAction.isPost()).isTrue();
+  }
+
+  @Test
+  public void create_action_properties() {
+    WebService.Action action = ws.controller("api/custom_measures").action("create");
+    assertThat(action.isPost()).isTrue();
   }
 }

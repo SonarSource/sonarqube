@@ -59,4 +59,10 @@
     delete from manual_measures
     where id=#{id}
   </delete>
+
+  <select id="countByComponentIdAndMetricId" resultType="Integer">
+    select count(*)
+    from manual_measures m
+    where m.metric_id=#{metricId} and m.component_uuid=#{componentUuid}
+  </select>
 </mapper>

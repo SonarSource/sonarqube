@@ -19,8 +19,13 @@
  */
 package org.sonar.api.measures;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -123,6 +128,16 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
 
     public String getColorName() {
       return colorName;
+    }
+
+    public static List<String> names() {
+      return Lists.transform(Arrays.asList(values()), new Function<Level, String>() {
+        @Nonnull
+        @Override
+        public String apply(@Nonnull Level level) {
+          return level.name();
+        }
+      });
     }
   }
 

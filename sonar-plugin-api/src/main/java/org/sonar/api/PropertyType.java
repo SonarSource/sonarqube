@@ -83,8 +83,18 @@ public enum PropertyType {
   PROPERTY_SET,
 
   /**
-   * User login
-   * @since 5.1
+  * User login
+  * @since 5.1
+  */
+  USER_LOGIN,
+
+  /**
+   * Level metric type
    */
-  USER_LOGIN
+  METRIC_LEVEL,
+
+  /**
+   * Work duration metric type
+   */
+  METRIC_WORK_DURATION
 }

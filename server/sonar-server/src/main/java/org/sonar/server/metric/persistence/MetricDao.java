@@ -63,7 +63,7 @@ public class MetricDao implements DaoComponent {
   public MetricDto selectByKey(DbSession session, String key) {
     MetricDto metric = selectNullableByKey(session, key);
     if (metric == null) {
-      throw new NotFoundException(String.format("Metric '%s' not found", key));
+      throw new NotFoundException(String.format("Metric key '%s' not found", key));
     }
     return metric;
   }
@@ -128,5 +128,13 @@ public class MetricDao implements DaoComponent {
 
   public MetricDto selectNullableById(DbSession session, long id) {
     return mapper(session).selectById(id);
+  }
+
+  public MetricDto selectById(DbSession session, int id) {
+    MetricDto metric = mapper(session).selectById(id);
+    if (metric == null) {
+      throw new NotFoundException(String.format("Metric id '%d' not found", id));
+    }
+    return metric;
   }
 }

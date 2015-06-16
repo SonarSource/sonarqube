@@ -18,18 +18,26 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.measure.custom.ws;
+package org.sonar.server.util;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.util.List;
+import javax.annotation.Nullable;
+import org.sonar.api.PropertyType;
+import org.sonar.api.measures.Metric;
+import org.sonar.server.exceptions.BadRequestException;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class MetricLevelTypeValidation implements TypeValidation {
+  @Override
+  public String key() {
+    return PropertyType.METRIC_LEVEL.name();
+  }
 
-public class CustomMeasuresWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new CustomMeasuresWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(5);
+  @Override
+  public void validate(String value, @Nullable List<String> options) {
+    try {
+      Metric.Level.valueOf(value);
+    } catch (IllegalArgumentException e) {
+      throw new BadRequestException("errors.type.notMetricLevel", value);
+    }
   }
 }
