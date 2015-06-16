@@ -3,7 +3,7 @@
 set -euo pipefail
 
 function installTravisTools {
-  curl -sSL https://raw.githubusercontent.com/dgageot/travis-utils/master/install.sh | sh
+  curl -sSL https://raw.githubusercontent.com/dgageot/travis-utils/v1/install.sh | sh
   source /tmp/travis-utils/utils.sh
 }
 
