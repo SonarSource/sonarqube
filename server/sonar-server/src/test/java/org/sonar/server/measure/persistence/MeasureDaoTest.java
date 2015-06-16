@@ -164,6 +164,26 @@ public class MeasureDaoTest {
       );
     session.commit();
 
-    db.assertDbUnit(getClass(), "insert-result.xml", "project_measures");
+    db.assertDbUnit(getClass(), "insert-result.xml", new String[] {"id"}, "project_measures");
+  }
+
+  @Test
+  public void insert_measures() {
+    db.prepareDbUnit(getClass(), "empty.xml");
+
+    sut.insert(session, new MeasureDto()
+        .setSnapshotId(2L)
+        .setMetricId(3)
+        .setComponentId(6L)
+        .setValue(2.0d),
+      new MeasureDto()
+        .setSnapshotId(3L)
+        .setMetricId(4)
+        .setComponentId(6L)
+        .setValue(4.0d)
+    );
+    session.commit();
+
+    assertThat(db.countRowsOfTable("project_measures")).isEqualTo(2);
   }
 }

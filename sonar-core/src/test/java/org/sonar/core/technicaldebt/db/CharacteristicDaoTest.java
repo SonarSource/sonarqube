@@ -20,30 +20,47 @@
 
 package org.sonar.core.technicaldebt.db;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.api.utils.DateUtils;
-import org.sonar.core.persistence.AbstractDaoTestCase;
-
 import java.util.List;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.DbTester;
+import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CharacteristicDaoTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class CharacteristicDaoTest {
 
-  private static final String[] EXCLUDED_COLUMNS = new String[]{"id", "root_id", "rule_id", "function_key", "factor_unit", "factor_value", "offset_unit", "offset_value"};
+  private static final String[] EXCLUDED_COLUMNS = new String[] {"id", "root_id", "rule_id", "function_key", "factor_unit", "factor_value", "offset_unit", "offset_value"};
+
+  @ClassRule
+  public static DbTester db = new DbTester();
 
   CharacteristicDao dao;
 
+  DbSession session;
+
   @Before
   public void createDao() {
-    dao = new CharacteristicDao(getMyBatis());
+    db.truncateTables();
+    session = db.myBatis().openSession(false);
+    dao = new CharacteristicDao(db.myBatis());
+  }
+
+  @After
+  public void tearDown() {
+    session.close();
   }
 
   @Test
   public void select_enabled_characteristics() {
-    setupData("shared");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
     List<CharacteristicDto> dtos = dao.selectEnabledCharacteristics();
 
@@ -72,14 +89,14 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_characteristics() {
-    setupData("shared");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
     assertThat(dao.selectCharacteristics()).hasSize(4);
   }
 
   @Test
   public void select_enabled_root_characteristics() {
-    setupData("select_enabled_root_characteristics");
+    db.prepareDbUnit(getClass(), "select_enabled_root_characteristics.xml");
 
     List<CharacteristicDto> dtos = dao.selectEnabledRootCharacteristics();
 
@@ -92,7 +109,7 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_enabled_root_characteristics_order_by_characteristic_order() {
-    setupData("select_enabled_root_characteristics_order_by_characteristic_order");
+    db.prepareDbUnit(getClass(), "select_enabled_root_characteristics_order_by_characteristic_order.xml");
 
     List<CharacteristicDto> dtos = dao.selectEnabledRootCharacteristics();
 
@@ -104,7 +121,7 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_sub_characteristics_by_parent_id() {
-    setupData("select_sub_characteristics_by_parent_id");
+    db.prepareDbUnit(getClass(), "select_sub_characteristics_by_parent_id.xml");
 
     assertThat(dao.selectCharacteristicsByParentId(1)).hasSize(2);
     assertThat(dao.selectCharacteristicsByParentId(55)).isEmpty();
@@ -112,7 +129,7 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_characteristics_by_ids() {
-    setupData("shared");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
     assertThat(dao.selectCharacteristicsByIds(newArrayList(1, 2))).hasSize(2);
     assertThat(dao.selectCharacteristicsByIds(newArrayList(1))).hasSize(1);
@@ -123,7 +140,7 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_characteristic_by_key() {
-    setupData("shared");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
     CharacteristicDto dto = dao.selectByKey("COMPILER_RELATED_PORTABILITY");
     assertThat(dto).isNotNull();
@@ -140,7 +157,7 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_characteristic_by_name() {
-    setupData("shared");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
     assertThat(dao.selectByName("Portability")).isNotNull();
     assertThat(dao.selectByName("Compiler related portability")).isNotNull();
@@ -149,7 +166,7 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_characteristic_by_id() {
-    setupData("shared");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
     assertThat(dao.selectById(2)).isNotNull();
     assertThat(dao.selectById(1)).isNotNull();
@@ -159,14 +176,14 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_max_characteristic_order() {
-    setupData("shared");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
     assertThat(dao.selectMaxCharacteristicOrder()).isEqualTo(1);
   }
 
   @Test
   public void select_max_characteristic_order_when_characteristics_are_all_disabled() {
-    setupData("select_max_characteristic_order_when_characteristics_are_all_disabled");
+    db.prepareDbUnit(getClass(), "select_max_characteristic_order_when_characteristics_are_all_disabled.xml");
 
     assertThat(dao.selectMaxCharacteristicOrder()).isEqualTo(0);
   }
@@ -182,27 +199,46 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
 
     dao.insert(dto);
 
-    checkTables("insert_characteristic", EXCLUDED_COLUMNS, "characteristics");
+    db.assertDbUnit(getClass(), "insert_characteristic-result.xml", EXCLUDED_COLUMNS, "characteristics");
+  }
+
+  @Test
+  public void insert_characteristics() {
+    dao.insert(session, new CharacteristicDto()
+      .setKey("COMPILER_RELATED_PORTABILITY")
+      .setName("Compiler related portability")
+      .setOrder(1)
+      .setEnabled(true)
+      .setCreatedAt(DateUtils.parseDate("2013-11-20")),
+      new CharacteristicDto()
+        .setKey("PORTABILITY")
+        .setName("portability")
+        .setOrder(2)
+        .setEnabled(true)
+        .setCreatedAt(DateUtils.parseDate("2013-11-20")));
+    session.commit();
+
+    assertThat(db.countRowsOfTable("characteristics")).isEqualTo(2);
   }
 
   @Test
   public void update_characteristic() {
-    setupData("update_characteristic");
+    db.prepareDbUnit(getClass(), "update_characteristic.xml");
 
     CharacteristicDto dto = new CharacteristicDto()
       .setId(1)
-        // The Key should not be changed
+      // The Key should not be changed
       .setKey("NEW_KEY")
       .setName("New name")
       .setOrder(2)
-        // Created date should not changed
+      // Created date should not changed
       .setCreatedAt(DateUtils.parseDate("2013-11-22"))
       .setUpdatedAt(DateUtils.parseDate("2014-03-19"))
       .setEnabled(false);
 
     dao.update(dto);
 
-    checkTables("update_characteristic", EXCLUDED_COLUMNS, "characteristics");
+    db.assertDbUnit(getClass(), "update_characteristic-result.xml", EXCLUDED_COLUMNS, "characteristics");
   }
 
 }

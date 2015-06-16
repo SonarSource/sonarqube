@@ -21,6 +21,8 @@
 package org.sonar.server.component.db;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -91,6 +93,16 @@ public class SnapshotDao implements DaoComponent {
   public SnapshotDto insert(DbSession session, SnapshotDto item) {
     mapper(session).insert(item);
     return item;
+  }
+
+  public void insert(DbSession session, Collection<SnapshotDto> items) {
+    for (SnapshotDto item : items) {
+      insert(session, item);
+    }
+  }
+
+  public void insert(DbSession session, SnapshotDto item, SnapshotDto... others) {
+    insert(session, Lists.asList(item, others));
   }
 
   private SnapshotMapper mapper(DbSession session) {

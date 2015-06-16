@@ -21,16 +21,16 @@
 package org.sonar.server.measure.persistence;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.measure.db.MeasureMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DbSession;
-
-import javax.annotation.CheckForNull;
-
-import java.util.List;
 
 @ServerSide
 public class MeasureDao implements DaoComponent {
@@ -55,6 +55,16 @@ public class MeasureDao implements DaoComponent {
 
   public void insert(DbSession session, MeasureDto measureDto) {
     mapper(session).insert(measureDto);
+  }
+
+  public void insert(DbSession session, Collection<MeasureDto> items) {
+    for (MeasureDto item : items) {
+      insert(session, item);
+    }
+  }
+
+  public void insert(DbSession session, MeasureDto item, MeasureDto... others) {
+    insert(session, Lists.asList(item, others));
   }
 
   public List<String> selectMetricKeysForSnapshot(DbSession session, long snapshotId) {

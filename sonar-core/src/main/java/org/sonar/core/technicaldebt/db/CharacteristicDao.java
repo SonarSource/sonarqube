@@ -21,16 +21,15 @@
 package org.sonar.core.technicaldebt.db;
 
 import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.List;
+import javax.annotation.CheckForNull;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.persistence.DaoComponent;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-
-import javax.annotation.CheckForNull;
-
-import java.util.Collection;
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -197,6 +196,16 @@ public class CharacteristicDao implements DaoComponent {
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public void insert(DbSession session, Collection<CharacteristicDto> items) {
+    for (CharacteristicDto item : items) {
+      insert(item, session);
+    }
+  }
+
+  public void insert(DbSession session, CharacteristicDto item, CharacteristicDto... others) {
+    insert(session, Lists.asList(item, others));
   }
 
   public void update(CharacteristicDto dto, SqlSession session) {

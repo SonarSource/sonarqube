@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.component.ComponentDto;
@@ -35,10 +36,12 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Category(DbTests.class)
 public class ComponentDaoTest {
 
   @Rule
@@ -48,6 +51,7 @@ public class ComponentDaoTest {
 
   @ClassRule
   public static DbTester db = new DbTester();
+
   DbSession session;
 
   @Before

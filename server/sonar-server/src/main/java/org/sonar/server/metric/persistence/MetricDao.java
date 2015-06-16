@@ -23,7 +23,9 @@ package org.sonar.server.metric.persistence;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
@@ -85,6 +87,16 @@ public class MetricDao implements DaoComponent {
 
   public void insert(DbSession session, MetricDto dto) {
     mapper(session).insert(dto);
+  }
+
+  public void insert(DbSession session, Collection<MetricDto> items) {
+    for (MetricDto item : items) {
+      insert(session, item);
+    }
+  }
+
+  public void insert(DbSession session, MetricDto item, MetricDto... others) {
+    insert(session, Lists.asList(item, others));
   }
 
   public List<String> selectDomains(DbSession session) {

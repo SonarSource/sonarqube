@@ -24,19 +24,26 @@ import java.util.Date;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.component.db.SnapshotQuery;
-import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.DbTester;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.component.db.SnapshotQuery.SORT_FIELD.BY_DATE;
 import static org.sonar.core.component.db.SnapshotQuery.SORT_ORDER.ASC;
 import static org.sonar.core.component.db.SnapshotQuery.SORT_ORDER.DESC;
 
-public class SnapshotDaoTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class SnapshotDaoTest {
+
+  @ClassRule
+  public static DbTester db = new DbTester();
 
   DbSession session;
 
@@ -44,7 +51,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
 
   @Before
   public void createDao() {
-    session = getMyBatis().openSession(false);
+    session = db.myBatis().openSession(false);
     sut = new SnapshotDao();
   }
 
@@ -55,7 +62,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void get_by_key() {
-    setupData("shared");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
     SnapshotDto result = sut.selectNullableById(session, 3L);
     assertThat(result).isNotNull();
@@ -97,8 +104,6 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void lastSnapshot_returns_null_when_no_last_snapshot() {
-    setupData("empty");
-
     SnapshotDto snapshot = sut.selectLastSnapshotByComponentId(session, 123L);
 
     assertThat(snapshot).isNull();
@@ -106,7 +111,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void lastSnapshot_from_one_resource() {
-    setupData("snapshots");
+    db.prepareDbUnit(getClass(), "snapshots.xml");
 
     SnapshotDto snapshot = sut.selectLastSnapshotByComponentId(session, 2L);
 
@@ -116,7 +121,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void lastSnapshot_from_one_resource_without_last_is_null() {
-    setupData("snapshots");
+    db.prepareDbUnit(getClass(), "snapshots.xml");
 
     SnapshotDto snapshot = sut.selectLastSnapshotByComponentId(session, 5L);
 
@@ -125,7 +130,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void snapshot_and_child_retrieved() {
-    setupData("snapshots");
+    db.prepareDbUnit(getClass(), "snapshots.xml");
 
     List<SnapshotDto> snapshots = sut.selectSnapshotAndChildrenOfProjectScope(session, 1L);
 
@@ -135,7 +140,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_snapshots_by_component_id() {
-    setupData("snapshots");
+    db.prepareDbUnit(getClass(), "snapshots.xml");
 
     List<SnapshotDto> snapshots = sut.selectSnapshotsByComponentId(session, 1L);
 
@@ -144,7 +149,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_snapshots_by_query() {
-    setupData("select_snapshots_by_query");
+    db.prepareDbUnit(getClass(), "select_snapshots_by_query.xml");
 
     assertThat(sut.selectSnapshotsByQuery(session, new SnapshotQuery())).hasSize(6);
 
@@ -167,7 +172,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_previous_version_snapshots() throws Exception {
-    setupData("select_previous_version_snapshots");
+    db.prepareDbUnit(getClass(), "select_previous_version_snapshots.xml");
 
     List<SnapshotDto> snapshots = sut.selectPreviousVersionSnapshots(session, 1L, "1.2-SNAPSHOT");
     assertThat(snapshots).hasSize(2);
@@ -181,7 +186,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void insert() {
-    setupData("empty");
+    db.prepareDbUnit(getClass(), "empty.xml");
 
     SnapshotDto dto = defaultSnapshot().setCreatedAt(1403042400000L);
 
@@ -189,12 +194,24 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
     session.commit();
 
     assertThat(dto.getId()).isNotNull();
-    checkTables("insert", new String[] {"id"}, "snapshots");
+    db.assertDbUnit(getClass(), "insert-result.xml", new String[] {"id"}, "snapshots");
+  }
+
+  @Test
+  public void insert_snapshots() {
+    db.prepareDbUnit(getClass(), "empty.xml");
+
+    sut.insert(session,
+      new SnapshotDto().setComponentId(1L).setLast(false),
+      new SnapshotDto().setComponentId(2L).setLast(false));
+    session.commit();
+
+    assertThat(db.countRowsOfTable("snapshots")).isEqualTo(2);
   }
 
   @Test
   public void set_snapshot_and_children_to_false_and_status_processed() {
-    setupData("snapshots");
+    db.prepareDbUnit(getClass(), "snapshots.xml");
     SnapshotDto snapshot = defaultSnapshot().setId(1L);
 
     sut.updateSnapshotAndChildrenLastFlagAndStatus(session, snapshot, false, SnapshotDto.STATUS_PROCESSED);
@@ -209,7 +226,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void set_snapshot_and_children_isLast_flag_to_false() {
-    setupData("snapshots");
+    db.prepareDbUnit(getClass(), "snapshots.xml");
     SnapshotDto snapshot = defaultSnapshot().setId(1L);
 
     sut.updateSnapshotAndChildrenLastFlag(session, snapshot, false);
@@ -225,7 +242,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
   public void is_last_snapshot_when_no_previous_snapshot() {
     SnapshotDto snapshot = defaultSnapshot();
 
-    boolean isLast = sut.isLast(snapshot, null);
+    boolean isLast = SnapshotDao.isLast(snapshot, null);
 
     assertThat(isLast).isTrue();
   }
@@ -238,7 +255,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
     SnapshotDto snapshot = defaultSnapshot().setCreatedAt(today.getTime());
     SnapshotDto previousLastSnapshot = defaultSnapshot().setCreatedAt(yesterday.getTime());
 
-    boolean isLast = sut.isLast(snapshot, previousLastSnapshot);
+    boolean isLast = SnapshotDao.isLast(snapshot, previousLastSnapshot);
 
     assertThat(isLast).isTrue();
   }
@@ -251,7 +268,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
     SnapshotDto snapshot = defaultSnapshot().setCreatedAt(yesterday.getTime());
     SnapshotDto previousLastSnapshot = defaultSnapshot().setCreatedAt(today.getTime());
 
-    boolean isLast = sut.isLast(snapshot, previousLastSnapshot);
+    boolean isLast = SnapshotDao.isLast(snapshot, previousLastSnapshot);
 
     assertThat(isLast).isFalse();
   }

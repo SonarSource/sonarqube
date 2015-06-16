@@ -119,7 +119,6 @@ public class MetricDaoTest {
   @Test
   public void insert() {
     dao.insert(session, new MetricDto()
-      .setId(1)
       .setKey("coverage")
       .setShortName("Coverage")
       .setDescription("Coverage by unit tests")
@@ -151,5 +150,42 @@ public class MetricDaoTest {
     assertThat(result.isDeleteHistoricalData()).isTrue();
     assertThat(result.isHidden()).isTrue();
     assertThat(result.isEnabled()).isTrue();
+  }
+
+  @Test
+  public void insert_metrics() {
+    dao.insert(session, new MetricDto()
+      .setKey("coverage")
+      .setShortName("Coverage")
+      .setDescription("Coverage by unit tests")
+      .setDomain("Tests")
+      .setValueType("PERCENT")
+      .setQualitative(true)
+      .setUserManaged(true)
+      .setWorstValue(0d)
+      .setBestValue(100d)
+      .setOptimizedBestValue(true)
+      .setDirection(1)
+      .setHidden(true)
+      .setDeleteHistoricalData(true)
+      .setEnabled(true),
+      new MetricDto()
+        .setKey("ncloc")
+        .setShortName("ncloc")
+        .setDescription("ncloc")
+        .setDomain("Tests")
+        .setValueType("INT")
+        .setQualitative(true)
+        .setUserManaged(true)
+        .setWorstValue(0d)
+        .setBestValue(100d)
+        .setOptimizedBestValue(true)
+        .setDirection(1)
+        .setHidden(true)
+        .setDeleteHistoricalData(true)
+        .setEnabled(true));
+    session.commit();
+
+    assertThat(dbTester.countRowsOfTable("metrics")).isEqualTo(2);
   }
 }
