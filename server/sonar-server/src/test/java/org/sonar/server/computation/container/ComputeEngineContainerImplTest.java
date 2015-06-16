@@ -73,6 +73,13 @@ public class ComputeEngineContainerImplTest {
     assertThat(typesInContainer).isEqualTo(stepsCanonicalNames);
   }
 
+  @Test
+  public void getItem_returns_the_constructor_argument() {
+    ReportQueue.Item item = mock(ReportQueue.Item.class);
+
+    assertThat(new ComputeEngineContainerImpl(new ComponentContainer(), item).getItem()).isSameAs(item);
+  }
+
   /**
    * Compute set of canonical names of classes implementing ComputationStep in package step using reflection.
    */
