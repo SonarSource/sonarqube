@@ -102,6 +102,9 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     when(system2.now()).thenReturn(now);
 
     sut = new PersistSnapshotsStep(system2, dbClient, treeRootHolder, reportReader, dbIdsRepository, periodsHolderRule);
+
+    // initialize PeriodHolder to empty by default
+    periodsHolderRule.setPeriods();
   }
 
   @Override
@@ -298,7 +301,7 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     SnapshotDto snapshotDto = SnapshotTesting.createForProject(projectDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime());
     dbClient.snapshotDao().insert(session, snapshotDto);
     session.commit();
-    periodsHolderRule.addPeriod(new Period(1, CoreProperties.TIMEMACHINE_MODE_DATE, "2015-01-01", analysisDate, 123L));
+    periodsHolderRule.setPeriods(new Period(1, CoreProperties.TIMEMACHINE_MODE_DATE, "2015-01-01", analysisDate, 123L));
 
     Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build();
     treeRootHolder.setRoot(project);
@@ -314,7 +317,7 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
 
   @Test
   public void only_persist_snapshots_with_periods_on_project_and_module() throws Exception {
-    periodsHolderRule.addPeriod(new Period(1, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, null, analysisDate, 123L));
+    periodsHolderRule.setPeriods(new Period(1, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, null, analysisDate, 123L));
 
     ComponentDto projectDto = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(session, projectDto);

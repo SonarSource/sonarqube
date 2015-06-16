@@ -136,7 +136,7 @@ public class FillMeasuresWithVariationsStepTest {
     dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 60d));
     session.commit();
 
-    periodsHolder.addPeriod(newPeriod(1, period1ProjectSnapshot));
+    periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
 
     treeRootHolder.setRoot(PROJECT);
 
@@ -149,6 +149,7 @@ public class FillMeasuresWithVariationsStepTest {
   public void do_nothing_when_no_period() throws Exception {
     Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_DTO.uuid()).build();
     treeRootHolder.setRoot(project);
+    periodsHolder.setPeriods();
 
     sut.execute();
 
@@ -170,7 +171,7 @@ public class FillMeasuresWithVariationsStepTest {
     dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), directoryDto.getId(), period1DirectorySnapshot.getId(), 10d));
     session.commit();
 
-    periodsHolder.addPeriod(newPeriod(1, period1ProjectSnapshot));
+    periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
 
     Component directory = DumbComponent.builder(Component.Type.DIRECTORY, 2).setUuid(directoryDto.uuid()).build();
     Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_DTO.uuid()).addChildren(directory).build();
@@ -202,11 +203,11 @@ public class FillMeasuresWithVariationsStepTest {
       newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period5ProjectSnapshot.getId(), 100d));
     session.commit();
 
-    periodsHolder.addPeriod(newPeriod(1, period1ProjectSnapshot));
-    periodsHolder.addPeriod(newPeriod(2, period2ProjectSnapshot));
-    periodsHolder.addPeriod(newPeriod(3, period3ProjectSnapshot));
-    periodsHolder.addPeriod(newPeriod(4, period4ProjectSnapshot));
-    periodsHolder.addPeriod(newPeriod(5, period5ProjectSnapshot));
+    periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot),
+      newPeriod(2, period2ProjectSnapshot),
+      newPeriod(3, period3ProjectSnapshot),
+      newPeriod(4, period4ProjectSnapshot),
+      newPeriod(5, period5ProjectSnapshot));
 
     treeRootHolder.setRoot(PROJECT);
 
@@ -237,7 +238,7 @@ public class FillMeasuresWithVariationsStepTest {
       );
     session.commit();
 
-    periodsHolder.addPeriod(newPeriod(1, period1ProjectSnapshot));
+    periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
 
     treeRootHolder.setRoot(PROJECT);
 
@@ -270,7 +271,7 @@ public class FillMeasuresWithVariationsStepTest {
     dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 20d).setRuleId(rule2.getId()));
     session.commit();
 
-    periodsHolder.addPeriod(newPeriod(1, period1ProjectSnapshot));
+    periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
 
     treeRootHolder.setRoot(PROJECT);
 
@@ -299,7 +300,7 @@ public class FillMeasuresWithVariationsStepTest {
     dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 20d).setCharacteristicId(char2.getId()));
     session.commit();
 
-    periodsHolder.addPeriod(newPeriod(1, period1ProjectSnapshot));
+    periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
 
     treeRootHolder.setRoot(PROJECT);
 
@@ -324,7 +325,7 @@ public class FillMeasuresWithVariationsStepTest {
     dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 60d));
     session.commit();
 
-    periodsHolder.addPeriod(newPeriod(1, period1ProjectSnapshot));
+    periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
 
     treeRootHolder.setRoot(PROJECT);
 

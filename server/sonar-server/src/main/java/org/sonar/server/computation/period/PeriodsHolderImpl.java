@@ -20,26 +20,81 @@
 
 package org.sonar.server.computation.period;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
+import java.util.Arrays;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.FluentIterable.from;
+import static java.util.Objects.requireNonNull;
+import static org.sonar.server.computation.period.Period.isValidPeriodIndex;
 
 public class PeriodsHolderImpl implements PeriodsHolder {
 
   @CheckForNull
-  private ImmutableList<Period> periods;
+  private Period[] periods = null;
 
-  public void setPeriods(List<Period> periods) {
-    Preconditions.checkNotNull(periods, "Periods cannot be null");
-    Preconditions.checkState(this.periods == null, "Periods have already been initialized");
-    this.periods = ImmutableList.copyOf(periods);
+  /**
+   * Initializes the periods in the holder.
+   *
+   * @throws NullPointerException if the specified Iterable is {@code null}
+   * @throws NullPointerException if the specified Iterable contains a {@code null}
+   * @throws IllegalArgumentException if the specified Iterable has more than 5 elements
+   * @throws IllegalStateException if the holder has already been initialized
+   * @throws IllegalStateException if two Periods have the same index
+   */
+  public void setPeriods(Iterable<Period> periods) {
+    requireNonNull(periods, "Periods cannot be null");
+    checkArgument(Iterables.size(periods) <= 5, "There can not be more than 5 periods");
+    checkState(this.periods == null, "Periods have already been initialized");
+
+    Period[] newPeriods = new Period[5];
+    for (Period period : from(periods).filter(CheckNotNull.INSTANCE)) {
+      int arrayIndex = period.getIndex() - 1;
+      checkArgument(newPeriods[(arrayIndex)] == null, "More than one period has the index " + period.getIndex());
+      newPeriods[(arrayIndex)] = period;
+    }
+    this.periods = newPeriods;
   }
 
   @Override
   public List<Period> getPeriods() {
-    Preconditions.checkState(periods != null, "Periods have not been initialized yet");
-    return periods;
+    checkHolderIsInitialized();
+    return from(Arrays.asList(periods)).filter(Predicates.notNull()).toList();
+  }
+
+  @Override
+  public boolean hasPeriod(int i) {
+    checkHolderIsInitialized();
+    if (!isValidPeriodIndex(i)) {
+      throw new IndexOutOfBoundsException(String.format("Invalid Period index (%s), must be 0 < x < 6", i));
+    }
+    return periods[i - 1] != null;
+  }
+
+  @Override
+  public Period getPeriod(int i) {
+    checkState(hasPeriod(i), "Holder has no Period for index " + i);
+    return this.periods[i - 1];
+  }
+
+  private void checkHolderIsInitialized() {
+    checkState(this.periods != null, "Periods have not been initialized yet");
+  }
+
+  private enum CheckNotNull implements Predicate<Period> {
+    INSTANCE;
+
+    @Override
+    public boolean apply(@Nullable Period input) {
+      requireNonNull(input, "No null Period can be added to the holder");
+      return true;
+    }
   }
 
 }
