@@ -19,15 +19,14 @@
  */
 package org.sonar.batch.bootstrapper;
 
+import org.sonar.home.log.LogListener;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.core.config.Logback;
 
 import javax.annotation.Nullable;
 
-import java.io.File;
-import java.io.PrintStream;
 import java.util.Map;
 
 /**
@@ -37,18 +36,25 @@ public final class LoggingConfiguration {
 
   public static final String PROPERTY_ROOT_LOGGER_LEVEL = "ROOT_LOGGER_LEVEL";
   public static final String PROPERTY_SQL_LOGGER_LEVEL = "SQL_LOGGER_LEVEL";
-  public static final String PROPERTY_FORMAT = "FORMAT";
-  public static final String LEVEL_ROOT_VERBOSE = "DEBUG";
 
+  public static final String PROPERTY_FORMAT = "FORMAT";
+
+  public static final String LEVEL_ROOT_VERBOSE = "DEBUG";
   public static final String LEVEL_ROOT_DEFAULT = "INFO";
+
   @VisibleForTesting
   static final String FORMAT_DEFAULT = "%d{HH:mm:ss.SSS} %-5level - %msg%n";
   @VisibleForTesting
   static final String FORMAT_MAVEN = "[%level] [%d{HH:mm:ss.SSS}] %msg%n";
 
-  private Map<String, String> substitutionVariables = Maps.newHashMap();
+  Map<String, String> substitutionVariables = Maps.newHashMap();
+  LogListener listener = null;
 
-  private LoggingConfiguration(@Nullable EnvironmentInformation environment) {
+  public LoggingConfiguration() {
+    this(null);
+  }
+
+  public LoggingConfiguration(@Nullable EnvironmentInformation environment) {
     setVerbose(false);
     if (environment != null && "maven".equalsIgnoreCase(environment.getKey())) {
       setFormat(FORMAT_MAVEN);
@@ -57,30 +63,29 @@ public final class LoggingConfiguration {
     }
   }
 
-  static LoggingConfiguration create(@Nullable EnvironmentInformation environment) {
-    return new LoggingConfiguration(environment);
-  }
-
   public LoggingConfiguration setProperties(Map<String, String> properties) {
-    String logLevel = properties.get("sonar.log.level");
-    String deprecatedProfilingLevel = properties.get("sonar.log.profilingLevel");
-    boolean verbose = "true".equals(properties.get("sonar.verbose")) ||
-      "DEBUG".equals(logLevel) || "TRACE".equals(logLevel) ||
-      "BASIC".equals(deprecatedProfilingLevel) || "FULL".equals(deprecatedProfilingLevel);
-    boolean sql = "TRACE".equals(logLevel) || "FULL".equals(deprecatedProfilingLevel);
-
-    setShowSql(sql);
-    setVerbose(verbose);
+    setShowSql(properties);
+    setVerbose(properties);
     return this;
   }
-  
-  public LoggingConfiguration setStreams(PrintStream out, PrintStream err) {
-    
+
+  public LoggingConfiguration setListener(@Nullable LogListener listener) {
+    this.listener = listener;
     return this;
   }
 
   public LoggingConfiguration setVerbose(boolean verbose) {
     return setRootLevel(verbose ? LEVEL_ROOT_VERBOSE : LEVEL_ROOT_DEFAULT);
+  }
+
+  public LoggingConfiguration setVerbose(Map<String, String> properties) {
+    String logLevel = properties.get("sonar.log.level");
+    String deprecatedProfilingLevel = properties.get("sonar.log.profilingLevel");
+    boolean verbose = "true".equals(properties.get("sonar.verbose")) ||
+      "DEBUG".equals(logLevel) || "TRACE".equals(logLevel) ||
+      "BASIC".equals(deprecatedProfilingLevel) || "FULL".equals(deprecatedProfilingLevel);
+
+    return setVerbose(verbose);
   }
 
   public LoggingConfiguration setRootLevel(String level) {
@@ -89,6 +94,14 @@ public final class LoggingConfiguration {
 
   public LoggingConfiguration setShowSql(boolean showSql) {
     return addSubstitutionVariable(PROPERTY_SQL_LOGGER_LEVEL, showSql ? "TRACE" : "WARN");
+  }
+
+  public LoggingConfiguration setShowSql(Map<String, String> properties) {
+    String logLevel = properties.get("sonar.log.level");
+    String deprecatedProfilingLevel = properties.get("sonar.log.profilingLevel");
+    boolean sql = "TRACE".equals(logLevel) || "FULL".equals(deprecatedProfilingLevel);
+
+    return setShowSql(sql);
   }
 
   @VisibleForTesting
@@ -101,22 +114,8 @@ public final class LoggingConfiguration {
     return this;
   }
 
+  @VisibleForTesting
   String getSubstitutionVariable(String key) {
     return substitutionVariables.get(key);
-  }
-
-  LoggingConfiguration configure(String classloaderPath) {
-    Logback.configure(classloaderPath, substitutionVariables);
-    return this;
-  }
-
-  LoggingConfiguration configure(File logbackFile) {
-    Logback.configure(logbackFile, substitutionVariables);
-    return this;
-  }
-
-  LoggingConfiguration configure() {
-    Logback.configure("/org/sonar/batch/bootstrapper/logback.xml", substitutionVariables);
-    return this;
   }
 }

@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.bootstrapper;
 
+import org.sonar.home.log.LogListener;
+
+import org.picocontainer.annotations.Nullable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.sonar.batch.bootstrap.GlobalContainer;
@@ -35,7 +38,7 @@ import java.util.Map;
 public final class Batch {
 
   private boolean started = false;
-  private LoggingConfiguration logging;
+  private LoggingConfiguration loggingConfig;
   private List<Object> components;
   private Map<String, String> bootstrapProperties = Maps.newHashMap();
   private GlobalContainer bootstrapContainer;
@@ -50,12 +53,16 @@ public final class Batch {
       bootstrapProperties.putAll(builder.bootstrapProperties);
     }
     if (builder.isEnableLoggingConfiguration()) {
-      logging = LoggingConfiguration.create(builder.environment).setProperties(bootstrapProperties);
+      loggingConfig = new LoggingConfiguration(builder.environment).setProperties(bootstrapProperties);
+
+      if (builder.listener != null) {
+        loggingConfig.setListener(builder.listener);
+      }
     }
   }
 
   public LoggingConfiguration getLoggingConfiguration() {
-    return logging;
+    return loggingConfig;
   }
 
   /**
@@ -110,8 +117,8 @@ public final class Batch {
   }
 
   private void configureLogging() {
-    if (logging != null) {
-      logging.configure();
+    if (loggingConfig != null) {
+      LoggingConfigurator.apply(loggingConfig);
     }
   }
 
@@ -124,6 +131,7 @@ public final class Batch {
     private EnvironmentInformation environment;
     private List<Object> components = Lists.newArrayList();
     private boolean enableLoggingConfiguration = true;
+    private LogListener listener;
 
     private Builder() {
     }
@@ -135,6 +143,11 @@ public final class Batch {
 
     public Builder setComponents(List<Object> l) {
       this.components = l;
+      return this;
+    }
+
+    public Builder setLogListener(@Nullable LogListener listener) {
+      this.listener = listener;
       return this;
     }
 
