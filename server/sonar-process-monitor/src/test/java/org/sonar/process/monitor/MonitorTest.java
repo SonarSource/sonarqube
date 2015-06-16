@@ -30,7 +30,9 @@ import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TemporaryFolder;
+import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonar.process.Lifecycle.State;
 import org.sonar.process.NetworkUtils;
@@ -74,7 +76,7 @@ public class MonitorTest {
    * Safeguard
    */
   @Rule
-  public Timeout globalTimeout = Timeout.seconds(30);
+  public TestRule globalTimeout = new DisableOnDebug(Timeout.seconds(60));
 
   /**
    * Temporary directory is used to interact with monitored processes, which write in it.

@@ -44,7 +44,7 @@ public class ProcessEntryPointTest {
    * Safeguard
    */
   @Rule
-  public TestRule timeout = new DisableOnDebug(Timeout.seconds(10));
+  public TestRule timeout = new DisableOnDebug(Timeout.seconds(60));
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();

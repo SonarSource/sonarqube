@@ -39,7 +39,7 @@ import static org.mockito.Mockito.verify;
 public class ComputationThreadLauncherTest {
 
   @Rule
-  public TestRule timeout = new DisableOnDebug(Timeout.seconds(5));
+  public TestRule timeout = new DisableOnDebug(Timeout.seconds(60));
 
   ComputationThreadLauncher sut;
   ReportQueue queue;
