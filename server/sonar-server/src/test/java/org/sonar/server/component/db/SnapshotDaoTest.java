@@ -189,7 +189,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
     session.commit();
 
     assertThat(dto.getId()).isNotNull();
-    checkTables("insert", "snapshots");
+    checkTables("insert", new String[] {"id"}, "snapshots");
   }
 
   @Test
