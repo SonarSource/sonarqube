@@ -165,16 +165,32 @@ public final class Measure {
       return new Measure(ValueType.BOOLEAN, ruleId, characteristicId, value ? 1.0d : 0.0d, data, null, description, qualityGateStatus, variations);
     }
 
+    public Measure create(boolean value) {
+      return create(value, null);
+    }
+
     public Measure create(int value, @Nullable String data) {
       return new Measure(ValueType.INT, ruleId, characteristicId, (double) value, data, null, description, qualityGateStatus, variations);
+    }
+
+    public Measure create(int value) {
+      return create(value, null);
     }
 
     public Measure create(long value, @Nullable String data) {
       return new Measure(ValueType.LONG, ruleId, characteristicId, (double) value, data, null, description, qualityGateStatus, variations);
     }
 
+    public Measure create(long value) {
+      return create(value, null);
+    }
+
     public Measure create(double value, @Nullable String data) {
       return new Measure(ValueType.DOUBLE, ruleId, characteristicId, value, data, null, description, qualityGateStatus, variations);
+    }
+
+    public Measure create(double value) {
+      return create(value, null);
     }
 
     public Measure create(String value) {

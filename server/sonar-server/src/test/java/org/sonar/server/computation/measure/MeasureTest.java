@@ -40,12 +40,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(DataProviderRunner.class)
 public class MeasureTest {
 
-  private static final Measure INT_MEASURE = Measure.newMeasure().create((int) 1, null);
-  private static final Measure LONG_MEASURE = Measure.newMeasure().create(1l, null);
-  private static final Measure DOUBLE_MEASURE = Measure.newMeasure().create(1d, null);
+  private static final Measure INT_MEASURE = Measure.newMeasure().create((int) 1);
+  private static final Measure LONG_MEASURE = Measure.newMeasure().create(1l);
+  private static final Measure DOUBLE_MEASURE = Measure.newMeasure().create(1d);
   private static final Measure STRING_MEASURE = Measure.newMeasure().create("some_sT ring");
-  private static final Measure TRUE_MEASURE = Measure.newMeasure().create(true, null);
-  private static final Measure FALSE_MEASURE = Measure.newMeasure().create(false, null);
+  private static final Measure TRUE_MEASURE = Measure.newMeasure().create(true);
+  private static final Measure FALSE_MEASURE = Measure.newMeasure().create(false);
   private static final Measure LEVEL_MEASURE = Measure.newMeasure().create(Measure.Level.OK);
   private static final Measure NO_VALUE_MEASURE = Measure.newMeasure().createNoValue();
 
