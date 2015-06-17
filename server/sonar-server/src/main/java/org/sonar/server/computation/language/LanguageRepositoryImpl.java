@@ -34,15 +34,15 @@ import static java.util.Arrays.asList;
 /**
  * Implementation of {@link LanguageRepository} which find {@link Language} instances available in the container.
  */
-public class PlatformLanguageRepository implements LanguageRepository {
+public class LanguageRepositoryImpl implements LanguageRepository {
 
   private final Map<String, Language> languagesByKey;
 
-  public PlatformLanguageRepository() {
+  public LanguageRepositoryImpl() {
     this.languagesByKey = Collections.emptyMap();
   }
 
-  public PlatformLanguageRepository(Language... languages) {
+  public LanguageRepositoryImpl(Language... languages) {
     this.languagesByKey = uniqueIndex(filter(asList(languages), notNull()), LanguageToKey.INSTANCE);
   }
 

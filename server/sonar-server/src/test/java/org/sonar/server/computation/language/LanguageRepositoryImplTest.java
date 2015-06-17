@@ -25,7 +25,7 @@ import org.sonar.api.resources.Language;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PlatformLanguageRepositoryTest {
+public class LanguageRepositoryImplTest {
 
   private static final String ANY_KEY = "Any_Key";
   private static final String SOME_LANGUAGE_KEY = "SoMe language_Key";
@@ -33,17 +33,17 @@ public class PlatformLanguageRepositoryTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void constructor_fails_is_language_have_the_same_key() throws Exception {
-    new PlatformLanguageRepository(createLanguage(SOME_LANGUAGE_KEY, " 1"), createLanguage(SOME_LANGUAGE_KEY, " 2"));
+    new LanguageRepositoryImpl(createLanguage(SOME_LANGUAGE_KEY, " 1"), createLanguage(SOME_LANGUAGE_KEY, " 2"));
   }
 
   @Test
   public void find_on_empty_LanguageRepository_returns_absent() throws Exception {
-    assertThat(new PlatformLanguageRepository().find(ANY_KEY).isPresent()).isFalse();
+    assertThat(new LanguageRepositoryImpl().find(ANY_KEY).isPresent()).isFalse();
   }
 
   @Test
   public void find_by_key_returns_the_same_object() throws Exception {
-    PlatformLanguageRepository languageRepository = new PlatformLanguageRepository(SOME_LANGUAGE);
+    LanguageRepositoryImpl languageRepository = new LanguageRepositoryImpl(SOME_LANGUAGE);
     Optional<Language> language = languageRepository.find(SOME_LANGUAGE_KEY);
     assertThat(language.isPresent()).isTrue();
     assertThat(language.get()).isSameAs(SOME_LANGUAGE);
@@ -51,7 +51,7 @@ public class PlatformLanguageRepositoryTest {
 
   @Test
   public void find_by_other_key_returns_absent() throws Exception {
-    PlatformLanguageRepository languageRepository = new PlatformLanguageRepository(SOME_LANGUAGE);
+    LanguageRepositoryImpl languageRepository = new LanguageRepositoryImpl(SOME_LANGUAGE);
     Optional<Language> language = languageRepository.find(ANY_KEY);
     assertThat(language.isPresent()).isFalse();
   }

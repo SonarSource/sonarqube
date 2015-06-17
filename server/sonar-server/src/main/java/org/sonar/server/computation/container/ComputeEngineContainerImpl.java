@@ -49,7 +49,7 @@ import org.sonar.server.computation.issue.RuleCacheLoader;
 import org.sonar.server.computation.issue.ScmAccountCache;
 import org.sonar.server.computation.issue.ScmAccountCacheLoader;
 import org.sonar.server.computation.issue.SourceLinesCache;
-import org.sonar.server.computation.language.PlatformLanguageRepository;
+import org.sonar.server.computation.language.LanguageRepositoryImpl;
 import org.sonar.server.computation.measure.MeasureRepositoryImpl;
 import org.sonar.server.computation.metric.MetricRepositoryImpl;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
@@ -136,7 +136,7 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       BatchReportReaderImpl.class,
 
       // repositories
-      PlatformLanguageRepository.class,
+      LanguageRepositoryImpl.class,
       MetricRepositoryImpl.class,
       MeasureRepositoryImpl.class,
       EventRepositoryImpl.class,
