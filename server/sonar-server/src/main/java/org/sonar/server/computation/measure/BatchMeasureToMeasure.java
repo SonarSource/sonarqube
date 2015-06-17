@@ -70,13 +70,13 @@ public class BatchMeasureToMeasure {
       throw new IllegalArgumentException("Measure with both characteristicId and ruleKey are not supported");
     }
     if (batchMeasure.hasCharactericId()) {
-      return Measure.newMeasure().forCharacteristic(batchMeasure.getCharactericId());
+      return Measure.newMeasureBuilder().forCharacteristic(batchMeasure.getCharactericId());
     }
     if (batchMeasure.hasRuleKey()) {
       RuleDto ruleDto = ruleCache.get(RuleKey.parse(batchMeasure.getRuleKey()));
-      return Measure.newMeasure().forRule(ruleDto.getId());
+      return Measure.newMeasureBuilder().forRule(ruleDto.getId());
     }
-    return Measure.newMeasure();
+    return Measure.newMeasureBuilder();
   }
 
   private static Optional<Measure> toIntegerMeasure(Measure.NewMeasureBuilder builder, BatchReport.Measure batchMeasure, @Nullable String data) {

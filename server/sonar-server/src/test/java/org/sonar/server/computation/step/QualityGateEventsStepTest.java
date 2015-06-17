@@ -91,7 +91,7 @@ public class QualityGateEventsStepTest {
 
   @Test
   public void no_event_created_if_raw_ALERT_STATUS_measure_is_null() {
-    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasure().createNoValue()));
+    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().createNoValue()));
 
     underTest.execute();
 
@@ -105,7 +105,7 @@ public class QualityGateEventsStepTest {
 
   @Test
   public void no_event_created_if_raw_ALERT_STATUS_measure_is_unsupported_value() {
-    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasure().create(INVALID_ALERT_STATUS)));
+    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().create(INVALID_ALERT_STATUS)));
 
     underTest.execute();
 
@@ -117,8 +117,8 @@ public class QualityGateEventsStepTest {
   public void no_event_created_if_no_base_ALERT_STATUS_and_raw_is_OK() {
     QualityGateStatus someQGStatus = new QualityGateStatus(Measure.Level.OK);
 
-    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasure().setQualityGateStatus(someQGStatus).createNoValue()));
-    when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasure().createNoValue()));
+    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(someQGStatus).createNoValue()));
+    when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().createNoValue()));
 
     underTest.execute();
 
@@ -160,8 +160,8 @@ public class QualityGateEventsStepTest {
   private void verify_event_created_if_no_base_ALERT_STATUS_measure(Measure.Level rawAlterStatus, String expectedLabel) {
     QualityGateStatus someQGStatus = new QualityGateStatus(rawAlterStatus, ALERT_TEXT);
 
-    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasure().setQualityGateStatus(someQGStatus).createNoValue()));
-    when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasure().createNoValue()));
+    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(someQGStatus).createNoValue()));
+    when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().createNoValue()));
 
     underTest.execute();
 
@@ -188,8 +188,8 @@ public class QualityGateEventsStepTest {
 
   @Test
   public void no_event_created_if_base_ALERT_STATUS_measure_but_status_is_the_same() {
-    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasure().setQualityGateStatus(OK_QUALITY_GATE_STATUS).createNoValue()));
-    when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasure().setQualityGateStatus(OK_QUALITY_GATE_STATUS).createNoValue()));
+    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(OK_QUALITY_GATE_STATUS).createNoValue()));
+    when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(OK_QUALITY_GATE_STATUS).createNoValue()));
 
     underTest.execute();
 
@@ -210,9 +210,9 @@ public class QualityGateEventsStepTest {
 
   private void verify_event_created_if_base_ALERT_STATUS_measure_exists_and_status_has_changed(Measure.Level previousAlertStatus,
     QualityGateStatus newQualityGateStatus, String expectedLabel) {
-    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasure().setQualityGateStatus(newQualityGateStatus).createNoValue()));
+    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(newQualityGateStatus).createNoValue()));
     when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(
-      of(Measure.newMeasure().setQualityGateStatus(new QualityGateStatus(previousAlertStatus)).createNoValue()));
+      of(Measure.newMeasureBuilder().setQualityGateStatus(new QualityGateStatus(previousAlertStatus)).createNoValue()));
 
     underTest.execute();
 

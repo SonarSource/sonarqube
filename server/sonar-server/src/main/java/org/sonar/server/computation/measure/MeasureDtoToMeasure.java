@@ -65,35 +65,35 @@ public class MeasureDtoToMeasure {
     if (value == null) {
       return toNoValueMeasure(measureDto);
     }
-    return of(setCommonProperties(Measure.newMeasure(), measureDto).create(value.intValue(), data));
+    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(value.intValue(), data));
   }
 
   private static Optional<Measure> toLongMeasure(MeasureDto measureDto, @Nullable Double value, String data) {
     if (value == null) {
       return toNoValueMeasure(measureDto);
     }
-    return of(setCommonProperties(Measure.newMeasure(), measureDto).create(value.longValue(), data));
+    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(value.longValue(), data));
   }
 
   private static Optional<Measure> toDoubleMeasure(MeasureDto measureDto, @Nullable Double value, String data) {
     if (value == null) {
       return toNoValueMeasure(measureDto);
     }
-    return of(setCommonProperties(Measure.newMeasure(), measureDto).create(value.doubleValue(), data));
+    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(value.doubleValue(), data));
   }
 
   private static Optional<Measure> toBooleanMeasure(MeasureDto measureDto, @Nullable Double value, String data) {
     if (value == null) {
       return toNoValueMeasure(measureDto);
     }
-    return of(setCommonProperties(Measure.newMeasure(), measureDto).create(value == 1.0d, data));
+    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(value == 1.0d, data));
   }
 
   private static Optional<Measure> toStringMeasure(MeasureDto measureDto, @Nullable String data) {
     if (data == null) {
       return toNoValueMeasure(measureDto);
     }
-    return of(setCommonProperties(Measure.newMeasure(), measureDto).create(data));
+    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(data));
   }
 
   private static Optional<Measure> toLevelMeasure(MeasureDto measureDto, @Nullable String data) {
@@ -104,11 +104,11 @@ public class MeasureDtoToMeasure {
     if (!level.isPresent()) {
       return toNoValueMeasure(measureDto);
     }
-    return of(setCommonProperties(Measure.newMeasure(), measureDto).create(level.get()));
+    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).create(level.get()));
   }
 
   private static Optional<Measure> toNoValueMeasure(MeasureDto measureDto) {
-    return of(setCommonProperties(Measure.newMeasure(), measureDto).createNoValue());
+    return of(setCommonProperties(Measure.newMeasureBuilder(), measureDto).createNoValue());
   }
 
   private static Measure.NewMeasureBuilder setCommonProperties(Measure.NewMeasureBuilder builder, MeasureDto measureDto) {

@@ -94,11 +94,11 @@ public final class Measure {
     this.variations = variations;
   }
 
-  public static NewMeasureBuilder newMeasure() {
+  public static NewMeasureBuilder newMeasureBuilder() {
     return new NewMeasureBuilder();
   }
 
-  public static UpdateMeasureBuilder updateMeasure(Measure measure) {
+  public static UpdateMeasureBuilder updatedMeasureBuilder(Measure measure) {
     return new UpdateMeasureBuilder(measure);
   }
 

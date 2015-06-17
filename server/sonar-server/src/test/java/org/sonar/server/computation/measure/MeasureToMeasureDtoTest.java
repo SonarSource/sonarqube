@@ -54,18 +54,18 @@ public class MeasureToMeasureDtoTest {
 
   @Test(expected = NullPointerException.class)
   public void toMeasureDto_throws_NPE_if_Metric_arg_is_null() {
-    underTest.toMeasureDto(Measure.newMeasure().createNoValue(), null, SOME_COMPONENT_ID, SOME_SNAPSHOT_ID);
+    underTest.toMeasureDto(Measure.newMeasureBuilder().createNoValue(), null, SOME_COMPONENT_ID, SOME_SNAPSHOT_ID);
   }
 
   @DataProvider
   public static Object[][] all_types_Measures() {
     return new Object[][] {
-        { Measure.newMeasure().create(true, SOME_DATA), SOME_BOOLEAN_METRIC},
-        { Measure.newMeasure().create(1, SOME_DATA), SOME_INT_METRIC},
-        { Measure.newMeasure().create((long) 1, SOME_DATA), SOME_LONG_METRIC},
-        { Measure.newMeasure().create((double) 2, SOME_DATA), SOME_DOUBLE_METRIC},
-        { Measure.newMeasure().create(SOME_STRING), SOME_STRING_METRIC},
-        { Measure.newMeasure().create(Measure.Level.OK), SOME_LEVEL_METRIC}
+        { Measure.newMeasureBuilder().create(true, SOME_DATA), SOME_BOOLEAN_METRIC},
+        { Measure.newMeasureBuilder().create(1, SOME_DATA), SOME_INT_METRIC},
+        { Measure.newMeasureBuilder().create((long) 1, SOME_DATA), SOME_LONG_METRIC},
+        { Measure.newMeasureBuilder().create((double) 2, SOME_DATA), SOME_DOUBLE_METRIC},
+        { Measure.newMeasureBuilder().create(SOME_STRING), SOME_STRING_METRIC},
+        { Measure.newMeasureBuilder().create(Measure.Level.OK), SOME_LEVEL_METRIC}
     };
   }
 
@@ -83,7 +83,7 @@ public class MeasureToMeasureDtoTest {
 
   @Test
   public void toMeasureDto_returns_Dto_with_variation_if_Measure_has_MeasureVariations() {
-    MeasureDto measureDto = underTest.toMeasureDto(Measure.newMeasure().setVariations(SOME_VARIATIONS).create(SOME_STRING), SOME_STRING_METRIC, SOME_COMPONENT_ID, SOME_SNAPSHOT_ID);
+    MeasureDto measureDto = underTest.toMeasureDto(Measure.newMeasureBuilder().setVariations(SOME_VARIATIONS).create(SOME_STRING), SOME_STRING_METRIC, SOME_COMPONENT_ID, SOME_SNAPSHOT_ID);
 
     assertThat(measureDto.getVariation(1)).isEqualTo(1d);
     assertThat(measureDto.getVariation(2)).isEqualTo(2d);
@@ -104,7 +104,7 @@ public class MeasureToMeasureDtoTest {
   @Test
   public void toMeasureDto_returns_Dto_with_alertStatus_and_alertText_if_Measure_has_QualityGateStatus() {
     String alertText = "some error";
-    MeasureDto measureDto = underTest.toMeasureDto(Measure.newMeasure().setQualityGateStatus(new QualityGateStatus(Measure.Level.ERROR, alertText)).create(SOME_STRING), SOME_STRING_METRIC, SOME_COMPONENT_ID, SOME_SNAPSHOT_ID);
+    MeasureDto measureDto = underTest.toMeasureDto(Measure.newMeasureBuilder().setQualityGateStatus(new QualityGateStatus(Measure.Level.ERROR, alertText)).create(SOME_STRING), SOME_STRING_METRIC, SOME_COMPONENT_ID, SOME_SNAPSHOT_ID);
 
     assertThat(measureDto.getAlertStatus()).isEqualTo(Measure.Level.ERROR.name());
     assertThat(measureDto.getAlertText()).isEqualTo(alertText);
@@ -118,7 +118,7 @@ public class MeasureToMeasureDtoTest {
 
   @Test
   public void toMeasureDto_sets_ruleId_if_set_in_Measure() {
-    Measure measure = Measure.newMeasure().forRule(42).createNoValue();
+    Measure measure = Measure.newMeasureBuilder().forRule(42).createNoValue();
 
     assertThat(underTest.toMeasureDto(measure, SOME_BOOLEAN_METRIC, SOME_COMPONENT_ID, SOME_SNAPSHOT_ID).getRuleId()).isEqualTo(42);
   }
@@ -131,7 +131,7 @@ public class MeasureToMeasureDtoTest {
 
   @Test
   public void toMeasureDto_sets_characteristicId_if_set_in_Measure() {
-    Measure measure = Measure.newMeasure().forCharacteristic(42).createNoValue();
+    Measure measure = Measure.newMeasureBuilder().forCharacteristic(42).createNoValue();
 
     assertThat(underTest.toMeasureDto(measure, SOME_BOOLEAN_METRIC, SOME_COMPONENT_ID, SOME_SNAPSHOT_ID).getCharacteristicId()).isEqualTo(42);
   }
@@ -155,12 +155,12 @@ public class MeasureToMeasureDtoTest {
 
   @Test
   public void toMeasureDto_maps_value_to_1_or_0_and_data_from_data_field_for_BOOLEAN_metric() {
-    MeasureDto trueMeasureDto = underTest.toMeasureDto(Measure.newMeasure().create(true, SOME_DATA), SOME_BOOLEAN_METRIC, SOME_COMPONENT_ID, SOME_SNAPSHOT_ID);
+    MeasureDto trueMeasureDto = underTest.toMeasureDto(Measure.newMeasureBuilder().create(true, SOME_DATA), SOME_BOOLEAN_METRIC, SOME_COMPONENT_ID, SOME_SNAPSHOT_ID);
 
     assertThat(trueMeasureDto.getValue()).isEqualTo(1d);
     assertThat(trueMeasureDto.getData()).isEqualTo(SOME_DATA);
 
-    MeasureDto falseMeasureDto = underTest.toMeasureDto(Measure.newMeasure().create(false, SOME_DATA), SOME_BOOLEAN_METRIC, SOME_COMPONENT_ID, SOME_SNAPSHOT_ID);
+    MeasureDto falseMeasureDto = underTest.toMeasureDto(Measure.newMeasureBuilder().create(false, SOME_DATA), SOME_BOOLEAN_METRIC, SOME_COMPONENT_ID, SOME_SNAPSHOT_ID);
 
     assertThat(falseMeasureDto.getValue()).isEqualTo(0d);
     assertThat(falseMeasureDto.getData()).isEqualTo(SOME_DATA);
@@ -168,7 +168,7 @@ public class MeasureToMeasureDtoTest {
 
   @Test
   public void toMeasureDto_maps_value_and_data_from_data_field_for_INT_metric() {
-    MeasureDto trueMeasureDto = underTest.toMeasureDto(Measure.newMeasure().create(123, SOME_DATA), SOME_INT_METRIC, SOME_COMPONENT_ID, SOME_SNAPSHOT_ID);
+    MeasureDto trueMeasureDto = underTest.toMeasureDto(Measure.newMeasureBuilder().create(123, SOME_DATA), SOME_INT_METRIC, SOME_COMPONENT_ID, SOME_SNAPSHOT_ID);
 
     assertThat(trueMeasureDto.getValue()).isEqualTo(123);
     assertThat(trueMeasureDto.getData()).isEqualTo(SOME_DATA);
@@ -176,7 +176,7 @@ public class MeasureToMeasureDtoTest {
 
   @Test
   public void toMeasureDto_maps_value_and_data_from_data_field_for_LONG_metric() {
-    MeasureDto trueMeasureDto = underTest.toMeasureDto(Measure.newMeasure().create((long) 456, SOME_DATA), SOME_LONG_METRIC, SOME_COMPONENT_ID, SOME_SNAPSHOT_ID);
+    MeasureDto trueMeasureDto = underTest.toMeasureDto(Measure.newMeasureBuilder().create((long) 456, SOME_DATA), SOME_LONG_METRIC, SOME_COMPONENT_ID, SOME_SNAPSHOT_ID);
 
     assertThat(trueMeasureDto.getValue()).isEqualTo(456);
     assertThat(trueMeasureDto.getData()).isEqualTo(SOME_DATA);
@@ -184,7 +184,7 @@ public class MeasureToMeasureDtoTest {
 
   @Test
   public void toMeasureDto_maps_value_and_data_from_data_field_for_DOUBLE_metric() {
-    MeasureDto trueMeasureDto = underTest.toMeasureDto(Measure.newMeasure().create((double) 789, SOME_DATA), SOME_DOUBLE_METRIC, SOME_COMPONENT_ID, SOME_SNAPSHOT_ID);
+    MeasureDto trueMeasureDto = underTest.toMeasureDto(Measure.newMeasureBuilder().create((double) 789, SOME_DATA), SOME_DOUBLE_METRIC, SOME_COMPONENT_ID, SOME_SNAPSHOT_ID);
 
     assertThat(trueMeasureDto.getValue()).isEqualTo(789);
     assertThat(trueMeasureDto.getData()).isEqualTo(SOME_DATA);
@@ -192,7 +192,7 @@ public class MeasureToMeasureDtoTest {
 
   @Test
   public void toMeasureDto_maps_to_only_data_for_STRING_metric() {
-    MeasureDto trueMeasureDto = underTest.toMeasureDto(Measure.newMeasure().create(SOME_STRING), SOME_STRING_METRIC, SOME_COMPONENT_ID, SOME_SNAPSHOT_ID);
+    MeasureDto trueMeasureDto = underTest.toMeasureDto(Measure.newMeasureBuilder().create(SOME_STRING), SOME_STRING_METRIC, SOME_COMPONENT_ID, SOME_SNAPSHOT_ID);
 
     assertThat(trueMeasureDto.getValue()).isNull();
     assertThat(trueMeasureDto.getData()).isEqualTo(SOME_STRING);
@@ -200,7 +200,7 @@ public class MeasureToMeasureDtoTest {
 
   @Test
   public void toMeasureDto_maps_name_of_Level_to_data_and_has_no_value_for_LEVEL_metric() {
-    MeasureDto trueMeasureDto = underTest.toMeasureDto(Measure.newMeasure().create(Measure.Level.OK), SOME_LEVEL_METRIC, SOME_COMPONENT_ID, SOME_SNAPSHOT_ID);
+    MeasureDto trueMeasureDto = underTest.toMeasureDto(Measure.newMeasureBuilder().create(Measure.Level.OK), SOME_LEVEL_METRIC, SOME_COMPONENT_ID, SOME_SNAPSHOT_ID);
 
     assertThat(trueMeasureDto.getValue()).isNull();
     assertThat(trueMeasureDto.getData()).isEqualTo(Measure.Level.OK.name());
