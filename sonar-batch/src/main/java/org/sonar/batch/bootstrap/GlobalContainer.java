@@ -60,7 +60,6 @@ import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.core.rule.CacheRuleFinder;
-import org.sonar.core.user.HibernateUserFinder;
 import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
@@ -148,7 +147,6 @@ public class GlobalContainer extends ComponentContainer {
       EmailSettings.class,
       RuleI18nManager.class,
       MeasuresDao.class,
-      HibernateUserFinder.class,
       PastSnapshotFinderByDate.class,
       PastSnapshotFinderByDays.class,
       PastSnapshotFinderByPreviousAnalysis.class,

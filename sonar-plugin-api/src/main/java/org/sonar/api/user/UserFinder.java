@@ -19,19 +19,15 @@
  */
 package org.sonar.api.user;
 
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.server.ServerSide;
-
-import javax.annotation.CheckForNull;
-
 import java.util.List;
+import javax.annotation.CheckForNull;
+import org.sonar.api.server.ServerSide;
 
 /**
  * @since 3.6
  * @deprecated since 5.1 DB access will soon be removed from batch side
  */
 @Deprecated
-@BatchSide
 @ServerSide
 public interface UserFinder {
 

@@ -19,16 +19,14 @@
  */
 package org.sonar.api.security;
 
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.database.model.User;
+import org.sonar.api.server.ServerSide;
 
 /**
  * @since 2.10
  * @deprecated since 5.1 DB access will soon be removed from batch side
  */
 @Deprecated
-@BatchSide
 @ServerSide
 public interface UserFinder {
 

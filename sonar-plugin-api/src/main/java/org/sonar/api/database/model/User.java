@@ -23,24 +23,13 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.BaseIdentifiable;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-
 /**
  * @since 2.2
  */
-@Entity
-@Table(name = "users")
 public class User extends BaseIdentifiable {
 
-  @Column(name = "login", updatable = true, nullable = true, length = 255)
   private String login;
-
-  @Column(name = "name", updatable = true, nullable = true, length = 200)
   private String name;
-
-  @Column(name = "email", updatable = true, nullable = true, length = 100)
   private String email;
 
   public String getLogin() {

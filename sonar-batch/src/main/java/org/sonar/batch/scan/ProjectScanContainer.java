@@ -81,7 +81,6 @@ import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
-import org.sonar.core.user.DefaultUserFinder;
 
 public class ProjectScanContainer extends ComponentContainer {
 
@@ -207,9 +206,6 @@ public class ProjectScanContainer extends ComponentContainer {
   private void addDataBaseComponents() {
     add(
       PastMeasuresLoader.class,
-
-      // Users
-      DefaultUserFinder.class,
 
       // Rules
       new RulesProvider(),

@@ -19,59 +19,66 @@
  */
 package org.sonar.core.user;
 
-import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.database.model.User;
-import org.sonar.api.security.UserFinder;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import org.sonar.api.utils.System2;
+import org.sonar.core.persistence.DbTester;
+import org.sonar.test.DbTests;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
-public class HibernateUserFinderTest extends AbstractDbUnitTestCase {
+@Category(DbTests.class)
+public class DeprecatedUserFinderTest {
 
-  private UserFinder userFinder;
+  @ClassRule
+  public static final DbTester dbTester = new DbTester();
 
-  @Before
-  public void setUp() {
-    setupData("fixture");
-    userFinder = new HibernateUserFinder(getSessionFactory());
+  @BeforeClass
+  public static void init() {
+    dbTester.prepareDbUnit(DeprecatedUserFinderTest.class, "fixture.xml");
   }
 
   @Test
   public void shouldFindUserByLogin() {
-    User user = userFinder.findByLogin("simon");
+    DeprecatedUserFinder finder = new DeprecatedUserFinder(new UserDao(dbTester.myBatis(), mock(System2.class)));
+    User user = finder.findByLogin("simon");
     assertThat(user.getId(), is(1));
     assertThat(user.getLogin(), is("simon"));
     assertThat(user.getName(), is("Simon Brandhof"));
     assertThat(user.getEmail(), is("simon.brandhof@sonarsource.com"));
 
-    user = userFinder.findByLogin("godin");
+    user = finder.findByLogin("godin");
     assertThat(user.getId(), is(2));
     assertThat(user.getLogin(), is("godin"));
     assertThat(user.getName(), is("Evgeny Mandrikov"));
     assertThat(user.getEmail(), is("evgeny.mandrikov@sonarsource.com"));
 
-    user = userFinder.findByLogin("user");
+    user = finder.findByLogin("user");
     assertThat(user, nullValue());
   }
 
   @Test
   public void shouldFindUserById() {
-    User user = userFinder.findById(1);
+    DeprecatedUserFinder finder = new DeprecatedUserFinder(new UserDao(dbTester.myBatis(), mock(System2.class)));
+    User user = finder.findById(1);
     assertThat(user.getId(), is(1));
     assertThat(user.getLogin(), is("simon"));
     assertThat(user.getName(), is("Simon Brandhof"));
     assertThat(user.getEmail(), is("simon.brandhof@sonarsource.com"));
 
-    user = userFinder.findById(2);
+    user = finder.findById(2);
     assertThat(user.getId(), is(2));
     assertThat(user.getLogin(), is("godin"));
     assertThat(user.getName(), is("Evgeny Mandrikov"));
     assertThat(user.getEmail(), is("evgeny.mandrikov@sonarsource.com"));
 
-    user = userFinder.findById(3);
+    user = finder.findById(3);
     assertThat(user, nullValue());
   }
 

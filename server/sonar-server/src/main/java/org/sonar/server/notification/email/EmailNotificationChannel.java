@@ -25,10 +25,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
 import org.sonar.api.config.EmailSettings;
-import org.sonar.api.database.model.User;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
-import org.sonar.api.security.UserFinder;
+import org.sonar.api.user.User;
+import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -95,13 +95,13 @@ public class EmailNotificationChannel extends NotificationChannel {
   @Override
   public void deliver(Notification notification, String username) {
     User user = userFinder.findByLogin(username);
-    if (StringUtils.isBlank(user.getEmail())) {
+    if (StringUtils.isBlank(user.email())) {
       LOG.debug("Email not defined for user: " + username);
       return;
     }
     EmailMessage emailMessage = format(notification);
     if (emailMessage != null) {
-      emailMessage.setTo(user.getEmail());
+      emailMessage.setTo(user.email());
       deliver(emailMessage);
     }
   }

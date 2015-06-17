@@ -45,7 +45,7 @@ import org.sonar.core.qualitygate.db.QualityGateDao;
 import org.sonar.core.resource.DefaultResourceTypes;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.core.user.DefaultUserFinder;
-import org.sonar.core.user.HibernateUserFinder;
+import org.sonar.core.user.DeprecatedUserFinder;
 import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.activity.RubyQProfileActivityService;
@@ -533,7 +533,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // users
       SecurityRealmFactory.class,
-      HibernateUserFinder.class,
+      DeprecatedUserFinder.class,
       NewUserNotifier.class,
       DefaultUserFinder.class,
       DefaultUserService.class,

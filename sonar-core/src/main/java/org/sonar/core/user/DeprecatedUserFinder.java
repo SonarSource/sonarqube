@@ -19,32 +19,38 @@
  */
 package org.sonar.core.user;
 
-import org.sonar.api.database.DatabaseSession;
+import javax.annotation.Nullable;
 import org.sonar.api.database.model.User;
 import org.sonar.api.security.UserFinder;
-import org.sonar.jpa.session.DatabaseSessionFactory;
 
 /**
  * @since 2.10
  */
-public class HibernateUserFinder implements UserFinder {
+public class DeprecatedUserFinder implements UserFinder {
 
-  private DatabaseSessionFactory sessionFactory;
+  private final UserDao userDao;
 
-  public HibernateUserFinder(DatabaseSessionFactory sessionFactory) {
-    this.sessionFactory = sessionFactory;
+  public DeprecatedUserFinder(UserDao userDao) {
+    this.userDao = userDao;
   }
 
   @Override
   public User findById(int id) {
-    DatabaseSession session = sessionFactory.getSession();
-    return session.getSingleResult(User.class, "id", id);
+    return copy(userDao.getUser(id));
   }
 
   @Override
   public User findByLogin(String login) {
-    DatabaseSession session = sessionFactory.getSession();
-    return session.getSingleResult(User.class, "login", login);
+    return copy(userDao.selectActiveUserByLogin(login));
+  }
+
+  private User copy(@Nullable UserDto dto) {
+    if (dto != null) {
+      User user = new User().setEmail(dto.getEmail()).setLogin(dto.getLogin()).setName(dto.getName());
+      user.setId(dto.getId().intValue());
+      return user;
+    }
+    return null;
   }
 
 }
