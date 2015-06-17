@@ -59,13 +59,14 @@ define([
 
     getMetrics: function () {
       var metrics = '',
-          url = baseUrl + '/api/metrics';
+          url = baseUrl + '/api/metrics/search';
       $.ajax({
         url: url,
-        async: false
+        async: false,
+        data: { ps: 9999 }
       }).done(function (data) {
-        metrics = _.filter(data, function (metric) {
-          return metric.val_type !== 'DATA';
+        metrics = _.filter(data.metrics, function (metric) {
+          return metric.type.key !== 'DATA';
         });
         metrics = _.sortBy(metrics, 'name');
       });

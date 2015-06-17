@@ -308,7 +308,7 @@ casper.test.begin(testName('Details'), 15, function (test) {
         lib.mockRequestFromFile('/api/components/app', 'app.json', { data: { uuid: 'uuid' } });
         lib.mockRequestFromFile('/api/sources/lines', 'lines.json', { data: { uuid: 'uuid' } });
         lib.mockRequestFromFile('/api/issues/search', 'issues-details.json', { data: { componentUuids: 'uuid' } });
-        lib.mockRequestFromFile('/api/metrics', 'metrics.json');
+        lib.mockRequestFromFile('/api/metrics/search', 'metrics.json');
         lib.mockRequestFromFile('/api/resources', 'measures.json',
             { data: { resource: 'org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java' } });
       })
@@ -376,7 +376,7 @@ casper.test.begin(testName('Details', 'Tests'), 41, function (test) {
         lib.mockRequestFromFile('/api/components/app', 'app-test.json', { data: { uuid: 'uuid' } });
         lib.mockRequestFromFile('/api/sources/lines', 'lines.json', { data: { uuid: 'uuid' } });
         lib.mockRequestFromFile('/api/issues/search', 'issues-details.json', { data: { componentUuids: 'uuid' } });
-        lib.mockRequestFromFile('/api/metrics', 'metrics.json');
+        lib.mockRequestFromFile('/api/metrics/search', 'metrics.json');
         lib.mockRequestFromFile('/api/resources', 'measures-test.json',
             { data: { resource: 'org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java' } });
         lib.mockRequestFromFile('/api/tests/list', 'tests.json', { data: { testFileUuid: 'uuid' } });
