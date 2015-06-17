@@ -3,7 +3,7 @@
 set -euo pipefail
 
 function installTravisTools {
-  curl -sSL https://raw.githubusercontent.com/dgageot/travis-utils/v2/install.sh | bash
+  curl -sSL https://raw.githubusercontent.com/sonarsource/travis-utils/v2.1/install.sh | bash
 }
 
 case "$DATABASE" in
