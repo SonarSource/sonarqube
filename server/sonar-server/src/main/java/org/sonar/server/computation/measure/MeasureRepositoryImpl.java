@@ -19,18 +19,14 @@
  */
 package org.sonar.server.computation.measure;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSetMultimap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Nonnull;
+import java.util.Set;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -46,15 +42,15 @@ import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.db.DbClient;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.FluentIterable.from;
 import static java.util.Objects.requireNonNull;
 
 public class MeasureRepositoryImpl implements MeasureRepository {
   private final DbClient dbClient;
   private final BatchReportReader reportReader;
-  private final MeasureDtoToMeasure measureDtoToMeasure = new MeasureDtoToMeasure();
   private final BatchMeasureToMeasure batchMeasureToMeasure;
-  private final Function<BatchReport.Measure, Measure> batchMeasureToMeasureFunction;
+  private final MetricRepository metricRepository;
+  private final MeasureDtoToMeasure measureDtoToMeasure = new MeasureDtoToMeasure();
+  private final Set<Integer> loadedComponents = new HashSet<>();
   private final Map<Integer, Map<MeasureKey, Measure>> measures = new HashMap<>();
 
   public MeasureRepositoryImpl(DbClient dbClient, BatchReportReader reportReader,
@@ -62,14 +58,7 @@ public class MeasureRepositoryImpl implements MeasureRepository {
     this.dbClient = dbClient;
     this.reportReader = reportReader;
     this.batchMeasureToMeasure = new BatchMeasureToMeasure(ruleCache);
-
-    this.batchMeasureToMeasureFunction = new Function<BatchReport.Measure, Measure>() {
-      @Nullable
-      @Override
-      public Measure apply(@Nonnull BatchReport.Measure input) {
-        return batchMeasureToMeasure.toMeasure(input, metricRepository.getByKey(input.getMetricKey())).get();
-      }
-    };
+    this.metricRepository = metricRepository;
   }
 
   @Override
@@ -94,7 +83,10 @@ public class MeasureRepositoryImpl implements MeasureRepository {
     if (local.isPresent()) {
       return local;
     }
-    return findInBatch(component, metric);
+
+    // look up in batch after loading (if not yet loaded) measures from batch
+    loadBatchMeasuresForComponent(component);
+    return findLocal(component, metric, null, null);
   }
 
   @Override
@@ -133,7 +125,7 @@ public class MeasureRepositoryImpl implements MeasureRepository {
           buildRuleOrCharacteristicMsgPart(measure)
           ));
     }
-    addLocal(component, metric, measure);
+    addLocal(component, metric, measure, OverridePolicy.OVERRIDE);
   }
 
   @Override
@@ -152,7 +144,7 @@ public class MeasureRepositoryImpl implements MeasureRepository {
           buildRuleOrCharacteristicMsgPart(measure)
           ));
     }
-    addLocal(component, metric, measure);
+    addLocal(component, metric, measure, OverridePolicy.OVERRIDE);
   }
 
   private static String buildRuleOrCharacteristicMsgPart(Measure measure) {
@@ -167,43 +159,29 @@ public class MeasureRepositoryImpl implements MeasureRepository {
 
   @Override
   public SetMultimap<String, Measure> getRawMeasures(Component component) {
+    loadBatchMeasuresForComponent(component);
     Map<MeasureKey, Measure> rawMeasures = measures.get(component.getRef());
-    ListMultimap<String, BatchReport.Measure> batchMeasures = from(reportReader.readComponentMeasures(component.getRef()))
-      .index(BatchMeasureToMetricKey.INSTANCE);
-
-    if (rawMeasures == null && batchMeasures.isEmpty()) {
+    if (rawMeasures == null) {
       return ImmutableSetMultimap.of();
     }
 
-    ListMultimap<String, Measure> rawMeasuresFromBatch = Multimaps.transformValues(batchMeasures, batchMeasureToMeasureFunction);
-    if (rawMeasures == null) {
-      return ImmutableSetMultimap.copyOf(rawMeasuresFromBatch);
-    }
-
     ImmutableSetMultimap.Builder<String, Measure> builder = ImmutableSetMultimap.builder();
-    builder.putAll(rawMeasuresFromBatch);
     for (Map.Entry<MeasureKey, Measure> entry : rawMeasures.entrySet()) {
       builder.put(entry.getKey().metricKey, entry.getValue());
     }
     return builder.build();
   }
 
-  private Optional<Measure> findInBatch(Component component, final Metric metric) {
-    BatchReport.Measure batchMeasure = Iterables.find(
-      reportReader.readComponentMeasures(component.getRef()),
-      new Predicate<BatchReport.Measure>() {
-        @Override
-        public boolean apply(@Nonnull BatchReport.Measure input) {
-          return input.getMetricKey().equals(metric.getKey());
-        }
-      }
-      , null);
-
-    Optional<Measure> res = batchMeasureToMeasure.toMeasure(batchMeasure, metric);
-    if (res.isPresent()) {
-      addLocal(component, metric, res.get());
+  private void loadBatchMeasuresForComponent(Component component) {
+    if (loadedComponents.contains(component.getRef())) {
+      return;
     }
-    return res;
+
+    for (BatchReport.Measure batchMeasure : reportReader.readComponentMeasures(component.getRef())) {
+      Metric metric = metricRepository.getByKey(batchMeasure.getMetricKey());
+      addLocal(component, metric, batchMeasureToMeasure.toMeasure(batchMeasure, metric).get(), OverridePolicy.DO_NOT_OVERRIDE);
+    }
+    loadedComponents.add(component.getRef());
   }
 
   private Optional<Measure> findLocal(Component component, Metric metric,
@@ -223,23 +201,20 @@ public class MeasureRepositoryImpl implements MeasureRepository {
     return Optional.fromNullable(measuresPerMetric.get(new MeasureKey(metric.getKey(), measure.getRuleId(), measure.getCharacteristicId())));
   }
 
-  private void addLocal(Component component, Metric metric, Measure measure) {
+  private void addLocal(Component component, Metric metric, Measure measure, OverridePolicy overridePolicy) {
     Map<MeasureKey, Measure> measuresPerMetric = measures.get(component.getRef());
     if (measuresPerMetric == null) {
       measuresPerMetric = new HashMap<>();
       measures.put(component.getRef(), measuresPerMetric);
     }
-    measuresPerMetric.put(new MeasureKey(metric.getKey(), measure.getRuleId(), measure.getCharacteristicId()), measure);
+    MeasureKey key = new MeasureKey(metric.getKey(), measure.getRuleId(), measure.getCharacteristicId());
+    if (!measuresPerMetric.containsKey(key) || overridePolicy == OverridePolicy.OVERRIDE) {
+      measuresPerMetric.put(key, measure);
+    }
   }
 
-  private enum BatchMeasureToMetricKey implements Function<BatchReport.Measure, String> {
-    INSTANCE;
-
-    @Nullable
-    @Override
-    public String apply(@Nonnull BatchReport.Measure input) {
-      return input.getMetricKey();
-    }
+  private enum OverridePolicy {
+    OVERRIDE, DO_NOT_OVERRIDE
   }
 
   @Immutable
