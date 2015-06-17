@@ -1,8 +1,8 @@
 <div class="page">
 
-  <div class="pull-left big-spacer-right abs-width-240 text-center">
+  <div class="pull-left big-spacer-right abs-width-240">
     <div class="panel panel-white">
-      <div>
+      <div class="text-center">
         <% if configuration('sonar.lf.enableGravatar', 'true') == 'true' %>
           <div class="js-avatar big-spacer-bottom"></div>
         <% end %>
@@ -32,8 +32,9 @@
       </div>
 
       <% if User.editable_password? %>
-        <div class="big-spacer-top">
-          <button id="account-change-password-trigger" class="open-modal" href="<%= url_for :action => 'change_password_form' %>">
+        <div class="big-spacer-top text-center">
+          <button id="account-change-password-trigger" class="open-modal block-button"
+                  href="<%= url_for :action => 'change_password_form' %>">
             <i class="icon-lock"></i> <%= message('my_profile.password.title') -%>
           </button>
         </div>
