@@ -2,6 +2,7 @@
   "name": "SonarQube",
   "version": "0.0.1",
   "devDependencies": {
+    "body-parser": "1.13.0",
     "casperjs": "1.1.0-beta3",
     "errorhandler": "1.1.1",
     "express": "4.8.0",
