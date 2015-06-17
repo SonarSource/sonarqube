@@ -40,7 +40,6 @@ import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.db.DbClient;
 
 @Properties({
@@ -67,7 +66,6 @@ public class NotificationService implements Startable {
 
   private final long delayInSeconds;
   private final long delayBeforeReportingStatusInSeconds;
-  private final DatabaseSessionFactory databaseSessionFactory;
   private final DefaultNotificationManager manager;
   private final List<NotificationDispatcher> dispatchers;
   private final DbClient dbClient;
@@ -76,8 +74,7 @@ public class NotificationService implements Startable {
   private boolean stopping = false;
 
   public NotificationService(Settings settings, DefaultNotificationManager manager, DbClient dbClient,
-    DatabaseSessionFactory databaseSessionFactory, NotificationDispatcher[] dispatchers) {
-    this.databaseSessionFactory = databaseSessionFactory;
+    NotificationDispatcher[] dispatchers) {
     this.delayInSeconds = settings.getLong(PROPERTY_DELAY);
     this.delayBeforeReportingStatusInSeconds = settings.getLong(PROPERTY_DELAY_BEFORE_REPORTING_STATUS);
     this.manager = manager;
@@ -88,9 +85,8 @@ public class NotificationService implements Startable {
   /**
    * Default constructor when no dispatchers.
    */
-  public NotificationService(Settings settings, DefaultNotificationManager manager, DbClient dbClient,
-    DatabaseSessionFactory databaseSessionFactory) {
-    this(settings, manager, dbClient, databaseSessionFactory, new NotificationDispatcher[0]);
+  public NotificationService(Settings settings, DefaultNotificationManager manager, DbClient dbClient) {
+    this(settings, manager, dbClient, new NotificationDispatcher[0]);
   }
 
   @Override
@@ -103,10 +99,6 @@ public class NotificationService implements Startable {
           processQueue();
         } catch (Exception e) {
           LOG.error("Error in NotificationService", e);
-        } finally {
-          // Free Hibernate session
-          // See https://jira.sonarsource.com/browse/SONAR-6566
-          databaseSessionFactory.clear();
         }
       }
     }, 0, delayInSeconds, TimeUnit.SECONDS);

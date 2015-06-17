@@ -19,8 +19,6 @@
  */
 package org.sonar.server.platform.platformlevel;
 
-import org.sonar.jpa.session.DefaultDatabaseConnector;
-import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
 import org.sonar.server.platform.ws.MigrateDbSystemAction;
 import org.sonar.server.platform.ws.StatusAction;
 import org.sonar.server.platform.ws.SystemWs;
@@ -35,10 +33,6 @@ public class PlatformLevelSafeMode extends PlatformLevel {
   @Override
   protected void configureLevel() {
     add(
-      // DB access required by DatabaseSessionFilter wired into ROR
-      DefaultDatabaseConnector.class,
-      ThreadLocalDatabaseSessionFactory.class,
-
       // Server WS
       StatusAction.class,
       MigrateDbSystemAction.class,

@@ -21,9 +21,6 @@ package org.sonar.server.platform.platformlevel;
 
 import org.sonar.api.utils.UriReader;
 import org.sonar.core.util.DefaultHttpDownloader;
-import org.sonar.jpa.session.DatabaseSessionProvider;
-import org.sonar.jpa.session.DefaultDatabaseConnector;
-import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.startup.ServerMetadataPersister;
@@ -37,9 +34,6 @@ public class PlatformLevel3 extends PlatformLevel {
   protected void configureLevel() {
     add(
       PersistentSettings.class,
-      DefaultDatabaseConnector.class,
-      ThreadLocalDatabaseSessionFactory.class,
-      new DatabaseSessionProvider(),
       ServerMetadataPersister.class,
       DefaultHttpDownloader.class,
       UriReader.class,
