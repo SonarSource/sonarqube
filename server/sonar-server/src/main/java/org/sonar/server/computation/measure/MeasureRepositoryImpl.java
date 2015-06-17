@@ -42,6 +42,7 @@ import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.db.DbClient;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 public class MeasureRepositoryImpl implements MeasureRepository {
@@ -112,18 +113,17 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   @Override
   public void add(Component component, Metric metric, Measure measure) {
     requireNonNull(component);
-    requireNonNull(metric);
-    requireNonNull(measure);
+    checkValueTypeConsistency(metric, measure);
 
     Optional<Measure> existingMeasure = findLocal(component, metric, measure);
     if (existingMeasure.isPresent()) {
       throw new UnsupportedOperationException(
-        String.format(
+        format(
           "a measure can be set only once for a specific Component (ref=%s), Metric (key=%s)%s. Use update method",
           component.getRef(),
           metric.getKey(),
           buildRuleOrCharacteristicMsgPart(measure)
-          ));
+        ));
     }
     addLocal(component, metric, measure, OverridePolicy.OVERRIDE);
   }
@@ -131,20 +131,27 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   @Override
   public void update(Component component, Metric metric, Measure measure) {
     requireNonNull(component);
-    requireNonNull(metric);
-    requireNonNull(measure);
+    checkValueTypeConsistency(metric, measure);
 
     Optional<Measure> existingMeasure = findLocal(component, metric, measure);
     if (!existingMeasure.isPresent()) {
       throw new UnsupportedOperationException(
-        String.format(
+        format(
           "a measure can be updated only if one already exists for a specific Component (ref=%s), Metric (key=%s)%s. Use add method",
           component.getRef(),
           metric.getKey(),
           buildRuleOrCharacteristicMsgPart(measure)
-          ));
+        ));
     }
     addLocal(component, metric, measure, OverridePolicy.OVERRIDE);
+  }
+
+  private void checkValueTypeConsistency(Metric metric, Measure measure) {
+    checkArgument(
+      measure.getValueType() == Measure.ValueType.NO_VALUE || measure.getValueType() == metric.getType().getValueType(),
+      format(
+        "Measure's ValueType (%s) is not consistent with the Measure's ValueType (%s)",
+        measure.getValueType(), metric.getType().getValueType()));
   }
 
   private static String buildRuleOrCharacteristicMsgPart(Measure measure) {

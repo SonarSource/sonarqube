@@ -19,15 +19,23 @@
  */
 package org.sonar.server.computation.measure;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.SetMultimap;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.measure.db.MeasureDto;
@@ -43,11 +51,14 @@ import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.debt.Characteristic;
 import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.computation.metric.Metric;
+import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
 
+import static com.google.common.collect.FluentIterable.from;
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -56,6 +67,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+@RunWith(DataProviderRunner.class)
 public class MeasureRepositoryImplTest {
   @ClassRule
   public static final DbTester dbTester = new DbTester();
@@ -74,7 +86,7 @@ public class MeasureRepositoryImplTest {
   private static final long LAST_SNAPSHOT_ID = 123;
   private static final long OTHER_SNAPSHOT_ID = 369;
   private static final long COMPONENT_ID = 567;
-  private static final Measure SOME_MEASURE = Measure.newMeasureBuilder().create(Measure.Level.OK);
+  private static final Measure SOME_MEASURE = Measure.newMeasureBuilder().create("some value");
   private static final String SOME_DATA = "some data";
   private static final RuleDto SOME_RULE = RuleDto.createFor(RuleKey.of("A", "1")).setId(963);
   private static final Characteristic SOME_CHARACTERISTIC = new Characteristic(741, "key");
@@ -198,6 +210,74 @@ public class MeasureRepositoryImplTest {
     underTest.update(FILE_COMPONENT, metric1, SOME_MEASURE);
   }
 
+  private static final List<Measure> MEASURES = ImmutableList.of(
+    Measure.newMeasureBuilder().create(1),
+    Measure.newMeasureBuilder().create(1l),
+    Measure.newMeasureBuilder().create(1d),
+    Measure.newMeasureBuilder().create(true),
+    Measure.newMeasureBuilder().create(false),
+    Measure.newMeasureBuilder().create("sds"),
+    Measure.newMeasureBuilder().create(Measure.Level.OK),
+    Measure.newMeasureBuilder().createNoValue()
+    );
+
+  @DataProvider
+  public static Object[][] measures() {
+    return from(MEASURES).transform(new Function<Measure, Object[]>() {
+      @Nullable
+      @Override
+      public Object[] apply(Measure input) {
+        return new Measure[] { input };
+      }
+    }).toArray(Object[].class);
+  }
+
+  @Test
+  public void add_accepts_NO_VALUE_as_measure_arg() {
+    for (Metric.MetricType metricType : Metric.MetricType.values()) {
+      underTest.add(FILE_COMPONENT, new MetricImpl(1, "key" + metricType, "name" + metricType, metricType), Measure.newMeasureBuilder().createNoValue());
+    }
+  }
+
+  @Test
+  @UseDataProvider("measures")
+  public void update_throws_IAE_if_valueType_of_Measure_is_not_the_same_as_the_Metric_valueType_unless_NO_VALUE(Measure measure) {
+    for (Metric.MetricType metricType : Metric.MetricType.values()) {
+      if (metricType.getValueType() == measure.getValueType() || measure.getValueType() == Measure.ValueType.NO_VALUE) {
+        continue;
+      }
+
+      try {
+        final MetricImpl metric = new MetricImpl(1, "key" + metricType, "name" + metricType, metricType);
+        underTest.add(FILE_COMPONENT, metric, getSomeMeasureByValueType(metricType));
+        underTest.update(FILE_COMPONENT, metric, measure);
+        fail("An IllegalArgumentException should have been raised");
+      } catch (IllegalArgumentException e) {
+        assertThat(e).hasMessage(format(
+            "Measure's ValueType (%s) is not consistent with the Measure's ValueType (%s)",
+            measure.getValueType(), metricType.getValueType()));
+      }
+    }
+  }
+
+  @Test
+  public void update_accepts_NO_VALUE_as_measure_arg() {
+    for (Metric.MetricType metricType : Metric.MetricType.values()) {
+      MetricImpl metric = new MetricImpl(1, "key" + metricType, "name" + metricType, metricType);
+      underTest.add(FILE_COMPONENT, metric, getSomeMeasureByValueType(metricType));
+      underTest.update(FILE_COMPONENT, metric, Measure.newMeasureBuilder().createNoValue());
+    }
+  }
+
+  private Measure getSomeMeasureByValueType(final Metric.MetricType metricType) {
+    return from(MEASURES).filter(new Predicate<Measure>() {
+      @Override
+      public boolean apply(@Nullable Measure input) {
+        return input.getValueType() == metricType.getValueType();
+      }
+    }).first().get();
+  }
+
   @Test
   public void update_supports_updating_to_the_same_value() {
     underTest.add(FILE_COMPONENT, metric1, SOME_MEASURE);
@@ -306,8 +386,8 @@ public class MeasureRepositoryImplTest {
   @Test
   public void getRawMeasure_retrieves_measure_from_batch_and_caches_it_locally_so_that_it_can_be_updated() {
     reportReader.putMeasures(FILE_COMPONENT.getRef(), ImmutableList.of(
-        BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build()
-    ));
+      BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build()
+      ));
 
     Optional<Measure> measure = underTest.getRawMeasure(FILE_COMPONENT, metric1);
 
