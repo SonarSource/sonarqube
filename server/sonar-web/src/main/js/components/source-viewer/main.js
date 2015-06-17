@@ -46,7 +46,7 @@ define([
         className: 'source-viewer',
         template: Templates['source-viewer'],
 
-        ISSUES_LIMIT: 100,
+        ISSUES_LIMIT: 3000,
         LINES_LIMIT: 1000,
         TOTAL_LINES_LIMIT: 3000,
         LINES_AROUND: 500,
@@ -85,7 +85,6 @@ define([
           this.issueViews = [];
           this.loadSourceBeforeThrottled = _.throttle(this.loadSourceBefore, 1000);
           this.loadSourceAfterThrottled = _.throttle(this.loadSourceAfter, 1000);
-          this.scrollTimer = null;
           this.highlightedLine = null;
           this.listenTo(this, 'loaded', this.onLoaded);
         },
@@ -279,7 +278,7 @@ define([
                   resolved: false,
                   s: 'FILE_LINE',
                   asc: true,
-                  ignorePaging: true
+                  ps: this.ISSUES_LIMIT
                 }
               };
           return this.issues.fetch(options).done(function () {
