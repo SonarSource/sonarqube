@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
-import org.sonar.api.config.EmailSettings;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
@@ -58,10 +57,8 @@ import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.platform.PluginRepository;
-import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.core.rule.CacheRuleFinder;
 import org.sonar.core.util.DefaultHttpDownloader;
-import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.JpaDatabaseSession;
 
@@ -142,11 +139,8 @@ public class GlobalContainer extends ComponentContainer {
       JpaDatabaseSession.class,
       BatchDatabaseSessionFactory.class,
       DaoUtils.getDaoClasses(),
-      PurgeProfiler.class,
       CacheRuleFinder.class,
-      EmailSettings.class,
       RuleI18nManager.class,
-      MeasuresDao.class,
       PastSnapshotFinderByDate.class,
       PastSnapshotFinderByDays.class,
       PastSnapshotFinderByPreviousAnalysis.class,
