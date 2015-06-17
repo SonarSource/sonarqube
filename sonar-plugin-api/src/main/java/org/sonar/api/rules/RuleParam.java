@@ -22,31 +22,13 @@ package org.sonar.api.rules;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import javax.persistence.*;
-
-@Entity
-@Table(name = "rules_parameters")
 public class RuleParam {
 
-  @Id
-  @Column(name = "id")
-  @GeneratedValue
   private Integer id;
-
-  @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "rule_id")
   private Rule rule;
-
-  @Column(name = "name", updatable = true, nullable = false, length = 128)
   private String key;
-
-  @Column(name = "description", updatable = true, nullable = true, length = 4000)
   private String description;
-
-  @Column(name = "param_type", updatable = true, nullable = true, length = 512)
   private String type = "STRING";
-
-  @Column(name = "default_value", updatable = true, nullable = true, length = 4000)
   private String defaultValue;
 
   /**
@@ -150,10 +132,10 @@ public class RuleParam {
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-        .append("id", id)
-        .append("key", key)
-        .append("desc", description)
-        .append("type", type)
-        .toString();
+      .append("id", id)
+      .append("key", key)
+      .append("desc", description)
+      .append("type", type)
+      .toString();
   }
 }

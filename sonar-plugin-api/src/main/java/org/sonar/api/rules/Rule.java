@@ -28,32 +28,15 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Cardinality;
 
-@Entity
-@Table(name = "rules")
 public class Rule {
 
   /**
@@ -83,9 +66,6 @@ public class Rule {
    */
   private static final Set<String> STATUS_LIST = ImmutableSet.of(STATUS_READY, STATUS_BETA, STATUS_DEPRECATED, STATUS_REMOVED);
 
-  @Id
-  @Column(name = "id")
-  @GeneratedValue
   private Integer id;
 
   /**
@@ -93,70 +73,26 @@ public class Rule {
    */
   public static final RulePriority DEFAULT_PRIORITY = RulePriority.MAJOR;
 
-  @Column(name = "name", updatable = true, nullable = true, length = 200)
   private String name;
-
-  @Column(name = "plugin_rule_key", updatable = false, nullable = true, length = 200)
   private String key;
-
-  @Column(name = "plugin_config_key", updatable = true, nullable = true, length = 500)
   private String configKey;
-
-  @Column(name = "priority", updatable = true, nullable = true)
-  @Enumerated(EnumType.ORDINAL)
   private RulePriority priority = DEFAULT_PRIORITY;
-
-  @Column(name = "description", updatable = true, nullable = true, length = DatabaseProperties.MAX_TEXT_SIZE)
   private String description;
-
-  @Column(name = "plugin_name", updatable = true, nullable = false)
   private String pluginName;
-
-  @Enumerated(EnumType.STRING)
-  @Column(name = "is_template", updatable = true, nullable = false)
   private boolean isTemplate = false;
-
-  @Column(name = "status", updatable = true, nullable = true)
   private String status = STATUS_READY;
-
-  @Column(name = "language", updatable = true, nullable = true)
   private String language;
-
-  @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "template_id", updatable = true, nullable = true)
   private Rule template = null;
-
-  @Column(name = "characteristic_id", updatable = true, nullable = true)
   private Integer characteristicId;
-
-  @Column(name = "default_characteristic_id", updatable = true, nullable = true)
   private Integer defaultCharacteristicId;
-
-  @org.hibernate.annotations.Cascade({org.hibernate.annotations.CascadeType.ALL, org.hibernate.annotations.CascadeType.DELETE_ORPHAN})
-  @OneToMany(mappedBy = "rule")
   private List<RuleParam> params = new ArrayList<>();
-
-  @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "created_at", updatable = true, nullable = true)
   private Date createdAt;
-
-  @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "updated_at", updatable = true, nullable = true)
   private Date updatedAt;
-
-  @Transient
   private String defaultCharacteristicKey;
-  @Transient
   private String defaultSubCharacteristicKey;
-  @Transient
   private String characteristicKey;
-  @Transient
   private String subCharacteristicKey;
-
-  @Column(name = "tags", updatable = false, nullable = true, length = 4000)
   private String tags;
-
-  @Column(name = "system_tags", updatable = false, nullable = true, length = 4000)
   private String systemTags;
 
   /**

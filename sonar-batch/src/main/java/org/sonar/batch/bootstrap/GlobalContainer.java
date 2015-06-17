@@ -57,7 +57,6 @@ import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.platform.PluginRepository;
-import org.sonar.core.rule.CacheRuleFinder;
 import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.JpaDatabaseSession;
@@ -139,7 +138,6 @@ public class GlobalContainer extends ComponentContainer {
       JpaDatabaseSession.class,
       BatchDatabaseSessionFactory.class,
       DaoUtils.getDaoClasses(),
-      CacheRuleFinder.class,
       RuleI18nManager.class,
       PastSnapshotFinderByDate.class,
       PastSnapshotFinderByDays.class,
