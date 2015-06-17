@@ -6,7 +6,7 @@ jdk:
 
 env:
   - DATABASE=H2
-  - DATABASE=POSTGRES
+#  - DATABASE=POSTGRES
   - DATABASE=MYSQL
 
 script:
