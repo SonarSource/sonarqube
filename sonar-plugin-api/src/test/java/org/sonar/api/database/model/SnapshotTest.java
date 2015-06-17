@@ -21,8 +21,9 @@ package org.sonar.api.database.model;
 
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class SnapshotTest {
 
@@ -57,30 +58,6 @@ public class SnapshotTest {
     Snapshot snapshot = new Snapshot();
     assertNotNull(snapshot.getLast());
     assertEquals(Boolean.FALSE, snapshot.getLast());
-  }
-
-  @Test
-  public void testRootProjectIdOfProjects() {
-    ResourceModel resource = new ResourceModel();
-    resource.setQualifier("TRK");
-    resource.setId(3);
-
-    Snapshot snapshot = new Snapshot(resource, null);
-    assertThat(snapshot.getRootProjectId(), is(3));
-  }
-
-  @Test
-  public void testRootProjectIdOfModules() {
-    ResourceModel parentResource = new ResourceModel();
-    parentResource.setId(3);
-    parentResource.setQualifier("TRK");
-    Snapshot parentSnapshot = new Snapshot(parentResource, null);
-
-    ResourceModel resource = new ResourceModel();
-    resource.setId(4);
-    resource.setQualifier("BRC");
-    Snapshot snapshot = new Snapshot(resource, parentSnapshot);
-    assertThat(snapshot.getRootProjectId(), is(3));
   }
 
 }

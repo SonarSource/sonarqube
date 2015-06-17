@@ -36,7 +36,6 @@ import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.apache.ibatis.type.JdbcType;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.BatchSide;
-import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.core.activity.db.ActivityMapper;
@@ -215,7 +214,6 @@ public class MyBatis {
     loadAlias(conf, "UserGroup", UserGroupDto.class);
     loadAlias(conf, "Widget", WidgetDto.class);
     loadAlias(conf, "WidgetProperty", WidgetPropertyDto.class);
-    loadAlias(conf, "MeasureModel", MeasureModel.class);
     loadAlias(conf, "Measure", MeasureDto.class);
     loadAlias(conf, "Issue", IssueDto.class);
     loadAlias(conf, "IssueChange", IssueChangeDto.class);

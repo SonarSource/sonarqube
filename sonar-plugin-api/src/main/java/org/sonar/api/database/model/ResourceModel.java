@@ -368,42 +368,4 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable, Serial
       .toString();
   }
 
-  @Override
-  public Object clone() {
-    ResourceModel clone = new ResourceModel(getScope(), getKey(), getQualifier(), getRootId(), getPath(), getName());
-    clone.setDescription(getDescription());
-    clone.setDeprecatedKey(getDeprecatedKey());
-    clone.setEnabled(getEnabled());
-    clone.setLanguageKey(getLanguageKey());
-    clone.setCopyResourceId(getCopyResourceId());
-    clone.setLongName(getLongName());
-    clone.setPersonId(getPersonId());
-    clone.setCreatedAt(getCreatedAt());
-    return clone;
-  }
-
-  /**
-   * Maps a resource to a resource model and returns the resource
-   */
-  public static ResourceModel build(Resource resource) {
-    ResourceModel model = new ResourceModel();
-    model.setEnabled(Boolean.TRUE);
-    model.setDescription(resource.getDescription());
-    model.setKey(resource.getEffectiveKey());
-    model.setPath(resource.getPath());
-    Language lang = resource.getLanguage();
-    if (lang != null) {
-      model.setLanguageKey(lang.getKey());
-    }
-    if (StringUtils.isNotBlank(resource.getName())) {
-      model.setName(resource.getName());
-    } else {
-      model.setName(resource.getKey());
-    }
-    model.setLongName(resource.getLongName());
-    model.setQualifier(resource.getQualifier());
-    model.setScope(resource.getScope());
-    return model;
-  }
-
 }
