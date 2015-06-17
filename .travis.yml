@@ -1,4 +1,5 @@
 language: java
+sudo: false
 install: true
 
 jdk:
