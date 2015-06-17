@@ -24,7 +24,6 @@ import com.google.common.base.Optional;
 import java.util.Collections;
 import java.util.Map;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
 
 import static com.google.common.base.Predicates.notNull;
@@ -39,8 +38,12 @@ public class PlatformLanguageRepository implements LanguageRepository {
 
   private final Map<String, Language> languagesByKey;
 
-  public PlatformLanguageRepository(@Nullable Language... languages) {
-    this.languagesByKey = languages == null ? Collections.<String, Language>emptyMap() : uniqueIndex(filter(asList(languages), notNull()), LanguageToKey.INSTANCE);
+  public PlatformLanguageRepository() {
+    this.languagesByKey = Collections.emptyMap();
+  }
+
+  public PlatformLanguageRepository(Language... languages) {
+    this.languagesByKey = uniqueIndex(filter(asList(languages), notNull()), LanguageToKey.INSTANCE);
   }
 
   @Override
