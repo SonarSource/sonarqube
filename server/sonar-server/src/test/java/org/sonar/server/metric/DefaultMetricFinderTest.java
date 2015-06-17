@@ -17,25 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.metric;
+package org.sonar.server.metric;
 
 import java.util.Arrays;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import org.junit.experimental.categories.Category;
+import org.sonar.core.persistence.DbTester;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.metric.persistence.MetricDao;
+import org.sonar.test.DbTests;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
-public class DefaultMetricFinderTest extends AbstractDbUnitTestCase {
+@Category(DbTests.class)
+public class DefaultMetricFinderTest {
 
-  private DefaultMetricFinder finder;
+  @ClassRule
+  public static DbTester dbTester = new DbTester();
+
+  DefaultMetricFinder finder;
 
   @Before
   public void setUp() {
-    setupData("shared");
-    finder = new DefaultMetricFinder(getSessionFactory());
+    dbTester.prepareDbUnit(DefaultMetricFinderTest.class, "shared.xml");
+    finder = new DefaultMetricFinder(new DbClient(dbTester.database(), dbTester.myBatis(), new MetricDao()));
   }
 
   @Test
@@ -45,7 +54,7 @@ public class DefaultMetricFinderTest extends AbstractDbUnitTestCase {
 
   @Test
   public void shouldFindByKeys() {
-    assertThat(finder.findAll(Arrays.<String> asList("ncloc", "foo", "coverage")).size(), is(2));
+    assertThat(finder.findAll(Arrays.asList("ncloc", "foo", "coverage")).size(), is(2));
   }
 
   @Test

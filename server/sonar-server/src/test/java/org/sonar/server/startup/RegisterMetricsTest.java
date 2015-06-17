@@ -19,120 +19,127 @@
  */
 package org.sonar.server.startup;
 
-import com.google.common.collect.Lists;
+import java.util.Collections;
+import java.util.List;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
+import org.sonar.core.persistence.DbTester;
 import org.sonar.core.qualitygate.db.QualityGateConditionDao;
-import org.sonar.jpa.dao.MeasuresDao;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.metric.persistence.MetricDao;
+import org.sonar.test.DbTests;
 
-import java.util.Arrays;
-import java.util.List;
-
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-public class RegisterMetricsTest extends AbstractDbUnitTestCase {
+@Category(DbTests.class)
+public class RegisterMetricsTest {
 
+  @ClassRule
+  public static DbTester dbTester = new DbTester();
+
+  /**
+   * Insert new metrics, including custom metrics
+   */
   @Test
-  public void shouldSaveIfNew() {
-    setupData("shouldSaveIfNew");
+  public void insert_new_metrics() {
+    dbTester.prepareDbUnit(getClass(), "insert_new_metrics.xml");
 
-    Metric metric1 = new Metric.Builder("new1", "short1", Metric.ValueType.FLOAT)
+    Metric m1 = new Metric.Builder("m1", "One", Metric.ValueType.FLOAT)
       .setDescription("desc1")
       .setDirection(1)
       .setQualitative(true)
       .setDomain("domain1")
       .setUserManaged(false)
       .create();
-    Metric metric2 = new Metric.Builder("new2", "short2", Metric.ValueType.FLOAT)
-      .setDescription("desc2")
-      .setDirection(1)
-      .setQualitative(true)
-      .setDomain("domain2")
-      .setUserManaged(false)
+    Metric custom = new Metric.Builder("custom", "Custom", Metric.ValueType.FLOAT)
+      .setDescription("This is a custom metric")
+      .setUserManaged(true)
       .create();
 
-    RegisterMetrics synchronizer = new RegisterMetrics(new MeasuresDao(getSession()), mock(QualityGateConditionDao.class), new Metrics[0]);
-    synchronizer.register(Arrays.asList(metric1, metric2));
-    checkTables("shouldSaveIfNew", "metrics");
+    RegisterMetrics register = new RegisterMetrics(dbClient());
+    register.register(asList(m1, custom));
+    dbTester.assertDbUnit(getClass(), "insert_new_metrics-result.xml", "metrics");
   }
 
+  /**
+   * Update existing metrics, except if custom metric
+   */
   @Test
-  public void shouldUpdateIfAlreadyExists() {
-    setupData("shouldUpdateIfAlreadyExists");
+  public void update_non_custom_metrics() {
+    dbTester.prepareDbUnit(getClass(), "update_non_custom_metrics.xml");
 
-    RegisterMetrics synchronizer = new RegisterMetrics(new MeasuresDao(getSession()), mock(QualityGateConditionDao.class), new Metrics[0]);
-    synchronizer.register(Lists.<Metric>newArrayList(new Metric.Builder("key", "new short name", Metric.ValueType.FLOAT)
+    RegisterMetrics register = new RegisterMetrics(dbClient());
+    Metric m1 = new Metric.Builder("m1", "New name", Metric.ValueType.FLOAT)
       .setDescription("new description")
       .setDirection(-1)
       .setQualitative(true)
       .setDomain("new domain")
       .setUserManaged(false)
-      .create()));
-
-    checkTables("shouldUpdateIfAlreadyExists", "metrics");
-  }
-
-  @Test
-  public void shouldAddUserManagesMetric() {
-    Metrics metrics = mock(Metrics.class);
-    when(metrics.getMetrics()).thenReturn(Lists.<Metric>newArrayList(new Metric.Builder("key", "new short name", Metric.ValueType.FLOAT)
-      .setDescription("new description")
-      .setDirection(-1)
-      .setQualitative(true)
-      .setDomain("new domain")
+      .setHidden(true)
+      .create();
+    Metric custom = new Metric.Builder("custom", "New custom", Metric.ValueType.FLOAT)
+      .setDescription("New description of custom metric")
       .setUserManaged(true)
-      .create()));
+      .create();
+    register.register(asList(m1, custom));
 
-    MeasuresDao measuresDao = new MeasuresDao(getSession());
-    RegisterMetrics loader = new RegisterMetrics(measuresDao, mock(QualityGateConditionDao.class), new Metrics[] {metrics});
-    List<Metric> result = loader.getMetricsRepositories();
-
-    assertThat(result).hasSize(1);
+    dbTester.assertDbUnit(getClass(), "update_non_custom_metrics-result.xml", "metrics");
   }
 
   @Test
-  public void shouldNotUpdateUserManagesMetricIfAlreadyExists() {
-    setupData("shouldNotUpdateUserManagesMetricIfAlreadyExists");
+  public void disable_undefined_metrics() {
+    dbTester.prepareDbUnit(getClass(), "disable_undefined_metrics.xml");
 
-    Metrics metrics = mock(Metrics.class);
-    when(metrics.getMetrics()).thenReturn(Lists.<Metric>newArrayList(new Metric.Builder("key", "new short name", Metric.ValueType.FLOAT)
-      .setDescription("new description")
-      .setDirection(-1)
-      .setQualitative(true)
-      .setDomain("new domain")
-      .setUserManaged(true)
-      .create()));
+    RegisterMetrics register = new RegisterMetrics(dbClient());
+    register.register(Collections.<Metric>emptyList());
 
-    MeasuresDao measuresDao = new MeasuresDao(getSession());
-    RegisterMetrics loader = new RegisterMetrics(measuresDao, mock(QualityGateConditionDao.class), new Metrics[] {metrics});
-    List<Metric> result = loader.getMetricsRepositories();
-
-    assertThat(result).isEmpty();
+    dbTester.assertDbUnit(getClass(), "disable_undefined_metrics-result.xml", "metrics");
   }
 
   @Test
-  public void shouldEnableOnlyLoadedMetrics() {
-    setupData("shouldEnableOnlyLoadedMetrics");
+  public void insert_core_metrics() {
+    dbTester.truncateTables();
 
-    MeasuresDao measuresDao = new MeasuresDao(getSession());
-    RegisterMetrics loader = new RegisterMetrics(measuresDao, mock(QualityGateConditionDao.class), new Metrics[0]);
-    loader.start();
+    RegisterMetrics register = new RegisterMetrics(dbClient());
+    register.start();
 
-    assertThat(measuresDao.getMetric("deprecated").getEnabled()).isFalse();
-    assertThat(measuresDao.getMetric(CoreMetrics.COMPLEXITY_KEY).getEnabled()).isTrue();
+    assertThat(dbTester.countRowsOfTable("metrics")).isEqualTo(CoreMetrics.getMetrics().size());
   }
 
-  @Test
-  public void clean_quality_gate_conditions() {
-    QualityGateConditionDao conditionDao = mock(QualityGateConditionDao.class);
-    RegisterMetrics loader = new RegisterMetrics(new MeasuresDao(getSession()), conditionDao, new Metrics[0]);
-    loader.cleanAlerts();
-    verify(conditionDao).deleteConditionsWithInvalidMetrics();
+  @Test(expected = IllegalStateException.class)
+  public void fail_if_duplicated_plugin_metrics() throws Exception {
+    Metrics plugin1 = new TestMetrics(new Metric.Builder("m1", "In first plugin", Metric.ValueType.FLOAT).create());
+    Metrics plugin2 = new TestMetrics(new Metric.Builder("m1", "In second plugin", Metric.ValueType.FLOAT).create());
+
+    new RegisterMetrics(dbClient(), new Metrics[]{plugin1, plugin2}).start();
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void fail_if_plugin_duplicates_core_metric() throws Exception {
+    Metrics plugin = new TestMetrics(new Metric.Builder("ncloc", "In plugin", Metric.ValueType.FLOAT).create());
+
+    new RegisterMetrics(dbClient(), new Metrics[]{plugin}).start();
+  }
+
+  private DbClient dbClient() {
+    return new DbClient(dbTester.database(), dbTester.myBatis(), new MetricDao(), new QualityGateConditionDao(dbTester.myBatis()));
+  }
+
+  private class TestMetrics implements Metrics {
+    private final List<Metric> metrics;
+
+    public TestMetrics(Metric... metrics) {
+      this.metrics = asList(metrics);
+    }
+
+    @Override
+    public List<Metric> getMetrics() {
+      return metrics;
+    }
   }
 }

@@ -36,6 +36,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.purge.PurgeDao;
+import org.sonar.core.qualitygate.db.QualityGateConditionDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
@@ -107,6 +108,7 @@ public class DbClient {
   private final EventDao eventDao;
   private final PurgeDao purgeDao;
   private final CustomMeasureDao customMeasureDao;
+  private final QualityGateConditionDao gateConditionDao;
 
   public DbClient(Database db, MyBatis myBatis, DaoComponent... daoComponents) {
     this.db = db;
@@ -150,6 +152,7 @@ public class DbClient {
     componentLinkDao = getDao(map, ComponentLinkDao.class);
     eventDao = getDao(map, EventDao.class);
     purgeDao = getDao(map, PurgeDao.class);
+    gateConditionDao = getDao(map, QualityGateConditionDao.class);
   }
 
   public Database database() {
@@ -294,6 +297,10 @@ public class DbClient {
 
   public PurgeDao purgeDao() {
     return purgeDao;
+  }
+
+  public QualityGateConditionDao gateConditionDao() {
+    return gateConditionDao;
   }
 
   private <K> K getDao(Map<Class, DaoComponent> map, Class<K> clazz) {

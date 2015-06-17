@@ -20,99 +20,142 @@
 package org.sonar.server.startup;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import com.google.common.base.Function;
 import com.google.common.collect.Maps;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.core.qualitygate.db.QualityGateConditionDao;
-import org.sonar.jpa.dao.MeasuresDao;
+import org.sonar.core.metric.db.MetricDto;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.db.DbClient;
 
-import java.util.List;
-import java.util.Map;
-
+import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Lists.newArrayList;
 
 public class RegisterMetrics {
 
   private static final Logger LOG = Loggers.get(RegisterMetrics.class);
 
-  private final MeasuresDao measuresDao;
+  private final DbClient dbClient;
   private final Metrics[] metricsRepositories;
-  private final QualityGateConditionDao conditionDao;
 
-  public RegisterMetrics(MeasuresDao measuresDao, QualityGateConditionDao conditionDao, Metrics[] metricsRepositories) {
-    this.measuresDao = measuresDao;
+  public RegisterMetrics(DbClient dbClient, Metrics[] metricsRepositories) {
+    this.dbClient = dbClient;
     this.metricsRepositories = metricsRepositories;
-    this.conditionDao = conditionDao;
   }
 
   /**
    * Used when no plugin is defining Metrics
    */
-  public RegisterMetrics(MeasuresDao measuresDao, QualityGateConditionDao conditionDao) {
-    this(measuresDao, conditionDao, new Metrics[]{});
+  public RegisterMetrics(DbClient dbClient) {
+    this(dbClient, new Metrics[] {});
   }
 
   public void start() {
-    Profiler profiler = Profiler.create(LOG).startInfo("Register metrics");
-    measuresDao.disableAutomaticMetrics();
+    register(concat(CoreMetrics.getMetrics(), getPluginMetrics()));
+  }
 
-    List<Metric> metricsToRegister = newArrayList();
-    metricsToRegister.addAll(CoreMetrics.getMetrics());
-    metricsToRegister.addAll(getMetricsRepositories());
-    register(metricsToRegister);
-    cleanAlerts();
+  void register(Iterable<Metric> metrics) {
+    Profiler profiler = Profiler.create(LOG).startInfo("Register metrics");
+    DbSession session = dbClient.openSession(false);
+    try {
+      save(session, metrics);
+      sanitizeQualityGates(session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
     profiler.stopDebug();
   }
 
+  private void sanitizeQualityGates(DbSession session) {
+    dbClient.gateConditionDao().deleteConditionsWithInvalidMetrics(session);
+  }
+
+  private void save(DbSession session, Iterable<Metric> metrics) {
+    Map<String, MetricDto> basesByKey = new HashMap<>();
+    for (MetricDto base : from(dbClient.metricDao().selectEnabled(session)).toList()) {
+      basesByKey.put(base.getKey(), base);
+    }
+
+    for (Metric metric : metrics) {
+      MetricDto dto = MetricToDto.INSTANCE.apply(metric);
+      MetricDto base = basesByKey.get(metric.getKey());
+      if (base == null) {
+        // new metric, never installed
+        dbClient.metricDao().insert(session, dto);
+      } else if (!base.isUserManaged()) {
+        // existing metric, update changes. Existing custom metrics are kept without applying changes.
+        dto.setId(base.getId());
+        dbClient.metricDao().update(session, dto);
+      }
+      basesByKey.remove(metric.getKey());
+    }
+
+    for (MetricDto nonUpdatedBase : basesByKey.values()) {
+      if (!nonUpdatedBase.isUserManaged()) {
+        LOG.info("Disable metric {} [{}]", nonUpdatedBase.getShortName(), nonUpdatedBase.getKey());
+        dbClient.metricDao().disableByKey(session, nonUpdatedBase.getKey());
+      }
+    }
+  }
+
   @VisibleForTesting
-  List<Metric> getMetricsRepositories() {
+  List<Metric> getPluginMetrics() {
     List<Metric> metricsToRegister = newArrayList();
     Map<String, Metrics> metricsByRepository = Maps.newHashMap();
-
     for (Metrics metrics : metricsRepositories) {
       checkMetrics(metricsByRepository, metrics);
-      metricsToRegister.addAll(removeExistingUserManagedMetrics(metrics.getMetrics()));
+      metricsToRegister.addAll(metrics.getMetrics());
     }
 
     return metricsToRegister;
-  }
-
-  private List<Metric> removeExistingUserManagedMetrics(List<Metric> metrics) {
-    return newArrayList(Iterables.filter(metrics, new Predicate<Metric>() {
-      @Override
-      public boolean apply(Metric metric) {
-        // It should be better to use the template mechanism (as it's done in #RegisterDashboards to register provided user manager metrics
-        return !metric.getUserManaged() || measuresDao.getMetric(metric.getKey()) == null;
-      }
-    }));
   }
 
   private void checkMetrics(Map<String, Metrics> metricsByRepository, Metrics metrics) {
     for (Metric metric : metrics.getMetrics()) {
       String metricKey = metric.getKey();
       if (CoreMetrics.getMetrics().contains(metric)) {
-        throw new IllegalStateException("The following metric is already defined in sonar: " + metricKey);
+        throw new IllegalStateException(String.format("Metric [%s] is already defined by SonarQube", metricKey));
       }
       Metrics anotherRepository = metricsByRepository.get(metricKey);
       if (anotherRepository != null) {
-        throw new IllegalStateException("The metric '" + metricKey + "' is already defined in the extension: " + anotherRepository);
+        throw new IllegalStateException(String.format("Metric [%s] is already defined by the repository [%s]", metricKey, anotherRepository));
       }
       metricsByRepository.put(metricKey, metrics);
     }
   }
 
-  protected void cleanAlerts() {
-    LOG.info("Cleaning quality gate conditions");
-    conditionDao.deleteConditionsWithInvalidMetrics();
-  }
-
-  protected void register(List<Metric> metrics) {
-    measuresDao.registerMetrics(metrics);
+  private enum MetricToDto implements Function<Metric, MetricDto> {
+    INSTANCE;
+    @Override
+    @Nonnull
+    public MetricDto apply(@Nonnull Metric metric) {
+      MetricDto dto = new MetricDto();
+      dto.setId(metric.getId());
+      dto.setKey(metric.getKey());
+      dto.setDescription(metric.getDescription());
+      dto.setShortName(metric.getName());
+      dto.setBestValue(metric.getBestValue());
+      dto.setDomain(metric.getDomain());
+      dto.setEnabled(metric.getEnabled());
+      dto.setDirection(metric.getDirection());
+      dto.setHidden(metric.isHidden());
+      dto.setQualitative(metric.getQualitative());
+      dto.setValueType(metric.getType().name());
+      dto.setOptimizedBestValue(metric.isOptimizedBestValue());
+      dto.setUserManaged(metric.getUserManaged());
+      dto.setWorstValue(metric.getWorstValue());
+      return dto;
+    }
   }
 }

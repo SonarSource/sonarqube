@@ -112,14 +112,18 @@ public class MetricDao implements DaoComponent {
     return session.getMapper(MetricMapper.class);
   }
 
-  public void disable(final DbSession session, List<Integer> ids) {
+  public void disableByIds(final DbSession session, List<Integer> ids) {
     DaoUtils.executeLargeInputsWithoutOutput(ids, new Function<List<Integer>, Void>() {
       @Override
       public Void apply(@Nonnull List<Integer> input) {
-        mapper(session).disable(input);
+        mapper(session).disableByIds(input);
         return null;
       }
     });
+  }
+
+  public void disableByKey(final DbSession session, String key) {
+    mapper(session).disableByKey(key);
   }
 
   public void update(DbSession session, MetricDto metric) {
