@@ -7,10 +7,16 @@
   <strong class="js-group-name">{{name}}</strong>
 </div>
 
-<div class="display-inline-block text-top big-spacer-left width-10">
-  Members: <a class="js-group-users" href="#">{{membersCount}}</a>
+<div class="display-inline-block text-top big-spacer-left width-25">
+  <div class="pull-left spacer-right">
+    <strong>Members</strong>
+  </div>
+  <div class="overflow-hidden bordered-left">
+    <span class="spacer-left spacer-right">{{membersCount}}</span>
+    <a class="js-group-users icon-bullet-list" title="Update Users" data-toggle="tooltip" href="#"></a>
+  </div>
 </div>
 
-<div class="display-inline-block text-top big-spacer-left width-50">
+<div class="display-inline-block text-top big-spacer-left width-40">
   <span class="js-group-description">{{description}}</span>
 </div>
