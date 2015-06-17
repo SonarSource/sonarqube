@@ -116,7 +116,7 @@ public class ProjectFileSystemAdapter implements ProjectFileSystem {
 
   @Override
   public File getSonarWorkingDirectory() {
-    return target.workingDir();
+    return target.workDir();
   }
 
   @Override
@@ -165,7 +165,7 @@ public class ProjectFileSystemAdapter implements ProjectFileSystem {
 
   @Override
   public File writeToWorkingDirectory(String content, String fileName) throws IOException {
-    File file = new File(target.workingDir(), fileName);
+    File file = new File(target.workDir(), fileName);
     FileUtils.writeStringToFile(file, content, CharEncoding.UTF_8);
     return file;
   }

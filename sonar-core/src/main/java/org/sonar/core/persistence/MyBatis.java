@@ -149,9 +149,9 @@ public class MyBatis {
   private SqlSessionFactory sessionFactory;
 
   // TODO this queue should directly be an IndexQueue. Pending move of persistence to sonar-server
-  private WorkQueue queue;
+  private WorkQueue<?> queue;
 
-  public MyBatis(Database database, Logback logback, WorkQueue queue) {
+  public MyBatis(Database database, Logback logback, WorkQueue<?> queue) {
     this.database = database;
     this.logback = logback;
     this.queue = queue;

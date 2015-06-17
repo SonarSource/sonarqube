@@ -19,7 +19,9 @@
  */
 package org.sonar.server.app;
 
+import ch.qos.logback.access.spi.IAccessEvent;
 import ch.qos.logback.core.ConsoleAppender;
+
 import org.apache.catalina.Container;
 import org.junit.Test;
 import org.sonar.process.LogbackHelper;
@@ -34,7 +36,7 @@ public class ProgrammaticLogbackValveTest {
     ProgrammaticLogbackValve valve = new ProgrammaticLogbackValve();
     valve.setContainer(mock(Container.class));
     LogbackHelper helper = new LogbackHelper();
-    ConsoleAppender appender = helper.newConsoleAppender(valve, "CONSOLE", "combined");
+    ConsoleAppender<IAccessEvent> appender = helper.newConsoleAppender(valve, "CONSOLE", "combined");
     valve.addAppender(appender);
     valve.start();
     assertThat(valve.isStarted()).isTrue();

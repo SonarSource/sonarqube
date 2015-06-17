@@ -136,7 +136,7 @@ public class DefaultMeasure<G extends Serializable> extends DefaultStorable impl
     if (obj.getClass() != getClass()) {
       return false;
     }
-    DefaultMeasure rhs = (DefaultMeasure) obj;
+    DefaultMeasure<?> rhs = (DefaultMeasure<?>) obj;
     return new EqualsBuilder()
       .append(file, rhs.file)
       .append(metric, rhs.metric)

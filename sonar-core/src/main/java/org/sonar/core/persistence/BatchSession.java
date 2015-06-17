@@ -40,11 +40,11 @@ public class BatchSession extends DbSession {
   private final int batchSize;
   private int count = 0;
 
-  BatchSession(WorkQueue queue, SqlSession session) {
+  BatchSession(WorkQueue<?> queue, SqlSession session) {
     this(queue, session, MAX_BATCH_SIZE);
   }
 
-  BatchSession(WorkQueue queue, SqlSession session, int batchSize) {
+  BatchSession(WorkQueue<?> queue, SqlSession session, int batchSize) {
     super(queue, session);
     this.batchSize = batchSize;
   }

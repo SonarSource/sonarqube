@@ -22,7 +22,9 @@ package org.sonar.search;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
+
 import org.sonar.process.LogbackHelper;
 
 public class SearchLogging {
@@ -35,7 +37,7 @@ public class SearchLogging {
     LoggerContext ctx = helper.getRootContext();
     ctx.reset();
 
-    ConsoleAppender consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", LOG_FORMAT);
+    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", LOG_FORMAT);
     Logger rootLogger = helper.configureLogger(ctx, Logger.ROOT_LOGGER_NAME, Level.INFO);
     rootLogger.addAppender(consoleAppender);
     return ctx;

@@ -96,7 +96,7 @@ public class ViewsTest {
 
   @Test
   public void should_accept_navigation_section() {
-    ViewProxy proxy = mock(ViewProxy.class);
+    ViewProxy<?> proxy = mock(ViewProxy.class);
     when(proxy.getSections()).thenReturn(new String[] {NavigationSection.RESOURCE});
     when(proxy.isWidget()).thenReturn(false);
 
@@ -109,7 +109,7 @@ public class ViewsTest {
 
   @Test
   public void should_accept_available_measures() {
-    ViewProxy proxy = mock(ViewProxy.class);
+    ViewProxy<?> proxy = mock(ViewProxy.class);
     when(proxy.acceptsAvailableMeasures(new String[] {"lines"})).thenReturn(true);
     when(proxy.acceptsAvailableMeasures(new String[] {"ncloc"})).thenReturn(false);
 
@@ -124,7 +124,7 @@ public class ViewsTest {
 
   @Test
   public void should_not_check_navigation_section_on_widgets() {
-    ViewProxy proxy = mock(ViewProxy.class);
+    ViewProxy<?> proxy = mock(ViewProxy.class);
     when(proxy.isWidget()).thenReturn(true);
 
     assertThat(Views.acceptNavigationSection(proxy, NavigationSection.RESOURCE)).isEqualTo(true);
@@ -136,7 +136,7 @@ public class ViewsTest {
 
   @Test
   public void should_check_resource_language() {
-    ViewProxy proxy = mock(ViewProxy.class);
+    ViewProxy<?> proxy = mock(ViewProxy.class);
     assertThat(Views.acceptResourceLanguage(proxy, Java.KEY)).isEqualTo(true);
 
     when(proxy.getResourceLanguages()).thenReturn(new String[] {"foo"});
@@ -146,7 +146,7 @@ public class ViewsTest {
 
   @Test
   public void should_check_resource_scope() {
-    ViewProxy proxy = mock(ViewProxy.class);
+    ViewProxy<?> proxy = mock(ViewProxy.class);
     assertThat(Views.acceptResourceScope(proxy, Scopes.FILE)).isEqualTo(true);
 
     when(proxy.getResourceScopes()).thenReturn(new String[] {Scopes.PROJECT, Scopes.FILE});
@@ -156,7 +156,7 @@ public class ViewsTest {
 
   @Test
   public void should_check_resource_qualifier() {
-    ViewProxy proxy = mock(ViewProxy.class);
+    ViewProxy<?> proxy = mock(ViewProxy.class);
     assertThat(Views.acceptResourceQualifier(proxy, Scopes.FILE)).isEqualTo(true);
 
     when(proxy.getResourceQualifiers()).thenReturn(new String[] {Qualifiers.CLASS, Qualifiers.FILE});

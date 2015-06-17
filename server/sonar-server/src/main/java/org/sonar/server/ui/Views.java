@@ -118,7 +118,7 @@ public class Views {
     return Lists.newArrayList(widgets);
   }
 
-  protected static boolean accept(ViewProxy proxy,
+  protected static boolean accept(ViewProxy<?> proxy,
     @Nullable String section, @Nullable String resourceScope, @Nullable String resourceQualifier, @Nullable String resourceLanguage, @Nullable String[] availableMeasures) {
     return acceptNavigationSection(proxy, section)
       && acceptResourceScope(proxy, resourceScope)
@@ -127,23 +127,23 @@ public class Views {
       && acceptAvailableMeasures(proxy, availableMeasures);
   }
 
-  protected static boolean acceptResourceLanguage(ViewProxy proxy, @Nullable String resourceLanguage) {
+  protected static boolean acceptResourceLanguage(ViewProxy<?> proxy, @Nullable String resourceLanguage) {
     return resourceLanguage == null || ArrayUtils.isEmpty(proxy.getResourceLanguages()) || ArrayUtils.contains(proxy.getResourceLanguages(), resourceLanguage);
   }
 
-  protected static boolean acceptResourceScope(ViewProxy proxy, @Nullable String resourceScope) {
+  protected static boolean acceptResourceScope(ViewProxy<?> proxy, @Nullable String resourceScope) {
     return resourceScope == null || ArrayUtils.isEmpty(proxy.getResourceScopes()) || ArrayUtils.contains(proxy.getResourceScopes(), resourceScope);
   }
 
-  protected static boolean acceptResourceQualifier(ViewProxy proxy, @Nullable String resourceQualifier) {
+  protected static boolean acceptResourceQualifier(ViewProxy<?> proxy, @Nullable String resourceQualifier) {
     return resourceQualifier == null || ArrayUtils.isEmpty(proxy.getResourceQualifiers()) || ArrayUtils.contains(proxy.getResourceQualifiers(), resourceQualifier);
   }
 
-  protected static boolean acceptNavigationSection(ViewProxy proxy, @Nullable String section) {
+  protected static boolean acceptNavigationSection(ViewProxy<?> proxy, @Nullable String section) {
     return proxy.isWidget() || section == null || ArrayUtils.contains(proxy.getSections(), section);
   }
 
-  protected static boolean acceptAvailableMeasures(ViewProxy proxy, @Nullable String[] availableMeasures) {
+  protected static boolean acceptAvailableMeasures(ViewProxy<?> proxy, @Nullable String[] availableMeasures) {
     return availableMeasures == null || proxy.acceptsAvailableMeasures(availableMeasures);
   }
 }

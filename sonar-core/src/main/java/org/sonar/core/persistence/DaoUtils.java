@@ -63,7 +63,6 @@ public final class DaoUtils {
     // only static stuff
   }
 
-  @SuppressWarnings("unchecked")
   public static List<Class> getDaoClasses() {
     return ImmutableList.<Class>of(
       ActionPlanDao.class,
