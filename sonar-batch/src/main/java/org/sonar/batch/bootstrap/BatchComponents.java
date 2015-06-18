@@ -42,7 +42,6 @@ import org.sonar.batch.compute.OverallBranchCoverageDecorator;
 import org.sonar.batch.compute.OverallCoverageDecorator;
 import org.sonar.batch.compute.OverallLineCoverageDecorator;
 import org.sonar.batch.compute.UnitTestDecorator;
-import org.sonar.batch.compute.VariationDecorator;
 import org.sonar.batch.cpd.CpdComponents;
 import org.sonar.batch.debt.DebtDecorator;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
@@ -128,7 +127,6 @@ public class BatchComponents {
       CommentDensityDecorator.class,
       DirectoriesDecorator.class,
       FilesDecorator.class,
-      VariationDecorator.class,
       NewCoverageFileAnalyzer.class,
       NewItCoverageFileAnalyzer.class,
       NewOverallCoverageFileAnalyzer.class,
