@@ -53,7 +53,6 @@ import org.sonar.batch.issue.tracking.IssueHandlers;
 import org.sonar.batch.issue.tracking.IssueTracking;
 import org.sonar.batch.issue.tracking.IssueTrackingDecorator;
 import org.sonar.batch.language.LanguageDistributionDecorator;
-import org.sonar.batch.qualitygate.QualityGateVerifier;
 import org.sonar.batch.scan.report.ConsoleReport;
 import org.sonar.batch.scan.report.HtmlReport;
 import org.sonar.batch.scan.report.IssuesReportBuilder;
@@ -102,9 +101,6 @@ public class BatchComponents {
       NewDebtDecorator.class,
       SqaleRatingDecorator.class,
       SqaleRatingSettings.class,
-
-      // Quality Gate
-      QualityGateVerifier.class,
 
       // Issue tracking
       IssueTrackingDecorator.class,

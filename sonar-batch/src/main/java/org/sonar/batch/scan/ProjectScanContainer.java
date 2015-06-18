@@ -57,7 +57,6 @@ import org.sonar.batch.issue.tracking.ServerIssueRepository;
 import org.sonar.batch.mediumtest.ScanTaskObservers;
 import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
-import org.sonar.batch.qualitygate.QualityGateProvider;
 import org.sonar.batch.report.ComponentsPublisher;
 import org.sonar.batch.report.CoveragePublisher;
 import org.sonar.batch.report.DuplicationsPublisher;
@@ -188,9 +187,6 @@ public class ProjectScanContainer extends ComponentContainer {
 
     // Duplications
       DuplicationCache.class,
-
-    // Quality Gate
-      new QualityGateProvider(),
 
     ProjectSettings.class,
 
