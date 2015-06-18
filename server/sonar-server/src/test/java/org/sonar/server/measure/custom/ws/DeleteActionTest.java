@@ -80,10 +80,8 @@ public class DeleteActionTest {
   public void delete_in_db() throws Exception {
     long id = insertCustomMeasure(newCustomMeasureDto());
     long anotherId = insertCustomMeasure(newCustomMeasureDto());
-    assertThat(dbClient.customMeasureDao().selectNullableById(dbSession, id)).isNotNull();
 
     WsTester.Result response = newRequest().setParam(PARAM_ID, String.valueOf(id)).execute();
-    dbSession.commit();
 
     assertThat(dbClient.customMeasureDao().selectNullableById(dbSession, id)).isNull();
     assertThat(dbClient.customMeasureDao().selectNullableById(dbSession, anotherId)).isNotNull();
