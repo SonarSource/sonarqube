@@ -1,5 +1,7 @@
-<% content_for :script do %>
-  <script>require(['apps/quality-profiles/app']);</script>
-<% end %>
-
 <div class="search-navigator" id="quality-profiles"></div>
+
+<% content_for :extra_script do %>
+  <script>
+    require(['apps/quality-profiles/app']);
+  </script>
+<% end %>

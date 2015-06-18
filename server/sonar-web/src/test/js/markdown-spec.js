@@ -30,14 +30,14 @@ lib.configureCasper();
 casper.test.begin(testName(), 8, function (test) {
 
   casper
-      .start(lib.buildUrl('ui-global-messages'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
       })
 
       .then(function () {
         casper.evaluate(function () {
           require(['apps/markdown/app'], function (App) {
-            App.start({ el: 'body' });
+            App.start({ el: '#content' });
           });
         });
       })

@@ -1,6 +1,7 @@
-<div id="provisioning"></div>
-<script>
-  require(['apps/provisioning/app'], function (App) {
-    App.start({ el: '#provisioning' });
-  });
-</script>
+<% content_for :extra_script do %>
+  <script>
+    require(['apps/provisioning/app'], function (App) {
+      App.start({ el: '#content' });
+    });
+  </script>
+<% end %>

@@ -1,6 +1,7 @@
-<div id="metrics"></div>
-<script>
-  require(['apps/metrics/app'], function (App) {
-    App.start({ el: '#metrics' });
-  });
-</script>
+<% content_for :extra_script do %>
+  <script>
+    require(['apps/metrics/app'], function (App) {
+      App.start({ el: '#content' });
+    });
+  </script>
+<% end %>

@@ -1,6 +1,7 @@
-<div id="groups"></div>
-<script>
-  require(['apps/groups/app'], function (App) {
-    App.start({ el: '#groups' });
-  });
-</script>
+<% content_for :extra_script do %>
+  <script>
+    require(['apps/groups/app'], function (App) {
+      App.start({ el: '#content' });
+    });
+  </script>
+<% end %>

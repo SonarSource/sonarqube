@@ -8,10 +8,15 @@
 </div>
 <!--<![endif]-->
 
+<% if flash[:notice] || flash[:warning] || flash[:error] %>
+  <script>
+    <% if flash[:notice] %>info('<%= h escape_javascript(flash[:notice])-%>');<% end %>
+    <% if flash[:warning] %>warning('<%= h escape_javascript(flash[:warning])-%>');<% end %>
+    <% if flash[:error] %>error('<%= h escape_javascript(flash[:error])-%>');<% end %>
+  </script>
+<% end %>
 
-</body><script>
-<% if flash[:notice] %>info('<%= h escape_javascript(flash[:notice])-%>');<% end %>
-<% if flash[:warning] %>warning('<%= h escape_javascript(flash[:warning])-%>');<% end %>
-<% if flash[:error] %>error('<%= h escape_javascript(flash[:error])-%>');<% end %>
-</script>
+<%= yield :extra_script -%>
+
+</body>
 </html>

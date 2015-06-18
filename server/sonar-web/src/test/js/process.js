@@ -29,7 +29,7 @@ lib.configureCasper();
 
 casper.test.begin(testName('One Timeout'), function (test) {
   casper
-      .start(lib.buildUrl('nav'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
       })
 
@@ -63,7 +63,7 @@ casper.test.begin(testName('One Timeout'), function (test) {
 
 casper.test.begin(testName('Several Timeouts'), 1, function (test) {
   casper
-      .start(lib.buildUrl('nav'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
       })
 
@@ -99,7 +99,7 @@ casper.test.begin(testName('Several Timeouts'), 1, function (test) {
 
 casper.test.begin(testName('Failed'), 1, function (test) {
   casper
-      .start(lib.buildUrl('nav'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
       })
 
@@ -134,7 +134,7 @@ casper.test.begin(testName('Failed'), 1, function (test) {
 
 casper.test.begin(testName('Close Failed'), 2, function (test) {
   casper
-      .start(lib.buildUrl('nav'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
       })
 

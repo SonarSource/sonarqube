@@ -8,7 +8,7 @@ lib.configureCasper();
 
 casper.test.begin(testName('List'), 7, function (test) {
   casper
-      .start(lib.buildUrl('groups'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         lib.mockRequestFromFile('/api/usergroups/search', 'search.json');
       })
@@ -16,7 +16,7 @@ casper.test.begin(testName('List'), 7, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/groups/app'], function (App) {
-            App.start({ el: '#groups' });
+            App.start({ el: '#content' });
           });
         });
       })
@@ -47,7 +47,7 @@ casper.test.begin(testName('List'), 7, function (test) {
 
 casper.test.begin(testName('Search'), 4, function (test) {
   casper
-      .start(lib.buildUrl('groups'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         this.searchMock = lib.mockRequestFromFile('/api/usergroups/search', 'search.json');
       })
@@ -55,7 +55,7 @@ casper.test.begin(testName('Search'), 4, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/groups/app'], function (App) {
-            App.start({ el: '#groups' });
+            App.start({ el: '#content' });
           });
         });
       })
@@ -105,7 +105,7 @@ casper.test.begin(testName('Search'), 4, function (test) {
 
 casper.test.begin(testName('Show More'), 4, function (test) {
   casper
-      .start(lib.buildUrl('groups'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         this.searchMock = lib.mockRequestFromFile('/api/usergroups/search', 'search-big-1.json');
       })
@@ -113,7 +113,7 @@ casper.test.begin(testName('Show More'), 4, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/groups/app'], function (App) {
-            App.start({ el: '#groups' });
+            App.start({ el: '#content' });
           });
         });
       })
@@ -147,7 +147,7 @@ casper.test.begin(testName('Show More'), 4, function (test) {
 
 casper.test.begin(testName('Show Users'), 2, function (test) {
   casper
-      .start(lib.buildUrl('groups'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         this.searchMock = lib.mockRequestFromFile('/api/usergroups/search', 'search.json');
         this.searchMock = lib.mockRequestFromFile('/api/usergroups/users*', 'users.json');
@@ -156,7 +156,7 @@ casper.test.begin(testName('Show Users'), 2, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/groups/app'], function (App) {
-            App.start({ el: '#groups' });
+            App.start({ el: '#content' });
           });
         });
       })
@@ -186,7 +186,7 @@ casper.test.begin(testName('Show Users'), 2, function (test) {
 
 casper.test.begin(testName('Create'), 4, function (test) {
   casper
-      .start(lib.buildUrl('groups'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         this.searchMock = lib.mockRequestFromFile('/api/usergroups/search', 'search.json');
         this.createMock = lib.mockRequestFromFile('/api/usergroups/create', 'error.json', { status: 400 });
@@ -195,7 +195,7 @@ casper.test.begin(testName('Create'), 4, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/groups/app'], function (App) {
-            App.start({ el: '#groups' });
+            App.start({ el: '#content' });
           });
           jQuery.ajaxSetup({ dataType: 'json' });
         });
@@ -247,7 +247,7 @@ casper.test.begin(testName('Create'), 4, function (test) {
 
 casper.test.begin(testName('Update'), 2, function (test) {
   casper
-      .start(lib.buildUrl('groups'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         this.searchMock = lib.mockRequestFromFile('/api/usergroups/search', 'search.json');
         this.updateMock = lib.mockRequestFromFile('/api/usergroups/update', 'error.json', { status: 400 });
@@ -256,7 +256,7 @@ casper.test.begin(testName('Update'), 2, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/groups/app'], function (App) {
-            App.start({ el: '#groups' });
+            App.start({ el: '#content' });
           });
           jQuery.ajaxSetup({ dataType: 'json' });
         });
@@ -306,7 +306,7 @@ casper.test.begin(testName('Update'), 2, function (test) {
 
 casper.test.begin(testName('Delete'), 1, function (test) {
   casper
-      .start(lib.buildUrl('groups'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         this.searchMock = lib.mockRequestFromFile('/api/usergroups/search', 'search.json');
         this.updateMock = lib.mockRequestFromFile('/api/usergroups/delete', 'error.json', { status: 400 });
@@ -315,7 +315,7 @@ casper.test.begin(testName('Delete'), 1, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/groups/app'], function (App) {
-            App.start({ el: '#groups' });
+            App.start({ el: '#content' });
           });
           jQuery.ajaxSetup({ dataType: 'json' });
         });

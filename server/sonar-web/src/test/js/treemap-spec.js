@@ -27,7 +27,7 @@ lib.configureCasper();
 casper.test.begin('Treemap', function (test) {
   var treemapData = JSON.parse(fs.read('treemap.json'));
 
-  casper.start(lib.buildUrl('treemap'), function () {
+  casper.start(lib.buildUrl('base'), function () {
     lib.mockRequestFromFile('/api/resources/index', 'treemap-resources.json');
 
     casper.evaluate(function (treemapData) {
@@ -44,8 +44,8 @@ casper.test.begin('Treemap', function (test) {
             noData: '',
             resource: ''
           })
-          .render('#container');
-    }, treemapData)
+          .render('#content');
+    }, treemapData);
   });
 
   casper

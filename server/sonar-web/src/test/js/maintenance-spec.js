@@ -5,7 +5,7 @@ describe('Maintenance App', function () {
 
   it('should exist', 2, function (casper, test) {
     return casper
-        .start(lib.buildUrl('maintenance'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/system/status', 'status-up.json');
         })
@@ -13,7 +13,7 @@ describe('Maintenance App', function () {
         .then(function () {
           casper.evaluate(function () {
             require(['apps/maintenance/app'], function (App) {
-              App.start({ el: '#maintenance', setup: false });
+              App.start({ el: '#content', setup: false });
             });
           });
         })
@@ -30,7 +30,7 @@ describe('Maintenance App', function () {
 
   it('should change status', 1, function (casper, test) {
     return casper
-        .start(lib.buildUrl('maintenance'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/system/status', 'status-up.json');
         })
@@ -38,7 +38,7 @@ describe('Maintenance App', function () {
         .then(function () {
           casper.evaluate(function () {
             require(['apps/maintenance/app'], function (App) {
-              App.start({ el: '#maintenance', setup: false });
+              App.start({ el: '#content', setup: false });
             });
           });
         })

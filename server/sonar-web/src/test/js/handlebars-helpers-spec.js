@@ -56,7 +56,7 @@ function returnY () {
 
 casper.test.begin(testName(), function (test) {
   casper
-      .start(lib.buildUrl('ui-global-messages'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
       })
 

@@ -1,6 +1,7 @@
-<div id="api-documentation" class="search-navigator sticky"></div>
-<script>
-  require(['apps/api-documentation/app'], function (App) {
-    App.start({ el: '#api-documentation' });
-  });
-</script>
+<% content_for :extra_script do %>
+  <script>
+    require(['apps/api-documentation/app'], function (App) {
+      App.start({ el: '#content' });
+    });
+  </script>
+<% end %>

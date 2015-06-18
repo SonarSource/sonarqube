@@ -1,7 +1,3 @@
-<% content_for :script do %>
-  <script>require(['apps/drilldown/app']);</script>
-<% end %>
-
 <div class="page">
   <% if params[:period] && @snapshot.project_snapshot.periods? %>
     <div id="snapshot_title" class="spacer-bottom">
@@ -18,7 +14,7 @@
             <% end %>
           </select>
           <script>
-            $j(function() {
+            $j(function () {
               $j('#select-comparison').select2({
                 width: '300px',
                 minimumResultsForSearch: 10,
@@ -52,7 +48,7 @@
   </div>
 
   <% unless @drilldown.columns.size > 0 %>
-  <div class="alert alert-info"><%= h message('drilldown.no_items_found') -%></div>
+    <div class="alert alert-info"><%= h message('drilldown.no_items_found') -%></div>
   <% end %>
 
   <div id="drilldown" class="width100">
@@ -112,13 +108,13 @@
          last_column = column
          end
       %>
-      <% if last_column && @drilldown.selected_project_not_authorized %>
-        <p class="notes"><%= message('not_authorized_to_access_project', {:params => last_column.selected_snapshot.project.name}) -%></p>
-      <% end %>
+    <% if last_column && @drilldown.selected_project_not_authorized %>
+      <p class="notes"><%= message('not_authorized_to_access_project', {:params => last_column.selected_snapshot.project.name}) -%></p>
+    <% end %>
   </div>
   <script>
     <% for i in 0...@drilldown.columns.size do  %>
-    $j('#col_<%= i -%> tr.selected').each(function (index,item) {
+    $j('#col_<%= i -%> tr.selected').each(function (index, item) {
       item.scrollIntoView(true);
     });
     <% end %>
@@ -136,3 +132,9 @@
 
   <%= render :partial => 'footer' -%>
 </div>
+
+<% content_for :extra_script do %>
+  <script>
+    require(['apps/drilldown/app']);
+  </script>
+<% end %>

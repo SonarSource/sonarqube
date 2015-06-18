@@ -8,7 +8,7 @@ lib.configureCasper();
 
 casper.test.begin(testName('List'), 9, function (test) {
   casper
-      .start(lib.buildUrl('computation'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         lib.mockRequestFromFile('/api/computation/queue', 'queue.json');
         lib.mockRequestFromFile('/api/computation/history', 'history.json');
@@ -17,7 +17,7 @@ casper.test.begin(testName('List'), 9, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/computation/app'], function (App) {
-            App.start({ el: '#computation' });
+            App.start({ el: '#content' });
           });
         });
       })
@@ -65,7 +65,7 @@ casper.test.begin(testName('List'), 9, function (test) {
 
 casper.test.begin(testName('Show More'), 2, function (test) {
   casper
-      .start(lib.buildUrl('computation#past'), function () {
+      .start(lib.buildUrl('base#past'), function () {
         lib.setDefaultViewport();
         this.searchMock = lib.mockRequestFromFile('/api/computation/history', 'history-big-1.json');
       })
@@ -73,7 +73,7 @@ casper.test.begin(testName('Show More'), 2, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/computation/app'], function (App) {
-            App.start({ el: '#computation' });
+            App.start({ el: '#content' });
           });
         });
       })

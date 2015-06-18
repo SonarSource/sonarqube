@@ -40,7 +40,7 @@ casper.test.begin(testName('collapsedDirFromPath() & fileFromPath()'), function 
   }
 
   casper
-      .start(lib.buildUrl('ui-global-messages'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
       })
 
@@ -91,7 +91,7 @@ casper.test.begin(testName('Format Measures'), function (test) {
       ONE_DAY = HOURS_IN_DAY * ONE_HOUR;
 
   casper
-      .start(lib.buildUrl('ui-global-messages'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
       })
 
@@ -230,7 +230,7 @@ casper.test.begin(testName('Severity Comparators'), function (test) {
   }
 
   casper
-      .start(lib.buildUrl('ui-global-messages'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
       })
 

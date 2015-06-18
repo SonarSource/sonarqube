@@ -8,7 +8,7 @@ lib.configureCasper();
 
 casper.test.begin(testName('List'), 13, function (test) {
   casper
-      .start(lib.buildUrl('users'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         lib.mockRequestFromFile('/api/users/search', 'search.json');
       })
@@ -16,7 +16,7 @@ casper.test.begin(testName('List'), 13, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/users/app'], function (App) {
-            App.start({ el: '#users' });
+            App.start({ el: '#content' });
           });
         });
       })
@@ -60,7 +60,7 @@ casper.test.begin(testName('List'), 13, function (test) {
 
 casper.test.begin(testName('Search'), 4, function (test) {
   casper
-      .start(lib.buildUrl('users'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         this.searchMock = lib.mockRequestFromFile('/api/users/search', 'search.json');
       })
@@ -68,7 +68,7 @@ casper.test.begin(testName('Search'), 4, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/users/app'], function (App) {
-            App.start({ el: '#users' });
+            App.start({ el: '#content' });
           });
         });
       })
@@ -117,7 +117,7 @@ casper.test.begin(testName('Search'), 4, function (test) {
 
 casper.test.begin(testName('Show More'), 4, function (test) {
   casper
-      .start(lib.buildUrl('users'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         this.searchMock = lib.mockRequestFromFile('/api/users/search', 'search-big-1.json');
       })
@@ -125,7 +125,7 @@ casper.test.begin(testName('Show More'), 4, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/users/app'], function (App) {
-            App.start({ el: '#users' });
+            App.start({ el: '#content' });
           });
         });
       })
@@ -159,7 +159,7 @@ casper.test.begin(testName('Show More'), 4, function (test) {
 
 casper.test.begin(testName('Create'), 5, function (test) {
   casper
-      .start(lib.buildUrl('users'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         this.searchMock = lib.mockRequestFromFile('/api/users/search', 'search.json');
         this.createMock = lib.mockRequestFromFile('/api/users/create', 'error.json', { status: 400 });
@@ -168,7 +168,7 @@ casper.test.begin(testName('Create'), 5, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/users/app'], function (App) {
-            App.start({ el: '#users' });
+            App.start({ el: '#content' });
           });
           jQuery.ajaxSetup({ dataType: 'json' });
         });
@@ -226,7 +226,7 @@ casper.test.begin(testName('Create'), 5, function (test) {
 
 casper.test.begin(testName('Update'), 3, function (test) {
   casper
-      .start(lib.buildUrl('users'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         this.searchMock = lib.mockRequestFromFile('/api/users/search', 'search.json');
         this.updateMock = lib.mockRequestFromFile('/api/users/update', 'error.json', { status: 400 });
@@ -235,7 +235,7 @@ casper.test.begin(testName('Update'), 3, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/users/app'], function (App) {
-            App.start({ el: '#users' });
+            App.start({ el: '#content' });
           });
           jQuery.ajaxSetup({ dataType: 'json' });
         });
@@ -289,7 +289,7 @@ casper.test.begin(testName('Update'), 3, function (test) {
 
 casper.test.begin(testName('Change Password'), 1, function (test) {
   casper
-      .start(lib.buildUrl('users'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         this.searchMock = lib.mockRequestFromFile('/api/users/search', 'search.json');
         this.updateMock = lib.mockRequestFromFile('/api/users/change_password', 'error.json', { status: 400 });
@@ -298,7 +298,7 @@ casper.test.begin(testName('Change Password'), 1, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/users/app'], function (App) {
-            App.start({ el: '#users' });
+            App.start({ el: '#content' });
           });
           jQuery.ajaxSetup({ dataType: 'json' });
         });
@@ -363,7 +363,7 @@ casper.test.begin(testName('Change Password'), 1, function (test) {
 
 casper.test.begin(testName('Deactivate'), 1, function (test) {
   casper
-      .start(lib.buildUrl('users'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         this.searchMock = lib.mockRequestFromFile('/api/users/search', 'search.json');
         this.updateMock = lib.mockRequestFromFile('/api/users/deactivate', 'error.json', { status: 400 });
@@ -372,7 +372,7 @@ casper.test.begin(testName('Deactivate'), 1, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/users/app'], function (App) {
-            App.start({ el: '#users' });
+            App.start({ el: '#content' });
           });
           jQuery.ajaxSetup({ dataType: 'json' });
         });
