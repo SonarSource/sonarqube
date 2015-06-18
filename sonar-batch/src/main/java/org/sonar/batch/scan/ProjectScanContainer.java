@@ -21,8 +21,6 @@ package org.sonar.batch.scan;
 
 import org.sonar.batch.bootstrap.ProjectTempFolderProvider;
 
-import org.sonar.api.utils.internal.TempFolderCleaner;
-import org.sonar.batch.bootstrap.TempFolderProvider;
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -155,9 +153,9 @@ public class ProjectScanContainer extends ComponentContainer {
       Caches.class,
       BatchComponentCache.class,
 
-      //temp
+      // temp
       new ProjectTempFolderProvider(),
-      
+
       // file system
       InputPathCache.class,
       PathResolver.class,

@@ -19,34 +19,33 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.api.utils.ProjectTempFolder;
-
-import org.apache.commons.io.FileUtils;
+import org.sonar.api.utils.TempFolder;
 import org.apache.commons.lang.StringUtils;
-import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.internal.DefaultTempFolder;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-public class ProjectTempFolderProvider extends ProviderAdapter {
+public class ProjectTempFolderProvider extends LifecycleProviderAdapter {
   static final String TMP_NAME = ".sonartmp";
-  private ProjectTempFolder projectTempFolder;
+  private DefaultTempFolder projectTempFolder;
 
-  public ProjectTempFolder provide(BootstrapProperties bootstrapProps) {
+  public TempFolder provide(BootstrapProperties bootstrapProps) {
     if (projectTempFolder == null) {
       String workingDirPath = StringUtils.defaultIfBlank(bootstrapProps.property(CoreProperties.WORKING_DIRECTORY), CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
-      File workingDir = new File(workingDirPath).getAbsoluteFile();
-      File tempDir = new File(workingDir, TMP_NAME);
+      Path workingDir = Paths.get(workingDirPath);
+      Path tempDir = workingDir.resolve(TMP_NAME).normalize();
       try {
-        FileUtils.forceMkdir(tempDir);
+        Files.createDirectories(tempDir);
       } catch (IOException e) {
         throw new IllegalStateException("Unable to create root temp directory " + tempDir, e);
       }
-      projectTempFolder = new DefaultTempFolder(tempDir, true);
+      projectTempFolder = new DefaultTempFolder(tempDir.toFile(), true);
+      this.instance = projectTempFolder;
     }
     return projectTempFolder;
   }
-
 }

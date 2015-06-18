@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.mediumtest;
 
+import org.sonar.home.log.LogListener;
+
 import com.google.common.base.Function;
 import com.google.common.io.Files;
 import org.sonar.api.CoreProperties;
@@ -78,9 +80,15 @@ public class BatchMediumTester {
     private final FakeServerIssuesLoader serverIssues = new FakeServerIssuesLoader();
     private final FakeServerLineHashesLoader serverLineHashes = new FakeServerLineHashesLoader();
     private final Map<String, String> bootstrapProperties = new HashMap<>();
+    private LogListener logListener = null; 
 
     public BatchMediumTester build() {
       return new BatchMediumTester(this);
+    }
+    
+    public BatchMediumTesterBuilder setLogListener(LogListener listener) {
+      this.logListener = listener;
+      return this;
     }
 
     public BatchMediumTesterBuilder registerPlugin(String pluginKey, File location) {
@@ -167,6 +175,7 @@ public class BatchMediumTester {
         builder.serverLineHashes,
         new DefaultDebtModel())
       .setBootstrapProperties(builder.bootstrapProperties)
+      .setLogListener(builder.logListener)
       .build();
   }
 

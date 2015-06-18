@@ -38,11 +38,11 @@ public class LogCallbackAppender extends UnsynchronizedAppenderBase<ILoggingEven
 
   @Override
   protected void append(ILoggingEvent event) {
-    target.log(event.getFormattedMessage(), translate(event.getLevel()));
+    target.log(event.getMessage(), translate(event.getLevel()));
   }
-  
-  private LogListener.Level translate(Level level) {
-    switch(level.toInt()) {
+
+  private static LogListener.Level translate(Level level) {
+    switch (level.toInt()) {
       case Level.ERROR_INT:
         return LogListener.Level.ERROR;
       case Level.WARN_INT:
