@@ -243,7 +243,7 @@ public class CreateActionTest {
     CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectByMetricId(dbSession, metric.getId()).get(0);
     response.assertJson(getClass(), "custom-measure.json");
     assertThat(response.outputAsString()).matches(String.format(".*\"id\"\\s*:\\s*\"%d\".*", customMeasure.getId()));
-    assertThat(response.outputAsString()).matches(String.format(".*\"metricId\"\\s*:\\s*\"%d\".*", metric.getId()));
+    assertThat(response.outputAsString()).matches(String.format(".*\"id\"\\s*:\\s*\"%d\".*", metric.getId()));
   }
 
   @Test

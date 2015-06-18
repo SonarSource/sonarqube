@@ -56,10 +56,12 @@ public class CreateAction implements CustomMeasuresWsAction {
   private static final String FIELD_ID = "id";
   private static final String FIELD_PROJECT_ID = PARAM_PROJECT_ID;
   private static final String FIELD_PROJECT_KEY = PARAM_PROJECT_KEY;
-  private static final String FIELD_METRIC_ID = PARAM_METRIC_ID;
   private static final String FIELD_VALUE = PARAM_VALUE;
   private static final String FIELD_DESCRIPTION = PARAM_DESCRIPTION;
-  private static final String FIELD_METRIC_KEY = PARAM_METRIC_KEY;
+  private static final String FIELD_METRIC = "metric";
+  private static final String FIELD_METRIC_KEY = "key";
+  private static final String FIELD_METRIC_ID = "id";
+  private static final String FIELD_METRIC_TYPE = "type";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -157,12 +159,20 @@ public class CreateAction implements CustomMeasuresWsAction {
   private static void writeMeasure(JsonWriter json, CustomMeasureDto measure, ComponentDto component, MetricDto metric, String measureWithoutInternalFormatting) {
     json.beginObject();
     json.prop(FIELD_ID, String.valueOf(measure.getId()));
-    json.prop(FIELD_METRIC_ID, String.valueOf(metric.getId()));
-    json.prop(FIELD_METRIC_KEY, metric.getKey());
+    json.name(FIELD_METRIC);
+    writeMetric(json, metric);
     json.prop(FIELD_PROJECT_ID, component.uuid());
     json.prop(FIELD_PROJECT_KEY, component.key());
     json.prop(FIELD_DESCRIPTION, measure.getDescription());
     json.prop(FIELD_VALUE, measureWithoutInternalFormatting);
+    json.endObject();
+  }
+
+  private static void writeMetric(JsonWriter json, MetricDto metric) {
+    json.beginObject();
+    json.prop(FIELD_METRIC_ID, String.valueOf(metric.getId()));
+    json.prop(FIELD_METRIC_KEY, metric.getKey());
+    json.prop(FIELD_METRIC_TYPE, metric.getValueType());
     json.endObject();
   }
 
