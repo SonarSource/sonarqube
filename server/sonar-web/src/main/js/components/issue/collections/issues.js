@@ -26,7 +26,7 @@ define([
       return r.issues.map(function (issue) {
         var component = find(r.components, issue.component),
             project = find(r.projects, issue.project),
-            rule = find(r.rules, issue.rule)
+            rule = find(r.rules, issue.rule);
         if (component) {
           _.extend(issue, {
             componentLongName: component.longName,
