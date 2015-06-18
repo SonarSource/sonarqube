@@ -1,4 +1,7 @@
 <%= render :partial => 'layouts/head' %>
+
+<nav class="navbar navbar-global page-container" id="global-navigation"></nav>
+
 <div>
   <div id="bd">
     <div id="nonav" class="page-simple">
@@ -6,9 +9,24 @@
     </div>
   </div>
 </div>
+
+<div id="footer" class="page-footer page-container">
+  <div>
+    Version <%= sonar_version -%> -
+    <a href="http://www.gnu.org/licenses/lgpl-3.0.txt" target="lgpl_v3">LGPL v3</a> -
+    <a href="http://www.sonarqube.org" target="sonar">Community</a> -
+    <a href="http://www.sonarqube.org/documentation" target="sonar_doc">Documentation</a> -
+    <a href="http://www.sonarqube.org/support" target="support">Get Support</a> -
+    <a href="http://redirect.sonarsource.com/doc/plugin-library.html" target="plugins">Plugins</a> -
+    <a href="<%= ApplicationController.root_context -%>/api_documentation">Web Service API</a>
+  </div>
+  <%= render 'branding/footer' -%>
+</div>
+
 <script>
   (function ($) {
     $('html').addClass('dashboard-page');
   })(window.jQuery);
 </script>
+
 </body></html>
