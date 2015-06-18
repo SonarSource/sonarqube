@@ -34,6 +34,7 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
@@ -53,9 +54,9 @@ import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.AnonymousUserSession;
-import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.user.UserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -95,6 +96,8 @@ public class QualityGatesTest {
   @Mock
   MyBatis myBatis;
 
+  Settings settings = new Settings();
+
   QualityGates qGates;
 
   static final String PROJECT_KEY = "SonarQube";
@@ -106,10 +109,12 @@ public class QualityGatesTest {
 
   @Before
   public void initialize() {
+    settings.clear();
+
     when(componentDao.selectById(anyLong(), eq(session))).thenReturn(new ComponentDto().setId(1L).setKey(PROJECT_KEY));
 
     when(myBatis.openSession(false)).thenReturn(session);
-    qGates = new QualityGates(dao, conditionDao, metricFinder, propertiesDao, componentDao, myBatis, userSessionRule);
+    qGates = new QualityGates(dao, conditionDao, metricFinder, propertiesDao, componentDao, myBatis, userSessionRule, settings);
     userSessionRule.set(authorizedProfileAdminUserSession);
   }
 
@@ -222,22 +227,30 @@ public class QualityGatesTest {
   }
 
   @Test
-  public void should_select_default_qgate() {
+  public void should_select_default_qgate_and_update_settings() {
     long defaultId = 42L;
     String defaultName = "Default Name";
     when(dao.selectById(defaultId)).thenReturn(new QualityGateDto().setId(defaultId).setName(defaultName));
+
     qGates.setDefault(defaultId);
+
     verify(dao).selectById(defaultId);
     ArgumentCaptor<PropertyDto> propertyCaptor = ArgumentCaptor.forClass(PropertyDto.class);
     verify(propertiesDao).setProperty(propertyCaptor.capture());
+
     assertThat(propertyCaptor.getValue().getKey()).isEqualTo("sonar.qualitygate");
     assertThat(propertyCaptor.getValue().getValue()).isEqualTo("42");
+    assertThat(settings.getLong("sonar.qualitygate")).isEqualTo(42);
   }
 
   @Test
-  public void should_unset_default_qgate() {
+  public void should_unset_default_qgate_and_unset_in_settings() {
+    settings.setProperty("sonar.qualitygate", 42l);
+
     qGates.setDefault(null);
+
     verify(propertiesDao).deleteGlobalProperty("sonar.qualitygate");
+    assertThat(settings.hasKey("sonar.qualitygate")).isFalse();
   }
 
   @Test
