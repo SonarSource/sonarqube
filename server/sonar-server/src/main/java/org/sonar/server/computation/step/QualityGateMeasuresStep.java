@@ -40,6 +40,7 @@ import org.sonar.server.computation.qualitygate.Condition;
 import org.sonar.server.computation.qualitygate.ConditionEvaluator;
 import org.sonar.server.computation.qualitygate.EvaluationResult;
 import org.sonar.server.computation.qualitygate.EvaluationResultTextConverter;
+import org.sonar.server.computation.qualitygate.QualityGate;
 import org.sonar.server.computation.qualitygate.QualityGateHolder;
 
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
@@ -85,9 +86,12 @@ public class QualityGateMeasuresStep implements ComputationStep {
   private void executeForProject(Component project) {
     QualityGateDetailsDataBuilder builder = new QualityGateDetailsDataBuilder();
 
-    updateMeasures(project, qualityGateHolder.getQualityGate().getConditions(), builder);
+    Optional<QualityGate> qualityGate = qualityGateHolder.getQualityGate();
+    if (qualityGate.isPresent()) {
+      updateMeasures(project, qualityGate.get().getConditions(), builder);
 
-    addProjectMeasure(project, builder);
+      addProjectMeasure(project, builder);
+    }
   }
 
   private void updateMeasures(Component project, Set<Condition> conditions, QualityGateDetailsDataBuilder builder) {

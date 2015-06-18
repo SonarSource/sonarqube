@@ -113,6 +113,15 @@ public class QualityGateMeasuresStepTest {
   }
 
   @Test
+  public void no_measure_if_there_is_no_qualitygate() {
+    qualityGateHolder.setNoQualityGate();
+
+    underTest.execute();
+
+    verifyNoMoreInteractions(measureRepository);
+  }
+
+  @Test
   public void new_measures_are_created_even_if_there_is_no_rawMeasure_for_metric_of_condition() {
     Condition equals2Condition = createEqualsCondition(INT_METRIC_1, "2", null);
     qualityGateHolder.setQualityGate(new QualityGate("name", of(equals2Condition)));

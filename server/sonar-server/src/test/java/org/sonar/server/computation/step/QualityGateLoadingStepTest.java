@@ -23,6 +23,7 @@ import com.google.common.base.Optional;
 import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -34,6 +35,7 @@ import org.sonar.server.computation.qualitygate.QualityGate;
 import org.sonar.server.computation.qualitygate.QualityGateService;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -41,8 +43,10 @@ import static org.mockito.Mockito.when;
 
 public class QualityGateLoadingStepTest {
   private static final String PROJECT_KEY = "project key";
-  public static final DumbComponent PROJECT_ALONE = DumbComponent.builder(Component.Type.PROJECT, 1).setKey(PROJECT_KEY).build();
+  private static final DumbComponent PROJECT_ALONE = DumbComponent.builder(Component.Type.PROJECT, 1).setKey(PROJECT_KEY).build();
 
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
@@ -60,7 +64,7 @@ public class QualityGateLoadingStepTest {
 
     underTest.execute();
 
-    verifyDefaultQualityGateHasBeenSet();
+    verifyNoQualityGate();
 
     // verify only project is processed
     verify(projectSettingsRepository).getProjectSettings(PROJECT_KEY);
@@ -69,20 +73,13 @@ public class QualityGateLoadingStepTest {
 
   @Test
   public void execute_sets_default_QualityGate_when_property_value_is_not_a_long() {
-    verify_execute_sets_default_QualityGate_when_property_value_is_not_a_long("");
-    verify_execute_sets_default_QualityGate_when_property_value_is_not_a_long("  ");
-    verify_execute_sets_default_QualityGate_when_property_value_is_not_a_long(" 10 sds ");
-  }
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage(String.format("Unsupported value (%s) in property sonar.qualitygate", "10 sds"));
 
-  private void verify_execute_sets_default_QualityGate_when_property_value_is_not_a_long(String value) {
     treeRootHolder.setRoot(PROJECT_ALONE);
-    when(projectSettingsRepository.getProjectSettings(PROJECT_KEY)).thenReturn(new Settings().setProperty("sonar.qualitygate", value));
+    when(projectSettingsRepository.getProjectSettings(PROJECT_KEY)).thenReturn(new Settings().setProperty("sonar.qualitygate", "10 sds"));
 
     underTest.execute();
-
-    verifyDefaultQualityGateHasBeenSet();
-
-    mutableQualityGateHolder.reset();
   }
 
   @Test
@@ -93,7 +90,7 @@ public class QualityGateLoadingStepTest {
 
     underTest.execute();
 
-    verifyDefaultQualityGateHasBeenSet();
+    verifyNoQualityGate();
   }
 
   @Test
@@ -106,12 +103,11 @@ public class QualityGateLoadingStepTest {
 
     underTest.execute();
 
-    assertThat(mutableQualityGateHolder.getQualityGate()).isSameAs(qualityGate);
+    assertThat(mutableQualityGateHolder.getQualityGate().get()).isSameAs(qualityGate);
   }
 
-  private void verifyDefaultQualityGateHasBeenSet() {
-    assertThat(mutableQualityGateHolder.getQualityGate().getName()).isEqualTo("default Quality Gate");
-    assertThat(mutableQualityGateHolder.getQualityGate().getConditions()).isEmpty();
+  private void verifyNoQualityGate() {
+    assertThat(mutableQualityGateHolder.getQualityGate()).isAbsent();
   }
 
 }
