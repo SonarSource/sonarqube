@@ -83,7 +83,7 @@ public class CreateActionTest {
     dbSession = dbClient.openSession(false);
     TypeValidations typeValidations = new TypeValidations(Arrays.asList(new BooleanTypeValidation(), new IntegerTypeValidation(), new FloatTypeValidation(),
       new MetricLevelTypeValidation(), new LongTypeValidation()));
-    ws = new WsTester(new CustomMeasuresWs(new CreateAction(dbClient, userSession, System2.INSTANCE, typeValidations)));
+    ws = new WsTester(new CustomMeasuresWs(new CreateAction(dbClient, userSession, System2.INSTANCE, typeValidations, new CustomMeasureJsonWriter())));
     db.truncateTables();
     userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }

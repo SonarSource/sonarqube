@@ -28,6 +28,7 @@ public class CustomMeasuresWsModule extends Module {
     add(
       CustomMeasuresWs.class,
       DeleteAction.class,
+      CustomMeasureJsonWriter.class,
       CreateAction.class);
   }
 }

@@ -67,12 +67,14 @@ public class CreateAction implements CustomMeasuresWsAction {
   private final UserSession userSession;
   private final System2 system;
   private final TypeValidations typeValidations;
+  private final CustomMeasureJsonWriter customMeasureJsonWriter;
 
-  public CreateAction(DbClient dbClient, UserSession userSession, System2 system, TypeValidations typeValidations) {
+  public CreateAction(DbClient dbClient, UserSession userSession, System2 system, TypeValidations typeValidations, CustomMeasureJsonWriter customMeasureJsonWriter) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.system = system;
     this.typeValidations = typeValidations;
+    this.customMeasureJsonWriter = customMeasureJsonWriter;
   }
 
   @Override
@@ -156,24 +158,8 @@ public class CreateAction implements CustomMeasuresWsAction {
     }
   }
 
-  private static void writeMeasure(JsonWriter json, CustomMeasureDto measure, ComponentDto component, MetricDto metric, String measureWithoutInternalFormatting) {
-    json.beginObject();
-    json.prop(FIELD_ID, String.valueOf(measure.getId()));
-    json.name(FIELD_METRIC);
-    writeMetric(json, metric);
-    json.prop(FIELD_PROJECT_ID, component.uuid());
-    json.prop(FIELD_PROJECT_KEY, component.key());
-    json.prop(FIELD_DESCRIPTION, measure.getDescription());
-    json.prop(FIELD_VALUE, measureWithoutInternalFormatting);
-    json.endObject();
-  }
-
-  private static void writeMetric(JsonWriter json, MetricDto metric) {
-    json.beginObject();
-    json.prop(FIELD_METRIC_ID, String.valueOf(metric.getId()));
-    json.prop(FIELD_METRIC_KEY, metric.getKey());
-    json.prop(FIELD_METRIC_TYPE, metric.getValueType());
-    json.endObject();
+  private void writeMeasure(JsonWriter json, CustomMeasureDto measure, ComponentDto component, MetricDto metric, String measureWithoutInternalFormatting) {
+    customMeasureJsonWriter.write(json, measure, metric, component);
   }
 
   private void setMeasureValue(CustomMeasureDto measure, Request request, MetricDto metric) {

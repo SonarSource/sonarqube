@@ -41,7 +41,7 @@ public class CustomMeasuresWsTest {
     UserSession userSession = mock(UserSession.class);
     ws = new WsTester(new CustomMeasuresWs(
       new DeleteAction(dbClient, userSession),
-      new CreateAction(dbClient, userSession, System2.INSTANCE, mock(TypeValidations.class))
+      new CreateAction(dbClient, userSession, System2.INSTANCE, mock(TypeValidations.class), mock(CustomMeasureJsonWriter.class))
       ));
   }
 
