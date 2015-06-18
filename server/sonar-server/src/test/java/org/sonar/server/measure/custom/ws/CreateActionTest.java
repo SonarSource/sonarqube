@@ -30,11 +30,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.Settings;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
-import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.measure.custom.db.CustomMeasureDto;
@@ -55,15 +52,14 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.util.BooleanTypeValidation;
 import org.sonar.server.util.FloatTypeValidation;
 import org.sonar.server.util.IntegerTypeValidation;
+import org.sonar.server.util.LongTypeValidation;
 import org.sonar.server.util.MetricLevelTypeValidation;
-import org.sonar.server.util.MetricWorkDurationTypeValidation;
 import org.sonar.server.util.TypeValidations;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
-import static org.mockito.Mockito.mock;
 
 @Category(DbTests.class)
 public class CreateActionTest {
@@ -85,10 +81,9 @@ public class CreateActionTest {
   public void setUp() {
     dbClient = new DbClient(db.database(), db.myBatis(), new CustomMeasureDao(), new MetricDao(), new ComponentDao());
     dbSession = dbClient.openSession(false);
-    Durations durations = new Durations(mock(Settings.class), mock(I18n.class));
     TypeValidations typeValidations = new TypeValidations(Arrays.asList(new BooleanTypeValidation(), new IntegerTypeValidation(), new FloatTypeValidation(),
-      new MetricLevelTypeValidation(), new MetricWorkDurationTypeValidation(durations)));
-    ws = new WsTester(new CustomMeasuresWs(new CreateAction(dbClient, userSession, System2.INSTANCE, typeValidations, durations)));
+      new MetricLevelTypeValidation(), new LongTypeValidation()));
+    ws = new WsTester(new CustomMeasuresWs(new CreateAction(dbClient, userSession, System2.INSTANCE, typeValidations)));
     db.truncateTables();
     userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
@@ -212,12 +207,12 @@ public class CreateActionTest {
     newRequest()
       .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
       .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
-      .setParam(CreateAction.PARAM_VALUE, "4h 12min")
+      .setParam(CreateAction.PARAM_VALUE, "253")
       .execute();
 
     CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectByMetricId(dbSession, metric.getId()).get(0);
     assertThat(customMeasure.getTextValue()).isNullOrEmpty();
-    assertThat(customMeasure.getValue()).isCloseTo(4 * 60 + 12, offset(0.01d));
+    assertThat(customMeasure.getValue()).isCloseTo(253, offset(0.01d));
   }
 
   @Test

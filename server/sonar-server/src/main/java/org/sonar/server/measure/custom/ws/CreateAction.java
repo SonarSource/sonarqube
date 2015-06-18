@@ -27,7 +27,6 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
@@ -66,14 +65,12 @@ public class CreateAction implements CustomMeasuresWsAction {
   private final UserSession userSession;
   private final System2 system;
   private final TypeValidations typeValidations;
-  private final Durations durations;
 
-  public CreateAction(DbClient dbClient, UserSession userSession, System2 system, TypeValidations typeValidations, Durations durations) {
+  public CreateAction(DbClient dbClient, UserSession userSession, System2 system, TypeValidations typeValidations) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.system = system;
     this.typeValidations = typeValidations;
-    this.durations = durations;
   }
 
   @Override
@@ -216,8 +213,8 @@ public class CreateAction implements CustomMeasuresWsAction {
   }
 
   private void checkAndSetWorkDurationMeasureValue(CustomMeasureDto measure, String valueAsString) {
-    typeValidations.validate(valueAsString, PropertyType.METRIC_WORK_DURATION.name(), null);
-    measure.setValue(durations.decode(valueAsString).toMinutes());
+    typeValidations.validate(valueAsString, PropertyType.LONG.name(), null);
+    measure.setValue(Long.parseLong(valueAsString));
   }
 
   private void checkAndSetIntegerMeasureValue(CustomMeasureDto measure, String valueAsString) {
@@ -295,7 +292,7 @@ public class CreateAction implements CustomMeasuresWsAction {
       case DISTRIB:
         return "type: string";
       case WORK_DUR:
-        return "duration format: 12d 5h 30min";
+        return "long representing the number of minutes";
       default:
         return "metric type not supported";
     }

@@ -94,7 +94,7 @@ public enum PropertyType {
   METRIC_LEVEL,
 
   /**
-   * Work duration metric type
+   * Long value, positivie or negative
    */
-  METRIC_WORK_DURATION
+  LONG
 }

@@ -23,7 +23,6 @@ package org.sonar.server.measure.custom.ws;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
@@ -42,7 +41,7 @@ public class CustomMeasuresWsTest {
     UserSession userSession = mock(UserSession.class);
     ws = new WsTester(new CustomMeasuresWs(
       new DeleteAction(dbClient, userSession),
-      new CreateAction(dbClient, userSession, System2.INSTANCE, mock(TypeValidations.class), mock(Durations.class))
+      new CreateAction(dbClient, userSession, System2.INSTANCE, mock(TypeValidations.class))
       ));
   }
 

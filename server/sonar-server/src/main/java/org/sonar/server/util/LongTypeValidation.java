@@ -23,27 +23,20 @@ package org.sonar.server.util;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.PropertyType;
-import org.sonar.api.utils.Durations;
 import org.sonar.server.exceptions.BadRequestException;
 
-public class MetricWorkDurationTypeValidation implements TypeValidation {
-  private final Durations durations;
-
-  public MetricWorkDurationTypeValidation(Durations durations) {
-    this.durations = durations;
-  }
-
+public class LongTypeValidation implements TypeValidation {
   @Override
   public String key() {
-    return PropertyType.METRIC_WORK_DURATION.name();
+    return PropertyType.LONG.name();
   }
 
   @Override
   public void validate(String value, @Nullable List<String> options) {
     try {
-      durations.decode(value);
-    } catch (IllegalArgumentException e) {
-      throw new BadRequestException("errors.type.notMetricWorkDuration", value);
+      Long.parseLong(value);
+    } catch (NumberFormatException e) {
+      throw new BadRequestException("errors.type.notLong", value);
     }
   }
 }
