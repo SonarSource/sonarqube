@@ -19,7 +19,6 @@
  */
 package org.sonar.api.utils.internal;
 
-import org.sonar.api.utils.ProjectTempFolder;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.TempFolder;
@@ -30,21 +29,21 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 
-public class DefaultTempFolder implements TempFolder, ProjectTempFolder {
+public class DefaultTempFolder implements TempFolder {
 
   /** Maximum loop count when creating temp directories. */
   private static final int TEMP_DIR_ATTEMPTS = 10000;
 
   private final File tempDir;
-  private final boolean cleanUp;
+  private final boolean deleteOnExit;
 
   public DefaultTempFolder(File tempDir) {
     this(tempDir, false);
   }
 
-  public DefaultTempFolder(File tempDir, boolean cleanUp) {
+  public DefaultTempFolder(File tempDir, boolean deleteOnExit) {
     this.tempDir = tempDir;
-    this.cleanUp = cleanUp;
+    this.deleteOnExit = deleteOnExit;
   }
 
   @Override
@@ -114,7 +113,7 @@ public class DefaultTempFolder implements TempFolder, ProjectTempFolder {
   }
 
   public void stop() {
-    if(cleanUp) {
+    if (deleteOnExit) {
       clean();
     }
   }

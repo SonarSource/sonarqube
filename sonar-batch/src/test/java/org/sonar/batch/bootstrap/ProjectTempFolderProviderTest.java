@@ -19,9 +19,9 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.apache.commons.io.FileUtils;
+import org.sonar.api.utils.TempFolder;
 
-import org.sonar.api.utils.ProjectTempFolder;
+import org.apache.commons.io.FileUtils;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class ProjectTempFolderProviderTest {
     File workingDir = temp.newFolder();
     File tmpDir = new File(workingDir, ProjectTempFolderProvider.TMP_NAME);
 
-    ProjectTempFolder tempFolder = tempFolderProvider.provide(new BootstrapProperties(ImmutableMap.of(CoreProperties.WORKING_DIRECTORY, workingDir.getAbsolutePath())));
+    TempFolder tempFolder = tempFolderProvider.provide(new BootstrapProperties(ImmutableMap.of(CoreProperties.WORKING_DIRECTORY, workingDir.getAbsolutePath())));
     tempFolder.newDir();
     tempFolder.newFile();
     assertThat(tmpDir).exists();
@@ -58,7 +58,7 @@ public class ProjectTempFolderProviderTest {
     File defaultDir = new File(CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE, ProjectTempFolderProvider.TMP_NAME);
 
     try {
-      ProjectTempFolder tempFolder = tempFolderProvider.provide(new BootstrapProperties(Collections.<String, String>emptyMap()));
+      TempFolder tempFolder = tempFolderProvider.provide(new BootstrapProperties(Collections.<String, String>emptyMap()));
       tempFolder.newDir();
       tempFolder.newFile();
       assertThat(defaultDir).exists();

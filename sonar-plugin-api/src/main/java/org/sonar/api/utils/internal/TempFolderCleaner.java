@@ -19,11 +19,9 @@
  */
 package org.sonar.api.utils.internal;
 
-import org.sonar.api.batch.BatchSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.TempFolder;
 
-@BatchSide
 @ServerSide
 public class TempFolderCleaner {
 

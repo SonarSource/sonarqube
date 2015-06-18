@@ -29,7 +29,6 @@ import org.sonar.api.Plugin;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
-import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.batch.components.PastSnapshotFinder;
 import org.sonar.batch.deprecated.components.PastSnapshotFinderByDate;
 import org.sonar.batch.deprecated.components.PastSnapshotFinderByDays;
@@ -67,13 +66,14 @@ import org.sonar.jpa.session.JpaDatabaseSession;
 public class GlobalContainer extends ComponentContainer {
 
   private final Map<String, String> bootstrapProperties;
+  private PersistentCacheProvider persistentCacheProvider;
 
   private GlobalContainer(Map<String, String> bootstrapProperties) {
     super();
     this.bootstrapProperties = bootstrapProperties;
   }
 
-  public static GlobalContainer create(Map<String, String> bootstrapProperties, List extensions) {
+  public static GlobalContainer create(Map<String, String> bootstrapProperties, List<?> extensions) {
     GlobalContainer container = new GlobalContainer(bootstrapProperties);
     container.add(extensions);
     return container;
@@ -92,6 +92,8 @@ public class GlobalContainer extends ComponentContainer {
   }
 
   private void addBootstrapComponents() {
+    persistentCacheProvider = new PersistentCacheProvider();
+
     add(
       // plugins
       BatchPluginRepository.class,
@@ -107,11 +109,10 @@ public class GlobalContainer extends ComponentContainer {
       Logback.class,
       DefaultServer.class,
       new TempFolderProvider(),
-      TempFolderCleaner.class,
       DefaultHttpDownloader.class,
       UriReader.class,
       new FileCacheProvider(),
-      new PersistentCacheProvider(),
+      persistentCacheProvider,
       System2.INSTANCE,
       DefaultI18n.class,
       Durations.class,
@@ -124,7 +125,7 @@ public class GlobalContainer extends ComponentContainer {
     addIfMissing(DefaultServerLineHashesLoader.class, ServerLineHashesLoader.class);
   }
 
-  public void addIfMissing(Object object, Class objectType) {
+  public void addIfMissing(Object object, Class<?> objectType) {
     if (getComponentByType(objectType) == null) {
       add(object);
     }
@@ -166,7 +167,7 @@ public class GlobalContainer extends ComponentContainer {
 
   public void executeAnalysis(Map<String, String> analysisProperties, Object... components) {
     AnalysisProperties props = new AnalysisProperties(analysisProperties, this.getComponentByType(BootstrapProperties.class).property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
+    persistentCacheProvider.reconfigure(props);
     new ProjectScanContainer(this, props, components).execute();
   }
-
 }

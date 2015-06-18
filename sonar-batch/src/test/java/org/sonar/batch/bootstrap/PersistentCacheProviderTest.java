@@ -19,24 +19,20 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import java.util.Collections;
+
 import org.junit.Before;
-
-import static org.mockito.Mockito.when;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 
 public class PersistentCacheProviderTest {
   private PersistentCacheProvider provider = null;
 
-  @Mock
   private BootstrapProperties props = null;
 
   @Before
   public void prepare() {
-    MockitoAnnotations.initMocks(this);
+    props = new BootstrapProperties(Collections.<String, String>emptyMap());
     provider = new PersistentCacheProvider();
   }
 
@@ -55,7 +51,7 @@ public class PersistentCacheProviderTest {
     // normally force update (cache disabled)
     assertThat(provider.provide(props).isForceUpdate()).isTrue();
 
-    when(props.property("sonar.enableHttpCache")).thenReturn("true");
+    props.properties().put("sonar.enableHttpCache", "true");
     provider = new PersistentCacheProvider();
     assertThat(provider.provide(props).isForceUpdate()).isFalse();
   }

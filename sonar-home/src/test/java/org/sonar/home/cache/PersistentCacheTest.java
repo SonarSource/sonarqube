@@ -19,12 +19,13 @@
  */
 package org.sonar.home.cache;
 
+import org.apache.commons.io.FileUtils;
+
 import org.sonar.home.log.Slf4jLog;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
 import static org.mockito.Mockito.when;
@@ -96,8 +97,25 @@ public class PersistentCacheTest {
   }
 
   @Test
+  public void testReconfigure() throws Exception {
+    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, log, true);
+    assertCacheHit(false);
+    assertCacheHit(false);
+
+    File root = tmp.getRoot();
+    FileUtils.deleteDirectory(root);
+
+    // should re-create cache directory and start using the cache
+    cache.reconfigure(false);
+    assertThat(root).exists();
+
+    assertCacheHit(false);
+    assertCacheHit(true);
+  }
+
+  @Test
   public void testExpiration() throws Exception {
-    //negative time to make sure it is expired on the second call
+    // negative time to make sure it is expired on the second call
     cache = new PersistentCache(tmp.getRoot().toPath(), -100, log, false);
     assertCacheHit(false);
     assertCacheHit(false);
@@ -118,7 +136,7 @@ public class PersistentCacheTest {
       return VALUE;
     }
   }
-  
+
   /**
    * WSCache should be transparent regarding exceptions: if an exception is thrown by the value loader, it should pass through
    * the cache to the original caller using the cache.

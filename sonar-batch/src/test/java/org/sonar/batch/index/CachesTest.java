@@ -65,8 +65,6 @@ public class CachesTest extends AbstractCachesTest {
   public void leak_test() throws PersistitException {
     caches.stop();
 
-    System.out.println(cachesManager.tempDir());
-
     int len = 1 * 1024 * 1024;
     StringBuilder sb = new StringBuilder(len);
     for (int i = 0; i < len; i++) {

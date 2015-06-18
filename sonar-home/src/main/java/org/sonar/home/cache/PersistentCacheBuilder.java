@@ -30,17 +30,19 @@ import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 public class PersistentCacheBuilder {
+  private static final long DEFAULT_EXPIRE_DURATION = TimeUnit.MILLISECONDS.convert(1L, TimeUnit.DAYS);
+  private static final String DIR_NAME = "ws_cache";
+
   private boolean forceUpdate = false;
   private Path cachePath = null;
   private Log log = new StandardLog();
-  private String name = "ws_cache";
 
   public PersistentCache build() {
     if (cachePath == null) {
       setSonarHome(findHome());
     }
 
-    return new PersistentCache(cachePath, TimeUnit.MILLISECONDS.convert(1L, TimeUnit.DAYS), log, forceUpdate);
+    return new PersistentCache(cachePath, DEFAULT_EXPIRE_DURATION, log, forceUpdate);
   }
 
   public PersistentCacheBuilder setLog(Log log) {
@@ -50,7 +52,7 @@ public class PersistentCacheBuilder {
 
   public PersistentCacheBuilder setSonarHome(@Nullable Path p) {
     if (p != null) {
-      this.cachePath = p.resolve(name);
+      this.cachePath = p.resolve(DIR_NAME);
     }
     return this;
   }
