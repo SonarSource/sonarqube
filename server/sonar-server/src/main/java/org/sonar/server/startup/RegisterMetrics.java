@@ -155,6 +155,7 @@ public class RegisterMetrics {
       dto.setOptimizedBestValue(metric.isOptimizedBestValue());
       dto.setUserManaged(metric.getUserManaged());
       dto.setWorstValue(metric.getWorstValue());
+      dto.setDeleteHistoricalData(metric.getDeleteHistoricalData());
       return dto;
     }
   }
