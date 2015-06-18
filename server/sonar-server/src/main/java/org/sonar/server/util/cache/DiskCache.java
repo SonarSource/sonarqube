@@ -19,13 +19,17 @@
  */
 package org.sonar.server.util.cache;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.server.util.CloseableIterator;
 import org.sonar.server.util.ObjectInputStreamIterator;
-
-import java.io.*;
 
 /**
  * Serialize and deserialize objects on disk. No search capabilities, only traversal (full scan).

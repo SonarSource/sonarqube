@@ -19,15 +19,20 @@
  */
 package org.sonar.api.utils;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 /**
  * @since 1.10
@@ -46,13 +51,17 @@ public final class ZipUtils {
    * @return the target directory
    */
   public static File unzip(File zip, File toDir) throws IOException {
-    unzip(zip, toDir, new ZipEntryFilter() {
-      @Override
-      public boolean accept(ZipEntry entry) {
-        return true;
-      }
-    });
+    unzip(zip, toDir, TrueZipEntryFilter.INSTANCE);
     return toDir;
+  }
+
+  private enum TrueZipEntryFilter implements ZipEntryFilter {
+    INSTANCE;
+
+    @Override
+    public boolean accept(ZipEntry entry) {
+      return true;
+    }
   }
 
   public static File unzip(InputStream zip, File toDir) throws IOException {
