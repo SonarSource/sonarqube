@@ -2,12 +2,7 @@
   "issues": [
     {
       "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
-      "assignee": {
-        "login": "simon",
-        "name": "Simon",
-        "active": true,
-        "email": "simon@email.com"
-      },
+      "assignee": "simon",
       "reporter": "fabrice",
       "reporterName": "Fabrice",
       "actionPlan": "AP-ABCD",

@@ -54,6 +54,7 @@ import org.sonar.server.issue.ws.IssueJsonWriter;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.index.UserIndex;
+import org.sonar.server.user.ws.UserJsonWriter;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -101,6 +102,8 @@ public class InternalRubyIssueServiceTest {
 
   DbSession dbSession;
 
+  UserJsonWriter userWriter;
+
   @Before
   public void setUp() {
     issueService = mock(IssueService.class);
@@ -117,12 +120,13 @@ public class InternalRubyIssueServiceTest {
     userIndex = mock(UserIndex.class);
     dbClient = mock(DbClient.class);
     dbSession = mock(DbSession.class);
+    userWriter = mock(UserJsonWriter.class);
 
     ResourceDto project = new ResourceDto().setKey("org.sonar.Sample");
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(project);
 
     service = new InternalRubyIssueService(issueService, issueQueryService, commentService, changelogService, actionPlanService, resourceDao, actionService,
-      issueFilterService, issueBulkChangeService, issueWriter, issueComponentHelper, userIndex, dbClient, userSessionRule);
+      issueFilterService, issueBulkChangeService, issueWriter, issueComponentHelper, userIndex, dbClient, userSessionRule, userWriter);
   }
 
   @Test

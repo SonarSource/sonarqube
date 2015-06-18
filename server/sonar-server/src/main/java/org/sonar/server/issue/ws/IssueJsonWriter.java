@@ -42,7 +42,6 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.ws.UserJsonWriter;
 
 public class IssueJsonWriter {
 
@@ -57,14 +56,12 @@ public class IssueJsonWriter {
   private final I18n i18n;
   private final Durations durations;
   private final UserSession userSession;
-  private final UserJsonWriter userWriter;
   private final IssueActionsWriter actionsWriter;
 
-  public IssueJsonWriter(I18n i18n, Durations durations, UserSession userSession, UserJsonWriter userWriter, IssueActionsWriter actionsWriter) {
+  public IssueJsonWriter(I18n i18n, Durations durations, UserSession userSession, IssueActionsWriter actionsWriter) {
     this.i18n = i18n;
     this.durations = durations;
     this.userSession = userSession;
-    this.userWriter = userWriter;
     this.actionsWriter = actionsWriter;
   }
 
@@ -98,17 +95,13 @@ public class IssueJsonWriter {
       .prop("message", issue.message())
       .prop("line", issue.line())
       .prop("debt", debt != null ? durations.encode(debt) : null)
+      .prop("assignee", issue.assignee())
       .prop("reporter", issue.reporter())
       .prop("author", issue.authorLogin())
       .prop("actionPlan", actionPlanKey)
       .prop("creationDate", isoDate(issue.creationDate()))
       .prop("updateDate", isoDate(updateDate))
-      // TODO Remove as part of Front-end rework on Issue Domain
-      .prop("fUpdateAge", formatAgeDate(updateDate))
       .prop("closeDate", isoDate(issue.closeDate()));
-
-    json.name("assignee");
-    userWriter.write(json, usersByLogin.get(issue.assignee()));
 
     writeTags(issue, json);
     writeIssueComments(commentsByIssues.get(issue.key()), usersByLogin, json);
