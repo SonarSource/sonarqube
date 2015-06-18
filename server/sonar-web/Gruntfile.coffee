@@ -49,7 +49,6 @@ module.exports = (grunt) ->
             '<%= BUILD_PATH %>/js/libs/third-party/backbone-super.js'
             '<%= BUILD_PATH %>/js/libs/third-party/backbone.marionette.js'
             '<%= BUILD_PATH %>/js/libs/third-party/handlebars.js'
-            '<%= BUILD_PATH %>/js/libs/third-party/underscore.js'
             '<%= BUILD_PATH %>/js/libs/third-party/select2.js'
             '<%= BUILD_PATH %>/js/libs/third-party/keymaster.js'
             '<%= BUILD_PATH %>/js/libs/third-party/moment.js'
