@@ -106,7 +106,7 @@ public class FileCache {
     // Check if the file was cached by another process during download
     if (!rename && !targetFile.exists()) {
       log.warn(String.format("Unable to rename %s to %s", sourceFile.getAbsolutePath(), targetFile.getAbsolutePath()));
-      log.warn(String.format("A copy/delete will be tempted but with no garantee of atomicity"));
+      log.warn("A copy/delete will be tempted but with no guarantee of atomicity");
       try {
         Files.move(sourceFile.toPath(), targetFile.toPath());
       } catch (IOException e) {

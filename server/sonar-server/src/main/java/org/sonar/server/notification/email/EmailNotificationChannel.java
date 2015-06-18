@@ -95,8 +95,8 @@ public class EmailNotificationChannel extends NotificationChannel {
   @Override
   public void deliver(Notification notification, String username) {
     User user = userFinder.findByLogin(username);
-    if (StringUtils.isBlank(user.email())) {
-      LOG.debug("Email not defined for user: " + username);
+    if (user == null || StringUtils.isBlank(user.email())) {
+      LOG.debug("User does not exist or has no email: {}", username);
       return;
     }
     EmailMessage emailMessage = format(notification);
