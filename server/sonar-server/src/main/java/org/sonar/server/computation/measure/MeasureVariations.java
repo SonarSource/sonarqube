@@ -38,58 +38,58 @@ public final class MeasureVariations {
   }
 
   public boolean hasVariation1() {
-    return hasVariation(0);
-  }
-
-  public boolean hasVariation2() {
     return hasVariation(1);
   }
 
-  public boolean hasVariation3() {
+  public boolean hasVariation2() {
     return hasVariation(2);
   }
 
-  public boolean hasVariation4() {
+  public boolean hasVariation3() {
     return hasVariation(3);
   }
 
-  public boolean hasVariation5() {
+  public boolean hasVariation4() {
     return hasVariation(4);
+  }
+
+  public boolean hasVariation5() {
+    return hasVariation(5);
   }
 
   private void checkHasVariation(int i) {
     if (!hasVariation(i)) {
-      throw new IllegalStateException(String.format("Variation %s has not been set", i + 1));
+      throw new IllegalStateException(String.format("Variation %s has not been set", i));
     }
   }
 
-  private boolean hasVariation(int i) {
-    return variations[i] != null;
+  public boolean hasVariation(int i) {
+    return variations[i - 1] != null;
   }
 
   public double getVariation1() {
-    return getVariation(0);
-  }
-
-  public double getVariation2() {
     return getVariation(1);
   }
 
-  public double getVariation3() {
+  public double getVariation2() {
     return getVariation(2);
   }
 
-  public double getVariation4() {
+  public double getVariation3() {
     return getVariation(3);
   }
 
-  public double getVariation5() {
+  public double getVariation4() {
     return getVariation(4);
   }
 
-  private double getVariation(int i) {
+  public double getVariation5() {
+    return getVariation(5);
+  }
+
+  public double getVariation(int i) {
     checkHasVariation(i);
-    return variations[i];
+    return variations[i-1];
   }
 
   @Override
