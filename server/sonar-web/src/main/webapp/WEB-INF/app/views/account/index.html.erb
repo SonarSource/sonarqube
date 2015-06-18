@@ -6,10 +6,10 @@
         <% if configuration('sonar.lf.enableGravatar', 'true') == 'true' %>
           <div class="js-avatar big-spacer-bottom"></div>
         <% end %>
-        <h2 id="name"><%= current_user.name %></h2>
-        <p id="login" class="note"><%= current_user.login %></p>
+        <h2 id="name" class="text-ellipsis" title="<%= current_user.name -%>"><%= current_user.name -%></h2>
+        <p id="login" class="note text-ellipsis" title="<%= current_user.login -%>"><%= current_user.login -%></p>
         <div class="text-center spacer-top">
-          <p id="email"><%= current_user.email %></p>
+          <p id="email" class="text-ellipsis" title="<%= current_user.email -%>"><%= current_user.email -%></p>
         </div>
       </div>
 
@@ -17,7 +17,7 @@
         <h3 class="text-center"><%= message('my_profile.groups') -%></h3>
         <ul id="groups">
           <% current_user.groups.sort.each do |group| -%>
-            <li><%= group.name -%></li>
+            <li class="text-ellipsis" title="<%= group.name -%>"><%= group.name -%></li>
           <% end -%>
         </ul>
       </div>
@@ -26,14 +26,14 @@
         <h3 class="text-center"><%= message('my_profile.scm_accounts') -%></h3>
         <ul id="scm-accounts">
           <% current_user.full_scm_accounts.each do |scm_account| -%>
-            <li><%= scm_account -%></li>
+            <li class="text-ellipsis" title="<%= scm_account -%>"><%= scm_account -%></li>
           <% end -%>
         </ul>
       </div>
 
       <% if User.editable_password? %>
         <div class="big-spacer-top text-center">
-          <button id="account-change-password-trigger" class="open-modal block-button"
+          <button id="account-change-password-trigger" class="open-modal"
                   href="<%= url_for :action => 'change_password_form' %>">
             <i class="icon-lock"></i> <%= message('my_profile.password.title') -%>
           </button>
