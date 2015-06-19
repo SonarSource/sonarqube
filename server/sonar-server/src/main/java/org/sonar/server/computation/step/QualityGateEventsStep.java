@@ -37,6 +37,9 @@ import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.notification.NotificationManager;
 
+/**
+ * This step must be executed after computation of quality gate measure {@link QualityGateMeasuresStep}
+ */
 public class QualityGateEventsStep implements ComputationStep {
   private static final Logger LOGGER = Loggers.get(QualityGateEventsStep.class);
 

@@ -54,10 +54,17 @@ public class ComputationSteps {
 
       // data computation
       CustomMeasuresCopyStep.class,
-      QualityProfileEventsStep.class,
-      QualityGateEventsStep.class,
+            
+      // Must be executed after computation of all measures
       FillMeasuresWithVariationsStep.class,
+
+      // Must be executed after computation of differential measures
       QualityGateMeasuresStep.class,
+      
+      QualityProfileEventsStep.class,
+      
+      // Must be executed after computation of quality gate measure
+      QualityGateEventsStep.class,
 
       // Persist data
       PersistComponentsStep.class,
