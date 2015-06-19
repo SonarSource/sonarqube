@@ -47,11 +47,10 @@ public class IssueJsonWriter {
 
   public static final String ACTIONS_EXTRA_FIELD = "actions";
   public static final String TRANSITIONS_EXTRA_FIELD = "transitions";
-  public static final String REPORTER_NAME_EXTRA_FIELD = "reporterName";
   public static final String ACTION_PLAN_NAME_EXTRA_FIELD = "actionPlanName";
 
   public static final Set<String> EXTRA_FIELDS = ImmutableSet.of(
-    ACTIONS_EXTRA_FIELD, TRANSITIONS_EXTRA_FIELD, REPORTER_NAME_EXTRA_FIELD, ACTION_PLAN_NAME_EXTRA_FIELD);
+    ACTIONS_EXTRA_FIELD, TRANSITIONS_EXTRA_FIELD, ACTION_PLAN_NAME_EXTRA_FIELD);
 
   private final I18n i18n;
   private final Durations durations;
@@ -173,17 +172,7 @@ public class IssueJsonWriter {
         actionsWriter.writeTransitions(issue, json);
       }
 
-      writeReporterIfNeeded(issue, usersByLogin, extraFields, json);
-
       writeActionPlanIfNeeded(issue, actionPlanByKeys, extraFields, json);
-    }
-  }
-
-  private void writeReporterIfNeeded(Issue issue, Map<String, User> usersByLogin, List<String> extraFields, JsonWriter json) {
-    String reporter = issue.reporter();
-    if (extraFields.contains(REPORTER_NAME_EXTRA_FIELD) && reporter != null) {
-      User user = usersByLogin.get(reporter);
-      json.prop(REPORTER_NAME_EXTRA_FIELD, user != null ? user.name() : null);
     }
   }
 
