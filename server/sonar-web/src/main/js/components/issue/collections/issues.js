@@ -26,6 +26,7 @@ define([
     },
 
     parse: function (r) {
+      console.log('polop');
       var that = this;
       function find (source, key, keyField) {
         var searchDict = {};
@@ -60,6 +61,7 @@ define([
           _.extend(issue, { ruleName: rule.name });
         }
         issue = that._injectRelational(issue, r.users, 'assignee', 'login');
+        issue = that._injectRelational(issue, r.users, 'reporter', 'login');
         return issue;
       });
     }

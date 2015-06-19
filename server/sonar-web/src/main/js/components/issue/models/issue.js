@@ -13,7 +13,9 @@ define(function () {
 
     parse: function (r) {
       if (r.issue) {
-        return this._injectRelational(r.issue, r.users, 'assignee', 'login');
+        var issue = this._injectRelational(r.issue, r.users, 'assignee', 'login');
+        issue = this._injectRelational(issue, r.users, 'reporter', 'login');
+        return issue;
       } else {
         return r;
       }
