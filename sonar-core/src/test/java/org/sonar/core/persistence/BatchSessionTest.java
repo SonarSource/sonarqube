@@ -30,7 +30,7 @@ public class BatchSessionTest {
   @Test
   public void shouldCommitWhenReachingBatchSize() {
     SqlSession mybatisSession = mock(SqlSession.class);
-    WorkQueue queue = mock(WorkQueue.class);
+    WorkQueue<?> queue = mock(WorkQueue.class);
     BatchSession session = new BatchSession(queue, mybatisSession, 10);
 
     for (int i = 0; i < 9; i++) {
@@ -41,12 +41,13 @@ public class BatchSessionTest {
     }
     session.insert("id9");
     verify(mybatisSession).commit();
+    session.close();
   }
 
   @Test
   public void shouldCommitWhenReachingBatchSizeWithoutCommits() {
     SqlSession mybatisSession = mock(SqlSession.class);
-    WorkQueue queue = mock(WorkQueue.class);
+    WorkQueue<?> queue = mock(WorkQueue.class);
     BatchSession session = new BatchSession(queue, mybatisSession, 10);
 
     ClusterAction action = new ClusterAction() {
@@ -63,17 +64,19 @@ public class BatchSessionTest {
     }
     session.enqueue(action);
     verify(mybatisSession).commit();
+    session.close();
   }
 
   @Test
     public void shouldResetCounterAfterCommit() {
       SqlSession mybatisSession = mock(SqlSession.class);
-      WorkQueue queue = mock(WorkQueue.class);
+      WorkQueue<?> queue = mock(WorkQueue.class);
       BatchSession session = new BatchSession(queue, mybatisSession, 10);
 
       for (int i = 0; i < 35; i++) {
         session.insert("id" + i);
       }
       verify(mybatisSession, times(3)).commit();
+      session.close();
     }
 }

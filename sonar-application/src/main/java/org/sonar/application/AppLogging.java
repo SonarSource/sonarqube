@@ -23,9 +23,11 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.FileAppender;
+
 import org.slf4j.LoggerFactory;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.Props;
@@ -62,14 +64,14 @@ class AppLogging {
    */
   private static void copyGobblerToConsole() {
     Logger consoleLogger = (Logger) LoggerFactory.getLogger(CONSOLE_LOGGER);
-    Appender consoleAppender = consoleLogger.getAppender(CONSOLE_APPENDER);
+    Appender<ILoggingEvent> consoleAppender = consoleLogger.getAppender(CONSOLE_APPENDER);
 
     Logger gobblerLogger = (Logger) LoggerFactory.getLogger(GOBBLER_LOGGER);
     gobblerLogger.addAppender(consoleAppender);
   }
 
   private void configureConsole(LoggerContext loggerContext) {
-    ConsoleAppender consoleAppender = helper.newConsoleAppender(loggerContext, CONSOLE_APPENDER, "%msg%n");
+    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(loggerContext, CONSOLE_APPENDER, "%msg%n");
     Logger consoleLogger = loggerContext.getLogger(CONSOLE_LOGGER);
     consoleLogger.setAdditive(false);
     consoleLogger.addAppender(consoleAppender);
@@ -78,7 +80,7 @@ class AppLogging {
   private void configureGobbler(Props props, LoggerContext ctx) {
     // configure appender
     LogbackHelper.RollingPolicy rollingPolicy = helper.createRollingPolicy(ctx, props, "sonar");
-    FileAppender fileAppender = rollingPolicy.createAppender(GOBBLER_APPENDER);
+    FileAppender<ILoggingEvent> fileAppender = rollingPolicy.createAppender(GOBBLER_APPENDER);
     fileAppender.setContext(ctx);
     PatternLayoutEncoder fileEncoder = new PatternLayoutEncoder();
     fileEncoder.setContext(ctx);
@@ -94,7 +96,7 @@ class AppLogging {
   }
 
   private void configureRoot(LoggerContext loggerContext) {
-    ConsoleAppender consoleAppender = helper.newConsoleAppender(loggerContext, "ROOT_CONSOLE", APP_PATTERN);
+    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(loggerContext, "ROOT_CONSOLE", APP_PATTERN);
     Logger rootLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
     rootLogger.setLevel(Level.INFO);
     rootLogger.addAppender(consoleAppender);

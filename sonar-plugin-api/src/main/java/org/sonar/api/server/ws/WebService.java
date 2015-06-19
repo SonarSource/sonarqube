@@ -26,18 +26,22 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -351,7 +355,7 @@ public interface WebService extends Definable<WebService.Context> {
      * Creates the parameter {@link org.sonar.api.server.ws.WebService.Param#FIELDS}, which is
      * used to restrict the number of fields returned in JSON response.
      */
-    public NewAction addFieldsParam(Collection possibleValues) {
+    public NewAction addFieldsParam(Collection<?> possibleValues) {
       createParam(Param.FIELDS)
         .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default.")
         .setPossibleValues(possibleValues);
@@ -565,7 +569,7 @@ public interface WebService extends Definable<WebService.Context> {
      * @since 4.4
      */
     public NewParam setPossibleValues(@Nullable Object... values) {
-      return setPossibleValues(values == null ? (Collection) null : Arrays.asList(values));
+      return setPossibleValues(values == null ? Collections.emptyList() : Arrays.asList(values));
     }
 
     /**
@@ -581,7 +585,7 @@ public interface WebService extends Definable<WebService.Context> {
      *
      * @since 4.4
      */
-    public NewParam setPossibleValues(@Nullable Collection values) {
+    public NewParam setPossibleValues(@Nullable Collection<?> values) {
       if (values == null || values.isEmpty()) {
         this.possibleValues = null;
       } else {

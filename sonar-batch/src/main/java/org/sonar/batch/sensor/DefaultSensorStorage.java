@@ -102,7 +102,7 @@ public class DefaultSensorStorage implements SensorStorage {
 
   @Override
   public void store(Measure newMeasure) {
-    DefaultMeasure measure = (DefaultMeasure) newMeasure;
+    DefaultMeasure<?> measure = (DefaultMeasure<?>) newMeasure;
     org.sonar.api.measures.Metric m = findMetricOrFail(measure.metric().key());
     org.sonar.api.measures.Measure measureToSave = new org.sonar.api.measures.Measure(m);
     setValueAccordingToMetricType(newMeasure, m, measureToSave);

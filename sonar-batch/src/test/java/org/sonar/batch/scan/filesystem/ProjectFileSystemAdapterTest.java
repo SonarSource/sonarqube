@@ -63,7 +63,7 @@ public class ProjectFileSystemAdapterTest {
   public void should_create_default_build_dir() throws IOException {
     File workingDir = temp.newFile("work");
     DefaultModuleFileSystem target = mock(DefaultModuleFileSystem.class);
-    when(target.workingDir()).thenReturn(workingDir);
+    when(target.workDir()).thenReturn(workingDir);
     ProjectFileSystemAdapter adapter = new ProjectFileSystemAdapter(target, new Project("my-project"));
 
     File buildDir = adapter.getBuildDir();

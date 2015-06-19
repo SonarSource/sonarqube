@@ -199,7 +199,7 @@ public class ComponentContainer {
 
   private String getName(Object extension) {
     if (extension instanceof Class) {
-      return ((Class) extension).getName();
+      return ((Class<?>) extension).getName();
     }
     return getName(extension.getClass());
   }
@@ -208,7 +208,7 @@ public class ComponentContainer {
     propertyDefinitions.addComponent(extension, pluginInfo != null ? pluginInfo.getName() : "");
   }
 
-  public ComponentContainer addPicoAdapter(ComponentAdapter adapter) {
+  public ComponentContainer addPicoAdapter(ComponentAdapter<?> adapter) {
     pico.addAdapter(adapter);
     return this;
   }

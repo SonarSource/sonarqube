@@ -81,7 +81,7 @@ public class LogbackHelperTest {
   @Test
   public void newConsoleAppender() {
     LoggerContext ctx = sut.getRootContext();
-    ConsoleAppender appender = sut.newConsoleAppender(ctx, "MY_APPENDER", "%msg%n");
+    ConsoleAppender<?> appender = sut.newConsoleAppender(ctx, "MY_APPENDER", "%msg%n");
 
     assertThat(appender.getName()).isEqualTo("MY_APPENDER");
     assertThat(appender.getContext()).isSameAs(ctx);
