@@ -63,7 +63,8 @@ public class Durations {
   /**
    * Convert the text to a Duration
    * <br>
-   * Example : decode("9d 10 h") -> Duration.encode("10d2h") (if sonar.technicalDebt.hoursInDay property is set to 8)
+   * Example : decode("9d 10 h") -> Duration.encode("10d2h") (if sonar.technicalDebt.hoursInDay property is set to 8)<br />
+   * Throws {@code IllegalArgumentException}
    */
   public Duration decode(String duration) {
     return Duration.decode(duration, hoursInDay());

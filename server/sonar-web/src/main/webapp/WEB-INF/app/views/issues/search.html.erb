@@ -1,5 +1,7 @@
-<% content_for :script do %>
-  <script>require(['apps/issues/app-new']);</script>
-<% end %>
-
 <div class="issues search-navigator"></div>
+
+<% content_for :extra_script do %>
+  <script>
+    require(['apps/issues/app-new']);
+  </script>
+<% end %>

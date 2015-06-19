@@ -33,10 +33,27 @@ import org.sonar.api.CoreProperties;
 public interface PeriodsHolder {
 
   /**
-   * Return the list of differential periods.
+   * Return the list of differential periods, ordered by increasing index.
    *
    * @throws IllegalStateException if the periods haven't been initialized
    */
   List<Period> getPeriods();
+
+  /**
+   * Finds out whether the holder contains a Period for the specified index.
+   *
+   * @throws IllegalStateException if the periods haven't been initialized
+   * @throws IndexOutOfBoundsException if i is either &lt; 1 or &gt; 5
+   */
+  boolean hasPeriod(int i);
+
+  /**
+   * Retrieves the Period for the specified index from the Holder.
+   *
+   * @throws IllegalStateException if the periods haven't been initialized
+   * @throws IllegalStateException if there is no period for the specified index (see {@link #hasPeriod(int)})
+   * @throws IndexOutOfBoundsException if i is either &lt; 1 or &gt; 5
+   */
+  Period getPeriod(int i);
 
 }

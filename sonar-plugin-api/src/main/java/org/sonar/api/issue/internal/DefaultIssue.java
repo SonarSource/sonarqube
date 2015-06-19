@@ -26,6 +26,18 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -35,12 +47,6 @@ import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.Duration;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.io.Serializable;
-import java.util.*;
 
 /**
  * PLUGINS MUST NOT BE USED THIS CLASS, EXCEPT FOR UNIT TESTING.

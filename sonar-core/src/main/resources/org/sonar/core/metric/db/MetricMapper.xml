@@ -47,6 +47,7 @@
     </where>
     ORDER BY UPPER(m.short_name), m.short_name
   </select>
+
   <select id="countEnabled" resultType="Integer">
     SELECT COUNT(*)
     FROM metrics m
@@ -85,7 +86,10 @@
     val_type=#{valueType, jdbcType=VARCHAR},
     enabled=#{enabled, jdbcType=BOOLEAN},
     domain=#{domain, jdbcType=VARCHAR},
-    description=#{description, jdbcType=VARCHAR}
+    description=#{description, jdbcType=VARCHAR},
+    direction=#{direction, jdbcType=INTEGER},
+    hidden=#{hidden, jdbcType=BOOLEAN},
+    qualitative=#{qualitative, jdbcType=BOOLEAN}
     where id=#{id}
   </update>
 
@@ -95,7 +99,7 @@
     where m.domain is not null and m.enabled=${_true}
   </select>
 
-  <update id="disable">
+  <update id="disableByIds">
     update metrics
     set enabled=${_false}
     <where>
@@ -105,6 +109,12 @@
         #{id}
       </foreach>
     </where>
+  </update>
+
+  <update id="disableByKey" parameterType="string">
+    update metrics
+    set enabled=${_false}
+    where name=#{key}
   </update>
 
   <select id="selectByKeys" resultType="org.sonar.core.metric.db.MetricDto">

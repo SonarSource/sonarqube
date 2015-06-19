@@ -95,13 +95,12 @@ public class IssueAuthorizationIndexer extends BaseIndexer {
   }
 
   private ActionRequest newUpdateRequest(IssueAuthorizationDao.Dto dto) {
-    ActionRequest request;
     Map<String, Object> doc = ImmutableMap.of(
       IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, dto.getProjectUuid(),
       IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, dto.getGroups(),
       IssueIndexDefinition.FIELD_AUTHORIZATION_USERS, dto.getUsers(),
       IssueIndexDefinition.FIELD_AUTHORIZATION_UPDATED_AT, new Date(dto.getUpdatedAt()));
-    request = new UpdateRequest(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
+    ActionRequest<?> request = new UpdateRequest(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
       .routing(dto.getProjectUuid())
       .doc(doc)
       .upsert(doc);

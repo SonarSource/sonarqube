@@ -9,7 +9,25 @@ define([
       return baseUrl + '/api/issues/search';
     },
 
+    _injectRelational: function (issue, source, baseField, lookupField) {
+      var baseValue = issue[baseField];
+      if (baseValue != null && _.size(source)) {
+        var lookupValue = _.find(source, function (candidate) {
+          return candidate[lookupField] === baseValue;
+        });
+        if (lookupValue != null) {
+          Object.keys(lookupValue).forEach(function (key) {
+            var newKey = baseField + key.charAt(0).toUpperCase() + key.slice(1);
+            issue[newKey] = lookupValue[key];
+          });
+        }
+      }
+      return issue;
+    },
+
     parse: function (r) {
+      console.log('polop');
+      var that = this;
       function find (source, key, keyField) {
         var searchDict = {};
         searchDict[keyField || 'key'] = key;
@@ -26,7 +44,7 @@ define([
       return r.issues.map(function (issue) {
         var component = find(r.components, issue.component),
             project = find(r.projects, issue.project),
-            rule = find(r.rules, issue.rule)
+            rule = find(r.rules, issue.rule);
         if (component) {
           _.extend(issue, {
             componentLongName: component.longName,
@@ -42,6 +60,8 @@ define([
         if (rule) {
           _.extend(issue, { ruleName: rule.name });
         }
+        issue = that._injectRelational(issue, r.users, 'assignee', 'login');
+        issue = that._injectRelational(issue, r.users, 'reporter', 'login');
         return issue;
       });
     }

@@ -19,27 +19,25 @@
  */
 package org.sonar.server.computation.qualitygate;
 
-import java.util.Objects;
+import com.google.common.base.Optional;
 import org.junit.rules.ExternalResource;
 
 public class MutableQualityGateHolderRule extends ExternalResource implements MutableQualityGateHolder {
-  private QualityGate qualityGate;
+  private MutableQualityGateHolder delegate = new QualityGateHolderImpl();
 
   @Override
   public void setQualityGate(QualityGate qualityGate) {
-    Objects.requireNonNull(qualityGate);
-    if (this.qualityGate != null) {
-      throw new IllegalStateException("QualityGate can not be set more than once");
-    }
-    this.qualityGate = qualityGate;
+    delegate.setQualityGate(qualityGate);
   }
 
   @Override
-  public QualityGate getQualityGate() {
-    if (this.qualityGate == null) {
-      throw new IllegalStateException("QualityGate has not been set");
-    }
-    return qualityGate;
+  public void setNoQualityGate() {
+    delegate.setNoQualityGate();
+  }
+
+  @Override
+  public Optional<QualityGate> getQualityGate() {
+    return delegate.getQualityGate();
   }
 
   @Override
@@ -48,6 +46,6 @@ public class MutableQualityGateHolderRule extends ExternalResource implements Mu
   }
 
   public void reset() {
-    this.qualityGate = null;
+    this.delegate = new QualityGateHolderImpl();
   }
 }

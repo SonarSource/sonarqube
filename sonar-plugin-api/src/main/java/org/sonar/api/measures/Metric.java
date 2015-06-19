@@ -19,8 +19,13 @@
  */
 package org.sonar.api.measures;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -123,6 +128,16 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
 
     public String getColorName() {
       return colorName;
+    }
+
+    public static List<String> names() {
+      return Lists.transform(Arrays.asList(values()), new Function<Level, String>() {
+        @Nonnull
+        @Override
+        public String apply(@Nonnull Level level) {
+          return level.name();
+        }
+      });
     }
   }
 
@@ -274,7 +289,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
   /**
    * For internal use only
    */
-  public Metric setId(@Nullable Integer id) {
+  public Metric<G> setId(@Nullable Integer id) {
     this.id = id;
     return this;
   }
@@ -292,7 +307,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
    * @param formula the formula
    * @return this
    */
-  public Metric setFormula(Formula formula) {
+  public Metric<G> setFormula(Formula formula) {
     this.formula = formula;
     return this;
   }
@@ -310,7 +325,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
    * @param qualitative whether the metric is qualitative
    * @return this
    */
-  public Metric setQualitative(Boolean qualitative) {
+  public Metric<G> setQualitative(Boolean qualitative) {
     this.qualitative = qualitative;
     return this;
   }
@@ -328,7 +343,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
    * @param key the key
    * @return this
    */
-  public Metric setKey(String key) {
+  public Metric<G> setKey(String key) {
     this.key = key;
     return this;
   }
@@ -346,7 +361,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
    * @param type the type
    * @return this
    */
-  public Metric setType(ValueType type) {
+  public Metric<G> setType(ValueType type) {
     this.type = type;
     return this;
   }
@@ -365,7 +380,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
    * @param description the description
    * @return this
    */
-  public Metric setDescription(@Nullable String description) {
+  public Metric<G> setDescription(@Nullable String description) {
     this.description = description;
     return this;
   }
@@ -383,7 +398,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
    * @param userManaged whether the metric is user managed
    * @return this
    */
-  public Metric setUserManaged(Boolean userManaged) {
+  public Metric<G> setUserManaged(Boolean userManaged) {
     this.userManaged = userManaged;
     return this;
   }
@@ -401,7 +416,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
    * @param enabled whether the metric is enabled
    * @return this
    */
-  public Metric setEnabled(Boolean enabled) {
+  public Metric<G> setEnabled(Boolean enabled) {
     this.enabled = enabled;
     return this;
   }
@@ -418,7 +433,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
    *
    * @param direction the direction
    */
-  public Metric setDirection(Integer direction) {
+  public Metric<G> setDirection(Integer direction) {
     this.direction = direction;
     return this;
   }
@@ -436,7 +451,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
    * @param domain the domain
    * @return this
    */
-  public Metric setDomain(String domain) {
+  public Metric<G> setDomain(String domain) {
     this.domain = domain;
     return this;
   }
@@ -454,7 +469,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
    * @param name the name
    * @return this
    */
-  public Metric setName(String name) {
+  public Metric<G> setName(String name) {
     this.name = name;
     return this;
   }
@@ -471,7 +486,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
   /**
    * @return this
    */
-  public Metric setWorstValue(@Nullable Double d) {
+  public Metric<G> setWorstValue(@Nullable Double d) {
     this.worstValue = d;
     return this;
   }
@@ -480,7 +495,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
    * @param bestValue the best value. It can be null.
    * @return this
    */
-  public Metric setBestValue(@Nullable Double bestValue) {
+  public Metric<G> setBestValue(@Nullable Double bestValue) {
     this.bestValue = bestValue;
     return this;
   }
@@ -512,7 +527,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     return ValueType.PERCENT.equals(type);
   }
 
-  public Metric setOptimizedBestValue(@Nullable Boolean b) {
+  public Metric<G> setOptimizedBestValue(@Nullable Boolean b) {
     this.optimizedBestValue = b;
     return this;
   }
@@ -529,7 +544,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     return hidden;
   }
 
-  public Metric setHidden(Boolean hidden) {
+  public Metric<G> setHidden(Boolean hidden) {
     this.hidden = hidden;
     return this;
   }
@@ -565,7 +580,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
    *
    * @return this
    */
-  public Metric merge(final Metric with) {
+  public Metric<G> merge(final Metric with) {
     this.description = with.description;
     this.domain = with.domain;
     this.enabled = with.enabled;

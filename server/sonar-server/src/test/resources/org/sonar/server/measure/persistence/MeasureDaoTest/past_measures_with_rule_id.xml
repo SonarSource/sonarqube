@@ -1,0 +1,32 @@
+<dataset>
+
+  <metrics delete_historical_data="[null]" id="1" name="minor_violations" VAL_TYPE="INT" DESCRIPTION="[null]" enabled="[true]"/>
+
+  <rules tags="[null]" system_tags="[null]" id="30" name="Classes that override clone should be Cloneable and call super.clone()"
+         plugin_rule_key="S1182"
+         plugin_config_key="S1182" plugin_name="squid" description="[null]" priority="4" status="READY"
+         is_template="[false]" template_id="[null]"/>
+
+  <rules tags="[null]" system_tags="[null]" id="31" name="Overriding methods should do more than simply call the same method in the super class"
+         plugin_rule_key="S1185"
+         plugin_config_key="S1185" plugin_name="squid" description="[null]" priority="1" status="READY"
+         is_template="[false]" template_id="[null]"/>
+
+  <!-- project -->
+  <projects long_name="[null]" id="1" scope="PRJ" qualifier="TRK" kee="project" name="project"
+            root_id="[null]" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD."
+            enabled="[true]"/>
+
+  <!-- snapshots -->
+  <snapshots id="1000" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             scope="PRJ" qualifier="TRK" created_at="1225544280000" build_date="1225544280000" version="[null]" path=""
+             status="P" islast="[false]" depth="0"/>
+
+  <!-- project measures -->
+  <project_measures id="1" VALUE="60" METRIC_ID="1" SNAPSHOT_ID="1000" RULE_ID="[null]" characteristic_id="[null]" person_id="[null]"/>
+
+  <project_measures id="2" VALUE="20" METRIC_ID="1" SNAPSHOT_ID="1000" RULE_ID="30" characteristic_id="[null]" person_id="[null]"/>
+
+  <project_measures id="3" VALUE="40" METRIC_ID="1" SNAPSHOT_ID="1000" RULE_ID="31" characteristic_id="[null]" person_id="[null]"/>
+
+</dataset>

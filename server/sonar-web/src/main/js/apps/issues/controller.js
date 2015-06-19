@@ -5,7 +5,7 @@ define([
 ], function (Controller, ComponentViewer, HomeView) {
 
   var $ = jQuery,
-      EXTRA_FIELDS = 'actions,transitions,reporterName,actionPlanName',
+      EXTRA_FIELDS = 'actions,transitions,actionPlanName',
       FACET_DATA_FIELDS = ['components', 'projects', 'users', 'rules', 'actionPlans', 'languages'];
 
   return Controller.extend({

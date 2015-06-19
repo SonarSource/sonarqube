@@ -32,7 +32,10 @@
            placeholder="<%= message('sessions.confirm_password') %>">
   </p>
 
-  <button class="block-button" name="commit"><%= message('sessions.sign_up') %></button>
+  <p class="text-right">
+    <button name="commit"><%= message('sessions.sign_up') -%></button>
+    <a class="spacer-left" href="<%= home_path -%>"><%= message('cancel') -%></a>
+  </p>
 </form>
 
 <script>

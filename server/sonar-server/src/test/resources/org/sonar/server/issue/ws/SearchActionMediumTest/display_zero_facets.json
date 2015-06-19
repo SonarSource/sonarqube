@@ -7,8 +7,7 @@
       "rule": "xoo:x1",
       "status": "OPEN",
       "severity": "MAJOR",
-      "debt": "10min",
-      "fUpdateAge": "less than a minute"
+      "debt": "10min"
     }
   ],
   "facets": [

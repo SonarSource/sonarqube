@@ -1,0 +1,51 @@
+<dataset>
+
+  <metrics id="1" name="ncloc" short_name="ncloc" VAL_TYPE="INT" enabled="true"/>
+  <metrics id="2" name="coverage" short_name="coverage" VAL_TYPE="PERCENT" enabled="true"/>
+  <metrics id="3" name="file_complexity" short_name="file_complexity" VAL_TYPE="FLOAT" enabled="true"/>
+  <metrics id="4" name="test_execution_time" short_name="test_execution_time" VAL_TYPE="MILLISEC" enabled="true"/>
+
+  <rules id="30" name="Check Header" plugin_rule_key="com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck"
+         plugin_config_key="Checker/Treewalker/HeaderCheck" plugin_name="checkstyle"/>
+
+  <rules id="31" name="Equals Avoid Null" plugin_rule_key="com.puppycrawl.tools.checkstyle.checks.coding.EqualsAvoidNullCheck"
+         plugin_config_key="Checker/TreeWalker/EqualsAvoidNull" plugin_name="checkstyle"/>
+
+  <!-- project -->
+  <projects id="1" scope="PRJ" qualifier="TRK" kee="PROJECT_KEY" name="project"
+            root_id="[null]" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD."
+            enabled="true"/>
+
+  <!-- directory -->
+  <projects id="2" scope="DIR" qualifier="PAC" kee="DIRECTORY_KEY" name="org.foo"
+            root_id="1" uuid="BCDE" project_uuid="ABCD" module_uuid="ABCD" module_uuid_path=".ABCD."
+            enabled="true"/>
+
+  <!-- snapshots -->
+  <snapshots id="1000" project_id="1" root_project_id="1" root_snapshot_id="[null]"
+             scope="PRJ" qualifier="TRK" created_at="1225544280000" build_date="1225544280000"
+             status="P" islast="false"/>
+  <snapshots id="1001" project_id="2" root_project_id="1" root_snapshot_id="1000"
+             scope="DIR" qualifier="PAC" created_at="1225544280000" build_date="1225544280000"
+             status="P" islast="false"/>
+
+
+  <!-- project measures -->
+  <project_measures id="1" VALUE="60" METRIC_ID="1" SNAPSHOT_ID="1000"
+                    RULE_ID="[null]" text_value="[null]" measure_date="[null]" project_id="[null]"
+                    characteristic_id="[null]" url="[null]" person_id="[null]"/>
+
+  <project_measures id="2" VALUE="80" METRIC_ID="2" SNAPSHOT_ID="1000"
+                    RULE_ID="[null]" text_value="[null]" measure_date="[null]" project_id="[null]"
+                    characteristic_id="[null]" url="[null]" person_id="[null]"/>
+
+  <!-- package measures -->
+  <project_measures id="3" VALUE="20" METRIC_ID="1" SNAPSHOT_ID="1001"
+                    RULE_ID="[null]" text_value="[null]" measure_date="[null]" project_id="[null]"
+                    characteristic_id="[null]" url="[null]" person_id="[null]"/>
+
+  <project_measures id="4" VALUE="70" METRIC_ID="2" SNAPSHOT_ID="1001"
+                    RULE_ID="[null]" text_value="[null]" measure_date="[null]" project_id="[null]"
+                    characteristic_id="[null]" url="[null]" person_id="[null]"/>
+
+</dataset>

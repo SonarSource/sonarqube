@@ -20,29 +20,40 @@
 
 package org.sonar.server.computation.period;
 
+import com.google.common.base.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import javax.annotation.concurrent.Immutable;
 
+import static java.util.Objects.requireNonNull;
+
+@Immutable
 public class Period {
+  private final int index;
+  private final String mode;
+  @CheckForNull
+  private final String modeParameter;
+  private final long snapshotDate;
+  private final long snapshotId;
 
-  private int index;
-  private String mode, modeParameter;
-  private long snapshotDate;
-
-  public Period(int index, String mode, @Nullable String modeParameter, long snapshotDate) {
+  public Period(int index, String mode, @Nullable String modeParameter,
+    long snapshotDate, long snapshotId) {
+    if (!isValidPeriodIndex(index)) {
+      throw new IllegalArgumentException(String.format("Period index (%s) must be > 0 and < 6", index));
+    }
     this.index = index;
-    this.mode = mode;
+    this.mode = requireNonNull(mode);
     this.modeParameter = modeParameter;
     this.snapshotDate = snapshotDate;
+    this.snapshotId = snapshotId;
+  }
+
+  public static boolean isValidPeriodIndex(int i) {
+    return i > 0 && i < 6;
   }
 
   public int getIndex() {
     return index;
-  }
-
-  public Long getSnapshotDate() {
-    return snapshotDate;
   }
 
   public String getMode() {
@@ -54,9 +65,22 @@ public class Period {
     return modeParameter;
   }
 
-  @Override
-  public String toString() {
-    return ReflectionToStringBuilder.toString(this);
+  public long getSnapshotDate() {
+    return snapshotDate;
   }
 
+  public long getSnapshotId() {
+    return snapshotId;
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+      .add("index", index)
+      .add("mode", mode)
+      .add("modeParameter", modeParameter)
+      .add("snapshotDate", snapshotDate)
+      .add("snapshotId", snapshotId)
+      .toString();
+  }
 }

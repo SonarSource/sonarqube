@@ -39,4 +39,9 @@ public interface MetricRepository {
    */
   Metric getById(long id);
 
+  /**
+   * Get iterable of all {@link Metric}.
+   */
+  Iterable<Metric> getAll();
+
 }

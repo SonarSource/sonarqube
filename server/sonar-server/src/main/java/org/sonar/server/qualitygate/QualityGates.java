@@ -19,14 +19,16 @@
  */
 package org.sonar.server.qualitygate;
 
+import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
+import com.google.common.collect.Collections2;
 import java.util.Collection;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
@@ -52,10 +54,6 @@ import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
-import com.google.common.collect.Collections2;
-
 /**
  * @since 4.3
  */
@@ -70,9 +68,10 @@ public class QualityGates {
   private final ComponentDao componentDao;
   private final MyBatis myBatis;
   private final UserSession userSession;
+  private final Settings settings;
 
   public QualityGates(QualityGateDao dao, QualityGateConditionDao conditionDao, MetricFinder metricFinder, PropertiesDao propertiesDao, ComponentDao componentDao,
-    MyBatis myBatis, UserSession userSession) {
+    MyBatis myBatis, UserSession userSession, Settings settings) {
     this.dao = dao;
     this.conditionDao = conditionDao;
     this.metricFinder = metricFinder;
@@ -80,6 +79,7 @@ public class QualityGates {
     this.componentDao = componentDao;
     this.myBatis = myBatis;
     this.userSession = userSession;
+    this.settings = settings;
   }
 
   public QualityGateDto create(String name) {
@@ -153,9 +153,11 @@ public class QualityGates {
     checkPermission();
     if (idToUseAsDefault == null) {
       propertiesDao.deleteGlobalProperty(SONAR_QUALITYGATE_PROPERTY);
+      settings.removeProperty(SONAR_QUALITYGATE_PROPERTY);
     } else {
       QualityGateDto newDefault = getNonNullQgate(idToUseAsDefault);
       propertiesDao.setProperty(new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setValue(newDefault.getId().toString()));
+      settings.setProperty(SONAR_QUALITYGATE_PROPERTY, idToUseAsDefault);
     }
   }
 

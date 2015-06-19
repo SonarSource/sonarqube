@@ -190,7 +190,7 @@ public class PurgeDao implements DaoComponent {
     commands.deleteFileSources(rootUuid);
   }
 
-  private void deleteProject(IdUuidPair rootProjectId, PurgeMapper mapper, PurgeCommands commands) {
+  private static void deleteProject(IdUuidPair rootProjectId, PurgeMapper mapper, PurgeCommands commands) {
     List<IdUuidPair> childrenIdUuid = mapper.selectProjectIdUuidsByRootId(rootProjectId.getId());
     for (IdUuidPair childId : childrenIdUuid) {
       deleteProject(childId, mapper, commands);

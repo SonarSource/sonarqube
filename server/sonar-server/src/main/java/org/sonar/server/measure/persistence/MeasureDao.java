@@ -24,10 +24,13 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.server.ServerSide;
+import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.measure.db.MeasureMapper;
+import org.sonar.core.measure.db.PastMeasureDto;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DbSession;
@@ -49,6 +52,17 @@ public class MeasureDao implements DaoComponent {
       @Override
       public List<MeasureDto> apply(List<String> keys) {
         return mapper(session).selectByComponentAndMetrics(componentKey, keys);
+      }
+    });
+  }
+
+  public List<PastMeasureDto> selectByComponentUuidAndProjectSnapshotIdAndMetricIds(final DbSession session, final String componentUuid, final long projectSnapshotId,
+    Set<Integer> metricIds) {
+    return DaoUtils.executeLargeInputs(metricIds, new Function<List<Integer>, List<PastMeasureDto>>() {
+      @Override
+      public List<PastMeasureDto> apply(List<Integer> ids) {
+        return mapper(session).selectByComponentUuidAndProjectSnapshotIdAndStatusAndMetricIds(componentUuid, projectSnapshotId, ids,
+          SnapshotDto.STATUS_PROCESSED);
       }
     });
   }

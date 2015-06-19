@@ -24,11 +24,11 @@ define([
     },
 
     getAssignee: function () {
-      return this.model.get('assignee').login;
+      return this.model.get('assignee');
     },
 
     getAssigneeName: function () {
-      return this.model.get('assignee').name;
+      return this.model.get('assigneeName');
     },
 
     onRender: function () {

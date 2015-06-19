@@ -32,7 +32,11 @@ public class MeasureDto {
   private Double value;
   private String textValue;
   private byte[] dataValue;
-  private Double variation1, variation2, variation3, variation4, variation5;
+  private Double variation1;
+  private Double variation2;
+  private Double variation3;
+  private Double variation4;
+  private Double variation5;
   private String alertStatus;
   private String alertText;
   private String description;

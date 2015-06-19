@@ -27,6 +27,7 @@ public class CustomMeasuresWsModule extends Module {
   protected void configureModule() {
     add(
       CustomMeasuresWs.class,
-      DeleteAction.class);
+      DeleteAction.class,
+      CreateAction.class);
   }
 }

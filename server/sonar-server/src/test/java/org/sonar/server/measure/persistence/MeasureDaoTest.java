@@ -20,13 +20,19 @@
 
 package org.sonar.server.measure.persistence;
 
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableSet;
 import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.core.measure.db.MeasureDto;
+import org.sonar.core.measure.db.PastMeasureDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.test.DbTests;
@@ -141,6 +147,133 @@ public class MeasureDaoTest {
   }
 
   @Test
+  public void select_past_measures_by_component_uuid_and_root_snapshot_id_and_metric_keys() {
+    db.prepareDbUnit(getClass(), "past_measures.xml");
+
+    List<PastMeasureDto> fileMeasures = sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(session, "CDEF", 1000L, ImmutableSet.of(1, 2));
+    assertThat(fileMeasures).hasSize(2);
+
+    PastMeasureDto fileMeasure1 = fileMeasures.get(0);
+    assertThat(fileMeasure1.getValue()).isEqualTo(5d);
+    assertThat(fileMeasure1.getMetricId()).isEqualTo(1);
+    assertThat(fileMeasure1.getRuleId()).isNull();
+    assertThat(fileMeasure1.getCharacteristicId()).isNull();
+    assertThat(fileMeasure1.getPersonId()).isNull();
+
+    PastMeasureDto fileMeasure2 = fileMeasures.get(1);
+    assertThat(fileMeasure2.getValue()).isEqualTo(60d);
+    assertThat(fileMeasure2.getMetricId()).isEqualTo(2);
+
+    List<PastMeasureDto> projectMeasures = sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(session, "ABCD", 1000L, ImmutableSet.of(1, 2));
+    assertThat(projectMeasures).hasSize(2);
+
+    PastMeasureDto projectMeasure1 = projectMeasures.get(0);
+    assertThat(projectMeasure1.getValue()).isEqualTo(60d);
+    assertThat(projectMeasure1.getMetricId()).isEqualTo(1);
+
+    PastMeasureDto projectMeasure2 = projectMeasures.get(1);
+    assertThat(projectMeasure2.getValue()).isEqualTo(80d);
+    assertThat(projectMeasure2.getMetricId()).isEqualTo(2);
+
+    assertThat(sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(session, "UNKNOWN", 1000L, ImmutableSet.of(1, 2))).isEmpty();
+    assertThat(sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(session, "CDEF", 987654L, ImmutableSet.of(1, 2))).isEmpty();
+    assertThat(sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(session, "CDEF", 1000L, ImmutableSet.of(123, 456))).isEmpty();
+  }
+
+  @Test
+  public void select_past_measures_on_rule_by_component_uuid_and_root_snapshot_id_and_metric_keys() {
+    db.prepareDbUnit(getClass(), "past_measures_with_rule_id.xml");
+
+    List<PastMeasureDto> measures = sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(session, "ABCD", 1000L, ImmutableSet.of(1));
+    assertThat(measures).hasSize(3);
+
+    Map<Long, PastMeasureDto> pastMeasuresById = pastMeasuresById(measures);
+
+    PastMeasureDto measure1 = pastMeasuresById.get(1L);
+    assertThat(measure1.getValue()).isEqualTo(60d);
+    assertThat(measure1.getMetricId()).isEqualTo(1);
+    assertThat(measure1.getRuleId()).isNull();
+    assertThat(measure1.getCharacteristicId()).isNull();
+    assertThat(measure1.getPersonId()).isNull();
+
+    PastMeasureDto measure2 = pastMeasuresById.get(2L);
+    assertThat(measure2.getValue()).isEqualTo(20d);
+    assertThat(measure2.getMetricId()).isEqualTo(1);
+    assertThat(measure2.getRuleId()).isEqualTo(30);
+    assertThat(measure2.getCharacteristicId()).isNull();
+    assertThat(measure2.getPersonId()).isNull();
+
+    PastMeasureDto measure3 = pastMeasuresById.get(3L);
+    assertThat(measure3.getValue()).isEqualTo(40d);
+    assertThat(measure3.getMetricId()).isEqualTo(1);
+    assertThat(measure3.getRuleId()).isEqualTo(31);
+    assertThat(measure3.getCharacteristicId()).isNull();
+    assertThat(measure3.getPersonId()).isNull();
+  }
+
+  @Test
+  public void select_past_measures_on_characteristic_by_component_uuid_and_root_snapshot_id_and_metric_keys() {
+    db.prepareDbUnit(getClass(), "past_measures_with_characteristic_id.xml");
+
+    List<PastMeasureDto> measures = sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(session, "ABCD", 1000L, ImmutableSet.of(1));
+    assertThat(measures).hasSize(3);
+
+    Map<Long, PastMeasureDto> pastMeasuresById = pastMeasuresById(measures);
+
+    PastMeasureDto measure1 = pastMeasuresById.get(1L);
+    assertThat(measure1.getValue()).isEqualTo(60d);
+    assertThat(measure1.getMetricId()).isEqualTo(1);
+    assertThat(measure1.getRuleId()).isNull();
+    assertThat(measure1.getCharacteristicId()).isNull();
+    assertThat(measure1.getPersonId()).isNull();
+
+    PastMeasureDto measure2 = pastMeasuresById.get(2L);
+    assertThat(measure2.getValue()).isEqualTo(20d);
+    assertThat(measure2.getMetricId()).isEqualTo(1);
+    assertThat(measure2.getRuleId()).isNull();
+    assertThat(measure2.getCharacteristicId()).isEqualTo(10);
+    assertThat(measure2.getPersonId()).isNull();
+
+    PastMeasureDto measure3 = pastMeasuresById.get(3L);
+    assertThat(measure3.getValue()).isEqualTo(40d);
+    assertThat(measure3.getMetricId()).isEqualTo(1);
+    assertThat(measure3.getRuleId()).isNull();
+    assertThat(measure3.getCharacteristicId()).isEqualTo(11);
+    assertThat(measure3.getPersonId()).isNull();
+  }
+
+  @Test
+  public void select_past_measures_on_person_by_component_uuid_and_root_snapshot_id_and_metric_keys() {
+    db.prepareDbUnit(getClass(), "past_measures_with_person_id.xml");
+
+    List<PastMeasureDto> measures = sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(session, "ABCD", 1000L, ImmutableSet.of(1));
+    assertThat(measures).hasSize(3);
+
+    Map<Long, PastMeasureDto> pastMeasuresById = pastMeasuresById(measures);
+
+    PastMeasureDto measure1 = pastMeasuresById.get(1L);
+    assertThat(measure1.getValue()).isEqualTo(60d);
+    assertThat(measure1.getMetricId()).isEqualTo(1);
+    assertThat(measure1.getRuleId()).isNull();
+    assertThat(measure1.getCharacteristicId()).isNull();
+    assertThat(measure1.getPersonId()).isNull();
+
+    PastMeasureDto measure2 = pastMeasuresById.get(2L);
+    assertThat(measure2.getValue()).isEqualTo(20d);
+    assertThat(measure2.getMetricId()).isEqualTo(1);
+    assertThat(measure2.getRuleId()).isNull();
+    assertThat(measure2.getCharacteristicId()).isNull();
+    assertThat(measure2.getPersonId()).isEqualTo(20);
+
+    PastMeasureDto measure3 = pastMeasuresById.get(3L);
+    assertThat(measure3.getValue()).isEqualTo(40d);
+    assertThat(measure3.getMetricId()).isEqualTo(1);
+    assertThat(measure3.getRuleId()).isNull();
+    assertThat(measure3.getCharacteristicId()).isNull();
+    assertThat(measure3.getPersonId()).isEqualTo(21);
+  }
+
+  @Test
   public void insert() {
     db.prepareDbUnit(getClass(), "empty.xml");
 
@@ -172,18 +305,28 @@ public class MeasureDaoTest {
     db.prepareDbUnit(getClass(), "empty.xml");
 
     sut.insert(session, new MeasureDto()
-        .setSnapshotId(2L)
-        .setMetricId(3)
-        .setComponentId(6L)
-        .setValue(2.0d),
+      .setSnapshotId(2L)
+      .setMetricId(3)
+      .setComponentId(6L)
+      .setValue(2.0d),
       new MeasureDto()
         .setSnapshotId(3L)
         .setMetricId(4)
         .setComponentId(6L)
         .setValue(4.0d)
-    );
+      );
     session.commit();
 
     assertThat(db.countRowsOfTable("project_measures")).isEqualTo(2);
+  }
+
+  private static Map<Long, PastMeasureDto> pastMeasuresById(List<PastMeasureDto> pastMeasures) {
+    return FluentIterable.from(pastMeasures).uniqueIndex(new Function<PastMeasureDto, Long>() {
+      @Nullable
+      @Override
+      public Long apply(PastMeasureDto input) {
+        return input.getId();
+      }
+    });
   }
 }

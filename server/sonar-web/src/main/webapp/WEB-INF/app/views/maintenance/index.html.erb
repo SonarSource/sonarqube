@@ -1,8 +1,8 @@
-<div id="maintenance"></div>
-
-<script>
-  require(['apps/maintenance/app'], function (App) {
-    App.start({ el: '#maintenance', setup: false });
-  });
-</script>
+<% content_for :extra_script do %>
+  <script>
+    require(['apps/maintenance/app'], function (App) {
+      App.start({ el: '#content', setup: false });
+    });
+  </script>
+<% end %>
 

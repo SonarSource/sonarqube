@@ -105,7 +105,7 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
     return notification.getFieldValue(metric + DOT + "1" + LABEL) == null;
   }
 
-  private void genericAppendOfMetric(Metric metric, String label, StringBuilder message, Notification notification) {
+  private static void genericAppendOfMetric(Metric metric, String label, StringBuilder message, Notification notification) {
     if (doNotHaveValue(notification, metric)) {
       return;
     }

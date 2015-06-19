@@ -42,29 +42,25 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.ws.UserJsonWriter;
 
 public class IssueJsonWriter {
 
   public static final String ACTIONS_EXTRA_FIELD = "actions";
   public static final String TRANSITIONS_EXTRA_FIELD = "transitions";
-  public static final String REPORTER_NAME_EXTRA_FIELD = "reporterName";
   public static final String ACTION_PLAN_NAME_EXTRA_FIELD = "actionPlanName";
 
   public static final Set<String> EXTRA_FIELDS = ImmutableSet.of(
-    ACTIONS_EXTRA_FIELD, TRANSITIONS_EXTRA_FIELD, REPORTER_NAME_EXTRA_FIELD, ACTION_PLAN_NAME_EXTRA_FIELD);
+    ACTIONS_EXTRA_FIELD, TRANSITIONS_EXTRA_FIELD, ACTION_PLAN_NAME_EXTRA_FIELD);
 
   private final I18n i18n;
   private final Durations durations;
   private final UserSession userSession;
-  private final UserJsonWriter userWriter;
   private final IssueActionsWriter actionsWriter;
 
-  public IssueJsonWriter(I18n i18n, Durations durations, UserSession userSession, UserJsonWriter userWriter, IssueActionsWriter actionsWriter) {
+  public IssueJsonWriter(I18n i18n, Durations durations, UserSession userSession, IssueActionsWriter actionsWriter) {
     this.i18n = i18n;
     this.durations = durations;
     this.userSession = userSession;
-    this.userWriter = userWriter;
     this.actionsWriter = actionsWriter;
   }
 
@@ -98,17 +94,13 @@ public class IssueJsonWriter {
       .prop("message", issue.message())
       .prop("line", issue.line())
       .prop("debt", debt != null ? durations.encode(debt) : null)
+      .prop("assignee", issue.assignee())
       .prop("reporter", issue.reporter())
       .prop("author", issue.authorLogin())
       .prop("actionPlan", actionPlanKey)
       .prop("creationDate", isoDate(issue.creationDate()))
       .prop("updateDate", isoDate(updateDate))
-      // TODO Remove as part of Front-end rework on Issue Domain
-      .prop("fUpdateAge", formatAgeDate(updateDate))
       .prop("closeDate", isoDate(issue.closeDate()));
-
-    json.name("assignee");
-    userWriter.write(json, usersByLogin.get(issue.assignee()));
 
     writeTags(issue, json);
     writeIssueComments(commentsByIssues.get(issue.key()), usersByLogin, json);
@@ -180,17 +172,7 @@ public class IssueJsonWriter {
         actionsWriter.writeTransitions(issue, json);
       }
 
-      writeReporterIfNeeded(issue, usersByLogin, extraFields, json);
-
       writeActionPlanIfNeeded(issue, actionPlanByKeys, extraFields, json);
-    }
-  }
-
-  private void writeReporterIfNeeded(Issue issue, Map<String, User> usersByLogin, List<String> extraFields, JsonWriter json) {
-    String reporter = issue.reporter();
-    if (extraFields.contains(REPORTER_NAME_EXTRA_FIELD) && reporter != null) {
-      User user = usersByLogin.get(reporter);
-      json.prop(REPORTER_NAME_EXTRA_FIELD, user != null ? user.name() : null);
     }
   }
 

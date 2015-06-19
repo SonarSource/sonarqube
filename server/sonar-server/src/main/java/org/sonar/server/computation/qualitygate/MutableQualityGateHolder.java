@@ -30,7 +30,14 @@ public interface MutableQualityGateHolder extends QualityGateHolder {
    * @param qualityGate a {@link Component}, can not be {@code null}
    *
    * @throws NullPointerException if {@code qualityGate} is {@code null}
-   * @throws IllegalStateException if the quality gate has already been set
+   * @throws IllegalStateException if the holder has already been initialized
    */
   void setQualityGate(QualityGate qualityGate);
+
+  /**
+   * Sets that there is no quality gate for the project of the currently processed {@link ReportQueue.Item}.
+   *
+   * @throws IllegalStateException if the holder has already been initialized
+   */
+  void setNoQualityGate();
 }

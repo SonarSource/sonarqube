@@ -30,6 +30,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.MessageException;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.ComponentKeys;
@@ -83,7 +84,7 @@ public class ValidateProjectStep implements ComputationStep {
       visitor.visit(treeRootHolder.getRoot());
 
       if (!visitor.validationMessages.isEmpty()) {
-        throw new IllegalArgumentException("Validation of project failed:\n  o " + MESSAGES_JOINER.join(visitor.validationMessages));
+        throw MessageException.of("Validation of project failed:\n  o " + MESSAGES_JOINER.join(visitor.validationMessages));
       }
     } finally {
       session.close();

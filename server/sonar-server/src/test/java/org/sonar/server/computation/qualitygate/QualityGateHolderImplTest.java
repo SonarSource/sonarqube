@@ -23,6 +23,7 @@ import java.util.Collections;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 
 public class QualityGateHolderImplTest {
 
@@ -52,7 +53,16 @@ public class QualityGateHolderImplTest {
 
     holder.setQualityGate(QUALITY_GATE);
 
-    assertThat(holder.getQualityGate()).isSameAs(QUALITY_GATE);
+    assertThat(holder.getQualityGate().get()).isSameAs(QUALITY_GATE);
+  }
+
+  @Test
+  public void getQualityGate_returns_absent_if_holder_initialized_with_setNoQualityGate() {
+    QualityGateHolderImpl holder = new QualityGateHolderImpl();
+
+    holder.setNoQualityGate();
+
+    assertThat(holder.getQualityGate()).isAbsent();
   }
 
 }

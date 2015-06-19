@@ -22,7 +22,9 @@ package org.sonar.server.app;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
+
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.sonar.api.utils.MessageException;
 import org.sonar.process.LogbackHelper;
@@ -56,7 +58,7 @@ class WebLogging {
   }
 
   private void configureAppender(LoggerContext ctx) {
-    ConsoleAppender consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", LOG_FORMAT);
+    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", LOG_FORMAT);
     ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(consoleAppender);
   }
 

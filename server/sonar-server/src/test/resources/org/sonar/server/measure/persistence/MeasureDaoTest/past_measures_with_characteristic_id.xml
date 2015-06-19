@@ -1,0 +1,28 @@
+<dataset>
+
+  <metrics id="1" name="sqale_index" VAL_TYPE="WORK_DUR" DESCRIPTION="[null]" short_name="" enabled="[true]"/>
+
+  <!-- Root characteristic -->
+  <characteristics id="10" kee="PORTABILITY" name="Portability" parent_id="[null]" characteristic_order="1" enabled="[true]" created_at="2013-11-20" updated_at="2013-11-22"/>
+
+  <!-- Characteristic -->
+  <characteristics id="11" kee="COMPILER_RELATED_PORTABILITY" name="Compiler related portability" parent_id="10" characteristic_order="[null]" enabled="[true]"
+                   created_at="2013-11-20" updated_at="2013-11-22"/>
+
+  <!-- project -->
+  <projects long_name="[null]" id="1" scope="PRJ" qualifier="TRK" kee="project" name="project"
+            root_id="[null]" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD." enabled="[true]"/>
+
+  <!-- snapshots -->
+  <snapshots id="1000" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             scope="PRJ" qualifier="TRK" created_at="1225544280000" build_date="1225544280000" version="[null]" path=""
+             status="P" islast="[false]" depth="0"/>
+
+  <!-- project measures -->
+  <project_measures id="1" VALUE="60" METRIC_ID="1" SNAPSHOT_ID="1000" RULE_ID="[null]" characteristic_id="[null]"/>
+
+  <project_measures id="2" VALUE="20" METRIC_ID="1" SNAPSHOT_ID="1000" RULE_ID="[null]" characteristic_id="10"/>
+
+  <project_measures id="3" VALUE="40" METRIC_ID="1" SNAPSHOT_ID="1000" RULE_ID="[null]" characteristic_id="11"/>
+
+</dataset>

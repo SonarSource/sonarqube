@@ -39,6 +39,7 @@ import org.sonar.core.permission.PermissionDao;
 import org.sonar.core.permission.PermissionTemplateDao;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.purge.PurgeDao;
+import org.sonar.core.qualitygate.db.QualityGateConditionDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.resource.ResourceDao;
@@ -63,7 +64,6 @@ public final class DaoUtils {
     // only static stuff
   }
 
-  @SuppressWarnings("unchecked")
   public static List<Class> getDaoClasses() {
     return ImmutableList.<Class>of(
       ActionPlanDao.class,
@@ -84,6 +84,7 @@ public final class DaoUtils {
       PermissionDao.class,
       PermissionTemplateDao.class,
       PropertiesDao.class,
+      QualityGateConditionDao.class,
       QualityProfileDao.class,
       PurgeDao.class,
       CharacteristicDao.class,

@@ -63,7 +63,7 @@ public class MetricDao implements DaoComponent {
   public MetricDto selectByKey(DbSession session, String key) {
     MetricDto metric = selectNullableByKey(session, key);
     if (metric == null) {
-      throw new NotFoundException(String.format("Metric '%s' not found", key));
+      throw new NotFoundException(String.format("Metric key '%s' not found", key));
     }
     return metric;
   }
@@ -100,26 +100,33 @@ public class MetricDao implements DaoComponent {
   }
 
   public List<String> selectDomains(DbSession session) {
-    return newArrayList(Collections2.filter(mapper(session).selectDomains(), new Predicate<String>() {
-      @Override
-      public boolean apply(@Nonnull String input) {
-        return !input.isEmpty();
-      }
-    }));
+    return newArrayList(Collections2.filter(mapper(session).selectDomains(), new NotEmptyPredicate()));
+  }
+
+  private static class NotEmptyPredicate implements Predicate<String> {
+
+    @Override
+    public boolean apply(@Nonnull String input) {
+      return !input.isEmpty();
+    }
   }
 
   private MetricMapper mapper(DbSession session) {
     return session.getMapper(MetricMapper.class);
   }
 
-  public void disable(final DbSession session, List<Integer> ids) {
+  public void disableByIds(final DbSession session, List<Integer> ids) {
     DaoUtils.executeLargeInputsWithoutOutput(ids, new Function<List<Integer>, Void>() {
       @Override
       public Void apply(@Nonnull List<Integer> input) {
-        mapper(session).disable(input);
+        mapper(session).disableByIds(input);
         return null;
       }
     });
+  }
+
+  public void disableByKey(final DbSession session, String key) {
+    mapper(session).disableByKey(key);
   }
 
   public void update(DbSession session, MetricDto metric) {
@@ -128,5 +135,13 @@ public class MetricDao implements DaoComponent {
 
   public MetricDto selectNullableById(DbSession session, long id) {
     return mapper(session).selectById(id);
+  }
+
+  public MetricDto selectById(DbSession session, int id) {
+    MetricDto metric = mapper(session).selectById(id);
+    if (metric == null) {
+      throw new NotFoundException(String.format("Metric id '%d' not found", id));
+    }
+    return metric;
   }
 }

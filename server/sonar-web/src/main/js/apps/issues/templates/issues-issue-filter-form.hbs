@@ -28,9 +28,9 @@
   </li>
 
   <li>
-    {{#if assignee.login}}
-      <a href="#" class="issue-action-option" data-property="assignees" data-value="{{assignee.login}}">
-      {{t "assigned_to"}} {{assignee.name}}
+    {{#if assignee}}
+      <a href="#" class="issue-action-option" data-property="assignees" data-value="{{assignee}}">
+      {{t "assigned_to"}} {{assigneeName}}
       </a>
     {{else}}
       <a href="#" data-property="assigned" data-value="false">

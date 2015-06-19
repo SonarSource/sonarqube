@@ -10,9 +10,7 @@
     "rule": "squid:AvoidCycle",
     "ruleName": "Avoid cycle",
     "assignee": "john",
-    "assigneeName": "John",
     "reporter": "steven",
-    "reporterName": "Steven",
     "author": "Henry",
     "creationDate": "2014-01-22T19:10:03+0100",
     "fCreationDate": "Jan 22, 2014 10:03 AM",
@@ -26,5 +24,15 @@
         "diffs": ["Created"]
       }
     ]
-  }
+  },
+  "users": [
+    {
+      "login": "john",
+      "name": "John"
+    },
+    {
+      "login": "steven",
+      "name": "Steven"
+    },
+  ]
 }

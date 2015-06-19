@@ -8,10 +8,7 @@
       "status": "OPEN",
       "severity": "MAJOR",
       "debt": "10min",
-      "fUpdateAge": "less than a minute",
-      "assignee": {
-        "login": "john"
-      }
+      "assignee": "john"
     }
   ],
   "facets": [

@@ -328,10 +328,10 @@ public class WebServiceTest {
         NewAction create = newController.createAction("create").setHandler(mock(RequestHandler.class));
         create.createParam("status")
           .setDefaultValue(null)
-          .setPossibleValues((Collection) null)
+          .setPossibleValues(Collections.emptyList())
           .setExampleValue(null);
         create.createParam("max")
-          .setPossibleValues((String[]) null);
+          .setPossibleValues((Object[]) null);
         newController.done();
       }
     }.define(context);

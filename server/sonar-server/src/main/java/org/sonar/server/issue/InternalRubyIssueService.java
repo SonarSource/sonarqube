@@ -75,6 +75,7 @@ import org.sonar.server.issue.ws.IssueJsonWriter;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserIndex;
+import org.sonar.server.user.ws.UserJsonWriter;
 import org.sonar.server.util.RubyUtils;
 import org.sonar.server.util.Validation;
 
@@ -112,6 +113,7 @@ public class InternalRubyIssueService {
   private final UserIndex userIndex;
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final UserJsonWriter userWriter;
 
   public InternalRubyIssueService(
     IssueService issueService,
@@ -121,7 +123,7 @@ public class InternalRubyIssueService {
     ResourceDao resourceDao, ActionService actionService,
     IssueFilterService issueFilterService, IssueBulkChangeService issueBulkChangeService,
     IssueJsonWriter issueWriter, IssueComponentHelper issueComponentHelper, UserIndex userIndex, DbClient dbClient,
-    UserSession userSession) {
+    UserSession userSession, UserJsonWriter userWriter) {
     this.issueService = issueService;
     this.issueQueryService = issueQueryService;
     this.commentService = commentService;
@@ -136,6 +138,7 @@ public class InternalRubyIssueService {
     this.userIndex = userIndex;
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.userWriter = userWriter;
   }
 
   public Issue getIssueByKey(String issueKey) {
@@ -696,10 +699,16 @@ public class InternalRubyIssueService {
 
   /**
    * Used by issue modification actions currently implemented in Rails
-   * @param issue
    * @return the JSON representation of the modified issue, as a ready to use string
    */
-  public String writeIssueJson(Issue issue) {
+  public String writeIssueJson(@Nullable Issue original) {
+    if (original == null) {
+      return "{}";
+    }
+
+    // Reloading from ES to avoid partial object, e.g for manual issues
+    Issue issue = issueService.getByKey(original.key());
+
     StringWriter writer = new StringWriter();
     JsonWriter json = JsonWriter.of(writer);
     DbSession dbSession = dbClient.openSession(false);
@@ -738,6 +747,14 @@ public class InternalRubyIssueService {
         ImmutableMultimap.<String, DefaultIssueComment>of(),
         ImmutableMap.<String, ActionPlan>of(),
         ImmutableList.of(IssueJsonWriter.ACTIONS_EXTRA_FIELD, IssueJsonWriter.TRANSITIONS_EXTRA_FIELD));
+
+      json.name("users").beginArray();
+      String assignee = issue.assignee();
+      if (assignee != null && usersByLogin.containsKey(assignee)) {
+        userWriter.write(json, usersByLogin.get(assignee));
+      }
+      json.endArray();
+
       json.endObject().close();
     } finally {
       MyBatis.closeQuietly(dbSession);
@@ -748,11 +765,13 @@ public class InternalRubyIssueService {
 
   private Map<String, User> getIssueUsersByLogin(Issue issue) {
     Map<String, User> usersByLogin = Maps.newHashMap();
-    if (issue.assignee() != null) {
-      usersByLogin.put(issue.assignee(), userIndex.getByLogin(issue.assignee()));
+    String assignee = issue.assignee();
+    if (assignee != null) {
+      usersByLogin.put(assignee, userIndex.getByLogin(assignee));
     }
-    if (issue.reporter() != null) {
-      usersByLogin.put(issue.reporter(), userIndex.getByLogin(issue.reporter()));
+    String reporter = issue.reporter();
+    if (reporter != null) {
+      usersByLogin.put(reporter, userIndex.getByLogin(reporter));
     }
     return usersByLogin;
   }

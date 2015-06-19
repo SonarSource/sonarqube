@@ -36,7 +36,7 @@ import static org.mockito.Mockito.mock;
 public class MyBatisTest {
   private static H2Database database;
   private Logback logback = mock(Logback.class);
-  private WorkQueue queue = mock(WorkQueue.class);
+  private WorkQueue<?> queue = mock(WorkQueue.class);
 
   @BeforeClass
   public static void start() {

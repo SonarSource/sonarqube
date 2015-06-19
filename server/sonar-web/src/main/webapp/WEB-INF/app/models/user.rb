@@ -86,7 +86,7 @@ class User < ActiveRecord::Base
 
   # SCM accounts should also contain login and email
   def full_scm_accounts
-    new_scm_accounts = self.scm_accounts.split(',').reject { |c| c.empty? } if self.scm_accounts
+    new_scm_accounts = self.scm_accounts.split(/\r?\n/).reject { |c| c.empty? } if self.scm_accounts
     new_scm_accounts = [] unless new_scm_accounts
     new_scm_accounts << self.login
     new_scm_accounts << self.email

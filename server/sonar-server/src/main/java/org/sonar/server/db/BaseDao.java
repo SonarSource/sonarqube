@@ -215,7 +215,7 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
       item.setUpdatedAt(now);
       doUpdate(session, item);
       if (hasIndex()) {
-        session.enqueue(new UpsertDto(getIndexType(), item));
+        session.enqueue(new UpsertDto<DTO>(getIndexType(), item));
       }
     } catch (Exception e) {
       throw new IllegalStateException("Fail to update item in db: " + item, e);

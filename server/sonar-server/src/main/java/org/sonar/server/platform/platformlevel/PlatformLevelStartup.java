@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.platformlevel;
 
-import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.computation.ReportQueueCleaner;
 import org.sonar.server.issue.filter.RegisterIssueFilters;
 import org.sonar.server.platform.ServerLifecycleNotifier;
@@ -82,15 +81,6 @@ public class PlatformLevelStartup extends PlatformLevel {
         getComponentByType(ServerLifecycleNotifier.class).notifyStart();
       }
     });
-
-    return this;
-  }
-
-  @Override
-  public PlatformLevel stop() {
-    super.stop();
-
-    getComponentByType(DatabaseSessionFactory.class).clear();
 
     return this;
   }

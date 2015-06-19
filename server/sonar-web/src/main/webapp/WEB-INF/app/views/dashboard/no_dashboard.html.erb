@@ -1,16 +1,18 @@
-<% content_for :script do %>
-  <script>require(['apps/source-viewer/app']);</script>
-<% end %>
-
 <div class="page">
   <div id="source-viewer"></div>
 </div>
 
-<script type="text/javascript">
-  window.file = {
-    uuid: '<%= @resource.uuid -%>',
-    key: '<%= @resource.key -%>'
-  };
-  document.querySelector('.navbar-context').remove();
-  jQuery('.page-wrapper-context').addClass('page-wrapper-global').removeClass('page-wrapper-context');
-</script>
+<% content_for :extra_script do %>
+  <script type="text/javascript">
+    window.file = {
+      uuid: '<%= @resource.uuid -%>',
+      key: '<%= @resource.key -%>'
+    };
+    document.querySelector('.navbar-context').remove();
+    jQuery('.page-wrapper-context').addClass('page-wrapper-global').removeClass('page-wrapper-context');
+  </script>
+
+  <script>
+    require(['apps/source-viewer/app']);
+  </script>
+<% end %>

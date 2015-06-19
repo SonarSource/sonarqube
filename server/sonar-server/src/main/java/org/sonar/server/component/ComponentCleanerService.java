@@ -90,7 +90,7 @@ public class ComponentCleanerService {
     testIndexer.deleteByProject(projectUuid);
   }
 
-  private boolean hasNotProjectScope(ComponentDto project) {
+  private static boolean hasNotProjectScope(ComponentDto project) {
     return !Scopes.PROJECT.equals(project.scope());
   }
 

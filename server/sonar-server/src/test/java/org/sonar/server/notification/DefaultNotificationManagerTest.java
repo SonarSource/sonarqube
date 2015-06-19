@@ -21,6 +21,11 @@ package org.sonar.server.notification;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import java.io.InvalidClassException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -31,13 +36,6 @@ import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.core.notification.db.NotificationQueueDao;
 import org.sonar.core.notification.db.NotificationQueueDto;
 import org.sonar.core.properties.PropertiesDao;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
-
-import java.io.InvalidClassException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -49,7 +47,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class DefaultNotificationManagerTest extends AbstractDbUnitTestCase {
+public class DefaultNotificationManagerTest {
 
   private DefaultNotificationManager manager;
 

@@ -49,7 +49,6 @@ module.exports = (grunt) ->
             '<%= BUILD_PATH %>/js/libs/third-party/backbone-super.js'
             '<%= BUILD_PATH %>/js/libs/third-party/backbone.marionette.js'
             '<%= BUILD_PATH %>/js/libs/third-party/handlebars.js'
-            '<%= BUILD_PATH %>/js/libs/third-party/underscore.js'
             '<%= BUILD_PATH %>/js/libs/third-party/select2.js'
             '<%= BUILD_PATH %>/js/libs/third-party/keymaster.js'
             '<%= BUILD_PATH %>/js/libs/third-party/moment.js'
@@ -164,6 +163,7 @@ module.exports = (grunt) ->
           'casper:provisioning'
           'casper:computation'
           'casper:metrics'
+          'casper:maintenance'
         ]
 
 
@@ -338,6 +338,8 @@ module.exports = (grunt) ->
         src: ['src/test/js/groups-spec.js']
       metrics:
         src: ['src/test/js/metrics-spec.js']
+      maintenance:
+        src: ['src/test/js/maintenance-spec.js']
 
     uglify:
       build:

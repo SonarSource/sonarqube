@@ -121,7 +121,7 @@ public class ProjectReactorBuilder {
     for (Map.Entry<String, String> entry : propertiesByModuleId.get("").entrySet()) {
       taskProps.properties().put((String) entry.getKey(), (String) entry.getValue());
     }
-    profiler.stopInfo();
+    profiler.stopDebug();
     return new ProjectReactor(rootProject);
   }
 

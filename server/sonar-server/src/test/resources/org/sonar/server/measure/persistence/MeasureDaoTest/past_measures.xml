@@ -1,0 +1,59 @@
+<dataset>
+
+  <metrics id="1" name="ncloc" VAL_TYPE="INT" DESCRIPTION="[null]" enabled="[true]"/>
+
+  <metrics id="2" name="coverage" VAL_TYPE="INT" enabled="[true]"/>
+
+
+  <rules tags="[null]" system_tags="[null]" id="30" name="Check Header" plugin_rule_key="com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck"
+         plugin_config_key="Checker/Treewalker/HeaderCheck" plugin_name="checkstyle" description="[null]" priority="4" status="READY"
+         is_template="[false]" template_id="[null]"/>
+
+  <rules tags="[null]" system_tags="[null]" id="31" name="Equals Avoid Null" plugin_rule_key="com.puppycrawl.tools.checkstyle.checks.coding.EqualsAvoidNullCheck"
+         plugin_config_key="Checker/TreeWalker/EqualsAvoidNull" plugin_name="checkstyle" description="[null]" priority="4" status="READY"
+         is_template="[false]" template_id="[null]"/>
+
+  <!-- project -->
+  <projects long_name="[null]" id="1" scope="PRJ" qualifier="TRK" kee="project" name="project"
+            root_id="[null]" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD."
+            enabled="[true]"/>
+
+  <!-- package -->
+  <projects long_name="[null]" id="2" scope="DIR" qualifier="PAC" kee="project:org.foo" name="org.foo"
+            root_id="1" uuid="BCDE" project_uuid="ABCD" module_uuid="ABCD" module_uuid_path=".ABCD."
+            enabled="[true]"/>
+
+  <!-- file -->
+  <projects long_name="org.foo.Bar" id="3" scope="FIL" qualifier="CLA" kee="project:org.foo.Bar"
+            name="Bar" root_id="[null]" uuid="CDEF" project_uuid="ABCD" module_uuid="ABCD" module_uuid_path=".ABCD."
+            enabled="[true]"/>
+
+
+  <!-- snapshots -->
+  <snapshots id="1000" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             scope="PRJ" qualifier="TRK" created_at="1225544280000" build_date="1225544280000" version="[null]" path=""
+             status="P" islast="[false]" depth="0"/>
+  <snapshots id="1001" project_id="2" parent_snapshot_id="1000" root_project_id="1" root_snapshot_id="1000"
+             scope="DIR" qualifier="PAC" created_at="1225544280000" build_date="1225544280000" version="[null]" path="1000."
+             status="P" islast="[false]" depth="1"/>
+  <snapshots id="1002" project_id="3" parent_snapshot_id="1001" root_project_id="1" root_snapshot_id="1000"
+             scope="FIL" qualifier="CLA" created_at="1225544280000" build_date="1225544280000" version="[null]" path="1000.1001."
+             status="P" islast="[false]" depth="2"/>
+
+
+  <!-- project measures -->
+  <project_measures id="1" VALUE="60" METRIC_ID="1" SNAPSHOT_ID="1000" RULE_ID="[null]" characteristic_id="[null]" person_id="[null]"/>
+
+  <project_measures id="2" VALUE="80" METRIC_ID="2" SNAPSHOT_ID="1000" RULE_ID="[null]" characteristic_id="[null]" person_id="[null]"/>
+
+  <!-- package measures -->
+  <project_measures id="3" VALUE="20" METRIC_ID="1" SNAPSHOT_ID="1001" RULE_ID="[null]" characteristic_id="[null]" person_id="[null]"/>
+
+  <project_measures id="4" VALUE="70" METRIC_ID="2" SNAPSHOT_ID="1001" RULE_ID="[null]" characteristic_id="[null]" person_id="[null]"/>
+
+  <!-- file measures -->
+  <project_measures id="5" VALUE="5" METRIC_ID="1" SNAPSHOT_ID="1002" RULE_ID="[null]" characteristic_id="[null]" person_id="[null]"/>
+
+  <project_measures id="6" VALUE="60" METRIC_ID="2" SNAPSHOT_ID="1002" RULE_ID="[null]" characteristic_id="[null]" person_id="[null]"/>
+
+</dataset>

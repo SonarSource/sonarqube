@@ -1,0 +1,12 @@
+<dataset>
+
+  <metrics delete_historical_data="[null]" id="1" name="ncloc" VAL_TYPE="INT" DESCRIPTION="[null]" domain="[null]" short_name=""
+           enabled="[true]" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0"
+           hidden="[false]"/>
+
+  <metrics delete_historical_data="[null]" id="2" name="coverage" VAL_TYPE="INT" DESCRIPTION="[null]" domain="[null]" short_name=""
+           enabled="[true]" worst_value="0" optimized_best_value="[true]" best_value="100" direction="1" hidden="[false]"/>
+
+  <metrics delete_historical_data="[null]" id="3" name="disabled" VAL_TYPE="INT" DESCRIPTION="[null]" domain="[null]" short_name=""
+           enabled="[false]" worst_value="0" optimized_best_value="[true]" best_value="100" direction="1" hidden="[false]"/>
+</dataset>

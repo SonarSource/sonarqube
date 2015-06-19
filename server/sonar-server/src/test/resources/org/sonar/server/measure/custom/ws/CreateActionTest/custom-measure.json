@@ -1,0 +1,10 @@
+{
+  "projectId": "project-uuid",
+  "projectKey": "project-key",
+  "metric": {
+    "key": "metric-key",
+    "type": "STRING"
+  },
+  "value": "custom-measure-free-text",
+  "description": "custom-measure-description"
+}

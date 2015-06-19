@@ -123,7 +123,7 @@ public class DefaultModuleFileSystemTest {
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
 
     assertThat(fs.baseDir().getCanonicalPath()).isEqualTo(basedir.getCanonicalPath());
-    assertThat(fs.workingDir().getCanonicalPath()).isEqualTo(workingDir.getCanonicalPath());
+    assertThat(fs.workDir().getCanonicalPath()).isEqualTo(workingDir.getCanonicalPath());
     assertThat(fs.buildDir().getCanonicalPath()).isEqualTo(buildDir.getCanonicalPath());
     assertThat(fs.sourceDirs()).hasSize(2);
     assertThat(fs.testDirs()).hasSize(1);

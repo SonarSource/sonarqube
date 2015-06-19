@@ -8,7 +8,7 @@ lib.configureCasper();
 
 casper.test.begin(testName('List'), 5, function (test) {
   casper
-      .start(lib.buildUrl('provisioning'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         lib.mockRequestFromFile('/api/projects/provisioned', 'search.json');
       })
@@ -16,7 +16,7 @@ casper.test.begin(testName('List'), 5, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/provisioning/app'], function (App) {
-            App.start({ el: '#provisioning' });
+            App.start({ el: '#content' });
           });
         });
       })
@@ -44,7 +44,7 @@ casper.test.begin(testName('List'), 5, function (test) {
 
 casper.test.begin(testName('Search'), 4, function (test) {
   casper
-      .start(lib.buildUrl('provisioning'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         this.searchMock = lib.mockRequestFromFile('/api/projects/provisioned', 'search.json');
       })
@@ -52,7 +52,7 @@ casper.test.begin(testName('Search'), 4, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/provisioning/app'], function (App) {
-            App.start({ el: '#provisioning' });
+            App.start({ el: '#content' });
           });
         });
       })
@@ -102,7 +102,7 @@ casper.test.begin(testName('Search'), 4, function (test) {
 
 casper.test.begin(testName('Show More'), 4, function (test) {
   casper
-      .start(lib.buildUrl('provisioning'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         this.searchMock = lib.mockRequestFromFile('/api/projects/provisioned', 'search-big-1.json');
       })
@@ -110,7 +110,7 @@ casper.test.begin(testName('Show More'), 4, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/provisioning/app'], function (App) {
-            App.start({ el: '#provisioning' });
+            App.start({ el: '#content' });
           });
         });
       })
@@ -144,7 +144,7 @@ casper.test.begin(testName('Show More'), 4, function (test) {
 
 casper.test.begin(testName('Create'), 4, function (test) {
   casper
-      .start(lib.buildUrl('provisioning'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         this.searchMock = lib.mockRequestFromFile('/api/projects/provisioned', 'search.json');
         this.createMock = lib.mockRequestFromFile('/api/projects/create', 'error.json', { status: 400 });
@@ -153,7 +153,7 @@ casper.test.begin(testName('Create'), 4, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/provisioning/app'], function (App) {
-            App.start({ el: '#provisioning' });
+            App.start({ el: '#content' });
           });
           jQuery.ajaxSetup({ dataType: 'json' });
         });
@@ -206,7 +206,7 @@ casper.test.begin(testName('Create'), 4, function (test) {
 
 casper.test.begin(testName('Delete'), 1, function (test) {
   casper
-      .start(lib.buildUrl('provisioning'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         this.searchMock = lib.mockRequestFromFile('/api/projects/provisioned', 'search.json');
         this.updateMock = lib.mockRequestFromFile('/api/projects/bulk_delete', 'delete-error.json', { status: 400 });
@@ -215,7 +215,7 @@ casper.test.begin(testName('Delete'), 1, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/provisioning/app'], function (App) {
-            App.start({ el: '#provisioning' });
+            App.start({ el: '#content' });
           });
           jQuery.ajaxSetup({ dataType: 'json' });
         });
@@ -257,7 +257,7 @@ casper.test.begin(testName('Delete'), 1, function (test) {
 
 casper.test.begin(testName('Selection'), 22, function (test) {
   casper
-      .start(lib.buildUrl('provisioning'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         lib.mockRequestFromFile('/api/projects/provisioned', 'search.json');
       })
@@ -265,7 +265,7 @@ casper.test.begin(testName('Selection'), 22, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/provisioning/app'], function (App) {
-            App.start({ el: '#provisioning' });
+            App.start({ el: '#content' });
           });
         });
       })
@@ -331,7 +331,7 @@ casper.test.begin(testName('Selection'), 22, function (test) {
 
 casper.test.begin(testName('Bulk Delete'), 1, function (test) {
   casper
-      .start(lib.buildUrl('provisioning'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         lib.mockRequestFromFile('/api/projects/provisioned', 'search.json');
         lib.mockRequestFromFile('/api/projects/bulk_delete', 'delete-error.json', { status: 400 });
@@ -340,7 +340,7 @@ casper.test.begin(testName('Bulk Delete'), 1, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/provisioning/app'], function (App) {
-            App.start({ el: '#provisioning' });
+            App.start({ el: '#content' });
           });
           jQuery.ajaxSetup({ dataType: 'json' });
         });

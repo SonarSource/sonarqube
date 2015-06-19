@@ -42,7 +42,6 @@ import org.sonar.batch.compute.OverallBranchCoverageDecorator;
 import org.sonar.batch.compute.OverallCoverageDecorator;
 import org.sonar.batch.compute.OverallLineCoverageDecorator;
 import org.sonar.batch.compute.UnitTestDecorator;
-import org.sonar.batch.compute.VariationDecorator;
 import org.sonar.batch.cpd.CpdComponents;
 import org.sonar.batch.debt.DebtDecorator;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
@@ -54,7 +53,6 @@ import org.sonar.batch.issue.tracking.IssueHandlers;
 import org.sonar.batch.issue.tracking.IssueTracking;
 import org.sonar.batch.issue.tracking.IssueTrackingDecorator;
 import org.sonar.batch.language.LanguageDistributionDecorator;
-import org.sonar.batch.qualitygate.QualityGateVerifier;
 import org.sonar.batch.scan.report.ConsoleReport;
 import org.sonar.batch.scan.report.HtmlReport;
 import org.sonar.batch.scan.report.IssuesReportBuilder;
@@ -104,9 +102,6 @@ public class BatchComponents {
       SqaleRatingDecorator.class,
       SqaleRatingSettings.class,
 
-      // Quality Gate
-      QualityGateVerifier.class,
-
       // Issue tracking
       IssueTrackingDecorator.class,
       IssueHandlers.class,
@@ -128,7 +123,6 @@ public class BatchComponents {
       CommentDensityDecorator.class,
       DirectoriesDecorator.class,
       FilesDecorator.class,
-      VariationDecorator.class,
       NewCoverageFileAnalyzer.class,
       NewItCoverageFileAnalyzer.class,
       NewOverallCoverageFileAnalyzer.class,

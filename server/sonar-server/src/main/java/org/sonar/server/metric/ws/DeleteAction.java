@@ -74,7 +74,7 @@ public class DeleteAction implements MetricsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       List<Integer> ids = loadIds(dbSession, request);
-      dbClient.metricDao().disable(dbSession, ids);
+      dbClient.metricDao().disableByIds(dbSession, ids);
       dbClient.customMeasureDao().deleteByMetricIds(dbSession, ids);
       dbSession.commit();
     } finally {
@@ -91,21 +91,25 @@ public class DeleteAction implements MetricsWsAction {
     checkArgument(idsAsStrings != null || keys != null, "Ids or keys must be provided.");
     List<Integer> ids = null;
     if (idsAsStrings != null) {
-      ids = Lists.transform(idsAsStrings, new Function<String, Integer>() {
-        @Override
-        public Integer apply(String id) {
-          return Integer.valueOf(id);
-        }
-      });
+      ids = Lists.transform(idsAsStrings, new StringToIntegerFunction());
     } else if (keys != null) {
-      ids = Lists.transform(dbClient.metricDao().selectNullableByKeys(dbSession, keys), new Function<MetricDto, Integer>() {
-        @Override
-        public Integer apply(@Nonnull MetricDto input) {
-          return input.getId();
-        }
-      });
+      ids = Lists.transform(dbClient.metricDao().selectNullableByKeys(dbSession, keys), new MetricDtoToIdFunction());
     }
 
     return ids;
+  }
+
+  private static class StringToIntegerFunction implements Function<String, Integer> {
+    @Override
+    public Integer apply(String id) {
+      return Integer.valueOf(id);
+    }
+  }
+
+  private static class MetricDtoToIdFunction implements Function<MetricDto, Integer> {
+    @Override
+    public Integer apply(@Nonnull MetricDto input) {
+      return input.getId();
+    }
   }
 }

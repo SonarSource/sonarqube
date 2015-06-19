@@ -20,6 +20,7 @@
 package org.sonar.server.notification;
 
 import com.google.common.collect.Sets;
+import java.util.Arrays;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -27,13 +28,19 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.core.properties.PropertiesDao;
-import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.db.DbClient;
 
-import java.util.Arrays;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.same;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class NotificationServiceTest {
   private static String CREATOR_SIMON = "simon";
@@ -65,7 +72,7 @@ public class NotificationServiceTest {
     Settings settings = new Settings().setProperty("sonar.notifications.delay", 1L);
 
     service = new NotificationService(settings, manager,
-      dbClient, mock(DatabaseSessionFactory.class),
+      dbClient,
       new NotificationDispatcher[] {commentOnIssueAssignedToMe, commentOnIssueCreatedByMe, qualityGateChange});
   }
 
@@ -202,7 +209,7 @@ public class NotificationServiceTest {
   public void getDispatchers_empty() {
     Settings settings = new Settings().setProperty("sonar.notifications.delay", 1L);
 
-    service = new NotificationService(settings, manager, dbClient, mock(DatabaseSessionFactory.class));
+    service = new NotificationService(settings, manager, dbClient);
     assertThat(service.getDispatchers()).hasSize(0);
   }
 

@@ -28,6 +28,8 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.ProjectConfigurator;
@@ -55,7 +57,6 @@ import org.sonar.batch.issue.tracking.ServerIssueRepository;
 import org.sonar.batch.mediumtest.ScanTaskObservers;
 import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
-import org.sonar.batch.qualitygate.QualityGateProvider;
 import org.sonar.batch.report.ComponentsPublisher;
 import org.sonar.batch.report.CoveragePublisher;
 import org.sonar.batch.report.DuplicationsPublisher;
@@ -83,6 +84,8 @@ import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
 
 public class ProjectScanContainer extends ComponentContainer {
+
+  private static final Logger LOG = Loggers.get(ProjectScanContainer.class);
 
   private final DefaultAnalysisMode analysisMode;
   private final Object[] components;
@@ -148,14 +151,14 @@ public class ProjectScanContainer extends ComponentContainer {
       Caches.class,
       BatchComponentCache.class,
 
-      // file system
+    // file system
       InputPathCache.class,
       PathResolver.class,
 
-      // rules
+    // rules
       new ActiveRulesProvider(),
 
-      // issues
+    // issues
       IssueUpdater.class,
       FunctionExecutor.class,
       IssueWorkflow.class,
@@ -164,33 +167,30 @@ public class ProjectScanContainer extends ComponentContainer {
       LocalIssueTracking.class,
       ServerIssueRepository.class,
 
-      // metrics
+    // metrics
       DefaultMetricFinder.class,
       DeprecatedMetricFinder.class,
 
-      // tests
+    // tests
       TestPlanBuilder.class,
       TestableBuilder.class,
 
-      // lang
+    // lang
       Languages.class,
       DefaultLanguagesRepository.class,
 
-      // Differential periods
+    // Differential periods
       PeriodsDefinition.class,
 
-      // Measures
+    // Measures
       MeasureCache.class,
 
-      // Duplications
+    // Duplications
       DuplicationCache.class,
 
-      // Quality Gate
-      new QualityGateProvider(),
+    ProjectSettings.class,
 
-      ProjectSettings.class,
-
-      // Report
+    // Report
       ReportPublisher.class,
       ComponentsPublisher.class,
       IssuesPublisher.class,
@@ -200,21 +200,21 @@ public class ProjectScanContainer extends ComponentContainer {
       SourcePublisher.class,
       TestExecutionAndCoveragePublisher.class,
 
-      ScanTaskObservers.class);
+    ScanTaskObservers.class);
   }
 
   private void addDataBaseComponents() {
     add(
       PastMeasuresLoader.class,
 
-      // Rules
+    // Rules
       new RulesProvider(),
       new DebtModelProvider(),
 
-      // technical debt
+    // technical debt
       DefaultTechnicalDebtModel.class,
 
-      // Issue tracking
+    // Issue tracking
       InitialOpenIssuesStack.class);
   }
 
@@ -224,6 +224,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
   @Override
   protected void doAfterStart() {
+    LOG.debug("Start recursive analysis of project modules");
     DefaultProjectTree tree = getComponentByType(DefaultProjectTree.class);
     scanRecursively(tree.getRootProject());
     if (analysisMode.isMediumTest()) {

@@ -20,6 +20,7 @@
 package org.sonar.core.qualitygate.db;
 
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Collection;
@@ -28,7 +29,7 @@ import java.util.Date;
 /**
  * @since 4.3
  */
-public class QualityGateConditionDao {
+public class QualityGateConditionDao implements DaoComponent {
 
   private final MyBatis myBatis;
 

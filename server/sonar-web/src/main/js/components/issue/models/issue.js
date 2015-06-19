@@ -12,7 +12,29 @@ define(function () {
     },
 
     parse: function (r) {
-      return r.issue ? r.issue : r;
+      if (r.issue) {
+        var issue = this._injectRelational(r.issue, r.users, 'assignee', 'login');
+        issue = this._injectRelational(issue, r.users, 'reporter', 'login');
+        return issue;
+      } else {
+        return r;
+      }
+    },
+
+    _injectRelational: function (issue, source, baseField, lookupField) {
+      var baseValue = issue[baseField];
+      if (baseValue != null && _.size(source)) {
+        var lookupValue = _.find(source, function (candidate) {
+          return candidate[lookupField] === baseValue;
+        });
+        if (lookupValue != null) {
+          Object.keys(lookupValue).forEach(function (key) {
+            var newKey = baseField + key.charAt(0).toUpperCase() + key.slice(1);
+            issue[newKey] = lookupValue[key];
+          });
+        }
+      }
+      return issue;
     },
 
     sync: function (method, model, options) {

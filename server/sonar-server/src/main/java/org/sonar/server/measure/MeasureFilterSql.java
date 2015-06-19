@@ -69,33 +69,9 @@ class MeasureFilterSql {
 
   private static Ordering newObjectOrdering(boolean ascending) {
     if (ascending) {
-      return Ordering.from(new Comparator<Comparable>() {
-        @Override
-        public int compare(@Nullable Comparable left, @Nullable Comparable right) {
-          if (left == null) {
-            return 1;
-          }
-          if (right == null) {
-            return -1;
-          }
-
-          return left.compareTo(right);
-        }
-      });
+      return Ordering.from(new AscendingComparator());
     }
-    return Ordering.from(new Comparator<Comparable>() {
-      @Override
-      public int compare(@Nullable Comparable left, @Nullable Comparable right) {
-        if (left == null) {
-          return 1;
-        }
-        if (right == null) {
-          return -1;
-        }
-
-        return right.compareTo(left);
-      }
-    });
+    return Ordering.from(new DescendingComparator());
   }
 
   List<MeasureFilterRow> execute(Connection connection) throws SQLException {
@@ -309,12 +285,7 @@ class MeasureFilterSql {
   static class AlertSortRowProcessor extends TextSortRowProcessor {
     @Override
     Function sortFieldFunction() {
-      return new Function<MeasureFilterRow, Integer>() {
-        @Override
-        public Integer apply(MeasureFilterRow row) {
-          return ImmutableList.of("OK", "WARN", "ERROR").indexOf(row.getSortText());
-        }
-      };
+      return new MeasureFilterRowToAlertIndex();
     }
 
     @Override
@@ -324,6 +295,13 @@ class MeasureFilterSql {
         ordering = ordering.reverse();
       }
       return ordering;
+    }
+
+    private static class MeasureFilterRowToAlertIndex implements Function<MeasureFilterRow, Integer> {
+      @Override
+      public Integer apply(MeasureFilterRow row) {
+        return ImmutableList.of("OK", "WARN", "ERROR").indexOf(row.getSortText());
+      }
     }
   }
 
@@ -340,17 +318,19 @@ class MeasureFilterSql {
 
     @Override
     Function sortFieldFunction() {
-      return new Function<MeasureFilterRow, Double>() {
-        @Override
-        public Double apply(MeasureFilterRow row) {
-          return row.getSortDouble();
-        }
-      };
+      return new MeasureFilterRowToSortDoubleFunction();
     }
 
     @Override
     Ordering sortFieldOrdering(boolean ascending) {
       return ascending ? Ordering.natural().nullsLast() : Ordering.natural().reverse().nullsLast();
+    }
+
+    private static class MeasureFilterRowToSortDoubleFunction implements Function<MeasureFilterRow, Double> {
+      @Override
+      public Double apply(MeasureFilterRow row) {
+        return row.getSortDouble();
+      }
     }
   }
 
@@ -399,6 +379,34 @@ class MeasureFilterSql {
     @Override
     Ordering sortFieldOrdering(boolean ascending) {
       return newObjectOrdering(ascending);
+    }
+  }
+
+  private static class AscendingComparator implements Comparator<Comparable> {
+    @Override
+    public int compare(@Nullable Comparable left, @Nullable Comparable right) {
+      if (left == null) {
+        return 1;
+      }
+      if (right == null) {
+        return -1;
+      }
+
+      return left.compareTo(right);
+    }
+  }
+
+  private static class DescendingComparator implements Comparator<Comparable> {
+    @Override
+    public int compare(@Nullable Comparable left, @Nullable Comparable right) {
+      if (left == null) {
+        return 1;
+      }
+      if (right == null) {
+        return -1;
+      }
+
+      return right.compareTo(left);
     }
   }
 }

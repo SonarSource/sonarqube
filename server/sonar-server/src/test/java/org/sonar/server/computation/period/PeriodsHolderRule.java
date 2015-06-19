@@ -20,14 +20,14 @@
 
 package org.sonar.server.computation.period;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
 public class PeriodsHolderRule implements TestRule, PeriodsHolder {
-  private List<Period> periods = new ArrayList<>();
+  private PeriodsHolderImpl delegate = new PeriodsHolderImpl();
 
   @Override
   public Statement apply(final Statement statement, Description description) {
@@ -44,15 +44,26 @@ public class PeriodsHolderRule implements TestRule, PeriodsHolder {
   }
 
   private void clear() {
-    this.periods.clear();
+    this.delegate = new PeriodsHolderImpl();
+  }
+
+  public void setPeriods(Period... periods) {
+    delegate = new PeriodsHolderImpl();
+    delegate.setPeriods(Arrays.asList(periods));
   }
 
   @Override
   public List<Period> getPeriods() {
-    return periods;
+    return delegate.getPeriods();
   }
 
-  public void addPeriod(Period period) {
-    this.periods.add(period);
+  @Override
+  public boolean hasPeriod(int i) {
+    return delegate.hasPeriod(i);
+  }
+
+  @Override
+  public Period getPeriod(int i) {
+    return delegate.getPeriod(i);
   }
 }

@@ -1,6 +1,7 @@
-<div id="users"></div>
-<script>
-  require(['apps/users/app'], function (App) {
-    App.start({ el: '#users' });
-  });
-</script>
+<% content_for :extra_script do %>
+  <script>
+    require(['apps/users/app'], function (App) {
+      App.start({ el: '#content' });
+    });
+  </script>
+<% end %>

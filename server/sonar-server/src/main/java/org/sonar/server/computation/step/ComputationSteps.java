@@ -48,14 +48,17 @@ public class ComputationSteps {
       // Read report
       ParseReportStep.class,
 
+      // load project related stuffs
       QualityGateLoadingStep.class,
+      FeedPeriodsStep.class,
 
       // data computation
       QualityProfileEventsStep.class,
       QualityGateEventsStep.class,
+      QualityGateMeasuresStep.class,
+      FillMeasuresWithVariationsStep.class,
 
       // Persist data
-      FeedPeriodsStep.class,
       PersistComponentsStep.class,
       PersistSnapshotsStep.class,
       PersistNumberOfDaysSinceLastCommitStep.class,

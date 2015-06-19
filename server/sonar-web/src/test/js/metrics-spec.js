@@ -8,7 +8,7 @@ lib.configureCasper();
 
 casper.test.begin(testName('List'), 9, function (test) {
   casper
-      .start(lib.buildUrl('metrics'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         lib.mockRequestFromFile('/api/metrics/domains', 'domains.json');
         lib.mockRequestFromFile('/api/metrics/types', 'types.json');
@@ -18,7 +18,7 @@ casper.test.begin(testName('List'), 9, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/metrics/app'], function (App) {
-            App.start({ el: '#metrics' });
+            App.start({ el: '#content' });
           });
         });
       })
@@ -50,7 +50,7 @@ casper.test.begin(testName('List'), 9, function (test) {
 
 casper.test.begin(testName('Show More'), 4, function (test) {
   casper
-      .start(lib.buildUrl('metrics'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         lib.mockRequestFromFile('/api/metrics/domains', 'domains.json');
         lib.mockRequestFromFile('/api/metrics/types', 'types.json');
@@ -60,7 +60,7 @@ casper.test.begin(testName('Show More'), 4, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/metrics/app'], function (App) {
-            App.start({ el: '#metrics' });
+            App.start({ el: '#content' });
           });
         });
       })
@@ -94,7 +94,7 @@ casper.test.begin(testName('Show More'), 4, function (test) {
 
 casper.test.begin(testName('Create'), 4, function (test) {
   casper
-      .start(lib.buildUrl('metrics'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         lib.mockRequestFromFile('/api/metrics/domains', 'domains.json');
         lib.mockRequestFromFile('/api/metrics/types', 'types.json');
@@ -105,7 +105,7 @@ casper.test.begin(testName('Create'), 4, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/metrics/app'], function (App) {
-            App.start({ el: '#metrics' });
+            App.start({ el: '#content' });
           });
           jQuery.ajaxSetup({ dataType: 'json' });
         });
@@ -159,7 +159,7 @@ casper.test.begin(testName('Create'), 4, function (test) {
 
 casper.test.begin(testName('Update'), 4, function (test) {
   casper
-      .start(lib.buildUrl('metrics'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         lib.mockRequestFromFile('/api/metrics/domains', 'domains.json');
         lib.mockRequestFromFile('/api/metrics/types', 'types.json');
@@ -170,7 +170,7 @@ casper.test.begin(testName('Update'), 4, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/metrics/app'], function (App) {
-            App.start({ el: '#metrics' });
+            App.start({ el: '#content' });
           });
           jQuery.ajaxSetup({ dataType: 'json' });
         });
@@ -224,7 +224,7 @@ casper.test.begin(testName('Update'), 4, function (test) {
 
 casper.test.begin(testName('Delete'), 1, function (test) {
   casper
-      .start(lib.buildUrl('metrics'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
         lib.mockRequestFromFile('/api/metrics/domains', 'domains.json');
         lib.mockRequestFromFile('/api/metrics/types', 'types.json');
@@ -235,7 +235,7 @@ casper.test.begin(testName('Delete'), 1, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/metrics/app'], function (App) {
-            App.start({ el: '#metrics' });
+            App.start({ el: '#content' });
           });
           jQuery.ajaxSetup({ dataType: 'json' });
         });

@@ -19,7 +19,7 @@
  */
 package org.sonar.server.computation.step;
 
-import java.util.Collections;
+import com.google.common.base.Optional;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
@@ -29,7 +29,6 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.server.computation.qualitygate.Condition;
 import org.sonar.server.computation.qualitygate.MutableQualityGateHolder;
 import org.sonar.server.computation.qualitygate.QualityGate;
 import org.sonar.server.computation.qualitygate.QualityGateService;
@@ -45,7 +44,6 @@ public class QualityGateLoadingStep implements ComputationStep {
   private static final Logger LOGGER = Loggers.get(QualityGateLoadingStep.class);
 
   private static final String PROPERTY_QUALITY_GATE = "sonar.qualitygate";
-  private static final QualityGate DEFAULT_QUALITY_GATE = new QualityGate("default Quality Gate", Collections.<Condition>emptyList());
 
   private final TreeRootHolder treeRootHolder;
   private final ProjectSettingsRepository projectSettingsRepository;
@@ -77,16 +75,23 @@ public class QualityGateLoadingStep implements ComputationStep {
 
     if (qualityGateSetting == null || StringUtils.isBlank(qualityGateSetting)) {
       LOGGER.debug("No quality gate is configured for project " + projectKey);
-      qualityGateHolder.setQualityGate(DEFAULT_QUALITY_GATE);
+      qualityGateHolder.setNoQualityGate();
       return;
     }
 
     try {
-      long qualityGateId = Long.parseLong(qualityGateSetting.trim());
-      qualityGateHolder.setQualityGate(qualityGateService.findById(qualityGateId).or(DEFAULT_QUALITY_GATE));
+      long qualityGateId = Long.parseLong(qualityGateSetting);
+      Optional<QualityGate> qualityGate = qualityGateService.findById(qualityGateId);
+      if (qualityGate.isPresent()) {
+        qualityGateHolder.setQualityGate(qualityGate.get());
+      }
+      else {
+        qualityGateHolder.setNoQualityGate();
+      }
     } catch (NumberFormatException e) {
-      LOGGER.error(String.format("Unsupported value in property %s, using empty Quality Gate", PROPERTY_QUALITY_GATE));
-      qualityGateHolder.setQualityGate(DEFAULT_QUALITY_GATE);
+      throw new IllegalStateException(
+        String.format("Unsupported value (%s) in property %s", qualityGateSetting, PROPERTY_QUALITY_GATE),
+        e);
     }
   }
 
