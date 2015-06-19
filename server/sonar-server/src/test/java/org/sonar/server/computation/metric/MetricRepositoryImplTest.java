@@ -112,12 +112,12 @@ public class MetricRepositoryImplTest {
   @Test
   public void getById_throws_ISE_of_Metric_is_disabled() {
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(String.format("Metric with id '%s' does not exist", 3));
+    expectedException.expectMessage(String.format("Metric with id '%s' does not exist", 100));
 
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     underTest.start();
-    underTest.getById(3);
+    underTest.getById(100);
   }
 
   @Test
@@ -127,6 +127,14 @@ public class MetricRepositoryImplTest {
     underTest.start();
     assertThat(underTest.getById(1).getKey()).isEqualTo("ncloc");
     assertThat(underTest.getById(2).getKey()).isEqualTo("coverage");
+  }
+
+  @Test
+  public void get_all_metrics() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    underTest.start();
+    assertThat(underTest.getAll()).extracting("key").containsOnly("ncloc", "coverage", "sqale_index", "development_cost");
   }
 
 }

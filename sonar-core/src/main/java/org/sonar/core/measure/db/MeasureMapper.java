@@ -20,11 +20,9 @@
 
 package org.sonar.core.measure.db;
 
-import org.apache.ibatis.annotations.Param;
-
-import javax.annotation.CheckForNull;
-
 import java.util.List;
+import javax.annotation.CheckForNull;
+import org.apache.ibatis.annotations.Param;
 
 public interface MeasureMapper {
 
@@ -34,6 +32,9 @@ public interface MeasureMapper {
 
   @CheckForNull
   MeasureDto selectByComponentAndMetric(@Param("componentKey") String componentKey, @Param("metricKey") String metricKey);
+
+  List<PastMeasureDto> selectByComponentUuidAndProjectSnapshotIdAndStatusAndMetricIds(@Param("componentUuid") String componentuuid, @Param("rootSnapshotId") long rootSnapshotId,
+    @Param("metricIds") List<Integer> metricIds, @Param("status") String status);
 
   long countByComponentAndMetric(@Param("componentKey") String componentKey, @Param("metricKey") String metricKey);
 

@@ -45,6 +45,8 @@ public class ComputationSteps {
       ValidateProjectStep.class,
       FeedDebtModelStep.class,
 
+      FeedPeriodsStep.class,
+
       // Read report
       ParseReportStep.class,
 
@@ -53,9 +55,9 @@ public class ComputationSteps {
       // data computation
       QualityProfileEventsStep.class,
       QualityGateEventsStep.class,
+      FillMeasuresWithVariationsStep.class,
 
       // Persist data
-      FeedPeriodsStep.class,
       PersistComponentsStep.class,
       PersistSnapshotsStep.class,
       PersistNumberOfDaysSinceLastCommitStep.class,

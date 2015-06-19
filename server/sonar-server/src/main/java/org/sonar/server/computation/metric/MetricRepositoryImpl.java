@@ -20,6 +20,7 @@
 package org.sonar.server.computation.metric;
 
 import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
@@ -81,6 +82,11 @@ public class MetricRepositoryImpl implements MetricRepository, Startable {
       throw new IllegalStateException(String.format("Metric with id '%s' does not exist", id));
     }
     return res;
+  }
+
+  @Override
+  public Iterable<Metric> getAll() {
+    return FluentIterable.from(metricsByKey.values()).toSet();
   }
 
   private void verifyMetricsInitialized() {
