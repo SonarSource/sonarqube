@@ -6,9 +6,10 @@ jdk:
   - oraclejdk8
 
 env:
-  - DATABASE=H2
-  - DATABASE=POSTGRES
-  - DATABASE=MYSQL
+  - JOB=H2
+  - JOB=POSTGRES
+  - JOB=MYSQL
+  - JOB=PRANALYSIS
 
 script:
   - ./travis.sh

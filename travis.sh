@@ -6,7 +6,7 @@ function installTravisTools {
   curl -sSL https://raw.githubusercontent.com/sonarsource/travis-utils/v2.1/install.sh | bash
 }
 
-case "$DATABASE" in
+case "$JOB" in
 
 H2)
   mvn verify -B -e -V
@@ -31,8 +31,23 @@ MYSQL)
   travis_runDatabaseCI "mysql" "jdbc:mysql://localhost/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance" "sonar" "sonar"
   ;;
 
+PRANALYSIS)
+  if [ -n "$SONAR_GITHUB_OAUTH" ] && [ "${TRAVIS_PULL_REQUEST}" != "false" ] 
+  then
+    echo "Start pullrequest analysis"
+    mvn sonar:sonar \
+     -Dsonar.analysis.mode=preview \
+     -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
+     -Dsonar.github.repository=$SONAR_GITHUB_REPOSITORY \
+     -Dsonar.forceUpdate=true \
+     -Dsonar.github.login=$SONAR_GITHUB_LOGIN \
+     -Dsonar.github.oauth=$SONAR_GITHUB_OAUTH \
+     -Dsonar.host.url=$SONAR_HOST_URL 
+  fi 
+  ;;
+
 *)
-  echo "Invalid DATABASE choice [$DATABASE]"
+  echo "Invalid JOB choice [$JOB]"
   exit 1
 
 esac
