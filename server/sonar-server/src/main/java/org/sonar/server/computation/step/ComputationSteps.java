@@ -43,6 +43,7 @@ public class ComputationSteps {
       BuildComponentTreeStep.class,
       FillComponentsStep.class,
       ValidateProjectStep.class,
+
       FeedDebtModelStep.class,
 
       // Read report
@@ -62,7 +63,8 @@ public class ComputationSteps {
       QualityGateMeasuresStep.class,
       
       QualityProfileEventsStep.class,
-      
+
+      ComputeIssueMeasuresStep.class,
       // Must be executed after computation of quality gate measure
       QualityGateEventsStep.class,
 
