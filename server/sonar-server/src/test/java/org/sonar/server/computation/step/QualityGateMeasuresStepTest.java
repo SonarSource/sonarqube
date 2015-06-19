@@ -42,8 +42,8 @@ import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.computation.qualitygate.Condition;
 import org.sonar.server.computation.qualitygate.EvaluationResult;
 import org.sonar.server.computation.qualitygate.EvaluationResultTextConverter;
-import org.sonar.server.computation.qualitygate.MutableQualityGateHolderRule;
 import org.sonar.server.computation.qualitygate.QualityGate;
+import org.sonar.server.computation.qualitygate.QualityGateHolderRule;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.mockito.Matchers.any;
@@ -66,7 +66,7 @@ public class QualityGateMeasuresStepTest {
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
-  public MutableQualityGateHolderRule qualityGateHolder = new MutableQualityGateHolderRule();
+  public QualityGateHolderRule qualityGateHolder = new QualityGateHolderRule();
 
   private static final Metric ALERT_STATUS_METRIC = mock(Metric.class);
   private static final Metric QUALITY_GATE_DETAILS_METRIC = mock(Metric.class);
@@ -114,7 +114,7 @@ public class QualityGateMeasuresStepTest {
 
   @Test
   public void no_measure_if_there_is_no_qualitygate() {
-    qualityGateHolder.setNoQualityGate();
+    qualityGateHolder.setQualityGate(null);
 
     underTest.execute();
 
