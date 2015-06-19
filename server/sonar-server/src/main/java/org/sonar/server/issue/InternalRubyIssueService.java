@@ -699,13 +699,15 @@ public class InternalRubyIssueService {
 
   /**
    * Used by issue modification actions currently implemented in Rails
-   * @param issue
    * @return the JSON representation of the modified issue, as a ready to use string
    */
-  public String writeIssueJson(@Nullable Issue issue) {
-    if (issue == null) {
+  public String writeIssueJson(@Nullable Issue original) {
+    if (original == null) {
       return "{}";
     }
+
+    // Reloading from ES to avoid partial object, e.g for manual issues
+    Issue issue = issueService.getByKey(original.key());
 
     StringWriter writer = new StringWriter();
     JsonWriter json = JsonWriter.of(writer);
