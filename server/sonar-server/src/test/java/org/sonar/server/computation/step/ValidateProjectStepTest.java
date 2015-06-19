@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.MessageException;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
@@ -97,7 +98,7 @@ public class ValidateProjectStepTest {
 
   @Test
   public void fail_if_provisioning_enforced_and_project_does_not_exists() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("Unable to scan non-existing project '" + PROJECT_KEY + "'");
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
@@ -145,7 +146,7 @@ public class ValidateProjectStepTest {
 
   @Test
   public void fail_on_invalid_branch() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("Validation of project failed:\n" +
       "  o \"bran#ch\" is not a valid branch name. Allowed characters are alphanumeric, '-', '_', '.' and '/'.");
 
@@ -166,7 +167,7 @@ public class ValidateProjectStepTest {
   public void fail_on_invalid_key() throws Exception {
     String invalidProjectKey = "Project\\Key";
 
-    thrown.expect(IllegalArgumentException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("Validation of project failed:\n" +
       "  o \"Project\\Key\" is not a valid project or module key. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.\n" +
       "  o \"Module$Key\" is not a valid project or module key. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit");
@@ -192,7 +193,7 @@ public class ValidateProjectStepTest {
 
   @Test
   public void fail_if_module_key_is_already_used_as_project_key() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("Validation of project failed:\n" +
       "  o The project \"" + MODULE_KEY + "\" is already defined in SonarQube but not as a module of project \"" + PROJECT_KEY + "\". " +
       "If you really want to stop directly analysing project \"" + MODULE_KEY + "\", please first delete it from SonarQube and then relaunch the analysis of project \""
@@ -225,7 +226,7 @@ public class ValidateProjectStepTest {
   @Test
   public void fail_if_module_key_already_exists_in_another_project() throws Exception {
     String anotherProjectKey = "ANOTHER_PROJECT_KEY";
-    thrown.expect(IllegalArgumentException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("Validation of project failed:\n" +
       "  o Module \"" + MODULE_KEY + "\" is already part of project \"" + anotherProjectKey + "\"");
 
@@ -259,7 +260,7 @@ public class ValidateProjectStepTest {
   @Test
   public void fail_if_project_key_already_exists_as_module() throws Exception {
     String anotherProjectKey = "ANOTHER_PROJECT_KEY";
-    thrown.expect(IllegalArgumentException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("Validation of project failed:\n" +
       "  o The project \"" + PROJECT_KEY + "\" is already defined in SonarQube but as a module of project \"" + anotherProjectKey + "\". " +
       "If you really want to stop directly analysing project \"" + anotherProjectKey + "\", please first delete it from SonarQube and then relaunch the analysis of project \""
