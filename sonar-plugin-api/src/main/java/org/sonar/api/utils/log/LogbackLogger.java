@@ -19,9 +19,8 @@
  */
 package org.sonar.api.utils.log;
 
-import ch.qos.logback.classic.*;
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-
 import javax.annotation.Nullable;
 
 /**

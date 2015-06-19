@@ -37,7 +37,8 @@ public class DefaultIssueComment implements Serializable, IssueComment {
 
   private String issueKey;
   private String userLogin;
-  private Date createdAt, updatedAt;
+  private Date createdAt;
+  private Date updatedAt;
   private String key;
   private String markdownText;
   private boolean isNew;

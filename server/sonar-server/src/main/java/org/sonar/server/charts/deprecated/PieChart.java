@@ -93,7 +93,7 @@ public class PieChart extends BaseChartWeb implements DeprecatedChart {
   private void configureDefaultColors() {
     PiePlot plot = (PiePlot) jfreechart.getPlot();
     for (int i=0 ; i<COLORS.length ; i++) {
-      plot.setSectionPaint("" + i, COLORS[i]);
+      plot.setSectionPaint(Integer.toString(i), COLORS[i]);
     }
   }
 

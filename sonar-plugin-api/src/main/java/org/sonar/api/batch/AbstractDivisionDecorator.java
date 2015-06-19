@@ -88,7 +88,7 @@ public abstract class AbstractDivisionDecorator implements Decorator {
 
   protected double compute(Measure dividend, Measure divisor, boolean shouldResultBeInPercent) {
     double result = dividend.getValue() / divisor.getValue();
-    return shouldResultBeInPercent ? result * 100 : result;
+    return shouldResultBeInPercent ? (result * 100) : result;
   }
 
 }

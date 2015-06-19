@@ -134,7 +134,8 @@ public class FieldDiffs implements Serializable {
   }
 
   public static class Diff<T extends Serializable> implements Serializable {
-    private T oldValue, newValue;
+    private T oldValue;
+    private T newValue;
 
     public Diff(@Nullable T oldValue, @Nullable T newValue) {
       this.oldValue = oldValue;

@@ -147,7 +147,7 @@ public class ChartParameters {
    * @return width
    */
   public int getWidth() {
-    int width = Integer.parseInt(getValue(PARAM_WIDTH, "" + DEFAULT_WIDTH, false));
+    int width = Integer.parseInt(getValue(PARAM_WIDTH, Integer.toString(DEFAULT_WIDTH), false));
     return Math.min(width, MAX_WIDTH);
   }
 
@@ -157,7 +157,7 @@ public class ChartParameters {
    * @return height
    */
   public int getHeight() {
-    int height = Integer.parseInt(getValue(PARAM_HEIGHT, "" + DEFAULT_HEIGHT, false));
+    int height = Integer.parseInt(getValue(PARAM_HEIGHT, Integer.toString(DEFAULT_HEIGHT), false));
     return Math.min(height, MAX_HEIGHT);
   }
 

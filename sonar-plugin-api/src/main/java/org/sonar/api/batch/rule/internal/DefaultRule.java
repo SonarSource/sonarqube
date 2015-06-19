@@ -37,10 +37,13 @@ public class DefaultRule implements Rule {
 
   private final RuleKey key;
   private final Integer id;
-  private final String name, severity, description, internalKey, debtSubCharacteristic;
+  private final String name;
+  private final String severity;
+  private final String description;
+  private final String internalKey;
+  private final String debtSubCharacteristic;
   private final RuleStatus status;
   private final DebtRemediationFunction debtRemediationFunction;
-
   private final Map<String, RuleParam> params;
 
   DefaultRule(NewRule newRule) {

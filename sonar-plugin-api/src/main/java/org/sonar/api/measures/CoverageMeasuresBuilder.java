@@ -40,7 +40,9 @@ public final class CoverageMeasuresBuilder {
     CoreMetrics.CONDITIONS_TO_COVER, CoreMetrics.UNCOVERED_CONDITIONS, CoreMetrics.CONDITIONS_BY_LINE,
     CoreMetrics.COVERED_CONDITIONS_BY_LINE);
 
-  private int totalCoveredLines = 0, totalConditions = 0, totalCoveredConditions = 0;
+  private int totalCoveredLines = 0;
+  private int totalConditions = 0;
+  private int totalCoveredConditions = 0;
   private SortedMap<Integer, Integer> hitsByLine = Maps.newTreeMap();
   private SortedMap<Integer, Integer> conditionsByLine = Maps.newTreeMap();
   private SortedMap<Integer, Integer> coveredConditionsByLine = Maps.newTreeMap();

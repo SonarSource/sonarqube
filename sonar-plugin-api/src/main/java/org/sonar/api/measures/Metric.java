@@ -274,8 +274,8 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     this.qualitative = qualitative;
     this.userManaged = userManaged;
     if (ValueType.PERCENT.equals(this.type)) {
-      this.bestValue = (direction == DIRECTION_BETTER ? 100.0 : 0.0);
-      this.worstValue = (direction == DIRECTION_BETTER ? 0.0 : 100.0);
+      this.bestValue = (direction == DIRECTION_BETTER) ? 100.0 : 0.0;
+      this.worstValue = (direction == DIRECTION_BETTER) ? 0.0 : 100.0;
     }
   }
 

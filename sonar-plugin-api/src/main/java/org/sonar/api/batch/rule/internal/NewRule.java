@@ -37,7 +37,11 @@ public class NewRule {
 
   final RuleKey key;
   Integer id;
-  String name, description, severity = DEFAULT_SEVERITY, internalKey, debtSubCharacteristic;
+  String name;
+  String description;
+  String severity = DEFAULT_SEVERITY;
+  String internalKey;
+  String debtSubCharacteristic;
   DebtRemediationFunction debtRemediationFunction;
   RuleStatus status = RuleStatus.defaultStatus();
   Map<String, NewRuleParam> params = new HashMap<>();

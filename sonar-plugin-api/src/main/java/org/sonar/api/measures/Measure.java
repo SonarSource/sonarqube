@@ -56,7 +56,11 @@ public class Measure<G extends Serializable> implements Serializable {
   protected Metric.Level alertStatus;
   protected String alertText;
   protected Date date;
-  protected Double variation1, variation2, variation3, variation4, variation5;
+  protected Double variation1;
+  protected Double variation2;
+  protected Double variation3;
+  protected Double variation4;
+  protected Double variation5;
   protected String url;
   protected Characteristic characteristic;
   protected Requirement requirement;

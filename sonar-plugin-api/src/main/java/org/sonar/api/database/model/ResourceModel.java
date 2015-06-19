@@ -19,19 +19,19 @@
  */
 package org.sonar.api.database.model;
 
+import java.io.Serializable;
+import java.util.Date;
+import javax.annotation.Nullable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.database.BaseIdentifiable;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Resource;
-
-import javax.annotation.Nullable;
-import javax.persistence.*;
-
-import java.io.Serializable;
-import java.util.Date;
 
 /**
  * Class to map resource with hibernate model

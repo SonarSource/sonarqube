@@ -36,7 +36,7 @@ class SecurityProperties {
     return ImmutableList.of(
 
       PropertyDefinition.builder(CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY)
-        .defaultValue("" + CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_DEAULT_VALUE)
+        .defaultValue(Boolean.toString(CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_DEAULT_VALUE))
         .name("Allow users to sign up online")
         .description("Users can sign up online.")
         .type(PropertyType.BOOLEAN)
@@ -51,7 +51,7 @@ class SecurityProperties {
         .build(),
 
       PropertyDefinition.builder(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY)
-        .defaultValue("" + CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE)
+        .defaultValue(Boolean.toString(CoreProperties.CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE))
         .name("Force user authentication")
         .description("Forcing user authentication stops un-logged users to access SonarQube.")
         .type(PropertyType.BOOLEAN)

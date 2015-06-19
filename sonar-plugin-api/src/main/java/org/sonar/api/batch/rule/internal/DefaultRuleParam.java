@@ -27,7 +27,8 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 class DefaultRuleParam implements RuleParam {
 
-  private final String key, description;
+  private final String key;
+  private final String description;
 
   DefaultRuleParam(NewRuleParam p) {
     this.key = p.key;

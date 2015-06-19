@@ -20,13 +20,16 @@
 package org.sonar.core.issue.workflow;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.*;
-
-import javax.annotation.CheckForNull;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Sets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 
 public class StateMachine {
 
