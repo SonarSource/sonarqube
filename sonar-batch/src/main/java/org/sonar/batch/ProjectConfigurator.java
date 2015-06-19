@@ -19,25 +19,17 @@
  */
 package org.sonar.batch;
 
+import java.util.Date;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.BatchSide;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
-import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.model.ResourceModel;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.System2;
-
-import javax.annotation.Nullable;
-
-import java.util.Date;
-
-import static org.sonar.api.utils.DateUtils.formatDateTime;
 
 /**
  * Used by views !!
@@ -48,17 +40,11 @@ public class ProjectConfigurator {
 
   private static final Logger LOG = LoggerFactory.getLogger(ProjectConfigurator.class);
   private final System2 system2;
-  private DatabaseSession databaseSession;
   private Settings settings;
 
-  public ProjectConfigurator(@Nullable DatabaseSession databaseSession, Settings settings, System2 system2) {
-    this.databaseSession = databaseSession;
+  public ProjectConfigurator(Settings settings, System2 system2) {
     this.settings = settings;
     this.system2 = system2;
-  }
-
-  public ProjectConfigurator(Settings settings, System2 system2) {
-    this(null, settings, system2);
   }
 
   public Project create(ProjectDefinition definition) {
@@ -73,30 +59,11 @@ public class ProjectConfigurator {
 
   public ProjectConfigurator configure(Project project) {
     Date analysisDate = loadAnalysisDate();
-    checkCurrentAnalysisIsTheLatestOne(project.getKey(), analysisDate);
-
     project
       .setAnalysisDate(analysisDate)
       .setAnalysisVersion(loadAnalysisVersion())
       .setAnalysisType(loadAnalysisType());
     return this;
-  }
-
-  private void checkCurrentAnalysisIsTheLatestOne(String projectKey, Date analysisDate) {
-    if (databaseSession != null) {
-      ResourceModel persistedProject = databaseSession.getSingleResult(ResourceModel.class, "key", projectKey, "enabled", true);
-      if (persistedProject != null) {
-        Snapshot lastSnapshot = databaseSession.getSingleResult(Snapshot.class, "resourceId", persistedProject.getId(), "last", true);
-        boolean analysisBeforeLastSnapshot = lastSnapshot != null && analysisDate.getTime() <= lastSnapshot.getCreatedAtMs();
-        if (analysisBeforeLastSnapshot) {
-          throw new IllegalArgumentException(
-            "'sonar.projectDate' property cannot be older than the date of the last known quality snapshot on this project. Value: '" +
-              settings.getString(CoreProperties.PROJECT_DATE_PROPERTY) + "'. " +
-              "Latest quality snapshot: '" + formatDateTime(lastSnapshot.getCreatedAt())
-              + "'. This property may only be used to rebuild the past in a chronological order.");
-        }
-      }
-    }
   }
 
   private Date loadAnalysisDate() {
