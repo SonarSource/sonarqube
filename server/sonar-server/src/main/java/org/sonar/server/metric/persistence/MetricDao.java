@@ -100,12 +100,15 @@ public class MetricDao implements DaoComponent {
   }
 
   public List<String> selectDomains(DbSession session) {
-    return newArrayList(Collections2.filter(mapper(session).selectDomains(), new Predicate<String>() {
-      @Override
-      public boolean apply(@Nonnull String input) {
-        return !input.isEmpty();
-      }
-    }));
+    return newArrayList(Collections2.filter(mapper(session).selectDomains(), new NotEmptyPredicate()));
+  }
+
+  private static class NotEmptyPredicate implements Predicate<String> {
+
+    @Override
+    public boolean apply(@Nonnull String input) {
+      return !input.isEmpty();
+    }
   }
 
   private MetricMapper mapper(DbSession session) {

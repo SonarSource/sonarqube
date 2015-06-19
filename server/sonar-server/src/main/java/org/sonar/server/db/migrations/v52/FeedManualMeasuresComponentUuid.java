@@ -43,14 +43,15 @@ public class FeedManualMeasuresComponentUuid extends BaseDataChange {
         "INNER JOIN projects p ON mm.resource_id = p.id " +
         "WHERE mm.component_uuid IS NULL");
     update.update("UPDATE manual_measures SET component_uuid=? WHERE resource_id=?");
-    update.execute(new MassUpdate.Handler() {
-      @Override
-      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        update.setString(1, row.getString(1));
-        update.setLong(2, row.getLong(2));
-        return true;
-      }
-    });
+    update.execute(new SqlRowHandler());
   }
 
+  private static class SqlRowHandler implements MassUpdate.Handler {
+    @Override
+    public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+      update.setString(1, row.getString(1));
+      update.setLong(2, row.getLong(2));
+      return true;
+    }
+  }
 }

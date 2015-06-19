@@ -20,11 +20,13 @@
 
 package org.sonar.server.test.ws;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -34,7 +36,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -132,7 +133,7 @@ public class ListAction implements TestsWsAction {
     json.endObject().close();
   }
 
-  private void writeTests(List<TestDoc> tests, Map<String, ComponentDto> componentsByTestFileUuid, JsonWriter json) {
+  private static void writeTests(List<TestDoc> tests, Map<String, ComponentDto> componentsByTestFileUuid, JsonWriter json) {
     json.name("tests").beginArray();
     for (TestDoc test : tests) {
       String fileUuid = test.fileUuid();
@@ -162,20 +163,24 @@ public class ListAction implements TestsWsAction {
   }
 
   private Map<String, ComponentDto> buildComponentsByTestFileUuid(DbSession dbSession, List<TestDoc> tests) {
-    List<String> fileUuids = Lists.transform(tests, new NonNullInputFunction<TestDoc, String>() {
-      @Override
-      protected String doApply(TestDoc testDoc) {
-        return testDoc.fileUuid();
-      }
-    });
+    List<String> fileUuids = Lists.transform(tests, new TestToFileUuidFunction());
     List<ComponentDto> components = dbClient.componentDao().selectByUuids(dbSession, fileUuids);
 
-    return Maps.uniqueIndex(components, new NonNullInputFunction<ComponentDto, String>() {
-      @Override
-      public String doApply(ComponentDto componentDto) {
-        return componentDto.uuid();
-      }
-    });
+    return Maps.uniqueIndex(components, new ComponentToUuidFunction());
+  }
+
+  private static class TestToFileUuidFunction implements Function<TestDoc, String> {
+    @Override
+    public String apply(@Nonnull TestDoc testDoc) {
+      return testDoc.fileUuid();
+    }
+  }
+
+  private static class ComponentToUuidFunction implements Function<ComponentDto, String> {
+    @Override
+    public String apply(@Nonnull ComponentDto componentDto) {
+      return componentDto.uuid();
+    }
   }
 
   private SearchResult<TestDoc> searchTests(DbSession dbSession, @Nullable String testUuid, @Nullable String testFileUuid, @Nullable String testFileKey,

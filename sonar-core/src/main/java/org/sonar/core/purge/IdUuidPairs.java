@@ -22,30 +22,32 @@ package org.sonar.core.purge;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-
-import javax.annotation.Nonnull;
-
 import java.util.List;
+import javax.annotation.Nonnull;
 
 public class IdUuidPairs {
   private IdUuidPairs() {
   }
 
   public static List<Long> ids(List<IdUuidPair> pairs) {
-    return Lists.transform(pairs, new Function<IdUuidPair, Long>() {
-      @Override
-      public Long apply(@Nonnull IdUuidPair pair) {
-        return pair.getId();
-      }
-    });
+    return Lists.transform(pairs, new IdUuidPairToIdFunction());
   }
 
   public static List<String> uuids(List<IdUuidPair> pairs) {
-    return Lists.transform(pairs, new Function<IdUuidPair, String>() {
-      @Override
-      public String apply(@Nonnull IdUuidPair pair) {
-        return pair.getUuid();
-      }
-    });
+    return Lists.transform(pairs, new IdUuidPairToUuidFunction());
+  }
+
+  private static class IdUuidPairToIdFunction implements Function<IdUuidPair, Long> {
+    @Override
+    public Long apply(@Nonnull IdUuidPair pair) {
+      return pair.getId();
+    }
+  }
+
+  private static class IdUuidPairToUuidFunction implements Function<IdUuidPair, String> {
+    @Override
+    public String apply(@Nonnull IdUuidPair pair) {
+      return pair.getUuid();
+    }
   }
 }

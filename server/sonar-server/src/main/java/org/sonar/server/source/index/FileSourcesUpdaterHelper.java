@@ -21,16 +21,14 @@
 package org.sonar.server.source.index;
 
 import com.google.common.base.Joiner;
-import org.elasticsearch.action.update.UpdateRequest;
-import org.sonar.server.db.DbClient;
-
-import javax.annotation.Nullable;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.sonar.server.db.DbClient;
 
 public class FileSourcesUpdaterHelper {
 
@@ -80,7 +78,8 @@ public class FileSourcesUpdaterHelper {
   }
 
   public static class Row {
-    private final String fileUuid, projectUuid;
+    private final String fileUuid;
+    private final String projectUuid;
     private final long updatedAt;
     private final List<UpdateRequest> updateRequests = new ArrayList<>();
 

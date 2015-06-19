@@ -126,7 +126,7 @@ public class SearchAction implements MetricsWsAction {
     json.endArray();
   }
 
-  private void writeType(JsonWriter json, String typeKey, Set<String> desiredFields) {
+  private static void writeType(JsonWriter json, String typeKey, Set<String> desiredFields) {
     if (desiredFields.contains(FIELD_TYPE)) {
       json.name(FIELD_TYPE);
       json.beginObject();

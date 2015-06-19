@@ -89,7 +89,7 @@ public class GhostsAction implements ProjectsWsAction {
     }
   }
 
-  private void writeProjects(JsonWriter json, List<ComponentDto> projects, Set<String> fieldsToReturn) {
+  private static void writeProjects(JsonWriter json, List<ComponentDto> projects, Set<String> fieldsToReturn) {
     json.name("projects");
     json.beginArray();
     for (ComponentDto project : projects) {

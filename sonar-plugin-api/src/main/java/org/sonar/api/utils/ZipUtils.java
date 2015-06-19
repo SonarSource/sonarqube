@@ -65,12 +65,7 @@ public final class ZipUtils {
   }
 
   public static File unzip(InputStream zip, File toDir) throws IOException {
-    unzip(zip, toDir, new ZipEntryFilter() {
-      @Override
-      public boolean accept(ZipEntry entry) {
-        return true;
-      }
-    });
+    unzip(zip, toDir, TrueZipEntryFilter.INSTANCE);
     return toDir;
   }
 

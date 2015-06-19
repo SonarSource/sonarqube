@@ -24,6 +24,8 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
+import java.util.List;
+import java.util.Map;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -36,9 +38,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.test.index.CoveredFileDoc;
 import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.user.UserSession;
-
-import java.util.List;
-import java.util.Map;
 
 public class CoveredFilesAction implements TestsWsAction {
 
@@ -97,12 +96,7 @@ public class CoveredFilesAction implements TestsWsAction {
   }
 
   private Map<String, ComponentDto> buildComponentsByUuid(List<CoveredFileDoc> coveredFiles) {
-    List<String> sourceFileUuids = Lists.transform(coveredFiles, new Function<CoveredFileDoc, String>() {
-      @Override
-      public String apply(CoveredFileDoc coveredFile) {
-        return coveredFile.fileUuid();
-      }
-    });
+    List<String> sourceFileUuids = Lists.transform(coveredFiles, new CoveredFileToFileUuidFunction());
     DbSession dbSession = dbClient.openSession(false);
     List<ComponentDto> components;
     try {
@@ -110,12 +104,21 @@ public class CoveredFilesAction implements TestsWsAction {
     } finally {
       MyBatis.closeQuietly(dbSession);
     }
-    return Maps.uniqueIndex(components, new Function<ComponentDto, String>() {
-      @Override
-      public String apply(ComponentDto component) {
-        return component.uuid();
-      }
-    });
+    return Maps.uniqueIndex(components, new ComponentToUuidFunction());
+  }
+
+  private static class CoveredFileToFileUuidFunction implements Function<CoveredFileDoc, String> {
+    @Override
+    public String apply(CoveredFileDoc coveredFile) {
+      return coveredFile.fileUuid();
+    }
+  }
+
+  private static class ComponentToUuidFunction implements Function<ComponentDto, String> {
+    @Override
+    public String apply(ComponentDto component) {
+      return component.uuid();
+    }
   }
 
 }
