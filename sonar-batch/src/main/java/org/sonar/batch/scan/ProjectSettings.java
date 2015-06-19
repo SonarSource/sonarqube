@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.scan;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.PropertyDefinitions;
@@ -31,8 +29,6 @@ import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 
 public class ProjectSettings extends Settings {
-
-  private static final Logger LOG = LoggerFactory.getLogger(ProjectSettings.class);
 
   private final GlobalSettings globalSettings;
   private final ProjectRepositories projectRepositories;
@@ -49,8 +45,6 @@ public class ProjectSettings extends Settings {
   }
 
   private void init(ProjectReactor reactor) {
-    LOG.info("Load project settings");
-
     addProperties(globalSettings.getProperties());
 
     addProperties(projectRepositories.settings(reactor.getRoot().getKeyWithBranch()));
