@@ -22,12 +22,13 @@ package org.sonar.server.computation.step;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.collect.Maps;
+import com.google.common.collect.FluentIterable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
@@ -50,6 +51,7 @@ import org.sonar.server.db.DbClient;
  * <li>project or module key is not valid</li>
  * <li>module key already exists in another project (same module key cannot exists in different projects)</li>
  * <li>module key is already used as a project key</li>
+ * <li>date of the analysis is before last analysis</li>
  * </ol>
  */
 public class ValidateProjectStep implements ComputationStep {
@@ -72,15 +74,10 @@ public class ValidateProjectStep implements ComputationStep {
   public void execute() {
     DbSession session = dbClient.openSession(false);
     try {
-      List<ComponentDto> modules = dbClient.componentDao().selectModulesFromProjectKey(session, treeRootHolder.getRoot().getKey());
-      Map<String, ComponentDto> modulesByKey = Maps.uniqueIndex(modules, new Function<ComponentDto, String>() {
-        @Override
-        public String apply(@Nonnull ComponentDto input) {
-          return input.key();
-        }
-      });
+      List<ComponentDto> baseModules = dbClient.componentDao().selectModulesFromProjectKey(session, treeRootHolder.getRoot().getKey());
+      Map<String, ComponentDto> baseModulesByKey = FluentIterable.from(baseModules).uniqueIndex(ComponentDtoToKey.INSTANCE);
       ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(session, dbClient.componentDao(),
-        settings.getBoolean(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION), modulesByKey);
+        settings.getBoolean(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION), baseModulesByKey);
       visitor.visit(treeRootHolder.getRoot());
 
       if (!visitor.validationMessages.isEmpty()) {
@@ -100,64 +97,83 @@ public class ValidateProjectStep implements ComputationStep {
     private final DbSession session;
     private final ComponentDao componentDao;
     private final boolean preventAutomaticProjectCreation;
-    private final Map<String, ComponentDto> modulesByKey;
+    private final Map<String, ComponentDto> baseModulesByKey;
     private final List<String> validationMessages = new ArrayList<>();
 
-    private Component root;
+    private Component rawProject;
 
-    public ValidateProjectsVisitor(DbSession session, ComponentDao componentDao, boolean preventAutomaticProjectCreation, Map<String, ComponentDto> modulesByKey) {
+    public ValidateProjectsVisitor(DbSession session, ComponentDao componentDao, boolean preventAutomaticProjectCreation, Map<String, ComponentDto> baseModulesByKey) {
       super(Component.Type.MODULE, Order.PRE_ORDER);
       this.session = session;
       this.componentDao = componentDao;
 
       this.preventAutomaticProjectCreation = preventAutomaticProjectCreation;
-      this.modulesByKey = modulesByKey;
+      this.baseModulesByKey = baseModulesByKey;
     }
 
     @Override
-    public void visitProject(Component project) {
-      this.root = project;
+    public void visitProject(Component rawProject) {
+      this.rawProject = rawProject;
       validateBranch();
-      validateBatchKey(project);
+      validateBatchKey(rawProject);
 
-      String projectKey = project.getKey();
-      ComponentDto projectDto = loadComponent(projectKey);
-      if (projectDto == null) {
+      String rawProjectKey = rawProject.getKey();
+      ComponentDto baseProject = loadBaseComponent(rawProjectKey);
+      validateWhenProvisioningEnforced(baseProject, rawProjectKey);
+      validateProjectKey(baseProject, rawProjectKey);
+    }
+
+    private void validateWhenProvisioningEnforced(@Nullable ComponentDto baseProject, String rawProjectKey){
+      if (baseProject == null) {
         if (preventAutomaticProjectCreation) {
-          validationMessages.add(String.format("Unable to scan non-existing project '%s'", projectKey));
+          validationMessages.add(String.format("Unable to scan non-existing project '%s'", rawProjectKey));
         }
-      } else if (!projectDto.projectUuid().equals(projectDto.uuid())) {
+      }
+    }
+
+    private void validateProjectKey(@Nullable ComponentDto baseProject, String rawProjectKey){
+      if (baseProject != null && !baseProject.projectUuid().equals(baseProject.uuid())) {
         // Project key is already used as a module of another project
-        ComponentDto anotherProject = componentDao.selectByUuid(session, projectDto.projectUuid());
+        ComponentDto anotherBaseProject = componentDao.selectByUuid(session, baseProject.projectUuid());
         validationMessages.add(String.format("The project \"%s\" is already defined in SonarQube but as a module of project \"%s\". "
-          + "If you really want to stop directly analysing project \"%s\", please first delete it from SonarQube and then relaunch the analysis of project \"%s\".",
-          projectKey, anotherProject.key(), anotherProject.key(), projectKey));
+            + "If you really want to stop directly analysing project \"%s\", please first delete it from SonarQube and then relaunch the analysis of project \"%s\".",
+          rawProjectKey, anotherBaseProject.key(), anotherBaseProject.key(), rawProjectKey));
       }
     }
 
     @Override
-    public void visitModule(Component module) {
-      String projectKey = root.getKey();
-      String moduleKey = module.getKey();
-      validateBatchKey(module);
+    public void visitModule(Component rawModule) {
+      String rawProjectKey = rawProject.getKey();
+      String rawModuleKey = rawModule.getKey();
+      validateBatchKey(rawModule);
 
-      ComponentDto moduleDto = loadComponent(moduleKey);
-      if (moduleDto == null) {
+      ComponentDto baseModule = loadBaseComponent(rawModuleKey);
+      if (baseModule == null) {
         return;
       }
-      if (moduleDto.projectUuid().equals(moduleDto.uuid())) {
+
+      validateModuleIsNotAlreadyUsedAsProject(baseModule, rawProjectKey, rawModuleKey);
+      validateModuleKeyIsNotAlreadyUsedInAnotherProject(baseModule, rawModuleKey);
+    }
+
+    private void validateModuleIsNotAlreadyUsedAsProject(ComponentDto baseModule, String rawProjectKey, String rawModuleKey){
+      if (baseModule.projectUuid().equals(baseModule.uuid())) {
         // module is actually a project
         validationMessages.add(String.format("The project \"%s\" is already defined in SonarQube but not as a module of project \"%s\". "
-          + "If you really want to stop directly analysing project \"%s\", please first delete it from SonarQube and then relaunch the analysis of project \"%s\".",
-          moduleKey, projectKey, moduleKey, projectKey));
-      } else if (!moduleDto.projectUuid().equals(root.getUuid())) {
-        ComponentDto projectModule = componentDao.selectByUuid(session, moduleDto.projectUuid());
-        validationMessages.add(String.format("Module \"%s\" is already part of project \"%s\"", moduleKey, projectModule.key()));
+            + "If you really want to stop directly analysing project \"%s\", please first delete it from SonarQube and then relaunch the analysis of project \"%s\".",
+          rawModuleKey, rawProjectKey, rawModuleKey, rawProjectKey));
       }
     }
 
-    private void validateBatchKey(Component component) {
-      String batchKey = reportReader.readComponent(component.getRef()).getKey();
+    private void validateModuleKeyIsNotAlreadyUsedInAnotherProject(ComponentDto baseModule, String rawModuleKey){
+      if (!baseModule.projectUuid().equals(baseModule.uuid()) && !baseModule.projectUuid().equals(rawProject.getUuid())) {
+        ComponentDto projectModule = componentDao.selectByUuid(session, baseModule.projectUuid());
+        validationMessages.add(String.format("Module \"%s\" is already part of project \"%s\"", rawModuleKey, projectModule.key()));
+      }
+    }
+
+    private void validateBatchKey(Component rawComponent) {
+      String batchKey = reportReader.readComponent(rawComponent.getRef()).getKey();
       if (!ComponentKeys.isValidModuleKey(batchKey)) {
         validationMessages.add(String.format("\"%s\" is not a valid project or module key. "
           + "Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", batchKey));
@@ -177,13 +193,22 @@ public class ValidateProjectStep implements ComputationStep {
       }
     }
 
-    private ComponentDto loadComponent(String componentKey) {
-      ComponentDto componentDto = modulesByKey.get(componentKey);
-      if (componentDto == null) {
+    private ComponentDto loadBaseComponent(String rawComponentKey) {
+      ComponentDto baseComponent = baseModulesByKey.get(rawComponentKey);
+      if (baseComponent == null) {
         // Load component from key to be able to detect issue (try to analyze a module, etc.)
-        return componentDao.selectNullableByKey(session, componentKey);
+        return componentDao.selectNullableByKey(session, rawComponentKey);
       }
-      return componentDto;
+      return baseComponent;
+    }
+  }
+
+  private enum ComponentDtoToKey implements Function<ComponentDto, String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nonnull ComponentDto input) {
+      return input.key();
     }
   }
 }
