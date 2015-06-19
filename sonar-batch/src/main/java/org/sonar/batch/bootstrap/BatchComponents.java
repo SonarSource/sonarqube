@@ -25,7 +25,6 @@ import java.util.List;
 import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.compute.BranchCoverageDecorator;
 import org.sonar.batch.compute.CommentDensityDecorator;
-import org.sonar.batch.compute.CountFalsePositivesDecorator;
 import org.sonar.batch.compute.CoverageDecorator;
 import org.sonar.batch.compute.DirectoriesDecorator;
 import org.sonar.batch.compute.FilesDecorator;
@@ -107,7 +106,6 @@ public class BatchComponents {
       InitialOpenIssuesSensor.class,
 
       // to be moved to compute engine
-      CountFalsePositivesDecorator.class,
       UnitTestDecorator.class,
       LineCoverageDecorator.class,
       CoverageDecorator.class,
