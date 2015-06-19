@@ -55,8 +55,8 @@ public class ComputationSteps {
       // data computation
       QualityProfileEventsStep.class,
       QualityGateEventsStep.class,
-      QualityGateMeasuresStep.class,
       FillMeasuresWithVariationsStep.class,
+      QualityGateMeasuresStep.class,
 
       // Persist data
       PersistComponentsStep.class,

@@ -54,6 +54,8 @@ import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisi
  * <li>computes the measures on the project for metrics {@link CoreMetrics#QUALITY_GATE_DETAILS_KEY} and
  * {@link CoreMetrics#ALERT_STATUS_KEY}</li>
  * </ul>
+ *
+ * It must be executed after the computation of differential measures {@link FillMeasuresWithVariationsStep}
  */
 public class QualityGateMeasuresStep implements ComputationStep {
 
