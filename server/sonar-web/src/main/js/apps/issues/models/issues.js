@@ -63,6 +63,7 @@ define([
           });
         }
         issue = that._injectRelational(issue, r.users, 'assignee', 'login');
+        issue = that._injectRelational(issue, r.users, 'reporter', 'login');
         return issue;
       });
     },
