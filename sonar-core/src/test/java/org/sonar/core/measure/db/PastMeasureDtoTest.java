@@ -17,31 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.metric;
 
-public interface MetricRepository {
+package org.sonar.core.measure.db;
 
-  /**
-   * Gets the {@link Metric} with the specific key.
-   * <p>Since it does not make sense to encounter a reference (ie. a key) to a Metric during processing of
-   * a new analysis and not finding it in DB (metrics are never deleted), this method will throw an
-   * IllegalStateException if the metric with the specified key can not be found.</p>
-   *
-   * @throws IllegalStateException if no Metric with the specified key is found
-   * @throws NullPointerException if the specified key is {@code null}
-   */
-  Metric getByKey(String key);
+import org.junit.Test;
 
-  /**
-   * Gets the {@link Metric} with the specific id.
-   *
-   * @throws IllegalStateException if no Metric with the specified id is found
-   */
-  Metric getById(long id);
+import static org.assertj.core.api.Assertions.assertThat;
 
-  /**
-   * Get iterable of all {@link Metric}.
-   */
-  Iterable<Metric> getAll();
+public class PastMeasureDtoTest {
 
+  @Test
+  public void test_getter_and_setter() throws Exception {
+    PastMeasureDto dto = new PastMeasureDto()
+      .setValue(1d)
+      .setMetricId(2)
+      .setRuleId(3)
+      .setCharacteristicId(4)
+      .setPersonId(5);
+
+    assertThat(dto.hasValue()).isTrue();
+    assertThat(dto.getValue()).isEqualTo(1d);
+    assertThat(dto.getMetricId()).isEqualTo(2);
+    assertThat(dto.getRuleId()).isEqualTo(3);
+    assertThat(dto.getCharacteristicId()).isEqualTo(4);
+    assertThat(dto.getPersonId()).isEqualTo(5);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void get_value_throw_a_NPE_if_value_is_null() throws Exception {
+    new PastMeasureDto().getValue();
+  }
 }
