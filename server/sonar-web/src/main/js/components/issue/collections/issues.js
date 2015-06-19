@@ -9,7 +9,24 @@ define([
       return baseUrl + '/api/issues/search';
     },
 
+    _injectRelational: function (issue, source, baseField, lookupField) {
+      var baseValue = issue[baseField];
+      if (baseValue != null && _.size(source)) {
+        var lookupValue = _.find(source, function (candidate) {
+          return candidate[lookupField] === baseValue;
+        });
+        if (lookupValue != null) {
+          Object.keys(lookupValue).forEach(function (key) {
+            var newKey = baseField + key.charAt(0).toUpperCase() + key.slice(1);
+            issue[newKey] = lookupValue[key];
+          });
+        }
+      }
+      return issue;
+    },
+
     parse: function (r) {
+      var that = this;
       function find (source, key, keyField) {
         var searchDict = {};
         searchDict[keyField || 'key'] = key;
@@ -42,6 +59,7 @@ define([
         if (rule) {
           _.extend(issue, { ruleName: rule.name });
         }
+        issue = that._injectRelational(issue, r.users, 'assignee', 'login');
         return issue;
       });
     }
