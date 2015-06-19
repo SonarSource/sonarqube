@@ -9,6 +9,7 @@ env:
   - JOB=H2
   - JOB=POSTGRES
   - JOB=MYSQL
+  - JOB=WEB
   - JOB=PRANALYSIS
 
 script:

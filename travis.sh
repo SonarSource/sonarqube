@@ -31,8 +31,17 @@ MYSQL)
   travis_runDatabaseCI "mysql" "jdbc:mysql://localhost/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance" "sonar" "sonar"
   ;;
 
+WEB)
+  export DISPLAY=:99.0
+  sh -e /etc/init.d/xvfb start
+  wget http://selenium-release.storage.googleapis.com/2.46/selenium-server-standalone-2.46.0.jar
+  java -jar selenium-server-standalone-2.46.0.jar &
+  sleep 3
+  cd server/sonar-web && npm install && npm test
+  ;;
+
 PRANALYSIS)
-  if [ -n "$SONAR_GITHUB_OAUTH" ] && [ "${TRAVIS_PULL_REQUEST}" != "false" ] 
+  if [ -n "$SONAR_GITHUB_OAUTH" ] && [ "${TRAVIS_PULL_REQUEST}" != "false" ]
   then
     echo "Start pullrequest analysis"
     mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent verify sonar:sonar -B -e -V -Dmaven.test.failure.ignore=true -Dclirr=true \
@@ -43,8 +52,8 @@ PRANALYSIS)
      -Dsonar.github.oauth=$SONAR_GITHUB_OAUTH \
      -Dsonar.host.url=$SONAR_HOST_URL \
      -Dsonar.login=$SONAR_LOGIN \
-     -Dsonar.password=$SONAR_PASSWD 
-  fi 
+     -Dsonar.password=$SONAR_PASSWD
+  fi
   ;;
 
 *)

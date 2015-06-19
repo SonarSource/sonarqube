@@ -77,8 +77,6 @@
 
     <skipBatchTests>false</skipBatchTests>
     <skipServerTests>false</skipServerTests>
-    <skipWebTests>false</skipWebTests>
-    <jsCoverage>nocoverage</jsCoverage>
 
     <version.maven-license.plugin>1.9.0</version.maven-license.plugin>
     <skipSanityChecks>false</skipSanityChecks>
@@ -1507,7 +1505,6 @@
         </property>
       </activation>
       <properties>
-        <skipWebTests>true</skipWebTests>
         <skipBatchTests>true</skipBatchTests>
         <skipServerTests>true</skipServerTests>
       </properties>
@@ -1517,7 +1514,6 @@
       <id>batch</id>
       <properties>
         <skipServerTests>true</skipServerTests>
-        <skipWebTests>true</skipWebTests>
       </properties>
     </profile>
 
@@ -1525,7 +1521,6 @@
       <id>server</id>
       <properties>
         <skipBatchTests>true</skipBatchTests>
-        <skipWebTests>true</skipWebTests>
       </properties>
     </profile>
 
@@ -1548,7 +1543,6 @@
         </property>
       </activation>
       <properties>
-        <skipWebTests>true</skipWebTests>
         <junitGroups>org.sonar.test.DbTests</junitGroups>
       </properties>
       <dependencies>
@@ -1609,7 +1603,6 @@
     <profile>
       <id>analysis</id>
       <properties>
-        <jsCoverage>coverage</jsCoverage>
         <coveragePerTest>true</coveragePerTest>
       </properties>
     </profile>

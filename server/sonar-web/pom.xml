@@ -15,8 +15,7 @@
     <!-- self-analysis -->
     <sonar.sources>src/main/js,src/main/less</sonar.sources>
     <sonar.exclusions>src/main/js/libs/third-party/**/*,src/main/js/libs/require.js</sonar.exclusions>
-    <sonar.javascript.lcov.reportPath>target/js-coverage/lcov.info</sonar.javascript.lcov.reportPath>
-    <grunt.arguments>maven-build-skip-tests-${skipWebTests}-${jsCoverage} --port=${jsTestPort} --no-color</grunt.arguments>
+    <grunt.arguments>maven-build --no-color</grunt.arguments>
   </properties>
 
   <build>
@@ -79,24 +78,6 @@
                   <filtering>false</filtering>
                 </resource>
               </resources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>reserve-network-port</id>
-            <goals>
-              <goal>reserve-network-port</goal>
-            </goals>
-            <phase>initialize</phase>
-            <configuration>
-              <portNames>
-                <portName>jsTestPort</portName>
-              </portNames>
             </configuration>
           </execution>
         </executions>

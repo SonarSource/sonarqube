@@ -1,12 +1,13 @@
 module.exports = (grunt) ->
   require('jit-grunt')(grunt, {
-    express: 'grunt-express-server'
     unzip: 'grunt-zip'
     replace: 'grunt-text-replace'
   });
   require('time-grunt')(grunt);
 
+  useBrowserStack = !!process.env['BROWSERSTACK_USERNAME'] && !!process.env['BROWSERSTACK_ACCESS_KEY']
   expressPort = '<%= grunt.option("port") || 3000 %>'
+  internPort = '<%= grunt.option("internPort") || 9100 %>'
 
   grunt.initConfig
     pkg: grunt.file.readJSON('package.json')
@@ -143,32 +144,6 @@ module.exports = (grunt) ->
           'requirejs:issuesContext'
           'requirejs:selectList'
         ]
-      casper:
-        tasks: [
-          'casper:apiDocumentation'
-          'casper:application'
-          'casper:codingRules'
-          'casper:issueFilterWidget'
-          'casper:handlebarsHelpers'
-          'casper:issues'
-          'casper:markdown'
-          'casper:nav'
-          'casper:process'
-          'casper:qualityGates'
-          'casper:qualityProfiles'
-          'casper:sourceViewer'
-          'casper:treemap'
-          'casper:ui'
-          'casper:workspace'
-          'casper:users'
-          'casper:groups'
-          'casper:provisioning'
-          'casper:computation'
-          'casper:metrics'
-          'casper:maintenance'
-          'casper:updateCenter'
-          'casper:histogram'
-        ]
 
 
     handlebars:
@@ -267,123 +242,35 @@ module.exports = (grunt) ->
         src: '<%= BUILD_PATH %>/css/sonar.css', dest: '<%= ASSETS_PATH %>/css/sonar.css'
 
 
-    express:
-      test:
-        options:
-          script: 'src/test/server.js'
-          port: expressPort
-      testCoverage:
-        options:
-          script: 'src/test/server-coverage.js'
-          port: expressPort
-      dev:
-        options:
-          background: false
-          script: 'src/test/server.js'
-
-
-    casper:
-      options:
-        test: true
-        'fail-fast': true
-        concise: true
-        'no-colors': true
-        port: expressPort
-      testCoverageLight:
-        options:
-          concise: false
-          verbose: true
-          'no-colors': false
-        src: ['src/test/js/**/*<%= grunt.option("spec") %>*.js']
-      single:
-        options:
-          concise: false
-          verbose: true
-          'no-colors': false
-        src: ['src/test/js/<%= grunt.option("spec") %>-spec.js']
-      testfile:
-        options:
-          concise: false
-          verbose: true
-          'no-colors': false
-        src: ['<%= grunt.option("file") %>']
-
-      apiDocumentation:
-        src: ['src/test/js/api-documentation*.js']
-      application:
-        src: ['src/test/js/application*.js']
-      codingRules:
-        src: ['src/test/js/coding-rules*.js']
-      issueFilterWidget:
-        src: ['src/test/js/*issue-filter-widget*.js']
-      handlebarsHelpers:
-        src: ['src/test/js/handlebars-helpers*.js']
-      issues:
-        src: ['src/test/js/issues*.js']
-      markdown:
-        src: ['src/test/js/markdown*.js']
-      nav:
-        src: ['src/test/js/nav*.js']
-      process:
-        src: ['src/test/js/process*.js']
-      qualityGates:
-        src: ['src/test/js/quality-gates*.js']
-      qualityProfiles:
-        src: ['src/test/js/quality-profiles*.js']
-      sourceViewer:
-        src: ['src/test/js/source-viewer*.js']
-      treemap:
-        src: ['src/test/js/treemap*.js']
-      ui:
-        src: ['src/test/js/ui*.js']
-      workspace:
-        src: ['src/test/js/workspace*.js']
-      users:
-        src: ['src/test/js/users*.js']
-      provisioning:
-        src: ['src/test/js/provisioning*.js']
-      computation:
-        src: ['src/test/js/computation*.js']
-      groups:
-        src: ['src/test/js/groups-spec.js']
-      metrics:
-        src: ['src/test/js/metrics-spec.js']
-      maintenance:
-        src: ['src/test/js/maintenance-spec.js']
-      updateCenter:
-        src: ['src/test/js/update-center-spec.js']
-      histogram:
-        src: ['src/test/js/histogram-spec.js']
-
     uglify:
       build:
         src: '<%= ASSETS_PATH %>/js/sonar.js'
         dest: '<%= ASSETS_PATH %>/js/sonar.js'
 
 
-    curl:
-      resetCoverage:
-        src:
-          url: 'http://localhost:' + expressPort + '/coverage/reset'
-          method: 'POST'
-        dest: 'target/reset_coverage.dump'
-
-      downloadCoverage:
-        src: 'http://localhost:' + expressPort + '/coverage/download'
-        dest: 'target/coverage.zip'
-
-
-    unzip:
-      'target/js-coverage': 'target/coverage.zip'
-
-
     replace:
       lcov:
-        src: 'target/js-coverage/lcov.info'
-        dest: 'target/js-coverage/lcov.info'
+        src: 'target/web-tests/lcov.info'
+        dest: 'target/web-tests/lcov.info'
         replacements: [
           { from: '/build/', to: '/src/main/' }
         ]
+
+
+    rename:
+      lcov:
+        src: 'lcov.info'
+        dest: 'target/web-tests/lcov.info'
+
+
+    intern:
+      test:
+        options:
+          runType: 'runner'
+          config: 'test/intern'
+          proxyPort: expressPort
+          proxyUrl: 'http://localhost:' + expressPort + '/'
+          useBrowserStack: useBrowserStack
 
 
     jshint:
@@ -427,11 +314,10 @@ module.exports = (grunt) ->
       ['copy:assets-css', 'copy:assets-js', 'concurrent:build']
 
   grunt.registerTask 'test-suffix',
-      ['express:test', 'concurrent:casper']
+      ['intern:test', 'rename:lcov', 'replace:lcov']
 
   grunt.registerTask 'coverage-suffix',
-      ['express:testCoverage', 'curl:resetCoverage', 'concurrent:casper', 'curl:downloadCoverage', 'unzip',
-       'replace:lcov']
+      ['test-suffix']
 
   grunt.registerTask 'build-app', (app) ->
     grunt.option 'app', app
@@ -467,24 +353,9 @@ module.exports = (grunt) ->
   grunt.registerTask 'dw',
       ['build-fast', 'watch']
 
-  grunt.registerTask 'testCoverageLight',
-      ['prepare', 'express:testCoverage', 'curl:resetCoverage', 'casper:testCoverageLight', 'curl:downloadCoverage', 'unzip', 'replace:lcov']
-
-  grunt.registerTask 'single',
-      ['prepare', 'express:test', 'casper:single']
-
-  grunt.registerTask 'testfile',
-      ['prepare', 'express:test', 'casper:testfile']
-
   # tasks used by Maven build (see pom.xml)
   grunt.registerTask 'maven-quick-build',
       ['build-fast']
 
-  grunt.registerTask 'maven-build-skip-tests-true-nocoverage',
+  grunt.registerTask 'maven-build',
       ['build']
-
-  grunt.registerTask 'maven-build-skip-tests-false-nocoverage',
-      ['build-test']
-
-  grunt.registerTask 'maven-build-skip-tests-false-coverage',
-      ['build-coverage']
