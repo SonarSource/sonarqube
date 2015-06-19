@@ -20,6 +20,8 @@
 package org.sonar.batch.mediumtest.measures;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -31,9 +33,6 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.xoo.XooPlugin;
-
-import java.io.File;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -66,7 +65,7 @@ public class MeasuresMediumTest {
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .start();
 
-    assertThat(result.allMeasures()).hasSize(90);
+    assertThat(result.allMeasures()).hasSize(84);
   }
 
   @Test
@@ -93,7 +92,7 @@ public class MeasuresMediumTest {
         .build())
       .start();
 
-    assertThat(result.allMeasures()).hasSize(33);
+    assertThat(result.allMeasures()).hasSize(30);
 
     assertThat(result.allMeasures()).contains(new DefaultMeasure<Integer>()
       .forMetric(CoreMetrics.LINES)
