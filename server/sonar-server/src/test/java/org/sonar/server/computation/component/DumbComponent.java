@@ -99,6 +99,23 @@ public class DumbComponent implements Component {
     return children;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    DumbComponent that = (DumbComponent) o;
+    return ref == that.ref;
+  }
+
+  @Override
+  public int hashCode() {
+    return ref;
+  }
+
   public static Builder builder(Type type, int ref) {
     return new Builder(type, ref);
   }

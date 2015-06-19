@@ -53,6 +53,7 @@ public class ComputationSteps {
       FeedPeriodsStep.class,
 
       // data computation
+      CustomMeasuresCopyStep.class,
       QualityProfileEventsStep.class,
       QualityGateEventsStep.class,
       QualityGateMeasuresStep.class,
