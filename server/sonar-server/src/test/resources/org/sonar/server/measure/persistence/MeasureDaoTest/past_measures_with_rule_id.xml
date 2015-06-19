@@ -1,7 +1,6 @@
 <dataset>
 
-  <metrics delete_historical_data="[null]" id="1" name="minor_violations" VAL_TYPE="INT" DESCRIPTION="[null]" domain="[null]" short_name=""
-           enabled="true" worst_value="[null]" optimized_best_value="[null]" best_value="[null]" direction="0" hidden="false"/>
+  <metrics delete_historical_data="[null]" id="1" name="minor_violations" VAL_TYPE="INT" DESCRIPTION="[null]" enabled="[true]"/>
 
   <rules tags="[null]" system_tags="[null]" id="30" name="Classes that override clone should be Cloneable and call super.clone()"
          plugin_rule_key="S1182"
@@ -16,30 +15,18 @@
   <!-- project -->
   <projects long_name="[null]" id="1" scope="PRJ" qualifier="TRK" kee="project" name="project"
             root_id="[null]" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD."
-            description="[null]"
-            enabled="true" language="java" copy_resource_id="[null]"/>
+            enabled="[true]"/>
 
   <!-- snapshots -->
-  <snapshots purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]"
-             period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]"
-             period5_param="[null]" period5_date="[null]" id="1000" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+  <snapshots id="1000" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" created_at="1225544280000" build_date="1225544280000" version="[null]" path=""
-             status="P" islast="false" depth="0"/>
+             status="P" islast="[false]" depth="0"/>
 
   <!-- project measures -->
-  <project_measures id="1" VALUE="60" METRIC_ID="1" SNAPSHOT_ID="1000" alert_text="[null]" RULES_CATEGORY_ID="[null]"
-                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
-                    alert_status="[null]" description="[null]" rule_priority="[null]" characteristic_id="[null]" url="[null]" person_id="[null]"
-                    variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]" variation_value_5="[null]"/>
+  <project_measures id="1" VALUE="60" METRIC_ID="1" SNAPSHOT_ID="1000" RULE_ID="[null]" characteristic_id="[null]" person_id="[null]"/>
 
-  <project_measures id="2" VALUE="20" METRIC_ID="1" SNAPSHOT_ID="1000" alert_text="[null]" RULES_CATEGORY_ID="[null]"
-                    RULE_ID="30" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
-                    alert_status="[null]" description="[null]" rule_priority="[null]" characteristic_id="[null]" url="[null]" person_id="[null]"
-                    variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]" variation_value_5="[null]"/>
+  <project_measures id="2" VALUE="20" METRIC_ID="1" SNAPSHOT_ID="1000" RULE_ID="30" characteristic_id="[null]" person_id="[null]"/>
 
-  <project_measures id="3" VALUE="40" METRIC_ID="1" SNAPSHOT_ID="1000" alert_text="[null]" RULES_CATEGORY_ID="[null]"
-                    RULE_ID="31" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
-                    alert_status="[null]" description="[null]" rule_priority="[null]" characteristic_id="[null]" url="[null]" person_id="[null]"
-                    variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]" variation_value_5="[null]"/>
+  <project_measures id="3" VALUE="40" METRIC_ID="1" SNAPSHOT_ID="1000" RULE_ID="31" characteristic_id="[null]" person_id="[null]"/>
 
 </dataset>

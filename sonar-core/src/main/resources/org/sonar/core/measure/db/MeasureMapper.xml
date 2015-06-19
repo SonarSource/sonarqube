@@ -71,7 +71,7 @@
   </select>
 
   <select id="selectByComponentUuidAndProjectSnapshotIdAndStatusAndMetricIds" parameterType="map" resultType="org.sonar.core.measure.db.PastMeasureDto">
-    SELECT pm.metric_id as metricId, pm.rule_id as ruleId, pm.characteristic_id as characteristicId, pm.person_id as personId, pm.value as value
+    SELECT pm.id as id, pm.metric_id as metricId, pm.rule_id as ruleId, pm.characteristic_id as characteristicId, pm.person_id as personId, pm.value as value
     FROM project_measures pm
     INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.status=#{status}
     INNER JOIN projects p ON p.id=s.project_id AND p.enabled=${_true}

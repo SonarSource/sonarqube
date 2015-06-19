@@ -26,11 +26,21 @@ import javax.annotation.Nullable;
 
 public class PastMeasureDto {
 
+  private Long id;
   private Double value;
   private Integer metricId;
   private Integer ruleId;
   private Integer characteristicId;
   private Integer personId;
+
+  public Long getId() {
+    return id;
+  }
+
+  public PastMeasureDto setId(Long id) {
+    this.id = id;
+    return this;
+  }
 
   public double getValue() {
     Objects.requireNonNull(value);

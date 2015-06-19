@@ -20,8 +20,12 @@
 
 package org.sonar.server.measure.persistence;
 
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -183,21 +187,23 @@ public class MeasureDaoTest {
     List<PastMeasureDto> measures = sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(session, "ABCD", 1000L, ImmutableSet.of(1));
     assertThat(measures).hasSize(3);
 
-    PastMeasureDto measure1 = measures.get(0);
+    Map<Long, PastMeasureDto> pastMeasuresById = pastMeasuresById(measures);
+
+    PastMeasureDto measure1 = pastMeasuresById.get(1L);
     assertThat(measure1.getValue()).isEqualTo(60d);
     assertThat(measure1.getMetricId()).isEqualTo(1);
     assertThat(measure1.getRuleId()).isNull();
     assertThat(measure1.getCharacteristicId()).isNull();
     assertThat(measure1.getPersonId()).isNull();
 
-    PastMeasureDto measure2 = measures.get(1);
+    PastMeasureDto measure2 = pastMeasuresById.get(2L);
     assertThat(measure2.getValue()).isEqualTo(20d);
     assertThat(measure2.getMetricId()).isEqualTo(1);
     assertThat(measure2.getRuleId()).isEqualTo(30);
     assertThat(measure2.getCharacteristicId()).isNull();
     assertThat(measure2.getPersonId()).isNull();
 
-    PastMeasureDto measure3 = measures.get(2);
+    PastMeasureDto measure3 = pastMeasuresById.get(3L);
     assertThat(measure3.getValue()).isEqualTo(40d);
     assertThat(measure3.getMetricId()).isEqualTo(1);
     assertThat(measure3.getRuleId()).isEqualTo(31);
@@ -212,21 +218,23 @@ public class MeasureDaoTest {
     List<PastMeasureDto> measures = sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(session, "ABCD", 1000L, ImmutableSet.of(1));
     assertThat(measures).hasSize(3);
 
-    PastMeasureDto measure1 = measures.get(0);
+    Map<Long, PastMeasureDto> pastMeasuresById = pastMeasuresById(measures);
+
+    PastMeasureDto measure1 = pastMeasuresById.get(1L);
     assertThat(measure1.getValue()).isEqualTo(60d);
     assertThat(measure1.getMetricId()).isEqualTo(1);
     assertThat(measure1.getRuleId()).isNull();
     assertThat(measure1.getCharacteristicId()).isNull();
     assertThat(measure1.getPersonId()).isNull();
 
-    PastMeasureDto measure2 = measures.get(1);
+    PastMeasureDto measure2 = pastMeasuresById.get(2L);
     assertThat(measure2.getValue()).isEqualTo(20d);
     assertThat(measure2.getMetricId()).isEqualTo(1);
     assertThat(measure2.getRuleId()).isNull();
     assertThat(measure2.getCharacteristicId()).isEqualTo(10);
     assertThat(measure2.getPersonId()).isNull();
 
-    PastMeasureDto measure3 = measures.get(2);
+    PastMeasureDto measure3 = pastMeasuresById.get(3L);
     assertThat(measure3.getValue()).isEqualTo(40d);
     assertThat(measure3.getMetricId()).isEqualTo(1);
     assertThat(measure3.getRuleId()).isNull();
@@ -241,21 +249,23 @@ public class MeasureDaoTest {
     List<PastMeasureDto> measures = sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(session, "ABCD", 1000L, ImmutableSet.of(1));
     assertThat(measures).hasSize(3);
 
-    PastMeasureDto measure1 = measures.get(0);
+    Map<Long, PastMeasureDto> pastMeasuresById = pastMeasuresById(measures);
+
+    PastMeasureDto measure1 = pastMeasuresById.get(1L);
     assertThat(measure1.getValue()).isEqualTo(60d);
     assertThat(measure1.getMetricId()).isEqualTo(1);
     assertThat(measure1.getRuleId()).isNull();
     assertThat(measure1.getCharacteristicId()).isNull();
     assertThat(measure1.getPersonId()).isNull();
 
-    PastMeasureDto measure2 = measures.get(1);
+    PastMeasureDto measure2 = pastMeasuresById.get(2L);
     assertThat(measure2.getValue()).isEqualTo(20d);
     assertThat(measure2.getMetricId()).isEqualTo(1);
     assertThat(measure2.getRuleId()).isNull();
     assertThat(measure2.getCharacteristicId()).isNull();
     assertThat(measure2.getPersonId()).isEqualTo(20);
 
-    PastMeasureDto measure3 = measures.get(2);
+    PastMeasureDto measure3 = pastMeasuresById.get(3L);
     assertThat(measure3.getValue()).isEqualTo(40d);
     assertThat(measure3.getMetricId()).isEqualTo(1);
     assertThat(measure3.getRuleId()).isNull();
@@ -308,5 +318,15 @@ public class MeasureDaoTest {
     session.commit();
 
     assertThat(db.countRowsOfTable("project_measures")).isEqualTo(2);
+  }
+
+  private static Map<Long, PastMeasureDto> pastMeasuresById(List<PastMeasureDto> pastMeasures) {
+    return FluentIterable.from(pastMeasures).uniqueIndex(new Function<PastMeasureDto, Long>() {
+      @Nullable
+      @Override
+      public Long apply(PastMeasureDto input) {
+        return input.getId();
+      }
+    });
   }
 }

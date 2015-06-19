@@ -29,12 +29,14 @@ public class PastMeasureDtoTest {
   @Test
   public void test_getter_and_setter() throws Exception {
     PastMeasureDto dto = new PastMeasureDto()
+      .setId(10L)
       .setValue(1d)
       .setMetricId(2)
       .setRuleId(3)
       .setCharacteristicId(4)
       .setPersonId(5);
 
+    assertThat(dto.getId()).isEqualTo(10L);
     assertThat(dto.hasValue()).isTrue();
     assertThat(dto.getValue()).isEqualTo(1d);
     assertThat(dto.getMetricId()).isEqualTo(2);
