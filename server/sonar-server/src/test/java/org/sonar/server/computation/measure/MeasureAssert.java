@@ -19,17 +19,22 @@
  */
 package org.sonar.server.computation.measure;
 
+import com.google.common.base.Optional;
 import java.util.Objects;
+import javax.annotation.Nullable;
 import org.assertj.core.api.AbstractAssert;
 
 public class MeasureAssert extends AbstractAssert<MeasureAssert, Measure> {
 
-  protected MeasureAssert(Measure actual) {
+  protected MeasureAssert(@Nullable Measure actual) {
     super(actual, MeasureAssert.class);
   }
 
   public static MeasureAssert assertThat(Measure actual) {
     return new MeasureAssert(actual);
+  }
+  public static MeasureAssert assertThat(@Nullable Optional<Measure> actual) {
+    return new MeasureAssert(actual == null ? null : actual.orNull());
   }
 
   public MeasureAssert hasValueType(Measure.ValueType expected) {
