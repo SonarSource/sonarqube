@@ -24,6 +24,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
@@ -35,6 +36,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.ComponentKeys;
+import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.batch.BatchReportReader;
@@ -42,6 +44,8 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.db.DbClient;
+
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 
 /**
  * Validate project and modules. It will fail in the following cases :
@@ -121,9 +125,10 @@ public class ValidateProjectStep implements ComputationStep {
       ComponentDto baseProject = loadBaseComponent(rawProjectKey);
       validateWhenProvisioningEnforced(baseProject, rawProjectKey);
       validateProjectKey(baseProject, rawProjectKey);
+      validateAnalysisDate(baseProject);
     }
 
-    private void validateWhenProvisioningEnforced(@Nullable ComponentDto baseProject, String rawProjectKey){
+    private void validateWhenProvisioningEnforced(@Nullable ComponentDto baseProject, String rawProjectKey) {
       if (baseProject == null) {
         if (preventAutomaticProjectCreation) {
           validationMessages.add(String.format("Unable to scan non-existing project '%s'", rawProjectKey));
@@ -131,13 +136,26 @@ public class ValidateProjectStep implements ComputationStep {
       }
     }
 
-    private void validateProjectKey(@Nullable ComponentDto baseProject, String rawProjectKey){
+    private void validateProjectKey(@Nullable ComponentDto baseProject, String rawProjectKey) {
       if (baseProject != null && !baseProject.projectUuid().equals(baseProject.uuid())) {
         // Project key is already used as a module of another project
         ComponentDto anotherBaseProject = componentDao.selectByUuid(session, baseProject.projectUuid());
         validationMessages.add(String.format("The project \"%s\" is already defined in SonarQube but as a module of project \"%s\". "
-            + "If you really want to stop directly analysing project \"%s\", please first delete it from SonarQube and then relaunch the analysis of project \"%s\".",
+          + "If you really want to stop directly analysing project \"%s\", please first delete it from SonarQube and then relaunch the analysis of project \"%s\".",
           rawProjectKey, anotherBaseProject.key(), anotherBaseProject.key(), rawProjectKey));
+      }
+    }
+
+    private void validateAnalysisDate(@Nullable ComponentDto baseProject) {
+      if (baseProject != null) {
+        SnapshotDto snapshotDto = dbClient.snapshotDao().selectLastSnapshotByComponentId(session, baseProject.getId());
+        long currentAnalysisDate = reportReader.readMetadata().getAnalysisDate();
+        Long lastAnalysisDate = snapshotDto != null ? snapshotDto.getCreatedAt() : null;
+        if (lastAnalysisDate != null && currentAnalysisDate <= snapshotDto.getCreatedAt()) {
+          validationMessages.add(String.format("Date of analysis cannot be older than the date of the last known analysis on this project. Value: \"%s\". " +
+            "Latest analysis: \"%s\". It's only possible to rebuild the past in a chronological order.",
+            formatDateTime(new Date(currentAnalysisDate)), formatDateTime(new Date(lastAnalysisDate))));
+        }
       }
     }
 
@@ -156,16 +174,16 @@ public class ValidateProjectStep implements ComputationStep {
       validateModuleKeyIsNotAlreadyUsedInAnotherProject(baseModule, rawModuleKey);
     }
 
-    private void validateModuleIsNotAlreadyUsedAsProject(ComponentDto baseModule, String rawProjectKey, String rawModuleKey){
+    private void validateModuleIsNotAlreadyUsedAsProject(ComponentDto baseModule, String rawProjectKey, String rawModuleKey) {
       if (baseModule.projectUuid().equals(baseModule.uuid())) {
         // module is actually a project
         validationMessages.add(String.format("The project \"%s\" is already defined in SonarQube but not as a module of project \"%s\". "
-            + "If you really want to stop directly analysing project \"%s\", please first delete it from SonarQube and then relaunch the analysis of project \"%s\".",
+          + "If you really want to stop directly analysing project \"%s\", please first delete it from SonarQube and then relaunch the analysis of project \"%s\".",
           rawModuleKey, rawProjectKey, rawModuleKey, rawProjectKey));
       }
     }
 
-    private void validateModuleKeyIsNotAlreadyUsedInAnotherProject(ComponentDto baseModule, String rawModuleKey){
+    private void validateModuleKeyIsNotAlreadyUsedInAnotherProject(ComponentDto baseModule, String rawModuleKey) {
       if (!baseModule.projectUuid().equals(baseModule.uuid()) && !baseModule.projectUuid().equals(rawProject.getUuid())) {
         ComponentDto projectModule = componentDao.selectByUuid(session, baseModule.projectUuid());
         validationMessages.add(String.format("Module \"%s\" is already part of project \"%s\"", rawModuleKey, projectModule.key()));

@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
@@ -35,15 +36,20 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;
+import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.component.db.ComponentDao;
+import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.db.DbClient;
+import org.sonar.test.DbTests;
 
+@Category(DbTests.class)
 public class ValidateProjectStepTest {
 
+  private static long DEFAULT_ANALYSIS_TIME = 1433131200000L; // 2015-06-01
   private static final String PROJECT_KEY = "PROJECT_KEY";
   private static final String MODULE_KEY = "MODULE_KEY";
 
@@ -67,7 +73,7 @@ public class ValidateProjectStepTest {
   @Before
   public void setUp() throws Exception {
     dbTester.truncateTables();
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao());
+    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new SnapshotDao());
     dbSession = dbClient.openSession(false);
     settings = new Settings();
 
@@ -81,7 +87,7 @@ public class ValidateProjectStepTest {
 
   @Test
   public void not_fail_if_provisioning_enforced_and_project_exists() throws Exception {
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder().setAnalysisDate(DEFAULT_ANALYSIS_TIME).build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -101,7 +107,7 @@ public class ValidateProjectStepTest {
     thrown.expect(MessageException.class);
     thrown.expectMessage("Unable to scan non-existing project '" + PROJECT_KEY + "'");
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder().setAnalysisDate(DEFAULT_ANALYSIS_TIME).build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -116,7 +122,7 @@ public class ValidateProjectStepTest {
 
   @Test
   public void fail_if_provisioning_not_enforced_and_project_does_not_exists() throws Exception {
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder().setAnalysisDate(DEFAULT_ANALYSIS_TIME).build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -132,6 +138,7 @@ public class ValidateProjectStepTest {
   @Test
   public void not_fail_on_valid_branch() throws Exception {
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
+      .setAnalysisDate(DEFAULT_ANALYSIS_TIME)
       .setBranch("origin/master")
       .build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
@@ -151,6 +158,7 @@ public class ValidateProjectStepTest {
       "  o \"bran#ch\" is not a valid branch name. Allowed characters are alphanumeric, '-', '_', '.' and '/'.");
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
+      .setAnalysisDate(DEFAULT_ANALYSIS_TIME)
       .setBranch("bran#ch")
       .build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
@@ -172,7 +180,7 @@ public class ValidateProjectStepTest {
       "  o \"Project\\Key\" is not a valid project or module key. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.\n" +
       "  o \"Module$Key\" is not a valid project or module key. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit");
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder().setAnalysisDate(DEFAULT_ANALYSIS_TIME).build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -199,7 +207,7 @@ public class ValidateProjectStepTest {
       "If you really want to stop directly analysing project \"" + MODULE_KEY + "\", please first delete it from SonarQube and then relaunch the analysis of project \""
       + PROJECT_KEY + "\".");
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder().setAnalysisDate(DEFAULT_ANALYSIS_TIME).build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -230,7 +238,7 @@ public class ValidateProjectStepTest {
     thrown.expectMessage("Validation of project failed:\n" +
       "  o Module \"" + MODULE_KEY + "\" is already part of project \"" + anotherProjectKey + "\"");
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder().setAnalysisDate(DEFAULT_ANALYSIS_TIME).build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -266,7 +274,7 @@ public class ValidateProjectStepTest {
       "If you really want to stop directly analysing project \"" + anotherProjectKey + "\", please first delete it from SonarQube and then relaunch the analysis of project \""
       + PROJECT_KEY + "\".");
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder().setAnalysisDate(DEFAULT_ANALYSIS_TIME).build());
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
@@ -288,6 +296,55 @@ public class ValidateProjectStepTest {
     treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
       DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY).build())
       .build());
+
+    sut.execute();
+  }
+
+  @Test
+  public void not_fail_if_analysis_date_is_after_last_analysis() throws Exception {
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
+      .setAnalysisDate(DEFAULT_ANALYSIS_TIME) // 2015-06-01
+      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setKey(PROJECT_KEY)
+      .addChildRef(2)
+      .build());
+
+    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
+    dbClient.componentDao().insert(dbSession, project);
+    dbClient.snapshotDao().insert(dbSession, SnapshotTesting.createForProject(project).setCreatedAt(1420088400000L)); // 2015-01-01
+    dbSession.commit();
+
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
+
+    sut.execute();
+  }
+
+  @Test
+  public void fail_if_analysis_date_is_before_last_analysis() throws Exception {
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("Validation of project failed:");
+    thrown.expectMessage("Date of analysis cannot be older than the date of the last known analysis on this project. Value: ");
+    thrown.expectMessage("Latest analysis: ");
+
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
+      .setAnalysisDate(1420088400000L) // 2015-01-01
+      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setKey(PROJECT_KEY)
+      .addChildRef(2)
+      .build());
+
+    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
+    dbClient.componentDao().insert(dbSession, project);
+    dbClient.snapshotDao().insert(dbSession, SnapshotTesting.createForProject(project).setCreatedAt(1433131200000L)); // 2015-06-01
+    dbSession.commit();
+
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
     sut.execute();
   }
