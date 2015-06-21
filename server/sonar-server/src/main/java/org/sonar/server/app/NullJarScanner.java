@@ -44,6 +44,6 @@ class NullJarScanner implements JarScanner {
 
   @Override
   public void setJarScanFilter(JarScanFilter jarScanFilter) {
-
+    // no need to filter
   }
 }

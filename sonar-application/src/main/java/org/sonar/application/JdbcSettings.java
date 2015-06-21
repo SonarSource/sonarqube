@@ -19,18 +19,17 @@
  */
 package org.sonar.application;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.LoggerFactory;
-import org.sonar.process.MessageException;
-import org.sonar.process.ProcessProperties;
-import org.sonar.process.Props;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.process.MessageException;
+import org.sonar.process.ProcessProperties;
+import org.sonar.process.Props;
 
 public class JdbcSettings {
 
@@ -73,13 +72,13 @@ public class JdbcSettings {
     Pattern pattern = Pattern.compile("jdbc:(\\w+):.+");
     Matcher matcher = pattern.matcher(url);
     if (!matcher.find()) {
-      throw new MessageException(String.format("Bad format of JDBC URL: " + url));
+      throw new MessageException(String.format("Bad format of JDBC URL: %s", url));
     }
     String key = matcher.group(1);
     try {
       return Provider.valueOf(StringUtils.upperCase(key));
     } catch (IllegalArgumentException e) {
-      throw new MessageException(String.format(String.format("Unsupported JDBC driver provider: %s", key)));
+      throw new MessageException(String.format("Unsupported JDBC driver provider: %s", key));
     }
   }
 
@@ -100,7 +99,7 @@ public class JdbcSettings {
 
   private void checkRecommendedParameter(String url, String val) {
     if (!url.contains(val)) {
-      LoggerFactory.getLogger(getClass()).warn(String.format("JDBC URL is recommended to have the property '%s'", val));
+      Loggers.get(getClass()).warn("JDBC URL is recommended to have the property '{}'", val);
     }
   }
 }

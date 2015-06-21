@@ -19,9 +19,8 @@
  */
 package org.sonar.server.charts.deprecated;
 
-import org.jfree.chart.renderer.category.BarRenderer;
-
 import java.awt.*;
+import org.jfree.chart.renderer.category.BarRenderer;
 
 public class CustomBarRenderer extends BarRenderer {
 

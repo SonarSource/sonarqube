@@ -19,6 +19,10 @@
  */
 package org.sonar.server.charts.deprecated;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.Map;
+import java.util.StringTokenizer;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
@@ -30,11 +34,6 @@ import org.jfree.chart.renderer.category.StackedBarRenderer;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.ui.RectangleInsets;
-
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.Map;
-import java.util.StringTokenizer;
 
 public class BarChart extends BaseChartWeb implements DeprecatedChart {
 

@@ -19,17 +19,16 @@
  */
 package org.sonar.server.charts.deprecated;
 
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PiePlot;
-import org.jfree.chart.title.TextTitle;
-import org.jfree.data.general.DefaultPieDataset;
-import org.jfree.ui.RectangleInsets;
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Map;
 import java.util.StringTokenizer;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PiePlot;
+import org.jfree.chart.title.TextTitle;
+import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.ui.RectangleInsets;
 
 public class PieChart extends BaseChartWeb implements DeprecatedChart {
 

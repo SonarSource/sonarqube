@@ -89,7 +89,7 @@ public class ComputationThreadLauncher implements Startable, ServerStartHandler 
     executorService.scheduleAtFixedRate(new ComputationThread(queue, sqContainer, containerFactory), delayForFirstStart, delayBetweenTasks, timeUnit);
   }
 
-  private ThreadFactory newThreadFactory() {
+  private static ThreadFactory newThreadFactory() {
     return new ThreadFactoryBuilder()
       .setNameFormat(THREAD_NAME_PREFIX + "%d").setPriority(Thread.MIN_PRIORITY).build();
   }

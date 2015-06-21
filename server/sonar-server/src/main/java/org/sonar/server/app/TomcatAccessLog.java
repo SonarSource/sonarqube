@@ -40,7 +40,7 @@ class TomcatAccessLog {
     configureLogbackAccess(tomcat, props);
   }
 
-  private void configureLogbackAccess(Tomcat tomcat, Props props) {
+  private static void configureLogbackAccess(Tomcat tomcat, Props props) {
     if (props.valueAsBoolean(PROPERTY_ENABLE, true)) {
       ProgrammaticLogbackValve valve = new ProgrammaticLogbackValve();
       LogbackHelper helper = new LogbackHelper();

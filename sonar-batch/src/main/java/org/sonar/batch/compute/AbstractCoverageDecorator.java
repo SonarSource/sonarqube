@@ -84,7 +84,7 @@ public abstract class AbstractCoverageDecorator implements Decorator {
     }
   }
 
-  private double calculateCoverage(final long coveredLines, final long lines) {
+  private static double calculateCoverage(final long coveredLines, final long lines) {
     return (100.0 * coveredLines) / lines;
   }
 

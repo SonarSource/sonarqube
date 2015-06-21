@@ -19,12 +19,11 @@
  */
 package org.sonar.server.charts.deprecated;
 
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.renderer.AbstractRenderer;
-
 import java.awt.*;
 import java.util.Map;
 import java.util.StringTokenizer;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.renderer.AbstractRenderer;
 
 public abstract class BaseChartWeb extends BaseChart {
 

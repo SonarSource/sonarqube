@@ -19,6 +19,10 @@
  */
 package org.sonar.server.charts.deprecated;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.Map;
+import java.util.StringTokenizer;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.DateTickUnit;
@@ -29,11 +33,6 @@ import org.jfree.chart.title.TextTitle;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
-
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.Map;
-import java.util.StringTokenizer;
 
 public class SparkLinesChart extends BaseChartWeb implements DeprecatedChart {
 

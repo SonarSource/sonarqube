@@ -30,7 +30,7 @@ import javax.annotation.CheckForNull;
 
 public interface Select extends SqlStatement<Select> {
 
-  static class Row {
+  class Row {
     private final ResultSet rs;
 
     Row(ResultSet rs) {
@@ -127,11 +127,11 @@ public interface Select extends SqlStatement<Select> {
     }
   }
 
-  static interface RowReader<T> {
+  interface RowReader<T> {
     T read(Row row) throws SQLException;
   }
 
-  static class LongReader implements RowReader<Long> {
+  class LongReader implements RowReader<Long> {
     private LongReader() {
     }
 
@@ -141,9 +141,9 @@ public interface Select extends SqlStatement<Select> {
     }
   }
 
-  static final RowReader<Long> LONG_READER = new LongReader();
+  RowReader<Long> LONG_READER = new LongReader();
 
-  static class StringReader implements RowReader<String> {
+  class StringReader implements RowReader<String> {
     private StringReader() {
     }
 
@@ -153,9 +153,9 @@ public interface Select extends SqlStatement<Select> {
     }
   }
 
-  static final RowReader<String> STRING_READER = new StringReader();
+  RowReader<String> STRING_READER = new StringReader();
 
-  static interface RowHandler<T> {
+  interface RowHandler {
     void handle(Row row) throws SQLException;
   }
 

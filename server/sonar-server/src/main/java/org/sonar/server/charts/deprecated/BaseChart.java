@@ -19,17 +19,16 @@
  */
 package org.sonar.server.charts.deprecated;
 
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.encoders.KeypointPNGEncoderAdapter;
-import org.jfree.chart.title.LegendTitle;
-import org.jfree.chart.title.TextTitle;
-import org.jfree.ui.RectangleEdge;
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.encoders.KeypointPNGEncoderAdapter;
+import org.jfree.chart.title.LegendTitle;
+import org.jfree.chart.title.TextTitle;
+import org.jfree.ui.RectangleEdge;
 
 public abstract class BaseChart {
 
