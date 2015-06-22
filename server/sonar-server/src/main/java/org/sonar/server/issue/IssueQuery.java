@@ -83,7 +83,6 @@ public class IssueQuery {
   private final Date createdBefore;
   private final String sort;
   private final Boolean asc;
-  private final Boolean ignorePaging;
 
   private final String userLogin;
   private final Set<String> userGroups;
@@ -119,7 +118,6 @@ public class IssueQuery {
     this.createdBefore = builder.createdBefore;
     this.sort = builder.sort;
     this.asc = builder.asc;
-    this.ignorePaging = builder.ignorePaging;
     this.userLogin = builder.userLogin;
     this.userGroups = builder.userGroups;
     this.checkAuthorization = builder.checkAuthorization;
@@ -259,11 +257,6 @@ public class IssueQuery {
   }
 
   @CheckForNull
-  public Boolean ignorePaging() {
-    return ignorePaging;
-  }
-
-  @CheckForNull
   public String userLogin() {
     return userLogin;
   }
@@ -315,7 +308,6 @@ public class IssueQuery {
     private Date createdBefore;
     private String sort;
     private Boolean asc = false;
-    private Boolean ignorePaging = false;
     private String userLogin;
     private Set<String> userGroups;
     private boolean checkAuthorization = true;
@@ -509,11 +501,6 @@ public class IssueQuery {
           + ")");
       }
       return new IssueQuery(this);
-    }
-
-    public Builder ignorePaging(@Nullable Boolean ignorePaging) {
-      this.ignorePaging = ignorePaging;
-      return this;
     }
 
     public Builder userLogin(@Nullable String userLogin) {

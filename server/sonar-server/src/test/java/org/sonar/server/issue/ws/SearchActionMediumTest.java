@@ -95,7 +95,7 @@ public class SearchActionMediumTest {
     assertThat(show.isPost()).isFalse();
     assertThat(show.isInternal()).isFalse();
     assertThat(show.responseExampleAsString()).isNotEmpty();
-    assertThat(show.params()).hasSize(40);
+    assertThat(show.params()).hasSize(39);
   }
 
   @Test
@@ -313,48 +313,6 @@ public class SearchActionMediumTest {
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
     assertThat(result.outputAsString()).contains("\"componentId\":" + file.getId() + ",");
-  }
-
-  @Test
-  public void ignore_paging_with_one_component() throws Exception {
-    RuleDto rule = newRule();
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
-    setDefaultProjectPermission(project);
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
-    for (int i = 0; i < QueryContext.MAX_LIMIT + 1; i++) {
-      IssueDto issue = IssueTesting.newDto(rule, file, project);
-      tester.get(IssueDao.class).insert(session, issue);
-    }
-    session.commit();
-    tester.get(IssueIndexer.class).indexAll();
-
-    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
-      .setParam(IssueFilterParameters.COMPONENTS, file.getKey())
-      .setParam(IssueFilterParameters.IGNORE_PAGING, "true")
-      .execute();
-    result.assertJson(this.getClass(), "ignore_paging_with_one_component.json");
-  }
-
-  @Test
-  public void apply_paging_with_multiple_components() throws Exception {
-    RuleDto rule = newRule();
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
-    setDefaultProjectPermission(project);
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
-    for (int i = 0; i < QueryContext.MAX_LIMIT + 1; i++) {
-      IssueDto issue = IssueTesting.newDto(rule, file, project);
-      tester.get(IssueDao.class).insert(session, issue);
-    }
-    session.commit();
-    tester.get(IssueIndexer.class).indexAll();
-
-    ComponentDto otherFile = insertComponent(ComponentTesting.newFileDto(project).setUuid("FEDC").setKey("OtherComponent"));
-
-    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
-      .setParam(IssueFilterParameters.COMPONENTS, file.getKey() + "," + otherFile.getKey())
-      .setParam(IssueFilterParameters.IGNORE_PAGING, "true")
-      .execute();
-    result.assertJson(this.getClass(), "apply_paging_with_multiple_components.json");
   }
 
   @Test

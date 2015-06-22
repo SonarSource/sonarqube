@@ -201,10 +201,6 @@ public class SearchAction implements IssuesWsAction {
         "Accepted units are 'y' for year, 'm' for month, 'w' for week and 'd' for day. " +
         "If this parameter is set, createdAfter must not be set")
       .setExampleValue("1m2w (1 month 2 weeks)");
-    action.createParam(IssueFilterParameters.IGNORE_PAGING)
-      .setDescription("Return the full list of issues, regardless of paging. For internal use only")
-      .setBooleanPossibleValues()
-      .setDefaultValue("false");
     action.createParam("format")
       .setDescription("Only json format is available. This parameter is kept only for backward compatibility and shouldn't be used anymore");
   }
@@ -273,9 +269,6 @@ public class SearchAction implements IssuesWsAction {
   public final void handle(Request request, Response response) throws Exception {
     SearchOptions options = new SearchOptions();
     options.setPage(request.mandatoryParamAsInt(WebService.Param.PAGE), request.mandatoryParamAsInt(WebService.Param.PAGE_SIZE));
-    if (shouldIgnorePaging(request)) {
-      options.disableLimit();
-    }
     options.addFacets(request.paramAsStrings(WebService.Param.FACETS));
 
     IssueQuery query = issueQueryService.createFromRequest(request);
@@ -292,18 +285,7 @@ public class SearchAction implements IssuesWsAction {
     json.endObject().close();
   }
 
-  private static boolean shouldIgnorePaging(Request request) {
-    List<String> componentUuids = request.paramAsStrings(IssueFilterParameters.COMPONENT_UUIDS);
-    // Paging can be ignored only when querying issues for a single component (e.g in component viewer)
-    return componentUuids != null && componentUuids.size() == 1
-        && BooleanUtils.isTrue(request.paramAsBoolean(IssueFilterParameters.IGNORE_PAGING));
-  }
-
   private SearchResult<IssueDoc> execute(IssueQuery query, SearchOptions options) {
-    Collection<String> components = query.componentUuids();
-    if (components != null && components.size() == 1 && BooleanUtils.isTrue(query.ignorePaging())) {
-      options.disableLimit();
-    }
     return service.search(query, options);
   }
 
