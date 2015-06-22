@@ -26,11 +26,12 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.util.TypeValidations;
+import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.server.measure.custom.ws.CustomMeasuresWs.ENDPOINT;
 
 public class CustomMeasuresWsTest {
   WsTester ws;
@@ -41,7 +42,8 @@ public class CustomMeasuresWsTest {
     UserSession userSession = mock(UserSession.class);
     ws = new WsTester(new CustomMeasuresWs(
       new DeleteAction(dbClient, userSession),
-      new CreateAction(dbClient, userSession, System2.INSTANCE, mock(TypeValidations.class), mock(CustomMeasureJsonWriter.class))
+      new CreateAction(dbClient, userSession, System2.INSTANCE, mock(CustomMeasureValidator.class), mock(CustomMeasureJsonWriter.class), mock(UserIndex.class)),
+      new UpdateAction(dbClient, userSession, System2.INSTANCE, mock(CustomMeasureValidator.class), mock(CustomMeasureJsonWriter.class), mock(UserIndex.class))
       ));
   }
 
@@ -50,18 +52,24 @@ public class CustomMeasuresWsTest {
     WebService.Controller controller = ws.controller("api/custom_measures");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(2);
+    assertThat(controller.actions()).hasSize(3);
   }
 
   @Test
   public void delete_action_properties() {
-    WebService.Action deleteAction = ws.controller("api/custom_measures").action("delete");
+    WebService.Action deleteAction = ws.controller(ENDPOINT).action("delete");
     assertThat(deleteAction.isPost()).isTrue();
   }
 
   @Test
   public void create_action_properties() {
-    WebService.Action action = ws.controller("api/custom_measures").action("create");
+    WebService.Action action = ws.controller(ENDPOINT).action("create");
+    assertThat(action.isPost()).isTrue();
+  }
+
+  @Test
+  public void create_update_properties() {
+    WebService.Action action = ws.controller(ENDPOINT).action("update");
     assertThat(action.isPost()).isTrue();
   }
 }

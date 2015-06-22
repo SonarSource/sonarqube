@@ -20,17 +20,22 @@
 
 package org.sonar.server.measure.custom.ws;
 
+import java.util.Date;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.server.ServerSide;
+import org.sonar.api.user.User;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.measure.custom.db.CustomMeasureDto;
 import org.sonar.core.metric.db.MetricDto;
+import org.sonar.server.user.ws.UserJsonWriter;
 
 import static org.sonar.server.measure.custom.ws.CreateAction.PARAM_DESCRIPTION;
 import static org.sonar.server.measure.custom.ws.CreateAction.PARAM_PROJECT_ID;
 import static org.sonar.server.measure.custom.ws.CreateAction.PARAM_PROJECT_KEY;
 import static org.sonar.server.measure.custom.ws.CreateAction.PARAM_VALUE;
 
+@ServerSide
 public class CustomMeasureJsonWriter {
   private static final String FIELD_ID = "id";
   private static final String FIELD_PROJECT_ID = PARAM_PROJECT_ID;
@@ -41,8 +46,17 @@ public class CustomMeasureJsonWriter {
   private static final String FIELD_METRIC_KEY = "key";
   private static final String FIELD_METRIC_ID = "id";
   private static final String FIELD_METRIC_TYPE = "type";
+  private static final String FIELD_CREATED_AT = "createdAt";
+  private static final String FIELD_UPDATED_AT = "updatedAt";
+  private static final String FIELD_USER = "user";
 
-  public void write(JsonWriter json, CustomMeasureDto measure, MetricDto metric, ComponentDto component) {
+  private final UserJsonWriter userJsonWriter;
+
+  public CustomMeasureJsonWriter(UserJsonWriter userJsonWriter) {
+    this.userJsonWriter = userJsonWriter;
+  }
+
+  public void write(JsonWriter json, CustomMeasureDto measure, MetricDto metric, ComponentDto component, User user) {
     json.beginObject();
     json.prop(FIELD_ID, String.valueOf(measure.getId()));
     json.name(FIELD_METRIC);
@@ -51,6 +65,10 @@ public class CustomMeasureJsonWriter {
     json.prop(FIELD_PROJECT_KEY, component.key());
     json.prop(FIELD_DESCRIPTION, measure.getDescription());
     json.prop(FIELD_VALUE, measureValue(measure, metric));
+    json.propDateTime(FIELD_CREATED_AT, new Date(measure.getCreatedAt()));
+    json.propDateTime(FIELD_UPDATED_AT, new Date(measure.getUpdatedAt()));
+    json.name(FIELD_USER);
+    userJsonWriter.write(json, user);
     json.endObject();
   }
 

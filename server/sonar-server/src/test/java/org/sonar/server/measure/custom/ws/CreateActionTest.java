@@ -20,16 +20,17 @@
 
 package org.sonar.server.measure.custom.ws;
 
-import java.util.Arrays;
 import java.util.List;
 import org.assertj.core.data.Offset;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.utils.System2;
@@ -42,6 +43,7 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
@@ -49,17 +51,16 @@ import org.sonar.server.measure.custom.persistence.CustomMeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.server.metric.ws.MetricTesting;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.util.BooleanTypeValidation;
-import org.sonar.server.util.FloatTypeValidation;
-import org.sonar.server.util.IntegerTypeValidation;
-import org.sonar.server.util.LongTypeValidation;
-import org.sonar.server.util.MetricLevelTypeValidation;
-import org.sonar.server.util.TypeValidations;
+import org.sonar.server.user.index.UserDoc;
+import org.sonar.server.user.index.UserIndex;
+import org.sonar.server.user.index.UserIndexDefinition;
+import org.sonar.server.user.ws.UserJsonWriter;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
+import static org.sonar.server.util.TypeValidationsTesting.newFullTypeValidations;
 
 @Category(DbTests.class)
 public class CreateActionTest {
@@ -72,20 +73,30 @@ public class CreateActionTest {
   public ExpectedException expectedException = ExpectedException.none();
   @ClassRule
   public static DbTester db = new DbTester();
+  @ClassRule
+  public static EsTester es = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
   DbClient dbClient;
   DbSession dbSession;
 
   WsTester ws;
 
+  @BeforeClass
+  public static void setUpClass() throws Exception {
+    es.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, new UserDoc()
+      .setLogin("login")
+      .setName("Login")
+      .setEmail("login@login.com")
+      .setActive(true));
+  }
+
   @Before
   public void setUp() {
     dbClient = new DbClient(db.database(), db.myBatis(), new CustomMeasureDao(), new MetricDao(), new ComponentDao());
     dbSession = dbClient.openSession(false);
-    TypeValidations typeValidations = new TypeValidations(Arrays.asList(new BooleanTypeValidation(), new IntegerTypeValidation(), new FloatTypeValidation(),
-      new MetricLevelTypeValidation(), new LongTypeValidation()));
-    ws = new WsTester(new CustomMeasuresWs(new CreateAction(dbClient, userSession, System2.INSTANCE, typeValidations, new CustomMeasureJsonWriter())));
+    ws = new WsTester(new CustomMeasuresWs(new CreateAction(dbClient, userSession, System2.INSTANCE, new CustomMeasureValidator(newFullTypeValidations()),
+      new CustomMeasureJsonWriter(new UserJsonWriter(userSession)), new UserIndex(es.client()))));
     db.truncateTables();
-    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   @After
@@ -186,7 +197,7 @@ public class CreateActionTest {
   }
 
   @Test
-  public void create_float_custom_measure_indb() throws Exception {
+  public void create_float_custom_measure_in_db() throws Exception {
     MetricDto metric = insertMetricAndProject(ValueType.FLOAT, DEFAULT_PROJECT_UUID);
 
     newRequest()

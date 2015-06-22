@@ -38,6 +38,10 @@ public class CustomMeasureDao implements DaoComponent {
     mapper(session).insert(customMeasureDto);
   }
 
+  public void update(DbSession session, CustomMeasureDto customMeasure) {
+    mapper(session).update(customMeasure);
+  }
+
   public void delete(DbSession session, long id) {
     mapper(session).delete(id);
   }
@@ -60,7 +64,7 @@ public class CustomMeasureDao implements DaoComponent {
   public CustomMeasureDto selectById(DbSession session, long id) {
     CustomMeasureDto customMeasure = selectNullableById(session, id);
     if (customMeasure == null) {
-      throw new NotFoundException(String.format("CustomMeasure '%d' not found", id));
+      throw new NotFoundException(String.format("Custom measure '%d' not found.", id));
     }
     return customMeasure;
   }

@@ -27,8 +27,10 @@ public class CustomMeasuresWsModule extends Module {
   protected void configureModule() {
     add(
       CustomMeasuresWs.class,
+      CreateAction.class,
+      UpdateAction.class,
       DeleteAction.class,
       CustomMeasureJsonWriter.class,
-      CreateAction.class);
+      CustomMeasureValidator.class);
   }
 }

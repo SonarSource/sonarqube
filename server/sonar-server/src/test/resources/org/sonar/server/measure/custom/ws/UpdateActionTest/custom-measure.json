@@ -5,8 +5,8 @@
     "key": "metric-key",
     "type": "STRING"
   },
-  "value": "custom-measure-free-text",
-  "description": "custom-measure-description",
+  "value": "new-text-measure-value",
+  "description": "new-custom-measure-description",
   "user": {
     "active": true,
     "email": "login@login.com",

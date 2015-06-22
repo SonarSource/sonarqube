@@ -47,6 +47,16 @@
     )
   </insert>
 
+  <update id="update" parameterType="CustomMeasure">
+    update manual_measures
+    set value = #{value, jdbcType=DOUBLE},
+    text_value = #{textValue, jdbcType=VARCHAR},
+    description = #{description, jdbcType=VARCHAR},
+    user_login = #{userLogin, jdbcType=VARCHAR},
+    updated_at = #{updatedAt, jdbcType=BIGINT}
+    where id = #{id}
+  </update>
+
   <delete id="deleteByMetricIds">
     delete from manual_measures
     where metric_id in

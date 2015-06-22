@@ -18,25 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.measure.custom.db;
+package org.sonar.server.util;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
+import java.util.Arrays;
 
-public interface CustomMeasureMapper {
-  void insert(CustomMeasureDto customMeasure);
+public class TypeValidationsTesting {
+  private TypeValidationsTesting() {
+    // utility class
+  }
 
-  void update(CustomMeasureDto customMeasure);
-
-  void delete(long id);
-
-  void deleteByMetricIds(@Param("metricIds") List<Integer> metricIds);
-
-  CustomMeasureDto selectById(long id);
-
-  List<CustomMeasureDto> selectByMetricId(int id);
-
-  List<CustomMeasureDto> selectByComponentUuid(String s);
-
-  int countByComponentIdAndMetricId(@Param("componentUuid") String componentUuid, @Param("metricId") int metricId);
+  public static TypeValidations newFullTypeValidations() {
+    return new TypeValidations(Arrays.asList(
+      new BooleanTypeValidation(),
+      new IntegerTypeValidation(),
+      new LongTypeValidation(),
+      new FloatTypeValidation(),
+      new StringTypeValidation(),
+      new StringListTypeValidation(),
+      new MetricLevelTypeValidation()
+      ));
+  }
 }
