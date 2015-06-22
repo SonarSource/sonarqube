@@ -708,7 +708,7 @@ public class Measure<G extends Serializable> implements Serializable {
 
   private static boolean isZeroVariation(Double... variations) {
     for (Double variation : variations) {
-      if (!((variation == null) || NumberUtils.compare(variation, 0.0) == 0)) {
+      if (variation != null && NumberUtils.compare(variation, 0.0) != 0) {
         return false;
       }
     }

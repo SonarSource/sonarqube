@@ -20,6 +20,8 @@
 
 package org.sonar.server.computation.step;
 
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
@@ -32,6 +34,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.measure.BestValueOptimization;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.measure.MeasureToMeasureDto;
@@ -39,6 +42,7 @@ import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.db.DbClient;
 
+import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor.Order.PRE_ORDER;
 
 public class PersistMeasuresStep implements ComputationStep {
@@ -93,10 +97,10 @@ public class PersistMeasuresStep implements ComputationStep {
       long componentId = dbIdsRepository.getComponentId(component);
       long snapshotId = dbIdsRepository.getSnapshotId(component);
 
-      persistMeasures(measures, componentId, snapshotId);
+      persistMeasures(component, measures, componentId, snapshotId);
     }
 
-    private void persistMeasures(Multimap<String, Measure> batchReportMeasures, long componentId, long snapshotId) {
+    private void persistMeasures(Component component, Multimap<String, Measure> batchReportMeasures, long componentId, long snapshotId) {
       for (Map.Entry<String, Collection<Measure>> measures : batchReportMeasures.asMap().entrySet()) {
         String metricKey = measures.getKey();
         if (FORBIDDEN_METRIC_KEYS.contains(metricKey)) {
@@ -104,7 +108,8 @@ public class PersistMeasuresStep implements ComputationStep {
         }
 
         Metric metric = metricRepository.getByKey(metricKey);
-        for (Measure measure : measures.getValue()) {
+        Predicate<Measure> notBestValueOptimization = Predicates.not(BestValueOptimization.from(metric, component));
+        for (Measure measure : from(measures.getValue()).filter(notBestValueOptimization)) {
           MeasureDto measureDto = MeasureToMeasureDto.INSTANCE.toMeasureDto(measure, metric, componentId, snapshotId);
           dbClient.measureDao().insert(session, measureDto);
         }

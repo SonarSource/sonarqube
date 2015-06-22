@@ -65,7 +65,10 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   private static final String PROJECT_KEY = "PROJECT_KEY";
   private static final String STRING_METRIC_KEY = "string-metric-key";
   private static final String DOUBLE_METRIC_KEY = "double-metric-key";
+  private static final String OPTIMIZED_METRIC_KEY = "optimized-metric-key";
   private static final RuleKey RULE_KEY = RuleKey.of("repo", "rule-key");
+  private static final int PROJECT_REF = 1;
+  private static final int FILE_REF = 2;
 
   @ClassRule
   public static DbTester dbTester = new DbTester();
@@ -79,7 +82,10 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   DbIdsRepository dbIdsRepository = new DbIdsRepository();
   MetricDto stringMetric;
   MetricDto doubleMetric;
+  MetricDto optimizedMetric;
   RuleDto rule;
+  ComponentDto projectDto;
+  ComponentDto fileDto;
 
   PersistMeasuresStep sut;
 
@@ -94,6 +100,9 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     dbClient.metricDao().insert(session, stringMetric);
     doubleMetric = new MetricDto().setValueType("FLOAT").setShortName("Double metric").setKey(DOUBLE_METRIC_KEY).setEnabled(true);
     dbClient.metricDao().insert(session, doubleMetric);
+    optimizedMetric = new MetricDto().setValueType("BOOL").setShortName("Optimized metric").setKey(OPTIMIZED_METRIC_KEY).setEnabled(true).setOptimizedBestValue(true)
+      .setBestValue(1d);
+    dbClient.metricDao().insert(session, optimizedMetric);
     rule = RuleTesting.newDto(RULE_KEY);
     dbClient.ruleDao().insert(session, rule);
     session.commit();
@@ -105,6 +114,18 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     session.commit();
 
     sut = new PersistMeasuresStep(dbClient, metricRepository, dbIdsRepository, treeRootHolder, measureRepository);
+
+    projectDto = addComponent("project-key");
+    fileDto = addComponent("file-key");
+
+    Component file = DumbComponent.builder(Component.Type.FILE, FILE_REF).setUuid("CDEF").setKey("MODULE_KEY:file").build();
+    Component project = DumbComponent.builder(Component.Type.PROJECT, PROJECT_REF).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(file).build();
+    treeRootHolder.setRoot(project);
+
+    dbIdsRepository.setComponentId(project, projectDto.getId());
+    dbIdsRepository.setSnapshotId(project, 3L);
+    dbIdsRepository.setComponentId(file, fileDto.getId());
+    dbIdsRepository.setSnapshotId(file, 4L);
   }
 
   @After
@@ -114,19 +135,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
   @Test
   public void insert_measures_from_report() throws Exception {
-    ComponentDto projectDto = addComponent("project-key");
-    ComponentDto fileDto = addComponent("file-key");
-
-    Component file = DumbComponent.builder(Component.Type.FILE, 2).setUuid("CDEF").setKey("MODULE_KEY:file").build();
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(file).build();
-    treeRootHolder.setRoot(project);
-
-    dbIdsRepository.setComponentId(project, projectDto.getId());
-    dbIdsRepository.setSnapshotId(project, 3L);
-    dbIdsRepository.setComponentId(file, fileDto.getId());
-    dbIdsRepository.setSnapshotId(file, 4L);
-
-    reportReader.putMeasures(1, Arrays.asList(
+    reportReader.putMeasures(PROJECT_REF, Arrays.asList(
       BatchReport.Measure.newBuilder()
         .setValueType(MeasureValueType.STRING)
         .setStringValue("measure-data")
@@ -142,7 +151,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
         .setCharactericId(123456)
         .build()));
 
-    reportReader.putMeasures(2, Arrays.asList(
+    reportReader.putMeasures(FILE_REF, Arrays.asList(
       BatchReport.Measure.newBuilder()
         .setValueType(MeasureValueType.DOUBLE)
         .setDoubleValue(123.123d)
@@ -161,11 +170,9 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     sut.execute();
     session.commit();
 
-    assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(2);
+    assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(FILE_REF);
 
-    List<Map<String, Object>> dtos = dbTester.select(
-      "select snapshot_id as \"snapshotId\", project_id as \"componentId\", metric_id as \"metricId\", rule_id as \"ruleId\", value as \"value\", text_value as \"textValue\", " +
-        "rule_priority as \"severity\" from project_measures");
+    List<Map<String, Object>> dtos = retrieveDtos();
 
     Map<String, Object> dto = dtos.get(0);
     assertThat(dto.get("snapshotId")).isEqualTo(3L);
@@ -175,7 +182,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dto.get("textValue")).isEqualTo("measure-data");
     assertThat(dto.get("severity")).isNull();
 
-    dto = dtos.get(1);
+    dto = dtos.get(PROJECT_REF);
     assertThat(dto.get("snapshotId")).isEqualTo(4L);
     assertThat(dto.get("componentId")).isEqualTo(fileDto.getId());
     assertThat(dto.get("metricId")).isEqualTo(doubleMetric.getId().longValue());
@@ -183,6 +190,27 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dto.get("characteristicId")).isNull();
     assertThat(dto.get("value")).isEqualTo(123.123d);
     assertThat(dto.get("severity")).isNull();
+  }
+
+  private List<Map<String, Object>> retrieveDtos() {
+    return dbTester.select(
+      "select snapshot_id as \"snapshotId\", project_id as \"componentId\", metric_id as \"metricId\", rule_id as \"ruleId\", value as \"value\", text_value as \"textValue\", " +
+        "rule_priority as \"severity\" from project_measures");
+  }
+
+  @Test
+  public void bestValue_measure_of_bestValueOptimized_metrics_are_not_persisted() {
+    reportReader.putMeasures(FILE_REF, Arrays.asList(
+      BatchReport.Measure.newBuilder()
+        .setValueType(MeasureValueType.BOOLEAN)
+        .setBooleanValue(true)
+        .setMetricKey(OPTIMIZED_METRIC_KEY)
+        .build()));
+
+    sut.execute();
+    session.commit();
+
+    assertThat(retrieveDtos()).isEmpty();
   }
 
   private ComponentDto addComponent(String key) {
