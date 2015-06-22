@@ -119,6 +119,7 @@ module.exports = (grunt) ->
         tasks: [
           'uglify:build'
           # apps
+          'build-app:account'
           'build-app:api-documentation'
           'build-app:coding-rules'
           'build-app:computation'

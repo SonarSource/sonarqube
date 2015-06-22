@@ -69,13 +69,10 @@
   </div>
 </div>
 
-<script>
-  (function ($) {
-    $('html').addClass('dashboard-page');
-
-    <% if configuration('sonar.lf.enableGravatar', true) %>
-    var avatarHtml = Handlebars.helpers.avatarHelper('<%= current_user.email %>', 100).string;
-    $('.js-avatar').html(avatarHtml);
-    <% end %>
-  })(window.jQuery);
-</script>
+<% content_for :extra_script do %>
+  <script>
+    require(['apps/account/app'], function (App) {
+      App.start();
+    });
+  </script>
+<% end %>
