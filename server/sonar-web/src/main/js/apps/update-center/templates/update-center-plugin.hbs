@@ -1,0 +1,120 @@
+<div class="display-inline-block text-top width-20">
+  <div>
+    <strong class="js-plugin-name">{{name}}</strong>
+    {{#if category}}
+      <span class="badge spacer-left">{{category}}</span>
+    {{/if}}
+  </div>
+  <div class="js-plugin-description little-spacer-top">{{{description}}}</div>
+</div>
+
+<div class="display-inline-block text-top width-40 big-spacer-left">
+  <div class="pull-left spacer-right">
+    <strong>Versions</strong>
+  </div>
+  <ul class="overflow-hidden bordered-left">
+    {{#if version}}
+      <li class="spacer-left little-spacer-bottom">
+        <strong>{{version}}</strong>&nbsp;installed
+      </li>
+    {{/if}}
+    {{#notEmpty updates}}
+      <li class="spacer-left little-spacer-bottom spacer-top">
+        <strong>Updates:</strong>
+      </li>
+      {{#each updates}}
+        <li class="spacer-left little-spacer-bottom">
+          <div class="pull-left spacer-right">
+            {{#notEq status 'COMPATIBLE'}}
+              <span class="badge badge-warning" data-toggle="tooltip" title="{{t 'update_center.status' status}}">
+                {{release.version}}
+              </span>
+            {{else}}
+              <span class="badge badge-success">{{release.version}}</span>
+            {{/notEq}}
+          </div>
+          <div class="overflow-hidden">
+            {{{release.description}}}
+            <button class="button-link js-changelog issue-rule icon-ellipsis-h" data-idx="{{@index}}"></button>
+          </div>
+        </li>
+      {{/each}}
+    {{/notEmpty}}
+    {{#if release}}
+      <li class="spacer-left little-spacer-bottom">
+        <div class="pull-left spacer-right">
+          <span class="badge badge-success">{{release.version}}</span>
+        </div>
+        <div class="overflow-hidden">
+          {{{release.description}}}
+          {{#notEmpty update.requires}}
+            <p class="little-spacer-top">
+              <strong>Requires</strong>: {{#each update.requires}}{{name}}{{/each}}
+            </p>
+          {{/notEmpty}}
+        </div>
+      </li>
+    {{/if}}
+  </ul>
+</div>
+
+<div class="display-inline-block text-top width-20 big-spacer-left">
+  <ul>
+    {{#any homepageUrl issueTrackerUrl termsAndConditionsUrl}}
+      <li class="little-spacer-bottom">
+        <ul class="list-inline">
+          {{#if homepageUrl}}
+            <li><a href="{{homepageUrl}}">Homepage</a></li>
+          {{/if}}
+          {{#if issueTrackerUrl}}
+            <li><a href="{{issueTrackerUrl}}">Issue Tracker</a></li>
+          {{/if}}
+          {{#if termsAndConditionsUrl}}
+            <li><a href="{{termsAndConditionsUrl}}">Terms and Conditions</a></li>
+          {{/if}}
+        </ul>
+      </li>
+    {{/any}}
+
+    {{#if license}}
+      <li class="little-spacer-bottom">Licensed under {{license}}</li>
+    {{/if}}
+
+    {{#if organizationName}}
+      <li class="little-spacer-bottom">
+        Developed by
+        {{#if organizationUrl}}
+          <a href="{{organizationUrl}}">{{organizationName}}</a>
+        {{else}}
+          {{organizationName}}
+        {{/if}}
+      </li>
+    {{/if}}
+  </ul>
+</div>
+
+<div class="pull-right big-spacer-left nowrap text-right">
+  {{#eq _status 'installing'}}
+    <p class="text-success">To Be Installed</p>
+  {{/eq}}
+
+  {{#eq _status 'uninstalling'}}
+    <p class="text-danger">To Be Uninstalled</p>
+  {{/eq}}
+
+  {{#unless _status}}
+    <i class="js-spinner spinner hidden"></i>
+    <div class="js-actions button-group">
+      {{#each updates}}
+        {{#eq status 'COMPATIBLE'}}
+          <button class="js-update" data-verion="{{release.version}}">Update to {{release.version}}</button>
+        {{/eq}}
+      {{/each}}
+      {{#if version}}
+        <button class="js-uninstall button-red">Uninstall</button>
+      {{else}}
+        <button class="js-install">Install</button>
+      {{/if}}
+    </div>
+  {{/unless}}
+</div>

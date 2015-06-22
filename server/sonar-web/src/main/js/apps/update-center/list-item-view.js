@@ -1,0 +1,81 @@
+define([
+  './plugin-changelog-view',
+  './templates'
+], function (PluginChangelogView) {
+
+  var $ = jQuery;
+
+  return Marionette.ItemView.extend({
+    tagName: 'li',
+    className: 'panel panel-vertical',
+    template: Templates['update-center-plugin'],
+    systemTemplate: Templates['update-center-system-update'],
+
+    modelEvents: {
+      'change:_hidden': 'toggleDisplay',
+      'change': 'onModelChange',
+      'request': 'onRequest'
+    },
+
+    events: {
+      'click .js-changelog': 'onChangelogClick',
+      'click .js-install': 'install',
+      'click .js-update': 'update',
+      'click .js-uninstall': 'uninstall'
+    },
+
+    getTemplate: function () {
+      return this.model.get('_system') ? this.systemTemplate : this.template;
+    },
+
+    onRender: function () {
+      this.$el.attr('data-id', this.model.id);
+      this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
+    },
+
+    onDestroy: function () {
+      this.$('[data-toggle="tooltip"]').tooltip('destroy');
+    },
+
+    onModelChange: function () {
+      if (!this.model.hasChanged('_hidden')) {
+        this.render();
+      }
+    },
+
+    onChangelogClick: function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      $('body').click();
+      var index = $(e.currentTarget).data('idx'),
+          update = this.model.get('updates')[index],
+          popup = new PluginChangelogView({
+            triggerEl: $(e.currentTarget),
+            model: new Backbone.Model(update)
+          });
+      popup.render();
+    },
+
+    onRequest: function () {
+      this.$('.js-actions').addClass('hidden');
+      this.$('.js-spinner').removeClass('hidden');
+    },
+
+    toggleDisplay: function () {
+      this.$el.toggleClass('hidden', this.model.get('_hidden'));
+    },
+
+    install: function () {
+      this.model.install();
+    },
+
+    update: function () {
+      this.model.update();
+    },
+
+    uninstall: function () {
+      this.model.uninstall();
+    }
+  });
+
+});

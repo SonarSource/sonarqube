@@ -25,7 +25,7 @@
   padding: 10px;
 }
 
-.panel + .panel {
+.panel:not(.hidden) + .panel {
   margin-top: 10px;
   padding-top: 20px;
   border-top: 1px solid @barBorderColor;
@@ -44,6 +44,12 @@
 .panel-info {
   border: 1px solid @blue;
   background-color: @lightBlue;
+}
+
+.panel-warning {
+  border: 1px solid #faebcc;
+  background-color: #fcf8e3;
+  color: #8a6d3b;
 }
 
 .panel-danger {

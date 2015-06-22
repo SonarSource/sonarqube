@@ -1,0 +1,27 @@
+<div class="panel panel-vertical bordered-bottom spacer-bottom">
+  <div class="display-inline-block text-top big-spacer-right">
+    <ul class="radio-toggle">
+      <li>
+        <input type="radio" name="update-center-filter" value="installed" id="update-center-filter-installed"
+               {{#eq state.section 'installed'}}checked{{/eq}}>
+        <label for="update-center-filter-installed">Installed</label>
+      </li>
+      <li>
+        <input type="radio" name="update-center-filter" value="updates" id="update-center-filter-updates"
+               {{#eq state.section 'updates'}}checked{{/eq}}>
+        <label for="update-center-filter-updates">Updates</label>
+      </li>
+      <li>
+        <input type="radio" name="update-center-filter" value="available" id="update-center-filter-available"
+               {{#eq state.section 'available'}}checked{{/eq}}>
+        <label for="update-center-filter-available">Available</label>
+      </li>
+    </ul>
+  </div>
+
+  <form id="update-center-search-form" class="search-box display-inline-block text-top">
+    <button id="update-center-search-submit" class="search-box-submit button-clean"><i class="icon-search"></i></button>
+    <input id="update-center-search-query" class="search-box-input" type="search" name="q" placeholder="Search"
+           maxlength="100" autocomplete="off">
+  </form>
+</div>

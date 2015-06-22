@@ -135,6 +135,7 @@ module.exports = (grunt) ->
           'build-app:quality-profiles'
           'build-app:source-viewer'
           'build-app:users'
+          'build-app:update-center'
           # widgets
           'build-widget:issue-filter'
           # other
@@ -239,6 +240,9 @@ module.exports = (grunt) ->
           ]
           '<%= BUILD_PATH %>/js/apps/account/templates.js': [
             '<%= SOURCE_PATH %>/js/apps/account/templates/**/*.hbs'
+          ],
+          '<%= BUILD_PATH %>/js/apps/update-center/templates.js': [
+            '<%= SOURCE_PATH %>/js/apps/update-center/templates/**/*.hbs'
           ]
 
 

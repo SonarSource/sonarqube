@@ -215,3 +215,55 @@ em.mandatory {
   color: #990000;
   font-style: italic;
 }
+
+label[for] {
+  cursor: pointer;
+}
+
+.radio-toggle {
+  font-size: 0;
+
+  & > li {
+    display: inline-block;
+    vertical-align: middle;
+    font-size: @smallFontSize;
+
+    &:first-child > label {
+      padding-left: 16px;
+      border-top-left-radius: @formControlHeight;
+      border-bottom-left-radius: @formControlHeight;
+    }
+
+    &:last-child > label {
+      padding-right: 16px;
+      border-top-right-radius: @formControlHeight;
+      border-bottom-right-radius: @formControlHeight;
+    }
+  }
+
+  & > li + li > label { border-left: none; }
+
+  & > li > label {
+    @padding-top: (@formControlHeight - 16px) / 2;
+    display: inline-block;
+    padding: (@padding-top - 1px) 12px (@padding-top + 1px);
+    margin: 0;
+    border: 1px solid @barBorderColor;
+
+    &:hover {
+      background-color: @barBackgroundColor;
+    }
+  }
+
+  input[type="radio"] {
+    display: none;
+  }
+
+  input[type="radio"]:checked + label {
+    border-color: @blue;
+    background-color: @blue;
+    color: #fff;
+    font-weight: 500;
+  }
+
+}

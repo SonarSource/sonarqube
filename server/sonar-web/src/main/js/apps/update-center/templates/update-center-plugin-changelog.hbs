@@ -1,0 +1,42 @@
+<div class="bubble-popup-container">
+  <div class="bubble-popup-title">Changelog</div>
+
+  <ul>
+    {{#each previousUpdates}}
+      <li class="spacer-bottom">
+        <div class="pull-left spacer-right">
+          <span class="badge badge-success little-spacer-bottom">{{release.version}}</span>
+        </div>
+        <div class="pull-left spacer-right">
+          <p class="note">{{d release.date}}</p>
+        </div>
+        {{#if release.changeLogUrl}}
+          <div class="pull-right spacer-left">
+            <a href="{{release.changeLogUrl}}">Release Notes</a>
+          </div>
+        {{/if}}
+        <div class="overflow-hidden">
+          {{{release.description}}}
+        </div>
+      </li>
+    {{/each}}
+    <li class="spacer-bottom">
+      <div class="pull-left spacer-right">
+        <span class="badge badge-success little-spacer-bottom">{{release.version}}</span>
+      </div>
+      <div class="pull-left spacer-right">
+        <p class="note">{{d release.date}}</p>
+      </div>
+      {{#if release.changeLogUrl}}
+        <div class="pull-right spacer-left">
+          <a href="{{release.changeLogUrl}}">Release Notes</a>
+        </div>
+      {{/if}}
+      <div class="overflow-hidden">
+        {{{release.description}}}
+      </div>
+    </li>
+  </ul>
+</div>
+
+<div class="bubble-popup-arrow"></div>
