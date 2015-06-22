@@ -5,7 +5,7 @@
 <div>
   <div id="bd">
     <div id="nonav" class="page-simple">
-      <%= yield %>
+      <div id="content"><%= yield %></div>
     </div>
   </div>
 </div>
@@ -28,5 +28,7 @@
     $('html').addClass('dashboard-page');
   })(window.jQuery);
 </script>
+
+<%= yield :extra_script -%>
 
 </body></html>
