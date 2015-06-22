@@ -146,7 +146,7 @@ public class MeasureRepositoryImpl implements MeasureRepository {
     addLocal(component, metric, measure, OverridePolicy.OVERRIDE);
   }
 
-  private void checkValueTypeConsistency(Metric metric, Measure measure) {
+  private static void checkValueTypeConsistency(Metric metric, Measure measure) {
     checkArgument(
       measure.getValueType() == Measure.ValueType.NO_VALUE || measure.getValueType() == metric.getType().getValueType(),
       format(

@@ -34,6 +34,7 @@ import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
 
 import static java.util.Objects.requireNonNull;
+import static org.sonar.server.computation.measure.Measure.Level.ERROR;
 
 public final class EvaluationResultTextConverterImpl implements EvaluationResultTextConverter {
   private static final String VARIATION_METRIC_PREFIX = "new_";
@@ -91,7 +92,7 @@ public final class EvaluationResultTextConverterImpl implements EvaluationResult
   }
 
   private String alertValue(Condition condition, Measure.Level level) {
-    String value = (level == Measure.Level.ERROR ? condition.getErrorThreshold() : condition.getWarningThreshold());
+    String value = level == ERROR ? condition.getErrorThreshold() : condition.getWarningThreshold();
     if (condition.getMetric().getType() == Metric.MetricType.WORK_DUR) {
       return formatDuration(value);
     }

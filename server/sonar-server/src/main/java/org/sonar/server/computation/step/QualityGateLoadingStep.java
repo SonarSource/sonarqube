@@ -84,8 +84,7 @@ public class QualityGateLoadingStep implements ComputationStep {
       Optional<QualityGate> qualityGate = qualityGateService.findById(qualityGateId);
       if (qualityGate.isPresent()) {
         qualityGateHolder.setQualityGate(qualityGate.get());
-      }
-      else {
+      } else {
         qualityGateHolder.setNoQualityGate();
       }
     } catch (NumberFormatException e) {

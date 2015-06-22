@@ -52,7 +52,7 @@ public class QualityGateDetailsData {
     return details.toString();
   }
 
-  private JsonObject toJson(EvaluatedCondition evaluatedCondition) {
+  private static JsonObject toJson(EvaluatedCondition evaluatedCondition) {
     Condition condition = evaluatedCondition.getCondition();
 
     JsonObject result = new JsonObject();

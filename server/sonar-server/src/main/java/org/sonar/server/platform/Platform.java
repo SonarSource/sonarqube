@@ -19,13 +19,12 @@
  */
 package org.sonar.server.platform;
 
+import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
-
 import javax.annotation.CheckForNull;
 import javax.servlet.ServletContext;
-
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -40,8 +39,6 @@ import org.sonar.server.platform.platformlevel.PlatformLevel4;
 import org.sonar.server.platform.platformlevel.PlatformLevelSafeMode;
 import org.sonar.server.platform.platformlevel.PlatformLevelStartup;
 
-import com.google.common.collect.Lists;
-
 /**
  * @since 2.2
  */
@@ -53,7 +50,11 @@ public class Platform {
 
   private Properties properties;
   private ServletContext servletContext;
-  private PlatformLevel level1, level2, levelSafeMode, level3, level4;
+  private PlatformLevel level1;
+  private PlatformLevel level2;
+  private PlatformLevel levelSafeMode;
+  private PlatformLevel level3;
+  private PlatformLevel level4;
   private PlatformLevel currentLevel;
   private boolean dbConnected = false;
   private boolean started = false;

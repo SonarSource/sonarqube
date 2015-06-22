@@ -26,7 +26,6 @@ import com.google.common.collect.Sets;
 import java.util.Set;
 import org.junit.Test;
 import org.picocontainer.ComponentAdapter;
-import org.reflections.Reflections;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.computation.step.ComputationStep;
@@ -59,7 +58,7 @@ public class ComputeEngineContainerImplTest {
   public void all_steps_from_package_step_are_present_in_container() {
     ComputeEngineContainerImpl ceContainer = new ComputeEngineContainerImpl(new ComponentContainer(), mock(ReportQueue.Item.class));
 
-    Set<String> stepsCanonicalNames = retrieveStepPackageStepsCanonicalNames();
+    Set<String> stepsCanonicalNames = StepsExplorer.retrieveStepPackageStepsCanonicalNames();
 
     Set<String> typesInContainer = Sets.newHashSet(
       Iterables.transform(
@@ -68,7 +67,7 @@ public class ComputeEngineContainerImplTest {
             ceContainer.getPicoContainer().getComponentAdapters(),
             ComponentAdapterToImplementationClass.INSTANCE),
           IsComputationStep.INSTANCE),
-        ClassToCanonicalName.INSTANCE));
+        StepsExplorer.ClassToCanonicalName.INSTANCE));
 
     assertThat(typesInContainer).isEqualTo(stepsCanonicalNames);
   }
@@ -78,24 +77,6 @@ public class ComputeEngineContainerImplTest {
     ReportQueue.Item item = mock(ReportQueue.Item.class);
 
     assertThat(new ComputeEngineContainerImpl(new ComponentContainer(), item).getItem()).isSameAs(item);
-  }
-
-  /**
-   * Compute set of canonical names of classes implementing ComputationStep in package step using reflection.
-   */
-  private Set<String> retrieveStepPackageStepsCanonicalNames() {
-    Reflections reflections = new Reflections("org.sonar.server.computation.step");
-
-    return Sets.newHashSet(Iterables.transform(reflections.getSubTypesOf(ComputationStep.class), ClassToCanonicalName.INSTANCE));
-  }
-
-  private enum ClassToCanonicalName implements Function<Class<?>, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(Class<?> input) {
-      return input.getCanonicalName();
-    }
   }
 
   private enum ComponentAdapterToImplementationClass implements Function<ComponentAdapter<?>, Class<?>> {

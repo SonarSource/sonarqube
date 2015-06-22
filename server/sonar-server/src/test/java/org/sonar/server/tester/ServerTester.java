@@ -38,6 +38,7 @@ import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.resources.Language;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.platform.ComponentContainer;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.EsServerHolder;
 import org.sonar.server.platform.BackendCleanup;
@@ -232,6 +233,10 @@ public class ServerTester extends ExternalResource {
   public <C> C get(Class<C> component) {
     checkStarted();
     return platform.getContainer().getComponentByType(component);
+  }
+
+  public ComponentContainer getContainer() {
+    return platform.getContainer();
   }
 
   public WsTester wsTester() {
