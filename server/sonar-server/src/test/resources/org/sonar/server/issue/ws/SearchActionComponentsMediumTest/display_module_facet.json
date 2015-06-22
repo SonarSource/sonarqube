@@ -10,7 +10,7 @@
     { "key": "MySubModule1" },
     { "key": "MySubModule2" },
     { "key": "MySubModule3" },
-    { "key": "MyComponent1" },
+    { "key": "MyComponent1" }
   ],
   "issues": [
     {

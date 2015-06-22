@@ -52,6 +52,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.component.ws.ComponentJsonWriter;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -65,6 +66,8 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.user.ws.UserJsonWriter;
+
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
@@ -88,11 +91,13 @@ public class SearchAction implements IssuesWsAction {
   private final Languages languages;
   private final UserSession userSession;
   private final IssueJsonWriter issueWriter;
+  private final UserJsonWriter userWriter;
   private final IssueComponentHelper issueComponentHelper;
+  private final ComponentJsonWriter componentWriter;
 
   public SearchAction(DbClient dbClient, IssueService service, IssueQueryService issueQueryService,
     RuleService ruleService, ActionPlanService actionPlanService, UserFinder userFinder, I18n i18n, Languages languages,
-    UserSession userSession, IssueJsonWriter issueWriter, IssueComponentHelper issueComponentHelper) {
+    UserSession userSession, IssueJsonWriter issueWriter, IssueComponentHelper issueComponentHelper, ComponentJsonWriter componentWriter, UserJsonWriter userWriter) {
     this.dbClient = dbClient;
     this.service = service;
     this.issueQueryService = issueQueryService;
@@ -103,7 +108,9 @@ public class SearchAction implements IssuesWsAction {
     this.languages = languages;
     this.userSession = userSession;
     this.issueWriter = issueWriter;
+    this.userWriter = userWriter;
     this.issueComponentHelper = issueComponentHelper;
+    this.componentWriter = componentWriter;
   }
 
   @Override
@@ -499,20 +506,7 @@ public class SearchAction implements IssuesWsAction {
     json.name("components").beginArray();
     for (ComponentDto component : components) {
       ComponentDto project = projectsByComponentUuid.get(component.uuid());
-      json.beginObject()
-        .prop("uuid", component.uuid())
-        .prop("key", component.key())
-        .prop("id", component.getId())
-        .prop("enabled", component.isEnabled())
-        .prop("qualifier", component.qualifier())
-        .prop("name", component.name())
-        .prop("longName", component.longName())
-        .prop("path", component.path())
-        // On a root project, parentProjectId is null but projectId is equal to itself, which make no sense.
-        .prop("projectId", (component.projectUuid() != null && component.parentProjectId() != null) ? project.getId() : null)
-        // TODO should be renamed to parentProjectId
-        .prop("subProjectId", component.parentProjectId())
-        .endObject();
+      componentWriter.write(json, component, project);
     }
     json.endArray();
   }
@@ -532,15 +526,10 @@ public class SearchAction implements IssuesWsAction {
     json.endArray();
   }
 
-  private static void writeUsers(JsonWriter json, Map<String, User> usersByLogin) {
+  private void writeUsers(JsonWriter json, Map<String, User> usersByLogin) {
     json.name("users").beginArray();
     for (User user : usersByLogin.values()) {
-      json.beginObject()
-        .prop("login", user.login())
-        .prop("name", user.name())
-        .prop("active", user.active())
-        .prop("email", user.email())
-        .endObject();
+      userWriter.write(json, user);
     }
     json.endArray();
   }

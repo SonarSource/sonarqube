@@ -64,6 +64,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
+import org.sonar.server.component.ws.ComponentJsonWriter;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
@@ -110,6 +111,7 @@ public class InternalRubyIssueService {
   private final IssueBulkChangeService issueBulkChangeService;
   private final IssueJsonWriter issueWriter;
   private final IssueComponentHelper issueComponentHelper;
+  private final ComponentJsonWriter componentWriter;
   private final UserIndex userIndex;
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -122,7 +124,7 @@ public class InternalRubyIssueService {
     IssueChangelogService changelogService, ActionPlanService actionPlanService,
     ResourceDao resourceDao, ActionService actionService,
     IssueFilterService issueFilterService, IssueBulkChangeService issueBulkChangeService,
-    IssueJsonWriter issueWriter, IssueComponentHelper issueComponentHelper, UserIndex userIndex, DbClient dbClient,
+    IssueJsonWriter issueWriter, IssueComponentHelper issueComponentHelper, ComponentJsonWriter componentWriter, UserIndex userIndex, DbClient dbClient,
     UserSession userSession, UserJsonWriter userWriter) {
     this.issueService = issueService;
     this.issueQueryService = issueQueryService;
@@ -135,6 +137,7 @@ public class InternalRubyIssueService {
     this.issueBulkChangeService = issueBulkChangeService;
     this.issueWriter = issueWriter;
     this.issueComponentHelper = issueComponentHelper;
+    this.componentWriter = componentWriter;
     this.userIndex = userIndex;
     this.dbClient = dbClient;
     this.userSession = userSession;
@@ -752,6 +755,18 @@ public class InternalRubyIssueService {
       String assignee = issue.assignee();
       if (assignee != null && usersByLogin.containsKey(assignee)) {
         userWriter.write(json, usersByLogin.get(assignee));
+      }
+      json.endArray();
+
+      json.name("projects").beginArray();
+      for (ComponentDto project : projectDtos) {
+        componentWriter.write(json, project, project);
+      }
+      json.endArray();
+
+      json.name("components").beginArray();
+      for (ComponentDto component : componentDtos) {
+        componentWriter.write(json, component, projectsByComponentUuid.get(component.uuid()));
       }
       json.endArray();
 

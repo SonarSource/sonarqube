@@ -43,6 +43,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
+import org.sonar.server.component.ws.ComponentJsonWriter;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
@@ -104,6 +105,8 @@ public class InternalRubyIssueServiceTest {
 
   UserJsonWriter userWriter;
 
+  ComponentJsonWriter componentWriter;
+
   @Before
   public void setUp() {
     issueService = mock(IssueService.class);
@@ -121,12 +124,13 @@ public class InternalRubyIssueServiceTest {
     dbClient = mock(DbClient.class);
     dbSession = mock(DbSession.class);
     userWriter = mock(UserJsonWriter.class);
+    userWriter = mock(UserJsonWriter.class);
 
     ResourceDto project = new ResourceDto().setKey("org.sonar.Sample");
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(project);
 
     service = new InternalRubyIssueService(issueService, issueQueryService, commentService, changelogService, actionPlanService, resourceDao, actionService,
-      issueFilterService, issueBulkChangeService, issueWriter, issueComponentHelper, userIndex, dbClient, userSessionRule, userWriter);
+      issueFilterService, issueBulkChangeService, issueWriter, issueComponentHelper, componentWriter, userIndex, dbClient, userSessionRule, userWriter);
   }
 
   @Test
