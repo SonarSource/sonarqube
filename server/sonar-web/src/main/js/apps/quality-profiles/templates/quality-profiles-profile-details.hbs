@@ -34,21 +34,20 @@
       {{/notEmpty}}
     </div>
 
-    <div class="column-third" id="quality-profile-permalinks">
-      <header class="page-header">
-        <h3 class="page-title">{{t 'permalinks'}}</h3>
-      </header>
-      <ul class="list-inline">
-        <li>
-          <a href="{{exporterUrl this null}}" target="_blank"><i class="icon-detach"></i>&nbsp;{{t 'quality_profiles.export_all_rules'}}</a>
-        </li>
-        {{#each exporters}}
-          <li>
-            <a href="{{exporterUrl ../this key}}" target="_blank"><i class="icon-detach"></i>&nbsp;{{name}}</a>
-          </li>
-        {{/each}}
-      </ul>
-    </div>
+    {{#notEmpty exporters}}
+      <div class="column-third" id="quality-profile-permalinks">
+        <header class="page-header">
+          <h3 class="page-title">{{t 'permalinks'}}</h3>
+        </header>
+        <ul class="list-inline">
+          {{#each exporters}}
+            <li>
+              <a href="{{exporterUrl ../this key}}" target="_blank"><i class="icon-detach"></i>&nbsp;{{name}}</a>
+            </li>
+          {{/each}}
+        </ul>
+      </div>
+    {{/notEmpty}}
   </div>
 </div>
 
