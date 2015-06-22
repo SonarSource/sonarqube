@@ -1,6 +1,7 @@
-<div class="search-navigator sticky search-navigator-extended-view" id="quality-gates"></div>
-<script>
-  require(['apps/quality-gates/app'], function (App) {
-    App.start({ el: '#quality-gates' });
-  });
-</script>
+<% content_for :extra_script do %>
+  <script>
+    require(['apps/quality-gates/app'], function (App) {
+      App.start({ el: '#content', urlRoot: baseUrl + '/quality_gates' });
+    });
+  </script>
+<% end %>

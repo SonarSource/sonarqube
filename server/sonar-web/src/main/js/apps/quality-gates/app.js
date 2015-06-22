@@ -40,7 +40,7 @@ define([
     this.router = new Router({ app: this });
     Backbone.history.start({
       pushState: true,
-      root: getRoot()
+      root: options.urlRoot
     });
   };
 
@@ -56,13 +56,6 @@ define([
       init.call(App, options);
     });
   });
-
-  function getRoot () {
-    var ROOT = '/quality_gates',
-        path = window.location.pathname,
-        pos = path.indexOf(ROOT);
-    return path.substr(0, pos + ROOT.length);
-  }
 
   return App;
 

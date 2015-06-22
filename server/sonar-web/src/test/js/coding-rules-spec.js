@@ -5,7 +5,7 @@ describe('Coding Rules App', function () {
 
   it('should show alert when there is no available profiles for activation', 2, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app-no-available-profiles.json');
           lib.fmock('/api/rules/search', 'search-no-available-profiles.json');
@@ -15,7 +15,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
           });
         })
 
@@ -42,7 +44,7 @@ describe('Coding Rules App', function () {
 
   it('should show profile facet', 6, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search-profile-facet-qprofile-active.json', { data: { activation: true } });
@@ -53,7 +55,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
           });
         })
 
@@ -93,7 +97,7 @@ describe('Coding Rules App', function () {
 
   it('should show query facet', 3, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search-query.json', { data: { q: 'query' } });
@@ -102,7 +106,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
           });
         })
 
@@ -135,7 +141,7 @@ describe('Coding Rules App', function () {
 
   it('should show rule permalink', 1, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search.json');
@@ -145,7 +151,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
           });
         })
 
@@ -166,7 +174,7 @@ describe('Coding Rules App', function () {
 
   it('should activate profile', 5, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search.json');
@@ -177,7 +185,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
           });
         })
 
@@ -214,7 +224,7 @@ describe('Coding Rules App', function () {
 
   it('should create custom rule', 1, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           this.customRulesSearchMock = lib.fmock('/api/rules/search', 'search-custom-rules.json',
@@ -227,7 +237,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
           });
         })
 
@@ -260,7 +272,7 @@ describe('Coding Rules App', function () {
 
   it('should reactivate custom rule', 2, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           this.customRulesSearchMock = lib.fmock('/api/rules/search', 'search-custom-rules.json',
@@ -273,7 +285,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -319,7 +333,7 @@ describe('Coding Rules App', function () {
 
   it('should create manual rule', 3, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search-create-manual-rule.json');
@@ -330,7 +344,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
           });
         })
 
@@ -361,7 +377,7 @@ describe('Coding Rules App', function () {
 
   it('should reactivate manual rule', 7, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search-create-manual-rule.json');
@@ -372,7 +388,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -415,7 +433,7 @@ describe('Coding Rules App', function () {
 
   it('should delete custom rules', 1, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search-delete-custom-rule-custom-rules.json',
@@ -428,7 +446,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
           });
         })
 
@@ -452,7 +472,7 @@ describe('Coding Rules App', function () {
 
   it('should delete manual rules', 1, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           this.searchMock = lib.fmock('/api/rules/search', 'search-delete-manual-rule-before.json');
@@ -463,7 +483,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
           });
         })
 
@@ -496,7 +518,7 @@ describe('Coding Rules App', function () {
 
   it('should show custom rules', 3, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search-show-cutsom-rule-custom-rules.json',
@@ -508,7 +530,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
           });
         })
 
@@ -532,7 +556,7 @@ describe('Coding Rules App', function () {
 
   it('should show deprecated label', 1, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search-deprecated.json');
@@ -540,7 +564,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
           });
         })
 
@@ -555,7 +581,7 @@ describe('Coding Rules App', function () {
 
   it('should show rule details', 20, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search-show-details.json');
@@ -565,7 +591,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
           });
         })
 
@@ -610,7 +638,7 @@ describe('Coding Rules App', function () {
 
   it('should show empty list', 3, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search-empty.json');
@@ -618,7 +646,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
           });
         })
 
@@ -635,7 +665,7 @@ describe('Coding Rules App', function () {
 
   it('should show facets', 1, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search.json');
@@ -643,7 +673,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
           });
         })
 
@@ -658,7 +690,7 @@ describe('Coding Rules App', function () {
 
   it('should show rule', 7, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search.json');
@@ -666,7 +698,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
           });
         })
 
@@ -687,7 +721,7 @@ describe('Coding Rules App', function () {
 
   it('should show rule issues', 5, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search.json');
@@ -697,7 +731,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
           });
         })
 
@@ -722,7 +758,7 @@ describe('Coding Rules App', function () {
 
   it('should show rules', 4, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search.json');
@@ -730,7 +766,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
           });
         })
 
@@ -749,7 +787,7 @@ describe('Coding Rules App', function () {
 
   it('should move between rules from detailed view', 3, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search.json');
@@ -758,7 +796,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
           });
         })
 
@@ -801,7 +841,7 @@ describe('Coding Rules App', function () {
 
   it('should filter similar rules', 3, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search-sql-tag.json', { data: { tags: 'sql' } });
@@ -810,7 +850,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
           });
         })
 
@@ -839,7 +881,7 @@ describe('Coding Rules App', function () {
 
   it('should show active severity facet', 7, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search-BLOCKER.json', { data: { active_severities: 'BLOCKER' } });
@@ -852,7 +894,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
           });
         })
 
@@ -898,7 +942,7 @@ describe('Coding Rules App', function () {
 
   it('should show available since facet', 2, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search-limited.json', { data: { available_since: '2014-12-01' } });
@@ -907,7 +951,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
           });
         })
 
@@ -934,7 +980,7 @@ describe('Coding Rules App', function () {
 
   it('should bulk activate', 7, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search.json');
@@ -943,7 +989,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -989,7 +1037,7 @@ describe('Coding Rules App', function () {
 
   it('should fail to bulk activate', 6, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search.json');
@@ -998,7 +1046,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -1043,7 +1093,7 @@ describe('Coding Rules App', function () {
 
   it('should filter profiles by language during bulk change', 4, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search.json');
@@ -1051,7 +1101,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -1083,7 +1135,7 @@ describe('Coding Rules App', function () {
 
   it('should change selected profile during bulk change', 4, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search-qprofile-active.json',
@@ -1094,7 +1146,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -1138,7 +1192,7 @@ describe('Coding Rules App', function () {
 
   it('should show characteristic facet', 6, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
 
           lib.smock('/api/l10n/index', '{}');
@@ -1156,7 +1210,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -1201,7 +1257,7 @@ describe('Coding Rules App', function () {
 
   it('should disable characteristic facet', 6, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.smock('/api/l10n/index', '{}');
           lib.fmock('/api/rules/app', 'app.json');
@@ -1218,7 +1274,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -1296,7 +1354,7 @@ describe('Coding Rules App', function () {
 
   it('should show template facet', 4, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.smock('/api/l10n/index', '{}');
           lib.fmock('/api/rules/app', 'app.json');
@@ -1307,7 +1365,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -1350,7 +1410,7 @@ describe('Coding Rules App', function () {
 
   it('should show language facet', 5, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
 
           lib.smock('/api/l10n/index', '{}');
@@ -1363,7 +1423,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -1406,7 +1468,7 @@ describe('Coding Rules App', function () {
 
   it('should reload results', 2, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
 
           lib.smock('/api/l10n/index', '{}');
@@ -1416,7 +1478,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -1440,7 +1504,7 @@ describe('Coding Rules App', function () {
 
   it('should do a new search', 3, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.smock('/api/l10n/index', '{}');
           lib.fmock('/api/rules/app', 'app.json');
@@ -1450,7 +1514,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -1478,7 +1544,7 @@ describe('Coding Rules App', function () {
 
   it('should go back', 2, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.smock('/api/l10n/index', '{}');
           lib.fmock('/api/rules/app', 'app.json');
@@ -1488,7 +1554,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -1512,7 +1580,7 @@ describe('Coding Rules App', function () {
 
   it('should show inheritance facet', 11, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/rules/app', 'app.json');
           lib.fmock('/api/rules/search', 'search-not-inherited.json', { data: { inheritance: 'NONE' } });
@@ -1527,7 +1595,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
           });
         })
 
@@ -1592,7 +1662,7 @@ describe('Coding Rules App', function () {
 
   it('should show activation details', 5, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.smock('/api/l10n/index', '{}');
           lib.fmock('/api/rules/app', 'app.json');
@@ -1602,7 +1672,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -1632,7 +1704,7 @@ describe('Coding Rules App', function () {
 
   it('should activate rule', 9, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.smock('/api/l10n/index', '{}');
           lib.fmock('/api/rules/app', 'app.json');
@@ -1643,7 +1715,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -1688,7 +1762,7 @@ describe('Coding Rules App', function () {
 
   it('should deactivate rule', 6, function (casper, test) {
     return casper
-        .start(lib.buildUrl('coding-rules'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.smock('/api/l10n/index', '{}');
           lib.fmock('/api/rules/app', 'app.json');
@@ -1699,7 +1773,9 @@ describe('Coding Rules App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/coding-rules/app']);
+            require(['apps/coding-rules/app'], function (App) {
+              App.start({ el: '#content' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })

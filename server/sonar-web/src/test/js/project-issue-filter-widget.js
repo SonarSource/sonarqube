@@ -30,7 +30,7 @@ lib.configureCasper();
 
 casper.test.begin(testName('Unresolved Issues By Severity'), 13, function (test) {
   casper
-      .start(lib.buildUrl('issue-filter-widget'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -43,7 +43,7 @@ casper.test.begin(testName('Unresolved Issues By Severity'), 13, function (test)
           require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
-                el: '#issue-filter-widget',
+                el: '#content',
                 query: 'resolved=false',
                 distributionAxis: 'severities',
                 componentUuid: '69e57151-be0d-4157-adff-c06741d88879',
@@ -55,7 +55,7 @@ casper.test.begin(testName('Unresolved Issues By Severity'), 13, function (test)
       })
 
       .then(function () {
-        casper.waitForSelector('#issue-filter-widget > table');
+        casper.waitForSelector('#content > table');
       })
 
       .then(function () {
@@ -91,7 +91,7 @@ casper.test.begin(testName('Unresolved Issues By Severity'), 13, function (test)
 
 casper.test.begin(testName('Unresolved Issues By Date'), 18, function (test) {
   casper
-      .start(lib.buildUrl('issue-filter-widget'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -104,7 +104,7 @@ casper.test.begin(testName('Unresolved Issues By Date'), 18, function (test) {
           require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
-                el: '#issue-filter-widget',
+                el: '#content',
                 query: 'resolved=false',
                 distributionAxis: 'createdAt',
                 componentUuid: '69e57151-be0d-4157-adff-c06741d88879',
@@ -116,7 +116,7 @@ casper.test.begin(testName('Unresolved Issues By Date'), 18, function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('#issue-filter-widget > table');
+        casper.waitForSelector('#content > table');
       })
 
       .then(function () {
@@ -161,7 +161,7 @@ casper.test.begin(testName('Unresolved Issues By Date'), 18, function (test) {
 
 casper.test.begin(testName('Unresolved Issues By Severity With Differential Period'), 13, function (test) {
   casper
-      .start(lib.buildUrl('issue-filter-widget'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -174,7 +174,7 @@ casper.test.begin(testName('Unresolved Issues By Severity With Differential Peri
           require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
-                el: '#issue-filter-widget',
+                el: '#content',
                 query: 'resolved=false',
                 distributionAxis: 'severities',
                 periodDate: '2014-12-09T17:12:38+0100',
@@ -187,7 +187,7 @@ casper.test.begin(testName('Unresolved Issues By Severity With Differential Peri
       })
 
       .then(function () {
-        casper.waitForSelector('#issue-filter-widget > table');
+        casper.waitForSelector('#content > table');
       })
 
       .then(function () {
@@ -223,7 +223,7 @@ casper.test.begin(testName('Unresolved Issues By Severity With Differential Peri
 
 casper.test.begin(testName('Unresolved Issues By Severity With IGNORED Differential Period'), 19, function (test) {
   casper
-      .start(lib.buildUrl('issue-filter-widget'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -237,7 +237,7 @@ casper.test.begin(testName('Unresolved Issues By Severity With IGNORED Different
           require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
-                el: '#issue-filter-widget',
+                el: '#content',
                 query: 'resolved=false|createdInLast=1w',
                 distributionAxis: 'severities',
                 periodDate: '2014-12-09T17:12:38+0100',
@@ -250,7 +250,7 @@ casper.test.begin(testName('Unresolved Issues By Severity With IGNORED Different
       })
 
       .then(function () {
-        casper.waitForSelector('#issue-filter-widget > table');
+        casper.waitForSelector('#content > table');
       })
 
       .then(function () {

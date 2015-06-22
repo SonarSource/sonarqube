@@ -29,7 +29,7 @@ lib.configureCasper();
 
 casper.test.begin(testName('source-viewer-should-not-show-source-if-no-permission'), function (test) {
   casper
-      .start(lib.buildUrl('source-viewer'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -40,7 +40,10 @@ casper.test.begin(testName('source-viewer-should-not-show-source-if-no-permissio
 
       .then(function () {
         casper.evaluate(function () {
-          require(['apps/source-viewer/app']);
+          var file = { uuid: 'uuid', key: 'key' };
+          require(['apps/source-viewer/app'], function (App) {
+            App.start({ el: '#content', file: file });
+          });
         });
       })
 

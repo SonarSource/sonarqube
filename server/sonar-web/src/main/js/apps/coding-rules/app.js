@@ -1,37 +1,18 @@
-/*
- * SonarQube, open source software quality management tool.
- * Copyright (C) 2008-2014 SonarSource
- * mailto:contact AT sonarsource DOT com
- *
- * SonarQube is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * SonarQube is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
 define([
-  './models/state',
-  './layout',
-  './models/rules',
-  'components/navigator/models/facets',
+      './models/state',
+      './layout',
+      './models/rules',
+      'components/navigator/models/facets',
 
-  './controller',
-  'components/navigator/router',
+      './controller',
+      'components/navigator/router',
 
-  './workspace-list-view',
-  './workspace-header-view',
+      './workspace-list-view',
+      './workspace-header-view',
 
-  './facets-view',
-  './filters-view'
-],
+      './facets-view',
+      './filters-view'
+    ],
     function (State,
               Layout,
               Rules,
@@ -44,59 +25,48 @@ define([
               FiltersView) {
 
       var $ = jQuery,
-          App = new Marionette.Application();
+          App = new Marionette.Application(),
+          init = function (options) {
+            this.layout = new Layout({ el: options.el });
+            this.layout.render();
+            $('#footer').addClass('search-navigator-footer');
 
-      App.addInitializer(function () {
-        this.layout = new Layout();
-        $('.coding-rules').empty().append(this.layout.render().el);
-        $('#footer').addClass('search-navigator-footer');
-      });
+            this.state = new State();
+            this.list = new Rules();
+            this.facets = new Facets();
 
-      App.addInitializer(function () {
-        this.state = new State();
-        this.list = new Rules();
-        this.facets = new Facets();
-      });
+            this.controller = new Controller({ app: this });
 
-      App.addInitializer(function () {
-        this.controller = new Controller({
-          app: this
-        });
-      });
+            this.workspaceListView = new WorkspaceListView({
+              app: this,
+              collection: this.list
+            });
+            this.layout.workspaceListRegion.show(this.workspaceListView);
+            this.workspaceListView.bindScrollEvents();
 
-      App.addInitializer(function () {
-        this.workspaceListView = new WorkspaceListView({
-          app: this,
-          collection: this.list
-        });
-        this.layout.workspaceListRegion.show(this.workspaceListView);
-        this.workspaceListView.bindScrollEvents();
+            this.workspaceHeaderView = new WorkspaceHeaderView({
+              app: this,
+              collection: this.list
+            });
+            this.layout.workspaceHeaderRegion.show(this.workspaceHeaderView);
 
-        this.workspaceHeaderView = new WorkspaceHeaderView({
-          app: this,
-          collection: this.list
-        });
-        this.layout.workspaceHeaderRegion.show(this.workspaceHeaderView);
+            this.facetsView = new FacetsView({
+              app: this,
+              collection: this.facets
+            });
+            this.layout.facetsRegion.show(this.facetsView);
 
-        this.facetsView = new FacetsView({
-          app: this,
-          collection: this.facets
-        });
-        this.layout.facetsRegion.show(this.facetsView);
+            this.filtersView = new FiltersView({
+              app: this
+            });
+            this.layout.filtersRegion.show(this.filtersView);
 
-        this.filtersView = new FiltersView({
-          app: this
-        });
-        this.layout.filtersRegion.show(this.filtersView);
-      });
-
-      App.addInitializer(function () {
-        key.setScope('list');
-        this.router = new Router({
-          app: this
-        });
-        Backbone.history.start();
-      });
+            key.setScope('list');
+            this.router = new Router({
+              app: this
+            });
+            Backbone.history.start();
+          };
 
       App.manualRepository = function () {
         return {
@@ -116,13 +86,13 @@ define([
         }
       };
 
-      var appXHR = $.get(baseUrl + '/api/rules/app').done(function(r) {
+      var appXHR = $.get(baseUrl + '/api/rules/app').done(function (r) {
         App.canWrite = r.canWrite;
         App.qualityProfiles = _.sortBy(r.qualityprofiles, ['name', 'lang']);
         App.languages = _.extend(r.languages, {
           none: 'None'
         });
-        _.map(App.qualityProfiles, function(profile) {
+        _.map(App.qualityProfiles, function (profile) {
           profile.language = App.languages[profile.lang];
         });
         App.repositories = r.repositories;
@@ -133,8 +103,12 @@ define([
         });
       });
 
-      $.when(window.requestMessages(), appXHR).done(function () {
-        App.start();
+      App.on('start', function (options) {
+        $.when(window.requestMessages(), appXHR).done(function () {
+          init.call(App, options);
+        });
       });
+
+      return App;
 
     });

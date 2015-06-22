@@ -30,7 +30,7 @@ lib.configureCasper();
 
 casper.test.begin(testName('Open From Component Viewer'), 8, function (test) {
   casper
-      .start(lib.buildUrl('source-viewer'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/components/app', 'app.json');
@@ -41,7 +41,10 @@ casper.test.begin(testName('Open From Component Viewer'), 8, function (test) {
       .then(function () {
         casper.evaluate(function () {
           window.localStorage.removeItem('sonarqube-workspace');
-          require(['apps/source-viewer/app']);
+          var file = { uuid: 'uuid', key: 'key' };
+          require(['apps/source-viewer/app'], function (App) {
+            App.start({ el: '#content', file: file });
+          });
         });
       })
 
@@ -89,7 +92,7 @@ casper.test.begin(testName('Open From Component Viewer'), 8, function (test) {
 
 casper.test.begin(testName('Load From Local Storage'), 7, function (test) {
   casper
-      .start(lib.buildUrl('nav'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/components/app', 'app.json');
@@ -102,8 +105,9 @@ casper.test.begin(testName('Load From Local Storage'), 7, function (test) {
           window.localStorage.setItem('sonarqube-workspace',
               '[{"uuid":"12345","type":"component","name":"Cache.java","q":"FIL"}]');
           window.SS.isUserAdmin = false;
-          window.navbarOptions = new Backbone.Model();
-          require(['apps/nav/app']);
+          require(['apps/nav/app'], function (App) {
+            App.start();
+          });
         });
       })
 
@@ -142,7 +146,7 @@ casper.test.begin(testName('Load From Local Storage'), 7, function (test) {
 
 casper.test.begin(testName('Close From Nav'), 2, function (test) {
   casper
-      .start(lib.buildUrl('nav'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/components/app', 'app.json');
@@ -155,8 +159,9 @@ casper.test.begin(testName('Close From Nav'), 2, function (test) {
           window.localStorage.setItem('sonarqube-workspace',
               '[{"uuid":"12345","type":"component","name":"Cache.java","q":"FIL"}]');
           window.SS.isUserAdmin = false;
-          window.navbarOptions = new Backbone.Model();
-          require(['apps/nav/app']);
+          require(['apps/nav/app'], function (App) {
+            App.start();
+          });
         });
       })
 
@@ -187,7 +192,7 @@ casper.test.begin(testName('Close From Nav'), 2, function (test) {
 
 casper.test.begin(testName('Minimize'), 2, function (test) {
   casper
-      .start(lib.buildUrl('source-viewer'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/components/app', 'app.json');
@@ -198,7 +203,10 @@ casper.test.begin(testName('Minimize'), 2, function (test) {
       .then(function () {
         casper.evaluate(function () {
           window.localStorage.removeItem('sonarqube-workspace');
-          require(['apps/source-viewer/app']);
+          var file = { uuid: 'uuid', key: 'key' };
+          require(['apps/source-viewer/app'], function (App) {
+            App.start({ el: '#content', file: file });
+          });
         });
       })
 
@@ -235,7 +243,7 @@ casper.test.begin(testName('Minimize'), 2, function (test) {
 
 casper.test.begin(testName('Full Screen'), 6, function (test) {
   casper
-      .start(lib.buildUrl('source-viewer'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/components/app', 'app.json');
@@ -246,7 +254,10 @@ casper.test.begin(testName('Full Screen'), 6, function (test) {
       .then(function () {
         casper.evaluate(function () {
           window.localStorage.removeItem('sonarqube-workspace');
-          require(['apps/source-viewer/app']);
+          var file = { uuid: 'uuid', key: 'key' };
+          require(['apps/source-viewer/app'], function (App) {
+            App.start({ el: '#content', file: file });
+          });
         });
       })
 
@@ -290,7 +301,7 @@ casper.test.begin(testName('Full Screen'), 6, function (test) {
 
 casper.test.begin(testName('Rule'), 3, function (test) {
   casper
-      .start(lib.buildUrl('nav'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/rules/show', 'rule.json');
@@ -301,8 +312,9 @@ casper.test.begin(testName('Rule'), 3, function (test) {
           window.localStorage.setItem('sonarqube-workspace',
               '[{"key":"common-java:InsufficientBranchCoverage","type":"rule"}]');
           window.SS.isUserAdmin = false;
-          window.navbarOptions = new Backbone.Model();
-          require(['apps/nav/app']);
+          require(['apps/nav/app'], function (App) {
+            App.start();
+          });
         });
       })
 

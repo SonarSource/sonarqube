@@ -29,7 +29,6 @@ define([
   var $ = jQuery,
       App = new Marionette.Application(),
       init = function (options) {
-
         // State
         this.state = new Backbone.Model({ internal: false });
 
@@ -65,7 +64,7 @@ define([
         this.router = new Router({ app: this });
         Backbone.history.start({
           pushState: true,
-          root: getRoot()
+          root: options.urlRoot
         });
       };
 
@@ -74,13 +73,6 @@ define([
       init.call(App, options);
     });
   });
-
-  function getRoot () {
-    var API_DOCUMENTATION = '/api_documentation',
-        path = window.location.pathname,
-        pos = path.indexOf(API_DOCUMENTATION);
-    return path.substr(0, pos + API_DOCUMENTATION.length);
-  }
 
   return App;
 

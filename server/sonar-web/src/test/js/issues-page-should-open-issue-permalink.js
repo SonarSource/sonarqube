@@ -32,7 +32,7 @@ var issueKey = 'some-issue-key';
 
 casper.test.begin('issues-page-should-open-issue-permalink', 3, function (test) {
   casper
-      .start(lib.buildUrl('issues#issues=' + encodeURI(issueKey)), function () {
+      .start(lib.buildUrl('base#issues=' + encodeURI(issueKey)), function () {
         lib.setDefaultViewport();
 
 
@@ -45,7 +45,9 @@ casper.test.begin('issues-page-should-open-issue-permalink', 3, function (test) 
 
       .then(function () {
         casper.evaluate(function () {
-          require(['apps/issues/app-new']);
+          require(['apps/issues/app-new'], function (App) {
+            App.start({ el: '#content' });
+          });
         });
       })
 

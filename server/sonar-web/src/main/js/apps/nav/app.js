@@ -27,53 +27,54 @@ define([
 
   var $ = jQuery,
       App = new Marionette.Application(),
-      state = new State();
+      init = function (options) {
+        var state = new State(options);
+        state.fetchGlobal();
 
-  state.set(window.navbarOptions.toJSON());
+        this.navbarView = new GlobalNavbarView({
+          app: App,
+          el: $('.navbar-global'),
+          model: state
+        });
+        this.navbarView.render();
 
-  App.on('start', function () {
-    state.fetchGlobal();
-
-    this.navbarView = new GlobalNavbarView({
-      app: App,
-      el: $('.navbar-global'),
-      model: state
-    });
-    this.navbarView.render();
-
-    if (state.get('space') === 'component') {
-      state.fetchComponent();
-      this.contextNavbarView = new ContextNavbarView({
-        app: App,
-        el: $('.navbar-context'),
-        model: state
-      });
-      this.contextNavbarView.render();
-    }
-
-    if (state.get('space') === 'settings') {
-      state.fetchSettings();
-      this.settingsNavbarView = new SettingsNavbarView({
-        app: App,
-        el: $('.navbar-context'),
-        model: state
-      });
-      this.settingsNavbarView.render();
-    }
-
-    $(window).on('keypress', function (e) {
-      var tagName = e.target.tagName;
-      if (tagName !== 'INPUT' && tagName !== 'SELECT' && tagName !== 'TEXTAREA') {
-        var code = e.keyCode || e.which;
-        if (code === 63) {
-          App.navbarView.showShortcutsHelp();
+        if (state.get('space') === 'component') {
+          state.fetchComponent();
+          this.contextNavbarView = new ContextNavbarView({
+            app: App,
+            el: $('.navbar-context'),
+            model: state
+          });
+          this.contextNavbarView.render();
         }
-      }
+
+        if (state.get('space') === 'settings') {
+          state.fetchSettings();
+          this.settingsNavbarView = new SettingsNavbarView({
+            app: App,
+            el: $('.navbar-context'),
+            model: state
+          });
+          this.settingsNavbarView.render();
+        }
+
+        $(window).on('keypress', function (e) {
+          var tagName = e.target.tagName;
+          if (tagName !== 'INPUT' && tagName !== 'SELECT' && tagName !== 'TEXTAREA') {
+            var code = e.keyCode || e.which;
+            if (code === 63) {
+              App.navbarView.showShortcutsHelp();
+            }
+          }
+        });
+      };
+
+  App.on('start', function (options) {
+    $.when(window.requestMessages()).done(function () {
+      init.call(App, options);
     });
   });
 
-  window.requestMessages().done(function () {
-    App.start();
-  });
+  return App;
 
 });

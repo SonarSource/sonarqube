@@ -30,7 +30,7 @@ lib.configureCasper();
 
 casper.test.begin(testName('Unresolved Issues By Severity'), 13, function (test) {
   casper
-      .start(lib.buildUrl('issue-filter-widget'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -43,7 +43,7 @@ casper.test.begin(testName('Unresolved Issues By Severity'), 13, function (test)
           require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
-                el: '#issue-filter-widget',
+                el: '#content',
                 query: 'resolved=false',
                 distributionAxis: 'severities'
               });
@@ -53,7 +53,7 @@ casper.test.begin(testName('Unresolved Issues By Severity'), 13, function (test)
       })
 
       .then(function () {
-        casper.waitForSelector('#issue-filter-widget > table');
+        casper.waitForSelector('#content > table');
       })
 
       .then(function () {
@@ -89,7 +89,7 @@ casper.test.begin(testName('Unresolved Issues By Severity'), 13, function (test)
 
 casper.test.begin(testName('Red Issues By Severity'), 9, function (test) {
   casper
-      .start(lib.buildUrl('issue-filter-widget'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -102,7 +102,7 @@ casper.test.begin(testName('Red Issues By Severity'), 9, function (test) {
           require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
-                el: '#issue-filter-widget',
+                el: '#content',
                 query: 'resolved=false|severities=BLOCKER,CRITICAL,MAJOR',
                 distributionAxis: 'severities'
               });
@@ -112,7 +112,7 @@ casper.test.begin(testName('Red Issues By Severity'), 9, function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('#issue-filter-widget > table');
+        casper.waitForSelector('#content > table');
       })
 
       .then(function () {
@@ -144,7 +144,7 @@ casper.test.begin(testName('Red Issues By Severity'), 9, function (test) {
 
 casper.test.begin(testName('All Issues By Status'), 9, function (test) {
   casper
-      .start(lib.buildUrl('issue-filter-widget'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -156,7 +156,7 @@ casper.test.begin(testName('All Issues By Status'), 9, function (test) {
           require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
-                el: '#issue-filter-widget',
+                el: '#content',
                 query: '',
                 distributionAxis: 'statuses'
               });
@@ -166,7 +166,7 @@ casper.test.begin(testName('All Issues By Status'), 9, function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('#issue-filter-widget > table');
+        casper.waitForSelector('#content > table');
       })
 
       .then(function () {
@@ -198,7 +198,7 @@ casper.test.begin(testName('All Issues By Status'), 9, function (test) {
 
 casper.test.begin(testName('Unresolved Issues By Status'), 9, function (test) {
   casper
-      .start(lib.buildUrl('issue-filter-widget'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -211,7 +211,7 @@ casper.test.begin(testName('Unresolved Issues By Status'), 9, function (test) {
           require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
-                el: '#issue-filter-widget',
+                el: '#content',
                 query: 'resolved=false',
                 distributionAxis: 'statuses'
               });
@@ -221,7 +221,7 @@ casper.test.begin(testName('Unresolved Issues By Status'), 9, function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('#issue-filter-widget > table');
+        casper.waitForSelector('#content > table');
       })
 
       .then(function () {
@@ -253,7 +253,7 @@ casper.test.begin(testName('Unresolved Issues By Status'), 9, function (test) {
 
 casper.test.begin(testName('All Issues By Resolution'), 10, function (test) {
   casper
-      .start(lib.buildUrl('issue-filter-widget'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -265,7 +265,7 @@ casper.test.begin(testName('All Issues By Resolution'), 10, function (test) {
           require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
-                el: '#issue-filter-widget',
+                el: '#content',
                 query: '',
                 distributionAxis: 'resolutions'
               });
@@ -275,7 +275,7 @@ casper.test.begin(testName('All Issues By Resolution'), 10, function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('#issue-filter-widget > table');
+        casper.waitForSelector('#content > table');
       })
 
       .then(function () {
@@ -308,7 +308,7 @@ casper.test.begin(testName('All Issues By Resolution'), 10, function (test) {
 
 casper.test.begin(testName('Unresolved Issues By Resolution'), 5, function (test) {
   casper
-      .start(lib.buildUrl('issue-filter-widget'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -321,7 +321,7 @@ casper.test.begin(testName('Unresolved Issues By Resolution'), 5, function (test
           require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
-                el: '#issue-filter-widget',
+                el: '#content',
                 query: 'resolved=false',
                 distributionAxis: 'resolutions'
               });
@@ -331,7 +331,7 @@ casper.test.begin(testName('Unresolved Issues By Resolution'), 5, function (test
       })
 
       .then(function () {
-        casper.waitForSelector('#issue-filter-widget > table');
+        casper.waitForSelector('#content > table');
       })
 
       .then(function () {
@@ -359,7 +359,7 @@ casper.test.begin(testName('Unresolved Issues By Resolution'), 5, function (test
 
 casper.test.begin(testName('Unresolved Issues By Rule'), 15, function (test) {
   casper
-      .start(lib.buildUrl('issue-filter-widget'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -372,7 +372,7 @@ casper.test.begin(testName('Unresolved Issues By Rule'), 15, function (test) {
           require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
-                el: '#issue-filter-widget',
+                el: '#content',
                 query: 'resolved=false',
                 distributionAxis: 'rules'
               });
@@ -382,7 +382,7 @@ casper.test.begin(testName('Unresolved Issues By Rule'), 15, function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('#issue-filter-widget > table');
+        casper.waitForSelector('#content > table');
       })
 
       .then(function () {
@@ -422,7 +422,7 @@ casper.test.begin(testName('Unresolved Issues By Rule'), 15, function (test) {
 
 casper.test.begin(testName('Unresolved Issues By Project'), 15, function (test) {
   casper
-      .start(lib.buildUrl('issue-filter-widget'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -435,7 +435,7 @@ casper.test.begin(testName('Unresolved Issues By Project'), 15, function (test) 
           require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
-                el: '#issue-filter-widget',
+                el: '#content',
                 query: 'resolved=false',
                 distributionAxis: 'projectUuids'
               });
@@ -445,7 +445,7 @@ casper.test.begin(testName('Unresolved Issues By Project'), 15, function (test) 
       })
 
       .then(function () {
-        casper.waitForSelector('#issue-filter-widget > table');
+        casper.waitForSelector('#content > table');
       })
 
       .then(function () {
@@ -485,7 +485,7 @@ casper.test.begin(testName('Unresolved Issues By Project'), 15, function (test) 
 
 casper.test.begin(testName('Unresolved Issues By Assignee'), 15, function (test) {
   casper
-      .start(lib.buildUrl('issue-filter-widget'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -498,7 +498,7 @@ casper.test.begin(testName('Unresolved Issues By Assignee'), 15, function (test)
           require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
-                el: '#issue-filter-widget',
+                el: '#content',
                 query: 'resolved=false',
                 distributionAxis: 'assignees'
               });
@@ -508,7 +508,7 @@ casper.test.begin(testName('Unresolved Issues By Assignee'), 15, function (test)
       })
 
       .then(function () {
-        casper.waitForSelector('#issue-filter-widget > table');
+        casper.waitForSelector('#content > table');
       })
 
       .then(function () {
@@ -548,7 +548,7 @@ casper.test.begin(testName('Unresolved Issues By Assignee'), 15, function (test)
 
 casper.test.begin(testName('Unresolved Unassigned Issues By Assignee'), 6, function (test) {
   casper
-      .start(lib.buildUrl('issue-filter-widget'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -561,7 +561,7 @@ casper.test.begin(testName('Unresolved Unassigned Issues By Assignee'), 6, funct
           require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
-                el: '#issue-filter-widget',
+                el: '#content',
                 query: 'resolved=false|assigned=false',
                 distributionAxis: 'assignees'
               });
@@ -571,7 +571,7 @@ casper.test.begin(testName('Unresolved Unassigned Issues By Assignee'), 6, funct
       })
 
       .then(function () {
-        casper.waitForSelector('#issue-filter-widget > table');
+        casper.waitForSelector('#content > table');
       })
 
       .then(function () {
@@ -602,7 +602,7 @@ casper.test.begin(testName('Unresolved Unassigned Issues By Assignee'), 6, funct
 
 casper.test.begin(testName('Unresolved Issues By Reporter'), 12, function (test) {
   casper
-      .start(lib.buildUrl('issue-filter-widget'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -615,7 +615,7 @@ casper.test.begin(testName('Unresolved Issues By Reporter'), 12, function (test)
           require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
-                el: '#issue-filter-widget',
+                el: '#content',
                 query: 'resolved=false',
                 distributionAxis: 'reporters'
               });
@@ -625,7 +625,7 @@ casper.test.begin(testName('Unresolved Issues By Reporter'), 12, function (test)
       })
 
       .then(function () {
-        casper.waitForSelector('#issue-filter-widget > table');
+        casper.waitForSelector('#content > table');
       })
 
       .then(function () {
@@ -662,7 +662,7 @@ casper.test.begin(testName('Unresolved Issues By Reporter'), 12, function (test)
 
 casper.test.begin(testName('Unresolved Issues By Language'), 15, function (test) {
   casper
-      .start(lib.buildUrl('issue-filter-widget'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -675,7 +675,7 @@ casper.test.begin(testName('Unresolved Issues By Language'), 15, function (test)
           require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
-                el: '#issue-filter-widget',
+                el: '#content',
                 query: 'resolved=false',
                 distributionAxis: 'languages'
               });
@@ -685,7 +685,7 @@ casper.test.begin(testName('Unresolved Issues By Language'), 15, function (test)
       })
 
       .then(function () {
-        casper.waitForSelector('#issue-filter-widget > table');
+        casper.waitForSelector('#content > table');
       })
 
       .then(function () {
@@ -725,7 +725,7 @@ casper.test.begin(testName('Unresolved Issues By Language'), 15, function (test)
 
 casper.test.begin(testName('Unresolved Issues By Action Plan'), 15, function (test) {
   casper
-      .start(lib.buildUrl('issue-filter-widget'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -738,7 +738,7 @@ casper.test.begin(testName('Unresolved Issues By Action Plan'), 15, function (te
           require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
-                el: '#issue-filter-widget',
+                el: '#content',
                 query: 'resolved=false',
                 distributionAxis: 'actionPlans'
               });
@@ -748,7 +748,7 @@ casper.test.begin(testName('Unresolved Issues By Action Plan'), 15, function (te
       })
 
       .then(function () {
-        casper.waitForSelector('#issue-filter-widget > table');
+        casper.waitForSelector('#content > table');
       })
 
       .then(function () {
@@ -788,7 +788,7 @@ casper.test.begin(testName('Unresolved Issues By Action Plan'), 15, function (te
 
 casper.test.begin(testName('Unresolved Unplanned Issues By Action Plan'), 6, function (test) {
   casper
-      .start(lib.buildUrl('issue-filter-widget'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -801,7 +801,7 @@ casper.test.begin(testName('Unresolved Unplanned Issues By Action Plan'), 6, fun
           require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
-                el: '#issue-filter-widget',
+                el: '#content',
                 query: 'resolved=false|planned=false',
                 distributionAxis: 'actionPlans'
               });
@@ -811,7 +811,7 @@ casper.test.begin(testName('Unresolved Unplanned Issues By Action Plan'), 6, fun
       })
 
       .then(function () {
-        casper.waitForSelector('#issue-filter-widget > table');
+        casper.waitForSelector('#content > table');
       })
 
       .then(function () {
@@ -842,7 +842,7 @@ casper.test.begin(testName('Unresolved Unplanned Issues By Action Plan'), 6, fun
 
 casper.test.begin(testName('Unresolved Issues By Date'), 18, function (test) {
   casper
-      .start(lib.buildUrl('issue-filter-widget'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -855,7 +855,7 @@ casper.test.begin(testName('Unresolved Issues By Date'), 18, function (test) {
           require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
-                el: '#issue-filter-widget',
+                el: '#content',
                 query: 'resolved=false',
                 distributionAxis: 'createdAt'
               });
@@ -865,7 +865,7 @@ casper.test.begin(testName('Unresolved Issues By Date'), 18, function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('#issue-filter-widget > table');
+        casper.waitForSelector('#content > table');
       })
 
       .then(function () {
@@ -910,7 +910,7 @@ casper.test.begin(testName('Unresolved Issues By Date'), 18, function (test) {
 
 casper.test.begin(testName('Unresolved Issues on a Limited Period By Date'), 12, function (test) {
   casper
-      .start(lib.buildUrl('issue-filter-widget'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -923,7 +923,7 @@ casper.test.begin(testName('Unresolved Issues on a Limited Period By Date'), 12,
           require(['widgets/issue-filter/widget'], function (IssueFilter) {
             window.requestMessages().done(function () {
               new IssueFilter({
-                el: '#issue-filter-widget',
+                el: '#content',
                 query: 'resolved=false|createdAfter=2015-02-16|createdBefore=2015-02-18',
                 distributionAxis: 'createdAt'
               });
@@ -933,7 +933,7 @@ casper.test.begin(testName('Unresolved Issues on a Limited Period By Date'), 12,
       })
 
       .then(function () {
-        casper.waitForSelector('#issue-filter-widget > table');
+        casper.waitForSelector('#content > table');
       })
 
       .then(function () {

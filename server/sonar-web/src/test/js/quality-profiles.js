@@ -5,7 +5,7 @@ describe('Quality Profiles App', function () {
 
   it('should show list', 9, function (casper, test) {
     return casper
-        .start(lib.buildUrl('profiles'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/users/current', 'user.json');
           lib.fmock('/api/qualityprofiles/search', 'search.json');
@@ -15,7 +15,9 @@ describe('Quality Profiles App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/quality-profiles/app']);
+            require(['apps/quality-profiles/app'], function (App) {
+              App.start({ el: '#content', urlRoot: '/pages/base' });
+            });
           });
         })
 
@@ -40,7 +42,7 @@ describe('Quality Profiles App', function () {
 
   it('should filter list by language', 15, function (casper, test) {
     return casper
-        .start(lib.buildUrl('profiles'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/users/current', 'user.json');
@@ -51,7 +53,9 @@ describe('Quality Profiles App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/quality-profiles/app']);
+            require(['apps/quality-profiles/app'], function (App) {
+              App.start({ el: '#content', urlRoot: '/pages/base' });
+            });
           });
         })
 
@@ -95,7 +99,7 @@ describe('Quality Profiles App', function () {
 
   it('should show details', 10, function (casper, test) {
     return casper
-        .start(lib.buildUrl('profiles'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/users/current', 'user.json');
@@ -111,7 +115,9 @@ describe('Quality Profiles App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/quality-profiles/app']);
+            require(['apps/quality-profiles/app'], function (App) {
+              App.start({ el: '#content', urlRoot: '/pages/base' });
+            });
           });
         })
 
@@ -141,7 +147,7 @@ describe('Quality Profiles App', function () {
 
   it('should show details for admin', 10, function (casper, test) {
     return casper
-        .start(lib.buildUrl('profiles'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/users/current', 'user-admin.json');
@@ -157,7 +163,9 @@ describe('Quality Profiles App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/quality-profiles/app']);
+            require(['apps/quality-profiles/app'], function (App) {
+              App.start({ el: '#content', urlRoot: '/pages/base' });
+            });
           });
         })
 
@@ -187,7 +195,7 @@ describe('Quality Profiles App', function () {
 
   it('should show inheritance details', 10, function (casper, test) {
     return casper
-        .start(lib.buildUrl('profiles'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/users/current', 'user-admin.json');
@@ -202,7 +210,9 @@ describe('Quality Profiles App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/quality-profiles/app']);
+            require(['apps/quality-profiles/app'], function (App) {
+              App.start({ el: '#content', urlRoot: '/pages/base' });
+            });
           });
         })
 
@@ -233,7 +243,7 @@ describe('Quality Profiles App', function () {
 
   it('should show selected projects', 2, function (casper, test) {
     return casper
-        .start(lib.buildUrl('profiles'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/users/current', 'user-admin.json');
@@ -247,7 +257,9 @@ describe('Quality Profiles App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/quality-profiles/app']);
+            require(['apps/quality-profiles/app'], function (App) {
+              App.start({ el: '#content', urlRoot: '/pages/base' });
+            });
           });
         })
 
@@ -272,7 +284,7 @@ describe('Quality Profiles App', function () {
 
   it('should move between profiles', 1, function (casper, test) {
     return casper
-        .start(lib.buildUrl('profiles'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/users/current', 'user.json');
@@ -286,7 +298,9 @@ describe('Quality Profiles App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/quality-profiles/app']);
+            require(['apps/quality-profiles/app'], function (App) {
+              App.start({ el: '#content', urlRoot: '/pages/base' });
+            });
           });
         })
 
@@ -317,7 +331,7 @@ describe('Quality Profiles App', function () {
 
   it('should copy profile', 5, function (casper, test) {
     return casper
-        .start(lib.buildUrl('profiles'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/users/current', 'user-admin.json');
@@ -333,7 +347,9 @@ describe('Quality Profiles App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/quality-profiles/app']);
+            require(['apps/quality-profiles/app'], function (App) {
+              App.start({ el: '#content', urlRoot: '/pages/base' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -371,7 +387,7 @@ describe('Quality Profiles App', function () {
 
   it('should rename profile', 2, function (casper, test) {
     return casper
-        .start(lib.buildUrl('profiles'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/users/current', 'user-admin.json');
@@ -387,7 +403,9 @@ describe('Quality Profiles App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/quality-profiles/app']);
+            require(['apps/quality-profiles/app'], function (App) {
+              App.start({ el: '#content', urlRoot: '/pages/base' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -425,7 +443,7 @@ describe('Quality Profiles App', function () {
 
   it('should make profile default', 4, function (casper, test) {
     return casper
-        .start(lib.buildUrl('profiles'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/users/current', 'user-admin.json');
@@ -441,7 +459,9 @@ describe('Quality Profiles App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/quality-profiles/app']);
+            require(['apps/quality-profiles/app'], function (App) {
+              App.start({ el: '#content', urlRoot: '/pages/base' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -473,7 +493,7 @@ describe('Quality Profiles App', function () {
 
   it('should delete profile', 2, function (casper, test) {
     return casper
-        .start(lib.buildUrl('profiles'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/users/current', 'user-admin.json');
@@ -489,7 +509,9 @@ describe('Quality Profiles App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/quality-profiles/app']);
+            require(['apps/quality-profiles/app'], function (App) {
+              App.start({ el: '#content', urlRoot: '/pages/base' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -524,7 +546,7 @@ describe('Quality Profiles App', function () {
 
   it('should create profile', 1, function (casper, test) {
     return casper
-        .start(lib.buildUrl('profiles'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/users/current', 'user-admin.json');
@@ -538,7 +560,9 @@ describe('Quality Profiles App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/quality-profiles/app']);
+            require(['apps/quality-profiles/app'], function (App) {
+              App.start({ el: '#content', urlRoot: '/pages/base' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -568,7 +592,7 @@ describe('Quality Profiles App', function () {
 
   it('should restore profile', 1, function (casper, test) {
     return casper
-        .start(lib.buildUrl('profiles'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/users/current', 'user-admin.json');
@@ -581,7 +605,9 @@ describe('Quality Profiles App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/quality-profiles/app']);
+            require(['apps/quality-profiles/app'], function (App) {
+              App.start({ el: '#content', urlRoot: '/pages/base' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -604,7 +630,7 @@ describe('Quality Profiles App', function () {
 
   it('should show importers', 6, function (casper, test) {
     return casper
-        .start(lib.buildUrl('profiles'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/users/current', 'user-admin.json');
@@ -618,7 +644,9 @@ describe('Quality Profiles App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/quality-profiles/app']);
+            require(['apps/quality-profiles/app'], function (App) {
+              App.start({ el: '#content', urlRoot: '/pages/base' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -658,7 +686,7 @@ describe('Quality Profiles App', function () {
 
   it('should restore built-in profiles', 3, function (casper, test) {
     return casper
-        .start(lib.buildUrl('profiles'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/users/current', 'user-admin.json');
@@ -674,7 +702,9 @@ describe('Quality Profiles App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/quality-profiles/app']);
+            require(['apps/quality-profiles/app'], function (App) {
+              App.start({ el: '#content', urlRoot: '/pages/base' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -708,7 +738,7 @@ describe('Quality Profiles App', function () {
 
   it('should change profile\'s parent', 1, function (casper, test) {
     return casper
-        .start(lib.buildUrl('profiles'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/users/current', 'user-admin.json');
@@ -725,7 +755,9 @@ describe('Quality Profiles App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/quality-profiles/app']);
+            require(['apps/quality-profiles/app'], function (App) {
+              App.start({ el: '#content', urlRoot: '/pages/base' });
+            });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
         })
@@ -764,7 +796,7 @@ describe('Quality Profiles App', function () {
 
   it('should open permalink', 9, function (casper, test) {
     return casper
-        .start(lib.buildUrl('profiles#show?key=java-sonar-way-67887'), function () {
+        .start(lib.buildUrl('base#show?key=java-sonar-way-67887'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/users/current', 'user-admin.json');
@@ -777,7 +809,9 @@ describe('Quality Profiles App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/quality-profiles/app']);
+            require(['apps/quality-profiles/app'], function (App) {
+              App.start({ el: '#content', urlRoot: '/pages/base' });
+            });
           });
         })
 
@@ -801,7 +835,7 @@ describe('Quality Profiles App', function () {
 
   it('should show changelog', 22, function (casper, test) {
     return casper
-        .start(lib.buildUrl('profiles#show?key=java-sonar-way-67887'), function () {
+        .start(lib.buildUrl('base#show?key=java-sonar-way-67887'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/users/current', 'user.json');
@@ -820,7 +854,9 @@ describe('Quality Profiles App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/quality-profiles/app']);
+            require(['apps/quality-profiles/app'], function (App) {
+              App.start({ el: '#content', urlRoot: '/pages/base' });
+            });
           });
         })
 
@@ -875,7 +911,7 @@ describe('Quality Profiles App', function () {
 
   it('should open changelog permalink', 2, function (casper, test) {
     return casper
-        .start(lib.buildUrl('profiles#changelog?since=2015-03-25&key=java-sonar-way-67887&to=2015-03-26'), function () {
+        .start(lib.buildUrl('base#changelog?since=2015-03-25&key=java-sonar-way-67887&to=2015-03-26'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/users/current', 'user.json');
@@ -903,7 +939,9 @@ describe('Quality Profiles App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/quality-profiles/app']);
+            require(['apps/quality-profiles/app'], function (App) {
+              App.start({ el: '#content', urlRoot: '/pages/base' });
+            });
           });
         })
 
@@ -925,7 +963,7 @@ describe('Quality Profiles App', function () {
 
   it('should show comparison', 12, function (casper, test) {
     return casper
-        .start(lib.buildUrl('profiles#show?key=java-sonar-way-67887'), function () {
+        .start(lib.buildUrl('base#show?key=java-sonar-way-67887'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/users/current', 'user.json');
@@ -941,7 +979,9 @@ describe('Quality Profiles App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/quality-profiles/app']);
+            require(['apps/quality-profiles/app'], function (App) {
+              App.start({ el: '#content', urlRoot: '/pages/base' });
+            });
           });
         })
 
@@ -975,7 +1015,7 @@ describe('Quality Profiles App', function () {
 
   it('should open comparison permalink', 4, function (casper, test) {
     return casper
-        .start(lib.buildUrl('profiles#compare?key=java-sonar-way-67887&withKey=java-copied-profile-11711'),
+        .start(lib.buildUrl('base#compare?key=java-sonar-way-67887&withKey=java-copied-profile-11711'),
         function () {
           lib.setDefaultViewport();
 
@@ -992,7 +1032,9 @@ describe('Quality Profiles App', function () {
 
         .then(function () {
           casper.evaluate(function () {
-            require(['apps/quality-profiles/app']);
+            require(['apps/quality-profiles/app'], function (App) {
+              App.start({ el: '#content', urlRoot: '/pages/base' });
+            });
           });
         })
 

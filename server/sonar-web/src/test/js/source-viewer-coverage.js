@@ -30,7 +30,7 @@ lib.configureCasper();
 
 casper.test.begin(testName(), 12, function (test) {
   casper
-      .start(lib.buildUrl('source-viewer'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -43,8 +43,10 @@ casper.test.begin(testName(), 12, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          window.file = { uuid: 'uuid', key: 'key' };
-          require(['apps/source-viewer/app']);
+          var file = { uuid: 'uuid', key: 'key' };
+          require(['apps/source-viewer/app'], function (App) {
+            App.start({ el: '#content', file: file });
+          });
         });
       })
 

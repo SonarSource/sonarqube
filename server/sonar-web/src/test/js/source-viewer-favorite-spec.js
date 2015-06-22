@@ -29,7 +29,7 @@ lib.configureCasper();
 
 casper.test.begin(testName('Mark as Favorite'), function (test) {
   casper
-      .start(lib.buildUrl('source-viewer'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequest('/api/favourites', '{}', { type: 'POST' });
@@ -41,7 +41,10 @@ casper.test.begin(testName('Mark as Favorite'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['apps/source-viewer/app']);
+          var file = { uuid: 'uuid', key: 'key' };
+          require(['apps/source-viewer/app'], function (App) {
+            App.start({ el: '#content', file: file });
+          });
         });
       })
 
@@ -74,7 +77,7 @@ casper.test.begin(testName('Mark as Favorite'), function (test) {
 
 casper.test.begin(testName('Don\'t Show Favorite If Not Logged In'), function (test) {
   casper
-      .start(lib.buildUrl('source-viewer'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/components/app', 'app-not-logged-in.json');
@@ -84,7 +87,10 @@ casper.test.begin(testName('Don\'t Show Favorite If Not Logged In'), function (t
 
       .then(function () {
         casper.evaluate(function () {
-          require(['apps/source-viewer/app']);
+          var file = { uuid: 'uuid', key: 'key' };
+          require(['apps/source-viewer/app'], function (App) {
+            App.start({ el: '#content', file: file });
+          });
         });
       })
 

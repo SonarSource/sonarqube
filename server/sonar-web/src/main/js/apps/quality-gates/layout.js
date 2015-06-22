@@ -3,8 +3,6 @@ define([
   './templates'
 ], function (IntroView) {
 
-  var $ = jQuery;
-
   return Marionette.LayoutView.extend({
     template: Templates['quality-gates-layout'],
 
@@ -16,7 +14,7 @@ define([
     },
 
     onRender: function () {
-      var top = $('.search-navigator').offset().top;
+      var top = this.$('.search-navigator').offset().top;
       this.$('.search-navigator-workspace-header').css({ top: top });
       this.$('.search-navigator-side').css({ top: top }).isolatedScroll();
       this.renderIntro();

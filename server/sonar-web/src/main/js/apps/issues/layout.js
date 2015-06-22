@@ -19,8 +19,8 @@ define([
       if (this.options.app.state.get('isContext')) {
         this.$(this.filtersRegion.el).addClass('hidden');
       }
-      $('.search-navigator').addClass('sticky');
-      var top = $('.search-navigator').offset().top;
+      this.$('.search-navigator').addClass('sticky');
+      var top = this.$('.search-navigator').offset().top;
       this.$('.search-navigator-workspace-header').css({ top: top });
       this.$('.search-navigator-side').css({ top: top }).isolatedScroll();
     },
@@ -33,22 +33,22 @@ define([
 
     showComponentViewer: function () {
       this.scroll = $(window).scrollTop();
-      $('.issues').addClass('issues-extended-view');
+      this.$('.issues').addClass('issues-extended-view');
     },
 
     hideComponentViewer: function () {
-      $('.issues').removeClass('issues-extended-view');
+      this.$('.issues').removeClass('issues-extended-view');
       if (this.scroll != null) {
         $(window).scrollTop(this.scroll);
       }
     },
 
     showHomePage: function () {
-      $('.issues').addClass('issues-home-view');
+      this.$('.issues').addClass('issues-home-view');
     },
 
     hideHomePage: function () {
-      $('.issues').removeClass('issues-home-view');
+      this.$('.issues').removeClass('issues-home-view');
     }
   });
 

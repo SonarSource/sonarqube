@@ -5,7 +5,7 @@ describe('Quality Gates App', function () {
 
   it('should show list', 5, function (casper, test) {
     return casper
-        .start(lib.buildUrl('quality_gates'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/qualitygates/app', 'app.json');
@@ -15,7 +15,7 @@ describe('Quality Gates App', function () {
         .then(function () {
           casper.evaluate(function () {
             require(['apps/quality-gates/app'], function (App) {
-              App.start({ el: '#quality-gates' });
+              App.start({ el: '#content', urlRoot: '/pages/base' });
             });
           });
         })
@@ -37,7 +37,7 @@ describe('Quality Gates App', function () {
 
   it('should show details for anonymous', 14, function (casper, test) {
     return casper
-        .start(lib.buildUrl('quality_gates'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/qualitygates/app', 'app-anonymous.json');
@@ -48,7 +48,7 @@ describe('Quality Gates App', function () {
         .then(function () {
           casper.evaluate(function () {
             require(['apps/quality-gates/app'], function (App) {
-              App.start({ el: '#quality-gates' });
+              App.start({ el: '#content', urlRoot: '/pages/base' });
             });
           });
         })
@@ -90,7 +90,7 @@ describe('Quality Gates App', function () {
 
   it('should show details for admin', 12, function (casper, test) {
     return casper
-        .start(lib.buildUrl('quality_gates'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/qualitygates/app', 'app.json');
@@ -101,7 +101,7 @@ describe('Quality Gates App', function () {
         .then(function () {
           casper.evaluate(function () {
             require(['apps/quality-gates/app'], function (App) {
-              App.start({ el: '#quality-gates' });
+              App.start({ el: '#content', urlRoot: '/pages/base' });
             });
           });
         })
@@ -137,7 +137,7 @@ describe('Quality Gates App', function () {
 
   it('should show projects', 2, function (casper, test) {
     return casper
-        .start(lib.buildUrl('quality_gates#show/5'), function () {
+        .start(lib.buildUrl('base#show/5'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/qualitygates/app', 'app-anonymous.json');
@@ -149,7 +149,7 @@ describe('Quality Gates App', function () {
         .then(function () {
           casper.evaluate(function () {
             require(['apps/quality-gates/app'], function (App) {
-              App.start({ el: '#quality-gates' });
+              App.start({ el: '#content', urlRoot: '/pages/base' });
             });
           });
         })
@@ -167,7 +167,7 @@ describe('Quality Gates App', function () {
 
   it('should rename', 2, function (casper, test) {
     return casper
-        .start(lib.buildUrl('quality_gates#show/1'), function () {
+        .start(lib.buildUrl('base#show/1'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/qualitygates/app', 'app.json');
@@ -179,7 +179,7 @@ describe('Quality Gates App', function () {
         .then(function () {
           casper.evaluate(function () {
             require(['apps/quality-gates/app'], function (App) {
-              App.start({ el: '#quality-gates' });
+              App.start({ el: '#content', urlRoot: '/pages/base' });
             });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
@@ -211,7 +211,7 @@ describe('Quality Gates App', function () {
 
   it('should copy', 3, function (casper, test) {
     return casper
-        .start(lib.buildUrl('quality_gates#show/1'), function () {
+        .start(lib.buildUrl('base#show/1'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/qualitygates/app', 'app.json');
@@ -224,7 +224,7 @@ describe('Quality Gates App', function () {
         .then(function () {
           casper.evaluate(function () {
             require(['apps/quality-gates/app'], function (App) {
-              App.start({ el: '#quality-gates' });
+              App.start({ el: '#content', urlRoot: '/pages/base' });
             });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
@@ -257,7 +257,7 @@ describe('Quality Gates App', function () {
 
   it('should set as default', 4, function (casper, test) {
     return casper
-        .start(lib.buildUrl('quality_gates#show/5'), function () {
+        .start(lib.buildUrl('base#show/5'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/qualitygates/app', 'app.json');
@@ -269,7 +269,7 @@ describe('Quality Gates App', function () {
         .then(function () {
           casper.evaluate(function () {
             require(['apps/quality-gates/app'], function (App) {
-              App.start({ el: '#quality-gates' });
+              App.start({ el: '#content', urlRoot: '/pages/base' });
             });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
@@ -295,7 +295,7 @@ describe('Quality Gates App', function () {
 
   it('should unset as default', 4, function (casper, test) {
     return casper
-        .start(lib.buildUrl('quality_gates#show/1'), function () {
+        .start(lib.buildUrl('base#show/1'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/qualitygates/app', 'app.json');
@@ -307,7 +307,7 @@ describe('Quality Gates App', function () {
         .then(function () {
           casper.evaluate(function () {
             require(['apps/quality-gates/app'], function (App) {
-              App.start({ el: '#quality-gates' });
+              App.start({ el: '#content', urlRoot: '/pages/base' });
             });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
@@ -333,7 +333,7 @@ describe('Quality Gates App', function () {
 
   it('should create', 2, function (casper, test) {
     return casper
-        .start(lib.buildUrl('quality_gates'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/qualitygates/app', 'app.json');
@@ -347,7 +347,7 @@ describe('Quality Gates App', function () {
         .then(function () {
           casper.evaluate(function () {
             require(['apps/quality-gates/app'], function (App) {
-              App.start({ el: '#quality-gates' });
+              App.start({ el: '#content', urlRoot: '/pages/base' });
             });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
@@ -387,7 +387,7 @@ describe('Quality Gates App', function () {
 
   it('should delete', 2, function (casper, test) {
     return casper
-        .start(lib.buildUrl('quality_gates#show/5'), function () {
+        .start(lib.buildUrl('base#show/5'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/qualitygates/app', 'app.json');
@@ -400,7 +400,7 @@ describe('Quality Gates App', function () {
         .then(function () {
           casper.evaluate(function () {
             require(['apps/quality-gates/app'], function (App) {
-              App.start({ el: '#quality-gates' });
+              App.start({ el: '#content', urlRoot: '/pages/base' });
             });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
@@ -437,7 +437,7 @@ describe('Quality Gates App', function () {
 
   it('should add condition', 6, function (casper, test) {
     return casper
-        .start(lib.buildUrl('quality_gates#show/5'), function () {
+        .start(lib.buildUrl('base#show/5'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/qualitygates/app', 'app.json');
@@ -450,7 +450,7 @@ describe('Quality Gates App', function () {
         .then(function () {
           casper.evaluate(function () {
             require(['apps/quality-gates/app'], function (App) {
-              App.start({ el: '#quality-gates' });
+              App.start({ el: '#content', urlRoot: '/pages/base' });
             });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
@@ -501,7 +501,7 @@ describe('Quality Gates App', function () {
 
   it('should update condition', 3, function (casper, test) {
     return casper
-        .start(lib.buildUrl('quality_gates#show/1'), function () {
+        .start(lib.buildUrl('base#show/1'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/qualitygates/app', 'app.json');
@@ -514,7 +514,7 @@ describe('Quality Gates App', function () {
         .then(function () {
           casper.evaluate(function () {
             require(['apps/quality-gates/app'], function (App) {
-              App.start({ el: '#quality-gates' });
+              App.start({ el: '#content', urlRoot: '/pages/base' });
             });
             jQuery.ajaxSetup({ dataType: 'json' });
           });
@@ -542,7 +542,7 @@ describe('Quality Gates App', function () {
 
   it('should delete condition', 1, function (casper, test) {
     return casper
-        .start(lib.buildUrl('quality_gates#show/1'), function () {
+        .start(lib.buildUrl('base#show/1'), function () {
           lib.setDefaultViewport();
 
           lib.fmock('/api/qualitygates/app', 'app.json');
@@ -555,7 +555,7 @@ describe('Quality Gates App', function () {
         .then(function () {
           casper.evaluate(function () {
             require(['apps/quality-gates/app'], function (App) {
-              App.start({ el: '#quality-gates' });
+              App.start({ el: '#content', urlRoot: '/pages/base' });
             });
             jQuery.ajaxSetup({ dataType: 'json' });
           });

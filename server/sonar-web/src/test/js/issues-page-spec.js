@@ -30,7 +30,7 @@ lib.configureCasper();
 
 casper.test.begin(testName('Base'), function (test) {
   casper
-      .start(lib.buildUrl('issues'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -40,7 +40,9 @@ casper.test.begin(testName('Base'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['apps/issues/app-new']);
+          require(['apps/issues/app-new'], function (App) {
+            App.start({ el: '#content' });
+          });
         });
       })
 
@@ -94,7 +96,7 @@ casper.test.begin(testName('Base'), function (test) {
 
 casper.test.begin(testName('Context'), function (test) {
   casper
-      .start(lib.buildUrl('issues-context'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -104,13 +106,15 @@ casper.test.begin(testName('Context'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          window.config = {
+          var config = {
             resource: 'uuid',
             resourceQualifier: 'TRL',
             resourceName: 'SonarQube',
             periodDate: null
           };
-          require(['apps/issues/app-context']);
+          require(['apps/issues/app-context'], function (App) {
+            App.start({ el: '#content', config: config });
+          });
         });
       })
 
@@ -163,7 +167,7 @@ casper.test.begin(testName('Context'), function (test) {
 
 casper.test.begin(testName('Issue Box', 'Check Elements'), function (test) {
   casper
-      .start(lib.buildUrl('issues'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -173,7 +177,9 @@ casper.test.begin(testName('Issue Box', 'Check Elements'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['apps/issues/app-new']);
+          require(['apps/issues/app-new'], function (App) {
+            App.start({ el: '#content' });
+          });
         });
       })
 
@@ -211,7 +217,7 @@ casper.test.begin(testName('Issue Box', 'Check Elements'), function (test) {
 
 casper.test.begin(testName('Issue Box', 'Tags'), function (test) {
   casper
-      .start(lib.buildUrl('issues'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -223,7 +229,9 @@ casper.test.begin(testName('Issue Box', 'Tags'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['apps/issues/app-new']);
+          require(['apps/issues/app-new'], function (App) {
+            App.start({ el: '#content' });
+          });
         });
       })
 
@@ -262,7 +270,7 @@ casper.test.begin(testName('Issue Box', 'Tags'), function (test) {
 
 casper.test.begin(testName('Issue Box', 'Transitions'), function (test) {
   casper
-      .start(lib.buildUrl('issues'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -274,7 +282,9 @@ casper.test.begin(testName('Issue Box', 'Transitions'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['apps/issues/app-new']);
+          require(['apps/issues/app-new'], function (App) {
+            App.start({ el: '#content' });
+          });
         });
       })
 
@@ -305,7 +315,7 @@ casper.test.begin(testName('Issue Box', 'Transitions'), function (test) {
 
 casper.test.begin(testName('Issue Box', 'Rule'), function (test) {
   casper
-      .start(lib.buildUrl('issues'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -316,7 +326,9 @@ casper.test.begin(testName('Issue Box', 'Rule'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['apps/issues/app-new']);
+          require(['apps/issues/app-new'], function (App) {
+            App.start({ el: '#content' });
+          });
         });
       })
 
@@ -350,7 +362,7 @@ casper.test.begin(testName('File-Level Issues'), function (test) {
       issueSelector = '.issue[data-key="' + issueKey + '"]';
 
   casper
-      .start(lib.buildUrl('issues'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -362,7 +374,9 @@ casper.test.begin(testName('File-Level Issues'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['apps/issues/app-new']);
+          require(['apps/issues/app-new'], function (App) {
+            App.start({ el: '#content' });
+          });
         });
       })
 
@@ -390,7 +404,7 @@ casper.test.begin(testName('File-Level Issues'), function (test) {
 
 casper.test.begin(testName('Severity Facet'), function (test) {
   casper
-      .start(lib.buildUrl('issues'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -401,7 +415,9 @@ casper.test.begin(testName('Severity Facet'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['apps/issues/app-new']);
+          require(['apps/issues/app-new'], function (App) {
+            App.start({ el: '#content' });
+          });
         });
       })
 
@@ -432,7 +448,7 @@ casper.test.begin(testName('Select Issues'), 11, function (test) {
       issueSelector = '.issue[data-key="' + issueKey + '"]';
 
   casper
-      .start(lib.buildUrl('issues#resolved=false'), function () {
+      .start(lib.buildUrl('base#resolved=false'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
@@ -441,7 +457,9 @@ casper.test.begin(testName('Select Issues'), 11, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['apps/issues/app-new']);
+          require(['apps/issues/app-new'], function (App) {
+            App.start({ el: '#content' });
+          });
         });
       })
 
@@ -487,7 +505,7 @@ casper.test.begin(testName('Select Issues'), 11, function (test) {
 
 casper.test.begin(testName('Bulk Change'), function (test) {
   casper
-      .start(lib.buildUrl('issues'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -499,7 +517,9 @@ casper.test.begin(testName('Bulk Change'), function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['apps/issues/app-new']);
+          require(['apps/issues/app-new'], function (App) {
+            App.start({ el: '#content' });
+          });
         });
       })
 
@@ -529,7 +549,7 @@ casper.test.begin(testName('Bulk Change of Selected Issues'), 8, function (test)
       issueSelector = '.issue[data-key="' + issueKey + '"]';
 
   casper
-      .start(lib.buildUrl('issues#resolved=false'), function () {
+      .start(lib.buildUrl('base#resolved=false'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
@@ -540,7 +560,9 @@ casper.test.begin(testName('Bulk Change of Selected Issues'), 8, function (test)
 
       .then(function () {
         casper.evaluate(function () {
-          require(['apps/issues/app-new']);
+          require(['apps/issues/app-new'], function (App) {
+            App.start({ el: '#content' });
+          });
         });
       })
 
@@ -595,7 +617,7 @@ casper.test.begin(testName('Bulk Change of Selected Issues'), 8, function (test)
 
 casper.test.begin(testName('Filter Similar Issues'), 12, function (test) {
   casper
-      .start(lib.buildUrl('issues'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
 
@@ -607,7 +629,9 @@ casper.test.begin(testName('Filter Similar Issues'), 12, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          require(['apps/issues/app-new']);
+          require(['apps/issues/app-new'], function (App) {
+            App.start({ el: '#content' });
+          });
         });
       })
 

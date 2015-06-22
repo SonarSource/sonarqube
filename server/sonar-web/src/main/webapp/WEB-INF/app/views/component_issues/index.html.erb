@@ -1,14 +1,15 @@
-<% content_for :script do %>
-  <script>require(['apps/issues/app-context']);</script>
+<% content_for :extra_script do %>
+  <script>
+    (function () {
+      var config = {
+        resource: '<%= escape_javascript @resource.uuid -%>',
+        resourceQualifier: '<%= escape_javascript @resource.qualifier -%>',
+        resourceName: '<%= escape_javascript @resource.name -%>',
+        periodDate: <% if @period %>'<%= escape_javascript @snapshot.period_datetime(@period) -%>'<% else %>null<% end %>
+      };
+      require(['apps/issues/app-context'], function (App) {
+        App.start({ el: '#content', config: config });
+      });
+    })();
+  </script>
 <% end %>
-
-<div class="issues search-navigator"></div>
-
-<script>
-  var config = {
-    resource: '<%= escape_javascript @resource.uuid -%>',
-    resourceQualifier: '<%= escape_javascript @resource.qualifier -%>',
-    resourceName: '<%= escape_javascript @resource.name -%>',
-    periodDate: <% if @period %>'<%= escape_javascript @snapshot.period_datetime(@period) -%>'<% else %>null<% end %>
-  };
-</script>

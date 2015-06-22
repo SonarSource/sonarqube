@@ -30,7 +30,7 @@ lib.configureCasper();
 
 casper.test.begin(testName(), 5, function (test) {
   casper
-      .start(lib.buildUrl('source-viewer'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/components/app', 'app.json');
@@ -41,8 +41,10 @@ casper.test.begin(testName(), 5, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          window.file = { uuid: 'uuid', key: 'key' };
-          require(['apps/source-viewer/app']);
+          var file = { uuid: 'uuid', key: 'key' };
+          require(['apps/source-viewer/app'], function (App) {
+            App.start({ el: '#content', file: file });
+          });
         });
       })
 
@@ -87,7 +89,7 @@ casper.test.begin(testName(), 5, function (test) {
 
 casper.test.begin(testName('In Removed Component'), 2, function (test) {
   casper
-      .start(lib.buildUrl('source-viewer'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/components/app', 'app.json', { data: { uuid: 'uuid' } });
@@ -98,8 +100,10 @@ casper.test.begin(testName('In Removed Component'), 2, function (test) {
 
       .then(function () {
         casper.evaluate(function () {
-          window.file = { uuid: 'uuid', key: 'key' };
-          require(['apps/source-viewer/app']);
+          var file = { uuid: 'uuid', key: 'key' };
+          require(['apps/source-viewer/app'], function (App) {
+            App.start({ el: '#content', file: file });
+          });
         });
       })
 

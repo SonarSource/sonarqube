@@ -35,8 +35,7 @@ define([
     },
 
     onRender: function () {
-      var navigator = $('.search-navigator');
-      navigator.addClass('sticky');
+      var navigator = this.$('.search-navigator');
       var top = navigator.offset().top;
       this.$('.search-navigator-workspace-header').css({ top: top });
       this.$('.search-navigator-side').css({ top: top }).isolatedScroll();
@@ -44,12 +43,12 @@ define([
 
     showDetails: function () {
       this.scroll = $(window).scrollTop();
-      $('.search-navigator').addClass('search-navigator-extended-view');
+      this.$('.search-navigator').addClass('search-navigator-extended-view');
     },
 
 
     hideDetails: function () {
-      $('.search-navigator').removeClass('search-navigator-extended-view');
+      this.$('.search-navigator').removeClass('search-navigator-extended-view');
       if (this.scroll != null) {
         $(window).scrollTop(this.scroll);
       }

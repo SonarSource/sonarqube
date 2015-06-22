@@ -29,7 +29,7 @@ lib.configureCasper();
 
 casper.test.begin(testName('Should Show List'), 12, function (test) {
   casper
-      .start(lib.buildUrl('api_documentation'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/webservices/list', 'list.json');
@@ -38,7 +38,7 @@ casper.test.begin(testName('Should Show List'), 12, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/api-documentation/app'], function (App) {
-            App.start({ el: '#api-documentation' });
+            App.start({ el: '#content', urlRoot: '/pages/base' });
           });
         });
       })
@@ -86,7 +86,7 @@ casper.test.begin(testName('Should Show List'), 12, function (test) {
 
 casper.test.begin(testName('Should Show Actions'), 10, function (test) {
   casper
-      .start(lib.buildUrl('api_documentation'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/webservices/list', 'list.json');
@@ -95,7 +95,7 @@ casper.test.begin(testName('Should Show Actions'), 10, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/api-documentation/app'], function (App) {
-            App.start({ el: '#api-documentation' });
+            App.start({ el: '#content', urlRoot: '/pages/base' });
           });
         });
       })
@@ -132,7 +132,7 @@ casper.test.begin(testName('Should Show Actions'), 10, function (test) {
 
 casper.test.begin(testName('Should Show Example Response'), 1, function (test) {
   casper
-      .start(lib.buildUrl('api_documentation'), function () {
+      .start(lib.buildUrl('base'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/webservices/list', 'list.json');
@@ -143,7 +143,7 @@ casper.test.begin(testName('Should Show Example Response'), 1, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/api-documentation/app'], function (App) {
-            App.start({ el: '#api-documentation' });
+            App.start({ el: '#content', urlRoot: '/pages/base' });
           });
         });
       })
@@ -174,7 +174,7 @@ casper.test.begin(testName('Should Show Example Response'), 1, function (test) {
 
 casper.test.begin(testName('Web Service Permalink'), 1, function (test) {
   casper
-      .start(lib.buildUrl('api_documentation#api/public'), function () {
+      .start(lib.buildUrl('base#api/public'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/webservices/list', 'list.json');
@@ -183,7 +183,7 @@ casper.test.begin(testName('Web Service Permalink'), 1, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/api-documentation/app'], function (App) {
-            App.start({ el: '#api-documentation' });
+            App.start({ el: '#content', urlRoot: '/pages/base' });
           });
         });
       })
@@ -208,7 +208,7 @@ casper.test.begin(testName('Web Service Permalink'), 1, function (test) {
 
 casper.test.begin(testName('Action Permalink'), 1, function (test) {
   casper
-      .start(lib.buildUrl('api_documentation#api/internal/move'), function () {
+      .start(lib.buildUrl('base#api/internal/move'), function () {
         lib.setDefaultViewport();
 
         lib.mockRequestFromFile('/api/webservices/list', 'list.json');
@@ -217,7 +217,7 @@ casper.test.begin(testName('Action Permalink'), 1, function (test) {
       .then(function () {
         casper.evaluate(function () {
           require(['apps/api-documentation/app'], function (App) {
-            App.start({ el: '#api-documentation' });
+            App.start({ el: '#content', urlRoot: '/pages/base' });
           });
         });
       })

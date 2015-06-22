@@ -5,7 +5,7 @@ describe('Navigation App', function () {
 
   it('should show global spaces', 7, function (casper, test) {
     return casper
-        .start(lib.buildUrl('nav'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/navigation/global', 'global.json');
         })
@@ -13,8 +13,9 @@ describe('Navigation App', function () {
         .then(function () {
           casper.evaluate(function () {
             window.SS.isUserAdmin = false;
-            window.navbarOptions = new Backbone.Model();
-            require(['apps/nav/app']);
+            require(['apps/nav/app'], function (App) {
+              App.start();
+            });
           });
         })
 
@@ -40,7 +41,7 @@ describe('Navigation App', function () {
 
   it('should show global dashboards', 12, function (casper, test) {
     return casper
-        .start(lib.buildUrl('nav'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/navigation/global', 'global.json');
         })
@@ -48,8 +49,9 @@ describe('Navigation App', function () {
         .then(function () {
           casper.evaluate(function () {
             window.SS.isUserAdmin = false;
-            window.navbarOptions = new Backbone.Model();
-            require(['apps/nav/app']);
+            require(['apps/nav/app'], function (App) {
+              App.start();
+            });
           });
         })
 
@@ -83,7 +85,7 @@ describe('Navigation App', function () {
 
   it('should show global plugin pages', 12, function (casper, test) {
     return casper
-        .start(lib.buildUrl('nav'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/navigation/global', 'global.json');
         })
@@ -91,8 +93,9 @@ describe('Navigation App', function () {
         .then(function () {
           casper.evaluate(function () {
             window.SS.isUserAdmin = false;
-            window.navbarOptions = new Backbone.Model();
-            require(['apps/nav/app']);
+            require(['apps/nav/app'], function (App) {
+              App.start();
+            });
           });
         })
 
@@ -126,15 +129,16 @@ describe('Navigation App', function () {
 
   it('should show login form', 3, function (casper, test) {
     return casper
-        .start(lib.buildUrl('nav#anchor'), function () {
+        .start(lib.buildUrl('base#anchor'), function () {
           lib.setDefaultViewport();
         })
 
         .then(function () {
           casper.evaluate(function () {
             window.SS.isUserAdmin = false;
-            window.navbarOptions = new Backbone.Model();
-            require(['apps/nav/app']);
+            require(['apps/nav/app'], function (App) {
+              App.start();
+            });
           });
         })
 
@@ -146,7 +150,7 @@ describe('Navigation App', function () {
           test.assertExists('.navbar-global .js-login');
           casper.click('.navbar-global .js-login');
           casper.waitForUrl('/sessions/new?return_to=', function () {
-            test.assertUrlMatches('/pages/nav');
+            test.assertUrlMatches('/pages/base');
             test.assertUrlMatches('#anchor');
           });
         });
@@ -154,7 +158,7 @@ describe('Navigation App', function () {
 
   it('should search', 24, function (casper, test) {
     return casper
-        .start(lib.buildUrl('nav'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/navigation/global', 'global.json');
           lib.fmock('/api/components/suggestions', 'search.json');
@@ -165,10 +169,11 @@ describe('Navigation App', function () {
           casper.evaluate(function () {
             window.SS.user = 'user';
             window.SS.isUserAdmin = false;
-            window.navbarOptions = new Backbone.Model();
             window.localStorage.setItem('sonar_recent_history',
                 '[{"key":"localhistoryproject","name":"Local History Project","icon":"trk"}]');
-            require(['apps/nav/app']);
+            require(['apps/nav/app'], function (App) {
+              App.start();
+            });
           });
         })
 
@@ -241,7 +246,7 @@ describe('Navigation App', function () {
 
   it('should show context bar', 3, function (casper, test) {
     return casper
-        .start(lib.buildUrl('nav'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/navigation/component', 'component.json',
               { data: { componentKey: 'org.codehaus.sonar-plugins.java:java' } });
@@ -250,9 +255,9 @@ describe('Navigation App', function () {
         .then(function () {
           casper.evaluate(function () {
             window.SS.isUserAdmin = false;
-            window.navbarOptions = new Backbone.Model();
-            window.navbarOptions.set({ space: 'component', componentKey: 'org.codehaus.sonar-plugins.java:java' });
-            require(['apps/nav/app']);
+            require(['apps/nav/app'], function (App) {
+              App.start({ space: 'component', componentKey: 'org.codehaus.sonar-plugins.java:java' });
+            });
           });
         })
 
@@ -269,7 +274,7 @@ describe('Navigation App', function () {
 
   it('should favorite component', 1, function (casper, test) {
     return casper
-        .start(lib.buildUrl('nav'), function () {
+        .start(lib.buildUrl('base'), function () {
           lib.setDefaultViewport();
           lib.fmock('/api/navigation/component', 'component.json',
               { data: { componentKey: 'org.codehaus.sonar-plugins.java:java' } });
@@ -280,9 +285,9 @@ describe('Navigation App', function () {
         .then(function () {
           casper.evaluate(function () {
             window.SS.isUserAdmin = false;
-            window.navbarOptions = new Backbone.Model();
-            window.navbarOptions.set({ space: 'component', componentKey: 'org.codehaus.sonar-plugins.java:java' });
-            require(['apps/nav/app']);
+            require(['apps/nav/app'], function (App) {
+              App.start({ space: 'component', componentKey: 'org.codehaus.sonar-plugins.java:java' });
+            });
           });
         })
 

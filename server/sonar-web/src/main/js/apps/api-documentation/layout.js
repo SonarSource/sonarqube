@@ -34,7 +34,7 @@ define([
     },
 
     onRender: function () {
-      var navigator = $('.search-navigator');
+      var navigator = this.$('.search-navigator');
       navigator.addClass('sticky search-navigator-extended-view');
       var top = navigator.offset().top;
       this.$('.search-navigator-workspace-header').css({ top: top });
