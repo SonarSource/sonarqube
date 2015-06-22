@@ -79,7 +79,7 @@ public class QualityGateDetailsDataTest {
         "    \"warning\":\"warnTh\"," +
         "    \"error\":\"errorTh\"," +
         "    \"actual\":\"actualValue\"," +
-        "    \"level\":\"OK\"" +
+        "    \"level\":\"WARN\"" +
         "  }," +
         "  {" +
         "    \"metric\":\"key1\"," +
@@ -88,7 +88,7 @@ public class QualityGateDetailsDataTest {
         "    \"warning\":\"warnTh\"," +
         "    \"error\":\"errorTh\"," +
         "    \"actual\":\"actualValue\"," +
-        "    \"level\":\"OK\"" +
+        "    \"level\":\"ERROR\"" +
         "  }" +
         "]" +
         "}");

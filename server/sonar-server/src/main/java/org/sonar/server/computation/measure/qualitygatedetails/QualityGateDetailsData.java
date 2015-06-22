@@ -68,7 +68,7 @@ public class QualityGateDetailsData {
       result.addProperty("error", condition.getErrorThreshold());
     }
     result.addProperty("actual", evaluatedCondition.getActualValue());
-    result.addProperty(FIELD_LEVEL, level.toString());
+    result.addProperty(FIELD_LEVEL, evaluatedCondition.getLevel().name());
     return result;
   }
 
