@@ -30,7 +30,7 @@ enum MetricDtoToMetric implements Function<MetricDto, Metric> {
   @Nonnull
   public Metric apply(@Nonnull MetricDto metricDto) {
     return new MetricImpl(
-      metricDto.getId(), metricDto.getKey(), metricDto.getShortName(),
-      Metric.MetricType.valueOf(metricDto.getValueType()));
+      metricDto.getId(), metricDto.getKey(), metricDto.getShortName(), Metric.MetricType.valueOf(metricDto.getValueType()),
+      metricDto.getBestValue(), metricDto.isOptimizedBestValue());
   }
 }

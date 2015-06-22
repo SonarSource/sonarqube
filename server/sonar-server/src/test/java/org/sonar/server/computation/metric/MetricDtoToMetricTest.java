@@ -26,6 +26,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class MetricDtoToMetricTest {
 
+  private static final double SOME_BEST_VALUE = 951;
+
   private MetricDtoToMetric underTest = MetricDtoToMetric.INSTANCE;
 
   @Test(expected = NullPointerException.class)
@@ -35,7 +37,6 @@ public class MetricDtoToMetricTest {
 
   @Test
   public void verify_mapping_from_dto() {
-
     for (Metric.MetricType metricType : Metric.MetricType.values()) {
       MetricDto metricDto = createMetricDto(metricType);
       Metric metric = underTest.apply(metricDto);
@@ -44,7 +45,14 @@ public class MetricDtoToMetricTest {
       assertThat(metric.getKey()).isEqualTo(metricDto.getKey());
       assertThat(metric.getName()).isEqualTo(metricDto.getShortName());
       assertThat(metric.getType()).isEqualTo(metricType);
+      assertThat(metric.isBestValueOptimized()).isFalse();
+      assertThat(metric.getBestValue()).isEqualTo(SOME_BEST_VALUE);
     }
+  }
+
+  @Test
+  public void verify_mapping_of_isBestValueOptimized() {
+    assertThat(underTest.apply(createMetricDto(Metric.MetricType.INT).setOptimizedBestValue(true)).isBestValueOptimized()).isTrue();
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -58,6 +66,7 @@ public class MetricDtoToMetricTest {
         .setKey(metricType.name() + "_key")
         .setShortName(metricType.name() + "_name")
         .setValueType(metricType.name())
+        .setBestValue(SOME_BEST_VALUE)
         .setEnabled(true);
   }
 }

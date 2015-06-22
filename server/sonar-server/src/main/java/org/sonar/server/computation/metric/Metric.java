@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.metric;
 
+import javax.annotation.CheckForNull;
 import org.sonar.server.computation.measure.Measure;
 
 public interface Metric {
@@ -35,6 +36,18 @@ public interface Metric {
   String getName();
 
   MetricType getType();
+
+  /**
+   * When Metric is "bestValueOptimized" _and_ the component it belongs to is a FILE, any measure which has the same
+   * value as the best value of the metric should _not_ be persisted into the DB to save on DB usage.
+   */
+  boolean isBestValueOptimized();
+
+  /**
+   * The best value for the current Metric, if there is any
+   */
+  @CheckForNull
+  Double getBestValue();
 
   enum MetricType {
     INT(Measure.ValueType.INT),

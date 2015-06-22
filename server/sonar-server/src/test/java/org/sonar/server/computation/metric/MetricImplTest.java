@@ -19,11 +19,15 @@
  */
 package org.sonar.server.computation.metric;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MetricImplTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private static final int SOME_ID = 42;
   private static final String SOME_KEY = "key";
@@ -45,6 +49,14 @@ public class MetricImplTest {
   }
 
   @Test
+  public void constructor_throws_IAE_if_bestValueOptimized_is_true_but_bestValue_is_null() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("A BestValue must be specified if Metric is bestValueOptimized");
+
+    new MetricImpl(SOME_ID, SOME_KEY, SOME_NAME, Metric.MetricType.INT, null, true);
+  }
+
+  @Test
   public void verify_getters() {
     MetricImpl metric = new MetricImpl(SOME_ID, SOME_KEY, SOME_NAME, Metric.MetricType.FLOAT);
 
@@ -60,6 +72,8 @@ public class MetricImplTest {
 
     assertThat(new MetricImpl(SOME_ID, SOME_KEY, SOME_NAME, Metric.MetricType.FLOAT)).isEqualTo(expected);
     assertThat(new MetricImpl(SOME_ID, SOME_KEY, SOME_NAME, Metric.MetricType.STRING)).isEqualTo(expected);
+    assertThat(new MetricImpl(SOME_ID, SOME_KEY, SOME_NAME, Metric.MetricType.STRING, 0d, true)).isEqualTo(expected);
+    assertThat(new MetricImpl(SOME_ID, SOME_KEY, SOME_NAME, Metric.MetricType.STRING, null, false)).isEqualTo(expected);
     assertThat(new MetricImpl(SOME_ID, "some other key", SOME_NAME, Metric.MetricType.FLOAT)).isNotEqualTo(expected);
   }
 
@@ -73,8 +87,8 @@ public class MetricImplTest {
 
   @Test
   public void all_fields_are_displayed_in_toString() {
-    assertThat(new MetricImpl(SOME_ID, SOME_KEY, SOME_NAME, Metric.MetricType.FLOAT).toString())
-      .isEqualTo("MetricImpl{id=42, key=key, name=name, type=FLOAT}");
+    assertThat(new MetricImpl(SOME_ID, SOME_KEY, SOME_NAME, Metric.MetricType.FLOAT, 951d, true).toString())
+      .isEqualTo("MetricImpl{id=42, key=key, name=name, type=FLOAT, bestValue=951.0, bestValueOptimized=true}");
 
   }
 }

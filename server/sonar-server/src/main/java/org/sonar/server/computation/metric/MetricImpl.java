@@ -20,9 +20,11 @@
 package org.sonar.server.computation.metric;
 
 import java.util.Objects;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 @Immutable
@@ -32,12 +34,22 @@ public final class MetricImpl implements Metric {
   private final String key;
   private final String name;
   private final MetricType type;
+  private final Double bestValue;
+  private final boolean bestValueOptimized;
 
   public MetricImpl(int id, String key, String name, MetricType type) {
+    this(id, key, name, type, null, false);
+  }
+
+  public MetricImpl(int id, String key, String name, MetricType type,
+    @Nullable Double bestValue, boolean bestValueOptimized) {
+    checkArgument(!bestValueOptimized || bestValue != null, "A BestValue must be specified if Metric is bestValueOptimized");
     this.id = id;
     this.key = requireNonNull(key);
     this.name = requireNonNull(name);
     this.type = requireNonNull(type);
+    this.bestValueOptimized = bestValueOptimized;
+    this.bestValue = bestValue;
   }
 
   @Override
@@ -61,6 +73,17 @@ public final class MetricImpl implements Metric {
   }
 
   @Override
+  @CheckForNull
+  public Double getBestValue() {
+    return bestValue;
+  }
+
+  @Override
+  public boolean isBestValueOptimized() {
+    return bestValueOptimized;
+  }
+
+  @Override
   public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
@@ -80,10 +103,12 @@ public final class MetricImpl implements Metric {
   @Override
   public String toString() {
     return com.google.common.base.Objects.toStringHelper(this)
-        .add("id", id)
-        .add("key", key)
-        .add("name", name)
-        .add("type", type)
-        .toString();
+      .add("id", id)
+      .add("key", key)
+      .add("name", name)
+      .add("type", type)
+      .add("bestValue", bestValue)
+      .add("bestValueOptimized", bestValueOptimized)
+      .toString();
   }
 }
