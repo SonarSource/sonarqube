@@ -285,7 +285,7 @@ class MeasureFilterSql {
   static class AlertSortRowProcessor extends TextSortRowProcessor {
     @Override
     Function sortFieldFunction() {
-      return new MeasureFilterRowToAlertIndex();
+      return new MeasureFilterRowToAlertIndexFunction();
     }
 
     @Override
@@ -297,15 +297,9 @@ class MeasureFilterSql {
       return ordering;
     }
 
-    private static class MeasureFilterRowToAlertIndex implements Function<MeasureFilterRow, Integer> {
-      @Override
-      public Integer apply(MeasureFilterRow row) {
-        return ImmutableList.of("OK", "WARN", "ERROR").indexOf(row.getSortText());
-      }
-    }
   }
-
   static class NumericSortRowProcessor extends RowProcessor {
+
     @Override
     MeasureFilterRow fetch(ResultSet rs) throws SQLException {
       MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getLong(3));
@@ -315,7 +309,6 @@ class MeasureFilterSql {
       }
       return row;
     }
-
     @Override
     Function sortFieldFunction() {
       return new MeasureFilterRowToSortDoubleFunction();
@@ -327,38 +320,34 @@ class MeasureFilterSql {
     }
 
     private static class MeasureFilterRowToSortDoubleFunction implements Function<MeasureFilterRow, Double> {
+
       @Override
       public Double apply(MeasureFilterRow row) {
         return row.getSortDouble();
       }
     }
   }
-
   static class DateSortRowProcessor extends RowProcessor {
+
     @Override
     MeasureFilterRow fetch(ResultSet rs) throws SQLException {
       MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getLong(3));
       row.setSortDate(rs.getTimestamp(4).getTime());
       return row;
     }
-
     @Override
     Function sortFieldFunction() {
-      return new Function<MeasureFilterRow, Long>() {
-        @Override
-        public Long apply(MeasureFilterRow row) {
-          return row.getSortDate();
-        }
-      };
+      return new MeasureFilterRowToSortDateFunction();
     }
 
     @Override
     Ordering sortFieldOrdering(boolean ascending) {
       return newObjectOrdering(ascending);
     }
-  }
 
+  }
   static class LongSortRowProcessor extends RowProcessor {
+
     @Override
     MeasureFilterRow fetch(ResultSet rs) throws SQLException {
       MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getLong(3));
@@ -368,17 +357,27 @@ class MeasureFilterSql {
 
     @Override
     Function sortFieldFunction() {
-      return new Function<MeasureFilterRow, Long>() {
-        @Override
-        public Long apply(MeasureFilterRow row) {
-          return row.getSortDate();
-        }
-      };
+      return new MeasureFilterRowToSortDateFunction();
     }
 
     @Override
     Ordering sortFieldOrdering(boolean ascending) {
       return newObjectOrdering(ascending);
+    }
+
+  }
+
+  private static class MeasureFilterRowToAlertIndexFunction implements Function<MeasureFilterRow, Integer> {
+    @Override
+    public Integer apply(MeasureFilterRow row) {
+      return ImmutableList.of("OK", "WARN", "ERROR").indexOf(row.getSortText());
+    }
+  }
+
+  private static class MeasureFilterRowToSortDateFunction implements Function<MeasureFilterRow, Long> {
+    @Override
+    public Long apply(MeasureFilterRow row) {
+      return row.getSortDate();
     }
   }
 
