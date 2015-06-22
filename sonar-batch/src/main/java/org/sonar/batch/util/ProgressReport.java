@@ -34,6 +34,7 @@ public class ProgressReport implements Runnable {
     this.period = period;
     thread = new Thread(this);
     thread.setName(threadName);
+    thread.setDaemon(true);
   }
 
   @Override
@@ -43,7 +44,7 @@ public class ProgressReport implements Runnable {
         Thread.sleep(period);
         log(message);
       } catch (InterruptedException e) {
-        thread.interrupt();
+        break;
       }
     }
     log(stopMessage);
