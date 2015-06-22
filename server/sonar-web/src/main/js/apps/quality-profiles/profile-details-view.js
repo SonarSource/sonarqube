@@ -57,6 +57,12 @@ define([
       if (this.options.anchor === 'comparison') {
         this.scrollToComparison();
       }
+      this.$('#quality-profile-changelog-form input')
+          .datepicker({
+            dateFormat: 'yy-mm-dd',
+            changeMonth: true,
+            changeYear: true
+          });
     },
 
     initProjectsSelect: function () {
@@ -64,6 +70,7 @@ define([
       this.projectsSelectList = new window.SelectList({
         el: this.$('#quality-profile-projects-list'),
         width: '100%',
+        height: 200,
         readOnly: !this.options.canWrite,
         focusSearch: false,
         format: function (item) {

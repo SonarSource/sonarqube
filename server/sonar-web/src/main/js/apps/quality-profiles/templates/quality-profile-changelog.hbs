@@ -6,9 +6,9 @@
 
 <form class="spacer-bottom" id="quality-profile-changelog-form">
   {{t 'quality_profiles.changelog_from'}}
-  <input name="since" type="text" value="{{eventsParameters.since}}" placeholder="1970-01-31">
+  <input name="since" type="text" value="{{eventsParameters.since}}" placeholder="{{t 'optional'}}">
   {{t 'to'}}
-  <input name="to" type="text" value="{{eventsParameters.to}}" placeholder="1970-01-31">
+  <input name="to" type="text" value="{{eventsParameters.to}}" placeholder="{{t 'optional'}}">
   <button id="quality-profile-changelog-form-submit">{{t 'search_verb'}}</button>
 </form>
 
