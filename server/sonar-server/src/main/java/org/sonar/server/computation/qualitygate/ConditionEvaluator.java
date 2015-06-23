@@ -20,7 +20,6 @@
 package org.sonar.server.computation.qualitygate;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.server.computation.measure.Measure;
@@ -29,7 +28,6 @@ import org.sonar.server.computation.metric.Metric;
 
 import static com.google.common.base.Optional.of;
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Objects.requireNonNull;
 
 public final class ConditionEvaluator {
 
@@ -51,7 +49,7 @@ public final class ConditionEvaluator {
       .or(new EvaluationResult(Measure.Level.OK, measureComparable));
   }
 
-  private Optional<EvaluationResult> evaluateCondition(Condition condition, Comparable<?> measureComparable, Measure.Level alertLevel) {
+  private static Optional<EvaluationResult> evaluateCondition(Condition condition, Comparable<?> measureComparable, Measure.Level alertLevel) {
     String conditionValue = getValueToEval(condition, alertLevel);
     if (StringUtils.isEmpty(conditionValue)) {
       return Optional.absent();
@@ -88,9 +86,9 @@ public final class ConditionEvaluator {
       case NOT_EQUALS:
         return comparison != 0;
       case GREATER_THAN:
-        return comparison == 1;
+        return comparison > 0;
       case LESS_THAN:
-        return comparison == -1;
+        return comparison < 0;
       default:
         throw new IllegalArgumentException(String.format("Unsupported operator '%s'", condition.getOperator()));
     }
@@ -186,7 +184,7 @@ public final class ConditionEvaluator {
       case 5:
         return variations.hasVariation5() ? of(variations.getVariation5()) : NO_PERIOD_VALUE;
       default:
-        throw new IllegalStateException("Following index period is not allowed : " + Double.toString(period));
+        throw new IllegalArgumentException("Following index period is not allowed : " + period);
     }
   }
 
