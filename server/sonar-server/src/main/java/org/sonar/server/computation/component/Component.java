@@ -69,9 +69,11 @@ public interface Component {
   String getVersion();
 
   /**
-   * Is this component a unit test or test ?
+   * The attributes of the Component if it's type is File.
+   *
+   * @throws IllegalStateException if the Component's type is not {@link Type#FILE}
    */
-  boolean isUnitTest();
+  FileAttributes getFileAttributes();
 
   List<Component> getChildren();
 

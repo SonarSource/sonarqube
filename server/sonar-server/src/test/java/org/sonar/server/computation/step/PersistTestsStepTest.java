@@ -41,6 +41,7 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.FileAttributes;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDao;
 import org.sonar.server.source.db.FileSourceDb;
@@ -98,8 +99,8 @@ public class PersistTestsStepTest extends BaseStepTest {
 
     root = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).addChildren(
       DumbComponent.builder(Component.Type.MODULE, 2).setUuid("MODULE_UUID").setKey("MODULE_KEY").addChildren(
-        DumbComponent.builder(Component.Type.FILE, 3).setUuid(TEST_FILE_UUID_1).setKey("TEST_FILE1_KEY").setUnitTest(true).build(),
-        DumbComponent.builder(Component.Type.FILE, 4).setUuid(TEST_FILE_UUID_2).setKey("TEST_FILE2_KEY").setUnitTest(true).build(),
+        DumbComponent.builder(Component.Type.FILE, 3).setUuid(TEST_FILE_UUID_1).setKey("TEST_FILE1_KEY").setFileAttributes(new FileAttributes(true, null)).build(),
+        DumbComponent.builder(Component.Type.FILE, 4).setUuid(TEST_FILE_UUID_2).setKey("TEST_FILE2_KEY").setFileAttributes(new FileAttributes(true, null)).build(),
         DumbComponent.builder(Component.Type.FILE, 5).setUuid(MAIN_FILE_UUID_1).setKey("MAIN_FILE1_KEY").build(),
         DumbComponent.builder(Component.Type.FILE, 6).setUuid(MAIN_FILE_UUID_2).setKey("MAIN_FILE2_KEY").build()
         ).build()

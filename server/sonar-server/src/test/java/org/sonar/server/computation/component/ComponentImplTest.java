@@ -20,13 +20,21 @@
 package org.sonar.server.computation.component;
 
 import java.util.Collections;
+import java.util.List;
 import org.junit.Test;
-import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 
+import static com.google.common.base.Predicates.equalTo;
+import static com.google.common.base.Predicates.not;
+import static com.google.common.collect.FluentIterable.from;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.sonar.batch.protocol.Constants.ComponentType;
 
 public class ComponentImplTest {
+
+  private static final List<Component> EMPTY_CHILD_LIST = Collections.<Component>emptyList();
 
   @Test(expected = NullPointerException.class)
   public void constructor_throws_NPE_if_component_arg_is_Null() {
@@ -35,53 +43,75 @@ public class ComponentImplTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void getUuid_throws_UOE_if_uuid_has_not_been_set_yet() {
-    ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().build(), Collections.<Component>emptyList());
+    ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().build(), EMPTY_CHILD_LIST);
     component.getUuid();
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void getKey_throws_UOE_if_uuid_has_not_been_set_yet() {
-    ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().build(), Collections.<Component>emptyList());
+    ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().build(), EMPTY_CHILD_LIST);
     component.getKey();
   }
 
   @Test
   public void verify_setUuid() {
     String uuid = "toto";
-    ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().build(), Collections.<Component>emptyList()).setUuid(uuid);
+    ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().build(), EMPTY_CHILD_LIST).setUuid(uuid);
     assertThat(component.getUuid()).isEqualTo(uuid);
   }
 
   @Test
   public void verify_setKey() {
     String key = "toto";
-    ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().build(), Collections.<Component>emptyList()).setKey(key);
+    ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().build(), EMPTY_CHILD_LIST).setKey(key);
     assertThat(component.getKey()).isEqualTo(key);
   }
 
   @Test
   public void get_name_from_batch_component() throws Exception {
     String name = "project";
-    ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().setName(name).build(), Collections.<Component>emptyList());
+    ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().setName(name).build(), EMPTY_CHILD_LIST);
     assertThat(component.getName()).isEqualTo(name);
   }
 
   @Test
   public void get_version_from_batch_component() throws Exception {
     String version = "1.0";
-    ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().setVersion(version).build(), Collections.<Component>emptyList());
+    ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().setVersion(version).build(), EMPTY_CHILD_LIST);
     assertThat(component.getVersion()).isEqualTo(version);
   }
 
   @Test
-  public void get_is_unit_test_from_batch_component() throws Exception {
-    ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().setIsTest(true).build(), Collections.<Component>emptyList());
-    assertThat(component.isUnitTest()).isTrue();
+  public void getFileAttributes_throws_ISE_if_BatchComponent_does_not_have_type_FILE() throws Exception {
+    for (ComponentType componentType : from(asList(ComponentType.values())).filter(not(equalTo(ComponentType.FILE)))) {
+      ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().setType(componentType).build(), EMPTY_CHILD_LIST);
+      try {
+        component.getFileAttributes();
+        fail("A IllegalStateException should have been raised");
+      } catch (IllegalStateException e) {
+        assertThat(e).hasMessage("Only component of type FILE have a FileAttributes object");
+      }
+    }
+  }
+
+  @Test
+  public void isUnitTest_returns_true_if_IsTest_is_set_in_BatchComponent() throws Exception {
+    ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().setType(ComponentType.FILE).setIsTest(true).build(), EMPTY_CHILD_LIST);
+
+    assertThat(component.getFileAttributes().isUnitTest()).isTrue();
+  }
+
+  @Test
+  public void isUnitTest_returns_value_of_language_of_BatchComponent() throws Exception {
+    String languageKey = "some language key";
+    ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().setType(ComponentType.FILE).setLanguage(languageKey).build(), EMPTY_CHILD_LIST);
+
+    assertThat(component.getFileAttributes().getLanguageKey()).isEqualTo(languageKey);
   }
 
   @Test
   public void convertType() {
-    for (Constants.ComponentType componentType : Constants.ComponentType.values()) {
+    for (ComponentType componentType : ComponentType.values()) {
       assertThat(ComponentImpl.convertType(componentType)).isEqualTo(Component.Type.valueOf(componentType.name()));
     }
   }

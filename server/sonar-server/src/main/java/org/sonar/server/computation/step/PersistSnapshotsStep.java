@@ -163,7 +163,7 @@ public class PersistSnapshotsStep implements ComputationStep {
   }
 
   private static String getFileQualifier(Component component) {
-    return component.isUnitTest() ? Qualifiers.UNIT_TEST_FILE : Qualifiers.FILE;
+    return component.getFileAttributes().isUnitTest() ? Qualifiers.UNIT_TEST_FILE : Qualifiers.FILE;
   }
 
   @Override

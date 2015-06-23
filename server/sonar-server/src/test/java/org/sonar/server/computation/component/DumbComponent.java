@@ -19,26 +19,29 @@
  */
 package org.sonar.server.computation.component;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Implementation of {@link Component} for unit tests.
  */
 public class DumbComponent implements Component {
 
+  private static final FileAttributes DEFAULT_FILE_ATTRIBUTES = new FileAttributes(false, null);
+
   public static final Component DUMB_PROJECT = builder(Type.PROJECT, 1).setKey("PROJECT_KEY").setUuid("PROJECT_UUID").setName("Project Name").setVersion("1.0-SNAPSHOT").build();
 
   private final Type type;
   private final int ref;
   private final String uuid, key, name, version;
-  private final boolean isUnitTest;
+  private final FileAttributes fileAttributes;
   private final List<Component> children;
 
   private DumbComponent(Builder builder) {
@@ -48,7 +51,7 @@ public class DumbComponent implements Component {
     this.key = builder.key;
     this.name = builder.name;
     this.version = builder.version;
-    this.isUnitTest = builder.isUnitTest;
+    this.fileAttributes = builder.fileAttributes == null ? DEFAULT_FILE_ATTRIBUTES : builder.fileAttributes;
     this.children = ImmutableList.copyOf(builder.children);
   }
 
@@ -85,13 +88,14 @@ public class DumbComponent implements Component {
   }
 
   @Override
-  public boolean isUnitTest() {
-    return isUnitTest;
+  public int getRef() {
+    return ref;
   }
 
   @Override
-  public int getRef() {
-    return ref;
+  public FileAttributes getFileAttributes() {
+    checkState(this.type == Type.FILE, "Only component of type FILE can have a FileAttributes object");
+    return this.fileAttributes;
   }
 
   @Override
@@ -100,7 +104,7 @@ public class DumbComponent implements Component {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }
@@ -124,11 +128,11 @@ public class DumbComponent implements Component {
     private final Type type;
     private final int ref;
     private String uuid, key, name, version;
-    private boolean isUnitTest;
+    private FileAttributes fileAttributes;
     private final List<Component> children = new ArrayList<>();
 
     private Builder(Type type, int ref) {
-      Preconditions.checkNotNull(type, "Component type must not be null");
+      requireNonNull(type, "Component type must not be null");
       this.type = type;
       this.ref = ref;
     }
@@ -153,8 +157,9 @@ public class DumbComponent implements Component {
       return this;
     }
 
-    public Builder setUnitTest(boolean b){
-      this.isUnitTest = b;
+    public Builder setFileAttributes(FileAttributes fileAttributes){
+      checkState(type == Type.FILE, "Only Component of type File can have File attributes");
+      this.fileAttributes = fileAttributes;
       return this;
     }
 

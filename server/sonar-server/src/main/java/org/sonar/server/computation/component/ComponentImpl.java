@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.Iterables.filter;
@@ -33,8 +34,10 @@ import static com.google.common.collect.Iterables.filter;
 public class ComponentImpl implements Component {
   private final Type type;
   private final int ref;
-  private final String name, version;
-  private final boolean isUnitTest;
+  private final String name;
+  private final String version;
+  @CheckForNull
+  private final FileAttributes fileAttributes;
   private final List<Component> children;
 
   // Mutable values
@@ -46,8 +49,19 @@ public class ComponentImpl implements Component {
     this.type = convertType(component.getType());
     this.name = component.getName();
     this.version = component.hasVersion() ? component.getVersion() : null;
-    this.isUnitTest = component.hasIsTest() && component.getIsTest();
+    this.fileAttributes = createFileAttributes(component);
     this.children = children == null ? Collections.<Component>emptyList() : copyOf(filter(children, notNull()));
+  }
+
+  @CheckForNull
+  private static FileAttributes createFileAttributes(BatchReport.Component component) {
+    if (component.getType() != Constants.ComponentType.FILE) {
+      return null;
+    }
+
+    return new FileAttributes(
+      component.hasIsTest() && component.getIsTest(),
+      component.hasLanguage() ? component.getLanguage() : null);
   }
 
   public static Type convertType(Constants.ComponentType type) {
@@ -113,8 +127,9 @@ public class ComponentImpl implements Component {
   }
 
   @Override
-  public boolean isUnitTest() {
-    return isUnitTest;
+  public FileAttributes getFileAttributes() {
+    checkState(this.type == Type.FILE, "Only component of type FILE have a FileAttributes object");
+    return this.fileAttributes;
   }
 
   @Override

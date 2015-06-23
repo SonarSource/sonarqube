@@ -115,7 +115,7 @@ public class PersistTestsStep implements ComputationStep {
 
     @Override
     public void visitFile(Component file) {
-      if (file.isUnitTest()) {
+      if (file.getFileAttributes().isUnitTest()) {
         persistTestResults(file);
       }
     }
