@@ -37,9 +37,9 @@ public class IssueListeners {
     }
   }
 
-  public void beforeIssue(Component component, DefaultIssue issue) {
+  public void onOpenIssueInitialization(Component component, DefaultIssue issue) {
     for (IssueListener listener : listeners) {
-      listener.beforeIssue(component, issue);
+      listener.onOpenIssueInitialization(component, issue);
     }
   }
 

@@ -32,6 +32,8 @@ import org.sonar.api.CoreProperties;
  */
 public interface PeriodsHolder {
 
+  int MAX_NUMBER_OF_PERIODS = 5;
+
   /**
    * Return the list of differential periods, ordered by increasing index.
    *

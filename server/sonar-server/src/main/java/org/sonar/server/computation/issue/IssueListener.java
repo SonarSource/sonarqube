@@ -25,11 +25,23 @@ import org.sonar.server.computation.component.Component;
 
 public abstract class IssueListener {
 
+  /**
+   * This method is called for each component before processing its issues.
+   * The component does not necessarily have issues.
+   */
   public void beforeComponent(Component component, Tracking tracking) {
 
   }
 
-  public void beforeIssue(Component component, DefaultIssue issue) {
+  /**
+   * This method is called when initializing an open issue. At that time
+   * any information related to tracking step are not available (line, assignee,
+   * resolution, status, creation date, uuid, ...).
+   * <p/>
+   * The need for this method is for example to calculate the issue debt
+   * before merging with base issue
+   */
+  public void onOpenIssueInitialization(Component component, DefaultIssue issue) {
 
   }
 

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.issue;
+package org.sonar.server.computation.step;
 
 import com.google.common.collect.Sets;
 import java.util.List;
@@ -28,7 +28,11 @@ import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.server.computation.step.ComputationStep;
+import org.sonar.server.computation.issue.BaseIssuesLoader;
+import org.sonar.server.computation.issue.IssueCache;
+import org.sonar.server.computation.issue.IssueLifecycle;
+import org.sonar.server.computation.issue.IssueListeners;
+import org.sonar.server.computation.issue.TrackerExecution;
 import org.sonar.server.util.cache.DiskCache;
 
 import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor.Order.POST_ORDER;
@@ -87,7 +91,7 @@ public class IntegrateIssuesStep implements ComputationStep {
     Set<DefaultIssue> issues = tracking.getUnmatchedRaws();
     for (DefaultIssue issue : issues) {
       issueLifecycle.initNewOpenIssue(issue);
-      issueListeners.beforeIssue(component, issue);
+      issueListeners.onOpenIssueInitialization(component, issue);
       process(component, issue, cacheAppender);
     }
   }
@@ -96,7 +100,7 @@ public class IntegrateIssuesStep implements ComputationStep {
     for (Map.Entry<DefaultIssue, DefaultIssue> entry : tracking.getMatchedRaws().entrySet()) {
       DefaultIssue raw = entry.getKey();
       DefaultIssue base = entry.getValue();
-      issueListeners.beforeIssue(component, raw);
+      issueListeners.onOpenIssueInitialization(component, raw);
       issueLifecycle.mergeExistingOpenIssue(raw, base);
       process(component, raw, cacheAppender);
     }
@@ -104,7 +108,7 @@ public class IntegrateIssuesStep implements ComputationStep {
       int line = entry.getKey();
       DefaultIssue manualIssue = entry.getValue();
       manualIssue.setLine(line == 0 ? null : line);
-      issueListeners.beforeIssue(component, manualIssue);
+      issueListeners.onOpenIssueInitialization(component, manualIssue);
       process(component, manualIssue, cacheAppender);
     }
   }

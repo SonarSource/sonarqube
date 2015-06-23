@@ -246,7 +246,7 @@ public class IssueTrackingTest {
     DefaultIssue newIssue = newDefaultIssue("1 branch need to be covered", 200, RuleKey.of("squid", "AvoidCycle"), null);
 
     thrown
-      .expectMessage("Invalid line number for issue DefaultIssue[key=<null>,componentUuid=<null>,componentKey=<null>,moduleUuid=<null>,moduleUuidPath=<null>,projectUuid=<null>,projectKey=<null>,ruleKey=squid:AvoidCycle,language=<null>,severity=<null>,manualSeverity=false,message=1 branch need to be covered,line=200,effortToFix=<null>,debt=<null>,status=OPEN,resolution=<null>,reporter=<null>,assignee=<null>,checksum=<null>,attributes=<null>,authorLogin=<null>,actionPlanKey=<null>,comments=<null>,tags=<null>,creationDate=<null>,updateDate=<null>,closeDate=<null>,currentChange=<null>,changes=<null>,isNew=true,endOfLife=false,onDisabledRule=false,isChanged=false,sendNotifications=false,selectedAt=<null>]. File has only 17 line(s)");
+      .expectMessage("Invalid line number for issue");
 
     tracking.track(sourceHashHolder, Collections.<ServerIssue>emptyList(), newArrayList(newIssue));
   }

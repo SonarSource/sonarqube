@@ -25,7 +25,7 @@ import org.sonar.server.computation.component.Component;
 public class DebtCalculator extends IssueListener {
 
   @Override
-  public void beforeIssue(Component component, DefaultIssue issue) {
+  public void onOpenIssueInitialization(Component component, DefaultIssue issue) {
     if (issue.resolution() == null) {
       // TODO
     }
