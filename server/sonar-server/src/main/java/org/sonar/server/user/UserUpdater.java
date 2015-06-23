@@ -134,6 +134,19 @@ public class UserUpdater {
     userIndexer.index();
   }
 
+  public void checkCurrentPassword(String login, String password) {
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
+      String cryptedPassword = encryptPassword(password, user.getSalt());
+      if (!cryptedPassword.equals(user.getCryptedPassword())) {
+        throw new IllegalArgumentException("Incorrect password");
+      }
+    } finally {
+      dbSession.close();
+    }
+  }
+
   private UserDto createNewUserDto(DbSession dbSession, NewUser newUser) {
     UserDto userDto = new UserDto();
     List<Message> messages = newArrayList();
@@ -301,7 +314,11 @@ public class UserUpdater {
     random.nextBytes(salt);
     String saltHex = DigestUtils.sha1Hex(salt);
     userDto.setSalt(saltHex);
-    userDto.setCryptedPassword(DigestUtils.sha1Hex("--" + saltHex + "--" + password + "--"));
+    userDto.setCryptedPassword(encryptPassword(password, saltHex));
+  }
+
+  private static String encryptPassword(String password, String salt) {
+    return DigestUtils.sha1Hex("--" + salt + "--" + password + "--");
   }
 
   private void notifyNewUser(String login, String name, String email) {

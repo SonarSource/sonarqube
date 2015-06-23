@@ -32,6 +32,7 @@ public class ChangePasswordAction implements UsersWsAction {
 
   private static final String PARAM_LOGIN = "login";
   private static final String PARAM_PASSWORD = "password";
+  private static final String PARAM_PREVIOUS_PASSWORD = "previousPassword";
 
   private final UserUpdater userUpdater;
   private final UserSession userSession;
@@ -60,6 +61,11 @@ public class ChangePasswordAction implements UsersWsAction {
       .setDescription("New password")
       .setRequired(true)
       .setExampleValue("mypassword");
+
+    action.createParam(PARAM_PREVIOUS_PASSWORD)
+      .setDescription("Previous password. Required when changing one's own password.")
+      .setRequired(false)
+      .setExampleValue("oldpassword");
   }
 
   @Override
@@ -67,7 +73,10 @@ public class ChangePasswordAction implements UsersWsAction {
     userSession.checkLoggedIn();
 
     String login = request.mandatoryParam(PARAM_LOGIN);
-    if (!login.equals(userSession.getLogin())) {
+    if (login.equals(userSession.getLogin())) {
+      String previousPassword = request.mandatoryParam(PARAM_PREVIOUS_PASSWORD);
+      userUpdater.checkCurrentPassword(login, previousPassword);
+    } else {
       userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
     }
 

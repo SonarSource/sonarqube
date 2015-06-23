@@ -89,7 +89,7 @@ public class UsersWsTest {
     WebService.Action action = controller.action("change_password");
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isTrue();
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.params()).hasSize(3);
   }
 
   @Test

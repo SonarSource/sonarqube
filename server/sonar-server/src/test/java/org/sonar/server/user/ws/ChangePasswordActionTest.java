@@ -32,13 +32,13 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.core.user.GroupDto;
-import org.sonar.core.user.UserDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.NewUser;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.SecurityRealmFactory;
 import org.sonar.server.user.UserUpdater;
@@ -76,6 +76,8 @@ public class ChangePasswordActionTest {
 
   DbClient dbClient;
 
+  UserUpdater userUpdater;
+
   UserIndexer userIndexer;
 
   DbSession session;
@@ -98,8 +100,8 @@ public class ChangePasswordActionTest {
 
     userIndexer = (UserIndexer) new UserIndexer(dbClient, esTester.client()).setEnabled(true);
     index = new UserIndex(esTester.client());
-    tester = new WsTester(
-      new UsersWs(new ChangePasswordAction(new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, realmFactory), userSessionRule)));
+    userUpdater = new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, realmFactory);
+    tester = new WsTester(new UsersWs(new ChangePasswordAction(userUpdater, userSessionRule)));
     controller = tester.controller("api/users");
   }
 
@@ -152,6 +154,7 @@ public class ChangePasswordActionTest {
     userSessionRule.login("john");
     tester.newPostRequest("api/users", "change_password")
       .setParam("login", "john")
+      .setParam("previousPassword", "Valar Dohaeris")
       .setParam("password", "Valar Morghulis")
       .execute()
       .assertNoContent();
@@ -159,6 +162,31 @@ public class ChangePasswordActionTest {
     session.clearCache();
     String newPassword = dbClient.userDao().selectByLogin(session, "john").getCryptedPassword();
     assertThat(newPassword).isNotEqualTo(originalPassword);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void fail_to_update_password_on_self_without_old_password() throws Exception {
+    createUser();
+    session.clearCache();
+
+    userSessionRule.login("john");
+    tester.newPostRequest("api/users", "change_password")
+      .setParam("login", "john")
+      .setParam("password", "Valar Morghulis")
+      .execute();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void fail_to_update_password_on_self_with_bad_old_password() throws Exception {
+    createUser();
+    session.clearCache();
+
+    userSessionRule.login("john");
+    tester.newPostRequest("api/users", "change_password")
+      .setParam("login", "john")
+      .setParam("previousPassword", "I dunno")
+      .setParam("password", "Valar Morghulis")
+      .execute();
   }
 
   @Test(expected = BadRequestException.class)
@@ -174,13 +202,12 @@ public class ChangePasswordActionTest {
   }
 
   private void createUser() {
-    dbClient.userDao().insert(session, new UserDto()
+    userUpdater.create(NewUser.create()
       .setEmail("john@email.com")
       .setLogin("john")
       .setName("John")
       .setScmAccounts(newArrayList("jn"))
-      .setActive(true));
-    session.commit();
-    userIndexer.index();
+      .setPassword("Valar Dohaeris")
+      .setPasswordConfirmation("Valar Dohaeris"));
   }
 }
