@@ -213,6 +213,25 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(retrieveDtos()).isEmpty();
   }
 
+  @Test
+  public void empty_values_are_not_persisted() {
+    reportReader.putMeasures(FILE_REF, Arrays.asList(
+      BatchReport.Measure.newBuilder()
+        .setValueType(MeasureValueType.STRING)
+        .setMetricKey(STRING_METRIC_KEY)
+        .build(),
+      BatchReport.Measure.newBuilder()
+        .setValueType(MeasureValueType.DOUBLE)
+        .setMetricKey(DOUBLE_METRIC_KEY)
+        .build()
+      ));
+
+    sut.execute();
+    session.commit();
+
+    assertThat(retrieveDtos()).isEmpty();
+  }
+
   private ComponentDto addComponent(String key) {
     ComponentDto componentDto = new ComponentDto().setKey(key).setUuid(Uuids.create());
     dbClient.componentDao().insert(session, componentDto);

@@ -27,6 +27,7 @@ import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.persistence.DbSession;
@@ -108,12 +109,22 @@ public class PersistMeasuresStep implements ComputationStep {
         }
 
         Metric metric = metricRepository.getByKey(metricKey);
-        Predicate<Measure> notBestValueOptimization = Predicates.not(BestValueOptimization.from(metric, component));
-        for (Measure measure : from(measures.getValue()).filter(notBestValueOptimization)) {
+        Predicate<Measure> notBestValueOptimized = Predicates.not(BestValueOptimization.from(metric, component));
+        for (Measure measure : from(measures.getValue()).filter(NonEmptyMeasure.INSTANCE).filter(notBestValueOptimized)) {
           MeasureDto measureDto = MeasureToMeasureDto.INSTANCE.toMeasureDto(measure, metric, componentId, snapshotId);
           dbClient.measureDao().insert(session, measureDto);
         }
       }
+    }
+
+  }
+
+  private enum NonEmptyMeasure implements Predicate<Measure> {
+    INSTANCE;
+
+    @Override
+    public boolean apply(@Nonnull Measure input) {
+      return input.getValueType() != Measure.ValueType.NO_VALUE || input.hasVariations() || input.getData() != null;
     }
   }
 
