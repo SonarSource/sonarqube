@@ -33,11 +33,17 @@ public class ProjectTempFolderProvider extends LifecycleProviderAdapter {
   static final String TMP_NAME = ".sonartmp";
   private DefaultTempFolder projectTempFolder;
 
-  public TempFolder provide(BootstrapProperties bootstrapProps) {
+  public TempFolder provide(AnalysisProperties props) {
     if (projectTempFolder == null) {
-      String workingDirPath = StringUtils.defaultIfBlank(bootstrapProps.property(CoreProperties.WORKING_DIRECTORY), CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
-      Path workingDir = Paths.get(workingDirPath);
-      Path tempDir = workingDir.resolve(TMP_NAME).normalize();
+      String workingDirPath = StringUtils.defaultIfBlank(props.property(CoreProperties.WORKING_DIRECTORY), CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
+      Path workingDir = Paths.get(workingDirPath).normalize();
+      
+      if(!workingDir.isAbsolute()) {
+        Path base = getBasePath(props);
+        workingDir = base.resolve(workingDir);
+      }
+      
+      Path tempDir = workingDir.resolve(TMP_NAME);
       try {
         Files.createDirectories(tempDir);
       } catch (IOException e) {
@@ -47,5 +53,13 @@ public class ProjectTempFolderProvider extends LifecycleProviderAdapter {
       this.instance = projectTempFolder;
     }
     return projectTempFolder;
+  }
+  
+  private Path getBasePath(AnalysisProperties props) {
+    String baseDir = props.property("sonar.projectBaseDir");
+    if(baseDir == null) {
+      throw new IllegalStateException("sonar.projectBaseDir needs to be specified");
+    }
+    return Paths.get(baseDir);
   }
 }

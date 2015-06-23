@@ -46,7 +46,7 @@ public class ProjectTempFolderProviderTest {
     File workingDir = temp.newFolder();
     File tmpDir = new File(workingDir, ProjectTempFolderProvider.TMP_NAME);
 
-    TempFolder tempFolder = tempFolderProvider.provide(new BootstrapProperties(ImmutableMap.of(CoreProperties.WORKING_DIRECTORY, workingDir.getAbsolutePath())));
+    TempFolder tempFolder = tempFolderProvider.provide(new AnalysisProperties(ImmutableMap.of(CoreProperties.WORKING_DIRECTORY, workingDir.getAbsolutePath()), ""));
     tempFolder.newDir();
     tempFolder.newFile();
     assertThat(tmpDir).exists();
@@ -55,10 +55,11 @@ public class ProjectTempFolderProviderTest {
 
   @Test
   public void createTempFolder() throws IOException {
-    File defaultDir = new File(CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE, ProjectTempFolderProvider.TMP_NAME);
+    File workingDir = temp.newFolder();
+    File defaultDir = new File(new File(workingDir, CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE), ProjectTempFolderProvider.TMP_NAME);
 
     try {
-      TempFolder tempFolder = tempFolderProvider.provide(new BootstrapProperties(Collections.<String, String>emptyMap()));
+      TempFolder tempFolder = tempFolderProvider.provide(new AnalysisProperties(ImmutableMap.of("sonar.projectBaseDir", workingDir.getAbsolutePath()), ""));
       tempFolder.newDir();
       tempFolder.newFile();
       assertThat(defaultDir).exists();
