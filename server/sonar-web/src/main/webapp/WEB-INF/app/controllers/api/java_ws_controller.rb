@@ -33,6 +33,10 @@ class Api::JavaWsController < Api::ApiController
     engine = Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerWs::WebServiceEngine.java_class)
     engine.execute(ws_request, ws_response, params[:wspath], params[:wsaction])
 
+    ws_response.getHeaderNames().to_a.each do |name|
+      response.header[name] = ws_response.getHeader(name)
+    end
+
     # response is already written to HttpServletResponse
     render :text => ws_response.stream().output().toByteArray(),
            :status => ws_response.stream().httpStatus(),

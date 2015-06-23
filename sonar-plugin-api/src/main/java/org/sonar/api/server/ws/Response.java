@@ -19,10 +19,11 @@
  */
 package org.sonar.api.server.ws;
 
+import java.io.OutputStream;
+import java.util.Collection;
+import javax.annotation.CheckForNull;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
-
-import java.io.OutputStream;
 
 /**
  * HTTP response
@@ -42,6 +43,13 @@ public interface Response {
   XmlWriter newXmlWriter();
 
   Response noContent();
+
+  Response setHeader(String name, String value);
+
+  Collection<String> getHeaderNames();
+
+  @CheckForNull
+  String getHeader(String name);
 
   Stream stream();
 

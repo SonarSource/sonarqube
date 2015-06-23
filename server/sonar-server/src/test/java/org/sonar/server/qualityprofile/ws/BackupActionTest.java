@@ -19,6 +19,8 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.io.PrintWriter;
+import java.io.Writer;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -34,9 +36,6 @@ import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.Result;
-
-import java.io.PrintWriter;
-import java.io.Writer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -84,6 +83,7 @@ public class BackupActionTest {
 
     Result result = tester.newGetRequest("api/qualityprofiles", "backup").setParam("profileKey", profileKey).execute();
     assertThat(result.outputAsString()).isEqualTo(response);
+    result.assertHeader("Content-Disposition", "attachment; filename=polop-palap-xoo-12345.xml");
   }
 
   @Test(expected = IllegalArgumentException.class)

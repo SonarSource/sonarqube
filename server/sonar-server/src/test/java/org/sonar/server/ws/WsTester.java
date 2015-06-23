@@ -20,6 +20,17 @@
 package org.sonar.server.ws;
 
 import com.google.common.collect.Maps;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -28,18 +39,6 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
 import org.sonar.server.ws.WsTester.TestResponse.TestStream;
 import org.sonar.test.JsonAssert;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.ws.RequestVerifier.verifyRequest;
@@ -104,6 +103,8 @@ public class WsTester {
 
     private TestStream stream;
 
+    private Map<String, String> headers = Maps.newHashMap();
+
     public class TestStream implements Response.Stream {
       private String mediaType;
       private int status;
@@ -165,6 +166,22 @@ public class WsTester {
     public String outputAsString() {
       return new String(output.toByteArray(), StandardCharsets.UTF_8);
     }
+
+    @Override
+    public Response setHeader(String name, String value) {
+      headers.put(name, value);
+      return this;
+    }
+
+    @Override
+    public Collection<String> getHeaderNames() {
+      return headers.keySet();
+    }
+
+    @Override
+    public String getHeader(String name) {
+      return headers.get(name);
+    }
   }
 
   public static class Result {
@@ -220,6 +237,10 @@ public class WsTester {
       return this;
     }
 
+    public Result assertHeader(String name, String value) {
+      assertThat(response.getHeader(name)).isEqualTo(value);
+      return this;
+    }
   }
 
   private final WebService.Context context = new WebService.Context();

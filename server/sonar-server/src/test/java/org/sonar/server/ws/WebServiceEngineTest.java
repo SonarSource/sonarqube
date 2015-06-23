@@ -20,6 +20,11 @@
 package org.sonar.server.ws;
 
 import com.google.common.collect.Maps;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Locale;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -36,12 +41,6 @@ import org.sonar.server.exceptions.Errors;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.tester.UserSessionRule;
-
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Locale;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -289,6 +288,16 @@ public class WebServiceEngineTest {
       "{\"msg\":\"reason #2\"}]}");
     assertThat(response.stream().httpStatus()).isEqualTo(400);
     assertThat(response.stream().mediaType()).isEqualTo(MimeTypes.JSON);
+  }
+
+  @Test
+  public void should_handle_headers() throws Exception {
+    ServletResponse response = new ServletResponse();
+    String name = "Content-Disposition";
+    String value = "attachment; filename=sonarqube.zip";
+    response.setHeader(name, value);
+    assertThat(response.getHeaderNames()).containsExactly(name);
+    assertThat(response.getHeader(name)).isEqualTo(value);
   }
 
   static class SystemWs implements WebService {

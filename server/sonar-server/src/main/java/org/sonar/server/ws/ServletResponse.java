@@ -19,19 +19,22 @@
  */
 package org.sonar.server.ws;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.CheckForNull;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
 import org.sonar.server.plugins.MimeTypes;
 
-import javax.annotation.CheckForNull;
-
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
-
 public class ServletResponse implements Response {
+
+  private Map<String, String> headers = new HashMap<String, String>();
 
   public static class ServletStream implements Stream {
     private String mediaType;
@@ -97,5 +100,21 @@ public class ServletResponse implements Response {
   public Response noContent() {
     stream.setStatus(204);
     return this;
+  }
+
+  @Override
+  public Response setHeader(String name, String value) {
+    headers.put(name, value);
+    return this;
+  }
+
+  @Override
+  public Collection<String> getHeaderNames() {
+    return headers.keySet();
+  }
+
+  @Override
+  public String getHeader(String name) {
+    return headers.get(name);
   }
 }

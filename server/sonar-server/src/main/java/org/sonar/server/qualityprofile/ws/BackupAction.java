@@ -19,6 +19,8 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -31,9 +33,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileFactory;
-
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 
 public class BackupAction implements QProfileWsAction {
 
@@ -71,6 +70,7 @@ public class BackupAction implements QProfileWsAction {
     try {
       String profileKey = QProfileIdentificationParamUtils.getProfileKeyFromParameters(request, profileFactory, session);
       backuper.backup(profileKey, writer);
+      response.setHeader("Content-Disposition", String.format("attachment; filename=%s.xml", profileKey));
     } finally {
       session.close();
       IOUtils.closeQuietly(writer);
