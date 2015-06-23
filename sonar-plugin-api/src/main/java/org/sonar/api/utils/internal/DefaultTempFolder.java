@@ -35,15 +35,9 @@ public class DefaultTempFolder implements TempFolder {
   private static final int TEMP_DIR_ATTEMPTS = 10000;
 
   private final File tempDir;
-  private final boolean deleteOnExit;
 
   public DefaultTempFolder(File tempDir) {
-    this(tempDir, false);
-  }
-
-  public DefaultTempFolder(File tempDir, boolean deleteOnExit) {
     this.tempDir = tempDir;
-    this.deleteOnExit = deleteOnExit;
   }
 
   @Override
@@ -110,12 +104,6 @@ public class DefaultTempFolder implements TempFolder {
 
   public void clean() {
     FileUtils.deleteQuietly(tempDir);
-  }
-
-  public void stop() {
-    if (deleteOnExit) {
-      clean();
-    }
   }
 
 }

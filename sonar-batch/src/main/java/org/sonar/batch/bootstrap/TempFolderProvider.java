@@ -19,109 +19,33 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.apache.commons.io.FileUtils;
-import org.sonar.api.utils.TempFolder;
 import org.apache.commons.lang.StringUtils;
+import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.internal.DefaultTempFolder;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.concurrent.TimeUnit;
 
-public class TempFolderProvider extends LifecycleProviderAdapter {
-  private static final Logger LOG = Loggers.get(TempFolderProvider.class);
-  private static final long CLEAN_MAX_AGE = TimeUnit.DAYS.toMillis(21);
-  static final String TMP_NAME_PREFIX = ".sonartmp_";
+public class TempFolderProvider extends ProviderAdapter {
 
-  private DefaultTempFolder tempFolder;
+  private TempFolder tempFolder;
 
   public TempFolder provide(BootstrapProperties bootstrapProps) {
     if (tempFolder == null) {
-
-      String workingPathName = StringUtils.defaultIfBlank(bootstrapProps.property(CoreProperties.GLOBAL_WORKING_DIRECTORY), CoreProperties.GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE);
-      Path workingPath = Paths.get(workingPathName).normalize();
-
-      if (!workingPath.isAbsolute()) {
-        Path home = findHome(bootstrapProps);
-        workingPath = home.resolve(workingPath).normalize();
-      }
-
+      String workingDirPath = StringUtils.defaultIfBlank(bootstrapProps.property(CoreProperties.WORKING_DIRECTORY), CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
+      File workingDir = new File(workingDirPath).getAbsoluteFile();
+      File tempDir = new File(workingDir, ".sonartmp");
       try {
-        cleanTempFolders(workingPath);
-      } catch (IOException e) {
-        LOG.warn("failed to clean global working directory: " + e.getMessage());
-      }
-
-      Path tempDir = workingPath.resolve(TMP_NAME_PREFIX + System.currentTimeMillis());
-      try {
-        Files.createDirectories(tempDir);
+        FileUtils.forceMkdir(tempDir);
       } catch (IOException e) {
         throw new IllegalStateException("Unable to create root temp directory " + tempDir, e);
       }
-      tempFolder = new DefaultTempFolder(tempDir.toFile(), true);
-      this.instance = tempFolder;
+      tempFolder = new DefaultTempFolder(tempDir);
     }
     return tempFolder;
   }
 
-  private static Path findHome(BootstrapProperties props) {
-    String home = props.property("sonar.userHome");
-    if (home != null) {
-      return Paths.get(home);
-    }
-
-    home = System.getenv("SONAR_USER_HOME");
-
-    if (home != null) {
-      return Paths.get(home);
-    }
-
-    home = System.getProperty("user.home");
-    return Paths.get(home, ".sonar");
-  }
-
-  private static void cleanTempFolders(Path path) throws IOException {
-    if (Files.exists(path)) {
-      try (DirectoryStream<Path> stream = Files.newDirectoryStream(path, new CleanFilter())) {
-        for (Path p : stream) {
-          FileUtils.deleteQuietly(p.toFile());
-        }
-      }
-    }
-  }
-
-  private static class CleanFilter implements DirectoryStream.Filter<Path> {
-    @Override
-    public boolean accept(Path e) throws IOException {
-      if (!Files.isDirectory(e)) {
-        return false;
-      }
-
-      if (!e.getFileName().toString().startsWith(TMP_NAME_PREFIX)) {
-        return false;
-      }
-
-      long threshold = System.currentTimeMillis() - CLEAN_MAX_AGE;
-
-      // we could also check the timestamp in the name, instead
-      BasicFileAttributes attrs;
-
-      try {
-        attrs = Files.readAttributes(e, BasicFileAttributes.class);
-      } catch (IOException ioe) {
-        LOG.warn("couldn't read file attributes for " + e + " : " + ioe.getMessage());
-        return false;
-      }
-
-      long creationTime = attrs.creationTime().toMillis();
-      return creationTime < threshold;
-    }
-  }
 }

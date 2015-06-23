@@ -52,19 +52,15 @@ public class PersistentCache {
   // eviction strategy is to expire entries after modification once a time duration has elapsed
   private final long defaultDurationToExpireMs;
   private final Log log;
-  private boolean forceUpdate;
+  private final boolean forceUpdate;
 
   public PersistentCache(Path baseDir, long defaultDurationToExpireMs, Log log, boolean forceUpdate) {
     this.baseDir = baseDir;
     this.defaultDurationToExpireMs = defaultDurationToExpireMs;
     this.log = log;
-
-    reconfigure(forceUpdate);
-    log.info("cache: " + baseDir + ", default expiration time (ms): " + defaultDurationToExpireMs);
-  }
-
-  public void reconfigure(boolean forceUpdate) {
     this.forceUpdate = forceUpdate;
+
+    log.info("cache: " + baseDir + ", default expiration time (ms): " + defaultDurationToExpireMs);
 
     if (forceUpdate) {
       log.debug("cache: forcing update");

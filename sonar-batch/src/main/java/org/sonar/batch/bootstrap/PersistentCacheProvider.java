@@ -20,23 +20,27 @@
 package org.sonar.batch.bootstrap;
 
 import org.sonar.home.log.Slf4jLog;
+
 import org.sonar.home.cache.PersistentCacheBuilder;
 import org.picocontainer.injectors.ProviderAdapter;
 
 import java.nio.file.Paths;
-import java.util.Map;
 
 import org.sonar.home.cache.PersistentCache;
 
 public class PersistentCacheProvider extends ProviderAdapter {
   private PersistentCache cache;
 
-  public PersistentCache provide(UserProperties props) {
+  public PersistentCache provide(BootstrapProperties props) {
     if (cache == null) {
       PersistentCacheBuilder builder = new PersistentCacheBuilder();
 
       builder.setLog(new Slf4jLog(PersistentCache.class));
-      builder.forceUpdate(isForceUpdate(props.properties()));
+      String enableCache = props.property("sonar.enableHttpCache");
+
+      if (!"true".equals(enableCache)) {
+        builder.forceUpdate(true);
+      }
 
       String home = props.property("sonar.userHome");
       if (home != null) {
@@ -46,16 +50,5 @@ public class PersistentCacheProvider extends ProviderAdapter {
       cache = builder.build();
     }
     return cache;
-  }
-
-  public void reconfigure(UserProperties props) {
-    if (cache != null) {
-      cache.reconfigure(isForceUpdate(props.properties()));
-    }
-  }
-
-  private static boolean isForceUpdate(Map<String, String> props) {
-    String enableCache = props.get("sonar.enableHttpCache");
-    return !"true".equals(enableCache);
   }
 }
