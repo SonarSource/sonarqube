@@ -103,7 +103,7 @@ public class PersistentCacheTest {
     assertCacheHit(false);
 
     File root = tmp.getRoot();
-    FileUtils.deleteDirectory(root);
+    FileUtils.deleteQuietly(root);
 
     // should re-create cache directory and start using the cache
     cache.reconfigure(false);
