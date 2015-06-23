@@ -50,11 +50,10 @@ public class LogCallbackAppender extends UnsynchronizedAppenderBase<ILoggingEven
       case Level.INFO_INT:
         return LogListener.Level.INFO;
       case Level.DEBUG_INT:
+      default:
         return LogListener.Level.DEBUG;
       case Level.TRACE_INT:
         return LogListener.Level.TRACE;
-      default:
-        return LogListener.Level.DEBUG;
     }
   }
 }

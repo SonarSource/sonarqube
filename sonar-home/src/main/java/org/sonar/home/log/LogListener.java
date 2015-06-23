@@ -20,9 +20,9 @@
 package org.sonar.home.log;
 
 public interface LogListener {
-  public void log(String msg, Level level);
+  void log(String msg, Level level);
   
-  public static enum Level {
+  enum Level {
     ERROR, WARN, INFO, DEBUG, TRACE;
   }
 }
