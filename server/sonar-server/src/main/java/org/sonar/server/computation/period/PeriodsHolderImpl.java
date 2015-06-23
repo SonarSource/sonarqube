@@ -56,8 +56,8 @@ public class PeriodsHolderImpl implements PeriodsHolder {
     Period[] newPeriods = new Period[5];
     for (Period period : from(periods).filter(CheckNotNull.INSTANCE)) {
       int arrayIndex = period.getIndex() - 1;
-      checkArgument(newPeriods[(arrayIndex)] == null, "More than one period has the index " + period.getIndex());
-      newPeriods[(arrayIndex)] = period;
+      checkArgument(newPeriods[arrayIndex] == null, "More than one period has the index " + period.getIndex());
+      newPeriods[arrayIndex] = period;
     }
     this.periods = newPeriods;
   }
