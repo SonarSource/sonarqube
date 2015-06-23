@@ -29,6 +29,9 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
 
+import static org.sonar.server.ws.JsonWriterUtils.isFieldWanted;
+import static org.sonar.server.ws.JsonWriterUtils.writeIfNeeded;
+
 public class UserJsonWriter {
 
   private static final String FIELD_LOGIN = "login";
@@ -72,18 +75,6 @@ public class UserJsonWriter {
     }
   }
 
-  private static void writeIfNeeded(JsonWriter json, @Nullable String value, String field, Collection<String> fields) {
-    if (isFieldWanted(field, fields)) {
-      json.prop(field, value);
-    }
-  }
-
-  private static void writeIfNeeded(JsonWriter json, @Nullable Boolean value, String field, Collection<String> fields) {
-    if (isFieldWanted(field, fields)) {
-      json.prop(field, value);
-    }
-  }
-
   private void writeGroupsIfNeeded(JsonWriter json, Collection<String> groups, @Nullable Collection<String> fields) {
     if (isFieldWanted(FIELD_GROUPS, fields) && userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN)) {
       json.name(FIELD_GROUPS).beginArray();
@@ -101,9 +92,5 @@ public class UserJsonWriter {
         .values(((UserDoc) user).scmAccounts())
         .endArray();
     }
-  }
-
-  private static boolean isFieldWanted(String field, @Nullable Collection<String> fields) {
-    return fields == null || fields.isEmpty() || fields.contains(field);
   }
 }

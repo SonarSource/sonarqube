@@ -749,7 +749,7 @@ public class InternalRubyIssueService {
         projectsByComponentUuid,
         ImmutableMultimap.<String, DefaultIssueComment>of(),
         ImmutableMap.<String, ActionPlan>of(),
-        ImmutableList.of(IssueJsonWriter.ACTIONS_EXTRA_FIELD, IssueJsonWriter.TRANSITIONS_EXTRA_FIELD));
+        ImmutableList.copyOf(IssueJsonWriter.SELECTABLE_FIELDS));
 
       json.name("users").beginArray();
       String assignee = issue.assignee();

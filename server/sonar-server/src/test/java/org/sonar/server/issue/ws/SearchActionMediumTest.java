@@ -273,7 +273,7 @@ public class SearchActionMediumTest {
 
     userSessionRule.login("john");
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
-      .setParam("extra_fields", "actions,transitions,actionPlanName").execute();
+      .setParam("f", "assignee,reporter,actionPlan,actions,transitions,actionPlanName").execute();
     result.assertJson(this.getClass(), "issue_with_extra_fields.json");
   }
 

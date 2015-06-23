@@ -46,6 +46,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.DateUtils;
@@ -75,8 +76,6 @@ import static com.google.common.collect.Sets.newHashSet;
 public class SearchAction implements IssuesWsAction {
 
   public static final String SEARCH_ACTION = "search";
-
-  private static final String EXTRA_FIELDS_PARAM = "extra_fields";
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
 
@@ -128,7 +127,7 @@ public class SearchAction implements IssuesWsAction {
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
       .setPossibleValues(IssueIndex.SUPPORTED_FACETS);
     action.addSortParams(IssueQuery.SORTS, null, true);
-    // TODO support param "f"
+    action.addFieldsParam(IssueJsonWriter.SELECTABLE_FIELDS);
 
     addComponentRelatedParams(action);
     action.createParam(IssueFilterParameters.ISSUES)
@@ -184,9 +183,6 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(IssueFilterParameters.LANGUAGES)
       .setDescription("Comma-separated list of languages. Available since 4.4")
       .setExampleValue("java,js");
-    action.createParam(EXTRA_FIELDS_PARAM)
-      .setDescription("Add some extra fields on each issue. Available since 4.4")
-      .setPossibleValues(IssueJsonWriter.EXTRA_FIELDS);
     action.createParam(IssueFilterParameters.CREATED_AT)
       .setDescription("To retrieve issues created at a given date. Format: date or datetime ISO formats")
       .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
@@ -347,7 +343,7 @@ public class SearchAction implements IssuesWsAction {
     Map<String, ActionPlan> actionPlanByKeys = getActionPlanByKeys(actionPlanKeys);
 
     writeIssues(result, commentsByIssues, usersByLogin, actionPlanByKeys, componentsByUuid, projectsByComponentUuid,
-      request.paramAsStrings(EXTRA_FIELDS_PARAM), json);
+      request.paramAsStrings(Param.FIELDS), json);
     writeRules(json, !request.mandatoryParamAsBoolean(IssueFilterParameters.HIDE_RULES) ? ruleService.getByKeys(ruleKeys) : Collections.<Rule>emptyList());
     writeUsers(json, usersByLogin);
     writeActionPlans(json, actionPlanByKeys.values());
@@ -474,11 +470,11 @@ public class SearchAction implements IssuesWsAction {
 
   private void writeIssues(SearchResult<IssueDoc> result, Multimap<String, DefaultIssueComment> commentsByIssues, Map<String, User> usersByLogin,
     Map<String, ActionPlan> actionPlanByKeys,
-    Map<String, ComponentDto> componentsByUuid, Map<String, ComponentDto> projectsByComponentUuid, @Nullable List<String> extraFields, JsonWriter json) {
+    Map<String, ComponentDto> componentsByUuid, Map<String, ComponentDto> projectsByComponentUuid, @Nullable List<String> fields, JsonWriter json) {
     json.name("issues").beginArray();
 
     for (IssueDoc issue : result.getDocs()) {
-      issueWriter.write(json, issue, usersByLogin, componentsByUuid, projectsByComponentUuid, commentsByIssues, actionPlanByKeys, extraFields);
+      issueWriter.write(json, issue, usersByLogin, componentsByUuid, projectsByComponentUuid, commentsByIssues, actionPlanByKeys, fields);
     }
 
     json.endArray();

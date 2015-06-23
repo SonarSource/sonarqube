@@ -20,8 +20,11 @@
 
 package org.sonar.server.issue.ws;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -42,15 +45,46 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.JsonWriterUtils;
+
+import static org.sonar.server.ws.JsonWriterUtils.writeIfNeeded;
 
 public class IssueJsonWriter {
 
-  public static final String ACTIONS_EXTRA_FIELD = "actions";
-  public static final String TRANSITIONS_EXTRA_FIELD = "transitions";
-  public static final String ACTION_PLAN_NAME_EXTRA_FIELD = "actionPlanName";
+  private static final String FIELD_KEY = "key";
+  private static final String FIELD_COMPONENT = "component";
+  private static final String FIELD_COMPONENT_ID = "componentId";
+  private static final String FIELD_PROJECT = "project";
+  private static final String FIELD_SUB_PROJECT = "subProject";
+  private static final String FIELD_RULE = "rule";
+  private static final String FIELD_STATUS = "status";
+  private static final String FIELD_RESOLUTION = "resolution";
+  private static final String FIELD_AUTHOR = "author";
+  private static final String FIELD_REPORTER = "reporter";
+  private static final String FIELD_ASSIGNEE = "assignee";
+  private static final String FIELD_DEBT = "debt";
+  private static final String FIELD_LINE = "line";
+  private static final String FIELD_MESSAGE = "message";
+  private static final String FIELD_SEVERITY = "severity";
+  private static final String FIELD_ACTION_PLAN = "actionPlan";
+  private static final String FIELD_CREATION_DATE = "creationDate";
+  private static final String FIELD_UPDATE_DATE = "updateDate";
+  private static final String FIELD_CLOSE_DATE = "closeDate";
+  private static final String FIELD_TAGS = "tags";
+  private static final String FIELD_COMMENTS = "comments";
+  private static final String FIELD_ATTRIBUTES = "attr";
+  public static final String FIELD_ACTIONS = "actions";
+  public static final String FIELD_TRANSITIONS = "transitions";
+  public static final String FIELD_ACTION_PLAN_NAME = "actionPlanName";
 
   public static final Set<String> EXTRA_FIELDS = ImmutableSet.of(
-    ACTIONS_EXTRA_FIELD, TRANSITIONS_EXTRA_FIELD, ACTION_PLAN_NAME_EXTRA_FIELD);
+    FIELD_ACTIONS, FIELD_TRANSITIONS, FIELD_ACTION_PLAN_NAME);
+
+  public static final Set<String> SELECTABLE_FIELDS = ImmutableSet.of(FIELD_COMPONENT, FIELD_PROJECT, FIELD_SUB_PROJECT, FIELD_RULE, FIELD_STATUS, FIELD_RESOLUTION, FIELD_AUTHOR,
+    FIELD_REPORTER, FIELD_ASSIGNEE, FIELD_DEBT, FIELD_LINE, FIELD_MESSAGE, FIELD_SEVERITY, FIELD_ACTION_PLAN, FIELD_CREATION_DATE, FIELD_UPDATE_DATE, FIELD_CLOSE_DATE,
+    FIELD_COMPONENT_ID, FIELD_TAGS, FIELD_COMMENTS, FIELD_ATTRIBUTES, FIELD_ACTIONS, FIELD_TRANSITIONS, FIELD_ACTION_PLAN_NAME);
+
+  private static final List<String> SELECTABLE_MINUS_EXTRAS = ImmutableList.copyOf(Sets.difference(SELECTABLE_FIELDS, EXTRA_FIELDS));
 
   private final I18n i18n;
   private final Durations durations;
@@ -65,12 +99,22 @@ public class IssueJsonWriter {
   }
 
   public void write(JsonWriter json, Issue issue, Map<String, User> usersByLogin, Map<String, ComponentDto> componentsByUuid,
-    Map<String, ComponentDto> projectsByComponentUuid, Multimap<String, DefaultIssueComment> commentsByIssues, Map<String, ActionPlan> actionPlanByKeys, List<String> extraFields) {
+    Map<String, ComponentDto> projectsByComponentUuid, Multimap<String, DefaultIssueComment> commentsByIssues, Map<String, ActionPlan> actionPlanByKeys,
+    @Nullable List<String> selectedFields) {
+
+    List<String> fields = Lists.newArrayList();
+    if (selectedFields == null || selectedFields.isEmpty()) {
+      fields.addAll(SELECTABLE_MINUS_EXTRAS);
+    } else {
+      fields.addAll(selectedFields);
+    }
+
     json.beginObject();
 
     String actionPlanKey = issue.actionPlanKey();
     ComponentDto file = componentsByUuid.get(issue.componentUuid());
-    ComponentDto project = null, subProject = null;
+    ComponentDto project = null;
+    ComponentDto subProject = null;
     if (file != null) {
       project = projectsByComponentUuid.get(file.uuid());
       if (!file.projectUuid().equals(file.moduleUuid())) {
@@ -80,32 +124,37 @@ public class IssueJsonWriter {
     Duration debt = issue.debt();
     Date updateDate = issue.updateDate();
 
-    json
-      .prop("key", issue.key())
-      .prop("component", file != null ? file.getKey() : null)
-      // Only used for the compatibility with the Issues Java WS Client <= 4.4 used by Eclipse
-      .prop("componentId", file != null ? file.getId() : null)
-      .prop("project", project != null ? project.getKey() : null)
-      .prop("subProject", subProject != null ? subProject.getKey() : null)
-      .prop("rule", issue.ruleKey().toString())
-      .prop("status", issue.status())
-      .prop("resolution", issue.resolution())
-      .prop("severity", issue.severity())
-      .prop("message", issue.message())
-      .prop("line", issue.line())
-      .prop("debt", debt != null ? durations.encode(debt) : null)
-      .prop("assignee", issue.assignee())
-      .prop("reporter", issue.reporter())
-      .prop("author", issue.authorLogin())
-      .prop("actionPlan", actionPlanKey)
-      .prop("creationDate", isoDate(issue.creationDate()))
-      .prop("updateDate", isoDate(updateDate))
-      .prop("closeDate", isoDate(issue.closeDate()));
+    json.prop(FIELD_KEY, issue.key());
+    JsonWriterUtils.writeIfNeeded(json, file != null ? file.getKey() : null, FIELD_COMPONENT, fields);
+    // Only used for the compatibility with the Issues Java WS Client <= 4.4 used by Eclipse
+    writeIfNeeded(json, file != null ? file.getId() : null, FIELD_COMPONENT_ID, fields);
+    writeIfNeeded(json, project != null ? project.getKey() : null, FIELD_PROJECT, fields);
+    writeIfNeeded(json, subProject != null ? subProject.getKey() : null, FIELD_SUB_PROJECT, fields);
+    writeIfNeeded(json, issue.ruleKey().toString(), FIELD_RULE, fields);
+    writeIfNeeded(json, issue.status(), FIELD_STATUS, fields);
+    writeIfNeeded(json, issue.resolution(), FIELD_RESOLUTION, fields);
+    writeIfNeeded(json, issue.severity(), FIELD_SEVERITY, fields);
+    writeIfNeeded(json, issue.message(), FIELD_MESSAGE, fields);
+    writeIfNeeded(json, issue.line(), FIELD_LINE, fields);
+    writeIfNeeded(json, debt != null ? durations.encode(debt) : null, FIELD_DEBT, fields);
+    writeIfNeeded(json, issue.assignee(), FIELD_ASSIGNEE, fields);
+    writeIfNeeded(json, issue.reporter(), FIELD_REPORTER, fields);
+    writeIfNeeded(json, issue.authorLogin(), FIELD_AUTHOR, fields);
+    writeIfNeeded(json, actionPlanKey, FIELD_ACTION_PLAN, fields);
+    writeIfNeeded(json, isoDate(issue.creationDate()), FIELD_CREATION_DATE, fields);
+    writeIfNeeded(json, isoDate(updateDate), FIELD_UPDATE_DATE, fields);
+    writeIfNeeded(json, isoDate(issue.closeDate()), FIELD_CLOSE_DATE, fields);
 
-    writeTags(issue, json);
-    writeIssueComments(commentsByIssues.get(issue.key()), usersByLogin, json);
-    writeIssueAttributes(issue, json);
-    writeIssueExtraFields(issue, usersByLogin, actionPlanByKeys, extraFields, json);
+    if (JsonWriterUtils.isFieldWanted(FIELD_TAGS, fields)) {
+      writeTags(issue, json);
+    }
+    if (JsonWriterUtils.isFieldWanted(FIELD_COMMENTS, fields)) {
+      writeIssueComments(commentsByIssues.get(issue.key()), usersByLogin, json);
+    }
+    if (JsonWriterUtils.isFieldWanted(FIELD_ATTRIBUTES, fields)) {
+      writeIssueAttributes(issue, json);
+    }
+    writeIssueExtraFields(issue, actionPlanByKeys, fields, json);
     json.endObject();
   }
 
@@ -120,7 +169,7 @@ public class IssueJsonWriter {
   private static void writeTags(Issue issue, JsonWriter json) {
     Collection<String> tags = issue.tags();
     if (tags != null && !tags.isEmpty()) {
-      json.name("tags").beginArray();
+      json.name(FIELD_TAGS).beginArray();
       for (String tag : tags) {
         json.value(tag);
       }
@@ -130,7 +179,7 @@ public class IssueJsonWriter {
 
   private void writeIssueComments(Collection<DefaultIssueComment> issueComments, Map<String, User> usersByLogin, JsonWriter json) {
     if (!issueComments.isEmpty()) {
-      json.name("comments").beginArray();
+      json.name(FIELD_COMMENTS).beginArray();
       String login = userSession.getLogin();
       for (IssueComment comment : issueComments) {
         String userLogin = comment.userLogin();
@@ -152,7 +201,7 @@ public class IssueJsonWriter {
 
   private static void writeIssueAttributes(Issue issue, JsonWriter json) {
     if (!issue.attributes().isEmpty()) {
-      json.name("attr").beginObject();
+      json.name(FIELD_ATTRIBUTES).beginObject();
       for (Map.Entry<String, String> entry : issue.attributes().entrySet()) {
         json.prop(entry.getKey(), entry.getValue());
       }
@@ -160,35 +209,26 @@ public class IssueJsonWriter {
     }
   }
 
-  private void writeIssueExtraFields(Issue issue, Map<String, User> usersByLogin, Map<String, ActionPlan> actionPlanByKeys,
-    @Nullable List<String> extraFields,
-    JsonWriter json) {
-    if (extraFields != null) {
-      if (extraFields.contains(ACTIONS_EXTRA_FIELD)) {
-        actionsWriter.writeActions(issue, json);
-      }
+  private void writeIssueExtraFields(Issue issue, Map<String, ActionPlan> actionPlanByKeys,
+    @Nullable List<String> fields, JsonWriter json) {
+    if (JsonWriterUtils.isFieldWanted(FIELD_ACTIONS, fields)) {
+      actionsWriter.writeActions(issue, json);
+    }
 
-      if (extraFields.contains(TRANSITIONS_EXTRA_FIELD)) {
-        actionsWriter.writeTransitions(issue, json);
-      }
+    if (JsonWriterUtils.isFieldWanted(FIELD_TRANSITIONS, fields)) {
+      actionsWriter.writeTransitions(issue, json);
+    }
 
-      writeActionPlanIfNeeded(issue, actionPlanByKeys, extraFields, json);
+    if (JsonWriterUtils.isFieldWanted(FIELD_ACTION_PLAN_NAME, fields)) {
+      writeActionPlanName(issue, actionPlanByKeys, json);
     }
   }
 
-  private void writeActionPlanIfNeeded(Issue issue, Map<String, ActionPlan> actionPlanByKeys, List<String> extraFields, JsonWriter json) {
+  private void writeActionPlanName(Issue issue, Map<String, ActionPlan> actionPlanByKeys, JsonWriter json) {
     String actionPlanKey = issue.actionPlanKey();
-    if (extraFields.contains(ACTION_PLAN_NAME_EXTRA_FIELD) && actionPlanKey != null) {
+    if (actionPlanKey != null) {
       ActionPlan actionPlan = actionPlanByKeys.get(actionPlanKey);
-      json.prop(ACTION_PLAN_NAME_EXTRA_FIELD, actionPlan != null ? actionPlan.name() : null);
+      json.prop(FIELD_ACTION_PLAN_NAME, actionPlan != null ? actionPlan.name() : null);
     }
-  }
-
-  @CheckForNull
-  private String formatAgeDate(@Nullable Date date) {
-    if (date != null) {
-      return i18n.ageFromNow(userSession.locale(), date);
-    }
-    return null;
   }
 }
