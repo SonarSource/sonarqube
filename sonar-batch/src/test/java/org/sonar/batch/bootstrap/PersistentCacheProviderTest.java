@@ -55,4 +55,9 @@ public class PersistentCacheProviderTest {
     provider = new PersistentCacheProvider();
     assertThat(provider.provide(props).isForceUpdate()).isFalse();
   }
+  
+  @Test
+  public void test_reconfigure() {
+    
+  }
 }

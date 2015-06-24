@@ -19,12 +19,20 @@
  */
 package org.sonar.batch.bootstrapper;
 
+import org.apache.commons.io.IOUtils;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.home.log.LogListener;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -34,10 +42,13 @@ import org.junit.Test;
 import org.junit.Before;
 
 public class LoggingConfiguratorTest {
+  private static final String DEFAULT_CLASSPATH_CONF = "/org/sonar/batch/bootstrapper/logback.xml";
   private static final String TEST_STR = "foo";
   private LoggingConfiguration conf = new LoggingConfiguration();
   private ByteArrayOutputStream out;
   private SimpleLogListener listener;
+  @Rule
+  public TemporaryFolder folder = new TemporaryFolder();
 
   @Before
   public void setUp() {
@@ -55,6 +66,25 @@ public class LoggingConfiguratorTest {
       this.msg = msg;
       this.level = level;
     }
+  }
+  
+  @Test
+  public void testWithFile() throws FileNotFoundException, IOException {
+    InputStream is = this.getClass().getResourceAsStream(DEFAULT_CLASSPATH_CONF);
+    File tmpFolder = folder.getRoot();
+    File testFile = new File(tmpFolder, "test");
+    OutputStream os = new FileOutputStream(testFile);
+    IOUtils.copy(is, os);
+    os.close();
+    
+    conf.setListener(listener);
+    LoggingConfigurator.apply(conf, testFile);
+
+    Logger logger = LoggerFactory.getLogger(this.getClass());
+    logger.info(TEST_STR);
+
+    assertThat(listener.msg).endsWith(TEST_STR);
+    assertThat(listener.level).isEqualTo(LogListener.Level.INFO);
   }
 
   @Test

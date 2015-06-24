@@ -24,6 +24,8 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import static org.mockito.Mockito.reset;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import org.junit.Test;
@@ -39,21 +41,32 @@ public class LogCallbackAppenderTest {
   public void setUp() {
     listener = mock(LogListener.class);
     appender = new LogCallbackAppender(listener);
-    event = mock(ILoggingEvent.class);
-    when(event.getMessage()).thenReturn("test");
-    when(event.getLevel()).thenReturn(Level.INFO);
   }
 
+  
   @Test
-  public void testAppendLog() {
-
+  public void testLevelTranslation() {
+    testMessage("test", Level.INFO, LogListener.Level.INFO);
+    testMessage("test", Level.DEBUG, LogListener.Level.DEBUG);
+    testMessage("test", Level.ERROR, LogListener.Level.ERROR);
+    testMessage("test", Level.TRACE, LogListener.Level.TRACE);
+    testMessage("test", Level.WARN, LogListener.Level.WARN);
+    
+    // this should never happen
+    testMessage("test", Level.OFF, LogListener.Level.DEBUG);
+  }
+  
+  private void testMessage(String msg, Level level, LogListener.Level translatedLevel) {
+    reset(listener);
+    event = mock(ILoggingEvent.class);
+    when(event.getMessage()).thenReturn(msg);
+    when(event.getLevel()).thenReturn(level);
+    
     appender.append(event);
 
     verify(event).getMessage();
     verify(event).getLevel();
-
-    verify(listener).log("test", LogListener.Level.INFO);
-
+    verify(listener).log(msg, translatedLevel);
     verifyNoMoreInteractions(event, listener);
   }
 
@@ -61,6 +74,6 @@ public class LogCallbackAppenderTest {
   public void testChangeTarget() {
     listener = mock(LogListener.class);
     appender.setTarget(listener);
-    testAppendLog();
+    testLevelTranslation();
   }
 }
