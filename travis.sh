@@ -9,7 +9,7 @@ function installTravisTools {
 case "$JOB" in
 
 H2)
-  mvn verify -B -e -V
+  mvn verify -B -e -V -DforkCount=2
   ;;
 
 POSTGRES)
