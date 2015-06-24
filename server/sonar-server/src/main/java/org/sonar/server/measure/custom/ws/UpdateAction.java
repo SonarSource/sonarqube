@@ -53,7 +53,8 @@ public class UpdateAction implements CustomMeasuresWsAction {
   private final CustomMeasureJsonWriter customMeasureJsonWriter;
   private final UserIndex userIndex;
 
-  public UpdateAction(DbClient dbClient, UserSession userSession, System2 system, CustomMeasureValidator validator, CustomMeasureJsonWriter customMeasureJsonWriter, UserIndex userIndex) {
+  public UpdateAction(DbClient dbClient, UserSession userSession, System2 system, CustomMeasureValidator validator, CustomMeasureJsonWriter customMeasureJsonWriter,
+    UserIndex userIndex) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.system = system;
