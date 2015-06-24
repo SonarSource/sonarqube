@@ -25,31 +25,35 @@ import org.sonar.api.utils.text.JsonWriter;
 
 public class JsonWriterUtils {
 
+  private JsonWriterUtils() {
+    // Utility class
+  }
+
   public static void writeIfNeeded(JsonWriter json, @Nullable String value, String field, Collection<String> fields) {
-    if (isFieldWanted(field, fields)) {
+    if (isFieldNeeded(field, fields)) {
       json.prop(field, value);
     }
   }
 
   public static void writeIfNeeded(JsonWriter json, @Nullable Boolean value, String field, Collection<String> fields) {
-    if (isFieldWanted(field, fields)) {
+    if (isFieldNeeded(field, fields)) {
       json.prop(field, value);
     }
   }
 
   public static void writeIfNeeded(JsonWriter json, @Nullable Integer value, String field, Collection<String> fields) {
-    if (isFieldWanted(field, fields)) {
+    if (isFieldNeeded(field, fields)) {
       json.prop(field, value);
     }
   }
 
   public static void writeIfNeeded(JsonWriter json, @Nullable Long value, String field, Collection<String> fields) {
-    if (isFieldWanted(field, fields)) {
+    if (isFieldNeeded(field, fields)) {
       json.prop(field, value);
     }
   }
 
-  public static boolean isFieldWanted(String field, @Nullable Collection<String> fields) {
+  public static boolean isFieldNeeded(String field, @Nullable Collection<String> fields) {
     return fields == null || fields.isEmpty() || fields.contains(field);
   }
 }

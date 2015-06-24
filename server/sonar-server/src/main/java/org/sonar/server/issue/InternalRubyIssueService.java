@@ -81,6 +81,7 @@ import org.sonar.server.util.RubyUtils;
 import org.sonar.server.util.Validation;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * Used through ruby code <pre>Internal.issues</pre>
@@ -99,6 +100,8 @@ public class InternalRubyIssueService {
   private static final String USER_PARAM = "user";
 
   private static final String ACTION_PLANS_ERRORS_ACTION_PLAN_DOES_NOT_EXIST_MESSAGE = "action_plans.errors.action_plan_does_not_exist";
+
+  private static final List<String> ISSUE_FIELDS = ImmutableList.copyOf(IssueJsonWriter.SELECTABLE_FIELDS);
 
   private final IssueService issueService;
   private final IssueQueryService issueQueryService;
@@ -742,14 +745,20 @@ public class InternalRubyIssueService {
 
       projectsByComponentUuid = issueComponentHelper.prepareComponentsAndProjects(projectUuids, componentUuids, componentsByUuid, componentDtos, subProjectDtos, dbSession);
 
+      Map<String, ActionPlan> actionPlans = newHashMap();
+      String actionPlanKey = issue.actionPlanKey();
+      if (actionPlanKey != null) {
+        actionPlans.put(actionPlanKey, actionPlanService.findByKey(actionPlanKey, userSession));
+      }
+
       json.beginObject().name("issue");
       issueWriter.write(json, issue,
         usersByLogin,
         componentsByUuid,
         projectsByComponentUuid,
         ImmutableMultimap.<String, DefaultIssueComment>of(),
-        ImmutableMap.<String, ActionPlan>of(),
-        ImmutableList.copyOf(IssueJsonWriter.SELECTABLE_FIELDS));
+        actionPlans,
+        ISSUE_FIELDS);
 
       json.name("users").beginArray();
       String assignee = issue.assignee();

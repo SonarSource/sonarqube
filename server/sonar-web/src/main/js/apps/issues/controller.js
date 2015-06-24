@@ -5,7 +5,9 @@ define([
 ], function (Controller, ComponentViewer, HomeView) {
 
   var $ = jQuery,
-      EXTRA_FIELDS = 'actions,transitions,actionPlanName',
+      FIELDS = 'component,componentId,project,subProject,rule,status,resolution,author,reporter,assignee,debt,line,' +
+        'message,severity,actionPlan,creationDate,updateDate,closeDate,tags,comments,attr,actions,transitions,' +
+        'actionPlanName',
       FACET_DATA_FIELDS = ['components', 'projects', 'users', 'rules', 'actionPlans', 'languages'];
 
   return Controller.extend({
@@ -21,7 +23,7 @@ define([
         ps: this.pageSize,
         s: 'FILE_LINE',
         asc: true,
-        extra_fields: EXTRA_FIELDS,
+        f: FIELDS,
         facets: this._facetsFromServer().join()
       };
     },

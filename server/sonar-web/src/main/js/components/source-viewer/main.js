@@ -274,7 +274,9 @@ define([
               options = {
                 data: {
                   componentUuids: this.model.id,
-                  extra_fields: 'actions,transitions,actionPlanName',
+                  f: 'component,componentId,project,subProject,rule,status,resolution,author,reporter,assignee,debt,' +
+                    'line,message,severity,actionPlan,creationDate,updateDate,closeDate,tags,comments,attr,actions,' +
+                    'transitions,actionPlanName',
                   resolved: false,
                   s: 'FILE_LINE',
                   asc: true,
@@ -712,4 +714,3 @@ define([
       });
 
     });
-

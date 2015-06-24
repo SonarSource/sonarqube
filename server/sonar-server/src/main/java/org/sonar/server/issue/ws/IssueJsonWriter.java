@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
@@ -86,13 +85,11 @@ public class IssueJsonWriter {
 
   private static final List<String> SELECTABLE_MINUS_EXTRAS = ImmutableList.copyOf(Sets.difference(SELECTABLE_FIELDS, EXTRA_FIELDS));
 
-  private final I18n i18n;
   private final Durations durations;
   private final UserSession userSession;
   private final IssueActionsWriter actionsWriter;
 
-  public IssueJsonWriter(I18n i18n, Durations durations, UserSession userSession, IssueActionsWriter actionsWriter) {
-    this.i18n = i18n;
+  public IssueJsonWriter(Durations durations, UserSession userSession, IssueActionsWriter actionsWriter) {
     this.durations = durations;
     this.userSession = userSession;
     this.actionsWriter = actionsWriter;
@@ -102,12 +99,7 @@ public class IssueJsonWriter {
     Map<String, ComponentDto> projectsByComponentUuid, Multimap<String, DefaultIssueComment> commentsByIssues, Map<String, ActionPlan> actionPlanByKeys,
     @Nullable List<String> selectedFields) {
 
-    List<String> fields = Lists.newArrayList();
-    if (selectedFields == null || selectedFields.isEmpty()) {
-      fields.addAll(SELECTABLE_MINUS_EXTRAS);
-    } else {
-      fields.addAll(selectedFields);
-    }
+    List<String> fields = useDefaultFieldsIfNotSpecified(selectedFields);
 
     json.beginObject();
 
@@ -145,17 +137,27 @@ public class IssueJsonWriter {
     writeIfNeeded(json, isoDate(updateDate), FIELD_UPDATE_DATE, fields);
     writeIfNeeded(json, isoDate(issue.closeDate()), FIELD_CLOSE_DATE, fields);
 
-    if (JsonWriterUtils.isFieldWanted(FIELD_TAGS, fields)) {
+    if (JsonWriterUtils.isFieldNeeded(FIELD_TAGS, fields)) {
       writeTags(issue, json);
     }
-    if (JsonWriterUtils.isFieldWanted(FIELD_COMMENTS, fields)) {
+    if (JsonWriterUtils.isFieldNeeded(FIELD_COMMENTS, fields)) {
       writeIssueComments(commentsByIssues.get(issue.key()), usersByLogin, json);
     }
-    if (JsonWriterUtils.isFieldWanted(FIELD_ATTRIBUTES, fields)) {
+    if (JsonWriterUtils.isFieldNeeded(FIELD_ATTRIBUTES, fields)) {
       writeIssueAttributes(issue, json);
     }
     writeIssueExtraFields(issue, actionPlanByKeys, fields, json);
     json.endObject();
+  }
+
+  private List<String> useDefaultFieldsIfNotSpecified(List<String> selectedFields) {
+    List<String> fields = Lists.newArrayList();
+    if (selectedFields == null || selectedFields.isEmpty()) {
+      fields.addAll(SELECTABLE_MINUS_EXTRAS);
+    } else {
+      fields.addAll(selectedFields);
+    }
+    return fields;
   }
 
   @CheckForNull
@@ -211,15 +213,15 @@ public class IssueJsonWriter {
 
   private void writeIssueExtraFields(Issue issue, Map<String, ActionPlan> actionPlanByKeys,
     @Nullable List<String> fields, JsonWriter json) {
-    if (JsonWriterUtils.isFieldWanted(FIELD_ACTIONS, fields)) {
+    if (JsonWriterUtils.isFieldNeeded(FIELD_ACTIONS, fields)) {
       actionsWriter.writeActions(issue, json);
     }
 
-    if (JsonWriterUtils.isFieldWanted(FIELD_TRANSITIONS, fields)) {
+    if (JsonWriterUtils.isFieldNeeded(FIELD_TRANSITIONS, fields)) {
       actionsWriter.writeTransitions(issue, json);
     }
 
-    if (JsonWriterUtils.isFieldWanted(FIELD_ACTION_PLAN_NAME, fields)) {
+    if (JsonWriterUtils.isFieldNeeded(FIELD_ACTION_PLAN_NAME, fields)) {
       writeActionPlanName(issue, actionPlanByKeys, json);
     }
   }

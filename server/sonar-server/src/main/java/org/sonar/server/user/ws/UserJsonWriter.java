@@ -29,7 +29,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
 
-import static org.sonar.server.ws.JsonWriterUtils.isFieldWanted;
+import static org.sonar.server.ws.JsonWriterUtils.isFieldNeeded;
 import static org.sonar.server.ws.JsonWriterUtils.writeIfNeeded;
 
 public class UserJsonWriter {
@@ -76,7 +76,7 @@ public class UserJsonWriter {
   }
 
   private void writeGroupsIfNeeded(JsonWriter json, Collection<String> groups, @Nullable Collection<String> fields) {
-    if (isFieldWanted(FIELD_GROUPS, fields) && userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN)) {
+    if (isFieldNeeded(FIELD_GROUPS, fields) && userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN)) {
       json.name(FIELD_GROUPS).beginArray();
       for (String groupName : groups) {
         json.value(groupName);
@@ -86,7 +86,7 @@ public class UserJsonWriter {
   }
 
   private static void writeScmAccountsIfNeeded(JsonWriter json, Collection<String> fields, User user) {
-    if (isFieldWanted(FIELD_SCM_ACCOUNTS, fields)) {
+    if (isFieldNeeded(FIELD_SCM_ACCOUNTS, fields)) {
       json.name(FIELD_SCM_ACCOUNTS)
         .beginArray()
         .values(((UserDoc) user).scmAccounts())
