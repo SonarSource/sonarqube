@@ -37,7 +37,6 @@ import org.sonar.batch.compute.OverallCoverageDecorator;
 import org.sonar.batch.compute.OverallLineCoverageDecorator;
 import org.sonar.batch.compute.UnitTestDecorator;
 import org.sonar.batch.cpd.CpdComponents;
-import org.sonar.batch.debt.DebtDecorator;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
 import org.sonar.batch.debt.NewDebtDecorator;
 import org.sonar.batch.issue.tracking.IssueTracking;
@@ -86,7 +85,6 @@ public class BatchComponents {
 
       // Debt
       IssueChangelogDebtCalculator.class,
-      DebtDecorator.class,
       NewDebtDecorator.class,
 
       // to be moved to compute engine

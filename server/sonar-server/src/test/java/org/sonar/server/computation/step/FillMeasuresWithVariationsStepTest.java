@@ -311,9 +311,9 @@ public class FillMeasuresWithVariationsStepTest {
     sut.execute();
 
     assertThat(measureRepository.getRawMeasure(PROJECT, toMetric(ISSUES_METRIC)).get().getVariations().getVariation1()).isEqualTo(20d);
-    assertThat(measureRepository.getRawMeasure(PROJECT, toMetric(ISSUES_METRIC), new Characteristic(char1.getId(), char1.getKey())).get().getVariations().getVariation1())
+    assertThat(measureRepository.getRawMeasure(PROJECT, toMetric(ISSUES_METRIC), new Characteristic(char1.getId(), char1.getKey(), null)).get().getVariations().getVariation1())
       .isEqualTo(5d);
-    assertThat(measureRepository.getRawMeasure(PROJECT, toMetric(ISSUES_METRIC), new Characteristic(char2.getId(), char2.getKey())).get().getVariations().getVariation1())
+    assertThat(measureRepository.getRawMeasure(PROJECT, toMetric(ISSUES_METRIC), new Characteristic(char2.getId(), char2.getKey(), null)).get().getVariations().getVariation1())
       .isEqualTo(15d);
   }
 

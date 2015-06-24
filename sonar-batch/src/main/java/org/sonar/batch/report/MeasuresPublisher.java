@@ -111,13 +111,6 @@ public class MeasuresPublisher implements ReportPublisherStep {
     if (description != null) {
       builder.setDescription(description);
     }
-    if (measure instanceof RuleMeasure) {
-      RuleMeasure ruleMeasure = (RuleMeasure) measure;
-      RuleKey ruleKey = ruleMeasure.ruleKey();
-      if (ruleKey != null) {
-        builder.setRuleKey(ruleKey.toString());
-      }
-    }
     Level alertStatus = measure.getAlertStatus();
     if (alertStatus != null) {
       builder.setAlertStatus(alertStatus.toString());

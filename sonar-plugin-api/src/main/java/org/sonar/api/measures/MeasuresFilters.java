@@ -204,6 +204,10 @@ public final class MeasuresFilters {
     }
   }
 
+  /**
+   * @deprecated since 5.2. Useless by design because of Compute Engine
+   */
+  @Deprecated
   private abstract static class AbstractRuleMeasureFilter<M> extends MetricFilter<M> {
     protected AbstractRuleMeasureFilter(Metric metric) {
       super(metric);
@@ -232,6 +236,10 @@ public final class MeasuresFilters {
     }
   }
 
+  /**
+   * @deprecated since 5.2. Useless by design because of Compute Engine
+   */
+  @Deprecated
   private static class RuleFilter extends AbstractRuleMeasureFilter<RuleMeasure> {
     private RuleKey ruleKey;
 

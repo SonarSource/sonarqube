@@ -19,6 +19,11 @@
  */
 package org.sonar.batch.report;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,22 +35,13 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.Level;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.measures.MetricFinder;
-import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RulePriority;
 import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.scan.measure.MeasureCache;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -103,9 +99,6 @@ public class MeasuresPublisherTest {
     Measure manual = new Measure<>(new Metric<>("manual_metric", ValueType.BOOL))
       .setValue(1.0)
       .setDescription("Manual");
-    // Rule measure
-    RuleMeasure ruleMeasureBySeverity = RuleMeasure.createForPriority(CoreMetrics.NCLOC, RulePriority.BLOCKER, 1.0);
-    RuleMeasure ruleMeasureByRule = RuleMeasure.createForRule(CoreMetrics.NCLOC, RuleKey.of("squid", "S12345"), 1.0);
     // Sqale rating have both a value and a data
     Measure rating = new Measure<>(CoreMetrics.SQALE_RATING)
       .setValue(2.0)
@@ -117,7 +110,7 @@ public class MeasuresPublisherTest {
     Measure stringMeasure = new Measure<>(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION)
       .setData("foo bar");
 
-    when(measureCache.byResource(sampleFile)).thenReturn(Arrays.asList(measure1, measure2, manual, ruleMeasureBySeverity, ruleMeasureByRule, rating, longMeasure, stringMeasure));
+    when(measureCache.byResource(sampleFile)).thenReturn(Arrays.asList(measure1, measure2, manual, rating, longMeasure, stringMeasure));
 
     File outputDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(outputDir);

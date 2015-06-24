@@ -35,6 +35,9 @@ import org.sonar.server.computation.debt.Characteristic;
 import org.sonar.server.computation.debt.MutableDebtModelHolder;
 import org.sonar.server.db.DbClient;
 
+import static com.google.common.base.Predicates.not;
+import static com.google.common.collect.FluentIterable.from;
+
 /**
  * Populates the {@link org.sonar.server.computation.debt.DebtModelHolder}
  */
@@ -60,23 +63,23 @@ public class FeedDebtModelStep implements ComputationStep {
 
   private void feedDebtModel(DbSession session) {
     List<CharacteristicDto> characteristicDtos = dbClient.debtCharacteristicDao().selectEnabledCharacteristics(session);
-    Map<Integer, CharacteristicDto> rootCharacteristicsById = FluentIterable.from(characteristicDtos)
+    Map<Integer, CharacteristicDto> rootCharacteristicsById = from(characteristicDtos)
       .filter(IsRootPredicate.INSTANCE)
       .uniqueIndex(CharacteristicDtoToId.INSTANCE);
 
-    for (Map.Entry<Integer, Collection<CharacteristicDto>> entry : FluentIterable.from(characteristicDtos)
-      .filter(Predicates.not(IsRootPredicate.INSTANCE))
+    for (Map.Entry<Integer, Collection<CharacteristicDto>> entry : from(characteristicDtos)
+      .filter(not(IsRootPredicate.INSTANCE))
       .index(CharacteristicDtoToParentId.INSTANCE)
       .asMap().entrySet()) {
       mutableDebtModelHolder.addCharacteristics(
         toCharacteristic(rootCharacteristicsById.get(entry.getKey())),
-        FluentIterable.from(entry.getValue()).transform(CharacteristicDtoToCharacteristic.INSTANCE)
+        from(entry.getValue()).transform(CharacteristicDtoToCharacteristic.INSTANCE)
         );
     }
   }
 
   private static Characteristic toCharacteristic(CharacteristicDto dto) {
-    return new Characteristic(dto.getId(), dto.getKey());
+    return new Characteristic(dto.getId(), dto.getKey(), dto.getParentId());
   }
 
   private enum CharacteristicDtoToId implements Function<CharacteristicDto, Integer> {
@@ -84,8 +87,8 @@ public class FeedDebtModelStep implements ComputationStep {
 
     @Nullable
     @Override
-    public Integer apply(@Nonnull CharacteristicDto characteristicDto) {
-      return characteristicDto.getId();
+    public Integer apply(@Nonnull CharacteristicDto dto) {
+      return dto.getId();
     }
   }
 

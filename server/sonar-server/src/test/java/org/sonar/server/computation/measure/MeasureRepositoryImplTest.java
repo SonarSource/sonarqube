@@ -89,7 +89,7 @@ public class MeasureRepositoryImplTest {
   private static final Measure SOME_MEASURE = Measure.newMeasureBuilder().create("some value");
   private static final String SOME_DATA = "some data";
   private static final RuleDto SOME_RULE = RuleDto.createFor(RuleKey.of("A", "1")).setId(963);
-  private static final Characteristic SOME_CHARACTERISTIC = new Characteristic(741, "key");
+  private static final Characteristic SOME_CHARACTERISTIC = new Characteristic(741, "key", null);
 
   private DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new MeasureDao(), new SnapshotDao(), new MetricDao(), new ComponentDao());
   private MetricRepository metricRepository = mock(MetricRepository.class);

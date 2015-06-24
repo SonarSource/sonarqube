@@ -110,6 +110,13 @@ public class CountIssuesListener extends IssueListener {
     // TODO optimization no need to instantiate counter if no open issues
     currentCounters = new Counters();
     countersByComponentRef.put(component.getRef(), currentCounters);
+
+    // aggregate children counters
+    for (Component child : component.getChildren()) {
+      // no need to keep the children in memory. They can be garbage-collected.
+      Counters childCounters = countersByComponentRef.remove(child.getRef());
+      currentCounters.add(childCounters);
+    }
   }
 
   @Override
@@ -125,16 +132,10 @@ public class CountIssuesListener extends IssueListener {
 
   @Override
   public void afterComponent(Component component) {
-    // aggregate children counters
-    for (Component child : component.getChildren()) {
-      // no need to keep the children in memory. They can be garbage-collected.
-      Counters childCounters = countersByComponentRef.remove(child.getRef());
-      currentCounters.add(childCounters);
-    }
-
     addMeasuresByStatus(component);
     addMeasuresBySeverity(component);
     addMeasuresByPeriod(component);
+    currentCounters = null;
   }
 
   private void addMeasuresBySeverity(Component component) {

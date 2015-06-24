@@ -20,30 +20,14 @@
 
 package org.sonar.server.computation.debt;
 
-import com.google.common.base.Optional;
-import java.util.Set;
-
 public interface DebtModelHolder {
 
   /**
-   * Return a characteristic by its key
+   * Return a characteristic by its id
    *
-   * @throws IllegalStateException if the holder is empty
+   * @throws IllegalStateException if no Characteristic with the specified id is found
+   * @throws IllegalStateException if the holder is not initialized yet
    */
-  Optional<Characteristic> getCharacteristicByKey(String key);
-
-  /**
-   * Return the set of root characteristics
-   *
-   * @throws IllegalStateException if the holder is empty
-   */
-  Set<Characteristic> findRootCharacteristics();
-
-  /**
-   * Return the collection of sub characteristics from a root characteristic key
-   *
-   * @throws IllegalStateException if the holder is empty
-   */
-  Set<Characteristic> findSubCharacteristicsByRootKey(String rootCharacteristicKey);
+  Characteristic getCharacteristicById(int id);
 
 }

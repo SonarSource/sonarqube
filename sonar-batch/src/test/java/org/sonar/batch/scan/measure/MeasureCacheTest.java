@@ -19,7 +19,8 @@
  */
 package org.sonar.batch.scan.measure;
 
-import org.sonar.batch.index.AbstractCachesTest;
+import java.util.Date;
+import java.util.Iterator;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.junit.Before;
 import org.junit.Rule;
@@ -29,21 +30,14 @@ import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric.Level;
-import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RulePriority;
 import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.api.technicaldebt.batch.Requirement;
-import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
-import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
+import org.sonar.batch.index.AbstractCachesTest;
 import org.sonar.batch.index.Cache.Entry;
-
-import java.util.Date;
-import java.util.Iterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -55,8 +49,6 @@ public class MeasureCacheTest extends AbstractCachesTest {
 
   private MetricFinder metricFinder;
 
-  private TechnicalDebtModel techDebtModel;
-
   private MeasureCache measureCache;
 
   @Before
@@ -64,8 +56,7 @@ public class MeasureCacheTest extends AbstractCachesTest {
     super.start();
     metricFinder = mock(MetricFinder.class);
     when(metricFinder.findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
-    techDebtModel = mock(TechnicalDebtModel.class);
-    measureCache = new MeasureCache(caches, metricFinder, techDebtModel);
+    measureCache = new MeasureCache(caches, metricFinder);
   }
 
   @Test
@@ -89,13 +80,6 @@ public class MeasureCacheTest extends AbstractCachesTest {
 
     assertThat(measureCache.byResource(p)).hasSize(1);
     assertThat(measureCache.byResource(p).iterator().next()).isEqualTo(m);
-
-    Measure mRule = RuleMeasure.createForPriority(CoreMetrics.CRITICAL_VIOLATIONS, RulePriority.BLOCKER, 1.0);
-    measureCache.put(p, mRule);
-
-    assertThat(measureCache.entries()).hasSize(2);
-
-    assertThat(measureCache.byResource(p)).hasSize(2);
   }
 
   @Test
@@ -112,7 +96,7 @@ public class MeasureCacheTest extends AbstractCachesTest {
     for (int i = 0; i < 1_048_575; i++) {
       data.append("a");
     }
-    
+
     m.setData(data.toString());
 
     measureCache.put(p, m);
@@ -127,12 +111,6 @@ public class MeasureCacheTest extends AbstractCachesTest {
 
     assertThat(measureCache.byResource(p)).hasSize(1);
     assertThat(measureCache.byResource(p).iterator().next()).isEqualTo(m);
-
-    RuleMeasure mRule = RuleMeasure.createForPriority(CoreMetrics.CRITICAL_VIOLATIONS, RulePriority.BLOCKER, 1.0);
-    mRule.setRuleKey(RuleKey.of("repo", "rule"));
-    measureCache.put(p, mRule);
-
-    assertThat(measureCache.entries()).hasSize(2);
   }
 
   /**
@@ -166,11 +144,6 @@ public class MeasureCacheTest extends AbstractCachesTest {
     assertThat(measureCache.byResource(p)).hasSize(1);
     assertThat(measureCache.byResource(p).iterator().next()).isEqualTo(m);
 
-    RuleMeasure mRule = RuleMeasure.createForPriority(CoreMetrics.CRITICAL_VIOLATIONS, RulePriority.BLOCKER, 1.0);
-    mRule.setRuleKey(RuleKey.of("repo", "rule"));
-    measureCache.put(p, mRule);
-
-    assertThat(measureCache.entries()).hasSize(2);
   }
 
   @Test
@@ -203,17 +176,12 @@ public class MeasureCacheTest extends AbstractCachesTest {
     assertThat(measureCache.byResource(p)).hasSize(0);
 
     Measure m1 = new Measure(CoreMetrics.NCLOC, 1.0);
-    Measure m2 = new Measure(CoreMetrics.NCLOC, 1.0).setCharacteristic(new DefaultCharacteristic().setKey("charac"));
-    Measure m3 = new Measure(CoreMetrics.NCLOC, 1.0).setPersonId(2);
-    Measure m4 = new RuleMeasure(CoreMetrics.NCLOC, RuleKey.of("repo", "rule"), RulePriority.BLOCKER, null);
+    Measure m2 = new Measure(CoreMetrics.NCLOC, 1.0).setPersonId(2);
     measureCache.put(p, m1);
     measureCache.put(p, m2);
-    measureCache.put(p, m3);
-    measureCache.put(p, m4);
 
-    assertThat(measureCache.entries()).hasSize(4);
-
-    assertThat(measureCache.byResource(p)).hasSize(4);
+    assertThat(measureCache.entries()).hasSize(2);
+    assertThat(measureCache.byResource(p)).hasSize(2);
   }
 
   @Test

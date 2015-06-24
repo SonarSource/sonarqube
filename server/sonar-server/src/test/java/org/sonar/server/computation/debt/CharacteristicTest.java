@@ -33,14 +33,15 @@ public class CharacteristicTest {
 
   @Test
   public void test_getter_and_setter() throws Exception {
-    Characteristic characteristic = new Characteristic(1, "PORTABILITY");
+    Characteristic characteristic = new Characteristic(1, "PORTABILITY", null);
     assertThat(characteristic.getId()).isEqualTo(1);
     assertThat(characteristic.getKey()).isEqualTo("PORTABILITY");
+    assertThat(characteristic.getParentId()).isNull();
   }
 
   @Test
   public void test_to_string() throws Exception {
-    assertThat(new Characteristic(1, "PORTABILITY").toString()).isEqualTo("Characteristic{id=1, key='PORTABILITY'}");
+    assertThat(new Characteristic(1, "PORTABILITY", null).toString()).isEqualTo("Characteristic{id=1, key='PORTABILITY'}");
   }
 
   @Test
@@ -48,6 +49,6 @@ public class CharacteristicTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("key cannot be null");
 
-    new Characteristic(1, null);
+    new Characteristic(1, null, null);
   }
 }

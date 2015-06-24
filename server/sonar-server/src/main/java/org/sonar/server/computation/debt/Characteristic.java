@@ -20,6 +20,7 @@
 
 package org.sonar.server.computation.debt;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
@@ -29,11 +30,13 @@ import static java.util.Objects.requireNonNull;
 public class Characteristic {
   private final int id;
   private final String key;
+  private final Integer parentId;
 
-  public Characteristic(int id, String key) {
+  public Characteristic(int id, String key, @Nullable Integer parentId) {
     requireNonNull(key, "key cannot be null");
     this.id = id;
     this.key = key;
+    this.parentId = parentId;
   }
 
   public int getId() {
@@ -42,6 +45,11 @@ public class Characteristic {
 
   public String getKey() {
     return key;
+  }
+
+  @CheckForNull
+  public Integer getParentId() {
+    return parentId;
   }
 
   @Override
@@ -66,10 +74,11 @@ public class Characteristic {
 
   @Override
   public String toString() {
-    return "Characteristic{" +
-      "id=" + id +
-      ", key='" + key + '\'' +
-      '}';
+    StringBuilder sb = new StringBuilder("Characteristic{");
+    sb.append("id=").append(id);
+    sb.append(", key='").append(key).append('\'');
+    sb.append(", parentId=").append(parentId);
+    sb.append('}');
+    return sb.toString();
   }
-
 }
