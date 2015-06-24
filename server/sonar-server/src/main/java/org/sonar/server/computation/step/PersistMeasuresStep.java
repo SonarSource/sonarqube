@@ -44,7 +44,7 @@ import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.db.DbClient;
 
 import static com.google.common.collect.FluentIterable.from;
-import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 public class PersistMeasuresStep implements ComputationStep {
 

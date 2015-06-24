@@ -29,7 +29,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
 
-import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor.Order.POST_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 
 public class TreeRootHolderRule implements TestRule, TreeRootHolder {
   private Component root;

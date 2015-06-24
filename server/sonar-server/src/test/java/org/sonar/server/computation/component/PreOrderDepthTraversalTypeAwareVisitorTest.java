@@ -29,7 +29,7 @@ import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
-import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 public class PreOrderDepthTraversalTypeAwareVisitorTest {
 

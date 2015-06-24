@@ -34,7 +34,7 @@ import org.sonar.server.computation.qualitygate.QualityGate;
 import org.sonar.server.computation.qualitygate.QualityGateService;
 
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
-import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 /**
  * This step retrieves the QualityGate for the current {@link ReportQueue.Item} and stores it in

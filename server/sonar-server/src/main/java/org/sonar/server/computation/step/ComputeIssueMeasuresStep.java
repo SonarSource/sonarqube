@@ -69,7 +69,7 @@ import static org.sonar.api.measures.CoreMetrics.OPEN_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.REOPENED_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.VIOLATIONS_KEY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
-import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor.Order.POST_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 
 /**
  * Computes metrics related to number of issues.

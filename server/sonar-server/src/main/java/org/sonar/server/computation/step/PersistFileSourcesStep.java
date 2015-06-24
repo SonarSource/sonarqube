@@ -49,7 +49,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.server.util.CloseableIterator;
 
-import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 public class PersistFileSourcesStep implements ComputationStep {
 

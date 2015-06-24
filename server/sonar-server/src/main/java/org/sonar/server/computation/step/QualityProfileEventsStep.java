@@ -42,7 +42,7 @@ import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.computation.qualityprofile.QPMeasureData;
 import org.sonar.server.computation.qualityprofile.QualityProfile;
 
-import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor.Order.POST_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 
 public class QualityProfileEventsStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;

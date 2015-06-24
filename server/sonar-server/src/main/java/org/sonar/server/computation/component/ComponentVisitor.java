@@ -21,4 +21,8 @@ package org.sonar.server.computation.component;
 
 public interface ComponentVisitor {
   void visit(Component tree);
+
+  enum Order {
+    PRE_ORDER, POST_ORDER
+  }
 }

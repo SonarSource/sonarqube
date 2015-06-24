@@ -46,7 +46,7 @@ import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
 import org.sonar.server.db.DbClient;
 
-import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 /**
  * Set variations on all numeric measures found in the repository.

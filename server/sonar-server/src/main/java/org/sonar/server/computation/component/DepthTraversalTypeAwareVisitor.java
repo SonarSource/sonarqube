@@ -53,7 +53,7 @@ public abstract class DepthTraversalTypeAwareVisitor implements TypeAwareVisitor
     }
   }
 
-  protected void visitNode(Component component) {
+  private void visitNode(Component component) {
     visitAny(component);
     switch (component.getType()) {
       case PROJECT:
@@ -109,9 +109,5 @@ public abstract class DepthTraversalTypeAwareVisitor implements TypeAwareVisitor
   @Override
   public void visitAny(Component component) {
     // empty implementation, meant to be override at will by subclasses
-  }
-
-  public enum Order {
-    PRE_ORDER, POST_ORDER
   }
 }
