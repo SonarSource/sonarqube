@@ -19,9 +19,9 @@
  */
 package org.sonar.server.computation.step;
 
-import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
@@ -67,22 +67,24 @@ public class PersistIssuesStep implements ComputationStep {
         boolean saved = false;
         if (issue.isNew()) {
           Integer ruleId = ruleCache.get(issue.ruleKey()).getId();
-          mapper.insert(IssueDto.toDtoForComputationInsert(issue, ruleId, system2.now()));
+          IssueDto dto = IssueDto.toDtoForComputationInsert(issue, ruleId, system2.now());
+          Loggers.get(getClass()).info("---- INSERT " + dto);
+          mapper.insert(dto);
           saved = true;
         } else if (issue.isChanged()) {
           IssueDto dto = IssueDto.toDtoForUpdate(issue, system2.now());
-          if (Issue.STATUS_CLOSED.equals(issue.status()) || issue.selectedAt() == null) {
-            // Issue is closed by scan or changed by end-user
-            mapper.update(dto);
-          } else {
-            int updateCount = mapper.updateIfBeforeSelectedDate(dto);
-            if (updateCount == 0) {
-              // End-user and scan changed the issue at the same time.
-              // See https://jira.sonarsource.com/browse/SONAR-4309
-              conflictResolver.resolve(issue, mapper);
-            }
+          Loggers.get(getClass()).info("---- UPDATE " + dto);
+          int updateCount = mapper.updateIfBeforeSelectedDate(dto);
+          if (updateCount == 0) {
+            Loggers.get(getClass()).info("---- CONFLICT: " + updateCount);
+            // End-user and scan changed the issue at the same time.
+            // See https://jira.sonarsource.com/browse/SONAR-4309
+            conflictResolver.resolve(issue, mapper);
           }
+
           saved = true;
+        } else {
+          Loggers.get(getClass()).info("---- UNCHANGED "  + issue);
         }
         if (saved) {
           insertChanges(changeMapper, issue);

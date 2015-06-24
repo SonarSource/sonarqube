@@ -27,7 +27,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 import javax.annotation.Nonnull;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.log.Loggers;
 
 import static com.google.common.collect.FluentIterable.from;
 
@@ -43,7 +45,7 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
     detectCodeMoves(rawInput, baseInput, tracking);
 
     // 3. match issues with same rule, same message and same line hash
-    match(tracking, LineHashAndMessagekeyFactory.INSTANCE);
+    match(tracking, LineHashAndMessageKeyFactory.INSTANCE);
 
     // 4. match issues with same rule, same line and same message
     match(tracking, LineAndMessageKeyFactory.INSTANCE);
@@ -135,7 +137,7 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
     LineAndLineHashKey(Trackable trackable) {
       this.ruleKey = trackable.getRuleKey();
       this.line = trackable.getLine();
-      this.lineHash = trackable.getLineHash();
+      this.lineHash = StringUtils.defaultString(trackable.getLineHash(), "");
     }
 
     @Override
@@ -178,7 +180,7 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
     LineHashAndMessageKey(Trackable trackable) {
       this.ruleKey = trackable.getRuleKey();
       this.message = trackable.getMessage();
-      this.lineHash = trackable.getLineHash();
+      this.lineHash = StringUtils.defaultString(trackable.getLineHash(), "");
     }
 
     @Override
@@ -206,7 +208,7 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
     }
   }
 
-  private enum LineHashAndMessagekeyFactory implements SearchKeyFactory {
+  private enum LineHashAndMessageKeyFactory implements SearchKeyFactory {
     INSTANCE;
     @Override
     public SearchKey create(Trackable t) {

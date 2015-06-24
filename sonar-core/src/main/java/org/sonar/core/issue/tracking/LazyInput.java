@@ -31,7 +31,7 @@ public abstract class LazyInput<ISSUE extends Trackable> implements Input<ISSUE>
   @Override
   public LineHashSequence getLineHashSequence() {
     if (lineHashSeq == null) {
-      lineHashSeq = LineHashSequence.createForLines(loadSourceLines());
+      lineHashSeq = loadLineHashSequence();
     }
     return lineHashSeq;
   }
@@ -52,7 +52,7 @@ public abstract class LazyInput<ISSUE extends Trackable> implements Input<ISSUE>
     return issues;
   }
 
-  protected abstract Iterable<String> loadSourceLines();
+  protected abstract LineHashSequence loadLineHashSequence();
 
   protected abstract List<ISSUE> loadIssues();
 }

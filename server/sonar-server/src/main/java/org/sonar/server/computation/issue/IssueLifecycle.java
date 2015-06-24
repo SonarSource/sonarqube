@@ -73,6 +73,7 @@ public class IssueLifecycle {
     updater.setPastMessage(raw, base.getMessage(), changeContext);
     updater.setPastEffortToFix(raw, base.effortToFix(), changeContext);
     updater.setPastTechnicalDebt(raw, base.debt(), changeContext);
+    raw.setSelectedAt(base.selectedAt());
   }
 
   public void doAutomaticTransition(DefaultIssue issue) {

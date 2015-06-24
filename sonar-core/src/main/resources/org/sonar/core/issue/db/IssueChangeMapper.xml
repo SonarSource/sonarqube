@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mappei.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.sonar.core.issue.db.IssueChangeMapper">
 
@@ -43,20 +43,6 @@
     order by c.created_at
   </select>
 
-  <select id="selectChangelogOnNonClosedIssuesByModuleAndType" parameterType="map" resultType="IssueChange">
-    select
-    <include refid="issueChangeColumns"/>
-    from issue_changes c
-    inner join issues i on i.kee = c.issue_key
-    inner join (select p.id, p.uuid, p.kee from projects p where (p.root_id=#{componentId} and p.qualifier &lt;&gt; 'BRC') or
-    (p.id=#{componentId})) p on p.uuid=i.component_uuid
-    <where>
-      and c.change_type=#{changeType}
-      and i.status &lt;&gt; 'CLOSED'
-    </where>
-    order by c.issue_change_creation_date asc
-  </select>
-
   <select id="selectByKeyAndType" parameterType="map" resultType="IssueChange">
     select
     <include refid="issueChangeColumns"/>
@@ -70,6 +56,16 @@
     from issue_changes c
     where c.issue_key=#{id}
     order by created_at asc
+  </select>
+
+  <select id="selectChangelogOfUnresolvedIssuesByComponent" parameterType="map" resultType="IssueChange">
+    select
+    <include refid="issueChangeColumns"/>
+    from issue_changes c
+    inner join issues i on i.kee = c.issue_key
+    where i.component_uuid=#{componentUuid}
+    and c.change_type=#{changeType}
+    and i.resolution is null
   </select>
 </mapper>
 

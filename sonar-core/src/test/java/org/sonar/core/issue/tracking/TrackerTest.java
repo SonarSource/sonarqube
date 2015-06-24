@@ -196,13 +196,13 @@ public class TrackerTest {
   }
 
   @Test
-  public void fail_if_raw_line_does_not_exist() throws Exception {
+  public void do_not_fail_if_raw_line_does_not_exist() throws Exception {
     FakeInput baseInput = new FakeInput();
     FakeInput rawInput = new FakeInput("H1").addIssue(new Issue(200, "H200", RULE_SYSTEM_PRINT, "msg"));
 
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Issue line is not valid");
-    tracker.track(rawInput, baseInput);
+    Tracking<Issue, Issue> tracking = tracker.track(rawInput, baseInput);
+
+    assertThat(tracking.getUnmatchedRaws()).hasSize(1);
   }
 
   /**
@@ -406,7 +406,7 @@ public class TrackerTest {
     private final List<Issue> issues = new ArrayList<>();
     private final List<String> lineHashes;
 
-    public FakeInput(String... lineHashes) {
+    FakeInput(String... lineHashes) {
       this.lineHashes = asList(lineHashes);
     }
 
@@ -418,7 +418,7 @@ public class TrackerTest {
       return new FakeInput(hashes);
     }
 
-    public Issue createIssueOnLine(int line, RuleKey ruleKey, String message) {
+    Issue createIssueOnLine(int line, RuleKey ruleKey, String message) {
       Issue issue = new Issue(line, lineHashes.get(line - 1), ruleKey, message);
       issues.add(issue);
       return issue;
@@ -427,13 +427,13 @@ public class TrackerTest {
     /**
      * No line (line 0)
      */
-    public Issue createIssue(RuleKey ruleKey, String message) {
+    Issue createIssue(RuleKey ruleKey, String message) {
       Issue issue = new Issue(null, "", ruleKey, message);
       issues.add(issue);
       return issue;
     }
 
-    public FakeInput addIssue(Issue issue) {
+    FakeInput addIssue(Issue issue) {
       this.issues.add(issue);
       return this;
     }

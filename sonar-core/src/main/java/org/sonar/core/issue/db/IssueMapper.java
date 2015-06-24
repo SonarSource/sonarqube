@@ -26,7 +26,7 @@ public interface IssueMapper {
 
   IssueDto selectByKey(String key);
 
-  List<IssueDto> selectOpenByComponentUuid(String componentUuid);
+  List<IssueDto> selectNonClosedByComponentUuid(String componentUuid);
 
   Set<String> selectComponentUuidsOfOpenIssuesForProjectUuid(String projectUuid);
 

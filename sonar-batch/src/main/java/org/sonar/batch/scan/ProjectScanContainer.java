@@ -43,7 +43,6 @@ import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.components.PastMeasuresLoader;
-import org.sonar.batch.debt.DebtModelProvider;
 import org.sonar.batch.deprecated.components.DefaultResourceCreationLock;
 import org.sonar.batch.deprecated.components.PeriodsDefinition;
 import org.sonar.batch.duplication.DuplicationCache;
@@ -63,13 +62,13 @@ import org.sonar.batch.report.CoveragePublisher;
 import org.sonar.batch.report.DuplicationsPublisher;
 import org.sonar.batch.report.IssuesPublisher;
 import org.sonar.batch.report.MeasuresPublisher;
+import org.sonar.batch.report.MetadataPublisher;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.report.SourcePublisher;
 import org.sonar.batch.report.TestExecutionAndCoveragePublisher;
 import org.sonar.batch.repository.ProjectRepositoriesProvider;
 import org.sonar.batch.repository.language.DefaultLanguagesRepository;
 import org.sonar.batch.rule.ActiveRulesProvider;
-import org.sonar.batch.rule.RulesProvider;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.batch.scan.measure.DefaultMetricFinder;
 import org.sonar.batch.scan.measure.DeprecatedMetricFinder;
@@ -82,7 +81,6 @@ import org.sonar.core.issue.workflow.FunctionExecutor;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
 
 public class ProjectScanContainer extends ComponentContainer {
 
@@ -159,10 +157,10 @@ public class ProjectScanContainer extends ComponentContainer {
       InputPathCache.class,
       PathResolver.class,
 
-    // rules
+      // rules
       new ActiveRulesProvider(),
 
-    // issues
+      // issues
       IssueUpdater.class,
       FunctionExecutor.class,
       IssueWorkflow.class,
@@ -171,31 +169,32 @@ public class ProjectScanContainer extends ComponentContainer {
       LocalIssueTracking.class,
       ServerIssueRepository.class,
 
-    // metrics
+      // metrics
       DefaultMetricFinder.class,
       DeprecatedMetricFinder.class,
 
-    // tests
+      // tests
       TestPlanBuilder.class,
       TestableBuilder.class,
 
-    // lang
+      // lang
       Languages.class,
       DefaultLanguagesRepository.class,
 
-    // Differential periods
+      // Differential periods
       PeriodsDefinition.class,
 
-    // Measures
+      // Measures
       MeasureCache.class,
 
-    // Duplications
+      // Duplications
       DuplicationCache.class,
 
-    ProjectSettings.class,
+      ProjectSettings.class,
 
-    // Report
+      // Report
       ReportPublisher.class,
+      MetadataPublisher.class,
       ComponentsPublisher.class,
       IssuesPublisher.class,
       MeasuresPublisher.class,
@@ -204,19 +203,11 @@ public class ProjectScanContainer extends ComponentContainer {
       SourcePublisher.class,
       TestExecutionAndCoveragePublisher.class,
 
-    ScanTaskObservers.class);
+      ScanTaskObservers.class);
   }
 
   private void addDataBaseComponents() {
-    add(
-      PastMeasuresLoader.class,
-
-    // Rules
-      new RulesProvider(),
-      new DebtModelProvider(),
-
-    // technical debt
-      DefaultTechnicalDebtModel.class);
+    add(PastMeasuresLoader.class);
   }
 
   private void addBatchExtensions() {

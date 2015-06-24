@@ -45,7 +45,8 @@ public interface BatchReportReader {
   CloseableIterator<BatchReport.Coverage> readComponentCoverage(int fileRef);
 
   /**
-   * Reads file source line by line.
+   * Reads file source line by line. Throws an exception if the ref does not relate
+   * to a file
    */
   CloseableIterator<String> readFileSource(int fileRef);
 

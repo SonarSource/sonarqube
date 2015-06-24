@@ -20,18 +20,16 @@
 package org.sonar.api.measures;
 
 import com.google.common.annotations.Beta;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.math.NumberUtils;
-import org.sonar.api.technicaldebt.batch.Characteristic;
-import org.sonar.api.technicaldebt.batch.Requirement;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.math.NumberUtils;
+import org.sonar.api.technicaldebt.batch.Characteristic;
+import org.sonar.api.technicaldebt.batch.Requirement;
 
 /**
  * A class to handle measures.
@@ -62,8 +60,6 @@ public class Measure<G extends Serializable> implements Serializable {
   protected Double variation4;
   protected Double variation5;
   protected String url;
-  protected Characteristic characteristic;
-  protected Requirement requirement;
   protected Integer personId;
   protected PersistenceMode persistenceMode = PersistenceMode.FULL;
   private boolean fromCore;
@@ -631,14 +627,13 @@ public class Measure<G extends Serializable> implements Serializable {
    */
   @CheckForNull
   public final Characteristic getCharacteristic() {
-    return characteristic;
+    return null;
   }
 
   /**
    * @since 4.1
    */
   public final Measure<G> setCharacteristic(@Nullable Characteristic characteristic) {
-    this.characteristic = characteristic;
     return this;
   }
 
@@ -649,7 +644,7 @@ public class Measure<G extends Serializable> implements Serializable {
   @Deprecated
   @CheckForNull
   public final Requirement getRequirement() {
-    return requirement;
+    return null;
   }
 
   /**
@@ -658,7 +653,6 @@ public class Measure<G extends Serializable> implements Serializable {
    */
   @Deprecated
   public final Measure<G> setRequirement(@Nullable Requirement requirement) {
-    this.requirement = requirement;
     return this;
   }
 
@@ -737,16 +731,12 @@ public class Measure<G extends Serializable> implements Serializable {
     if (metricKey != null ? !metricKey.equals(measure.metricKey) : (measure.metricKey != null)) {
       return false;
     }
-    if (characteristic != null ? !characteristic.equals(measure.characteristic) : (measure.characteristic != null)) {
-      return false;
-    }
     return !(personId != null ? !personId.equals(measure.personId) : (measure.personId != null));
   }
 
   @Override
   public int hashCode() {
     int result = metricKey != null ? metricKey.hashCode() : 0;
-    result = 31 * result + (characteristic != null ? characteristic.hashCode() : 0);
     result = 31 * result + (personId != null ? personId.hashCode() : 0);
     return result;
   }

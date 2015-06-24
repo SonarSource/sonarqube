@@ -41,7 +41,6 @@ public class DefaultRule implements Rule {
   private final String severity;
   private final String description;
   private final String internalKey;
-  private final String debtSubCharacteristic;
   private final RuleStatus status;
   private final DebtRemediationFunction debtRemediationFunction;
   private final Map<String, RuleParam> params;
@@ -54,7 +53,6 @@ public class DefaultRule implements Rule {
     this.description = newRule.description;
     this.internalKey = newRule.internalKey;
     this.status = newRule.status;
-    this.debtSubCharacteristic = newRule.debtSubCharacteristic;
     this.debtRemediationFunction = newRule.debtRemediationFunction;
 
     ImmutableMap.Builder<String, RuleParam> builder = ImmutableMap.builder();
@@ -97,11 +95,6 @@ public class DefaultRule implements Rule {
   @Override
   public RuleStatus status() {
     return status;
-  }
-
-  @Override
-  public String debtSubCharacteristic() {
-    return debtSubCharacteristic;
   }
 
   @Override

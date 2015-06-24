@@ -45,6 +45,13 @@ message Metadata {
   optional string project_key = 2;
   optional string branch = 3;
   optional int32 root_component_ref = 4;
+
+  /*
+    Keys of the rules that were enabled in Quality profiles.
+    A key is a string composed of the repository and the subKey, specific to the repository. Format is
+    "{repository}:{subKey}", for instance "java:NullDereference".
+  */
+  repeated string active_rule_key = 5;
 }
 
 message ComponentLink {
@@ -84,15 +91,11 @@ message Measure {
 
   // temporary fields during development of computation stack
   optional string description = 9;
-  optional string rule_key = 10;
-  optional string alert_status = 12;
-  optional string alert_text = 13;
   optional double variation_value_1 = 14;
   optional double variation_value_2 = 15;
   optional double variation_value_3 = 16;
   optional double variation_value_4 = 17;
   optional double variation_value_5 = 18;
-  optional int32 characteric_id = 19;
   optional int32 person_id = 20;
 }
 

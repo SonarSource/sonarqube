@@ -20,15 +20,10 @@
 
 package org.sonar.core.issue.db;
 
+import java.util.List;
+import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
 
-import javax.annotation.CheckForNull;
-
-import java.util.List;
-
-/**
- * @since 3.6
- */
 public interface IssueChangeMapper {
 
   void insert(IssueChangeDto dto);
@@ -38,13 +33,13 @@ public interface IssueChangeMapper {
   int update(IssueChangeDto change);
 
   @CheckForNull
-  IssueChangeDto selectByKeyAndType(@Param("key") String key,
-                                    @Param("changeType") String type);
+  IssueChangeDto selectByKeyAndType(@Param("key") String key, @Param("changeType") String type);
+
   /**
    * Issue changes by chronological date of creation
    */
   List<IssueChangeDto> selectByIssuesAndType(@Param("issueKeys") List<String> issueKeys,
-                                             @Param("changeType") String changeType);
+    @Param("changeType") String changeType);
 
-  List<IssueChangeDto> selectByIssue(String issueKey);
+  List<IssueChangeDto> selectChangelogOfUnresolvedIssuesByComponent(@Param("componentUuid") String componentUuid, @Param("changeType") String changeType);
 }

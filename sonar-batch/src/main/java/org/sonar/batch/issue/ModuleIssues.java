@@ -28,12 +28,12 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.batch.rule.internal.DefaultActiveRule;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.MessageException;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueBuilder;
 
 /**
@@ -120,7 +120,7 @@ public class ModuleIssues {
     }
     if (rule != null) {
       DebtRemediationFunction function = rule.debtRemediationFunction();
-      if (rule.debtSubCharacteristic() != null && function != null) {
+      if (function != null) {
         issue.setDebt(calculateDebt(function, issue.effortToFix(), rule.key()));
       }
     }

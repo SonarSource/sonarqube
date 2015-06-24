@@ -143,7 +143,7 @@ public class LocalIssueTracking {
       if (file == null) {
         throw new IllegalStateException("Resource " + component.resource() + " was not found in InputPath cache");
       }
-      sourceHashHolder = new SourceHashHolder((DefaultInputFile) file, lastLineHashes);
+      sourceHashHolder = new SourceHashHolder(file, lastLineHashes);
     }
     return sourceHashHolder;
   }

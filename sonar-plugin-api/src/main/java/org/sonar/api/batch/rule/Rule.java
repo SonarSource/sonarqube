@@ -19,12 +19,11 @@
  */
 package org.sonar.api.batch.rule;
 
+import java.util.Collection;
+import javax.annotation.CheckForNull;
 import org.sonar.api.batch.debt.DebtRemediationFunction;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-
-import javax.annotation.CheckForNull;
-import java.util.Collection;
 
 /**
  * @since 4.2
@@ -49,14 +48,6 @@ public interface Rule {
   Collection<RuleParam> params();
 
   RuleStatus status();
-
-  /**
-   * Sub characteristic key.
-   *
-   * @since 4.3
-   */
-  @CheckForNull
-  String debtSubCharacteristic();
 
   /**
    * Remediation function : can by Linear (with a coefficient), Linear with offset (with a coefficient and an offset) or Constant per issue (with an offset)

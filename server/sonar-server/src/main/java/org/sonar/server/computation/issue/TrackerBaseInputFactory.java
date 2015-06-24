@@ -23,6 +23,7 @@ import java.util.List;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.LazyInput;
+import org.sonar.core.issue.tracking.LineHashSequence;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.component.Component;
@@ -53,10 +54,11 @@ public class TrackerBaseInputFactory {
     }
 
     @Override
-    protected Iterable<String> loadSourceLines() {
+    protected LineHashSequence loadLineHashSequence() {
       DbSession session = dbClient.openSession(false);
       try {
-        return dbClient.fileSourceDao().selectLineHashes(session, component.getUuid());
+        List<String> hashes = dbClient.fileSourceDao().selectLineHashes(session, component.getUuid());
+        return new LineHashSequence(hashes);
       } finally {
         MyBatis.closeQuietly(session);
       }

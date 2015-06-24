@@ -21,22 +21,16 @@
 package org.sonar.core.issue.db;
 
 import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.batch.BatchSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.MyBatis;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
 import static com.google.common.collect.Lists.newArrayList;
 
-/**
- * @since 3.6
- */
-@BatchSide
 @ServerSide
 public class ActionPlanDao implements DaoComponent {
 

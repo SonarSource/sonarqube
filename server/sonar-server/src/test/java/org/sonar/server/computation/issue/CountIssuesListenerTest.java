@@ -107,15 +107,14 @@ public class CountIssuesListenerTest {
   Tracking tracking = mock(Tracking.class);
   MetricRepository metricRepository = mock(MetricRepository.class);
   MeasureRepository measureRepository;
-  RuleCache ruleCache = mock(RuleCache.class);
-  CountIssuesListener sut;
+  IssueCounter sut;
 
   @Before
   public void setUp() throws Exception {
     initMetrics();
-    measureRepository = new MeasureRepositoryImpl(null, reportReader, metricRepository, ruleCache);
+    measureRepository = new MeasureRepositoryImpl(null, reportReader, metricRepository);
 
-    sut = new CountIssuesListener(periodsHolder, metricRepository, measureRepository);
+    sut = new IssueCounter(periodsHolder, metricRepository, measureRepository);
   }
 
   @Test

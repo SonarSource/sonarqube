@@ -49,7 +49,6 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.debt.Characteristic;
-import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepository;
@@ -93,12 +92,11 @@ public class MeasureRepositoryImplTest {
 
   private DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new MeasureDao(), new SnapshotDao(), new MetricDao(), new ComponentDao());
   private MetricRepository metricRepository = mock(MetricRepository.class);
-  private RuleCache ruleCache = mock(RuleCache.class);
-  private MeasureRepositoryImpl underTest = new MeasureRepositoryImpl(dbClient, reportReader, metricRepository, ruleCache);
+  private MeasureRepositoryImpl underTest = new MeasureRepositoryImpl(dbClient, reportReader, metricRepository);
 
   private DbClient mockedDbClient = mock(DbClient.class);
   private BatchReportReader mockBatchReportReader = mock(BatchReportReader.class);
-  private MeasureRepositoryImpl underTestWithMock = new MeasureRepositoryImpl(mockedDbClient, mockBatchReportReader, metricRepository, ruleCache);
+  private MeasureRepositoryImpl underTestWithMock = new MeasureRepositoryImpl(mockedDbClient, mockBatchReportReader, metricRepository);
 
   @CheckForNull
   private DbSession dbSession;
@@ -227,7 +225,7 @@ public class MeasureRepositoryImplTest {
       @Nullable
       @Override
       public Object[] apply(Measure input) {
-        return new Measure[] { input };
+        return new Measure[] {input};
       }
     }).toArray(Object[].class);
   }
@@ -254,8 +252,8 @@ public class MeasureRepositoryImplTest {
         fail("An IllegalArgumentException should have been raised");
       } catch (IllegalArgumentException e) {
         assertThat(e).hasMessage(format(
-            "Measure's ValueType (%s) is not consistent with the Measure's ValueType (%s)",
-            measure.getValueType(), metricType.getValueType()));
+          "Measure's ValueType (%s) is not consistent with the Measure's ValueType (%s)",
+          measure.getValueType(), metricType.getValueType()));
       }
     }
   }

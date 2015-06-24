@@ -21,9 +21,6 @@ package org.sonar.batch.report;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.resources.Project;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
@@ -31,19 +28,17 @@ import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportWriter;
-import org.sonar.batch.scan.ImmutableProjectReactor;
 import org.sonar.core.issue.DefaultIssue;
 
 public class IssuesPublisher implements ReportPublisherStep {
 
   private final BatchComponentCache componentCache;
   private final IssueCache issueCache;
-  private final ImmutableProjectReactor reactor;
 
-  public IssuesPublisher(ImmutableProjectReactor reactor, BatchComponentCache componentCache, IssueCache issueCache) {
-    this.reactor = reactor;
+  public IssuesPublisher(BatchComponentCache componentCache, IssueCache issueCache) {
     this.componentCache = componentCache;
     this.issueCache = issueCache;
+
   }
 
   @Override
@@ -60,23 +55,6 @@ public class IssuesPublisher implements ReportPublisherStep {
         }
       }));
     }
-
-    exportMetadata(writer);
-  }
-
-  private void exportMetadata(BatchReportWriter writer) {
-    ProjectDefinition root = reactor.getRoot();
-    BatchComponent rootProject = componentCache.getRoot();
-    BatchReport.Metadata.Builder builder = BatchReport.Metadata.newBuilder()
-      .setAnalysisDate(((Project) rootProject.resource()).getAnalysisDate().getTime())
-      // Here we want key without branch
-      .setProjectKey(root.getKey())
-      .setRootComponentRef(rootProject.batchId());
-    String branch = root.properties().get(CoreProperties.PROJECT_BRANCH_PROPERTY);
-    if (branch != null) {
-      builder.setBranch(branch);
-    }
-    writer.writeMetadata(builder.build());
   }
 
   private BatchReport.Issue toReportIssue(BatchReport.Issue.Builder builder, DefaultIssue issue) {

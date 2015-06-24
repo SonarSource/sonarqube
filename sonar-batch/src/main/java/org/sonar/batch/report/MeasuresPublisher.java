@@ -26,14 +26,10 @@ import com.google.common.collect.Iterables;
 import java.io.Serializable;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.Metric.Level;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.measures.MetricFinder;
-import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.Constants.MeasureValueType;
@@ -111,14 +107,6 @@ public class MeasuresPublisher implements ReportPublisherStep {
     if (description != null) {
       builder.setDescription(description);
     }
-    Level alertStatus = measure.getAlertStatus();
-    if (alertStatus != null) {
-      builder.setAlertStatus(alertStatus.toString());
-    }
-    String alertText = measure.getAlertText();
-    if (alertText != null) {
-      builder.setAlertText(alertText);
-    }
     Double variation1 = measure.getVariation1();
     if (variation1 != null) {
       builder.setVariationValue1(variation1);
@@ -138,10 +126,6 @@ public class MeasuresPublisher implements ReportPublisherStep {
     Double variation5 = measure.getVariation5();
     if (variation5 != null) {
       builder.setVariationValue5(variation5);
-    }
-    Characteristic charac = measure.getCharacteristic();
-    if (charac != null) {
-      builder.setCharactericId(charac.id());
     }
     Integer personId = measure.getPersonId();
     if (personId != null) {

@@ -19,20 +19,18 @@
  */
 package org.sonar.core.issue.db;
 
-import org.apache.ibatis.executor.result.DefaultResultHandler;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.core.issue.DefaultIssueComment;
-import org.sonar.core.issue.FieldDiffs;
-import org.sonar.api.utils.DateUtils;
-import org.sonar.core.persistence.AbstractDaoTestCase;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.core.issue.DefaultIssueComment;
+import org.sonar.core.issue.FieldDiffs;
+import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -115,45 +113,11 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_issue_changelog_by_module() {
-    setupData("select_issue_changelog_by_module");
+  public void selectChangelogOfUnresolvedIssuesByComponent() {
+    setupData("selectChangelogOfUnresolvedIssuesByComponent");
 
-    // 400 is a non-root module, we should find 2 + 1 changelog from classes and one on itself
-    DefaultResultHandler handler = new DefaultResultHandler();
-    dao.selectChangelogOnNonClosedIssuesByModuleAndType(400, handler);
-    assertThat(handler.getResultList()).hasSize(4);
-
-    IssueChangeDto issueChangeDto = (IssueChangeDto) handler.getResultList().get(0);
-    assertThat(issueChangeDto.getId()).isNotNull();
-    assertThat(issueChangeDto.getKey()).isNotNull();
-    assertThat(issueChangeDto.getIssueKey()).isNotNull();
-    assertThat(issueChangeDto.getUserLogin()).isNotNull();
-    assertThat(issueChangeDto.getChangeType()).isNotNull();
-    assertThat(issueChangeDto.getChangeData()).isNotNull();
-    assertThat(issueChangeDto.getCreatedAt()).isNotNull();
-    assertThat(issueChangeDto.getUpdatedAt()).isNotNull();
-
-    for (Object changeDtoObject : handler.getResultList()) {
-      IssueChangeDto changeDto = (IssueChangeDto) changeDtoObject;
-      assertThat(changeDto.getChangeType()).isEqualTo(IssueChangeDto.TYPE_FIELD_CHANGE);
-    }
-
-    // 399 is the root module, we should only find 1 changelog on itself
-    handler = new DefaultResultHandler();
-    dao.selectChangelogOnNonClosedIssuesByModuleAndType(399, handler);
-    assertThat(handler.getResultList()).hasSize(1);
-  }
-
-  @Test
-  public void select_issue_changelog_by_module_should_be_sorted_by_creation_date() {
-    setupData("select_issue_changelog_by_module_are_sorted_by_creation_date");
-
-    DefaultResultHandler handler = new DefaultResultHandler();
-    dao.selectChangelogOnNonClosedIssuesByModuleAndType(399, handler);
-    assertThat(handler.getResultList()).hasSize(3);
-    assertThat(((IssueChangeDto) handler.getResultList().get(0)).getId()).isEqualTo(1001);
-    assertThat(((IssueChangeDto) handler.getResultList().get(1)).getId()).isEqualTo(1002);
-    assertThat(((IssueChangeDto) handler.getResultList().get(2)).getId()).isEqualTo(1000);
+    List<IssueChangeDto> dtos = dao.selectChangelogOfUnresolvedIssuesByComponent("FILE_1");
+    assertThat(dtos).extracting("id").containsExactly(100L);
   }
 
   @Test

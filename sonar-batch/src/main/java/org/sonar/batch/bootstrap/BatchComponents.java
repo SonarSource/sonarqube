@@ -37,8 +37,6 @@ import org.sonar.batch.compute.OverallCoverageDecorator;
 import org.sonar.batch.compute.OverallLineCoverageDecorator;
 import org.sonar.batch.compute.UnitTestDecorator;
 import org.sonar.batch.cpd.CpdComponents;
-import org.sonar.batch.debt.IssueChangelogDebtCalculator;
-import org.sonar.batch.debt.NewDebtDecorator;
 import org.sonar.batch.issue.tracking.IssueTracking;
 import org.sonar.batch.language.LanguageDistributionDecorator;
 import org.sonar.batch.scan.report.ConsoleReport;
@@ -82,10 +80,6 @@ public class BatchComponents {
 
       // language
       LanguageDistributionDecorator.class,
-
-      // Debt
-      IssueChangelogDebtCalculator.class,
-      NewDebtDecorator.class,
 
       // to be moved to compute engine
       UnitTestDecorator.class,

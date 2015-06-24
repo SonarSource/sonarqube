@@ -48,6 +48,8 @@ import static org.mockito.Mockito.when;
 
 public class PersistIssuesStepTest extends BaseStepTest {
 
+  public static final long NOW = 1400000000000L;
+
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
@@ -77,7 +79,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     system2 = mock(System2.class);
-    when(system2.now()).thenReturn(1400000000000L);
+    when(system2.now()).thenReturn(NOW);
     step = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleCache(new RuleCacheLoader(dbClient)), issueCache);
   }
 
@@ -117,6 +119,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .setSeverity(Severity.BLOCKER)
       .setStatus(Issue.STATUS_CLOSED)
       .setResolution(Issue.RESOLUTION_FIXED)
+      .setSelectedAt(NOW)
       .setNew(false)
       .setChanged(true)
       ).close();

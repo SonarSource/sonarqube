@@ -55,6 +55,7 @@ public class ComputationSteps {
       ComputeIssueMeasuresStep.class,
       CustomMeasuresCopyStep.class,
       ComputeFormulaMeasuresStep.class,      
+      CustomMeasuresCopyStep.class,
       SqaleMeasuresStep.class,
       NewCoverageMeasuresStep.class,
       NewCoverageAggregationStep.class,

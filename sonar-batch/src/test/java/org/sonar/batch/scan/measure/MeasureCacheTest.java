@@ -34,8 +34,6 @@ import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.technicaldebt.batch.Characteristic;
-import org.sonar.api.technicaldebt.batch.Requirement;
 import org.sonar.batch.index.AbstractCachesTest;
 import org.sonar.batch.index.Cache.Entry;
 
@@ -64,7 +62,6 @@ public class MeasureCacheTest extends AbstractCachesTest {
     Project p = new Project("struts");
 
     assertThat(measureCache.entries()).hasSize(0);
-
     assertThat(measureCache.byResource(p)).hasSize(0);
 
     Measure m = new Measure(CoreMetrics.NCLOC, 1.0);
@@ -227,29 +224,14 @@ public class MeasureCacheTest extends AbstractCachesTest {
   public void test_measure_coder() throws Exception {
     Resource file1 = File.create("foo/bar/File1.txt").setEffectiveKey("struts:foo/bar/File1.txt");
 
-    Measure measure = new Measure(CoreMetrics.NCLOC, 1.786, 5);
-    measureCache.put(file1, measure);
-
-    Measure savedMeasure = measureCache.byResource(file1).iterator().next();
-
-    assertThat(EqualsBuilder.reflectionEquals(measure, savedMeasure)).isTrue();
-
-    measure = new Measure(CoreMetrics.NCLOC);
+    Measure measure = new Measure(CoreMetrics.NCLOC, 3.14);
     measure.setData("data");
     measure.setAlertStatus(Level.ERROR);
     measure.setAlertText("alert");
-    Characteristic c = mock(Characteristic.class);
-    when(c.id()).thenReturn(1);
-    when(techDebtModel.characteristicById(1)).thenReturn(c);
-    measure.setCharacteristic(c);
     measure.setDate(new Date());
     measure.setDescription("description");
     measure.setPersistenceMode(null);
     measure.setPersonId(3);
-    Requirement r = mock(Requirement.class);
-    when(r.id()).thenReturn(7);
-    when(techDebtModel.requirementsById(7)).thenReturn(r);
-    measure.setRequirement(r);
     measure.setUrl("http://foo");
     measure.setVariation1(11.0);
     measure.setVariation2(12.0);
@@ -258,7 +240,7 @@ public class MeasureCacheTest extends AbstractCachesTest {
     measure.setVariation5(15.0);
     measureCache.put(file1, measure);
 
-    savedMeasure = measureCache.byResource(file1).iterator().next();
+    Measure savedMeasure = measureCache.byResource(file1).iterator().next();
     assertThat(EqualsBuilder.reflectionEquals(measure, savedMeasure)).isTrue();
 
   }

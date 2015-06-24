@@ -36,7 +36,6 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.debt.Characteristic;
-import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.db.DbClient;
@@ -55,10 +54,10 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   private final Map<Integer, Map<MeasureKey, Measure>> measures = new HashMap<>();
 
   public MeasureRepositoryImpl(DbClient dbClient, BatchReportReader reportReader,
-    final MetricRepository metricRepository, final RuleCache ruleCache) {
+    MetricRepository metricRepository) {
     this.dbClient = dbClient;
     this.reportReader = reportReader;
-    this.batchMeasureToMeasure = new BatchMeasureToMeasure(ruleCache);
+    this.batchMeasureToMeasure = new BatchMeasureToMeasure();
     this.metricRepository = metricRepository;
   }
 

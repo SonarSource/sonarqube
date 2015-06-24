@@ -19,17 +19,13 @@
  */
 package org.sonar.core.dashboard;
 
+import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.batch.BatchSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.MyBatis;
 
-import javax.annotation.Nullable;
-
-import java.util.List;
-
-@BatchSide
 @ServerSide
 public class ActiveDashboardDao implements DaoComponent {
 

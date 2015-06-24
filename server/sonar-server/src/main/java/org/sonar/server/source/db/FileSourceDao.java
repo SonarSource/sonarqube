@@ -27,6 +27,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
@@ -69,7 +70,7 @@ public class FileSourceDao implements DaoComponent {
   }
 
   @CheckForNull
-  public Iterable<String> selectLineHashes(DbSession dbSession, String fileUuid) {
+  public List<String> selectLineHashes(DbSession dbSession, String fileUuid) {
     Connection connection = dbSession.getConnection();
     PreparedStatement pstmt = null;
     ResultSet rs = null;
@@ -79,7 +80,7 @@ public class FileSourceDao implements DaoComponent {
       pstmt.setString(2, Type.SOURCE);
       rs = pstmt.executeQuery();
       if (rs.next()) {
-        return END_OF_LINE_SPLITTER.split(rs.getString(1));
+        return END_OF_LINE_SPLITTER.splitToList(rs.getString(1));
       }
       return null;
     } catch (SQLException e) {

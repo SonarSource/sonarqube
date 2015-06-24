@@ -22,24 +22,19 @@ package org.sonar.batch.scan.measure;
 import com.persistit.Value;
 import com.persistit.encoding.CoderContext;
 import com.persistit.encoding.ValueCoder;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
-import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.api.technicaldebt.batch.Requirement;
-import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
-
-import javax.annotation.Nullable;
 
 class MeasureValueCoder implements ValueCoder {
 
   private final MetricFinder metricFinder;
-  private final TechnicalDebtModel techDebtModel;
 
-  public MeasureValueCoder(MetricFinder metricFinder, @Nullable TechnicalDebtModel techDebtModel) {
+  public MeasureValueCoder(MetricFinder metricFinder) {
     this.metricFinder = metricFinder;
-    this.techDebtModel = techDebtModel;
   }
 
   @Override
@@ -58,10 +53,6 @@ class MeasureValueCoder implements ValueCoder {
     value.put(m.getVariation4());
     value.put(m.getVariation5());
     putUTFOrNull(value, m.getUrl());
-    Characteristic characteristic = m.getCharacteristic();
-    value.put(characteristic != null ? characteristic.id() : null);
-    Requirement requirement = m.getRequirement();
-    value.put(requirement != null ? requirement.id() : null);
     Integer personId = m.getPersonId();
     value.put(personId != null ? personId.intValue() : null);
     PersistenceMode persistenceMode = m.getPersistenceMode();
@@ -97,8 +88,6 @@ class MeasureValueCoder implements ValueCoder {
     m.setVariation4(value.isNull(true) ? null : value.getDouble());
     m.setVariation5(value.isNull(true) ? null : value.getDouble());
     m.setUrl(value.getString());
-    m.setCharacteristic(value.isNull(true) ? null : techDebtModel.characteristicById(value.getInt()));
-    m.setRequirement(value.isNull(true) ? null : techDebtModel.requirementsById(value.getInt()));
     m.setPersonId(value.isNull(true) ? null : value.getInt());
     m.setPersistenceMode(value.isNull(true) ? null : PersistenceMode.valueOf(value.getString()));
     return m;

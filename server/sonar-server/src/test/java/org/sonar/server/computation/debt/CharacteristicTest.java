@@ -41,7 +41,7 @@ public class CharacteristicTest {
 
   @Test
   public void test_to_string() throws Exception {
-    assertThat(new Characteristic(1, "PORTABILITY", null).toString()).isEqualTo("Characteristic{id=1, key='PORTABILITY'}");
+    assertThat(new Characteristic(1, "PORTABILITY", null).toString()).isEqualTo("Characteristic{id=1, key='PORTABILITY', parentId=null}");
   }
 
   @Test

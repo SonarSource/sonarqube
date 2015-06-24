@@ -43,7 +43,7 @@ import org.sonar.server.source.index.SourceLineIndex;
  *   <li>the Elasticsearch index of source lines for non-modified files</li>
  * </ul>
  */
-public class IssueAssigner extends IssueListener {
+public class IssueAssigner extends IssueVisitor {
 
   private final SourceLineIndex sourceLineIndex;
   private final BatchReportReader reportReader;

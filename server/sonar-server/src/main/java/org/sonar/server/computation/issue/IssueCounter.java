@@ -73,7 +73,7 @@ import static org.sonar.api.rule.Severity.MINOR;
  * </ul>
  * For each value, the variation on configured periods is also computed.
  */
-public class CountIssuesListener extends IssueListener {
+public class IssueCounter extends IssueVisitor {
 
   private final static Map<String, String> SEVERITY_TO_METRIC_KEY = ImmutableMap.of(
     BLOCKER, BLOCKER_VIOLATIONS_KEY,
@@ -98,8 +98,8 @@ public class CountIssuesListener extends IssueListener {
   private final Map<Integer, Counters> countersByComponentRef = new HashMap<>();
   private Counters currentCounters;
 
-  public CountIssuesListener(PeriodsHolder periodsHolder,
-    MetricRepository metricRepository, MeasureRepository measureRepository) {
+  public IssueCounter(PeriodsHolder periodsHolder,
+                      MetricRepository metricRepository, MeasureRepository measureRepository) {
     this.periodsHolder = periodsHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;

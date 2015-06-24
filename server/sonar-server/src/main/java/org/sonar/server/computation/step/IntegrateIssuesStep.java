@@ -23,6 +23,7 @@ import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.component.Component;
@@ -31,11 +32,11 @@ import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.issue.BaseIssuesLoader;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.IssueLifecycle;
-import org.sonar.server.computation.issue.IssueListeners;
+import org.sonar.server.computation.issue.IssueVisitors;
 import org.sonar.server.computation.issue.TrackerExecution;
 import org.sonar.server.util.cache.DiskCache;
 
-import static org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor.Order.POST_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 
 public class IntegrateIssuesStep implements ComputationStep {
 
@@ -44,17 +45,17 @@ public class IntegrateIssuesStep implements ComputationStep {
   private final IssueCache issueCache;
   private final BaseIssuesLoader baseIssuesLoader;
   private final IssueLifecycle issueLifecycle;
-  private final IssueListeners issueListeners;
+  private final IssueVisitors issueVisitors;
 
   public IntegrateIssuesStep(TreeRootHolder treeRootHolder, TrackerExecution tracker, IssueCache issueCache,
     BaseIssuesLoader baseIssuesLoader, IssueLifecycle issueLifecycle,
-    IssueListeners issueListeners) {
+    IssueVisitors issueVisitors) {
     this.treeRootHolder = treeRootHolder;
     this.tracker = tracker;
     this.issueCache = issueCache;
     this.baseIssuesLoader = baseIssuesLoader;
     this.issueLifecycle = issueLifecycle;
-    this.issueListeners = issueListeners;
+    this.issueVisitors = issueVisitors;
   }
 
   @Override
@@ -75,13 +76,15 @@ public class IntegrateIssuesStep implements ComputationStep {
 
   private void processIssues(Component component) {
     Tracking<DefaultIssue, DefaultIssue> tracking = tracker.track(component);
+    Loggers.get(getClass()).info("----- tracking ------");
+    Loggers.get(getClass()).info("" + tracking);
     DiskCache<DefaultIssue>.DiskAppender cacheAppender = issueCache.newAppender();
     try {
-      issueListeners.beforeComponent(component, tracking);
+      issueVisitors.beforeComponent(component, tracking);
       fillNewOpenIssues(component, tracking, cacheAppender);
       fillExistingOpenIssues(component, tracking, cacheAppender);
       closeUnmatchedBaseIssues(component, tracking, cacheAppender);
-      issueListeners.afterComponent(component);
+      issueVisitors.afterComponent(component);
     } finally {
       cacheAppender.close();
     }
@@ -89,42 +92,49 @@ public class IntegrateIssuesStep implements ComputationStep {
 
   private void fillNewOpenIssues(Component component, Tracking<DefaultIssue, DefaultIssue> tracking, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
     Set<DefaultIssue> issues = tracking.getUnmatchedRaws();
+    Loggers.get(getClass()).info("----- fillNewOpenIssues on " + component.getKey());
     for (DefaultIssue issue : issues) {
       issueLifecycle.initNewOpenIssue(issue);
-      issueListeners.onOpenIssueInitialization(component, issue);
+      Loggers.get(getClass()).info("new " + issue);
       process(component, issue, cacheAppender);
     }
+    Loggers.get(getClass()).info("----- /fillNewOpenIssues on " + component.getKey());
   }
 
   private void fillExistingOpenIssues(Component component, Tracking<DefaultIssue, DefaultIssue> tracking, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
+    Loggers.get(getClass()).info("----- fillExistingOpenIssues on " + component.getKey());
     for (Map.Entry<DefaultIssue, DefaultIssue> entry : tracking.getMatchedRaws().entrySet()) {
       DefaultIssue raw = entry.getKey();
       DefaultIssue base = entry.getValue();
-      issueListeners.onOpenIssueInitialization(component, raw);
       issueLifecycle.mergeExistingOpenIssue(raw, base);
+      Loggers.get(getClass()).info("merged " + raw);
       process(component, raw, cacheAppender);
     }
     for (Map.Entry<Integer, DefaultIssue> entry : tracking.getOpenManualIssuesByLine().entries()) {
       int line = entry.getKey();
       DefaultIssue manualIssue = entry.getValue();
       manualIssue.setLine(line == 0 ? null : line);
-      issueListeners.onOpenIssueInitialization(component, manualIssue);
+      Loggers.get(getClass()).info("kept manual " + manualIssue);
       process(component, manualIssue, cacheAppender);
     }
+    Loggers.get(getClass()).info("----- /fillExistingOpenIssues on " + component.getKey());
   }
 
   private void closeUnmatchedBaseIssues(Component component, Tracking<DefaultIssue, DefaultIssue> tracking, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
+    Loggers.get(getClass()).info("----- closeUnmatchedBaseIssues on " + component.getKey());
     for (DefaultIssue issue : tracking.getUnmatchedBases()) {
       // TODO should replace flag "beingClosed" by express call to transition "automaticClose"
       issue.setBeingClosed(true);
+      Loggers.get(getClass()).info("closing " + issue);
       // TODO manual issues -> was updater.setResolution(newIssue, Issue.RESOLUTION_REMOVED, changeContext);. Is it a problem ?
       process(component, issue, cacheAppender);
     }
+    Loggers.get(getClass()).info("----- /closeUnmatchedBaseIssues on " + component.getKey());
   }
 
   private void process(Component component, DefaultIssue issue, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
     issueLifecycle.doAutomaticTransition(issue);
-    issueListeners.onIssue(component, issue);
+    issueVisitors.onIssue(component, issue);
     cacheAppender.append(issue);
   }
 
@@ -135,8 +145,10 @@ public class IntegrateIssuesStep implements ComputationStep {
         List<DefaultIssue> issues = baseIssuesLoader.loadForComponentUuid(deletedComponentUuid);
         for (DefaultIssue issue : issues) {
           issue.setBeingClosed(true);
+          // FIXME should be renamed "setToRemovedStatus"
+          issue.setOnDisabledRule(true);
           issueLifecycle.doAutomaticTransition(issue);
-          // TODO execute listeners ? Component is currently missing.
+          // TODO execute visitors ? Component is currently missing.
           cacheAppender.append(issue);
         }
       }

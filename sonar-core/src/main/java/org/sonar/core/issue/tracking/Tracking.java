@@ -19,6 +19,7 @@
  */
 package org.sonar.core.issue.tracking;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
@@ -53,14 +54,7 @@ public class Tracking<RAW extends Trackable, BASE extends Trackable> {
   private final Multimap<Integer, BASE> openManualIssues = ArrayListMultimap.create();
 
   public Tracking(Input<RAW> rawInput, Input<BASE> baseInput) {
-    for (RAW raw : rawInput.getIssues()) {
-      // Extra verification if some plugins create issues on wrong lines
-      Integer rawLine = raw.getLine();
-      if (rawLine != null && !rawInput.getLineHashSequence().hasLine(rawLine)) {
-        throw new IllegalArgumentException("Issue line is not valid: " + raw);
-      }
-      this.unmatchedRaws.add(raw);
-    }
+    this.unmatchedRaws.addAll(rawInput.getIssues());
     this.unmatchedBases.addAll(baseInput.getIssues());
   }
 
@@ -90,15 +84,24 @@ public class Tracking<RAW extends Trackable, BASE extends Trackable> {
 
   void associateRawToBase(RAW raw, BASE base) {
     rawToBase.put(raw, base);
-    unmatchedBases.remove(base);
+    if (!unmatchedBases.remove(base)) {
+      throw new IllegalStateException(String.format("Fail to associate base issue %s to %s among %s", base, raw, this));
+    }
   }
 
   void markRawAsAssociated(RAW raw) {
-    unmatchedRaws.remove(raw);
+    if (!unmatchedRaws.remove(raw)) {
+      throw new IllegalStateException(String.format("Fail to mark issue as associated: %s among %s", raw, this));
+    }
   }
 
   void markRawsAsAssociated(Collection<RAW> c) {
-    unmatchedRaws.removeAll(c);
+    // important : do not use unmatchedRaws.removeAll(Collection) as it's buggy. See:
+    // http://stackoverflow.com/questions/19682542/why-identityhashmap-keyset-removeallkeys-does-not-use-identity-is-it-a-bug/19682543#19682543
+    // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6588783
+    for (RAW raw : c) {
+      markRawAsAssociated(raw);
+    }
   }
 
   boolean isComplete() {
@@ -112,5 +115,15 @@ public class Tracking<RAW extends Trackable, BASE extends Trackable> {
   void associateManualIssueToLine(BASE manualIssue, int line) {
     openManualIssues.put(line, manualIssue);
     unmatchedBases.remove(manualIssue);
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+      .add("rawToBase", rawToBase)
+      .add("unmatchedRaws", unmatchedRaws)
+      .add("unmatchedBases", unmatchedBases)
+      .add("openManualIssues", openManualIssues)
+      .toString();
   }
 }

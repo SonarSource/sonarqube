@@ -26,7 +26,7 @@ import org.sonar.server.computation.component.Component;
 
 import static com.google.common.collect.Sets.union;
 
-public class RuleTagsCopier extends IssueListener {
+public class RuleTagsCopier extends IssueVisitor {
 
   private final RuleCache ruleCache;
 

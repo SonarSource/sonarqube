@@ -22,8 +22,6 @@ package org.sonar.server.computation.step;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.FluentIterable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;

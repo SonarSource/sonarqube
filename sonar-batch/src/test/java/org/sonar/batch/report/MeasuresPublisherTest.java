@@ -37,12 +37,12 @@ import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.scan.measure.MeasureCache;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -81,12 +81,8 @@ public class MeasuresPublisherTest {
 
   @Test
   public void publishMeasures() throws Exception {
-
     Measure measure1 = new Measure<>(CoreMetrics.COVERAGE)
       .setValue(2.0)
-      .setAlertStatus(Level.ERROR)
-      .setAlertText("Foo")
-      .setCharacteristic(mock(Characteristic.class))
       .setPersonId(2);
     // No value on new_xxx
     Measure measure2 = new Measure<>(CoreMetrics.NEW_BLOCKER_VIOLATIONS)
@@ -109,8 +105,7 @@ public class MeasuresPublisherTest {
     // String value
     Measure stringMeasure = new Measure<>(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION)
       .setData("foo bar");
-
-    when(measureCache.byResource(sampleFile)).thenReturn(Arrays.asList(measure1, measure2, manual, rating, longMeasure, stringMeasure));
+    when(measureCache.byResource(sampleFile)).thenReturn(asList(measure1, measure2, manual, rating, longMeasure, stringMeasure));
 
     File outputDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(outputDir);
@@ -121,10 +116,8 @@ public class MeasuresPublisherTest {
 
     assertThat(reader.readComponentMeasures(1)).hasSize(0);
     List<org.sonar.batch.protocol.output.BatchReport.Measure> componentMeasures = reader.readComponentMeasures(2);
-    assertThat(componentMeasures).hasSize(8);
+    assertThat(componentMeasures).hasSize(6);
     assertThat(componentMeasures.get(0).getDoubleValue()).isEqualTo(2.0);
-    assertThat(componentMeasures.get(0).getAlertStatus()).isEqualTo("ERROR");
-    assertThat(componentMeasures.get(0).getAlertText()).isEqualTo("Foo");
     assertThat(componentMeasures.get(0).getPersonId()).isEqualTo(2);
 
   }

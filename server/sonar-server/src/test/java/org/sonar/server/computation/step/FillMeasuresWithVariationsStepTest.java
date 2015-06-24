@@ -35,9 +35,7 @@ import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
-import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
-import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.SnapshotDao;
@@ -45,9 +43,6 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
-import org.sonar.server.computation.debt.Characteristic;
-import org.sonar.server.computation.issue.RuleCache;
-import org.sonar.server.computation.issue.RuleCacheLoader;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.measure.MeasureRepositoryImpl;
@@ -60,7 +55,6 @@ import org.sonar.server.computation.period.PeriodsHolderRule;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
-import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.test.DbTests;
 
@@ -119,7 +113,7 @@ public class FillMeasuresWithVariationsStepTest {
 
     metricRepository = new MetricRepositoryImpl(dbClient);
     metricRepository.start();
-    measureRepository = new MeasureRepositoryImpl(dbClient, reportReader, metricRepository, new RuleCache(new RuleCacheLoader(dbClient)));
+    measureRepository = new MeasureRepositoryImpl(dbClient, reportReader, metricRepository);
 
     sut = new FillMeasuresWithVariationsStep(dbClient, treeRootHolder, periodsHolder, metricRepository, measureRepository);
   }
@@ -255,66 +249,6 @@ public class FillMeasuresWithVariationsStepTest {
     assertThat(measureRepository.getRawMeasure(PROJECT, toMetric(DEBT_METRIC)).get().getVariations().getVariation1()).isEqualTo(-5d);
     assertThat(measureRepository.getRawMeasure(PROJECT, toMetric(FILE_COMPLEXITY_METRIC)).get().getVariations().getVariation1()).isEqualTo(1d);
     assertThat(measureRepository.getRawMeasure(PROJECT, toMetric(BUILD_BREAKER_METRIC)).get().getVariations().getVariation1()).isEqualTo(-1d);
-  }
-
-  @Test
-  public void set_variation_on_rule_measure() throws Exception {
-    SnapshotDto period1ProjectSnapshot = createForProject(PROJECT_DTO);
-    dbClient.snapshotDao().insert(session, period1ProjectSnapshot);
-
-    RuleDto rule1 = RuleTesting.newXooX1();
-    RuleDto rule2 = RuleTesting.newXooX2();
-    dbClient.ruleDao().insert(session, rule1, rule2);
-
-    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 60d));
-    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 40d).setRuleId(rule1.getId()));
-    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 20d).setRuleId(rule2.getId()));
-    session.commit();
-
-    periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
-
-    treeRootHolder.setRoot(PROJECT);
-
-    measureRepository.add(PROJECT, toMetric(ISSUES_METRIC), Measure.newMeasureBuilder().create(80, null));
-    measureRepository.add(PROJECT, toMetric(ISSUES_METRIC), Measure.newMeasureBuilder().forRule(rule1.getId()).create(45, null));
-    measureRepository.add(PROJECT, toMetric(ISSUES_METRIC), Measure.newMeasureBuilder().forRule(rule2.getId()).create(35, null));
-
-    sut.execute();
-
-    assertThat(measureRepository.getRawMeasure(PROJECT, toMetric(ISSUES_METRIC)).get().getVariations().getVariation1()).isEqualTo(20d);
-    assertThat(measureRepository.getRawMeasure(PROJECT, toMetric(ISSUES_METRIC), rule1).get().getVariations().getVariation1()).isEqualTo(5d);
-    assertThat(measureRepository.getRawMeasure(PROJECT, toMetric(ISSUES_METRIC), rule2).get().getVariations().getVariation1()).isEqualTo(15d);
-  }
-
-  @Test
-  public void set_variation_on_characteristic_measure() throws Exception {
-    SnapshotDto period1ProjectSnapshot = createForProject(PROJECT_DTO);
-    dbClient.snapshotDao().insert(session, period1ProjectSnapshot);
-
-    CharacteristicDto char1 = new CharacteristicDto().setKey("PORTABILITY");
-    CharacteristicDto char2 = new CharacteristicDto().setKey("MAINTAINABILITY");
-    dbClient.debtCharacteristicDao().insert(session, char1, char2);
-
-    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 60d));
-    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 40d).setCharacteristicId(char1.getId()));
-    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 20d).setCharacteristicId(char2.getId()));
-    session.commit();
-
-    periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
-
-    treeRootHolder.setRoot(PROJECT);
-
-    measureRepository.add(PROJECT, toMetric(ISSUES_METRIC), Measure.newMeasureBuilder().create(80, null));
-    measureRepository.add(PROJECT, toMetric(ISSUES_METRIC), Measure.newMeasureBuilder().forCharacteristic(char1.getId()).create(45, null));
-    measureRepository.add(PROJECT, toMetric(ISSUES_METRIC), Measure.newMeasureBuilder().forCharacteristic(char2.getId()).create(35, null));
-
-    sut.execute();
-
-    assertThat(measureRepository.getRawMeasure(PROJECT, toMetric(ISSUES_METRIC)).get().getVariations().getVariation1()).isEqualTo(20d);
-    assertThat(measureRepository.getRawMeasure(PROJECT, toMetric(ISSUES_METRIC), new Characteristic(char1.getId(), char1.getKey(), null)).get().getVariations().getVariation1())
-      .isEqualTo(5d);
-    assertThat(measureRepository.getRawMeasure(PROJECT, toMetric(ISSUES_METRIC), new Characteristic(char2.getId(), char2.getKey(), null)).get().getVariations().getVariation1())
-      .isEqualTo(15d);
   }
 
   @Test

@@ -69,6 +69,49 @@ public final class BatchReport {
      * <code>optional int32 root_component_ref = 4;</code>
      */
     int getRootComponentRef();
+
+    /**
+     * <code>repeated string active_rule_key = 5;</code>
+     *
+     * <pre>
+     *Keys of the rules that were enabled in Quality profiles.
+     *A key is a string composed of the repository and the subKey, specific to the repository. Format is
+     *"{repository}:{subKey}", for instance "java:NullDereference".
+     * </pre>
+     */
+    com.google.protobuf.ProtocolStringList
+        getActiveRuleKeyList();
+    /**
+     * <code>repeated string active_rule_key = 5;</code>
+     *
+     * <pre>
+     *Keys of the rules that were enabled in Quality profiles.
+     *A key is a string composed of the repository and the subKey, specific to the repository. Format is
+     *"{repository}:{subKey}", for instance "java:NullDereference".
+     * </pre>
+     */
+    int getActiveRuleKeyCount();
+    /**
+     * <code>repeated string active_rule_key = 5;</code>
+     *
+     * <pre>
+     *Keys of the rules that were enabled in Quality profiles.
+     *A key is a string composed of the repository and the subKey, specific to the repository. Format is
+     *"{repository}:{subKey}", for instance "java:NullDereference".
+     * </pre>
+     */
+    java.lang.String getActiveRuleKey(int index);
+    /**
+     * <code>repeated string active_rule_key = 5;</code>
+     *
+     * <pre>
+     *Keys of the rules that were enabled in Quality profiles.
+     *A key is a string composed of the repository and the subKey, specific to the repository. Format is
+     *"{repository}:{subKey}", for instance "java:NullDereference".
+     * </pre>
+     */
+    com.google.protobuf.ByteString
+        getActiveRuleKeyBytes(int index);
   }
   /**
    * Protobuf type {@code Metadata}
@@ -144,6 +187,15 @@ public final class BatchReport {
               rootComponentRef_ = input.readInt32();
               break;
             }
+            case 42: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+                activeRuleKey_ = new com.google.protobuf.LazyStringArrayList();
+                mutable_bitField0_ |= 0x00000010;
+              }
+              activeRuleKey_.add(bs);
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -152,6 +204,9 @@ public final class BatchReport {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
+        if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+          activeRuleKey_ = activeRuleKey_.getUnmodifiableView();
+        }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
@@ -310,11 +365,65 @@ public final class BatchReport {
       return rootComponentRef_;
     }
 
+    public static final int ACTIVE_RULE_KEY_FIELD_NUMBER = 5;
+    private com.google.protobuf.LazyStringList activeRuleKey_;
+    /**
+     * <code>repeated string active_rule_key = 5;</code>
+     *
+     * <pre>
+     *Keys of the rules that were enabled in Quality profiles.
+     *A key is a string composed of the repository and the subKey, specific to the repository. Format is
+     *"{repository}:{subKey}", for instance "java:NullDereference".
+     * </pre>
+     */
+    public com.google.protobuf.ProtocolStringList
+        getActiveRuleKeyList() {
+      return activeRuleKey_;
+    }
+    /**
+     * <code>repeated string active_rule_key = 5;</code>
+     *
+     * <pre>
+     *Keys of the rules that were enabled in Quality profiles.
+     *A key is a string composed of the repository and the subKey, specific to the repository. Format is
+     *"{repository}:{subKey}", for instance "java:NullDereference".
+     * </pre>
+     */
+    public int getActiveRuleKeyCount() {
+      return activeRuleKey_.size();
+    }
+    /**
+     * <code>repeated string active_rule_key = 5;</code>
+     *
+     * <pre>
+     *Keys of the rules that were enabled in Quality profiles.
+     *A key is a string composed of the repository and the subKey, specific to the repository. Format is
+     *"{repository}:{subKey}", for instance "java:NullDereference".
+     * </pre>
+     */
+    public java.lang.String getActiveRuleKey(int index) {
+      return activeRuleKey_.get(index);
+    }
+    /**
+     * <code>repeated string active_rule_key = 5;</code>
+     *
+     * <pre>
+     *Keys of the rules that were enabled in Quality profiles.
+     *A key is a string composed of the repository and the subKey, specific to the repository. Format is
+     *"{repository}:{subKey}", for instance "java:NullDereference".
+     * </pre>
+     */
+    public com.google.protobuf.ByteString
+        getActiveRuleKeyBytes(int index) {
+      return activeRuleKey_.getByteString(index);
+    }
+
     private void initFields() {
       analysisDate_ = 0L;
       projectKey_ = "";
       branch_ = "";
       rootComponentRef_ = 0;
+      activeRuleKey_ = com.google.protobuf.LazyStringArrayList.EMPTY;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -341,6 +450,9 @@ public final class BatchReport {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeInt32(4, rootComponentRef_);
       }
+      for (int i = 0; i < activeRuleKey_.size(); i++) {
+        output.writeBytes(5, activeRuleKey_.getByteString(i));
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -365,6 +477,15 @@ public final class BatchReport {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(4, rootComponentRef_);
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < activeRuleKey_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeBytesSizeNoTag(activeRuleKey_.getByteString(i));
+        }
+        size += dataSize;
+        size += 1 * getActiveRuleKeyList().size();
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -491,6 +612,8 @@ public final class BatchReport {
         bitField0_ = (bitField0_ & ~0x00000004);
         rootComponentRef_ = 0;
         bitField0_ = (bitField0_ & ~0x00000008);
+        activeRuleKey_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000010);
         return this;
       }
 
@@ -535,6 +658,11 @@ public final class BatchReport {
           to_bitField0_ |= 0x00000008;
         }
         result.rootComponentRef_ = rootComponentRef_;
+        if (((bitField0_ & 0x00000010) == 0x00000010)) {
+          activeRuleKey_ = activeRuleKey_.getUnmodifiableView();
+          bitField0_ = (bitField0_ & ~0x00000010);
+        }
+        result.activeRuleKey_ = activeRuleKey_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -566,6 +694,16 @@ public final class BatchReport {
         }
         if (other.hasRootComponentRef()) {
           setRootComponentRef(other.getRootComponentRef());
+        }
+        if (!other.activeRuleKey_.isEmpty()) {
+          if (activeRuleKey_.isEmpty()) {
+            activeRuleKey_ = other.activeRuleKey_;
+            bitField0_ = (bitField0_ & ~0x00000010);
+          } else {
+            ensureActiveRuleKeyIsMutable();
+            activeRuleKey_.addAll(other.activeRuleKey_);
+          }
+          onChanged();
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -830,6 +968,153 @@ public final class BatchReport {
       public Builder clearRootComponentRef() {
         bitField0_ = (bitField0_ & ~0x00000008);
         rootComponentRef_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.LazyStringList activeRuleKey_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      private void ensureActiveRuleKeyIsMutable() {
+        if (!((bitField0_ & 0x00000010) == 0x00000010)) {
+          activeRuleKey_ = new com.google.protobuf.LazyStringArrayList(activeRuleKey_);
+          bitField0_ |= 0x00000010;
+         }
+      }
+      /**
+       * <code>repeated string active_rule_key = 5;</code>
+       *
+       * <pre>
+       *Keys of the rules that were enabled in Quality profiles.
+       *A key is a string composed of the repository and the subKey, specific to the repository. Format is
+       *"{repository}:{subKey}", for instance "java:NullDereference".
+       * </pre>
+       */
+      public com.google.protobuf.ProtocolStringList
+          getActiveRuleKeyList() {
+        return activeRuleKey_.getUnmodifiableView();
+      }
+      /**
+       * <code>repeated string active_rule_key = 5;</code>
+       *
+       * <pre>
+       *Keys of the rules that were enabled in Quality profiles.
+       *A key is a string composed of the repository and the subKey, specific to the repository. Format is
+       *"{repository}:{subKey}", for instance "java:NullDereference".
+       * </pre>
+       */
+      public int getActiveRuleKeyCount() {
+        return activeRuleKey_.size();
+      }
+      /**
+       * <code>repeated string active_rule_key = 5;</code>
+       *
+       * <pre>
+       *Keys of the rules that were enabled in Quality profiles.
+       *A key is a string composed of the repository and the subKey, specific to the repository. Format is
+       *"{repository}:{subKey}", for instance "java:NullDereference".
+       * </pre>
+       */
+      public java.lang.String getActiveRuleKey(int index) {
+        return activeRuleKey_.get(index);
+      }
+      /**
+       * <code>repeated string active_rule_key = 5;</code>
+       *
+       * <pre>
+       *Keys of the rules that were enabled in Quality profiles.
+       *A key is a string composed of the repository and the subKey, specific to the repository. Format is
+       *"{repository}:{subKey}", for instance "java:NullDereference".
+       * </pre>
+       */
+      public com.google.protobuf.ByteString
+          getActiveRuleKeyBytes(int index) {
+        return activeRuleKey_.getByteString(index);
+      }
+      /**
+       * <code>repeated string active_rule_key = 5;</code>
+       *
+       * <pre>
+       *Keys of the rules that were enabled in Quality profiles.
+       *A key is a string composed of the repository and the subKey, specific to the repository. Format is
+       *"{repository}:{subKey}", for instance "java:NullDereference".
+       * </pre>
+       */
+      public Builder setActiveRuleKey(
+          int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureActiveRuleKeyIsMutable();
+        activeRuleKey_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string active_rule_key = 5;</code>
+       *
+       * <pre>
+       *Keys of the rules that were enabled in Quality profiles.
+       *A key is a string composed of the repository and the subKey, specific to the repository. Format is
+       *"{repository}:{subKey}", for instance "java:NullDereference".
+       * </pre>
+       */
+      public Builder addActiveRuleKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureActiveRuleKeyIsMutable();
+        activeRuleKey_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string active_rule_key = 5;</code>
+       *
+       * <pre>
+       *Keys of the rules that were enabled in Quality profiles.
+       *A key is a string composed of the repository and the subKey, specific to the repository. Format is
+       *"{repository}:{subKey}", for instance "java:NullDereference".
+       * </pre>
+       */
+      public Builder addAllActiveRuleKey(
+          java.lang.Iterable<java.lang.String> values) {
+        ensureActiveRuleKeyIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, activeRuleKey_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string active_rule_key = 5;</code>
+       *
+       * <pre>
+       *Keys of the rules that were enabled in Quality profiles.
+       *A key is a string composed of the repository and the subKey, specific to the repository. Format is
+       *"{repository}:{subKey}", for instance "java:NullDereference".
+       * </pre>
+       */
+      public Builder clearActiveRuleKey() {
+        activeRuleKey_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000010);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string active_rule_key = 5;</code>
+       *
+       * <pre>
+       *Keys of the rules that were enabled in Quality profiles.
+       *A key is a string composed of the repository and the subKey, specific to the repository. Format is
+       *"{repository}:{subKey}", for instance "java:NullDereference".
+       * </pre>
+       */
+      public Builder addActiveRuleKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureActiveRuleKeyIsMutable();
+        activeRuleKey_.add(value);
         onChanged();
         return this;
       }
@@ -3815,48 +4100,6 @@ public final class BatchReport {
         getDescriptionBytes();
 
     /**
-     * <code>optional string rule_key = 10;</code>
-     */
-    boolean hasRuleKey();
-    /**
-     * <code>optional string rule_key = 10;</code>
-     */
-    java.lang.String getRuleKey();
-    /**
-     * <code>optional string rule_key = 10;</code>
-     */
-    com.google.protobuf.ByteString
-        getRuleKeyBytes();
-
-    /**
-     * <code>optional string alert_status = 12;</code>
-     */
-    boolean hasAlertStatus();
-    /**
-     * <code>optional string alert_status = 12;</code>
-     */
-    java.lang.String getAlertStatus();
-    /**
-     * <code>optional string alert_status = 12;</code>
-     */
-    com.google.protobuf.ByteString
-        getAlertStatusBytes();
-
-    /**
-     * <code>optional string alert_text = 13;</code>
-     */
-    boolean hasAlertText();
-    /**
-     * <code>optional string alert_text = 13;</code>
-     */
-    java.lang.String getAlertText();
-    /**
-     * <code>optional string alert_text = 13;</code>
-     */
-    com.google.protobuf.ByteString
-        getAlertTextBytes();
-
-    /**
      * <code>optional double variation_value_1 = 14;</code>
      */
     boolean hasVariationValue1();
@@ -3900,15 +4143,6 @@ public final class BatchReport {
      * <code>optional double variation_value_5 = 18;</code>
      */
     double getVariationValue5();
-
-    /**
-     * <code>optional int32 characteric_id = 19;</code>
-     */
-    boolean hasCharactericId();
-    /**
-     * <code>optional int32 characteric_id = 19;</code>
-     */
-    int getCharactericId();
 
     /**
      * <code>optional int32 person_id = 20;</code>
@@ -4020,56 +4254,33 @@ public final class BatchReport {
               description_ = bs;
               break;
             }
-            case 82: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000100;
-              ruleKey_ = bs;
-              break;
-            }
-            case 98: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000200;
-              alertStatus_ = bs;
-              break;
-            }
-            case 106: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000400;
-              alertText_ = bs;
-              break;
-            }
             case 113: {
-              bitField0_ |= 0x00000800;
+              bitField0_ |= 0x00000100;
               variationValue1_ = input.readDouble();
               break;
             }
             case 121: {
-              bitField0_ |= 0x00001000;
+              bitField0_ |= 0x00000200;
               variationValue2_ = input.readDouble();
               break;
             }
             case 129: {
-              bitField0_ |= 0x00002000;
+              bitField0_ |= 0x00000400;
               variationValue3_ = input.readDouble();
               break;
             }
             case 137: {
-              bitField0_ |= 0x00004000;
+              bitField0_ |= 0x00000800;
               variationValue4_ = input.readDouble();
               break;
             }
             case 145: {
-              bitField0_ |= 0x00008000;
+              bitField0_ |= 0x00001000;
               variationValue5_ = input.readDouble();
               break;
             }
-            case 152: {
-              bitField0_ |= 0x00010000;
-              charactericId_ = input.readInt32();
-              break;
-            }
             case 160: {
-              bitField0_ |= 0x00020000;
+              bitField0_ |= 0x00002000;
               personId_ = input.readInt32();
               break;
             }
@@ -4334,139 +4545,13 @@ public final class BatchReport {
       }
     }
 
-    public static final int RULE_KEY_FIELD_NUMBER = 10;
-    private java.lang.Object ruleKey_;
-    /**
-     * <code>optional string rule_key = 10;</code>
-     */
-    public boolean hasRuleKey() {
-      return ((bitField0_ & 0x00000100) == 0x00000100);
-    }
-    /**
-     * <code>optional string rule_key = 10;</code>
-     */
-    public java.lang.String getRuleKey() {
-      java.lang.Object ref = ruleKey_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          ruleKey_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string rule_key = 10;</code>
-     */
-    public com.google.protobuf.ByteString
-        getRuleKeyBytes() {
-      java.lang.Object ref = ruleKey_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        ruleKey_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int ALERT_STATUS_FIELD_NUMBER = 12;
-    private java.lang.Object alertStatus_;
-    /**
-     * <code>optional string alert_status = 12;</code>
-     */
-    public boolean hasAlertStatus() {
-      return ((bitField0_ & 0x00000200) == 0x00000200);
-    }
-    /**
-     * <code>optional string alert_status = 12;</code>
-     */
-    public java.lang.String getAlertStatus() {
-      java.lang.Object ref = alertStatus_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          alertStatus_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string alert_status = 12;</code>
-     */
-    public com.google.protobuf.ByteString
-        getAlertStatusBytes() {
-      java.lang.Object ref = alertStatus_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        alertStatus_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int ALERT_TEXT_FIELD_NUMBER = 13;
-    private java.lang.Object alertText_;
-    /**
-     * <code>optional string alert_text = 13;</code>
-     */
-    public boolean hasAlertText() {
-      return ((bitField0_ & 0x00000400) == 0x00000400);
-    }
-    /**
-     * <code>optional string alert_text = 13;</code>
-     */
-    public java.lang.String getAlertText() {
-      java.lang.Object ref = alertText_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          alertText_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string alert_text = 13;</code>
-     */
-    public com.google.protobuf.ByteString
-        getAlertTextBytes() {
-      java.lang.Object ref = alertText_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        alertText_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
     public static final int VARIATION_VALUE_1_FIELD_NUMBER = 14;
     private double variationValue1_;
     /**
      * <code>optional double variation_value_1 = 14;</code>
      */
     public boolean hasVariationValue1() {
-      return ((bitField0_ & 0x00000800) == 0x00000800);
+      return ((bitField0_ & 0x00000100) == 0x00000100);
     }
     /**
      * <code>optional double variation_value_1 = 14;</code>
@@ -4481,7 +4566,7 @@ public final class BatchReport {
      * <code>optional double variation_value_2 = 15;</code>
      */
     public boolean hasVariationValue2() {
-      return ((bitField0_ & 0x00001000) == 0x00001000);
+      return ((bitField0_ & 0x00000200) == 0x00000200);
     }
     /**
      * <code>optional double variation_value_2 = 15;</code>
@@ -4496,7 +4581,7 @@ public final class BatchReport {
      * <code>optional double variation_value_3 = 16;</code>
      */
     public boolean hasVariationValue3() {
-      return ((bitField0_ & 0x00002000) == 0x00002000);
+      return ((bitField0_ & 0x00000400) == 0x00000400);
     }
     /**
      * <code>optional double variation_value_3 = 16;</code>
@@ -4511,7 +4596,7 @@ public final class BatchReport {
      * <code>optional double variation_value_4 = 17;</code>
      */
     public boolean hasVariationValue4() {
-      return ((bitField0_ & 0x00004000) == 0x00004000);
+      return ((bitField0_ & 0x00000800) == 0x00000800);
     }
     /**
      * <code>optional double variation_value_4 = 17;</code>
@@ -4526,7 +4611,7 @@ public final class BatchReport {
      * <code>optional double variation_value_5 = 18;</code>
      */
     public boolean hasVariationValue5() {
-      return ((bitField0_ & 0x00008000) == 0x00008000);
+      return ((bitField0_ & 0x00001000) == 0x00001000);
     }
     /**
      * <code>optional double variation_value_5 = 18;</code>
@@ -4535,28 +4620,13 @@ public final class BatchReport {
       return variationValue5_;
     }
 
-    public static final int CHARACTERIC_ID_FIELD_NUMBER = 19;
-    private int charactericId_;
-    /**
-     * <code>optional int32 characteric_id = 19;</code>
-     */
-    public boolean hasCharactericId() {
-      return ((bitField0_ & 0x00010000) == 0x00010000);
-    }
-    /**
-     * <code>optional int32 characteric_id = 19;</code>
-     */
-    public int getCharactericId() {
-      return charactericId_;
-    }
-
     public static final int PERSON_ID_FIELD_NUMBER = 20;
     private int personId_;
     /**
      * <code>optional int32 person_id = 20;</code>
      */
     public boolean hasPersonId() {
-      return ((bitField0_ & 0x00020000) == 0x00020000);
+      return ((bitField0_ & 0x00002000) == 0x00002000);
     }
     /**
      * <code>optional int32 person_id = 20;</code>
@@ -4574,15 +4644,11 @@ public final class BatchReport {
       stringValue_ = "";
       metricKey_ = "";
       description_ = "";
-      ruleKey_ = "";
-      alertStatus_ = "";
-      alertText_ = "";
       variationValue1_ = 0D;
       variationValue2_ = 0D;
       variationValue3_ = 0D;
       variationValue4_ = 0D;
       variationValue5_ = 0D;
-      charactericId_ = 0;
       personId_ = 0;
     }
     private byte memoizedIsInitialized = -1;
@@ -4623,33 +4689,21 @@ public final class BatchReport {
         output.writeBytes(9, getDescriptionBytes());
       }
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
-        output.writeBytes(10, getRuleKeyBytes());
-      }
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        output.writeBytes(12, getAlertStatusBytes());
-      }
-      if (((bitField0_ & 0x00000400) == 0x00000400)) {
-        output.writeBytes(13, getAlertTextBytes());
-      }
-      if (((bitField0_ & 0x00000800) == 0x00000800)) {
         output.writeDouble(14, variationValue1_);
       }
-      if (((bitField0_ & 0x00001000) == 0x00001000)) {
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
         output.writeDouble(15, variationValue2_);
       }
-      if (((bitField0_ & 0x00002000) == 0x00002000)) {
+      if (((bitField0_ & 0x00000400) == 0x00000400)) {
         output.writeDouble(16, variationValue3_);
       }
-      if (((bitField0_ & 0x00004000) == 0x00004000)) {
+      if (((bitField0_ & 0x00000800) == 0x00000800)) {
         output.writeDouble(17, variationValue4_);
       }
-      if (((bitField0_ & 0x00008000) == 0x00008000)) {
+      if (((bitField0_ & 0x00001000) == 0x00001000)) {
         output.writeDouble(18, variationValue5_);
       }
-      if (((bitField0_ & 0x00010000) == 0x00010000)) {
-        output.writeInt32(19, charactericId_);
-      }
-      if (((bitField0_ & 0x00020000) == 0x00020000)) {
+      if (((bitField0_ & 0x00002000) == 0x00002000)) {
         output.writeInt32(20, personId_);
       }
       getUnknownFields().writeTo(output);
@@ -4695,41 +4749,25 @@ public final class BatchReport {
       }
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(10, getRuleKeyBytes());
+          .computeDoubleSize(14, variationValue1_);
       }
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(12, getAlertStatusBytes());
+          .computeDoubleSize(15, variationValue2_);
       }
       if (((bitField0_ & 0x00000400) == 0x00000400)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(13, getAlertTextBytes());
+          .computeDoubleSize(16, variationValue3_);
       }
       if (((bitField0_ & 0x00000800) == 0x00000800)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(14, variationValue1_);
+          .computeDoubleSize(17, variationValue4_);
       }
       if (((bitField0_ & 0x00001000) == 0x00001000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(15, variationValue2_);
-      }
-      if (((bitField0_ & 0x00002000) == 0x00002000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(16, variationValue3_);
-      }
-      if (((bitField0_ & 0x00004000) == 0x00004000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(17, variationValue4_);
-      }
-      if (((bitField0_ & 0x00008000) == 0x00008000)) {
-        size += com.google.protobuf.CodedOutputStream
           .computeDoubleSize(18, variationValue5_);
       }
-      if (((bitField0_ & 0x00010000) == 0x00010000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(19, charactericId_);
-      }
-      if (((bitField0_ & 0x00020000) == 0x00020000)) {
+      if (((bitField0_ & 0x00002000) == 0x00002000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(20, personId_);
       }
@@ -4866,26 +4904,18 @@ public final class BatchReport {
         bitField0_ = (bitField0_ & ~0x00000040);
         description_ = "";
         bitField0_ = (bitField0_ & ~0x00000080);
-        ruleKey_ = "";
-        bitField0_ = (bitField0_ & ~0x00000100);
-        alertStatus_ = "";
-        bitField0_ = (bitField0_ & ~0x00000200);
-        alertText_ = "";
-        bitField0_ = (bitField0_ & ~0x00000400);
         variationValue1_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00000800);
+        bitField0_ = (bitField0_ & ~0x00000100);
         variationValue2_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00001000);
+        bitField0_ = (bitField0_ & ~0x00000200);
         variationValue3_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00002000);
+        bitField0_ = (bitField0_ & ~0x00000400);
         variationValue4_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00004000);
+        bitField0_ = (bitField0_ & ~0x00000800);
         variationValue5_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00008000);
-        charactericId_ = 0;
-        bitField0_ = (bitField0_ & ~0x00010000);
+        bitField0_ = (bitField0_ & ~0x00001000);
         personId_ = 0;
-        bitField0_ = (bitField0_ & ~0x00020000);
+        bitField0_ = (bitField0_ & ~0x00002000);
         return this;
       }
 
@@ -4949,41 +4979,25 @@ public final class BatchReport {
         if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
           to_bitField0_ |= 0x00000100;
         }
-        result.ruleKey_ = ruleKey_;
+        result.variationValue1_ = variationValue1_;
         if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
           to_bitField0_ |= 0x00000200;
         }
-        result.alertStatus_ = alertStatus_;
+        result.variationValue2_ = variationValue2_;
         if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
           to_bitField0_ |= 0x00000400;
         }
-        result.alertText_ = alertText_;
+        result.variationValue3_ = variationValue3_;
         if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
           to_bitField0_ |= 0x00000800;
         }
-        result.variationValue1_ = variationValue1_;
+        result.variationValue4_ = variationValue4_;
         if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
           to_bitField0_ |= 0x00001000;
         }
-        result.variationValue2_ = variationValue2_;
+        result.variationValue5_ = variationValue5_;
         if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
           to_bitField0_ |= 0x00002000;
-        }
-        result.variationValue3_ = variationValue3_;
-        if (((from_bitField0_ & 0x00004000) == 0x00004000)) {
-          to_bitField0_ |= 0x00004000;
-        }
-        result.variationValue4_ = variationValue4_;
-        if (((from_bitField0_ & 0x00008000) == 0x00008000)) {
-          to_bitField0_ |= 0x00008000;
-        }
-        result.variationValue5_ = variationValue5_;
-        if (((from_bitField0_ & 0x00010000) == 0x00010000)) {
-          to_bitField0_ |= 0x00010000;
-        }
-        result.charactericId_ = charactericId_;
-        if (((from_bitField0_ & 0x00020000) == 0x00020000)) {
-          to_bitField0_ |= 0x00020000;
         }
         result.personId_ = personId_;
         result.bitField0_ = to_bitField0_;
@@ -5032,21 +5046,6 @@ public final class BatchReport {
           description_ = other.description_;
           onChanged();
         }
-        if (other.hasRuleKey()) {
-          bitField0_ |= 0x00000100;
-          ruleKey_ = other.ruleKey_;
-          onChanged();
-        }
-        if (other.hasAlertStatus()) {
-          bitField0_ |= 0x00000200;
-          alertStatus_ = other.alertStatus_;
-          onChanged();
-        }
-        if (other.hasAlertText()) {
-          bitField0_ |= 0x00000400;
-          alertText_ = other.alertText_;
-          onChanged();
-        }
         if (other.hasVariationValue1()) {
           setVariationValue1(other.getVariationValue1());
         }
@@ -5061,9 +5060,6 @@ public final class BatchReport {
         }
         if (other.hasVariationValue5()) {
           setVariationValue5(other.getVariationValue5());
-        }
-        if (other.hasCharactericId()) {
-          setCharactericId(other.getCharactericId());
         }
         if (other.hasPersonId()) {
           setPersonId(other.getPersonId());
@@ -5526,240 +5522,12 @@ public final class BatchReport {
         return this;
       }
 
-      private java.lang.Object ruleKey_ = "";
-      /**
-       * <code>optional string rule_key = 10;</code>
-       */
-      public boolean hasRuleKey() {
-        return ((bitField0_ & 0x00000100) == 0x00000100);
-      }
-      /**
-       * <code>optional string rule_key = 10;</code>
-       */
-      public java.lang.String getRuleKey() {
-        java.lang.Object ref = ruleKey_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            ruleKey_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>optional string rule_key = 10;</code>
-       */
-      public com.google.protobuf.ByteString
-          getRuleKeyBytes() {
-        java.lang.Object ref = ruleKey_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          ruleKey_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string rule_key = 10;</code>
-       */
-      public Builder setRuleKey(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000100;
-        ruleKey_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string rule_key = 10;</code>
-       */
-      public Builder clearRuleKey() {
-        bitField0_ = (bitField0_ & ~0x00000100);
-        ruleKey_ = getDefaultInstance().getRuleKey();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string rule_key = 10;</code>
-       */
-      public Builder setRuleKeyBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000100;
-        ruleKey_ = value;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object alertStatus_ = "";
-      /**
-       * <code>optional string alert_status = 12;</code>
-       */
-      public boolean hasAlertStatus() {
-        return ((bitField0_ & 0x00000200) == 0x00000200);
-      }
-      /**
-       * <code>optional string alert_status = 12;</code>
-       */
-      public java.lang.String getAlertStatus() {
-        java.lang.Object ref = alertStatus_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            alertStatus_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>optional string alert_status = 12;</code>
-       */
-      public com.google.protobuf.ByteString
-          getAlertStatusBytes() {
-        java.lang.Object ref = alertStatus_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          alertStatus_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string alert_status = 12;</code>
-       */
-      public Builder setAlertStatus(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000200;
-        alertStatus_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string alert_status = 12;</code>
-       */
-      public Builder clearAlertStatus() {
-        bitField0_ = (bitField0_ & ~0x00000200);
-        alertStatus_ = getDefaultInstance().getAlertStatus();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string alert_status = 12;</code>
-       */
-      public Builder setAlertStatusBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000200;
-        alertStatus_ = value;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object alertText_ = "";
-      /**
-       * <code>optional string alert_text = 13;</code>
-       */
-      public boolean hasAlertText() {
-        return ((bitField0_ & 0x00000400) == 0x00000400);
-      }
-      /**
-       * <code>optional string alert_text = 13;</code>
-       */
-      public java.lang.String getAlertText() {
-        java.lang.Object ref = alertText_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            alertText_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>optional string alert_text = 13;</code>
-       */
-      public com.google.protobuf.ByteString
-          getAlertTextBytes() {
-        java.lang.Object ref = alertText_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          alertText_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string alert_text = 13;</code>
-       */
-      public Builder setAlertText(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000400;
-        alertText_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string alert_text = 13;</code>
-       */
-      public Builder clearAlertText() {
-        bitField0_ = (bitField0_ & ~0x00000400);
-        alertText_ = getDefaultInstance().getAlertText();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string alert_text = 13;</code>
-       */
-      public Builder setAlertTextBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000400;
-        alertText_ = value;
-        onChanged();
-        return this;
-      }
-
       private double variationValue1_ ;
       /**
        * <code>optional double variation_value_1 = 14;</code>
        */
       public boolean hasVariationValue1() {
-        return ((bitField0_ & 0x00000800) == 0x00000800);
+        return ((bitField0_ & 0x00000100) == 0x00000100);
       }
       /**
        * <code>optional double variation_value_1 = 14;</code>
@@ -5771,7 +5539,7 @@ public final class BatchReport {
        * <code>optional double variation_value_1 = 14;</code>
        */
       public Builder setVariationValue1(double value) {
-        bitField0_ |= 0x00000800;
+        bitField0_ |= 0x00000100;
         variationValue1_ = value;
         onChanged();
         return this;
@@ -5780,7 +5548,7 @@ public final class BatchReport {
        * <code>optional double variation_value_1 = 14;</code>
        */
       public Builder clearVariationValue1() {
-        bitField0_ = (bitField0_ & ~0x00000800);
+        bitField0_ = (bitField0_ & ~0x00000100);
         variationValue1_ = 0D;
         onChanged();
         return this;
@@ -5791,7 +5559,7 @@ public final class BatchReport {
        * <code>optional double variation_value_2 = 15;</code>
        */
       public boolean hasVariationValue2() {
-        return ((bitField0_ & 0x00001000) == 0x00001000);
+        return ((bitField0_ & 0x00000200) == 0x00000200);
       }
       /**
        * <code>optional double variation_value_2 = 15;</code>
@@ -5803,7 +5571,7 @@ public final class BatchReport {
        * <code>optional double variation_value_2 = 15;</code>
        */
       public Builder setVariationValue2(double value) {
-        bitField0_ |= 0x00001000;
+        bitField0_ |= 0x00000200;
         variationValue2_ = value;
         onChanged();
         return this;
@@ -5812,7 +5580,7 @@ public final class BatchReport {
        * <code>optional double variation_value_2 = 15;</code>
        */
       public Builder clearVariationValue2() {
-        bitField0_ = (bitField0_ & ~0x00001000);
+        bitField0_ = (bitField0_ & ~0x00000200);
         variationValue2_ = 0D;
         onChanged();
         return this;
@@ -5823,7 +5591,7 @@ public final class BatchReport {
        * <code>optional double variation_value_3 = 16;</code>
        */
       public boolean hasVariationValue3() {
-        return ((bitField0_ & 0x00002000) == 0x00002000);
+        return ((bitField0_ & 0x00000400) == 0x00000400);
       }
       /**
        * <code>optional double variation_value_3 = 16;</code>
@@ -5835,7 +5603,7 @@ public final class BatchReport {
        * <code>optional double variation_value_3 = 16;</code>
        */
       public Builder setVariationValue3(double value) {
-        bitField0_ |= 0x00002000;
+        bitField0_ |= 0x00000400;
         variationValue3_ = value;
         onChanged();
         return this;
@@ -5844,7 +5612,7 @@ public final class BatchReport {
        * <code>optional double variation_value_3 = 16;</code>
        */
       public Builder clearVariationValue3() {
-        bitField0_ = (bitField0_ & ~0x00002000);
+        bitField0_ = (bitField0_ & ~0x00000400);
         variationValue3_ = 0D;
         onChanged();
         return this;
@@ -5855,7 +5623,7 @@ public final class BatchReport {
        * <code>optional double variation_value_4 = 17;</code>
        */
       public boolean hasVariationValue4() {
-        return ((bitField0_ & 0x00004000) == 0x00004000);
+        return ((bitField0_ & 0x00000800) == 0x00000800);
       }
       /**
        * <code>optional double variation_value_4 = 17;</code>
@@ -5867,7 +5635,7 @@ public final class BatchReport {
        * <code>optional double variation_value_4 = 17;</code>
        */
       public Builder setVariationValue4(double value) {
-        bitField0_ |= 0x00004000;
+        bitField0_ |= 0x00000800;
         variationValue4_ = value;
         onChanged();
         return this;
@@ -5876,7 +5644,7 @@ public final class BatchReport {
        * <code>optional double variation_value_4 = 17;</code>
        */
       public Builder clearVariationValue4() {
-        bitField0_ = (bitField0_ & ~0x00004000);
+        bitField0_ = (bitField0_ & ~0x00000800);
         variationValue4_ = 0D;
         onChanged();
         return this;
@@ -5887,7 +5655,7 @@ public final class BatchReport {
        * <code>optional double variation_value_5 = 18;</code>
        */
       public boolean hasVariationValue5() {
-        return ((bitField0_ & 0x00008000) == 0x00008000);
+        return ((bitField0_ & 0x00001000) == 0x00001000);
       }
       /**
        * <code>optional double variation_value_5 = 18;</code>
@@ -5899,7 +5667,7 @@ public final class BatchReport {
        * <code>optional double variation_value_5 = 18;</code>
        */
       public Builder setVariationValue5(double value) {
-        bitField0_ |= 0x00008000;
+        bitField0_ |= 0x00001000;
         variationValue5_ = value;
         onChanged();
         return this;
@@ -5908,40 +5676,8 @@ public final class BatchReport {
        * <code>optional double variation_value_5 = 18;</code>
        */
       public Builder clearVariationValue5() {
-        bitField0_ = (bitField0_ & ~0x00008000);
+        bitField0_ = (bitField0_ & ~0x00001000);
         variationValue5_ = 0D;
-        onChanged();
-        return this;
-      }
-
-      private int charactericId_ ;
-      /**
-       * <code>optional int32 characteric_id = 19;</code>
-       */
-      public boolean hasCharactericId() {
-        return ((bitField0_ & 0x00010000) == 0x00010000);
-      }
-      /**
-       * <code>optional int32 characteric_id = 19;</code>
-       */
-      public int getCharactericId() {
-        return charactericId_;
-      }
-      /**
-       * <code>optional int32 characteric_id = 19;</code>
-       */
-      public Builder setCharactericId(int value) {
-        bitField0_ |= 0x00010000;
-        charactericId_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional int32 characteric_id = 19;</code>
-       */
-      public Builder clearCharactericId() {
-        bitField0_ = (bitField0_ & ~0x00010000);
-        charactericId_ = 0;
         onChanged();
         return this;
       }
@@ -5951,7 +5687,7 @@ public final class BatchReport {
        * <code>optional int32 person_id = 20;</code>
        */
       public boolean hasPersonId() {
-        return ((bitField0_ & 0x00020000) == 0x00020000);
+        return ((bitField0_ & 0x00002000) == 0x00002000);
       }
       /**
        * <code>optional int32 person_id = 20;</code>
@@ -5963,7 +5699,7 @@ public final class BatchReport {
        * <code>optional int32 person_id = 20;</code>
        */
       public Builder setPersonId(int value) {
-        bitField0_ |= 0x00020000;
+        bitField0_ |= 0x00002000;
         personId_ = value;
         onChanged();
         return this;
@@ -5972,7 +5708,7 @@ public final class BatchReport {
        * <code>optional int32 person_id = 20;</code>
        */
       public Builder clearPersonId() {
-        bitField0_ = (bitField0_ & ~0x00020000);
+        bitField0_ = (bitField0_ & ~0x00002000);
         personId_ = 0;
         onChanged();
         return this;
@@ -19705,66 +19441,64 @@ public final class BatchReport {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\022batch_report.proto\032\017constants.proto\"b\n" +
+      "\n\022batch_report.proto\032\017constants.proto\"{\n" +
       "\010Metadata\022\025\n\ranalysis_date\030\001 \001(\003\022\023\n\013proj" +
       "ect_key\030\002 \001(\t\022\016\n\006branch\030\003 \001(\t\022\032\n\022root_co" +
-      "mponent_ref\030\004 \001(\005\"?\n\rComponentLink\022 \n\004ty" +
-      "pe\030\001 \001(\0162\022.ComponentLinkType\022\014\n\004href\030\002 \001" +
-      "(\t\"\354\001\n\tComponent\022\013\n\003ref\030\001 \001(\005\022\014\n\004path\030\002 " +
-      "\001(\t\022\014\n\004name\030\003 \001(\t\022\034\n\004type\030\004 \001(\0162\016.Compon" +
-      "entType\022\017\n\007is_test\030\005 \001(\010\022\020\n\010language\030\006 \001" +
-      "(\t\022\025\n\tchild_ref\030\007 \003(\005B\002\020\001\022\034\n\004link\030\010 \003(\0132" +
-      "\016.ComponentLink\022\017\n\007version\030\t \001(\t\022\013\n\003key\030",
-      "\n \001(\t\022\r\n\005lines\030\013 \001(\005\022\023\n\013description\030\014 \001(" +
-      "\t\"\261\003\n\007Measure\022%\n\nvalue_type\030\001 \001(\0162\021.Meas" +
-      "ureValueType\022\025\n\rboolean_value\030\002 \001(\010\022\021\n\ti" +
-      "nt_value\030\003 \001(\005\022\022\n\nlong_value\030\004 \001(\003\022\024\n\014do" +
-      "uble_value\030\005 \001(\001\022\024\n\014string_value\030\006 \001(\t\022\022" +
-      "\n\nmetric_key\030\007 \001(\t\022\023\n\013description\030\t \001(\t\022" +
-      "\020\n\010rule_key\030\n \001(\t\022\024\n\014alert_status\030\014 \001(\t\022" +
-      "\022\n\nalert_text\030\r \001(\t\022\031\n\021variation_value_1" +
-      "\030\016 \001(\001\022\031\n\021variation_value_2\030\017 \001(\001\022\031\n\021var" +
-      "iation_value_3\030\020 \001(\001\022\031\n\021variation_value_",
-      "4\030\021 \001(\001\022\031\n\021variation_value_5\030\022 \001(\001\022\026\n\016ch" +
-      "aracteric_id\030\023 \001(\005\022\021\n\tperson_id\030\024 \001(\005\"<\n" +
-      "\010Measures\022\025\n\rcomponent_ref\030\001 \001(\005\022\031\n\007meas" +
-      "ure\030\002 \003(\0132\010.Measure\"\273\001\n\005Issue\022\027\n\017rule_re" +
-      "pository\030\001 \001(\t\022\020\n\010rule_key\030\002 \001(\t\022\014\n\004line" +
-      "\030\003 \001(\005\022\013\n\003msg\030\004 \001(\t\022\033\n\010severity\030\005 \001(\0162\t." +
-      "Severity\022\013\n\003tag\030\006 \003(\t\022\025\n\reffort_to_fix\030\007" +
-      " \001(\001\022\022\n\nattributes\030\010 \001(\t\022\027\n\017debt_in_minu" +
-      "tes\030\t \001(\003\"6\n\006Issues\022\025\n\rcomponent_ref\030\001 \001" +
-      "(\005\022\025\n\005issue\030\002 \003(\0132\006.Issue\"\254\001\n\nChangesets",
-      "\022\025\n\rcomponent_ref\030\001 \001(\005\022(\n\tchangeset\030\002 \003" +
-      "(\0132\025.Changesets.Changeset\022 \n\024changesetIn" +
-      "dexByLine\030\003 \003(\005B\002\020\001\032;\n\tChangeset\022\020\n\010revi" +
-      "sion\030\001 \001(\t\022\016\n\006author\030\002 \001(\t\022\014\n\004date\030\003 \001(\003" +
-      "\"R\n\tDuplicate\022\026\n\016other_file_ref\030\001 \001(\005\022\025\n" +
-      "\005range\030\002 \001(\0132\006.Range\022\026\n\016other_file_key\030\003" +
-      " \001(\t\"M\n\013Duplication\022\037\n\017origin_position\030\001" +
-      " \001(\0132\006.Range\022\035\n\tduplicate\030\002 \003(\0132\n.Duplic" +
-      "ate\"H\n\014Duplications\022\025\n\rcomponent_ref\030\001 \001" +
-      "(\005\022!\n\013duplication\030\002 \003(\0132\014.Duplication\"W\n",
-      "\005Range\022\022\n\nstart_line\030\001 \001(\005\022\020\n\010end_line\030\002" +
-      " \001(\005\022\024\n\014start_offset\030\003 \001(\005\022\022\n\nend_offset" +
-      "\030\004 \001(\005\"~\n\007Symbols\022\020\n\010file_ref\030\001 \001(\005\022\037\n\006s" +
-      "ymbol\030\002 \003(\0132\017.Symbols.Symbol\032@\n\006Symbol\022\033" +
-      "\n\013declaration\030\001 \001(\0132\006.Range\022\031\n\treference" +
-      "\030\002 \003(\0132\006.Range\"\260\001\n\010Coverage\022\014\n\004line\030\001 \001(" +
-      "\005\022\022\n\nconditions\030\002 \001(\005\022\017\n\007ut_hits\030\003 \001(\010\022\017" +
-      "\n\007it_hits\030\004 \001(\010\022\035\n\025ut_covered_conditions" +
-      "\030\005 \001(\005\022\035\n\025it_covered_conditions\030\006 \001(\005\022\"\n" +
-      "\032overall_covered_conditions\030\007 \001(\005\"L\n\022Syn",
-      "taxHighlighting\022\025\n\005range\030\001 \001(\0132\006.Range\022\037" +
-      "\n\004type\030\002 \001(\0162\021.HighlightingType\"j\n\004Test\022" +
-      "\014\n\004name\030\001 \001(\t\022\033\n\006status\030\002 \001(\0162\013.TestStat" +
-      "us\022\026\n\016duration_in_ms\030\003 \001(\003\022\022\n\nstacktrace" +
-      "\030\004 \001(\t\022\013\n\003msg\030\005 \001(\t\"\221\001\n\016CoverageDetail\022\021" +
-      "\n\ttest_name\030\001 \001(\t\0221\n\014covered_file\030\002 \003(\0132" +
-      "\033.CoverageDetail.CoveredFile\0329\n\013CoveredF" +
-      "ile\022\020\n\010file_ref\030\001 \001(\005\022\030\n\014covered_line\030\002 " +
-      "\003(\005B\002\020\001B#\n\037org.sonar.batch.protocol.outp" +
-      "utH\001"
+      "mponent_ref\030\004 \001(\005\022\027\n\017active_rule_key\030\005 \003" +
+      "(\t\"?\n\rComponentLink\022 \n\004type\030\001 \001(\0162\022.Comp" +
+      "onentLinkType\022\014\n\004href\030\002 \001(\t\"\354\001\n\tComponen" +
+      "t\022\013\n\003ref\030\001 \001(\005\022\014\n\004path\030\002 \001(\t\022\014\n\004name\030\003 \001" +
+      "(\t\022\034\n\004type\030\004 \001(\0162\016.ComponentType\022\017\n\007is_t" +
+      "est\030\005 \001(\010\022\020\n\010language\030\006 \001(\t\022\025\n\tchild_ref" +
+      "\030\007 \003(\005B\002\020\001\022\034\n\004link\030\010 \003(\0132\016.ComponentLink",
+      "\022\017\n\007version\030\t \001(\t\022\013\n\003key\030\n \001(\t\022\r\n\005lines\030" +
+      "\013 \001(\005\022\023\n\013description\030\014 \001(\t\"\335\002\n\007Measure\022%" +
+      "\n\nvalue_type\030\001 \001(\0162\021.MeasureValueType\022\025\n" +
+      "\rboolean_value\030\002 \001(\010\022\021\n\tint_value\030\003 \001(\005\022" +
+      "\022\n\nlong_value\030\004 \001(\003\022\024\n\014double_value\030\005 \001(" +
+      "\001\022\024\n\014string_value\030\006 \001(\t\022\022\n\nmetric_key\030\007 " +
+      "\001(\t\022\023\n\013description\030\t \001(\t\022\031\n\021variation_va" +
+      "lue_1\030\016 \001(\001\022\031\n\021variation_value_2\030\017 \001(\001\022\031" +
+      "\n\021variation_value_3\030\020 \001(\001\022\031\n\021variation_v" +
+      "alue_4\030\021 \001(\001\022\031\n\021variation_value_5\030\022 \001(\001\022",
+      "\021\n\tperson_id\030\024 \001(\005\"<\n\010Measures\022\025\n\rcompon" +
+      "ent_ref\030\001 \001(\005\022\031\n\007measure\030\002 \003(\0132\010.Measure" +
+      "\"\273\001\n\005Issue\022\027\n\017rule_repository\030\001 \001(\t\022\020\n\010r" +
+      "ule_key\030\002 \001(\t\022\014\n\004line\030\003 \001(\005\022\013\n\003msg\030\004 \001(\t" +
+      "\022\033\n\010severity\030\005 \001(\0162\t.Severity\022\013\n\003tag\030\006 \003" +
+      "(\t\022\025\n\reffort_to_fix\030\007 \001(\001\022\022\n\nattributes\030" +
+      "\010 \001(\t\022\027\n\017debt_in_minutes\030\t \001(\003\"6\n\006Issues" +
+      "\022\025\n\rcomponent_ref\030\001 \001(\005\022\025\n\005issue\030\002 \003(\0132\006" +
+      ".Issue\"\254\001\n\nChangesets\022\025\n\rcomponent_ref\030\001" +
+      " \001(\005\022(\n\tchangeset\030\002 \003(\0132\025.Changesets.Cha",
+      "ngeset\022 \n\024changesetIndexByLine\030\003 \003(\005B\002\020\001" +
+      "\032;\n\tChangeset\022\020\n\010revision\030\001 \001(\t\022\016\n\006autho" +
+      "r\030\002 \001(\t\022\014\n\004date\030\003 \001(\003\"R\n\tDuplicate\022\026\n\016ot" +
+      "her_file_ref\030\001 \001(\005\022\025\n\005range\030\002 \001(\0132\006.Rang" +
+      "e\022\026\n\016other_file_key\030\003 \001(\t\"M\n\013Duplication" +
+      "\022\037\n\017origin_position\030\001 \001(\0132\006.Range\022\035\n\tdup" +
+      "licate\030\002 \003(\0132\n.Duplicate\"H\n\014Duplications" +
+      "\022\025\n\rcomponent_ref\030\001 \001(\005\022!\n\013duplication\030\002" +
+      " \003(\0132\014.Duplication\"W\n\005Range\022\022\n\nstart_lin" +
+      "e\030\001 \001(\005\022\020\n\010end_line\030\002 \001(\005\022\024\n\014start_offse",
+      "t\030\003 \001(\005\022\022\n\nend_offset\030\004 \001(\005\"~\n\007Symbols\022\020" +
+      "\n\010file_ref\030\001 \001(\005\022\037\n\006symbol\030\002 \003(\0132\017.Symbo" +
+      "ls.Symbol\032@\n\006Symbol\022\033\n\013declaration\030\001 \001(\013" +
+      "2\006.Range\022\031\n\treference\030\002 \003(\0132\006.Range\"\260\001\n\010" +
+      "Coverage\022\014\n\004line\030\001 \001(\005\022\022\n\nconditions\030\002 \001" +
+      "(\005\022\017\n\007ut_hits\030\003 \001(\010\022\017\n\007it_hits\030\004 \001(\010\022\035\n\025" +
+      "ut_covered_conditions\030\005 \001(\005\022\035\n\025it_covere" +
+      "d_conditions\030\006 \001(\005\022\"\n\032overall_covered_co" +
+      "nditions\030\007 \001(\005\"L\n\022SyntaxHighlighting\022\025\n\005" +
+      "range\030\001 \001(\0132\006.Range\022\037\n\004type\030\002 \001(\0162\021.High",
+      "lightingType\"j\n\004Test\022\014\n\004name\030\001 \001(\t\022\033\n\006st" +
+      "atus\030\002 \001(\0162\013.TestStatus\022\026\n\016duration_in_m" +
+      "s\030\003 \001(\003\022\022\n\nstacktrace\030\004 \001(\t\022\013\n\003msg\030\005 \001(\t" +
+      "\"\221\001\n\016CoverageDetail\022\021\n\ttest_name\030\001 \001(\t\0221" +
+      "\n\014covered_file\030\002 \003(\0132\033.CoverageDetail.Co" +
+      "veredFile\0329\n\013CoveredFile\022\020\n\010file_ref\030\001 \001" +
+      "(\005\022\030\n\014covered_line\030\002 \003(\005B\002\020\001B#\n\037org.sona" +
+      "r.batch.protocol.outputH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -19784,7 +19518,7 @@ public final class BatchReport {
     internal_static_Metadata_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Metadata_descriptor,
-        new java.lang.String[] { "AnalysisDate", "ProjectKey", "Branch", "RootComponentRef", });
+        new java.lang.String[] { "AnalysisDate", "ProjectKey", "Branch", "RootComponentRef", "ActiveRuleKey", });
     internal_static_ComponentLink_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_ComponentLink_fieldAccessorTable = new
@@ -19802,7 +19536,7 @@ public final class BatchReport {
     internal_static_Measure_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Measure_descriptor,
-        new java.lang.String[] { "ValueType", "BooleanValue", "IntValue", "LongValue", "DoubleValue", "StringValue", "MetricKey", "Description", "RuleKey", "AlertStatus", "AlertText", "VariationValue1", "VariationValue2", "VariationValue3", "VariationValue4", "VariationValue5", "CharactericId", "PersonId", });
+        new java.lang.String[] { "ValueType", "BooleanValue", "IntValue", "LongValue", "DoubleValue", "StringValue", "MetricKey", "Description", "VariationValue1", "VariationValue2", "VariationValue3", "VariationValue4", "VariationValue5", "PersonId", });
     internal_static_Measures_descriptor =
       getDescriptor().getMessageTypes().get(4);
     internal_static_Measures_fieldAccessorTable = new

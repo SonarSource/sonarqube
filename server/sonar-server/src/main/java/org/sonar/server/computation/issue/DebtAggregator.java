@@ -26,7 +26,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.computation.component.Component;
@@ -39,9 +38,8 @@ import org.sonar.server.computation.metric.MetricRepository;
 
 import static com.google.common.collect.Maps.newHashMap;
 
-public class DebtCalculator extends IssueListener {
+public class DebtAggregator extends IssueVisitor {
 
-  private final IssueUpdater updater;
   private final RuleCache ruleCache;
   private final DebtModelHolder debtModelHolder;
   private final MetricRepository metricRepository;
@@ -50,9 +48,8 @@ public class DebtCalculator extends IssueListener {
   private final Map<Integer, Debt> debtsByComponentRef = new HashMap<>();
   private Debt currentDebt;
 
-  public DebtCalculator(IssueUpdater updater, RuleCache ruleCache, DebtModelHolder debtModelHolder,
+  public DebtAggregator(RuleCache ruleCache, DebtModelHolder debtModelHolder,
     MetricRepository metricRepository, MeasureRepository measureRepository) {
-    this.updater = updater;
     this.ruleCache = ruleCache;
     this.debtModelHolder = debtModelHolder;
     this.metricRepository = metricRepository;
@@ -67,14 +64,15 @@ public class DebtCalculator extends IssueListener {
     for (Component child : component.getChildren()) {
       // no need to keep the children in memory. They can be garbage-collected.
       Debt childDebt = debtsByComponentRef.remove(child.getRef());
-      currentDebt.add(childDebt);
+      if (childDebt != null) {
+        currentDebt.add(childDebt);
+      }
     }
   }
 
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
     if (issue.resolution() == null) {
-      // TODO calculate debt according to rule remediation function. Currently done by batch.
       currentDebt.add(issue);
     }
   }
@@ -117,11 +115,14 @@ public class DebtCalculator extends IssueListener {
         RuleDto rule = ruleCache.get(issue.ruleKey());
         this.minutesByRuleId.add(rule.getId(), issueMinutes);
 
-        Characteristic characteristic = debtModelHolder.getCharacteristicById(rule.getSubCharacteristicId());
-        this.minutesByCharacteristicId.add(characteristic.getId(), issueMinutes);
-        Integer characteristicParentId = characteristic.getParentId();
-        if (characteristicParentId != null) {
-          this.minutesByCharacteristicId.add(characteristicParentId, issueMinutes);
+        Integer subCharacteristicId = rule.getSubCharacteristicId();
+        if (subCharacteristicId != null) {
+          Characteristic characteristic = debtModelHolder.getCharacteristicById(subCharacteristicId);
+          this.minutesByCharacteristicId.add(characteristic.getId(), issueMinutes);
+          Integer characteristicParentId = characteristic.getParentId();
+          if (characteristicParentId != null) {
+            this.minutesByCharacteristicId.add(characteristicParentId, issueMinutes);
+          }
         }
       }
     }

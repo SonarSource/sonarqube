@@ -21,28 +21,20 @@
 package org.sonar.core.issue.db;
 
 import com.google.common.collect.Lists;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.CheckForNull;
-import org.apache.ibatis.session.ResultHandler;
-import org.sonar.api.batch.BatchSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.api.server.ServerSide;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
+import static java.util.Arrays.asList;
 
-/**
- * @since 3.6
- */
-@BatchSide
 @ServerSide
 public class IssueChangeDao implements DaoComponent {
 
@@ -64,7 +56,7 @@ public class IssueChangeDao implements DaoComponent {
     DbSession session = mybatis.openSession(false);
     try {
       List<FieldDiffs> result = Lists.newArrayList();
-      for (IssueChangeDto dto : selectByIssuesAndType(session, Arrays.asList(issueKey), IssueChangeDto.TYPE_FIELD_CHANGE)) {
+      for (IssueChangeDto dto : selectByIssuesAndType(session, asList(issueKey), IssueChangeDto.TYPE_FIELD_CHANGE)) {
         result.add(dto.toFieldDiffs());
       }
       return result;
@@ -73,13 +65,11 @@ public class IssueChangeDao implements DaoComponent {
     }
   }
 
-  public void selectChangelogOnNonClosedIssuesByModuleAndType(long componentId, ResultHandler handler) {
+  public List<IssueChangeDto> selectChangelogOfUnresolvedIssuesByComponent(String componentUuid) {
     DbSession session = mybatis.openSession(false);
     try {
-      Map<String, Object> params = newHashMap();
-      params.put("componentId", componentId);
-      params.put("changeType", IssueChangeDto.TYPE_FIELD_CHANGE);
-      session.select("org.sonar.core.issue.db.IssueChangeMapper.selectChangelogOnNonClosedIssuesByModuleAndType", params, handler);
+      IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
+      return mapper.selectChangelogOfUnresolvedIssuesByComponent(componentUuid, IssueChangeDto.TYPE_FIELD_CHANGE);
 
     } finally {
       MyBatis.closeQuietly(session);

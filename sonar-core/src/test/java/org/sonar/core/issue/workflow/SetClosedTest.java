@@ -56,7 +56,7 @@ public class SetClosedTest {
       INSTANCE.execute(context);
       fail();
     } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).contains("Issue is still alive");
+      assertThat(e.getMessage()).contains("Issue is still open");
       verify(context, never()).setResolution(anyString());
     }
   }

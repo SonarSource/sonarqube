@@ -57,6 +57,7 @@ import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.test.DbTests;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATIONS_DATA;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATIONS_DATA_KEY;
@@ -151,11 +152,8 @@ public class PersistMeasuresStepTest extends BaseStepTest {
         .setVariationValue3(3.3d)
         .setVariationValue4(4.4d)
         .setVariationValue5(5.5d)
-        .setAlertStatus("WARN")
-        .setAlertText("Open issues > 0")
         .setDescription("measure-description")
         .setMetricKey(STRING_METRIC_KEY)
-        .setCharactericId(123456)
         .build()));
 
     reportReader.putMeasures(FILE_REF, Arrays.asList(
@@ -167,11 +165,8 @@ public class PersistMeasuresStepTest extends BaseStepTest {
         .setVariationValue3(3.3d)
         .setVariationValue4(4.4d)
         .setVariationValue5(5.5d)
-        .setAlertStatus("ERROR")
-        .setAlertText("Blocker issues variation > 0")
         .setDescription("measure-description")
         .setMetricKey(DOUBLE_METRIC_KEY)
-        .setRuleKey(RULE_KEY.toString())
         .build()));
 
     sut.execute();
@@ -192,10 +187,15 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     dto = dtos.get(PROJECT_REF);
     assertThat(dto.get("snapshotId")).isEqualTo(4L);
     assertThat(dto.get("componentId")).isEqualTo(fileDto.getId());
+<<<<<<< HEAD
     assertThat(dto.get("metricId")).isEqualTo(2L);
     assertThat(dto.get("ruleId")).isEqualTo(rule.getId().longValue());
     assertThat(dto.get("characteristicId")).isNull();
     assertThat(dto.get("value")).isEqualTo(123.1d);
+=======
+    assertThat(dto.get("metricId")).isEqualTo(doubleMetric.getId().longValue());
+    assertThat(dto.get("value")).isEqualTo(123.123d);
+>>>>>>> SONAR-6588 integrate issues to Compute Engine
     assertThat(dto.get("severity")).isNull();
   }
 
