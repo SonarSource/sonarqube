@@ -8,7 +8,11 @@
         "name": "Integer"
       },
       "domain": "custom-domain-1",
-      "description": "custom-description-1"
+      "description": "custom-description-1",
+      "direction": 0,
+      "qualitative": true,
+      "hidden": false,
+      "custom": true
     },
     {
       "key": "custom-key-2",
@@ -18,7 +22,11 @@
         "name": "Integer"
       },
       "domain": "custom-domain-2",
-      "description": "custom-description-2"
+      "description": "custom-description-2",
+      "direction": 0,
+      "qualitative": true,
+      "hidden": false,
+      "custom": true
     },
     {
       "key": "custom-key-3",
@@ -28,7 +36,11 @@
         "name": "Integer"
       },
       "domain": "custom-domain-3",
-      "description": "custom-description-3"
+      "description": "custom-description-3",
+      "direction": 0,
+      "qualitative": true,
+      "hidden": false,
+      "custom": true
     }
   ],
   "total": 3,

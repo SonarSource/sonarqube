@@ -9,7 +9,11 @@
       "type": {
         "key": "INT",
         "name": "Integer"
-      }
+      },
+      "direction": 0,
+      "qualitative": false,
+      "hidden": false,
+      "custom": true
     },
     {
       "id": "2",
@@ -20,7 +24,11 @@
       "type": {
         "key": "INT",
         "name": "Integer"
-      }
+      },
+      "direction": 1,
+      "qualitative": true,
+      "hidden": false,
+      "custom": false
     }
   ],
   "total": 2,

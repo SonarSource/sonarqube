@@ -49,7 +49,12 @@ public class SearchAction implements MetricsWsAction {
   public static final String FIELD_DESCRIPTION = "description";
   public static final String FIELD_DOMAIN = "domain";
   public static final String FIELD_TYPE = "type";
-  private static final Set<String> OPTIONAL_FIELDS = newHashSet(FIELD_NAME, FIELD_DESCRIPTION, FIELD_DOMAIN, FIELD_TYPE);
+  public static final String FIELD_DIRECTION = "direction";
+  public static final String FIELD_QUALITATIVE = "qualitative";
+  public static final String FIELD_HIDDEN = "hidden";
+  public static final String FIELD_CUSTOM = "custom";
+  private static final Set<String> OPTIONAL_FIELDS = newHashSet(FIELD_NAME, FIELD_DESCRIPTION, FIELD_DOMAIN, FIELD_TYPE, FIELD_DIRECTION, FIELD_QUALITATIVE, FIELD_HIDDEN,
+    FIELD_CUSTOM);
   private final Set<String> allPossibleFields;
 
   private final DbClient dbClient;
@@ -120,6 +125,10 @@ public class SearchAction implements MetricsWsAction {
       writeIfDesired(json, FIELD_NAME, metric.getShortName(), desiredFields);
       writeIfDesired(json, FIELD_DESCRIPTION, metric.getDescription(), desiredFields);
       writeIfDesired(json, FIELD_DOMAIN, metric.getDomain(), desiredFields);
+      writeIfDesired(json, FIELD_DIRECTION, metric.getDirection(), desiredFields);
+      writeIfDesired(json, FIELD_QUALITATIVE, metric.isQualitative(), desiredFields);
+      writeIfDesired(json, FIELD_HIDDEN, metric.isHidden(), desiredFields);
+      writeIfDesired(json, FIELD_CUSTOM, metric.isUserManaged(), desiredFields);
       writeType(json, metric.getValueType(), desiredFields);
       json.endObject();
     }
@@ -137,6 +146,18 @@ public class SearchAction implements MetricsWsAction {
   }
 
   private static void writeIfDesired(JsonWriter json, String field, String value, Set<String> desiredFields) {
+    if (desiredFields.contains(field)) {
+      json.prop(field, value);
+    }
+  }
+
+  private static void writeIfDesired(JsonWriter json, String field, int value, Set<String> desiredFields) {
+    if (desiredFields.contains(field)) {
+      json.prop(field, value);
+    }
+  }
+
+  private static void writeIfDesired(JsonWriter json, String field, boolean value, Set<String> desiredFields) {
     if (desiredFields.contains(field)) {
       json.prop(field, value);
     }

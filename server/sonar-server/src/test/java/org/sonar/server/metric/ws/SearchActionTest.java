@@ -157,6 +157,9 @@ public class SearchActionTest {
       .setDescription("custom-description-" + id)
       .setValueType("INT")
       .setUserManaged(true)
+      .setDirection(0)
+      .setHidden(false)
+      .setQualitative(true)
       .setEnabled(true);
   }
 
