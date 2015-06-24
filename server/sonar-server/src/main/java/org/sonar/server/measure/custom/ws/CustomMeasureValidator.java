@@ -66,7 +66,7 @@ public class CustomMeasureValidator {
           throw new IllegalArgumentException("Unsupported metric type:" + metricType.description());
       }
     } catch (Exception e) {
-      throw new IllegalArgumentException(String.format("Ill formatted value '%s' for metric type '%s'", valueAsString, metricType.description()), e);
+      throw new IllegalArgumentException(String.format("Incorrect value '%s' for metric type '%s'", valueAsString, metricType.description()), e);
     }
 
   }

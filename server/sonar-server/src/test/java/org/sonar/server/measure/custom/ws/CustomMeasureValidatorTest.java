@@ -97,7 +97,7 @@ public class CustomMeasureValidatorTest {
   @Test
   public void fail_when_non_compliant_value() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Ill formatted value 'non-compliant-boolean-value' for metric type 'Yes/No'");
+    expectedException.expectMessage("Incorrect value 'non-compliant-boolean-value' for metric type 'Yes/No'");
 
     sut.setMeasureValue(customMeasure, "non-compliant-boolean-value", newMetricDto().setValueType(BOOL.name()));
   }
@@ -105,7 +105,7 @@ public class CustomMeasureValidatorTest {
   @Test
   public void fail_when_non_compliant_level_value() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Ill formatted value 'non-compliant-level-value' for metric type 'Level'");
+    expectedException.expectMessage("Incorrect value 'non-compliant-level-value' for metric type 'Level'");
 
     sut.setMeasureValue(customMeasure, "non-compliant-level-value", newMetricDto().setValueType(LEVEL.name()));
   }

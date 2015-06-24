@@ -21,6 +21,7 @@
 package org.sonar.server.measure.custom.ws;
 
 import java.net.HttpURLConnection;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -73,7 +74,7 @@ public class CreateAction implements CustomMeasuresWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
       .setDescription("Create a custom measure.<br /> " +
-        "The project id or the project key must be provided. The metric id or the metric key must be provided.<br/>" +
+        "The project id or the project key must be provided (only project and module custom measures can be created). The metric id or the metric key must be provided.<br/>" +
         "Requires 'Administer System' permission or 'Administer' permission on the project.")
       .setSince("5.2")
       .setPost(true)
@@ -116,6 +117,7 @@ public class CreateAction implements CustomMeasuresWsAction {
       ComponentDto component = searchProject(dbSession, request);
       MetricDto metric = searchMetric(dbSession, request);
       checkPermissions(component);
+      checkIsProjectOrModule(component);
       checkMeasureDoesNotExistAlready(dbSession, component, metric);
       UserDoc user = userIndex.getByLogin(userSession.getLogin());
       CustomMeasureDto measure = new CustomMeasureDto()
@@ -124,7 +126,8 @@ public class CreateAction implements CustomMeasuresWsAction {
         .setMetricId(metric.getId())
         .setDescription(description)
         .setUserLogin(user.login())
-        .setCreatedAt(now);
+        .setCreatedAt(now)
+        .setUpdatedAt(now);
       validator.setMeasureValue(measure, valueAsString, metric);
       dbClient.customMeasureDao().insert(dbSession, measure);
       dbSession.commit();
@@ -134,6 +137,12 @@ public class CreateAction implements CustomMeasuresWsAction {
       json.close();
     } finally {
       MyBatis.closeQuietly(dbSession);
+    }
+  }
+
+  private static void checkIsProjectOrModule(ComponentDto component) {
+    if (!Qualifiers.PROJECT.equals(component.qualifier()) && !Qualifiers.MODULE.equals(component.qualifier())) {
+      throw new ServerException(HttpURLConnection.HTTP_CONFLICT, String.format("Component '%s' (id: %s) must be a project or a module.", component.key(), component.uuid()));
     }
   }
 
@@ -148,8 +157,8 @@ public class CreateAction implements CustomMeasuresWsAction {
   private void checkMeasureDoesNotExistAlready(DbSession dbSession, ComponentDto component, MetricDto metric) {
     int nbMeasuresOnSameMetricAndMeasure = dbClient.customMeasureDao().countByComponentIdAndMetricId(dbSession, component.uuid(), metric.getId());
     if (nbMeasuresOnSameMetricAndMeasure > 0) {
-      throw new ServerException(HttpURLConnection.HTTP_CONFLICT, String.format("A measure already exists for project id '%s' and metric id '%d'",
-        component.uuid(), metric.getId()));
+      throw new ServerException(HttpURLConnection.HTTP_CONFLICT, String.format("A measure already exists for project '%s' (id: %s) and metric '%s' (id: '%d')",
+        component.key(), component.uuid(), metric.getKey(), metric.getId()));
     }
   }
 

@@ -35,6 +35,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.measure.custom.db.CustomMeasureDto;
 import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.permission.GlobalPermissions;
@@ -367,7 +368,7 @@ public class CreateActionTest {
     MetricDto metric = insertMetricAndProject(ValueType.STRING, DEFAULT_PROJECT_UUID);
 
     expectedException.expect(ServerException.class);
-    expectedException.expectMessage(String.format("A measure already exists for project id 'project-uuid' and metric id '%d'", metric.getId()));
+    expectedException.expectMessage(String.format("A measure already exists for project 'project-key' (id: project-uuid) and metric 'metric-key' (id: '%d')", metric.getId()));
 
     newRequest()
       .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
@@ -386,7 +387,7 @@ public class CreateActionTest {
     MetricDto metric = insertMetricAndProject(ValueType.BOOL, DEFAULT_PROJECT_UUID);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Ill formatted value 'non-correct-boolean-value' for metric type 'Yes/No'");
+    expectedException.expectMessage("Incorrect value 'non-correct-boolean-value' for metric type 'Yes/No'");
 
     newRequest()
       .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
@@ -403,6 +404,25 @@ public class CreateActionTest {
 
     newRequest()
       .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
+      .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
+      .setParam(CreateAction.PARAM_VALUE, "whatever-value")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_not_a_project() throws Exception {
+    MetricDto metric = MetricTesting.newMetricDto().setEnabled(true).setValueType(ValueType.STRING.name()).setKey("metric-key");
+    dbClient.metricDao().insert(dbSession, metric);
+    ComponentDto project = ComponentTesting.newProjectDto(DEFAULT_PROJECT_UUID).setKey(DEFAULT_PROJECT_KEY);
+    dbClient.componentDao().insert(dbSession, project);
+    dbClient.componentDao().insert(dbSession, ComponentTesting.newDirectory(project, "directory-uuid", "path/to/directory").setKey("directory-key"));
+    dbSession.commit();
+
+    expectedException.expect(ServerException.class);
+    expectedException.expectMessage("Component 'directory-key' (id: directory-uuid) must be a project or a module.");
+
+    newRequest()
+      .setParam(CreateAction.PARAM_PROJECT_ID, "directory-uuid")
       .setParam(CreateAction.PARAM_METRIC_ID, metric.getId().toString())
       .setParam(CreateAction.PARAM_VALUE, "whatever-value")
       .execute();
