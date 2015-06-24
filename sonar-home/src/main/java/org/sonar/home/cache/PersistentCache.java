@@ -26,6 +26,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
@@ -34,7 +35,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -60,7 +60,7 @@ public class PersistentCache {
     this.log = log;
 
     reconfigure(forceUpdate);
-    log.info("cache: " + baseDir + ", default expiration time (ms): " + defaultDurationToExpireMs);
+    log.debug("cache: " + baseDir + ", default expiration time (ms): " + defaultDurationToExpireMs);
   }
 
   public void reconfigure(boolean forceUpdate) {
@@ -109,7 +109,8 @@ public class PersistentCache {
   public synchronized byte[] get(@Nonnull String obj, @Nullable Callable<byte[]> valueLoader) throws Exception {
     String key = getKey(obj);
 
-    try (FileLock l = lock()) {
+    try {
+      lock();
       if (!forceUpdate) {
         byte[] cached = getCache(key);
 
@@ -130,6 +131,8 @@ public class PersistentCache {
         }
         return value;
       }
+    } finally {
+      unlock();
     }
 
     return null;
@@ -140,10 +143,13 @@ public class PersistentCache {
    */
   public synchronized void clear() {
     log.info("cache: clearing");
-    try (FileLock l = lock()) {
+    try {
+      lock();
       deleteCacheEntries(createClearFilter());
     } catch (IOException e) {
       log.error("Error clearing cache", e);
+    } finally {
+      unlock();
     }
   }
 
@@ -152,16 +158,52 @@ public class PersistentCache {
    */
   public synchronized void clean() {
     log.info("cache: cleaning");
-    try (FileLock l = lock()) {
+    try {
+      lock();
       deleteCacheEntries(createCleanFilter());
     } catch (IOException e) {
       log.error("Error cleaning cache", e);
+    } finally {
+      unlock();
     }
   }
 
-  private FileLock lock() throws IOException {
-    FileChannel ch = FileChannel.open(getLockPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-    return ch.lock();
+  private void lock() throws IOException {
+    lock_raf = new RandomAccessFile(getLockPath().toFile(), "rw");
+    lock_fc = lock_raf.getChannel();
+    lock = lock_fc.lock();
+  }
+
+  private RandomAccessFile lock_raf;
+  private FileChannel lock_fc;
+  private FileLock lock;
+
+  private void unlock() {
+    if (lock != null) {
+      try {
+        lock.release();
+      } catch (IOException e) {
+        log.error("Error releasing lock", e);
+      }
+    }
+    if (lock_fc != null) {
+      try {
+        lock_fc.close();
+      } catch (IOException e) {
+        log.error("Error closing file channel", e);
+      }
+    }
+    if (lock_raf != null) {
+      try {
+        lock_raf.close();
+      } catch (IOException e) {
+        log.error("Error closing file", e);
+      }
+    }
+
+    lock = null;
+    lock_raf = null;
+    lock_fc = null;
   }
 
   private String getKey(String uri) {

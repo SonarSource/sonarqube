@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.api.utils.System2;
+
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.apache.commons.io.FileUtils;
@@ -40,7 +42,16 @@ public class TempFolderProvider extends LifecycleProviderAdapter {
   private static final long CLEAN_MAX_AGE = TimeUnit.DAYS.toMillis(21);
   static final String TMP_NAME_PREFIX = ".sonartmp_";
 
+  private System2 system;
   private DefaultTempFolder tempFolder;
+  
+  public TempFolderProvider() {
+    this(new System2());
+  }
+  
+  TempFolderProvider(System2 system) {
+    this.system = system;
+  }
 
   public TempFolder provide(BootstrapProperties bootstrapProps) {
     if (tempFolder == null) {
@@ -71,19 +82,19 @@ public class TempFolderProvider extends LifecycleProviderAdapter {
     return tempFolder;
   }
 
-  private static Path findHome(BootstrapProperties props) {
+  private Path findHome(BootstrapProperties props) {
     String home = props.property("sonar.userHome");
     if (home != null) {
       return Paths.get(home);
     }
 
-    home = System.getenv("SONAR_USER_HOME");
+    home = system.envVariable("SONAR_USER_HOME");
 
     if (home != null) {
       return Paths.get(home);
     }
 
-    home = System.getProperty("user.home");
+    home = system.property("user.home");
     return Paths.get(home, ".sonar");
   }
 

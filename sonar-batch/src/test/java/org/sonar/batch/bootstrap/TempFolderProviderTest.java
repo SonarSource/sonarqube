@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.api.utils.System2;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.utils.TempFolder;
 import com.google.common.collect.ImmutableMap;
@@ -32,6 +33,8 @@ import java.nio.file.attribute.FileTime;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,19 +48,21 @@ public class TempFolderProviderTest {
 
   @Test
   public void createTempFolderProps() throws Exception {
-    File workingDir = temp.getRoot();
+    File workingDir = temp.newFolder();
 
     TempFolder tempFolder = tempFolderProvider.provide(new BootstrapProperties(ImmutableMap.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, workingDir.getAbsolutePath())));
     tempFolder.newDir();
     tempFolder.newFile();
     assertThat(getCreatedTempDir(workingDir)).exists();
     assertThat(getCreatedTempDir(workingDir).list()).hasSize(2);
+    
+    FileUtils.deleteQuietly(workingDir);
   }
 
   @Test
   public void cleanUpOld() throws IOException {
     long creationTime = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(100);
-    File workingDir = temp.getRoot();
+    File workingDir = temp.newFolder();
 
     for (int i = 0; i < 3; i++) {
       File tmp = new File(workingDir, ".sonartmp_" + i);
@@ -68,30 +73,37 @@ public class TempFolderProviderTest {
     tempFolderProvider.provide(new BootstrapProperties(ImmutableMap.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, workingDir.getAbsolutePath())));
     // this also checks that all other temps were deleted
     assertThat(getCreatedTempDir(workingDir)).exists();
+    
+    FileUtils.deleteQuietly(workingDir);
   }
 
   @Test
   public void createTempFolderSonarHome() throws Exception {
     // with sonar home, it will be in {sonar.home}/.sonartmp
-    File sonarHome = temp.getRoot();
-    File workingDir = new File(sonarHome, CoreProperties.GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE);
+    File sonarHome = temp.newFolder();
+    File workingDir = new File(sonarHome, CoreProperties.GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE).getAbsoluteFile();
 
     TempFolder tempFolder = tempFolderProvider.provide(new BootstrapProperties(ImmutableMap.of("sonar.userHome", sonarHome.getAbsolutePath())));
     tempFolder.newDir();
     tempFolder.newFile();
     assertThat(getCreatedTempDir(workingDir)).exists();
     assertThat(getCreatedTempDir(workingDir).list()).hasSize(2);
+    
+    FileUtils.deleteQuietly(sonarHome);
   }
 
   @Test
   public void createTempFolderDefault() throws Exception {
-    File userHome = temp.getRoot();
-    System.setProperty("user.home", userHome.getAbsolutePath());
+    System2 system = mock(System2.class);
+    tempFolderProvider = new TempFolderProvider(system);
+    File userHome = temp.newFolder();
+   
+    when(system.envVariable("SONAR_USER_HOME")).thenReturn(null);
+    when(system.property("user.home")).thenReturn(userHome.getAbsolutePath().toString());
 
     // if nothing is defined, it will be in {user.home}/.sonar/.sonartmp
-    File defaultSonarHome = new File(System.getProperty("user.home"), ".sonar");
+    File defaultSonarHome = new File(userHome.getAbsolutePath(), ".sonar");
     File workingDir = new File(defaultSonarHome, CoreProperties.GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE).getAbsoluteFile();
-
     try {
       TempFolder tempFolder = tempFolderProvider.provide(new BootstrapProperties(Collections.<String, String>emptyMap()));
       tempFolder.newDir();
@@ -99,11 +111,12 @@ public class TempFolderProviderTest {
       assertThat(getCreatedTempDir(workingDir)).exists();
       assertThat(getCreatedTempDir(workingDir).list()).hasSize(2);
     } finally {
-      FileUtils.deleteDirectory(getCreatedTempDir(workingDir));
+      FileUtils.deleteQuietly(workingDir);
     }
   }
 
   private File getCreatedTempDir(File workingDir) {
+    assertThat(workingDir).isDirectory();
     assertThat(workingDir.listFiles()).hasSize(1);
     return workingDir.listFiles()[0];
   }
