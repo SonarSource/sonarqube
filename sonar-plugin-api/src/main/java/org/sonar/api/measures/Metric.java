@@ -68,32 +68,26 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
   public static final int DIRECTION_NONE = 0;
 
   public enum ValueType {
-    INT(Integer.class, "Integer"),
-    FLOAT(Double.class, "Float"),
-    PERCENT(Double.class, "Percent"),
-    BOOL(Boolean.class, "Yes/No"),
-    STRING(String.class, "String"),
-    MILLISEC(Integer.class, "Milliseconds"),
-    DATA(String.class, "Data"),
-    LEVEL(Metric.Level.class, "Level"),
-    DISTRIB(String.class, "Distribution"),
-    RATING(Integer.class, "Rating"),
-    WORK_DUR(Long.class, "Work Duration");
+    INT(Integer.class),
+    FLOAT(Double.class),
+    PERCENT(Double.class),
+    BOOL(Boolean.class),
+    STRING(String.class),
+    MILLISEC(Integer.class),
+    DATA(String.class),
+    LEVEL(Metric.Level.class),
+    DISTRIB(String.class),
+    RATING(Integer.class),
+    WORK_DUR(Long.class);
 
     private final Class valueClass;
-    private final String description;
 
-    ValueType(Class valueClass, String description) {
+    ValueType(Class valueClass) {
       this.valueClass = valueClass;
-      this.description = description;
     }
 
     private Class valueType() {
       return valueClass;
-    }
-
-    public String description() {
-      return description;
     }
 
     public static String[] names() {
@@ -104,16 +98,6 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
       }
 
       return names;
-    }
-
-    public static String descriptionOf(String key) {
-      for (ValueType valueType : values()) {
-        if (valueType.name().equals(key)) {
-          return valueType.description;
-        }
-      }
-
-      throw new IllegalArgumentException(String.format("Unknown ValueType key '%s'", key));
     }
   }
 

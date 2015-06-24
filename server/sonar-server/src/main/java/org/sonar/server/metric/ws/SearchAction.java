@@ -23,7 +23,6 @@ package org.sonar.server.metric.ws;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -122,6 +121,7 @@ public class SearchAction implements MetricsWsAction {
       json.beginObject();
       json.prop(FIELD_ID, String.valueOf(metric.getId()));
       json.prop(FIELD_KEY, metric.getKey());
+      writeIfDesired(json, FIELD_TYPE, metric.getValueType(), desiredFields);
       writeIfDesired(json, FIELD_NAME, metric.getShortName(), desiredFields);
       writeIfDesired(json, FIELD_DESCRIPTION, metric.getDescription(), desiredFields);
       writeIfDesired(json, FIELD_DOMAIN, metric.getDomain(), desiredFields);
@@ -129,20 +129,9 @@ public class SearchAction implements MetricsWsAction {
       writeIfDesired(json, FIELD_QUALITATIVE, metric.isQualitative(), desiredFields);
       writeIfDesired(json, FIELD_HIDDEN, metric.isHidden(), desiredFields);
       writeIfDesired(json, FIELD_CUSTOM, metric.isUserManaged(), desiredFields);
-      writeType(json, metric.getValueType(), desiredFields);
       json.endObject();
     }
     json.endArray();
-  }
-
-  private static void writeType(JsonWriter json, String typeKey, Set<String> desiredFields) {
-    if (desiredFields.contains(FIELD_TYPE)) {
-      json.name(FIELD_TYPE);
-      json.beginObject();
-      json.prop("key", typeKey);
-      json.prop("name", Metric.ValueType.descriptionOf(typeKey));
-      json.endObject();
-    }
   }
 
   private static void writeIfDesired(JsonWriter json, String field, String value, Set<String> desiredFields) {

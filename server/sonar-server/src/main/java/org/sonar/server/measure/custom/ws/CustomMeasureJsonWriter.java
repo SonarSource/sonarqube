@@ -95,7 +95,7 @@ public class CustomMeasureJsonWriter {
       case DISTRIB:
         return stringValue;
       default:
-        throw new IllegalArgumentException("Unsupported metric type:" + metricType.description());
+        throw new IllegalArgumentException("Unsupported metric type: " + metricType.name());
     }
   }
 

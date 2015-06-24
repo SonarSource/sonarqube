@@ -6,10 +6,7 @@
       "name": "Team size",
       "description": "Number of people in the team",
       "domain": "Management",
-      "type": {
-        "key": "INT",
-        "name": "Integer"
-      },
+      "type": "INT",
       "direction": 0,
       "qualitative": false,
       "hidden": false,
@@ -21,10 +18,7 @@
       "name": "Uncovered lines",
       "description": "Uncovered lines",
       "domain": "Tests",
-      "type": {
-        "key": "INT",
-        "name": "Integer"
-      },
+      "type": "INT",
       "direction": 1,
       "qualitative": true,
       "hidden": false,

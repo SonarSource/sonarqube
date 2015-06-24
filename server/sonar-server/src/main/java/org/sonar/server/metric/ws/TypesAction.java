@@ -43,10 +43,7 @@ public class TypesAction implements MetricsWsAction {
     json.name("types");
     json.beginArray();
     for (Metric.ValueType metricType : Metric.ValueType.values()) {
-      json.beginObject();
-      json.prop("key", metricType.name());
-      json.prop("name", metricType.description());
-      json.endObject();
+      json.value(metricType.name());
     }
     json.endArray();
     json.endObject();

@@ -22,7 +22,7 @@ package org.sonar.server.metric.ws;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.measures.Metric.ValueType;
+import org.sonar.api.measures.Metric;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,11 +38,8 @@ public class TypesActionTest {
 
   @Test
   public void validate_content() throws Exception {
-    String result = ws.newGetRequest(MetricsWs.ENDPOINT, "types").execute().outputAsString();
+    String response = ws.newGetRequest(MetricsWs.ENDPOINT, "types").execute().outputAsString();
 
-    assertThat(result).contains(
-      ValueType.INT.name(), ValueType.INT.description(),
-      ValueType.PERCENT.name(), ValueType.PERCENT.description()
-      );
+    assertThat(response).contains(Metric.ValueType.names());
   }
 }

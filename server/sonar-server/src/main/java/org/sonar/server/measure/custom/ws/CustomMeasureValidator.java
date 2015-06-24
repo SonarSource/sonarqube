@@ -63,10 +63,10 @@ public class CustomMeasureValidator {
           measure.setTextValue(valueAsString);
           break;
         default:
-          throw new IllegalArgumentException("Unsupported metric type:" + metricType.description());
+          throw new IllegalArgumentException("Unsupported metric type:" + metricType.name());
       }
     } catch (Exception e) {
-      throw new IllegalArgumentException(String.format("Incorrect value '%s' for metric type '%s'", valueAsString, metricType.description()), e);
+      throw new IllegalArgumentException(String.format("Incorrect value '%s' for metric type '%s'", valueAsString, metricType.name()), e);
     }
 
   }

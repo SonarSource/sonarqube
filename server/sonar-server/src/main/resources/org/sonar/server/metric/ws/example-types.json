@@ -1,20 +1,8 @@
 {
   "types": [
-    {
-      "key": "INT",
-      "name": "Integer"
-    },
-    {
-      "key": "BOOL",
-      "name": "Yes/No"
-    },
-    {
-      "key": "FLOAT",
-      "name": "Float"
-    },
-    {
-      "key": "PERCENT",
-      "name": "Percent"
-    }
+    "INT",
+    "FLOAT",
+    "PERCENT",
+    "BOOL"
   ]
 }

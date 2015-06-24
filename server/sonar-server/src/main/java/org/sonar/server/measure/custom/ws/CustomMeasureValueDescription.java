@@ -33,7 +33,7 @@ class CustomMeasureValueDescription {
     description.append("<ul>");
     for (Metric.ValueType metricType : Metric.ValueType.values()) {
       description.append("<li>");
-      description.append(String.format("%s - %s", metricType.description(), metricTypeWsDescription(metricType)));
+      description.append(String.format("%s - %s", metricType.name(), metricTypeWsDescription(metricType)));
       description.append("</li>");
     }
     description.append("</ul>");

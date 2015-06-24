@@ -3,10 +3,7 @@
     {
       "key": "custom-key-1",
       "name": "custom-name-1",
-      "type": {
-        "key": "INT",
-        "name": "Integer"
-      },
+      "type": "INT",
       "domain": "custom-domain-1",
       "description": "custom-description-1",
       "direction": 0,
@@ -17,10 +14,7 @@
     {
       "key": "custom-key-2",
       "name": "custom-name-2",
-      "type": {
-        "key": "INT",
-        "name": "Integer"
-      },
+      "type": "INT",
       "domain": "custom-domain-2",
       "description": "custom-description-2",
       "direction": 0,
@@ -31,10 +25,7 @@
     {
       "key": "custom-key-3",
       "name": "custom-name-3",
-      "type": {
-        "key": "INT",
-        "name": "Integer"
-      },
+      "type": "INT",
       "domain": "custom-domain-3",
       "description": "custom-description-3",
       "direction": 0,

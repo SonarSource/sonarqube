@@ -387,7 +387,7 @@ public class CreateActionTest {
     MetricDto metric = insertMetricAndProject(ValueType.BOOL, DEFAULT_PROJECT_UUID);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Incorrect value 'non-correct-boolean-value' for metric type 'Yes/No'");
+    expectedException.expectMessage("Incorrect value 'non-correct-boolean-value' for metric type 'BOOL'");
 
     newRequest()
       .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
