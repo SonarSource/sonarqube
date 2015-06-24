@@ -164,13 +164,6 @@ public class BestValueOptimizationTest {
     assertThat(underTest.apply(newMeasureBuilder().create(Measure.Level.OK))).isFalse();
   }
 
-  @Test
-  public void apply_returns_false_when_type_is_NO_VALUE() {
-    Predicate<Measure> underTest = BestValueOptimization.from(createMetric(Metric.MetricType.STRING, 36.5d), FILE_COMPONENT);
-
-    assertThat(underTest.apply(newMeasureBuilder().createNoValue())).isFalse();
-  }
-
   private static MetricImpl createMetric(Metric.MetricType metricType, double bestValue) {
     return new MetricImpl(metricType.hashCode() + (int) bestValue, "key" + metricType + bestValue, "name" + metricType + bestValue, metricType, bestValue, true);
   }
