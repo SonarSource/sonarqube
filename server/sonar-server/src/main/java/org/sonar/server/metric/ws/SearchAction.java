@@ -114,7 +114,7 @@ public class SearchAction implements MetricsWsAction {
     return newHashSet(fields);
   }
 
-  private static void writeMetrics(JsonWriter json, List<MetricDto> metrics, Set<String> desiredFields) {
+  public static void writeMetrics(JsonWriter json, List<MetricDto> metrics, Set<String> desiredFields) {
     json.name("metrics");
     json.beginArray();
     for (MetricDto metric : metrics) {

@@ -1,0 +1,37 @@
+{
+  "metrics": [
+    {
+      "key": "custom-key-1",
+      "type": "INT",
+      "name": "custom-name-1",
+      "description": "custom-description-1",
+      "domain": "custom-domain-1",
+      "direction": 1,
+      "qualitative": false,
+      "hidden": false,
+      "custom": true
+    },
+    {
+      "key": "custom-key-2",
+      "type": "INT",
+      "name": "custom-name-2",
+      "description": "custom-description-2",
+      "domain": "custom-domain-2",
+      "direction": -1,
+      "qualitative": true,
+      "hidden": true,
+      "custom": true
+    },
+    {
+      "key": "custom-key-3",
+      "type": "INT",
+      "name": "custom-name-3",
+      "description": "custom-description-3",
+      "domain": "custom-domain-3",
+      "direction": 0,
+      "qualitative": false,
+      "hidden": false,
+      "custom": true
+    }
+  ]
+}

@@ -103,6 +103,14 @@ public class MetricDao implements DaoComponent {
     return newArrayList(Collections2.filter(mapper(session).selectDomains(), new NotEmptyPredicate()));
   }
 
+  public List<MetricDto> selectAvailableCustomMetricsByComponentUuid(DbSession session, String projectUuid) {
+    return mapper(session).selectAvailableCustomMetricsByComponentUuid(projectUuid);
+  }
+
+  public List<MetricDto> selectAvailableCustomMetricsByComponentKey(DbSession session, String projectKey) {
+    return mapper(session).selectAvailableCustomMetricsByComponentUuid(projectKey);
+  }
+
   private static class NotEmptyPredicate implements Predicate<String> {
 
     @Override

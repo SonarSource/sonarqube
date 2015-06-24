@@ -1,0 +1,28 @@
+{
+  "metrics": [
+    {
+      "id": "23",
+      "key": "team_size",
+      "name": "Team size",
+      "description": "Number of people in the team",
+      "domain": "Management",
+      "type": "INT",
+      "direction": 0,
+      "qualitative": false,
+      "hidden": false,
+      "custom": true
+    },
+    {
+      "id": "2",
+      "key": "uncovered_lines",
+      "name": "Uncovered lines",
+      "description": "Uncovered lines",
+      "domain": "Tests",
+      "type": "INT",
+      "direction": 1,
+      "qualitative": true,
+      "hidden": false,
+      "custom": false
+    }
+  ]
+}
