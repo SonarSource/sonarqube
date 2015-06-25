@@ -68,7 +68,15 @@ public final class Batch {
   @Deprecated
   public synchronized Batch execute() {
     configureLogging();
-    start().executeTask(bootstrapProperties).stop();
+    start();
+    boolean threw = true;
+    try {
+      executeTask(bootstrapProperties);
+      threw = false;
+    } finally {
+      doStop(threw);
+    }
+
     return this;
   }
 
@@ -104,11 +112,15 @@ public final class Batch {
    * @since 4.4
    */
   public synchronized void stop() {
+    doStop(false);
+  }
+
+  private void doStop(boolean swallowException) {
     if (!started) {
       throw new IllegalStateException("Batch is not started.");
     }
 
-    bootstrapContainer.stopComponents();
+    bootstrapContainer.stopComponents(swallowException);
 
     this.started = false;
   }
