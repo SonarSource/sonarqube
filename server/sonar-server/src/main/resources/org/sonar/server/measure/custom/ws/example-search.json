@@ -1,0 +1,55 @@
+{
+  "customMeasures": [
+    {
+      "description": "New arrivals",
+      "metric": {
+        "key": "team_size",
+        "type": "INT"
+      },
+      "projectId": "project-uuid",
+      "projectKey": "project-key",
+      "user": {
+        "active": true,
+        "email": "login@login.com",
+        "login": "login",
+        "name": "Stan Smith"
+      },
+      "value": "42"
+    },
+    {
+      "description": "New funds",
+      "metric": {
+        "key": "burned_budget",
+        "type": "INT"
+      },
+      "projectId": "project-uuid",
+      "projectKey": "project-key",
+      "user": {
+        "active": true,
+        "email": "login@login.com",
+        "login": "login",
+        "name": "Stan Smith"
+      },
+      "value": "1000000"
+    },
+    {
+      "description": "Great coverage",
+      "metric": {
+        "key": "uncovered_lines",
+        "type": "INT"
+      },
+      "projectId": "project-uuid",
+      "projectKey": "project-key",
+      "user": {
+        "active": true,
+        "email": "login@login.com",
+        "login": "login",
+        "name": "Stan Smith"
+      },
+      "value": "1"
+    }
+  ],
+  "p": 1,
+  "ps": 100,
+  "total": 3
+}

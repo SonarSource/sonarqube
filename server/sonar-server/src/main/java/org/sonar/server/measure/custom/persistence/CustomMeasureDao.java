@@ -24,12 +24,14 @@ import com.google.common.base.Function;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.measure.custom.db.CustomMeasureDto;
 import org.sonar.core.measure.custom.db.CustomMeasureMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
 
 @ServerSide
@@ -77,11 +79,19 @@ public class CustomMeasureDao implements DaoComponent {
     return mapper(session).countByComponentIdAndMetricId(componentUuid, metricId);
   }
 
+  public List<CustomMeasureDto> selectByComponentUuid(DbSession session, String componentUuid, SearchOptions searchOptions) {
+    return mapper(session).selectByComponentUuid(componentUuid, new RowBounds(searchOptions.getOffset(), searchOptions.getLimit()));
+  }
+
   public List<CustomMeasureDto> selectByComponentUuid(DbSession session, String componentUuid) {
     return mapper(session).selectByComponentUuid(componentUuid);
   }
 
   private CustomMeasureMapper mapper(DbSession session) {
     return session.getMapper(CustomMeasureMapper.class);
+  }
+
+  public int countByComponentUuid(DbSession dbSession, String uuid) {
+    return mapper(dbSession).countByComponentUuid(uuid);
   }
 }

@@ -1,0 +1,55 @@
+{
+  "customMeasures": [
+    {
+      "description": "description-1",
+      "metric": {
+        "key": "metric-key-1",
+        "type": "STRING"
+      },
+      "projectId": "project-uuid",
+      "projectKey": "project-key",
+      "user": {
+        "active": true,
+        "email": "login@login.com",
+        "login": "login",
+        "name": "Login"
+      },
+      "value": "text-value-1"
+    },
+    {
+      "description": "description-2",
+      "metric": {
+        "key": "metric-key-2",
+        "type": "STRING"
+      },
+      "projectId": "project-uuid",
+      "projectKey": "project-key",
+      "user": {
+        "active": true,
+        "email": "login@login.com",
+        "login": "login",
+        "name": "Login"
+      },
+      "value": "text-value-2"
+    },
+    {
+      "description": "description-3",
+      "metric": {
+        "key": "metric-key-3",
+        "type": "STRING"
+      },
+      "projectId": "project-uuid",
+      "projectKey": "project-key",
+      "user": {
+        "active": true,
+        "email": "login@login.com",
+        "login": "login",
+        "name": "Login"
+      },
+      "value": "text-value-3"
+    }
+  ],
+  "p": 1,
+  "ps": 100,
+  "total": 3
+}

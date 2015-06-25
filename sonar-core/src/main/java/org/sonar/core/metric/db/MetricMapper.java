@@ -28,7 +28,13 @@ import org.apache.ibatis.session.RowBounds;
 
 public interface MetricMapper {
 
+  MetricDto selectById(long id);
+
+  List<MetricDto> selectByIds(@Param("ids") List<Integer> ids);
+
   MetricDto selectByKey(@Param("key") String key);
+
+  List<MetricDto> selectByKeys(@Param("keys") List<String> keys);
 
   List<MetricDto> selectAllEnabled();
 
@@ -38,8 +44,6 @@ public interface MetricMapper {
 
   List<String> selectDomains();
 
-  List<MetricDto> selectByKeys(@Param("keys") List<String> keys);
-
   void disableByIds(@Param("ids") List<Integer> ids);
 
   void disableByKey(@Param("key") String key);
@@ -47,8 +51,6 @@ public interface MetricMapper {
   int countEnabled(@Param("isCustom") @Nullable Boolean isCustom);
 
   void update(MetricDto metric);
-
-  MetricDto selectById(long id);
 
   List<MetricDto> selectAvailableCustomMetricsByComponentUuid(String projectUuid);
 

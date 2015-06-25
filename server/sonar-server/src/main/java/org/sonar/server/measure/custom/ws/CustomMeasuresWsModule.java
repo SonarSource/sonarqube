@@ -30,6 +30,7 @@ public class CustomMeasuresWsModule extends Module {
       CreateAction.class,
       UpdateAction.class,
       DeleteAction.class,
+      SearchAction.class,
       MetricsAction.class,
       CustomMeasureJsonWriter.class,
       CustomMeasureValidator.class);

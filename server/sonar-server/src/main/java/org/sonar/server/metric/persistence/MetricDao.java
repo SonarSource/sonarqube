@@ -25,9 +25,11 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -109,6 +111,16 @@ public class MetricDao implements DaoComponent {
 
   public List<MetricDto> selectAvailableCustomMetricsByComponentKey(DbSession session, String projectKey) {
     return mapper(session).selectAvailableCustomMetricsByComponentUuid(projectKey);
+  }
+
+  public List<MetricDto> selectByIds(final DbSession session, Set<Integer> idsSet) {
+    List<Integer> ids = new ArrayList<>(idsSet);
+    return DaoUtils.executeLargeInputs(ids, new Function<List<Integer>, List<MetricDto>>() {
+      @Override
+      public List<MetricDto> apply(@Nonnull List<Integer> ids) {
+        return mapper(session).selectByIds(ids);
+      }
+    });
   }
 
   private static class NotEmptyPredicate implements Predicate<String> {

@@ -69,6 +69,12 @@
     where id=#{id}
   </delete>
 
+  <select id="countByComponentUuid" resultType="Integer">
+    select count(*)
+    from manual_measures m
+    where m.component_uuid=#{componentUuid}
+  </select>
+
   <select id="countByComponentIdAndMetricId" resultType="Integer">
     select count(*)
     from manual_measures m

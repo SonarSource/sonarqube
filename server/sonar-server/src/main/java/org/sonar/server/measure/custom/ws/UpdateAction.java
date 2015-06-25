@@ -100,7 +100,6 @@ public class UpdateAction implements CustomMeasuresWsAction {
       checkPermissions(component);
       User user = userIndex.getByLogin(userSession.getLogin());
 
-
       setValue(customMeasure, value, metric);
       setDescription(customMeasure, description);
       customMeasure.setUserLogin(user.login());
@@ -109,7 +108,7 @@ public class UpdateAction implements CustomMeasuresWsAction {
       dbSession.commit();
 
       JsonWriter json = response.newJsonWriter();
-      customMeasureJsonWriter.write(json, customMeasure, metric, component, user);
+      customMeasureJsonWriter.write(json, customMeasure, metric, component, user, CustomMeasureJsonWriter.OPTIONAL_FIELDS);
       json.close();
     } finally {
       MyBatis.closeQuietly(dbSession);

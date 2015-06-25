@@ -22,11 +22,13 @@ package org.sonar.server.measure.custom.ws;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Metric;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.measure.custom.db.CustomMeasureDto;
@@ -36,8 +38,11 @@ import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.measure.custom.persistence.CustomMeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
+import org.sonar.server.user.index.UserDoc;
+import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
@@ -55,10 +60,21 @@ public class MetricsActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @ClassRule
+  public static EsTester es = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
+  @ClassRule
   public static DbTester db = new DbTester();
   DbClient dbClient;
   DbSession dbSession;
   WsTester ws;
+
+  @BeforeClass
+  public static void setUpClass() throws Exception {
+    es.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, new UserDoc()
+      .setLogin("login")
+      .setName("Login")
+      .setEmail("login@login.com")
+      .setActive(true));
+  }
 
   @Before
   public void setUp() {

@@ -20,6 +20,7 @@
 package org.sonar.server.ws;
 
 import java.util.Collection;
+import java.util.Date;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.text.JsonWriter;
 
@@ -50,6 +51,12 @@ public class JsonWriterUtils {
   public static void writeIfNeeded(JsonWriter json, @Nullable Long value, String field, Collection<String> fields) {
     if (isFieldNeeded(field, fields)) {
       json.prop(field, value);
+    }
+  }
+
+  public static void writeIfNeeded(JsonWriter json, @Nullable Date value, String field, Collection<String> fields) {
+    if (isFieldNeeded(field, fields)) {
+      json.propDateTime(field, value);
     }
   }
 

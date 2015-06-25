@@ -140,6 +140,18 @@
     </where>
   </select>
 
+  <select id="selectByIds" resultType="org.sonar.core.metric.db.MetricDto">
+    SELECT
+    <include refid="metricColumns"/>
+    FROM metrics m
+    <where>
+      AND m.id in
+      <foreach item="id" collection="ids" open="(" separator="," close=")">
+        #{id}
+      </foreach>
+    </where>
+  </select>
+
   <select id="selectById" resultType="org.sonar.core.metric.db.MetricDto">
     SELECT
     <include refid="metricColumns"/>

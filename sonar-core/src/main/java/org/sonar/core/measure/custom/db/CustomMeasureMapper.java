@@ -22,6 +22,7 @@ package org.sonar.core.measure.custom.db;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.RowBounds;
 
 public interface CustomMeasureMapper {
   void insert(CustomMeasureDto customMeasure);
@@ -37,6 +38,10 @@ public interface CustomMeasureMapper {
   List<CustomMeasureDto> selectByMetricId(int id);
 
   List<CustomMeasureDto> selectByComponentUuid(String s);
+
+  List<CustomMeasureDto> selectByComponentUuid(String s, RowBounds rowBounds);
+
+  int countByComponentUuid(String componentUuid);
 
   int countByComponentIdAndMetricId(@Param("componentUuid") String componentUuid, @Param("metricId") int metricId);
 }
