@@ -5,31 +5,34 @@
       "key": "burned_budget",
       "name": "Burned budget",
       "domain": "Management",
-      "type": {
-        "key": "FLOAT",
-        "name": "Float"
-      }
+      "type": "FLOAT",
+      "direction": 0,
+      "qualitative": false,
+      "hidden": false,
+      "custom": true
     },
     {
       "id": "2",
       "key": "business_value",
       "name": "Business value",
       "domain": "Complexity",
-      "type": {
-        "key": "PERCENT",
-        "name": "Percent"
-      },
-      "description": "Description of Business value"
+      "type": "PERCENT",
+      "description": "Description of Business value",
+      "direction": 0,
+      "qualitative": false,
+      "hidden": false,
+      "custom": true
     },
     {
       "id": "3",
       "key": "updated_key",
       "name": "Updated Name",
       "domain": "Random Domain",
-      "type": {
-        "key": "WORK_DUR",
-        "name": "Duration"
-      }
+      "type": "WORK_DUR",
+      "direction": 0,
+      "qualitative": false,
+      "hidden": false,
+      "custom": true
     }
   ],
   "total": 3,

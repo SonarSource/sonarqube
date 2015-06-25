@@ -24,7 +24,7 @@
       <label for="create-metric-type">Type<em class="mandatory">*</em></label>
       <select id="create-metric-type" name="type">
         {{#each types}}
-          <option value="{{key}}" {{#eq key ../type.key}}selected{{/eq}}>{{name}}</option>
+          <option value="{{this}}" {{#eq this ../type}}selected{{/eq}}>{{t 'metric.type' this}}</option>
         {{/each}}
       </select>
     </div>

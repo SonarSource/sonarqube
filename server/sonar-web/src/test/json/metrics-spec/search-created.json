@@ -5,41 +5,45 @@
       "key": "burned_budget",
       "name": "Burned budget",
       "domain": "Management",
-      "type": {
-        "key": "FLOAT",
-        "name": "Float"
-      }
+      "type": "FLOAT",
+      "direction": 0,
+      "qualitative": false,
+      "hidden": false,
+      "custom": true
     },
     {
       "id": "2",
       "key": "business_value",
       "name": "Business value",
       "domain": "Complexity",
-      "type": {
-        "key": "PERCENT",
-        "name": "Percent"
-      },
-      "description": "Description of Business value"
+      "type": "PERCENT",
+      "description": "Description of Business value",
+      "direction": 0,
+      "qualitative": false,
+      "hidden": false,
+      "custom": true
     },
     {
       "id": "3",
       "key": "team_size",
       "name": "Team size",
       "domain": "Management",
-      "type": {
-        "key": "INT",
-        "name": "Integer"
-      }
+      "type": "INT",
+      "direction": 0,
+      "qualitative": false,
+      "hidden": false,
+      "custom": true
     },
     {
       "id": "4",
       "key": "new_metric",
       "name": "New Metric",
       "domain": "Domain for New Metric",
-      "type": {
-        "key": "RATING",
-        "name": "Rating"
-      }
+      "type": "RATING",
+      "direction": 0,
+      "qualitative": false,
+      "hidden": false,
+      "custom": true
     }
   ],
   "total": 4,

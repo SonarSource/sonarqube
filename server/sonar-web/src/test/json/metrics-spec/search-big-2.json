@@ -5,10 +5,11 @@
       "key": "team_size",
       "name": "Team size",
       "domain": "Management",
-      "type": {
-        "key": "INT",
-        "name": "Integer"
-      }
+      "type": "INT",
+      "direction": 0,
+      "qualitative": false,
+      "hidden": false,
+      "custom": true
     }
   ],
   "total": 3,

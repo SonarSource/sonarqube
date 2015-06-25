@@ -32,7 +32,7 @@ casper.test.begin(testName('List'), 9, function (test) {
         test.assertSelectorContains('#metrics-list .js-metric-name', 'Business value');
         test.assertSelectorContains('#metrics-list .js-metric-key', 'business_value');
         test.assertSelectorContains('#metrics-list .js-metric-domain', 'Complexity');
-        test.assertSelectorContains('#metrics-list .js-metric-type', 'Percent');
+        test.assertSelectorContains('#metrics-list .js-metric-type', 'PERCENT');
         test.assertSelectorContains('#metrics-list .js-metric-description', 'Description of Business value');
         test.assertElementCount('#metrics-list .js-metric-update', 3);
         test.assertElementCount('#metrics-list .js-metric-delete', 3);
@@ -210,7 +210,7 @@ casper.test.begin(testName('Update'), 4, function (test) {
         test.assertSelectorContains('#metrics-list [data-id="3"] .js-metric-key', 'updated_key');
         test.assertSelectorContains('#metrics-list [data-id="3"] .js-metric-name', 'Updated Name');
         test.assertSelectorContains('#metrics-list [data-id="3"] .js-metric-domain', 'Random Domain');
-        test.assertSelectorContains('#metrics-list [data-id="3"] .js-metric-type', 'Duration');
+        test.assertSelectorContains('#metrics-list [data-id="3"] .js-metric-type', 'WORK_DUR');
       })
 
       .then(function () {

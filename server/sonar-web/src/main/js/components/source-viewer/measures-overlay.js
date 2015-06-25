@@ -66,7 +66,7 @@ define([
         data: { ps: 9999 }
       }).done(function (data) {
         metrics = _.filter(data.metrics, function (metric) {
-          return metric.type.key !== 'DATA';
+          return metric.type !== 'DATA' && !metric.hidden;
         });
         metrics = _.sortBy(metrics, 'name');
       });
@@ -120,6 +120,7 @@ define([
             measures = that.model.get('measures') || {};
         measuresList.forEach(function (m) {
           var metric = _.findWhere(metrics, { key: m.key });
+          console.log(m.key, metric);
           metric.value = m.frmt_val || m.data;
           measures[m.key] = m.frmt_val || m.data;
           measures[m.key + '_raw'] = m.val;
