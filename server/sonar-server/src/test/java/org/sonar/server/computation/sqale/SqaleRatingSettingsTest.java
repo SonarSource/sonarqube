@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-package org.sonar.batch.debt;
+package org.sonar.server.computation.sqale;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,14 +26,10 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Metric;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class SqaleRatingSettingsTest {
-
-  private static final Metric[] metrics = {CoreMetrics.NCLOC, CoreMetrics.COMPLEXITY};
 
   private Settings settings;
 
@@ -72,7 +67,7 @@ public class SqaleRatingSettingsTest {
     settings.setProperty(CoreProperties.SIZE_METRIC, "complexity");
     SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
 
-    assertThat(configurationLoader.getSizeMetric("defaultLanguage", metrics)).isEqualTo(CoreMetrics.COMPLEXITY);
+    assertThat(configurationLoader.getSizeMetricKey("defaultLanguage")).isEqualTo("complexity");
   }
 
   @Test
@@ -91,8 +86,8 @@ public class SqaleRatingSettingsTest {
 
     SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
 
-    assertThat(configurationLoader.getSizeMetric(aLanguage, metrics)).isEqualTo(CoreMetrics.NCLOC);
-    assertThat(configurationLoader.getSizeMetric(anotherLanguage, metrics)).isEqualTo(CoreMetrics.COMPLEXITY);
+    assertThat(configurationLoader.getSizeMetricKey(aLanguage)).isEqualTo(CoreMetrics.NCLOC_KEY);
+    assertThat(configurationLoader.getSizeMetricKey(anotherLanguage)).isEqualTo(CoreMetrics.COMPLEXITY_KEY);
     assertThat(configurationLoader.getDevCost(aLanguage)).isEqualTo(30L);
     assertThat(configurationLoader.getDevCost(anotherLanguage)).isEqualTo(40L);
   }
@@ -105,29 +100,6 @@ public class SqaleRatingSettingsTest {
     SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
 
     configurationLoader.getRatingGrid();
-  }
-  
-  @Test
-  public void fail_on_invalid_work_unit_value() {
-    throwable.expect(IllegalArgumentException.class);
-    settings.setProperty(CoreProperties.DEVELOPMENT_COST, "a");
-    SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
-
-    try {
-      configurationLoader.getSizeMetric("aLanguage", metrics);
-    }
-    catch (IllegalArgumentException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Test
-  public void fail_on_unknown_metric_key() {
-    throwable.expect(IllegalArgumentException.class);
-    settings.setProperty(CoreProperties.SIZE_METRIC, "unknown");
-    SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
-
-    configurationLoader.getSizeMetric("aLanguage", metrics);
   }
 
   @Test
@@ -142,7 +114,7 @@ public class SqaleRatingSettingsTest {
 
     SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
 
-    assertThat(configurationLoader.getSizeMetric(aLanguage, metrics)).isEqualTo(CoreMetrics.COMPLEXITY);
+    assertThat(configurationLoader.getSizeMetricKey(aLanguage)).isEqualTo(CoreMetrics.COMPLEXITY_KEY);
     assertThat(configurationLoader.getDevCost(aLanguage)).isEqualTo(40L);
   }
 }

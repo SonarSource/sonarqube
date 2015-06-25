@@ -56,6 +56,7 @@ import org.sonar.server.computation.period.PeriodsHolderImpl;
 import org.sonar.server.computation.qualitygate.EvaluationResultTextConverterImpl;
 import org.sonar.server.computation.qualitygate.QualityGateHolderImpl;
 import org.sonar.server.computation.qualitygate.QualityGateServiceImpl;
+import org.sonar.server.computation.sqale.SqaleRatingSettings;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.view.index.ViewIndex;
@@ -133,6 +134,7 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       PeriodsHolderImpl.class,
       QualityGateHolderImpl.class,
       DebtModelHolderImpl.class,
+      SqaleRatingSettings.class,
 
       BatchReportReaderImpl.class,
 
