@@ -166,7 +166,6 @@ import org.sonar.server.measure.MeasureFilterFactory;
 import org.sonar.server.measure.custom.ws.CustomMeasuresWsModule;
 import org.sonar.server.measure.template.MyFavouritesFilter;
 import org.sonar.server.measure.template.ProjectFilter;
-import org.sonar.server.measure.ws.ManualMeasuresWs;
 import org.sonar.server.measure.ws.TimeMachineWs;
 import org.sonar.server.metric.CoreCustomMetrics;
 import org.sonar.server.metric.DefaultMetricFinder;
@@ -489,7 +488,6 @@ public class PlatformLevel4 extends PlatformLevel {
       MeasureFilterFactory.class,
       MeasureFilterExecutor.class,
       MeasureFilterEngine.class,
-      ManualMeasuresWs.class,
       MetricsWsModule.class,
       CustomMeasuresWsModule.class,
       ProjectFilter.class,
