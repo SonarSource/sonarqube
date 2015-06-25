@@ -21,8 +21,6 @@ define([
   './templates'
 ], function () {
 
-  var $ = jQuery;
-
   return Marionette.LayoutView.extend({
     template: Templates['api-documentation-layout'],
 

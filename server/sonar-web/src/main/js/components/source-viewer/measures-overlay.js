@@ -120,7 +120,6 @@ define([
             measures = that.model.get('measures') || {};
         measuresList.forEach(function (m) {
           var metric = _.findWhere(metrics, { key: m.key });
-          console.log(m.key, metric);
           metric.value = m.frmt_val || m.data;
           measures[m.key] = m.frmt_val || m.data;
           measures[m.key + '_raw'] = m.val;
