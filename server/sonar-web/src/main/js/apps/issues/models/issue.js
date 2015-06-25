@@ -4,9 +4,7 @@ define([
 
   return Issue.extend({
     reset: function (attrs, options) {
-      // TODO remove me soon
-      var keepFields = ['index', 'selected', 'componentUuid', 'componentLongName', 'componentQualifier',
-                        'projectLongName', 'projectUuid', 'ruleName', 'comments'];
+      var keepFields = ['index', 'selected', 'comments'];
       keepFields.forEach(function (field) {
         attrs[field] = this.get(field);
       }.bind(this));
