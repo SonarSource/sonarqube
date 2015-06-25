@@ -97,9 +97,9 @@ public class UpdateAction implements CustomMeasuresWsAction {
       CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectById(dbSession, id);
       MetricDto metric = dbClient.metricDao().selectById(dbSession, customMeasure.getMetricId());
       ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, customMeasure.getComponentUuid());
+      checkPermissions(component);
       User user = userIndex.getByLogin(userSession.getLogin());
 
-      checkPermissions(component);
 
       setValue(customMeasure, value, metric);
       setDescription(customMeasure, description);

@@ -44,6 +44,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.measure.custom.persistence.CustomMeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.server.metric.ws.MetricTesting;
@@ -258,6 +259,31 @@ public class UpdateActionTest {
   public void fail_if_insufficient_privileges() throws Exception {
     userSessionRule.login("login").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     expectedException.expect(ForbiddenException.class);
+    MetricDto metric = MetricTesting.newMetricDto().setEnabled(true).setValueType(ValueType.STRING.name());
+    dbClient.metricDao().insert(dbSession, metric);
+    ComponentDto component = ComponentTesting.newProjectDto("project-uuid");
+    dbClient.componentDao().insert(dbSession, component);
+    CustomMeasureDto customMeasure = newCustomMeasureDto()
+      .setMetricId(metric.getId())
+      .setComponentId(component.getId())
+      .setComponentUuid(component.uuid())
+      .setCreatedAt(system.now())
+      .setDescription("custom-measure-description")
+      .setTextValue("text-measure-value");
+    dbClient.customMeasureDao().insert(dbSession, customMeasure);
+    dbSession.commit();
+
+    ws.newPostRequest(CustomMeasuresWs.ENDPOINT, UpdateAction.ACTION)
+      .setParam(PARAM_ID, String.valueOf(customMeasure.getId()))
+      .setParam(PARAM_DESCRIPTION, "new-custom-measure-description")
+      .setParam(PARAM_VALUE, "1984")
+      .execute();
+  }
+
+  @Test
+  public void fail_if_not_logged_in() throws Exception {
+    userSessionRule.anonymous();
+    expectedException.expect(UnauthorizedException.class);
     MetricDto metric = MetricTesting.newMetricDto().setEnabled(true).setValueType(ValueType.STRING.name());
     dbClient.metricDao().insert(dbSession, metric);
     ComponentDto component = ComponentTesting.newProjectDto("project-uuid");
