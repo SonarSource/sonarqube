@@ -19,15 +19,12 @@
  */
 package org.sonar.batch.bootstrapper;
 
-import org.sonar.home.log.LogListener;
-
 import com.google.common.collect.Maps;
+import java.util.Map;
 import org.junit.Test;
 
-import java.util.Map;
-
-import static org.mockito.Mockito.mock;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class LoggingConfigurationTest {
 
@@ -51,8 +48,8 @@ public class LoggingConfigurationTest {
 
   @Test
   public void test_log_listener_setter() {
-    LogListener listener = mock(LogListener.class);
-    assertThat(new LoggingConfiguration(null).setListener(listener).listener).isEqualTo(listener);
+    LogOutput listener = mock(LogOutput.class);
+    assertThat(new LoggingConfiguration(null).setLogOutput(listener).getLogOutput()).isEqualTo(listener);
   }
 
   @Test

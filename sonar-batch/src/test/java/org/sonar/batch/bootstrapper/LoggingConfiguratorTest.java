@@ -19,13 +19,6 @@
  */
 package org.sonar.batch.bootstrapper;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
-import org.sonar.home.log.LogListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -36,10 +29,15 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Test;
-import org.junit.Before;
 
 public class LoggingConfiguratorTest {
   private static final String DEFAULT_CLASSPATH_CONF = "/org/sonar/batch/bootstrapper/logback.xml";
@@ -57,17 +55,17 @@ public class LoggingConfiguratorTest {
     listener = new SimpleLogListener();
   }
 
-  private class SimpleLogListener implements LogListener {
+  private class SimpleLogListener implements LogOutput {
     String msg;
-    Level level;
+    LogOutput.Level level;
 
     @Override
-    public void log(String msg, Level level) {
+    public void log(String msg, LogOutput.Level level) {
       this.msg = msg;
       this.level = level;
     }
   }
-  
+
   @Test
   public void testWithFile() throws FileNotFoundException, IOException {
     InputStream is = this.getClass().getResourceAsStream(DEFAULT_CLASSPATH_CONF);
@@ -76,33 +74,33 @@ public class LoggingConfiguratorTest {
     OutputStream os = new FileOutputStream(testFile);
     IOUtils.copy(is, os);
     os.close();
-    
-    conf.setListener(listener);
+
+    conf.setLogOutput(listener);
     LoggingConfigurator.apply(conf, testFile);
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
     logger.info(TEST_STR);
 
     assertThat(listener.msg).endsWith(TEST_STR);
-    assertThat(listener.level).isEqualTo(LogListener.Level.INFO);
+    assertThat(listener.level).isEqualTo(LogOutput.Level.INFO);
   }
 
   @Test
   public void testCustomAppender() throws UnsupportedEncodingException {
-    conf.setListener(listener);
+    conf.setLogOutput(listener);
     LoggingConfigurator.apply(conf);
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
     logger.info(TEST_STR);
 
     assertThat(listener.msg).endsWith(TEST_STR);
-    assertThat(listener.level).isEqualTo(LogListener.Level.INFO);
+    assertThat(listener.level).isEqualTo(LogOutput.Level.INFO);
   }
 
   @Test
   public void testNoStdout() throws UnsupportedEncodingException {
     System.setOut(new PrintStream(out, false, StandardCharsets.UTF_8.name()));
-    conf.setListener(listener);
+    conf.setLogOutput(listener);
     LoggingConfigurator.apply(conf);
 
     Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -115,7 +113,7 @@ public class LoggingConfiguratorTest {
 
   @Test
   public void testFormatNoEffect() throws UnsupportedEncodingException {
-    conf.setListener(listener);
+    conf.setLogOutput(listener);
     conf.setFormat("%t");
 
     LoggingConfigurator.apply(conf);
@@ -130,7 +128,7 @@ public class LoggingConfiguratorTest {
   public void testSqlClasspath() throws UnsupportedEncodingException {
     String classpath = "/org/sonar/batch/bootstrapper/logback.xml";
 
-    conf.setListener(listener);
+    conf.setLogOutput(listener);
     conf.setShowSql(true);
 
     LoggingConfigurator.apply(conf, classpath);
@@ -156,7 +154,7 @@ public class LoggingConfiguratorTest {
   public void testNoSqlClasspath() throws UnsupportedEncodingException {
     String classpath = "/org/sonar/batch/bootstrapper/logback.xml";
 
-    conf.setListener(listener);
+    conf.setLogOutput(listener);
     conf.setShowSql(false);
 
     LoggingConfigurator.apply(conf, classpath);

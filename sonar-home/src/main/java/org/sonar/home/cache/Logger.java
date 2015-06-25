@@ -17,9 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.home.cache;
 
-@ParametersAreNonnullByDefault
-package org.sonar.home.log;
+public interface Logger {
 
-import javax.annotation.ParametersAreNonnullByDefault;
+  void debug(String msg);
 
+  void info(String msg);
+
+  void warn(String msg);
+
+  void error(String msg);
+
+  void error(String msg, Throwable t);
+
+}

@@ -17,15 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.home.log;
+package org.sonar.batch.bootstrapper;
 
-public interface Log {
-  void debug(String s);
+/**
+ * Allow to redirect batch logs to a custom output. By defaults logs are written to System.out
+ * @since 5.2
+ */
+public interface LogOutput {
 
-  void info(String s);
+  void log(String formattedMessage, Level level);
 
-  void warn(String s);
-
-  void error(String s, Throwable throwable);
-
+  enum Level {
+    ERROR, WARN, INFO, DEBUG, TRACE;
+  }
 }

@@ -19,18 +19,7 @@
  */
 package org.sonar.batch.mediumtest.log;
 
-import org.junit.BeforeClass;
-import org.junit.AfterClass;
-import org.sonar.home.log.LogListener;
-import org.sonar.home.log.LogListener.Level;
-import org.apache.commons.io.FileUtils;
-import org.junit.Test;
 import com.google.common.collect.ImmutableMap;
-import org.junit.After;
-import org.junit.Before;
-import org.sonar.batch.mediumtest.BatchMediumTester;
-import org.sonar.xoo.XooPlugin;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -39,11 +28,20 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.batch.bootstrapper.LogOutput;
+import org.sonar.batch.mediumtest.BatchMediumTester;
+import org.sonar.xoo.XooPlugin;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class LogListenerTest {
   @Rule
@@ -62,7 +60,7 @@ public class LogListenerTest {
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .setLogListener(new SimpleLogListener())
+    .setLogOutput(new SimpleLogListener())
     .build();
 
   private File baseDir;
@@ -112,7 +110,7 @@ public class LogListenerTest {
    *   Check that log message is not formatted, i.e. has no log level and timestamp.
    */
   private void assertMsgClean(String msg) {
-    for (Level l : Level.values()) {
+    for (LogOutput.Level l : LogOutput.Level.values()) {
       assertThat(msg).doesNotContain(l.toString());
     }
 
@@ -168,7 +166,7 @@ public class LogListenerTest {
     }
   }
 
-  private class SimpleLogListener implements LogListener {
+  private class SimpleLogListener implements LogOutput {
     @Override
     public void log(String msg, Level level) {
       logOutput.add(new LogEvent(msg, level));
@@ -177,9 +175,9 @@ public class LogListenerTest {
 
   private static class LogEvent {
     String msg;
-    Level level;
+    LogOutput.Level level;
 
-    LogEvent(String msg, Level level) {
+    LogEvent(String msg, LogOutput.Level level) {
       this.msg = msg;
       this.level = level;
     }

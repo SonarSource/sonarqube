@@ -19,13 +19,10 @@
  */
 package org.sonar.home.cache;
 
-import org.sonar.home.log.Log;
-
-import javax.annotation.CheckForNull;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import javax.annotation.CheckForNull;
 
 /**
  * This class is responsible for managing Sonar batch file cache. You can put file into cache and
@@ -39,18 +36,18 @@ public class FileCache {
 
   private final File dir, tmpDir;
   private final FileHashes hashes;
-  private final Log log;
+  private final Logger logger;
 
-  FileCache(File dir, Log log, FileHashes fileHashes) {
+  FileCache(File dir, FileHashes fileHashes, Logger logger) {
     this.hashes = fileHashes;
-    this.log = log;
-    this.dir = createDir(dir, log, "user cache");
-    log.info(String.format("User cache: %s", dir.getAbsolutePath()));
-    this.tmpDir = createDir(new File(dir, "_tmp"), log, "temp dir");
+    this.logger = logger;
+    this.dir = createDir(dir, "user cache");
+    logger.info(String.format("User cache: %s", dir.getAbsolutePath()));
+    this.tmpDir = createDir(new File(dir, "_tmp"), "temp dir");
   }
 
-  public static FileCache create(File dir, Log log) {
-    return new FileCache(dir, log, new FileHashes());
+  public static FileCache create(File dir, Logger logger) {
+    return new FileCache(dir, new FileHashes(), logger);
   }
 
   public File getDir() {
@@ -67,7 +64,7 @@ public class FileCache {
     if (cachedFile.exists()) {
       return cachedFile;
     }
-    log.debug(String.format("No file found in the cache with name %s and hash %s", filename, hash));
+    logger.debug(String.format("No file found in the cache with name %s and hash %s", filename, hash));
     return null;
   }
 
@@ -105,8 +102,8 @@ public class FileCache {
     boolean rename = sourceFile.renameTo(targetFile);
     // Check if the file was cached by another process during download
     if (!rename && !targetFile.exists()) {
-      log.warn(String.format("Unable to rename %s to %s", sourceFile.getAbsolutePath(), targetFile.getAbsolutePath()));
-      log.warn("A copy/delete will be tempted but with no guarantee of atomicity");
+      logger.warn(String.format("Unable to rename %s to %s", sourceFile.getAbsolutePath(), targetFile.getAbsolutePath()));
+      logger.warn("A copy/delete will be tempted but with no guarantee of atomicity");
       try {
         Files.move(sourceFile.toPath(), targetFile.toPath());
       } catch (IOException e) {
@@ -147,9 +144,9 @@ public class FileCache {
     throw new IllegalStateException("Failed to create directory in " + tmpDir);
   }
 
-  private File createDir(File dir, Log log, String debugTitle) {
+  private File createDir(File dir, String debugTitle) {
     if (!dir.isDirectory() || !dir.exists()) {
-      log.debug("Create : " + dir.getAbsolutePath());
+      logger.debug("Create : " + dir.getAbsolutePath());
       try {
         Files.createDirectories(dir.toPath());
       } catch (IOException e) {

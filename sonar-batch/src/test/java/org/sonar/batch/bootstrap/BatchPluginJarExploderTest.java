@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.bootstrap;
 
+import java.io.File;
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -28,9 +30,6 @@ import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.home.cache.FileCache;
 import org.sonar.home.cache.FileCacheBuilder;
-
-import java.io.File;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,7 +44,7 @@ public class BatchPluginJarExploderTest {
   @Before
   public void setUp() throws IOException {
     userHome = temp.newFolder();
-    FileCache fileCache = new FileCacheBuilder().setUserHome(userHome).build();
+    FileCache fileCache = new FileCacheBuilder(new Slf4jLogger()).setUserHome(userHome).build();
     underTest = new BatchPluginJarExploder(fileCache);
   }
 

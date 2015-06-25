@@ -19,35 +19,29 @@
  */
 package org.sonar.home.cache;
 
-import org.sonar.home.log.StandardLog;
-
-import org.sonar.home.log.Log;
-
-import javax.annotation.Nullable;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 
 public class PersistentCacheBuilder {
   private static final long DEFAULT_EXPIRE_DURATION = TimeUnit.MILLISECONDS.convert(1L, TimeUnit.DAYS);
   private static final String DIR_NAME = "ws_cache";
 
   private boolean forceUpdate = false;
-  private Path cachePath = null;
-  private Log log = new StandardLog();
+  private Path cachePath;
+  private final Logger logger;
+
+  public PersistentCacheBuilder(Logger logger) {
+    this.logger = logger;
+  }
 
   public PersistentCache build() {
     if (cachePath == null) {
       setSonarHome(findHome());
     }
 
-    return new PersistentCache(cachePath, DEFAULT_EXPIRE_DURATION, log, forceUpdate);
-  }
-
-  public PersistentCacheBuilder setLog(Log log) {
-    this.log = log;
-    return this;
+    return new PersistentCache(cachePath, DEFAULT_EXPIRE_DURATION, forceUpdate, logger);
   }
 
   public PersistentCacheBuilder setSonarHome(@Nullable Path p) {

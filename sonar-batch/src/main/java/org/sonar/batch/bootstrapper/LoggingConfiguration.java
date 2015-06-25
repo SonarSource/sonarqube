@@ -19,15 +19,11 @@
  */
 package org.sonar.batch.bootstrapper;
 
-import org.sonar.home.log.LogListener;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
-import org.apache.commons.lang.StringUtils;
-
-import javax.annotation.Nullable;
-
 import java.util.Map;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @since 2.14
@@ -47,8 +43,8 @@ public final class LoggingConfiguration {
   @VisibleForTesting
   static final String FORMAT_MAVEN = "[%level] [%d{HH:mm:ss.SSS}] %msg%n";
 
-  Map<String, String> substitutionVariables = Maps.newHashMap();
-  LogListener listener = null;
+  private Map<String, String> substitutionVariables = Maps.newHashMap();
+  private LogOutput logOutput = null;
 
   public LoggingConfiguration() {
     this(null);
@@ -69,8 +65,8 @@ public final class LoggingConfiguration {
     return this;
   }
 
-  public LoggingConfiguration setListener(@Nullable LogListener listener) {
-    this.listener = listener;
+  public LoggingConfiguration setLogOutput(@Nullable LogOutput listener) {
+    this.logOutput = listener;
     return this;
   }
 
@@ -117,5 +113,13 @@ public final class LoggingConfiguration {
   @VisibleForTesting
   String getSubstitutionVariable(String key) {
     return substitutionVariables.get(key);
+  }
+
+  Map<String, String> getSubstitutionVariables() {
+    return substitutionVariables;
+  }
+
+  LogOutput getLogOutput() {
+    return logOutput;
   }
 }

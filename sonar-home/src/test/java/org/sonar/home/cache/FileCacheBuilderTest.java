@@ -19,13 +19,13 @@
  */
 package org.sonar.home.cache;
 
+import java.io.File;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.io.File;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class FileCacheBuilderTest {
   @Rule
@@ -34,7 +34,7 @@ public class FileCacheBuilderTest {
   @Test
   public void setUserHome() throws Exception {
     File userHome = temp.newFolder();
-    FileCache cache = new FileCacheBuilder().setUserHome(userHome).build();
+    FileCache cache = new FileCacheBuilder(mock(Logger.class)).setUserHome(userHome).build();
 
     assertThat(cache.getDir()).isDirectory().exists();
     assertThat(cache.getDir().getName()).isEqualTo("cache");
@@ -43,7 +43,7 @@ public class FileCacheBuilderTest {
 
   @Test
   public void user_home_property_can_be_null() {
-    FileCache cache = new FileCacheBuilder().setUserHome((String) null).build();
+    FileCache cache = new FileCacheBuilder(mock(Logger.class)).setUserHome((String) null).build();
 
     // does not fail. It uses default path or env variable
     assertThat(cache.getDir()).isDirectory().exists();
@@ -52,7 +52,7 @@ public class FileCacheBuilderTest {
 
   @Test
   public void use_default_path_or_env_variable() {
-    FileCache cache = new FileCacheBuilder().build();
+    FileCache cache = new FileCacheBuilder(mock(Logger.class)).build();
 
     assertThat(cache.getDir()).isDirectory().exists();
     assertThat(cache.getDir().getName()).isEqualTo("cache");

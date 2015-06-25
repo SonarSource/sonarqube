@@ -17,46 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.home.log;
+package org.sonar.batch.bootstrap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Slf4jLog implements Log {
+public class Slf4jLogger implements org.sonar.home.cache.Logger {
 
-  private final Logger logger;
+  private static final Logger LOG = LoggerFactory.getLogger(Slf4jLogger.class);
 
-  public Slf4jLog(Logger logger) {
-    this.logger = logger;
-  }
-
-  public Slf4jLog(Class loggerClass) {
-    this.logger = LoggerFactory.getLogger(loggerClass);
-  }
-
-  public boolean isDebugEnabled() {
-    return logger.isDebugEnabled();
+  @Override
+  public void debug(String msg) {
+    LOG.debug(msg);
   }
 
   @Override
-  public void debug(String s) {
-    logger.debug(s);
+  public void info(String msg) {
+    LOG.info(msg);
   }
 
   @Override
-  public void info(String s) {
-    logger.info(s);
+  public void warn(String msg) {
+    LOG.warn(msg);
   }
 
   @Override
-  public void warn(String s) {
-    logger.warn(s);
+  public void error(String msg, Throwable t) {
+    LOG.error(msg, t);
   }
 
   @Override
-  public void error(String s, Throwable throwable) {
-    logger.error(s, throwable);
+  public void error(String msg) {
+    LOG.error(msg);
   }
-
 
 }

@@ -19,21 +19,18 @@
  */
 package org.sonar.home.cache;
 
-import org.apache.commons.io.FileUtils;
-
-import org.sonar.home.log.Slf4jLog;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
-
 import java.io.File;
 import java.util.concurrent.Callable;
-
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.mock;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PersistentCacheTest {
   private final static String URI = "key1";
@@ -43,11 +40,9 @@ public class PersistentCacheTest {
   @Rule
   public TemporaryFolder tmp = new TemporaryFolder();
 
-  private Slf4jLog log = new Slf4jLog(FileCacheTest.class);
-
   @Before
   public void setUp() {
-    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, log, false);
+    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, false, mock(Logger.class));
   }
 
   @Test
@@ -85,20 +80,20 @@ public class PersistentCacheTest {
 
   @Test
   public void testForceUpdate() throws Exception {
-    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, log, true);
+    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, true, mock(Logger.class));
 
     assertCacheHit(false);
     assertCacheHit(false);
     assertCacheHit(false);
 
     // with forceUpdate, it should still have cached the last call
-    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, log, false);
+    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, false, mock(Logger.class));
     assertCacheHit(true);
   }
 
   @Test
   public void testReconfigure() throws Exception {
-    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, log, true);
+    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, true, mock(Logger.class));
     assertCacheHit(false);
     assertCacheHit(false);
 
@@ -116,7 +111,7 @@ public class PersistentCacheTest {
   @Test
   public void testExpiration() throws Exception {
     // negative time to make sure it is expired on the second call
-    cache = new PersistentCache(tmp.getRoot().toPath(), -100, log, false);
+    cache = new PersistentCache(tmp.getRoot().toPath(), -100, false, mock(Logger.class));
     assertCacheHit(false);
     assertCacheHit(false);
   }

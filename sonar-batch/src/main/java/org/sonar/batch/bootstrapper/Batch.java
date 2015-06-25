@@ -19,16 +19,13 @@
  */
 package org.sonar.batch.bootstrapper;
 
-import org.sonar.home.log.LogListener;
-
-import org.picocontainer.annotations.Nullable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.sonar.batch.bootstrap.GlobalContainer;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.picocontainer.annotations.Nullable;
+import org.sonar.batch.bootstrap.GlobalContainer;
 
 /**
  * Entry point for sonar-runner 2.1.
@@ -55,8 +52,8 @@ public final class Batch {
     if (builder.isEnableLoggingConfiguration()) {
       loggingConfig = new LoggingConfiguration(builder.environment).setProperties(bootstrapProperties);
 
-      if (builder.listener != null) {
-        loggingConfig.setListener(builder.listener);
+      if (builder.logOutput != null) {
+        loggingConfig.setLogOutput(builder.logOutput);
       }
     }
   }
@@ -131,7 +128,7 @@ public final class Batch {
     private EnvironmentInformation environment;
     private List<Object> components = Lists.newArrayList();
     private boolean enableLoggingConfiguration = true;
-    private LogListener listener;
+    private LogOutput logOutput;
 
     private Builder() {
     }
@@ -146,8 +143,8 @@ public final class Batch {
       return this;
     }
 
-    public Builder setLogListener(@Nullable LogListener listener) {
-      this.listener = listener;
+    public Builder setLogOutput(@Nullable LogOutput logOutput) {
+      this.logOutput = logOutput;
       return this;
     }
 

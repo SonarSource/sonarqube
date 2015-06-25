@@ -19,41 +19,39 @@
  */
 package org.sonar.batch.bootstrapper;
 
-import org.sonar.home.log.LogListener;
-
 import ch.qos.logback.classic.Level;
-import ch.qos.logback.core.UnsynchronizedAppenderBase;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.UnsynchronizedAppenderBase;
 
 public class LogCallbackAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
-  protected LogListener target;
+  protected LogOutput target;
 
-  public LogCallbackAppender(LogListener target) {
+  public LogCallbackAppender(LogOutput target) {
     setTarget(target);
   }
 
-  public void setTarget(LogListener target) {
+  public void setTarget(LogOutput target) {
     this.target = target;
   }
 
   @Override
   protected void append(ILoggingEvent event) {
-    target.log(event.getMessage(), translate(event.getLevel()));
+    target.log(event.getFormattedMessage(), translate(event.getLevel()));
   }
 
-  private static LogListener.Level translate(Level level) {
+  private static LogOutput.Level translate(Level level) {
     switch (level.toInt()) {
       case Level.ERROR_INT:
-        return LogListener.Level.ERROR;
+        return LogOutput.Level.ERROR;
       case Level.WARN_INT:
-        return LogListener.Level.WARN;
+        return LogOutput.Level.WARN;
       case Level.INFO_INT:
-        return LogListener.Level.INFO;
+        return LogOutput.Level.INFO;
       case Level.DEBUG_INT:
       default:
-        return LogListener.Level.DEBUG;
+        return LogOutput.Level.DEBUG;
       case Level.TRACE_INT:
-        return LogListener.Level.TRACE;
+        return LogOutput.Level.TRACE;
     }
   }
 }

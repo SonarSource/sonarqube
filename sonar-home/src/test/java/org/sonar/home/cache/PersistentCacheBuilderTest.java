@@ -19,16 +19,15 @@
  */
 package org.sonar.home.cache;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assume.*;
-
 import java.nio.file.Files;
-
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
 import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
+import static org.mockito.Mockito.mock;
 
 public class PersistentCacheBuilderTest {
   @Rule
@@ -36,14 +35,14 @@ public class PersistentCacheBuilderTest {
 
   @Test
   public void user_home_property_can_be_null() {
-    PersistentCache cache = new PersistentCacheBuilder().setSonarHome(null).build();
+    PersistentCache cache = new PersistentCacheBuilder(mock(Logger.class)).setSonarHome(null).build();
     assertTrue(Files.isDirectory(cache.getBaseDirectory()));
     assertThat(cache.getBaseDirectory().getFileName().toString()).isEqualTo("ws_cache");
   }
 
   @Test
   public void set_user_home() {
-    PersistentCache cache = new PersistentCacheBuilder().setSonarHome(temp.getRoot().toPath()).build();
+    PersistentCache cache = new PersistentCacheBuilder(mock(Logger.class)).setSonarHome(temp.getRoot().toPath()).build();
 
     assertThat(cache.getBaseDirectory().getParent().toString()).isEqualTo(temp.getRoot().toPath().toString());
     assertTrue(Files.isDirectory(cache.getBaseDirectory()));
@@ -52,10 +51,10 @@ public class PersistentCacheBuilderTest {
   @Test
   public void read_system_env() {
     assumeTrue(System.getenv("SONAR_USER_HOME") == null);
-    
+
     System.setProperty("user.home", temp.getRoot().getAbsolutePath());
 
-    PersistentCache cache = new PersistentCacheBuilder().build();
+    PersistentCache cache = new PersistentCacheBuilder(mock(Logger.class)).build();
     assertTrue(Files.isDirectory(cache.getBaseDirectory()));
     assertThat(cache.getBaseDirectory().getFileName().toString()).isEqualTo("ws_cache");
 

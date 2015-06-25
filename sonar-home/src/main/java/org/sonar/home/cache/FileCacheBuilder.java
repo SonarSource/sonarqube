@@ -19,25 +19,20 @@
  */
 package org.sonar.home.cache;
 
-import org.sonar.home.log.Log;
-import org.sonar.home.log.StandardLog;
-
-import javax.annotation.Nullable;
-
 import java.io.File;
+import javax.annotation.Nullable;
 
 public class FileCacheBuilder {
 
   private File userHome;
-  private Log log = new StandardLog();
+  private Logger logger;
+
+  public FileCacheBuilder(Logger logger) {
+    this.logger = logger;
+  }
 
   public FileCacheBuilder setUserHome(File d) {
     this.userHome = d;
-    return this;
-  }
-
-  public FileCacheBuilder setLog(Log log) {
-    this.log = log;
     return this;
   }
 
@@ -56,6 +51,6 @@ public class FileCacheBuilder {
       userHome = new File(path);
     }
     File cacheDir = new File(userHome, "cache");
-    return FileCache.create(cacheDir, log);
+    return FileCache.create(cacheDir, logger);
   }
 }

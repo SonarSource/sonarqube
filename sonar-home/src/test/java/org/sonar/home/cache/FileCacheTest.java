@@ -19,15 +19,13 @@
  */
 package org.sonar.home.cache;
 
+import java.io.File;
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.home.log.Slf4jLog;
-
-import java.io.File;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -41,17 +39,15 @@ public class FileCacheTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private Slf4jLog log = new Slf4jLog(FileCacheTest.class);
-
   @Test
   public void not_in_cache() throws IOException {
-    FileCache cache = FileCache.create(tempFolder.newFolder(), log);
+    FileCache cache = FileCache.create(tempFolder.newFolder(), mock(Logger.class));
     assertThat(cache.get("sonar-foo-plugin-1.5.jar", "ABCDE")).isNull();
   }
 
   @Test
   public void found_in_cache() throws IOException {
-    FileCache cache = FileCache.create(tempFolder.newFolder(), log);
+    FileCache cache = FileCache.create(tempFolder.newFolder(), mock(Logger.class));
 
     // populate the cache. Assume that hash is correct.
     File cachedFile = new File(new File(cache.getDir(), "ABCDE"), "sonar-foo-plugin-1.5.jar");
@@ -63,7 +59,7 @@ public class FileCacheTest {
   @Test
   public void download_and_add_to_cache() throws IOException {
     FileHashes hashes = mock(FileHashes.class);
-    FileCache cache = new FileCache(tempFolder.newFolder(), log, hashes);
+    FileCache cache = new FileCache(tempFolder.newFolder(), hashes, mock(Logger.class));
     when(hashes.of(any(File.class))).thenReturn("ABCDE");
 
     FileCache.Downloader downloader = new FileCache.Downloader() {
@@ -84,7 +80,7 @@ public class FileCacheTest {
     thrown.expectMessage("INVALID HASH");
 
     FileHashes hashes = mock(FileHashes.class);
-    FileCache cache = new FileCache(tempFolder.newFolder(), log, hashes);
+    FileCache cache = new FileCache(tempFolder.newFolder(), hashes, mock(Logger.class));
     when(hashes.of(any(File.class))).thenReturn("VWXYZ");
 
     FileCache.Downloader downloader = new FileCache.Downloader() {
@@ -99,7 +95,7 @@ public class FileCacheTest {
   public void concurrent_download() throws IOException {
     FileHashes hashes = mock(FileHashes.class);
     when(hashes.of(any(File.class))).thenReturn("ABCDE");
-    final FileCache cache = new FileCache(tempFolder.newFolder(), log, hashes);
+    final FileCache cache = new FileCache(tempFolder.newFolder(), hashes, mock(Logger.class));
 
     FileCache.Downloader downloader = new FileCache.Downloader() {
       public void download(String filename, File toFile) throws IOException {

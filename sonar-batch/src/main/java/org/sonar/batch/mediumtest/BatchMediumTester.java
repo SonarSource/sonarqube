@@ -19,31 +19,8 @@
  */
 package org.sonar.batch.mediumtest;
 
-import org.sonar.home.log.LogListener;
-
 import com.google.common.base.Function;
 import com.google.common.io.Files;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.SonarPlugin;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.batch.debt.internal.DefaultDebtModel;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Metric;
-import org.sonar.batch.bootstrap.AnalysisProperties;
-import org.sonar.batch.bootstrapper.Batch;
-import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
-import org.sonar.batch.protocol.input.ActiveRule;
-import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
-import org.sonar.batch.protocol.input.FileData;
-import org.sonar.batch.protocol.input.GlobalRepositories;
-import org.sonar.batch.protocol.input.ProjectRepositories;
-import org.sonar.batch.report.ReportPublisher;
-import org.sonar.batch.repository.GlobalRepositoriesLoader;
-import org.sonar.batch.repository.ProjectRepositoriesLoader;
-import org.sonar.batch.repository.ServerIssuesLoader;
-import org.sonar.core.component.ComponentKeys;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
@@ -55,6 +32,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.SonarPlugin;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.batch.debt.internal.DefaultDebtModel;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Metric;
+import org.sonar.batch.bootstrap.AnalysisProperties;
+import org.sonar.batch.bootstrapper.Batch;
+import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.batch.bootstrapper.LogOutput;
+import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
+import org.sonar.batch.protocol.input.ActiveRule;
+import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
+import org.sonar.batch.protocol.input.FileData;
+import org.sonar.batch.protocol.input.GlobalRepositories;
+import org.sonar.batch.protocol.input.ProjectRepositories;
+import org.sonar.batch.report.ReportPublisher;
+import org.sonar.batch.repository.GlobalRepositoriesLoader;
+import org.sonar.batch.repository.ProjectRepositoriesLoader;
+import org.sonar.batch.repository.ServerIssuesLoader;
+import org.sonar.core.component.ComponentKeys;
 
 /**
  * Main utility class for writing batch medium tests.
@@ -80,14 +78,14 @@ public class BatchMediumTester {
     private final FakeServerIssuesLoader serverIssues = new FakeServerIssuesLoader();
     private final FakeServerLineHashesLoader serverLineHashes = new FakeServerLineHashesLoader();
     private final Map<String, String> bootstrapProperties = new HashMap<>();
-    private LogListener logListener = null; 
+    private LogOutput logOutput = null;
 
     public BatchMediumTester build() {
       return new BatchMediumTester(this);
     }
-    
-    public BatchMediumTesterBuilder setLogListener(LogListener listener) {
-      this.logListener = listener;
+
+    public BatchMediumTesterBuilder setLogOutput(LogOutput logOutput) {
+      this.logOutput = logOutput;
       return this;
     }
 
@@ -175,7 +173,7 @@ public class BatchMediumTester {
         builder.serverLineHashes,
         new DefaultDebtModel())
       .setBootstrapProperties(builder.bootstrapProperties)
-      .setLogListener(builder.logListener)
+      .setLogOutput(builder.logOutput)
       .build();
   }
 

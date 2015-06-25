@@ -19,12 +19,6 @@
  */
 package org.sonar.home.cache;
 
-import org.sonar.home.log.Log;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
@@ -39,10 +33,16 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.Callable;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-import static java.nio.file.StandardOpenOption.*;
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.nio.file.StandardOpenOption.WRITE;
 
 public class PersistentCache {
+
   private static final Charset ENCODING = StandardCharsets.UTF_8;
   private static final String DIGEST_ALGO = "MD5";
   private static final String LOCK_FNAME = ".lock";
@@ -51,23 +51,23 @@ public class PersistentCache {
 
   // eviction strategy is to expire entries after modification once a time duration has elapsed
   private final long defaultDurationToExpireMs;
-  private final Log log;
   private boolean forceUpdate;
+  private final Logger logger;
 
-  public PersistentCache(Path baseDir, long defaultDurationToExpireMs, Log log, boolean forceUpdate) {
+  public PersistentCache(Path baseDir, long defaultDurationToExpireMs, boolean forceUpdate, Logger logger) {
     this.baseDir = baseDir;
     this.defaultDurationToExpireMs = defaultDurationToExpireMs;
-    this.log = log;
+    this.logger = logger;
 
     reconfigure(forceUpdate);
-    log.debug("cache: " + baseDir + ", default expiration time (ms): " + defaultDurationToExpireMs);
+    logger.debug("cache: " + baseDir + ", default expiration time (ms): " + defaultDurationToExpireMs);
   }
 
   public void reconfigure(boolean forceUpdate) {
     this.forceUpdate = forceUpdate;
 
     if (forceUpdate) {
-      log.debug("cache: forcing update");
+      logger.debug("cache: forcing update");
     }
 
     try {
@@ -115,13 +115,13 @@ public class PersistentCache {
         byte[] cached = getCache(key);
 
         if (cached != null) {
-          log.debug("cache hit for " + obj + " -> " + key);
+          logger.debug("cache hit for " + obj + " -> " + key);
           return cached;
         }
 
-        log.debug("cache miss for " + obj + " -> " + key);
+        logger.debug("cache miss for " + obj + " -> " + key);
       } else {
-        log.debug("cache force update for " + obj + " -> " + key);
+        logger.debug("cache force update for " + obj + " -> " + key);
       }
 
       if (valueLoader != null) {
@@ -142,12 +142,12 @@ public class PersistentCache {
    * Deletes all cache entries
    */
   public synchronized void clear() {
-    log.info("cache: clearing");
+    logger.info("cache: clearing");
     try {
       lock();
       deleteCacheEntries(createClearFilter());
     } catch (IOException e) {
-      log.error("Error clearing cache", e);
+      logger.error("Error clearing cache", e);
     } finally {
       unlock();
     }
@@ -157,12 +157,12 @@ public class PersistentCache {
    * Deletes cache entries that are no longer valid according to the default expiration time period.
    */
   public synchronized void clean() {
-    log.info("cache: cleaning");
+    logger.info("cache: cleaning");
     try {
       lock();
       deleteCacheEntries(createCleanFilter());
     } catch (IOException e) {
-      log.error("Error cleaning cache", e);
+      logger.error("Error cleaning cache", e);
     } finally {
       unlock();
     }
@@ -183,21 +183,21 @@ public class PersistentCache {
       try {
         lock.release();
       } catch (IOException e) {
-        log.error("Error releasing lock", e);
+        logger.error("Error releasing lock", e);
       }
     }
     if (lock_fc != null) {
       try {
         lock_fc.close();
       } catch (IOException e) {
-        log.error("Error closing file channel", e);
+        logger.error("Error closing file channel", e);
       }
     }
     if (lock_raf != null) {
       try {
         lock_raf.close();
       } catch (IOException e) {
-        log.error("Error closing file", e);
+        logger.error("Error closing file", e);
       }
     }
 
@@ -222,7 +222,7 @@ public class PersistentCache {
         try {
           Files.delete(p);
         } catch (Exception e) {
-          log.error("Error deleting " + p, e);
+          logger.error("Error deleting " + p, e);
         }
       }
     }
@@ -271,7 +271,7 @@ public class PersistentCache {
     }
 
     if (isCacheEntryExpired(cacheEntryPath, durationToExpireMs)) {
-      log.debug("cache: expiring entry");
+      logger.debug("cache: expiring entry");
       Files.delete(cacheEntryPath);
       return false;
     }

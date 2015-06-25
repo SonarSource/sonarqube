@@ -19,52 +19,49 @@
  */
 package org.sonar.batch.bootstrapper;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-
-import static org.mockito.Mockito.reset;
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import org.junit.Test;
-import org.sonar.home.log.LogListener;
 import org.junit.Before;
+import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class LogCallbackAppenderTest {
-  private LogListener listener;
+  private LogOutput listener;
   private LogCallbackAppender appender;
   private ILoggingEvent event;
 
   @Before
   public void setUp() {
-    listener = mock(LogListener.class);
+    listener = mock(LogOutput.class);
     appender = new LogCallbackAppender(listener);
   }
 
-  
   @Test
   public void testLevelTranslation() {
-    testMessage("test", Level.INFO, LogListener.Level.INFO);
-    testMessage("test", Level.DEBUG, LogListener.Level.DEBUG);
-    testMessage("test", Level.ERROR, LogListener.Level.ERROR);
-    testMessage("test", Level.TRACE, LogListener.Level.TRACE);
-    testMessage("test", Level.WARN, LogListener.Level.WARN);
-    
+    testMessage("test", Level.INFO, LogOutput.Level.INFO);
+    testMessage("test", Level.DEBUG, LogOutput.Level.DEBUG);
+    testMessage("test", Level.ERROR, LogOutput.Level.ERROR);
+    testMessage("test", Level.TRACE, LogOutput.Level.TRACE);
+    testMessage("test", Level.WARN, LogOutput.Level.WARN);
+
     // this should never happen
-    testMessage("test", Level.OFF, LogListener.Level.DEBUG);
+    testMessage("test", Level.OFF, LogOutput.Level.DEBUG);
   }
-  
-  private void testMessage(String msg, Level level, LogListener.Level translatedLevel) {
+
+  private void testMessage(String msg, Level level, LogOutput.Level translatedLevel) {
     reset(listener);
     event = mock(ILoggingEvent.class);
-    when(event.getMessage()).thenReturn(msg);
+    when(event.getFormattedMessage()).thenReturn(msg);
     when(event.getLevel()).thenReturn(level);
-    
+
     appender.append(event);
 
-    verify(event).getMessage();
+    verify(event).getFormattedMessage();
     verify(event).getLevel();
     verify(listener).log(msg, translatedLevel);
     verifyNoMoreInteractions(event, listener);
@@ -72,7 +69,7 @@ public class LogCallbackAppenderTest {
 
   @Test
   public void testChangeTarget() {
-    listener = mock(LogListener.class);
+    listener = mock(LogOutput.class);
     appender.setTarget(listener);
     testLevelTranslation();
   }

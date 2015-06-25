@@ -19,23 +19,19 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.home.log.Slf4jLog;
-import org.sonar.home.cache.PersistentCacheBuilder;
-import org.picocontainer.injectors.ProviderAdapter;
-
 import java.nio.file.Paths;
 import java.util.Map;
-
+import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.home.cache.PersistentCache;
+import org.sonar.home.cache.PersistentCacheBuilder;
 
 public class PersistentCacheProvider extends ProviderAdapter {
   private PersistentCache cache;
 
   public PersistentCache provide(UserProperties props) {
     if (cache == null) {
-      PersistentCacheBuilder builder = new PersistentCacheBuilder();
+      PersistentCacheBuilder builder = new PersistentCacheBuilder(new Slf4jLogger());
 
-      builder.setLog(new Slf4jLog(PersistentCache.class));
       builder.forceUpdate(isForceUpdate(props.properties()));
 
       String home = props.property("sonar.userHome");
