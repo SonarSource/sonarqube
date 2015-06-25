@@ -237,6 +237,9 @@ module.exports = (grunt) ->
           '<%= BUILD_PATH %>/js/apps/maintenance/templates.js': [
             '<%= SOURCE_PATH %>/js/apps/maintenance/templates/**/*.hbs'
           ]
+          '<%= BUILD_PATH %>/js/apps/account/templates.js': [
+            '<%= SOURCE_PATH %>/js/apps/account/templates/**/*.hbs'
+          ]
 
 
     clean:

@@ -1,4 +1,6 @@
-define(function () {
+define([
+  './change-password-view'
+], function (ChangePasswordView) {
 
   var $ = jQuery;
   var shouldShowAvatars = window.SS && window.SS.lf && window.SS.lf.enableGravatar;
@@ -21,6 +23,11 @@ define(function () {
         e.preventDefault();
         $(e.currentTarget).hide();
         showExtraFavorites();
+      });
+
+      $('#account-change-password-trigger').on('click', function (e) {
+        e.preventDefault();
+        new ChangePasswordView().render();
       });
     }
   };

@@ -33,8 +33,7 @@
 
       <% if User.editable_password? %>
         <div class="big-spacer-top text-center">
-          <button id="account-change-password-trigger" class="open-modal"
-                  href="<%= url_for :action => 'change_password_form' %>">
+          <button id="account-change-password-trigger">
             <i class="icon-lock"></i> <%= message('my_profile.password.title') -%>
           </button>
         </div>
