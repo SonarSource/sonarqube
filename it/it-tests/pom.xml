@@ -19,6 +19,18 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.codehaus.sonar.plugins</groupId>
+      <artifactId>sonar-xoo-plugin</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-application</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.sonarsource.it</groupId>
       <artifactId>it-plugins</artifactId>
       <version>${project.version}</version>

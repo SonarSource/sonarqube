@@ -62,8 +62,8 @@ public class QualityGateNotificationTest {
       Selenese selenese = Selenese
         .builder()
         .setHtmlTestsInClasspath("notifications",
-          "/selenium/qualitygate/notifications/email_configuration.html",
-          "/selenium/qualitygate/notifications/activate_notification_channels.html").build();
+          "/qualitygate/notifications/email_configuration.html",
+          "/qualitygate/notifications/activate_notification_channels.html").build();
       orchestrator.executeSelenese(selenese);
 
       // Create quality gate with conditions on variations

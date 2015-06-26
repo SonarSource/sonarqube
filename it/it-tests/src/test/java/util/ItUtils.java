@@ -52,4 +52,18 @@ public class ItUtils {
     }
     return dir;
   }
+
+  /**
+   * Locate the artifact of a fake plugin stored in it/it-plugins.
+   *
+   * @param dirName the directory of it/it-plugins, for example "sonar-fake-plugin".
+   *                     It assumes that version is 1.0-SNAPSHOT
+   */
+  public static FileLocation pluginArtifact(String dirName) {
+    File file = new File(HOME_DIR.get(), "it/it-plugins/" + dirName + "/target/" + dirName + "-1.0-SNAPSHOT.jar");
+    if (!file.exists()) {
+      throw new IllegalStateException(String.format("Plugin [%s]for integration tests is not built. File not found:%s", dirName, file));
+    }
+    return FileLocation.of(file);
+  }
 }

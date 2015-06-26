@@ -25,5 +25,11 @@
     </plugins>
   </build>
 
+  <properties>
+    <apiVersion>${project.parent.version}</apiVersion>
+  </properties>
 
+  <modules>
+    <module>sonar-fake-plugin</module>
+  </modules>
 </project>
