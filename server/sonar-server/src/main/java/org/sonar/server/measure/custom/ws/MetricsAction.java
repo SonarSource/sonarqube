@@ -31,12 +31,11 @@ import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.metric.ws.MetricJsonWriter;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValidator.checkPermissions;
+import static org.sonar.server.measure.custom.ws.ProjectFinder.searchProject;
 
 public class MetricsAction implements CustomMeasuresWsAction {
   public static final String ACTION = "metrics";
@@ -76,7 +75,7 @@ public class MetricsAction implements CustomMeasuresWsAction {
     DbSession dbSession = dbClient.openSession(false);
 
     try {
-      ComponentDto project = searchProject(dbSession, request);
+      ComponentDto project = searchProject(dbSession, dbClient, request);
       checkPermissions(userSession, project);
       List<MetricDto> metrics = searchMetrics(dbSession, project);
 
@@ -86,7 +85,7 @@ public class MetricsAction implements CustomMeasuresWsAction {
     }
   }
 
-  private void writeResponse(JsonWriter json, List<MetricDto> metrics) {
+  private static void writeResponse(JsonWriter json, List<MetricDto> metrics) {
     json.beginObject();
     MetricJsonWriter.write(json, metrics, MetricJsonWriter.ALL_FIELDS);
     json.endObject();
@@ -95,27 +94,5 @@ public class MetricsAction implements CustomMeasuresWsAction {
 
   private List<MetricDto> searchMetrics(DbSession dbSession, ComponentDto project) {
     return dbClient.metricDao().selectAvailableCustomMetricsByComponentUuid(dbSession, project.uuid());
-  }
-
-  private ComponentDto searchProject(DbSession dbSession, Request request) {
-    String projectUuid = request.param(PARAM_PROJECT_ID);
-    String projectKey = request.param(PARAM_PROJECT_KEY);
-    checkArgument(projectUuid != null ^ projectKey != null, "The project key or the project id must be provided, not both.");
-
-    if (projectUuid != null) {
-      ComponentDto project = dbClient.componentDao().selectNullableByUuid(dbSession, projectUuid);
-      if (project == null) {
-        throw new NotFoundException(String.format("Project id '%s' not found", projectUuid));
-      }
-
-      return project;
-    }
-
-    ComponentDto project = dbClient.componentDao().selectNullableByKey(dbSession, projectKey);
-    if (project == null) {
-      throw new NotFoundException(String.format("Project key '%s' not found", projectKey));
-    }
-
-    return project;
   }
 }

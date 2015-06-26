@@ -33,7 +33,6 @@ import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
@@ -42,6 +41,7 @@ import org.sonar.server.user.index.UserIndex;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValidator.checkPermissions;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValueDescription.measureValueDescription;
+import static org.sonar.server.measure.custom.ws.ProjectFinder.searchProject;
 
 public class CreateAction implements CustomMeasuresWsAction {
   public static final String ACTION = "create";
@@ -113,7 +113,7 @@ public class CreateAction implements CustomMeasuresWsAction {
     long now = system.now();
 
     try {
-      ComponentDto component = searchProject(dbSession, request);
+      ComponentDto component = searchProject(dbSession, dbClient, request);
       MetricDto metric = searchMetric(dbSession, request);
       checkPermissions(userSession, component);
       checkIsProjectOrModule(component);
@@ -162,27 +162,5 @@ public class CreateAction implements CustomMeasuresWsAction {
     }
 
     return dbClient.metricDao().selectByKey(dbSession, metricKey);
-  }
-
-  private ComponentDto searchProject(DbSession dbSession, Request request) {
-    String projectUuid = request.param(PARAM_PROJECT_ID);
-    String projectKey = request.param(PARAM_PROJECT_KEY);
-    checkArgument(projectUuid != null ^ projectKey != null, "The project key or the project id must be provided, not both.");
-
-    if (projectUuid != null) {
-      ComponentDto project = dbClient.componentDao().selectNullableByUuid(dbSession, projectUuid);
-      if (project == null) {
-        throw new NotFoundException(String.format("Project id '%s' not found", projectUuid));
-      }
-
-      return project;
-    }
-
-    ComponentDto project = dbClient.componentDao().selectNullableByKey(dbSession, projectKey);
-    if (project == null) {
-      throw new NotFoundException(String.format("Project key '%s' not found", projectKey));
-    }
-
-    return project;
   }
 }
