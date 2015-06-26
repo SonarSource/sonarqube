@@ -1,0 +1,63 @@
+{
+  "plugins": [
+    {
+      "key": "scmgit",
+      "name": "Git",
+      "description": "Git SCM Provider.",
+      "version": "1.0",
+      "license": "GNU LGPL 3",
+      "organizationName": "SonarSource",
+      "organizationUrl": "http://www.sonarsource.com",
+      "homepageUrl": "http://redirect.sonarsource.com/plugins/scmgit.html",
+      "issueTrackerUrl": "http://jira.codehaus.org/browse/SONARSCGIT",
+      "implementationBuild": "9ce9d330c313c296fab051317cc5ad4b26319e07"
+    },
+    {
+      "key": "java",
+      "name": "Java",
+      "description": "SonarQube rule engine.",
+      "version": "3.2-SNAPSHOT",
+      "license": "GNU LGPL 3",
+      "organizationName": "SonarSource",
+      "organizationUrl": "http://www.sonarsource.com",
+      "homepageUrl": "http://redirect.sonarsource.com/plugins/java.html",
+      "issueTrackerUrl": "http://jira.codehaus.org/browse/SONARJAVA",
+      "implementationBuild": "c5c58e015c8d44b4f46dea7eea353e42ea7059a2"
+    },
+    {
+      "key": "javascript",
+      "name": "JavaScript",
+      "description": "Enables analysis of JavaScript projects.",
+      "version": "2.6",
+      "license": "GNU LGPL 3",
+      "organizationName": "SonarSource and Eriks Nukis",
+      "organizationUrl": "http://www.sonarsource.com",
+      "homepageUrl": "http://redirect.sonarsource.com/plugins/javascript.html",
+      "issueTrackerUrl": "https://jira.codehaus.org/browse/SONARJS",
+      "implementationBuild": "6bd2bfe2eb0d5db6760d8f566ca399bcbcf80a5d"
+    },
+    {
+      "key": "php",
+      "name": "PHP",
+      "description": "Enables analysis of PHP projects.",
+      "version": "2.4",
+      "license": "GNU LGPL v3",
+      "organizationName": "SonarSource and Akram Ben Aissi",
+      "organizationUrl": "http://www.sonarsource.com/",
+      "homepageUrl": "http://docs.codehaus.org/display/SONAR/PHP+Plugin",
+      "issueTrackerUrl": "http://jira.codehaus.org/browse/SONARPHP",
+      "implementationBuild": "1b445c1b06da39330051cf943f24e361ee9001f6"
+    },
+    {
+      "key": "python",
+      "name": "Python",
+      "description": "Enable analysis and reporting on python projects.",
+      "version": "1.3",
+      "license": "GNU LGPL 3",
+      "organizationName": "SonarSource and Waleri Enns",
+      "homepageUrl": "http://docs.codehaus.org/display/SONAR/Python+Plugin",
+      "issueTrackerUrl": "https://jira.codehaus.org/browse/SONARPY",
+      "implementationBuild": "2683ee7b41164f809454470c08d3764c53903722"
+    }
+  ]
+}

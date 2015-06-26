@@ -1,0 +1,54 @@
+{
+  "installing": [
+    {
+      "key": "visualstudio",
+      "name": "Analysis Bootstrapper for Visual Studio Projects",
+      "description": "Bootstraps the analysis from Visual Studio solution and project files.",
+      "version": "1.2",
+      "license": "GNU LGPL 3",
+      "organizationName": "SonarSource",
+      "organizationUrl": "http://www.sonarsource.com",
+      "homepageUrl": "http://docs.codehaus.org/x/TAA1Dg",
+      "issueTrackerUrl": "http://jira.codehaus.org/browse/SONARVS",
+      "implementationBuild": "debe8e3820709cb34658d23f4de77d65577d42b1"
+    },
+    {
+      "key": "java",
+      "name": "Java",
+      "description": "SonarQube rule engine.",
+      "version": "3.3",
+      "license": "GNU LGPL 3",
+      "organizationName": "SonarSource",
+      "organizationUrl": "http://www.sonarsource.com",
+      "homepageUrl": "http://redirect.sonarsource.com/plugins/java.html",
+      "issueTrackerUrl": "http://jira.codehaus.org/browse/SONARJAVA",
+      "implementationBuild": "8edb61630d99c752a252842633254374c0a3e70d"
+    },
+    {
+      "key": "php",
+      "name": "PHP",
+      "description": "Enables analysis of PHP projects.",
+      "version": "2.6",
+      "license": "GNU LGPL v3",
+      "organizationName": "SonarSource and Akram Ben Aissi",
+      "organizationUrl": "http://www.sonarsource.com/",
+      "homepageUrl": "http://redirect.sonarsource.com/plugins/php.html",
+      "issueTrackerUrl": "http://jira.codehaus.org/browse/SONARPHP",
+      "implementationBuild": "153f397dc6cac76c93eca5df541278447ed85ea4"
+    }
+  ],
+  "removing": [
+    {
+      "key": "javascript",
+      "name": "JavaScript",
+      "description": "Enables analysis of JavaScript projects.",
+      "version": "2.6",
+      "license": "GNU LGPL 3",
+      "organizationName": "SonarSource and Eriks Nukis",
+      "organizationUrl": "http://www.sonarsource.com",
+      "homepageUrl": "http://redirect.sonarsource.com/plugins/javascript.html",
+      "issueTrackerUrl": "https://jira.codehaus.org/browse/SONARJS",
+      "implementationBuild": "6bd2bfe2eb0d5db6760d8f566ca399bcbcf80a5d"
+    }
+  ]
+}

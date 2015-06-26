@@ -1,38 +1,38 @@
 <div class="bubble-popup-container">
   <div class="bubble-popup-title">Changelog</div>
 
-  <ul>
+  <ul class="js-plugin-changelog-list">
     {{#each previousUpdates}}
       <li class="spacer-bottom">
         <div class="pull-left spacer-right">
-          <span class="badge badge-success little-spacer-bottom">{{release.version}}</span>
+          <span class="js-plugin-changelog-version badge badge-success little-spacer-bottom">{{release.version}}</span>
         </div>
         <div class="pull-left spacer-right">
-          <p class="note">{{d release.date}}</p>
+          <p class="js-plugin-changelog-date note">{{d release.date}}</p>
         </div>
         {{#if release.changeLogUrl}}
           <div class="pull-right spacer-left">
-            <a href="{{release.changeLogUrl}}">Release Notes</a>
+            <a class="js-plugin-changelog-link" href="{{release.changeLogUrl}}">Release Notes</a>
           </div>
         {{/if}}
-        <div class="overflow-hidden">
+        <div class="js-plugin-changelog-description overflow-hidden">
           {{{release.description}}}
         </div>
       </li>
     {{/each}}
     <li class="spacer-bottom">
       <div class="pull-left spacer-right">
-        <span class="badge badge-success little-spacer-bottom">{{release.version}}</span>
+        <span class="js-plugin-changelog-version badge badge-success little-spacer-bottom">{{release.version}}</span>
       </div>
       <div class="pull-left spacer-right">
-        <p class="note">{{d release.date}}</p>
+        <p class="js-plugin-changelog-date note">{{d release.date}}</p>
       </div>
       {{#if release.changeLogUrl}}
         <div class="pull-right spacer-left">
-          <a href="{{release.changeLogUrl}}">Release Notes</a>
+          <a class="js-plugin-changelog-link" href="{{release.changeLogUrl}}">Release Notes</a>
         </div>
       {{/if}}
-      <div class="overflow-hidden">
+      <div class="js-plugin-changelog-description overflow-hidden">
         {{{release.description}}}
       </div>
     </li>

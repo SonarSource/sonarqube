@@ -1,0 +1,118 @@
+{
+  "plugins": [
+    {
+      "key": "scmgit",
+      "name": "Git",
+      "category": "Integration",
+      "description": "Git SCM Provider.",
+      "license": "GNU LGPL 3",
+      "organizationName": "SonarSource",
+      "organizationUrl": "http://www.sonarsource.com",
+      "updates": [
+        {
+          "release": {
+            "version": "1.1",
+            "date": "2015-06-01",
+            "description": "Use Git commit date instead of author date",
+            "changeLogUrl": "http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10964&version=11856"
+          },
+          "status": "COMPATIBLE",
+          "requires": []
+        }
+      ]
+    },
+    {
+      "key": "java",
+      "name": "Java",
+      "category": "Languages",
+      "description": "SonarQube rule engine.",
+      "license": "GNU LGPL 3",
+      "organizationName": "SonarSource",
+      "organizationUrl": "http://www.sonarsource.com",
+      "updates": [
+        {
+          "release": {
+            "version": "3.3",
+            "date": "2015-05-19",
+            "description": "Detection of locks left locked and new rules",
+            "changeLogUrl": "http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10973&version=11898"
+          },
+          "status": "COMPATIBLE",
+          "requires": []
+        }
+      ]
+    },
+    {
+      "key": "php",
+      "name": "PHP",
+      "category": "Languages",
+      "description": "Enables analysis of PHP projects.",
+      "license": "GNU LGPL v3",
+      "organizationName": "SonarSource and Akram Ben Aissi",
+      "organizationUrl": "http://www.sonarsource.com/",
+      "updates": [
+        {
+          "release": {
+            "version": "2.4.1",
+            "date": "2015-02-24",
+            "description": "Bug fix release",
+            "changeLogUrl": "http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10956&version=11824"
+          },
+          "status": "COMPATIBLE",
+          "requires": []
+        },
+        {
+          "release": {
+            "version": "2.5",
+            "date": "2015-05-19",
+            "description": "5 bug detection rules, removal of all known parsing limitations and import of PHPUnit IT coverage report",
+            "changeLogUrl": "http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10956&version=11825"
+          },
+          "status": "COMPATIBLE",
+          "requires": []
+        },
+        {
+          "release": {
+            "version": "2.6",
+            "date": "2015-06-05",
+            "description": "5 new rules & improvement of existing ones",
+            "changeLogUrl": "http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10956&version=11826"
+          },
+          "status": "COMPATIBLE",
+          "requires": []
+        }
+      ]
+    },
+    {
+      "key": "python",
+      "name": "Python",
+      "category": "Languages",
+      "description": "Enable analysis and reporting on python projects.",
+      "license": "GNU LGPL 3",
+      "organizationName": "SonarSource and Waleri Enns",
+      "updates": [
+        {
+          "release": {
+            "version": "1.4",
+            "date": "2015-03-24",
+            "description": "Provides a SQALE definition to PyLint rules, allows the import of Pylint reports and adds tags to rules.",
+            "changeLogUrl": "http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10958&version=11835"
+          },
+          "status": "INCOMPATIBLE",
+          "requires": []
+        },
+        {
+          "release": {
+            "version": "1.5",
+            "date": "2015-04-02",
+            "description": "Provides 20 new rules and fixes some parsing issues.",
+            "changeLogUrl": "http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10958&version=11836"
+          },
+          "status": "COMPATIBLE",
+          "requires": []
+        }
+      ]
+    }
+  ],
+  "updateCenterRefresh": "2015-06-26T09:27:08+0200"
+}

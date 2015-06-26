@@ -2,7 +2,7 @@
   <div>
     <strong class="js-plugin-name">{{name}}</strong>
     {{#if category}}
-      <span class="badge spacer-left">{{category}}</span>
+      <span class="js-plugin-category badge spacer-left">{{category}}</span>
     {{/if}}
   </div>
   <div class="js-plugin-description little-spacer-top">{{{description}}}</div>
@@ -15,7 +15,7 @@
   <ul class="overflow-hidden bordered-left">
     {{#if version}}
       <li class="spacer-left little-spacer-bottom">
-        <strong>{{version}}</strong>&nbsp;installed
+        <strong class="js-plugin-installed-version">{{version}}</strong>&nbsp;installed
       </li>
     {{/if}}
     {{#notEmpty updates}}
@@ -26,11 +26,10 @@
         <li class="spacer-left little-spacer-bottom">
           <div class="pull-left spacer-right">
             {{#notEq status 'COMPATIBLE'}}
-              <span class="badge badge-warning" data-toggle="tooltip" title="{{t 'update_center.status' status}}">
-                {{release.version}}
-              </span>
+              <span class="js-update-version badge badge-warning" data-toggle="tooltip"
+                    title="{{t 'update_center.status' status}}">{{release.version}}</span>
             {{else}}
-              <span class="badge badge-success">{{release.version}}</span>
+              <span class="js-update-version badge badge-success">{{release.version}}</span>
             {{/notEq}}
           </div>
           <div class="overflow-hidden">
@@ -64,29 +63,29 @@
       <li class="little-spacer-bottom">
         <ul class="list-inline">
           {{#if homepageUrl}}
-            <li><a href="{{homepageUrl}}">Homepage</a></li>
+            <li><a class="js-plugin-homepage" href="{{homepageUrl}}">Homepage</a></li>
           {{/if}}
           {{#if issueTrackerUrl}}
-            <li><a href="{{issueTrackerUrl}}">Issue Tracker</a></li>
+            <li><a class="js-plugin-issues" href="{{issueTrackerUrl}}">Issue Tracker</a></li>
           {{/if}}
           {{#if termsAndConditionsUrl}}
-            <li><a href="{{termsAndConditionsUrl}}">Terms and Conditions</a></li>
+            <li><a class="js-plugin-terms" href="{{termsAndConditionsUrl}}">Terms and Conditions</a></li>
           {{/if}}
         </ul>
       </li>
     {{/any}}
 
     {{#if license}}
-      <li class="little-spacer-bottom">Licensed under {{license}}</li>
+      <li class="little-spacer-bottom">Licensed under <span class="js-plugin-license">{{license}}</span></li>
     {{/if}}
 
     {{#if organizationName}}
       <li class="little-spacer-bottom">
         Developed by
         {{#if organizationUrl}}
-          <a href="{{organizationUrl}}">{{organizationName}}</a>
+          <a class="js-plugin-organization" href="{{organizationUrl}}">{{organizationName}}</a>
         {{else}}
-          {{organizationName}}
+          <span class="js-plugin-organization">{{organizationName}}</span>
         {{/if}}
       </li>
     {{/if}}

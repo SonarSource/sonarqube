@@ -1,0 +1,26 @@
+{
+  "upgrades": [
+    {
+      "version": "5.3",
+      "description": "New!",
+      "releaseDate": "2015-06-19",
+      "changeLogUrl": "http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=10930&version=11625",
+      "downloadUrl": "https://downloads.sonarsource.com/sonarqube/sonarqube-5.0.zip",
+      "plugins": {
+        "requireUpdate": [
+          {
+            "key": "python",
+            "name": "Python",
+            "category": "Languages",
+            "description": "Enable analysis and reporting on python projects.",
+            "license": "GNU LGPL 3",
+            "organizationName": "SonarSource and Waleri Enns",
+            "version": "1.5"
+          }
+        ],
+        "incompatible": []
+      }
+    }
+  ],
+  "updateCenterRefresh": "2015-06-26T09:59:51+0200"
+}

@@ -30,6 +30,9 @@ define([
 
     onRender: function () {
       this.$el.attr('data-id', this.model.id);
+      if (this.model.get('_system')) {
+        this.$el.attr('data-system', '');
+      }
       this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
     },
 
