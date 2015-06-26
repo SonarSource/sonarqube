@@ -56,6 +56,9 @@ public class XooRulesDefinition implements RulesDefinition {
       .setDebtRemediationFunction(hasTag.debtRemediationFunctions().linear("1min"))
       .setEffortToFixDescription("It takes about 1 minute to an experienced software craftsman to remove a line of code");
 
+    repo.createRule(OneIssueOnDirPerFileSensor.RULE_KEY).setName("One Issue On Dir Per File")
+      .setHtmlDescription("Generate issues on directories");
+
     NewRule oneIssuePerFile = repo.createRule(OneIssuePerFileSensor.RULE_KEY).setName("One Issue Per File")
       .setHtmlDescription("Generate an issue on each file");
     oneIssuePerFile.setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.ARCHITECTURE_CHANGEABILITY)

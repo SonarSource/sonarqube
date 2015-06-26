@@ -1,9 +1,8 @@
-/*
+package util;/*
  * Copyright (C) 2009-2014 SonarSource SA
  * All rights reserved
  * mailto:contact AT sonarsource DOT com
  */
-package org.sonar.it;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -50,7 +49,7 @@ public class ItUtils {
 
   /**
    * Locate the directory of sample project
-   * 
+   *
    * @param relativePath path related to the directory it/projects, for example "qualitygate/xoo-sample"
    */
   public static File projectDir(String relativePath) {

@@ -3,14 +3,13 @@
  * All rights reserved
  * mailto:contact AT sonarsource DOT com
  */
-package org.sonar.it.qualitygate;
+package qualitygate;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.it.ItUtils;
 import org.sonar.wsclient.project.NewProject;
 import org.sonar.wsclient.qualitygate.NewCondition;
 import org.sonar.wsclient.qualitygate.QualityGate;
@@ -18,9 +17,10 @@ import org.sonar.wsclient.qualitygate.QualityGateClient;
 import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.it.ItUtils.projectDir;
+import static util.ItUtils.projectDir;
 
 public class QualityGateTest {
 
@@ -31,6 +31,10 @@ public class QualityGateTest {
   @ClassRule
   public static Orchestrator orchestrator = Orchestrator.builderEnv()
     .addPlugin(ItUtils.xooPlugin())
+
+    // 1 second. Required for notification test.
+    .setServerProperty("sonar.notifications.delay", "1")
+
     .build();
 
   @Before
@@ -158,25 +162,6 @@ public class QualityGateTest {
     } finally {
       qgClient().unsetDefault();
       qgClient().destroy(allTypes.id());
-    }
-  }
-
-  @Test
-  public void compute_gate_status_on_metric_variation() {
-    QualityGate simple = qgClient().create("SimpleWithDifferential");
-    qgClient().setDefault(simple.id());
-    qgClient().createCondition(NewCondition.create(simple.id()).metricKey("ncloc").period(1).operator("EQ").warningThreshold("0"));
-
-    try {
-      SonarRunner build = SonarRunner.create(projectDir("qualitygate/xoo-sample"));
-      orchestrator.executeBuild(build);
-      assertThat(fetchGateStatus().getData()).isEqualTo("OK");
-
-      orchestrator.executeBuild(build);
-      assertThat(fetchGateStatus().getData()).isEqualTo("WARN");
-    } finally {
-      qgClient().unsetDefault();
-      qgClient().destroy(simple.id());
     }
   }
 
