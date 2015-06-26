@@ -115,40 +115,6 @@ public class SearchAction implements MetricsWsAction {
   }
 
   public static void writeMetrics(JsonWriter json, List<MetricDto> metrics, Set<String> desiredFields) {
-    json.name("metrics");
-    json.beginArray();
-    for (MetricDto metric : metrics) {
-      json.beginObject();
-      json.prop(FIELD_ID, String.valueOf(metric.getId()));
-      json.prop(FIELD_KEY, metric.getKey());
-      writeIfDesired(json, FIELD_TYPE, metric.getValueType(), desiredFields);
-      writeIfDesired(json, FIELD_NAME, metric.getShortName(), desiredFields);
-      writeIfDesired(json, FIELD_DESCRIPTION, metric.getDescription(), desiredFields);
-      writeIfDesired(json, FIELD_DOMAIN, metric.getDomain(), desiredFields);
-      writeIfDesired(json, FIELD_DIRECTION, metric.getDirection(), desiredFields);
-      writeIfDesired(json, FIELD_QUALITATIVE, metric.isQualitative(), desiredFields);
-      writeIfDesired(json, FIELD_HIDDEN, metric.isHidden(), desiredFields);
-      writeIfDesired(json, FIELD_CUSTOM, metric.isUserManaged(), desiredFields);
-      json.endObject();
-    }
-    json.endArray();
-  }
-
-  private static void writeIfDesired(JsonWriter json, String field, String value, Set<String> desiredFields) {
-    if (desiredFields.contains(field)) {
-      json.prop(field, value);
-    }
-  }
-
-  private static void writeIfDesired(JsonWriter json, String field, int value, Set<String> desiredFields) {
-    if (desiredFields.contains(field)) {
-      json.prop(field, value);
-    }
-  }
-
-  private static void writeIfDesired(JsonWriter json, String field, boolean value, Set<String> desiredFields) {
-    if (desiredFields.contains(field)) {
-      json.prop(field, value);
-    }
+    MetricJsonWriter.write(json, metrics, desiredFields);
   }
 }

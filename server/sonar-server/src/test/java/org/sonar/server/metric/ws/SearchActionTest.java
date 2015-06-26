@@ -126,10 +126,9 @@ public class SearchActionTest {
 
     String result = newRequest().setParam(Param.FIELDS, "name").execute().outputAsString();
 
-    assertThat(result).contains("id", "key", "name")
+    assertThat(result).contains("id", "key", "name", "type")
       .doesNotContain("domain")
-      .doesNotContain("description")
-      .doesNotContain("type");
+      .doesNotContain("description");
   }
 
   private void insertNewNonCustomMetric(String... ids) {
