@@ -124,10 +124,14 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
   }
 
   public SetMultimap<String, Measure> getNewRawMeasures(int componentRef) {
+    checkAndInitProvidersState();
+
     return getNewRawMeasures(componentProvider.getByRef(componentRef));
   }
 
   public SetMultimap<String, Measure> getNewRawMeasures(Component component) {
+    checkAndInitProvidersState();
+
     ImmutableSetMultimap.Builder<String, Measure> builder = ImmutableSetMultimap.builder();
     for (Map.Entry<InternalKey, Measure> entry : FluentIterable.from(filterKeys(rawMeasures, hasComponentRef(component)).entrySet()).filter(isNewMeasure)) {
       builder.put(entry.getKey().getMetricKey(), entry.getValue());
