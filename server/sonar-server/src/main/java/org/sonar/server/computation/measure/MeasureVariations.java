@@ -21,9 +21,11 @@ package org.sonar.server.computation.measure;
 
 import com.google.common.base.Objects;
 import java.util.Arrays;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.FluentIterable.from;
 
@@ -35,6 +37,30 @@ public final class MeasureVariations {
     checkArgument(variations.length <= 5, "There can not be more than 5 variations");
     checkArgument(!from(Arrays.asList(variations)).filter(notNull()).isEmpty(), "There must be at least one variation");
     System.arraycopy(variations, 0, this.variations, 0, variations.length);
+  }
+
+  public static Builder newMeasureVarationsBuilder() {
+    return new Builder();
+  }
+
+  public static final class Builder {
+    private final Double[] variations = new Double[5];
+
+    private Builder() {
+      // prevents instantiation outside static method
+    }
+
+    public Builder setVariation(int index, double variation) {
+      checkArgument(index > 0 && index < 6, "Variation index must be >= 1 and <= 5");
+      int arrayIndex = index - 1;
+      checkState(variations[arrayIndex] == null, String.format("Variation for index %s has already been set", index));
+      variations[arrayIndex] = variation;
+      return this;
+    }
+
+    public MeasureVariations build() {
+      return new MeasureVariations(variations);
+    }
   }
 
   public boolean hasVariation1() {
@@ -89,7 +115,7 @@ public final class MeasureVariations {
 
   public double getVariation(int i) {
     checkHasVariation(i);
-    return variations[i-1];
+    return variations[i - 1];
   }
 
   @Override
@@ -101,5 +127,22 @@ public final class MeasureVariations {
       .add("4", variations[3])
       .add("5", variations[4])
       .toString();
+  }
+
+  @Override
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    MeasureVariations that = (MeasureVariations) o;
+    return Arrays.equals(variations, that.variations);
+  }
+
+  @Override
+  public int hashCode() {
+    return Arrays.hashCode(variations);
   }
 }
