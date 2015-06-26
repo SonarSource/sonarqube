@@ -328,7 +328,7 @@ describe('Update Center App', function () {
 
         .then(function () {
           casper.click('li[data-id="scmgit"] .js-update');
-          casper.waitUntilVisible('li[data-id="scmgit"] .js-spinner');
+          casper.waitWhileSelector('li[data-id="scmgit"] .js-spinner');
         })
 
         .then(function () {
@@ -360,7 +360,7 @@ describe('Update Center App', function () {
 
         .then(function () {
           casper.click('li[data-id="scmgit"] .js-uninstall');
-          casper.waitUntilVisible('li[data-id="scmgit"] .js-spinner');
+          casper.waitWhileSelector('li[data-id="scmgit"] .js-spinner');
         })
 
         .then(function () {
@@ -391,7 +391,7 @@ describe('Update Center App', function () {
 
         .then(function () {
           casper.click('li[data-id="abap"] .js-install');
-          casper.waitUntilVisible('li[data-id="abap"] .js-spinner');
+          casper.waitWhileSelector('li[data-id="abap"] .js-spinner');
         })
 
         .then(function () {
