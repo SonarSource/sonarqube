@@ -44,8 +44,6 @@ import org.sonar.batch.cpd.CpdComponents;
 import org.sonar.batch.debt.DebtDecorator;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
 import org.sonar.batch.debt.NewDebtDecorator;
-import org.sonar.batch.debt.SqaleRatingDecorator;
-import org.sonar.batch.debt.SqaleRatingSettings;
 import org.sonar.batch.issue.tracking.InitialOpenIssuesSensor;
 import org.sonar.batch.issue.tracking.IssueHandlers;
 import org.sonar.batch.issue.tracking.IssueTracking;
@@ -97,8 +95,6 @@ public class BatchComponents {
       IssueChangelogDebtCalculator.class,
       DebtDecorator.class,
       NewDebtDecorator.class,
-      SqaleRatingDecorator.class,
-      SqaleRatingSettings.class,
 
       // Issue tracking
       IssueTrackingDecorator.class,

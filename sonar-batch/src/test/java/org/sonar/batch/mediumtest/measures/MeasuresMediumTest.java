@@ -65,7 +65,7 @@ public class MeasuresMediumTest {
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .start();
 
-    assertThat(result.allMeasures()).hasSize(84);
+    assertThat(result.allMeasures()).hasSize(69);
   }
 
   @Test
@@ -92,7 +92,7 @@ public class MeasuresMediumTest {
         .build())
       .start();
 
-    assertThat(result.allMeasures()).hasSize(30);
+    assertThat(result.allMeasures()).hasSize(21);
 
     assertThat(result.allMeasures()).contains(new DefaultMeasure<Integer>()
       .forMetric(CoreMetrics.LINES)
