@@ -26,7 +26,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.log.Loggers;
+import org.slf4j.LoggerFactory;
 import org.sonar.process.MessageException;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
@@ -99,7 +99,7 @@ public class JdbcSettings {
 
   private void checkRecommendedParameter(String url, String val) {
     if (!url.contains(val)) {
-      Loggers.get(getClass()).warn("JDBC URL is recommended to have the property '{}'", val);
+      LoggerFactory.getLogger(getClass()).warn("JDBC URL is recommended to have the property '{}'", val);
     }
   }
 }
