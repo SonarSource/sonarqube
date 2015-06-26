@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.codehaus.sonar</groupId>
@@ -1134,7 +1135,6 @@
       </dependency>
 
 
-
       <!-- tomcat -->
       <dependency>
         <groupId>org.apache.tomcat.embed</groupId>
@@ -1612,6 +1612,14 @@
         <jsCoverage>coverage</jsCoverage>
         <coveragePerTest>true</coveragePerTest>
       </properties>
+    </profile>
+
+    <profile>
+      <!-- integration tests -->
+      <id>it</id>
+      <modules>
+        <module>it</module>
+      </modules>
     </profile>
   </profiles>
 
