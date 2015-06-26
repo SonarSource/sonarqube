@@ -211,7 +211,6 @@ public class UpdateActionTest {
     ComponentDto component = insertNewProject("project-uuid");
     CustomMeasureDto customMeasure = newCustomMeasure(component, metric)
       .setMetricId(metric.getId())
-      .setComponentId(component.getId())
       .setComponentUuid(component.uuid())
       .setCreatedAt(system.now())
       .setDescription("custom-measure-description")
@@ -265,7 +264,6 @@ public class UpdateActionTest {
     dbClient.componentDao().insert(dbSession, component);
     CustomMeasureDto customMeasure = newCustomMeasureDto()
       .setMetricId(metric.getId())
-      .setComponentId(component.getId())
       .setComponentUuid(component.uuid())
       .setCreatedAt(system.now())
       .setDescription("custom-measure-description")
@@ -290,7 +288,6 @@ public class UpdateActionTest {
     dbClient.componentDao().insert(dbSession, component);
     CustomMeasureDto customMeasure = newCustomMeasureDto()
       .setMetricId(metric.getId())
-      .setComponentId(component.getId())
       .setComponentUuid(component.uuid())
       .setCreatedAt(system.now())
       .setDescription("custom-measure-description")
@@ -340,7 +337,6 @@ public class UpdateActionTest {
   private CustomMeasureDto newCustomMeasure(ComponentDto project, MetricDto metric) {
     return newCustomMeasureDto()
       .setMetricId(metric.getId())
-      .setComponentId(project.getId())
       .setComponentUuid(project.uuid())
       .setCreatedAt(system.now());
   }

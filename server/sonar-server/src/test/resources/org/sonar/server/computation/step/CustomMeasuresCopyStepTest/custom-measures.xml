@@ -1,7 +1,7 @@
 <dataset>
   <manual_measures id="1"
                    metric_id="10"
-                   resource_id="100"
+                   
                    component_uuid="FILE1"
                    value="3.14"
                    text_value="[null]"
@@ -12,7 +12,7 @@
 
   <manual_measures id="2"
                    metric_id="11"
-                   resource_id="101"
+                   
                    component_uuid="PROJECT1"
                    value="[null]"
                    text_value="good"

@@ -20,8 +20,8 @@
 class ManualMeasure < ActiveRecord::Base
   include ActionView::Helpers::NumberHelper
 
-  belongs_to :resource, :class_name => 'Project'
-  validates_uniqueness_of :metric_id, :scope => :resource_id
+  belongs_to :resource, :class_name => 'Project', :foreign_key => 'component_uuid', :primary_key => 'uuid'
+  validates_uniqueness_of :metric_id, :scope => :component_uuid
   validates_length_of :text_value, :maximum => 4000, :allow_nil => true, :allow_blank => true
   validates_length_of :description, :maximum => 4000, :allow_nil => true, :allow_blank => true
   validate :validate_metric, :validate_value

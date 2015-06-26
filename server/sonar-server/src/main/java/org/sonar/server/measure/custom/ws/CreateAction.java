@@ -122,7 +122,6 @@ public class CreateAction implements CustomMeasuresWsAction {
       UserDoc user = userIndex.getByLogin(userSession.getLogin());
       CustomMeasureDto measure = new CustomMeasureDto()
         .setComponentUuid(component.uuid())
-        .setComponentId(component.getId())
         .setMetricId(metric.getId())
         .setDescription(description)
         .setUserLogin(user.login())

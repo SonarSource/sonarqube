@@ -97,8 +97,8 @@ class PurgeCommands {
     profiler.stop();
 
     profiler.start("deleteResourceManualMeasures (manual_measures)");
-    for (List<Long> partResourceIds : componentIdPartitions) {
-      purgeMapper.deleteResourceManualMeasures(partResourceIds);
+    for (List<String> componentUuidPartition : componentUuidsPartitions) {
+      purgeMapper.deleteResourceManualMeasures(componentUuidPartition);
     }
     session.commit();
     profiler.stop();

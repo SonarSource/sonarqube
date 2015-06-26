@@ -204,9 +204,9 @@
   </delete>
 
   <delete id="deleteResourceManualMeasures" parameterType="map">
-    delete from manual_measures where resource_id in
-    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
-      #{resourceId}
+    delete from manual_measures where component_uuid in
+    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+      #{componentUuid}
     </foreach>
   </delete>
 

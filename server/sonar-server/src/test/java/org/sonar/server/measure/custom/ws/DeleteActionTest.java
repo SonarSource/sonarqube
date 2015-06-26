@@ -93,7 +93,7 @@ public class DeleteActionTest {
     ComponentDto project = ComponentTesting.newProjectDto("project-uuid");
     dbClient.componentDao().insert(dbSession, project);
     userSessionRule.login("login").addProjectUuidPermissions(UserRole.ADMIN, "project-uuid");
-    long id = insertCustomMeasure(newCustomMeasureDto().setComponentId(project.getId()));
+    long id = insertCustomMeasure(newCustomMeasureDto().setComponentUuid("project-uuid"));
 
     newRequest().setParam(PARAM_ID, String.valueOf(id)).execute();
 
@@ -113,7 +113,7 @@ public class DeleteActionTest {
     userSessionRule.login("login");
     ComponentDto project = ComponentTesting.newProjectDto("any-uuid");
     dbClient.componentDao().insert(dbSession, project);
-    long id = insertCustomMeasure(newCustomMeasureDto().setComponentId(project.getId()));
+    long id = insertCustomMeasure(newCustomMeasureDto().setComponentUuid("any-uuid"));
 
     newRequest().setParam(PARAM_ID, String.valueOf(id)).execute();
   }

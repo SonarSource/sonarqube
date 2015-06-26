@@ -34,7 +34,7 @@ import org.sonar.api.server.ServerSide;
 @ServerSide
 public class DatabaseVersion {
 
-  public static final int LAST_VERSION = 922;
+  public static final int LAST_VERSION = 923;
 
   /**
    * List of all the tables.

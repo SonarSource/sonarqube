@@ -27,7 +27,7 @@ class Project < ActiveRecord::Base
   has_many :project_links, :foreign_key => 'component_uuid', :primary_key => 'uuid', :dependent => :delete_all, :order => 'link_type'
   has_many :user_roles, :foreign_key => 'resource_id'
   has_many :group_roles, :foreign_key => 'resource_id'
-  has_many :manual_measures, :foreign_key => 'resource_id'
+  has_many :manual_measures, :foreign_key => 'component_uuid', :primary_key => 'uuid'
   belongs_to :root, :class_name => 'Project', :foreign_key => 'root_id'
   belongs_to :copy_resource, :class_name => 'Project', :foreign_key => 'copy_resource_id'
   belongs_to :person, :class_name => 'Project', :foreign_key => 'person_id'

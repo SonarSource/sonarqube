@@ -39,7 +39,7 @@ class ManualMeasuresController < ApplicationController
 
   def edit_form
     @metric=Metric.by_key(params[:metric])
-    @measure=ManualMeasure.find(:first, :conditions => ['resource_id=? and metric_id=?', @resource.id, @metric.id]) || ManualMeasure.new
+    @measure=ManualMeasure.find(:first, :conditions => ['component_uuid=? and metric_id=?', @resource.uuid, @metric.id]) || ManualMeasure.new
 
     render :partial => 'manual_measures/edit_form'
   end
@@ -74,7 +74,7 @@ class ManualMeasuresController < ApplicationController
   def edit
     verify_post_request
     @metric=Metric.by_key(params[:metric])
-    @measure=ManualMeasure.find(:first, :conditions => ['resource_id=? and metric_id=?', @resource.id, @metric.id])
+    @measure=ManualMeasure.find(:first, :conditions => ['component_uuid=? and metric_id=?', @resource.uuid, @metric.id])
 
     @measure.typed_value=params[:val]
     @measure.description=params[:desc]
@@ -93,7 +93,7 @@ class ManualMeasuresController < ApplicationController
   def delete
     verify_post_request
     metric=Metric.by_key(params[:metric])
-    ManualMeasure.destroy_all(['resource_id=? and metric_id=?', @resource.id, metric.id])
+    ManualMeasure.destroy_all(['component_uuid=? and metric_id=?', @resource.uuid, metric.id])
     flash[:notice] = 'Measure successfully deleted.'
     redirect_to :action => 'index', :id => params[:id]
   end
@@ -101,6 +101,6 @@ class ManualMeasuresController < ApplicationController
   private
 
   def load_measures
-    @measures=ManualMeasure.find(:all, :conditions => ['resource_id=?', @resource.id]).select { |m| m.metric.enabled }
+    @measures=ManualMeasure.find(:all, :conditions => ['component_uuid=?', @resource.uuid]).select { |m| m.metric.enabled }
   end
 end

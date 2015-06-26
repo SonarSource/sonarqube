@@ -67,7 +67,6 @@ public class CustomMeasureDaoTest {
     CustomMeasureDto result = sut.selectNullableById(session, measure.getId());
     assertThat(result.getId()).isEqualTo(measure.getId());
     assertThat(result.getMetricId()).isEqualTo(measure.getMetricId());
-    assertThat(result.getComponentId()).isEqualTo(measure.getComponentId());
     assertThat(result.getComponentUuid()).isEqualTo(measure.getComponentUuid());
     assertThat(result.getDescription()).isEqualTo(measure.getDescription());
     assertThat(result.getUserLogin()).isEqualTo(measure.getUserLogin());

@@ -4,7 +4,6 @@ ActionController::Routing::Routes.draw do |map|
     api.resources :user_properties, :only => [:index, :show, :create, :destroy], :requirements => { :id => /.*/ }
     api.resources :projects, :only => [:index], :requirements => { :id => /.*/ }
     api.resources :favourites, :only => [:index, :show, :create, :destroy], :requirements => { :id => /.*/ }
-    api.resources :manual_measures, :only => [:index, :create, :destroy], :requirements => { :id => /.*/ }
   end
 
   map.connect 'api', :controller => 'api/java_ws', :action => 'redirect_to_ws_listing'

@@ -37,7 +37,6 @@ public class CustomMeasureTesting {
       .setUserLogin(RandomStringUtils.randomAlphanumeric(255))
       .setValue(RandomUtils.nextDouble())
       .setMetricId(RandomUtils.nextInt())
-      .setComponentId(RandomUtils.nextInt())
       .setComponentUuid(RandomStringUtils.randomAlphanumeric(50))
       .setCreatedAt(System2.INSTANCE.now())
       .setUpdatedAt(System2.INSTANCE.now());

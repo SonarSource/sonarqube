@@ -23,7 +23,6 @@ package org.sonar.core.measure.custom.db;
 public class CustomMeasureDto {
   private long id;
   private int metricId;
-  private long componentId;
   private String componentUuid;
   private double value;
   private String textValue;
@@ -65,15 +64,6 @@ public class CustomMeasureDto {
 
   public CustomMeasureDto setValue(double value) {
     this.value = value;
-    return this;
-  }
-
-  public long getComponentId() {
-    return componentId;
-  }
-
-  public CustomMeasureDto setComponentId(long componentId) {
-    this.componentId = componentId;
     return this;
   }
 

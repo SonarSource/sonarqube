@@ -67,7 +67,7 @@ public interface PurgeMapper {
 
   void deleteResourceUserRoles(@Param("resourceIds") List<Long> resourceIds);
 
-  void deleteResourceManualMeasures(@Param("resourceIds") List<Long> resourceIds);
+  void deleteResourceManualMeasures(@Param("componentUuids") List<String> componentUuids);
 
   void deleteComponentEvents(@Param("componentUuids") List<String> componentUuids);
 
