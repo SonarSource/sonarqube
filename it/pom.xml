@@ -10,7 +10,7 @@
   </parent>
 
   <groupId>org.sonarsource.it</groupId>
-  <artifactId>it-parent</artifactId>
+  <artifactId>it</artifactId>
   <version>5.2-SNAPSHOT</version>
   <name>SonarQube Integration Tests</name>
   <packaging>pom</packaging>
