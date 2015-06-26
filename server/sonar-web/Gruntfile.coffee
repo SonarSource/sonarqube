@@ -167,6 +167,7 @@ module.exports = (grunt) ->
           'casper:metrics'
           'casper:maintenance'
           'casper:updateCenter'
+          'casper:histogram'
         ]
 
 
@@ -351,6 +352,8 @@ module.exports = (grunt) ->
         src: ['src/test/js/maintenance-spec.js']
       updateCenter:
         src: ['src/test/js/update-center-spec.js']
+      histogram:
+        src: ['src/test/js/histogram-spec.js']
 
     uglify:
       build:

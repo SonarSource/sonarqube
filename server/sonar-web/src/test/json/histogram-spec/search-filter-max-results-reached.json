@@ -1,0 +1,55 @@
+{
+  "metrics": {
+    "sqale_index": {
+      "name": "Technical Debt",
+      "type": "WORK_DUR",
+      "direction": -1,
+      "bestValue": 0
+    }
+  },
+  "components": [
+    {
+      "key": "a",
+      "name": "A",
+      "longName": "A",
+      "qualifier": "TRK",
+      "measures": {
+        "sqale_index": {
+          "val": 8600,
+          "fval": "17d"
+        }
+      }
+    },
+    {
+      "key": "b",
+      "name": "B",
+      "longName": "B",
+      "qualifier": "TRK",
+      "measures": {
+        "sqale_index": {
+          "val": 2465,
+          "fval": "5d 1h"
+        }
+      }
+    },
+    {
+      "key": "c",
+      "name": "C",
+      "longName": "C",
+      "qualifier": "TRK",
+      "measures": {
+        "sqale_index": {
+          "val": 435,
+          "fval": "7h 15min"
+        }
+      }
+    }
+  ],
+  "maxResultsReached": true,
+  "paging": {
+    "page": 1,
+    "pages": 10,
+    "pageSize": 3,
+    "total": 30
+  }
+}
