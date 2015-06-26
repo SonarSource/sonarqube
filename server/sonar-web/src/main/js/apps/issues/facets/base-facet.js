@@ -13,6 +13,12 @@ define([
 
     onDestroy: function () {
       return this.$('[data-toggle="tooltip"]').tooltip('destroy');
+    },
+
+    serializeData: function () {
+      return _.extend(this._super(), {
+        state: this.options.app.state.toJSON()
+      });
     }
   });
 

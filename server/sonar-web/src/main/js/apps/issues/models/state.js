@@ -7,9 +7,10 @@ define([
       page: 1,
       maxResultsReached: false,
       query: {},
-      facets: ['severities', 'resolutions'],
+      facets: ['facetMode', 'severities', 'resolutions'],
       isContext: false,
       allFacets: [
+        'facetMode',
         'issues',
         'severities',
         'resolutions',
@@ -52,6 +53,15 @@ define([
         'createdAfter': 'createdAt',
         'createdInLast': 'createdAt'
       }
+    },
+
+    getFacetMode: function () {
+      var query = this.get('query');
+      return query.facetMode || 'count';
+    },
+
+    toJSON: function () {
+      return _.extend({ facetMode: this.getFacetMode() }, this.attributes);
     }
   });
 

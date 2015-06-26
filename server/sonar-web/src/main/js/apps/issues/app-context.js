@@ -8,7 +8,8 @@ define([
   './router',
   './workspace-list-view',
   './workspace-header-view',
-  './facets-view'
+  './facets-view',
+  './helpers/format-facet-value'
 ], function (State, Layout, Issues, Facets, Filters, Controller, Router, WorkspaceListView, WorkspaceHeaderView,
              FacetsView) {
 

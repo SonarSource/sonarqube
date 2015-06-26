@@ -100,7 +100,8 @@ casper.test.begin(testName('Format Measures'), function (test) {
           window.messages = {
             'work_duration.x_days': '{0}d',
             'work_duration.x_hours': '{0}h',
-            'work_duration.x_minutes': '{0}min'
+            'work_duration.x_minutes': '{0}min',
+            'work_duration.about': '~ {0}'
           };
           window.hoursInDay = hoursInDay;
         }, HOURS_IN_DAY);
@@ -153,6 +154,23 @@ casper.test.begin(testName('Format Measures'), function (test) {
         test.assertEqual(formatMeasure(-5 * ONE_DAY, 'WORK_DUR'), '-5d');
         test.assertEqual(formatMeasure(-2 * ONE_HOUR, 'WORK_DUR'), '-2h');
         test.assertEqual(formatMeasure(-1 * ONE_MINUTE, 'WORK_DUR'), '-1min');
+
+        test.assertEqual(formatMeasure(0, 'SHORT_WORK_DUR'), '0');
+        test.assertEqual(formatMeasure(5 * ONE_DAY, 'SHORT_WORK_DUR'), '5d');
+        test.assertEqual(formatMeasure(2 * ONE_HOUR, 'SHORT_WORK_DUR'), '2h');
+        test.assertEqual(formatMeasure(ONE_MINUTE, 'SHORT_WORK_DUR'), '1min');
+        test.assertEqual(formatMeasure(5 * ONE_DAY + 2 * ONE_HOUR, 'SHORT_WORK_DUR'), '~ 5d');
+        test.assertEqual(formatMeasure(2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR'), '~ 2h');
+        test.assertEqual(formatMeasure(5 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR'), '~ 5d');
+        test.assertEqual(formatMeasure(15 * ONE_DAY + 2 * ONE_HOUR + ONE_MINUTE, 'SHORT_WORK_DUR'), '~ 15d');
+        test.assertEqual(formatMeasure(7 * ONE_MINUTE, 'SHORT_WORK_DUR'), '7min');
+        test.assertEqual(formatMeasure(-5 * ONE_DAY, 'SHORT_WORK_DUR'), '-5d');
+        test.assertEqual(formatMeasure(-2 * ONE_HOUR, 'SHORT_WORK_DUR'), '-2h');
+        test.assertEqual(formatMeasure(-1 * ONE_MINUTE, 'SHORT_WORK_DUR'), '-1min');
+
+        test.assertEqual(formatMeasure(1529 * ONE_DAY, 'SHORT_WORK_DUR'), '1.5kd');
+        test.assertEqual(formatMeasure(1234567 * ONE_DAY, 'SHORT_WORK_DUR'), '1md');
+        test.assertEqual(formatMeasure(1234567 * ONE_DAY + 2 * ONE_HOUR, 'SHORT_WORK_DUR'), '1md');
 
         test.assertEqual(formatMeasure(1, 'RATING'), 'A');
         test.assertEqual(formatMeasure(2, 'RATING'), 'B');

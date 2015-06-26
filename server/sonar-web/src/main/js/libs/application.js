@@ -333,6 +333,16 @@ function closeModalWindow () {
   }
 
   /**
+   * Check if hours should be displayed for a work duration
+   * @param {number} days
+   * @param {number} hours
+   * @returns {boolean}
+   */
+  function shouldDisplayHoursInShortFormat (days, hours) {
+    return hours > 0 && days === 0;
+  }
+
+  /**
    * Check if minutes should be displayed for a work duration
    * @param {number} days
    * @param {number} hours
@@ -344,12 +354,38 @@ function closeModalWindow () {
   }
 
   /**
+   * Check if minutes should be displayed for a work duration
+   * @param {number} days
+   * @param {number} hours
+   * @param {number} minutes
+   * @returns {boolean}
+   */
+  function shouldDisplayMinutesInShortFormat (days, hours, minutes) {
+    return minutes > 0 && hours === 0 && days === 0;
+  }
+
+  /**
    * Add a space between units if needed
    * @param {string} value
    * @returns {string}
    */
   function addSpaceIfNeeded (value) {
     return value.length > 0 ? value + ' ' : value;
+  }
+
+  /**
+   * Check if about sign be displayed for a work duration
+   * @param {number} days
+   * @param {number} hours
+   * @param {number} minutes
+   * @returns {boolean}
+   */
+  function shouldDisplayAbout (days, hours, minutes) {
+    var hasDays = days > 0,
+        fewDays = days < 1000,
+        hasHours = hours > 0,
+        hasMinutes = minutes > 0;
+    return (hasDays && fewDays && hasHours) || (!hasDays && hasHours && hasMinutes);
   }
 
   /**
@@ -377,6 +413,34 @@ function closeModalWindow () {
   }
 
   /**
+   * Format a work duration based on parameters
+   * @param {bool} isNegative
+   * @param {number} days
+   * @param {number} hours
+   * @param {number} minutes
+   * @returns {string}
+   */
+  function formatDurationShort (isNegative, days, hours, minutes) {
+    var formatted = '';
+    if (shouldDisplayDays(days)) {
+      var formattedDays = window.formatMeasure(isNegative ? -1 * days : days, 'SHORT_INT');
+      formatted += tp('work_duration.x_days', formattedDays);
+    }
+    if (shouldDisplayHoursInShortFormat(days, hours)) {
+      formatted = addSpaceIfNeeded(formatted);
+      formatted += tp('work_duration.x_hours', isNegative && formatted.length === 0 ? -1 * hours : hours);
+    }
+    if (shouldDisplayMinutesInShortFormat(days, hours, minutes)) {
+      formatted = addSpaceIfNeeded(formatted);
+      formatted += tp('work_duration.x_minutes', isNegative && formatted.length === 0 ? -1 * minutes : minutes);
+    }
+    if (shouldDisplayAbout(days, hours, minutes)) {
+      formatted = tp('work_duration.about', formatted);
+    }
+    return formatted;
+  }
+
+  /**
    * Format a work duration measure
    * @param {number} value
    * @returns {string}
@@ -393,6 +457,25 @@ function closeModalWindow () {
     var hours = Math.floor(remainingValue / 60);
     remainingValue -= hours * 60;
     return formatDuration(isNegative, days, hours, remainingValue);
+  };
+
+  /**
+   * Format a work duration measure
+   * @param {number} value
+   * @returns {string}
+   */
+  var shortDurationFormatter = function (value) {
+    if (value === 0) {
+      return '0';
+    }
+    var hoursInDay = window.SS.hoursInDay || 8,
+        isNegative = value < 0,
+        absValue = Math.abs(value);
+    var days = Math.floor(absValue / hoursInDay / 60);
+    var remainingValue = absValue - days * hoursInDay * 60;
+    var hours = Math.floor(remainingValue / 60);
+    remainingValue -= hours * 60;
+    return formatDurationShort(isNegative, days, hours, remainingValue);
   };
 
   /**
@@ -435,6 +518,7 @@ function closeModalWindow () {
             return numeral(+value / 100).format('0,0.0%');
           },
           'WORK_DUR': durationFormatter,
+          'SHORT_WORK_DUR': shortDurationFormatter,
           'RATING': ratingFormatter
         };
     if (measure != null && type != null) {

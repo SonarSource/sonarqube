@@ -114,7 +114,7 @@
               var beginning = moment(d.val),
                   ending = i < data.length - 1 ? moment(data[i + 1].val).subtract(1, 'days') : options.endDate,
                   isSameDay = ending.diff(beginning, 'days') <= 1;
-              return d.count + '<br>' + beginning.format('LL') + (isSameDay ? '' : (' – ' + ending.format('LL')));
+              return d.text + '<br>' + beginning.format('LL') + (isSameDay ? '' : (' – ' + ending.format('LL')));
             })
             .attr('data-placement', 'bottom')
             .attr('data-toggle', 'tooltip');
@@ -129,7 +129,7 @@
             .attr('transform', trans(barWidth / 2, -4))
             .style('text-anchor', 'middle')
             .text(function (d) {
-              var text = !isValueShown && d.count === maxValue ? d.count : '';
+              var text = !isValueShown && d.count === maxValue ? d.text : '';
               isValueShown = d.count === maxValue;
               return text;
             });

@@ -4,7 +4,9 @@
   {{#each values}}
     <a class="facet search-navigator-facet js-facet" data-value="{{val}}" title="{{#if extra}}({{extra}}) {{/if}}{{default label val}}">
       <span class="facet-name">{{default label val}}</span>
-      <span class="facet-stat">{{numberShort count}}</span>
+      <span class="facet-stat">
+        {{#eq ../state.facetMode 'count'}}{{numberShort count}}{{else}}{{formatMeasure count 'SHORT_WORK_DUR'}}{{/eq}}
+      </span>
     </a>
   {{/each}}
 

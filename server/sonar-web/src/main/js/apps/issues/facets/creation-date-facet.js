@@ -47,6 +47,11 @@ define([
         });
         values.reverse();
       }
+      values = values.map(function (v) {
+        var format = that.options.app.state.getFacetMode() === 'count' ? 'SHORT_INT' : 'SHORT_WORK_DUR';
+        var text = window.formatMeasure(v.count, format);
+        return _.extend(v, { text: text });
+      });
       return this.$('.js-barchart').barchart(values);
     },
 
