@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.text.JsonWriter;
@@ -48,9 +49,10 @@ public class CustomMeasureJsonWriter {
   private static final String FIELD_CREATED_AT = "createdAt";
   private static final String FIELD_UPDATED_AT = "updatedAt";
   private static final String FIELD_USER = "user";
+  private static final String FIELD_PENDING = "pending";
 
   public static final Set<String> OPTIONAL_FIELDS = ImmutableSet.of(FIELD_PROJECT_ID, FIELD_PROJECT_KEY, FIELD_VALUE, FIELD_DESCRIPTION, FIELD_METRIC, FIELD_CREATED_AT,
-    FIELD_UPDATED_AT, FIELD_USER);
+    FIELD_UPDATED_AT, FIELD_USER, FIELD_PENDING);
 
   private final UserJsonWriter userJsonWriter;
 
@@ -58,7 +60,7 @@ public class CustomMeasureJsonWriter {
     this.userJsonWriter = userJsonWriter;
   }
 
-  public void write(JsonWriter json, CustomMeasureDto measure, MetricDto metric, ComponentDto component, User user, Collection<String> fieldsToReturn) {
+  public void write(JsonWriter json, CustomMeasureDto measure, MetricDto metric, ComponentDto component, User user, boolean isPending, Collection<String> fieldsToReturn) {
     json.beginObject();
     json.prop(FIELD_ID, String.valueOf(measure.getId()));
     writeIfNeeded(json, measureValue(measure, metric), FIELD_VALUE, fieldsToReturn);
@@ -71,6 +73,7 @@ public class CustomMeasureJsonWriter {
     writeIfNeeded(json, component.key(), FIELD_PROJECT_KEY, fieldsToReturn);
     writeIfNeeded(json, new Date(measure.getCreatedAt()), FIELD_CREATED_AT, fieldsToReturn);
     writeIfNeeded(json, new Date(measure.getUpdatedAt()), FIELD_UPDATED_AT, fieldsToReturn);
+    writeIfNeeded(json, isPending, FIELD_PENDING, fieldsToReturn);
 
     if (isFieldNeeded(FIELD_USER, fieldsToReturn)) {
       json.name(FIELD_USER);
@@ -108,11 +111,12 @@ public class CustomMeasureJsonWriter {
   }
 
   public void write(JsonWriter json, List<CustomMeasureDto> customMeasures, ComponentDto project, Map<Integer, MetricDto> metricsById, Map<String, User> usersByLogin,
-    Collection<String> fieldsToReturn) {
+    @Nullable Long lastAnalysisTimestamp, Collection<String> fieldsToReturn) {
     json.name("customMeasures");
     json.beginArray();
     for (CustomMeasureDto customMeasure : customMeasures) {
-      write(json, customMeasure, metricsById.get(customMeasure.getMetricId()), project, usersByLogin.get(customMeasure.getUserLogin()), fieldsToReturn);
+      boolean pending = lastAnalysisTimestamp == null || lastAnalysisTimestamp < customMeasure.getUpdatedAt();
+      write(json, customMeasure, metricsById.get(customMeasure.getMetricId()), project, usersByLogin.get(customMeasure.getUserLogin()), pending, fieldsToReturn);
     }
     json.endArray();
   }

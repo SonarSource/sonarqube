@@ -7,6 +7,7 @@
   },
   "value": "new-text-measure-value",
   "description": "new-custom-measure-description",
+  "pending":true,
   "user": {
     "active": true,
     "email": "login@login.com",

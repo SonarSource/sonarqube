@@ -8,6 +8,7 @@
       },
       "projectId": "project-uuid",
       "projectKey": "project-key",
+      "pending":true,
       "user": {
         "active": true,
         "email": "login@login.com",
@@ -24,6 +25,7 @@
       },
       "projectId": "project-uuid",
       "projectKey": "project-key",
+      "pending":true,
       "user": {
         "active": true,
         "email": "login@login.com",
@@ -40,6 +42,7 @@
       },
       "projectId": "project-uuid",
       "projectKey": "project-key",
+      "pending":true,
       "user": {
         "active": true,
         "email": "login@login.com",

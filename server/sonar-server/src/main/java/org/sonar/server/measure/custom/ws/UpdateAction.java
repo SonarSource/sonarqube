@@ -108,7 +108,7 @@ public class UpdateAction implements CustomMeasuresWsAction {
       dbSession.commit();
 
       JsonWriter json = response.newJsonWriter();
-      customMeasureJsonWriter.write(json, customMeasure, metric, component, user, CustomMeasureJsonWriter.OPTIONAL_FIELDS);
+      customMeasureJsonWriter.write(json, customMeasure, metric, component, user, true, CustomMeasureJsonWriter.OPTIONAL_FIELDS );
       json.close();
     } finally {
       MyBatis.closeQuietly(dbSession);

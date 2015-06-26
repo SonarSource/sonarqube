@@ -26,6 +26,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
@@ -34,6 +35,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.measure.custom.db.CustomMeasureDto;
 import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbSession;
@@ -92,15 +94,23 @@ public class SearchAction implements CustomMeasuresWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       ComponentDto project = searchProject(dbSession, projectUuid, projectKey);
+      Long lastAnalysisDateMs = searchLastSnapshot(dbSession, project);
       List<CustomMeasureDto> customMeasures = searchCustomMeasures(dbSession, project, searchOptions);
       int nbCustomMeasures = countTotalOfCustomMeasures(dbSession, project);
       Map<String, User> usersByLogin = usersByLogin(customMeasures);
       Map<Integer, MetricDto> metricsById = metricsById(dbSession, customMeasures);
 
-      writeResponse(response, customMeasures, nbCustomMeasures, project, metricsById, usersByLogin, searchOptions, fieldsToReturn);
+      writeResponse(response, customMeasures, nbCustomMeasures, project, metricsById, usersByLogin, lastAnalysisDateMs, searchOptions, fieldsToReturn);
     } finally {
       MyBatis.closeQuietly(dbSession);
     }
+  }
+
+  @CheckForNull
+  private Long searchLastSnapshot(DbSession dbSession, ComponentDto project) {
+    SnapshotDto lastSnapshot = dbClient.snapshotDao().selectLastSnapshotByComponentId(dbSession, project.getId());
+
+    return lastSnapshot == null ? null : lastSnapshot.getBuildDate();
   }
 
   private int countTotalOfCustomMeasures(DbSession dbSession, ComponentDto project) {
@@ -112,10 +122,10 @@ public class SearchAction implements CustomMeasuresWsAction {
   }
 
   private void writeResponse(Response response, List<CustomMeasureDto> customMeasures, int nbCustomMeasures, ComponentDto project, Map<Integer, MetricDto> metricsById,
-    Map<String, User> usersByLogin, SearchOptions searchOptions, List<String> fieldsToReturn) {
+    Map<String, User> usersByLogin, @Nullable Long lastAnalysisDate, SearchOptions searchOptions, List<String> fieldsToReturn) {
     JsonWriter json = response.newJsonWriter();
     json.beginObject();
-    customMeasureJsonWriter.write(json, customMeasures, project, metricsById, usersByLogin, fieldsToReturn);
+    customMeasureJsonWriter.write(json, customMeasures, project, metricsById, usersByLogin, lastAnalysisDate, fieldsToReturn);
     searchOptions.writeJson(json, nbCustomMeasures);
     json.endObject();
     json.close();

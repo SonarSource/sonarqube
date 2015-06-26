@@ -132,7 +132,7 @@ public class CreateAction implements CustomMeasuresWsAction {
       dbSession.commit();
 
       JsonWriter json = response.newJsonWriter();
-      customMeasureJsonWriter.write(json, measure, metric, component, user, CustomMeasureJsonWriter.OPTIONAL_FIELDS);
+      customMeasureJsonWriter.write(json, measure, metric, component, user, true, CustomMeasureJsonWriter.OPTIONAL_FIELDS);
       json.close();
     } finally {
       MyBatis.closeQuietly(dbSession);

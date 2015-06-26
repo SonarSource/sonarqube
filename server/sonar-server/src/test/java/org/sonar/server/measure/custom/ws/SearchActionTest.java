@@ -20,6 +20,7 @@
 
 package org.sonar.server.measure.custom.ws;
 
+import java.util.Date;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -31,13 +32,16 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.measure.custom.db.CustomMeasureDto;
 import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;
+import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.component.db.ComponentDao;
+import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
@@ -83,7 +87,7 @@ public class SearchActionTest {
 
   @Before
   public void setUp() {
-    dbClient = new DbClient(db.database(), db.myBatis(), new CustomMeasureDao(), new ComponentDao(), new MetricDao());
+    dbClient = new DbClient(db.database(), db.myBatis(), new CustomMeasureDao(), new ComponentDao(), new MetricDao(), new SnapshotDao());
     dbSession = dbClient.openSession(false);
     db.truncateTables();
     CustomMeasureJsonWriter customMeasureJsonWriter = new CustomMeasureJsonWriter(new UserJsonWriter(userSessionRule));
@@ -112,12 +116,12 @@ public class SearchActionTest {
 
     response.assertJson(getClass(), "metrics.json");
     String responseAsString = response.outputAsString();
-    assertThat(responseAsString).matches(nameValuePattern("id", metric1.getId().toString()));
-    assertThat(responseAsString).matches(nameValuePattern("id", metric2.getId().toString()));
-    assertThat(responseAsString).matches(nameValuePattern("id", metric3.getId().toString()));
-    assertThat(responseAsString).matches(nameValuePattern("id", String.valueOf(customMeasure1.getId())));
-    assertThat(responseAsString).matches(nameValuePattern("id", String.valueOf(customMeasure2.getId())));
-    assertThat(responseAsString).matches(nameValuePattern("id", String.valueOf(customMeasure3.getId())));
+    assertThat(responseAsString).matches(nameStringValuePattern("id", metric1.getId().toString()));
+    assertThat(responseAsString).matches(nameStringValuePattern("id", metric2.getId().toString()));
+    assertThat(responseAsString).matches(nameStringValuePattern("id", metric3.getId().toString()));
+    assertThat(responseAsString).matches(nameStringValuePattern("id", String.valueOf(customMeasure1.getId())));
+    assertThat(responseAsString).matches(nameStringValuePattern("id", String.valueOf(customMeasure2.getId())));
+    assertThat(responseAsString).matches(nameStringValuePattern("id", String.valueOf(customMeasure3.getId())));
     assertThat(responseAsString).contains("createdAt", "updatedAt");
   }
 
@@ -184,6 +188,23 @@ public class SearchActionTest {
       .doesNotContain("updatedAt")
       .doesNotContain("user")
       .doesNotContain("metric");
+  }
+
+  @Test
+  public void search_with_more_recent_analysis() throws Exception {
+    long yesterday = DateUtils.addDays(new Date(), -1).getTime();
+    MetricDto metric = insertCustomMetric(1);
+    dbClient.customMeasureDao().insert(dbSession, newCustomMeasure(1, metric)
+      .setCreatedAt(yesterday)
+      .setUpdatedAt(yesterday));
+    dbClient.snapshotDao().insert(dbSession, SnapshotTesting.createForProject(defaultProject));
+    dbSession.commit();
+
+    String response = newRequest()
+      .setParam(SearchAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
+      .execute().outputAsString();
+
+    assertThat(response).matches(nameValuePattern("pending", "false"));
   }
 
   @Test
@@ -268,7 +289,11 @@ public class SearchActionTest {
     return ws.newGetRequest(CustomMeasuresWs.ENDPOINT, SearchAction.ACTION);
   }
 
-  private static String nameValuePattern(String name, String value) {
+  private static String nameStringValuePattern(String name, String value) {
     return String.format(".*\"%s\"\\s*:\\s*\"%s\".*", name, value);
+  }
+
+  private static String nameValuePattern(String name, String value) {
+    return String.format(".*\"%s\"\\s*:\\s*%s.*", name, value);
   }
 }
