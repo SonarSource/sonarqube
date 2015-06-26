@@ -1,0 +1,1 @@
+Used by ItUtils to locate root directory of sources

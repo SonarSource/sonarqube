@@ -18,20 +18,13 @@ public class ItUtils {
   private static final Supplier<File> HOME_DIR = Suppliers.memoize(new Supplier<File>() {
     @Override
     public File get() {
-      File dir = new File("it");
-
-      // intellij way
-      if (dir.exists() && dir.isDirectory()) {
-        return dir.getParentFile();
-      }
-
-      // maven way
-      dir = new File("../it");
-      if (dir.exists() && dir.isDirectory()) {
-        return dir.getParentFile();
-      }
-
-      throw new IllegalStateException("Fail to locate home directory");
+      File testResources = FileUtils.toFile(ItUtils.class.getResource("/ItUtils.txt"));
+      return testResources // ${home}/it/it-tests/src/test/resources
+        .getParentFile() // ${home}/it/it-tests/src/test
+        .getParentFile() // ${home}/it/it-tests/src
+        .getParentFile() // ${home}/it/it-tests
+        .getParentFile() // ${home}/it
+        .getParentFile(); // ${home}
     }
   });
 
@@ -39,7 +32,7 @@ public class ItUtils {
     File target = new File(HOME_DIR.get(), "plugins/sonar-xoo-plugin/target");
     if (target.exists()) {
       for (File jar : FileUtils.listFiles(target, new String[] {"jar"}, false)) {
-        if (jar.getName().startsWith("sonar-xoo-plugin-") && !jar.getName().contains("-source")) {
+        if (jar.getName().startsWith("sonar-xoo-plugin-") && !jar.getName().contains("-sources")) {
           return FileLocation.of(jar);
         }
       }
@@ -50,10 +43,10 @@ public class ItUtils {
   /**
    * Locate the directory of sample project
    *
-   * @param relativePath path related to the directory it/projects, for example "qualitygate/xoo-sample"
+   * @param relativePath path related to the directory it/it-projects, for example "qualitygate/xoo-sample"
    */
   public static File projectDir(String relativePath) {
-    File dir = new File(HOME_DIR.get(), "it/projects/" + relativePath);
+    File dir = new File(HOME_DIR.get(), "it/it-projects/" + relativePath);
     if (!dir.exists() || !dir.isDirectory()) {
       throw new IllegalStateException("Directory does not exist: " + dir.getAbsolutePath());
     }

@@ -16,21 +16,21 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>plugins</module>
-    <module>tests</module>
+    <module>it-plugins</module>
+    <module>it-tests</module>
   </modules>
 
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-xoo-plugin</artifactId>
-      <version>${pom.version}</version>
+      <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-application</artifactId>
-      <version>${pom.version}</version>
+      <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

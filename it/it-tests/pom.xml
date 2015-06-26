@@ -8,15 +8,23 @@
     <artifactId>it-parent</artifactId>
     <version>5.2-SNAPSHOT</version>
   </parent>
-  <artifactId>tests</artifactId>
+  <artifactId>it-tests</artifactId>
   <name>SonarQube Integration Tests :: Tests</name>
 
   <properties>
     <category>*</category>
     <surefire.argLine>-Xmx128m -server</surefire.argLine>
+    <skipIts>false</skipIts>
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>org.sonarsource.it</groupId>
+      <artifactId>it-plugins</artifactId>
+      <version>${project.version}</version>
+      <type>pom</type>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-ws-client</artifactId>
@@ -77,6 +85,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <skipTests>${skipIts}</skipTests>
           <includes>
             <include>${category}/suite/*TestSuite.java</include>
             <!-- not included in suites -->

@@ -8,7 +8,7 @@
     <artifactId>it-parent</artifactId>
     <version>5.2-SNAPSHOT</version>
   </parent>
-  <artifactId>plugins</artifactId>
+  <artifactId>it-plugins</artifactId>
   <name>SonarQube Integration Tests :: Plugins</name>
   <description>The fake plugins used by integration tests</description>
   <packaging>pom</packaging>
@@ -25,8 +25,5 @@
     </plugins>
   </build>
 
-  <modules>
-
-  </modules>
 
 </project>
