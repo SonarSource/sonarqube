@@ -32,10 +32,6 @@ import org.sonar.batch.compute.ItBranchCoverageDecorator;
 import org.sonar.batch.compute.ItCoverageDecorator;
 import org.sonar.batch.compute.ItLineCoverageDecorator;
 import org.sonar.batch.compute.LineCoverageDecorator;
-import org.sonar.batch.compute.NewCoverageAggregator;
-import org.sonar.batch.compute.NewCoverageFileAnalyzer;
-import org.sonar.batch.compute.NewItCoverageFileAnalyzer;
-import org.sonar.batch.compute.NewOverallCoverageFileAnalyzer;
 import org.sonar.batch.compute.OverallBranchCoverageDecorator;
 import org.sonar.batch.compute.OverallCoverageDecorator;
 import org.sonar.batch.compute.OverallLineCoverageDecorator;
@@ -115,10 +111,6 @@ public class BatchComponents {
       CommentDensityDecorator.class,
       DirectoriesDecorator.class,
       FilesDecorator.class,
-      NewCoverageFileAnalyzer.class,
-      NewItCoverageFileAnalyzer.class,
-      NewOverallCoverageFileAnalyzer.class,
-      NewCoverageAggregator.class,
       TimeMachineConfiguration.class
       );
     components.addAll(CorePropertyDefinitions.all());
