@@ -23,8 +23,12 @@ package org.sonar.server.measure.custom.ws;
 import org.sonar.api.PropertyType;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.measure.custom.db.CustomMeasureDto;
 import org.sonar.core.metric.db.MetricDto;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
 @ServerSide
@@ -94,5 +98,13 @@ public class CustomMeasureValidator {
   private void checkAndSetBooleanMeasureValue(CustomMeasureDto measure, String valueAsString) {
     typeValidations.validate(valueAsString, PropertyType.BOOLEAN.name(), null);
     measure.setValue(Boolean.parseBoolean(valueAsString) ? 1.0d : 0.0d);
+  }
+
+  public static void checkPermissions(UserSession userSession, ComponentDto component) {
+    if (userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN)) {
+      return;
+    }
+
+    userSession.checkLoggedIn().checkProjectUuidPermission(UserRole.ADMIN, component.projectUuid());
   }
 }

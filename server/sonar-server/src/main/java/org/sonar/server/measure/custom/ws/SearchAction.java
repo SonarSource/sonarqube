@@ -42,10 +42,12 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserIndex;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Sets.newHashSet;
+import static org.sonar.server.measure.custom.ws.CustomMeasureValidator.checkPermissions;
 
 public class SearchAction implements CustomMeasuresWsAction {
 
@@ -56,17 +58,20 @@ public class SearchAction implements CustomMeasuresWsAction {
   private final DbClient dbClient;
   private final UserIndex userIndex;
   private final CustomMeasureJsonWriter customMeasureJsonWriter;
+  private final UserSession userSession;
 
-  public SearchAction(DbClient dbClient, UserIndex userIndex, CustomMeasureJsonWriter customMeasureJsonWriter) {
+  public SearchAction(DbClient dbClient, UserIndex userIndex, CustomMeasureJsonWriter customMeasureJsonWriter, UserSession userSession) {
     this.dbClient = dbClient;
     this.userIndex = userIndex;
     this.customMeasureJsonWriter = customMeasureJsonWriter;
+    this.userSession = userSession;
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
-      .setDescription("List custom measures. The project id or project key must be provided.")
+      .setDescription("List custom measures. The project id or project key must be provided.<br />" +
+        "Requires 'Administer System' permission or 'Administer' permission on the project.")
       .setSince("5.2")
       .addFieldsParam(CustomMeasureJsonWriter.OPTIONAL_FIELDS)
       .addPagingParams(100)
@@ -94,6 +99,7 @@ public class SearchAction implements CustomMeasuresWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       ComponentDto project = searchProject(dbSession, projectUuid, projectKey);
+      checkPermissions(userSession, project);
       Long lastAnalysisDateMs = searchLastSnapshot(dbSession, project);
       List<CustomMeasureDto> customMeasures = searchCustomMeasures(dbSession, project, searchOptions);
       int nbCustomMeasures = countTotalOfCustomMeasures(dbSession, project);

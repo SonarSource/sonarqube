@@ -26,10 +26,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.metric.db.MetricDto;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
@@ -38,6 +36,7 @@ import org.sonar.server.metric.ws.MetricJsonWriter;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.server.measure.custom.ws.CustomMeasureValidator.checkPermissions;
 
 public class MetricsAction implements CustomMeasuresWsAction {
   public static final String ACTION = "metrics";
@@ -78,7 +77,7 @@ public class MetricsAction implements CustomMeasuresWsAction {
 
     try {
       ComponentDto project = searchProject(dbSession, request);
-      checkPermissions(project);
+      checkPermissions(userSession, project);
       List<MetricDto> metrics = searchMetrics(dbSession, project);
 
       writeResponse(response.newJsonWriter(), metrics);
@@ -118,13 +117,5 @@ public class MetricsAction implements CustomMeasuresWsAction {
     }
 
     return project;
-  }
-
-  private void checkPermissions(ComponentDto component) {
-    if (userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN)) {
-      return;
-    }
-
-    userSession.checkLoggedIn().checkProjectUuidPermission(UserRole.ADMIN, component.projectUuid());
   }
 }

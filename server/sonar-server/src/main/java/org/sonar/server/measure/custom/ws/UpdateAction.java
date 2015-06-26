@@ -27,17 +27,16 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.measure.custom.db.CustomMeasureDto;
 import org.sonar.core.metric.db.MetricDto;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserIndex;
 
+import static org.sonar.server.measure.custom.ws.CustomMeasureValidator.checkPermissions;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValueDescription.measureValueDescription;
 
 public class UpdateAction implements CustomMeasuresWsAction {
@@ -97,7 +96,7 @@ public class UpdateAction implements CustomMeasuresWsAction {
       CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectById(dbSession, id);
       MetricDto metric = dbClient.metricDao().selectById(dbSession, customMeasure.getMetricId());
       ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, customMeasure.getComponentUuid());
-      checkPermissions(component);
+      checkPermissions(userSession, component);
       User user = userIndex.getByLogin(userSession.getLogin());
 
       setValue(customMeasure, value, metric);
@@ -108,7 +107,7 @@ public class UpdateAction implements CustomMeasuresWsAction {
       dbSession.commit();
 
       JsonWriter json = response.newJsonWriter();
-      customMeasureJsonWriter.write(json, customMeasure, metric, component, user, true, CustomMeasureJsonWriter.OPTIONAL_FIELDS );
+      customMeasureJsonWriter.write(json, customMeasure, metric, component, user, true, CustomMeasureJsonWriter.OPTIONAL_FIELDS);
       json.close();
     } finally {
       MyBatis.closeQuietly(dbSession);
@@ -131,13 +130,5 @@ public class UpdateAction implements CustomMeasuresWsAction {
     if (value == null && description == null) {
       throw new IllegalArgumentException("Value or description must be provided.");
     }
-  }
-
-  private void checkPermissions(ComponentDto component) {
-    if (userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN)) {
-      return;
-    }
-
-    userSession.checkLoggedIn().checkProjectUuidPermission(UserRole.ADMIN, component.projectUuid());
   }
 }

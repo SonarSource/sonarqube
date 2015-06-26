@@ -33,9 +33,11 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.measure.custom.db.CustomMeasureDto;
 import org.sonar.core.metric.db.MetricDto;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;
@@ -44,6 +46,7 @@ import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.custom.persistence.CustomMeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
@@ -92,8 +95,9 @@ public class SearchActionTest {
     db.truncateTables();
     CustomMeasureJsonWriter customMeasureJsonWriter = new CustomMeasureJsonWriter(new UserJsonWriter(userSessionRule));
     UserIndex userIndex = new UserIndex(es.client());
-    ws = new WsTester(new CustomMeasuresWs(new SearchAction(dbClient, userIndex, customMeasureJsonWriter)));
+    ws = new WsTester(new CustomMeasuresWs(new SearchAction(dbClient, userIndex, customMeasureJsonWriter, userSessionRule)));
     defaultProject = insertDefaultProject();
+    userSessionRule.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   @After
@@ -208,6 +212,19 @@ public class SearchActionTest {
   }
 
   @Test
+  public void search_as_project_admin() throws Exception {
+    userSessionRule.login("login").addProjectUuidPermissions(UserRole.ADMIN, DEFAULT_PROJECT_UUID);
+    MetricDto metric1 = insertCustomMetric(1);
+    insertCustomMeasure(1, metric1);
+
+    String response = newRequest()
+      .setParam(SearchAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
+      .execute().outputAsString();
+
+    assertThat(response).contains("text-value-1");
+  }
+
+  @Test
   public void empty_json_when_no_measure() throws Exception {
     WsTester.Result response = newRequest()
       .setParam(SearchAction.PARAM_PROJECT_KEY, DEFAULT_PROJECT_KEY)
@@ -240,6 +257,20 @@ public class SearchActionTest {
     expectedException.expectMessage("Component with uuid 'wrong-project-uuid' not found");
 
     newRequest().setParam(SearchAction.PARAM_PROJECT_ID, "wrong-project-uuid").execute();
+  }
+
+  @Test
+  public void fail_when_not_enough_privileges() throws Exception {
+    expectedException.expect(ForbiddenException.class);
+    userSessionRule.login("login");
+    MetricDto metric1 = insertCustomMetric(1);
+    insertCustomMeasure(1, metric1);
+
+    String response = newRequest()
+      .setParam(SearchAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
+      .execute().outputAsString();
+
+    assertThat(response).contains("text-value-1");
   }
 
   private ComponentDto insertDefaultProject() {

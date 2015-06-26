@@ -27,11 +27,9 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.measure.custom.db.CustomMeasureDto;
 import org.sonar.core.metric.db.MetricDto;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
@@ -42,6 +40,7 @@ import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.server.measure.custom.ws.CustomMeasureValidator.checkPermissions;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValueDescription.measureValueDescription;
 
 public class CreateAction implements CustomMeasuresWsAction {
@@ -116,7 +115,7 @@ public class CreateAction implements CustomMeasuresWsAction {
     try {
       ComponentDto component = searchProject(dbSession, request);
       MetricDto metric = searchMetric(dbSession, request);
-      checkPermissions(component);
+      checkPermissions(userSession, component);
       checkIsProjectOrModule(component);
       checkMeasureDoesNotExistAlready(dbSession, component, metric);
       UserDoc user = userIndex.getByLogin(userSession.getLogin());
@@ -143,14 +142,6 @@ public class CreateAction implements CustomMeasuresWsAction {
     if (!Qualifiers.PROJECT.equals(component.qualifier()) && !Qualifiers.MODULE.equals(component.qualifier())) {
       throw new ServerException(HttpURLConnection.HTTP_CONFLICT, String.format("Component '%s' (id: %s) must be a project or a module.", component.key(), component.uuid()));
     }
-  }
-
-  private void checkPermissions(ComponentDto component) {
-    if (userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN)) {
-      return;
-    }
-
-    userSession.checkLoggedIn().checkProjectUuidPermission(UserRole.ADMIN, component.projectUuid());
   }
 
   private void checkMeasureDoesNotExistAlready(DbSession dbSession, ComponentDto component, MetricDto metric) {
