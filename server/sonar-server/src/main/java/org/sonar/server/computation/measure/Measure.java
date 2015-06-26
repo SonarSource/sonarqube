@@ -20,15 +20,23 @@
 package org.sonar.server.computation.measure;
 
 import com.google.common.base.Optional;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Locale;
 import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 public final class Measure {
+
+  /**
+   * Default precision when saving a double value type
+   */
+  private static final int DEFAULT_PRECISION = 1;
 
   public enum ValueType {
     NO_VALUE, BOOLEAN, INT, LONG, DOUBLE, STRING, LEVEL
@@ -86,12 +94,22 @@ public final class Measure {
     this.valueType = valueType;
     this.ruleId = ruleId;
     this.characteristicId = characteristicId;
-    this.value = value;
+    this.value = scale(value);
     this.data = data;
     this.dataLevel = dataLevel;
     this.description = description;
     this.qualityGateStatus = qualityGateStatus;
     this.variations = variations;
+  }
+
+  @CheckForNull
+  private static Double scale(@Nullable Double value) {
+    if (value == null) {
+      return null;
+    }
+    checkArgument(!Double.isNaN(value), "Measure value can not be NaN");
+    BigDecimal bd = BigDecimal.valueOf(value);
+    return bd.setScale(DEFAULT_PRECISION, RoundingMode.HALF_UP).doubleValue();
   }
 
   public static NewMeasureBuilder newMeasureBuilder() {

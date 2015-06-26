@@ -147,7 +147,7 @@ public class BestValueOptimizationTest {
 
     assertThat(underTest.apply(newMeasureBuilder().create(36.5d))).isTrue();
     assertThat(underTest.apply(newMeasureBuilder().setVariations(SOME_EMPTY_VARIATIONS).create(36.5d))).isTrue();
-    assertThat(underTest.apply(newMeasureBuilder().create(36.52d))).isFalse();
+    assertThat(underTest.apply(newMeasureBuilder().create(36.6d))).isFalse();
   }
 
   @Test

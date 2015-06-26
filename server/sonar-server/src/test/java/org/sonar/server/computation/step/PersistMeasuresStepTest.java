@@ -188,7 +188,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dto.get("metricId")).isEqualTo(doubleMetric.getId().longValue());
     assertThat(dto.get("ruleId")).isEqualTo(rule.getId().longValue());
     assertThat(dto.get("characteristicId")).isNull();
-    assertThat(dto.get("value")).isEqualTo(123.123d);
+    assertThat(dto.get("value")).isEqualTo(123.1d);
     assertThat(dto.get("severity")).isNull();
   }
 

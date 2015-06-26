@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.step;
 
-import org.assertj.core.data.Offset;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -93,7 +92,7 @@ public class CustomMeasuresCopyStepTest {
     ArgumentCaptor<Measure> measureCaptor = ArgumentCaptor.forClass(Measure.class);
     verify(measureRepository).add(eq(file1), eq(floatMetric), measureCaptor.capture());
     Measure fileMeasure = measureCaptor.getValue();
-    assertThat(fileMeasure.getDoubleValue()).isEqualTo(3.14, Offset.offset(0.001));
+    assertThat(fileMeasure.getDoubleValue()).isEqualTo(3.1d);
 
     verify(measureRepository).add(eq(project), eq(stringMetric), measureCaptor.capture());
     Measure projectMeasure = measureCaptor.getValue();
