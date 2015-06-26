@@ -52,7 +52,7 @@ public class MetricsAction implements CustomMeasuresWsAction {
       .setInternal(true)
       .setHandler(this)
       .setResponseExample(Resources.getResource(getClass(), "example-metrics.json"))
-      .setDescription("List all available custom metrics for a given project where no custom measure already exists.<br /> " +
+      .setDescription("List all custom metrics for which no custom measure already exists on a given project.<br /> " +
         "The project id or project key must be provided.");
 
     action.createParam(PARAM_PROJECT_ID)
