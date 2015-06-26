@@ -57,6 +57,8 @@ public class ComputationSteps {
       CustomMeasuresCopyStep.class,
       ComputeIssueMeasuresStep.class,
       SqaleMeasuresStep.class,
+      NewCoverageMeasuresStep.class,
+      NewCoverageAggregationStep.class,
 
       // Must be executed after computation of all measures
       FillMeasuresWithVariationsStep.class,

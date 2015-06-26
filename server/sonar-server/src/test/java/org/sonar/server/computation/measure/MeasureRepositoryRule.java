@@ -21,7 +21,6 @@ package org.sonar.server.computation.measure;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.SetMultimap;
 import java.util.HashMap;
@@ -42,6 +41,7 @@ import org.sonar.server.computation.metric.MetricRepositoryRule;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Maps.filterKeys;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
@@ -133,7 +133,7 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
     checkAndInitProvidersState();
 
     ImmutableSetMultimap.Builder<String, Measure> builder = ImmutableSetMultimap.builder();
-    for (Map.Entry<InternalKey, Measure> entry : FluentIterable.from(filterKeys(rawMeasures, hasComponentRef(component)).entrySet()).filter(isNewMeasure)) {
+    for (Map.Entry<InternalKey, Measure> entry : from(filterKeys(rawMeasures, hasComponentRef(component)).entrySet()).filter(isNewMeasure)) {
       builder.put(entry.getKey().getMetricKey(), entry.getValue());
     }
     return builder.build();

@@ -51,6 +51,7 @@ import org.sonar.server.computation.issue.ScmAccountCacheLoader;
 import org.sonar.server.computation.issue.SourceLinesCache;
 import org.sonar.server.computation.language.LanguageRepositoryImpl;
 import org.sonar.server.computation.measure.MeasureRepositoryImpl;
+import org.sonar.server.computation.measure.newcoverage.NewCoverageMetricKeysModule;
 import org.sonar.server.computation.metric.MetricRepositoryImpl;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
 import org.sonar.server.computation.qualitygate.EvaluationResultTextConverterImpl;
@@ -148,6 +149,9 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
 
       QualityGateServiceImpl.class,
       EvaluationResultTextConverterImpl.class,
+
+      // new coverage measures
+      NewCoverageMetricKeysModule.class,
 
       // issues
       ScmAccountCacheLoader.class,
