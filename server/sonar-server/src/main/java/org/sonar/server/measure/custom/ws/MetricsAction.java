@@ -26,11 +26,16 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.metric.db.MetricDto;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.metric.ws.MetricJsonWriter;
+import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -40,9 +45,11 @@ public class MetricsAction implements CustomMeasuresWsAction {
   public static final String PARAM_PROJECT_KEY = "projectKey";
 
   private final DbClient dbClient;
+  private final UserSession userSession;
 
-  public MetricsAction(DbClient dbClient) {
+  public MetricsAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
+    this.userSession = userSession;
   }
 
   @Override
@@ -53,7 +60,8 @@ public class MetricsAction implements CustomMeasuresWsAction {
       .setHandler(this)
       .setResponseExample(Resources.getResource(getClass(), "example-metrics.json"))
       .setDescription("List all custom metrics for which no custom measure already exists on a given project.<br /> " +
-        "The project id or project key must be provided.");
+        "The project id or project key must be provided.<br />" +
+        "Requires 'Administer System' permission or 'Administer' permission on the project.");
 
     action.createParam(PARAM_PROJECT_ID)
       .setDescription("Project id")
@@ -67,32 +75,56 @@ public class MetricsAction implements CustomMeasuresWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     DbSession dbSession = dbClient.openSession(false);
-    try {
-      List<MetricDto> metrics = searchMetrics(dbSession, request);
 
-      JsonWriter json = response.newJsonWriter();
-      json.beginObject();
-      MetricJsonWriter.write(json, metrics, MetricJsonWriter.ALL_FIELDS);
-      json.endObject();
-      json.close();
+    try {
+      ComponentDto project = searchProject(dbSession, request);
+      checkPermissions(project);
+      List<MetricDto> metrics = searchMetrics(dbSession, project);
+
+      writeResponse(response.newJsonWriter(), metrics);
     } finally {
       MyBatis.closeQuietly(dbSession);
     }
   }
 
-  private List<MetricDto> searchMetrics(DbSession dbSession, Request request) {
-    String projectUuidParam = request.param(PARAM_PROJECT_ID);
-    String projectKeyParam = request.param(PARAM_PROJECT_KEY);
-    String projectUuid;
+  private void writeResponse(JsonWriter json, List<MetricDto> metrics) {
+    json.beginObject();
+    MetricJsonWriter.write(json, metrics, MetricJsonWriter.ALL_FIELDS);
+    json.endObject();
+    json.close();
+  }
 
-    checkArgument(projectUuidParam != null ^ projectKeyParam != null, "The project uuid or the project key must be provided, not both.");
+  private List<MetricDto> searchMetrics(DbSession dbSession, ComponentDto project) {
+    return dbClient.metricDao().selectAvailableCustomMetricsByComponentUuid(dbSession, project.uuid());
+  }
 
-    if (projectUuidParam == null) {
-      projectUuid = dbClient.componentDao().selectByKey(dbSession, projectKeyParam).uuid();
-    } else {
-      projectUuid = projectUuidParam;
+  private ComponentDto searchProject(DbSession dbSession, Request request) {
+    String projectUuid = request.param(PARAM_PROJECT_ID);
+    String projectKey = request.param(PARAM_PROJECT_KEY);
+    checkArgument(projectUuid != null ^ projectKey != null, "The project key or the project id must be provided, not both.");
+
+    if (projectUuid != null) {
+      ComponentDto project = dbClient.componentDao().selectNullableByUuid(dbSession, projectUuid);
+      if (project == null) {
+        throw new NotFoundException(String.format("Project id '%s' not found", projectUuid));
+      }
+
+      return project;
     }
 
-    return dbClient.metricDao().selectAvailableCustomMetricsByComponentUuid(dbSession, projectUuid);
+    ComponentDto project = dbClient.componentDao().selectNullableByKey(dbSession, projectKey);
+    if (project == null) {
+      throw new NotFoundException(String.format("Project key '%s' not found", projectKey));
+    }
+
+    return project;
+  }
+
+  private void checkPermissions(ComponentDto component) {
+    if (userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN)) {
+      return;
+    }
+
+    userSession.checkLoggedIn().checkProjectUuidPermission(UserRole.ADMIN, component.projectUuid());
   }
 }

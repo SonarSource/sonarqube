@@ -30,17 +30,21 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.measure.custom.db.CustomMeasureDto;
 import org.sonar.core.metric.db.MetricDto;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.measure.custom.persistence.CustomMeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.ws.WsTester;
@@ -59,6 +63,8 @@ public class MetricsActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
   @ClassRule
@@ -66,6 +72,7 @@ public class MetricsActionTest {
   DbClient dbClient;
   DbSession dbSession;
   WsTester ws;
+  ComponentDto defaultProject;
 
   @BeforeClass
   public static void setUpClass() throws Exception {
@@ -81,7 +88,9 @@ public class MetricsActionTest {
     dbClient = new DbClient(db.database(), db.myBatis(), new MetricDao(), new ComponentDao(), new CustomMeasureDao());
     dbSession = dbClient.openSession(false);
     db.truncateTables();
-    ws = new WsTester(new CustomMeasuresWs(new MetricsAction(dbClient)));
+    ws = new WsTester(new CustomMeasuresWs(new MetricsAction(dbClient, userSession)));
+    userSession.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    defaultProject = insertDefaultProject();
   }
 
   @After
@@ -118,11 +127,10 @@ public class MetricsActionTest {
   public void list_metrics_where_no_existing_custom_measure() throws Exception {
     MetricDto metric = insertCustomMetric("metric-key-1");
     insertCustomMetric("metric-key-2");
-    ComponentDto project = insertDefaultProject();
     insertProject("project-uuid-2", "project-key-2");
 
     CustomMeasureDto customMeasure = newCustomMeasureDto()
-      .setComponentUuid(project.uuid())
+      .setComponentUuid(defaultProject.uuid())
       .setMetricId(metric.getId());
     dbClient.customMeasureDao().insert(dbSession, customMeasure);
     dbSession.commit();
@@ -137,11 +145,10 @@ public class MetricsActionTest {
   public void list_metrics_based_on_project_key() throws Exception {
     MetricDto metric = insertCustomMetric("metric-key-1");
     insertCustomMetric("metric-key-2");
-    ComponentDto project = insertDefaultProject();
     insertProject("project-uuid-2", "project-key-2");
 
     CustomMeasureDto customMeasure = newCustomMeasureDto()
-      .setComponentUuid(project.uuid())
+      .setComponentUuid(defaultProject.uuid())
       .setMetricId(metric.getId());
     dbClient.customMeasureDao().insert(dbSession, customMeasure);
     dbSession.commit();
@@ -152,6 +159,16 @@ public class MetricsActionTest {
 
     assertThat(response).contains("metric-key-2")
       .doesNotContain("metric-key-1");
+  }
+
+  @Test
+  public void list_metrics_as_a_project_admin() throws Exception {
+    insertCustomMetric("metric-key-1");
+    userSession.login("login").addProjectUuidPermissions(UserRole.ADMIN, defaultProject.uuid());
+
+    String response = newRequest().outputAsString();
+
+    assertThat(response).contains("metric-key-1");
   }
 
   @Test
@@ -194,6 +211,16 @@ public class MetricsActionTest {
     expectedException.expect(IllegalArgumentException.class);
 
     ws.newGetRequest(ENDPOINT, ACTION).execute();
+  }
+
+  @Test
+  public void fail_if_insufficient_privilege() throws Exception {
+    expectedException.expect(ForbiddenException.class);
+    userSession.login("login");
+
+    insertCustomMetric("metric-key-1");
+
+    newRequest();
   }
 
   private WsTester.Result newRequest() throws Exception {
