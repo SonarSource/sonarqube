@@ -32,10 +32,13 @@ define(['./templates'], function () {
       defaultLabel = function (item) {
         return item.val;
       },
-      defaultLink = function (item, property, query) {
+      defaultLink = function (item, property, query, index, items, mode) {
         var criterion = {};
         criterion[property] = item.val;
         var r = _.extend({}, query, criterion);
+        if (mode === 'debt') {
+          r.facetMode = 'debt';
+        }
         if (r.componentKey != null) {
           return baseUrl + '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
               '#' + getQuery(_.omit(r, 'componentKey'));
@@ -164,7 +167,7 @@ define(['./templates'], function () {
                 isSameDay = ending.diff(beginning, 'days') <= 1;
             return beginning.format('LL') + (isSameDay ? '' : (' – ' + ending.format('LL')));
           },
-          link: function (item, property, query, index, items) {
+          link: function (item, property, query, index, items, mode) {
             var createdAfter = moment(item.val),
                 endDate = query.createdBefore != null ? moment(query.createdBefore) : moment(),
                 createdBefore = index < items.length - 1 ? moment(items[index + 1].val).subtract(1, 'days') : endDate,
@@ -176,6 +179,9 @@ define(['./templates'], function () {
               createdAfter: createdAfter.format('YYYY-MM-DD'),
               createdBefore: createdBefore.format('YYYY-MM-DD')
             });
+            if (mode === 'debt') {
+              r.facetMode = 'debt';
+            }
             if (r.componentKey != null) {
               return baseUrl + '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
                   '#' + getQuery(_.omit(r, 'componentKey'));
@@ -195,10 +201,13 @@ define(['./templates'], function () {
     return route.join(separator);
   }
 
-  Handlebars.registerHelper('issueFilterItemLink', function (query, property, value) {
+  Handlebars.registerHelper('issueFilterItemLink', function (query, property, value, mode) {
     var criterion = {};
     criterion[property] = value;
     var r = _.extend({}, query, criterion);
+    if (mode === 'debt') {
+      r.facetMode = 'debt';
+    }
     if (r.componentKey != null) {
       return baseUrl + '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
           '#' + getQuery(_.omit(r, 'componentKey'));
@@ -207,14 +216,22 @@ define(['./templates'], function () {
     }
   });
 
-  Handlebars.registerHelper('issueFilterTotalLink', function (query) {
+  Handlebars.registerHelper('issueFilterTotalLink', function (query, mode) {
     var r = _.extend({}, query);
+    if (mode === 'debt') {
+      r.facetMode = 'debt';
+    }
     if (r.componentKey != null) {
       return baseUrl + '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
           '#' + getQuery(_.omit(r, 'componentKey'));
     } else {
       return baseUrl + '/issues/search#' + getQuery(r);
     }
+  });
+
+  Handlebars.registerHelper('issueFilterValue', function (value, mode) {
+    var formatter = mode === 'debt' ? 'SHORT_WORK_DUR' : 'SHORT_INT';
+    return window.formatMeasure(value, formatter);
   });
 
   return Marionette.ItemView.extend({
@@ -284,9 +301,10 @@ define(['./templates'], function () {
     withLink: function (items) {
       var link = this.conf != null && this.conf.link != null ? this.conf.link : defaultLink,
           property = this.options.distributionAxis,
+          mode = this.options.displayMode,
           query = this.model.get('parsedQuery');
       return items.map(function (item, index) {
-        return _.extend(item, { searchLink: link(item, property, query, index, items) });
+        return _.extend(item, { searchLink: link(item, property, query, index, items, mode) });
       });
     },
 
@@ -301,10 +319,12 @@ define(['./templates'], function () {
 
     requestIssues: function () {
       var that = this,
+          facetMode = this.options.displayMode,
           url = baseUrl + '/api/issues/search',
           options = _.extend({}, this.query, {
             ps: 1,
-            facets: this.options.distributionAxis
+            facets: this.options.distributionAxis,
+            facetMode: facetMode
           });
       if (this.options.componentUuid != null) {
         _.extend(options, { componentUuids: this.options.componentUuid });
@@ -321,10 +341,14 @@ define(['./templates'], function () {
             items: items,
             maxResultsReached: items.length >= FACET_LIMIT,
             maxResults: items.length,
-            total: r.total
+            total: facetMode === 'debt' ? r.debtTotal : r.total
           });
         }
       });
+    },
+
+    serializeData: function () {
+      return _.extend(this._super(), { displayMode: this.options.displayMode });
     }
   });
 

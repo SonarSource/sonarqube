@@ -63,12 +63,12 @@ casper.test.begin(testName('Unresolved Issues By Severity'), 13, function (test)
         test.assertElementCount('tr', 6);
 
         // check order and values
-        test.assertSelectorContains('tr:nth-child(1)', '6,851');
+        test.assertSelectorContains('tr:nth-child(1)', '6.9k');
         test.assertSelectorContains('tr:nth-child(2)', '1');
         test.assertSelectorContains('tr:nth-child(3)', '105');
-        test.assertSelectorContains('tr:nth-child(4)', '5,027');
+        test.assertSelectorContains('tr:nth-child(4)', '5k');
         test.assertSelectorContains('tr:nth-child(5)', '540');
-        test.assertSelectorContains('tr:nth-child(6)', '1,178');
+        test.assertSelectorContains('tr:nth-child(6)', '1.2k');
 
         // check links
         test.assertExists('tr:nth-child(1) a[href="/component_issues/index?id=org.codehaus.sonar%3Asonar#resolved=false"]');
@@ -124,10 +124,10 @@ casper.test.begin(testName('Unresolved Issues By Date'), 18, function (test) {
         test.assertElementCount('tr', 6);
 
         // check order and values
-        test.assertSelectorContains('tr:nth-child(1)', '6,851');
-        test.assertSelectorContains('tr:nth-child(2)', '1,724');
-        test.assertSelectorContains('tr:nth-child(3)', '3,729');
-        test.assertSelectorContains('tr:nth-child(4)', '1,262');
+        test.assertSelectorContains('tr:nth-child(1)', '6.9k');
+        test.assertSelectorContains('tr:nth-child(2)', '1.7k');
+        test.assertSelectorContains('tr:nth-child(3)', '3.7k');
+        test.assertSelectorContains('tr:nth-child(4)', '1.3k');
         test.assertSelectorContains('tr:nth-child(5)', '64');
         test.assertSelectorContains('tr:nth-child(6)', '72');
 

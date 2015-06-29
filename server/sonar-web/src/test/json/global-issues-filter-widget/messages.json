@@ -1,0 +1,6 @@
+{
+  "work_duration.x_days": "{0}d",
+  "work_duration.x_hours": "{0}h",
+  "work_duration.x_minutes": "{0}min",
+  "work_duration.about": "~ {0}"
+}

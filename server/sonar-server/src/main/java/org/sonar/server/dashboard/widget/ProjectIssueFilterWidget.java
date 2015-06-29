@@ -34,13 +34,15 @@ import static org.sonar.api.web.WidgetScope.PROJECT;
   @WidgetProperty(key = ProjectIssueFilterWidget.DISTRIBUTION_AXIS_PROPERTY, type = WidgetPropertyType.SINGLE_SELECT_LIST, defaultValue = "severities",
     options = {"severities", "resolutions", "statuses", "rules", "tags", "assignees", "reporters", "authors",
       "languages", "actionPlans", "createdAt"}),
-  @WidgetProperty(key = ProjectIssueFilterWidget.DISPLAY_FILTER_DESCRIPTION, type = WidgetPropertyType.BOOLEAN, defaultValue = "false")
+  @WidgetProperty(key = ProjectIssueFilterWidget.DISPLAY_FILTER_DESCRIPTION, type = WidgetPropertyType.BOOLEAN, defaultValue = "false"),
+  @WidgetProperty(key = ProjectIssueFilterWidget.DISPLAY_MODE, type = WidgetPropertyType.SINGLE_SELECT_LIST, defaultValue = "count", options = {"count", "debt"})
 })
 public class ProjectIssueFilterWidget extends CoreWidget {
 
   public static final String FILTER_PROPERTY = "filter";
   public static final String DISTRIBUTION_AXIS_PROPERTY = "distributionAxis";
   public static final String DISPLAY_FILTER_DESCRIPTION = "displayFilterDescription";
+  public static final String DISPLAY_MODE = "displayMode";
   public static final String ID = "project_issue_filter";
 
   public ProjectIssueFilterWidget() {

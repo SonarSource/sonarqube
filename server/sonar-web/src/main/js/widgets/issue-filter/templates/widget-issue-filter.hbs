@@ -6,7 +6,7 @@
         <a href="{{searchLink}}">{{default label val}}</a>
       </td>
       <td class="text-right nowrap">
-        {{#notNull ../periodDate}}+{{/notNull}}{{numberShort count}}
+        {{#notNull ../periodDate}}+{{/notNull}}{{issueFilterValue count ../displayMode}}
       </td>
       <td class="barchart">
         <div class="barchart" style="width: 100%;">

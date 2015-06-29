@@ -4,13 +4,13 @@
     <tr>
       <td>
         {{#eq val ''}}
-          <a href="{{issueFilterItemLink ../../parsedQuery 'assigned' 'false'}}">{{t 'unassigned'}}</a>
+          <a href="{{issueFilterItemLink ../../parsedQuery 'assigned' 'false' ../../displayMode}}">{{t 'unassigned'}}</a>
         {{else}}
-          <a href="{{issueFilterItemLink ../../parsedQuery 'assignees' val}}">{{default label val}}</a>
+          <a href="{{issueFilterItemLink ../../parsedQuery 'assignees' val ../../displayMode}}">{{default label val}}</a>
         {{/eq}}
       </td>
       <td class="text-right nowrap">
-        {{#notNull ../periodDate}}+{{/notNull}}{{numberShort count}}
+        {{#notNull ../periodDate}}+{{/notNull}}{{issueFilterValue count ../displayMode}}
       </td>
       <td class="barchart">
         <div class="barchart" style="width: 100%;">

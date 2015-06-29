@@ -3,6 +3,7 @@
    filter_id = widget_properties['filter']
    filter = Internal.issues.findIssueFilterById(filter_id.to_i)
    distribution_axis = widget_properties['distributionAxis']
+   display_mode = widget_properties['displayMode']
    is_enough_permissions = filter.shared || (current_user && filter.userLogin == current_user.login)
 %>
 
@@ -32,7 +33,8 @@
             new IssueFilter({
               el: '#<%= container_id -%>',
               query: query,
-              distributionAxis: '<%= distribution_axis -%>'
+              distributionAxis: '<%= distribution_axis -%>',
+              displayMode: '<%= display_mode -%>'
             });
           });
         });
