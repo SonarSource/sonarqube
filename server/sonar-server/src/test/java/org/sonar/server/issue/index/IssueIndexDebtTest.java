@@ -249,7 +249,7 @@ public class IssueIndexDebtTest {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
     Map<String, Long> createdAt = index.search(newQueryBuilder()
-        .createdBefore(DateUtils.parseDateTime("2016-01-01T00:00:00+0100")).build(),
+      .createdBefore(DateUtils.parseDateTime("2016-01-01T00:00:00+0100")).build(),
       SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2011-01-01T00:00:00+0000", 10L),
@@ -265,7 +265,7 @@ public class IssueIndexDebtTest {
 
     IssueDoc issue0 = IssueTesting.newDoc("ISSUE0", file).setFuncCreationDate(DateUtils.parseDateTime("2011-04-25T01:05:13+0100"));
     IssueDoc issue1 = IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-01T12:34:56+0100"));
-    IssueDoc issue2 = IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-01T23:45:60+0100"));
+    IssueDoc issue2 = IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-01T23:46:00+0100"));
     IssueDoc issue3 = IssueTesting.newDoc("ISSUE3", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-02T12:34:56+0100"));
     IssueDoc issue4 = IssueTesting.newDoc("ISSUE4", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-05T12:34:56+0100"));
     IssueDoc issue5 = IssueTesting.newDoc("ISSUE5", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-20T12:34:56+0100"));
