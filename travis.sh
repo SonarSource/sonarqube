@@ -49,11 +49,13 @@ PRANALYSIS)
   ;;
 
 ITS)
+  mvn verify -B -e -V -DskipTests
+
   cd it/it-plugins
   mvn install
   cd -
 
-  mvn clean verify -Pit -DskipTests -pl :it-tests -am -Dorchestrator.configUrl=file://$(pwd)/it/orchestrator.properties -Dsonar.runtimeVersion=DEV
+  mvn verify -Pit -DskipTests -pl :it-tests -am -Dorchestrator.configUrl=file://$(pwd)/it/orchestrator.properties -Dsonar.runtimeVersion=DEV
   ;;
 
 *)
