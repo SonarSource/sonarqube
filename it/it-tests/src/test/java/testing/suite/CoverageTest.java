@@ -10,7 +10,6 @@ import com.sonar.orchestrator.build.SonarRunner;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.wsclient.services.Resource;
@@ -147,7 +146,6 @@ public class CoverageTest {
    * SONAR-766
    */
   @Test
-  @Ignore("TODO")
   public void should_ignore_coverage_on_full_path() {
     orchestrator.executeBuilds(SonarRunner.create(projectDir("testing/xoo-half-covered"))
       .setProperty("sonar.coverage.exclusions", "src/main/xoo/org/sonar/tests/halfcovered/UnCovered.xoo"));
@@ -160,7 +158,6 @@ public class CoverageTest {
    * SONAR-766
    */
   @Test
-  @Ignore("TODO")
   public void should_ignore_coverage_on_pattern() {
     orchestrator.executeBuilds(SonarRunner.create(projectDir("testing/xoo-half-covered"))
       .setProperty("sonar.coverage.exclusions", "**/UnCovered*"));
