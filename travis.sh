@@ -49,7 +49,7 @@ PRANALYSIS)
   ;;
 
 ITS)
-  mvn install -Pit -DskipTests -Dsonar.runtimeVersion=DEV -Dorchestrator.configUrl=file://$(pwd)/it/orchestrator.properties
+  mvn install -Pit -DskipTests -Dsonar.runtimeVersion=DEV -Dorchestrator.configUrl=file://$(pwd)/it/orchestrator.properties -Dmaven.test.redirectTestOutputToFile=false
   ;;
 
 *)
