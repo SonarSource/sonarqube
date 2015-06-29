@@ -21,6 +21,8 @@ package org.sonar.batch.sensor;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import java.util.Map;
+import java.util.Set;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
@@ -53,8 +55,8 @@ import org.sonar.api.source.Symbol;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.BatchComponent;
-import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.BatchComponentCache;
+import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Range;
@@ -64,9 +66,6 @@ import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
 import org.sonar.batch.source.DefaultSymbol;
 import org.sonar.core.component.ComponentKeys;
-
-import java.util.Map;
-import java.util.Set;
 
 public class DefaultSensorStorage implements SensorStorage {
 
@@ -109,8 +108,7 @@ public class DefaultSensorStorage implements SensorStorage {
     measureToSave.setFromCore(measure.isFromCore());
     InputFile inputFile = newMeasure.inputFile();
     if (inputFile != null) {
-      Formula formula = newMeasure.metric() instanceof org.sonar.api.measures.Metric ?
-        ((org.sonar.api.measures.Metric) newMeasure.metric()).getFormula() : null;
+      Formula formula = newMeasure.metric() instanceof org.sonar.api.measures.Metric ? ((org.sonar.api.measures.Metric) newMeasure.metric()).getFormula() : null;
       if (formula instanceof SumChildDistributionFormula
         && !Scopes.isHigherThanOrEquals(Scopes.FILE, ((SumChildDistributionFormula) formula).getMinimumScopeToPersist())) {
         measureToSave.setPersistenceMode(PersistenceMode.MEMORY);
@@ -246,6 +244,9 @@ public class DefaultSensorStorage implements SensorStorage {
   @Override
   public void store(DefaultCoverage defaultCoverage) {
     File file = getFile(defaultCoverage.inputFile());
+    if (coverageExclusions.hasMatchingPattern(file)) {
+      return;
+    }
     CoverageType type = defaultCoverage.type();
     if (defaultCoverage.linesToCover() > 0) {
       sonarIndex.addMeasure(file, new org.sonar.api.measures.Measure(type.linesToCover(), (double) defaultCoverage.linesToCover()));

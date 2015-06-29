@@ -20,6 +20,8 @@
 package org.sonar.batch.mediumtest.coverage;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -32,9 +34,6 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.xoo.XooPlugin;
-
-import java.io.File;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -109,6 +108,38 @@ public class CoverageMediumTest {
       .forMetric(CoreMetrics.COVERED_CONDITIONS_BY_LINE)
       .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
       .withValue("2=1"));
+  }
+
+  @Test
+  public void exclusions() throws IOException {
+
+    File baseDir = temp.newFolder();
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    File xooUtCoverageFile = new File(srcDir, "sample.xoo.coverage");
+    FileUtils.write(xooFile, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}");
+    FileUtils.write(xooUtCoverageFile, "2:2:2:1\n3:1");
+
+    TaskResult result = tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", "src")
+        .put("sonar.coverage.exclusions", "**/sample.xoo")
+        .build())
+      .start();
+
+    InputFile file = result.inputFile("src/sample.xoo");
+    assertThat(result.coverageFor(file, 2)).isNull();
+
+    assertThat(result.allMeasures()).extracting("metric.key").doesNotContain(CoreMetrics.LINES_TO_COVER, CoreMetrics.UNCOVERED_LINES, CoreMetrics.CONDITIONS_TO_COVER,
+      CoreMetrics.COVERED_CONDITIONS_BY_LINE);
   }
 
 }

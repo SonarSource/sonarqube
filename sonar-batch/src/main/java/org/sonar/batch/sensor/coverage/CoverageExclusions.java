@@ -22,6 +22,10 @@ package org.sonar.batch.sensor.coverage;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -31,11 +35,6 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.WildcardPattern;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 public class CoverageExclusions {
 
@@ -106,7 +105,7 @@ public class CoverageExclusions {
     return this.coverageMetrics.contains(metric);
   }
 
-  private boolean hasMatchingPattern(Resource resource) {
+  public boolean hasMatchingPattern(Resource resource) {
     boolean found = false;
     Iterator<WildcardPattern> iterator = resourcePatterns.iterator();
     while (!found && iterator.hasNext()) {
