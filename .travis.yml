@@ -20,3 +20,5 @@ before_cache:
 
 notifications:
   email: false
+
+after_failure: find . -name "*-output.txt" | xargs cat
