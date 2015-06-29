@@ -19,9 +19,6 @@
  */
 package org.sonar.api.utils;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -32,6 +29,8 @@ import java.text.FieldPosition;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 /**
  * Parses and formats <a href="http://en.wikipedia.org/wiki/ISO_8601">ISO 8601</a> dates.
@@ -148,7 +147,9 @@ public final class DateUtils {
       public Reference<DateFormat> get() {
         Reference<DateFormat> softRef = super.get();
         if (softRef == null || softRef.get() == null) {
-          softRef = new SoftReference<DateFormat>(new SimpleDateFormat(format));
+          SimpleDateFormat sdf = new SimpleDateFormat(format);
+          sdf.setLenient(false);
+          softRef = new SoftReference<DateFormat>(sdf);
           super.set(softRef);
         }
         return softRef;

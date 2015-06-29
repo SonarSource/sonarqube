@@ -47,6 +47,12 @@ public class DateUtilsTest {
   }
 
   @Test
+  public void parseDate_not_lenient() {
+    thrown.expect(SonarException.class);
+    DateUtils.parseDate("2010-13-18");
+  }
+
+  @Test
   public void parseDateQuietly() {
     assertThat(DateUtils.parseDateQuietly("2010/05/18")).isNull();
     Date date = DateUtils.parseDateQuietly("2010-05-18");
