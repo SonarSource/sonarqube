@@ -30,9 +30,9 @@ define([
       this.requestTags();
     },
 
-    requestTags: function () {
+    requestTags: function (query) {
       var that = this;
-      return $.get(baseUrl + '/api/issues/tags', { ps: 10 }).done(function (data) {
+      return $.get(baseUrl + '/api/issues/tags', { ps: 10, q: query }).done(function (data) {
         that.tags = data.tags;
         that.renderTags();
       });
@@ -159,7 +159,7 @@ define([
 
     search: function (query) {
       this.query = query;
-      return this.renderTags();
+      return this.requestTags(query);
     },
 
     resetAssignees: function (users) {
