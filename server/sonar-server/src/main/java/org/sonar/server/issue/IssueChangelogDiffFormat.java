@@ -24,7 +24,8 @@ import javax.annotation.Nullable;
 
 public class IssueChangelogDiffFormat {
 
-  private String oldValue, newValue;
+  private String oldValue;
+  private String newValue;
 
   public IssueChangelogDiffFormat(@Nullable String oldValue, @Nullable String newValue) {
     this.oldValue = oldValue;

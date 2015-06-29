@@ -20,13 +20,14 @@
 package org.sonar.batch.profiling;
 
 import com.google.common.collect.Maps;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.System2;
-
-import javax.annotation.Nullable;
-
-import java.util.*;
-import java.util.Map.Entry;
 
 public class ModuleProfiling extends AbstractTimeProfiling {
 

@@ -170,7 +170,8 @@ public class DuplicationsParser {
 
   public static class Duplication {
     private final ComponentDto file;
-    private final Integer from, size;
+    private final Integer from;
+    private final Integer size;
 
     Duplication(@Nullable ComponentDto file, Integer from, Integer size) {
       this.file = file;

@@ -72,7 +72,8 @@ public class RulesWsMediumTest {
   RulesWs ws;
   RuleDao ruleDao;
   DbSession session;
-  int softReliabilityId, hardReliabilityId;
+  int softReliabilityId;
+  int hardReliabilityId;
 
   @Before
   public void setUp() {

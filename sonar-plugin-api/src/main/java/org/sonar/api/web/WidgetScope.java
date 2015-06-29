@@ -19,7 +19,10 @@
  */
 package org.sonar.api.web;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Depending on its scope, a widget can be available for project dashboards <code>(value = "PROJECT")</code>,

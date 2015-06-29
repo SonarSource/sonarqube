@@ -71,7 +71,9 @@ class SearchSettings {
 
   private void configureFileSystem(ImmutableSettings.Builder builder) {
     File homeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
-    File dataDir, workDir, logDir;
+    File dataDir;
+    File workDir;
+    File logDir;
 
     // data dir
     String dataPath = props.value(ProcessProperties.PATH_DATA);

@@ -34,7 +34,9 @@ import java.util.concurrent.TimeUnit;
 public abstract class BaseIndexer implements Startable {
 
   private final ThreadPoolExecutor executor;
-  private final String indexName, typeName, dateFieldName;
+  private final String indexName;
+  private final String typeName;
+  private final String dateFieldName;
   protected final EsClient esClient;
   private volatile long lastUpdatedAt = -1L;
 

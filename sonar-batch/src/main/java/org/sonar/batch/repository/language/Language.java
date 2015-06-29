@@ -24,7 +24,8 @@ import java.util.Collection;
 
 public final class Language {
 
-  private final String key, name;
+  private final String key;
+  private final String name;
   private final String[] fileSuffixes;
 
   public Language(String key, String name, String... fileSuffixes) {

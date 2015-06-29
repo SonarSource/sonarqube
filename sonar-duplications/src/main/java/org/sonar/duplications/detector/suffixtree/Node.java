@@ -45,7 +45,8 @@ public final class Node {
    */
   int depth;
 
-  int startSize, endSize;
+  int startSize;
+  int endSize;
 
   public Node(Node node, Node suffixNode) {
     this(node.suffixTree, suffixNode);

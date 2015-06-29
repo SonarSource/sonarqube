@@ -21,10 +21,11 @@ package org.sonar.server.issue.notification;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Multimap;
-import org.sonar.api.notifications.*;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import org.sonar.api.notifications.Notification;
+import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.server.notification.NotificationDispatcher;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.sonar.server.notification.NotificationManager;

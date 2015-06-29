@@ -38,7 +38,8 @@ import static org.sonar.api.utils.DateUtils.longToDate;
 public class PastSnapshot {
 
   private int index;
-  private String mode, modeParameter;
+  private String mode;
+  private String modeParameter;
   private Snapshot projectSnapshot;
   private Date targetDate = null;
 

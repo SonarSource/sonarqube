@@ -19,7 +19,8 @@
  */
 package org.sonar.server.charts.deprecated;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
 import java.util.Map;
 import java.util.StringTokenizer;
 import org.jfree.chart.JFreeChart;

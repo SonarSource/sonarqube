@@ -20,6 +20,13 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.collect.Maps;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
@@ -28,11 +35,6 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.server.search.BaseDoc;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.*;
 
 public class IssueDoc extends BaseDoc implements Issue {
 

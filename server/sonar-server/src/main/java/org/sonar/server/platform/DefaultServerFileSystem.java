@@ -48,7 +48,8 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
   private static final Logger LOGGER = Loggers.get(DefaultServerFileSystem.class);
 
   private final Server server;
-  private final File homeDir, tempDir;
+  private final File homeDir;
+  private final File tempDir;
 
   public DefaultServerFileSystem(Settings settings, Server server) {
     this.server = server;

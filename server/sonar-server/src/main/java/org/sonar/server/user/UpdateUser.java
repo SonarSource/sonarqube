@@ -37,7 +37,10 @@ public class UpdateUser {
   private String password;
   private String passwordConfirmation;
 
-  boolean isNameChanged, isEmailChanged, isScmAccountsChanged, isPasswordChanged;
+  boolean isNameChanged;
+  boolean isEmailChanged;
+  boolean isScmAccountsChanged;
+  boolean isPasswordChanged;
 
   private UpdateUser(String login) {
     // No direct call to this constructor

@@ -110,7 +110,8 @@ public class QProfileBackuper {
    */
   public BulkChangeResult restore(Reader reader, @Nullable QProfileName toProfileName) {
     try {
-      String profileLang = null, profileName = null;
+      String profileLang = null;
+      String profileName = null;
       List<RuleActivation> ruleActivations = Lists.newArrayList();
       SMInputFactory inputFactory = initStax();
       SMHierarchicCursor rootC = inputFactory.rootElementCursor(reader);
@@ -146,7 +147,9 @@ public class QProfileBackuper {
     List<RuleKey> duplicatedKeys = Lists.newArrayList();
     while (rulesCursor.getNext() != null) {
       SMInputCursor ruleCursor = rulesCursor.childElementCursor();
-      String repositoryKey = null, key = null, severity = null;
+      String repositoryKey = null;
+      String key = null;
+      String severity = null;
       Map<String, String> parameters = Maps.newHashMap();
       while (ruleCursor.getNext() != null) {
         String nodeName = ruleCursor.getLocalName();

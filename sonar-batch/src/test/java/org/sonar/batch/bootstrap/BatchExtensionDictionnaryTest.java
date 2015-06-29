@@ -61,7 +61,8 @@ public class BatchExtensionDictionnaryTest {
 
   @Test
   public void testGetFilteredExtensionWithExtensionMatcher() {
-    final Sensor sensor1 = new FakeSensor(), sensor2 = new FakeSensor();
+    final Sensor sensor1 = new FakeSensor();
+    final Sensor sensor2 = new FakeSensor();
 
     BatchExtensionDictionnary selector = newSelector(sensor1, sensor2);
     Collection<Sensor> sensors = selector.select(Sensor.class, null, true, new ExtensionMatcher() {
@@ -77,7 +78,8 @@ public class BatchExtensionDictionnaryTest {
 
   @Test
   public void testGetFilteredExtensions() {
-    Sensor sensor1 = new FakeSensor(), sensor2 = new FakeSensor();
+    Sensor sensor1 = new FakeSensor();
+    Sensor sensor2 = new FakeSensor();
     Decorator decorator = mock(Decorator.class);
 
     BatchExtensionDictionnary selector = newSelector(sensor1, sensor2, decorator);

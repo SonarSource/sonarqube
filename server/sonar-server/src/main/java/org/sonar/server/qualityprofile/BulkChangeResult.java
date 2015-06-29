@@ -33,7 +33,8 @@ public class BulkChangeResult {
 
   private final QualityProfileDto profile;
   private final Errors errors = new Errors();
-  private int succeeded = 0, failed = 0;
+  private int succeeded = 0;
+  private int failed = 0;
   private final List<ActiveRuleChange> changes = Lists.newArrayList();
 
   public BulkChangeResult() {

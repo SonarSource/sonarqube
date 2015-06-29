@@ -149,7 +149,8 @@ public interface WebService extends Definable<WebService.Context> {
   class NewController {
     private final Context context;
     private final String path;
-    private String description, since;
+    private String description;
+    private String since;
     private final Map<String, NewAction> actions = Maps.newHashMap();
 
     private NewController(Context context, String path) {
@@ -200,7 +201,9 @@ public interface WebService extends Definable<WebService.Context> {
 
   @Immutable
   class Controller {
-    private final String path, description, since;
+    private final String path;
+    private final String description;
+    private final String since;
     private final Map<String, Action> actions;
 
     private Controller(NewController newController) {
@@ -259,8 +262,11 @@ public interface WebService extends Definable<WebService.Context> {
 
   class NewAction {
     private final String key;
-    private String deprecatedKey, description, since;
-    private boolean post = false, isInternal = false;
+    private String deprecatedKey;
+    private String description;
+    private String since;
+    private boolean post = false;
+    private boolean isInternal = false;
     private RequestHandler handler;
     private Map<String, NewParam> newParams = Maps.newHashMap();
     private URL responseExample = null;
@@ -408,8 +414,13 @@ public interface WebService extends Definable<WebService.Context> {
 
   @Immutable
   class Action {
-    private final String key, deprecatedKey, path, description, since;
-    private final boolean post, isInternal;
+    private final String key;
+    private final String deprecatedKey;
+    private final String path;
+    private final String description;
+    private final String since;
+    private final boolean post;
+    private final boolean isInternal;
     private final RequestHandler handler;
     private final Map<String, Param> params;
     private final URL responseExample;
@@ -523,7 +534,11 @@ public interface WebService extends Definable<WebService.Context> {
   }
 
   class NewParam {
-    private String key, deprecatedKey, description, exampleValue, defaultValue;
+    private String key;
+    private String deprecatedKey;
+    private String description;
+    private String exampleValue;
+    private String defaultValue;
     private boolean required = false;
     private Set<String> possibleValues = null;
 
@@ -652,7 +667,11 @@ public interface WebService extends Definable<WebService.Context> {
     public static final String FACETS = "facets";
     public static final String SELECTED = "selected";
 
-    private final String key, deprecatedKey, description, exampleValue, defaultValue;
+    private final String key;
+    private final String deprecatedKey;
+    private final String description;
+    private final String exampleValue;
+    private final String defaultValue;
     private final boolean required;
     private final Set<String> possibleValues;
 

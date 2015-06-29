@@ -34,11 +34,16 @@ public class NewRule {
 
   private String ruleKey;
   private RuleKey templateKey;
-  private String name, htmlDescription, markdownDescription, severity;
+  private String name;
+  private String htmlDescription;
+  private String markdownDescription;
+  private String severity;
   private RuleStatus status;
   private final Map<String, String> parameters = Maps.newHashMap();
 
-  private boolean isCustom, isManual, preventReactivation = false;
+  private boolean isCustom;
+  private boolean isManual;
+  private boolean preventReactivation = false;
 
   private NewRule() {
     // No direct call to constructor

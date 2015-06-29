@@ -22,7 +22,8 @@ package org.sonar.server.qualityprofile;
 import javax.annotation.Nullable;
 
 public class QProfileName {
-  private final String lang, name;
+  private final String lang;
+  private final String name;
 
   public QProfileName(String lang, String name) {
     this.lang = lang;

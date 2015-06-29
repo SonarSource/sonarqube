@@ -40,7 +40,10 @@ public class DumbComponent implements Component {
 
   private final Type type;
   private final int ref;
-  private final String uuid, key, name, version;
+  private final String uuid;
+  private final String key;
+  private final String name;
+  private final String version;
   private final FileAttributes fileAttributes;
   private final List<Component> children;
 
@@ -127,7 +130,10 @@ public class DumbComponent implements Component {
   public static final class Builder {
     private final Type type;
     private final int ref;
-    private String uuid, key, name, version;
+    private String uuid;
+    private String key;
+    private String name;
+    private String version;
     private FileAttributes fileAttributes;
     private final List<Component> children = new ArrayList<>();
 

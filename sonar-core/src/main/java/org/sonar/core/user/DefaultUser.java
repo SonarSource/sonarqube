@@ -31,7 +31,9 @@ import javax.annotation.Nullable;
  * @since 3.6
  */
 public class DefaultUser implements User {
-  private String login, name, email;
+  private String login;
+  private String name;
+  private String email;
   private boolean active;
 
   @Override

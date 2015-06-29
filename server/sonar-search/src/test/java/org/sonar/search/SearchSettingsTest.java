@@ -86,7 +86,9 @@ public class SearchSettingsTest {
 
   @Test
   public void override_dirs() throws Exception {
-    File dataDir = temp.newFolder(), logDir = temp.newFolder(), tempDir = temp.newFolder();
+    File dataDir = temp.newFolder();
+    File logDir = temp.newFolder();
+    File tempDir = temp.newFolder();
     Props props = minProps();
     props.set(ProcessProperties.PATH_DATA, dataDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, logDir.getAbsolutePath());

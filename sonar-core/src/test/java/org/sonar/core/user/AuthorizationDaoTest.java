@@ -34,7 +34,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AuthorizationDaoTest extends AbstractDaoTestCase {
 
   private static final int USER = 100;
-  private static final Long PROJECT_ID = 300L, PROJECT_ID_WITHOUT_SNAPSHOT = 400L;
+  private static final Long PROJECT_ID = 300L;
+  private static final Long PROJECT_ID_WITHOUT_SNAPSHOT = 400L;
   private static final String PROJECT = "pj-w-snapshot";
   private static final String PROJECT_WIHOUT_SNAPSHOT = "pj-wo-snapshot";
 

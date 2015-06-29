@@ -20,14 +20,20 @@
 package org.sonar.server.tester;
 
 import com.google.common.collect.ImmutableSet;
-import org.junit.Test;
-
-import javax.servlet.*;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.EventListener;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.Servlet;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.SessionTrackingMode;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -19,24 +19,32 @@
  */
 package org.sonar.server.permission;
 
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.core.permission.*;
+import org.sonar.core.permission.GroupWithPermission;
+import org.sonar.core.permission.GroupWithPermissionDto;
+import org.sonar.core.permission.PermissionDao;
+import org.sonar.core.permission.PermissionQuery;
+import org.sonar.core.permission.PermissionTemplateDao;
+import org.sonar.core.permission.PermissionTemplateDto;
+import org.sonar.core.permission.UserWithPermissionDto;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
 import org.sonar.server.exceptions.NotFoundException;
 
-import java.util.List;
-
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -64,7 +72,7 @@ public class PermissionFinderTest {
   public void find_users() {
     when(permissionDao.selectUsers(any(PermissionQuery.class), anyLong(), anyInt(), anyInt())).thenReturn(
       newArrayList(new UserWithPermissionDto().setName("user1").setPermission("user"))
-    );
+      );
 
     UserWithPermissionQueryResult result = finder.findUsersWithPermission(PermissionQuery.builder().permission("user").build());
     assertThat(result.users()).hasSize(1);
@@ -101,7 +109,7 @@ public class PermissionFinderTest {
       new UserWithPermissionDto().setName("user1").setPermission("user"),
       new UserWithPermissionDto().setName("user2").setPermission("user"),
       new UserWithPermissionDto().setName("user3").setPermission("user"))
-    );
+      );
     UserWithPermissionQueryResult result = finder.findUsersWithPermission(PermissionQuery.builder().permission("user").pageIndex(1).pageSize(2).build());
 
     ArgumentCaptor<Integer> argumentOffset = ArgumentCaptor.forClass(Integer.class);
@@ -120,7 +128,7 @@ public class PermissionFinderTest {
       new UserWithPermissionDto().setName("user2").setPermission("user"),
       new UserWithPermissionDto().setName("user4").setPermission("user"),
       new UserWithPermissionDto().setName("user3").setPermission("user"))
-    );
+      );
     UserWithPermissionQueryResult result = finder.findUsersWithPermission(PermissionQuery.builder().permission("user").pageIndex(1).pageSize(10).build());
 
     ArgumentCaptor<Integer> argumentOffset = ArgumentCaptor.forClass(Integer.class);
@@ -136,7 +144,7 @@ public class PermissionFinderTest {
   public void find_groups() {
     when(permissionDao.selectGroups(any(PermissionQuery.class), anyLong())).thenReturn(
       newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
-    );
+      );
 
     GroupWithPermissionQueryResult result = finder.findGroupsWithPermission(
       PermissionQuery.builder().permission("user").membership(PermissionQuery.IN).build());
@@ -152,7 +160,7 @@ public class PermissionFinderTest {
       new GroupWithPermissionDto().setName("Users").setPermission(null),
       new GroupWithPermissionDto().setName("Reviewers").setPermission(null),
       new GroupWithPermissionDto().setName("Other").setPermission(null)
-    ));
+      ));
 
     GroupWithPermissionQueryResult result = finder.findGroupsWithPermission(
       PermissionQuery.builder()
@@ -183,7 +191,7 @@ public class PermissionFinderTest {
       new GroupWithPermissionDto().setName("Users").setPermission(null),
       new GroupWithPermissionDto().setName("Reviewers").setPermission(null),
       new GroupWithPermissionDto().setName("Other").setPermission(null)
-    ));
+      ));
 
     assertThat(finder.findGroupsWithPermission(
       PermissionQuery.builder().permission("user").membership(PermissionQuery.IN).build()).groups()).hasSize(2);
@@ -197,9 +205,9 @@ public class PermissionFinderTest {
   public void find_groups_with_added_anyone_group() {
     when(permissionDao.selectGroups(any(PermissionQuery.class), anyLong())).thenReturn(
       newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
-    );
+      );
 
-    GroupWithPermissionQueryResult result = finder.findGroupsWithPermission( PermissionQuery.builder().permission("user")
+    GroupWithPermissionQueryResult result = finder.findGroupsWithPermission(PermissionQuery.builder().permission("user")
       .pageIndex(1).membership(PermissionQuery.ANY).build());
     assertThat(result.groups()).hasSize(2);
     GroupWithPermission first = result.groups().get(0);
@@ -211,7 +219,7 @@ public class PermissionFinderTest {
   public void find_groups_without_adding_anyone_group_when_search_text_do_not_matched() {
     when(permissionDao.selectGroups(any(PermissionQuery.class), anyLong())).thenReturn(
       newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
-    );
+      );
 
     GroupWithPermissionQueryResult result = finder.findGroupsWithPermission(PermissionQuery.builder().permission("user").search("other")
       .pageIndex(1).membership(PermissionQuery.ANY).build());
@@ -223,7 +231,7 @@ public class PermissionFinderTest {
   public void find_groups_with_added_anyone_group_when_search_text_matched() {
     when(permissionDao.selectGroups(any(PermissionQuery.class), anyLong())).thenReturn(
       newArrayList(new GroupWithPermissionDto().setName("MyAnyGroup").setPermission("user"))
-    );
+      );
 
     GroupWithPermissionQueryResult result = finder.findGroupsWithPermission(PermissionQuery.builder().permission("user").search("any")
       .pageIndex(1).membership(PermissionQuery.ANY).build());
@@ -234,14 +242,13 @@ public class PermissionFinderTest {
   public void find_groups_without_adding_anyone_group_when_out_membership_selected() {
     when(permissionDao.selectGroups(any(PermissionQuery.class), anyLong())).thenReturn(
       newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
-    );
+      );
 
-    GroupWithPermissionQueryResult result = finder.findGroupsWithPermission( PermissionQuery.builder().permission("user")
+    GroupWithPermissionQueryResult result = finder.findGroupsWithPermission(PermissionQuery.builder().permission("user")
       .pageIndex(1).membership(PermissionQuery.OUT).build());
     // Anyone group should not be added
     assertThat(result.groups()).hasSize(1);
   }
-
 
   @Test
   public void find_users_from_permission_template() {
@@ -249,7 +256,7 @@ public class PermissionFinderTest {
 
     when(permissionTemplateDao.selectUsers(any(PermissionQuery.class), anyLong(), anyInt(), anyInt())).thenReturn(
       newArrayList(new UserWithPermissionDto().setName("user1").setPermission("user"))
-    );
+      );
 
     UserWithPermissionQueryResult result = finder.findUsersWithPermissionTemplate(PermissionQuery.builder().permission("user").template("my_template").build());
     assertThat(result.users()).hasSize(1);
@@ -274,7 +281,7 @@ public class PermissionFinderTest {
 
     when(permissionTemplateDao.selectGroups(any(PermissionQuery.class), anyLong())).thenReturn(
       newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
-    );
+      );
 
     GroupWithPermissionQueryResult result = finder.findGroupsWithPermissionTemplate(
       PermissionQuery.builder().permission("user").template("my_template").membership(PermissionQuery.OUT).build());

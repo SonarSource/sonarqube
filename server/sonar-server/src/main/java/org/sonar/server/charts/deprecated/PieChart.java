@@ -19,7 +19,7 @@
  */
 package org.sonar.server.charts.deprecated;
 
-import java.awt.*;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Map;
@@ -91,7 +91,7 @@ public class PieChart extends BaseChartWeb implements DeprecatedChart {
 
   private void configureDefaultColors() {
     PiePlot plot = (PiePlot) jfreechart.getPlot();
-    for (int i=0 ; i<COLORS.length ; i++) {
+    for (int i = 0; i < COLORS.length; i++) {
       plot.setSectionPaint(Integer.toString(i), COLORS[i]);
     }
   }

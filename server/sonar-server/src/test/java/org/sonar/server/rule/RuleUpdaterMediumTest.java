@@ -68,7 +68,8 @@ public class RuleUpdaterMediumTest {
   DbSession dbSession;
   BaseIndex<Rule, RuleDto, RuleKey> ruleIndex = tester.get(RuleIndex.class);
   RuleUpdater updater = tester.get(RuleUpdater.class);
-  int softReliabilityId, hardReliabilityId;
+  int softReliabilityId;
+  int hardReliabilityId;
 
   @Before
   public void before() {

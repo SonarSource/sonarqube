@@ -19,16 +19,18 @@
  */
 package org.sonar.api.batch.bootstrap;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.io.File;
-import java.util.*;
-import java.util.Map.Entry;
 
 /**
  * Defines project metadata (key, name, source directories, ...). It's generally used by the

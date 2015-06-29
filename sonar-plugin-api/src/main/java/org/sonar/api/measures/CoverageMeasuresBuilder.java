@@ -20,10 +20,14 @@
 package org.sonar.api.measures;
 
 import com.google.common.collect.Maps;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.SortedMap;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.KeyValueFormat;
-
-import java.util.*;
 
 /**
  * @since 2.7

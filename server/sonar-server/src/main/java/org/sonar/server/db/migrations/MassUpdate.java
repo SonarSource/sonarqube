@@ -38,7 +38,8 @@ public class MassUpdate {
   }
 
   private final Database db;
-  private final Connection readConnection, writeConnection;
+  private final Connection readConnection;
+  private final Connection writeConnection;
   private final AtomicLong counter = new AtomicLong(0L);
   private final ProgressLogger progress = ProgressLogger.create(getClass(), counter);
 

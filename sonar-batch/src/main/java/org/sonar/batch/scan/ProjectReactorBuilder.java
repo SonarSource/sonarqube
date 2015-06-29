@@ -438,7 +438,8 @@ public class ProjectReactorBuilder {
   @VisibleForTesting
   protected static File[] getLibraries(File baseDir, String pattern) {
     final int i = Math.max(pattern.lastIndexOf('/'), pattern.lastIndexOf('\\'));
-    final String dirPath, filePattern;
+    final String dirPath;
+    final String filePattern;
     if (i == -1) {
       dirPath = ".";
       filePattern = pattern;

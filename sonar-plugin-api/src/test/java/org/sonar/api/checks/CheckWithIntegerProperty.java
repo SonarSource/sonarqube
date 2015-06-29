@@ -19,7 +19,9 @@
  */
 package org.sonar.api.checks;
 
-import org.sonar.check.*;
+import org.sonar.check.Priority;
+import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
 
 @Rule(priority = Priority.CRITICAL)
 class CheckWithIntegerProperty {

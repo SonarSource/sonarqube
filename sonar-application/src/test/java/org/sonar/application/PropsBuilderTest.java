@@ -40,7 +40,10 @@ public class PropsBuilderTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  File homeDir, dataDir, webDir, logsDir;
+  File homeDir;
+  File dataDir;
+  File webDir;
+  File logsDir;
   JdbcSettings jdbcSettings = mock(JdbcSettings.class);
 
   @Before

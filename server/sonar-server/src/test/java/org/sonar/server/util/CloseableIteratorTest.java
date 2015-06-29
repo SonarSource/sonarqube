@@ -206,7 +206,8 @@ public class CloseableIteratorTest {
   }
 
   static class RemovableCloseableIterator extends CloseableIterator {
-    boolean isClosed = false, isRemoved = false;
+    boolean isClosed = false;
+    boolean isRemoved = false;
 
     @Override
     protected Object doNext() {

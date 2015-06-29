@@ -31,7 +31,10 @@ import java.util.Map;
 public class DefaultActiveRule implements ActiveRule {
   private final RuleKey ruleKey;
   private final String name;
-  private final String severity, internalKey, language, templateRuleKey;
+  private final String severity;
+  private final String internalKey;
+  private final String language;
+  private final String templateRuleKey;
   private final Map<String, String> params;
 
   DefaultActiveRule(NewActiveRule newActiveRule) {

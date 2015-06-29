@@ -35,7 +35,8 @@ public abstract class BaseDataChange implements DataChange, MigrationStep {
 
   @Override
   public final void execute() throws SQLException {
-    Connection readConnection = null, writeConnection = null;
+    Connection readConnection = null;
+    Connection writeConnection = null;
     try {
       readConnection = openConnection();
 

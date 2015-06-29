@@ -26,8 +26,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ActiveRule {
-  private final String repositoryKey, ruleKey, templateRuleKey;
-  private final String name, severity, internalKey, language;
+  private final String repositoryKey;
+  private final String ruleKey;
+  private final String templateRuleKey;
+  private final String name;
+  private final String severity;
+  private final String internalKey;
+  private final String language;
   private final Map<String, String> params = new HashMap<>();
 
   public ActiveRule(String repositoryKey, String ruleKey, @Nullable String templateRuleKey, String name, @Nullable String severity,

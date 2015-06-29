@@ -21,14 +21,17 @@ package org.sonar.jpa.session;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.database.DatabaseSession;
-
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
-import java.util.*;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.database.DatabaseSession;
 
 public class JpaDatabaseSession extends DatabaseSession {
 
@@ -239,7 +242,7 @@ public class JpaDatabaseSession extends DatabaseSession {
 
     } catch (NonUniqueResultException ex) {
       NonUniqueResultException e = new NonUniqueResultException("Expected single result for entitiy " + entityClass.getSimpleName()
-          + " with criterias : " + StringUtils.join(criterias, ","));
+        + " with criterias : " + StringUtils.join(criterias, ","));
       throw (NonUniqueResultException) e.initCause(ex);
     }
   }

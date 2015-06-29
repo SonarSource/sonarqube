@@ -20,14 +20,16 @@
 package org.sonar.server.search;
 
 import com.google.common.base.Preconditions;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.*;
 
 public class Result<K> {
 

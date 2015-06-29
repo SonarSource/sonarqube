@@ -25,7 +25,9 @@ import java.util.Date;
 
 public class QProfile {
 
-  private String key, name, language;
+  private String key;
+  private String name;
+  private String language;
   private Date rulesUpdatedAt;
 
   public String getKey() {

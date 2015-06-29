@@ -178,7 +178,9 @@ class ViolationConverter implements Callable<Object> {
           continue;
         }
         String issueKey = Uuids.create();
-        String status, severity, reporter = null;
+        String status;
+        String severity;
+        String reporter = null;
         boolean manualSeverity;
         Object createdAt = Objects.firstNonNull(row.get(CREATED_AT), ONE_YEAR_AGO);
         Object updatedAt;

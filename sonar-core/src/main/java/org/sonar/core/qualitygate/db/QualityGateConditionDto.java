@@ -21,12 +21,14 @@ package org.sonar.core.qualitygate.db;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.sonar.api.measures.Metric.ValueType;
-
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import java.util.*;
+import org.sonar.api.measures.Metric.ValueType;
 
 /**
  * @since 4.3
@@ -46,39 +48,39 @@ public class QualityGateConditionDto {
     OPERATOR_GREATER_THAN,
     OPERATOR_EQUALS,
     OPERATOR_NOT_EQUALS
-  );
+    );
 
   private static final List<String> NUMERIC_OPERATORS = ImmutableList.of(
-      OPERATOR_LESS_THAN,
-      OPERATOR_GREATER_THAN,
-      OPERATOR_EQUALS,
-      OPERATOR_NOT_EQUALS
-  );
+    OPERATOR_LESS_THAN,
+    OPERATOR_GREATER_THAN,
+    OPERATOR_EQUALS,
+    OPERATOR_NOT_EQUALS
+    );
   private static final List<String> STRING_OPERATORS = ImmutableList.of(
-      OPERATOR_EQUALS,
-      OPERATOR_NOT_EQUALS,
-      OPERATOR_LESS_THAN,
-      OPERATOR_GREATER_THAN
-  );
+    OPERATOR_EQUALS,
+    OPERATOR_NOT_EQUALS,
+    OPERATOR_LESS_THAN,
+    OPERATOR_GREATER_THAN
+    );
   private static final List<String> LEVEL_OPERATORS = ImmutableList.of(
     OPERATOR_EQUALS,
     OPERATOR_NOT_EQUALS
-  );
+    );
   private static final List<String> BOOLEAN_OPERATORS = ImmutableList.of(
     OPERATOR_EQUALS
-  );
+    );
 
   private static final Map<ValueType, List<String>> OPERATORS_BY_TYPE = ImmutableMap.<ValueType, List<String>>builder()
-      .put(ValueType.BOOL, BOOLEAN_OPERATORS)
-      .put(ValueType.LEVEL, LEVEL_OPERATORS)
-      .put(ValueType.STRING, STRING_OPERATORS)
-      .put(ValueType.INT, NUMERIC_OPERATORS)
-      .put(ValueType.FLOAT, NUMERIC_OPERATORS)
-      .put(ValueType.PERCENT, NUMERIC_OPERATORS)
-      .put(ValueType.MILLISEC, NUMERIC_OPERATORS)
-      .put(ValueType.RATING, NUMERIC_OPERATORS)
-      .put(ValueType.WORK_DUR, NUMERIC_OPERATORS)
-      .build();
+    .put(ValueType.BOOL, BOOLEAN_OPERATORS)
+    .put(ValueType.LEVEL, LEVEL_OPERATORS)
+    .put(ValueType.STRING, STRING_OPERATORS)
+    .put(ValueType.INT, NUMERIC_OPERATORS)
+    .put(ValueType.FLOAT, NUMERIC_OPERATORS)
+    .put(ValueType.PERCENT, NUMERIC_OPERATORS)
+    .put(ValueType.MILLISEC, NUMERIC_OPERATORS)
+    .put(ValueType.RATING, NUMERIC_OPERATORS)
+    .put(ValueType.WORK_DUR, NUMERIC_OPERATORS)
+    .build();
 
   private long id;
 

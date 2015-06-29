@@ -32,7 +32,8 @@ import java.io.Serializable;
 public class RuleKey implements Serializable {
 
   public static final String MANUAL_REPOSITORY_KEY = "manual";
-  private final String repository, rule;
+  private final String repository;
+  private final String rule;
 
   protected RuleKey(String repositoryKey, String ruleKey) {
     this.repository = repositoryKey;

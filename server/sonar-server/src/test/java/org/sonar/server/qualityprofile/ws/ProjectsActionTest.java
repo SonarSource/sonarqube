@@ -64,9 +64,13 @@ public class ProjectsActionTest {
 
   private DbSession session;
 
-  private QualityProfileDto xooP1, xooP2;
+  private QualityProfileDto xooP1;
+  private QualityProfileDto xooP2;
 
-  private ComponentDto project1, project2, project3, project4;
+  private ComponentDto project1;
+  private ComponentDto project2;
+  private ComponentDto project3;
+  private ComponentDto project4;
 
   private Long userId = 42L;
 

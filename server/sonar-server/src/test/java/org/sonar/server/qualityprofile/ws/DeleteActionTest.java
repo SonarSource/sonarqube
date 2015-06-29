@@ -61,7 +61,8 @@ public class DeleteActionTest {
 
   private ComponentDao componentDao;
 
-  private Language xoo1, xoo2;
+  private Language xoo1;
+  private Language xoo2;
 
   private WsTester tester;
 

@@ -33,7 +33,8 @@ import javax.annotation.Nullable;
  */
 class DefaultDebtRemediationFunctions implements RulesDefinition.DebtRemediationFunctions {
 
-  private final String repoKey, key;
+  private final String repoKey;
+  private final String key;
 
   DefaultDebtRemediationFunctions(String repoKey, String key) {
     this.repoKey = repoKey;

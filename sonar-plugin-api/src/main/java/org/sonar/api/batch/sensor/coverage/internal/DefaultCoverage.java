@@ -37,7 +37,9 @@ public class DefaultCoverage extends DefaultStorable implements NewCoverage {
 
   private DefaultInputFile inputFile;
   private CoverageType type;
-  private int totalCoveredLines = 0, totalConditions = 0, totalCoveredConditions = 0;
+  private int totalCoveredLines = 0;
+  private int totalConditions = 0;
+  private int totalCoveredConditions = 0;
   private SortedMap<Integer, Integer> hitsByLine = Maps.newTreeMap();
   private SortedMap<Integer, Integer> conditionsByLine = Maps.newTreeMap();
   private SortedMap<Integer, Integer> coveredConditionsByLine = Maps.newTreeMap();

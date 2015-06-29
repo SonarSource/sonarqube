@@ -19,12 +19,15 @@
  */
 package org.sonar.batch.protocol.input;
 
-import org.sonar.batch.protocol.GsonHelper;
-
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import java.util.*;
+import org.sonar.batch.protocol.GsonHelper;
 
 /**
  * Container for all project data going from server to batch.

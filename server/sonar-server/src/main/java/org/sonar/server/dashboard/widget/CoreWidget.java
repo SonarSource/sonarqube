@@ -23,7 +23,9 @@ import org.sonar.api.web.AbstractRubyTemplate;
 import org.sonar.api.web.RubyRailsWidget;
 
 public abstract class CoreWidget extends AbstractRubyTemplate implements RubyRailsWidget {
-  private String id, title, templatePath;
+  private String id;
+  private String title;
+  private String templatePath;
 
   protected CoreWidget(String id, String title, String templatePath) {
     this.id = id;

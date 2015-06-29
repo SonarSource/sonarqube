@@ -31,7 +31,8 @@ import java.util.List;
 
 public class Transition {
   private final String key;
-  private final String from, to;
+  private final String from;
+  private final String to;
   private final Condition[] conditions;
   private final Function[] functions;
   private final boolean automatic;
@@ -125,7 +126,8 @@ public class Transition {
 
   public static class TransitionBuilder {
     private final String key;
-    private String from, to;
+    private String from;
+    private String to;
     private List<Condition> conditions = Lists.newArrayList();
     private List<Function> functions = Lists.newArrayList();
     private boolean automatic = false;

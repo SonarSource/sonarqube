@@ -37,7 +37,7 @@ import javax.net.ssl.X509TrustManager;
  */
 class HttpsTrust {
 
-  static HttpsTrust INSTANCE = new HttpsTrust(new Ssl());
+  static final HttpsTrust INSTANCE = new HttpsTrust(new Ssl());
 
   static class Ssl {
     SSLSocketFactory newFactory(TrustManager... managers) throws NoSuchAlgorithmException, KeyManagementException {

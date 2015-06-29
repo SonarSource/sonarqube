@@ -37,15 +37,25 @@ public class RuleUpdate {
 
   private final RuleKey ruleKey;
 
-  private boolean changeTags = false, changeMarkdownNote = false, changeDebtSubCharacteristic = false, changeDebtRemediationFunction = false,
-    changeName = false, changeDescription = false, changeSeverity = false, changeStatus = false, changeParameters = false;
-  private boolean isCustomRule, isManual;
+  private boolean changeTags = false;
+  private boolean changeMarkdownNote = false;
+  private boolean changeDebtSubCharacteristic = false;
+  private boolean changeDebtRemediationFunction = false;
+  private boolean changeName = false;
+  private boolean changeDescription = false;
+  private boolean changeSeverity = false;
+  private boolean changeStatus = false;
+  private boolean changeParameters = false;
+  private boolean isCustomRule;
+  private boolean isManual;
   private Set<String> tags;
   private String markdownNote;
   private String debtSubCharacteristicKey;
   private DebtRemediationFunction debtRemediationFunction;
 
-  private String name, markdownDescription, severity;
+  private String name;
+  private String markdownDescription;
+  private String severity;
   private RuleStatus status;
   private final Map<String, String> parameters = Maps.newHashMap();
 

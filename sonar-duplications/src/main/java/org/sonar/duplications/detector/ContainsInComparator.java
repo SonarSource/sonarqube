@@ -55,7 +55,8 @@ public final class ContainsInComparator implements Comparator<ClonePart> {
     }
   };
 
-  private final int l1, l2;
+  private final int l1;
+  private final int l2;
 
   /**
    * Constructs new comparator for two parts with lengths {@code l1} and {@code l2} respectively.

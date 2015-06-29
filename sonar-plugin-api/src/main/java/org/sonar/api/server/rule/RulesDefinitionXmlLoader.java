@@ -123,7 +123,12 @@ public class RulesDefinitionXmlLoader {
   }
 
   private void processRule(RulesDefinition.NewRepository repo, SMInputCursor ruleC) throws XMLStreamException {
-    String key = null, name = null, description = null, internalKey = null, severity = Severity.defaultSeverity(), status = null;
+    String key = null;
+    String name = null;
+    String description = null;
+    String internalKey = null;
+    String severity = Severity.defaultSeverity();
+    String status = null;
     Cardinality cardinality = Cardinality.SINGLE;
     List<ParamStruct> params = new ArrayList<>();
     List<String> tags = new ArrayList<>();
@@ -197,7 +202,9 @@ public class RulesDefinitionXmlLoader {
   }
 
   private static class ParamStruct {
-    String key, description, defaultValue;
+    String key;
+    String description;
+    String defaultValue;
     RuleParamType type = RuleParamType.STRING;
   }
 

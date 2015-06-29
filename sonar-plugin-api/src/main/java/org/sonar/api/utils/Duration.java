@@ -64,7 +64,9 @@ public class Duration implements Serializable {
    * For instance, Duration.decode("1d 1h", 8) will have a number of minutes of 540 (1*8*60 + 60).
    * */
   public static Duration decode(String text, int hoursInDay) {
-    int days = 0, hours = 0, minutes = 0;
+    int days = 0;
+    int hours = 0;
+    int minutes = 0;
     String sanitizedText = StringUtils.deleteWhitespace(text);
     Pattern pattern = Pattern.compile("\\s*+(?:(\\d++)\\s*+" + DAY + ")?+\\s*+(?:(\\d++)\\s*+" + HOUR + ")?+\\s*+(?:(\\d++)\\s*+" + MINUTE + ")?+\\s*+");
     Matcher matcher = pattern.matcher(text);

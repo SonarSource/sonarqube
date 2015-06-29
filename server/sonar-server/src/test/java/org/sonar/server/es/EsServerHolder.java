@@ -36,7 +36,8 @@ import java.util.Properties;
 public class EsServerHolder {
 
   private static EsServerHolder HOLDER = null;
-  private final String clusterName, nodeName;
+  private final String clusterName;
+  private final String nodeName;
   private final int port;
   private final String hostName;
   private final File homeDir;

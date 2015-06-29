@@ -54,7 +54,17 @@ import org.picocontainer.Startable;
 import org.sonar.api.config.Settings;
 import org.sonar.process.LoopbackAddress;
 import org.sonar.process.ProcessProperties;
-import org.sonar.server.es.request.*;
+import org.sonar.server.es.request.ProxyBulkRequestBuilder;
+import org.sonar.server.es.request.ProxyCountRequestBuilder;
+import org.sonar.server.es.request.ProxyCreateIndexRequestBuilder;
+import org.sonar.server.es.request.ProxyDeleteRequestBuilder;
+import org.sonar.server.es.request.ProxyGetRequestBuilder;
+import org.sonar.server.es.request.ProxyIndicesExistsRequestBuilder;
+import org.sonar.server.es.request.ProxyMultiGetRequestBuilder;
+import org.sonar.server.es.request.ProxyPutMappingRequestBuilder;
+import org.sonar.server.es.request.ProxyRefreshRequestBuilder;
+import org.sonar.server.es.request.ProxySearchRequestBuilder;
+import org.sonar.server.es.request.ProxySearchScrollRequestBuilder;
 
 /**
  * ElasticSearch Node used to connect to index.

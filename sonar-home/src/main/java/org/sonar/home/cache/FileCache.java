@@ -34,7 +34,8 @@ public class FileCache {
   /** Maximum loop count when creating temp directories. */
   private static final int TEMP_DIR_ATTEMPTS = 10000;
 
-  private final File dir, tmpDir;
+  private final File dir;
+  private final File tmpDir;
   private final FileHashes hashes;
   private final Logger logger;
 

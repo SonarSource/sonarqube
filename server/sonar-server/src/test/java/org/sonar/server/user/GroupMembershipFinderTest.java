@@ -23,11 +23,21 @@ package org.sonar.server.user;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.core.user.*;
+import org.sonar.core.user.GroupMembership;
+import org.sonar.core.user.GroupMembershipDao;
+import org.sonar.core.user.GroupMembershipDto;
+import org.sonar.core.user.GroupMembershipQuery;
+import org.sonar.core.user.UserDao;
+import org.sonar.core.user.UserDto;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class GroupMembershipFinderTest {
 
@@ -46,7 +56,7 @@ public class GroupMembershipFinderTest {
     GroupMembershipQuery query = GroupMembershipQuery.builder().login("arthur").build();
     when(groupMembershipDao.selectGroups(eq(query), anyLong(), anyInt(), anyInt())).thenReturn(
       newArrayList(new GroupMembershipDto().setId(1L).setName("users").setDescription("Users group").setUserId(100L))
-    );
+      );
 
     GroupMembershipFinder.Membership result = finder.find(query);
     assertThat(result.groups()).hasSize(1);
@@ -79,7 +89,7 @@ public class GroupMembershipFinderTest {
       new GroupMembershipDto().setId(1L).setName("group1"),
       new GroupMembershipDto().setId(2L).setName("group2"),
       new GroupMembershipDto().setId(3L).setName("group3"))
-    );
+      );
     GroupMembershipFinder.Membership result = finder.find(query);
 
     ArgumentCaptor<Integer> argumentOffset = ArgumentCaptor.forClass(Integer.class);
@@ -99,7 +109,7 @@ public class GroupMembershipFinderTest {
       new GroupMembershipDto().setId(2L).setName("group2"),
       new GroupMembershipDto().setId(3L).setName("group3"),
       new GroupMembershipDto().setId(4L).setName("group4"))
-    );
+      );
     GroupMembershipFinder.Membership result = finder.find(query);
 
     ArgumentCaptor<Integer> argumentOffset = ArgumentCaptor.forClass(Integer.class);

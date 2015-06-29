@@ -112,7 +112,9 @@ public class PluginLoaderTest {
    */
   @Test
   public void test_plugins_sharing_the_same_classloader() throws Exception {
-    File baseJarFile = temp.newFile(), extensionJar1 = temp.newFile(), extensionJar2 = temp.newFile();
+    File baseJarFile = temp.newFile();
+    File extensionJar1 = temp.newFile();
+    File extensionJar2 = temp.newFile();
     PluginInfo base = new PluginInfo("foo")
       .setJarFile(baseJarFile)
       .setMainClass("org.foo.FooPlugin")

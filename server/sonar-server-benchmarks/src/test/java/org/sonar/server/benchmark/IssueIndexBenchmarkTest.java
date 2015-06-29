@@ -147,8 +147,11 @@ public class IssueIndexBenchmarkTest {
   }
 
   private static class IssueIterator implements Iterator<IssueDoc> {
-    private final int nbProjects, nbFilesPerProject, nbIssuesPerFile;
-    private int currentProject = 0, currentFile = 0;
+    private final int nbProjects;
+    private final int nbFilesPerProject;
+    private final int nbIssuesPerFile;
+    private int currentProject = 0;
+    private int currentFile = 0;
     private AtomicLong count = new AtomicLong(0L);
     private final Iterator<String> users = cycleIterator("guy", 200);
     private Iterator<String> rules = cycleIterator("squid:rule", 1000);

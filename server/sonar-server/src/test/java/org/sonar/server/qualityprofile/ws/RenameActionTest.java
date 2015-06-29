@@ -51,7 +51,8 @@ public class RenameActionTest {
 
   private QualityProfileDao qualityProfileDao;
 
-  private String xoo1Key = "xoo1", xoo2Key = "xoo2";
+  private String xoo1Key = "xoo1";
+  private String xoo2Key = "xoo2";
 
   private WsTester tester;
 

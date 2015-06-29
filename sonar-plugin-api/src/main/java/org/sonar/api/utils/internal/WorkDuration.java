@@ -77,7 +77,9 @@ public class WorkDuration implements Serializable {
   }
 
   static WorkDuration createFromLong(long duration, int hoursInDay) {
-    int days = 0, hours = 0, minutes = 0;
+    int days = 0;
+    int hours = 0;
+    int minutes = 0;
 
     long time = duration;
     Long currentTime = time / WorkDuration.DAY_POSITION_IN_LONG;

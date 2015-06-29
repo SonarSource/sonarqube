@@ -96,8 +96,10 @@ public class AddMissingRuleParameterDefaultValuesMigrationStep extends BaseDataC
   }
 
   private static class RuleParam {
-    final Long id, ruleId;
-    final String defaultValue, name;
+    final Long id;
+    final Long ruleId;
+    final String defaultValue;
+    final String name;
 
     RuleParam(@Nullable Long id, @Nullable Long ruleId, @Nullable String name, @Nullable String defaultValue) {
       this.id = id;
@@ -108,7 +110,8 @@ public class AddMissingRuleParameterDefaultValuesMigrationStep extends BaseDataC
   }
 
   private static class ActiveRule {
-    final Long id, profileId;
+    final Long id;
+    final Long profileId;
 
     ActiveRule(@Nullable Long id, @Nullable Long profileId) {
       this.id = id;

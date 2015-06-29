@@ -120,7 +120,8 @@ public class XMLProfileParser {
     while (rulesCursor.getNext() != null) {
       SMInputCursor ruleCursor = rulesCursor.childElementCursor();
 
-      String repositoryKey = null, key = null;
+      String repositoryKey = null;
+      String key = null;
       RulePriority priority = null;
       parameters.clear();
 

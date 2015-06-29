@@ -25,6 +25,16 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -32,7 +42,15 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolFilterBuilder;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.HasParentFilterBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.SimpleQueryStringBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -49,12 +67,13 @@ import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.Rule;
-import org.sonar.server.search.*;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.*;
+import org.sonar.server.search.BaseIndex;
+import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.IndexField;
+import org.sonar.server.search.QueryContext;
+import org.sonar.server.search.Result;
+import org.sonar.server.search.SearchClient;
+import org.sonar.server.search.StickyFacetBuilder;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -428,14 +447,14 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       /*
        * Since this facet concerns 2 fields, we're using an aggregation structure like this:
        * global aggregation
-       *  |- sub-aggregation on characteristics: filter
-       *  |  |- classic sub-aggregation with top-n terms, excluding NONE
-       *  |  |- classic sub-aggregation with selected terms
-       *  |  |- terms aggregation on "NONE"
-       *  |  |- missing aggregation
-       *  |- sub-aggregation on sub-characteristics: filter, excluding NONE
-       *     |- classic sub-aggregation with top-n terms
-       *     |- classic sub-aggregation with selected terms
+       * |- sub-aggregation on characteristics: filter
+       * | |- classic sub-aggregation with top-n terms, excluding NONE
+       * | |- classic sub-aggregation with selected terms
+       * | |- terms aggregation on "NONE"
+       * | |- missing aggregation
+       * |- sub-aggregation on sub-characteristics: filter, excluding NONE
+       * |- classic sub-aggregation with top-n terms
+       * |- classic sub-aggregation with selected terms
        */
       int characsSize = 10;
       int subCharacsSize = 300;
@@ -454,8 +473,8 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
             .size(characsSize))
         .subAggregation(
           AggregationBuilders.terms(FACET_DEBT_CHARACTERISTICS + "__chars_none").field(RuleNormalizer.RuleField.CHARACTERISTIC.field())
-              .include(DebtCharacteristic.NONE)
-              .size(characsSize))
+            .include(DebtCharacteristic.NONE)
+            .size(characsSize))
         .subAggregation(
           AggregationBuilders.missing(FACET_DEBT_CHARACTERISTICS + "__chars_missing").field(RuleNormalizer.RuleField.CHARACTERISTIC.field()));
       AggregationBuilder debtSubChar = AggregationBuilders.filter(FACET_DEBT_CHARACTERISTICS + "__subchars")

@@ -36,7 +36,8 @@ import static org.mockito.Mockito.mock;
 public class WebServiceTest {
 
   static class MetricWs implements WebService {
-    boolean showCalled = false, createCalled = false;
+    boolean showCalled = false;
+    boolean createCalled = false;
 
     @Override
     public void define(Context context) {

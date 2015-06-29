@@ -43,8 +43,10 @@ class RuleActivatorContext {
   private RuleDto rule;
   private final Map<String, RuleParamDto> ruleParams = Maps.newHashMap();
   private QualityProfileDto profile;
-  private ActiveRuleDto activeRule, parentActiveRule;
-  private final Map<String, ActiveRuleParamDto> activeRuleParams = Maps.newHashMap(), parentActiveRuleParams = Maps.newHashMap();
+  private ActiveRuleDto activeRule;
+  private ActiveRuleDto parentActiveRule;
+  private final Map<String, ActiveRuleParamDto> activeRuleParams = Maps.newHashMap();
+  private final Map<String, ActiveRuleParamDto> parentActiveRuleParams = Maps.newHashMap();
 
   RuleActivatorContext() {
   }

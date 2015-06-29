@@ -37,7 +37,9 @@ import java.util.List;
 @BatchSide
 public class ModuleFileSystemInitializer {
 
-  private File baseDir, workingDir, buildDir;
+  private File baseDir;
+  private File workingDir;
+  private File buildDir;
   private List<File> sourceDirsOrFiles = Lists.newArrayList();
   private List<File> testDirsOrFiles = Lists.newArrayList();
   private List<File> binaryDirs = Lists.newArrayList();

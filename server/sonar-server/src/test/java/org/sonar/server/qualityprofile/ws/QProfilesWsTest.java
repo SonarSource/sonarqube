@@ -48,7 +48,8 @@ public class QProfilesWsTest {
 
   WebService.Controller controller;
 
-  String xoo1Key = "xoo1", xoo2Key = "xoo2";
+  String xoo1Key = "xoo1";
+  String xoo2Key = "xoo2";
 
   @Before
   public void setUp() {

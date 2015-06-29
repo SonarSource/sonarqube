@@ -41,7 +41,8 @@ import org.sonar.api.utils.log.Profiler;
 public class ComponentContainer {
 
   // no need for multiple children
-  ComponentContainer parent, child;
+  ComponentContainer parent;
+  ComponentContainer child;
   MutablePicoContainer pico;
   PropertyDefinitions propertyDefinitions;
   ComponentKeys componentKeys;

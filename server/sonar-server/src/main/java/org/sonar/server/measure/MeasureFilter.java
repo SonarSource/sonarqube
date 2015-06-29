@@ -46,7 +46,8 @@ public class MeasureFilter {
   private List<String> resourceQualifiers = Collections.emptyList();
   private String resourceKey = null;
   private String resourceName = null;
-  private Date fromDate = null, toDate = null;
+  private Date fromDate = null;
+  private Date toDate = null;
   private boolean userFavourites = false;
 
   // conditions on measures

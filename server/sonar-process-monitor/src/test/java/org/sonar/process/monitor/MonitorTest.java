@@ -142,7 +142,8 @@ public class MonitorTest {
   @Test
   public void start_then_stop_sequence_of_commands() throws Exception {
     monitor = newDefaultMonitor();
-    HttpProcessClient p1 = new HttpProcessClient("p1"), p2 = new HttpProcessClient("p2");
+    HttpProcessClient p1 = new HttpProcessClient("p1");
+    HttpProcessClient p2 = new HttpProcessClient("p2");
     monitor.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
 
     // start p2 when p1 is fully started (ready)
@@ -163,7 +164,8 @@ public class MonitorTest {
   @Test
   public void stop_all_processes_if_monitor_shutdowns() throws Exception {
     monitor = newDefaultMonitor();
-    HttpProcessClient p1 = new HttpProcessClient("p1"), p2 = new HttpProcessClient("p2");
+    HttpProcessClient p1 = new HttpProcessClient("p1");
+    HttpProcessClient p2 = new HttpProcessClient("p2");
     monitor.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
     assertThat(p1.isReady()).isTrue();
     assertThat(p2.isReady()).isTrue();
@@ -179,7 +181,8 @@ public class MonitorTest {
   @Test
   public void stop_all_processes_if_one_shutdowns() throws Exception {
     monitor = newDefaultMonitor();
-    HttpProcessClient p1 = new HttpProcessClient("p1"), p2 = new HttpProcessClient("p2");
+    HttpProcessClient p1 = new HttpProcessClient("p1");
+    HttpProcessClient p2 = new HttpProcessClient("p2");
     monitor.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
     assertThat(p1.isReady()).isTrue();
     assertThat(p2.isReady()).isTrue();
@@ -197,7 +200,8 @@ public class MonitorTest {
   @Test
   public void stop_all_processes_if_one_fails_to_start() throws Exception {
     monitor = newDefaultMonitor();
-    HttpProcessClient p1 = new HttpProcessClient("p1"), p2 = new HttpProcessClient("p2", -1);
+    HttpProcessClient p1 = new HttpProcessClient("p1");
+    HttpProcessClient p2 = new HttpProcessClient("p2", -1);
     try {
       monitor.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
       fail();

@@ -505,7 +505,9 @@ public interface RulesDefinition {
 
   @Immutable
   class RepositoryImpl implements Repository {
-    private final String key, language, name;
+    private final String key;
+    private final String language;
+    private final String name;
     private final Map<String, Rule> rulesByKey;
 
     private RepositoryImpl(NewRepositoryImpl newRepository) {
@@ -576,8 +578,13 @@ public interface RulesDefinition {
   }
 
   class NewRule {
-    private final String repoKey, key;
-    private String name, htmlDescription, markdownDescription, internalKey, severity = Severity.MAJOR;
+    private final String repoKey;
+    private final String key;
+    private String name;
+    private String htmlDescription;
+    private String markdownDescription;
+    private String internalKey;
+    private String severity = Severity.MAJOR;
     private boolean template;
     private RuleStatus status = RuleStatus.defaultStatus();
     private String debtSubCharacteristic;
@@ -787,7 +794,13 @@ public interface RulesDefinition {
   @Immutable
   class Rule {
     private final Repository repository;
-    private final String repoKey, key, name, htmlDescription, markdownDescription, internalKey, severity;
+    private final String repoKey;
+    private final String key;
+    private final String name;
+    private final String htmlDescription;
+    private final String markdownDescription;
+    private final String internalKey;
+    private final String severity;
     private final boolean template;
     private final String debtSubCharacteristic;
     private final DebtRemediationFunction debtRemediationFunction;
@@ -915,7 +928,9 @@ public interface RulesDefinition {
 
   class NewParam {
     private final String key;
-    private String name, description, defaultValue;
+    private String name;
+    private String description;
+    private String defaultValue;
     private RuleParamType type = RuleParamType.STRING;
 
     private NewParam(String key) {
@@ -956,7 +971,10 @@ public interface RulesDefinition {
 
   @Immutable
   class Param {
-    private final String key, name, description, defaultValue;
+    private final String key;
+    private final String name;
+    private final String description;
+    private final String defaultValue;
     private final RuleParamType type;
 
     private Param(NewParam newParam) {

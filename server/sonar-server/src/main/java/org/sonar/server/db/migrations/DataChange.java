@@ -28,7 +28,8 @@ public interface DataChange {
 
   class Context {
     private final Database db;
-    private final Connection readConnection, writeConnection;
+    private final Connection readConnection;
+    private final Connection writeConnection;
 
     public Context(Database db, Connection readConnection, Connection writeConnection) {
       this.db = db;

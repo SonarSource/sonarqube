@@ -21,18 +21,22 @@ package org.sonar.batch.scan.filesystem;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.CharEncoding;
-import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.resources.*;
-import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.api.utils.SonarException;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.CharEncoding;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.resources.InputFile;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.utils.SonarException;
 
 /**
  * Adapter for keeping the backward-compatibility of the deprecated component {@link org.sonar.api.resources.ProjectFileSystem}

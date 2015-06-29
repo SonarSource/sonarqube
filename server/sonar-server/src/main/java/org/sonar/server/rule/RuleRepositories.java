@@ -45,7 +45,9 @@ import java.util.SortedSet;
 public class RuleRepositories {
 
   public static class Repository implements Comparable<Repository> {
-    private final String key, name, language;
+    private final String key;
+    private final String name;
+    private final String language;
 
     private Repository(RulesDefinition.Repository repoDef) {
       this.key = repoDef.key();

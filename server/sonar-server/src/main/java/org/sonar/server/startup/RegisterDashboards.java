@@ -21,21 +21,25 @@ package org.sonar.server.startup;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+import java.util.Map.Entry;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardTemplate;
-import org.sonar.core.dashboard.*;
+import org.sonar.core.dashboard.ActiveDashboardDao;
+import org.sonar.core.dashboard.ActiveDashboardDto;
+import org.sonar.core.dashboard.DashboardDao;
+import org.sonar.core.dashboard.DashboardDto;
+import org.sonar.core.dashboard.WidgetDto;
+import org.sonar.core.dashboard.WidgetPropertyDto;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.server.issue.filter.RegisterIssueFilters;
-
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-import java.util.Map.Entry;
 
 /**
  * @since 2.13

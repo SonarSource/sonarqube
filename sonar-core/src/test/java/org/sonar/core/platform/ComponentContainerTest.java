@@ -322,7 +322,8 @@ public class ComponentContainerTest {
   }
 
   public static class StartableComponent {
-    public boolean started = false, stopped = false;
+    public boolean started = false;
+    public boolean stopped = false;
 
     public void start() {
       started = true;
@@ -377,7 +378,9 @@ public class ComponentContainerTest {
   }
 
   public static class StartableCloseableComponent implements AutoCloseable {
-    public boolean isClosed = false, isStopped = false, isClosedAfterStop = false;
+    public boolean isClosed = false;
+    public boolean isStopped = false;
+    public boolean isClosedAfterStop = false;
 
     public void stop() {
       isStopped = true;

@@ -20,6 +20,12 @@
 
 package org.sonar.server.benchmark;
 
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Timer;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,11 +33,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.source.db.FileSourceDb;
-import org.sonar.server.source.index.*;
+import org.sonar.server.source.index.FileSourcesUpdaterHelper;
+import org.sonar.server.source.index.SourceLineDoc;
+import org.sonar.server.source.index.SourceLineIndex;
+import org.sonar.server.source.index.SourceLineIndexDefinition;
+import org.sonar.server.source.index.SourceLineIndexer;
+import org.sonar.server.source.index.SourceLineResultSetIterator;
 import org.sonar.server.tester.ServerTester;
-
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

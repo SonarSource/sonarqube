@@ -48,7 +48,8 @@ public class BatchPluginPredicate implements Predicate<String> {
   private static final String PROPERTY_IS_DEPRECATED_MSG = "Property {0} is deprecated. Please use {1} instead.";
   private static final Joiner COMMA_JOINER = Joiner.on(", ");
 
-  private final Set<String> whites = newHashSet(), blacks = newHashSet();
+  private final Set<String> whites = newHashSet();
+  private final Set<String> blacks = newHashSet();
   private final DefaultAnalysisMode mode;
 
   public BatchPluginPredicate(Settings settings, DefaultAnalysisMode mode) {

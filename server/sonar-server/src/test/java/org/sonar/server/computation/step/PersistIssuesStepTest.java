@@ -20,7 +20,11 @@
 
 package org.sonar.server.computation.step;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -87,18 +91,18 @@ public class PersistIssuesStepTest extends BaseStepTest {
     dbTester.prepareDbUnit(getClass(), "insert_new_issue.xml");
 
     issueCache.newAppender().append(new DefaultIssue()
-        .setKey("ISSUE")
-        .setRuleKey(RuleKey.of("xoo", "S01"))
-        .setComponentUuid("COMPONENT")
-        .setProjectUuid("PROJECT")
-        .setSeverity(Severity.BLOCKER)
-        .setStatus(Issue.STATUS_OPEN)
-        .setNew(true)
-    ).close();
+      .setKey("ISSUE")
+      .setRuleKey(RuleKey.of("xoo", "S01"))
+      .setComponentUuid("COMPONENT")
+      .setProjectUuid("PROJECT")
+      .setSeverity(Severity.BLOCKER)
+      .setStatus(Issue.STATUS_OPEN)
+      .setNew(true)
+      ).close();
 
     step.execute();
 
-    dbTester.assertDbUnit(getClass(), "insert_new_issue-result.xml", new String[]{"id"}, "issues");
+    dbTester.assertDbUnit(getClass(), "insert_new_issue-result.xml", new String[] {"id"}, "issues");
   }
 
   @Test
@@ -106,16 +110,16 @@ public class PersistIssuesStepTest extends BaseStepTest {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     issueCache.newAppender().append(new DefaultIssue()
-        .setKey("ISSUE")
-        .setRuleKey(RuleKey.of("xoo", "S01"))
-        .setComponentUuid("COMPONENT")
-        .setProjectUuid("PROJECT")
-        .setSeverity(Severity.BLOCKER)
-        .setStatus(Issue.STATUS_CLOSED)
-        .setResolution(Issue.RESOLUTION_FIXED)
-        .setNew(false)
-        .setChanged(true)
-    ).close();
+      .setKey("ISSUE")
+      .setRuleKey(RuleKey.of("xoo", "S01"))
+      .setComponentUuid("COMPONENT")
+      .setProjectUuid("PROJECT")
+      .setSeverity(Severity.BLOCKER)
+      .setStatus(Issue.STATUS_CLOSED)
+      .setResolution(Issue.RESOLUTION_FIXED)
+      .setNew(false)
+      .setChanged(true)
+      ).close();
 
     step.execute();
 
@@ -127,27 +131,27 @@ public class PersistIssuesStepTest extends BaseStepTest {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     issueCache.newAppender().append(new DefaultIssue()
-        .setKey("ISSUE")
-        .setRuleKey(RuleKey.of("xoo", "S01"))
-        .setComponentUuid("COMPONENT")
-        .setProjectUuid("PROJECT")
-        .setSeverity(Severity.BLOCKER)
-        .setStatus(Issue.STATUS_CLOSED)
-        .setResolution(Issue.RESOLUTION_FIXED)
-        .setNew(false)
-        .setChanged(true)
-        .addComment(new DefaultIssueComment()
-            .setKey("COMMENT")
-            .setIssueKey("ISSUE")
-            .setUserLogin("john")
-            .setMarkdownText("Some text")
-            .setNew(true)
-        )
-    ).close();
+      .setKey("ISSUE")
+      .setRuleKey(RuleKey.of("xoo", "S01"))
+      .setComponentUuid("COMPONENT")
+      .setProjectUuid("PROJECT")
+      .setSeverity(Severity.BLOCKER)
+      .setStatus(Issue.STATUS_CLOSED)
+      .setResolution(Issue.RESOLUTION_FIXED)
+      .setNew(false)
+      .setChanged(true)
+      .addComment(new DefaultIssueComment()
+        .setKey("COMMENT")
+        .setIssueKey("ISSUE")
+        .setUserLogin("john")
+        .setMarkdownText("Some text")
+        .setNew(true)
+      )
+      ).close();
 
     step.execute();
 
-    dbTester.assertDbUnit(getClass(), "add_comment-result.xml", new String[]{"id", "created_at", "updated_at"}, "issue_changes");
+    dbTester.assertDbUnit(getClass(), "add_comment-result.xml", new String[] {"id", "created_at", "updated_at"}, "issue_changes");
   }
 
   @Test
@@ -155,25 +159,25 @@ public class PersistIssuesStepTest extends BaseStepTest {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     issueCache.newAppender().append(new DefaultIssue()
-        .setKey("ISSUE")
-        .setRuleKey(RuleKey.of("xoo", "S01"))
-        .setComponentUuid("COMPONENT")
-        .setProjectUuid("PROJECT")
-        .setSeverity(Severity.BLOCKER)
-        .setStatus(Issue.STATUS_CLOSED)
-        .setResolution(Issue.RESOLUTION_FIXED)
-        .setNew(false)
-        .setChanged(true)
-        .setCurrentChange(new FieldDiffs()
-            .setIssueKey("ISSUE")
-            .setUserLogin("john")
-            .setDiff("technicalDebt", null, 1L)
-        )
-    ).close();
+      .setKey("ISSUE")
+      .setRuleKey(RuleKey.of("xoo", "S01"))
+      .setComponentUuid("COMPONENT")
+      .setProjectUuid("PROJECT")
+      .setSeverity(Severity.BLOCKER)
+      .setStatus(Issue.STATUS_CLOSED)
+      .setResolution(Issue.RESOLUTION_FIXED)
+      .setNew(false)
+      .setChanged(true)
+      .setCurrentChange(new FieldDiffs()
+        .setIssueKey("ISSUE")
+        .setUserLogin("john")
+        .setDiff("technicalDebt", null, 1L)
+      )
+      ).close();
 
     step.execute();
 
-    dbTester.assertDbUnit(getClass(), "add_change-result.xml", new String[]{"id", "created_at", "updated_at"}, "issue_changes");
+    dbTester.assertDbUnit(getClass(), "add_change-result.xml", new String[] {"id", "created_at", "updated_at"}, "issue_changes");
   }
 
 }

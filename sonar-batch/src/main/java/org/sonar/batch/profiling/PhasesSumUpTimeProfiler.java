@@ -21,12 +21,28 @@ package org.sonar.batch.profiling;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.events.*;
+import org.sonar.api.batch.events.DecoratorExecutionHandler;
+import org.sonar.api.batch.events.DecoratorsPhaseHandler;
+import org.sonar.api.batch.events.InitializerExecutionHandler;
+import org.sonar.api.batch.events.InitializersPhaseHandler;
+import org.sonar.api.batch.events.PostJobExecutionHandler;
+import org.sonar.api.batch.events.PostJobsPhaseHandler;
+import org.sonar.api.batch.events.ProjectAnalysisHandler;
+import org.sonar.api.batch.events.SensorExecutionHandler;
+import org.sonar.api.batch.events.SensorsPhaseHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TimeUtils;
@@ -35,12 +51,6 @@ import org.sonar.batch.events.BatchStepHandler;
 import org.sonar.batch.phases.event.PersisterExecutionHandler;
 import org.sonar.batch.phases.event.PersistersPhaseHandler;
 import org.sonar.batch.util.BatchUtils;
-
-import javax.annotation.Nullable;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.*;
 
 import static org.sonar.batch.profiling.AbstractTimeProfiling.sortByDescendingTotalTime;
 import static org.sonar.batch.profiling.AbstractTimeProfiling.truncate;

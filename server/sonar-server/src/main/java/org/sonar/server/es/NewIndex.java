@@ -175,7 +175,9 @@ public class NewIndex {
   public static class StringFieldBuilder {
     private final NewIndexType indexType;
     private final String fieldName;
-    private boolean docValues = false, disableSearch = false, hasAnalyzedField = false;
+    private boolean docValues = false;
+    private boolean disableSearch = false;
+    private boolean hasAnalyzedField = false;
     private SortedMap<String, Object> subFields = Maps.newTreeMap();
 
     private StringFieldBuilder(NewIndexType indexType, String fieldName) {

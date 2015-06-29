@@ -83,7 +83,9 @@ public class ProxyBulkRequestBuilder extends BulkRequestBuilder {
     Multiset<BulkRequestKey> groupedRequests = LinkedHashMultiset.create();
     for (int i = 0; i < request.requests().size(); i++) {
       ActionRequest<?> item = request.requests().get(i);
-      String requestType, index, docType;
+      String requestType;
+      String index;
+      String docType;
       if (item instanceof IndexRequest) {
         IndexRequest request = (IndexRequest) item;
         requestType = "index";
