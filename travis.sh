@@ -49,31 +49,22 @@ PRANALYSIS)
   ;;
 
 ITS_QUALITYGATE)
-	unset GEM_PATH GEM_HOME RAILS_ENV
+	installTravisTools
 
-  export DISPLAY=:99.0
-  sh -e /etc/init.d/xvfb start
-
-  mvn install -Pit -DskipTests -Dsonar.runtimeVersion=DEV -Dorchestrator.configUrl=file://$(pwd)/it/orchestrator.properties -Dcategory=qualitygate
+	sonarqube_its "qualitygate"
   ;;
 
 ITS_UPDATECENTER)
-	unset GEM_PATH GEM_HOME RAILS_ENV
+	installTravisTools
 
-  export DISPLAY=:99.0
-  sh -e /etc/init.d/xvfb start
-
-  mvn install -Pit -DskipTests -Dsonar.runtimeVersion=DEV -Dorchestrator.configUrl=file://$(pwd)/it/orchestrator.properties -Dcategory=updatecenter
+	sonarqube_its "updatecenter"
   ;;
 
 
 ITS_TESTING)
-	unset GEM_PATH GEM_HOME RAILS_ENV
+	installTravisTools
 
-  export DISPLAY=:99.0
-  sh -e /etc/init.d/xvfb start
-
-  mvn install -Pit -DskipTests -Dsonar.runtimeVersion=DEV -Dorchestrator.configUrl=file://$(pwd)/it/orchestrator.properties -Dcategory=testing
+	sonarqube_its "testing"
   ;;
 
 *)
