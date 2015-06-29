@@ -164,7 +164,7 @@ public class SqaleMeasuresStep implements ComputationStep {
       case LONG:
         return measure.getLongValue();
       case DOUBLE:
-        return new Double(measure.getDoubleValue()).longValue();
+        return (long) measure.getDoubleValue();
       default:
         return 0L;
     }
