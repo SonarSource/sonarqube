@@ -6,10 +6,6 @@ jdk:
   - oraclejdk8
 
 env:
-  - JOB=H2
-  - JOB=POSTGRES
-  - JOB=MYSQL
-  - JOB=PRANALYSIS
   - JOB=ITS
 
 script:
