@@ -51,7 +51,7 @@ import static org.sonar.batch.protocol.output.BatchReport.Changesets;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
-import static org.sonar.server.computation.measure.MeasureVariations.newMeasureVarationsBuilder;
+import static org.sonar.server.computation.measure.MeasureVariations.newMeasureVariationsBuilder;
 
 public class NewCoverageMeasuresStepTest {
   private static final NewCoverageMetricKeys SOME_COVERAGE_METRIC_KEYS = new SomeNewCoverageMetricKeys();
@@ -283,7 +283,7 @@ public class NewCoverageMeasuresStepTest {
   }
 
   private static Measure createMeasure(@Nullable Double variationPeriod2, @Nullable Double variationPeriod5) {
-    MeasureVariations.Builder variationBuilder = newMeasureVarationsBuilder();
+    MeasureVariations.Builder variationBuilder = newMeasureVariationsBuilder();
     if (variationPeriod2 != null) {
       variationBuilder.setVariation(2, variationPeriod2);
     }

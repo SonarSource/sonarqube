@@ -39,7 +39,7 @@ public final class MeasureVariations {
     System.arraycopy(variations, 0, this.variations, 0, variations.length);
   }
 
-  public static Builder newMeasureVarationsBuilder() {
+  public static Builder newMeasureVariationsBuilder() {
     return new Builder();
   }
 

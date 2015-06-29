@@ -26,7 +26,7 @@ import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
-import static org.sonar.server.computation.measure.MeasureVariations.newMeasureVarationsBuilder;
+import static org.sonar.server.computation.measure.MeasureVariations.newMeasureVariationsBuilder;
 
 public class MeasureVariationsTest {
   public static final String NO_VARIATION_ERROR_MESSAGE = "There must be at least one variation";
@@ -201,7 +201,7 @@ public class MeasureVariationsTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Variation index must be >= 1 and <= 5");
 
-    newMeasureVarationsBuilder().setVariation(0, 12d);
+    newMeasureVariationsBuilder().setVariation(0, 12d);
   }
 
   @Test
@@ -209,7 +209,7 @@ public class MeasureVariationsTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Variation index must be >= 1 and <= 5");
 
-    newMeasureVarationsBuilder().setVariation(-965, 12d);
+    newMeasureVariationsBuilder().setVariation(-965, 12d);
   }
 
   @Test
@@ -217,7 +217,7 @@ public class MeasureVariationsTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Variation index must be >= 1 and <= 5");
 
-    newMeasureVarationsBuilder().setVariation(6, 12d);
+    newMeasureVariationsBuilder().setVariation(6, 12d);
   }
 
   @Test
@@ -225,12 +225,12 @@ public class MeasureVariationsTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Variation index must be >= 1 and <= 5");
 
-    newMeasureVarationsBuilder().setVariation(75, 12d);
+    newMeasureVariationsBuilder().setVariation(75, 12d);
   }
 
   @Test
   public void builder_throws_ISE_if_variation_has_already_been_set() {
-    MeasureVariations.Builder builder = newMeasureVarationsBuilder().setVariation(4, 12d);
+    MeasureVariations.Builder builder = newMeasureVariationsBuilder().setVariation(4, 12d);
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Variation for index 4 has already been set");
@@ -240,7 +240,7 @@ public class MeasureVariationsTest {
 
   @Test
   public void verify_MeasureVariations_built_by_builder() {
-    MeasureVariations variations = newMeasureVarationsBuilder()
+    MeasureVariations variations = newMeasureVariationsBuilder()
       .setVariation(1, 1d)
       .setVariation(2, 2d)
       .setVariation(3, 3d)

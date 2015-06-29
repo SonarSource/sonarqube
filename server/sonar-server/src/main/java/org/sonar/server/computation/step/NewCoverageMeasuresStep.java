@@ -150,7 +150,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
       return;
     }
 
-    MeasureVariations.Builder variationsBuilder = MeasureVariations.newMeasureVarationsBuilder();
+    MeasureVariations.Builder variationsBuilder = MeasureVariations.newMeasureVariationsBuilder();
     for (Counter counter : nonEmptyCounters) {
       variationsBuilder.setVariation(counter.getPeriodIndex(), measureComputer.compute(counter));
     }
