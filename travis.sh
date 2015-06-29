@@ -32,7 +32,7 @@ MYSQL)
   ;;
 
 PRANALYSIS)
-  if [ -n "$SONAR_GITHUB_OAUTH" ] && [ "${TRAVIS_PULL_REQUEST}" != "false" ] 
+  if [ -n "$SONAR_GITHUB_OAUTH" ] && [ "${TRAVIS_PULL_REQUEST}" != "false" ]
   then
     echo "Start pullrequest analysis"
     mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent verify sonar:sonar -B -e -V -Dmaven.test.failure.ignore=true -Dclirr=true \
@@ -44,8 +44,16 @@ PRANALYSIS)
      -Dsonar.github.oauth=$SONAR_GITHUB_OAUTH \
      -Dsonar.host.url=$SONAR_HOST_URL \
      -Dsonar.login=$SONAR_LOGIN \
-     -Dsonar.password=$SONAR_PASSWD 
-  fi 
+     -Dsonar.password=$SONAR_PASSWD
+  fi
+  ;;
+
+ITS)
+  cd it/it-plugins
+  mvn install
+  cd -
+
+  mvn clean verify -Pit -DskipTests -pl :it-tests -am -Dorchestrator.configUrl=file://$(pwd)/it/orchestrator.properties -Dsonar.runtimeVersion=DEV
   ;;
 
 *)

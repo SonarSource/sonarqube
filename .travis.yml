@@ -10,6 +10,7 @@ env:
   - JOB=POSTGRES
   - JOB=MYSQL
   - JOB=PRANALYSIS
+  - JOB=ITS
 
 script:
   - ./travis.sh
