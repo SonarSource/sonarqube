@@ -48,13 +48,32 @@ PRANALYSIS)
   fi
   ;;
 
-ITS)
+ITS_QUALITYGATE)
 	unset GEM_PATH GEM_HOME RAILS_ENV
 
   export DISPLAY=:99.0
   sh -e /etc/init.d/xvfb start
 
-  mvn install -Pit -DskipTests -Dsonar.runtimeVersion=DEV -Dorchestrator.configUrl=file://$(pwd)/it/orchestrator.properties -Dmaven.test.redirectTestOutputToFile=false
+  mvn install -Pit -DskipTests -Dsonar.runtimeVersion=DEV -Dorchestrator.configUrl=file://$(pwd)/it/orchestrator.properties -Dcategory=qualitygate
+  ;;
+
+ITS_UPDATECENTER)
+	unset GEM_PATH GEM_HOME RAILS_ENV
+
+  export DISPLAY=:99.0
+  sh -e /etc/init.d/xvfb start
+
+  mvn install -Pit -DskipTests -Dsonar.runtimeVersion=DEV -Dorchestrator.configUrl=file://$(pwd)/it/orchestrator.properties -Dcategory=updatecenter
+  ;;
+
+
+ITS_TESTING)
+	unset GEM_PATH GEM_HOME RAILS_ENV
+
+  export DISPLAY=:99.0
+  sh -e /etc/init.d/xvfb start
+
+  mvn install -Pit -DskipTests -Dsonar.runtimeVersion=DEV -Dorchestrator.configUrl=file://$(pwd)/it/orchestrator.properties -Dcategory=testing
   ;;
 
 *)

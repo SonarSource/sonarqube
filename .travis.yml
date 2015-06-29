@@ -6,7 +6,9 @@ jdk:
   - oraclejdk8
 
 env:
-  - JOB=ITS
+  - JOB=ITS_QUALITYGATE
+  - JOB=ITS_UPDATECENTER
+  - JOB=ITS_TESTING
 
 script:
   - ./travis.sh
