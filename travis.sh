@@ -49,6 +49,8 @@ PRANALYSIS)
   ;;
 
 ITS)
+	unset GEM_PATH GEM_HOME RAILS_ENV
+
   mvn install -Pit -DskipTests -Dsonar.runtimeVersion=DEV -Dorchestrator.configUrl=file://$(pwd)/it/orchestrator.properties -Dmaven.test.redirectTestOutputToFile=false
   ;;
 
