@@ -20,6 +20,7 @@
 package org.sonar.batch.scan;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,13 +30,12 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.protocol.input.GlobalRepositories;
 import org.sonar.batch.protocol.input.ProjectRepositories;
-
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -45,6 +45,8 @@ public class ProjectSettingsTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+  @Rule
+  public LogTester logTester = new LogTester();
 
   ProjectRepositories projectRef;
   ProjectDefinition project = ProjectDefinition.create().setKey("struts");
@@ -113,4 +115,12 @@ public class ProjectSettingsTest {
     batchSettings.getString("sonar.foo.secured");
   }
 
+  @Test
+  public void should_log_a_warning_when_a_dropper_property_is_present() {
+    GlobalSettings settings = new GlobalSettings(new BootstrapProperties(ImmutableMap.of("sonar.qualitygate", "somevalue")), new PropertyDefinitions(), new GlobalRepositories(), mode);
+    new ProjectSettings(new ProjectReactor(project), settings, new PropertyDefinitions(), projectRef, mode);
+
+    logTester.logs().contains("Property 'sonar.qualitygate' is not supported any more. It will be ignored.");
+
+  }
 }

@@ -19,16 +19,29 @@
  */
 package org.sonar.batch.scan;
 
+import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 
 public class ProjectSettings extends Settings {
+  private static final Logger LOGGER = Loggers.get(ProjectSettings.class);
+
+  /**
+   * A map of dropped properties as key and specific message to display for that property
+   * (what will happen, what should the user do, ...) as a value
+   */
+  private static final Map<String, String> DROPPED_PROPERTIES = ImmutableMap.of(
+    "sonar.qualitygate", "It will be ignored."
+    );
 
   private final GlobalSettings globalSettings;
   private final ProjectRepositories projectRepositories;
@@ -42,6 +55,7 @@ public class ProjectSettings extends Settings {
     this.globalSettings = globalSettings;
     this.projectRepositories = projectRepositories;
     init(reactor);
+    checkDroppedProperties();
   }
 
   private void init(ProjectReactor reactor) {
@@ -50,6 +64,14 @@ public class ProjectSettings extends Settings {
     addProperties(projectRepositories.settings(reactor.getRoot().getKeyWithBranch()));
 
     addProperties(reactor.getRoot().properties());
+  }
+
+  private void checkDroppedProperties() {
+    for (Map.Entry<String, String> entry : DROPPED_PROPERTIES.entrySet()) {
+      if (hasKey(entry.getKey())) {
+        LOGGER.warn("Property '{}' is not supported any more. {}", entry.getKey(), entry.getValue());
+      }
+    }
   }
 
   @Override
