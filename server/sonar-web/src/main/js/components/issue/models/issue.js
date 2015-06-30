@@ -15,6 +15,8 @@ define(function () {
       if (r.issue) {
         var issue = this._injectRelational(r.issue, r.users, 'assignee', 'login');
         issue = this._injectRelational(issue, r.users, 'reporter', 'login');
+        issue = this._injectRelational(issue, r.components, 'component', 'key');
+        issue = this._injectRelational(issue, r.components, 'project', 'key');
         return issue;
       } else {
         return r;
