@@ -20,6 +20,11 @@
 package org.sonar.microbenchmark;
 
 import com.google.protobuf.CodedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.RandomStringUtils;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -37,12 +42,6 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.sonar.server.source.db.FileSourceDb;
-
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -79,7 +78,7 @@ public class FileSourceDbBenchmark {
         .setSource(RandomStringUtils.randomAlphanumeric(10))
         .setHighlighting(RandomStringUtils.randomAlphanumeric(20))
         .setSymbols(RandomStringUtils.randomAlphanumeric(20))
-        .addAllDuplications(Arrays.asList(12,13,15))
+        .addAllDuplication(Arrays.asList(12, 13, 15))
         .build());
     }
     data = builder.build();

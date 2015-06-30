@@ -22,6 +22,8 @@ package org.sonar.batch.deprecated.decorator;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.List;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.design.Dependency;
@@ -37,9 +39,6 @@ import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
-
-import java.util.Collection;
-import java.util.List;
 
 public class DefaultDecoratorContext implements DecoratorContext {
 
@@ -111,7 +110,7 @@ public class DefaultDecoratorContext implements DecoratorContext {
   }
 
   private <M> Collection<Measure> getMeasuresOfASingleMetric(MeasuresFilters.MetricFilter<M> filter) {
-    String metricKey = ((MeasuresFilters.MetricFilter<M>) filter).filterOnMetricKey();
+    String metricKey = filter.filterOnMetricKey();
     return measuresByMetric.get(metricKey);
   }
 

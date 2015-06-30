@@ -20,6 +20,17 @@
 package org.sonar.api.batch.sensor.internal;
 
 import com.google.common.annotations.Beta;
+import java.io.File;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
@@ -50,18 +61,6 @@ import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Metric;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.io.File;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Utility class to help testing {@link Sensor}.
@@ -321,13 +320,13 @@ public class SensorContextTester implements SensorContext {
     public void store(DefaultCoverage defaultCoverage) {
       String key = getKey(defaultCoverage.inputFile());
       if (!coverageByComponent.containsKey(key)) {
-        coverageByComponent.put(key, new HashMap<CoverageType, DefaultCoverage>());
+        coverageByComponent.put(key, new EnumMap<CoverageType, DefaultCoverage>(CoverageType.class));
       }
       coverageByComponent.get(key).put(defaultCoverage.type(), defaultCoverage);
     }
 
     @CheckForNull
-    private String getKey(@Nullable InputPath inputPath) {
+    private static String getKey(@Nullable InputPath inputPath) {
       if (inputPath == null) {
         return null;
       }

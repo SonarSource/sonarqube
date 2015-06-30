@@ -241,7 +241,7 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable, Serial
     this.key = key;
   }
 
-  private void checkSize(String key) {
+  private static void checkSize(String key) {
     if (key.length() > KEY_SIZE) {
       throw new IllegalArgumentException("Resource key is too long, max is " + KEY_SIZE + " characters. Got : " + key);
     }

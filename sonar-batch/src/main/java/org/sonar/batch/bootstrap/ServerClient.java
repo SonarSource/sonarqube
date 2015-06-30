@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.home.cache.PersistentCache;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -29,17 +28,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.utils.HttpDownloader;
-import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.core.util.DefaultHttpDownloader;
-
-import javax.annotation.Nullable;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -50,6 +38,16 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import javax.annotation.Nullable;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.utils.HttpDownloader;
+import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.core.util.DefaultHttpDownloader;
+import org.sonar.home.cache.PersistentCache;
 
 /**
  * Replace the deprecated org.sonar.batch.ServerMetadata
@@ -180,7 +178,7 @@ public class ServerClient {
     return new IllegalStateException(String.format("Fail to execute request [code=%s, url=%s]", he.getResponseCode(), he.getUri()), he);
   }
 
-  private String tryParseAsJsonError(String responseContent) {
+  private static String tryParseAsJsonError(String responseContent) {
     try {
       JsonParser parser = new JsonParser();
       JsonObject obj = parser.parse(responseContent).getAsJsonObject();

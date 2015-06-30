@@ -70,7 +70,7 @@ public class ModuleProfiling extends AbstractTimeProfiling {
     categories.putAll(profilingPerBatchStep);
 
     for (Map.Entry<Object, AbstractTimeProfiling> batchStep : categories.entrySet()) {
-      props.setProperty(batchStep.getKey().toString(), "" + batchStep.getValue().totalTime());
+      props.setProperty(batchStep.getKey().toString(), Long.toString(batchStep.getValue().totalTime()));
     }
 
     for (Map.Entry<Object, AbstractTimeProfiling> batchStep : sortByDescendingTotalTime(categories).entrySet()) {

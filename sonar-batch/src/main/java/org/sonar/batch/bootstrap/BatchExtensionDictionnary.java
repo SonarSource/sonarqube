@@ -22,6 +22,15 @@ package org.sonar.batch.bootstrap;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.ClassUtils;
 import org.sonar.api.batch.CheckProject;
 import org.sonar.api.batch.DependedUpon;
@@ -31,7 +40,6 @@ import org.sonar.api.batch.postjob.PostJob;
 import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.core.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.dag.DirectAcyclicGraph;
@@ -40,17 +48,7 @@ import org.sonar.batch.postjob.PostJobWrapper;
 import org.sonar.batch.sensor.DefaultSensorContext;
 import org.sonar.batch.sensor.SensorOptimizer;
 import org.sonar.batch.sensor.SensorWrapper;
-
-import javax.annotation.Nullable;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import org.sonar.core.platform.ComponentContainer;
 
 /**
  * @since 2.6
@@ -245,7 +243,7 @@ public class BatchExtensionDictionnary {
     }
   }
 
-  private void checkAnnotatedMethod(Method method) {
+  private static void checkAnnotatedMethod(Method method) {
     if (!Modifier.isPublic(method.getModifiers())) {
       throw new IllegalStateException("Annotated method must be public:" + method);
     }
@@ -254,7 +252,7 @@ public class BatchExtensionDictionnary {
     }
   }
 
-  private boolean shouldKeep(Class type, Object extension, @Nullable Project project, @Nullable ExtensionMatcher matcher) {
+  private static boolean shouldKeep(Class type, Object extension, @Nullable Project project, @Nullable ExtensionMatcher matcher) {
     boolean keep = (ClassUtils.isAssignable(extension.getClass(), type)
       || (org.sonar.api.batch.Sensor.class.equals(type) && ClassUtils.isAssignable(extension.getClass(), Sensor.class)))
       && (matcher == null || matcher.accept(extension));

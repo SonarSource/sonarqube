@@ -24,6 +24,21 @@ import com.esotericsoftware.kryo.io.Output;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonWriter;
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
+import java.io.Externalizable;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -40,22 +55,6 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
-import java.io.Externalizable;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Thread)
@@ -103,7 +102,7 @@ public class SerializationBenchmark {
         issueBuilder.setMsg("this is the message of issue " + i);
         issueBuilder.setLine(i);
         issueBuilder.setAuthorLogin("someone");
-        issueBuilder.addAllTags(Arrays.asList("tag" + i, "othertag" + i));
+        issueBuilder.addAllTag(Arrays.asList("tag" + i, "othertag" + i));
         issueBuilder.build().writeDelimitedTo(out);
       }
     }

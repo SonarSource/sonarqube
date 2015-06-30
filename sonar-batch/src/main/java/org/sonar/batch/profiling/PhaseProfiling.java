@@ -19,12 +19,11 @@
  */
 package org.sonar.batch.profiling;
 
-import org.sonar.api.utils.System2;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import org.sonar.api.utils.System2;
 
 public class PhaseProfiling extends AbstractTimeProfiling {
 
@@ -76,7 +75,7 @@ public class PhaseProfiling extends AbstractTimeProfiling {
   public void dump(Properties props) {
     double percent = this.totalTime() / 100.0;
     for (ItemProfiling itemProfiling : profilingPerItem.values()) {
-      props.setProperty(itemProfiling.itemName(), "" + itemProfiling.totalTime());
+      props.setProperty(itemProfiling.itemName(), Long.toString(itemProfiling.totalTime()));
     }
     for (ItemProfiling itemProfiling : truncate(sortByDescendingTotalTime(profilingPerItem).values())) {
       println("   o " + itemProfiling.itemName() + ": ", percent, itemProfiling);

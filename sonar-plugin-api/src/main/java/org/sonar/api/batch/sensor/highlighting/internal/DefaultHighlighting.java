@@ -20,6 +20,12 @@
 package org.sonar.api.batch.sensor.highlighting.internal;
 
 import com.google.common.base.Preconditions;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -27,10 +33,6 @@ import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
-
-import javax.annotation.Nullable;
-
-import java.util.*;
 
 public class DefaultHighlighting extends DefaultStorable implements NewHighlighting {
 
@@ -56,7 +58,7 @@ public class DefaultHighlighting extends DefaultStorable implements NewHighlight
       SyntaxHighlightingRule previous = it.next();
       while (it.hasNext()) {
         SyntaxHighlightingRule current = it.next();
-        if (previous.range().end().compareTo(current.range().start()) > 0 && !(previous.range().end().compareTo(current.range().end()) >= 0)) {
+        if (previous.range().end().compareTo(current.range().start()) > 0 && (previous.range().end().compareTo(current.range().end()) < 0)) {
           String errorMsg = String.format("Cannot register highlighting rule for characters at %s as it " +
             "overlaps at least one existing rule", current.range());
           throw new IllegalStateException(errorMsg);

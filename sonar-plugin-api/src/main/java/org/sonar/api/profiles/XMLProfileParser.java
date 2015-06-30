@@ -19,26 +19,24 @@
  */
 package org.sonar.api.profiles;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.codehaus.staxmate.SMInputFactory;
-import org.codehaus.staxmate.in.SMHierarchicCursor;
-import org.codehaus.staxmate.in.SMInputCursor;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.rules.RulePriority;
-import org.sonar.api.utils.ValidationMessages;
-
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.staxmate.SMInputFactory;
+import org.codehaus.staxmate.in.SMHierarchicCursor;
+import org.codehaus.staxmate.in.SMInputCursor;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.rules.RulePriority;
+import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.ValidationMessages;
 
 /**
  * @since 2.3
@@ -160,7 +158,7 @@ public class XMLProfileParser {
     }
   }
 
-  private String ruleToString(String repositoryKey, String key) {
+  private static String ruleToString(String repositoryKey, String key) {
     return "[repository=" + repositoryKey + ", key=" + key + "]";
   }
 

@@ -20,15 +20,6 @@
 package org.sonar.api.batch.fs.internal;
 
 import com.google.common.base.Preconditions;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.TextPointer;
-import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.FileMetadata.Metadata;
-import org.sonar.api.utils.PathUtils;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,6 +28,13 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.Arrays;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextPointer;
+import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.batch.fs.internal.FileMetadata.Metadata;
+import org.sonar.api.utils.PathUtils;
 
 /**
  * @since 4.2
@@ -234,7 +232,7 @@ public class DefaultInputFile implements InputFile, org.sonar.api.resources.Inpu
     return newRangeValidPointers(start, end);
   }
 
-  private TextRange newRangeValidPointers(TextPointer start, TextPointer end) {
+  private static TextRange newRangeValidPointers(TextPointer start, TextPointer end) {
     Preconditions.checkArgument(start.compareTo(end) < 0, "Start pointer %s should be before end pointer %s", start, end);
     return new DefaultTextRange(start, end);
   }
