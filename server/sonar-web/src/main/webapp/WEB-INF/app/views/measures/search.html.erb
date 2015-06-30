@@ -126,6 +126,8 @@
   </script>
 
   <script>
-    require(['apps/measures/app']);
+    require(['apps/measures/app'], function (App) {
+      App.start();
+    });
   </script>
 <% end %>
