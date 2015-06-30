@@ -48,6 +48,15 @@ define(function (require) {
     });
   };
 
+  Command.prototype.fillElement = function (selector, value) {
+    return new this.constructor(this, function () {
+      return this.parent
+          .execute(function (selector, value) {
+            jQuery(selector).val(value);
+          }, [selector, value]);
+    });
+  };
+
   Command.prototype.mockFromFile = function (url, file) {
     var response = fs.readFileSync('src/test/json/' + file, 'utf-8');
     return new this.constructor(this, function () {
@@ -64,6 +73,15 @@ define(function (require) {
           .execute(function (url, response) {
             return jQuery.mockjax(_.extend({ url: url, responseText: response }));
           }, [url, response]);
+    });
+  };
+
+  Command.prototype.clearMocks = function () {
+    return new this.constructor(this, function () {
+      return this.parent
+          .execute(function () {
+            jQuery.mockjaxClear();
+          });
     });
   };
 
