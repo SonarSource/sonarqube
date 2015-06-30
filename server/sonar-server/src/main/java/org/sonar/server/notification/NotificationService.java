@@ -22,6 +22,7 @@ package org.sonar.server.notification;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,6 +32,7 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import org.picocontainer.Startable;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
@@ -155,24 +157,12 @@ public class NotificationService implements Startable {
   public void deliver(Notification notification) {
     final SetMultimap<String, NotificationChannel> recipients = HashMultimap.create();
     for (NotificationDispatcher dispatcher : dispatchers) {
-      NotificationDispatcher.Context context = new NotificationDispatcher.Context() {
-        @Override
-        public void addUser(String username) {
-          // This method is not used anymore
-        }
-
-        @Override
-        public void addUser(String userLogin, NotificationChannel notificationChannel) {
-          if (userLogin != null) {
-            recipients.put(userLogin, notificationChannel);
-          }
-        }
-      };
+      NotificationDispatcher.Context context = new ContextImpl(recipients);
       try {
         dispatcher.performDispatch(notification, context);
       } catch (Exception e) {
         // catch all exceptions in order to dispatch using other dispatchers
-        LOG.warn("Unable to dispatch notification " + notification + " using " + dispatcher, e);
+        LOG.warn(String.format("Unable to dispatch notification %s using %s", notification, dispatcher), e);
       }
     }
     dispatch(notification, recipients);
@@ -212,5 +202,25 @@ public class NotificationService implements Startable {
     }
 
     return dbClient.propertiesDao().hasProjectNotificationSubscribersForDispatchers(projectUuid, dispatcherKeys);
+  }
+
+  private static class ContextImpl implements NotificationDispatcher.Context {
+    private final Multimap<String, NotificationChannel> recipients;
+
+    public ContextImpl(Multimap<String, NotificationChannel> recipients) {
+      this.recipients = recipients;
+    }
+
+    @Override
+    public void addUser(String username) {
+      // This method is not used anymore
+    }
+
+    @Override
+    public void addUser(@Nullable String userLogin, NotificationChannel notificationChannel) {
+      if (userLogin != null) {
+        recipients.put(userLogin, notificationChannel);
+      }
+    }
   }
 }

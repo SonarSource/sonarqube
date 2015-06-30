@@ -789,8 +789,8 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
      */
     public <G extends Serializable> Metric<G> create() {
       if (ValueType.PERCENT.equals(this.type)) {
-        this.bestValue = (direction == DIRECTION_BETTER ? 100.0 : 0.0);
-        this.worstValue = (direction == DIRECTION_BETTER ? 0.0 : 100.0);
+        this.bestValue = (direction == DIRECTION_BETTER) ? 100.0 : 0.0;
+        this.worstValue = (direction == DIRECTION_BETTER) ? 0.0 : 100.0;
       }
       return new Metric<>(this);
     }
