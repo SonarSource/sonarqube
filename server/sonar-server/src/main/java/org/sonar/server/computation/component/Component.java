@@ -39,6 +39,10 @@ public interface Component {
     public boolean isDeeperThan(Type otherType) {
       return this.getDepth() > otherType.getDepth();
     }
+
+    public boolean isHigherThan(Type otherType) {
+      return this.getDepth() < otherType.getDepth();
+    }
   }
 
   Type getType();

@@ -23,6 +23,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
+import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
 
@@ -50,5 +51,38 @@ public class ComponentTest {
   @Test
   public void MODULE_type_is_deeper_than_PROJECT() throws Exception {
     assertThat(Component.Type.MODULE.isDeeperThan(PROJECT)).isTrue();
+  }
+
+  @Test
+  public void FILE_type_is_higher_than_no_other_types() throws Exception {
+    assertThat(Component.Type.FILE.isHigherThan(DIRECTORY)).isFalse();
+    assertThat(Component.Type.FILE.isHigherThan(MODULE)).isFalse();
+    assertThat(Component.Type.FILE.isHigherThan(PROJECT)).isFalse();
+  }
+
+  @Test
+  public void DIRECTORY_type_is_higher_than_FILE() throws Exception {
+    assertThat(Component.Type.DIRECTORY.isHigherThan(FILE)).isTrue();
+  }
+
+  @Test
+  public void MODULE_type_is_higher_than_FILE_AND_DIRECTORY() throws Exception {
+    assertThat(Component.Type.MODULE.isHigherThan(FILE)).isTrue();
+    assertThat(Component.Type.MODULE.isHigherThan(DIRECTORY)).isTrue();
+  }
+
+  @Test
+  public void PROJECT_type_is_higher_than_all_other_types() throws Exception {
+    assertThat(Component.Type.PROJECT.isHigherThan(FILE)).isTrue();
+    assertThat(Component.Type.PROJECT.isHigherThan(DIRECTORY)).isTrue();
+    assertThat(Component.Type.PROJECT.isHigherThan(MODULE)).isTrue();
+  }
+
+  @Test
+  public void any_type_is_not_higher_than_itself() throws Exception {
+    assertThat(Component.Type.FILE.isHigherThan(FILE)).isFalse();
+    assertThat(Component.Type.DIRECTORY.isHigherThan(DIRECTORY)).isFalse();
+    assertThat(Component.Type.MODULE.isHigherThan(MODULE)).isFalse();
+    assertThat(Component.Type.PROJECT.isHigherThan(PROJECT)).isFalse();
   }
 }
