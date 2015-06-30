@@ -60,7 +60,7 @@ public final class ViolationQuery {
    * @return the current violation query
    */
   public ViolationQuery setSwitchedOff(boolean b) {
-    this.switchMode = (b ? SwitchMode.OFF : SwitchMode.ON);
+    this.switchMode = b ? SwitchMode.OFF : SwitchMode.ON;
     return this;
   }
 

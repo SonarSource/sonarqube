@@ -59,7 +59,7 @@ class OpeningHtmlTag {
     if (startOffset != otherTag.startOffset) {
       return false;
     }
-    if (cssClass != null ? !cssClass.equals(otherTag.cssClass) : otherTag.cssClass != null) {
+    if ((cssClass != null) ? !cssClass.equals(otherTag.cssClass) : (otherTag.cssClass != null)) {
       return false;
     }
     return true;

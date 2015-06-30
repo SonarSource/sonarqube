@@ -19,6 +19,8 @@
  */
 package org.sonar.server.charts;
 
+import java.awt.Font;
+import java.text.DecimalFormat;
 import org.apache.commons.lang.StringUtils;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
@@ -29,11 +31,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.sonar.api.charts.AbstractChart;
 import org.sonar.api.charts.ChartParameters;
 
-import java.awt.*;
-import java.text.DecimalFormat;
-
 public class DistributionBarChart extends AbstractChart {
-
 
   public static final String PARAM_VALUES = "v";
   public static final String PARAM_COLORS = "c";

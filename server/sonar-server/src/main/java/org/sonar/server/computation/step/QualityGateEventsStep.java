@@ -97,7 +97,7 @@ public class QualityGateEventsStep implements ComputationStep {
       // The QualityGate status has changed
       String label = String.format("%s (was %s)", rawStatus.getStatus().getColorName(), baseStatus.getStatus().getColorName());
       createEvent(project, label, rawStatus.getText());
-      boolean isNewKo = (rawStatus.getStatus() == Measure.Level.OK);
+      boolean isNewKo = rawStatus.getStatus() == Measure.Level.OK;
       notifyUsers(project, label, rawStatus, isNewKo);
     }
   }

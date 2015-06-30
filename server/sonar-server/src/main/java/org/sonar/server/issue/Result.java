@@ -129,7 +129,7 @@ public class Result<T> {
       }
       Message message = (Message) o;
 
-      if (l10nKey != null ? !l10nKey.equals(message.l10nKey) : message.l10nKey != null) {
+      if ((l10nKey != null) ? !l10nKey.equals(message.l10nKey) : (message.l10nKey != null)) {
         return false;
       }
       // Probably incorrect - comparing Object[] arrays with Arrays.equals

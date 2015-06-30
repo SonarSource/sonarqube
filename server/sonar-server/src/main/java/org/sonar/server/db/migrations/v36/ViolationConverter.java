@@ -194,7 +194,7 @@ class ViolationConverter implements Callable<Object> {
         } else {
           // violation + review
           String reviewStatus = (String) row.get(REVIEW_STATUS);
-          status = (STATUS_OPEN.equals(reviewStatus) ? STATUS_CONFIRMED : reviewStatus);
+          status = STATUS_OPEN.equals(reviewStatus) ? STATUS_CONFIRMED : reviewStatus;
           manualSeverity = Objects.firstNonNull((Boolean) row.get(REVIEW_MANUAL_SEVERITY), false);
           severity = (String) row.get(REVIEW_SEVERITY);
           updatedAt = Objects.firstNonNull(row.get(REVIEW_UPDATED_AT), ONE_YEAR_AGO);

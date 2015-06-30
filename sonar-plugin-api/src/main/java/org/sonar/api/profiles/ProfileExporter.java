@@ -19,14 +19,13 @@
  */
 package org.sonar.api.profiles;
 
+import java.io.Writer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.batch.BatchSide;
 import org.sonar.api.ExtensionPoint;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.server.ServerSide;
-
-import java.io.Writer;
 
 /**
  * @since 2.3
@@ -67,7 +66,7 @@ public abstract class ProfileExporter {
   }
 
   protected final ProfileExporter setSupportedLanguages(String... languages) {
-    supportedLanguages = (languages != null ? languages : new String[0]);
+    supportedLanguages = (languages != null) ? languages : new String[0];
     return this;
   }
 
@@ -98,7 +97,7 @@ public abstract class ProfileExporter {
       return false;
     }
     ProfileExporter that = (ProfileExporter) o;
-    return !(key != null ? !key.equals(that.key) : that.key != null);
+    return !((key != null) ? !key.equals(that.key) : (that.key != null));
   }
 
   @Override

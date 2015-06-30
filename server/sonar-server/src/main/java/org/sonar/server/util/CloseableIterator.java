@@ -20,7 +20,6 @@
 package org.sonar.server.util;
 
 import com.google.common.base.Throwables;
-import java.io.Closeable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import javax.annotation.CheckForNull;
@@ -82,7 +81,8 @@ public abstract class CloseableIterator<O> implements Iterator<O>, AutoCloseable
 
   private O bufferNext() {
     try {
-      return nextObject = doNext();
+      nextObject = doNext();
+      return nextObject;
     } catch (RuntimeException e) {
       close();
       throw e;

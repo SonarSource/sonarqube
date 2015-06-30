@@ -19,13 +19,12 @@
  */
 package org.sonar.server.util.cache;
 
-import org.sonar.server.exceptions.NotFoundException;
-
-import javax.annotation.CheckForNull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import org.sonar.server.exceptions.NotFoundException;
 
 /**
  * This in-memory cache relies on {@link org.sonar.server.util.cache.CacheLoader} to
@@ -44,11 +43,9 @@ public class MemoryCache<K, V> {
   @CheckForNull
   public V getNullable(K key) {
     V value = map.get(key);
-    if (value == null) {
-      if (!map.containsKey(key)) {
-        value = loader.load(key);
-        map.put(key, value);
-      }
+    if (value == null && !map.containsKey(key)) {
+      value = loader.load(key);
+      map.put(key, value);
     }
     return value;
   }

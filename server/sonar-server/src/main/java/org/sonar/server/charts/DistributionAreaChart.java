@@ -19,6 +19,7 @@
  */
 package org.sonar.server.charts;
 
+import java.text.NumberFormat;
 import org.apache.commons.lang.StringUtils;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
@@ -28,8 +29,6 @@ import org.jfree.chart.renderer.category.AreaRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.sonar.api.charts.AbstractChart;
 import org.sonar.api.charts.ChartParameters;
-
-import java.text.NumberFormat;
 
 public class DistributionAreaChart extends AbstractChart {
   private static final String PARAM_COLORS = "c";

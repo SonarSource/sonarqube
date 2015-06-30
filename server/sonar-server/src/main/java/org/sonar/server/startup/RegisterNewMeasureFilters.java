@@ -19,6 +19,7 @@
  */
 package org.sonar.server.startup;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -78,7 +79,8 @@ public final class RegisterNewMeasureFilters {
     return loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.FILTER_TYPE, filterName) == 0;
   }
 
-  protected MeasureFilterDto register(String name, Filter filter) {
+  @VisibleForTesting
+  MeasureFilterDto register(String name, Filter filter) {
     MeasureFilterDto dto = null;
     if (filterDao.findSystemFilterByName(name) == null) {
       LOG.info("Register measure filter: " + name);
@@ -90,7 +92,8 @@ public final class RegisterNewMeasureFilters {
     return dto;
   }
 
-  protected MeasureFilterDto createDtoFromExtension(String name, Filter filter) {
+  @VisibleForTesting
+  MeasureFilterDto createDtoFromExtension(String name, Filter filter) {
     Date now = new Date();
     String data = toData(filter);
     return new MeasureFilterDto()

@@ -20,14 +20,12 @@
 package org.sonar.server.charts;
 
 import com.google.common.collect.Maps;
-import org.sonar.api.server.ServerSide;
+import java.util.Map;
+import javax.annotation.CheckForNull;
 import org.sonar.api.charts.Chart;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-
-import javax.annotation.CheckForNull;
-
-import java.util.Map;
 
 @ServerSide
 public final class ChartFactory {

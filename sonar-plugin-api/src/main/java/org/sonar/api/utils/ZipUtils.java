@@ -174,7 +174,7 @@ public final class ZipUtils {
 
   private static void doZip(String entryName, File file, ZipOutputStream out) throws IOException {
     if (file.isDirectory()) {
-      entryName += '/';
+      entryName += "/";
       ZipEntry entry = new ZipEntry(entryName);
       out.putNextEntry(entry);
       out.closeEntry();

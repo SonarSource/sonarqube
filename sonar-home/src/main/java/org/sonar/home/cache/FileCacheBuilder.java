@@ -37,7 +37,7 @@ public class FileCacheBuilder {
   }
 
   public FileCacheBuilder setUserHome(@Nullable String path) {
-    this.userHome = (path == null ? null : new File(path));
+    this.userHome = (path == null) ? null : new File(path);
     return this;
   }
 

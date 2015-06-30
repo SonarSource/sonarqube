@@ -100,10 +100,9 @@ public class IssueAuthorizationIndexer extends BaseIndexer {
       IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, dto.getGroups(),
       IssueIndexDefinition.FIELD_AUTHORIZATION_USERS, dto.getUsers(),
       IssueIndexDefinition.FIELD_AUTHORIZATION_UPDATED_AT, new Date(dto.getUpdatedAt()));
-    ActionRequest<?> request = new UpdateRequest(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
+    return new UpdateRequest(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
       .routing(dto.getProjectUuid())
       .doc(doc)
       .upsert(doc);
-    return request;
   }
 }
