@@ -5,7 +5,8 @@ define({
   defaultTimeout: 60 * 1000,
 
   suites: [
-    'test/unit/application.spec'
+    'test/unit/application.spec',
+    'test/unit/issue.spec'
   ],
 
   tunnel: 'NullTunnel',
