@@ -19,35 +19,29 @@
  */
 package org.sonar.server.computation.issue;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.util.cache.CacheLoader;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Loads the association between a SCM account and a SQ user
  */
 public class ScmAccountToUserLoader implements CacheLoader<String, String> {
 
-  private final Logger log;
+  private static final Logger log = Loggers.get(ScmAccountToUserLoader.class);
   private final UserIndex index;
 
   public ScmAccountToUserLoader(UserIndex index) {
-    this(index, Loggers.get(ScmAccountToUserLoader.class));
-  }
-
-  @VisibleForTesting
-  ScmAccountToUserLoader(UserIndex index, Logger log) {
-    this.log = log;
     this.index = index;
   }
 
@@ -60,12 +54,7 @@ public class ScmAccountToUserLoader implements CacheLoader<String, String> {
     if (!users.isEmpty()) {
       // multiple users are associated to the same SCM account, for example
       // the same email
-      Collection<String> logins = Collections2.transform(users, new Function<UserDoc, String>() {
-        @Override
-        public String apply(UserDoc input) {
-          return input.login();
-        }
-      });
+      Collection<String> logins = Collections2.transform(users, UserDocToLogin.INSTANCE);
       log.warn(String.format("Multiple users share the SCM account '%s': %s", scmAccount, Joiner.on(", ").join(logins)));
     }
     return null;
@@ -74,5 +63,14 @@ public class ScmAccountToUserLoader implements CacheLoader<String, String> {
   @Override
   public Map<String, String> loadAll(Collection<? extends String> scmAccounts) {
     throw new UnsupportedOperationException("Loading by multiple scm accounts is not supported yet");
+  }
+
+  private enum UserDocToLogin implements Function<UserDoc, String> {
+    INSTANCE;
+    @Nullable
+    @Override
+    public String apply(@Nonnull UserDoc user) {
+      return user.login();
+    }
   }
 }

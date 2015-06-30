@@ -51,7 +51,7 @@ public class PeriodsHolderImpl implements PeriodsHolder {
   public void setPeriods(Iterable<Period> periods) {
     requireNonNull(periods, "Periods cannot be null");
     checkArgument(Iterables.size(periods) <= MAX_NUMBER_OF_PERIODS, String.format("There can not be more than %d periods", MAX_NUMBER_OF_PERIODS));
-      checkState(this.periods == null, "Periods have already been initialized");
+    checkState(this.periods == null, "Periods have already been initialized");
 
     Period[] newPeriods = new Period[MAX_NUMBER_OF_PERIODS];
     for (Period period : from(periods).filter(CheckNotNull.INSTANCE)) {

@@ -157,8 +157,8 @@ public class IssueWorkflow implements Startable {
         .build())
       .transition(Transition.builder("automaticclosemanual")
         .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_CLOSED)
-        .conditions(new NotCondition(IsBeingClosed.INSTANCE), IsManual.INSTANCE)
-        .functions(new SetCloseDate(true))
+        .conditions(IsManual.INSTANCE)
+        .functions(SetClosed.INSTANCE, new SetCloseDate(true))
         .automatic()
         .build())
 

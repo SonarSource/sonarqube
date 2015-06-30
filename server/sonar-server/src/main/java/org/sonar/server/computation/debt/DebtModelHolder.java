@@ -20,6 +20,8 @@
 
 package org.sonar.server.computation.debt;
 
+import java.util.List;
+
 public interface DebtModelHolder {
 
   /**
@@ -30,4 +32,5 @@ public interface DebtModelHolder {
    */
   Characteristic getCharacteristicById(int id);
 
+  List<Characteristic> getRootCharacteristics();
 }

@@ -43,6 +43,6 @@ public final class HasIssuePropertyCondition implements Condition {
 
   @Override
   public boolean matches(Issue issue) {
-    return !Strings.isNullOrEmpty(issue.attributes().get(propertyKey));
+    return !Strings.isNullOrEmpty(issue.attribute(propertyKey));
   }
 }

@@ -113,11 +113,11 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void selectChangelogOfUnresolvedIssuesByComponent() {
-    setupData("selectChangelogOfUnresolvedIssuesByComponent");
+  public void selectChangelogOfNonClosedIssuesByComponent() {
+    setupData("selectChangelogOfNonClosedIssuesByComponent");
 
-    List<IssueChangeDto> dtos = dao.selectChangelogOfUnresolvedIssuesByComponent("FILE_1");
-    assertThat(dtos).extracting("id").containsExactly(100L);
+    List<IssueChangeDto> dtos = dao.selectChangelogOfNonClosedIssuesByComponent("FILE_1");
+    assertThat(dtos).extracting("id").containsExactly(100L, 103L);
   }
 
   @Test

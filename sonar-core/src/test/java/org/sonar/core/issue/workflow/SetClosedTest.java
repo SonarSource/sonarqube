@@ -23,9 +23,10 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.core.issue.workflow.SetClosed.INSTANCE;
 
 public class SetClosedTest {
@@ -46,19 +47,6 @@ public class SetClosedTest {
     when(context.issue()).thenReturn(issue);
     INSTANCE.execute(context);
     verify(context, times(1)).setResolution(Issue.RESOLUTION_REMOVED);
-  }
-
-  @Test
-  public void should_fail_if_issue_is_not_resolved() {
-    Issue issue = new DefaultIssue().setBeingClosed(false);
-    when(context.issue()).thenReturn(issue);
-    try {
-      INSTANCE.execute(context);
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).contains("Issue is still open");
-      verify(context, never()).setResolution(anyString());
-    }
   }
 
   @Test

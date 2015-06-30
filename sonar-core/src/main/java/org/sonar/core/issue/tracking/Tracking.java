@@ -28,6 +28,7 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 public class Tracking<RAW extends Trackable, BASE extends Trackable> {
 
@@ -112,7 +113,7 @@ public class Tracking<RAW extends Trackable, BASE extends Trackable> {
     return openManualIssues;
   }
 
-  void associateManualIssueToLine(BASE manualIssue, int line) {
+  void associateManualIssueToLine(BASE manualIssue, @Nullable Integer line) {
     openManualIssues.put(line, manualIssue);
     unmatchedBases.remove(manualIssue);
   }

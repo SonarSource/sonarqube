@@ -17,130 +17,109 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//package org.sonar.server.computation.issue;
-//
-//import java.util.Date;
-//import org.apache.commons.lang.time.DateUtils;
-//import org.junit.Before;
-//import org.junit.Test;
-//import org.sonar.api.issue.Issue;
-//import org.sonar.api.utils.Duration;
-//import org.sonar.core.issue.DefaultIssue;
-//import org.sonar.core.issue.FieldDiffs;
-//
-//import static com.google.common.collect.Lists.newArrayList;
-//import static org.assertj.core.api.Assertions.assertThat;
-//
-//public class NewDebtCalculatorTest {
-//  private static final int HOURS_IN_DAY = 8;
-//
-//  IssueChangelogDebtCalculator issueChangelogDebtCalculator;
-//
-//  Date rightNow = new Date();
-//  Date elevenDaysAgo = DateUtils.addDays(rightNow, -11);
-//  Date tenDaysAgo = DateUtils.addDays(rightNow, -10);
-//  Date nineDaysAgo = DateUtils.addDays(rightNow, -9);
-//  Date fiveDaysAgo = DateUtils.addDays(rightNow, -5);
-//  Date fourDaysAgo = DateUtils.addDays(rightNow, -4);
-//
-//  long oneDay = 1 * HOURS_IN_DAY * 60 * 60L;
-//  long twoDays = 2 * HOURS_IN_DAY * 60 * 60L;
-//  long fiveDays = 5 * HOURS_IN_DAY * 60 * 60L;
-//
-//  Duration oneDayDebt = Duration.create(oneDay);
-//  Duration twoDaysDebt = Duration.create(twoDays);
-//  Duration fiveDaysDebt = Duration.create(fiveDays);
-//
-//  @Before
-//  public void setUp() {
-//    issueChangelogDebtCalculator = new IssueChangelogDebtCalculator();
-//  }
-//
-//  @Test
-//  public void calculate_new_technical_debt_with_one_diff_in_changelog() {
-//    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(twoDaysDebt).setChanges(
-//      newArrayList(
-//        // changelog created at is null because it has just been created on the current analysis
-//        new FieldDiffs().setDiff("technicalDebt", oneDay, twoDays).setCreationDate(null)
-//      )
-//    );
-//
-//    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, rightNow)).isEqualTo(oneDay);
-//    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, fiveDaysAgo)).isEqualTo(oneDay);
-//
-//    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, elevenDaysAgo)).isEqualTo(twoDays);
-//  }
-//
-//  @Test
-//  public void calculate_new_technical_debt_with_many_diffs_in_changelog() {
-//    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(fiveDaysDebt).setChanges(
-//      newArrayList(
-//        new FieldDiffs().setDiff("technicalDebt", twoDays, fiveDays).setCreationDate(null),
-//        new FieldDiffs().setDiff("technicalDebt", oneDay, twoDays).setCreationDate(fourDaysAgo)
-//      )
-//    );
-//
-//    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, rightNow)).isEqualTo(3 * oneDay);
-//    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, fiveDaysAgo)).isEqualTo(4 * oneDay);
-//    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, elevenDaysAgo)).isEqualTo(5 * oneDay);
-//  }
-//
-//  @Test
-//  public void changelog_can_be_in_wrong_order() {
-//    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(fiveDaysDebt).setChanges(
-//      newArrayList(
-//        // 3rd
-//        new FieldDiffs().setDiff("technicalDebt", null, oneDay).setCreationDate(nineDaysAgo),
-//        // 1st
-//        new FieldDiffs().setDiff("technicalDebt", twoDays, fiveDays).setCreationDate(rightNow),
-//        // 2nd
-//        new FieldDiffs().setDiff("technicalDebt", oneDay, twoDays).setCreationDate(fourDaysAgo)
-//      )
-//    );
-//
-//    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, fiveDaysAgo)).isEqualTo(4 * oneDay);
-//    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, elevenDaysAgo)).isEqualTo(5 * oneDay);
-//  }
-//
-//  @Test
-//  public void calculate_new_technical_debt_with_null_date() {
-//    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(twoDaysDebt).setChanges(
-//      newArrayList(
-//        new FieldDiffs().setDiff("technicalDebt", oneDay, twoDays).setCreationDate(null)
-//      )
-//    );
-//
-//    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, null)).isEqualTo(2 * oneDay);
-//  }
-//
-//  @Test
-//  public void calculate_new_technical_debt_when_new_debt_is_null() {
-//    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(null).setChanges(
-//      newArrayList(
-//        new FieldDiffs().setDiff("technicalDebt", oneDay, null).setCreationDate(null),
-//        new FieldDiffs().setDiff("technicalDebt", null, oneDay).setCreationDate(nineDaysAgo)
-//      )
-//    );
-//
-//    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, rightNow)).isNull();
-//  }
-//
-//  @Test
-//  public void calculate_new_technical_debt_on_issue_without_technical_debt_and_without_changelog() {
-//    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo);
-//
-//    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, rightNow)).isNull();
-//  }
-//
-//  @Test
-//  public void not_return_negative_debt() {
-//    Issue issue = new DefaultIssue().setKey("A").setCreationDate(tenDaysAgo).setDebt(oneDayDebt).setChanges(
-//      newArrayList(
-//        new FieldDiffs().setDiff("technicalDebt", twoDays, oneDay).setCreationDate(null)
-//      )
-//    );
-//
-//    assertThat(issueChangelogDebtCalculator.calculateNewTechnicalDebt(issue, rightNow)).isNull();
-//  }
-//
-//}
+package org.sonar.server.computation.issue;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import javax.annotation.Nullable;
+import org.junit.Test;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.utils.Duration;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.FieldDiffs;
+import org.sonar.core.issue.db.IssueChangeDto;
+import org.sonar.server.computation.period.Period;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class NewDebtCalculatorTest {
+
+  private static final int HOURS_IN_DAY = 8;
+  private static final Duration ONE_DAY = Duration.create(HOURS_IN_DAY * 60 * 60L);
+  private static final Duration TWO_DAYS = Duration.create(2 * HOURS_IN_DAY * 60 * 60L);
+  private static final Duration FOUR_DAYS = Duration.create(4 * HOURS_IN_DAY * 60 * 60L);
+  private static final Duration FIVE_DAYS = Duration.create(5 * HOURS_IN_DAY * 60 * 60L);
+  private static final Duration TEN_DAYS = Duration.create(10 * HOURS_IN_DAY * 60 * 60L);
+  private static final long PERIOD_DATE = 150000000L;
+  private static final long SNAPSHOT_ID = 1000L;
+  private static final Period PERIOD = new Period(1, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, null, PERIOD_DATE, SNAPSHOT_ID);
+
+  DefaultIssue issue = new DefaultIssue();
+  NewDebtCalculator underTest = new NewDebtCalculator();
+
+  /**
+   * New debt is the value of the debt when issue is created during the period
+   */
+  @Test
+  public void total_debt_if_issue_created_during_period() {
+    issue.setDebt(TWO_DAYS).setCreationDate(new Date(PERIOD_DATE + 10000));
+
+    long newDebt = underTest.calculate(issue, Collections.<IssueChangeDto>emptyList(), PERIOD);
+
+    assertThat(newDebt).isEqualTo(TWO_DAYS.toMinutes());
+  }
+
+  @Test
+  public void new_debt_if_issue_created_before_period() throws Exception {
+    // creation: 1d
+    // before period: increased to 2d
+    // after period: increased to 5d, decreased to 4d then increased to 10d
+    // -> new debt is 10d - 2d = 8d
+    issue.setDebt(TEN_DAYS).setCreationDate(new Date(PERIOD_DATE - 10000));
+    List<IssueChangeDto> changelog = Arrays.asList(
+      newDebtChangelog(ONE_DAY.toMinutes(), TWO_DAYS.toMinutes(), PERIOD_DATE - 9000),
+      newDebtChangelog(TWO_DAYS.toMinutes(), FIVE_DAYS.toMinutes(), PERIOD_DATE + 10000),
+      newDebtChangelog(FIVE_DAYS.toMinutes(), FOUR_DAYS.toMinutes(), PERIOD_DATE + 20000),
+      newDebtChangelog(FOUR_DAYS.toMinutes(), TEN_DAYS.toMinutes(), PERIOD_DATE + 30000)
+    );
+
+    long newDebt = underTest.calculate(issue, changelog, PERIOD);
+
+    assertThat(newDebt).isEqualTo(TEN_DAYS.toMinutes() - TWO_DAYS.toMinutes());
+  }
+
+  @Test
+  public void new_debt_is_positive() throws Exception {
+    // creation: 1d
+    // before period: increased to 10d
+    // after period: decreased to 2d
+    // -> new debt is 2d - 10d = -8d -> 0d
+    issue.setDebt(TWO_DAYS).setCreationDate(new Date(PERIOD_DATE - 10000));
+    List<IssueChangeDto> changelog = Arrays.asList(
+      newDebtChangelog(ONE_DAY.toMinutes(), TEN_DAYS.toMinutes(), PERIOD_DATE - 9000),
+      newDebtChangelog(TEN_DAYS.toMinutes(), TWO_DAYS.toMinutes(), PERIOD_DATE + 30000)
+    );
+
+    long newDebt = underTest.calculate(issue, changelog, PERIOD);
+
+    assertThat(newDebt).isEqualTo(0L);
+  }
+
+  @Test
+  public void guess_initial_debt_when_first_change_is_after_period() throws Exception {
+    // creation: 1d
+    // after period: increased to 2d, then to 5d
+    // -> new debt is 5d - 1d = 4d
+    issue.setDebt(FIVE_DAYS).setCreationDate(new Date(PERIOD_DATE - 10000));
+    List<IssueChangeDto> changelog = Arrays.asList(
+      newDebtChangelog(ONE_DAY.toMinutes(), TWO_DAYS.toMinutes(), PERIOD_DATE + 20000),
+      newDebtChangelog(TWO_DAYS.toMinutes(), FIVE_DAYS.toMinutes(), PERIOD_DATE + 30000)
+    );
+
+    long newDebt = underTest.calculate(issue, changelog, PERIOD);
+
+    assertThat(newDebt).isEqualTo(FIVE_DAYS.toMinutes() - ONE_DAY.toMinutes());
+  }
+
+
+  private static IssueChangeDto newDebtChangelog(long previousValue, long value, @Nullable Long date) {
+    FieldDiffs diffs = new FieldDiffs().setDiff("technicalDebt", previousValue, value);
+    if (date != null) {
+      diffs.setCreationDate(new Date(date));
+    }
+    return new IssueChangeDto().setIssueChangeCreationDate(date).setChangeData(diffs.toString());
+  }
+
+}

@@ -5764,6 +5764,10 @@ public final class BatchReport {
   }
   /**
    * Protobuf type {@code Measures}
+   *
+   * <pre>
+   * TODO to be removed. It prevents streaming 
+   * </pre>
    */
   public static final class Measures extends
       com.google.protobuf.GeneratedMessage implements
@@ -6040,6 +6044,10 @@ public final class BatchReport {
     }
     /**
      * Protobuf type {@code Measures}
+     *
+     * <pre>
+     * TODO to be removed. It prevents streaming 
+     * </pre>
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
@@ -6587,23 +6595,6 @@ public final class BatchReport {
      */
     com.google.protobuf.ByteString
         getAttributesBytes();
-
-    /**
-     * <code>optional int64 debt_in_minutes = 9;</code>
-     *
-     * <pre>
-     * TODO should it be moved to compute engine?
-     * </pre>
-     */
-    boolean hasDebtInMinutes();
-    /**
-     * <code>optional int64 debt_in_minutes = 9;</code>
-     *
-     * <pre>
-     * TODO should it be moved to compute engine?
-     * </pre>
-     */
-    long getDebtInMinutes();
   }
   /**
    * Protobuf type {@code Issue}
@@ -6709,11 +6700,6 @@ public final class BatchReport {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000040;
               attributes_ = bs;
-              break;
-            }
-            case 72: {
-              bitField0_ |= 0x00000080;
-              debtInMinutes_ = input.readInt64();
               break;
             }
           }
@@ -7001,29 +6987,6 @@ public final class BatchReport {
       }
     }
 
-    public static final int DEBT_IN_MINUTES_FIELD_NUMBER = 9;
-    private long debtInMinutes_;
-    /**
-     * <code>optional int64 debt_in_minutes = 9;</code>
-     *
-     * <pre>
-     * TODO should it be moved to compute engine?
-     * </pre>
-     */
-    public boolean hasDebtInMinutes() {
-      return ((bitField0_ & 0x00000080) == 0x00000080);
-    }
-    /**
-     * <code>optional int64 debt_in_minutes = 9;</code>
-     *
-     * <pre>
-     * TODO should it be moved to compute engine?
-     * </pre>
-     */
-    public long getDebtInMinutes() {
-      return debtInMinutes_;
-    }
-
     private void initFields() {
       ruleRepository_ = "";
       ruleKey_ = "";
@@ -7033,7 +6996,6 @@ public final class BatchReport {
       tag_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       effortToFix_ = 0D;
       attributes_ = "";
-      debtInMinutes_ = 0L;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -7071,9 +7033,6 @@ public final class BatchReport {
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         output.writeBytes(8, getAttributesBytes());
-      }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
-        output.writeInt64(9, debtInMinutes_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -7120,10 +7079,6 @@ public final class BatchReport {
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(8, getAttributesBytes());
-      }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(9, debtInMinutes_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -7258,8 +7213,6 @@ public final class BatchReport {
         bitField0_ = (bitField0_ & ~0x00000040);
         attributes_ = "";
         bitField0_ = (bitField0_ & ~0x00000080);
-        debtInMinutes_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00000100);
         return this;
       }
 
@@ -7321,10 +7274,6 @@ public final class BatchReport {
           to_bitField0_ |= 0x00000040;
         }
         result.attributes_ = attributes_;
-        if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
-          to_bitField0_ |= 0x00000080;
-        }
-        result.debtInMinutes_ = debtInMinutes_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -7379,9 +7328,6 @@ public final class BatchReport {
           bitField0_ |= 0x00000080;
           attributes_ = other.attributes_;
           onChanged();
-        }
-        if (other.hasDebtInMinutes()) {
-          setDebtInMinutes(other.getDebtInMinutes());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -7906,54 +7852,6 @@ public final class BatchReport {
         return this;
       }
 
-      private long debtInMinutes_ ;
-      /**
-       * <code>optional int64 debt_in_minutes = 9;</code>
-       *
-       * <pre>
-       * TODO should it be moved to compute engine?
-       * </pre>
-       */
-      public boolean hasDebtInMinutes() {
-        return ((bitField0_ & 0x00000100) == 0x00000100);
-      }
-      /**
-       * <code>optional int64 debt_in_minutes = 9;</code>
-       *
-       * <pre>
-       * TODO should it be moved to compute engine?
-       * </pre>
-       */
-      public long getDebtInMinutes() {
-        return debtInMinutes_;
-      }
-      /**
-       * <code>optional int64 debt_in_minutes = 9;</code>
-       *
-       * <pre>
-       * TODO should it be moved to compute engine?
-       * </pre>
-       */
-      public Builder setDebtInMinutes(long value) {
-        bitField0_ |= 0x00000100;
-        debtInMinutes_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional int64 debt_in_minutes = 9;</code>
-       *
-       * <pre>
-       * TODO should it be moved to compute engine?
-       * </pre>
-       */
-      public Builder clearDebtInMinutes() {
-        bitField0_ = (bitField0_ & ~0x00000100);
-        debtInMinutes_ = 0L;
-        onChanged();
-        return this;
-      }
-
       // @@protoc_insertion_point(builder_scope:Issue)
     }
 
@@ -8004,6 +7902,10 @@ public final class BatchReport {
   }
   /**
    * Protobuf type {@code Issues}
+   *
+   * <pre>
+   * TODO to be removed. It prevents streaming 
+   * </pre>
    */
   public static final class Issues extends
       com.google.protobuf.GeneratedMessage implements
@@ -8280,6 +8182,10 @@ public final class BatchReport {
     }
     /**
      * Protobuf type {@code Issues}
+     *
+     * <pre>
+     * TODO to be removed. It prevents streaming 
+     * </pre>
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
@@ -19463,42 +19369,41 @@ public final class BatchReport {
       "alue_4\030\021 \001(\001\022\031\n\021variation_value_5\030\022 \001(\001\022",
       "\021\n\tperson_id\030\024 \001(\005\"<\n\010Measures\022\025\n\rcompon" +
       "ent_ref\030\001 \001(\005\022\031\n\007measure\030\002 \003(\0132\010.Measure" +
-      "\"\273\001\n\005Issue\022\027\n\017rule_repository\030\001 \001(\t\022\020\n\010r" +
+      "\"\242\001\n\005Issue\022\027\n\017rule_repository\030\001 \001(\t\022\020\n\010r" +
       "ule_key\030\002 \001(\t\022\014\n\004line\030\003 \001(\005\022\013\n\003msg\030\004 \001(\t" +
       "\022\033\n\010severity\030\005 \001(\0162\t.Severity\022\013\n\003tag\030\006 \003" +
       "(\t\022\025\n\reffort_to_fix\030\007 \001(\001\022\022\n\nattributes\030" +
-      "\010 \001(\t\022\027\n\017debt_in_minutes\030\t \001(\003\"6\n\006Issues" +
-      "\022\025\n\rcomponent_ref\030\001 \001(\005\022\025\n\005issue\030\002 \003(\0132\006" +
-      ".Issue\"\254\001\n\nChangesets\022\025\n\rcomponent_ref\030\001" +
-      " \001(\005\022(\n\tchangeset\030\002 \003(\0132\025.Changesets.Cha",
-      "ngeset\022 \n\024changesetIndexByLine\030\003 \003(\005B\002\020\001" +
-      "\032;\n\tChangeset\022\020\n\010revision\030\001 \001(\t\022\016\n\006autho" +
-      "r\030\002 \001(\t\022\014\n\004date\030\003 \001(\003\"R\n\tDuplicate\022\026\n\016ot" +
-      "her_file_ref\030\001 \001(\005\022\025\n\005range\030\002 \001(\0132\006.Rang" +
-      "e\022\026\n\016other_file_key\030\003 \001(\t\"M\n\013Duplication" +
-      "\022\037\n\017origin_position\030\001 \001(\0132\006.Range\022\035\n\tdup" +
-      "licate\030\002 \003(\0132\n.Duplicate\"H\n\014Duplications" +
-      "\022\025\n\rcomponent_ref\030\001 \001(\005\022!\n\013duplication\030\002" +
-      " \003(\0132\014.Duplication\"W\n\005Range\022\022\n\nstart_lin" +
-      "e\030\001 \001(\005\022\020\n\010end_line\030\002 \001(\005\022\024\n\014start_offse",
-      "t\030\003 \001(\005\022\022\n\nend_offset\030\004 \001(\005\"~\n\007Symbols\022\020" +
-      "\n\010file_ref\030\001 \001(\005\022\037\n\006symbol\030\002 \003(\0132\017.Symbo" +
-      "ls.Symbol\032@\n\006Symbol\022\033\n\013declaration\030\001 \001(\013" +
-      "2\006.Range\022\031\n\treference\030\002 \003(\0132\006.Range\"\260\001\n\010" +
-      "Coverage\022\014\n\004line\030\001 \001(\005\022\022\n\nconditions\030\002 \001" +
-      "(\005\022\017\n\007ut_hits\030\003 \001(\010\022\017\n\007it_hits\030\004 \001(\010\022\035\n\025" +
-      "ut_covered_conditions\030\005 \001(\005\022\035\n\025it_covere" +
-      "d_conditions\030\006 \001(\005\022\"\n\032overall_covered_co" +
-      "nditions\030\007 \001(\005\"L\n\022SyntaxHighlighting\022\025\n\005" +
-      "range\030\001 \001(\0132\006.Range\022\037\n\004type\030\002 \001(\0162\021.High",
-      "lightingType\"j\n\004Test\022\014\n\004name\030\001 \001(\t\022\033\n\006st" +
-      "atus\030\002 \001(\0162\013.TestStatus\022\026\n\016duration_in_m" +
-      "s\030\003 \001(\003\022\022\n\nstacktrace\030\004 \001(\t\022\013\n\003msg\030\005 \001(\t" +
-      "\"\221\001\n\016CoverageDetail\022\021\n\ttest_name\030\001 \001(\t\0221" +
-      "\n\014covered_file\030\002 \003(\0132\033.CoverageDetail.Co" +
-      "veredFile\0329\n\013CoveredFile\022\020\n\010file_ref\030\001 \001" +
-      "(\005\022\030\n\014covered_line\030\002 \003(\005B\002\020\001B#\n\037org.sona" +
-      "r.batch.protocol.outputH\001"
+      "\010 \001(\t\"6\n\006Issues\022\025\n\rcomponent_ref\030\001 \001(\005\022\025" +
+      "\n\005issue\030\002 \003(\0132\006.Issue\"\254\001\n\nChangesets\022\025\n\r" +
+      "component_ref\030\001 \001(\005\022(\n\tchangeset\030\002 \003(\0132\025" +
+      ".Changesets.Changeset\022 \n\024changesetIndexB",
+      "yLine\030\003 \003(\005B\002\020\001\032;\n\tChangeset\022\020\n\010revision" +
+      "\030\001 \001(\t\022\016\n\006author\030\002 \001(\t\022\014\n\004date\030\003 \001(\003\"R\n\t" +
+      "Duplicate\022\026\n\016other_file_ref\030\001 \001(\005\022\025\n\005ran" +
+      "ge\030\002 \001(\0132\006.Range\022\026\n\016other_file_key\030\003 \001(\t" +
+      "\"M\n\013Duplication\022\037\n\017origin_position\030\001 \001(\013" +
+      "2\006.Range\022\035\n\tduplicate\030\002 \003(\0132\n.Duplicate\"" +
+      "H\n\014Duplications\022\025\n\rcomponent_ref\030\001 \001(\005\022!" +
+      "\n\013duplication\030\002 \003(\0132\014.Duplication\"W\n\005Ran" +
+      "ge\022\022\n\nstart_line\030\001 \001(\005\022\020\n\010end_line\030\002 \001(\005" +
+      "\022\024\n\014start_offset\030\003 \001(\005\022\022\n\nend_offset\030\004 \001",
+      "(\005\"~\n\007Symbols\022\020\n\010file_ref\030\001 \001(\005\022\037\n\006symbo" +
+      "l\030\002 \003(\0132\017.Symbols.Symbol\032@\n\006Symbol\022\033\n\013de" +
+      "claration\030\001 \001(\0132\006.Range\022\031\n\treference\030\002 \003" +
+      "(\0132\006.Range\"\260\001\n\010Coverage\022\014\n\004line\030\001 \001(\005\022\022\n" +
+      "\nconditions\030\002 \001(\005\022\017\n\007ut_hits\030\003 \001(\010\022\017\n\007it" +
+      "_hits\030\004 \001(\010\022\035\n\025ut_covered_conditions\030\005 \001" +
+      "(\005\022\035\n\025it_covered_conditions\030\006 \001(\005\022\"\n\032ove" +
+      "rall_covered_conditions\030\007 \001(\005\"L\n\022SyntaxH" +
+      "ighlighting\022\025\n\005range\030\001 \001(\0132\006.Range\022\037\n\004ty" +
+      "pe\030\002 \001(\0162\021.HighlightingType\"j\n\004Test\022\014\n\004n",
+      "ame\030\001 \001(\t\022\033\n\006status\030\002 \001(\0162\013.TestStatus\022\026" +
+      "\n\016duration_in_ms\030\003 \001(\003\022\022\n\nstacktrace\030\004 \001" +
+      "(\t\022\013\n\003msg\030\005 \001(\t\"\221\001\n\016CoverageDetail\022\021\n\tte" +
+      "st_name\030\001 \001(\t\0221\n\014covered_file\030\002 \003(\0132\033.Co" +
+      "verageDetail.CoveredFile\0329\n\013CoveredFile\022" +
+      "\020\n\010file_ref\030\001 \001(\005\022\030\n\014covered_line\030\002 \003(\005B" +
+      "\002\020\001B#\n\037org.sonar.batch.protocol.outputH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -19548,7 +19453,7 @@ public final class BatchReport {
     internal_static_Issue_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Issue_descriptor,
-        new java.lang.String[] { "RuleRepository", "RuleKey", "Line", "Msg", "Severity", "Tag", "EffortToFix", "Attributes", "DebtInMinutes", });
+        new java.lang.String[] { "RuleRepository", "RuleKey", "Line", "Msg", "Severity", "Tag", "EffortToFix", "Attributes", });
     internal_static_Issues_descriptor =
       getDescriptor().getMessageTypes().get(6);
     internal_static_Issues_fieldAccessorTable = new

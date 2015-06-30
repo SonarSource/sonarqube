@@ -25,18 +25,18 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.issue.IssueCache;
-import org.sonar.server.computation.issue.RuleCache;
+import org.sonar.server.computation.issue.RuleRepository;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.issue.notification.NewIssuesNotification;
 import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
@@ -71,7 +71,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   public void setUp() throws Exception {
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     NewIssuesNotificationFactory newIssuesNotificationFactory = mock(NewIssuesNotificationFactory.class, Mockito.RETURNS_DEEP_STUBS);
-    sut = new SendIssueNotificationsStep(issueCache, mock(RuleCache.class), treeRootHolder, notifService, reportReader, newIssuesNotificationFactory);
+    sut = new SendIssueNotificationsStep(issueCache, mock(RuleRepository.class), treeRootHolder, notifService, reportReader, newIssuesNotificationFactory);
 
     treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build());
 

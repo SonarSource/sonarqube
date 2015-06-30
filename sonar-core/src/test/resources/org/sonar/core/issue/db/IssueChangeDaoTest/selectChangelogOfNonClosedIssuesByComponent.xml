@@ -1,6 +1,6 @@
 <dataset>
 
-  <!-- Unresolved -->
+  <!-- Unresolved. To be included -->
   <issues
       id="1"
       kee="UNRESOLVED_ON_FILE_1"
@@ -52,7 +52,7 @@
       issue_change_creation_date="[null]"
       />
 
-  <!-- Resolved: to be ignored -->
+  <!-- Resolved but not closed. To be included -->
   <issues
       id="2"
       kee="RESOLVED_ON_FILE_1"
@@ -90,9 +90,47 @@
       issue_change_creation_date="1410213600000"
       />
 
+  <!-- Closed. To be excluded -->
+  <issues
+    id="3"
+    kee="CLOSED_ON_FILE_1"
+    component_uuid="FILE_1"
+    project_uuid="PROJECT_1"
+    resolution="FIXED"
+    status="CLOSED"
+    rule_id="501"
+    severity="MAJOR"
+    manual_severity="[false]"
+    message="[null]"
+    line="120"
+    effort_to_fix="[null]"
+    checksum="[null]"
+    reporter="[null]"
+    assignee="user"
+    author_login="[null]"
+    issue_attributes="[null]"
+    issue_creation_date="1366063200000"
+    issue_update_date="1366063200000"
+    issue_close_date="1366063200000"
+    created_at="1400000000000"
+    updated_at="[null]"
+    />
+
+  <issue_changes
+    id="104"
+    kee="104"
+    issue_key="CLOSED_ON_FILE_1"
+    user_login="arthur"
+    change_type="diff"
+    change_data="severity=MAJOR|BLOCKER"
+    created_at="1410213600000"
+    updated_at="1410213600000"
+    issue_change_creation_date="1410213600000"
+    />
+
   <!-- Unresolved on other file -->
     <issues
-      id="3"
+      id="4"
       kee="UNRESOLVED_ON_FILE_2"
       component_uuid="FILE_2"
       project_uuid="PROJECT_1"
@@ -118,8 +156,8 @@
 
     <!-- diff -->
     <issue_changes
-      id="104"
-      kee="104"
+      id="105"
+      kee="105"
       issue_key="UNRESOLVED_ON_FILE_2"
       user_login="arthur"
       change_type="diff"
@@ -131,8 +169,8 @@
 
     <!-- comment -->
     <issue_changes
-      id="105"
-      kee="105"
+      id="106"
+      kee="106"
       issue_key="UNRESOLVED_ON_FILE_2"
       user_login="arthur"
       change_type="comment"

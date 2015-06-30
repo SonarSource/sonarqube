@@ -20,6 +20,7 @@
 package org.sonar.core.issue.tracking;
 
 import java.util.List;
+import javax.annotation.Nullable;
 
 public class BlockHashSequence {
 
@@ -55,6 +56,10 @@ public class BlockHashSequence {
    */
   public int getBlockHashForLine(int line) {
     return blockHashes[line - 1];
+  }
+
+  public boolean hasLine(@Nullable Integer line) {
+    return (line != null) && (line > 0) && (line <= blockHashes.length);
   }
 
   private static class BlockHashFactory {

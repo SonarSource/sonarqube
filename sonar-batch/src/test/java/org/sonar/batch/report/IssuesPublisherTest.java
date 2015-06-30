@@ -31,7 +31,6 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.Duration;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.output.BatchReportReader;
@@ -81,7 +80,6 @@ public class IssuesPublisherTest {
     issue2.setLine(2);
     issue2.setMessage("msg");
     issue2.setEffortToFix(2d);
-    issue2.setDebt(Duration.create(2));
     issue2.setResolution("FIXED");
     issue2.setStatus("RESOLVED");
     issue2.setChecksum("checksum");

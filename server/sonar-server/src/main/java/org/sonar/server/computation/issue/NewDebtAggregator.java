@@ -64,25 +64,25 @@ public class NewDebtAggregator extends IssueVisitor {
   public void beforeComponent(Component component, Tracking tracking) {
     currentSum = new DebtSum();
     sumsByComponentRef.put(component.getRef(), currentSum);
-    List<IssueChangeDto> changes = dbClient.issueChangeDao().selectChangelogOfUnresolvedIssuesByComponent(component.getUuid());
+    List<IssueChangeDto> changes = dbClient.issueChangeDao().selectChangelogOfNonClosedIssuesByComponent(component.getUuid());
     for (IssueChangeDto change : changes) {
       changesByIssueUuid.put(change.getIssueKey(), change);
-    }
-  }
-
-  @Override
-  public void onIssue(Component component, DefaultIssue issue) {
-    if (issue.debtInMinutes() != null && !periodsHolder.getPeriods().isEmpty()) {
-      List<IssueChangeDto> changelog = changesByIssueUuid.get(issue.key());
-      for (Period period : periodsHolder.getPeriods()) {
-        long newDebt = calculator.calculate(issue, changelog, period);
-        currentSum.add(period.getIndex(), newDebt);
-      }
     }
     for (Component child : component.getChildren()) {
       DebtSum childSum = sumsByComponentRef.remove(child.getRef());
       if (childSum != null) {
         currentSum.add(childSum);
+      }
+    }
+  }
+
+  @Override
+  public void onIssue(Component component, DefaultIssue issue) {
+    if (issue.resolution() == null && issue.debtInMinutes() != null && !periodsHolder.getPeriods().isEmpty()) {
+      List<IssueChangeDto> changelog = changesByIssueUuid.get(issue.key());
+      for (Period period : periodsHolder.getPeriods()) {
+        long newDebt = calculator.calculate(issue, changelog, period);
+        currentSum.add(period.getIndex(), newDebt);
       }
     }
   }
@@ -99,7 +99,7 @@ public class NewDebtAggregator extends IssueVisitor {
   }
 
   private static class DebtSum {
-    private Double[] sums = new Double[PeriodsHolder.MAX_NUMBER_OF_PERIODS];
+    private final Double[] sums = new Double[PeriodsHolder.MAX_NUMBER_OF_PERIODS];
     private boolean isEmpty = true;
 
     void add(int periodIndex, long newDebt) {

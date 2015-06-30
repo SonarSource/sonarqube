@@ -65,11 +65,11 @@ public class IssueChangeDao implements DaoComponent {
     }
   }
 
-  public List<IssueChangeDto> selectChangelogOfUnresolvedIssuesByComponent(String componentUuid) {
+  public List<IssueChangeDto> selectChangelogOfNonClosedIssuesByComponent(String componentUuid) {
     DbSession session = mybatis.openSession(false);
     try {
       IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
-      return mapper.selectChangelogOfUnresolvedIssuesByComponent(componentUuid, IssueChangeDto.TYPE_FIELD_CHANGE);
+      return mapper.selectChangelogOfNonClosedIssuesByComponent(componentUuid, IssueChangeDto.TYPE_FIELD_CHANGE);
 
     } finally {
       MyBatis.closeQuietly(session);

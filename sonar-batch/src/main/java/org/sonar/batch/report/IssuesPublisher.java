@@ -79,11 +79,6 @@ public class IssuesPublisher implements ReportPublisherStep {
     if (effortToFix != null) {
       builder.setEffortToFix(effortToFix);
     }
-    Long debtInMinutes = issue.debtInMinutes();
-    if (debtInMinutes != null) {
-      builder.setDebtInMinutes(debtInMinutes);
-    }
-
     return builder.build();
   }
 

@@ -50,11 +50,19 @@ public interface Rule {
   RuleStatus status();
 
   /**
-   * Remediation function : can by Linear (with a coefficient), Linear with offset (with a coefficient and an offset) or Constant per issue (with an offset)
-   *
    * @since 4.3
+   * @deprecated since 5.2 as any computation of data are moved to server's Compute Engine. Calling this method throws an exception.
    */
   @CheckForNull
+  @Deprecated
+  String debtSubCharacteristic();
+
+  /**
+   * @since 4.3
+   * @deprecated since 5.2 as any computation of data are moved to server's Compute Engine. Calling this method throws an exception.
+   */
+  @CheckForNull
+  @Deprecated
   DebtRemediationFunction debtRemediationFunction();
 
 }

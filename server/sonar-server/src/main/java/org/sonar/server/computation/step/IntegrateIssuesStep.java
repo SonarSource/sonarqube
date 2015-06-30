@@ -61,7 +61,7 @@ public class IntegrateIssuesStep implements ComputationStep {
   @Override
   public void execute() {
     // all the components that had issues before this analysis
-    final Set<String> unprocessedComponentUuids = Sets.newHashSet(baseIssuesLoader.loadComponentUuids());
+    final Set<String> unprocessedComponentUuids = Sets.newHashSet(baseIssuesLoader.loadUuidsOfComponentsWithOpenIssues());
 
     new DepthTraversalTypeAwareVisitor(Component.Type.FILE, POST_ORDER) {
       @Override
@@ -76,8 +76,6 @@ public class IntegrateIssuesStep implements ComputationStep {
 
   private void processIssues(Component component) {
     Tracking<DefaultIssue, DefaultIssue> tracking = tracker.track(component);
-    Loggers.get(getClass()).info("----- tracking ------");
-    Loggers.get(getClass()).info("" + tracking);
     DiskCache<DefaultIssue>.DiskAppender cacheAppender = issueCache.newAppender();
     try {
       issueVisitors.beforeComponent(component, tracking);
@@ -92,44 +90,35 @@ public class IntegrateIssuesStep implements ComputationStep {
 
   private void fillNewOpenIssues(Component component, Tracking<DefaultIssue, DefaultIssue> tracking, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
     Set<DefaultIssue> issues = tracking.getUnmatchedRaws();
-    Loggers.get(getClass()).info("----- fillNewOpenIssues on " + component.getKey());
     for (DefaultIssue issue : issues) {
       issueLifecycle.initNewOpenIssue(issue);
-      Loggers.get(getClass()).info("new " + issue);
       process(component, issue, cacheAppender);
     }
-    Loggers.get(getClass()).info("----- /fillNewOpenIssues on " + component.getKey());
   }
 
   private void fillExistingOpenIssues(Component component, Tracking<DefaultIssue, DefaultIssue> tracking, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
-    Loggers.get(getClass()).info("----- fillExistingOpenIssues on " + component.getKey());
     for (Map.Entry<DefaultIssue, DefaultIssue> entry : tracking.getMatchedRaws().entrySet()) {
       DefaultIssue raw = entry.getKey();
       DefaultIssue base = entry.getValue();
       issueLifecycle.mergeExistingOpenIssue(raw, base);
-      Loggers.get(getClass()).info("merged " + raw);
       process(component, raw, cacheAppender);
     }
     for (Map.Entry<Integer, DefaultIssue> entry : tracking.getOpenManualIssuesByLine().entries()) {
-      int line = entry.getKey();
+      Integer line = entry.getKey();
       DefaultIssue manualIssue = entry.getValue();
-      manualIssue.setLine(line == 0 ? null : line);
-      Loggers.get(getClass()).info("kept manual " + manualIssue);
+      issueLifecycle.moveOpenManualIssue(manualIssue, line);
       process(component, manualIssue, cacheAppender);
     }
-    Loggers.get(getClass()).info("----- /fillExistingOpenIssues on " + component.getKey());
   }
 
   private void closeUnmatchedBaseIssues(Component component, Tracking<DefaultIssue, DefaultIssue> tracking, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
-    Loggers.get(getClass()).info("----- closeUnmatchedBaseIssues on " + component.getKey());
     for (DefaultIssue issue : tracking.getUnmatchedBases()) {
+      Loggers.get(getClass()).info("--- close base " + issue);
       // TODO should replace flag "beingClosed" by express call to transition "automaticClose"
       issue.setBeingClosed(true);
-      Loggers.get(getClass()).info("closing " + issue);
       // TODO manual issues -> was updater.setResolution(newIssue, Issue.RESOLUTION_REMOVED, changeContext);. Is it a problem ?
       process(component, issue, cacheAppender);
     }
-    Loggers.get(getClass()).info("----- /closeUnmatchedBaseIssues on " + component.getKey());
   }
 
   private void process(Component component, DefaultIssue issue, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
@@ -145,10 +134,9 @@ public class IntegrateIssuesStep implements ComputationStep {
         List<DefaultIssue> issues = baseIssuesLoader.loadForComponentUuid(deletedComponentUuid);
         for (DefaultIssue issue : issues) {
           issue.setBeingClosed(true);
-          // FIXME should be renamed "setToRemovedStatus"
-          issue.setOnDisabledRule(true);
+          // TODO should be renamed
+          issue.setOnDisabledRule(false);
           issueLifecycle.doAutomaticTransition(issue);
-          // TODO execute visitors ? Component is currently missing.
           cacheAppender.append(issue);
         }
       }

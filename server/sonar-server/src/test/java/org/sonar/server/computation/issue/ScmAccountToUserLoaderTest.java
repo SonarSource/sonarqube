@@ -24,20 +24,22 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 public class ScmAccountToUserLoaderTest {
 
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
+
+  @ClassRule
+  public static LogTester logTester = new LogTester();
 
   @Before
   public void setUp() {
@@ -58,11 +60,10 @@ public class ScmAccountToUserLoaderTest {
   public void warn_if_multiple_users_share_same_scm_account() throws Exception {
     esTester.putDocuments("users", "user", getClass(), "charlie.json", "charlie_conflict.json");
     UserIndex index = new UserIndex(esTester.client());
-    Logger log = mock(Logger.class);
-    ScmAccountToUserLoader loader = new ScmAccountToUserLoader(index, log);
+    ScmAccountToUserLoader loader = new ScmAccountToUserLoader(index);
 
     assertThat(loader.load("charlie")).isNull();
-    verify(log).warn("Multiple users share the SCM account 'charlie': charlie, another.charlie");
+    assertThat(logTester.logs(LoggerLevel.WARN)).contains("Multiple users share the SCM account 'charlie': charlie, another.charlie");
   }
 
   @Test

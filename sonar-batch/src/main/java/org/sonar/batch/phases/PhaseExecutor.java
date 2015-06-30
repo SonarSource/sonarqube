@@ -108,7 +108,7 @@ public final class PhaseExecutor {
       postJobsExecutor.execute(sensorContext);
     }
     cleanMemory();
-      eventBus.fireEvent(new ProjectAnalysisEvent(module, false));
+    eventBus.fireEvent(new ProjectAnalysisEvent(module, false));
   }
 
   private void publishReportJob() {

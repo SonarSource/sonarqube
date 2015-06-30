@@ -28,9 +28,6 @@ public enum SetClosed implements Function {
   @Override
   public void execute(Context context) {
     DefaultIssue issue = (DefaultIssue) context.issue();
-    if (!issue.isBeingClosed()) {
-      throw new IllegalStateException("Issue is still open: " + issue);
-    }
     if (issue.isOnDisabledRule()) {
       context.setResolution(Issue.RESOLUTION_REMOVED);
     } else {

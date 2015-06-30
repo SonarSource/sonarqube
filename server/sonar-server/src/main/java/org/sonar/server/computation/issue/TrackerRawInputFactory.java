@@ -26,8 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.Duration;
-import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
@@ -41,12 +40,10 @@ public class TrackerRawInputFactory {
 
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
-  private final RuleCache ruleCache;
 
-  public TrackerRawInputFactory(TreeRootHolder treeRootHolder, BatchReportReader reportReader, RuleCache ruleCache) {
+  public TrackerRawInputFactory(TreeRootHolder treeRootHolder, BatchReportReader reportReader) {
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
-    this.ruleCache = ruleCache;
   }
 
   public Input<DefaultIssue> create(Component component) {
@@ -80,10 +77,7 @@ public class TrackerRawInputFactory {
         LineHashSequence lineHashSeq = getLineHashSequence();
         for (BatchReport.Issue reportIssue : reportIssues) {
           DefaultIssue issue = toIssue(lineHashSeq, reportIssue);
-          if (isValid(issue, lineHashSeq)) {
-            Loggers.get(getClass()).info("Loaded from report: " + issue);
-            issues.add(issue);
-          }
+          issues.add(issue);
         }
       }
       return issues;
@@ -114,25 +108,11 @@ public class TrackerRawInputFactory {
       if (reportIssue.hasEffortToFix()) {
         issue.setEffortToFix(reportIssue.getEffortToFix());
       }
-      if (reportIssue.hasDebtInMinutes()) {
-        issue.setDebt(Duration.create(reportIssue.getDebtInMinutes()));
-      }
       issue.setTags(Sets.newHashSet(reportIssue.getTagList()));
-      // TODO issue attributes
+      if (reportIssue.hasAttributes()) {
+        issue.setAttributes(KeyValueFormat.parse(reportIssue.getAttributes()));
+      }
       return issue;
     }
-  }
-
-  private boolean isValid(DefaultIssue issue, LineHashSequence lineHashSeq) {
-    // TODO log debug when invalid ? Or throw exception ?
-
-    if (ruleCache.getNullable(issue.ruleKey()) == null) {
-      return false;
-    }
-    if (issue.getLine() != null && !lineHashSeq.hasLine(issue.getLine())) {
-      // FIXME
-      //return false;
-    }
-    return true;
   }
 }

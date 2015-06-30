@@ -19,22 +19,41 @@
  */
 package org.sonar.server.computation.issue;
 
-import org.junit.Test;
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.rules.ExternalResource;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.rule.RuleDto;
+import org.sonar.server.exceptions.NotFoundException;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static java.util.Objects.requireNonNull;
 
-public class RuleCacheTest {
+public class RuleRepositoryRule extends ExternalResource implements RuleRepository {
 
-  @Test
-  public void ruleName() {
-    RuleCacheLoader loader = mock(RuleCacheLoader.class);
-    when(loader.load(RuleKey.of("squid", "R002"))).thenReturn(new RuleDto().setName("Rule Two"));
-    RuleCache cache = new RuleCache(loader);
-    assertThat(cache.ruleName(RuleKey.of("squid", "R001"))).isNull();
-    assertThat(cache.ruleName(RuleKey.of("squid", "R002"))).isEqualTo("Rule Two");
+  private final Map<RuleKey, Rule> rulesByKey = new HashMap<>();
+
+  @Override
+  protected void after() {
+    rulesByKey.clear();
   }
+
+  @Override
+  public Rule getByKey(RuleKey key) {
+    Rule rule = rulesByKey.get(key);
+    if (rule == null) {
+      throw new NotFoundException();
+    }
+    return rule;
+  }
+
+  public DumbRule add(RuleKey key) {
+    DumbRule rule = new DumbRule(key);
+    rulesByKey.put(key, rule);
+    return rule;
+  }
+
+  public RuleRepositoryRule add(DumbRule rule) {
+    rulesByKey.put(rule.getKey(), rule);
+    return this;
+  }
+
 }

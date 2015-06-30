@@ -19,29 +19,26 @@
  */
 package org.sonar.server.computation.issue;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nonnull;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueMapper;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.rule.RuleDto;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.db.DbClient;
 
 import static com.google.common.collect.FluentIterable.from;
+import static org.sonar.core.rule.RuleKeyFunctions.stringToRuleKey;
 
 /**
  * Loads all the project open issues from database, including manual issues.
@@ -52,14 +49,14 @@ public class BaseIssuesLoader {
   private final Set<RuleKey> activeRuleKeys;
   private final TreeRootHolder treeRootHolder;
   private final DbClient dbClient;
-  private final RuleCache ruleCache;
+  private final RuleRepository ruleRepository;
 
   public BaseIssuesLoader(BatchReportReader reportReader, TreeRootHolder treeRootHolder,
-    DbClient dbClient, RuleCache ruleCache) {
-    this.activeRuleKeys = from(reportReader.readMetadata().getActiveRuleKeyList()).transform(ToRuleKey.INSTANCE).toSet();
+    DbClient dbClient, RuleRepository ruleRepository) {
+    this.activeRuleKeys = from(reportReader.readMetadata().getActiveRuleKeyList()).transform(stringToRuleKey()).toSet();
     this.treeRootHolder = treeRootHolder;
     this.dbClient = dbClient;
-    this.ruleCache = ruleCache;
+    this.ruleRepository = ruleRepository;
   }
 
   public List<DefaultIssue> loadForComponentUuid(String componentUuid) {
@@ -73,15 +70,13 @@ public class BaseIssuesLoader {
           DefaultIssue issue = ((IssueDto) resultContext.getResultObject()).toDefaultIssue();
 
           // TODO this field should be set outside this class
-          RuleDto rule = ruleCache.getNullable(issue.ruleKey());
-          if (rule == null || rule.getStatus() == RuleStatus.REMOVED || !isActive(issue.ruleKey())) {
+          if (!isActive(issue.ruleKey()) || ruleRepository.getByKey(issue.ruleKey()).getStatus() == RuleStatus.REMOVED) {
             issue.setOnDisabledRule(true);
             // TODO to be improved, why setOnDisabledRule(true) is not enough ?
             issue.setBeingClosed(true);
           }
           // FIXME
           issue.setSelectedAt(System.currentTimeMillis());
-          Loggers.get(getClass()).info("Loaded from db: " + issue);
           result.add(issue);
         }
       });
@@ -98,21 +93,12 @@ public class BaseIssuesLoader {
   /**
    * Uuids of all the components that have open issues on this project.
    */
-  public Set<String> loadComponentUuids() {
+  public Set<String> loadUuidsOfComponentsWithOpenIssues() {
     DbSession session = dbClient.openSession(false);
     try {
       return dbClient.issueDao().selectComponentUuidsOfOpenIssuesForProjectUuid(session, treeRootHolder.getRoot().getUuid());
     } finally {
       MyBatis.closeQuietly(session);
-    }
-  }
-
-  private enum ToRuleKey implements Function<String, RuleKey> {
-    INSTANCE;
-    @Nonnull
-    @Override
-    public RuleKey apply(@Nonnull String input) {
-      return RuleKey.parse(input);
     }
   }
 }

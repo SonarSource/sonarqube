@@ -19,28 +19,25 @@
  */
 package org.sonar.server.computation.issue;
 
-import java.util.Set;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.rule.RuleDto;
 import org.sonar.server.computation.component.Component;
 
 import static com.google.common.collect.Sets.union;
 
 public class RuleTagsCopier extends IssueVisitor {
 
-  private final RuleCache ruleCache;
+  private final RuleRepository ruleRepository;
 
-  public RuleTagsCopier(RuleCache ruleCache) {
-    this.ruleCache = ruleCache;
+  public RuleTagsCopier(RuleRepository ruleRepository) {
+    this.ruleRepository = ruleRepository;
   }
 
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
     if (issue.isNew()) {
       // analyzer can provide some tags. They must be merged with rule tags
-      RuleDto rule = ruleCache.get(issue.ruleKey());
-      Set<String> ruleTags = union(rule.getTags(), rule.getSystemTags());
-      issue.setTags(union(issue.tags(), ruleTags));
+      Rule rule = ruleRepository.getByKey(issue.ruleKey());
+      issue.setTags(union(issue.tags(), rule.getTags()));
     }
   }
 }

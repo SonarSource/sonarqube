@@ -19,6 +19,8 @@
  */
 package org.sonar.core.issue.tracking;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -39,6 +41,7 @@ public class TrackerTest {
   public static final RuleKey RULE_UNUSED_LOCAL_VARIABLE = RuleKey.of("java", "UnusedLocalVariable");
   public static final RuleKey RULE_UNUSED_PRIVATE_METHOD = RuleKey.of("java", "UnusedPrivateMethod");
   public static final RuleKey RULE_NOT_DESIGNED_FOR_EXTENSION = RuleKey.of("java", "NotDesignedForExtension");
+  public static final RuleKey RULE_MANUAL = RuleKey.of(RuleKey.MANUAL_REPOSITORY_KEY, "CodeReview");
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
@@ -57,20 +60,6 @@ public class TrackerTest {
 
     Tracking<Issue, Issue> tracking = tracker.track(rawInput, baseInput);
     assertThat(tracking.baseFor(raw)).isNull();
-  }
-
-  @Test
-  @Ignore
-  public void different_issues_do_not_match() {
-    FakeInput baseInput = new FakeInput("H1");
-    Issue base = baseInput.createIssueOnLine(1, RULE_SYSTEM_PRINT, "msg1");
-
-    FakeInput rawInput = new FakeInput("H2", "H3", "H4", "H5", "H6");
-    Issue raw = rawInput.createIssueOnLine(5, RULE_SYSTEM_PRINT, "msg2");
-
-    Tracking<Issue, Issue> tracking = tracker.track(rawInput, baseInput);
-    assertThat(tracking.baseFor(raw)).isNull();
-    assertThat(tracking.getUnmatchedBases()).containsOnly(base);
   }
 
   @Test
@@ -367,6 +356,65 @@ public class TrackerTest {
     assertThat(tracking.baseFor(rawSameAsBase1)).isSameAs(base1);
     assertThat(tracking.baseFor(rawSameAsBase3)).isSameAs(base3);
     assertThat(tracking.getUnmatchedBases()).containsOnly(base2);
+  }
+
+  @Test
+  public void move_manual_issue_to_line_with_same_hash() {
+    FakeInput baseInput = new FakeInput("H1", "H2");
+    Issue issue = baseInput.createIssueOnLine(1, RULE_MANUAL, "message");
+    FakeInput rawInput = new FakeInput("H3", "H4", "H1");
+
+    Tracking<Issue, Issue> tracking = tracker.track(rawInput, baseInput);
+
+    assertThat(tracking.getUnmatchedBases()).isEmpty();
+    Multimap<Integer, Issue> openManualIssues = tracking.getOpenManualIssuesByLine();
+    assertThat(openManualIssues.keySet()).containsOnly(3);
+    assertThat(Iterables.getOnlyElement(openManualIssues.get(3))).isSameAs(issue);
+  }
+
+  @Test
+  public void do_not_move_manual_issue_if_line_hash_not_found_in_raw() {
+    FakeInput baseInput = new FakeInput("H1", "H2");
+    Issue issue = baseInput.createIssueOnLine(1, RULE_MANUAL, "message");
+    FakeInput rawInput = new FakeInput("H3", "H4", "H5");
+
+    Tracking<Issue, Issue> tracking = tracker.track(rawInput, baseInput);
+
+    assertThat(tracking.getUnmatchedBases()).isEmpty();
+    Multimap<Integer, Issue> openManualIssues = tracking.getOpenManualIssuesByLine();
+    assertThat(openManualIssues.keySet()).containsOnly(1);
+    assertThat(Iterables.getOnlyElement(openManualIssues.get(1))).isSameAs(issue);
+  }
+
+  @Test
+  public void do_not_match_manual_issue_if_hash_and_line_do_not_exist() {
+    // manual issue is on line 3 (hash H3) but this hash does not exist
+    // anymore nor the line 3.
+    FakeInput baseInput = new FakeInput("H1", "H2", "H3");
+    Issue issue = baseInput.createIssueOnLine(3, RULE_MANUAL, "message");
+    FakeInput rawInput = new FakeInput("H4");
+
+    Tracking<Issue, Issue> tracking = tracker.track(rawInput, baseInput);
+
+    assertThat(tracking.getUnmatchedBases()).containsOnly(issue);
+    assertThat(tracking.getOpenManualIssuesByLine().isEmpty()).isTrue();
+  }
+
+  @Test
+  @Ignore("not implemented yet")
+  public void move_to_closest_line_if_manual_issue_matches_multiple_hashes() {
+    // manual issue is on line 3 (hash H3) but this hash does not exist
+    // anymore nor the line 3.
+    FakeInput baseInput = new FakeInput("H1", "H2");
+    Issue issue = baseInput.createIssueOnLine(1, RULE_MANUAL, "message");
+    FakeInput rawInput = new FakeInput("H1", "H3", "H1");
+
+    Tracking<Issue, Issue> tracking = tracker.track(rawInput, baseInput);
+
+    assertThat(tracking.getUnmatchedBases()).isEmpty();
+    Multimap<Integer, Issue> openManualIssues = tracking.getOpenManualIssuesByLine();
+    assertThat(openManualIssues.keySet()).containsOnly(1);
+    assertThat(Iterables.getOnlyElement(openManualIssues.get(1))).isSameAs(issue);
   }
 
   private static class Issue implements Trackable {

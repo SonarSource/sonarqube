@@ -35,7 +35,7 @@ public class UpdateConflictResolver {
   private static final Logger LOG = Loggers.get(UpdateConflictResolver.class);
 
   public void resolve(DefaultIssue issue, IssueMapper mapper) {
-    LOG.debug("Resolve conflict on issue " + issue.key());
+    LOG.debug("Resolve conflict on issue {}", issue.key());
 
     IssueDto dbIssue = mapper.selectByKey(issue.key());
     if (dbIssue != null) {

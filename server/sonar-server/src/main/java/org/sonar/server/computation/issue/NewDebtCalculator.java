@@ -22,8 +22,10 @@ package org.sonar.server.computation.issue;
 import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
@@ -46,16 +48,22 @@ import static com.google.common.collect.FluentIterable.from;
  */
 public class NewDebtCalculator {
 
-  public long calculate(DefaultIssue issue, List<IssueChangeDto> debtChangelog, Period period) {
+  public long calculate(DefaultIssue issue, Collection<IssueChangeDto> debtChangelog, Period period) {
+
     if (issue.creationDate().getTime() > period.getSnapshotDate() + 1000L) {
       return Objects.firstNonNull(issue.debtInMinutes(), 0L);
     }
     return calculateFromChangelog(issue, debtChangelog, period.getSnapshotDate());
   }
 
-  private long calculateFromChangelog(DefaultIssue issue, List<IssueChangeDto> debtChangelog, long periodDate) {
+  private long calculateFromChangelog(DefaultIssue issue, Collection<IssueChangeDto> debtChangelog, long periodDate) {
     List<FieldDiffs> debtDiffs = from(debtChangelog).transform(ToFieldDiffs.INSTANCE).filter(HasDebtChange.INSTANCE).toSortedList(CHANGE_ORDERING);
-    long newDebt = issue.debtInMinutes().longValue();
+    FieldDiffs currentChange = issue.currentChange();
+    if (currentChange != null && HasDebtChange.INSTANCE.apply(currentChange)) {
+      debtDiffs = Lists.newArrayList(debtDiffs);
+      debtDiffs.add(currentChange);
+    }
+    long newDebt = issue.debtInMinutes();
 
     for (Iterator<FieldDiffs> it = debtDiffs.iterator(); it.hasNext();) {
       FieldDiffs diffs = it.next();
@@ -80,7 +88,7 @@ public class NewDebtCalculator {
   @CheckForNull
   private static long subtract(long newDebt, @Nullable Long with) {
     if (with != null) {
-      return Math.min(0L, newDebt - with);
+      return Math.max(0L, newDebt - with);
     }
     return newDebt;
   }
@@ -108,13 +116,7 @@ public class NewDebtCalculator {
     INSTANCE;
     @Override
     public FieldDiffs apply(@Nonnull IssueChangeDto dto) {
-      FieldDiffs diffs = FieldDiffs.parse(dto.getChangeData());
-      diffs.setIssueKey(dto.getIssueKey());
-      Long date = dto.getIssueChangeCreationDate();
-      if (date != null) {
-        diffs.setCreationDate(new Date(date));
-      }
-      return diffs;
+      return dto.toFieldDiffs();
     }
   }
 

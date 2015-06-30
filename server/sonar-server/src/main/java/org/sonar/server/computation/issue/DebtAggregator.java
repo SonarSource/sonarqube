@@ -27,7 +27,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Tracking;
-import org.sonar.core.rule.RuleDto;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.debt.Characteristic;
 import org.sonar.server.computation.debt.DebtModelHolder;
@@ -40,7 +39,7 @@ import static com.google.common.collect.Maps.newHashMap;
 
 public class DebtAggregator extends IssueVisitor {
 
-  private final RuleCache ruleCache;
+  private final RuleRepository ruleRepository;
   private final DebtModelHolder debtModelHolder;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
@@ -48,9 +47,9 @@ public class DebtAggregator extends IssueVisitor {
   private final Map<Integer, Debt> debtsByComponentRef = new HashMap<>();
   private Debt currentDebt;
 
-  public DebtAggregator(RuleCache ruleCache, DebtModelHolder debtModelHolder,
+  public DebtAggregator(RuleRepository ruleRepository, DebtModelHolder debtModelHolder,
     MetricRepository metricRepository, MeasureRepository measureRepository) {
-    this.ruleCache = ruleCache;
+    this.ruleRepository = ruleRepository;
     this.debtModelHolder = debtModelHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
@@ -58,7 +57,8 @@ public class DebtAggregator extends IssueVisitor {
 
   @Override
   public void beforeComponent(Component component, Tracking tracking) {
-    this.currentDebt = new Debt();
+    currentDebt = new Debt();
+    debtsByComponentRef.put(component.getRef(), currentDebt);
 
     // aggregate children counters
     for (Component child : component.getChildren()) {
@@ -79,26 +79,35 @@ public class DebtAggregator extends IssueVisitor {
 
   @Override
   public void afterComponent(Component component) {
-    if (this.currentDebt.minutes > 0L) {
-      Metric metric = metricRepository.getByKey(CoreMetrics.TECHNICAL_DEBT_KEY);
+    Metric metric = metricRepository.getByKey(CoreMetrics.TECHNICAL_DEBT_KEY);
 
-      // total value
-      measureRepository.add(component, metric, Measure.newMeasureBuilder().create(this.currentDebt.minutes));
+    // total value
+    measureRepository.add(component, metric, Measure.newMeasureBuilder().create(this.currentDebt.minutes));
 
-      // distribution by rule
-      for (Map.Entry<Integer, Long> entry : currentDebt.minutesByRuleId.entrySet()) {
-        int ruleId = entry.getKey();
-        long ruleDebt = entry.getValue();
-        measureRepository.add(component, metric, Measure.newMeasureBuilder().forRule(ruleId).create(ruleDebt));
-      }
+    // distribution by rule
+    for (Map.Entry<Integer, Long> entry : currentDebt.minutesByRuleId.entrySet()) {
+      int ruleId = entry.getKey();
+      long ruleDebt = entry.getValue();
+      // debt can't be zero.
+      measureRepository.add(component, metric, Measure.newMeasureBuilder().forRule(ruleId).create(ruleDebt));
+    }
 
-      // distribution by characteristic
-      for (Map.Entry<Integer, Long> entry : currentDebt.minutesByCharacteristicId.entrySet()) {
-        int characteristicId = entry.getKey();
-        long characteristicDebt = entry.getValue();
-        measureRepository.add(component, metric, Measure.newMeasureBuilder().forCharacteristic(characteristicId).create(characteristicDebt));
+    // distribution by characteristic/sub-characteristic
+    for (Map.Entry<Integer, Long> entry : currentDebt.minutesByCharacteristicId.entrySet()) {
+      int characteristicId = entry.getKey();
+      long characteristicDebt = entry.getValue();
+      // debt can't be zero
+      measureRepository.add(component, metric, Measure.newMeasureBuilder().forCharacteristic(characteristicId).create(characteristicDebt));
+    }
+
+    if (!component.getType().isDeeperThan(Component.Type.MODULE)) {
+      for (Characteristic rootCharacteristic : debtModelHolder.getRootCharacteristics()) {
+        if (currentDebt.minutesByCharacteristicId.get(rootCharacteristic.getId()) == null) {
+          measureRepository.add(component, metric, Measure.newMeasureBuilder().forCharacteristic(rootCharacteristic.getId()).create(0L));
+        }
       }
     }
+
     this.currentDebt = null;
   }
 
@@ -112,7 +121,7 @@ public class DebtAggregator extends IssueVisitor {
       if (issueMinutes != null && issueMinutes != 0L) {
         this.minutes += issueMinutes;
 
-        RuleDto rule = ruleCache.get(issue.ruleKey());
+        Rule rule = ruleRepository.getByKey(issue.ruleKey());
         this.minutesByRuleId.add(rule.getId(), issueMinutes);
 
         Integer subCharacteristicId = rule.getSubCharacteristicId();

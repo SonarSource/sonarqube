@@ -36,22 +36,22 @@ class BlockRecognizer<RAW extends Trackable, BASE extends Trackable> {
    * Only the issues associated to a line can be matched here.
    */
   void match(Input<RAW> rawInput, Input<BASE> baseInput, Tracking<RAW, BASE> tracking) {
-    BlockHashSequence baseHashSequence = baseInput.getBlockHashSequence();
     BlockHashSequence rawHashSequence = rawInput.getBlockHashSequence();
+    BlockHashSequence baseHashSequence = baseInput.getBlockHashSequence();
 
-    Multimap<Integer, RAW> rawsByLine = groupByLine(tracking.getUnmatchedRaws());
-    Multimap<Integer, BASE> basesByLine = groupByLine(tracking.getUnmatchedBases());
-    Map<Integer, HashOccurrence> map = new HashMap<>();
+    Multimap<Integer, RAW> rawsByLine = groupByLine(tracking.getUnmatchedRaws(), rawHashSequence);
+    Multimap<Integer, BASE> basesByLine = groupByLine(tracking.getUnmatchedBases(), baseHashSequence);
+    Map<Integer, HashOccurrence> occurrencesByHash = new HashMap<>();
 
     for (Integer line : basesByLine.keySet()) {
       int hash = baseHashSequence.getBlockHashForLine(line);
-      HashOccurrence hashOccurrence = map.get(hash);
+      HashOccurrence hashOccurrence = occurrencesByHash.get(hash);
       if (hashOccurrence == null) {
         // first occurrence in base
         hashOccurrence = new HashOccurrence();
         hashOccurrence.baseLine = line;
         hashOccurrence.baseCount = 1;
-        map.put(hash, hashOccurrence);
+        occurrencesByHash.put(hash, hashOccurrence);
       } else {
         hashOccurrence.baseCount++;
       }
@@ -59,14 +59,14 @@ class BlockRecognizer<RAW extends Trackable, BASE extends Trackable> {
 
     for (Integer line : rawsByLine.keySet()) {
       int hash = rawHashSequence.getBlockHashForLine(line);
-      HashOccurrence hashOccurrence = map.get(hash);
+      HashOccurrence hashOccurrence = occurrencesByHash.get(hash);
       if (hashOccurrence != null) {
         hashOccurrence.rawLine = line;
         hashOccurrence.rawCount++;
       }
     }
 
-    for (HashOccurrence hashOccurrence : map.values()) {
+    for (HashOccurrence hashOccurrence : occurrencesByHash.values()) {
       if (hashOccurrence.baseCount == 1 && hashOccurrence.rawCount == 1) {
         // Guaranteed that baseLine has been moved to rawLine, so we can map all issues on baseLine to all issues on rawLine
         map(rawsByLine.get(hashOccurrence.rawLine), basesByLine.get(hashOccurrence.baseLine), tracking);
@@ -131,11 +131,11 @@ class BlockRecognizer<RAW extends Trackable, BASE extends Trackable> {
     }
   }
 
-  private static <T extends Trackable> Multimap<Integer, T> groupByLine(Collection<T> trackables) {
+  private static <T extends Trackable> Multimap<Integer, T> groupByLine(Collection<T> trackables, BlockHashSequence hashSequence) {
     Multimap<Integer, T> result = LinkedHashMultimap.create();
     for (T trackable : trackables) {
       Integer line = trackable.getLine();
-      if (line != null) {
+      if (hashSequence.hasLine(line)) {
         result.put(line, trackable);
       }
     }

@@ -29,7 +29,6 @@ import org.sonar.server.util.cache.DiskCache;
 /**
  * Cache of all the issues involved in the analysis. Their state is as it will be
  * persisted in database (after issue tracking, auto-assignment, ...)
- *
  */
 public class IssueCache extends DiskCache<DefaultIssue> {
 

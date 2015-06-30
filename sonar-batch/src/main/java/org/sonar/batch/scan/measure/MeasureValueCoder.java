@@ -27,7 +27,6 @@ import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
-import org.sonar.api.technicaldebt.batch.Requirement;
 
 class MeasureValueCoder implements ValueCoder {
 

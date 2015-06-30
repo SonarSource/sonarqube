@@ -20,7 +20,9 @@
 
 package org.sonar.server.computation.debt;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -29,23 +31,26 @@ import static java.util.Objects.requireNonNull;
 
 public class DebtModelHolderImpl implements MutableDebtModelHolder {
 
+  private final List<Characteristic> rootCharacteristics = new ArrayList<>();
   private final Map<Integer, Characteristic> characteristicById = new HashMap<>();
 
   @Override
-  public void addCharacteristics(Characteristic rootCharacteristic, Iterable<? extends Characteristic> subCharacteristics) {
+  public DebtModelHolderImpl addCharacteristics(Characteristic rootCharacteristic, Iterable<? extends Characteristic> subCharacteristics) {
     requireNonNull(rootCharacteristic, "rootCharacteristic cannot be null");
     requireNonNull(subCharacteristics, "subCharacteristics cannot be null");
     checkArgument(subCharacteristics.iterator().hasNext(), "subCharacteristics cannot be empty");
 
+    rootCharacteristics.add(rootCharacteristic);
     characteristicById.put(rootCharacteristic.getId(), rootCharacteristic);
     for (Characteristic characteristic : subCharacteristics) {
       characteristicById.put(characteristic.getId(), characteristic);
     }
+    return this;
   }
 
   @Override
   public Characteristic getCharacteristicById(int id) {
-    checkCharacteristicsAreInitialized();
+    checkInitialized();
     Characteristic characteristic = characteristicById.get(id);
     if (characteristic == null) {
       throw new IllegalStateException("Debt characteristic with id [" + id + "] does not exist");
@@ -53,7 +58,13 @@ public class DebtModelHolderImpl implements MutableDebtModelHolder {
     return characteristic;
   }
 
-  private void checkCharacteristicsAreInitialized() {
+  @Override
+  public List<Characteristic> getRootCharacteristics() {
+    checkInitialized();
+    return rootCharacteristics;
+  }
+
+  private void checkInitialized() {
     checkState(!characteristicById.isEmpty(), "Characteristics have not been initialized yet");
   }
 }

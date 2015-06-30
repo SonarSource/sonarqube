@@ -50,6 +50,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.rule.RuleKeyFunctions;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.filter.IssueFilterParameters;
@@ -419,12 +420,7 @@ public class IssueQueryService {
   @CheckForNull
   private static Collection<RuleKey> stringsToRules(@Nullable Collection<String> rules) {
     if (rules != null) {
-      return newArrayList(Iterables.transform(rules, new Function<String, RuleKey>() {
-        @Override
-        public RuleKey apply(@Nullable String s) {
-          return s != null ? RuleKey.parse(s) : null;
-        }
-      }));
+      return newArrayList(Iterables.transform(rules, RuleKeyFunctions.stringToRuleKey()));
     }
     return null;
   }

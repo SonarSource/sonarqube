@@ -205,7 +205,7 @@ public final class MeasuresFilters {
   }
 
   /**
-   * @deprecated since 5.2. Useless by design because of Compute Engine
+   * @deprecated since 5.2. The measures related to rules are computed on server side by Compute Engine.
    */
   @Deprecated
   private abstract static class AbstractRuleMeasureFilter<M> extends MetricFilter<M> {

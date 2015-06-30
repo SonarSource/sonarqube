@@ -71,7 +71,7 @@ import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.server.computation.component.DumbComponent.builder;
 import static org.sonar.server.computation.metric.Metric.MetricType.INT;
 
-public class CountIssuesListenerTest {
+public class IssueCounterTest {
 
   static final Component FILE1 = builder(Component.Type.FILE, 1).build();
   static final Component FILE2 = builder(Component.Type.FILE, 2).build();
@@ -213,13 +213,13 @@ public class CountIssuesListenerTest {
 
     assertVariation(FILE1, NEW_ISSUES_METRIC, period.getIndex(), 1);
     assertVariation(FILE1, NEW_CRITICAL_ISSUES_METRIC, period.getIndex(), 1);
-    assertThat(measureRepository.getRawMeasure(FILE1, NEW_BLOCKER_ISSUES_METRIC).isPresent()).isFalse();
-    assertThat(measureRepository.getRawMeasure(FILE1, NEW_MAJOR_ISSUES_METRIC).isPresent()).isFalse();
+    assertVariation(FILE1, NEW_BLOCKER_ISSUES_METRIC, period.getIndex(), 0);
+    assertVariation(FILE1, NEW_MAJOR_ISSUES_METRIC, period.getIndex(), 0);
 
     assertVariation(PROJECT, NEW_ISSUES_METRIC, period.getIndex(), 1);
     assertVariation(PROJECT, NEW_CRITICAL_ISSUES_METRIC, period.getIndex(), 1);
-    assertThat(measureRepository.getRawMeasure(PROJECT, NEW_BLOCKER_ISSUES_METRIC).isPresent()).isFalse();
-    assertThat(measureRepository.getRawMeasure(PROJECT, NEW_MAJOR_ISSUES_METRIC).isPresent()).isFalse();
+    assertVariation(PROJECT, NEW_BLOCKER_ISSUES_METRIC, period.getIndex(), 0);
+    assertVariation(PROJECT, NEW_MAJOR_ISSUES_METRIC, period.getIndex(), 0);
   }
 
   private void assertVariation(Component component, Metric metric, int periodIndex, int expectedVariation) {

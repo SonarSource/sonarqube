@@ -146,6 +146,7 @@ public class IssueWorkflowTest {
 
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
+      .setRuleKey(RuleKey.of("js", "S001"))
       .setResolution(Issue.RESOLUTION_FIXED)
       .setStatus(Issue.STATUS_RESOLVED)
       .setNew(false)
@@ -269,12 +270,10 @@ public class IssueWorkflowTest {
 
   @Test
   public void manual_issues_be_resolved_then_closed() {
-    // Manual issue because of reporter
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setStatus(Issue.STATUS_OPEN)
-      .setRuleKey(RuleKey.of("manual", "Performance"))
-      .setReporter("simon");
+      .setRuleKey(RuleKey.of(RuleKey.MANUAL_REPOSITORY_KEY, "Performance"));
 
     workflow.start();
 

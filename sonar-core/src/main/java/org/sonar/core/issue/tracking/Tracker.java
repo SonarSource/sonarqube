@@ -25,11 +25,11 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.log.Loggers;
 
 import static com.google.common.collect.FluentIterable.from;
 
@@ -37,6 +37,8 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
 
   public Tracking<RAW, BASE> track(Input<RAW> rawInput, Input<BASE> baseInput) {
     Tracking<RAW, BASE> tracking = new Tracking<>(rawInput, baseInput);
+
+    relocateManualIssues(rawInput, baseInput, tracking);
 
     // 1. match issues with same rule, same line and same line hash, but not necessarily with same message
     match(tracking, LineAndLineHashKeyFactory.INSTANCE);
@@ -53,9 +55,6 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
     // 5. match issues with same rule and same line hash but different line and different message.
     // See SONAR-2812
     match(tracking, LineHashKeyFactory.INSTANCE);
-
-    // TODO what about issues on line 0 ?
-    relocateManualIssues(rawInput, tracking);
 
     return tracking;
   }
@@ -92,23 +91,28 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
     tracking.markRawsAsAssociated(trackedRaws);
   }
 
-  private void relocateManualIssues(Input<RAW> rawInput, Tracking<RAW, BASE> tracking) {
-    Iterable<BASE> manualIssues = from(tracking.getUnmatchedBases()).filter(IsManual.INSTANCE);
+  private void relocateManualIssues(Input<RAW> rawInput, Input<BASE> baseInput, Tracking<RAW, BASE> tracking) {
+    // FIXME copy of Set if required to avoid concurrent modifications (see tracking.associateManualIssueToLine())
+    Iterable<BASE> manualIssues = from(new HashSet<>(tracking.getUnmatchedBases())).filter(IsManual.INSTANCE);
     for (BASE base : manualIssues) {
       if (base.getLine() == null) {
         // no need to relocate. Location is unchanged.
-        tracking.associateManualIssueToLine(base, 0);
+        tracking.associateManualIssueToLine(base, null);
       } else {
-        String lineHash = base.getLineHash();
-        if (!Strings.isNullOrEmpty(lineHash)) {
-          int[] rawLines = rawInput.getLineHashSequence().getLinesForHash(lineHash);
+        String baseHash = base.getLineHash();
+        if (Strings.isNullOrEmpty(baseHash)) {
+          baseHash = baseInput.getLineHashSequence().getHashForLine(base.getLine());
+        }
+        if (!Strings.isNullOrEmpty(baseHash)) {
+          int[] rawLines = rawInput.getLineHashSequence().getLinesForHash(baseHash);
           if (rawLines.length == 1) {
             tracking.associateManualIssueToLine(base, rawLines[0]);
-          } else if (rawLines.length == 0 && base.getLine() <= rawInput.getLineHashSequence().length()) {
+          } else if (rawLines.length == 0 && rawInput.getLineHashSequence().hasLine(base.getLine())) {
             // still valid (???). We didn't manage to correctly detect code move, so the
             // issue is kept at the same location, even if code changes
             tracking.associateManualIssueToLine(base, base.getLine());
           }
+          // TODO if hash found multiple times, , pick the closest line
         }
       }
     }
@@ -147,13 +151,9 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
       }
       LineAndLineHashKey that = (LineAndLineHashKey) o;
       // start with most discriminant field
-      if (!Objects.equals(line, that.line)) {
-        return false;
-      }
-      if (!lineHash.equals(that.lineHash)) {
-        return false;
-      }
-      return ruleKey.equals(that.ruleKey);
+      return Objects.equals(line, that.line)
+        && lineHash.equals(that.lineHash)
+        && ruleKey.equals(that.ruleKey);
     }
 
     @Override
@@ -175,7 +175,8 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
 
   private static class LineHashAndMessageKey implements SearchKey {
     private final RuleKey ruleKey;
-    private final String message, lineHash;
+    private final String message;
+    private final String lineHash;
 
     LineHashAndMessageKey(Trackable trackable) {
       this.ruleKey = trackable.getRuleKey();
@@ -190,13 +191,9 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
       }
       LineHashAndMessageKey that = (LineHashAndMessageKey) o;
       // start with most discriminant field
-      if (!lineHash.equals(that.lineHash)) {
-        return false;
-      }
-      if (!message.equals(that.message)) {
-        return false;
-      }
-      return ruleKey.equals(that.ruleKey);
+      return lineHash.equals(that.lineHash)
+        && message.equals(that.message)
+        && ruleKey.equals(that.ruleKey);
     }
 
     @Override
@@ -234,13 +231,9 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
       }
       LineAndMessageKey that = (LineAndMessageKey) o;
       // start with most discriminant field
-      if (!Objects.equals(line, that.line)) {
-        return false;
-      }
-      if (!message.equals(that.message)) {
-        return false;
-      }
-      return ruleKey.equals(that.ruleKey);
+      return Objects.equals(line, that.line)
+        && message.equals(that.message)
+        && ruleKey.equals(that.ruleKey);
     }
 
     @Override
@@ -276,10 +269,8 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
       }
       LineAndLineHashKey that = (LineAndLineHashKey) o;
       // start with most discriminant field
-      if (!lineHash.equals(that.lineHash)) {
-        return false;
-      }
-      return ruleKey.equals(that.ruleKey);
+      return lineHash.equals(that.lineHash)
+        && ruleKey.equals(that.ruleKey);
     }
 
     @Override

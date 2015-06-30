@@ -34,8 +34,9 @@ public abstract class IssueVisitor {
   }
 
   /**
-   * This method is called when tracking is done and issue is initialized. That means that the following fields
-   * are set: resolution, status, line, creation date, uuid and all the fields merged from base issues.
+   * This method is called for each issue of a component when tracking is done and issue is initialized.
+   * That means that the following fields are set: resolution, status, line, creation date, uuid
+   * and all the fields merged from base issues.
    */
   public void onIssue(Component component, DefaultIssue issue) {
 

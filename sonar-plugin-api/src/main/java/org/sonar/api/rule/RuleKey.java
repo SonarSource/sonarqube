@@ -23,12 +23,14 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
 import java.io.Serializable;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * Key of a rule. Unique among all the rule repositories.
  *
  * @since 3.6
  */
+@Immutable
 public class RuleKey implements Serializable {
 
   public static final String MANUAL_REPOSITORY_KEY = "manual";

@@ -17,26 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.issue;
+package org.sonar.core.rule;
 
+import com.google.common.base.Function;
+import javax.annotation.Nonnull;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.server.util.cache.MemoryCache;
 
-import javax.annotation.CheckForNull;
+public final class RuleKeyFunctions {
 
-/**
- * Cache of the rules involved during the current analysis
- */
-public class RuleCache extends MemoryCache<RuleKey, RuleDto> {
-
-  public RuleCache(RuleCacheLoader loader) {
-    super(loader);
+  private RuleKeyFunctions() {
+    // only static methods
   }
 
-  @CheckForNull
-  public String ruleName(RuleKey key) {
-    RuleDto rule = getNullable(key);
-    return rule != null ? rule.getName() : null;
+  public static Function<String, RuleKey> stringToRuleKey() {
+    return StringToRuleKey.INSTANCE;
   }
+
+  /**
+   * Transforms a string representation of key to {@link RuleKey}. It
+   * does not accept null string inputs.
+   */
+  private enum StringToRuleKey implements Function<String, RuleKey> {
+    INSTANCE;
+    @Nonnull
+    @Override
+    public RuleKey apply(@Nonnull String input) {
+      return RuleKey.parse(input);
+    }
+  }
+
 }

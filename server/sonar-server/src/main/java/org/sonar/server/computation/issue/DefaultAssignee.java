@@ -65,7 +65,7 @@ public class DefaultAssignee {
   private boolean isValidLogin(String s) {
     UserDoc user = userIndex.getNullableByLogin(s);
     if (user == null) {
-      LOG.info("the {} property was set with an unknown login: {}", CoreProperties.DEFAULT_ISSUE_ASSIGNEE, s);
+      LOG.info("Property {} is set with an unknown login: {}", CoreProperties.DEFAULT_ISSUE_ASSIGNEE, s);
       return false;
     }
     return true;

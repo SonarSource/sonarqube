@@ -45,6 +45,7 @@ import org.sonar.server.computation.debt.DebtModelHolderImpl;
 import org.sonar.server.computation.event.EventRepositoryImpl;
 import org.sonar.server.computation.formula.CoreFormulaRepositoryImpl;
 import org.sonar.server.computation.issue.BaseIssuesLoader;
+import org.sonar.server.computation.issue.DebtCalculator;
 import org.sonar.server.computation.issue.IssueCounter;
 import org.sonar.server.computation.issue.DebtAggregator;
 import org.sonar.server.computation.issue.DefaultAssignee;
@@ -54,8 +55,8 @@ import org.sonar.server.computation.issue.IssueLifecycle;
 import org.sonar.server.computation.issue.IssueVisitors;
 import org.sonar.server.computation.issue.NewDebtAggregator;
 import org.sonar.server.computation.issue.NewDebtCalculator;
-import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.computation.issue.RuleCacheLoader;
+import org.sonar.server.computation.issue.RuleRepositoryImpl;
 import org.sonar.server.computation.issue.RuleTagsCopier;
 import org.sonar.server.computation.issue.ScmAccountToUser;
 import org.sonar.server.computation.issue.ScmAccountToUserLoader;
@@ -168,16 +169,17 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       NewCoverageMetricKeysModule.class,
 
       // issues
+      RuleCacheLoader.class,
+      RuleRepositoryImpl.class,
       ScmAccountToUserLoader.class,
       ScmAccountToUser.class,
-      RuleCache.class,
-      RuleCacheLoader.class,
       IssueCache.class,
       DefaultAssignee.class,
       IssueVisitors.class,
       IssueLifecycle.class,
 
-      // order is important, NewDebtAggregator is based on DebtAggregator (new debt requires debt)
+      // order is important: DebtAggregator then NewDebtAggregator (new debt requires debt)
+      DebtCalculator.class,
       DebtAggregator.class,
       NewDebtCalculator.class,
       NewDebtAggregator.class,

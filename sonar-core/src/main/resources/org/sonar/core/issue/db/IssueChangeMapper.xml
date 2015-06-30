@@ -58,14 +58,14 @@
     order by created_at asc
   </select>
 
-  <select id="selectChangelogOfUnresolvedIssuesByComponent" parameterType="map" resultType="IssueChange">
+  <select id="selectChangelogOfNonClosedIssuesByComponent" parameterType="map" resultType="IssueChange">
     select
     <include refid="issueChangeColumns"/>
     from issue_changes c
     inner join issues i on i.kee = c.issue_key
     where i.component_uuid=#{componentUuid}
     and c.change_type=#{changeType}
-    and i.resolution is null
+    and i.status &lt;&gt; 'CLOSED'
   </select>
 </mapper>
 

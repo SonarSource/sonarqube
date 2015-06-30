@@ -75,7 +75,7 @@ import static org.sonar.api.rule.Severity.MINOR;
  */
 public class IssueCounter extends IssueVisitor {
 
-  private final static Map<String, String> SEVERITY_TO_METRIC_KEY = ImmutableMap.of(
+  private static final Map<String, String> SEVERITY_TO_METRIC_KEY = ImmutableMap.of(
     BLOCKER, BLOCKER_VIOLATIONS_KEY,
     CRITICAL, CRITICAL_VIOLATIONS_KEY,
     MAJOR, MAJOR_VIOLATIONS_KEY,
@@ -83,7 +83,7 @@ public class IssueCounter extends IssueVisitor {
     INFO, INFO_VIOLATIONS_KEY
     );
 
-  private final static Map<String, String> SEVERITY_TO_NEW_METRIC_KEY = ImmutableMap.of(
+  private static final Map<String, String> SEVERITY_TO_NEW_METRIC_KEY = ImmutableMap.of(
     BLOCKER, NEW_BLOCKER_VIOLATIONS_KEY,
     CRITICAL, NEW_CRITICAL_VIOLATIONS_KEY,
     MAJOR, NEW_MAJOR_VIOLATIONS_KEY,
@@ -99,7 +99,7 @@ public class IssueCounter extends IssueVisitor {
   private Counters currentCounters;
 
   public IssueCounter(PeriodsHolder periodsHolder,
-                      MetricRepository metricRepository, MeasureRepository measureRepository) {
+    MetricRepository metricRepository, MeasureRepository measureRepository) {
     this.periodsHolder = periodsHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
@@ -173,20 +173,14 @@ public class IssueCounter extends IssueVisitor {
         String severity = entry.getKey();
         String metricKey = entry.getValue();
         Double[] variations = new Double[PeriodsHolder.MAX_NUMBER_OF_PERIODS];
-        boolean set = false;
         for (Period period : periodsHolder.getPeriods()) {
           Multiset<String> bag = currentCounters.counterForPeriod(period.getIndex()).severityBag;
-          if (bag.contains(severity)) {
-            variations[period.getIndex() - 1] = new Double(bag.count(severity));
-            set = true;
-          }
+          variations[period.getIndex() - 1] = new Double(bag.count(severity));
         }
-        if (set) {
-          Metric metric = metricRepository.getByKey(metricKey);
-          measureRepository.add(component, metric, Measure.newMeasureBuilder()
-            .setVariations(new MeasureVariations(variations))
-            .createNoValue());
-        }
+        Metric metric = metricRepository.getByKey(metricKey);
+        measureRepository.add(component, metric, Measure.newMeasureBuilder()
+          .setVariations(new MeasureVariations(variations))
+          .createNoValue());
       }
     }
   }

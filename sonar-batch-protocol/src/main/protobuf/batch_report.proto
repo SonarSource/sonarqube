@@ -99,6 +99,7 @@ message Measure {
   optional int32 person_id = 20;
 }
 
+/* TODO to be removed. It prevents streaming */
 message Measures {
   optional int32 component_ref = 1;
   repeated Measure measure = 2;
@@ -113,11 +114,9 @@ message Issue {
   repeated string tag = 6;
   optional double effort_to_fix = 7;
   optional string attributes = 8;
-
-  // TODO should it be moved to compute engine?
-  optional int64 debt_in_minutes = 9;
 }
 
+/* TODO to be removed. It prevents streaming */
 message Issues {
   optional int32 component_ref = 1;
   repeated Issue issue = 2;

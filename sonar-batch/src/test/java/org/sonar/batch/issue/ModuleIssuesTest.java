@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.issue;
 
+import java.util.Calendar;
+import java.util.Date;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,10 +28,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.batch.debt.DebtRemediationFunction;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -37,11 +37,8 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.Violation;
-import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.MessageException;
-
-import java.util.Calendar;
-import java.util.Date;
+import org.sonar.core.issue.DefaultIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -247,106 +244,6 @@ public class ModuleIssuesTest {
 
     assertThat(added).isFalse();
     verifyZeroInteractions(cache);
-  }
-
-  @Test
-  public void set_debt_with_linear_function() {
-    ruleBuilder.add(SQUID_RULE_KEY)
-      .setName(SQUID_RULE_NAME)
-      .setDebtRemediationFunction(DebtRemediationFunction.createLinear(Duration.create(10L)));
-    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
-    initModuleIssues();
-
-    Date analysisDate = new Date();
-    when(project.getAnalysisDate()).thenReturn(analysisDate);
-
-    DefaultIssue issue = new DefaultIssue()
-      .setKey("ABCDE")
-      .setRuleKey(SQUID_RULE_KEY)
-      .setSeverity(Severity.CRITICAL)
-      .setEffortToFix(2d);
-
-    when(filters.accept(issue)).thenReturn(true);
-    moduleIssues.initAndAddIssue(issue);
-
-    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(cache).put(argument.capture());
-    assertThat(argument.getValue().debt()).isEqualTo(Duration.create(20L));
-  }
-
-  @Test
-  public void set_debt_with_linear_with_offset_function() {
-    ruleBuilder.add(SQUID_RULE_KEY)
-      .setName(SQUID_RULE_NAME)
-      .setDebtRemediationFunction(DebtRemediationFunction.createLinearWithOffset(Duration.create(10L), Duration.create(25L)));
-    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
-    initModuleIssues();
-
-    Date analysisDate = new Date();
-    when(project.getAnalysisDate()).thenReturn(analysisDate);
-
-    DefaultIssue issue = new DefaultIssue()
-      .setKey("ABCDE")
-      .setRuleKey(SQUID_RULE_KEY)
-      .setSeverity(Severity.CRITICAL)
-      .setEffortToFix(2d);
-
-    when(filters.accept(issue)).thenReturn(true);
-    moduleIssues.initAndAddIssue(issue);
-
-    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(cache).put(argument.capture());
-    assertThat(argument.getValue().debt()).isEqualTo(Duration.create(45L));
-  }
-
-  @Test
-  public void set_debt_with_constant_issue_function() {
-    ruleBuilder.add(SQUID_RULE_KEY)
-      .setName(SQUID_RULE_NAME)
-      .setDebtRemediationFunction(DebtRemediationFunction.createConstantPerIssue(Duration.create(10L)));
-    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
-    initModuleIssues();
-
-    Date analysisDate = new Date();
-    when(project.getAnalysisDate()).thenReturn(analysisDate);
-
-    DefaultIssue issue = new DefaultIssue()
-      .setKey("ABCDE")
-      .setRuleKey(SQUID_RULE_KEY)
-      .setSeverity(Severity.CRITICAL)
-      .setEffortToFix(null);
-
-    when(filters.accept(issue)).thenReturn(true);
-    moduleIssues.initAndAddIssue(issue);
-
-    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(cache).put(argument.capture());
-    assertThat(argument.getValue().debt()).isEqualTo(Duration.create(10L));
-  }
-
-  @Test
-  public void fail_to_set_debt_with_constant_issue_function_when_effort_to_fix_is_set() {
-    ruleBuilder.add(SQUID_RULE_KEY)
-      .setName(SQUID_RULE_NAME)
-      .setDebtRemediationFunction(DebtRemediationFunction.createConstantPerIssue(Duration.create(25L)));
-    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
-    initModuleIssues();
-
-    DefaultIssue issue = new DefaultIssue()
-      .setKey("ABCDE")
-      .setRuleKey(SQUID_RULE_KEY)
-      .setSeverity(Severity.CRITICAL)
-      .setEffortToFix(2d);
-
-    when(filters.accept(issue)).thenReturn(true);
-
-    try {
-      moduleIssues.initAndAddIssue(issue);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("Rule 'squid:AvoidCycle' can not use 'Constant/issue' remediation function because this rule does not have a fixed remediation cost.");
-    }
   }
 
   /**

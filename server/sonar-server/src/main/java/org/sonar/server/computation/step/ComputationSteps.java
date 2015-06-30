@@ -52,10 +52,10 @@ public class ComputationSteps {
 
       // data computation
       IntegrateIssuesStep.class,
-      ComputeIssueMeasuresStep.class,
       CustomMeasuresCopyStep.class,
       ComputeFormulaMeasuresStep.class,      
-      CustomMeasuresCopyStep.class,
+
+      // SQALE measures depend on issues
       SqaleMeasuresStep.class,
       NewCoverageMeasuresStep.class,
       NewCoverageAggregationStep.class,

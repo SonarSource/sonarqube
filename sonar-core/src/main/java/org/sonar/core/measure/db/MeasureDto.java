@@ -20,6 +20,7 @@
 
 package org.sonar.core.measure.db;
 
+import com.google.common.base.Objects;
 import java.nio.charset.StandardCharsets;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -239,4 +240,29 @@ public class MeasureDto {
     return this;
   }
 
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+      .add("id", id)
+      .add("value", value)
+      .add("textValue", textValue)
+      .add("dataValue", dataValue)
+      .add("variation1", variation1)
+      .add("variation2", variation2)
+      .add("variation3", variation3)
+      .add("variation4", variation4)
+      .add("variation5", variation5)
+      .add("alertStatus", alertStatus)
+      .add("alertText", alertText)
+      .add("description", description)
+      .add("componentId", componentId)
+      .add("snapshotId", snapshotId)
+      .add("metricId", metricId)
+      .add("ruleId", ruleId)
+      .add("characteristicId", characteristicId)
+      .add("personId", personId)
+      .add("metricKey", metricKey)
+      .add("componentKey", componentKey)
+      .toString();
+  }
 }

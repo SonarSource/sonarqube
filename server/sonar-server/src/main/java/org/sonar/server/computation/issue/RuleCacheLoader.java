@@ -19,36 +19,46 @@
  */
 package org.sonar.server.computation.issue;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.util.cache.CacheLoader;
 
-import java.util.Collection;
-import java.util.Map;
+import static com.google.common.collect.FluentIterable.from;
+import static org.sonar.core.rule.RuleKeyFunctions.stringToRuleKey;
 
-public class RuleCacheLoader implements CacheLoader<RuleKey, RuleDto> {
+public class RuleCacheLoader implements CacheLoader<RuleKey, Rule> {
 
   private final DbClient dbClient;
+  private final Set<RuleKey> activatedKeys;
 
-  public RuleCacheLoader(DbClient dbClient) {
+  public RuleCacheLoader(DbClient dbClient, BatchReportReader batchReportReader) {
     this.dbClient = dbClient;
+    this.activatedKeys = from(batchReportReader.readMetadata().getActiveRuleKeyList()).transform(stringToRuleKey()).toSet();
   }
 
   @Override
-  public RuleDto load(RuleKey key) {
+  public Rule load(RuleKey key) {
     DbSession session = dbClient.openSession(false);
     try {
-      return dbClient.ruleDao().getNullableByKey(session, key);
+      RuleDto dto = dbClient.ruleDao().getNullableByKey(session, key);
+      if (dto != null) {
+        return new RuleImpl(dto, activatedKeys.contains(key));
+      }
+      return null;
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   @Override
-  public Map<RuleKey, RuleDto> loadAll(Collection<? extends RuleKey> keys) {
-    throw new UnsupportedOperationException("See RuleDao");
+  public Map<RuleKey, Rule> loadAll(Collection<? extends RuleKey> keys) {
+    throw new UnsupportedOperationException("Not implemented yet");
   }
 }
