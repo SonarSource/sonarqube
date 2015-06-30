@@ -26,6 +26,7 @@ import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
+import static org.sonar.server.computation.measure.MeasureVariations.newMeasureVarationsBuilder;
 
 public class MeasureVariationsTest {
   public static final String NO_VARIATION_ERROR_MESSAGE = "There must be at least one variation";
@@ -177,6 +178,76 @@ public class MeasureVariationsTest {
   public void verify_toString() {
     assertThat(new MeasureVariations(1d).toString()).isEqualTo("MeasureVariations{1=1.0, 2=null, 3=null, 4=null, 5=null}");
     assertThat(new MeasureVariations(1d, 2d, 3d, 4d, 5d).toString()).isEqualTo("MeasureVariations{1=1.0, 2=2.0, 3=3.0, 4=4.0, 5=5.0}");
+  }
 
+  @Test
+  public void equals_takes_values_into_account() {
+    MeasureVariations variations = new MeasureVariations(1d);
+
+    assertThat(variations).isEqualTo(variations);
+    assertThat(variations).isEqualTo(new MeasureVariations(1d));
+    assertThat(new MeasureVariations(null, 1d)).isEqualTo(new MeasureVariations(null, 1d));
+
+    assertThat(new MeasureVariations(null, 2d)).isNotEqualTo(new MeasureVariations(null, 1d));
+  }
+
+  @Test
+  public void equals_does_not_depend_on_constructor_argument() {
+    assertThat(new MeasureVariations(null, 1d, null)).isEqualTo(new MeasureVariations(null, 1d));
+  }
+
+  @Test
+  public void builder_throws_IAE_if_index_is_0() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Variation index must be >= 1 and <= 5");
+
+    newMeasureVarationsBuilder().setVariation(0, 12d);
+  }
+
+  @Test
+  public void builder_throws_IAE_if_index_is_less_than_0() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Variation index must be >= 1 and <= 5");
+
+    newMeasureVarationsBuilder().setVariation(-965, 12d);
+  }
+
+  @Test
+  public void builder_throws_IAE_if_index_is_6() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Variation index must be >= 1 and <= 5");
+
+    newMeasureVarationsBuilder().setVariation(6, 12d);
+  }
+
+  @Test
+  public void builder_throws_IAE_if_index_is_more_than_6() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Variation index must be >= 1 and <= 5");
+
+    newMeasureVarationsBuilder().setVariation(75, 12d);
+  }
+
+  @Test
+  public void builder_throws_ISE_if_variation_has_already_been_set() {
+    MeasureVariations.Builder builder = newMeasureVarationsBuilder().setVariation(4, 12d);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Variation for index 4 has already been set");
+
+    builder.setVariation(4, 1d);
+  }
+
+  @Test
+  public void verify_MeasureVariations_built_by_builder() {
+    MeasureVariations variations = newMeasureVarationsBuilder()
+      .setVariation(1, 1d)
+      .setVariation(2, 2d)
+      .setVariation(3, 3d)
+      .setVariation(4, 4d)
+      .setVariation(5, 5d)
+      .build();
+
+    verifyAsVariations(variations, 1d, 2d, 3d, 4d, 5d);
   }
 }
