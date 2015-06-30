@@ -31,6 +31,7 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.GlobalSettings;
@@ -120,7 +121,7 @@ public class ProjectSettingsTest {
     GlobalSettings settings = new GlobalSettings(new BootstrapProperties(ImmutableMap.of("sonar.qualitygate", "somevalue")), new PropertyDefinitions(), new GlobalRepositories(), mode);
     new ProjectSettings(new ProjectReactor(project), settings, new PropertyDefinitions(), projectRef, mode);
 
-    logTester.logs().contains("Property 'sonar.qualitygate' is not supported any more. It will be ignored.");
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Property 'sonar.qualitygate' (which value is 'somevalue') is not supported any more. It will be ignored.");
 
   }
 }

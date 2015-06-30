@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.bootstrap;
 
+import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -30,6 +32,17 @@ import org.sonar.batch.protocol.input.GlobalRepositories;
 public class GlobalSettings extends Settings {
 
   private static final Logger LOG = LoggerFactory.getLogger(GlobalSettings.class);
+
+  private static final String JDBC_SPECIFIC_MESSAGE = "There is no more DB connection to the SQ database. It will be ignored.";
+  /**
+   * A map of dropped properties as key and specific message to display for that property
+   * (what will happen, what should the user do, ...) as a value
+   */
+  private static final Map<String, String> DROPPED_PROPERTIES = ImmutableMap.of(
+      "sonar.jdbc.url", JDBC_SPECIFIC_MESSAGE,
+      "sonar.jdbc.username", JDBC_SPECIFIC_MESSAGE,
+      "sonar.jdbc.password", JDBC_SPECIFIC_MESSAGE
+  );
 
   private final BootstrapProperties bootstrapProps;
   private final GlobalRepositories globalReferentials;
@@ -44,6 +57,7 @@ public class GlobalSettings extends Settings {
     this.bootstrapProps = bootstrapProps;
     this.globalReferentials = globalReferentials;
     init();
+    new DroppedPropertyChecker(this, DROPPED_PROPERTIES).checkDroppedProperties();
   }
 
   private void init() {

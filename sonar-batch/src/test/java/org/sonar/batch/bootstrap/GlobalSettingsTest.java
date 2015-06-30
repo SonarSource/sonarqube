@@ -19,26 +19,28 @@
  */
 package org.sonar.batch.bootstrap;
 
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.batch.protocol.input.GlobalRepositories;
-
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class GlobalSettingsTest {
 
+  public static final String SOME_VALUE = "some_value";
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+  @Rule
+  public LogTester logTester = new LogTester();
 
   GlobalRepositories globalRef;
-  ProjectDefinition project = ProjectDefinition.create().setKey("struts");
   BootstrapProperties bootstrapProps;
 
   private DefaultAnalysisMode mode;
@@ -57,5 +59,20 @@ public class GlobalSettingsTest {
     GlobalSettings batchSettings = new GlobalSettings(bootstrapProps, new PropertyDefinitions(), globalRef, mode);
 
     assertThat(batchSettings.getBoolean("sonar.cpd.cross")).isTrue();
+  }
+
+  @Test
+  public void should_log_warn_msg_for_each_jdbc_property_if_present() {
+    globalRef.globalSettings().put("sonar.jdbc.url", SOME_VALUE);
+    globalRef.globalSettings().put("sonar.jdbc.username", SOME_VALUE);
+    globalRef.globalSettings().put("sonar.jdbc.password", SOME_VALUE);
+
+    new GlobalSettings(bootstrapProps, new PropertyDefinitions(), globalRef, mode);
+
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly(
+      "Property 'sonar.jdbc.url' (which value is '" + SOME_VALUE + "') is not supported any more. There is no more DB connection to the SQ database. It will be ignored.",
+      "Property 'sonar.jdbc.username' (which value is '" + SOME_VALUE + "') is not supported any more. There is no more DB connection to the SQ database. It will be ignored.",
+      "Property 'sonar.jdbc.password' (which value is '" + SOME_VALUE + "') is not supported any more. There is no more DB connection to the SQ database. It will be ignored."
+      );
   }
 }
