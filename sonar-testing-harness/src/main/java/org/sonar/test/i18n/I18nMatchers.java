@@ -56,7 +56,7 @@ public final class I18nMatchers {
     }
 
     Collection<File> bundles = FileUtils.listFiles(bundleFolder, new String[]{"properties"}, false);
-    Map<String, String> failedAssertionMessages = new HashMap();
+    Map<String, String> failedAssertionMessages = new HashMap<>();
     for (File bundle : bundles) {
       String bundleName = bundle.getName();
       if (bundleName.indexOf('_') > 0) {

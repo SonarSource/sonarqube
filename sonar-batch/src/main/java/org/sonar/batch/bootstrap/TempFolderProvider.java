@@ -67,7 +67,7 @@ public class TempFolderProvider extends LifecycleProviderAdapter {
       try {
         cleanTempFolders(workingPath);
       } catch (IOException e) {
-        LOG.warn("failed to clean global working directory: " + e.getMessage());
+        LOG.error(String.format("failed to clean global working directory: %s", workingPath), e);
       }
 
       Path tempDir = workingPath.resolve(TMP_NAME_PREFIX + System.currentTimeMillis());
@@ -110,12 +110,12 @@ public class TempFolderProvider extends LifecycleProviderAdapter {
 
   private static class CleanFilter implements DirectoryStream.Filter<Path> {
     @Override
-    public boolean accept(Path e) throws IOException {
-      if (!Files.isDirectory(e)) {
+    public boolean accept(Path path) throws IOException {
+      if (!Files.isDirectory(path)) {
         return false;
       }
 
-      if (!e.getFileName().toString().startsWith(TMP_NAME_PREFIX)) {
+      if (!path.getFileName().toString().startsWith(TMP_NAME_PREFIX)) {
         return false;
       }
 
@@ -125,9 +125,9 @@ public class TempFolderProvider extends LifecycleProviderAdapter {
       BasicFileAttributes attrs;
 
       try {
-        attrs = Files.readAttributes(e, BasicFileAttributes.class);
+        attrs = Files.readAttributes(path, BasicFileAttributes.class);
       } catch (IOException ioe) {
-        LOG.warn("couldn't read file attributes for " + e + " : " + ioe.getMessage());
+        LOG.error(String.format("Couldn't read file attributes for %s : ", path), ioe);
         return false;
       }
 

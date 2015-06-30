@@ -291,8 +291,9 @@ public class SearchAction implements IssuesWsAction {
   }
 
   private void writeResponse(Request request, SearchResult<IssueDoc> result, JsonWriter json) {
-    if (result.getFacets().contains(IssueIndex.DEBT_AGGREGATION_NAME)) {
-      json.prop("debtTotal", result.getFacets().get(IssueIndex.DEBT_AGGREGATION_NAME).get(Facets.TOTAL));
+    Map<String, Long> debtFacet = result.getFacets().get(IssueIndex.DEBT_AGGREGATION_NAME);
+    if (debtFacet != null) {
+      json.prop("debtTotal", debtFacet.get(Facets.TOTAL));
     }
 
     List<String> issueKeys = newArrayList();
