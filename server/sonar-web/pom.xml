@@ -16,6 +16,14 @@
     <sonar.sources>src/main/js,src/main/coffee,src/main/hbs,src/main/less</sonar.sources>
     <sonar.exclusions>src/main/js/third-party/**/*,src/main/js/require.js,src/main/js/tests/**/*</sonar.exclusions>
   </properties>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-colorizer</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
 
   <build>
     <resources>
