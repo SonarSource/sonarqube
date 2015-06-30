@@ -52,20 +52,20 @@ PRANALYSIS)
 ITS_QUALITYGATE)
 	installTravisTools
 
-	sonarqube_its "qualitygate"
+	travis_sonarqube_its "qualitygate"
   ;;
 
 ITS_UPDATECENTER)
 	installTravisTools
 
-	sonarqube_its "updatecenter"
+	travis_sonarqube_its "updatecenter"
   ;;
 
 
 ITS_TESTING)
 	installTravisTools
 
-	sonarqube_its "testing"
+	travis_sonarqube_its "testing"
   ;;
 
 *)
