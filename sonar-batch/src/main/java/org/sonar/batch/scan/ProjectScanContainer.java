@@ -123,7 +123,6 @@ public class ProjectScanContainer extends ComponentContainer {
       new ProjectRepositoriesProvider(),
       DefaultResourceCreationLock.class,
       CodeColorizers.class,
-      DefaultNotificationManager.class,
       MetricProvider.class,
       ProjectConfigurator.class,
       DefaultIndex.class,
@@ -191,6 +190,7 @@ public class ProjectScanContainer extends ComponentContainer {
       ResourcePersister.class,
       SourcePersister.class,
       ResourceKeyMigration.class,
+      DefaultNotificationManager.class,
 
       ProjectScmRepositoryLoader.class,
 
