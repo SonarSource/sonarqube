@@ -54,6 +54,7 @@ public class ComputationSteps {
       FeedPeriodsStep.class,
 
       // data computation
+      ComputeFormulaMeasuresStep.class,
       CustomMeasuresCopyStep.class,
       ComputeIssueMeasuresStep.class,
       SqaleMeasuresStep.class,
