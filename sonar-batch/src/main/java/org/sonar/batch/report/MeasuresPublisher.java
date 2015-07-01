@@ -83,8 +83,7 @@ public class MeasuresPublisher implements ReportPublisherStep {
     if (resource == null || measure == null) {
       return false;
     }
-    return measure.getPersistenceMode().useDatabase() &&
-      !(ResourceUtils.isEntity(resource) && measure.isBestValue()) && isMeasureNotEmpty(measure);
+    return !(ResourceUtils.isEntity(resource) && measure.isBestValue()) && isMeasureNotEmpty(measure);
   }
 
   private static boolean isMeasureNotEmpty(Measure measure) {
