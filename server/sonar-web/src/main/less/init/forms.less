@@ -230,15 +230,13 @@ label[for] {
     font-size: @smallFontSize;
 
     &:first-child > label {
-      padding-left: 16px;
-      border-top-left-radius: @formControlHeight;
-      border-bottom-left-radius: @formControlHeight;
+      border-top-left-radius: 2px;
+      border-bottom-left-radius: 2px;
     }
 
     &:last-child > label {
-      padding-right: 16px;
-      border-top-right-radius: @formControlHeight;
-      border-bottom-right-radius: @formControlHeight;
+      border-top-right-radius: 2px;
+      border-bottom-right-radius: 2px;
     }
   }
 
@@ -249,11 +247,8 @@ label[for] {
     display: inline-block;
     padding: (@padding-top - 1px) 12px (@padding-top + 1px);
     margin: 0;
-    border: 1px solid @barBorderColor;
-
-    &:hover {
-      background-color: @barBackgroundColor;
-    }
+    border: 1px solid @darkBlue;
+    color: @darkBlue;
   }
 
   input[type="radio"] {
@@ -261,7 +256,6 @@ label[for] {
   }
 
   input[type="radio"]:checked + label {
-    border-color: @darkBlue;
     background-color: @darkBlue;
     color: #fff;
     font-weight: 500;
