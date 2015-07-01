@@ -49,9 +49,17 @@ import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_
 public class PersistMeasuresStep implements ComputationStep {
 
   /**
-   * List of metrics that should not be received from the report, as they should only by fed by the compute engine
+   * List of metrics that should not be received from the report, as they should only be fed by the compute engine
    */
   private static final List<String> FORBIDDEN_METRIC_KEYS = ImmutableList.of(CoreMetrics.DUPLICATIONS_DATA_KEY);
+
+  /**
+   * List of metrics that should be persisted on file measure (Waiting for SONAR-6688 to be implemented)
+   */
+  private static final List<String> NOT_TO_PERSIST_ON_FILE_METRIC_KEYS = ImmutableList.of(
+    CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION_KEY,
+    CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY
+    );
 
   private final DbClient dbClient;
   private final MetricRepository metricRepository;
@@ -106,6 +114,9 @@ public class PersistMeasuresStep implements ComputationStep {
         String metricKey = measures.getKey();
         if (FORBIDDEN_METRIC_KEYS.contains(metricKey)) {
           throw new IllegalStateException(String.format("Measures on metric '%s' cannot be send in the report", metricKey));
+        }
+        if (NOT_TO_PERSIST_ON_FILE_METRIC_KEYS.contains(metricKey) && component.getType() == Component.Type.FILE) {
+          continue;
         }
 
         Metric metric = metricRepository.getByKey(metricKey);
