@@ -17,6 +17,14 @@
     <sonar.exclusions>src/main/js/libs/third-party/**/*,src/main/js/libs/require.js</sonar.exclusions>
     <grunt.arguments>maven-build --no-color</grunt.arguments>
   </properties>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-colorizer</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
 
   <build>
     <resources>
