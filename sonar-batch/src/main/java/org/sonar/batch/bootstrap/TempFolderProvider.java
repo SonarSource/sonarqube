@@ -36,10 +36,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class TempFolderProvider extends LifecycleProviderAdapter {
   private static final Logger LOG = Loggers.get(TempFolderProvider.class);
   private static final long CLEAN_MAX_AGE = TimeUnit.DAYS.toMillis(21);
+  private static final AtomicLong nextId = new AtomicLong();
+
   static final String TMP_NAME_PREFIX = ".sonartmp_";
 
   private System2 system;
@@ -70,7 +73,7 @@ public class TempFolderProvider extends LifecycleProviderAdapter {
         LOG.error(String.format("failed to clean global working directory: %s", workingPath), e);
       }
 
-      Path tempDir = workingPath.resolve(TMP_NAME_PREFIX + System.currentTimeMillis());
+      Path tempDir = workingPath.resolve(TMP_NAME_PREFIX + System.currentTimeMillis() + nextId.incrementAndGet());
       try {
         Files.createDirectories(tempDir);
       } catch (IOException e) {
