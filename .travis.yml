@@ -18,8 +18,6 @@ env:
 script:
   - ./travis.sh
 
-after_failure: find . -name "*-output.txt" | xargs cat
-
 cache:
   directories:
     - '$HOME/.m2/repository'
