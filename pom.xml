@@ -556,9 +556,8 @@
         -->
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>license-maven-plugin</artifactId>
-        <version>1.7</version>
+        <version>1.8</version>
         <configuration>
-          <groupByLicense>true</groupByLicense>
           <includedScopes>compile</includedScopes>
         </configuration>
       </plugin>
