@@ -75,7 +75,7 @@ public class SqaleMeasuresStepTest {
 
   @Before
   public void setUp() throws Exception {
-    // assumes squale rating configuration is consistent
+    // assumes SQALE rating configuration is consistent
     when(sqaleRatingSettings.getRatingGrid()).thenReturn(RATING_GRID);
     when(sqaleRatingSettings.getSizeMetricKey(LANGUAGE_KEY_1)).thenReturn(METRIC_KEY_1);
     when(sqaleRatingSettings.getSizeMetricKey(LANGUAGE_KEY_2)).thenReturn(METRIC_KEY_2);

@@ -49,7 +49,7 @@ public class SqaleMeasuresStep implements ComputationStep {
 
   @Override
   public void execute() {
-    new SqualeMeasuresVisitor().visit(treeRootHolder.getRoot());
+    new SqaleMeasuresVisitor().visit(treeRootHolder.getRoot());
   }
 
   @Override
@@ -57,13 +57,13 @@ public class SqaleMeasuresStep implements ComputationStep {
     return "Compute Sqale related measures";
   }
 
-  private class SqualeMeasuresVisitor extends PathAwareVisitor<DevelopmentCost> {
+  private class SqaleMeasuresVisitor extends PathAwareVisitor<DevelopmentCost> {
     private final Metric developmentCostMetric;
     private final Metric technicalDebtMetric;
     private final Metric debtRatioMetric;
     private final Metric sqaleRatingMetric;
 
-    public SqualeMeasuresVisitor() {
+    public SqaleMeasuresVisitor() {
       super(Component.Type.FILE, Order.POST_ORDER, new SimpleStackElementFactory<DevelopmentCost>() {
         @Override
         public DevelopmentCost createForAny(Component component) {
