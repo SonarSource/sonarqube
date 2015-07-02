@@ -59,18 +59,21 @@ PRANALYSIS)
 ITS_QUALITYGATE)
 	installTravisTools
 
+	travis_install_jars
 	travis_sonarqube_its "qualitygate"
   ;;
 
 ITS_UPDATECENTER)
 	installTravisTools
 
+	travis_install_jars
 	travis_sonarqube_its "updatecenter"
   ;;
 
 ITS_TESTING)
 	installTravisTools
 
+	travis_install_jars
 	travis_sonarqube_its "testing"
   ;;
 
