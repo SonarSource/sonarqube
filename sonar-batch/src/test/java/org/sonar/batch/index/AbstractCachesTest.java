@@ -20,9 +20,7 @@
 package org.sonar.batch.index;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.rules.TemporaryFolder;
 
@@ -30,17 +28,21 @@ public abstract class AbstractCachesTest {
   @ClassRule
   public static TemporaryFolder temp = new TemporaryFolder();
 
-  protected Caches caches;
-  protected static CachesManager cachesManager;
+  protected static final ThreadLocal<CachesManager> cachesManagers = new ThreadLocal<CachesManager>() {
+    @Override
+    protected CachesManager initialValue() {
+      CachesManager cachesManager = CachesManagerTest.createCacheOnTemp(temp);
+      cachesManager.start();
+      return cachesManager;
+    }
+  };
 
-  @BeforeClass
-  public static void startClass() {
-    cachesManager = CachesManagerTest.createCacheOnTemp(temp);
-    cachesManager.start();
-  }
+  protected CachesManager cachesManager;
+  protected Caches caches;
 
   @Before
   public void start() {
+    cachesManager = cachesManagers.get();
     caches = new Caches(cachesManager);
     caches.start();
   }
@@ -50,14 +52,6 @@ public abstract class AbstractCachesTest {
     if (caches != null) {
       caches.stop();
       caches = null;
-    }
-  }
-
-  @AfterClass
-  public static void stopClass() {
-    if (cachesManager != null) {
-      cachesManager.stop();
-      cachesManager = null;
     }
   }
 }
