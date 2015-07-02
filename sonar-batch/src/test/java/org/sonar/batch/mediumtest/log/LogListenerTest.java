@@ -33,6 +33,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -145,6 +146,7 @@ public class LogListenerTest {
   }
 
   @Test
+  @Ignore("Temporarily disabled - frequent errors on local box and travis-ci")
   public void testNoFormattedMsgs() throws IOException {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
