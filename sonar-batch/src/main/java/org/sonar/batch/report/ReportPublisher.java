@@ -22,9 +22,12 @@ package org.sonar.batch.report;
 import com.github.kevinsawicki.http.HttpRequest;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Date;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
@@ -41,11 +44,14 @@ import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.scan.ImmutableProjectReactor;
 
+import static java.lang.String.format;
+
 @BatchSide
 public class ReportPublisher implements Startable {
 
   private static final Logger LOG = LoggerFactory.getLogger(ReportPublisher.class);
   public static final String KEEP_REPORT_PROP_KEY = "sonar.batch.keepReport";
+  public static final String DUMP_REPORT_PROP_KEY = "sonar.batch.dumpReportDir";
 
   private final ServerClient serverClient;
   private final Server server;
@@ -98,7 +104,7 @@ public class ReportPublisher implements Startable {
     if (!analysisMode.isPreview()) {
       File report = prepareReport();
       if (!analysisMode.isMediumTest()) {
-        uploadMultiPartReport(report);
+        sendOrDumpReport(report);
       }
     }
     logSuccess(LoggerFactory.getLogger(getClass()));
@@ -125,36 +131,70 @@ public class ReportPublisher implements Startable {
   }
 
   @VisibleForTesting
-  void uploadMultiPartReport(File report) {
+  void sendOrDumpReport(File report) {
+    ProjectDefinition projectDefinition = projectReactor.getRoot();
+    String effectiveKey = projectDefinition.getKeyWithBranch();
+    String relativeUrl = "/api/computation/submit_report?projectKey=" + effectiveKey + "&projectName=" + ServerClient.encodeForUrl(projectDefinition.getName());
+
+    String dumpDirLocation = settings.getString(DUMP_REPORT_PROP_KEY);
+    if (dumpDirLocation == null) {
+      uploadMultiPartReport(report, relativeUrl);
+    } else {
+      dumpReport(dumpDirLocation, effectiveKey, relativeUrl, report);
+    }
+  }
+
+  private void uploadMultiPartReport(File report, String relativeUrl) {
     LOG.debug("Publish results");
     long startTime = System.currentTimeMillis();
     URL url;
     try {
-      ProjectDefinition projectDefinition = projectReactor.getRoot();
-      String effectiveKey = projectDefinition.getKeyWithBranch();
-      url = new URL(serverClient.getURL() + "/api/computation/submit_report?projectKey=" + effectiveKey + "&projectName=" + ServerClient.encodeForUrl(projectDefinition.getName()));
+      url = new URL(serverClient.getURL() + relativeUrl);
     } catch (MalformedURLException e) {
       throw new IllegalArgumentException("Invalid URL", e);
     }
     HttpRequest request = HttpRequest.post(url);
     request.trustAllCerts();
     request.trustAllHosts();
-    request.header("User-Agent", String.format("SonarQube %s", server.getVersion()));
+    request.header("User-Agent", format("SonarQube %s", server.getVersion()));
     request.basic(serverClient.getLogin(), serverClient.getPassword());
     request.part("report", null, "application/octet-stream", report);
     if (!request.ok()) {
       int responseCode = request.code();
       if (responseCode == 401) {
-        throw new IllegalStateException(String.format(serverClient.getMessageWhenNotAuthorized(), CoreProperties.LOGIN, CoreProperties.PASSWORD));
+        throw new IllegalStateException(format(serverClient.getMessageWhenNotAuthorized(), CoreProperties.LOGIN, CoreProperties.PASSWORD));
       }
       if (responseCode == 403) {
         // SONAR-4397 Details are in response content
         throw new IllegalStateException(request.body());
       }
-      throw new IllegalStateException(String.format("Fail to execute request [code=%s, url=%s]: %s", responseCode, url, request.body()));
+      throw new IllegalStateException(format("Fail to execute request [code=%s, url=%s]: %s", responseCode, url, request.body()));
     }
     long stopTime = System.currentTimeMillis();
     LOG.info("Analysis reports sent to server in " + (stopTime - startTime) + "ms");
+  }
+
+  private void dumpReport(String dumpDirLocation, String projectKey, String relativeUrl, File report) {
+    LOG.debug("Dump report to file");
+    try {
+      dumpReportImpl(dumpDirLocation, projectKey, relativeUrl, report);
+    } catch (IOException | URISyntaxException e) {
+      LOG.error("Failed to dump report to directory " + dumpDirLocation, e);
+    }
+  }
+
+  private void dumpReportImpl(String dumpDirLocation, String projectKey, String relativeUrl, File report) throws IOException, URISyntaxException {
+    File dumpDir = new File(dumpDirLocation);
+    if (!dumpDir.exists() || !dumpDir.isDirectory()) {
+      LOG.warn("Report dump directory '{}' does not exist or is not a directory", dumpDirLocation);
+      return;
+    }
+    long dateTime = new Date().getTime();
+    File dumpedZip = new File(dumpDir, format("batch-report_%s_%s.zip", projectKey, dateTime));
+    FileUtils.copyFile(report, new FileOutputStream(dumpedZip));
+    File dumpedMetadata = new File(dumpDir, format("batch-report_%s_%s.txt", projectKey, dateTime));
+    FileUtils.write(dumpedMetadata, relativeUrl);
+    LOG.info("Batch report dumped to {}", dumpedZip.getAbsolutePath());
   }
 
   @VisibleForTesting
