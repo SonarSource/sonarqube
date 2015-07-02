@@ -699,7 +699,11 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
      *
      * @param f the formula
      * @return the builder
+     *
+     * @deprecated since 5.2, it's no more possible to define a formula on a metric
+     * TODO add a link to the new API to declare formulas
      */
+    @Deprecated
     public Builder setFormula(Formula f) {
       this.formula = f;
       return this;
