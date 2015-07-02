@@ -39,7 +39,24 @@ function createPrivateClone() {
   cd ${BUILD_DIR}${RELATIVE_PATH}
 }
 
-DUMP_DIR="/tmp/batch_dumps"
+function showHelp() {
+  echo "Usage: $0 -d DIR_PATH [ -l integer ] [ -h URL ] [ -u string ] [ -p string ]"
+  echo " -d : path to directory where batch report bumpds will be created"
+  echo " -l : number of commit in the past (optional: default is $HISTORY_LENGTH)"
+  echo " -h : URL of the SQ instance (optional: default is $SONAR_HOST)"
+  echo " -u : username to authentication on the SQ instance (optional: default is $SONAR_USER)"
+  echo " -p : password to authentication on the SQ instance (optional: default is $SONAR_USER)"
+}
+
+function checkOptions() {
+  if [ "$DUMP_DIR" = "" ]; then
+    >&2 echo "-d option is mandatory"
+    showHelp
+    exit 1
+  fi
+}
+
+DUMP_DIR=""
 HISTORY_LENGTH=30
 SONAR_HOST="http://localhost:9000"
 SONAR_USER="admin"
@@ -47,6 +64,32 @@ SONAR_PASSWORD="admin"
 SONAR_JDBC_URL="jdbc:postgresql://localhost:5432/sonar"
 SONAR_JDBC_USERNAME="sonar"
 SONAR_JDBC_PASSWORD="sonar"
+
+while getopts ":d:l:h:u:p:" opt; do
+  case "$opt" in
+    d) DUMP_DIR=$OPTARG
+      ;;
+    l) HISTORY_LENGTH=$OPTARG
+      ;;
+    h) SONAR_HOST=$OPTARG
+      ;;
+    u) SONAR_USER=$OPTARG
+      ;;
+    p) SONAR_PASSWORD=$OPTARG
+      ;;
+    :)
+      >&2 echo "option $OPTARG requires an argument"
+      showHelp
+      exit 1
+      ;;
+    \?)
+      >&2 echo "Unsupported option $OPTARG"
+      showHelp
+      exit 1 
+      ;;
+  esac
+done
+checkOptions
 
 createPrivateClone
 
