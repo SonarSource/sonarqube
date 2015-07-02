@@ -3,6 +3,7 @@ define(function (require) {
   var assert = require('intern/chai!assert');
   var fs = require('intern/dojo/node!fs');
   var Command = require('intern/dojo/node!leadfoot/Command');
+  var pollUntil = require('intern/dojo/node!leadfoot/helpers/pollUntil');
 
   Command.prototype.assertElementCount = function (selector, count) {
     return new this.constructor(this, function () {
@@ -10,6 +11,28 @@ define(function (require) {
           .findAllByCssSelector(selector)
           .then(function (elements) {
             assert.equal(count, elements.length, count + ' elements were found by ' + selector);
+          })
+          .end();
+    });
+  };
+
+  Command.prototype.assertElementExist = function (selector) {
+    return new this.constructor(this, function () {
+      return this.parent
+          .findAllByCssSelector(selector)
+          .then(function (elements) {
+            assert.ok(elements.length, selector + ' exists');
+          })
+          .end();
+    });
+  };
+
+  Command.prototype.assertElementNotExist = function (selector) {
+    return new this.constructor(this, function () {
+      return this.parent
+          .findAllByCssSelector(selector)
+          .then(function (elements) {
+            assert.equal(elements.length, 0, selector + ' does not exist');
           })
           .end();
     });
@@ -39,12 +62,25 @@ define(function (require) {
     });
   };
 
+  Command.prototype.assertElementVisible = function (selector) {
+    return new this.constructor(this, function () {
+      return this.parent
+          .findAllByCssSelector(selector)
+          .isDisplayed()
+          .then(function (displayed) {
+            assert.ok(displayed, selector + ' is visible');
+          })
+          .end();
+    });
+  };
+
   Command.prototype.clickElement = function (selector) {
     return new this.constructor(this, function () {
       return this.parent
           .findByCssSelector(selector)
           .click()
-          .end();
+          .end()
+          .sleep(250);
     });
   };
 
@@ -57,22 +93,32 @@ define(function (require) {
     });
   };
 
-  Command.prototype.mockFromFile = function (url, file) {
-    var response = fs.readFileSync('src/test/json/' + file, 'utf-8');
+  Command.prototype.waitForElementCount = function (selector, count) {
     return new this.constructor(this, function () {
       return this.parent
-          .execute(function (url, response) {
-            return jQuery.mockjax(_.extend({ url: url, responseText: response }));
-          }, [url, response]);
+          .then(pollUntil(function (selector, count) {
+            var elements = document.querySelectorAll(selector);
+            return elements.length === count ? true : null;
+          }, [selector, count]));
     });
   };
 
-  Command.prototype.mockFromString = function (url, response) {
+  Command.prototype.mockFromFile = function (url, file, options) {
+    var response = fs.readFileSync('src/test/json/' + file, 'utf-8');
     return new this.constructor(this, function () {
       return this.parent
-          .execute(function (url, response) {
-            return jQuery.mockjax(_.extend({ url: url, responseText: response }));
-          }, [url, response]);
+          .execute(function (url, response, options) {
+            return jQuery.mockjax(_.extend({ url: url, responseText: response }, options));
+          }, [url, response, options]);
+    });
+  };
+
+  Command.prototype.mockFromString = function (url, response, options) {
+    return new this.constructor(this, function () {
+      return this.parent
+          .execute(function (url, response, options) {
+            return jQuery.mockjax(_.extend({ url: url, responseText: response }, options));
+          }, [url, response, options]);
     });
   };
 
@@ -92,7 +138,8 @@ define(function (require) {
             require(['apps/' + app + '/app'], function (App) {
               App.start({ el: '#content' });
             });
-          }, [app]);
+          }, [app])
+          .sleep(2000);
     });
   };
 
