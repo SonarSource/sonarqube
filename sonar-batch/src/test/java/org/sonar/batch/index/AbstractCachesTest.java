@@ -47,13 +47,17 @@ public abstract class AbstractCachesTest {
 
   @After
   public void stop() {
-    caches.stop();
-    caches = null;
+    if (caches != null) {
+      caches.stop();
+      caches = null;
+    }
   }
 
   @AfterClass
   public static void stopClass() {
-    cachesManager.stop();
-    cachesManager = null;
+    if (cachesManager != null) {
+      cachesManager.stop();
+      cachesManager = null;
+    }
   }
 }
