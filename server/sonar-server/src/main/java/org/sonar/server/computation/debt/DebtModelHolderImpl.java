@@ -20,61 +20,51 @@
 
 package org.sonar.server.computation.debt;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import static com.google.common.base.Optional.fromNullable;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 public class DebtModelHolderImpl implements MutableDebtModelHolder {
 
-  private final Multimap<Characteristic, Characteristic> subCharacteristicsByRootCharacteristic = ArrayListMultimap.create();
-  private final Map<String, Characteristic> characteristicByKey = new HashMap<>();
+  private final List<Characteristic> rootCharacteristics = new ArrayList<>();
+  private final Map<Integer, Characteristic> characteristicById = new HashMap<>();
 
   @Override
-  public void addCharacteristics(Characteristic rootCharacteristic, Iterable<? extends Characteristic> subCharacteristics) {
+  public DebtModelHolderImpl addCharacteristics(Characteristic rootCharacteristic, Iterable<? extends Characteristic> subCharacteristics) {
     requireNonNull(rootCharacteristic, "rootCharacteristic cannot be null");
     requireNonNull(subCharacteristics, "subCharacteristics cannot be null");
     checkArgument(subCharacteristics.iterator().hasNext(), "subCharacteristics cannot be empty");
-    subCharacteristicsByRootCharacteristic.putAll(rootCharacteristic, subCharacteristics);
 
-    characteristicByKey.put(rootCharacteristic.getKey(), rootCharacteristic);
+    rootCharacteristics.add(rootCharacteristic);
+    characteristicById.put(rootCharacteristic.getId(), rootCharacteristic);
     for (Characteristic characteristic : subCharacteristics) {
-      characteristicByKey.put(characteristic.getKey(), characteristic);
+      characteristicById.put(characteristic.getId(), characteristic);
     }
+    return this;
   }
 
   @Override
-  public Set<Characteristic> findRootCharacteristics() {
-    checkCharacteristicsAreInitialized();
-    return ImmutableSet.copyOf(subCharacteristicsByRootCharacteristic.keySet());
-  }
-
-  @Override
-  public Set<Characteristic> findSubCharacteristicsByRootKey(String rootCharacteristicKey) {
-    checkCharacteristicsAreInitialized();
-    Characteristic rootCharacteristic = characteristicByKey.get(rootCharacteristicKey);
-    if (rootCharacteristic == null) {
-      return Collections.emptySet();
+  public Characteristic getCharacteristicById(int id) {
+    checkInitialized();
+    Characteristic characteristic = characteristicById.get(id);
+    if (characteristic == null) {
+      throw new IllegalStateException("Debt characteristic with id [" + id + "] does not exist");
     }
-    return ImmutableSet.copyOf(subCharacteristicsByRootCharacteristic.get(rootCharacteristic));
+    return characteristic;
   }
 
   @Override
-  public Optional<Characteristic> getCharacteristicByKey(String key) {
-    checkCharacteristicsAreInitialized();
-    return fromNullable(characteristicByKey.get(key));
+  public List<Characteristic> getRootCharacteristics() {
+    checkInitialized();
+    return rootCharacteristics;
   }
 
-  private void checkCharacteristicsAreInitialized() {
-    checkState(!characteristicByKey.isEmpty(), "Characteristics have not been initialized yet");
+  private void checkInitialized() {
+    checkState(!characteristicById.isEmpty(), "Characteristics have not been initialized yet");
   }
 }

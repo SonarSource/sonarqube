@@ -23,10 +23,7 @@ import com.google.common.base.Preconditions;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.technicaldebt.batch.Characteristic;
-import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.index.Caches;
@@ -39,13 +36,8 @@ public class MeasureCache {
 
   private final Cache<Measure> cache;
 
-  public MeasureCache(Caches caches, MetricFinder metricFinder, TechnicalDebtModel techDebtModel) {
-    caches.registerValueCoder(Measure.class, new MeasureValueCoder(metricFinder, techDebtModel));
-    cache = caches.createCache("measures");
-  }
-
   public MeasureCache(Caches caches, MetricFinder metricFinder) {
-    caches.registerValueCoder(Measure.class, new MeasureValueCoder(metricFinder, null));
+    caches.registerValueCoder(Measure.class, new MeasureValueCoder(metricFinder));
     cache = caches.createCache("measures");
   }
 
@@ -88,18 +80,9 @@ public class MeasureCache {
       sb.append(m.getMetricKey());
     }
     sb.append("|");
-    Characteristic characteristic = m.getCharacteristic();
-    if (characteristic != null) {
-      sb.append(characteristic.key());
-    }
-    sb.append("|");
     Integer personId = m.getPersonId();
     if (personId != null) {
       sb.append(personId);
-    }
-    if (m instanceof RuleMeasure) {
-      sb.append("|");
-      sb.append(((RuleMeasure) m).ruleKey());
     }
     return sb.toString();
   }

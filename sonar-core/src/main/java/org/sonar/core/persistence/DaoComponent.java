@@ -19,8 +19,5 @@
  */
 package org.sonar.core.persistence;
 
-/**
- * @since 4.4
- */
 public interface DaoComponent {
 }

@@ -20,7 +20,7 @@
 package org.sonar.server.issue;
 
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;

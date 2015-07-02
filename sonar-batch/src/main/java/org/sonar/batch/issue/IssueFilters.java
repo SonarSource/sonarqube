@@ -21,7 +21,7 @@ package org.sonar.batch.issue;
 
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.issue.batch.IssueFilter;
-import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.core.issue.DefaultIssue;
 
 @BatchSide
 public class IssueFilters {

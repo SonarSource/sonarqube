@@ -41,9 +41,7 @@ public class DefaultRule implements Rule {
   private final String severity;
   private final String description;
   private final String internalKey;
-  private final String debtSubCharacteristic;
   private final RuleStatus status;
-  private final DebtRemediationFunction debtRemediationFunction;
   private final Map<String, RuleParam> params;
 
   DefaultRule(NewRule newRule) {
@@ -54,8 +52,6 @@ public class DefaultRule implements Rule {
     this.description = newRule.description;
     this.internalKey = newRule.internalKey;
     this.status = newRule.status;
-    this.debtSubCharacteristic = newRule.debtSubCharacteristic;
-    this.debtRemediationFunction = newRule.debtRemediationFunction;
 
     ImmutableMap.Builder<String, RuleParam> builder = ImmutableMap.builder();
     for (NewRuleParam newRuleParam : newRule.params.values()) {
@@ -101,12 +97,12 @@ public class DefaultRule implements Rule {
 
   @Override
   public String debtSubCharacteristic() {
-    return debtSubCharacteristic;
+    throw new UnsupportedOperationException("Debt characteristic is not available by analyzer since version 5.2 (data computation moved to server)");
   }
 
   @Override
   public DebtRemediationFunction debtRemediationFunction() {
-    return debtRemediationFunction;
+    throw new UnsupportedOperationException("Debt remediation function is not available by analyzer since version 5.2 (data computation moved to server)");
   }
 
   @Override

@@ -26,7 +26,7 @@ import org.sonar.server.properties.ProjectSettingsFactory;
 /**
  * Lazy loading of project settings.
  *
- * Should be refactored to be able to load settings from any components.
+ * TODO Should be refactored to be able to load settings from any components.
  */
 public class ProjectSettingsRepository {
 

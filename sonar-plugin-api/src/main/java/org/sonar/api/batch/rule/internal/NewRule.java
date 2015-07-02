@@ -19,17 +19,14 @@
  */
 package org.sonar.api.batch.rule.internal;
 
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.debt.DebtRemediationFunction;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-
-import javax.annotation.Nullable;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class NewRule {
 
@@ -41,8 +38,6 @@ public class NewRule {
   String description;
   String severity = DEFAULT_SEVERITY;
   String internalKey;
-  String debtSubCharacteristic;
-  DebtRemediationFunction debtRemediationFunction;
   RuleStatus status = RuleStatus.defaultStatus();
   Map<String, NewRuleParam> params = new HashMap<>();
 
@@ -77,16 +72,6 @@ public class NewRule {
 
   public NewRule setInternalKey(@Nullable String s) {
     this.internalKey = s;
-    return this;
-  }
-
-  public NewRule setDebtSubCharacteristic(@Nullable String c) {
-    this.debtSubCharacteristic = c;
-    return this;
-  }
-
-  public NewRule setDebtRemediationFunction(@Nullable DebtRemediationFunction f) {
-    this.debtRemediationFunction = f;
     return this;
   }
 

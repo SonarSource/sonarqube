@@ -20,6 +20,10 @@
 package org.sonar.batch.profiling;
 
 import com.google.common.collect.Maps;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,14 +52,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.events.BatchStepEvent;
-import org.sonar.batch.index.ScanPersister;
-import org.sonar.batch.phases.event.PersisterExecutionHandler;
-import org.sonar.batch.phases.event.PersistersPhaseHandler;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
@@ -88,7 +84,6 @@ public class PhasesSumUpTimeProfilerTest {
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.INIT).getProfilingPerItem(new FakeInitializer()).totalTime()).isEqualTo(7L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.SENSOR).getProfilingPerItem(new FakeSensor()).totalTime()).isEqualTo(10L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator1()).totalTime()).isEqualTo(20L);
-    assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.PERSISTER).getProfilingPerItem(new FakeScanPersister()).totalTime()).isEqualTo(40L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.POSTJOB).getProfilingPerItem(new FakePostJob()).totalTime()).isEqualTo(30L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerBatchStep("Free memory").totalTime()).isEqualTo(9L);
 
@@ -109,14 +104,12 @@ public class PhasesSumUpTimeProfilerTest {
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.SENSOR).getProfilingPerItem(new FakeSensor()).totalTime()).isEqualTo(10L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator1()).totalTime()).isEqualTo(20L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator2()).totalTime()).isEqualTo(10L);
-    assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.PERSISTER).getProfilingPerItem(new FakeScanPersister()).totalTime()).isEqualTo(40L);
     assertThat(profiler.currentModuleProfiling.getProfilingPerPhase(Phase.POSTJOB).getProfilingPerItem(new FakePostJob()).totalTime()).isEqualTo(30L);
 
     assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.INIT).getProfilingPerItem(new FakeInitializer()).totalTime()).isEqualTo(21L);
     assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.SENSOR).getProfilingPerItem(new FakeSensor()).totalTime()).isEqualTo(30L);
     assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator1()).totalTime()).isEqualTo(60L);
     assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.DECORATOR).getProfilingPerItem(new FakeDecorator2()).totalTime()).isEqualTo(30L);
-    assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.PERSISTER).getProfilingPerItem(new FakeScanPersister()).totalTime()).isEqualTo(120L);
     assertThat(profiler.totalProfiling.getProfilingPerPhase(Phase.POSTJOB).getProfilingPerItem(new FakePostJob()).totalTime()).isEqualTo(90L);
   }
 
@@ -164,7 +157,6 @@ public class PhasesSumUpTimeProfilerTest {
     initializerPhase(profiler);
     sensorPhase(profiler);
     decoratorPhase(profiler);
-    persistersPhase(profiler);
     postJobPhase(profiler);
     batchStep(profiler);
     // End of moduleA
@@ -232,19 +224,6 @@ public class PhasesSumUpTimeProfilerTest {
     profiler.onSensorExecution(sensorEvent(sensor, false));
     // End of sensor phase
     profiler.onSensorsPhase(sensorsEvent(false));
-  }
-
-  private void persistersPhase(PhasesSumUpTimeProfiler profiler) {
-    ScanPersister persister = new FakeScanPersister();
-    // Start of persister phase
-    profiler.onPersistersPhase(persistersEvent(true));
-    // Start of a ScanPersister
-    profiler.onPersisterExecution(persisterEvent(persister, true));
-    clock.sleep(40);
-    // End of a ScanPersister
-    profiler.onPersisterExecution(persisterEvent(persister, false));
-    // End of persister phase
-    profiler.onPersistersPhase(persistersEvent(false));
   }
 
   private void postJobPhase(PhasesSumUpTimeProfiler profiler) {
@@ -340,26 +319,6 @@ public class PhasesSumUpTimeProfilerTest {
     };
   }
 
-  private PersisterExecutionHandler.PersisterExecutionEvent persisterEvent(final ScanPersister persister, final boolean start) {
-    return new PersisterExecutionHandler.PersisterExecutionEvent() {
-
-      @Override
-      public boolean isStart() {
-        return start;
-      }
-
-      @Override
-      public boolean isEnd() {
-        return !start;
-      }
-
-      @Override
-      public ScanPersister getPersister() {
-        return persister;
-      }
-    };
-  }
-
   private SensorsPhaseEvent sensorsEvent(final boolean start) {
     return new SensorsPhaseHandler.SensorsPhaseEvent() {
 
@@ -415,26 +374,6 @@ public class PhasesSumUpTimeProfilerTest {
 
       @Override
       public List<PostJob> getPostJobs() {
-        return null;
-      }
-    };
-  }
-
-  private PersistersPhaseHandler.PersistersPhaseEvent persistersEvent(final boolean start) {
-    return new PersistersPhaseHandler.PersistersPhaseEvent() {
-
-      @Override
-      public boolean isStart() {
-        return start;
-      }
-
-      @Override
-      public boolean isEnd() {
-        return !start;
-      }
-
-      @Override
-      public List<ScanPersister> getPersisters() {
         return null;
       }
     };
@@ -526,12 +465,6 @@ public class PhasesSumUpTimeProfilerTest {
   public class FakePostJob implements PostJob {
     @Override
     public void executeOn(Project project, SensorContext context) {
-    }
-  }
-
-  public class FakeScanPersister implements ScanPersister {
-    @Override
-    public void persist() {
     }
   }
 }

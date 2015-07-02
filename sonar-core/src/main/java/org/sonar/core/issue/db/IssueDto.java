@@ -24,9 +24,10 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
@@ -624,7 +625,7 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
-  public Collection<String> getTags() {
+  public Set<String> getTags() {
     return ImmutableSet.copyOf(TAGS_SPLITTER.split(tags == null ? "" : tags));
   }
 
@@ -660,6 +661,7 @@ public final class IssueDto implements Serializable {
     issue.setEffortToFix(effortToFix);
     issue.setDebt(debt != null ? Duration.create(debt) : null);
     issue.setLine(line);
+    issue.setChecksum(checksum);
     issue.setSeverity(severity);
     issue.setReporter(reporter);
     issue.setAssignee(assignee);

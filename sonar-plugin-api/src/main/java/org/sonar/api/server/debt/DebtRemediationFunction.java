@@ -43,7 +43,23 @@ import javax.annotation.CheckForNull;
 public interface DebtRemediationFunction {
 
   enum Type {
-    LINEAR, LINEAR_OFFSET, CONSTANT_ISSUE
+    LINEAR(true, false), LINEAR_OFFSET(true, true), CONSTANT_ISSUE(false, true);
+
+    private final boolean usesCoefficient;
+    private final boolean usesOffset;
+
+    Type(boolean usesCoefficient, boolean usesOffset) {
+      this.usesCoefficient = usesCoefficient;
+      this.usesOffset = usesOffset;
+    }
+
+    public boolean usesCoefficient() {
+      return usesCoefficient;
+    }
+
+    public boolean usesOffset() {
+      return usesOffset;
+    }
   }
 
   Type type();

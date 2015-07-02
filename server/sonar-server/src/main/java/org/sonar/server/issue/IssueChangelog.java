@@ -20,7 +20,7 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.Maps;
-import org.sonar.api.issue.internal.FieldDiffs;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.api.user.User;
 
 import javax.annotation.CheckForNull;

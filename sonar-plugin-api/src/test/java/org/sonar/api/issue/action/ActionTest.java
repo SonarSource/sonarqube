@@ -17,14 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.api.issue.action;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.Condition;
-import org.sonar.api.issue.internal.DefaultIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -59,7 +58,7 @@ public class ActionTest {
 
   @Test
   public void should_verify_conditions() {
-    DefaultIssue issue = new DefaultIssue();
+    Issue issue = mock(Issue.class);
     Action action = new Action("link-to-jira")
       .setConditions(condition1, condition2);
 

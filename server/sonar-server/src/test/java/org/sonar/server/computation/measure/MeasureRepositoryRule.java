@@ -167,9 +167,17 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
     return Optional.fromNullable(rawMeasures.get(new InternalKey(component, metric, rule.getId(), null)));
   }
 
+  public Optional<Measure> getRawRuleMeasure(Component component, Metric metric, int ruleId) {
+    return Optional.fromNullable(rawMeasures.get(new InternalKey(component, metric, ruleId, null)));
+  }
+
   @Override
   public Optional<Measure> getRawMeasure(Component component, Metric metric, Characteristic characteristic) {
     return Optional.fromNullable(rawMeasures.get(new InternalKey(component, metric, null, characteristic.getId())));
+  }
+
+  public Optional<Measure> getRawCharacteristicMeasure(Component component, Metric metric, int characteristicId) {
+    return Optional.fromNullable(rawMeasures.get(new InternalKey(component, metric, null, characteristicId)));
   }
 
   @Override

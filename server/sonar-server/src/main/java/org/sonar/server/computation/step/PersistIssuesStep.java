@@ -19,12 +19,11 @@
  */
 package org.sonar.server.computation.step;
 
-import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
-import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.issue.internal.DefaultIssueComment;
-import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.utils.System2;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.DefaultIssueComment;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueChangeMapper;
 import org.sonar.core.issue.db.IssueDto;
@@ -33,7 +32,7 @@ import org.sonar.core.issue.db.UpdateConflictResolver;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.issue.IssueCache;
-import org.sonar.server.computation.issue.RuleCache;
+import org.sonar.server.computation.issue.RuleRepository;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.util.CloseableIterator;
 
@@ -42,15 +41,15 @@ public class PersistIssuesStep implements ComputationStep {
   private final DbClient dbClient;
   private final System2 system2;
   private final UpdateConflictResolver conflictResolver;
-  private final RuleCache ruleCache;
+  private final RuleRepository ruleRepository;
   private final IssueCache issueCache;
 
   public PersistIssuesStep(DbClient dbClient, System2 system2, UpdateConflictResolver conflictResolver,
-    RuleCache ruleCache, IssueCache issueCache) {
+    RuleRepository ruleRepository, IssueCache issueCache) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.conflictResolver = conflictResolver;
-    this.ruleCache = ruleCache;
+    this.ruleRepository = ruleRepository;
     this.issueCache = issueCache;
   }
 
@@ -66,21 +65,17 @@ public class PersistIssuesStep implements ComputationStep {
         DefaultIssue issue = issues.next();
         boolean saved = false;
         if (issue.isNew()) {
-          Integer ruleId = ruleCache.get(issue.ruleKey()).getId();
-          mapper.insert(IssueDto.toDtoForComputationInsert(issue, ruleId, system2.now()));
+          Integer ruleId = ruleRepository.getByKey(issue.ruleKey()).getId();
+          IssueDto dto = IssueDto.toDtoForComputationInsert(issue, ruleId, system2.now());
+          mapper.insert(dto);
           saved = true;
         } else if (issue.isChanged()) {
           IssueDto dto = IssueDto.toDtoForUpdate(issue, system2.now());
-          if (Issue.STATUS_CLOSED.equals(issue.status()) || issue.selectedAt() == null) {
-            // Issue is closed by scan or changed by end-user
-            mapper.update(dto);
-          } else {
-            int updateCount = mapper.updateIfBeforeSelectedDate(dto);
-            if (updateCount == 0) {
-              // End-user and scan changed the issue at the same time.
-              // See https://jira.sonarsource.com/browse/SONAR-4309
-              conflictResolver.resolve(issue, mapper);
-            }
+          int updateCount = mapper.updateIfBeforeSelectedDate(dto);
+          if (updateCount == 0) {
+            // End-user and scan changed the issue at the same time.
+            // See https://jira.sonarsource.com/browse/SONAR-4309
+            conflictResolver.resolve(issue, mapper);
           }
           saved = true;
         }

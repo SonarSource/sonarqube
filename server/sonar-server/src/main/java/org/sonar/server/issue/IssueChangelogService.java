@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.internal.FieldDiffs;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.core.issue.db.IssueChangeDao;

@@ -31,7 +31,9 @@ import javax.annotation.Nullable;
 
 /**
  * @since 1.10
+ * @deprecated since 5.2. Ignored by design because of Compute Engine.
  */
+@Deprecated
 public class RuleMeasure extends Measure {
 
   private RuleKey ruleKey;

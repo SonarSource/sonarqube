@@ -23,12 +23,12 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
-import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.issue.IssueCache;
-import org.sonar.server.computation.issue.RuleCache;
+import org.sonar.server.computation.issue.RuleRepository;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.issue.notification.MyNewIssuesNotification;
 import org.sonar.server.issue.notification.NewIssuesNotification;
@@ -49,14 +49,15 @@ public class SendIssueNotificationsStep implements ComputationStep {
   static final Set<String> NOTIF_TYPES = ImmutableSet.of(IssueChangeNotification.TYPE, NewIssuesNotification.TYPE, MyNewIssuesNotification.MY_NEW_ISSUES_NOTIF_TYPE);
 
   private final IssueCache issueCache;
-  private final RuleCache rules;
+  private final RuleRepository rules;
   private final TreeRootHolder treeRootHolder;
   private final NotificationService service;
   private final BatchReportReader reportReader;
   private NewIssuesNotificationFactory newIssuesNotificationFactory;
 
-  public SendIssueNotificationsStep(IssueCache issueCache, RuleCache rules, TreeRootHolder treeRootHolder, NotificationService service,
-    BatchReportReader reportReader, NewIssuesNotificationFactory newIssuesNotificationFactory) {
+  public SendIssueNotificationsStep(IssueCache issueCache, RuleRepository rules, TreeRootHolder treeRootHolder,
+    NotificationService service, BatchReportReader reportReader,
+    NewIssuesNotificationFactory newIssuesNotificationFactory) {
     this.issueCache = issueCache;
     this.rules = rules;
     this.treeRootHolder = treeRootHolder;
@@ -84,7 +85,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
           newIssuesStats.add(issue);
         } else if (issue.isChanged() && issue.mustSendNotifications()) {
           IssueChangeNotification changeNotification = new IssueChangeNotification();
-          changeNotification.setRuleName(rules.ruleName(issue.ruleKey()));
+          changeNotification.setRuleName(rules.getByKey(issue.ruleKey()).getName());
           changeNotification.setIssue(issue);
           changeNotification.setProject(project.getKey(), projectName);
           service.deliver(changeNotification);

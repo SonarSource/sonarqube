@@ -22,24 +22,30 @@ package org.sonar.api.issue.condition;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.issue.Issue;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class HasIssuePropertyConditionTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  DefaultIssue issue = new DefaultIssue();
+  Issue issue = mock(Issue.class);
 
   @Test
   public void should_match() {
     HasIssuePropertyCondition condition = new HasIssuePropertyCondition("foo");
 
     assertThat(condition.matches(issue)).isFalse();
-    assertThat(condition.matches(issue.setAttribute("foo", ""))).isFalse();
-    assertThat(condition.matches(issue.setAttribute("foo", "bar"))).isTrue();
+
+    when(issue.attribute("foo")).thenReturn("");
+    assertThat(condition.matches(issue)).isFalse();
+
+    when(issue.attribute("foo")).thenReturn("bar");
+    assertThat(condition.matches(issue)).isTrue();
   }
 
   @Test

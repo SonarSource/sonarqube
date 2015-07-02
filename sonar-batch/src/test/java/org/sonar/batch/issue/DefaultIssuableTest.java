@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.index.BatchComponent;
 

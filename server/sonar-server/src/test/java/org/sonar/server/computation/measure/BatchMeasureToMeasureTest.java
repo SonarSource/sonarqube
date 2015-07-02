@@ -23,20 +23,14 @@ import com.google.common.base.Optional;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(DataProviderRunner.class)
 public class BatchMeasureToMeasureTest {
@@ -48,19 +42,9 @@ public class BatchMeasureToMeasureTest {
   private static final Metric SOME_LEVEL_METRIC = new MetricImpl(42, "level", "name", Metric.MetricType.LEVEL);
 
   private static final String SOME_DATA = "some_data man!";
-  private static final String SOME_ALERT_TEXT = "some alert text_be_careFul!";
   private static final BatchReport.Measure EMPTY_BATCH_MEASURE = BatchReport.Measure.newBuilder().build();
-  private static final RuleKey SOME_RULE_KEY = RuleKey.of("A", "B");
-  private static final int SOME_RULE_ID = 9513;
-  private static final RuleDto SOME_RULE = new RuleDto().setRuleKey(SOME_RULE_KEY.toString()).setId(SOME_RULE_ID);
 
-  private RuleCache ruleCache = mock(RuleCache.class);
-  private BatchMeasureToMeasure underTest = new BatchMeasureToMeasure(ruleCache);
-
-  @Before
-  public void setUp() throws Exception {
-    when(ruleCache.get(SOME_RULE_KEY)).thenReturn(SOME_RULE);
-  }
+  private BatchMeasureToMeasure underTest = new BatchMeasureToMeasure();
 
   @Test
   public void toMeasure_returns_absent_for_null_argument() {
@@ -75,25 +59,6 @@ public class BatchMeasureToMeasureTest {
   @Test(expected = NullPointerException.class)
   public void toMeasure_throws_NPE_if_both_arguments_are_null() {
     underTest.toMeasure(null, null);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void toMeasure_throws_IAE_if_batch_Measure_has_both_ruleKey_and_characteristicId() {
-    underTest.toMeasure(BatchReport.Measure.newBuilder().setRuleKey(SOME_RULE_KEY.toString()).setCharactericId(42).build(), SOME_STRING_METRIC);
-  }
-
-  @Test
-  public void toMeasure_maps_characteristicId_if_present() {
-    BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder().setCharactericId(42).build();
-
-    assertThat(underTest.toMeasure(batchMeasure, SOME_STRING_METRIC).get().getCharacteristicId()).isEqualTo(42);
-  }
-
-  @Test
-  public void toMeasure_maps_ruleKey_if_present() {
-    BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder().setRuleKey(SOME_RULE_KEY.toString()).build();
-
-    assertThat(underTest.toMeasure(batchMeasure, SOME_STRING_METRIC).get().getRuleId()).isEqualTo(SOME_RULE_ID);
   }
 
   @Test
@@ -138,8 +103,6 @@ public class BatchMeasureToMeasureTest {
   public void toMeasure_for_LEVEL_Metric_maps_QualityGateStatus() {
     BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
       .setStringValue(Measure.Level.OK.name())
-      .setAlertStatus(Measure.Level.ERROR.name())
-      .setAlertText(SOME_ALERT_TEXT)
       .build();
 
     Optional<Measure> measure = underTest.toMeasure(batchMeasure, SOME_LEVEL_METRIC);
@@ -147,8 +110,6 @@ public class BatchMeasureToMeasureTest {
     assertThat(measure).isPresent();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.LEVEL);
     assertThat(measure.get().getLevelValue()).isEqualTo(Measure.Level.OK);
-    assertThat(measure.get().getQualityGateStatus().getStatus()).isEqualTo(Measure.Level.ERROR);
-    assertThat(measure.get().getQualityGateStatus().getText()).isEqualTo(SOME_ALERT_TEXT);
   }
 
   @Test
@@ -182,7 +143,6 @@ public class BatchMeasureToMeasureTest {
     BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
       .setIntValue(10)
       .setStringValue(SOME_DATA)
-      .setAlertStatus(Measure.Level.OK.name()).setAlertText(SOME_ALERT_TEXT)
       .build();
 
     Optional<Measure> measure = underTest.toMeasure(batchMeasure, SOME_INT_METRIC);
@@ -191,8 +151,6 @@ public class BatchMeasureToMeasureTest {
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.INT);
     assertThat(measure.get().getIntValue()).isEqualTo(10);
     assertThat(measure.get().getData()).isEqualTo(SOME_DATA);
-    assertThat(measure.get().getQualityGateStatus().getStatus()).isEqualTo(Measure.Level.OK);
-    assertThat(measure.get().getQualityGateStatus().getText()).isEqualTo(SOME_ALERT_TEXT);
   }
 
   @Test
@@ -217,7 +175,6 @@ public class BatchMeasureToMeasureTest {
     BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
       .setLongValue(10l)
       .setStringValue(SOME_DATA)
-      .setAlertStatus(Measure.Level.OK.name()).setAlertText(SOME_ALERT_TEXT)
       .build();
 
     Optional<Measure> measure = underTest.toMeasure(batchMeasure, SOME_LONG_METRIC);
@@ -226,8 +183,6 @@ public class BatchMeasureToMeasureTest {
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.LONG);
     assertThat(measure.get().getLongValue()).isEqualTo(10);
     assertThat(measure.get().getData()).isEqualTo(SOME_DATA);
-    assertThat(measure.get().getQualityGateStatus().getStatus()).isEqualTo(Measure.Level.OK);
-    assertThat(measure.get().getQualityGateStatus().getText()).isEqualTo(SOME_ALERT_TEXT);
   }
 
   @Test
@@ -243,7 +198,6 @@ public class BatchMeasureToMeasureTest {
     BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
       .setDoubleValue(10.6395d)
       .setStringValue(SOME_DATA)
-      .setAlertStatus(Measure.Level.OK.name()).setAlertText(SOME_ALERT_TEXT)
       .build();
 
     Optional<Measure> measure = underTest.toMeasure(batchMeasure, SOME_DOUBLE_METRIC);
@@ -252,8 +206,6 @@ public class BatchMeasureToMeasureTest {
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.DOUBLE);
     assertThat(measure.get().getDoubleValue()).isEqualTo(10.6d);
     assertThat(measure.get().getData()).isEqualTo(SOME_DATA);
-    assertThat(measure.get().getQualityGateStatus().getStatus()).isEqualTo(Measure.Level.OK);
-    assertThat(measure.get().getQualityGateStatus().getText()).isEqualTo(SOME_ALERT_TEXT);
   }
 
   @Test
@@ -281,7 +233,7 @@ public class BatchMeasureToMeasureTest {
   @Test
   public void toMeasure_maps_data_and_alert_properties_in_dto_for_Boolean_metric() {
     BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
-      .setBooleanValue(true).setStringValue(SOME_DATA).setAlertStatus(Measure.Level.OK.name()).setAlertText(SOME_ALERT_TEXT).build();
+      .setBooleanValue(true).setStringValue(SOME_DATA).build();
 
     Optional<Measure> measure = underTest.toMeasure(batchMeasure, SOME_BOOLEAN_METRIC);
 
@@ -289,8 +241,6 @@ public class BatchMeasureToMeasureTest {
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.BOOLEAN);
     assertThat(measure.get().getBooleanValue()).isTrue();
     assertThat(measure.get().getData()).isEqualTo(SOME_DATA);
-    assertThat(measure.get().getQualityGateStatus().getStatus()).isEqualTo(Measure.Level.OK);
-    assertThat(measure.get().getQualityGateStatus().getText()).isEqualTo(SOME_ALERT_TEXT);
   }
 
   @Test
@@ -305,7 +255,6 @@ public class BatchMeasureToMeasureTest {
   public void toMeasure_maps_alert_properties_in_dto_for_String_Metric() {
     BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
       .setStringValue(SOME_DATA)
-      .setAlertStatus(Measure.Level.OK.name()).setAlertText(SOME_ALERT_TEXT)
       .build();
 
     Optional<Measure> measure = underTest.toMeasure(batchMeasure, SOME_STRING_METRIC);
@@ -314,8 +263,6 @@ public class BatchMeasureToMeasureTest {
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.STRING);
     assertThat(measure.get().getStringValue()).isEqualTo(SOME_DATA);
     assertThat(measure.get().getData()).isEqualTo(SOME_DATA);
-    assertThat(measure.get().getQualityGateStatus().getStatus()).isEqualTo(Measure.Level.OK);
-    assertThat(measure.get().getQualityGateStatus().getText()).isEqualTo(SOME_ALERT_TEXT);
   }
 
   @DataProvider

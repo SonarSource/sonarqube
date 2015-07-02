@@ -20,7 +20,6 @@
 
 package org.sonar.core.issue.db;
 
-import javax.annotation.CheckForNull;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.batch.BatchSide;
@@ -39,16 +38,6 @@ public class IssueDao {
 
   public IssueDao(MyBatis mybatis) {
     this.mybatis = mybatis;
-  }
-
-  @CheckForNull
-  public IssueDto selectByKey(String key) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      return mapper(session).selectByKey(key);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   public void selectNonClosedIssuesByModule(long componentId, ResultHandler handler) {

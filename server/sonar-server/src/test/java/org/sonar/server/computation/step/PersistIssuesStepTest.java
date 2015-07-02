@@ -27,18 +27,20 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.issue.internal.DefaultIssueComment;
-import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.DefaultIssueComment;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.db.UpdateConflictResolver;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
+import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.issue.IssueCache;
-import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.computation.issue.RuleCacheLoader;
+import org.sonar.server.computation.issue.RuleRepositoryImpl;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.rule.db.RuleDao;
@@ -48,11 +50,16 @@ import static org.mockito.Mockito.when;
 
 public class PersistIssuesStepTest extends BaseStepTest {
 
+  public static final long NOW = 1400000000000L;
+
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   @ClassRule
   public static DbTester dbTester = new DbTester();
+
+  @Rule
+  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   DbSession session;
 
@@ -74,11 +81,12 @@ public class PersistIssuesStepTest extends BaseStepTest {
     dbTester.truncateTables();
     session = dbTester.myBatis().openSession(false);
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new IssueDao(dbTester.myBatis()), new RuleDao(system2));
-
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     system2 = mock(System2.class);
-    when(system2.now()).thenReturn(1400000000000L);
-    step = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleCache(new RuleCacheLoader(dbClient)), issueCache);
+    when(system2.now()).thenReturn(NOW);
+    reportReader.setMetadata(BatchReport.Metadata.getDefaultInstance());
+
+    step = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleRepositoryImpl(new RuleCacheLoader(dbClient, reportReader)), issueCache);
   }
 
   @After
@@ -117,6 +125,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .setSeverity(Severity.BLOCKER)
       .setStatus(Issue.STATUS_CLOSED)
       .setResolution(Issue.RESOLUTION_FIXED)
+      .setSelectedAt(NOW)
       .setNew(false)
       .setChanged(true)
       ).close();

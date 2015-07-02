@@ -26,7 +26,7 @@ import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.Condition;
-import org.sonar.api.issue.internal.IssueChangeContext;
+import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.user.UserSession;
 
 import java.util.Collection;

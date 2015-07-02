@@ -22,20 +22,12 @@ package org.sonar.server.computation.measure;
 import com.google.common.base.Optional;
 import java.util.Objects;
 import javax.annotation.Nullable;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.server.computation.issue.RuleCache;
 import org.sonar.server.computation.metric.Metric;
 
 import static com.google.common.base.Optional.of;
 
 public class BatchMeasureToMeasure {
-  private final RuleCache ruleCache;
-
-  public BatchMeasureToMeasure(RuleCache ruleCache) {
-    this.ruleCache = ruleCache;
-  }
 
   public Optional<Measure> toMeasure(@Nullable BatchReport.Measure batchMeasure, Metric metric) {
     Objects.requireNonNull(metric);
@@ -43,7 +35,7 @@ public class BatchMeasureToMeasure {
       return Optional.absent();
     }
 
-    Measure.NewMeasureBuilder builder = createBuilder(batchMeasure);
+    Measure.NewMeasureBuilder builder = Measure.newMeasureBuilder();
     String data = batchMeasure.hasStringValue() ? batchMeasure.getStringValue() : null;
     switch (metric.getType().getValueType()) {
       case INT:
@@ -63,20 +55,6 @@ public class BatchMeasureToMeasure {
       default:
         throw new IllegalArgumentException("Unsupported Measure.ValueType " + metric.getType().getValueType());
     }
-  }
-
-  private Measure.NewMeasureBuilder createBuilder(BatchReport.Measure batchMeasure) {
-    if (batchMeasure.hasCharactericId() && batchMeasure.hasRuleKey()) {
-      throw new IllegalArgumentException("Measure with both characteristicId and ruleKey are not supported");
-    }
-    if (batchMeasure.hasCharactericId()) {
-      return Measure.newMeasureBuilder().forCharacteristic(batchMeasure.getCharactericId());
-    }
-    if (batchMeasure.hasRuleKey()) {
-      RuleDto ruleDto = ruleCache.get(RuleKey.parse(batchMeasure.getRuleKey()));
-      return Measure.newMeasureBuilder().forRule(ruleDto.getId());
-    }
-    return Measure.newMeasureBuilder();
   }
 
   private static Optional<Measure> toIntegerMeasure(Measure.NewMeasureBuilder builder, BatchReport.Measure batchMeasure, @Nullable String data) {
@@ -113,7 +91,7 @@ public class BatchMeasureToMeasure {
     }
     return of(setCommonProperties(builder, batchMeasure).create(batchMeasure.getStringValue()));
   }
-  
+
   private static Optional<Measure> toLevelMeasure(Measure.NewMeasureBuilder builder, BatchReport.Measure batchMeasure) {
     if (!batchMeasure.hasStringValue()) {
       return toNoValueMeasure(builder, batchMeasure);
@@ -130,14 +108,7 @@ public class BatchMeasureToMeasure {
   }
 
   private static Measure.NewMeasureBuilder setCommonProperties(Measure.NewMeasureBuilder builder, BatchReport.Measure batchMeasure) {
-    if (batchMeasure.hasAlertStatus()) {
-      Optional<Measure.Level> qualityGateStatus = Measure.Level.toLevel(batchMeasure.getAlertStatus());
-      if (qualityGateStatus.isPresent()) {
-        String text = batchMeasure.hasAlertText() ? batchMeasure.getAlertText() : null;
-        builder.setQualityGateStatus(new QualityGateStatus(qualityGateStatus.get(), text));
-      }
-    }
-    if (hasAnyVariation(batchMeasure))  {
+    if (hasAnyVariation(batchMeasure)) {
       builder.setVariations(createVariations(batchMeasure));
     }
     return builder;
@@ -145,20 +116,19 @@ public class BatchMeasureToMeasure {
 
   private static boolean hasAnyVariation(BatchReport.Measure batchMeasure) {
     return batchMeasure.hasVariationValue1()
-        || batchMeasure.hasVariationValue2()
-        || batchMeasure.hasVariationValue3()
-        || batchMeasure.hasVariationValue4()
-        || batchMeasure.hasVariationValue5();
+      || batchMeasure.hasVariationValue2()
+      || batchMeasure.hasVariationValue3()
+      || batchMeasure.hasVariationValue4()
+      || batchMeasure.hasVariationValue5();
   }
 
   private static MeasureVariations createVariations(BatchReport.Measure batchMeasure) {
     return new MeasureVariations(
-        batchMeasure.hasVariationValue1() ? batchMeasure.getVariationValue1() : null,
-        batchMeasure.hasVariationValue2() ? batchMeasure.getVariationValue2() : null,
-        batchMeasure.hasVariationValue3() ? batchMeasure.getVariationValue3() : null,
-        batchMeasure.hasVariationValue4() ? batchMeasure.getVariationValue4() : null,
-        batchMeasure.hasVariationValue5() ? batchMeasure.getVariationValue5() : null
-    );
+      batchMeasure.hasVariationValue1() ? batchMeasure.getVariationValue1() : null,
+      batchMeasure.hasVariationValue2() ? batchMeasure.getVariationValue2() : null,
+      batchMeasure.hasVariationValue3() ? batchMeasure.getVariationValue3() : null,
+      batchMeasure.hasVariationValue4() ? batchMeasure.getVariationValue4() : null,
+      batchMeasure.hasVariationValue5() ? batchMeasure.getVariationValue5() : null);
   }
 
 }

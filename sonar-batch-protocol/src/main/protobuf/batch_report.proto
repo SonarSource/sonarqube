@@ -46,8 +46,12 @@ message Metadata {
   optional string branch = 3;
   optional int32 root_component_ref = 4;
 
-  // temporary fields used during development of computation stack
-  optional int32 deleted_components_count = 5;
+  /*
+    Keys of the rules that were enabled in Quality profiles.
+    A key is a string composed of the repository and the subKey, specific to the repository. Format is
+    "{repository}:{subKey}", for instance "java:NullDereference".
+  */
+  repeated string active_rule_key = 5;
 }
 
 message ComponentLink {
@@ -87,18 +91,15 @@ message Measure {
 
   // temporary fields during development of computation stack
   optional string description = 9;
-  optional string rule_key = 10;
-  optional string alert_status = 12;
-  optional string alert_text = 13;
   optional double variation_value_1 = 14;
   optional double variation_value_2 = 15;
   optional double variation_value_3 = 16;
   optional double variation_value_4 = 17;
   optional double variation_value_5 = 18;
-  optional int32 characteric_id = 19;
   optional int32 person_id = 20;
 }
 
+/* TODO to be removed. It prevents streaming */
 message Measures {
   optional int32 component_ref = 1;
   repeated Measure measure = 2;
@@ -111,36 +112,14 @@ message Issue {
   optional string msg = 4;
   optional Severity severity = 5;
   repeated string tag = 6;
-
-  // temporary fields during development of computation stack
   optional double effort_to_fix = 7;
-  optional bool is_new = 8;
-  optional string uuid = 9;
-  optional int64 debt_in_minutes = 10;
-  optional string resolution = 11;
-  optional string status = 12;
-  optional string checksum = 13;
-  optional bool manual_severity = 14;
-  optional string reporter = 15;
-  optional string assignee = 16;
-  optional string action_plan_key = 17;
-  optional string attributes = 18;
-  optional string author_login = 19;
-  optional int64 creation_date = 20;
-  optional int64 close_date = 21;
-  optional int64 update_date = 22;
-  optional int64 selected_at = 23;
-  optional string diff_fields = 24;
-  optional bool is_changed = 25;
-  optional bool must_send_notification = 26;
+  optional string attributes = 8;
 }
 
+/* TODO to be removed. It prevents streaming */
 message Issues {
   optional int32 component_ref = 1;
   repeated Issue issue = 2;
-
-  // Temporary field for issues on deleted components
-  optional string component_uuid = 3;
 }
 
 message Changesets {

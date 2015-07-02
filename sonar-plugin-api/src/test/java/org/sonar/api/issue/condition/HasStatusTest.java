@@ -17,28 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.api.issue.condition;
 
 import org.junit.Test;
-import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.issue.Issue;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class HasStatusTest {
 
-  DefaultIssue issue = new DefaultIssue();
+  Issue issue = mock(Issue.class);
 
   @Test
   public void should_match() {
     HasStatus condition = new HasStatus("OPEN", "REOPENED", "CONFIRMED");
 
-    assertThat(condition.matches(issue.setStatus("OPEN"))).isTrue();
-    assertThat(condition.matches(issue.setStatus("REOPENED"))).isTrue();
-    assertThat(condition.matches(issue.setStatus("CONFIRMED"))).isTrue();
+    when(issue.status()).thenReturn("OPEN");
+    assertThat(condition.matches(issue)).isTrue();
 
-    assertThat(condition.matches(issue.setStatus("open"))).isFalse();
-    assertThat(condition.matches(issue.setStatus("CLOSED"))).isFalse();
+    when(issue.status()).thenReturn("REOPENED");
+    assertThat(condition.matches(issue)).isTrue();
+
+    when(issue.status()).thenReturn("CONFIRMED");
+    assertThat(condition.matches(issue)).isTrue();
+
+    when(issue.status()).thenReturn("open");
+    assertThat(condition.matches(issue)).isFalse();
+
+    when(issue.status()).thenReturn("CLOSED");
+    assertThat(condition.matches(issue)).isFalse();
   }
 
 }

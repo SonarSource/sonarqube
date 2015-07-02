@@ -50,10 +50,10 @@ public class PeriodsHolderImpl implements PeriodsHolder {
    */
   public void setPeriods(Iterable<Period> periods) {
     requireNonNull(periods, "Periods cannot be null");
-    checkArgument(Iterables.size(periods) <= 5, "There can not be more than 5 periods");
+    checkArgument(Iterables.size(periods) <= MAX_NUMBER_OF_PERIODS, String.format("There can not be more than %d periods", MAX_NUMBER_OF_PERIODS));
     checkState(this.periods == null, "Periods have already been initialized");
 
-    Period[] newPeriods = new Period[5];
+    Period[] newPeriods = new Period[MAX_NUMBER_OF_PERIODS];
     for (Period period : from(periods).filter(CheckNotNull.INSTANCE)) {
       int arrayIndex = period.getIndex() - 1;
       checkArgument(newPeriods[arrayIndex] == null, "More than one period has the index " + period.getIndex());

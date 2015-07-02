@@ -19,7 +19,7 @@
  */
 package org.sonar.core.issue.workflow;
 
-public class SetCloseDate implements Function {
+class SetCloseDate implements Function {
   private final boolean set;
 
   public SetCloseDate(boolean set) {

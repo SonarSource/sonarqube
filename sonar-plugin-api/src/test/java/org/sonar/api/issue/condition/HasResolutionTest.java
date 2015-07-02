@@ -21,21 +21,26 @@ package org.sonar.api.issue.condition;
 
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.internal.DefaultIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class HasResolutionTest {
 
-  DefaultIssue issue = new DefaultIssue();
+  Issue issue = mock(Issue.class);
 
   @Test
   public void should_match() {
     HasResolution condition = new HasResolution(Issue.RESOLUTION_FIXED, Issue.RESOLUTION_FALSE_POSITIVE);
 
-    assertThat(condition.matches(issue.setResolution("FIXED"))).isTrue();
-    assertThat(condition.matches(issue.setResolution("FALSE-POSITIVE"))).isTrue();
+    when(issue.resolution()).thenReturn("FIXED");
+    assertThat(condition.matches(issue)).isTrue();
 
-    assertThat(condition.matches(issue.setResolution("Fixed"))).isFalse();
+    when(issue.resolution()).thenReturn("FALSE-POSITIVE");
+    assertThat(condition.matches(issue)).isTrue();
+
+    when(issue.resolution()).thenReturn("Fixed");
+    assertThat(condition.matches(issue)).isFalse();
   }
 }

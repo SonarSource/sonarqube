@@ -31,5 +31,5 @@ public interface MutableDebtModelHolder extends DebtModelHolder {
    * @throws NullPointerException if {@code rootCharacteristic} is {@code null}
    * @throws NullPointerException if {@code subCharacteristics} is {@code null}
    */
-  void addCharacteristics(Characteristic rootCharacteristic, Iterable<? extends Characteristic> subCharacteristics);
+  MutableDebtModelHolder addCharacteristics(Characteristic rootCharacteristic, Iterable<? extends Characteristic> subCharacteristics);
 }

@@ -50,7 +50,6 @@ import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsRegexpScanner;
 import org.sonar.batch.phases.DecoratorsExecutor;
 import org.sonar.batch.phases.InitializersExecutor;
-import org.sonar.batch.phases.PersistersExecutor;
 import org.sonar.batch.phases.PhaseExecutor;
 import org.sonar.batch.phases.PostJobsExecutor;
 import org.sonar.batch.phases.ProjectInitializer;
@@ -120,7 +119,6 @@ public class ModuleScanContainer extends ComponentContainer {
       PostJobsExecutor.class,
       DecoratorsExecutor.class,
       SensorsExecutor.class,
-      PersistersExecutor.class,
       InitializersExecutor.class,
       ProjectInitializer.class,
       moduleDefinition.getContainerExtensions(),

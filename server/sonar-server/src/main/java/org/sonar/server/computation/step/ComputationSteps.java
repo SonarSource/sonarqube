@@ -46,17 +46,16 @@ public class ComputationSteps {
 
       FeedDebtModelStep.class,
 
-      // Read report
-      ParseReportStep.class,
-
       // load project related stuffs
       QualityGateLoadingStep.class,
       FeedPeriodsStep.class,
 
       // data computation
-      ComputeFormulaMeasuresStep.class,
+      IntegrateIssuesStep.class,
       CustomMeasuresCopyStep.class,
-      ComputeIssueMeasuresStep.class,
+      ComputeFormulaMeasuresStep.class,      
+
+      // SQALE measures depend on issues
       SqaleMeasuresStep.class,
       NewCoverageMeasuresStep.class,
       NewCoverageAggregationStep.class,

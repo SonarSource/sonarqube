@@ -20,24 +20,19 @@
 package org.sonar.core.issue.workflow;
 
 import org.junit.Test;
-import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.core.issue.DefaultIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.issue.workflow.IsManual.INSTANCE;
 
 public class IsManualTest {
-  DefaultIssue issue = new DefaultIssue();
 
   @Test
   public void should_match() {
-    IsManual condition = new IsManual(true);
-    assertThat(condition.matches(issue.setReporter("you"))).isTrue();
-    assertThat(condition.matches(issue.setReporter(null))).isFalse();
+    DefaultIssue issue = new DefaultIssue();
+    assertThat(INSTANCE.matches(issue.setRuleKey(RuleKey.of(RuleKey.MANUAL_REPOSITORY_KEY, "R1")))).isTrue();
+    assertThat(INSTANCE.matches(issue.setRuleKey(RuleKey.of("java", "R1")))).isFalse();
   }
 
-  @Test
-  public void should_match_dead() {
-    IsManual condition = new IsManual(false);
-    assertThat(condition.matches(issue.setReporter("you"))).isFalse();
-    assertThat(condition.matches(issue.setReporter(null))).isTrue();
-  }
 }

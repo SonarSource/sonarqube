@@ -23,7 +23,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.internal.Uuids;
 
@@ -132,7 +131,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     issue.setStatus(Issue.STATUS_OPEN);
     issue.setCloseDate(null);
     issue.setNew(true);
-    issue.setEndOfLife(false);
+    issue.setBeingClosed(false);
     issue.setOnDisabledRule(false);
     return issue;
   }
