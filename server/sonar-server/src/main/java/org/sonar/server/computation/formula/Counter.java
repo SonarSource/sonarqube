@@ -25,7 +25,7 @@ import static org.sonar.server.computation.component.Component.Type;
 /**
  * A counter is used to aggregate some data
  */
-public interface Counter<T extends Counter> {
+public interface Counter<T extends Counter<T>> {
 
   /**
    * This method is used on not {@link Type#FILE} levels, to aggregate the value of counter from a child
