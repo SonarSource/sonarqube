@@ -11,9 +11,14 @@ env:
   - JOB=MYSQL
   - JOB=WEB
   - JOB=PRANALYSIS
+  - JOB=ITS_QUALITYGATE
+  - JOB=ITS_UPDATECENTER
+  - JOB=ITS_TESTING
 
 script:
   - ./travis.sh
+
+after_failure: find . -name "*-output.txt" | xargs cat
 
 cache:
   directories:

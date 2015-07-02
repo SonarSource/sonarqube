@@ -19,13 +19,9 @@
  */
 package org.sonar.xoo.rule;
 
-import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.api.server.rule.RulesDefinitionAnnotationLoader;
 import org.sonar.xoo.Xoo;
-import org.sonar.xoo.checks.Check;
 
 /**
  * Define all the coding rules that are supported on the repository named "xoo".
@@ -36,41 +32,53 @@ public class XooRulesDefinition implements RulesDefinition {
 
   @Override
   public void define(Context context) {
-    NewRepository repository = context.createRepository(XOO_REPOSITORY, Xoo.KEY).setName("Xoo");
+    NewRepository repo = context.createRepository(XOO_REPOSITORY, Xoo.KEY).setName("Xoo");
 
-    // Load checks
-    new RulesDefinitionAnnotationLoader().load(repository, Check.ALL);
+    NewRule hasTag = repo.createRule(HasTagSensor.RULE_KEY).setName("Has Tag")
+      .setHtmlDescription("Search for a given tag in Xoo files");
+    hasTag.setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
+      .setDebtRemediationFunction(hasTag.debtRemediationFunctions().constantPerIssue("2min"));
+    hasTag.createParam("tag")
+      .setDefaultValue("xoo")
+      .setDescription("The tag to search for");
 
-    // define a single rule programmatically. Note that rules
-    // can be loaded from JSON or XML files too.
-    NewRule x1Rule = repository.createRule("x1")
-      .setName("No empty line")
-      .setMarkdownDescription("Generate an issue on *empty* lines of Xoo source files")
+    NewRule ruleWithParameters = repo.createRule("RuleWithParameters").setName("Rule with parameters")
+      .setHtmlDescription("Rule containing parameter of different types : boolean, integer, etc. For information, no issue will be linked to this rule.");
+    ruleWithParameters.createParam("string").setType(RuleParamType.STRING);
+    ruleWithParameters.createParam("text").setType(RuleParamType.TEXT);
+    ruleWithParameters.createParam("boolean").setType(RuleParamType.BOOLEAN);
+    ruleWithParameters.createParam("integer").setType(RuleParamType.INTEGER);
+    ruleWithParameters.createParam("float").setType(RuleParamType.FLOAT);
 
-      // optional tags
-      .setTags("style", "security")
+    NewRule oneIssuePerLine = repo.createRule(OneIssuePerLineSensor.RULE_KEY).setName("One Issue Per Line")
+      .setHtmlDescription("Generate an issue on each line of a file. It requires the metric \"lines\".");
+    oneIssuePerLine.setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.MEMORY_EFFICIENCY)
+      .setDebtRemediationFunction(hasTag.debtRemediationFunctions().linear("1min"))
+      .setEffortToFixDescription("It takes about 1 minute to an experienced software craftsman to remove a line of code");
 
-      // optional status. Default value is READY.
-      .setStatus(RuleStatus.BETA)
+    repo.createRule(OneIssueOnDirPerFileSensor.RULE_KEY).setName("One Issue On Dir Per File")
+      .setHtmlDescription("Generate issues on directories");
 
-      // default severity when the rule is activated on a Quality profile. Default value is MAJOR.
-      .setSeverity(Severity.MINOR);
+    NewRule oneIssuePerFile = repo.createRule(OneIssuePerFileSensor.RULE_KEY).setName("One Issue Per File")
+      .setHtmlDescription("Generate an issue on each file");
+    oneIssuePerFile.setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.ARCHITECTURE_CHANGEABILITY)
+      .setDebtRemediationFunction(hasTag.debtRemediationFunctions().linear("10min"));
 
-    // debt-related information
-    x1Rule
-      .setDebtSubCharacteristic(SubCharacteristics.INTEGRATION_TESTABILITY)
-      .setDebtRemediationFunction(x1Rule.debtRemediationFunctions().linearWithOffset("1h", "30min"))
-      .setEffortToFixDescription("Effort to fix issue on one line");
+    NewRule oneIssuePerModule = repo.createRule(OneIssuePerModuleSensor.RULE_KEY).setName("One Issue Per Module")
+      .setHtmlDescription("Generate an issue on each module");
+    oneIssuePerModule.setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.API_ABUSE)
+      .setDebtRemediationFunction(hasTag.debtRemediationFunctions().linearWithOffset("25min", "1h"))
+      .setEffortToFixDescription("A certified architect will need roughly half an hour to start working on removal of modules, " +
+        "then it's about one hour per module.");
 
-    x1Rule.createParam("acceptWhitespace")
-      .setDefaultValue("false")
-      .setType(RuleParamType.BOOLEAN)
-      .setDescription("= Accept whitespace (``\\s|\\t``) on the line\nThis property is available so that a line containing only whitespace is not considered empty.\n"
-        + "== Example with property set to ``false``\n``xoo\n   <- One issue here\n<- And one here\n``\n\n"
-        + "== Example with property set to ``true``\n``xoo\n   <- No issue here\n<- But one here\n``\n");
+    repo.createRule(OneBlockerIssuePerFileSensor.RULE_KEY).setName("One Blocker Issue Per File")
+      .setHtmlDescription("Generate a blocker issue on each file, whatever the severity declared in the Quality profile");
 
-    // don't forget to call done() to finalize the definition
-    repository.done();
+    repo.createRule(CustomMessageSensor.RULE_KEY).setName("Issue With Custom Message")
+      .setHtmlDescription("Generate an issue on each file with a custom message");
+
+    repo.done();
+
   }
 
 }

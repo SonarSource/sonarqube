@@ -1,0 +1,35 @@
+{
+  "tests": [
+    {
+      "name": "success",
+      "status": "OK",
+      "durationInMs": 4,
+      "coveredLines": 0,
+      "message": "",
+      "stacktrace": ""
+    },
+    {
+      "name": "error",
+      "status": "ERROR",
+      "durationInMs": 2,
+      "coveredLines": 0,
+      "message": "Error",
+      "stacktrace": "The stack"
+    },
+    {
+      "name": "failure",
+      "status": "FAILURE",
+      "durationInMs": 2,
+      "coveredLines": 0,
+      "message": "Failure",
+      "stacktrace": ""
+    },
+    {
+      "name": "skipped",
+      "status": "SKIPPED",
+      "coveredLines": 0,
+      "message": "",
+      "stacktrace": ""
+    }
+  ]
+}

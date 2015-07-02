@@ -17,23 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.xoo.rule;
+import org.sonar.api.SonarPlugin;
 
-import org.sonar.api.profiles.ProfileDefinition;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RulePriority;
-import org.sonar.api.utils.ValidationMessages;
-import org.sonar.xoo.Xoo;
+import java.util.Collections;
+import java.util.List;
 
-public class XooQualityProfile extends ProfileDefinition {
+public final class FakePlugin extends SonarPlugin {
 
-  @Override
-  public RulesProfile createProfile(ValidationMessages validation) {
-    final RulesProfile profile = RulesProfile.create("Basic", Xoo.KEY);
-
-    profile.activateRule(Rule.create(XooRulesDefinition.XOO_REPOSITORY, HasTagSensor.RULE_KEY), RulePriority.MAJOR);
-
-    return profile;
+  public List getExtensions() {
+    return Collections.emptyList();
   }
+
 }

@@ -37,17 +37,14 @@ public class XooRulesDefinitionTest {
     assertThat(repo).isNotNull();
     assertThat(repo.name()).isEqualTo("Xoo");
     assertThat(repo.language()).isEqualTo("xoo");
-    assertThat(repo.rules()).hasSize(2);
+    assertThat(repo.rules()).hasSize(8);
 
-    RulesDefinition.Rule x1 = repo.rule("x1");
-    assertThat(x1.key()).isEqualTo("x1");
-    assertThat(x1.tags()).containsOnly("style", "security");
-    assertThat(x1.markdownDescription()).isNotEmpty();
-
-    assertThat(x1.debtSubCharacteristic()).isEqualTo(RulesDefinition.SubCharacteristics.INTEGRATION_TESTABILITY);
-    assertThat(x1.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
-    assertThat(x1.debtRemediationFunction().coefficient()).isEqualTo("1h");
-    assertThat(x1.debtRemediationFunction().offset()).isEqualTo("30min");
-    assertThat(x1.effortToFixDescription()).isEqualTo("Effort to fix issue on one line");
+    RulesDefinition.Rule rule = repo.rule(OneIssuePerLineSensor.RULE_KEY);
+    assertThat(rule.name()).isNotEmpty();
+    assertThat(rule.debtSubCharacteristic()).isEqualTo(RulesDefinition.SubCharacteristics.MEMORY_EFFICIENCY);
+    assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
+    assertThat(rule.debtRemediationFunction().coefficient()).isEqualTo("1min");
+    assertThat(rule.debtRemediationFunction().offset()).isNull();
+    assertThat(rule.effortToFixDescription()).isNotEmpty();
   }
 }

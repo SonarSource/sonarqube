@@ -56,6 +56,24 @@ PRANALYSIS)
   fi
   ;;
 
+ITS_QUALITYGATE)
+	installTravisTools
+
+	travis_sonarqube_its "qualitygate"
+  ;;
+
+ITS_UPDATECENTER)
+	installTravisTools
+
+	travis_sonarqube_its "updatecenter"
+  ;;
+
+ITS_TESTING)
+	installTravisTools
+
+	travis_sonarqube_its "testing"
+  ;;
+
 *)
   echo "Invalid JOB choice [$JOB]"
   exit 1
