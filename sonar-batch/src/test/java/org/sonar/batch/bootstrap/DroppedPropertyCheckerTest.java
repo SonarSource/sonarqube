@@ -61,7 +61,7 @@ public class DroppedPropertyCheckerTest {
     new DroppedPropertyChecker(settings, ImmutableMap.of(DROPPED_PROPERTY_1, DROPPED_PROPERTY_MSG_1)).checkDroppedProperties();
 
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Property '" + DROPPED_PROPERTY_1 + "' (which value is '" + SOME_VALUE +"') is not supported any more. " + DROPPED_PROPERTY_MSG_1);
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Property '" + DROPPED_PROPERTY_1 + "' is not supported any more. " + DROPPED_PROPERTY_MSG_1);
     assertThat(logTester.logs(LoggerLevel.INFO)).isEmpty();
     assertThat(logTester.logs(LoggerLevel.DEBUG)).isEmpty();
     assertThat(logTester.logs(LoggerLevel.TRACE)).isEmpty();

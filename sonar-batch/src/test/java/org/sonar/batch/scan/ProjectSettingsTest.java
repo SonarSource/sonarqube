@@ -121,7 +121,7 @@ public class ProjectSettingsTest {
     GlobalSettings settings = new GlobalSettings(new BootstrapProperties(ImmutableMap.of("sonar.qualitygate", "somevalue")), new PropertyDefinitions(), new GlobalRepositories(), mode);
     new ProjectSettings(new ProjectReactor(project), settings, new PropertyDefinitions(), projectRef, mode);
 
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Property 'sonar.qualitygate' (which value is 'somevalue') is not supported any more. It will be ignored.");
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Property 'sonar.qualitygate' is not supported any more. It will be ignored.");
 
   }
 }

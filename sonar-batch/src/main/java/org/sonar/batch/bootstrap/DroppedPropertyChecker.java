@@ -40,10 +40,7 @@ public class DroppedPropertyChecker {
   public void checkDroppedProperties() {
     for (Map.Entry<String, String> entry : properties.entrySet()) {
       if (settings.hasKey(entry.getKey())) {
-        logger.warn(
-          "Property '{}' (which value is '{}') is not supported any more. {}",
-          entry.getKey(), settings.getString(entry.getKey()), entry.getValue()
-          );
+        logger.warn("Property '{}' is not supported any more. {}", entry.getKey(), entry.getValue());
       }
     }
   }
