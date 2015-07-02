@@ -10,21 +10,21 @@ define(function (require) {
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/users/search', 'users-spec/search.json')
           .startApp('users')
-          .assertElementCount('#users-list ul', 1)
-          .assertElementCount('#users-list li[data-login]', 3)
-          .assertElementInclude('#users-list .js-user-login', 'smith')
-          .assertElementInclude('#users-list .js-user-name', 'Bob')
-          .assertElementInclude('#users-list .js-user-email', 'bob@example.com')
-          .assertElementCount('#users-list .js-user-update', 3)
-          .assertElementCount('#users-list .js-user-change-password', 3)
-          .assertElementCount('#users-list .js-user-deactivate', 3)
-        //.assertElementInclude('#users-list-footer', '3/3')
-          .assertElementNotInclude('[data-login="ryan"]', 'another@example.com')
+          .checkElementCount('#users-list ul', 1)
+          .checkElementCount('#users-list li[data-login]', 3)
+          .checkElementInclude('#users-list .js-user-login', 'smith')
+          .checkElementInclude('#users-list .js-user-name', 'Bob')
+          .checkElementInclude('#users-list .js-user-email', 'bob@example.com')
+          .checkElementCount('#users-list .js-user-update', 3)
+          .checkElementCount('#users-list .js-user-change-password', 3)
+          .checkElementCount('#users-list .js-user-deactivate', 3)
+        //.checkElementInclude('#users-list-footer', '3/3')
+          .checkElementNotInclude('[data-login="ryan"]', 'another@example.com')
           .clickElement('[data-login="ryan"] .js-user-more-scm')
-          .assertElementInclude('[data-login="ryan"]', 'another@example.com')
-          .assertElementNotInclude('[data-login="ryan"]', 'four')
+          .checkElementInclude('[data-login="ryan"]', 'another@example.com')
+          .checkElementNotInclude('[data-login="ryan"]', 'four')
           .clickElement('[data-login="ryan"] .js-user-more-groups')
-          .assertElementInclude('[data-login="ryan"]', 'four');
+          .checkElementInclude('[data-login="ryan"]', 'four');
     });
 
     bdd.it('should search users', function () {
@@ -34,20 +34,20 @@ define(function (require) {
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/users/search', 'users-spec/search.json')
           .startApp('users')
-          .assertElementCount('#users-list ul', 1)
-          .assertElementCount('#users-list li[data-login]', 3)
+          .checkElementCount('#users-list ul', 1)
+          .checkElementCount('#users-list li[data-login]', 3)
           .clearMocks()
           .mockFromFile('/api/users/search', 'users-spec/search-filtered.json')
           .fillElement('#users-search-query', 'ryan')
           .clickElement('#users-search-submit')
           .waitForDeletedByCssSelector('[data-login="admin"]')
-          .assertElementCount('#users-list li[data-login]', 1)
+          .checkElementCount('#users-list li[data-login]', 1)
           .clearMocks()
           .mockFromFile('/api/users/search', 'users-spec/search.json')
           .fillElement('#users-search-query', '')
           .clickElement('#users-search-submit')
-          .assertElementCount('[data-login="admin"]', 1)
-          .assertElementCount('#users-list li[data-login]', 3);
+          .checkElementCount('[data-login="admin"]', 1)
+          .checkElementCount('#users-list li[data-login]', 3);
     });
 
     bdd.it('should show more', function () {
@@ -57,13 +57,13 @@ define(function (require) {
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/users/search', 'users-spec/search-big-1.json')
           .startApp('users')
-          .assertElementCount('#users-list ul', 1)
-          .assertElementCount('#users-list li[data-login]', 2)
+          .checkElementCount('#users-list ul', 1)
+          .checkElementCount('#users-list li[data-login]', 2)
           .clearMocks()
           .mockFromFile('/api/users/search', 'users-spec/search-big-2.json')
           .clickElement('#users-fetch-more')
-          .assertElementCount('[data-login="ryan"]', 1)
-          .assertElementCount('#users-list li[data-login]', 3);
+          .checkElementCount('[data-login="ryan"]', 1)
+          .checkElementCount('#users-list li[data-login]', 3);
     });
 
     bdd.it('should create a new user', function () {
@@ -73,10 +73,10 @@ define(function (require) {
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/users/search', 'users-spec/search.json')
           .startApp('users')
-          .assertElementCount('#users-list ul', 1)
-          .assertElementCount('#users-list li[data-login]', 3)
+          .checkElementCount('#users-list ul', 1)
+          .checkElementCount('#users-list li[data-login]', 3)
           .clickElement('#users-create')
-          .assertElementCount('#create-user-form', 1)
+          .checkElementCount('#create-user-form', 1)
           .clearMocks()
           .mockFromFile('/api/users/search', 'users-spec/search-created.json')
           .mockFromString('/api/users/create', '{}')
@@ -91,11 +91,11 @@ define(function (require) {
             jQuery('[name="scmAccounts"]').last().val('scm2');
           })
           .clickElement('#create-user-submit')
-          .assertElementCount('[data-login="login"]', 1)
-          .assertElementCount('#users-list li[data-login]', 4)
-          .assertElementInclude('#users-list .js-user-login', 'login')
-          .assertElementInclude('#users-list .js-user-name', 'name')
-          .assertElementInclude('#users-list .js-user-email', 'email@example.com');
+          .checkElementCount('[data-login="login"]', 1)
+          .checkElementCount('#users-list li[data-login]', 4)
+          .checkElementInclude('#users-list .js-user-login', 'login')
+          .checkElementInclude('#users-list .js-user-name', 'name')
+          .checkElementInclude('#users-list .js-user-email', 'email@example.com');
     });
 
     bdd.it('should update a user', function () {
@@ -105,9 +105,9 @@ define(function (require) {
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/users/search', 'users-spec/search.json')
           .startApp('users')
-          .assertElementCount('#users-list ul', 1)
+          .checkElementCount('#users-list ul', 1)
           .clickElement('[data-login="smith"] .js-user-update')
-          .assertElementCount('#create-user-form', 1)
+          .checkElementCount('#create-user-form', 1)
           .clearMocks()
           .mockFromFile('/api/users/search', 'users-spec/search-updated.json')
           .mockFromString('/api/users/update', '{}')
@@ -120,9 +120,9 @@ define(function (require) {
           })
           .clickElement('#create-user-submit')
           .waitForDeletedByCssSelector('#create-user-form')
-          .assertElementInclude('[data-login="smith"] .js-user-login', 'smith')
-          .assertElementInclude('[data-login="smith"] .js-user-name', 'Mike')
-          .assertElementInclude('[data-login="smith"] .js-user-email', 'mike@example.com');
+          .checkElementInclude('[data-login="smith"] .js-user-login', 'smith')
+          .checkElementInclude('[data-login="smith"] .js-user-name', 'Mike')
+          .checkElementInclude('[data-login="smith"] .js-user-email', 'mike@example.com');
     });
 
     bdd.it('should change user\'s password', function () {
@@ -132,9 +132,9 @@ define(function (require) {
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/users/search', 'users-spec/search.json')
           .startApp('users')
-          .assertElementCount('#users-list ul', 1)
+          .checkElementCount('#users-list ul', 1)
           .clickElement('[data-login="smith"] .js-user-change-password')
-          .assertElementCount('#change-user-password-form', 1)
+          .checkElementCount('#change-user-password-form', 1)
           .clearMocks()
           .mockFromString('/api/users/change_password', '{}')
           .execute(function () {
@@ -142,7 +142,7 @@ define(function (require) {
             jQuery('#change-user-password-password-confirmation').val('another');
           })
           .clickElement('#change-user-password-submit')
-          .assertElementCount('.alert.alert-danger', 1)
+          .checkElementCount('.alert.alert-danger', 1)
           .execute(function () {
             jQuery('#change-user-password-password').val('secret');
             jQuery('#change-user-password-password-confirmation').val('secret');
@@ -158,9 +158,9 @@ define(function (require) {
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/users/search', 'users-spec/search.json')
           .startApp('users')
-          .assertElementCount('#users-list ul', 1)
+          .checkElementCount('#users-list ul', 1)
           .clickElement('[data-login="smith"] .js-user-deactivate')
-          .assertElementCount('#deactivate-user-form', 1)
+          .checkElementCount('#deactivate-user-form', 1)
           .clearMocks()
           .mockFromString('/api/users/deactivate', '{}')
           .clickElement('#deactivate-user-submit')

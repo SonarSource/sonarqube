@@ -5,72 +5,86 @@ define(function (require) {
   var Command = require('intern/dojo/node!leadfoot/Command');
   var pollUntil = require('intern/dojo/node!leadfoot/helpers/pollUntil');
 
-  Command.prototype.assertElementCount = function (selector, count) {
+  Command.prototype.checkElementCount = function (selector, count) {
     return new this.constructor(this, function () {
       return this.parent
-          .findAllByCssSelector(selector)
-          .then(function (elements) {
-            assert.equal(count, elements.length, count + ' elements were found by ' + selector);
-          })
-          .end();
+          .then(pollUntil(function (selector, count) {
+            var elements = document.querySelectorAll(selector);
+            return elements.length === count ? true : null;
+          }, [selector, count]))
+          .then(function () {
+
+          }, function () {
+            assert.fail(null, null, 'failed to find ' + count + ' elements by selector "' + selector + '"');
+          });
     });
   };
 
-  Command.prototype.assertElementExist = function (selector) {
+  Command.prototype.checkElementExist = function (selector) {
     return new this.constructor(this, function () {
       return this.parent
-          .findAllByCssSelector(selector)
-          .then(function (elements) {
-            assert.ok(elements.length, selector + ' exists');
-          })
-          .end();
+          .then(pollUntil(function (selector) {
+            var elements = document.querySelectorAll(selector);
+            return elements.length > 0 ? true : null;
+          }, [selector]))
+          .then(function () {
+
+          }, function () {
+            assert.fail(null, null, 'failed to find elements by selector "' + selector + '"');
+          });
     });
   };
 
-  Command.prototype.assertElementNotExist = function (selector) {
+  Command.prototype.checkElementNotExist = function (selector) {
     return new this.constructor(this, function () {
       return this.parent
-          .findAllByCssSelector(selector)
-          .then(function (elements) {
-            assert.equal(elements.length, 0, selector + ' does not exist');
-          })
-          .end();
+          .then(pollUntil(function (selector) {
+            var elements = document.querySelectorAll(selector);
+            return elements.length === 0 ? true : null;
+          }, [selector]))
+          .then(function () {
+
+          }, function () {
+            assert.fail(null, null, 'failed to fail to find elements by selector "' + selector + '"');
+          });
     });
   };
 
-  Command.prototype.assertElementInclude = function (selector, text) {
+  Command.prototype.checkElementInclude = function (selector, text) {
     return new this.constructor(this, function () {
       return this.parent
-          .findAllByCssSelector(selector)
-          .getVisibleText()
-          .then(function (texts) {
-            assert.include(texts.join(''), text, selector + ' contains "' + text + '"');
-          })
-          .end();
+          .then(pollUntil(function (selector, text) {
+            var elements = Array.prototype.slice.call(document.querySelectorAll(selector));
+            var result = elements.some(function (element) {
+              return element.textContent.indexOf(text) !== -1;
+            });
+            return result ? true : null;
+          }, [selector, text]))
+          .then(function () {
+
+          }, function () {
+            assert.fail(null, null, 'failed to find elements by selector "' + selector +
+                '" that include "' + text + '"');
+          });
     });
   };
 
-  Command.prototype.assertElementNotInclude = function (selector, text) {
+  Command.prototype.checkElementNotInclude = function (selector, text) {
     return new this.constructor(this, function () {
       return this.parent
-          .findAllByCssSelector(selector)
-          .getVisibleText()
-          .then(function (texts) {
-            assert.notInclude(texts.join(''), text, selector + ' does not contain "' + text + '"');
-          })
-          .end();
-    });
-  };
+          .then(pollUntil(function (selector, text) {
+            var elements = Array.prototype.slice.call(document.querySelectorAll(selector));
+            var result = elements.every(function (element) {
+              return element.textContent.indexOf(text) === -1;
+            });
+            return result ? true : null;
+          }, [selector, text]))
+          .then(function () {
 
-  Command.prototype.assertElementVisible = function (selector) {
-    return new this.constructor(this, function () {
-      return this.parent
-          .findAllByCssSelector(selector)
-          .isDisplayed()
-          .then(function (displayed) {
-            assert.ok(displayed, selector + ' is visible');
-          })
-          .end();
+          }, function () {
+            assert.fail(null, null, 'failed to fail to find elements by selector "' + selector +
+                '" that include "' + text + '"');
+          });
     });
   };
 
@@ -90,16 +104,6 @@ define(function (require) {
           .execute(function (selector, value) {
             jQuery(selector).val(value);
           }, [selector, value]);
-    });
-  };
-
-  Command.prototype.waitForElementCount = function (selector, count) {
-    return new this.constructor(this, function () {
-      return this.parent
-          .then(pollUntil(function (selector, count) {
-            var elements = document.querySelectorAll(selector);
-            return elements.length === count ? true : null;
-          }, [selector, count]));
     });
   };
 
@@ -139,7 +143,7 @@ define(function (require) {
               App.start({ el: '#content' });
             });
           }, [app])
-          .sleep(2000);
+          .sleep(1000);
     });
   };
 
