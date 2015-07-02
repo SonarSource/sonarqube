@@ -16,6 +16,29 @@
 
 set -euo pipefail
 
+function clean() {
+  rm -Rf $BUILD_DIR
+}
+
+function createPrivateClone() {
+  BRANCH=$(git symbolic-ref -q HEAD)
+  BRANCH=${BRANCH##refs/heads/}
+  BRANCH=${BRANCH:-HEAD}
+  LOCATION=$(pwd)
+  REPO_DIR=$(git rev-parse --show-toplevel)
+  REPO_NAME=${REPO_DIR##*/}
+  RELATIVE_PATH=${LOCATION#$REPO_DIR}
+
+  # create temp directory and register trap to clean it on exit
+  BUILD_DIR=$(mktemp -d -t ${REPO_NAME}.XXXXXXXX 2>/dev/null)
+  trap "clean" INT TERM EXIT
+
+  # Private build
+  cd $REPO_DIR
+  git clone --single-branch -slb "${BRANCH}" . ${BUILD_DIR}
+  cd ${BUILD_DIR}${RELATIVE_PATH}
+}
+
 DUMP_DIR="/tmp/batch_dumps"
 HISTORY_LENGTH=30
 SONAR_HOST="http://localhost:9000"
@@ -25,19 +48,10 @@ SONAR_JDBC_URL="jdbc:postgresql://localhost:5432/sonar"
 SONAR_JDBC_USERNAME="sonar"
 SONAR_JDBC_PASSWORD="sonar"
 
-function clean() {
-  git co $branch_name
-  git branch -D working_branch
-}
-
-trap "clean" EXIT
+createPrivateClone
 
 # retrieve ${HISTORY_LENGTH} commits for the current directory
 git log -${HISTORY_LENGTH} --pretty=%h -- . | tac > /tmp/sha1s.txt
-
-branch_name=$(git symbolic-ref -q HEAD)
-branch_name=${branch_name##refs/heads/}
-branch_name=${branch_name:-HEAD}
 
 git co -b working_branch 
 while read sha1; do
