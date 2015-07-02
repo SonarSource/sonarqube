@@ -214,6 +214,37 @@ define(function (require) {
           .clickElement('.bubble-popup [data-property="severities"]')
           .checkElementCount('.issue', 17);
     });
+
+    bdd.it('should open issue permalink', function () {
+      var issueKey = 'some-issue-key';
+
+      return this.remote
+          .get(require.toUrl('test/medium/base.html#issues=' + issueKey))
+          .mockFromString('/api/l10n/index', '{}')
+          .mockFromFile('/api/issue_filters/app', 'issues-page-should-open-issue-permalink/app.json')
+          .mockFromString('/api/issues/search', {}, { data: { issues: issueKey, p: 2 } })
+          .mockFromFile('/api/issues/search', 'issues-page-should-open-issue-permalink/search.json',
+          { data: { issues: issueKey } })
+          .mockFromFile('/api/components/app', 'issues-page-should-open-issue-permalink/components-app.json')
+          .mockFromFile('/api/sources/lines', 'issues-page-should-open-issue-permalink/lines.json')
+          .startApp('issues')
+          .checkElementExist('.source-line')
+          .checkElementInclude('.source-viewer', 'public void executeOn(Project project, SensorContext context')
+          .checkElementCount('.issue', 1)
+          .checkElementCount('.issue[data-key="' + issueKey + '"]', 1);
+    });
+
+    bdd.it('should open closed facet', function () {
+      return this.remote
+          .get(require.toUrl('test/medium/base.html'))
+          .mockFromString('/api/l10n/index', '{}')
+          .mockFromFile('/api/issue_filters/app', 'issues-spec/app.json')
+          .mockFromFile('/api/issues/search', 'issues-spec/search.json')
+          .startApp('issues')
+          .clickElement('[data-property="rules"] .js-facet-toggle')
+          .checkElementCount('[data-property="rules"] .js-facet', 15)
+          .checkElementInclude('[data-property="rules"] .js-facet:nth-child(1)', 'Statements should be on separate');
+    });
   });
 
 });
