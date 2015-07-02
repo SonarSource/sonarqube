@@ -35,7 +35,7 @@ WEB)
   export DISPLAY=:99.0
   sh -e /etc/init.d/xvfb start
   wget http://selenium-release.storage.googleapis.com/2.46/selenium-server-standalone-2.46.0.jar
-  java -jar selenium-server-standalone-2.46.0.jar &
+  nohup java -jar selenium-server-standalone-2.46.0.jar &
   sleep 3
   cd server/sonar-web && npm install && npm test
   ;;
