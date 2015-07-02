@@ -559,6 +559,15 @@
         <version>1.8</version>
         <configuration>
           <includedScopes>compile</includedScopes>
+          <licenseMerges>
+            <licenseMerge>Apache 2.0|The Apache Software License, Version 2.0|Apache License, Version 2.0|apache_v2</licenseMerge>
+            <licenseMerge>CDDL 1.0|COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0|Common Development and Distribution License (CDDL) v1.0|cddl_v1</licenseMerge>
+            <licenseMerge>GNU LGPL 2.1|GNU Lesser General Public License (LGPL), Version 2.1|GNU Lesser General Public License, version 2.1|lgpl_v2_1</licenseMerge>
+            <licenseMerge>GNU LGPL 3|GNU LESSER GENERAL PUBLIC LICENSE, Version 3|GNU Lesser General Public Licence|GNU Lesser General Public License|GNU LESSER GENERAL PUBLIC LICENSE</licenseMerge>
+            <licenseMerge>Dual license: CDDL 1.0 and GPL v2|Dual license consisting of the CDDL v1.0 and GPL v2|CDDL+GPLv2|CDDL+GPL|CDDL+GPL License</licenseMerge>
+            <licenseMerge>Dual license: CDDL 1.1 and GPL v2|Dual license consisting of the CDDL v1.1 and GPL v2|CDDL1_1+GPLv2</licenseMerge>
+            <licenseMerge>Dual License: CDDL 1.0 and GPL V2 with Classpath Exception|CDDL + GPLv2 with classpath exception</licenseMerge>
+          </licenseMerges>
         </configuration>
       </plugin>
     </plugins>
