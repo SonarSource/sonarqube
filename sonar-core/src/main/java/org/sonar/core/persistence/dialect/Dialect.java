@@ -32,11 +32,6 @@ public interface Dialect {
   String getId();
 
   /**
-   * @return the hibernate dialect class to be used
-   */
-  Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass();
-
-  /**
    * @return the activerecord dialect to be used
    */
   String getActiveRecordDialectCode();

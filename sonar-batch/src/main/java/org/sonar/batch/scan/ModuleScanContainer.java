@@ -82,7 +82,6 @@ import org.sonar.batch.sensor.coverage.CoverageExclusions;
 import org.sonar.batch.source.HighlightableBuilder;
 import org.sonar.batch.source.SymbolizableBuilder;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.core.timemachine.Periods;
 
 public class ModuleScanContainer extends ComponentContainer {
   private static final Logger LOG = LoggerFactory.getLogger(ModuleScanContainer.class);
@@ -113,7 +112,6 @@ public class ModuleScanContainer extends ComponentContainer {
 
     add(
       EventBus.class,
-      Periods.class,
       PhaseExecutor.class,
       RuleFinderCompatibility.class,
       PostJobsExecutor.class,

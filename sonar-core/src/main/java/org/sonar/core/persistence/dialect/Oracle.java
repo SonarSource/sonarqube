@@ -20,10 +20,6 @@
 package org.sonar.core.persistence.dialect;
 
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.dialect.Oracle10gDialect;
-import org.sonar.api.database.DatabaseProperties;
-
-import java.sql.Types;
 
 /**
  * @since 1.12
@@ -37,11 +33,6 @@ public class Oracle extends AbstractDialect {
   }
 
   @Override
-  public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
-    return Oracle10gWithDecimalDialect.class;
-  }
-
-  @Override
   public boolean matchesJdbcURL(String jdbcConnectionURL) {
     return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:oracle:");
   }
@@ -49,19 +40,5 @@ public class Oracle extends AbstractDialect {
   @Override
   public boolean supportsMigration() {
     return true;
-  }
-
-  public static class Oracle10gWithDecimalDialect extends Oracle10gDialect {
-    public Oracle10gWithDecimalDialect() {
-      super();
-      registerColumnType(Types.DOUBLE, "number($p,$s)");
-      registerColumnType(Types.VARCHAR, DatabaseProperties.MAX_TEXT_SIZE, "clob");
-      registerColumnType(Types.VARBINARY, "blob");
-    }
-
-    @Override
-    public Class getNativeIdentifierGeneratorClass() {
-      return OracleSequenceGenerator.class;
-    }
   }
 }

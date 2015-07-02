@@ -11,10 +11,6 @@
     </encoder>
   </appender>
 
-  <logger name="org.hibernate">
-    <level value="WARN"/>
-  </logger>
-
   <logger name="org.dbunit">
     <level value="WARN"/>
   </logger>

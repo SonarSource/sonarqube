@@ -31,7 +31,6 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.DefaultActiveRules;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -58,7 +57,7 @@ public class MetadataPublisherTest {
     project = new Project("foo").setAnalysisDate(new Date(1234567L));
     BatchComponentCache componentCache = new BatchComponentCache();
     org.sonar.api.resources.Resource sampleFile = org.sonar.api.resources.File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");
-    componentCache.add(project, null).setSnapshot(new Snapshot().setId(2));
+    componentCache.add(project, null);
     componentCache.add(sampleFile, project);
     underTest = new MetadataPublisher(componentCache, new ImmutableProjectReactor(projectDef), activeRules);
   }

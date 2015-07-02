@@ -19,18 +19,13 @@
  */
 package org.sonar.core.persistence;
 
-import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.commons.dbutils.DbUtils;
-import org.hibernate.cfg.Environment;
-import org.sonar.core.persistence.dialect.Dialect;
-import org.sonar.core.persistence.dialect.H2;
-import org.sonar.jpa.session.CustomHibernateConnectionProvider;
-
-import javax.sql.DataSource;
-
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Properties;
+import javax.sql.DataSource;
+import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbutils.DbUtils;
+import org.sonar.core.persistence.dialect.Dialect;
+import org.sonar.core.persistence.dialect.H2;
 
 /**
  * H2 in-memory database, used for unit tests only.
@@ -111,13 +106,6 @@ public class H2Database implements Database {
 
   public Dialect getDialect() {
     return new H2();
-  }
-
-  public Properties getHibernateProperties() {
-    Properties properties = new Properties();
-    properties.put("hibernate.hbm2ddl.auto", "validate");
-    properties.put(Environment.CONNECTION_PROVIDER, CustomHibernateConnectionProvider.class.getName());
-    return properties;
   }
 
   @Override

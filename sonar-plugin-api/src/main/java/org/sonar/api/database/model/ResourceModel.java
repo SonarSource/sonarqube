@@ -22,22 +22,12 @@ package org.sonar.api.database.model;
 import java.io.Serializable;
 import java.util.Date;
 import javax.annotation.Nullable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.database.BaseIdentifiable;
 
-/**
- * Class to map resource with hibernate model
- */
-@Entity
-@Table(name = "projects")
 public class ResourceModel extends BaseIdentifiable implements Cloneable, Serializable {
 
   public static final String SCOPE_PROJECT = "PRJ";
@@ -48,59 +38,23 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable, Serial
   public static final int KEY_SIZE = 400;
   public static final int PATH_SIZE = 2000;
 
-  @Column(name = "name", updatable = true, nullable = true, length = NAME_COLUMN_SIZE)
   private String name;
-
-  @Column(name = "long_name", updatable = true, nullable = true, length = NAME_COLUMN_SIZE)
   private String longName;
-
-  @Column(name = "description", updatable = true, nullable = true, length = DESCRIPTION_COLUMN_SIZE)
   private String description;
-
-  @Column(name = "enabled", updatable = true, nullable = false)
   private Boolean enabled = Boolean.TRUE;
-
-  @Column(name = "scope", updatable = true, nullable = false, length = 3)
   private String scope;
-
-  @Column(name = "qualifier", updatable = true, nullable = false, length = 10)
   private String qualifier;
-
-  @Column(name = "kee", updatable = true, nullable = false, length = KEY_SIZE)
   private String key;
-
-  @Column(name = "deprecated_kee", updatable = true, nullable = true, length = KEY_SIZE)
   private String deprecatedKey;
-
-  @Column(name = "language", updatable = true, nullable = true, length = 20)
   private String languageKey;
-
-  @Column(name = "root_id", updatable = true, nullable = true)
   private Integer rootId;
-
-  @Column(name = "path", updatable = true, nullable = true, length = PATH_SIZE)
   private String path;
-
-  @Column(name = "copy_resource_id", updatable = true, nullable = true)
   private Integer copyResourceId;
-
-  @Column(name = "person_id", updatable = true, nullable = true)
   private Integer personId;
-
-  @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "created_at", updatable = true, nullable = true)
   private Date createdAt;
-
-  @Column(name = "uuid", updatable = false, nullable = true, length = 50)
   private String uuid;
-
-  @Column(name = "project_uuid", updatable = true, nullable = true, length = 50)
   private String projectUuid;
-
-  @Column(name = "module_uuid", updatable = true, nullable = true, length = 50)
   private String moduleUuid;
-
-  @Column(name = "module_uuid_path", updatable = true, nullable = true, length = 4000)
   private String moduleUuidPath;
 
   /**

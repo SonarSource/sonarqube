@@ -107,28 +107,6 @@
       <artifactId>freemarker</artifactId>
     </dependency>
 
-    <!-- hibernate -->
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-annotations</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-commons-annotations</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-entitymanager</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>geronimo-spec</groupId>
-      <artifactId>geronimo-spec-jta</artifactId>
-    </dependency>
-
     <!-- unit tests -->
     <dependency>
       <groupId>org.codehaus.sonar</groupId>

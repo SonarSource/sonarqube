@@ -19,22 +19,20 @@
  */
 package org.sonar.batch.report;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReportWriter;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -57,7 +55,7 @@ public class SourcePublisherTest {
     BatchComponentCache resourceCache = new BatchComponentCache();
     sampleFile = org.sonar.api.resources.File.create("src/Foo.php");
     sampleFile.setEffectiveKey("foo:src/Foo.php");
-    resourceCache.add(p, null).setSnapshot(new Snapshot().setId(2));
+    resourceCache.add(p, null);
     File baseDir = temp.newFolder();
     sourceFile = new File(baseDir, "src/Foo.php");
     resourceCache.add(sampleFile, null).setInputPath(

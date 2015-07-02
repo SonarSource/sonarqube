@@ -21,9 +21,6 @@ package org.sonar.api.database.model;
 
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
@@ -33,11 +30,6 @@ import org.sonar.api.database.BaseIdentifiable;
 import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.longToDate;
 
-/**
- * A class to map a snapshot with its hibernate model
- */
-@Entity
-@Table(name = "snapshots")
 public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable {
 
   /**
@@ -50,91 +42,34 @@ public class Snapshot extends BaseIdentifiable<Snapshot> implements Serializable
    */
   public static final String STATUS_PROCESSED = "P";
 
-  @Column(name = "project_id", updatable = true, nullable = true)
   private Integer resourceId;
-
-  @Column(name = "build_date", updatable = true, nullable = true)
   private Long buildDate;
-
-  @Column(name = "created_at", updatable = true, nullable = true)
   private Long createdAt;
-
-  @Column(name = "version", updatable = true, nullable = true, length = 500)
   private String version;
-
-  @Column(name = "islast")
   private Boolean last = Boolean.FALSE;
-
-  @Column(name = "status")
   private String status = STATUS_UNPROCESSED;
-
-  @Column(name = "purge_status", updatable = true, nullable = true)
   private Integer purgeStatus;
-
-  @Column(name = "scope", updatable = true, nullable = true, length = 3)
   private String scope;
-
-  @Column(name = "path", updatable = true, nullable = true, length = 500)
   private String path;
-
-  @Column(name = "depth", updatable = true, nullable = true)
   private Integer depth;
-
-  @Column(name = "qualifier", updatable = true, nullable = true, length = 10)
   private String qualifier;
-
-  @Column(name = "root_snapshot_id", updatable = true, nullable = true)
   private Integer rootId;
-
-  @Column(name = "parent_snapshot_id", updatable = true, nullable = true)
   private Integer parentId;
-
-  @Column(name = "root_project_id", updatable = true, nullable = true)
   private Integer rootProjectId;
-
-  @Column(name = "period1_mode", updatable = true, nullable = true, length = 100)
   private String period1Mode;
-
-  @Column(name = "period2_mode", updatable = true, nullable = true, length = 100)
   private String period2Mode;
-
-  @Column(name = "period3_mode", updatable = true, nullable = true, length = 100)
   private String period3Mode;
-
-  @Column(name = "period4_mode", updatable = true, nullable = true, length = 100)
   private String period4Mode;
-
-  @Column(name = "period5_mode", updatable = true, nullable = true, length = 100)
   private String period5Mode;
-
-  @Column(name = "period1_param", updatable = true, nullable = true, length = 100)
   private String period1Param;
-
-  @Column(name = "period2_param", updatable = true, nullable = true, length = 100)
   private String period2Param;
-
-  @Column(name = "period3_param", updatable = true, nullable = true, length = 100)
   private String period3Param;
-
-  @Column(name = "period4_param", updatable = true, nullable = true, length = 100)
   private String period4Param;
-
-  @Column(name = "period5_param", updatable = true, nullable = true, length = 100)
   private String period5Param;
-
-  @Column(name = "period1_date", updatable = true, nullable = true)
   private Long period1Date;
-
-  @Column(name = "period2_date", updatable = true, nullable = true)
   private Long period2Date;
-
-  @Column(name = "period3_date", updatable = true, nullable = true)
   private Long period3Date;
-
-  @Column(name = "period4_date", updatable = true, nullable = true)
   private Long period4Date;
-
-  @Column(name = "period5_date", updatable = true, nullable = true)
   private Long period5Date;
 
   public Snapshot() {

@@ -65,9 +65,6 @@ class WebLogging {
   private void configureLevels(LoggerContext ctx, Props props) {
     // override level of some loggers
     helper.configureLogger(ctx, "rails", Level.WARN);
-    helper.configureLogger(ctx, "org.hibernate.cache.ReadWriteCache", Level.ERROR);
-    helper.configureLogger(ctx, "org.hibernate", Level.WARN);
-    helper.configureLogger(ctx, "org.hibernate.SQL", Level.WARN);
     helper.configureLogger(ctx, "org.apache.ibatis", Level.WARN);
     helper.configureLogger(ctx, "java.sql", Level.WARN);
     helper.configureLogger(ctx, "java.sql.ResultSet", Level.WARN);

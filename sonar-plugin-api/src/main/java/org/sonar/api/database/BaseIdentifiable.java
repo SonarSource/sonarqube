@@ -19,17 +19,8 @@
  */
 package org.sonar.api.database;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
-
-@MappedSuperclass
 public class BaseIdentifiable<G> {
 
-  @Id
-  @Column(name = "id")
-  @GeneratedValue
   private Integer id;
 
   public Integer getId() {

@@ -19,13 +19,17 @@
  */
 package org.sonar.batch.report;
 
+import java.io.File;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
@@ -35,12 +39,6 @@ import org.sonar.batch.protocol.output.BatchReport.Coverage;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.scan.measure.MeasureCache;
-
-import java.io.File;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -62,7 +60,7 @@ public class CoveragePublisherTest {
     Project p = new Project("foo").setAnalysisDate(new Date(1234567L));
     BatchComponentCache resourceCache = new BatchComponentCache();
     sampleFile = org.sonar.api.resources.File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");
-    resourceCache.add(p, null).setSnapshot(new Snapshot().setId(2));
+    resourceCache.add(p, null);
     resourceCache.add(sampleFile, null).setInputPath(new DefaultInputFile("foo", "src/Foo.php").setLines(5));
     measureCache = mock(MeasureCache.class);
     when(measureCache.byMetric(anyString(), anyString())).thenReturn(Collections.<Measure>emptyList());

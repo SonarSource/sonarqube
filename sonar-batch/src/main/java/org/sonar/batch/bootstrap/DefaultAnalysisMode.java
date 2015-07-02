@@ -43,10 +43,6 @@ public class DefaultAnalysisMode implements AnalysisMode {
     init(props);
   }
 
-  public boolean isDb() {
-    return !preview && !incremental && !mediumTestMode;
-  }
-
   @Override
   public boolean isPreview() {
     return preview || incremental;

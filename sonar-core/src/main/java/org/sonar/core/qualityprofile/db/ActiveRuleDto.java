@@ -21,6 +21,8 @@
 package org.sonar.core.qualityprofile.db;
 
 import com.google.common.base.Preconditions;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -29,10 +31,6 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.core.persistence.Dto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.SeverityUtil;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import javax.persistence.Transient;
 
 public class ActiveRuleDto extends Dto<ActiveRuleKey> {
 
@@ -66,7 +64,6 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
   }
 
   // This field do not exists in db, it's only retrieve by joins
-  @Transient
   private Integer parentId;
 
   public Integer getId() {

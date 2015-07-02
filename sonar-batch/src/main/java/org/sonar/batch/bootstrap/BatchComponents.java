@@ -22,7 +22,6 @@ package org.sonar.batch.bootstrap;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
-import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.compute.BranchCoverageDecorator;
 import org.sonar.batch.compute.CommentDensityDecorator;
 import org.sonar.batch.compute.CoverageDecorator;
@@ -94,8 +93,7 @@ public class BatchComponents {
       OverallBranchCoverageDecorator.class,
       CommentDensityDecorator.class,
       DirectoriesDecorator.class,
-      FilesDecorator.class,
-      TimeMachineConfiguration.class
+      FilesDecorator.class
       );
     components.addAll(CorePropertyDefinitions.all());
     // CPD

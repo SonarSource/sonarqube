@@ -37,10 +37,8 @@ import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.ext.mssql.InsertIdentityOperation;
 import org.dbunit.operation.DatabaseOperation;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.core.cluster.NullQueue;
 import org.sonar.core.config.Logback;
 import org.sonar.core.persistence.Database;
@@ -49,14 +47,10 @@ import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.H2Database;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.persistence.SchemaMigrationMapper;
-import org.sonar.jpa.session.DatabaseSessionFactory;
-import org.sonar.jpa.session.DefaultDatabaseConnector;
-import org.sonar.jpa.session.JpaDatabaseSession;
 
 import static org.junit.Assert.fail;
 
 /**
- * Heavily duplicates AbstractDaoTestCase as long as Hibernate is in use.
  * @deprecated this class does not support non-H2 databases
  */
 @Deprecated
@@ -64,9 +58,7 @@ public abstract class AbstractDbUnitTestCase {
   private static Database database;
   private static MyBatis myBatis;
   private static DatabaseCommands databaseCommands;
-  private static DefaultDatabaseConnector dbConnector;
   private IDatabaseTester databaseTester;
-  private JpaDatabaseSession session;
 
   @BeforeClass
   public static void startDatabase() throws SQLException {
@@ -82,9 +74,6 @@ public abstract class AbstractDbUnitTestCase {
         session.getMapper(SchemaMigrationMapper.class).insert(String.valueOf(DatabaseVersion.LAST_VERSION));
         session.commit();
       }
-
-      dbConnector = new DefaultDatabaseConnector(database);
-      dbConnector.start();
     }
   }
 
@@ -92,19 +81,6 @@ public abstract class AbstractDbUnitTestCase {
   public void startDbUnit() throws Exception {
     databaseCommands.truncateDatabase(database.getDataSource());
     databaseTester = new DataSourceDatabaseTester(database.getDataSource());
-    session = new JpaDatabaseSession(dbConnector);
-    session.start();
-  }
-
-  @After
-  public void stopDbUnit() throws Exception {
-    if (session != null) {
-      session.rollback();
-    }
-  }
-
-  protected DatabaseSession getSession() {
-    return session;
   }
 
   protected MyBatis getMyBatis() {
@@ -113,17 +89,6 @@ public abstract class AbstractDbUnitTestCase {
 
   protected Database getDatabase() {
     return database;
-  }
-
-  protected DatabaseSessionFactory getSessionFactory() {
-    return new DatabaseSessionFactory() {
-      public DatabaseSession getSession() {
-        return session;
-      }
-
-      public void clear() {
-      }
-    };
   }
 
   protected void setupData(String... testNames) {
@@ -261,10 +226,5 @@ public abstract class AbstractDbUnitTestCase {
     RuntimeException runtimeException = new RuntimeException(String.format("%s: [%s] %s", msg, cause.getClass().getName(), cause.getMessage()));
     runtimeException.setStackTrace(cause.getStackTrace());
     return runtimeException;
-  }
-
-  protected Long getHQLCount(Class<?> hqlClass) {
-    String hqlCount = "SELECT count(o) from " + hqlClass.getSimpleName() + " o";
-    return (Long) getSession().createQuery(hqlCount).getSingleResult();
   }
 }

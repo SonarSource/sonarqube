@@ -56,7 +56,7 @@ public class MeasuresPublisher implements ReportPublisherStep {
       batchMeasures = Iterables.filter(batchMeasures, new Predicate<Measure>() {
         @Override
         public boolean apply(Measure input) {
-          // Reload Metric to have all Hibernate fields populated
+          // Reload Metric to have all fields populated
           input.setMetric(metricFinder.findByKey(input.getMetricKey()));
           return shouldPersistMeasure(resource.resource(), input);
         }

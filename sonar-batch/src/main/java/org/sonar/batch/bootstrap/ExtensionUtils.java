@@ -22,7 +22,6 @@ package org.sonar.batch.bootstrap;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
@@ -56,10 +55,6 @@ public class ExtensionUtils {
       }
     }
     return false;
-  }
-
-  public static boolean requiresDB(Object extension) {
-    return AnnotationUtils.getAnnotation(extension, RequiresDB.class) != null;
   }
 
   public static boolean isMavenExtensionOnly(Object extension) {

@@ -18,14 +18,6 @@
     </encoder>
   </appender>
 
-  <logger name="org.hibernate.cache.ReadWriteCache">
-    <!-- removing "An item was expired by the cache while it was locked (increase your cache timeout)" msg -->
-    <level value="ERROR"/>
-  </logger>
-  <logger name="org.hibernate">
-    <level value="WARN"/>
-  </logger>
-
   <!-- BeanUtils generate to many DEBUG logs when sonar.verbose is set -->
   <logger name="org.apache.commons.beanutils.converters">
     <level value="WARN"/>
@@ -33,9 +25,6 @@
 
   <!-- sonar.showSql -->
   <!-- see also org.sonar.core.persistence.MyBatis#configureLogback() -->
-  <logger name="org.hibernate.SQL">
-    <level value="${SQL_LOGGER_LEVEL:-ERROR}"/>
-  </logger>
   <logger name="org.mybatis">
     <level value="${SQL_LOGGER_LEVEL:-WARN}"/>
   </logger>

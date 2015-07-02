@@ -26,7 +26,6 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
@@ -56,33 +55,33 @@ public class ComponentsPublisherTest {
     Project root = new Project("foo").setName("Root project").setDescription("Root description")
       .setAnalysisDate(DateUtils.parseDate(("2012-12-12")));
     root.setId(1).setUuid("PROJECT_UUID");
-    resourceCache.add(root, null).setSnapshot(new Snapshot().setId(11));
+    resourceCache.add(root, null);
 
     Project module1 = new Project("module1").setName("Module1").setDescription("Module description");
     module1.setParent(root);
     module1.setId(2).setUuid("MODULE_UUID");
-    resourceCache.add(module1, root).setSnapshot(new Snapshot().setId(12));
+    resourceCache.add(module1, root);
     rootDef.addSubProject(ProjectDefinition.create().setKey("module1"));
 
     Directory dir = Directory.create("src");
     dir.setEffectiveKey("module1:src");
     dir.setId(3).setUuid("DIR_UUID");
-    resourceCache.add(dir, module1).setSnapshot(new Snapshot().setId(13));
+    resourceCache.add(dir, module1);
 
     org.sonar.api.resources.File file = org.sonar.api.resources.File.create("src/Foo.java", Java.INSTANCE, false);
     file.setEffectiveKey("module1:src/Foo.java");
     file.setId(4).setUuid("FILE_UUID");
-    resourceCache.add(file, dir).setSnapshot(new Snapshot().setId(14)).setInputPath(new DefaultInputFile("module1", "src/Foo.java").setLines(2));
+    resourceCache.add(file, dir).setInputPath(new DefaultInputFile("module1", "src/Foo.java").setLines(2));
 
     org.sonar.api.resources.File fileWithoutLang = org.sonar.api.resources.File.create("src/make", null, false);
     fileWithoutLang.setEffectiveKey("module1:src/make");
     fileWithoutLang.setId(5).setUuid("FILE_WITHOUT_LANG_UUID");
-    resourceCache.add(fileWithoutLang, dir).setSnapshot(new Snapshot().setId(15)).setInputPath(new DefaultInputFile("module1", "src/make").setLines(10));
+    resourceCache.add(fileWithoutLang, dir).setInputPath(new DefaultInputFile("module1", "src/make").setLines(10));
 
     org.sonar.api.resources.File testFile = org.sonar.api.resources.File.create("test/FooTest.java", Java.INSTANCE, true);
     testFile.setEffectiveKey("module1:test/FooTest.java");
     testFile.setId(6).setUuid("TEST_FILE_UUID");
-    resourceCache.add(testFile, dir).setSnapshot(new Snapshot().setId(16)).setInputPath(new DefaultInputFile("module1", "test/FooTest.java").setLines(4));
+    resourceCache.add(testFile, dir).setInputPath(new DefaultInputFile("module1", "test/FooTest.java").setLines(4));
 
     ImmutableProjectReactor reactor = new ImmutableProjectReactor(rootDef);
 
@@ -123,14 +122,14 @@ public class ComponentsPublisherTest {
     Project root = new Project("foo:my_branch").setName("Root project")
       .setAnalysisDate(DateUtils.parseDate(("2012-12-12")));
     root.setId(1).setUuid("PROJECT_UUID");
-    resourceCache.add(root, null).setSnapshot(new Snapshot().setId(11));
+    resourceCache.add(root, null);
     rootDef.properties().put(CoreProperties.LINKS_HOME_PAGE, "http://home");
     rootDef.properties().put(CoreProperties.PROJECT_BRANCH_PROPERTY, "my_branch");
 
     Project module1 = new Project("module1:my_branch").setName("Module1");
     module1.setParent(root);
     module1.setId(2).setUuid("MODULE_UUID");
-    resourceCache.add(module1, root).setSnapshot(new Snapshot().setId(12));
+    resourceCache.add(module1, root);
     ProjectDefinition moduleDef = ProjectDefinition.create().setKey("module1");
     moduleDef.properties().put(CoreProperties.LINKS_CI, "http://ci");
     rootDef.addSubProject(moduleDef);
@@ -138,12 +137,12 @@ public class ComponentsPublisherTest {
     Directory dir = Directory.create("src");
     dir.setEffectiveKey("module1:my_branch:my_branch:src");
     dir.setId(3).setUuid("DIR_UUID");
-    resourceCache.add(dir, module1).setSnapshot(new Snapshot().setId(13));
+    resourceCache.add(dir, module1);
 
     org.sonar.api.resources.File file = org.sonar.api.resources.File.create("src/Foo.java", Java.INSTANCE, false);
     file.setEffectiveKey("module1:my_branch:my_branch:src/Foo.java");
     file.setId(4).setUuid("FILE_UUID");
-    resourceCache.add(file, dir).setSnapshot(new Snapshot().setId(14)).setInputPath(new DefaultInputFile("module1", "src/Foo.java").setLines(2));
+    resourceCache.add(file, dir).setInputPath(new DefaultInputFile("module1", "src/Foo.java").setLines(2));
 
     ImmutableProjectReactor reactor = new ImmutableProjectReactor(rootDef);
 

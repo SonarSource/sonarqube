@@ -19,16 +19,14 @@
  */
 package org.sonar.batch.bootstrap;
 
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
-
-import javax.annotation.Nullable;
-
-import java.util.List;
 
 public class ExtensionInstaller {
 
@@ -72,7 +70,6 @@ public class ExtensionInstaller {
 
   private void doInstall(ComponentContainer container, ExtensionMatcher matcher, @Nullable PluginInfo pluginInfo, Object extension) {
     if (ExtensionUtils.supportsEnvironment(extension, env)
-      && (analysisMode.isDb() || !ExtensionUtils.requiresDB(extension))
       && matcher.accept(extension)) {
       container.addExtension(pluginInfo, extension);
     } else {

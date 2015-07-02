@@ -27,8 +27,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.i18n.I18n;
@@ -36,8 +34,6 @@ import org.sonar.api.server.ServerSide;
 
 import static org.sonar.api.utils.DateUtils.longToDate;
 
-@RequiresDB
-@BatchSide
 @ServerSide
 public class Periods {
 

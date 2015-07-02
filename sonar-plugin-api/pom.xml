@@ -124,28 +124,6 @@
       <artifactId>jsr305</artifactId>
       <scope>provided</scope>
     </dependency>
-
-
-    <!-- TODO we can't remove hibernate-annotations, because currently it's used
-    moreover it contains transitive dependency on dom4j, which is used in some plugins
-    -->
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-annotations</artifactId>
-      <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.hibernate</groupId>
-          <artifactId>hibernate-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-api</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>

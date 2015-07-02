@@ -125,16 +125,4 @@ public class DefaultDatabaseTest {
 
     assertThat(database.getProperties().getProperty("sonar.jdbc.driverClassName")).isEqualTo("org.postgresql.Driver");
   }
-
-  @Test
-  public void shouldSetHibernateProperties() {
-    Settings settings = new Settings();
-    settings.setProperty("sonar.jdbc.url", "jdbc:postgresql://localhost/sonar");
-    DefaultDatabase database = new DefaultDatabase(settings);
-    database.initSettings();
-
-    Properties hibernateProps = database.getHibernateProperties();
-
-    assertThat(hibernateProps.getProperty("hibernate.generate_statistics")).isEqualTo("false");
-  }
 }

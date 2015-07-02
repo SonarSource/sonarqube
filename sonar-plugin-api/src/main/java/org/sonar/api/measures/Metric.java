@@ -27,14 +27,6 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -42,13 +34,6 @@ import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.server.ServerSide;
 
-/**
- * This class represents the definition of a metric in Sonar.
- *
- * @since 1.10
- */
-@Table(name = "metrics")
-@Entity(name = "Metric")
 @BatchSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @ServerSide
@@ -125,55 +110,21 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     }
   }
 
-  @Id
-  @Column(name = "id")
-  @GeneratedValue
   private Integer id;
-
-  @Transient
   private transient Formula formula;
-
-  @Column(name = "name", updatable = false, nullable = false, length = 64)
   private String key;
-
-  @Column(name = "description", updatable = true, nullable = true, length = 255)
   private String description;
-
-  @Column(name = "val_type", updatable = true, nullable = true)
-  @Enumerated(EnumType.STRING)
   private ValueType type;
-
-  @Column(name = "direction", updatable = true, nullable = true)
   private Integer direction;
-
-  @Column(name = "domain", updatable = true, nullable = true, length = 60)
   private String domain;
-
-  @Column(name = "short_name", updatable = true, nullable = true, length = 64)
   private String name;
-
-  @Column(name = "qualitative", updatable = true, nullable = true)
   private Boolean qualitative = Boolean.FALSE;
-
-  @Column(name = "user_managed", updatable = true, nullable = true)
   private Boolean userManaged = Boolean.FALSE;
-
-  @Column(name = "enabled", updatable = true, nullable = true)
   private Boolean enabled = Boolean.TRUE;
-
-  @Column(name = "worst_value", updatable = true, nullable = true, precision = 30, scale = 20)
   private Double worstValue;
-
-  @Column(name = "best_value", updatable = true, nullable = true, precision = 30, scale = 20)
   private Double bestValue;
-
-  @Column(name = "optimized_best_value", updatable = true, nullable = true)
   private Boolean optimizedBestValue;
-
-  @Column(name = "hidden", updatable = true, nullable = true)
   private Boolean hidden = Boolean.FALSE;
-
-  @Column(name = "delete_historical_data", updatable = true, nullable = true)
   private Boolean deleteHistoricalData;
 
   private Metric(Builder builder) {
@@ -195,7 +146,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
   }
 
   /**
-   * Creates an empty metric. Required for Hibernate.
+   * Creates an empty metric
    *
    * @deprecated in 1.12. Use the {@link Builder} factory.
    */

@@ -20,7 +20,6 @@
 package org.sonar.core.persistence.dialect;
 
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.dialect.H2Dialect;
 
 /**
  * @since 1.12
@@ -31,11 +30,6 @@ public class H2 extends AbstractDialect {
 
   public H2() {
     super(ID, ".h2.", "org.h2.Driver", "true", "false", "SELECT 1");
-  }
-
-  @Override
-  public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
-    return H2Dialect.class;
   }
 
   @Override

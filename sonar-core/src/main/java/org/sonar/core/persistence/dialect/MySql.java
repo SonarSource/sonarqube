@@ -20,10 +20,6 @@
 package org.sonar.core.persistence.dialect;
 
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.dialect.MySQLDialect;
-import org.sonar.api.database.DatabaseProperties;
-
-import java.sql.Types;
 
 /**
  * @since 1.12
@@ -37,23 +33,8 @@ public class MySql extends AbstractDialect {
   }
 
   @Override
-  public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
-    return MySqlWithDecimalDialect.class;
-  }
-
-  @Override
   public boolean matchesJdbcURL(String jdbcConnectionURL) {
     return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:mysql:");
-  }
-
-  public static class MySqlWithDecimalDialect extends MySQLDialect {
-    public MySqlWithDecimalDialect() {
-      super();
-      registerColumnType(Types.DOUBLE, "decimal precision");
-      registerColumnType(Types.VARCHAR, DatabaseProperties.MAX_TEXT_SIZE, "longtext");
-      registerColumnType(Types.CLOB, "longtext");
-      registerColumnType(Types.BLOB, "blob");
-    }
   }
 
   @Override

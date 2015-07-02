@@ -20,10 +20,6 @@
 package org.sonar.core.persistence.dialect;
 
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.dialect.SQLServerDialect;
-import org.sonar.api.database.DatabaseProperties;
-
-import java.sql.Types;
 
 public class MsSql extends AbstractDialect {
 
@@ -31,11 +27,6 @@ public class MsSql extends AbstractDialect {
 
   public MsSql() {
     super(ID, "sqlserver", "net.sourceforge.jtds.jdbc.Driver", "1", "0", "SELECT 1");
-  }
-
-  @Override
-  public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
-    return MsSqlDialect.class;
   }
 
   @Override
@@ -48,25 +39,4 @@ public class MsSql extends AbstractDialect {
   public boolean supportsMigration() {
     return true;
   }
-
-  public static class MsSqlDialect extends SQLServerDialect {
-    public MsSqlDialect() {
-      super();
-      registerColumnType(Types.DOUBLE, "decimal");
-      registerColumnType(Types.VARCHAR, 255, "nvarchar($l)");
-      registerColumnType(Types.VARCHAR, DatabaseProperties.MAX_TEXT_SIZE, "nvarchar(max)");
-      registerColumnType(Types.CHAR, "nchar(1)");
-      registerColumnType(Types.CLOB, "nvarchar(max)");
-    }
-
-    @Override
-    public String getTypeName(int code, int length, int precision, int scale) {
-      if (code != 2005) {
-        return super.getTypeName(code, length, precision, scale);
-      } else {
-        return "ntext";
-      }
-    }
-  }
 }
-

@@ -22,10 +22,9 @@ package org.sonar.batch.bootstrap;
 import org.junit.Test;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.BatchSide;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.RequiresDB;
 import org.sonar.api.batch.SupportedEnvironment;
+import org.sonar.api.server.ServerSide;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -81,14 +80,6 @@ public class ExtensionUtilsTest {
     assertThat(ExtensionUtils.isMavenExtensionOnly(new BuildToolService())).isFalse();
   }
 
-  @Test
-  public void shouldRequiresDB() {
-    assertThat(ExtensionUtils.requiresDB(BatchService.class)).isFalse();
-    assertThat(ExtensionUtils.requiresDB(new BatchService())).isFalse();
-    assertThat(ExtensionUtils.requiresDB(PersistentService.class)).isTrue();
-    assertThat(ExtensionUtils.requiresDB(new PersistentService())).isTrue();
-  }
-
   @BatchSide
   @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
   public static class BatchService {
@@ -124,12 +115,6 @@ public class ExtensionUtilsTest {
   @BatchSide
   @SupportedEnvironment({"maven", "ant", "gradle"})
   public static class BuildToolService {
-
-  }
-
-  @BatchSide
-  @RequiresDB
-  public static class PersistentService {
 
   }
 }

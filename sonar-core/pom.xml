@@ -59,36 +59,6 @@
       <artifactId>sonar-home</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-core</artifactId>
-      <!-- provided only by batch -->
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-annotations</artifactId>
-      <!-- provided only by batch -->
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-commons-annotations</artifactId>
-      <!-- provided only by batch -->
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-entitymanager</artifactId>
-      <!-- provided only by batch -->
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>geronimo-spec</groupId>
-      <artifactId>geronimo-spec-jta</artifactId>
-      <!-- provided only by batch -->
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
     </dependency>

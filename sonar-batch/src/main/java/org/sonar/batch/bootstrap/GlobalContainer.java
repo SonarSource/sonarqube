@@ -19,22 +19,14 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.batch.index.CachesManager;
-
 import java.util.List;
 import java.util.Map;
-
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
-import org.sonar.batch.components.PastSnapshotFinder;
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByDate;
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByDays;
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByPreviousAnalysis;
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByPreviousVersion;
-import org.sonar.batch.deprecated.components.PastSnapshotFinderByVersion;
+import org.sonar.batch.index.CachesManager;
 import org.sonar.batch.issue.tracking.DefaultServerLineHashesLoader;
 import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
 import org.sonar.batch.platform.DefaultServer;
@@ -47,21 +39,14 @@ import org.sonar.batch.repository.ProjectRepositoriesLoader;
 import org.sonar.batch.repository.ServerIssuesLoader;
 import org.sonar.batch.repository.user.UserRepository;
 import org.sonar.batch.scan.ProjectScanContainer;
-import org.sonar.core.cluster.NullQueue;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.DefaultI18n;
-import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.core.persistence.DaoUtils;
-import org.sonar.core.persistence.DatabaseVersion;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.util.DefaultHttpDownloader;
-import org.sonar.jpa.session.DefaultDatabaseConnector;
-import org.sonar.jpa.session.JpaDatabaseSession;
 
 public class GlobalContainer extends ComponentContainer {
 
@@ -85,10 +70,6 @@ public class GlobalContainer extends ComponentContainer {
     DefaultAnalysisMode analysisMode = new DefaultAnalysisMode(bootstrapProps.properties());
     add(bootstrapProps, analysisMode);
     addBootstrapComponents();
-    if (analysisMode.isDb()) {
-      addDatabaseComponents();
-    }
-
   }
 
   private void addBootstrapComponents() {
@@ -129,27 +110,6 @@ public class GlobalContainer extends ComponentContainer {
     if (getComponentByType(objectType) == null) {
       add(object);
     }
-  }
-
-  private void addDatabaseComponents() {
-    add(
-      JdbcDriverHolder.class,
-      BatchDatabase.class,
-      MyBatis.class,
-      NullQueue.class,
-      DatabaseVersion.class,
-      DatabaseCompatibility.class,
-      DefaultDatabaseConnector.class,
-      JpaDatabaseSession.class,
-      BatchDatabaseSessionFactory.class,
-      DaoUtils.getDaoClasses(),
-      RuleI18nManager.class,
-      PastSnapshotFinderByDate.class,
-      PastSnapshotFinderByDays.class,
-      PastSnapshotFinderByPreviousAnalysis.class,
-      PastSnapshotFinderByVersion.class,
-      PastSnapshotFinderByPreviousVersion.class,
-      PastSnapshotFinder.class);
   }
 
   @Override

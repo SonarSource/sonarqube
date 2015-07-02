@@ -20,7 +20,6 @@
 package org.sonar.batch.report;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -28,11 +27,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.Metric.Level;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Project;
@@ -64,7 +61,7 @@ public class MeasuresPublisherTest {
     Project p = new Project("foo").setAnalysisDate(new Date(1234567L));
     BatchComponentCache resourceCache = new BatchComponentCache();
     sampleFile = org.sonar.api.resources.File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");
-    resourceCache.add(p, null).setSnapshot(new Snapshot().setId(2));
+    resourceCache.add(p, null);
     resourceCache.add(sampleFile, null);
     measureCache = mock(MeasureCache.class);
     when(measureCache.byResource(any(Resource.class))).thenReturn(Collections.<Measure>emptyList());

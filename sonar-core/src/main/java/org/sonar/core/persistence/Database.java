@@ -19,11 +19,9 @@
  */
 package org.sonar.core.persistence;
 
+import javax.sql.DataSource;
 import org.picocontainer.Startable;
 import org.sonar.core.persistence.dialect.Dialect;
-
-import javax.sql.DataSource;
-import java.util.Properties;
 
 /**
  * @since 2.12
@@ -38,6 +36,4 @@ public interface Database extends Startable {
    * @return the dialect or null if start() has not been executed
    */
   Dialect getDialect();
-
-  Properties getHibernateProperties();
 }

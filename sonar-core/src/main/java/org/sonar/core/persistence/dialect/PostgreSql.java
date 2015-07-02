@@ -20,11 +20,8 @@
 package org.sonar.core.persistence.dialect;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang.StringUtils;
-import org.hibernate.dialect.PostgreSQLDialect;
-
-import java.sql.Types;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @since 1.12
@@ -36,11 +33,6 @@ public class PostgreSql extends AbstractDialect {
 
   public PostgreSql() {
     super(ID, "postgre", "org.postgresql.Driver", "true", "false", "SELECT 1");
-  }
-
-  @Override
-  public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
-    return PostgreSQLWithDecimalDialect.class;
   }
 
   @Override
@@ -56,18 +48,5 @@ public class PostgreSql extends AbstractDialect {
   @Override
   public boolean supportsMigration() {
     return true;
-  }
-
-  public static class PostgreSQLWithDecimalDialect extends PostgreSQLDialect {
-
-    public PostgreSQLWithDecimalDialect() {
-      super();
-      registerColumnType(Types.DOUBLE, "numeric($p,$s)");
-    }
-    @Override
-    public Class getNativeIdentifierGeneratorClass() {
-      return PostgreSQLSequenceGenerator.class;
-    }
-
   }
 }

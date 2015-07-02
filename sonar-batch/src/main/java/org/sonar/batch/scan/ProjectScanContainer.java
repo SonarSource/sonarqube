@@ -42,9 +42,7 @@ import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.deprecated.components.DefaultResourceCreationLock;
-import org.sonar.batch.deprecated.components.PeriodsDefinition;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.BatchComponentCache;
@@ -103,9 +101,6 @@ public class ProjectScanContainer extends ComponentContainer {
       add(component);
     }
     addBatchComponents();
-    if (analysisMode.isDb()) {
-      addDataBaseComponents();
-    }
     addBatchExtensions();
     Settings settings = getComponentByType(Settings.class);
     if (settings != null && settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)) {
@@ -181,9 +176,6 @@ public class ProjectScanContainer extends ComponentContainer {
       Languages.class,
       DefaultLanguagesRepository.class,
 
-      // Differential periods
-      PeriodsDefinition.class,
-
       // Measures
       MeasureCache.class,
 
@@ -204,10 +196,6 @@ public class ProjectScanContainer extends ComponentContainer {
       TestExecutionAndCoveragePublisher.class,
 
       ScanTaskObservers.class);
-  }
-
-  private void addDataBaseComponents() {
-    add(PastMeasuresLoader.class);
   }
 
   private void addBatchExtensions() {

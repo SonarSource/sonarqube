@@ -819,49 +819,6 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-annotations</artifactId>
-        <version>3.4.0.GA</version>
-        <exclusions>
-          <exclusion>
-            <!-- provided by Java 1.7 -->
-            <groupId>xml-apis</groupId>
-            <artifactId>xml-apis</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-commons-annotations</artifactId>
-        <version>3.1.0.GA</version>
-      </dependency>
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-core</artifactId>
-        <version>3.3.2.GA</version>
-        <exclusions>
-          <exclusion>
-            <groupId>javax.transaction</groupId>
-            <artifactId>jta</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>xml-apis</groupId>
-            <artifactId>xml-apis</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-entitymanager</artifactId>
-        <version>3.4.0.GA</version>
-        <exclusions>
-          <exclusion>
-            <groupId>javax.transaction</groupId>
-            <artifactId>jta</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
         <groupId>org.mybatis</groupId>
         <artifactId>mybatis</artifactId>
         <version>3.2.7</version>
@@ -1006,11 +963,6 @@
         <artifactId>jruby-complete</artifactId>
         <!-- do not upgrade to 1.7.10, much slower at startup -->
         <version>1.7.9</version>
-      </dependency>
-      <dependency>
-        <groupId>geronimo-spec</groupId>
-        <artifactId>geronimo-spec-jta</artifactId>
-        <version>1.0-M1</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.woodstox</groupId>
@@ -1365,7 +1317,7 @@
             <artifactId>maven-javadoc-plugin</artifactId>
             <configuration>
               <excludePackageNames>
-                net.*:org.sonar.application:org.sonar.server:org.sonar.graph:org.sonar.batch:org.sonar.channel:org.sonar.java:org.sonar.maven*:org.sonar.plugins.*:org.sonar.colorizer:org.sonar.core:org.sonar.jpa:org.sonar.duplications:org.sonar.markdown:com.*
+                net.*:org.sonar.application:org.sonar.server:org.sonar.graph:org.sonar.batch:org.sonar.channel:org.sonar.java:org.sonar.maven*:org.sonar.plugins.*:org.sonar.colorizer:org.sonar.core:org.sonar.duplications:org.sonar.markdown:com.*
               </excludePackageNames>
               <author>false</author>
               <linksource>true</linksource>

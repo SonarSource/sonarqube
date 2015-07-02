@@ -20,11 +20,16 @@
 package org.sonar.core.persistence;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import javax.sql.DataSource;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.cfg.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
@@ -32,15 +37,6 @@ import org.sonar.api.database.DatabaseProperties;
 import org.sonar.core.persistence.dialect.Dialect;
 import org.sonar.core.persistence.dialect.DialectUtils;
 import org.sonar.core.persistence.profiling.ProfiledDataSource;
-import org.sonar.jpa.session.CustomHibernateConnectionProvider;
-
-import javax.sql.DataSource;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * @since 2.12
@@ -51,7 +47,6 @@ public class DefaultDatabase implements Database {
 
   private static final String DEFAULT_URL = "jdbc:h2:tcp://localhost/sonar";
   private static final String SONAR_JDBC = "sonar.jdbc.";
-  private static final String SONAR_HIBERNATE = "sonar.hibernate.";
   private static final String SONAR_JDBC_DIALECT = "sonar.jdbc.dialect";
   private static final String SONAR_JDBC_URL = "sonar.jdbc.url";
   private static final String VALIDATE = "validate";
@@ -89,7 +84,6 @@ public class DefaultDatabase implements Database {
   void initSettings() {
     properties = new Properties();
     completeProperties(settings, properties, SONAR_JDBC);
-    completeProperties(settings, properties, SONAR_HIBERNATE);
     completeDefaultProperties(properties);
     doCompleteProperties(properties);
 
@@ -137,21 +131,6 @@ public class DefaultDatabase implements Database {
   }
 
   @Override
-  public Properties getHibernateProperties() {
-    Properties props = new Properties();
-
-    List<String> hibernateKeys = settings.getKeysStartingWith(SONAR_HIBERNATE);
-    for (String hibernateKey : hibernateKeys) {
-      props.put(StringUtils.removeStart(hibernateKey, "sonar."), settings.getString(hibernateKey));
-    }
-    props.put(Environment.DIALECT, getDialect().getHibernateDialectClass().getName());
-    props.put("hibernate.generate_statistics", "false");
-    props.put(Environment.CONNECTION_PROVIDER, CustomHibernateConnectionProvider.class.getName());
-
-    return props;
-  }
-
-  @Override
   public final DataSource getDataSource() {
     return datasource;
   }
@@ -195,7 +174,6 @@ public class DefaultDatabase implements Database {
     completeDefaultProperty(props, DatabaseProperties.PROP_URL, DEFAULT_URL);
     completeDefaultProperty(props, DatabaseProperties.PROP_USER, props.getProperty(DatabaseProperties.PROP_USER_DEPRECATED, DatabaseProperties.PROP_USER_DEFAULT_VALUE));
     completeDefaultProperty(props, DatabaseProperties.PROP_PASSWORD, DatabaseProperties.PROP_PASSWORD_DEFAULT_VALUE);
-    completeDefaultProperty(props, "sonar.jdbc.hibernate.hbm2ddl", VALIDATE);
   }
 
   private static void completeDefaultProperty(Properties props, String key, String defaultValue) {
