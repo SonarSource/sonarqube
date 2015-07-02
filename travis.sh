@@ -3,7 +3,7 @@
 set -euo pipefail
 
 function installTravisTools {
-  curl -sSL https://raw.githubusercontent.com/sonarsource/travis-utils/v3/install.sh | bash
+  curl -sSL https://raw.githubusercontent.com/sonarsource/travis-utils/v4/install.sh | bash
 }
 
 case "$JOB" in
@@ -59,21 +59,18 @@ PRANALYSIS)
 ITS_QUALITYGATE)
 	installTravisTools
 
-	travis_install_jars
 	travis_sonarqube_its "qualitygate"
   ;;
 
 ITS_UPDATECENTER)
 	installTravisTools
 
-	travis_install_jars
 	travis_sonarqube_its "updatecenter"
   ;;
 
 ITS_TESTING)
 	installTravisTools
 
-	travis_install_jars
 	travis_sonarqube_its "testing"
   ;;
 
