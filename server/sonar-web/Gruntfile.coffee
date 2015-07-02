@@ -94,10 +94,6 @@ module.exports = (grunt) ->
         baseUrl: '<%= BUILD_PATH %>/js/'
         preserveLicenseComments: false
 
-      issues: options:
-        name: 'apps/issues/app-new'
-        out: '<%= ASSETS_PATH %>/js/apps/issues/app-new.js'
-
       issuesContext: options:
         name: 'apps/issues/app-context'
         out: '<%= ASSETS_PATH %>/js/apps/issues/app-context.js'
@@ -126,6 +122,7 @@ module.exports = (grunt) ->
           'build-app:computation'
           'build-app:drilldown'
           'build-app:groups'
+          'build-app:issues'
           'build-app:maintenance'
           'build-app:markdown'
           'build-app:measures'
@@ -140,7 +137,6 @@ module.exports = (grunt) ->
           # widgets
           'build-widget:issue-filter'
           # other
-          'requirejs:issues'
           'requirejs:issuesContext'
           'requirejs:selectList'
         ]
