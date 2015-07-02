@@ -65,7 +65,7 @@ public class MeasuresMediumTest {
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .start();
 
-    assertThat(result.allMeasures()).hasSize(63);
+    assertThat(result.allMeasures()).hasSize(69);
   }
 
   @Test
