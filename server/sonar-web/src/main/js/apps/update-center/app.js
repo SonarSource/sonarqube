@@ -47,7 +47,7 @@ define([
         // Go
         Backbone.history.start({
           pushState: true,
-          root: options.urlRoot || (baseUrl + '/updatecenter_new')
+          root: options.urlRoot
         });
       };
 

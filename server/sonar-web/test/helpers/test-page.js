@@ -135,14 +135,14 @@ define(function (require) {
     });
   };
 
-  Command.prototype.startApp = function (app) {
+  Command.prototype.startApp = function (app, options) {
     return new this.constructor(this, function () {
       return this.parent
-          .execute(function (app) {
+          .execute(function (app, options) {
             require(['apps/' + app + '/app'], function (App) {
-              App.start({ el: '#content' });
+              App.start(_.extend({ el: '#content' }, options));
             });
-          }, [app])
+          }, [app, options])
           .sleep(1000);
     });
   };
