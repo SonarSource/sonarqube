@@ -28,15 +28,15 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.debt.Characteristic;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
-import org.sonar.db.DbClient;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -115,8 +115,8 @@ public class MeasureRepositoryImpl implements MeasureRepository {
     if (existingMeasure.isPresent()) {
       throw new UnsupportedOperationException(
         format(
-          "a measure can be set only once for a specific Component (ref=%s), Metric (key=%s)%s. Use update method",
-          component.getRef(),
+          "a measure can be set only once for a specific Component (key=%s), Metric (key=%s)%s. Use update method",
+          component.getKey(),
           metric.getKey(),
           buildRuleOrCharacteristicMsgPart(measure)
         ));
@@ -133,8 +133,8 @@ public class MeasureRepositoryImpl implements MeasureRepository {
     if (!existingMeasure.isPresent()) {
       throw new UnsupportedOperationException(
         format(
-          "a measure can be updated only if one already exists for a specific Component (ref=%s), Metric (key=%s)%s. Use add method",
-          component.getRef(),
+          "a measure can be updated only if one already exists for a specific Component (key=%s), Metric (key=%s)%s. Use add method",
+          component.getKey(),
           metric.getKey(),
           buildRuleOrCharacteristicMsgPart(measure)
         ));
