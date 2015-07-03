@@ -52,6 +52,9 @@ public class Period {
     return i > 0 && i < 6;
   }
 
+  /**
+   * Index of periods is 1-based. It goes from 1 to 5.
+   */
   public int getIndex() {
     return index;
   }
