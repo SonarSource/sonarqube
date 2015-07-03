@@ -41,6 +41,7 @@ import org.sonar.batch.repository.user.UserRepository;
 import org.sonar.batch.scan.ProjectScanContainer;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.DefaultI18n;
+import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginInfo;
@@ -97,6 +98,7 @@ public class GlobalContainer extends ComponentContainer {
       System2.INSTANCE,
       DefaultI18n.class,
       Durations.class,
+      RuleI18nManager.class,
       new GlobalRepositoriesProvider(),
       UserRepository.class);
     addIfMissing(BatchPluginInstaller.class, PluginInstaller.class);
