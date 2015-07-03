@@ -5,13 +5,15 @@ define(function (require) {
   var Command = require('intern/dojo/node!leadfoot/Command');
   var pollUntil = require('intern/dojo/node!leadfoot/helpers/pollUntil');
 
+  var DEFAULT_TIMEOUT = 4000;
+
   Command.prototype.checkElementCount = function (selector, count) {
     return new this.constructor(this, function () {
       return this.parent
           .then(pollUntil(function (selector, count) {
             var elements = document.querySelectorAll(selector);
             return elements.length === count ? true : null;
-          }, [selector, count]))
+          }, [selector, count], DEFAULT_TIMEOUT))
           .then(function () {
 
           }, function () {
@@ -26,7 +28,7 @@ define(function (require) {
           .then(pollUntil(function (selector) {
             var elements = document.querySelectorAll(selector);
             return elements.length > 0 ? true : null;
-          }, [selector]))
+          }, [selector], DEFAULT_TIMEOUT))
           .then(function () {
 
           }, function () {
@@ -41,7 +43,7 @@ define(function (require) {
           .then(pollUntil(function (selector) {
             var elements = document.querySelectorAll(selector);
             return elements.length === 0 ? true : null;
-          }, [selector]))
+          }, [selector], DEFAULT_TIMEOUT))
           .then(function () {
 
           }, function () {
@@ -59,7 +61,7 @@ define(function (require) {
               return element.textContent.indexOf(text) !== -1;
             });
             return result ? true : null;
-          }, [selector, text]))
+          }, [selector, text], DEFAULT_TIMEOUT))
           .then(function () {
 
           }, function () {
@@ -78,7 +80,7 @@ define(function (require) {
               return element.textContent.indexOf(text) === -1;
             });
             return result ? true : null;
-          }, [selector, text]))
+          }, [selector, text], DEFAULT_TIMEOUT))
           .then(function () {
 
           }, function () {
@@ -144,6 +146,18 @@ define(function (require) {
             });
           }, [app, options])
           .sleep(1000);
+    });
+  };
+
+  Command.prototype.open = function (hash) {
+    var url = 'test/medium/base.html?' + Date.now();
+    if (hash) {
+      url += hash;
+    }
+    return new this.constructor(this, function () {
+      return this.parent
+          .get(require.toUrl(url))
+          .checkElementExist('#content');
     });
   };
 

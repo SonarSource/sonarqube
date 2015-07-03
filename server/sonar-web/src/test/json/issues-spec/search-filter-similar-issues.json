@@ -89,6 +89,41 @@
         "falsepositive",
         "wontfix"
       ]
+    },
+    {
+      "key": "10c6eeca-cc71-40fc-9ea8-fa90fef8db73",
+      "component": "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/CoreProperties.java",
+      "componentId": 3509,
+      "project": "org.codehaus.sonar:sonar",
+      "subProject": "org.codehaus.sonar:sonar-plugin-api",
+      "rule": "squid:S1214",
+      "status": "CONFIRMED",
+      "severity": "MINOR",
+      "message": "Move constants to a class or enum.",
+      "line": 30,
+      "debt": "20min",
+      "author": "simon.brandhof@gmail.com",
+      "creationDate": "2013-08-28T12:19:16+0200",
+      "updateDate": "2015-03-19T14:15:56+0100",
+      "fUpdateAge": "about a minute",
+      "tags": [
+        "bad-practice",
+        "brain-overload"
+      ],
+      "actions": [
+        "comment",
+        "assign",
+        "set_tags",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive",
+        "wontfix"
+      ]
     }
   ],
   "rules": [

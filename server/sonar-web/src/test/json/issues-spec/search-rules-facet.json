@@ -113,64 +113,56 @@
       "property": "rules",
       "values": [
         {
-          "val": "javascript:OneStatementPerLine",
+          "val": "squid:S1698",
           "count": 801
         },
         {
-          "val": "javascript:S100",
+          "val": "squid:S1142",
           "count": 394
         },
         {
-          "val": "javascript:VariableDeclarationAfterUsage",
+          "val": "squid:S1694",
           "count": 114
         },
         {
-          "val": "javascript:BitwiseOperators",
+          "val": "squid:S1151",
           "count": 78
         },
         {
-          "val": "javascript:NestedIfDepth",
+          "val": "squid:S1643",
           "count": 57
         },
         {
-          "val": "javascript:EqEqEq",
+          "val": "squid:S134",
           "count": 53
         },
         {
-          "val": "javascript:FunctionComplexity",
+          "val": "common-java:DuplicatedBlocks",
           "count": 53
         },
         {
-          "val": "javascript:ConstructorFunctionsForSideEffects",
+          "val": "squid:RightCurlyBraceSameLineAsNextBlockCheck",
           "count": 40
         },
         {
-          "val": "javascript:ForIn",
+          "val": "squid:MethodCyclomaticComplexity",
           "count": 28
         },
         {
-          "val": "javascript:S1067",
+          "val": "squid:S138",
           "count": 24
         },
         {
-          "val": "javascript:S2814",
+          "val": "squid:S1067",
           "count": 21
         },
         {
-          "val": "javascript:ArrayAndObjectConstructors",
+          "val": "common-java:InsufficientBranchCoverage",
           "count": 16
         },
         {
-          "val": "javascript:S138",
+          "val": "squid:S1228",
           "count": 14
-        },
-        {
-          "val": "javascript:ExcessiveParameterList",
-          "count": 13
-        },
-        {
-          "val": "javascript:TrailingWhitespace",
-          "count": 13
         }
       ]
     }

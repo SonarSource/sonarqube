@@ -5,7 +5,7 @@ define(function (require) {
   bdd.describe('Update Center Page', function () {
     bdd.it('should show plugin card', function () {
       return this.remote
-          .get(require.toUrl('test/medium/base.html?1'))
+          .open()
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/plugins/installed', 'update-center-spec/installed.json')
           .mockFromFile('/api/plugins/updates', 'update-center-spec/updates.json')
@@ -32,7 +32,7 @@ define(function (require) {
 
     bdd.it('should show system update', function () {
       return this.remote
-          .get(require.toUrl('test/medium/base.html?2#updates'))
+          .open('#updates')
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/plugins/installed', 'update-center-spec/installed.json')
           .mockFromFile('/api/plugins/updates', 'update-center-spec/updates.json')
@@ -52,7 +52,7 @@ define(function (require) {
 
     bdd.it('should show installed', function () {
       return this.remote
-          .get(require.toUrl('test/medium/base.html?3#installed'))
+          .open('#installed')
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/plugins/installed', 'update-center-spec/installed.json')
           .mockFromFile('/api/plugins/updates', 'update-center-spec/updates.json')
@@ -66,7 +66,7 @@ define(function (require) {
 
     bdd.it('should show updates', function () {
       return this.remote
-          .get(require.toUrl('test/medium/base.html?4#updates'))
+          .open('#updates')
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/plugins/installed', 'update-center-spec/installed.json')
           .mockFromFile('/api/plugins/updates', 'update-center-spec/updates.json')
@@ -81,7 +81,7 @@ define(function (require) {
 
     bdd.it('should show available', function () {
       return this.remote
-          .get(require.toUrl('test/medium/base.html?5#available'))
+          .open('#available')
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/plugins/available', 'update-center-spec/available.json')
           .mockFromFile('/api/plugins/pending', 'update-center-spec/pending.json')
@@ -94,7 +94,7 @@ define(function (require) {
 
     bdd.it('should switch between views', function () {
       return this.remote
-          .get(require.toUrl('test/medium/base.html?6#installed'))
+          .open('#installed')
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/plugins/installed', 'update-center-spec/installed.json')
           .mockFromFile('/api/plugins/updates', 'update-center-spec/updates.json')
@@ -135,7 +135,7 @@ define(function (require) {
 
     bdd.it('should search', function () {
       return this.remote
-          .get(require.toUrl('test/medium/base.html?7#installed'))
+          .open('#installed')
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/plugins/installed', 'update-center-spec/installed.json')
           .mockFromFile('/api/plugins/updates', 'update-center-spec/updates.json')
@@ -154,7 +154,7 @@ define(function (require) {
 
     bdd.it('should show plugin changelog', function () {
       return this.remote
-          .get(require.toUrl('test/medium/base.html?8#installed'))
+          .open('#installed')
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/plugins/installed', 'update-center-spec/installed.json')
           .mockFromFile('/api/plugins/updates', 'update-center-spec/updates.json')
@@ -171,7 +171,7 @@ define(function (require) {
 
     bdd.it('should update plugin', function () {
       return this.remote
-          .get(require.toUrl('test/medium/base.html?9#installed'))
+          .open('#installed')
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/plugins/installed', 'update-center-spec/installed.json')
           .mockFromFile('/api/plugins/updates', 'update-center-spec/updates.json')
@@ -186,7 +186,7 @@ define(function (require) {
 
     bdd.it('should uninstall plugin', function () {
       return this.remote
-          .get(require.toUrl('test/medium/base.html?10#installed'))
+          .open('#installed')
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/plugins/installed', 'update-center-spec/installed.json')
           .mockFromFile('/api/plugins/updates', 'update-center-spec/updates.json')
@@ -201,7 +201,7 @@ define(function (require) {
 
     bdd.it('should install plugin', function () {
       return this.remote
-          .get(require.toUrl('test/medium/base.html?11#available'))
+          .open('#available')
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/plugins/available', 'update-center-spec/available.json')
           .mockFromFile('/api/plugins/pending', 'update-center-spec/pending.json')
@@ -215,7 +215,7 @@ define(function (require) {
 
     bdd.it('should cancel all pending', function () {
       return this.remote
-          .get(require.toUrl('test/medium/base.html?12#available'))
+          .open('#available')
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/plugins/available', 'update-center-spec/available.json')
           .mockFromFile('/api/plugins/pending', 'update-center-spec/pending.json')
