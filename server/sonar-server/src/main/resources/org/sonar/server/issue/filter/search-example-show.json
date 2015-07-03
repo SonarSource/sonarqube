@@ -1,0 +1,25 @@
+{
+  "favorites": [
+    {
+      "id": 3,
+      "name": "My Unresolved Issues",
+      "shared": true,
+      "query": "resolved=false|assignees=__me__",
+      "canModify": true
+    },
+    {
+      "id": 2,
+      "name": "False Positive and Won't Fix Issues",
+      "shared": true,
+      "query": "resolutions=FALSE-POSITIVE,WONTFIX",
+      "canModify": true
+    },
+    {
+      "id": 1,
+      "name": "Unresolved Issues",
+      "shared": true,
+      "query": "resolved=false",
+      "canModify": true
+    }
+  ]
+}

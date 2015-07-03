@@ -29,13 +29,13 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.server.user.UserSession;
 
-public class AppAction implements IssueFilterWsAction {
+public class SearchAction implements IssueFilterWsAction {
 
   private final IssueFilterService service;
   private final IssueFilterJsonWriter issueFilterJsonWriter;
   private final UserSession userSession;
 
-  public AppAction(IssueFilterService service, IssueFilterJsonWriter issueFilterJsonWriter, UserSession userSession) {
+  public SearchAction(IssueFilterService service, IssueFilterJsonWriter issueFilterJsonWriter, UserSession userSession) {
     this.service = service;
     this.issueFilterJsonWriter = issueFilterJsonWriter;
     this.userSession = userSession;
@@ -43,15 +43,13 @@ public class AppAction implements IssueFilterWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("app");
+    WebService.NewAction action = controller.createAction("search");
     action
-      .setDescription("Data required for rendering the page 'Issues'")
-      .setInternal(true)
+      .setDescription("Get the list of favorite issue filters.")
+      .setInternal(false)
       .setHandler(this)
-      .setResponseExample(Resources.getResource(this.getClass(), "app-example-show.json"));
-    action
-      .createParam("id")
-      .setDescription("Optionally, the ID of the current filter");
+      .setSince("5.2")
+      .setResponseExample(Resources.getResource(this.getClass(), "search-example-show.json"));
   }
 
   @Override
@@ -59,32 +57,12 @@ public class AppAction implements IssueFilterWsAction {
     JsonWriter json = response.newJsonWriter();
     json.beginObject();
 
-    // Current filter (optional)
-    Integer filterId = request.paramAsInt("id");
-    IssueFilterDto filter = null;
-    if (filterId != null && filterId >= 0) {
-      filter = service.find((long) filterId, userSession);
-    }
-
-    // Permissions
-    json.prop("canManageFilters", userSession.isLoggedIn());
-    json.prop("canBulkChange", userSession.isLoggedIn());
-
-    // Selected filter
-    if (filter != null) {
-      issueFilterJsonWriter.writeWithName(json, filter, userSession);
-    }
-
     // Favorite filters, if logged in
     if (userSession.isLoggedIn()) {
       List<IssueFilterDto> favorites = service.findFavoriteFilters(userSession);
       json.name("favorites").beginArray();
       for (IssueFilterDto favorite : favorites) {
-        json
-          .beginObject()
-          .prop("id", favorite.getId())
-          .prop("name", favorite.getName())
-          .endObject();
+        issueFilterJsonWriter.write(json, favorite, userSession);
       }
       json.endArray();
     }
@@ -92,5 +70,4 @@ public class AppAction implements IssueFilterWsAction {
     json.endObject();
     json.close();
   }
-
 }

@@ -139,10 +139,7 @@ import org.sonar.server.issue.SetSeverityAction;
 import org.sonar.server.issue.TransitionAction;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.actionplan.ActionPlanWs;
-import org.sonar.server.issue.filter.IssueFilterSerializer;
-import org.sonar.server.issue.filter.IssueFilterService;
-import org.sonar.server.issue.filter.IssueFilterWriter;
-import org.sonar.server.issue.filter.IssueFilterWs;
+import org.sonar.server.issue.filter.IssueFilterWsModule;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -622,14 +619,7 @@ public class PlatformLevel4 extends PlatformLevel {
       EmailNotificationChannel.class,
       AlertsEmailTemplate.class,
 
-      // issue filters
-      IssueFilterService.class,
-      IssueFilterSerializer.class,
-      IssueFilterWs.class,
-      IssueFilterWriter.class,
-      org.sonar.server.issue.filter.AppAction.class,
-      org.sonar.server.issue.filter.ShowAction.class,
-      org.sonar.server.issue.filter.FavoritesAction.class,
+      IssueFilterWsModule.class,
 
       // action plan
       ActionPlanWs.class,

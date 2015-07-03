@@ -40,7 +40,7 @@ public class IssueFilterWsTest {
   IssueFilterService service;
 
   @Mock
-  IssueFilterWriter issueFilterWriter;
+  IssueFilterJsonWriter issueFilterJsonWriter;
 
   IssueFilterWs ws;
 
@@ -48,7 +48,7 @@ public class IssueFilterWsTest {
 
   @Before
   public void setUp() {
-    ws = new IssueFilterWs(new AppAction(service, issueFilterWriter, userSessionRule), new ShowAction(service, issueFilterWriter, userSessionRule), new FavoritesAction(service, userSessionRule));
+    ws = new IssueFilterWs(new AppAction(service, issueFilterJsonWriter, userSessionRule), new ShowAction(service, issueFilterJsonWriter, userSessionRule), new SearchAction(service, issueFilterJsonWriter, userSessionRule), new FavoritesAction(service, userSessionRule));
     tester = new WsTester(ws);
   }
 

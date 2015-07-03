@@ -42,7 +42,7 @@ public class AppActionTest {
   @Mock
   IssueFilterService service;
 
-  IssueFilterWriter writer = new IssueFilterWriter();
+  IssueFilterJsonWriter writer = new IssueFilterJsonWriter();
 
   AppAction action;
 
@@ -51,7 +51,7 @@ public class AppActionTest {
   @Before
   public void setUp() {
     action = new AppAction(service, writer, userSessionRule);
-    tester = new WsTester(new IssueFilterWs(action, mock(ShowAction.class), mock(FavoritesAction.class)));
+    tester = new WsTester(new IssueFilterWs(action, mock(ShowAction.class), mock(SearchAction.class), mock(FavoritesAction.class)));
   }
 
   @Test

@@ -22,26 +22,26 @@ package org.sonar.server.issue.filter;
 
 import com.google.common.io.Resources;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.server.user.UserSession;
 
-public class ShowAction implements RequestHandler {
+public class ShowAction implements IssueFilterWsAction {
 
   private final IssueFilterService service;
-  private final IssueFilterWriter issueFilterWriter;
+  private final IssueFilterJsonWriter issueFilterJsonWriter;
   private final UserSession userSession;
 
-  public ShowAction(IssueFilterService service, IssueFilterWriter issueFilterWriter, UserSession userSession) {
+  public ShowAction(IssueFilterService service, IssueFilterJsonWriter issueFilterJsonWriter, UserSession userSession) {
     this.service = service;
-    this.issueFilterWriter = issueFilterWriter;
+    this.issueFilterJsonWriter = issueFilterJsonWriter;
     this.userSession = userSession;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("show");
     action
       .setDescription("Get detail of an issue filter. Requires to be authenticated")
@@ -59,7 +59,7 @@ public class ShowAction implements RequestHandler {
 
     JsonWriter json = response.newJsonWriter();
     json.beginObject();
-    issueFilterWriter.write(userSession, filter, json);
+    issueFilterJsonWriter.writeWithName(json, filter, userSession);
     json.endObject();
     json.close();
   }

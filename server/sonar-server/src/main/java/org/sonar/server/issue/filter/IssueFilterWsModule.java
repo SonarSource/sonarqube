@@ -17,27 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.issue.filter;
 
-import org.sonar.api.server.ws.WebService;
+import org.sonar.core.platform.Module;
 
-public class IssueFilterWs implements WebService {
-
-  private final IssueFilterWsAction[] actions;
-
-  public IssueFilterWs(IssueFilterWsAction... actions) {
-    this.actions = actions;
-  }
-
+public class IssueFilterWsModule extends Module {
   @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/issue_filters")
-      .setSince("4.2")
-      .setDescription("Issue Filters management");
-    for (IssueFilterWsAction action : actions) {
-      action.define(controller);
-    }
-    controller.done();
+  protected void configureModule() {
+    add(
+      IssueFilterService.class,
+      IssueFilterSerializer.class,
+      IssueFilterWs.class,
+      IssueFilterJsonWriter.class,
+      org.sonar.server.issue.filter.AppAction.class,
+      org.sonar.server.issue.filter.ShowAction.class,
+      org.sonar.server.issue.filter.SearchAction.class,
+      org.sonar.server.issue.filter.FavoritesAction.class
+    );
   }
-
 }

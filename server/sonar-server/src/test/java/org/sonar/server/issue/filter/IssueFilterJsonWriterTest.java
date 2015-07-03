@@ -32,9 +32,9 @@ import java.io.StringWriter;
 
 import static org.sonar.test.JsonAssert.assertJson;
 
-public class IssueFilterWriterTest {
+public class IssueFilterJsonWriterTest {
 
-  IssueFilterWriter writer = new IssueFilterWriter();
+  IssueFilterJsonWriter writer = new IssueFilterJsonWriter();
 
   @Test
   public void write_filter() {
@@ -104,7 +104,7 @@ public class IssueFilterWriterTest {
     StringWriter output = new StringWriter();
     JsonWriter jsonWriter = JsonWriter.of(output);
     jsonWriter.beginObject();
-    writer.write(userSession, filter, jsonWriter);
+    writer.writeWithName(jsonWriter, filter, userSession);
     jsonWriter.endObject();
     assertJson(output.toString()).isSimilarTo(expected);
   }

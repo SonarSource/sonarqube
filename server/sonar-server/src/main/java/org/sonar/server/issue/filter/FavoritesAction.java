@@ -21,14 +21,13 @@
 package org.sonar.server.issue.filter;
 
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.server.user.UserSession;
 
-public class FavoritesAction implements RequestHandler {
+public class FavoritesAction implements IssueFilterWsAction {
 
   private final IssueFilterService service;
   private final UserSession userSession;
@@ -38,7 +37,8 @@ public class FavoritesAction implements RequestHandler {
     this.userSession = userSession;
   }
 
-  void define(WebService.NewController controller) {
+  @Override
+  public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("favorites");
     action
       .setDescription("The issue filters marked as favorite by request user")

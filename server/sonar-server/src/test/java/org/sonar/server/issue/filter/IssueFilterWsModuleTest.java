@@ -17,27 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.issue.filter;
 
-import org.sonar.api.server.ws.WebService;
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-public class IssueFilterWs implements WebService {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private final IssueFilterWsAction[] actions;
-
-  public IssueFilterWs(IssueFilterWsAction... actions) {
-    this.actions = actions;
+public class IssueFilterWsModuleTest {
+  @Test
+  public void verify_count_of_added_components() {
+    ComponentContainer container = new ComponentContainer();
+    new IssueFilterWsModule().configure(container);
+    assertThat(container.size()).isEqualTo(10);
   }
-
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/issue_filters")
-      .setSince("4.2")
-      .setDescription("Issue Filters management");
-    for (IssueFilterWsAction action : actions) {
-      action.define(controller);
-    }
-    controller.done();
-  }
-
 }

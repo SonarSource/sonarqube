@@ -23,28 +23,34 @@ package org.sonar.server.issue.filter;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.server.user.UserSession;
 
 @ServerSide
-public class IssueFilterWriter {
+public class IssueFilterJsonWriter {
 
-  void write(UserSession session, IssueFilterDto filter, JsonWriter json) {
-    json.name("filter").beginObject()
+  void writeWithName(JsonWriter json, IssueFilterDto filter, UserSession userSession) {
+    json.name("filter");
+    write(json, filter, userSession);
+  }
+
+  void write(JsonWriter json, IssueFilterDto filter, UserSession userSession) {
+    json
+      .beginObject()
       .prop("id", filter.getId())
       .prop("name", filter.getName())
       .prop("description", filter.getDescription())
       .prop("user", filter.getUserLogin())
       .prop("shared", filter.isShared())
       .prop("query", filter.getData())
-      .prop("canModify", canModifyFilter(session, filter))
+      .prop("canModify", canModifyFilter(userSession, filter))
       .endObject();
   }
 
-  private boolean canModifyFilter(UserSession session, IssueFilterDto filter) {
-    return session.isLoggedIn() &&
-      (StringUtils.equals(filter.getUserLogin(), session.getLogin()) || session.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN));
+  private boolean canModifyFilter(UserSession userSession, IssueFilterDto filter) {
+    return userSession.isLoggedIn() &&
+      (StringUtils.equals(filter.getUserLogin(), userSession.getLogin()) || userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN));
   }
 
 }
