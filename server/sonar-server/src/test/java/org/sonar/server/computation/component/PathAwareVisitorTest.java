@@ -62,17 +62,20 @@ public class PathAwareVisitorTest {
         .build(),
       DumbComponent.builder(MODULE, 12)
         .addChildren(
-          DumbComponent.builder(DIRECTORY, 121)
+          DumbComponent.builder(MODULE, 121)
             .addChildren(
-              DumbComponent.builder(FILE, 1211).build()
-            )
-            .build()
+              DumbComponent.builder(DIRECTORY, 1211)
+                .addChildren(
+                  DumbComponent.builder(FILE, 12111).build()
+                )
+                .build()
+            ).build()
         ).build()
     ).build();
 
   @Test
-  public void verify_preOrder() {
-    TestPathAwareVisitor underTest = new TestPathAwareVisitor(PRE_ORDER);
+  public void verify_preOrder_visit_call_when_visit_tree_with_depth_FILE() {
+    TestPathAwareVisitor underTest = new TestPathAwareVisitor(FILE, PRE_ORDER);
     underTest.visit(SOME_TREE_ROOT);
 
     Iterator<CallRecord> expected = of(
@@ -93,16 +96,72 @@ public class PathAwareVisitorTest {
       newCallRecord("visitAny", 12, 1, of(12, 1)),
       newCallRecord("visitModule", 12, 1, of(12, 1)),
       newCallRecord("visitAny", 121, 12, of(121, 12, 1)),
-      newCallRecord("visitDirectory", 121, 12, of(121, 12, 1)),
+      newCallRecord("visitModule", 121, 12, of(121, 12, 1)),
       newCallRecord("visitAny", 1211, 121, of(1211, 121, 12, 1)),
-      newCallRecord("visitFile", 1211, 121, of(1211, 121, 12, 1))
+      newCallRecord("visitDirectory", 1211, 121, of(1211, 121, 12, 1)),
+      newCallRecord("visitAny", 12111, 1211, of(12111, 1211, 121, 12, 1)),
+      newCallRecord("visitFile", 12111, 1211, of(12111, 1211, 121, 12, 1))
       ).iterator();
     verifyCallRecords(expected, underTest.callsRecords.iterator());
   }
 
   @Test
-  public void verify_postOrder() {
-    TestPathAwareVisitor underTest = new TestPathAwareVisitor(POST_ORDER);
+  public void verify_preOrder_visit_call_when_visit_tree_with_depth_DIRECTORY() {
+    TestPathAwareVisitor underTest = new TestPathAwareVisitor(DIRECTORY, PRE_ORDER);
+    underTest.visit(SOME_TREE_ROOT);
+
+    Iterator<CallRecord> expected = of(
+      newCallRecord("visitAny", 1, null, of(1)),
+      newCallRecord("visitProject", 1, null, of(1)),
+      newCallRecord("visitAny", 11, 1, of(11, 1)),
+      newCallRecord("visitModule", 11, 1, of(11, 1)),
+      newCallRecord("visitAny", 111, 11, of(111, 11, 1)),
+      newCallRecord("visitDirectory", 111, 11, of(111, 11, 1)),
+      newCallRecord("visitAny", 112, 11, of(112, 11, 1)),
+      newCallRecord("visitDirectory", 112, 11, of(112, 11, 1)),
+      newCallRecord("visitAny", 12, 1, of(12, 1)),
+      newCallRecord("visitModule", 12, 1, of(12, 1)),
+      newCallRecord("visitAny", 121, 12, of(121, 12, 1)),
+      newCallRecord("visitModule", 121, 12, of(121, 12, 1)),
+      newCallRecord("visitAny", 1211, 121, of(1211, 121, 12, 1)),
+      newCallRecord("visitDirectory", 1211, 121, of(1211, 121, 12, 1))
+      ).iterator();
+    verifyCallRecords(expected, underTest.callsRecords.iterator());
+  }
+
+  @Test
+  public void verify_preOrder_visit_call_when_visit_tree_with_depth_MODULE() {
+    TestPathAwareVisitor underTest = new TestPathAwareVisitor(MODULE, PRE_ORDER);
+    underTest.visit(SOME_TREE_ROOT);
+
+    Iterator<CallRecord> expected = of(
+      newCallRecord("visitAny", 1, null, of(1)),
+      newCallRecord("visitProject", 1, null, of(1)),
+      newCallRecord("visitAny", 11, 1, of(11, 1)),
+      newCallRecord("visitModule", 11, 1, of(11, 1)),
+      newCallRecord("visitAny", 12, 1, of(12, 1)),
+      newCallRecord("visitModule", 12, 1, of(12, 1)),
+      newCallRecord("visitAny", 121, 12, of(121, 12, 1)),
+      newCallRecord("visitModule", 121, 12, of(121, 12, 1))
+      ).iterator();
+    verifyCallRecords(expected, underTest.callsRecords.iterator());
+  }
+
+  @Test
+  public void verify_preOrder_visit_call_when_visit_tree_with_depth_PROJECT() {
+    TestPathAwareVisitor underTest = new TestPathAwareVisitor(PROJECT, PRE_ORDER);
+    underTest.visit(SOME_TREE_ROOT);
+
+    Iterator<CallRecord> expected = of(
+      newCallRecord("visitAny", 1, null, of(1)),
+      newCallRecord("visitProject", 1, null, of(1))
+      ).iterator();
+    verifyCallRecords(expected, underTest.callsRecords.iterator());
+  }
+
+  @Test
+  public void verify_postOrder_visit_call_when_visit_tree_with_depth_FILE() {
+    TestPathAwareVisitor underTest = new TestPathAwareVisitor(FILE, POST_ORDER);
     underTest.visit(SOME_TREE_ROOT);
 
     Iterator<CallRecord> expected = of(
@@ -118,12 +177,68 @@ public class PathAwareVisitorTest {
       newCallRecord("visitDirectory", 112, 11, of(112, 11, 1)),
       newCallRecord("visitAny", 11, 1, of(11, 1)),
       newCallRecord("visitModule", 11, 1, of(11, 1)),
+      newCallRecord("visitAny", 12111, 1211, of(12111, 1211, 121, 12, 1)),
+      newCallRecord("visitFile", 12111, 1211, of(12111, 1211, 121, 12, 1)),
       newCallRecord("visitAny", 1211, 121, of(1211, 121, 12, 1)),
-      newCallRecord("visitFile", 1211, 121, of(1211, 121, 12, 1)),
+      newCallRecord("visitDirectory", 1211, 121, of(1211, 121, 12, 1)),
       newCallRecord("visitAny", 121, 12, of(121, 12, 1)),
-      newCallRecord("visitDirectory", 121, 12, of(121, 12, 1)),
+      newCallRecord("visitModule", 121, 12, of(121, 12, 1)),
       newCallRecord("visitAny", 12, 1, of(12, 1)),
       newCallRecord("visitModule", 12, 1, of(12, 1)),
+      newCallRecord("visitAny", 1, null, of(1)),
+      newCallRecord("visitProject", 1, null, of(1))
+      ).iterator();
+    verifyCallRecords(expected, underTest.callsRecords.iterator());
+  }
+
+  @Test
+  public void verify_postOrder_visit_call_when_visit_tree_with_depth_DIRECTORY() {
+    TestPathAwareVisitor underTest = new TestPathAwareVisitor(DIRECTORY, POST_ORDER);
+    underTest.visit(SOME_TREE_ROOT);
+
+    Iterator<CallRecord> expected = of(
+      newCallRecord("visitAny", 111, 11, of(111, 11, 1)),
+      newCallRecord("visitDirectory", 111, 11, of(111, 11, 1)),
+      newCallRecord("visitAny", 112, 11, of(112, 11, 1)),
+      newCallRecord("visitDirectory", 112, 11, of(112, 11, 1)),
+      newCallRecord("visitAny", 11, 1, of(11, 1)),
+      newCallRecord("visitModule", 11, 1, of(11, 1)),
+      newCallRecord("visitAny", 1211, 121, of(1211, 121, 12, 1)),
+      newCallRecord("visitDirectory", 1211, 121, of(1211, 121, 12, 1)),
+      newCallRecord("visitAny", 121, 12, of(121, 12, 1)),
+      newCallRecord("visitModule", 121, 12, of(121, 12, 1)),
+      newCallRecord("visitAny", 12, 1, of(12, 1)),
+      newCallRecord("visitModule", 12, 1, of(12, 1)),
+      newCallRecord("visitAny", 1, null, of(1)),
+      newCallRecord("visitProject", 1, null, of(1))
+      ).iterator();
+    verifyCallRecords(expected, underTest.callsRecords.iterator());
+  }
+
+  @Test
+  public void verify_postOrder_visit_call_when_visit_tree_with_depth_MODULE() {
+    TestPathAwareVisitor underTest = new TestPathAwareVisitor(MODULE, POST_ORDER);
+    underTest.visit(SOME_TREE_ROOT);
+
+    Iterator<CallRecord> expected = of(
+      newCallRecord("visitAny", 11, 1, of(11, 1)),
+      newCallRecord("visitModule", 11, 1, of(11, 1)),
+      newCallRecord("visitAny", 121, 12, of(121, 12, 1)),
+      newCallRecord("visitModule", 121, 12, of(121, 12, 1)),
+      newCallRecord("visitAny", 12, 1, of(12, 1)),
+      newCallRecord("visitModule", 12, 1, of(12, 1)),
+      newCallRecord("visitAny", 1, null, of(1)),
+      newCallRecord("visitProject", 1, null, of(1))
+      ).iterator();
+    verifyCallRecords(expected, underTest.callsRecords.iterator());
+  }
+
+  @Test
+  public void verify_postOrder_visit_call_when_visit_tree_with_depth_PROJECT() {
+    TestPathAwareVisitor underTest = new TestPathAwareVisitor(PROJECT, POST_ORDER);
+    underTest.visit(SOME_TREE_ROOT);
+
+    Iterator<CallRecord> expected = of(
       newCallRecord("visitAny", 1, null, of(1)),
       newCallRecord("visitProject", 1, null, of(1))
       ).iterator();
@@ -143,8 +258,8 @@ public class PathAwareVisitorTest {
   private static class TestPathAwareVisitor extends PathAwareVisitor<Integer> {
     private final List<CallRecord> callsRecords = new ArrayList<>();
 
-    public TestPathAwareVisitor(ComponentVisitor.Order order) {
-      super(FILE, order, new SimpleStackElementFactory<Integer>() {
+    public TestPathAwareVisitor(Component.Type maxDepth, ComponentVisitor.Order order) {
+      super(maxDepth, order, new SimpleStackElementFactory<Integer>() {
         @Override
         public Integer createForAny(Component component) {
           return component.getRef();
