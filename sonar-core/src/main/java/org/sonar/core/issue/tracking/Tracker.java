@@ -87,7 +87,6 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
   }
 
   private void relocateManualIssues(Input<RAW> rawInput, Input<BASE> baseInput, Tracking<RAW, BASE> tracking) {
-    // FIXME copy of Set if required to avoid concurrent modifications (see tracking.associateManualIssueToLine())
     Iterable<BASE> manualIssues = from(tracking.getUnmatchedBases()).filter(IsManual.INSTANCE);
     for (BASE base : manualIssues) {
       if (base.getLine() == null) {
@@ -107,7 +106,7 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
             // issue is kept at the same location, even if code changes
             tracking.keepManualIssueOpen(base, base.getLine());
           }
-          // TODO if hash found multiple times, , pick the closest line
+          // TODO if hash found multiple times, pick the closest line
         }
       }
     }
@@ -254,7 +253,7 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
 
     LineHashKey(Trackable trackable) {
       this.ruleKey = trackable.getRuleKey();
-      this.lineHash = trackable.getLineHash();
+      this.lineHash = StringUtils.defaultString(trackable.getLineHash(), "");
     }
 
     @Override
