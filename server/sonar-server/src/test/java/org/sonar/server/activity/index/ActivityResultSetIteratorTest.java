@@ -28,7 +28,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.persistence.DbTester;
+import org.sonar.db.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 

@@ -22,7 +22,7 @@ package org.sonar.server.rule;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Sets;
 import org.sonar.api.server.rule.RuleTagFormat;
-import org.sonar.core.rule.RuleDto;
+import org.sonar.db.rule.RuleDto;
 
 import javax.annotation.Nullable;
 import java.util.Set;

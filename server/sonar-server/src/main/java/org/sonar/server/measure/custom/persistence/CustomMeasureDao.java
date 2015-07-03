@@ -26,16 +26,16 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.measure.custom.db.CustomMeasureDto;
-import org.sonar.core.measure.custom.db.CustomMeasureMapper;
-import org.sonar.core.persistence.DaoComponent;
-import org.sonar.core.persistence.DaoUtils;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.measure.CustomMeasureDto;
+import org.sonar.db.measure.CustomMeasureMapper;
+import org.sonar.db.Dao;
+import org.sonar.db.DaoUtils;
+import org.sonar.db.DbSession;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
 
 @ServerSide
-public class CustomMeasureDao implements DaoComponent {
+public class CustomMeasureDao implements Dao {
   public void insert(DbSession session, CustomMeasureDto customMeasureDto) {
     mapper(session).insert(customMeasureDto);
   }

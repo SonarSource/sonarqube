@@ -21,21 +21,20 @@ package org.sonar.core.issue.workflow;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-import org.apache.commons.lang.time.DateUtils;
-import org.junit.Test;
-import org.sonar.api.issue.DefaultTransitions;
-import org.sonar.api.issue.Issue;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.core.issue.IssueUpdater;
-
-import javax.annotation.Nullable;
-
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.time.DateUtils;
+import org.assertj.core.api.Assertions;
+import org.junit.Test;
+import org.sonar.api.issue.DefaultTransitions;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.IssueUpdater;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -139,7 +138,6 @@ public class IssueWorkflowTest {
     }
   }
 
-
   @Test
   public void do_automatic_transition() {
     workflow.start();
@@ -153,10 +151,10 @@ public class IssueWorkflowTest {
       .setBeingClosed(true);
     Date now = new Date();
     workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
-    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
-    assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
-    assertThat(issue.closeDate()).isNotNull();
-    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
+    Assertions.assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
+    Assertions.assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
+    Assertions.assertThat(issue.closeDate()).isNotNull();
+    Assertions.assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
   }
 
   @Test
@@ -171,10 +169,10 @@ public class IssueWorkflowTest {
       .setBeingClosed(true);
     Date now = new Date();
     workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
-    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
-    assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
-    assertThat(issue.closeDate()).isNotNull();
-    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
+    Assertions.assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
+    Assertions.assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
+    Assertions.assertThat(issue.closeDate()).isNotNull();
+    Assertions.assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
   }
 
   @Test
@@ -189,10 +187,10 @@ public class IssueWorkflowTest {
       .setBeingClosed(true);
     Date now = new Date();
     workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
-    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
-    assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
-    assertThat(issue.closeDate()).isNotNull();
-    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
+    Assertions.assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
+    Assertions.assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
+    Assertions.assertThat(issue.closeDate()).isNotNull();
+    Assertions.assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
   }
 
   @Test
@@ -207,12 +205,11 @@ public class IssueWorkflowTest {
       .setBeingClosed(true);
     Date now = new Date();
     workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
-    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
-    assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
-    assertThat(issue.closeDate()).isNotNull();
-    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
+    Assertions.assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
+    Assertions.assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
+    Assertions.assertThat(issue.closeDate()).isNotNull();
+    Assertions.assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
   }
-
 
   @Test
   public void fail_if_unknown_status_on_automatic_trans() {
@@ -243,11 +240,11 @@ public class IssueWorkflowTest {
     workflow.start();
     workflow.doTransition(issue, DefaultTransitions.FALSE_POSITIVE, IssueChangeContext.createScan(new Date()));
 
-    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
-    assertThat(issue.status()).isEqualTo(Issue.STATUS_RESOLVED);
+    Assertions.assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
+    Assertions.assertThat(issue.status()).isEqualTo(Issue.STATUS_RESOLVED);
 
     // should remove assignee
-    assertThat(issue.assignee()).isNull();
+    Assertions.assertThat(issue.assignee()).isNull();
   }
 
   @Test
@@ -261,11 +258,11 @@ public class IssueWorkflowTest {
     workflow.start();
     workflow.doTransition(issue, DefaultTransitions.WONT_FIX, IssueChangeContext.createScan(new Date()));
 
-    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_WONT_FIX);
-    assertThat(issue.status()).isEqualTo(Issue.STATUS_RESOLVED);
+    Assertions.assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_WONT_FIX);
+    Assertions.assertThat(issue.status()).isEqualTo(Issue.STATUS_RESOLVED);
 
     // should remove assignee
-    assertThat(issue.assignee()).isNull();
+    Assertions.assertThat(issue.assignee()).isNull();
   }
 
   @Test
@@ -282,19 +279,19 @@ public class IssueWorkflowTest {
       Transition.create("resolve", "OPEN", "RESOLVED"),
       Transition.create("falsepositive", "OPEN", "RESOLVED"),
       Transition.create("wontfix", "OPEN", "RESOLVED")
-    );
+      );
 
     workflow.doTransition(issue, "resolve", mock(IssueChangeContext.class));
-    assertThat(issue.resolution()).isEqualTo("FIXED");
-    assertThat(issue.status()).isEqualTo("RESOLVED");
+    Assertions.assertThat(issue.resolution()).isEqualTo("FIXED");
+    Assertions.assertThat(issue.status()).isEqualTo("RESOLVED");
 
     assertThat(workflow.outTransitions(issue)).containsOnly(
       Transition.create("reopen", "RESOLVED", "REOPENED")
-    );
+      );
 
     workflow.doAutomaticTransition(issue, mock(IssueChangeContext.class));
-    assertThat(issue.resolution()).isEqualTo("FIXED");
-    assertThat(issue.status()).isEqualTo("CLOSED");
+    Assertions.assertThat(issue.resolution()).isEqualTo("FIXED");
+    Assertions.assertThat(issue.status()).isEqualTo("CLOSED");
   }
 
   @Test
@@ -313,28 +310,28 @@ public class IssueWorkflowTest {
       Transition.create("resolve", "OPEN", "RESOLVED"),
       Transition.create("falsepositive", "OPEN", "RESOLVED"),
       Transition.create("wontfix", "OPEN", "RESOLVED")
-    );
+      );
 
     workflow.doTransition(issue, "confirm", mock(IssueChangeContext.class));
-    assertThat(issue.resolution()).isNull();
-    assertThat(issue.status()).isEqualTo("CONFIRMED");
+    Assertions.assertThat(issue.resolution()).isNull();
+    Assertions.assertThat(issue.status()).isEqualTo("CONFIRMED");
 
     assertThat(workflow.outTransitions(issue)).containsOnly(
       Transition.create("unconfirm", "CONFIRMED", "REOPENED"),
       Transition.create("resolve", "CONFIRMED", "RESOLVED"),
       Transition.create("falsepositive", "CONFIRMED", "RESOLVED"),
       Transition.create("wontfix", "CONFIRMED", "RESOLVED")
-    );
+      );
 
     // keep confirmed and unresolved
     workflow.doAutomaticTransition(issue, mock(IssueChangeContext.class));
-    assertThat(issue.resolution()).isNull();
-    assertThat(issue.status()).isEqualTo("CONFIRMED");
+    Assertions.assertThat(issue.resolution()).isNull();
+    Assertions.assertThat(issue.status()).isEqualTo("CONFIRMED");
 
     // unconfirm
     workflow.doTransition(issue, "unconfirm", mock(IssueChangeContext.class));
-    assertThat(issue.resolution()).isNull();
-    assertThat(issue.status()).isEqualTo("REOPENED");
+    Assertions.assertThat(issue.resolution()).isNull();
+    Assertions.assertThat(issue.status()).isEqualTo("REOPENED");
   }
 
   @Test
@@ -351,8 +348,8 @@ public class IssueWorkflowTest {
     workflow.start();
 
     workflow.doAutomaticTransition(issue, mock(IssueChangeContext.class));
-    assertThat(issue.resolution()).isEqualTo("REMOVED");
-    assertThat(issue.status()).isEqualTo("CLOSED");
+    Assertions.assertThat(issue.resolution()).isEqualTo("REMOVED");
+    Assertions.assertThat(issue.status()).isEqualTo("CLOSED");
   }
 
   @Test
@@ -369,8 +366,8 @@ public class IssueWorkflowTest {
     workflow.start();
 
     workflow.doAutomaticTransition(issue, mock(IssueChangeContext.class));
-    assertThat(issue.resolution()).isEqualTo("FIXED");
-    assertThat(issue.status()).isEqualTo("CLOSED");
+    Assertions.assertThat(issue.resolution()).isEqualTo("FIXED");
+    Assertions.assertThat(issue.status()).isEqualTo("CLOSED");
   }
 
   private Collection<String> keys(List<Transition> transitions) {

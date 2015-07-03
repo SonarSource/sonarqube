@@ -21,7 +21,7 @@ package org.sonar.server.computation.measure;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.SetMultimap;
-import org.sonar.core.rule.RuleDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.debt.Characteristic;
 import org.sonar.server.computation.metric.Metric;

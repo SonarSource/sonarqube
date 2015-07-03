@@ -20,7 +20,7 @@
 package org.sonar.server.db.fake;
 
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.DbSession;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.search.IndexDefinition;
 

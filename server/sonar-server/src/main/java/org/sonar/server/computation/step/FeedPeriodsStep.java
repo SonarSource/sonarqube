@@ -35,10 +35,10 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.component.SnapshotDto;
-import org.sonar.core.component.db.SnapshotQuery;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.component.SnapshotQuery;
+import org.sonar.db.DbSession;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.TreeRootHolder;
@@ -46,9 +46,9 @@ import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
 import org.sonar.server.db.DbClient;
 
-import static org.sonar.core.component.db.SnapshotQuery.SORT_FIELD.BY_DATE;
-import static org.sonar.core.component.db.SnapshotQuery.SORT_ORDER.ASC;
-import static org.sonar.core.component.db.SnapshotQuery.SORT_ORDER.DESC;
+import static org.sonar.db.component.SnapshotQuery.SORT_FIELD.BY_DATE;
+import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.ASC;
+import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.DESC;
 
 /**
  * Populates the {@link org.sonar.server.computation.period.PeriodsHolder}

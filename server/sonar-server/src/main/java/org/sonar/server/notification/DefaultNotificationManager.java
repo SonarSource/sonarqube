@@ -35,9 +35,9 @@ import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.notification.db.NotificationQueueDao;
-import org.sonar.core.notification.db.NotificationQueueDto;
-import org.sonar.core.properties.PropertiesDao;
+import org.sonar.db.notification.NotificationQueueDao;
+import org.sonar.db.notification.NotificationQueueDto;
+import org.sonar.db.property.PropertiesDao;
 
 public class DefaultNotificationManager implements NotificationManager {
 

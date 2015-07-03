@@ -20,11 +20,10 @@
 package org.sonar.core.config;
 
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
-
-import java.util.List;
 
 class SecurityProperties {
 

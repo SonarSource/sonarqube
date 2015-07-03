@@ -27,14 +27,14 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Scopes;
-import org.sonar.core.component.SnapshotDto;
-import org.sonar.core.component.db.SnapshotMapper;
-import org.sonar.core.component.db.SnapshotQuery;
-import org.sonar.core.persistence.DaoComponent;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.component.SnapshotMapper;
+import org.sonar.db.component.SnapshotQuery;
+import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
 import org.sonar.server.exceptions.NotFoundException;
 
-public class SnapshotDao implements DaoComponent {
+public class SnapshotDao implements Dao {
 
   @CheckForNull
   public SnapshotDto selectNullableById(DbSession session, Long id) {

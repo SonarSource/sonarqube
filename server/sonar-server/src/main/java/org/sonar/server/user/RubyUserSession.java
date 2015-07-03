@@ -24,8 +24,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.user.AuthorizationDao;
+import org.sonar.db.component.ResourceDao;
+import org.sonar.db.user.AuthorizationDao;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.ui.JRubyI18n;
 

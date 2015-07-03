@@ -23,7 +23,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;

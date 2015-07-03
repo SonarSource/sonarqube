@@ -24,11 +24,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.core.user.GroupMembership;
-import org.sonar.core.user.GroupMembershipDao;
-import org.sonar.core.user.GroupMembershipDto;
-import org.sonar.core.user.GroupMembershipQuery;
-import org.sonar.core.user.UserDao;
-import org.sonar.core.user.UserDto;
+import org.sonar.db.user.GroupMembershipDao;
+import org.sonar.db.user.GroupMembershipDto;
+import org.sonar.db.user.GroupMembershipQuery;
+import org.sonar.db.user.UserDao;
+import org.sonar.db.user.UserDto;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;

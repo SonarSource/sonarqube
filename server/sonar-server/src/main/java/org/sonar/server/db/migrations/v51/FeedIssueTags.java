@@ -24,7 +24,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.Database;
+import org.sonar.db.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.MassUpdate.Handler;

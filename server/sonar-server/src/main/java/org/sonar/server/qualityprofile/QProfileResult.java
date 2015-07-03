@@ -20,7 +20,7 @@
 
 package org.sonar.server.qualityprofile;
 
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 
 import java.util.List;
 

@@ -20,8 +20,8 @@
 
 package org.sonar.server.db.migrations.v43;
 
-import org.sonar.core.persistence.Database;
-import org.sonar.core.properties.PropertiesDao;
+import org.sonar.db.Database;
+import org.sonar.db.property.PropertiesDao;
 import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select;

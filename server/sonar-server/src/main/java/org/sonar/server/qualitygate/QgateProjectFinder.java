@@ -21,12 +21,12 @@
 package org.sonar.server.qualitygate;
 
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.qualitygate.db.ProjectQgateAssociation;
-import org.sonar.core.qualitygate.db.ProjectQgateAssociationDao;
-import org.sonar.core.qualitygate.db.ProjectQgateAssociationDto;
-import org.sonar.core.qualitygate.db.ProjectQgateAssociationQuery;
-import org.sonar.core.qualitygate.db.QualityGateDao;
-import org.sonar.core.qualitygate.db.QualityGateDto;
+import org.sonar.db.qualitygate.ProjectQgateAssociation;
+import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
+import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
+import org.sonar.db.qualitygate.ProjectQgateAssociationQuery;
+import org.sonar.db.qualitygate.QualityGateDao;
+import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.NotFoundException;
 
 import java.util.List;

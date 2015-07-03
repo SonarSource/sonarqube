@@ -29,9 +29,9 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.component.Component;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 

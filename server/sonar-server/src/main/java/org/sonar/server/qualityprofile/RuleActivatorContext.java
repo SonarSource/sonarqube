@@ -22,12 +22,12 @@ package org.sonar.server.qualityprofile;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleKey;
-import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.core.rule.RuleParamDto;
+import org.sonar.db.qualityprofile.ActiveRuleDto;
+import org.sonar.db.qualityprofile.ActiveRuleKey;
+import org.sonar.db.qualityprofile.ActiveRuleParamDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
 
 import javax.annotation.CheckForNull;

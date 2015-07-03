@@ -43,7 +43,7 @@ public class NonNullInputFunctionTest {
     assertThat(sut.apply("foo")).isEqualTo(3);
   }
 
-  private static class TestFunction extends NonNullInputFunction<String,Integer> {
+  private static class TestFunction extends NonNullInputFunction<String, Integer> {
     @Override
     protected Integer doApply(String input) {
       return input.length();

@@ -21,12 +21,12 @@ package org.sonar.server.dashboard.db;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.core.dashboard.DashboardDto;
-import org.sonar.core.dashboard.DashboardMapper;
-import org.sonar.core.persistence.DaoComponent;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.dashboard.DashboardDto;
+import org.sonar.db.dashboard.DashboardMapper;
+import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
 
-public class DashboardDao implements DaoComponent {
+public class DashboardDao implements Dao {
 
   @CheckForNull
   public DashboardDto getNullableByKey(DbSession session, Long key) {

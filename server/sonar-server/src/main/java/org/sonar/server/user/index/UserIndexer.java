@@ -24,7 +24,7 @@ import java.sql.Connection;
 import java.util.Iterator;
 import org.apache.commons.dbutils.DbUtils;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;

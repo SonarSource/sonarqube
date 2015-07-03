@@ -39,10 +39,9 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
-import org.sonar.core.issue.db.IssueStorage;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.properties.PropertiesDao;
-import org.sonar.core.properties.PropertyDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.property.PropertiesDao;
+import org.sonar.db.property.PropertyDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 

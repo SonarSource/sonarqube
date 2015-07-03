@@ -25,7 +25,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.UtcDateUtils;
+import org.sonar.core.util.UtcDateUtils;
 
 import javax.annotation.concurrent.Immutable;
 

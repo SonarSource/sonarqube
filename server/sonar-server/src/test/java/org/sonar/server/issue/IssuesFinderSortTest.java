@@ -25,7 +25,7 @@ import java.util.List;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.issue.db.IssueDto;
+import org.sonar.db.issue.IssueDto;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;

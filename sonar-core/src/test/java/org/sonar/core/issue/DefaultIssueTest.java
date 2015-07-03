@@ -20,15 +20,14 @@
 package org.sonar.core.issue;
 
 import com.google.common.collect.ImmutableMap;
+import java.text.SimpleDateFormat;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
-
-import java.text.SimpleDateFormat;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;

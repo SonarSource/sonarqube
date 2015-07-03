@@ -21,7 +21,7 @@ package org.sonar.server.platform;
 
 import org.junit.Test;
 import org.sonar.api.utils.MessageException;
-import org.sonar.core.persistence.DatabaseVersion;
+import org.sonar.db.version.DatabaseVersion;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

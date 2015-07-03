@@ -21,7 +21,7 @@
 package org.sonar.server.permission;
 
 import org.junit.Test;
-import org.sonar.core.permission.PermissionQuery;
+import org.sonar.db.permission.PermissionQuery;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;

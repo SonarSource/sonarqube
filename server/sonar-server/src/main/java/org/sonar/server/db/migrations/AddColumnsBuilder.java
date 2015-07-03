@@ -26,10 +26,10 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import org.sonar.core.persistence.dialect.Dialect;
-import org.sonar.core.persistence.dialect.MsSql;
-import org.sonar.core.persistence.dialect.Oracle;
-import org.sonar.core.persistence.dialect.PostgreSql;
+import org.sonar.db.dialect.Dialect;
+import org.sonar.db.dialect.MsSql;
+import org.sonar.db.dialect.Oracle;
+import org.sonar.db.dialect.PostgreSql;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Preconditions;

@@ -27,9 +27,9 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.DbTester;
-import org.sonar.core.user.GroupDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
+import org.sonar.db.user.GroupDto;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;

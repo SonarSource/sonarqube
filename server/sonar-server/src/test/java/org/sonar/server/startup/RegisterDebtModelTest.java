@@ -25,8 +25,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.core.technicaldebt.db.CharacteristicDao;
-import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.db.debt.CharacteristicDao;
+import org.sonar.db.debt.CharacteristicDto;
 import org.sonar.server.debt.DebtModelBackup;
 
 import java.util.Collections;

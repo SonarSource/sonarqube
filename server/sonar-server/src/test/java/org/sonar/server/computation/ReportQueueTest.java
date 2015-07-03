@@ -30,9 +30,9 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
-import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.DbTester;
+import org.sonar.db.compute.AnalysisReportDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.db.AnalysisReportDao;
@@ -46,8 +46,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
-import static org.sonar.core.computation.db.AnalysisReportDto.Status.WORKING;
+import static org.sonar.db.compute.AnalysisReportDto.Status.PENDING;
+import static org.sonar.db.compute.AnalysisReportDto.Status.WORKING;
 
 @Category(DbTests.class)
 public class ReportQueueTest {

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.qualitygate.QualityGateConditionMapper">
+
+  <insert id="insert" parameterType="QualityGateCondition" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    insert into quality_gate_conditions (qgate_id, metric_id, operator, value_error, value_warning, period, created_at,
+    updated_at)
+    values (#{qualityGateId}, #{metricId}, #{operator}, #{errorThreshold}, #{warningThreshold}, #{period}, #{createdAt},
+    #{updatedAt})
+  </insert>
+
+  <sql id="conditionColumns">
+    id, qgate_id as qualityGateId, metric_id as metricId, operator, value_warning as warningThreshold, value_error as
+    errorThreshold, period,
+    created_at as createdAt, updated_at as updatedAt
+  </sql>
+
+  <select id="selectForQualityGate" resultType="QualityGateCondition" parameterType="long">
+    select
+    <include refid="conditionColumns"/>
+    from quality_gate_conditions where qgate_id=#{qGateId}
+    order by id asc
+  </select>
+
+  <select id="selectById" parameterType="long" resultType="QualityGateCondition">
+    select
+    <include refid="conditionColumns"/>
+    from quality_gate_conditions where id=#{id}
+  </select>
+
+  <update id="delete" parameterType="long">
+    delete from quality_gate_conditions where id=#{id}
+  </update>
+
+  <update id="update" parameterType="QualityGateCondition">
+    update quality_gate_conditions set
+    metric_id=#{metricId},
+    operator=#{operator},
+    value_warning=#{warningThreshold},
+    value_error=#{errorThreshold},
+    period=#{period},
+    updated_at=#{updatedAt}
+    where id=#{id}
+  </update>
+
+  <delete id="deleteConditionsWithInvalidMetrics">
+    delete from quality_gate_conditions
+    where metric_id not in (select id from metrics where enabled=${_true})
+  </delete>
+
+</mapper>
+

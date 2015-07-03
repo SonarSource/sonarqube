@@ -21,8 +21,8 @@
 package org.sonar.server.measure.custom.ws;
 
 import org.sonar.api.server.ws.Request;
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 

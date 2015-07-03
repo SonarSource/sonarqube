@@ -23,12 +23,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.issue.Issue;
-
-import javax.annotation.CheckForNull;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.CheckForNull;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.issue.Issue;
 
 public class State {
   private final String key;

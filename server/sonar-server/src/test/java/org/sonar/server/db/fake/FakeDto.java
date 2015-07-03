@@ -19,7 +19,7 @@
  */
 package org.sonar.server.db.fake;
 
-import org.sonar.core.persistence.Dto;
+import org.sonar.db.Dto;
 
 public class FakeDto extends Dto<String> {
 

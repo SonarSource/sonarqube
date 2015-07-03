@@ -51,7 +51,7 @@ public class StateTest {
   @Test
   public void no_duplicated_out_transitions() {
     try {
-      new State("CLOSE", new Transition[]{t1, t1});
+      new State("CLOSE", new Transition[] {t1, t1});
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Transition 'close' is declared several times from the originating state 'CLOSE'");

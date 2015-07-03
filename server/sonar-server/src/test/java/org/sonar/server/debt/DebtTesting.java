@@ -20,7 +20,7 @@
 package org.sonar.server.debt;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.db.debt.CharacteristicDto;
 
 public class DebtTesting {
   private DebtTesting() {

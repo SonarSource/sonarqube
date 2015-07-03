@@ -25,7 +25,7 @@ import com.google.common.base.Predicate;
 import javax.annotation.Nonnull;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
-import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.db.debt.CharacteristicDto;
 
 public class DebtPredicates {
 

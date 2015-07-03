@@ -24,7 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.commons.dbutils.DbUtils;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;

@@ -20,7 +20,11 @@
 package org.sonar.server.db.migrations;
 
 import org.junit.Test;
-import org.sonar.core.persistence.dialect.*;
+import org.sonar.db.dialect.H2;
+import org.sonar.db.dialect.MsSql;
+import org.sonar.db.dialect.MySql;
+import org.sonar.db.dialect.Oracle;
+import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

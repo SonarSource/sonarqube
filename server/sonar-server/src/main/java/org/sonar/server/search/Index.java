@@ -21,7 +21,7 @@ package org.sonar.server.search;
 
 import org.picocontainer.Startable;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.persistence.Dto;
+import org.sonar.db.Dto;
 
 import javax.annotation.CheckForNull;
 

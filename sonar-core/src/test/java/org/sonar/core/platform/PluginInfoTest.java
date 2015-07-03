@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
+import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -67,11 +68,11 @@ public class PluginInfoTest {
     List<PluginInfo> plugins = Arrays.asList(java1, cobol, javaNoVersion, noVersion, java2);
 
     List<PluginInfo> ordered = natural().sortedCopy(plugins);
-    assertThat(ordered.get(0)).isSameAs(cobol);
-    assertThat(ordered.get(1)).isSameAs(javaNoVersion);
-    assertThat(ordered.get(2)).isSameAs(java1);
-    assertThat(ordered.get(3)).isSameAs(java2);
-    assertThat(ordered.get(4)).isSameAs(noVersion);
+    Assertions.assertThat(ordered.get(0)).isSameAs(cobol);
+    Assertions.assertThat(ordered.get(1)).isSameAs(javaNoVersion);
+    Assertions.assertThat(ordered.get(2)).isSameAs(java1);
+    Assertions.assertThat(ordered.get(3)).isSameAs(java2);
+    Assertions.assertThat(ordered.get(4)).isSameAs(noVersion);
   }
 
   @Test
@@ -187,7 +188,7 @@ public class PluginInfoTest {
 
   @Test
   public void create_from_file() {
-    File checkstyleJar = FileUtils.toFile(getClass().getResource("/org/sonar/core/plugins/sonar-checkstyle-plugin-2.8.jar"));
+    File checkstyleJar = FileUtils.toFile(getClass().getResource("/org/sonar/core/platform/sonar-checkstyle-plugin-2.8.jar"));
     PluginInfo checkstyleInfo = PluginInfo.create(checkstyleJar);
 
     assertThat(checkstyleInfo.getName()).isEqualTo("Checkstyle");

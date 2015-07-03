@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.measure.MeasureFilterMapper">
+
+  <select id="findSystemFilterByName" parameterType="string" resultType="MeasureFilter">
+    select id, name, user_id as "userId", shared, description, data, created_at as "createdAt", updated_at as
+    "updatedAt"
+    from measure_filters WHERE user_id is null and name=#{id}
+  </select>
+
+  <insert id="insert" parameterType="MeasureFilter" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO measure_filters (name, user_id, shared, description, data, created_at, updated_at)
+    VALUES (#{name}, #{userId}, #{shared}, #{description}, #{data}, #{createdAt}, #{updatedAt})
+  </insert>
+
+</mapper>

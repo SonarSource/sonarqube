@@ -20,7 +20,7 @@
 package org.sonar.server.computation.metric;
 
 import org.junit.Test;
-import org.sonar.core.metric.db.MetricDto;
+import org.sonar.db.metric.MetricDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

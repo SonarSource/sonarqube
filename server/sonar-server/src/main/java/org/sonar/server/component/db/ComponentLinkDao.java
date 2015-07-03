@@ -21,15 +21,15 @@
 package org.sonar.server.component.db;
 
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.component.ComponentLinkDto;
-import org.sonar.core.component.db.ComponentLinkMapper;
-import org.sonar.core.persistence.DaoComponent;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.component.ComponentLinkDto;
+import org.sonar.db.component.ComponentLinkMapper;
+import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
 
 import java.util.List;
 
 @ServerSide
-public class ComponentLinkDao implements DaoComponent {
+public class ComponentLinkDao implements Dao {
 
   public List<ComponentLinkDto> selectByComponentUuid(DbSession session, String componentUuid) {
     return session.getMapper(ComponentLinkMapper.class).selectByComponentUuid(componentUuid);

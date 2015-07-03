@@ -21,7 +21,7 @@ package org.sonar.server.computation.metric;
 
 import com.google.common.base.Function;
 import javax.annotation.Nonnull;
-import org.sonar.core.metric.db.MetricDto;
+import org.sonar.db.metric.MetricDto;
 
 enum MetricDtoToMetric implements Function<MetricDto, Metric> {
   INSTANCE;

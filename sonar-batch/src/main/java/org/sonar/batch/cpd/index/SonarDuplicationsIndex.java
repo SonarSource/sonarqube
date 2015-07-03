@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.cpd.index;
 
-import com.google.common.collect.Lists;
+import java.util.Collection;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
@@ -27,47 +27,23 @@ import org.sonar.duplications.index.AbstractCloneIndex;
 import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.PackedMemoryCloneIndex;
 
-import java.util.Collection;
-import java.util.List;
-
 public class SonarDuplicationsIndex extends AbstractCloneIndex {
 
   private final CloneIndex mem = new PackedMemoryCloneIndex();
-  private final DbDuplicationsIndex db;
-
-  public SonarDuplicationsIndex() {
-    this.db = null;
-  }
-
-  public SonarDuplicationsIndex(DbDuplicationsIndex db) {
-    this.db = db;
-  }
 
   public void insert(InputFile inputFile, Collection<Block> blocks) {
     for (Block block : blocks) {
       mem.insert(block);
     }
-    if (db != null) {
-      db.insert(inputFile, blocks);
-    }
   }
 
   public Collection<Block> getByInputFile(InputFile inputFile, String resourceKey) {
-    if (db != null) {
-      db.prepareCache(inputFile);
-    }
     return mem.getByResourceId(resourceKey);
   }
 
   @Override
   public Collection<Block> getBySequenceHash(ByteArray hash) {
-    if (db == null) {
-      return mem.getBySequenceHash(hash);
-    } else {
-      List<Block> result = Lists.newArrayList(mem.getBySequenceHash(hash));
-      result.addAll(db.getByHash(hash));
-      return result;
-    }
+    return mem.getBySequenceHash(hash);
   }
 
   @Override

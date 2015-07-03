@@ -49,7 +49,7 @@ import org.sonar.batch.scm.ScmSensor;
 import org.sonar.batch.source.CodeColorizerSensor;
 import org.sonar.batch.source.LinesSensor;
 import org.sonar.core.config.CorePropertyDefinitions;
-import org.sonar.core.resource.DefaultResourceTypes;
+import org.sonar.core.component.DefaultResourceTypes;
 
 public class BatchComponents {
   private BatchComponents() {

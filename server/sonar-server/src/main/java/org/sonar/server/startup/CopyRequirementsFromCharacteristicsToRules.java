@@ -36,12 +36,12 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.core.technicaldebt.db.CharacteristicMapper;
-import org.sonar.core.technicaldebt.db.RequirementMigrationDto;
-import org.sonar.core.template.LoadedTemplateDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.db.debt.CharacteristicMapper;
+import org.sonar.db.debt.RequirementMigrationDto;
+import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.RegisterRules;
 

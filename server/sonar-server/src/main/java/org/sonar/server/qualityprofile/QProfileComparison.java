@@ -25,8 +25,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.server.db.DbClient;
 

@@ -19,14 +19,13 @@
  */
 package org.sonar.core.platform;
 
+import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.Property;
 import org.sonar.api.config.PropertyDefinitions;
-
-import java.util.Arrays;
 
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;

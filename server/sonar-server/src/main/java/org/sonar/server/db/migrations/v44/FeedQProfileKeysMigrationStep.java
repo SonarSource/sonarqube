@@ -23,7 +23,7 @@ package org.sonar.server.db.migrations.v44;
 import java.sql.SQLException;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.sonar.core.persistence.Database;
+import org.sonar.db.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select;

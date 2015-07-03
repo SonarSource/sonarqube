@@ -1,0 +1,21 @@
+<dataset>
+
+  <active_dashboards
+    id="1"
+    dashboard_id="1"
+    user_id="[null]"
+    order_index="1"/>
+
+  <active_dashboards
+    id="2"
+    dashboard_id="2"
+    user_id="[null]"
+    order_index="15"/>
+
+  <active_dashboards
+    id="3"
+    dashboard_id="3"
+    user_id="3"
+    order_index="25"/>
+
+</dataset>

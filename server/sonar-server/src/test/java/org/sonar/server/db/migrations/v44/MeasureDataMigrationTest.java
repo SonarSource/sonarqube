@@ -25,7 +25,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.core.persistence.DbTester;
+import org.sonar.db.DbTester;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MeasureDataMigrationTest {

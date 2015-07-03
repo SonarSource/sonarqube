@@ -24,7 +24,9 @@ import java.util.Collection;
 public interface Input<ISSUE extends Trackable> {
 
   LineHashSequence getLineHashSequence();
+
   BlockHashSequence getBlockHashSequence();
+
   Collection<ISSUE> getIssues();
 
 }

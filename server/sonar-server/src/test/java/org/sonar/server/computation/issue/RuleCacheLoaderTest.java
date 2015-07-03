@@ -27,7 +27,7 @@ import org.junit.experimental.categories.Category;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.core.persistence.DbTester;
+import org.sonar.db.DbTester;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.db.RuleDao;

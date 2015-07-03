@@ -23,7 +23,7 @@ package org.sonar.server.measure.custom.persistence;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.measure.custom.db.CustomMeasureDto;
+import org.sonar.db.measure.CustomMeasureDto;
 
 public class CustomMeasureTesting {
   private CustomMeasureTesting() {

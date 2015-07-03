@@ -22,14 +22,14 @@ package org.sonar.server.issue.db;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import org.sonar.core.issue.db.IssueDto;
-import org.sonar.core.issue.db.IssueMapper;
-import org.sonar.core.persistence.DaoComponent;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.db.issue.IssueDto;
+import org.sonar.db.issue.IssueMapper;
+import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 import org.sonar.server.exceptions.NotFoundException;
 
-public class IssueDao extends org.sonar.core.issue.db.IssueDao implements DaoComponent {
+public class IssueDao extends org.sonar.db.issue.IssueDao implements Dao {
 
   public IssueDao(MyBatis mybatis) {
     super(mybatis);

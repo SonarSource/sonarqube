@@ -21,16 +21,16 @@ package org.sonar.server.activity.db;
 
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
-import org.sonar.core.activity.db.ActivityDto;
-import org.sonar.core.activity.db.ActivityMapper;
-import org.sonar.core.persistence.DaoComponent;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.db.activity.ActivityDto;
+import org.sonar.db.activity.ActivityMapper;
+import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 
 import java.util.Date;
 
 @ServerSide
-public class ActivityDao implements DaoComponent {
+public class ActivityDao implements Dao {
 
   private final MyBatis mybatis;
   private final System2 system;

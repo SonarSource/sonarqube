@@ -25,7 +25,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.persistence.Database;
+import org.sonar.db.Database;
 import org.sonar.server.db.migrations.MigrationStep;
 import org.sonar.server.db.migrations.SqlUtil;
 

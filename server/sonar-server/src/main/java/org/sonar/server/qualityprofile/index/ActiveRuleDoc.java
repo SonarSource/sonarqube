@@ -20,7 +20,7 @@
 package org.sonar.server.qualityprofile.index;
 
 import com.google.common.base.Preconditions;
-import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.IndexUtils;

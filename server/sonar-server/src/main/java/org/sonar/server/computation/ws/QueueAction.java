@@ -24,7 +24,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.computation.db.AnalysisReportDto;
+import org.sonar.db.compute.AnalysisReportDto;
 import org.sonar.server.computation.ReportQueue;
 
 import java.util.List;

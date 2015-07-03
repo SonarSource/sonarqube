@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.dashboard.ActiveDashboardMapper">
+
+  <insert id="insert" parameterType="ActiveDashboard" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO active_dashboards (dashboard_id, user_id, order_index)
+    VALUES (#{dashboardId}, #{userId}, #{orderIndex})
+  </insert>
+
+  <select id="selectMaxOrderIndexForNullUser" resultType="Integer">
+    SELECT MAX(order_index)
+    FROM active_dashboards
+    WHERE user_id IS NULL
+  </select>
+
+  <sql id="dashboardColumns">
+    d.id, d.user_id as "userId", d.name, d.description, d.column_layout as "columnLayout",
+    d.shared, d.is_global as "global", d.created_at as "createdAt", d.updated_at as "updatedAt"
+  </sql>
+
+  <select id="selectGlobalDashboardsForUserLogin" parameterType="String" resultType="Dashboard">
+    SELECT
+    <include refid="dashboardColumns"/>
+    FROM dashboards d
+    INNER JOIN active_dashboards ad on d.id=ad.dashboard_id
+    LEFT OUTER JOIN users u on u.id=ad.user_id
+    WHERE d.is_global=${_true}
+    <choose>
+      <when test="login == null">
+        AND u.login IS NULL
+      </when>
+      <otherwise>
+        AND u.login=#{login}
+      </otherwise>
+    </choose>
+    ORDER BY order_index ASC
+  </select>
+
+  <select id="selectProjectDashboardsForUserLogin" parameterType="String" resultType="Dashboard">
+    SELECT
+    <include refid="dashboardColumns"/>
+    FROM dashboards d
+    INNER JOIN active_dashboards ad on d.id=ad.dashboard_id
+    LEFT OUTER JOIN users u on u.id=ad.user_id
+    WHERE d.is_global=${_false}
+    <choose>
+      <when test="login == null">
+        AND u.login IS NULL
+      </when>
+      <otherwise>
+        AND u.login=#{login}
+      </otherwise>
+    </choose>
+    ORDER BY order_index ASC
+  </select>
+
+</mapper>

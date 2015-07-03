@@ -19,9 +19,8 @@
  */
 package org.sonar.core.issue;
 
-import org.junit.Test;
-
 import java.util.Date;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

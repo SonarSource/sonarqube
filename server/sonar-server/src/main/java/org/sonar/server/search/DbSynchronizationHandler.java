@@ -22,7 +22,7 @@ package org.sonar.server.search;
 
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.DbSession;
 
 import javax.annotation.CheckForNull;
 

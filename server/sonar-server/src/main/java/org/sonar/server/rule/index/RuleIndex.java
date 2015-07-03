@@ -64,7 +64,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtCharacteristic;
-import org.sonar.core.rule.RuleDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.search.BaseIndex;

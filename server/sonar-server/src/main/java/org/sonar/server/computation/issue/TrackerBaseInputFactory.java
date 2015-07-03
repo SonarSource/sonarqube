@@ -26,8 +26,8 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.LazyInput;
 import org.sonar.core.issue.tracking.LineHashSequence;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.db.DbClient;
 

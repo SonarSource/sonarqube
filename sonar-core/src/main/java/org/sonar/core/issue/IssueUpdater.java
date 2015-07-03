@@ -25,21 +25,19 @@ import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.issue.ActionPlan;
-import org.sonar.api.server.rule.RuleTagFormat;
-import org.sonar.api.user.User;
-import org.sonar.api.utils.Duration;
-
-import javax.annotation.Nullable;
-
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.issue.ActionPlan;
+import org.sonar.api.server.ServerSide;
+import org.sonar.api.server.rule.RuleTagFormat;
+import org.sonar.api.user.User;
+import org.sonar.api.utils.Duration;
 
 /**
  * Updates issue fields and chooses if changes must be kept in history.

@@ -19,14 +19,13 @@
  */
 package org.sonar.core.component;
 
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
-
-import javax.annotation.Nullable;
 
 public final class ComponentKeys {
 
@@ -46,9 +45,6 @@ public final class ComponentKeys {
   }
 
   /**
-   *
-   * @param project
-   * @param resource
    * @return the full key of a component, based on its parent projects' key and own key
    */
   public static String createEffectiveKey(Project project, Resource resource) {

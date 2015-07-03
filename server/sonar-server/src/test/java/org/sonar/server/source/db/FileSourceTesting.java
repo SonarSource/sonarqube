@@ -26,7 +26,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
-import org.sonar.core.source.db.FileSourceDto;
+import org.sonar.db.source.FileSourceDto;
 
 public class FileSourceTesting {
 

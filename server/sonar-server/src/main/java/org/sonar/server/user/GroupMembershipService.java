@@ -22,7 +22,7 @@ package org.sonar.server.user;
 
 import java.util.Map;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.user.GroupMembershipQuery;
+import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.server.util.RubyUtils;
 
 /**

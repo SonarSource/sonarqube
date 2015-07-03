@@ -24,8 +24,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.core.properties.PropertiesDao;
-import org.sonar.core.properties.PropertyDto;
+import org.sonar.db.property.PropertiesDao;
+import org.sonar.db.property.PropertyDto;
 
 import java.util.Arrays;
 import java.util.Properties;

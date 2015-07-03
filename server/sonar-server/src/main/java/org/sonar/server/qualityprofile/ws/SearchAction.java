@@ -29,7 +29,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
+import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.QProfileLoader;

@@ -20,7 +20,7 @@
 
 package org.sonar.server.db.migrations.v52;
 
-import org.sonar.core.persistence.Database;
+import org.sonar.db.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
 
 import java.sql.SQLException;

@@ -25,9 +25,9 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.core.qualitygate.db.QualityGateDto;
-import org.sonar.core.template.LoadedTemplateDao;
-import org.sonar.core.template.LoadedTemplateDto;
+import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.db.loadedtemplate.LoadedTemplateDao;
+import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;

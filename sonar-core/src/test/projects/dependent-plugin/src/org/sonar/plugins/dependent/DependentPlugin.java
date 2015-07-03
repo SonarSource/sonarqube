@@ -1,9 +1,9 @@
 package org.sonar.plugins.dependent;
 
-import org.sonar.api.SonarPlugin;
-import org.sonar.plugins.base.api.BaseApi;
 import java.util.Collections;
 import java.util.List;
+import org.sonar.api.SonarPlugin;
+import org.sonar.plugins.base.api.BaseApi;
 
 public class DependentPlugin extends SonarPlugin {
 

@@ -21,3 +21,4 @@
 package org.sonar.core.issue.tracking;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+

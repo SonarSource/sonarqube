@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.bootstrap.ProjectTempFolderProvider;
-
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -41,6 +39,7 @@ import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
+import org.sonar.batch.bootstrap.ProjectTempFolderProvider;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.deprecated.components.DefaultResourceCreationLock;
 import org.sonar.batch.duplication.DuplicationCache;
@@ -77,7 +76,6 @@ import org.sonar.batch.test.TestableBuilder;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.FunctionExecutor;
 import org.sonar.core.issue.workflow.IssueWorkflow;
-import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.platform.ComponentContainer;
 
 public class ProjectScanContainer extends ComponentContainer {
@@ -131,7 +129,6 @@ public class ProjectScanContainer extends ComponentContainer {
       EventBus.class,
       PhasesTimeProfiler.class,
       ResourceTypes.class,
-      PermissionFacade.class,
       DefaultProjectTree.class,
       ProjectExclusions.class,
       ProjectReactorValidator.class,

@@ -30,7 +30,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
-import org.sonar.core.rule.RuleDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;

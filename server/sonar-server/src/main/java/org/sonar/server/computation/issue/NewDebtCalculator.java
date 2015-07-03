@@ -37,7 +37,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueUpdater;
-import org.sonar.core.issue.db.IssueChangeDto;
+import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.server.computation.period.Period;
 
 import static com.google.common.collect.FluentIterable.from;

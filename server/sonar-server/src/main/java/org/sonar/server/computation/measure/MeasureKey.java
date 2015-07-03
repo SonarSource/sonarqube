@@ -23,7 +23,7 @@ package org.sonar.server.computation.measure;
 import java.util.Objects;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.core.rule.RuleDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.debt.Characteristic;
 
 import static com.google.common.base.Preconditions.checkArgument;

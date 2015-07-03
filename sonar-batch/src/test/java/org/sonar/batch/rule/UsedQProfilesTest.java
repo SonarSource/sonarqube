@@ -20,7 +20,7 @@
 package org.sonar.batch.rule;
 
 import org.junit.Test;
-import org.sonar.core.UtcDateUtils;
+import org.sonar.core.util.UtcDateUtils;
 
 import java.util.Arrays;
 import java.util.Map;

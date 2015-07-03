@@ -22,8 +22,8 @@ package org.sonar.server.qualitygate.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.qualitygate.db.QualityGateConditionDto;
-import org.sonar.core.qualitygate.db.QualityGateDto;
+import org.sonar.db.qualitygate.QualityGateConditionDto;
+import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
 
 public class QGatesWs implements WebService {

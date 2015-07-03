@@ -23,7 +23,7 @@ package org.sonar.server.issue;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.rule.RuleDto;
+import org.sonar.db.rule.RuleDto;
 
 import java.util.Collection;
 

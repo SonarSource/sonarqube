@@ -25,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.core.computation.db.AnalysisReportDto;
+import org.sonar.db.compute.AnalysisReportDto;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.computation.container.ComputeEngineContainer;
 import org.sonar.server.computation.container.ContainerFactory;

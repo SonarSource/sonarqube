@@ -33,7 +33,7 @@ import java.util.SortedSet;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.UtcDateUtils;
+import org.sonar.core.util.UtcDateUtils;
 
 /**
  * Represents the array of JSON objects stored in the value of the

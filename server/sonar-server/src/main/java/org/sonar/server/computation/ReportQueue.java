@@ -30,14 +30,14 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.db.compute.AnalysisReportDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.db.DbClient;
 
-import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
+import static org.sonar.db.compute.AnalysisReportDto.Status.PENDING;
 
 @ServerSide
 public class ReportQueue {

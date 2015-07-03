@@ -1,0 +1,61 @@
+<dataset>
+
+  <!-- global -->
+  <properties id="1" prop_key="global.one" text_value="one" resource_id="[null]" user_id="[null]"/>
+  <properties id="2" prop_key="global.two" text_value="two" resource_id="[null]" user_id="[null]"/>
+
+  <!-- org.struts:struts -->
+  <properties id="3" prop_key="struts.one" text_value="one" resource_id="1" user_id="[null]"/>
+
+  <!-- org.struts:struts-core -->
+  <properties id="4" prop_key="core.one" text_value="one" resource_id="2" user_id="[null]"/>
+  <properties id="7" prop_key="core.two" text_value="two" resource_id="2" user_id="[null]"/>
+
+  <!-- org.struts:struts-data -->
+  <properties id="8" prop_key="data.one" text_value="one" resource_id="3" user_id="[null]"/>
+
+  <!-- user -->
+  <properties id="5" prop_key="user.one" text_value="one" resource_id="[null]" user_id="100"/>
+  <properties id="6" prop_key="user.two" text_value="two" resource_id="1" user_id="102"/>
+
+
+  <!-- root project -->
+  <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
+            uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="."
+            description="the description" long_name="Apache Struts"
+            enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]"
+            authorization_updated_at="[null]"/>
+
+  <!-- module -->
+  <projects id="2" root_id="1" kee="org.struts:struts-core" name="Struts Core"
+            uuid="EFGH" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD."
+            scope="PRJ" qualifier="BRC" long_name="Struts Core"
+            description="[null]" enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]"
+            authorization_updated_at="[null]"/>
+
+  <!-- sub module -->
+  <projects id="3" root_id="1" kee="org.struts:struts-data" name="Struts Data"
+            uuid="FGHI" project_uuid="ABCD" module_uuid="EFGH" module_uuid_path=".ABCD.EFGH."
+            scope="PRJ" qualifier="BRC" long_name="Struts Data"
+            description="[null]" enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]"
+            authorization_updated_at="[null]"/>
+
+  <!-- directory -->
+  <projects long_name="org.struts" id="4" scope="DIR" qualifier="DIR" kee="org.struts:struts-core:src/org/struts"
+            uuid="GHIJ" project_uuid="ABCD" module_uuid="FGHI" module_uuid_path=".ABCD.EFGH.FGHI."
+            name="src/org/struts" root_id="3"
+            description="[null]"
+            enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="src/org/struts"
+            authorization_updated_at="[null]"/>
+
+  <!-- file -->
+  <projects long_name="org.struts.RequestContext" id="5" scope="FIL" qualifier="FIL"
+            kee="org.struts:struts-core:src/org/struts/RequestContext.java"
+            uuid="HIJK" project_uuid="ABCD" module_uuid="GHIJ" module_uuid_path=".ABCD.EFGH.FGHI."
+            name="RequestContext.java" root_id="3"
+            description="[null]"
+            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"
+            path="src/org/struts/RequestContext.java" authorization_updated_at="[null]"/>
+
+
+</dataset>

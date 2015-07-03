@@ -20,7 +20,7 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.core.resource.ResourceIndexerDao;
+import org.sonar.db.component.ResourceIndexerDao;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
 

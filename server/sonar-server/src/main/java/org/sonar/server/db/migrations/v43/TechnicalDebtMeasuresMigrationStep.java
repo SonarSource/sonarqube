@@ -27,8 +27,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.core.persistence.Database;
-import org.sonar.core.properties.PropertiesDao;
+import org.sonar.db.Database;
+import org.sonar.db.property.PropertiesDao;
 import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select;

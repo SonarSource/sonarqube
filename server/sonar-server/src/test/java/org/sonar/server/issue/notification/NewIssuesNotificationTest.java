@@ -30,7 +30,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleDoc;

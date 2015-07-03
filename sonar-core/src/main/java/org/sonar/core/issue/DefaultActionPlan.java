@@ -20,12 +20,11 @@
 
 package org.sonar.core.issue;
 
-import org.sonar.api.issue.ActionPlan;
-import org.sonar.api.utils.internal.Uuids;
-
+import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.util.Date;
+import org.sonar.api.issue.ActionPlan;
+import org.sonar.api.utils.internal.Uuids;
 
 public class DefaultActionPlan implements ActionPlan {
 
@@ -39,7 +38,7 @@ public class DefaultActionPlan implements ActionPlan {
   private Date createdAt;
   private Date updatedAt;
 
-  public DefaultActionPlan(){
+  public DefaultActionPlan() {
 
   }
 

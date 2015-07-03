@@ -24,7 +24,7 @@ import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.computation.db.AnalysisReportDto;
+import org.sonar.db.compute.AnalysisReportDto;
 import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.ws.WsTester;
 
@@ -33,7 +33,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
+import static org.sonar.db.compute.AnalysisReportDto.Status.PENDING;
 
 public class QueueActionTest {
 

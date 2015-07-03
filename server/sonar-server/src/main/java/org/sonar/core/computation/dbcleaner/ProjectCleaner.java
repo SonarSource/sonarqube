@@ -28,16 +28,16 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.TimeUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.purge.IdUuidPair;
-import org.sonar.core.purge.PurgeConfiguration;
-import org.sonar.core.purge.PurgeDao;
-import org.sonar.core.purge.PurgeListener;
-import org.sonar.core.purge.PurgeProfiler;
+import org.sonar.db.purge.period.DefaultPeriodCleaner;
+import org.sonar.db.DbSession;
+import org.sonar.db.purge.IdUuidPair;
+import org.sonar.db.purge.PurgeConfiguration;
+import org.sonar.db.purge.PurgeDao;
+import org.sonar.db.purge.PurgeListener;
+import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.server.issue.index.IssueIndex;
 
-import static org.sonar.core.purge.PurgeConfiguration.newDefaultPurgeConfiguration;
+import static org.sonar.db.purge.PurgeConfiguration.newDefaultPurgeConfiguration;
 
 @ServerSide
 public class ProjectCleaner {

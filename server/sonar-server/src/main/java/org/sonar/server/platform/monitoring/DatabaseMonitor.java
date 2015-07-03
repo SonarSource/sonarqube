@@ -22,9 +22,9 @@ package org.sonar.server.platform.monitoring;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.DbUtils;
-import org.sonar.core.persistence.DatabaseVersion;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.db.version.DatabaseVersion;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 import org.sonar.server.db.DbClient;
 
 import java.sql.Connection;

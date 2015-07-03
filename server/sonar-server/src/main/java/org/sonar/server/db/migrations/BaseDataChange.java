@@ -23,7 +23,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import org.apache.commons.dbutils.DbUtils;
-import org.sonar.core.persistence.Database;
+import org.sonar.db.Database;
 
 public abstract class BaseDataChange implements DataChange, MigrationStep {
 

@@ -25,15 +25,15 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.user.GroupDto;
-import org.sonar.core.user.UserDto;
-import org.sonar.core.user.UserGroupDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.core.persistence.MyBatis.closeQuietly;
+import static org.sonar.db.MyBatis.closeQuietly;
 
 public class AddUserAction implements UserGroupsWsAction {
 

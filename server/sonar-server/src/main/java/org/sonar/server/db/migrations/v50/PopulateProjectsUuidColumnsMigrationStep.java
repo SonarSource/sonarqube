@@ -28,9 +28,9 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.migration.v50.Component;
-import org.sonar.core.persistence.migration.v50.Migration50Mapper;
+import org.sonar.db.DbSession;
+import org.sonar.db.version.v50.Component;
+import org.sonar.db.version.v50.Migration50Mapper;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.MigrationStep;
 import org.sonar.server.util.ProgressLogger;
@@ -66,7 +66,7 @@ public class PopulateProjectsUuidColumnsMigrationStep implements MigrationStep {
     final DbSession readSession = db.openSession(false);
     final DbSession writeSession = db.openSession(true);
     try {
-      readSession.select("org.sonar.core.persistence.migration.v50.Migration50Mapper.selectRootProjects", new ResultHandler() {
+      readSession.select("org.sonar.db.version.v50.Migration50Mapper.selectRootProjects", new ResultHandler() {
         @Override
         public void handleResult(ResultContext context) {
           Component project = (Component) context.getResultObject();

@@ -32,7 +32,7 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.core.computation.db.AnalysisReportDto;
+import org.sonar.db.compute.AnalysisReportDto;
 import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.computation.batch.MutableBatchReportDirectoryHolder;
 

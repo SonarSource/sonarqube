@@ -22,7 +22,7 @@ package org.sonar.server.qualityprofile;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.server.activity.Activity;
 
 import javax.annotation.CheckForNull;

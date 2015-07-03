@@ -22,7 +22,7 @@ package org.sonar.server.issue.notification;
 import org.junit.Test;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.core.component.ComponentDto;
+import org.sonar.db.component.ComponentDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

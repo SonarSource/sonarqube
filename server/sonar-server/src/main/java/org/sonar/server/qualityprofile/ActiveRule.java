@@ -20,7 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.sonar.db.qualityprofile.ActiveRuleKey;
 
 import javax.annotation.CheckForNull;
 import java.util.Date;

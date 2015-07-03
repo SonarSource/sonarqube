@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.user.GroupMapper">
+
+  <sql id="groupColumns">
+    g.id as id,
+    g.name as name,
+    g.description as description,
+    g.created_at as "createdAt",
+    g.updated_at as "updatedAt"
+  </sql>
+
+  <select id="selectByKey" parameterType="string" resultType="Group">
+    SELECT
+    <include refid="groupColumns"/>
+    FROM groups g
+    <where>
+      g.name=#{id}
+    </where>
+  </select>
+
+  <select id="selectById" parameterType="long" resultType="Group">
+    SELECT
+    <include refid="groupColumns"/>
+    FROM groups g
+    <where>
+      g.id=#{id}
+    </where>
+  </select>
+
+  <delete id="deleteById" parameterType="long">
+    DELETE FROM groups
+    <where>
+      id=#{id}
+    </where>
+  </delete>
+
+  <select id="selectByUserLogin" parameterType="string" resultType="Group">
+    SELECT
+    <include refid="groupColumns"/>
+    FROM groups g
+    INNER JOIN groups_users gu on gu.group_id=g.id
+    INNER JOIN users u on u.id=gu.user_id
+    <where>
+      u.login=#{login}
+    </where>
+  </select>
+
+  <insert id="insert" parameterType="Group" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO groups (name, description, created_at, updated_at)
+    VALUES (#{name}, #{description}, #{createdAt}, #{updatedAt})
+  </insert>
+
+  <update id="update" parameterType="Group">
+    UPDATE groups SET
+    name=#{name},
+    description=#{description},
+    updated_at=#{updatedAt}
+    WHERE id=#{id}
+  </update>
+
+  <select id="selectByQuery" parameterType="map" resultType="Group">
+    SELECT
+    <include refid="groupColumns"/>
+    FROM groups g
+    WHERE UPPER(g.name) LIKE #{query}
+    ORDER BY UPPER(g.name)
+  </select>
+
+  <select id="countByQuery" parameterType="map" resultType="int">
+    SELECT count(g.id)
+    FROM groups g
+    WHERE UPPER(g.name) LIKE #{query}
+  </select>
+</mapper>

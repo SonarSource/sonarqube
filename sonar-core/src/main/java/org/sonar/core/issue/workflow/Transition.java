@@ -22,12 +22,11 @@ package org.sonar.core.issue.workflow;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.Condition;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class Transition {
   private final String key;

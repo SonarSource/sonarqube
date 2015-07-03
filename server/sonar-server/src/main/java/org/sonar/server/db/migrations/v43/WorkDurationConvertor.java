@@ -20,8 +20,8 @@
 
 package org.sonar.server.db.migrations.v43;
 
-import org.sonar.core.properties.PropertiesDao;
-import org.sonar.core.properties.PropertyDto;
+import org.sonar.db.property.PropertiesDao;
+import org.sonar.db.property.PropertyDto;
 
 class WorkDurationConvertor {
 

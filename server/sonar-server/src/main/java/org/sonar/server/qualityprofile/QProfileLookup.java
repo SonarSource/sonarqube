@@ -26,8 +26,8 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.db.DbClient;
 
 import static com.google.common.collect.Lists.newArrayList;

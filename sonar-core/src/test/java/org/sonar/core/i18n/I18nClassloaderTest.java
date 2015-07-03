@@ -20,14 +20,13 @@
 package org.sonar.core.i18n;
 
 import com.google.common.collect.Lists;
+import java.net.URL;
+import java.net.URLClassLoader;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.core.platform.PluginRepository;
-
-import java.net.URL;
-import java.net.URLClassLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

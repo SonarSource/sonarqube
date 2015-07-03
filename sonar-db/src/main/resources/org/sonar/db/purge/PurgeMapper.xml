@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.purge.PurgeMapper">
+
+  <select id="selectSnapshotIds" parameterType="map" resultType="long">
+    select s.id from snapshots s
+    <where>
+      <if test="islast != null">
+        and s.islast=#{islast}
+      </if>
+      <if test="notPurged != null and notPurged">
+        and (s.purge_status is null or s.purge_status=0)
+      </if>
+      <if test="rootSnapshotId != null">
+        and s.root_snapshot_id=#{rootSnapshotId}
+      </if>
+      <if test="id != null">
+        and s.id=#{id}
+      </if>
+      <if test="rootProjectId != null">
+        and s.root_project_id=#{rootProjectId}
+      </if>
+      <if test="resourceId != null">
+        and s.project_id=#{resourceId}
+      </if>
+      <if test="status != null">
+        and s.status in
+        <foreach item="s" index="index" collection="status" open="(" separator="," close=")">#{s}</foreach>
+      </if>
+      <if test="scopes != null">
+        and s.scope in
+        <foreach item="scope" index="index" collection="scopes" open="(" separator="," close=")">#{scope}</foreach>
+      </if>
+      <if test="qualifiers != null">
+        and s.qualifier in
+        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator="," close=")">#{qualifier}
+        </foreach>
+      </if>
+      <if test="withVersionEvent != null">
+        <if test="withVersionEvent">
+          and exists(select e.id from events e where e.snapshot_id=s.id and e.category='Version')
+        </if>
+        <if test="!withVersionEvent">
+          and not exists(select e.id from events e where e.snapshot_id=s.id and e.category='Version')
+        </if>
+      </if>
+    </where>
+  </select>
+
+  <select id="selectSnapshotIdsByResource" parameterType="map" resultType="long">
+    select s.id from snapshots s
+    <where>
+      s.project_id in
+      <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+        #{resourceId}
+      </foreach>
+    </where>
+  </select>
+
+  <select id="selectPurgeableSnapshotsWithEvents" parameterType="long" resultType="PurgeableSnapshot">
+    select s.id as "snapshotId", s.created_at as "date", ${_true} as "hasEvents", islast as "isLast" from
+    snapshots s where
+    s.project_id=#{id} and s.status='P' and s.qualifier &lt;&gt; 'LIB' and
+    exists(select e.id from events e where e.snapshot_id=s.id)
+  </select>
+
+  <select id="selectPurgeableSnapshotsWithoutEvents" parameterType="long" resultType="PurgeableSnapshot">
+    select s.id as "snapshotId", s.created_at as "date", ${_false} as "hasEvents", islast as "isLast" from
+    snapshots s where
+    s.project_id=#{id} and s.status='P' and s.qualifier &lt;&gt; 'LIB' and
+    not exists(select e.id from events e where e.snapshot_id=s.id)
+  </select>
+
+  <select id="selectComponentIdUuidsToDisable" resultType="IdUuidPair" parameterType="long">
+    select p.id, p.uuid from projects p
+    where (p.id=#{id} or p.root_id=#{id}) and p.enabled=${_true}
+    and not exists(select s.project_id from snapshots s where s.islast=${_true} and s.project_id=p.id)
+  </select>
+
+  <select id="selectPurgeableFileUuids" resultType="string" parameterType="long">
+    select p.uuid from projects p
+    where (p.id=#{id} or p.root_id=#{id}) and p.enabled=${_true} and p.scope='FIL'
+    and not exists(select s.project_id from snapshots s where s.islast=${_true} and s.project_id=p.id)
+  </select>
+
+  <select id="selectMetricIdsWithoutHistoricalData" resultType="long">
+    select id from metrics where delete_historical_data=${_true}
+  </select>
+
+  <select id="selectProjectIdUuidsByRootId" resultType="IdUuidPair" parameterType="long">
+    select id, uuid from projects where root_id=#{id} and scope='PRJ'
+  </select>
+
+  <select id="selectComponentIdUuidsByRootId" resultType="IdUuidPair" parameterType="long">
+    select id, uuid from projects where root_id=#{id} or id=#{id}
+  </select>
+
+  <delete id="deleteSnapshotMeasures" parameterType="map">
+    delete from project_measures where snapshot_id in
+    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
+      #{snapshotId}
+    </foreach>
+  </delete>
+
+  <delete id="deleteSnapshotDuplications" parameterType="map">
+    delete from duplications_index where snapshot_id in
+    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
+      #{snapshotId}
+    </foreach>
+  </delete>
+
+  <delete id="deleteSnapshotEvents" parameterType="map">
+    delete from events where snapshot_id in
+    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
+      #{snapshotId}
+    </foreach>
+  </delete>
+
+  <delete id="deleteSnapshot" parameterType="map">
+    delete from snapshots where id in
+    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
+      #{snapshotId}
+    </foreach>
+  </delete>
+
+  <delete id="deleteSnapshotWastedMeasures" parameterType="map">
+    delete from project_measures
+    <where>
+      snapshot_id in
+      <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
+        #{snapshotId}
+      </foreach>
+      and (rule_id is not null or person_id is not null
+      <if test="mids.size()>0">
+        or metric_id in
+        <foreach item="mid" index="index" collection="mids" open="(" separator="," close=")">#{mid}</foreach>
+      </if>
+      )
+    </where>
+  </delete>
+
+  <update id="updatePurgeStatusToOne" parameterType="long">
+    update snapshots set purge_status = 1 where id = #{id}
+  </update>
+
+  <update id="disableResource" parameterType="long">
+    update projects set enabled=${_false} where id=#{id}
+  </update>
+
+  <update id="resolveResourceIssuesNotAlreadyResolved" parameterType="map">
+    UPDATE issues SET status='CLOSED',resolution='REMOVED',updated_at=#{dateAsLong},issue_close_date=#{dateAsLong},
+    issue_update_date=#{dateAsLong}
+    WHERE component_uuid=#{componentUuid} AND resolution IS NULL
+  </update>
+
+  <delete id="deleteResourceIndex" parameterType="map">
+    delete from resource_index where resource_id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
+  </delete>
+
+  <delete id="deleteEvent" parameterType="map">
+    delete from events where id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
+  </delete>
+
+  <delete id="deleteResourceLinks" parameterType="map">
+    delete from project_links where component_uuid in
+    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+      #{componentUuid}
+    </foreach>
+  </delete>
+
+  <delete id="deleteResourceProperties" parameterType="map">
+    delete from properties where resource_id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
+  </delete>
+
+  <delete id="deleteResource" parameterType="map">
+    delete from projects where id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
+  </delete>
+
+  <delete id="deleteResourceGroupRoles" parameterType="map">
+    delete from group_roles where resource_id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
+  </delete>
+
+  <delete id="deleteResourceUserRoles" parameterType="map">
+    delete from user_roles where resource_id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
+  </delete>
+
+  <delete id="deleteResourceManualMeasures" parameterType="map">
+    delete from manual_measures where component_uuid in
+    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+      #{componentUuid}
+    </foreach>
+  </delete>
+
+  <delete id="deleteComponentEvents" parameterType="map">
+    delete from events where component_uuid in
+    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+      #{componentUuid}
+    </foreach>
+  </delete>
+
+  <delete id="deleteResourceActionPlans" parameterType="map">
+    delete from action_plans where project_id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
+  </delete>
+
+  <delete id="deleteAuthors" parameterType="map">
+    delete from authors where person_id in
+    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
+      #{resourceId}
+    </foreach>
+  </delete>
+
+  <update id="setSnapshotIsLastToFalse" parameterType="long">
+    update snapshots set islast=${_false} where project_id=#{id}
+  </update>
+
+  <delete id="deleteComponentIssueChanges" parameterType="map">
+    delete from issue_changes ic
+    where exists (select * from issues i where i.kee=ic.issue_key and i.component_uuid in
+    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+      #{componentUuid}
+    </foreach>
+    )
+  </delete>
+
+  <!-- Mssql -->
+  <delete id="deleteComponentIssueChanges" databaseId="mssql" parameterType="map">
+    delete issue_changes from issue_changes
+    inner join issues on issue_changes.issue_key=issues.kee
+    where issues.component_uuid in
+    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+      #{componentUuid}
+    </foreach>
+  </delete>
+
+  <!-- Mysql -->
+  <delete id="deleteComponentIssueChanges" databaseId="mysql" parameterType="map">
+    delete ic from issue_changes as ic, issues as i where ic.issue_key=i.kee and i.component_uuid in
+    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+      #{componentUuid}
+    </foreach>
+  </delete>
+
+  <delete id="deleteComponentIssues" parameterType="map">
+    delete from issues where component_uuid in
+    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+      #{componentUuid}
+    </foreach>
+  </delete>
+
+  <delete id="deleteFileSourcesByProjectUuid">
+    delete from file_sources where project_uuid=#{rootProjectUuid}
+  </delete>
+
+  <delete id="deleteFileSourcesByUuid">
+    delete from file_sources where file_uuid=#{fileUuid}
+  </delete>
+
+  <delete id="deleteOldClosedIssueChanges" parameterType="map">
+    delete from issue_changes ic
+    where exists (
+    select * from issues i
+    where i.project_uuid=#{projectUuid} and i.kee=ic.issue_key
+    <choose>
+      <when test="toDate == null">
+        and i.issue_close_date is not null
+      </when>
+      <otherwise>
+        and i.issue_close_date &lt; #{toDate}
+      </otherwise>
+    </choose>
+    )
+  </delete>
+
+  <!-- Mssql -->
+  <delete id="deleteOldClosedIssueChanges" databaseId="mssql" parameterType="map">
+    delete issue_changes from issue_changes
+    inner join issues on issue_changes.issue_key=issues.kee
+    where issues.project_uuid=#{projectUuid}
+    <choose>
+      <when test="toDate == null">
+        and issues.issue_close_date is not null
+      </when>
+      <otherwise>
+        and issues.issue_close_date &lt; #{toDate}
+      </otherwise>
+    </choose>
+  </delete>
+
+  <!-- Mysql -->
+  <delete id="deleteOldClosedIssueChanges" databaseId="mysql" parameterType="map">
+    delete ic
+    from issue_changes as ic, issues as i
+    where i.project_uuid=#{projectUuid}
+    and ic.issue_key=i.kee
+    <choose>
+      <when test="toDate == null">
+        and i.issue_close_date is not null
+      </when>
+      <otherwise>
+        and i.issue_close_date &lt; #{toDate}
+      </otherwise>
+    </choose>
+  </delete>
+
+  <delete id="deleteOldClosedIssues" parameterType="map">
+    delete from issues
+    where project_uuid=#{projectUuid}
+    <choose>
+      <when test="toDate == null">
+        and issue_close_date is not null
+      </when>
+      <otherwise>
+        and issue_close_date &lt; #{toDate}
+      </otherwise>
+    </choose>
+  </delete>
+
+</mapper>
+

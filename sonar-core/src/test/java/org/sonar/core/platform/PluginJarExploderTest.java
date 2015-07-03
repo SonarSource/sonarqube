@@ -19,13 +19,12 @@
  */
 package org.sonar.core.platform;
 
+import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.ZipUtils;
-
-import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -76,6 +75,6 @@ public class PluginJarExploderTest {
   }
 
   private File getFile(String filename) {
-    return FileUtils.toFile(getClass().getResource("/org/sonar/core/plugins/" + filename));
+    return FileUtils.toFile(getClass().getResource("/org/sonar/core/platform/" + filename));
   }
 }

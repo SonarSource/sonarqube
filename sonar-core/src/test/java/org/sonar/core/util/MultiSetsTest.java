@@ -22,9 +22,8 @@ package org.sonar.core.util;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
-import org.junit.Test;
-
 import java.util.List;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

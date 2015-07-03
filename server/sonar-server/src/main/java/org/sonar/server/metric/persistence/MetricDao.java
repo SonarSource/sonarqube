@@ -35,18 +35,18 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.metric.db.MetricDto;
-import org.sonar.core.metric.db.MetricMapper;
-import org.sonar.core.persistence.DaoComponent;
-import org.sonar.core.persistence.DaoUtils;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.metric.MetricDto;
+import org.sonar.db.metric.MetricMapper;
+import org.sonar.db.Dao;
+import org.sonar.db.DaoUtils;
+import org.sonar.db.DbSession;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.collect.Lists.newArrayList;
 
 @ServerSide
-public class MetricDao implements DaoComponent {
+public class MetricDao implements Dao {
 
   @CheckForNull
   public MetricDto selectNullableByKey(DbSession session, String key) {

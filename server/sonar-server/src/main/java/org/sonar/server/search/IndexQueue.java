@@ -31,7 +31,7 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.cluster.WorkQueue;
+import org.sonar.db.deprecated.WorkQueue;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.search.action.IndexAction;
 

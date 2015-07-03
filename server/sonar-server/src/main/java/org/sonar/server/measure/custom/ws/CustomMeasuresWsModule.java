@@ -20,7 +20,7 @@
 
 package org.sonar.server.measure.custom.ws;
 
-import org.sonar.core.component.Module;
+import org.sonar.core.platform.Module;
 
 public class CustomMeasuresWsModule extends Module {
   @Override

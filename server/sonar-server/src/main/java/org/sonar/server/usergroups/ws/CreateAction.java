@@ -25,12 +25,12 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.user.GroupDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.user.GroupDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.core.persistence.MyBatis.closeQuietly;
+import static org.sonar.db.MyBatis.closeQuietly;
 import static org.sonar.server.usergroups.ws.GroupUpdater.DESCRIPTION_MAX_LENGTH;
 import static org.sonar.server.usergroups.ws.GroupUpdater.NAME_MAX_LENGTH;
 import static org.sonar.server.usergroups.ws.GroupUpdater.PARAM_DESCRIPTION;

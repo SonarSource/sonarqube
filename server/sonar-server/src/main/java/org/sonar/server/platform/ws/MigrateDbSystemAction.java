@@ -24,8 +24,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.persistence.Database;
-import org.sonar.core.persistence.DatabaseVersion;
+import org.sonar.db.Database;
+import org.sonar.db.version.DatabaseVersion;
 import org.sonar.server.db.migrations.DatabaseMigration;
 
 import static org.sonar.server.db.migrations.DatabaseMigration.Status.RUNNING;

@@ -22,11 +22,11 @@ package org.sonar.server.user;
 import java.util.Arrays;
 import org.junit.Test;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.component.ComponentDto;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.user.AuthorizationDao;
+import org.sonar.db.component.ResourceDao;
+import org.sonar.db.component.ResourceDto;
+import org.sonar.db.user.AuthorizationDao;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 

@@ -23,7 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.core.plugins.RemotePlugin;
+import org.sonar.core.platform.RemotePlugin;
 import org.sonar.home.cache.FileCache;
 
 import java.io.File;

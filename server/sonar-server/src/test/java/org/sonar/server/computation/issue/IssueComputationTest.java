@@ -55,7 +55,7 @@
 //import org.sonar.api.utils.System2;
 //import org.sonar.api.utils.log.LogTester;
 //import org.sonar.batch.protocol.output.BatchReport;
-//import org.sonar.core.rule.RuleDto;
+//import org.sonar.db.rule.RuleDto;
 //import org.sonar.server.computation.batch.BatchReportReaderRule;
 //import org.sonar.server.computation.component.ProjectSettingsRepository;
 //import org.sonar.server.user.index.UserDoc;

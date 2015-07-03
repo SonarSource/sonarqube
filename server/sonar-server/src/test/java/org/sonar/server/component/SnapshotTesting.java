@@ -22,8 +22,8 @@ package org.sonar.server.component;
 
 import com.google.common.base.Preconditions;
 import org.assertj.core.util.Strings;
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.component.SnapshotDto;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
 
 public class SnapshotTesting {
 

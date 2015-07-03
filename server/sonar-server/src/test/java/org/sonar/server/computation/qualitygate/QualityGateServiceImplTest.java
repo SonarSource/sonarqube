@@ -23,10 +23,10 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import org.junit.Test;
-import org.sonar.core.qualitygate.db.QualityGateConditionDao;
-import org.sonar.core.qualitygate.db.QualityGateConditionDto;
-import org.sonar.core.qualitygate.db.QualityGateDao;
-import org.sonar.core.qualitygate.db.QualityGateDto;
+import org.sonar.db.qualitygate.QualityGateConditionDao;
+import org.sonar.db.qualitygate.QualityGateConditionDto;
+import org.sonar.db.qualitygate.QualityGateDao;
+import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 

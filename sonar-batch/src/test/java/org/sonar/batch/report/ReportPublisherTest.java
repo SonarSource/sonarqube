@@ -29,19 +29,15 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.scan.ImmutableProjectReactor;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class ReportPublisherTest extends AbstractDbUnitTestCase {
+public class ReportPublisherTest {
 
   private DefaultAnalysisMode mode;
-
-  BatchComponentCache resourceCache = mock(BatchComponentCache.class);
 
   private ImmutableProjectReactor reactor;
 

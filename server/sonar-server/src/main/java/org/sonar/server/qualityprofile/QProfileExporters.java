@@ -41,8 +41,8 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 

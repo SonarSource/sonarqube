@@ -21,10 +21,10 @@ package org.sonar.server.qualitygate;
 
 import org.picocontainer.Startable;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.core.qualitygate.db.QualityGateConditionDto;
-import org.sonar.core.qualitygate.db.QualityGateDto;
-import org.sonar.core.template.LoadedTemplateDao;
-import org.sonar.core.template.LoadedTemplateDto;
+import org.sonar.db.qualitygate.QualityGateConditionDto;
+import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.db.loadedtemplate.LoadedTemplateDao;
+import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 
 public class RegisterQualityGates implements Startable {
 

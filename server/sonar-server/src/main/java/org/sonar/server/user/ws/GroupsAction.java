@@ -29,10 +29,10 @@ import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.user.GroupMembershipDto;
-import org.sonar.core.user.GroupMembershipQuery;
-import org.sonar.core.user.UserDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.user.GroupMembershipDto;
+import org.sonar.db.user.GroupMembershipQuery;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.component.ResourceKeyUpdaterMapper">
+
+  <resultMap id="resourceResultMap" type="Resource">
+    <id property="id" column="id"/>
+    <result property="key" column="kee"/>
+    <result property="deprecatedKey" column="deprecated_kee"/>
+    <result property="rootId" column="root_id"/>
+    <result property="scope" column="scope"/>
+  </resultMap>
+
+  <select id="countResourceByKey" parameterType="String" resultType="int">
+    SELECT count(*)
+    FROM projects
+    WHERE kee = #{key}
+  </select>
+
+  <select id="selectProject" parameterType="long" resultMap="resourceResultMap">
+    select * from projects where id=#{id}
+  </select>
+
+  <select id="selectProjectResources" parameterType="long" resultMap="resourceResultMap">
+    select * from projects where root_id=#{id} AND scope!='PRJ'
+  </select>
+
+  <select id="selectDescendantProjects" parameterType="long" resultMap="resourceResultMap">
+    select * from projects where scope='PRJ' and root_id=#{id}
+  </select>
+
+  <update id="update" parameterType="Resource">
+    update projects
+    set kee = #{key}, deprecated_kee = #{deprecatedKey}
+    where id = #{id}
+  </update>
+
+</mapper>
+

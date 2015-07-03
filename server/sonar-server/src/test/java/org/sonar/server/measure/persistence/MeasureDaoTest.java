@@ -31,10 +31,10 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.core.measure.db.MeasureDto;
-import org.sonar.core.measure.db.PastMeasureDto;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.DbTester;
+import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.PastMeasureDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;

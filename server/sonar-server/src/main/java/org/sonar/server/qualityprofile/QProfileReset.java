@@ -31,11 +31,11 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleKey;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.rule.RuleParamDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.ActiveRuleDto;
+import org.sonar.db.qualityprofile.ActiveRuleKey;
+import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 

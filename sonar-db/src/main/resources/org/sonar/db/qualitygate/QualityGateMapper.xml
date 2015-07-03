@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.qualitygate.QualityGateMapper">
+
+  <insert id="insert" parameterType="QualityGate" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    insert into quality_gates (name, created_at, updated_at)
+    values (#{name}, #{createdAt}, #{updatedAt})
+  </insert>
+
+  <sql id="gateColumns">
+    id, name, created_at as createdAt, updated_at as updatedAt
+  </sql>
+
+  <select id="selectAll" resultType="QualityGate">
+    select
+    <include refid="gateColumns"/>
+    from quality_gates
+    order by name asc
+  </select>
+
+  <select id="selectByName" parameterType="String" resultType="QualityGate">
+    select
+    <include refid="gateColumns"/>
+    from quality_gates
+    where name=#{name}
+  </select>
+
+  <select id="selectById" parameterType="long" resultType="QualityGate">
+    select
+    <include refid="gateColumns"/>
+    from quality_gates
+    where id=#{id}
+  </select>
+
+  <update id="delete" parameterType="long">
+    delete from quality_gates where id=#{id}
+  </update>
+
+  <update id="update" parameterType="QualityGate">
+    update quality_gates set
+    name=#{name},
+    updated_at=#{updatedAt}
+    where id=#{id}
+  </update>
+
+</mapper>
+

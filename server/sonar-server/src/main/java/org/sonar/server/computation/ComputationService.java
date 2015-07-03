@@ -29,8 +29,8 @@ import org.sonar.server.computation.activity.ActivityManager;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
 
-import static org.sonar.core.computation.db.AnalysisReportDto.Status.FAILED;
-import static org.sonar.core.computation.db.AnalysisReportDto.Status.SUCCESS;
+import static org.sonar.db.compute.AnalysisReportDto.Status.FAILED;
+import static org.sonar.db.compute.AnalysisReportDto.Status.SUCCESS;
 
 @ServerSide
 public class ComputationService {

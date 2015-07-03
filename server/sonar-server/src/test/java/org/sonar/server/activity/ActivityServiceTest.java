@@ -28,7 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.DbTester;
+import org.sonar.db.DbTester;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.activity.index.ActivityDoc;
 import org.sonar.server.activity.index.ActivityIndexDefinition;

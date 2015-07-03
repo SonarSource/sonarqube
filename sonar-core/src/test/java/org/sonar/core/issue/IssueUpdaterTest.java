@@ -19,6 +19,7 @@
  */
 package org.sonar.core.issue;
 
+import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.ActionPlan;
@@ -26,10 +27,14 @@ import org.sonar.api.user.User;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.user.DefaultUser;
 
-import java.util.Date;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.issue.IssueUpdater.*;
+import static org.sonar.core.issue.IssueUpdater.ACTION_PLAN;
+import static org.sonar.core.issue.IssueUpdater.ASSIGNEE;
+import static org.sonar.core.issue.IssueUpdater.RESOLUTION;
+import static org.sonar.core.issue.IssueUpdater.SEVERITY;
+import static org.sonar.core.issue.IssueUpdater.STATUS;
+import static org.sonar.core.issue.IssueUpdater.TECHNICAL_DEBT;
+import static org.sonar.core.issue.IssueUpdater.UNUSED;
 
 public class IssueUpdaterTest {
 

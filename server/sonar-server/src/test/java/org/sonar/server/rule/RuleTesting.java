@@ -25,8 +25,8 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.core.rule.RuleDto.Format;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDto.Format;
 
 /**
  * Utility class for tests involving rules

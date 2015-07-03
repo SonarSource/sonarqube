@@ -69,7 +69,7 @@ import org.elasticsearch.search.fetch.source.FetchSourceContext;
 import org.joda.time.DateTime;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.persistence.Dto;
+import org.sonar.db.Dto;
 import org.sonar.server.exceptions.NotFoundException;
 
 /**

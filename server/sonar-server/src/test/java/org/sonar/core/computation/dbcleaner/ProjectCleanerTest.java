@@ -25,13 +25,14 @@ import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
-import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.purge.IdUuidPair;
-import org.sonar.core.purge.PurgeConfiguration;
-import org.sonar.core.purge.PurgeDao;
-import org.sonar.core.purge.PurgeListener;
-import org.sonar.core.purge.PurgeProfiler;
+import org.sonar.db.purge.period.DefaultPeriodCleaner;
+import org.sonar.db.DbSession;
+import org.sonar.db.purge.IdUuidPair;
+import org.sonar.db.purge.PurgeConfiguration;
+import org.sonar.core.config.PurgeConstants;
+import org.sonar.db.purge.PurgeDao;
+import org.sonar.db.purge.PurgeListener;
+import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.server.issue.index.IssueIndex;
 
 import java.util.Date;
@@ -80,7 +81,7 @@ public class ProjectCleanerTest {
 
   @Test
   public void call_period_cleaner_index_client_and_purge_dao() {
-    settings.setProperty(DbCleanerConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES, 5);
+    settings.setProperty(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES, 5);
 
     sut.purge(mock(DbSession.class), mock(IdUuidPair.class), settings);
 

@@ -18,7 +18,7 @@
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-core</artifactId>
+      <artifactId>sonar-db</artifactId>
       <type>test-jar</type>
       <version>${project.version}</version>
       <scope>test</scope>

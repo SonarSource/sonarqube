@@ -1,9 +1,8 @@
 package org.sonar.plugins.base;
 
-import org.sonar.api.SonarPlugin;
-
 import java.util.Collections;
 import java.util.List;
+import org.sonar.api.SonarPlugin;
 
 public class BasePlugin extends SonarPlugin {
 

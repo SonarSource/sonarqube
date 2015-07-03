@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.DbTester;
+import org.sonar.db.DbTester;
 import org.sonar.server.db.migrations.MigrationStep;
 
 import static junit.framework.TestCase.fail;

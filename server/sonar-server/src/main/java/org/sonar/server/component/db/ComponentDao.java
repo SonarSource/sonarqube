@@ -32,13 +32,13 @@ import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.component.FilePathWithHashDto;
-import org.sonar.core.component.UuidWithProjectUuidDto;
-import org.sonar.core.component.db.ComponentMapper;
-import org.sonar.core.persistence.DaoComponent;
-import org.sonar.core.persistence.DaoUtils;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.FilePathWithHashDto;
+import org.sonar.db.component.UuidWithProjectUuidDto;
+import org.sonar.db.component.ComponentMapper;
+import org.sonar.db.Dao;
+import org.sonar.db.DaoUtils;
+import org.sonar.db.DbSession;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
 
@@ -48,7 +48,7 @@ import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
  * @since 4.3
  */
 @ServerSide
-public class ComponentDao implements DaoComponent {
+public class ComponentDao implements Dao {
 
   public ComponentDto selectById(Long id, DbSession session) {
     ComponentDto componentDto = selectNullableById(id, session);

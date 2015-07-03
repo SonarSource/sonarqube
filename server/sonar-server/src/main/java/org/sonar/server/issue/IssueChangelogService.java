@@ -26,7 +26,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
-import org.sonar.core.issue.db.IssueChangeDao;
+import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;

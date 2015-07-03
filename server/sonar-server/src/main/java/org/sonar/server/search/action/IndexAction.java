@@ -20,7 +20,7 @@
 package org.sonar.server.search.action;
 
 import org.elasticsearch.action.ActionRequest;
-import org.sonar.core.cluster.ClusterAction;
+import org.sonar.db.deprecated.ClusterAction;
 import org.sonar.server.search.Index;
 
 import java.util.List;

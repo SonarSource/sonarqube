@@ -25,7 +25,7 @@ import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Set;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.metric.db.MetricDto;
+import org.sonar.db.metric.MetricDto;
 
 import static org.sonar.server.ws.JsonWriterUtils.writeIfNeeded;
 

@@ -26,12 +26,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.PermissionTemplateDao;
-import org.sonar.core.permission.PermissionTemplateDto;
-import org.sonar.core.template.LoadedTemplateDao;
-import org.sonar.core.template.LoadedTemplateDto;
-import org.sonar.core.user.GroupDto;
-import org.sonar.core.user.UserDao;
+import org.sonar.db.permission.PermissionTemplateDao;
+import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.loadedtemplate.LoadedTemplateDao;
+import org.sonar.db.loadedtemplate.LoadedTemplateDto;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDao;
 import org.sonar.server.platform.PersistentSettings;
 
 import static org.mockito.Matchers.any;

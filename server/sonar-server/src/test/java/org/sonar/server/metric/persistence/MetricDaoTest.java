@@ -25,9 +25,9 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.core.metric.db.MetricDto;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.DbTester;
+import org.sonar.db.metric.MetricDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.test.DbTests;
 

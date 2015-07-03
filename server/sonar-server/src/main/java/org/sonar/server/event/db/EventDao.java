@@ -21,15 +21,15 @@
 package org.sonar.server.event.db;
 
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.event.EventDto;
-import org.sonar.core.event.db.EventMapper;
-import org.sonar.core.persistence.DaoComponent;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.event.EventDto;
+import org.sonar.db.event.EventMapper;
+import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
 
 import java.util.List;
 
 @ServerSide
-public class EventDao implements DaoComponent {
+public class EventDao implements Dao {
 
   public List<EventDto> selectByComponentUuid(DbSession session, String componentUuid) {
     return session.getMapper(EventMapper.class).selectByComponentUuid(componentUuid);

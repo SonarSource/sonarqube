@@ -29,7 +29,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.QProfileComparison;

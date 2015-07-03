@@ -28,9 +28,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.DbTester;
-import org.sonar.core.properties.PropertiesDao;
-import org.sonar.core.properties.PropertyDto;
+import org.sonar.db.DbTester;
+import org.sonar.db.property.PropertiesDao;
+import org.sonar.db.property.PropertyDto;
 
 import java.util.List;
 import java.util.Map;

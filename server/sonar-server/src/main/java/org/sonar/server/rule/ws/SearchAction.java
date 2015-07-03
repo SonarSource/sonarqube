@@ -42,7 +42,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;

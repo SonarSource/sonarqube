@@ -466,7 +466,7 @@ module ::ArJdbc
     end
 
     #sonar
-    # standard_conforming_strings is forced to true in JDBC connection pool (see org.sonar.core.persistence.dialect.PostgreSql)
+    # standard_conforming_strings is forced to true in JDBC connection pool (see org.sonar.db.dialect.PostgreSql)
     # so double backslashing must be removed
     def quote_string(s)
       s.gsub(/'/, "''") # ' (for ruby-mode)

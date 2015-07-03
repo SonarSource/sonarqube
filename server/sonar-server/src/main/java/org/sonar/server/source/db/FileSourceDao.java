@@ -32,15 +32,15 @@ import javax.annotation.CheckForNull;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.persistence.DaoComponent;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.source.db.FileSourceDto;
-import org.sonar.core.source.db.FileSourceDto.Type;
-import org.sonar.core.source.db.FileSourceMapper;
+import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
+import org.sonar.db.source.FileSourceDto;
+import org.sonar.db.source.FileSourceDto.Type;
+import org.sonar.db.source.FileSourceMapper;
 
 @ServerSide
-public class FileSourceDao implements DaoComponent {
+public class FileSourceDao implements Dao {
 
   private static final Splitter END_OF_LINE_SPLITTER = Splitter.on('\n');
   private final MyBatis mybatis;

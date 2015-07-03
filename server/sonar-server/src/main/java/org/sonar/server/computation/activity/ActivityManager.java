@@ -20,10 +20,10 @@
 package org.sonar.server.computation.activity;
 
 import javax.annotation.CheckForNull;
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.compute.AnalysisReportDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.db.DbClient;

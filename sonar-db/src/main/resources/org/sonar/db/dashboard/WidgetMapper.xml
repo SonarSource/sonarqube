@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.dashboard.WidgetMapper">
+
+  <sql id="selectColumns">
+    w.id as "id",
+    w.dashboard_id as "dashboardId",
+    w.widget_key as "widgetKey",
+    w.name as "name",
+    w.description as "description",
+    w.column_index as "columnIndex",
+    w.row_index as "rowIndex",
+    w.configured as "configured",
+    w.created_at as "createdAt",
+    w.updated_at as "updatedAt",
+    w.resource_id as "resourceId"
+  </sql>
+
+  <select id="selectById" parameterType="Integer" resultType="Widget">
+    select
+    <include refid="selectColumns"/>
+    from widgets w where w.id=#{id}
+  </select>
+
+  <select id="selectByDashboard" parameterType="Integer" resultType="Widget">
+    select
+    <include refid="selectColumns"/>
+    from widgets w where w.dashboard_id=#{id}
+  </select>
+
+  <select id="selectAll" resultType="Widget">
+    select
+    <include refid="selectColumns"/>
+    from widgets w
+  </select>
+
+</mapper>

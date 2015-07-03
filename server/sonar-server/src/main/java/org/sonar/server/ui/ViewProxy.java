@@ -45,7 +45,7 @@ import org.sonar.api.web.WidgetLayoutType;
 import org.sonar.api.web.WidgetProperties;
 import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetScope;
-import org.sonar.core.component.ComponentDto;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.user.UserSession;
 
 @SuppressWarnings("rawtypes")

@@ -24,8 +24,8 @@ import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.core.properties.PropertiesDao;
-import org.sonar.core.properties.PropertyDto;
+import org.sonar.db.property.PropertiesDao;
+import org.sonar.db.property.PropertyDto;
 
 import java.util.Map;
 

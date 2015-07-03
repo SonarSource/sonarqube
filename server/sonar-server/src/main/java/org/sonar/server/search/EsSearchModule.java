@@ -19,7 +19,7 @@
  */
 package org.sonar.server.search;
 
-import org.sonar.core.component.Module;
+import org.sonar.core.platform.Module;
 import org.sonar.server.es.EsClient;
 
 public class EsSearchModule extends Module {

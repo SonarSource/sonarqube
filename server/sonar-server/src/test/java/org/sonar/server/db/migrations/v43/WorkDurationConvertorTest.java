@@ -21,8 +21,8 @@
 package org.sonar.server.db.migrations.v43;
 
 import org.junit.Test;
-import org.sonar.core.properties.PropertiesDao;
-import org.sonar.core.properties.PropertyDto;
+import org.sonar.db.property.PropertiesDao;
+import org.sonar.db.property.PropertyDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;

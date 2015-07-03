@@ -29,7 +29,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.core.properties.PropertiesDao;
+import org.sonar.db.property.PropertiesDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.tester.UserSessionRule;

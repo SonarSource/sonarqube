@@ -24,7 +24,7 @@ import java.sql.SQLException;
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.core.persistence.Database;
+import org.sonar.db.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select;

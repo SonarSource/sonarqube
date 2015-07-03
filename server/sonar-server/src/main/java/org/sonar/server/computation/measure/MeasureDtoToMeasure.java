@@ -21,7 +21,7 @@ package org.sonar.server.computation.measure;
 
 import com.google.common.base.Optional;
 import javax.annotation.Nullable;
-import org.sonar.core.measure.db.MeasureDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.server.computation.metric.Metric;
 
 import static com.google.common.base.Optional.of;

@@ -1,0 +1,6 @@
+<dataset>
+
+  <users id="1" login="simon" name="Simon Brandhof" email="simon.brandhof@sonarsource.com"/>
+  <users id="2" login="godin" name="Evgeny Mandrikov" email="evgeny.mandrikov@sonarsource.com"/>
+
+</dataset>

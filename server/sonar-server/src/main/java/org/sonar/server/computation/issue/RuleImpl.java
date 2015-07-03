@@ -28,7 +28,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
-import org.sonar.core.rule.RuleDto;
+import org.sonar.db.rule.RuleDto;
 
 import static com.google.common.collect.Sets.union;
 

@@ -19,7 +19,7 @@
  */
 package org.sonar.server.db.migrations;
 
-import org.sonar.core.component.Module;
+import org.sonar.core.platform.Module;
 import org.sonar.server.db.migrations.v36.ViolationMigrationStep;
 import org.sonar.server.db.migrations.v42.CompleteIssueMessageMigrationStep;
 import org.sonar.server.db.migrations.v42.PackageKeysMigrationStep;

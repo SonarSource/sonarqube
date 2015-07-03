@@ -34,10 +34,10 @@ import javax.annotation.Nullable;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.core.component.SnapshotDto;
-import org.sonar.core.persistence.Database;
-import org.sonar.core.persistence.dialect.MsSql;
-import org.sonar.core.persistence.dialect.Oracle;
+import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.Database;
+import org.sonar.db.dialect.MsSql;
+import org.sonar.db.dialect.Oracle;
 
 class MeasureFilterSql {
 

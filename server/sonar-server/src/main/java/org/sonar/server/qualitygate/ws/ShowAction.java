@@ -27,8 +27,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.qualitygate.db.QualityGateConditionDto;
-import org.sonar.core.qualitygate.db.QualityGateDto;
+import org.sonar.db.qualitygate.QualityGateConditionDto;
+import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualitygate.QualityGates;
 

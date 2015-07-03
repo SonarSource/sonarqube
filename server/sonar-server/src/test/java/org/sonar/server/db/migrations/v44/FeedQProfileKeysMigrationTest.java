@@ -22,7 +22,7 @@ package org.sonar.server.db.migrations.v44;
 
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.core.persistence.DbTester;
+import org.sonar.db.DbTester;
 
 import java.util.List;
 import java.util.Map;

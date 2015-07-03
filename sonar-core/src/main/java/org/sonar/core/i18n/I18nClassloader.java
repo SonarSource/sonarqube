@@ -21,13 +21,12 @@ package org.sonar.core.i18n;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import org.sonar.api.Plugin;
-import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.platform.PluginRepository;
-
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
+import org.sonar.api.Plugin;
+import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginRepository;
 
 /**
  * Aggregation of all plugin and core classloaders, used to search for all l10n bundles

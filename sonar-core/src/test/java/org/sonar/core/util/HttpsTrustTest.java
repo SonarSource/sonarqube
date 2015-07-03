@@ -19,13 +19,12 @@
  */
 package org.sonar.core.util;
 
-import org.junit.Test;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.TrustManager;
 import java.io.IOException;
 import java.net.URL;
 import java.security.KeyManagementException;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.TrustManager;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;

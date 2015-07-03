@@ -23,9 +23,9 @@ import java.util.Date;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.DbSession;
 import org.sonar.server.activity.index.ActivityIndexer;
-import org.sonar.server.db.Dao;
+import org.sonar.server.db.DeprecatedDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -105,7 +105,7 @@ public class IndexSynchronizer {
     }
   }
 
-  void synchronize(DbSession session, Dao dao, Index index) {
+  void synchronize(DbSession session, DeprecatedDao dao, Index index) {
     long count = index.getIndexStat().getDocumentCount();
     Date lastSynch = index.getLastSynchronization();
     LOG.info("Index {}s", index.getIndexType());

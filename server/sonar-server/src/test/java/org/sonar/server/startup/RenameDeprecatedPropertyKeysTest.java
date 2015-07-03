@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.core.properties.PropertiesDao;
+import org.sonar.db.property.PropertiesDao;
 
 import static org.mockito.Mockito.*;
 

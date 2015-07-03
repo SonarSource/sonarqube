@@ -33,9 +33,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
-import org.sonar.core.notification.db.NotificationQueueDao;
-import org.sonar.core.notification.db.NotificationQueueDto;
-import org.sonar.core.properties.PropertiesDao;
+import org.sonar.db.notification.NotificationQueueDao;
+import org.sonar.db.notification.NotificationQueueDto;
+import org.sonar.db.property.PropertiesDao;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;

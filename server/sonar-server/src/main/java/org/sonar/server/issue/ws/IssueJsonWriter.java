@@ -40,7 +40,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.component.ComponentDto;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.user.UserSession;

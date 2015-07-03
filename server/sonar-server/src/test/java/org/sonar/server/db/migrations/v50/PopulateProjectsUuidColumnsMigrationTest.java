@@ -25,10 +25,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.DbTester;
-import org.sonar.core.persistence.migration.v50.Component;
-import org.sonar.core.persistence.migration.v50.Migration50Mapper;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
+import org.sonar.db.version.v50.Component;
+import org.sonar.db.version.v50.Migration50Mapper;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.MigrationStep;
 

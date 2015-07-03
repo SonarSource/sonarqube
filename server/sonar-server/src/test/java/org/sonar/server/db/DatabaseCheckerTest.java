@@ -23,11 +23,11 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.utils.MessageException;
-import org.sonar.core.persistence.Database;
-import org.sonar.core.persistence.dialect.Dialect;
-import org.sonar.core.persistence.dialect.H2;
-import org.sonar.core.persistence.dialect.MySql;
-import org.sonar.core.persistence.dialect.Oracle;
+import org.sonar.db.Database;
+import org.sonar.db.dialect.Dialect;
+import org.sonar.db.dialect.H2;
+import org.sonar.db.dialect.MySql;
+import org.sonar.db.dialect.Oracle;
 
 import java.sql.SQLException;
 

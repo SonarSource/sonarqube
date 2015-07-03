@@ -25,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
-import org.sonar.core.persistence.DbTester;
+import org.sonar.db.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.test.DbTests;

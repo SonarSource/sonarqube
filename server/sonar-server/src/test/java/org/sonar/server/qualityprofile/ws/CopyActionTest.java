@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileCopier;

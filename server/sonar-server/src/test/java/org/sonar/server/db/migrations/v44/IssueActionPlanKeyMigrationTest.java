@@ -28,7 +28,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.DbTester;
+import org.sonar.db.DbTester;
 
 import static org.mockito.Mockito.when;
 

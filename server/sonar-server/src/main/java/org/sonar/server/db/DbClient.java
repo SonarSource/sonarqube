@@ -26,25 +26,25 @@ import java.sql.SQLException;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.issue.db.ActionPlanDao;
-import org.sonar.core.issue.db.IssueChangeDao;
-import org.sonar.core.issue.db.IssueFilterDao;
-import org.sonar.core.permission.PermissionTemplateDao;
-import org.sonar.core.persistence.DaoComponent;
-import org.sonar.core.persistence.Database;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.properties.PropertiesDao;
-import org.sonar.core.purge.PurgeDao;
-import org.sonar.core.qualitygate.db.QualityGateConditionDao;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
-import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.technicaldebt.db.CharacteristicDao;
-import org.sonar.core.template.LoadedTemplateDao;
-import org.sonar.core.user.AuthorDao;
-import org.sonar.core.user.AuthorizationDao;
-import org.sonar.core.user.GroupMembershipDao;
-import org.sonar.core.user.RoleDao;
+import org.sonar.db.issue.ActionPlanDao;
+import org.sonar.db.issue.IssueChangeDao;
+import org.sonar.db.issue.IssueFilterDao;
+import org.sonar.db.permission.PermissionTemplateDao;
+import org.sonar.db.Dao;
+import org.sonar.db.Database;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
+import org.sonar.db.property.PropertiesDao;
+import org.sonar.db.purge.PurgeDao;
+import org.sonar.db.qualitygate.QualityGateConditionDao;
+import org.sonar.db.qualityprofile.QualityProfileDao;
+import org.sonar.db.component.ResourceDao;
+import org.sonar.db.debt.CharacteristicDao;
+import org.sonar.db.loadedtemplate.LoadedTemplateDao;
+import org.sonar.db.user.AuthorDao;
+import org.sonar.db.user.AuthorizationDao;
+import org.sonar.db.user.GroupMembershipDao;
+import org.sonar.db.user.RoleDao;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.ComponentIndexDao;
@@ -110,13 +110,13 @@ public class DbClient {
   private final CustomMeasureDao customMeasureDao;
   private final QualityGateConditionDao gateConditionDao;
 
-  public DbClient(Database db, MyBatis myBatis, DaoComponent... daoComponents) {
+  public DbClient(Database db, MyBatis myBatis, Dao... daos) {
     this.db = db;
     this.myBatis = myBatis;
 
-    Map<Class, DaoComponent> map = new IdentityHashMap<>();
-    for (DaoComponent daoComponent : daoComponents) {
-      map.put(daoComponent.getClass(), daoComponent);
+    Map<Class, Dao> map = new IdentityHashMap<>();
+    for (Dao dao : daos) {
+      map.put(dao.getClass(), dao);
     }
     ruleDao = getDao(map, RuleDao.class);
     activeRuleDao = getDao(map, ActiveRuleDao.class);
@@ -303,7 +303,7 @@ public class DbClient {
     return gateConditionDao;
   }
 
-  private <K> K getDao(Map<Class, DaoComponent> map, Class<K> clazz) {
+  private <K> K getDao(Map<Class, Dao> map, Class<K> clazz) {
     return (K) map.get(clazz);
   }
 

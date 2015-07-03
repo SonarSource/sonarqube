@@ -21,7 +21,7 @@ package org.sonar.server.computation.measure;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-import org.sonar.core.measure.db.MeasureDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.server.computation.metric.Metric;
 
 public enum MeasureToMeasureDto {

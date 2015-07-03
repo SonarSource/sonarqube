@@ -20,7 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Lists;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.Errors;
 
 import javax.annotation.CheckForNull;

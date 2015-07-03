@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.persistence.DbTester;
+import org.sonar.db.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.test.DbTests;

@@ -26,7 +26,7 @@ import org.picocontainer.Startable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.persistence.DdlUtils;
+import org.sonar.db.DdlUtils;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.plugins.ServerPluginRepository;
 

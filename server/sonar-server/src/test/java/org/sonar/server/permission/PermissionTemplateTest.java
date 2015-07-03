@@ -22,9 +22,9 @@ package org.sonar.server.permission;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
-import org.sonar.core.permission.PermissionTemplateDto;
-import org.sonar.core.permission.PermissionTemplateGroupDto;
-import org.sonar.core.permission.PermissionTemplateUserDto;
+import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.permission.PermissionTemplateGroupDto;
+import org.sonar.db.permission.PermissionTemplateUserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

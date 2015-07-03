@@ -23,7 +23,7 @@ package org.sonar.server.db.migrations.v51;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.DbTester;
+import org.sonar.db.DbTester;
 import org.sonar.server.db.migrations.MigrationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;

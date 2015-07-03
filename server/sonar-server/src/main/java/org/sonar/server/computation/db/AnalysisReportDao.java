@@ -22,19 +22,19 @@ package org.sonar.server.computation.db;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.utils.System2;
-import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.computation.db.AnalysisReportMapper;
-import org.sonar.core.persistence.DaoComponent;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.compute.AnalysisReportDto;
+import org.sonar.db.compute.AnalysisReportMapper;
+import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
 
 import javax.annotation.CheckForNull;
 
 import java.util.List;
 
-import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
-import static org.sonar.core.computation.db.AnalysisReportDto.Status.WORKING;
+import static org.sonar.db.compute.AnalysisReportDto.Status.PENDING;
+import static org.sonar.db.compute.AnalysisReportDto.Status.WORKING;
 
-public class AnalysisReportDao implements DaoComponent {
+public class AnalysisReportDao implements Dao {
 
   private System2 system2;
 

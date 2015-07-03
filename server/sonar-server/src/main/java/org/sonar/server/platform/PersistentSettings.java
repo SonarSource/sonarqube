@@ -22,8 +22,8 @@ package org.sonar.server.platform;
 import com.google.common.collect.Maps;
 import org.picocontainer.Startable;
 import org.sonar.api.config.Settings;
-import org.sonar.core.properties.PropertiesDao;
-import org.sonar.core.properties.PropertyDto;
+import org.sonar.db.property.PropertiesDao;
+import org.sonar.db.property.PropertyDto;
 
 import javax.annotation.Nullable;
 import java.util.List;

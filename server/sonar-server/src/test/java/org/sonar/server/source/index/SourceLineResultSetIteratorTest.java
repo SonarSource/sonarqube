@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.core.persistence.DbTester;
+import org.sonar.db.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.server.source.db.FileSourceTesting;

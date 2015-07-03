@@ -20,13 +20,12 @@
 package org.sonar.core.config;
 
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyFieldDefinition;
 import org.sonar.api.resources.Qualifiers;
-
-import java.util.List;
 
 public final class IssueExclusionProperties {
 
@@ -145,6 +144,6 @@ public final class IssueExclusionProperties {
             .build()
         )
         .build()
-    );
+      );
   }
 }

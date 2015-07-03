@@ -19,11 +19,10 @@
  */
 package org.sonar.core.platform;
 
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.Plugin;
-import org.sonar.api.server.ServerSide;
-
 import java.util.Collection;
+import org.sonar.api.Plugin;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.server.ServerSide;
 
 /**
  * Provides information about the plugins installed in the dependency injection container

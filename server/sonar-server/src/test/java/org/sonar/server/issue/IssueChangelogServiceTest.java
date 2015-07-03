@@ -31,7 +31,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
-import org.sonar.core.issue.db.IssueChangeDao;
+import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.core.user.DefaultUser;
 import org.sonar.server.tester.UserSessionRule;
 

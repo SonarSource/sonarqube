@@ -19,14 +19,12 @@
  */
 package org.sonar.core.issue;
 
-import org.sonar.api.issue.IssueComment;
-import org.sonar.api.utils.internal.Uuids;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.util.Date;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.api.issue.IssueComment;
+import org.sonar.api.utils.internal.Uuids;
 
 /**
  * PLUGINS MUST NOT BE USED THIS CLASS, EXCEPT FOR UNIT TESTING.

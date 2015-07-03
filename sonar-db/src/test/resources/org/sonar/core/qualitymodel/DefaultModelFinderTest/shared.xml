@@ -1,0 +1,13 @@
+<dataset>
+  <quality_models id="1" name="M1"/>
+  <quality_models id="2" name="M2"/>
+
+  <characteristics id="1" kee="M1C1" name="M1C1" parent_id="[null]" root_id="[null]" rule_id="[null]"
+                   characteristic_order="1" enabled="true"/>
+  <characteristics id="2" kee="M1C2" name="M1C2" parent_id="[null]" root_id="[null]" ule_id="[null]"
+                   characteristic_order="1" enabled="true"/>
+  <characteristics id="3" kee="M2C1" name="M2C1" parent_id="[null]" root_id="[null]" rule_id="[null]"
+                   characteristic_order="1" enabled="true"/>
+
+  <characteristic_edges child_id="2" parent_id="1"/>
+</dataset>

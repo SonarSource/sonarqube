@@ -29,11 +29,11 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.AbstractDaoTestCase;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.core.rule.RuleDto.Format;
-import org.sonar.core.rule.RuleParamDto;
+import org.sonar.db.AbstractDaoTestCase;
+import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDto.Format;
+import org.sonar.db.rule.RuleParamDto;
 
 import java.util.List;
 

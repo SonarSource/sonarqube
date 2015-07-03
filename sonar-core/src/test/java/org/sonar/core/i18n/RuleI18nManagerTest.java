@@ -19,15 +19,17 @@
  */
 package org.sonar.core.i18n;
 
+import java.util.Locale;
 import org.hamcrest.core.Is;
 import org.junit.Test;
 
-import java.util.Locale;
-
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class RuleI18nManagerTest {
 
@@ -60,7 +62,8 @@ public class RuleI18nManagerTest {
     String propertyKeyForName = "rule.checkstyle.com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.name";
 
     DefaultI18n i18n = mock(DefaultI18n.class);
-    when(i18n.messageFromFile(Locale.ENGLISH, "rules/checkstyle/com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName)).thenReturn("Description");
+    when(i18n.messageFromFile(Locale.ENGLISH, "rules/checkstyle/com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck.html", propertyKeyForName)).thenReturn(
+      "Description");
 
     RuleI18nManager ruleI18n = new RuleI18nManager(i18n);
     String description = ruleI18n.getDescription("checkstyle", "com.puppycrawl.tools.checkstyle.checks.annotation.AnnotationUseStyleCheck", Locale.ENGLISH);

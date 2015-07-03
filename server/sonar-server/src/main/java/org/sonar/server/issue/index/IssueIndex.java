@@ -67,7 +67,7 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.component.ComponentDto;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.EsClient;

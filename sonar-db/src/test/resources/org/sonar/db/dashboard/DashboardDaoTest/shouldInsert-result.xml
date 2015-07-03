@@ -1,0 +1,32 @@
+<dataset>
+
+  <dashboards
+    id="1"
+    user_id="6"
+    name="My Dashboard"
+    description="This is a dashboard"
+    column_layout="100%"
+    shared="[true]"
+    is_global="[true]"
+    />
+
+  <widgets
+    id="1"
+    dashboard_id="1"
+    widget_key="code_coverage"
+    name="Code coverage"
+    description="Widget for code coverage"
+    column_index="13"
+    row_index="14"
+    configured="[true]"
+    resource_id="[null]"
+    />
+
+  <widget_properties
+    id="1"
+    widget_id="1"
+    kee="displayITs"
+    text_value="true"
+    />
+
+</dataset>

@@ -19,10 +19,9 @@
  */
 package org.sonar.core.config;
 
+import java.util.List;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinition;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

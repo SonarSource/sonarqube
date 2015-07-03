@@ -23,8 +23,8 @@ import com.google.common.base.Preconditions;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.QProfileFactory;
 

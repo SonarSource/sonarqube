@@ -27,16 +27,16 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.DaoComponent;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.user.GroupDto;
-import org.sonar.core.user.GroupMapper;
+import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.GroupMapper;
 import org.sonar.server.exceptions.NotFoundException;
 
 /**
  * @since 3.2
  */
-public class GroupDao implements DaoComponent {
+public class GroupDao implements Dao {
 
   private static final String SQL_WILDCARD = "%";
   private System2 system;

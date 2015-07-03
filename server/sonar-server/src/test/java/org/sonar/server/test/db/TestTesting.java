@@ -23,7 +23,7 @@ package org.sonar.server.test.db;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.utils.internal.Uuids;
-import org.sonar.core.source.db.FileSourceDto;
+import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.server.source.db.FileSourceDb.Test.TestStatus;
 

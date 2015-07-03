@@ -26,8 +26,8 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.DbSession;
 import org.sonar.server.component.db.ComponentDao;
 
 import static com.google.common.collect.Maps.newHashMap;

@@ -23,7 +23,6 @@ package org.sonar.core.util;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Ordering;
 import com.google.common.primitives.Ints;
-
 import java.util.List;
 
 /**

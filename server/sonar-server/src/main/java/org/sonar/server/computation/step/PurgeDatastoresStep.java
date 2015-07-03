@@ -21,9 +21,9 @@
 package org.sonar.server.computation.step;
 
 import org.sonar.core.computation.dbcleaner.ProjectCleaner;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.purge.IdUuidPair;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
+import org.sonar.db.purge.IdUuidPair;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.ProjectSettingsRepository;

@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
-import org.sonar.core.computation.db.AnalysisReportDto;
+import org.sonar.db.compute.AnalysisReportDto;
 import org.sonar.server.computation.ReportQueue;
 
 import java.io.ByteArrayOutputStream;

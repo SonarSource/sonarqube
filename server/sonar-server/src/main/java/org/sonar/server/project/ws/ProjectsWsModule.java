@@ -20,7 +20,7 @@
 
 package org.sonar.server.project.ws;
 
-import org.sonar.core.component.Module;
+import org.sonar.core.platform.Module;
 
 public class ProjectsWsModule extends Module {
   @Override

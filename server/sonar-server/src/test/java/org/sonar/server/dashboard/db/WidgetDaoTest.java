@@ -24,10 +24,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.core.dashboard.WidgetDto;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.DbTester;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.db.dashboard.WidgetDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
+import org.sonar.db.MyBatis;
 import org.sonar.test.DbTests;
 
 import java.util.Collection;

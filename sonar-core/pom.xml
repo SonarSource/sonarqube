@@ -11,7 +11,7 @@
   <artifactId>sonar-core</artifactId>
 
   <name>SonarQube :: Core</name>
-  <description>Core components shared to batch and server</description>
+  <description>Library shared by analyzer and server</description>
 
   <dependencies>
     <dependency>
@@ -41,30 +41,12 @@
       <version>4.1</version>
     </dependency>
     <dependency>
-      <groupId>org.mybatis</groupId>
-      <artifactId>mybatis</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-update-center-common</artifactId>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-batch-protocol</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-home</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-dbcp</groupId>
-      <artifactId>commons-dbcp</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-dbutils</groupId>
-      <artifactId>commons-dbutils</artifactId>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
@@ -110,11 +92,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.dbunit</groupId>
-      <artifactId>dbunit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>com.google.code.bean-matchers</groupId>
       <artifactId>bean-matchers</artifactId>
       <scope>test</scope>
@@ -125,55 +102,10 @@
       <version>4.1.21</version>
       <scope>test</scope>
     </dependency>
-
-
-
-    <!--
-         JDBC drivers for MyBatis integration tests.
-         They can't be moved to the profile run-mybatis-its because
-    -->
-    <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.sourceforge.jtds</groupId>
-      <artifactId>jtds</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>add-source</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>add-source</goal>
-            </goals>
-            <configuration>
-              <sources>
-                <source>src/main/gen-java</source>
-              </sources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
@@ -196,17 +128,6 @@
               <overWriteReleases>false</overWriteReleases>
               <overWriteSnapshots>true</overWriteSnapshots>
             </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>test-jar</goal>
-            </goals>
           </execution>
         </executions>
       </plugin>

@@ -1,0 +1,61 @@
+<dataset>
+
+  <snapshots id="1" project_id="1" status="P" islast="0" purge_status="[null]"/>
+  <snapshots id="2" project_id="1" status="P" islast="0" purge_status="[null]"/>
+  <projects id="1" uuid="1" kee="bar-old" enabled="1" scope="FIL" qualifier="CLA" language="java"/>
+
+  <snapshots id="3" project_id="2" status="P" islast="1" purge_status="[null]"/>
+  <snapshots id="4" project_id="2" status="P" islast="1" purge_status="[null]"/>
+  <projects id="2" uuid="2" kee="bar-last" enabled="1" scope="FIL" qualifier="CLA" language="java"/>
+
+  <snapshots id="5" project_id="3" status="P" islast="0" purge_status="[null]"/>
+  <snapshots id="6" project_id="3" status="P" islast="0" purge_status="[null]"/>
+  <projects id="3" uuid="3" kee="foo-old" enabled="1" scope="FIL" qualifier="CLA" language="java"/>
+
+  <snapshots id="7" project_id="4" status="P" islast="1" purge_status="[null]"/>
+  <snapshots id="8" project_id="4" status="P" islast="1" purge_status="[null]"/>
+  <projects id="4" uuid="4" kee="foo-last" enabled="1" scope="FIL" qualifier="CLA" language="java"/>
+
+  <snapshots id="9" project_id="5" status="U" islast="0" purge_status="[null]"/>
+  <snapshots id="10" project_id="5" status="U" islast="0" purge_status="[null]"/>
+  <projects id="5" uuid="5" kee="foo" enabled="1" scope="FIL" qualifier="CLA" language="java"/>
+
+  <snapshots id="11" project_id="6" purge_status="[null]" status="P" islast="1"/>
+  <projects id="6" uuid="6" kee="baz" enabled="1" scope="FIL" qualifier="CLA" language="grvy"/>
+
+  <!-- Old snapshot of another project -->
+  <!-- bar-old -->
+  <duplications_index id="1" project_snapshot_id="1" snapshot_id="2" hash="bb" index_in_file="0" start_line="0"
+                      end_line="0"/>
+
+  <!-- Last snapshot of another project -->
+  <!-- bar-last -->
+  <duplications_index id="2" project_snapshot_id="3" snapshot_id="4" hash="aa" index_in_file="0" start_line="1"
+                      end_line="2"/>
+
+  <!-- Old snapshot of current project -->
+  <!-- foo-old -->
+  <duplications_index id="3" project_snapshot_id="5" snapshot_id="6" hash="bb" index_in_file="0" start_line="0"
+                      end_line="0"/>
+
+  <!-- Last snapshot of current project -->
+  <!-- foo-last -->
+  <duplications_index id="4" project_snapshot_id="7" snapshot_id="8" hash="aa" index_in_file="0" start_line="0"
+                      end_line="0"/>
+
+  <!-- New snapshot of current project -->
+  <!-- foo -->
+  <duplications_index id="5" project_snapshot_id="9" snapshot_id="10" hash="aa" index_in_file="0" start_line="0"
+                      end_line="0"/>
+
+  <!-- Note that there is two blocks with same hash for current analysis to verify that we use "SELECT DISTINCT", -->
+  <!-- without "DISTINCT" we will select block from "bar-last" two times. -->
+  <duplications_index id="6" project_snapshot_id="9" snapshot_id="10" hash="aa" index_in_file="1" start_line="1"
+                      end_line="1"/>
+
+  <!-- Last snapshot of project with another language -->
+  <!-- baz -->
+  <duplications_index id="7" project_snapshot_id="1" snapshot_id="11" hash="aa" index_in_file="0" start_line="0"
+                      end_line="0"/>
+
+</dataset>

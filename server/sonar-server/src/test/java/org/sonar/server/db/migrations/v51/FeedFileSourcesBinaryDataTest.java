@@ -24,8 +24,8 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.core.persistence.DbTester;
-import org.sonar.core.source.db.FileSourceDto;
+import org.sonar.db.DbTester;
+import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.db.migrations.MigrationStep;
 import org.sonar.server.source.db.FileSourceDb;
 

@@ -23,7 +23,7 @@ package org.sonar.server.computation.step;
 import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.resource.ResourceIndexerDao;
+import org.sonar.db.component.ResourceIndexerDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;

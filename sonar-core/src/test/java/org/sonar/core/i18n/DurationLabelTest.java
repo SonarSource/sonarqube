@@ -80,7 +80,7 @@ public class DurationLabelTest {
   @Test
   public void age_in_hours() {
     long hours = 3;
-    DurationLabel.Result result =  DurationLabel.label(now() - ago(hours * HOUR));
+    DurationLabel.Result result = DurationLabel.label(now() - ago(hours * HOUR));
     assertThat(result.key()).isEqualTo("duration.hours");
     assertThat(result.value()).isEqualTo(hours);
   }

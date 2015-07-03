@@ -25,7 +25,7 @@ import org.apache.commons.lang.CharUtils;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
-import org.sonar.core.plugins.RemotePlugin;
+import org.sonar.core.platform.RemotePlugin;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
 import java.io.File;

@@ -24,8 +24,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.properties.PropertiesDao;
-import org.sonar.core.properties.PropertyDto;
+import org.sonar.db.property.PropertiesDao;
+import org.sonar.db.property.PropertyDto;
 
 import java.util.List;
 import java.util.Map;

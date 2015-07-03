@@ -29,8 +29,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.DbSession;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 

@@ -26,8 +26,8 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.picocontainer.Startable;
-import org.sonar.core.metric.db.MetricDto;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.metric.MetricDto;
+import org.sonar.db.DbSession;
 import org.sonar.server.db.DbClient;
 
 import static com.google.common.collect.FluentIterable.from;

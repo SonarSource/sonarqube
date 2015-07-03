@@ -29,7 +29,7 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.core.persistence.DatabaseVersion;
+import org.sonar.db.version.DatabaseVersion;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.platform.platformlevel.PlatformLevel;
 import org.sonar.server.platform.platformlevel.PlatformLevel1;

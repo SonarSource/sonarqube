@@ -34,8 +34,8 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.platform.PluginInfo;
-import org.sonar.core.plugins.RemotePlugin;
-import org.sonar.core.plugins.RemotePluginFile;
+import org.sonar.core.platform.RemotePlugin;
+import org.sonar.core.platform.RemotePluginFile;
 import org.sonar.home.cache.FileCache;
 
 /**

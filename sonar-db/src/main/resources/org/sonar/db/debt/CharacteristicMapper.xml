@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mappei.dtd">
+
+<mapper namespace="org.sonar.db.debt.CharacteristicMapper">
+
+  <sql id="characteristicColumns">
+    c.id,
+    c.kee as kee,
+    c.name as name,
+    c.parent_id as parentId,
+    c.characteristic_order as characteristicOrder,
+    c.enabled as enabled,
+    c.created_at as createdAt,
+    c.updated_at as updatedAt
+  </sql>
+
+  <select id="selectEnabledCharacteristics" parameterType="map" resultType="Characteristic">
+    select
+    <include refid="characteristicColumns"/>
+    from characteristics c
+    where c.enabled=${_true}
+  </select>
+
+  <select id="selectCharacteristics" parameterType="map" resultType="Characteristic">
+    select
+    <include refid="characteristicColumns"/>
+    from characteristics c
+  </select>
+
+  <select id="selectEnabledRootCharacteristics" parameterType="map" resultType="Characteristic">
+    select
+    <include refid="characteristicColumns"/>
+    from characteristics c
+    <where>
+      and c.parent_id is null
+      and c.enabled=${_true}
+    </where>
+    order by characteristic_order asc
+  </select>
+
+  <select id="selectCharacteristicsByParentId" parameterType="map" resultType="Characteristic">
+    select
+    <include refid="characteristicColumns"/>
+    from characteristics c
+    <where>
+      and c.parent_id=#{parent_id}
+      and c.enabled=${_true}
+    </where>
+  </select>
+
+  <select id="selectCharacteristicsByIds" parameterType="map" resultType="Characteristic">
+    select
+    <include refid="characteristicColumns"/>
+    from characteristics c
+    <where>
+      and c.enabled=${_true}
+      AND (<foreach item="id" index="index" collection="ids" open="(" separator=" or " close=")">c.id=#{id}</foreach>)
+    </where>
+  </select>
+
+  <select id="selectByKey" parameterType="String" resultType="Characteristic">
+    select
+    <include refid="characteristicColumns"/>
+    from characteristics c
+    <where>
+      and c.kee=#{key}
+      and c.enabled=${_true}
+    </where>
+  </select>
+
+  <select id="selectById" parameterType="Integer" resultType="Characteristic">
+    select
+    <include refid="characteristicColumns"/>
+    from characteristics c
+    <where>
+      and c.id=#{id}
+      and c.enabled=${_true}
+    </where>
+  </select>
+
+  <select id="selectByName" parameterType="String" resultType="Characteristic">
+    select
+    <include refid="characteristicColumns"/>
+    from characteristics c
+    <where>
+      and c.name=#{name}
+      and c.enabled=${_true}
+    </where>
+  </select>
+
+  <select id="selectMaxCharacteristicOrder" resultType="Integer">
+    select max(c.characteristic_order)
+    from characteristics c
+    <where>
+      and c.parent_id is null
+      and c.enabled=${_true}
+    </where>
+  </select>
+
+  <insert id="insert" parameterType="Characteristic" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO characteristics (kee, name, parent_id, characteristic_order, enabled, created_at, updated_at)
+    VALUES (#{kee,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{parentId,jdbcType=INTEGER},
+    #{characteristicOrder,jdbcType=INTEGER}, #{enabled,jdbcType=BOOLEAN}, #{createdAt,jdbcType=TIMESTAMP},
+    #{updatedAt,jdbcType=TIMESTAMP})
+  </insert>
+
+  <update id="update" parameterType="Characteristic">
+    update characteristics set
+    name=#{name},
+    parent_id=#{parentId},
+    characteristic_order=#{characteristicOrder},
+    enabled=#{enabled},
+    updated_at=#{updatedAt}
+    where id=#{id}
+  </update>
+
+  <select id="selectDeprecatedRequirements" resultType="RequirementMigration">
+    select id as "id",
+    parent_id as "parentId",
+    root_id as "rootId",
+    rule_id as "ruleId",
+    function_key as "functionKey",
+    factor_value as "coefficientValue",
+    factor_unit as "coefficientUnit",
+    offset_value as "offsetValue",
+    offset_unit as "offsetUnit",
+    enabled as "enabled"
+    from characteristics
+    where rule_id IS NOT NULL
+  </select>
+
+  <delete id="deleteRequirementsFromCharacteristicsTable">
+    DELETE FROM characteristics WHERE rule_id IS NOT NULL
+  </delete>
+</mapper>
+

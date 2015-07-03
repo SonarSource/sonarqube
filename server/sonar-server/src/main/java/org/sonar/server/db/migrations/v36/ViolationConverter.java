@@ -32,7 +32,7 @@ import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.AbstractListHandler;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.internal.Uuids;
-import org.sonar.core.persistence.Database;
+import org.sonar.db.Database;
 import org.sonar.server.db.migrations.SqlUtil;
 
 import com.google.common.base.Objects;

@@ -32,7 +32,6 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
     </dependency>
-    
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-core</artifactId>
@@ -117,28 +116,10 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-core</artifactId>
-      <type>test-jar</type>
-      <scope>test</scope>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.dbunit</groupId>
-      <artifactId>dbunit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-java-api</artifactId>
       <scope>test</scope>
     </dependency>
 
-    <dependency>
-      <!-- local database -->
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>com.google.code.bean-matchers</groupId>
       <artifactId>bean-matchers</artifactId>

@@ -22,11 +22,10 @@ package org.sonar.server.issue;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.rules.RuleFinder;
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.issue.db.IssueDto;
-import org.sonar.core.issue.db.IssueStorage;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.IssueDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueIndexer;
 

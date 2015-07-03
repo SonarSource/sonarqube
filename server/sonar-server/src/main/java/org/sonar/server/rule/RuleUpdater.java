@@ -34,12 +34,12 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.core.rule.RuleParamDto;
-import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.ActiveRuleDto;
+import org.sonar.db.qualityprofile.ActiveRuleParamDto;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleParamDto;
+import org.sonar.db.debt.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 

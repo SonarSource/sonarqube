@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.dbutils.DbUtils;
-import org.sonar.core.persistence.Database;
+import org.sonar.db.Database;
 
 class SelectImpl extends BaseSqlStatement<Select> implements Select {
 

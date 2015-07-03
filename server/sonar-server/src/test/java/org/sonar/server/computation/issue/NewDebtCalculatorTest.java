@@ -29,7 +29,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.core.issue.db.IssueChangeDto;
+import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.server.computation.period.Period;
 
 import static org.assertj.core.api.Assertions.assertThat;

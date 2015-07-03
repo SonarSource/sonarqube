@@ -37,7 +37,6 @@ class DurationLabel {
     return getMessage(nbSeconds, nbMinutes, nbHours, nbDays, nbYears);
   }
 
-
   private static Result getMessage(double nbSeconds, double nbMinutes, double nbHours, double nbDays, double nbYears) {
     if (nbSeconds < 45) {
       return message("seconds");
@@ -52,15 +51,15 @@ class DurationLabel {
     } else if (nbHours < 48) {
       return message("day");
     } else if (nbDays < 30) {
-      return message("days", (long)(Math.floor(nbDays)));
+      return message("days", (long) (Math.floor(nbDays)));
     } else if (nbDays < 60) {
-      return message( "month");
+      return message("month");
     } else if (nbDays < 365) {
-      return message("months", (long)(Math.floor(nbDays / 30)));
+      return message("months", (long) (Math.floor(nbDays / 30)));
     } else if (nbYears < 2) {
       return message("year");
     }
-    return message("years", (long)(Math.floor(nbYears)));
+    return message("years", (long) (Math.floor(nbYears)));
   }
 
   private static Result message(String key) {

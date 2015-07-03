@@ -21,10 +21,10 @@ package org.sonar.server.issue.filter;
 
 import org.picocontainer.Startable;
 import org.sonar.api.utils.System2;
-import org.sonar.core.issue.db.IssueFilterDao;
-import org.sonar.core.issue.db.IssueFilterDto;
-import org.sonar.core.template.LoadedTemplateDao;
-import org.sonar.core.template.LoadedTemplateDto;
+import org.sonar.db.issue.IssueFilterDao;
+import org.sonar.db.issue.IssueFilterDto;
+import org.sonar.db.loadedtemplate.LoadedTemplateDao;
+import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 
 import java.util.Date;
 

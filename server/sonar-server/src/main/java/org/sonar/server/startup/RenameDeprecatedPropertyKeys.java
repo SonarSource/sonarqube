@@ -23,7 +23,7 @@ import com.google.common.base.Strings;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.core.properties.PropertiesDao;
+import org.sonar.db.property.PropertiesDao;
 
 /**
  * @since 3.4

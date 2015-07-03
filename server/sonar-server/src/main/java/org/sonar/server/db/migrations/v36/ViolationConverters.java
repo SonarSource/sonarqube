@@ -28,7 +28,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.sonar.api.config.Settings;
-import org.sonar.core.persistence.Database;
+import org.sonar.db.Database;
 
 import com.google.common.collect.Lists;
 

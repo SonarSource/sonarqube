@@ -26,8 +26,8 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtCharacteristic;
-import org.sonar.core.technicaldebt.db.CharacteristicDao;
-import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.db.debt.CharacteristicDao;
+import org.sonar.db.debt.CharacteristicDto;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.sonar.server.debt.DebtPredicates.ToDebtCharacteristic.INSTANCE;

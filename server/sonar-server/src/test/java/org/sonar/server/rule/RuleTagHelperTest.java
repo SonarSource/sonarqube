@@ -21,7 +21,7 @@ package org.sonar.server.rule;
 
 import com.google.common.collect.Sets;
 import org.junit.Test;
-import org.sonar.core.rule.RuleDto;
+import org.sonar.db.rule.RuleDto;
 
 import java.util.Collections;
 

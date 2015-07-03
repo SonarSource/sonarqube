@@ -1,0 +1,7 @@
+<dataset>
+
+  <snapshots purge_status="[null]" id="1" status="U" islast="0" project_id="0"/>
+  <snapshots purge_status="[null]" id="2" status="U" islast="0" project_id="1"/>
+  <projects id="1" uuid="1" kee="foo" enabled="1" scope="FIL" qualifier="CLA"/>
+
+</dataset>

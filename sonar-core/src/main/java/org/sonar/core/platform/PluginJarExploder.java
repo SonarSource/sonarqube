@@ -22,9 +22,8 @@ package org.sonar.core.platform;
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
-import org.sonar.api.utils.ZipUtils;
-
 import java.util.zip.ZipEntry;
+import org.sonar.api.utils.ZipUtils;
 
 import static org.apache.commons.io.FileUtils.listFiles;
 

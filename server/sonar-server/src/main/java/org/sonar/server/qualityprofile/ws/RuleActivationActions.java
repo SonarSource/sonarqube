@@ -27,7 +27,7 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.qualityprofile.RuleActivation;
 

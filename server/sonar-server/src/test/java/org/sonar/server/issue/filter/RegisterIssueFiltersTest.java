@@ -25,9 +25,9 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.issue.db.IssueFilterDao;
-import org.sonar.core.persistence.DbTester;
-import org.sonar.core.template.LoadedTemplateDao;
+import org.sonar.db.issue.IssueFilterDao;
+import org.sonar.db.DbTester;
+import org.sonar.db.loadedtemplate.LoadedTemplateDao;
 import org.sonar.test.DbTests;
 
 import java.util.Date;

@@ -22,7 +22,7 @@ package org.sonar.server.platform;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.MessageException;
-import org.sonar.core.persistence.DatabaseVersion;
+import org.sonar.db.version.DatabaseVersion;
 
 public class DatabaseServerCompatibility implements Startable {
 

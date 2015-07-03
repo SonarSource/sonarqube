@@ -26,8 +26,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
-import org.sonar.core.technicaldebt.db.CharacteristicDao;
-import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.db.debt.CharacteristicDao;
+import org.sonar.db.debt.CharacteristicDto;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;

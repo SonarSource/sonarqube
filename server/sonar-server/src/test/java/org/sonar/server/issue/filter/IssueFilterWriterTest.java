@@ -22,7 +22,7 @@ package org.sonar.server.issue.filter;
 
 import org.junit.Test;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.issue.db.IssueFilterDto;
+import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.tester.MockUserSession;

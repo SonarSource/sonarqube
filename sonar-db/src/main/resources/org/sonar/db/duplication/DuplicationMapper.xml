@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.duplication.DuplicationMapper">
+
+  <select id="selectCandidates" parameterType="map" resultType="DuplicationUnit">
+    SELECT DISTINCT to_blocks.hash as hash, res.kee as resourceKey, to_blocks.index_in_file as indexInFile,
+    to_blocks.start_line as startLine, to_blocks.end_line as endLine
+    FROM duplications_index to_blocks, duplications_index from_blocks, snapshots snapshot, projects res
+    WHERE from_blocks.snapshot_id = #{resource_snapshot_id}
+    AND to_blocks.hash = from_blocks.hash
+    AND to_blocks.snapshot_id = snapshot.id
+    AND snapshot.islast = ${_true}
+    AND snapshot.project_id = res.id
+    AND res.language = #{language}
+    <if test="last_project_snapshot_id != null">
+      AND to_blocks.project_snapshot_id != #{last_project_snapshot_id}
+    </if>
+  </select>
+
+  <insert id="batchInsert" parameterType="DuplicationUnit" useGeneratedKeys="false">
+    INSERT INTO duplications_index (snapshot_id, project_snapshot_id, hash, index_in_file, start_line, end_line)
+    VALUES (#{snapshotId}, #{projectSnapshotId}, #{hash}, #{indexInFile}, #{startLine}, #{endLine})
+  </insert>
+</mapper>

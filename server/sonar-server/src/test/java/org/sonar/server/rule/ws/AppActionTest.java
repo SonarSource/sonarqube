@@ -35,7 +35,7 @@ import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.DebtModel;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.rule.RuleRepositories;

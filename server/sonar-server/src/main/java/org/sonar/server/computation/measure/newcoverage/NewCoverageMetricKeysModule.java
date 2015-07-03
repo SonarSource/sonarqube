@@ -19,7 +19,7 @@
  */
 package org.sonar.server.computation.measure.newcoverage;
 
-import org.sonar.core.component.Module;
+import org.sonar.core.platform.Module;
 
 public class NewCoverageMetricKeysModule extends Module {
   @Override

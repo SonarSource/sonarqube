@@ -27,7 +27,7 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.config.Settings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
-import org.sonar.core.properties.PropertiesDao;
+import org.sonar.db.property.PropertiesDao;
 import org.sonar.server.db.DbClient;
 
 import static org.assertj.core.api.Assertions.assertThat;

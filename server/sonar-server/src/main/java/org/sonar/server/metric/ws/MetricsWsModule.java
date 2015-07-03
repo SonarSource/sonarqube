@@ -20,7 +20,7 @@
 
 package org.sonar.server.metric.ws;
 
-import org.sonar.core.component.Module;
+import org.sonar.core.platform.Module;
 
 public class MetricsWsModule extends Module {
   @Override

@@ -21,14 +21,12 @@ package org.sonar.core.issue;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.internal.Uuids;
-
-import javax.annotation.Nullable;
-
-import java.util.Map;
 
 public class DefaultIssueBuilder implements Issuable.IssueBuilder {
 

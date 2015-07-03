@@ -31,14 +31,14 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardTemplate;
-import org.sonar.core.dashboard.ActiveDashboardDao;
-import org.sonar.core.dashboard.ActiveDashboardDto;
-import org.sonar.core.dashboard.DashboardDao;
-import org.sonar.core.dashboard.DashboardDto;
-import org.sonar.core.dashboard.WidgetDto;
-import org.sonar.core.dashboard.WidgetPropertyDto;
-import org.sonar.core.template.LoadedTemplateDao;
-import org.sonar.core.template.LoadedTemplateDto;
+import org.sonar.db.dashboard.ActiveDashboardDao;
+import org.sonar.db.dashboard.ActiveDashboardDto;
+import org.sonar.db.dashboard.DashboardDao;
+import org.sonar.db.dashboard.DashboardDto;
+import org.sonar.db.dashboard.WidgetDto;
+import org.sonar.db.dashboard.WidgetPropertyDto;
+import org.sonar.db.loadedtemplate.LoadedTemplateDao;
+import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.server.issue.filter.RegisterIssueFilters;
 
 /**

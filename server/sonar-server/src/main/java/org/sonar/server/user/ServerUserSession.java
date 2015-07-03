@@ -27,9 +27,9 @@ import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.user.AuthorizationDao;
+import org.sonar.db.component.ResourceDao;
+import org.sonar.db.component.ResourceDto;
+import org.sonar.db.user.AuthorizationDao;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;

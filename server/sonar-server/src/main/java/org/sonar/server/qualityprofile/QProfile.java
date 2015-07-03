@@ -22,7 +22,7 @@ package org.sonar.server.qualityprofile;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;

@@ -22,7 +22,7 @@ package org.sonar.server.db.migrations;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import org.sonar.core.persistence.Database;
+import org.sonar.db.Database;
 
 public interface DataChange {
 

@@ -36,7 +36,7 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Language;
-import org.sonar.core.UtcDateUtils;
+import org.sonar.core.util.UtcDateUtils;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;

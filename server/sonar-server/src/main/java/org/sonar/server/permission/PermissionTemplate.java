@@ -23,9 +23,9 @@ package org.sonar.server.permission;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
-import org.sonar.core.permission.PermissionTemplateDto;
-import org.sonar.core.permission.PermissionTemplateGroupDto;
-import org.sonar.core.permission.PermissionTemplateUserDto;
+import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.permission.PermissionTemplateGroupDto;
+import org.sonar.db.permission.PermissionTemplateUserDto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;

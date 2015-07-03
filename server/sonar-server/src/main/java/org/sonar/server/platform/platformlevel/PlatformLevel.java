@@ -24,7 +24,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.core.component.Module;
+import org.sonar.core.platform.Module;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

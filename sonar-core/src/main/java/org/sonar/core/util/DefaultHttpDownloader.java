@@ -28,17 +28,6 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.sonar.api.config.Settings;
-import org.sonar.api.platform.Server;
-import org.sonar.api.utils.HttpDownloader;
-import org.sonar.api.utils.SonarException;
-import org.sonar.api.utils.log.Loggers;
-
-import javax.annotation.Nullable;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,6 +42,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
+import javax.annotation.Nullable;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.sonar.api.config.Settings;
+import org.sonar.api.platform.Server;
+import org.sonar.api.utils.HttpDownloader;
+import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.log.Loggers;
 
 /**
  * This component downloads HTTP files

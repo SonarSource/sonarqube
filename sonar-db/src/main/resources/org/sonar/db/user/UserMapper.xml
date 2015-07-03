@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.user.UserMapper">
+
+  <sql id="userColumns">
+    u.id as id,
+    u.login as login,
+    u.name as name,
+    u.email as email,
+    u.active as "active",
+    u.scm_accounts as "scmAccounts",
+    u.salt as "salt",
+    u.crypted_password as "cryptedPassword",
+    u.created_at as "createdAt",
+    u.updated_at as "updatedAt"
+  </sql>
+
+  <select id="selectByLogin" parameterType="String" resultType="User">
+    SELECT
+    <include refid="userColumns"/>
+    FROM users u
+    WHERE u.login=#{login}
+  </select>
+
+  <select id="selectNullableByScmAccountOrLoginOrEmail" parameterType="map" resultType="User">
+    SELECT
+    <include refid="userColumns"/>
+    FROM users u
+    WHERE
+    u.login=#{scmAccount}
+    OR u.email=#{scmAccount}
+    OR u.scm_accounts like #{likeScmAccount}
+  </select>
+
+  <select id="selectUser" parameterType="long" resultType="User">
+    SELECT
+    <include refid="userColumns"/>
+    FROM users u
+    WHERE u.id=#{id}
+  </select>
+
+  <select id="selectUserByLogin" parameterType="string" resultType="User">
+    SELECT
+    <include refid="userColumns"/>
+    FROM users u
+    WHERE u.login=#{id} AND u.active=${_true}
+  </select>
+
+  <select id="selectUsersByLogins" parameterType="map" resultType="User">
+    SELECT
+    <include refid="userColumns"/>
+    FROM users u WHERE
+    (<foreach item="login" index="index" collection="logins" open="(" separator=" or " close=")">
+    u.login=#{login}
+  </foreach>)
+  </select>
+
+  <select id="selectUsers" parameterType="map" resultType="User">
+    SELECT
+    <include refid="userColumns"/>
+    FROM users u
+    <where>
+      <if test="logins != null and logins.size() > 0">
+        u.login IN
+        <foreach item="login" index="index" collection="logins" open="(" separator="," close=")">
+          #{login}
+        </foreach>
+      </if>
+      <if test="includeDeactivated==false">
+        AND u.active=${_true}
+      </if>
+      <if test="searchText != null">
+        AND (u.login LIKE #{searchTextSql} ESCAPE '/' OR u.name LIKE #{searchTextSql} ESCAPE '/')
+      </if>
+    </where>
+    ORDER BY u.name
+  </select>
+
+  <select id="selectGroupByName" parameterType="string" resultType="Group">
+    SELECT id, name, description, created_at AS "createdAt", updated_at AS "updatedAt"
+    FROM groups WHERE name=#{id}
+  </select>
+
+  <delete id="removeUserFromGroups" parameterType="long">
+    DELETE FROM groups_users WHERE user_id=#{id}
+  </delete>
+
+  <delete id="deleteUserRoles" parameterType="long">
+    DELETE FROM user_roles WHERE user_id=#{id}
+  </delete>
+
+  <delete id="deleteUserProperties" parameterType="long">
+    DELETE FROM properties WHERE user_id=#{id}
+  </delete>
+
+  <delete id="deleteUnsharedUserDashboards" parameterType="long">
+    DELETE FROM dashboards WHERE user_id=#{id} and shared &lt;&gt; ${_true}
+  </delete>
+
+  <delete id="deleteUserActiveDashboards" parameterType="long">
+    DELETE FROM active_dashboards WHERE user_id=#{id}
+  </delete>
+
+  <delete id="deleteUnsharedUserMeasureFilters" parameterType="long">
+    DELETE FROM measure_filters WHERE user_id=#{id} and shared &lt;&gt; ${_true}
+  </delete>
+
+  <delete id="deleteUserMeasureFilterFavourites" parameterType="long">
+    DELETE FROM measure_filter_favourites WHERE user_id=#{id}
+  </delete>
+
+  <delete id="deleteUnsharedUserIssueFilters" parameterType="String">
+    DELETE FROM issue_filters WHERE user_login=#{id} and shared &lt;&gt; ${_true}
+  </delete>
+
+  <delete id="deleteUserIssueFilterFavourites" parameterType="String">
+    DELETE FROM issue_filter_favourites WHERE user_login=#{id}
+  </delete>
+
+  <update id="deactivateUser" parameterType="long">
+    UPDATE users SET active=${_false}, updated_at=#{now,jdbcType=BIGINT} WHERE id=#{id}
+  </update>
+
+  <insert id="insert" parameterType="User" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO users (login, name, email, active, scm_accounts, salt, crypted_password, created_at, updated_at)
+    VALUES (#{login,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{active,jdbcType=BOOLEAN},
+    #{scmAccounts,jdbcType=VARCHAR},
+    #{salt,jdbcType=VARCHAR}, #{cryptedPassword,jdbcType=VARCHAR}, #{createdAt,jdbcType=BIGINT},
+    #{updatedAt,jdbcType=BIGINT})
+  </insert>
+
+  <insert id="update" parameterType="User" useGeneratedKeys="false">
+    UPDATE users set name=#{name,jdbcType=VARCHAR}, email=#{email,jdbcType=VARCHAR}, active=#{active,jdbcType=BOOLEAN},
+    scm_accounts=#{scmAccounts,jdbcType=VARCHAR},
+    salt=#{salt,jdbcType=VARCHAR}, crypted_password=#{cryptedPassword,jdbcType=BIGINT},
+    updated_at=#{updatedAt,jdbcType=BIGINT}
+    WHERE login = #{login}
+  </insert>
+
+</mapper>

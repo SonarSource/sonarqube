@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.core.persistence.DbTester;
+import org.sonar.db.DbTester;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.index.IssueIndexDefinition;

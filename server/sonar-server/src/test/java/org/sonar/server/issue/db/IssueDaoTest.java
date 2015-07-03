@@ -23,10 +23,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.issue.db.IssueDto;
-import org.sonar.core.persistence.AbstractDaoTestCase;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.IssueDto;
+import org.sonar.db.AbstractDaoTestCase;
+import org.sonar.db.DbSession;
 import org.sonar.server.rule.RuleTesting;
 
 import java.util.Arrays;

@@ -26,19 +26,17 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Ordering;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.updatecenter.common.PluginManifest;
-import org.sonar.updatecenter.common.Version;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.updatecenter.common.PluginManifest;
+import org.sonar.updatecenter.common.Version;
 
 public class PluginInfo implements Comparable<PluginInfo> {
 

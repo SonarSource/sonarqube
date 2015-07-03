@@ -22,8 +22,8 @@ package org.sonar.server.permission;
 
 import org.sonar.api.server.ws.WebService.SelectionMode;
 
-import org.sonar.core.permission.PermissionQuery;
-import org.sonar.core.user.GroupMembershipQuery;
+import org.sonar.db.permission.PermissionQuery;
+import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.server.util.RubyUtils;
 
 import java.util.Map;

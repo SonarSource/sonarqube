@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.db.IssueChangeDto;
+import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;

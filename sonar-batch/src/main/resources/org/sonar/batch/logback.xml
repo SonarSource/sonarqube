@@ -20,7 +20,7 @@
   </logger>
 
   <!-- sonar.showSql -->
-  <!-- see also org.sonar.core.persistence.MyBatis#configureLogback() -->
+  <!-- see also org.sonar.db.MyBatis#configureLogback() -->
   <logger name="org.apache.ibatis">
     <level value="WARN"/>
   </logger>

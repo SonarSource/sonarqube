@@ -24,12 +24,12 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.permission.PermissionTemplateDao;
-import org.sonar.core.permission.PermissionTemplateDto;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.user.GroupDto;
-import org.sonar.core.user.UserDao;
+import org.sonar.db.permission.PermissionTemplateDao;
+import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 

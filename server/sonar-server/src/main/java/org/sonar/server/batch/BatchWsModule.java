@@ -19,7 +19,7 @@
  */
 package org.sonar.server.batch;
 
-import org.sonar.core.component.Module;
+import org.sonar.core.platform.Module;
 import org.sonar.server.computation.ws.SubmitReportAction;
 
 public class BatchWsModule extends Module {

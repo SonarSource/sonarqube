@@ -25,9 +25,9 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.internal.Uuids;
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.issue.db.IssueDto;
-import org.sonar.core.rule.RuleDto;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.IssueDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.rule.RuleTesting;
 

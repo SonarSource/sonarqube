@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.computation.db.AnalysisReportDto;
+import org.sonar.db.compute.AnalysisReportDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.ActivityService;

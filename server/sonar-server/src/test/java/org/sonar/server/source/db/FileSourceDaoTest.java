@@ -28,10 +28,10 @@ import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.persistence.AbstractDaoTestCase;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.source.db.FileSourceDto;
-import org.sonar.core.source.db.FileSourceDto.Type;
+import org.sonar.db.AbstractDaoTestCase;
+import org.sonar.db.DbSession;
+import org.sonar.db.source.FileSourceDto;
+import org.sonar.db.source.FileSourceDto.Type;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

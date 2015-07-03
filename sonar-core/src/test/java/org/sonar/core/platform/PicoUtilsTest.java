@@ -19,12 +19,11 @@
  */
 package org.sonar.core.platform;
 
+import java.io.IOException;
 import org.junit.Test;
 import org.picocontainer.Characteristics;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.PicoLifecycleException;
-
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;

@@ -22,8 +22,8 @@ package org.sonar.server.platform.monitoring;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.persistence.DatabaseVersion;
-import org.sonar.core.persistence.DbTester;
+import org.sonar.db.version.DatabaseVersion;
+import org.sonar.db.DbTester;
 import org.sonar.server.db.DbClient;
 
 import java.util.LinkedHashMap;

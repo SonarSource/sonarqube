@@ -27,7 +27,6 @@ import static org.sonar.core.issue.workflow.IsBeingClosed.INSTANCE;
 
 public class IsBeingClosedTest {
 
-
   @Test
   public void should_be_end_of_life() {
     DefaultIssue issue = new DefaultIssue();

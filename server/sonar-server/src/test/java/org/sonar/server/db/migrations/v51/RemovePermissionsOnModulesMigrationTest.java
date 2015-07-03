@@ -22,7 +22,7 @@ package org.sonar.server.db.migrations.v51;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.core.persistence.DbTester;
+import org.sonar.db.DbTester;
 import org.sonar.server.db.migrations.MigrationStep;
 
 public class RemovePermissionsOnModulesMigrationTest {

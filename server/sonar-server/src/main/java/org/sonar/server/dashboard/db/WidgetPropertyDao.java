@@ -23,14 +23,14 @@ import com.google.common.base.Function;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import org.sonar.core.dashboard.WidgetPropertyDto;
-import org.sonar.core.dashboard.WidgetPropertyMapper;
-import org.sonar.core.persistence.DaoComponent;
-import org.sonar.core.persistence.DaoUtils;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.db.dashboard.WidgetPropertyDto;
+import org.sonar.db.dashboard.WidgetPropertyMapper;
+import org.sonar.db.Dao;
+import org.sonar.db.DaoUtils;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 
-public class WidgetPropertyDao implements DaoComponent {
+public class WidgetPropertyDao implements Dao {
 
   private final MyBatis myBatis;
 

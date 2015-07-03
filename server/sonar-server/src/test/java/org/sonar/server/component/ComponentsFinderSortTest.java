@@ -22,7 +22,7 @@ package org.sonar.server.component;
 
 import org.junit.Test;
 import org.sonar.api.component.Component;
-import org.sonar.core.component.ComponentDto;
+import org.sonar.db.component.ComponentDto;
 
 import java.util.List;
 

@@ -35,9 +35,9 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.template.LoadedTemplateDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.platform.PersistentSettings;
 

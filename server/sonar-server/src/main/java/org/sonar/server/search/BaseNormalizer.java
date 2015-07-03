@@ -20,7 +20,7 @@
 package org.sonar.server.search;
 
 import org.elasticsearch.action.update.UpdateRequest;
-import org.sonar.core.persistence.Dto;
+import org.sonar.db.Dto;
 import org.sonar.server.db.DbClient;
 
 import java.io.Serializable;

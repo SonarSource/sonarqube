@@ -1,0 +1,36 @@
+<dataset>
+
+  <dashboards
+    id="1"
+    user_id="[null]"
+    name="[null]"
+    description="[null]"
+    column_layout="[null]"
+    shared="[true]"
+    is_global="[false]"
+    created_at="[null]"
+    updated_at="[null]"
+    />
+
+  <widgets
+    id="1"
+    dashboard_id="1"
+    widget_key="code_coverage"
+    name="[null]"
+    description="[null]"
+    column_index="[null]"
+    row_index="[null]"
+    configured="[true]"
+    created_at="[null]"
+    updated_at="[null]"
+    resource_id="[null]"
+    />
+
+  <widget_properties
+    id="1"
+    widget_id="1"
+    kee="[null]"
+    text_value="[null]"
+    />
+
+</dataset>

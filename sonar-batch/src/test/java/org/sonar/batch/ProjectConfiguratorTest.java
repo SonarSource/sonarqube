@@ -27,13 +27,12 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.System2;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
+public class ProjectConfiguratorTest {
 
   System2 system2;
 

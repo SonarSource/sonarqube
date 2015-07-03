@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.CheckForNull;
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.Database;
+import org.sonar.db.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.Upsert;

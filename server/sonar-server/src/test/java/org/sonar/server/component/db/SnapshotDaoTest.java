@@ -28,16 +28,16 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.component.SnapshotDto;
-import org.sonar.core.component.db.SnapshotQuery;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.DbTester;
+import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.component.SnapshotQuery;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.component.db.SnapshotQuery.SORT_FIELD.BY_DATE;
-import static org.sonar.core.component.db.SnapshotQuery.SORT_ORDER.ASC;
-import static org.sonar.core.component.db.SnapshotQuery.SORT_ORDER.DESC;
+import static org.sonar.db.component.SnapshotQuery.SORT_FIELD.BY_DATE;
+import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.ASC;
+import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.DESC;
 
 @Category(DbTests.class)
 public class SnapshotDaoTest {

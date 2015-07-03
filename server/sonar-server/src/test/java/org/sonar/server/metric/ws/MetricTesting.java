@@ -23,7 +23,7 @@ package org.sonar.server.metric.ws;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.measures.Metric;
-import org.sonar.core.metric.db.MetricDto;
+import org.sonar.db.metric.MetricDto;
 
 public class MetricTesting {
   private MetricTesting() {

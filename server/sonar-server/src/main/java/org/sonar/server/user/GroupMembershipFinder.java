@@ -23,11 +23,11 @@ package org.sonar.server.user;
 import java.util.List;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.user.GroupMembership;
-import org.sonar.core.user.GroupMembershipDao;
-import org.sonar.core.user.GroupMembershipDto;
-import org.sonar.core.user.GroupMembershipQuery;
-import org.sonar.core.user.UserDao;
-import org.sonar.core.user.UserDto;
+import org.sonar.db.user.GroupMembershipDao;
+import org.sonar.db.user.GroupMembershipDto;
+import org.sonar.db.user.GroupMembershipQuery;
+import org.sonar.db.user.UserDao;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.collect.Lists.newArrayList;

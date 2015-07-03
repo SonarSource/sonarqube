@@ -27,9 +27,9 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.measure.db.MeasureDto;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.user.UserSession;
 

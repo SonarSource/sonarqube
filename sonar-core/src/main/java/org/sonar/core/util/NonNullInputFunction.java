@@ -20,7 +20,6 @@
 package org.sonar.core.util;
 
 import com.google.common.base.Function;
-
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -29,7 +28,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  * Guava Function that does not accept null input elements
  * @since 5.1
  */
-public abstract class NonNullInputFunction<F,T> implements Function<F, T> {
+public abstract class NonNullInputFunction<F, T> implements Function<F, T> {
 
   @Override
   public final T apply(@Nullable F input) {

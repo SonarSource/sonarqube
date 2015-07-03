@@ -30,8 +30,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.tester.UserSessionRule;
 

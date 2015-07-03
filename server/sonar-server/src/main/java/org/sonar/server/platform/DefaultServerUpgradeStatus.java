@@ -23,7 +23,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.picocontainer.Startable;
 import org.sonar.api.platform.ServerUpgradeStatus;
-import org.sonar.core.persistence.DatabaseVersion;
+import org.sonar.db.version.DatabaseVersion;
 
 /**
  * @since 2.5

@@ -27,13 +27,18 @@ import org.mockito.ArgumentMatcher;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardLayout;
 import org.sonar.api.web.DashboardTemplate;
-import org.sonar.core.dashboard.*;
-import org.sonar.core.template.LoadedTemplateDao;
-import org.sonar.core.template.LoadedTemplateDto;
+import org.sonar.db.loadedtemplate.LoadedTemplateDao;
+import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import org.sonar.db.dashboard.ActiveDashboardDao;
+import org.sonar.db.dashboard.ActiveDashboardDto;
+import org.sonar.db.dashboard.DashboardDao;
+import org.sonar.db.dashboard.DashboardDto;
+import org.sonar.db.dashboard.WidgetDto;
+import org.sonar.db.dashboard.WidgetPropertyDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;

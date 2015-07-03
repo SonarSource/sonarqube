@@ -21,7 +21,7 @@
 package org.sonar.core.computation.dbcleaner;
 
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.purge.PurgeListener;
+import org.sonar.db.purge.PurgeListener;
 import org.sonar.server.source.index.SourceLineIndexer;
 import org.sonar.server.test.index.TestIndexer;
 

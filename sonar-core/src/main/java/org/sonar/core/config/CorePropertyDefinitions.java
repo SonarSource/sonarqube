@@ -27,7 +27,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.core.computation.dbcleaner.DataCleanerProperties;
 
 public class CorePropertyDefinitions {
 
@@ -41,7 +40,7 @@ public class CorePropertyDefinitions {
     defs.addAll(ExclusionProperties.all());
     defs.addAll(SecurityProperties.all());
     defs.addAll(DebtProperties.all());
-    defs.addAll(DataCleanerProperties.all());
+    defs.addAll(PurgeProperties.all());
 
     defs.addAll(ImmutableList.of(
       PropertyDefinition.builder(CoreProperties.SERVER_BASE_URL)
@@ -51,11 +50,11 @@ public class CorePropertyDefinitions {
         .defaultValue(CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE)
         .build(),
 
-    PropertyDefinition.builder(CoreProperties.LINKS_HOME_PAGE)
-      .name("Project Home Page")
-      .description("HTTP URL of the home page of the project.")
-      .hidden()
-      .build(),
+      PropertyDefinition.builder(CoreProperties.LINKS_HOME_PAGE)
+        .name("Project Home Page")
+        .description("HTTP URL of the home page of the project.")
+        .hidden()
+        .build(),
       PropertyDefinition.builder(CoreProperties.LINKS_CI)
         .name("CI server")
         .description("HTTP URL of the continuous integration server.")
@@ -164,7 +163,7 @@ public class CorePropertyDefinitions {
         .onlyOnQualifiers(Qualifiers.PROJECT)
         .build(),
 
-    // WEB LOOK&FEEL
+      // WEB LOOK&FEEL
       PropertyDefinition.builder("sonar.lf.logoUrl")
         .deprecatedKey("sonar.branding.image")
         .name("Logo URL")
@@ -195,7 +194,7 @@ public class CorePropertyDefinitions {
         .subCategory(CoreProperties.SUBCATEGORY_LOOKNFEEL)
         .build(),
 
-    // ISSUES
+      // ISSUES
       PropertyDefinition.builder(CoreProperties.DEFAULT_ISSUE_ASSIGNEE)
         .name("Default Assignee")
         .description("New issues will be assigned to this user each time it is not possible to determine the user who is the author of the issue.")
@@ -205,68 +204,68 @@ public class CorePropertyDefinitions {
         .type(PropertyType.USER_LOGIN)
         .build(),
 
-    // BATCH
+      // BATCH
 
-    PropertyDefinition.builder(CoreProperties.CORE_VIOLATION_LOCALE_PROPERTY)
-      .defaultValue("en")
-      .name("Locale used for issue messages")
-      .description("Deprecated property. Keep default value for backward compatibility.")
-      .hidden()
-      .build(),
+      PropertyDefinition.builder(CoreProperties.CORE_VIOLATION_LOCALE_PROPERTY)
+        .defaultValue("en")
+        .name("Locale used for issue messages")
+        .description("Deprecated property. Keep default value for backward compatibility.")
+        .hidden()
+        .build(),
 
-    PropertyDefinition.builder(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 1)
-      .name("Period 1")
-      .description("Period used to compare measures and track new issues. Values are : <ul class='bullet'><li>Number of days before " +
-        "analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, for example 2010-12-25</li><li>'previous_analysis' to " +
-        "compare to previous analysis</li><li>'previous_version' to compare to the previous version in the project history</li></ul>" +
-        "<p>When specifying a number of days or a date, the snapshot selected for comparison is " +
-        " the first one available inside the corresponding time range. </p>" +
-        "<p>Changing this property only takes effect after subsequent project inspections.<p/>")
-      .defaultValue(CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_1)
-      .category(CoreProperties.CATEGORY_GENERAL)
-      .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
-      .build(),
+      PropertyDefinition.builder(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 1)
+        .name("Period 1")
+        .description("Period used to compare measures and track new issues. Values are : <ul class='bullet'><li>Number of days before " +
+          "analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, for example 2010-12-25</li><li>'previous_analysis' to " +
+          "compare to previous analysis</li><li>'previous_version' to compare to the previous version in the project history</li></ul>" +
+          "<p>When specifying a number of days or a date, the snapshot selected for comparison is " +
+          " the first one available inside the corresponding time range. </p>" +
+          "<p>Changing this property only takes effect after subsequent project inspections.<p/>")
+        .defaultValue(CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_1)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
+        .build(),
 
-    PropertyDefinition.builder(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 2)
-      .name("Period 2")
-      .description("See the property 'Period 1'")
-      .defaultValue(CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_2)
-      .category(CoreProperties.CATEGORY_GENERAL)
-      .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
-      .build(),
+      PropertyDefinition.builder(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 2)
+        .name("Period 2")
+        .description("See the property 'Period 1'")
+        .defaultValue(CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_2)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
+        .build(),
 
-    PropertyDefinition.builder(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 3)
-      .name("Period 3")
-      .description("See the property 'Period 1'")
-      .defaultValue(CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_3)
-      .category(CoreProperties.CATEGORY_GENERAL)
-      .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
-      .build(),
+      PropertyDefinition.builder(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 3)
+        .name("Period 3")
+        .description("See the property 'Period 1'")
+        .defaultValue(CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_3)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
+        .build(),
 
-    PropertyDefinition.builder(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 4)
-      .name("Period 4")
-      .description("Period used to compare measures and track new issues. This property is specific to the project. Values are : " +
-        "<ul class='bullet'><li>Number of days before analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, " +
-        "for example 2010-12-25</li><li>'previous_analysis' to compare to previous analysis</li>" +
-        "<li>'previous_version' to compare to the previous version in the project history</li><li>A version, for example 1.2</li></ul>" +
-        "<p>When specifying a number of days or a date, the snapshot selected for comparison is the first one available inside the corresponding time range. </p>" +
-        "<p>Changing this property only takes effect after subsequent project inspections.<p/>")
-      .defaultValue(CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_4)
-      .onlyOnQualifiers(Qualifiers.PROJECT)
-      .category(CoreProperties.CATEGORY_GENERAL)
-      .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
-      .build(),
+      PropertyDefinition.builder(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 4)
+        .name("Period 4")
+        .description("Period used to compare measures and track new issues. This property is specific to the project. Values are : " +
+          "<ul class='bullet'><li>Number of days before analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, " +
+          "for example 2010-12-25</li><li>'previous_analysis' to compare to previous analysis</li>" +
+          "<li>'previous_version' to compare to the previous version in the project history</li><li>A version, for example 1.2</li></ul>" +
+          "<p>When specifying a number of days or a date, the snapshot selected for comparison is the first one available inside the corresponding time range. </p>" +
+          "<p>Changing this property only takes effect after subsequent project inspections.<p/>")
+        .defaultValue(CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_4)
+        .onlyOnQualifiers(Qualifiers.PROJECT)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
+        .build(),
 
-    PropertyDefinition.builder(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 5)
-      .name("Period 5")
-      .description("See the property 'Period 4'")
-      .defaultValue(CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_5)
-      .onlyOnQualifiers(Qualifiers.PROJECT)
-      .category(CoreProperties.CATEGORY_GENERAL)
-      .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
-      .build(),
+      PropertyDefinition.builder(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + 5)
+        .name("Period 5")
+        .description("See the property 'Period 4'")
+        .defaultValue(CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_5)
+        .onlyOnQualifiers(Qualifiers.PROJECT)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
+        .build(),
 
-    // CPD
+      // CPD
       PropertyDefinition.builder(CoreProperties.CPD_CROSS_PROJECT)
         .defaultValue(Boolean.toString(CoreProperties.CPD_CROSS_RPOJECT_DEFAULT_VALUE))
         .name("Cross project duplication detection")

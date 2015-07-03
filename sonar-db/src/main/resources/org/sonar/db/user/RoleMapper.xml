@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.user.RoleMapper">
+
+  <select id="selectUserPermissions" parameterType="map" resultType="String">
+    SELECT ur.role
+    FROM user_roles ur
+    INNER JOIN users u ON u.id=ur.user_id AND u.active=${_true}
+    <where>
+      AND u.login = #{userLogin}
+      <choose>
+        <when test="resourceId != null">
+          AND resource_id=#{resourceId}
+        </when>
+        <otherwise>
+          AND resource_id IS NULL
+        </otherwise>
+      </choose>
+    </where>
+  </select>
+
+  <select id="selectGroupPermissions" parameterType="map" resultType="String">
+    SELECT gr.role
+    FROM group_roles gr
+    <if test="isAnyOneGroup != true">
+      INNER JOIN groups g ON g.id = gr.group_id
+    </if>
+    <where>
+      <choose>
+        <when test="isAnyOneGroup != true">
+          AND g.name = #{groupName}
+        </when>
+        <otherwise>
+          AND gr.group_id IS NULL
+        </otherwise>
+      </choose>
+      <choose>
+        <when test="resourceId != null">
+          AND resource_id=#{resourceId}
+        </when>
+        <otherwise>
+          AND resource_id IS NULL
+        </otherwise>
+      </choose>
+    </where>
+  </select>
+
+  <insert id="insertGroupRole" parameterType="GroupRole" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO group_roles (group_id, resource_id, role)
+    VALUES (#{groupId}, #{resourceId}, #{role})
+  </insert>
+
+  <insert id="insertUserRole" parameterType="UserRole" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO user_roles (user_id, resource_id, role)
+    VALUES (#{userId}, #{resourceId}, #{role})
+  </insert>
+
+  <delete id="deleteGroupRole" parameterType="map">
+    DELETE FROM group_roles
+    WHERE role=#{role}
+    AND
+    <choose>
+      <when test="resourceId != null">
+        resource_id=#{resourceId}
+      </when>
+      <otherwise>
+        resource_id IS NULL
+      </otherwise>
+    </choose>
+    AND
+    <choose>
+      <when test="groupId != null">
+        group_id=#{groupId}
+      </when>
+      <otherwise>
+        group_id IS NULL
+      </otherwise>
+    </choose>
+  </delete>
+
+  <delete id="deleteUserRole" parameterType="map">
+    DELETE FROM user_roles
+    WHERE user_id=#{userId}
+    AND role=#{role}
+    AND
+    <choose>
+      <when test="resourceId != null">
+        resource_id=#{resourceId}
+      </when>
+      <otherwise>
+        resource_id IS NULL
+      </otherwise>
+    </choose>
+  </delete>
+
+  <delete id="deleteGroupRolesByResourceId" parameterType="long">
+    delete from group_roles where resource_id=#{id}
+  </delete>
+
+  <delete id="deleteUserRolesByResourceId" parameterType="long">
+    delete from user_roles where resource_id=#{id}
+  </delete>
+
+  <select id="countResourceUserRoles" parameterType="long" resultType="int">
+    SELECT count(id)
+    FROM user_roles WHERE resource_id=#{id}
+  </select>
+
+  <select id="countResourceGroupRoles" parameterType="long" resultType="int">
+    SELECT count(id)
+    FROM group_roles WHERE resource_id=#{id}
+  </select>
+
+  <delete id="deleteGroupRolesByGroupId" parameterType="long">
+    delete from group_roles where group_id=#{id}
+  </delete>
+</mapper>

@@ -20,7 +20,7 @@
 package org.sonar.server.component.ws;
 
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.component.ComponentDto;
+import org.sonar.db.component.ComponentDto;
 
 public class ComponentJsonWriter {
 

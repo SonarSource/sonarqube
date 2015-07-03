@@ -19,13 +19,12 @@
  */
 package org.sonar.core.platform;
 
-import org.sonar.api.utils.internal.Uuids;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.sonar.api.utils.internal.Uuids;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 class ComponentKeys {
 

@@ -20,7 +20,7 @@
 package org.sonar.server.platform;
 
 import org.junit.Test;
-import org.sonar.core.persistence.DatabaseVersion;
+import org.sonar.db.version.DatabaseVersion;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;

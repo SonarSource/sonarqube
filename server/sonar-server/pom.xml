@@ -74,6 +74,10 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-db</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-batch-protocol</artifactId>
     </dependency>
     <dependency>
@@ -181,7 +185,7 @@
     <!-- unit tests -->
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-core</artifactId>
+      <artifactId>sonar-db</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>

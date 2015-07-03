@@ -25,11 +25,11 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.api.platform.ServerUpgradeStatus;
-import org.sonar.core.persistence.AbstractDaoTestCase;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.dialect.Dialect;
-import org.sonar.core.persistence.dialect.H2;
-import org.sonar.core.persistence.dialect.MySql;
+import org.sonar.db.AbstractDaoTestCase;
+import org.sonar.db.DbSession;
+import org.sonar.db.dialect.Dialect;
+import org.sonar.db.dialect.H2;
+import org.sonar.db.dialect.MySql;
 import org.sonar.server.db.DbClient;
 
 import java.sql.Connection;

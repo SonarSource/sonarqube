@@ -27,9 +27,9 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
-import org.sonar.core.metric.db.MetricDto;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.db.metric.MetricDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 import org.sonar.server.db.DbClient;
 
 import static com.google.common.collect.FluentIterable.from;

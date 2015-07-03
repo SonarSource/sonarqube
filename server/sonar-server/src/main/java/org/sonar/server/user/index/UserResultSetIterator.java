@@ -21,7 +21,7 @@ package org.sonar.server.user.index;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.core.user.UserDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.ResultSetIterator;
 

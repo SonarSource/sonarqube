@@ -24,7 +24,7 @@
   </logger>
 
   <!-- sonar.showSql -->
-  <!-- see also org.sonar.core.persistence.MyBatis#configureLogback() -->
+  <!-- see also org.sonar.db.MyBatis#configureLogback() -->
   <logger name="org.mybatis">
     <level value="${SQL_LOGGER_LEVEL:-WARN}"/>
   </logger>

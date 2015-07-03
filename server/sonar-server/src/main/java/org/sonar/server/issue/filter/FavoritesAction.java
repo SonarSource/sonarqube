@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.issue.db.IssueFilterDto;
+import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.server.user.UserSession;
 
 public class FavoritesAction implements RequestHandler {

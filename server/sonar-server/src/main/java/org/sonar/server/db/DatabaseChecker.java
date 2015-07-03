@@ -26,9 +26,9 @@ import org.picocontainer.Startable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.persistence.Database;
-import org.sonar.core.persistence.dialect.H2;
-import org.sonar.core.persistence.dialect.Oracle;
+import org.sonar.db.Database;
+import org.sonar.db.dialect.H2;
+import org.sonar.db.dialect.Oracle;
 
 import java.sql.Connection;
 import java.sql.SQLException;

@@ -27,9 +27,9 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.core.measure.custom.db.CustomMeasureDto;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.DbTester;
+import org.sonar.db.measure.CustomMeasureDto;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 

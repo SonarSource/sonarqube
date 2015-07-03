@@ -29,7 +29,7 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-import org.sonar.core.persistence.DbTester;
+import org.sonar.db.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileBackuper;

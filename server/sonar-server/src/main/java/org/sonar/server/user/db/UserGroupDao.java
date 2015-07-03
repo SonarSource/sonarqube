@@ -20,12 +20,12 @@
 
 package org.sonar.server.user.db;
 
-import org.sonar.core.persistence.DaoComponent;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.user.UserGroupDto;
-import org.sonar.core.user.UserGroupMapper;
+import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
+import org.sonar.db.user.UserGroupDto;
+import org.sonar.db.user.UserGroupMapper;
 
-public class UserGroupDao implements DaoComponent {
+public class UserGroupDao implements Dao {
 
   public UserGroupDto insert(DbSession session, UserGroupDto dto) {
     mapper(session).insert(dto);

@@ -118,9 +118,9 @@ public class FieldDiffs implements Serializable {
           String[] values = keyValues[1].split("\\|");
           String oldValue = "";
           String newValue = "";
-          if(values.length == 1) {
+          if (values.length == 1) {
             newValue = Strings.nullToEmpty(values[0]);
-          } else if(values.length == 2) {
+          } else if (values.length == 2) {
             oldValue = Strings.nullToEmpty(values[0]);
             newValue = Strings.nullToEmpty(values[1]);
           }
@@ -180,10 +180,10 @@ public class FieldDiffs implements Serializable {
 
     @Override
     public String toString() {
-      //TODO escape , and | characters
+      // TODO escape , and | characters
       StringBuilder sb = new StringBuilder();
-      if(newValue != null) {
-        if(oldValue != null) {
+      if (newValue != null) {
+        if (oldValue != null) {
           sb.append(oldValue.toString());
           sb.append('|');
         }

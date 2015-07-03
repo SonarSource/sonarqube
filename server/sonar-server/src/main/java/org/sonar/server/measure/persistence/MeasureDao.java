@@ -27,16 +27,16 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.component.SnapshotDto;
-import org.sonar.core.measure.db.MeasureDto;
-import org.sonar.core.measure.db.MeasureMapper;
-import org.sonar.core.measure.db.PastMeasureDto;
-import org.sonar.core.persistence.DaoComponent;
-import org.sonar.core.persistence.DaoUtils;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.MeasureMapper;
+import org.sonar.db.measure.PastMeasureDto;
+import org.sonar.db.Dao;
+import org.sonar.db.DaoUtils;
+import org.sonar.db.DbSession;
 
 @ServerSide
-public class MeasureDao implements DaoComponent {
+public class MeasureDao implements Dao {
 
   public boolean existsByKey(DbSession session, String componentKey, String metricKey) {
     return mapper(session).countByComponentAndMetric(componentKey, metricKey) > 0;

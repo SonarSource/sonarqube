@@ -29,7 +29,7 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.IsMeasure;
-import org.sonar.core.UtcDateUtils;
+import org.sonar.core.util.UtcDateUtils;
 
 import java.util.Collections;
 import java.util.Date;

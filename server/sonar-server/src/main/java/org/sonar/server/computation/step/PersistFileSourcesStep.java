@@ -30,10 +30,10 @@ import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.source.db.FileSourceDto;
-import org.sonar.core.source.db.FileSourceDto.Type;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
+import org.sonar.db.source.FileSourceDto;
+import org.sonar.db.source.FileSourceDto.Type;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
@@ -91,7 +91,7 @@ public class PersistFileSourcesStep implements ComputationStep {
     @Override
     public void visitProject(Component project) {
       this.projectUuid = project.getUuid();
-      session.select("org.sonar.core.source.db.FileSourceMapper.selectHashesForProject", ImmutableMap.of("projectUuid", projectUuid, "dataType", Type.SOURCE),
+      session.select("org.sonar.db.source.FileSourceMapper.selectHashesForProject", ImmutableMap.of("projectUuid", projectUuid, "dataType", Type.SOURCE),
         new ResultHandler() {
           @Override
           public void handleResult(ResultContext context) {

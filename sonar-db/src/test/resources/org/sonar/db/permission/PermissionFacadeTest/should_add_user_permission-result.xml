@@ -1,0 +1,13 @@
+<dataset>
+
+  <users id="200" login="dave.loper" name="Dave Loper" email="dave.loper@company.net" active="[true]"/>
+
+  <user_roles id="1" user_id="200" resource_id="123" role="user"/>
+  <user_roles id="2" user_id="200" resource_id="123" role="admin"/>
+
+  <projects id="100" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
+            description="the description" long_name="Apache Struts"
+            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]"
+            authorization_updated_at="123456789"/>
+
+</dataset>

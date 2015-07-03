@@ -27,8 +27,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.component.Component;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.resource.ResourceDao;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ResourceDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.permission.InternalPermissionService;
 

@@ -19,13 +19,12 @@
  */
 package org.sonar.core.user;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.user.User;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
 /**
  * @since 3.6

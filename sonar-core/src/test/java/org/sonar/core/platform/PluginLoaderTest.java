@@ -21,7 +21,6 @@ package org.sonar.core.platform;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -32,15 +31,12 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.Plugin;
 import org.sonar.api.SonarPlugin;
-import org.sonar.api.utils.ZipUtils;
 import org.sonar.updatecenter.common.Version;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class PluginLoaderTest {
 
@@ -149,8 +145,6 @@ public class PluginLoaderTest {
       entry("fooExtension2", "org.foo.Extension2Plugin"));
     // TODO test mask - require change in sonar-classloader
   }
-
-
 
   /**
    * Does not unzip jar file. It directly returns the JAR file defined on PluginInfo.

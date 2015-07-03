@@ -19,7 +19,7 @@
  */
 package org.sonar.server.usergroups.ws;
 
-import org.sonar.core.component.Module;
+import org.sonar.core.platform.Module;
 
 public class UserGroupsModule extends Module {
 

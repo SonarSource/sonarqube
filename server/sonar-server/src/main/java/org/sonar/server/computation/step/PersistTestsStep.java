@@ -40,10 +40,10 @@ import org.sonar.api.utils.internal.Uuids;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.source.db.FileSourceDto;
-import org.sonar.core.source.db.FileSourceDto.Type;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
+import org.sonar.db.source.FileSourceDto;
+import org.sonar.db.source.FileSourceDto.Type;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
@@ -102,7 +102,7 @@ public class PersistTestsStep implements ComputationStep {
       this.existingFileSourcesByUuid = new HashMap<>();
       this.projectUuid = treeRootHolder.getRoot().getUuid();
       this.projectKey = treeRootHolder.getRoot().getKey();
-      session.select("org.sonar.core.source.db.FileSourceMapper.selectHashesForProject",
+      session.select("org.sonar.db.source.FileSourceMapper.selectHashesForProject",
         ImmutableMap.of("projectUuid", treeRootHolder.getRoot().getUuid(), "dataType", Type.TEST),
         new ResultHandler() {
           @Override

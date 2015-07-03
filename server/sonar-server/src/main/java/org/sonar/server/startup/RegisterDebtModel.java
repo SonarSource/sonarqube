@@ -23,7 +23,7 @@ package org.sonar.server.startup;
 
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.core.technicaldebt.db.CharacteristicDao;
+import org.sonar.db.debt.CharacteristicDao;
 import org.sonar.server.debt.DebtModelBackup;
 
 public class RegisterDebtModel {

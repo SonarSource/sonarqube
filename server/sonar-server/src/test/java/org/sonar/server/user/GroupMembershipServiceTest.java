@@ -24,10 +24,10 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.db.AbstractDaoTestCase;
 import org.sonar.core.user.GroupMembership;
-import org.sonar.core.user.GroupMembershipDao;
-import org.sonar.core.user.UserDao;
+import org.sonar.db.user.GroupMembershipDao;
+import org.sonar.db.user.UserDao;
 import org.sonar.server.exceptions.NotFoundException;
 
 import java.util.List;

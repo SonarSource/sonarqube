@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.component.ResourceMapper">
+
+  <resultMap id="snapshotResultMap" type="Snapshot">
+    <id property="id" column="id"/>
+    <result property="parentId" column="parent_snapshot_id"/>
+    <result property="rootId" column="root_snapshot_id"/>
+    <result property="createdAt" column="created_at"/>
+    <result property="buildDate" column="build_date"/>
+    <result property="componentId" column="project_id"/>
+    <result property="status" column="status"/>
+    <result property="purgeStatus" column="purge_status"/>
+    <result property="last" column="islast"/>
+    <result property="scope" column="scope"/>
+    <result property="qualifier" column="qualifier"/>
+    <result property="version" column="version"/>
+    <result property="path" column="path"/>
+    <result property="depth" column="depth"/>
+    <result property="rootProjectId" column="root_project_id"/>
+    <result property="period1Mode" column="period1_mode"/>
+    <result property="period2Mode" column="period2_mode"/>
+    <result property="period3Mode" column="period3_mode"/>
+    <result property="period4Mode" column="period4_mode"/>
+    <result property="period5Mode" column="period5_mode"/>
+    <result property="period1Param" column="period1_param"/>
+    <result property="period2Param" column="period2_param"/>
+    <result property="period3Param" column="period3_param"/>
+    <result property="period4Param" column="period4_param"/>
+    <result property="period5Param" column="period5_param"/>
+    <result property="period1Date" column="period1_date"/>
+    <result property="period2Date" column="period2_date"/>
+    <result property="period3Date" column="period3_date"/>
+    <result property="period4Date" column="period4_date"/>
+    <result property="period5Date" column="period5_date"/>
+  </resultMap>
+
+  <resultMap id="resourceResultMap" type="Resource">
+    <id property="id" column="id"/>
+    <result property="key" column="kee"/>
+    <result property="uuid" column="uuid"/>
+    <result property="projectUuid" column="project_uuid"/>
+    <result property="moduleUuid" column="module_uuid"/>
+    <result property="moduleUuidPath" column="module_uuid_path"/>
+    <result property="deprecatedKey" column="deprecated_kee"/>
+    <result property="path" column="path"/>
+    <result property="name" column="name"/>
+    <result property="longName" column="long_name"/>
+    <result property="rootId" column="root_id"/>
+    <result property="scope" column="scope"/>
+    <result property="qualifier" column="qualifier"/>
+    <result property="enabled" column="enabled"/>
+    <result property="description" column="description"/>
+    <result property="language" column="language"/>
+    <result property="copyResourceId" column="copy_resource_id"/>
+    <result property="personId" column="person_id"/>
+    <result property="createdAt" column="created_at"/>
+    <result property="authorizationUpdatedAt" column="authorization_updated_at"/>
+  </resultMap>
+
+  <select id="selectResources" parameterType="map" resultMap="resourceResultMap">
+    select * from projects p
+    <where>
+      <if test="qualifiers != null and qualifiers.length!=0">
+        and p.qualifier in
+        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator="," close=")">#{qualifier}
+        </foreach>
+      </if>
+      <if test="key != null">
+        and p.kee=#{key}
+      </if>
+      <if test="excludeDisabled">
+        and p.enabled=${_true}
+      </if>
+    </where>
+  </select>
+
+  <select id="selectResourceIds" parameterType="map" resultType="long">
+    select p.id
+    from projects p
+    <where>
+      <if test="qualifiers != null and qualifiers.length!=0">
+        and p.qualifier in
+        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator="," close=")">#{qualifier}
+        </foreach>
+      </if>
+      <if test="key != null">
+        and p.kee=#{key}
+      </if>
+      <if test="excludeDisabled">
+        and p.enabled=${_true}
+      </if>
+    </where>
+  </select>
+
+  <select id="selectResource" parameterType="long" resultMap="resourceResultMap">
+    select * from projects p
+    where p.id=#{id}
+  </select>
+
+  <select id="selectResourceByUuid" parameterType="String" resultMap="resourceResultMap">
+    select * from projects p
+    where p.uuid=#{uuid}
+  </select>
+
+  <select id="selectSnapshot" parameterType="long" resultMap="snapshotResultMap">
+    select * from snapshots where id=#{id}
+  </select>
+
+  <select id="selectLastSnapshotByResourceKey" parameterType="string" resultMap="snapshotResultMap">
+    SELECT s.* FROM snapshots s
+    INNER JOIN projects p on p.id=s.project_id AND p.enabled=${_true} AND p.copy_resource_id IS NULL
+    <where>
+      AND p.kee=#{id}
+      AND s.islast=${_true}
+    </where>
+  </select>
+
+  <select id="selectLastSnapshotByResourceUuid" parameterType="string" resultMap="snapshotResultMap">
+    SELECT s.* from snapshots s
+    INNER JOIN projects p on p.id=s.project_id AND p.enabled=${_true} AND p.copy_resource_id IS NULL
+    <where>
+      AND p.uuid=#{uuid}
+      AND s.islast=${_true}
+    </where>
+  </select>
+
+  <select id="selectDescendantProjects" parameterType="long" resultMap="resourceResultMap">
+    select * from projects where scope='PRJ' and root_id=#{id}
+  </select>
+
+  <select id="selectRootProjectByComponentKey" parameterType="string" resultMap="resourceResultMap">
+    select rootProject.*
+    from projects p
+    inner join snapshots s on s.project_id=p.id and s.islast=${_true}
+    inner join projects rootProject on rootProject.id=s.root_project_id
+    <where>
+      and p.kee=#{componentKey}
+    </where>
+  </select>
+
+  <select id="selectRootProjectByComponentId" parameterType="long" resultMap="resourceResultMap">
+    select rootProject.*
+    from snapshots s
+    inner join projects rootProject on rootProject.id=s.root_project_id
+    where
+    s.project_id=#{componentId}
+    and s.islast=${_true}
+  </select>
+
+  <select id="selectProjectsIncludingNotCompletedOnesByQualifiers" parameterType="map" resultMap="resourceResultMap">
+    select * from projects p
+    <where>
+      <if test="qualifiers != null and qualifiers.size() > 0">
+        and
+        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator=" or " close=")">
+          p.qualifier=#{qualifier}
+        </foreach>
+      </if>
+      and p.enabled=${_true}
+      and p.copy_resource_id is null
+    </where>
+  </select>
+
+  <select id="selectProjectsByQualifiers" parameterType="map" resultMap="resourceResultMap">
+    <include refid="selectProjectsByQualifiersQuery"/>
+  </select>
+
+  <sql id="selectProjectsByQualifiersQuery">
+    select p.* from projects p
+    inner join snapshots s on s.project_id=p.id
+    <where>
+      <if test="qualifiers != null and qualifiers.size() > 0">
+        and
+        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator=" or " close=")">
+          p.qualifier=#{qualifier}
+        </foreach>
+      </if>
+      and p.enabled=${_true}
+      and p.copy_resource_id is null
+      and s.islast=${_true}
+    </where>
+  </sql>
+
+  <select id="selectGhostsProjects" parameterType="map" resultMap="resourceResultMap">
+    select distinct p.* from projects p
+    inner join snapshots s1 on s1.project_id = p.id and s1.status='U'
+    left join snapshots s2 on s2.project_id = p.id and s2.status='P'
+    <where>
+      and s2.id is null
+      <if test="qualifiers != null and qualifiers.size() > 0">
+        and
+        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator=" or " close=")">
+          p.qualifier=#{qualifier}
+        </foreach>
+      </if>
+      and p.copy_resource_id is null
+    </where>
+  </select>
+
+  <select id="selectProvisionedProjects" parameterType="map" resultMap="resourceResultMap">
+    select p.* from projects p
+    left join snapshots s on s.project_id=p.id
+    <where>
+      and s.id is null
+      <if test="qualifiers != null and qualifiers.size() > 0">
+        and
+        <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator=" or " close=")">
+          p.qualifier=#{qualifier}
+        </foreach>
+      </if>
+      and p.copy_resource_id is null
+    </where>
+  </select>
+
+  <select id="selectProvisionedProject" parameterType="string" resultMap="resourceResultMap">
+    select p.* from projects p
+    left join snapshots s on s.project_id=p.id
+    where s.id is null
+    and p.kee = #{key}
+    and p.copy_resource_id is null
+  </select>
+
+  <insert id="insert" parameterType="Resource" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    insert into projects
+    (uuid, project_uuid, module_uuid, module_uuid_path, name, long_name, description, scope, qualifier, kee,
+    deprecated_kee, path, language, root_id, copy_resource_id, person_id,
+    enabled, authorization_updated_at, created_at)
+    values (
+    #{uuid,jdbcType=VARCHAR}, #{projectUuid,jdbcType=VARCHAR}, #{moduleUuid,jdbcType=VARCHAR},
+    #{moduleUuidPath,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
+    #{longName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{scope,jdbcType=VARCHAR},
+    #{qualifier,jdbcType=VARCHAR},
+    #{key,jdbcType=VARCHAR}, #{deprecatedKey,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{language,jdbcType=VARCHAR},
+    #{rootId,jdbcType=INTEGER}, #{copyResourceId,jdbcType=INTEGER},
+    #{personId,jdbcType=INTEGER}, #{enabled,jdbcType=BOOLEAN}, #{authorizationUpdatedAt,jdbcType=BIGINT},
+    #{createdAt,jdbcType=TIMESTAMP}
+    )
+  </insert>
+
+  <update id="update" parameterType="Resource">
+    update projects set name=#{name}, long_name=#{longName}, description=#{description},
+    scope=#{scope}, qualifier=#{qualifier}, kee=#{key}, deprecated_kee=#{deprecatedKey}, path=#{path},
+    language=#{language}, root_id=#{rootId}, copy_resource_id=#{copyResourceId},
+    person_id=#{personId}, enabled=#{enabled} where id=#{id}
+  </update>
+
+  <update id="updateAuthorizationDate" parameterType="map">
+    update projects set authorization_updated_at=#{authorizationDate}
+    where id=#{projectId}
+  </update>
+
+</mapper>
+

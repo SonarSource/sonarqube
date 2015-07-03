@@ -20,7 +20,7 @@
 
 package org.sonar.server.qualityprofile;
 
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.Nullable;

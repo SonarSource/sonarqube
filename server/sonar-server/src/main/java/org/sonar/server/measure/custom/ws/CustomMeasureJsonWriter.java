@@ -30,9 +30,9 @@ import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.measure.custom.db.CustomMeasureDto;
-import org.sonar.core.metric.db.MetricDto;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.measure.CustomMeasureDto;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.server.metric.ws.MetricJsonWriter;
 import org.sonar.server.user.ws.UserJsonWriter;
 

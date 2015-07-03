@@ -29,7 +29,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Language;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.core.UtcDateUtils;
+import org.sonar.core.util.UtcDateUtils;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;

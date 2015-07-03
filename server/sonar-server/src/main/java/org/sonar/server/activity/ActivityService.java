@@ -22,7 +22,7 @@ package org.sonar.server.activity;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.internal.Uuids;
-import org.sonar.core.activity.db.ActivityDto;
+import org.sonar.db.activity.ActivityDto;
 import org.sonar.server.activity.index.ActivityIndexer;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;

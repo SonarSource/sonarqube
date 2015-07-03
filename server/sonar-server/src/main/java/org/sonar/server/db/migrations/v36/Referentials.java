@@ -33,7 +33,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
-import org.sonar.core.persistence.Database;
+import org.sonar.db.Database;
 
 import com.google.common.collect.Maps;
 

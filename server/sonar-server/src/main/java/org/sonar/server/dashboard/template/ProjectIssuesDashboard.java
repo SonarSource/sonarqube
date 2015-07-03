@@ -23,8 +23,8 @@ import com.google.common.base.Preconditions;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardLayout;
 import org.sonar.api.web.DashboardTemplate;
-import org.sonar.core.issue.db.IssueFilterDao;
-import org.sonar.core.issue.db.IssueFilterDto;
+import org.sonar.db.issue.IssueFilterDao;
+import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.server.dashboard.widget.ProjectIssueFilterWidget;
 
 /**

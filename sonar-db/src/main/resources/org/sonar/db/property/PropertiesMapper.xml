@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.property.PropertiesMapper">
+
+  <select id="findUsersForNotification" parameterType="map" resultType="String">
+    select u.login
+    from users u
+    inner join properties p on p.user_id=u.id
+    <if test="projectUuid == null">
+      where p.prop_key = #{notifKey} and p.text_value LIKE 'true' and p.resource_id is null
+    </if>
+    <if test="projectUuid != null">
+      inner join projects c on c.id=p.resource_id
+      where p.prop_key = #{notifKey} AND p.text_value LIKE 'true'
+      and c.uuid = #{projectUuid} and p.resource_id is not null
+    </if>
+  </select>
+
+  <select id="findNotificationSubscribers" parameterType="map" resultType="String">
+    SELECT U.login
+    FROM properties P, users U
+    WHERE P.user_id = U.id AND P.prop_key = #{propKey} AND P.text_value LIKE 'true'
+    AND (
+    P.resource_id is null
+    <if test="componentKey != null">
+      OR P.resource_id in (select id from projects where kee=#{componentKey})
+    </if>
+    )
+  </select>
+
+  <select id="selectGlobalProperties" resultType="Property">
+    select p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
+    from properties p
+    where p.resource_id is null and p.user_id is null
+  </select>
+
+  <select id="selectProjectProperties" parameterType="String" resultType="Property">
+    select p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
+    from properties p, projects r
+    where p.resource_id=r.id and p.user_id is null and r.kee=#{resourceKey}
+  </select>
+
+  <select id="selectProjectPropertiesByResourceId" parameterType="Long" resultType="Property">
+    select p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
+    from properties p
+    where p.resource_id=#{resourceId} and p.user_id is null
+  </select>
+
+  <select id="selectDescendantModuleProperties" parameterType="String" resultType="Property">
+    SELECT prop.id as id, prop.prop_key as "key", prop.text_value as value, prop.resource_id as resourceId, prop.user_id
+    as userId
+    FROM properties prop
+    INNER JOIN (SELECT p.id FROM projects p<include refid="org.sonar.db.component.ComponentMapper.modulesTreeQuery"/>)
+    modules on modules.id=prop.resource_id
+    WHERE prop.user_id IS NULL
+  </select>
+
+  <select id="selectSetOfResourceProperties" parameterType="map" resultType="Property">
+    select p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
+    from properties p
+    where p.resource_id=#{rId} and p.prop_key in
+    <foreach item="propKey" index="index" collection="propKeys" open="(" separator="," close=")">#{propKey}</foreach>
+  </select>
+
+  <select id="selectByKey" parameterType="map" resultType="Property">
+    select p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
+    from properties p
+    where p.prop_key=#{key}
+    <if test="resourceId == null">
+      AND p.resource_id is null
+    </if>
+    <if test="resourceId != null">
+      AND p.resource_id=#{resourceId}
+    </if>
+    <if test="userId == null">
+      AND p.user_id is null
+    </if>
+    <if test="userId != null">
+      AND p.user_id=#{userId}
+    </if>
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="Property">
+    select p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
+    from properties p
+    <where>
+      <if test="query.key() != null">
+        AND p.prop_key=#{query.key}
+      </if>
+      <if test="query.componentId() != null">
+        AND p.resource_id=#{query.componentId}
+      </if>
+      <if test="query.userId() != null">
+        AND p.user_id=#{query.userId}
+      </if>
+    </where>
+  </select>
+
+  <update id="update" parameterType="Property">
+    update properties set text_value = #{value} where id = #{id}
+  </update>
+
+  <insert id="insert" parameterType="Property" useGeneratedKeys="false">
+    INSERT INTO properties (prop_key, resource_id, user_id, text_value)
+    VALUES (#{key}, #{resourceId}, #{userId}, #{value})
+  </insert>
+
+  <delete id="deleteProjectProperty" parameterType="map">
+    delete from properties where prop_key=#{key} and resource_id=#{rId} and user_id is null
+  </delete>
+
+  <delete id="deleteProjectProperties" parameterType="map">
+    DELETE FROM properties
+    WHERE
+    prop_key=#{key}
+    AND text_value LIKE #{value}
+    AND resource_id IS NOT NULL
+    AND user_id IS NULL
+  </delete>
+
+  <delete id="deleteGlobalProperty" parameterType="string">
+    delete from properties where prop_key=#{id} and resource_id is null and user_id is null
+  </delete>
+
+  <delete id="deleteGlobalProperties">
+    delete from properties where resource_id is null and user_id is null
+  </delete>
+
+  <delete id="deleteAllProperties" parameterType="string">
+    delete from properties where prop_key=#{id}
+  </delete>
+
+  <update id="renamePropertyKey" parameterType="map">
+    update properties set prop_key=#{newKey} where prop_key=#{oldKey}
+  </update>
+
+  <update id="updateProperties" parameterType="map">
+    update properties set text_value=#{newValue} where text_value LIKE #{oldValue} and prop_key=#{key}
+  </update>
+
+</mapper>

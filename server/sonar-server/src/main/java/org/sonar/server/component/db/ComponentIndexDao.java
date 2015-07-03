@@ -21,14 +21,14 @@
 package org.sonar.server.component.db;
 
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.component.db.ComponentIndexMapper;
-import org.sonar.core.persistence.DaoComponent;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.db.component.ComponentIndexMapper;
+import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
 
 import java.util.List;
 
 @ServerSide
-public class ComponentIndexDao implements DaoComponent {
+public class ComponentIndexDao implements Dao {
 
   public List<Long> selectProjectIdsFromQueryAndViewOrSubViewUuid(DbSession session, String query, String viewOrSubViewUuid) {
     return session.getMapper(ComponentIndexMapper.class).selectProjectIdsFromQueryAndViewOrSubViewUuid(query + "%", "%." + viewOrSubViewUuid + ".%");

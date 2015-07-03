@@ -21,3 +21,4 @@
 package org.sonar.core.issue.workflow;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+

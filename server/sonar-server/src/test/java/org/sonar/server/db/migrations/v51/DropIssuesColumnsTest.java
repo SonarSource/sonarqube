@@ -21,8 +21,8 @@ package org.sonar.server.db.migrations.v51;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.persistence.Database;
-import org.sonar.core.persistence.dialect.PostgreSql;
+import org.sonar.db.Database;
+import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

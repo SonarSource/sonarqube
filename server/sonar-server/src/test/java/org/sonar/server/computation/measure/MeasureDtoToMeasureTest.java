@@ -27,7 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.sonar.core.measure.db.MeasureDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.server.computation.measure.Measure.Level;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;

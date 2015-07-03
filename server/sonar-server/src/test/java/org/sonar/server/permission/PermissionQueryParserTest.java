@@ -21,7 +21,7 @@
 package org.sonar.server.permission;
 
 import org.junit.Test;
-import org.sonar.core.permission.PermissionQuery;
+import org.sonar.db.permission.PermissionQuery;
 
 import java.util.Map;
 
