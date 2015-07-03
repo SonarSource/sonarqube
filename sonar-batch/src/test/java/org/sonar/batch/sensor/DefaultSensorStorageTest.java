@@ -39,14 +39,13 @@ import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.duplication.DuplicationCache;
-import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.BatchComponentCache;
+import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
@@ -123,30 +122,6 @@ public class DefaultSensorStorageTest {
     org.sonar.api.measures.Measure m = argumentCaptor.getValue();
     assertThat(m.getValue()).isEqualTo(10.0);
     assertThat(m.getMetric()).isEqualTo(CoreMetrics.NCLOC);
-  }
-
-  @Test
-  public void shouldSetAppropriatePersistenceMode() {
-    // Metric FUNCTION_COMPLEXITY_DISTRIBUTION is only persisted on directories.
-
-    InputFile file = new DefaultInputFile("foo", "src/Foo.php");
-
-    ArgumentCaptor<org.sonar.api.measures.Measure> argumentCaptor = ArgumentCaptor.forClass(org.sonar.api.measures.Measure.class);
-    Resource sonarFile = File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");
-    resourceCache.add(sonarFile, null).setInputPath(file);
-
-    when(sonarIndex.addMeasure(eq(sonarFile), argumentCaptor.capture())).thenReturn(null);
-
-    sensorStorage.store(new DefaultMeasure()
-      .onFile(file)
-      .forMetric(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION)
-      .withValue("foo"));
-
-    org.sonar.api.measures.Measure m = argumentCaptor.getValue();
-    assertThat(m.getData()).isEqualTo("foo");
-    assertThat(m.getMetric()).isEqualTo(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);
-    assertThat(m.getPersistenceMode()).isEqualTo(PersistenceMode.MEMORY);
-
   }
 
   @Test

@@ -22,16 +22,14 @@ package org.sonar.api.measures;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import org.sonar.api.resources.Scopes;
-import org.sonar.api.test.MutableTestPlan;
-import org.sonar.api.utils.SonarException;
-
-import javax.annotation.Nullable;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
+import javax.annotation.Nullable;
+import org.sonar.api.resources.Scopes;
+import org.sonar.api.test.MutableTestPlan;
+import org.sonar.api.utils.SonarException;
 
 /**
  * @since 1.10
@@ -77,7 +75,6 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_SIZE)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
-    .setFormula(new SumChildValuesFormula(false))
     .create();
 
   public static final String NCLOC_KEY = "ncloc";
@@ -112,7 +109,6 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_SIZE)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
-    .setFormula(new SumChildValuesFormula(false))
     .create();
 
   public static final String CLASSES_KEY = "classes";
@@ -121,7 +117,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_SIZE)
-    .setFormula(new SumChildValuesFormula(false))
     .create();
 
   public static final String FILES_KEY = "files";
@@ -164,7 +159,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_SIZE)
-    .setFormula(new SumChildValuesFormula(false))
     .create();
 
   /**
@@ -194,7 +188,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_SIZE)
-    .setFormula(new SumChildValuesFormula(false))
     .create();
 
   public static final String PUBLIC_API_KEY = "public_api";
@@ -300,7 +293,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_COMPLEXITY)
-    .setFormula(new SumChildValuesFormula(false))
     .create();
 
   public static final String FILE_COMPLEXITY_KEY = "file_complexity";
@@ -309,7 +301,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
     .setDomain(DOMAIN_COMPLEXITY)
-    .setFormula(AverageFormula.create(CoreMetrics.COMPLEXITY, CoreMetrics.FILES))
     .create();
 
   /**
@@ -326,7 +317,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_COMPLEXITY)
-    .setFormula(new SumChildValuesFormula(false))
     .setDeleteHistoricalData(true)
     .create();
 
@@ -341,7 +331,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
     .setDomain(DOMAIN_COMPLEXITY)
-    .setFormula(AverageFormula.create(CoreMetrics.COMPLEXITY_IN_CLASSES, CoreMetrics.CLASSES).setFallbackForMainMetric(CoreMetrics.COMPLEXITY))
     .create();
 
   /**
@@ -358,7 +347,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_COMPLEXITY)
-    .setFormula(new SumChildValuesFormula(false))
     .setDeleteHistoricalData(true)
     .create();
 
@@ -373,7 +361,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
     .setDomain(DOMAIN_COMPLEXITY)
-    .setFormula(AverageFormula.create(CoreMetrics.COMPLEXITY_IN_FUNCTIONS, CoreMetrics.FUNCTIONS).setFallbackForMainMetric(CoreMetrics.COMPLEXITY))
     .create();
 
   /**
@@ -403,7 +390,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(true)
     .setDomain(DOMAIN_COMPLEXITY)
-    .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY))
     .create();
 
   public static final String FILE_COMPLEXITY_DISTRIBUTION_KEY = "file_complexity_distribution";
@@ -412,7 +398,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(true)
     .setDomain(DOMAIN_COMPLEXITY)
-    .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY))
     .create();
 
   // --------------------------------------------------------------------------------------------------------------------

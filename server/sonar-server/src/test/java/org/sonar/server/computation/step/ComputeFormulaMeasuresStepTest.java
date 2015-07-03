@@ -22,7 +22,6 @@ package org.sonar.server.computation.step;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import org.assertj.guava.api.Assertions;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,6 +38,7 @@ import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
@@ -127,10 +127,58 @@ public class ComputeFormulaMeasuresStepTest {
 
     sut.execute();
 
-    Assertions.assertThat(measureRepository.getNewRawMeasures(1)).isEmpty();
-    Assertions.assertThat(measureRepository.getNewRawMeasures(11)).isEmpty();
-    Assertions.assertThat(measureRepository.getNewRawMeasures(111)).isEmpty();
-    Assertions.assertThat(measureRepository.getNewRawMeasures(1111)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(1)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(11)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(111)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(1111)).isEmpty();
+  }
+
+  @Test
+  public void add_no_measure_when_no_file() throws Exception {
+    DumbComponent project = DumbComponent.builder(PROJECT, 1)
+      .addChildren(
+        DumbComponent.builder(MODULE, 11)
+          .addChildren(
+            DumbComponent.builder(DIRECTORY, 111).build()
+          ).build()
+      ).build();
+
+    treeRootHolder.setRoot(project);
+
+    sut.execute();
+
+    assertThat(measureRepository.getNewRawMeasures(1)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(11)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(111)).isEmpty();
+  }
+
+  @Test
+  public void add_no_measure_on_module_without_file() throws Exception {
+    DumbComponent project = DumbComponent.builder(PROJECT, 1)
+      .addChildren(
+        DumbComponent.builder(MODULE, 11)
+          .addChildren(
+            DumbComponent.builder(DIRECTORY, 111).build()
+          ).build(),
+        DumbComponent.builder(MODULE, 12)
+          .addChildren(
+            DumbComponent.builder(DIRECTORY, 121)
+              .addChildren(
+                builder(Component.Type.FILE, 1211).build()
+              ).build()
+          ).build()
+      ).build();
+    treeRootHolder.setRoot(project);
+    measureRepository.addRawMeasure(1211, CoreMetrics.LINES_KEY, newMeasureBuilder().create(10));
+
+    sut.execute();
+
+    assertThat(toEntries(measureRepository.getNewRawMeasures(1))).containsOnly(entryOf(CoreMetrics.NCLOC_KEY, newMeasureBuilder().create(10)));
+    assertThat(measureRepository.getNewRawMeasures(11)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(111)).isEmpty();
+    assertThat(toEntries(measureRepository.getNewRawMeasures(12))).containsOnly(entryOf(CoreMetrics.NCLOC_KEY, newMeasureBuilder().create(10)));
+    assertThat(toEntries(measureRepository.getNewRawMeasures(121))).containsOnly(entryOf(CoreMetrics.NCLOC_KEY, newMeasureBuilder().create(10)));
+    assertThat(toEntries(measureRepository.getNewRawMeasures(1211))).containsOnly(entryOf(CoreMetrics.NCLOC_KEY, newMeasureBuilder().create(10)));
   }
 
   private static class FakeFormula implements Formula<FakeCounter> {

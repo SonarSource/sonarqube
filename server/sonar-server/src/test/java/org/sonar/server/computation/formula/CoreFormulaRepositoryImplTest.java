@@ -20,16 +20,15 @@
 
 package org.sonar.server.computation.formula;
 
-import java.util.Collections;
-import java.util.List;
+import org.junit.Test;
 
-public class FormulaRepositoryImpl implements FormulaRepository {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  /**
-   * TODO Move formula from CoreMetrics here
-   */
-  public List<Formula> getFormulas() {
-    return Collections.emptyList();
+public class CoreFormulaRepositoryImplTest {
+
+  @Test
+  public void check_formulas_are_not_empty() throws Exception {
+    assertThat(new CoreFormulaRepositoryImpl().getFormulas()).isNotEmpty();
+
   }
-
 }

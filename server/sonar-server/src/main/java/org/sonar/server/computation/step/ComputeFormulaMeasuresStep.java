@@ -23,6 +23,7 @@ package org.sonar.server.computation.step;
 import com.google.common.base.Optional;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.CheckForNull;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.PathAwareVisitor;
@@ -96,8 +97,11 @@ public class ComputeFormulaMeasuresStep implements ComputationStep {
     private void processNotFile(Component component, PathAwareVisitor.Path<Counters> path) {
       for (Formula formula : formulaRepository.getFormulas()) {
         Counter counter = path.current().getCounter(formula.getOutputMetricKey());
-        addNewMeasure(component, path, formula, counter);
-        aggregateToParent(path, formula, counter);
+        // If there were no file under this node, the counter won't be initialized
+        if (counter != null) {
+          addNewMeasure(component, formula, counter);
+          aggregateToParent(path, formula, counter);
+        }
       }
     }
 
@@ -106,12 +110,12 @@ public class ComputeFormulaMeasuresStep implements ComputationStep {
       for (Formula formula : formulaRepository.getFormulas()) {
         Counter counter = newCounter(formula);
         counter.aggregate(counterContext);
-        addNewMeasure(file, path, formula, counter);
+        addNewMeasure(file, formula, counter);
         aggregateToParent(path, formula, counter);
       }
     }
 
-    private void addNewMeasure(Component component, PathAwareVisitor.Path<Counters> path, Formula formula, Counter counter) {
+    private void addNewMeasure(Component component, Formula formula, Counter counter) {
       Metric metric = metricRepository.getByKey(formula.getOutputMetricKey());
       Optional<Measure> measure = formula.createMeasure(counter, component.getType());
       if (measure.isPresent()) {
@@ -136,23 +140,23 @@ public class ComputeFormulaMeasuresStep implements ComputationStep {
   }
 
   private static class Counters {
-    Map<String, Counter> countersByFormula = new HashMap<>();
+    Map<String, Counter> countersByMetricKey = new HashMap<>();
 
     public void aggregate(String metricKey, Counter childCounter) {
-      Counter counter = countersByFormula.get(metricKey);
+      Counter counter = countersByMetricKey.get(metricKey);
       if (counter == null) {
-        countersByFormula.put(metricKey, childCounter);
+        countersByMetricKey.put(metricKey, childCounter);
       } else {
         counter.aggregate(childCounter);
       }
     }
 
+    /**
+     * Counter can be null on a level when it has not been fed by children levels
+     */
+    @CheckForNull
     public Counter getCounter(String metricKey) {
-      Counter counter = countersByFormula.get(metricKey);
-      if (counter == null) {
-        throw new IllegalStateException(String.format("No counter found on metric '%s'", metricKey));
-      }
-      return counter;
+      return countersByMetricKey.get(metricKey);
     }
   }
 
