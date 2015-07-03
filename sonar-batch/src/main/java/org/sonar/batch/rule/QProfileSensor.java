@@ -29,6 +29,8 @@ import org.sonar.api.resources.Project;
 
 /**
  * Stores which Quality profiles have been used on the current module.
+ *
+ * TODO This information should not be stored as a measure but should be send as metadata in the {@link org.sonar.batch.protocol.output.BatchReport}
  */
 public class QProfileSensor implements Sensor {
 

@@ -57,7 +57,6 @@ import org.sonar.batch.phases.SensorsExecutor;
 import org.sonar.batch.postjob.DefaultPostJobContext;
 import org.sonar.batch.postjob.PostJobOptimizer;
 import org.sonar.batch.rule.ModuleQProfiles;
-import org.sonar.batch.rule.QProfileDecorator;
 import org.sonar.batch.rule.QProfileSensor;
 import org.sonar.batch.rule.QProfileVerifier;
 import org.sonar.batch.rule.RuleFinderCompatibility;
@@ -156,7 +155,6 @@ public class ModuleScanContainer extends ComponentContainer {
       ModuleQProfiles.class,
       new RulesProfileProvider(),
       QProfileSensor.class,
-      QProfileDecorator.class,
       CheckFactory.class,
 
       // report
