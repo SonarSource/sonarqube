@@ -21,11 +21,9 @@
 package org.sonar.server.db.migrations.v52;
 
 import java.sql.SQLException;
-
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.MassUpdate;
-import org.sonar.server.db.migrations.MassUpdate.Handler;
 import org.sonar.server.db.migrations.Select.Row;
 import org.sonar.server.db.migrations.SqlStatement;
 
@@ -44,13 +42,17 @@ public class FeedProjectLinksComponentUuid extends BaseDataChange {
         "INNER JOIN projects p ON p.id=link.project_id " +
         "WHERE link.component_uuid is null");
     update.update("UPDATE project_links SET component_uuid=? WHERE id=?");
-    update.execute(new Handler() {
-      @Override
-      public boolean handle(Row row, SqlStatement update) throws SQLException {
-        update.setString(1, row.getString(1));
-        update.setLong(2, row.getLong(2));
-        return true;
-      }
-    });
+    update.execute(MigrationHandler.INSTANCE);
+  }
+
+  private enum MigrationHandler implements MassUpdate.Handler {
+    INSTANCE;
+
+    @Override
+    public boolean handle(Row row, SqlStatement update) throws SQLException {
+      update.setString(1, row.getString(1));
+      update.setLong(2, row.getLong(2));
+      return true;
+    }
   }
 }

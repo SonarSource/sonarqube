@@ -21,7 +21,6 @@
 package org.sonar.server.db.migrations.v51;
 
 import java.sql.SQLException;
-
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.MassUpdate;
@@ -56,13 +55,16 @@ public class RemovePermissionsOnModulesMigrationStep extends BaseDataChange {
       "WHERE projects.module_uuid IS NOT NULL");
     massUpdate.update("DELETE FROM " + tableName + " WHERE id=?");
     massUpdate.rowPluralName(pluralName);
-    massUpdate.execute(new MassUpdate.Handler() {
-      @Override
-      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        update.setLong(1, row.getLong(1));
-        return true;
-      }
-    });
+    massUpdate.execute(MigrationHandler.INSTANCE);
   }
 
+  private enum MigrationHandler implements MassUpdate.Handler {
+    INSTANCE;
+
+    @Override
+    public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+      update.setLong(1, row.getLong(1));
+      return true;
+    }
+  }
 }

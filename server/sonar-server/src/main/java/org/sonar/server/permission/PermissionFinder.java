@@ -23,6 +23,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.List;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.security.DefaultGroups;
@@ -144,18 +145,8 @@ public class PermissionFinder {
     return query.pageSize() + 1;
   }
 
-  private List<GroupWithPermissionDto> filterMembership(List<GroupWithPermissionDto> dtos, final PermissionQuery query) {
-    return newArrayList(Iterables.filter(dtos, new Predicate<GroupWithPermissionDto>() {
-      @Override
-      public boolean apply(GroupWithPermissionDto dto) {
-        if (PermissionQuery.IN.equals(query.membership())) {
-          return dto.getPermission() != null;
-        } else if (PermissionQuery.OUT.equals(query.membership())) {
-          return dto.getPermission() == null;
-        }
-        return true;
-      }
-    }));
+  private List<GroupWithPermissionDto> filterMembership(List<GroupWithPermissionDto> dtos, PermissionQuery query) {
+    return newArrayList(Iterables.filter(dtos, new GroupWithPermissionMatchQuery(query)));
   }
 
   /**
@@ -163,12 +154,7 @@ public class PermissionFinder {
    * We have to manually add it at the begin of the list, if it matched the search text
    */
   private void addAnyoneGroup(List<GroupWithPermissionDto> groups, PermissionQuery query) {
-    boolean hasAnyoneGroup = Iterables.any(groups, new Predicate<GroupWithPermissionDto>() {
-      @Override
-      public boolean apply(GroupWithPermissionDto group) {
-        return group.getName().equals(DefaultGroups.ANYONE);
-      }
-    });
+    boolean hasAnyoneGroup = Iterables.any(groups, IsAnyoneGroup.INSTANCE);
     if (!hasAnyoneGroup && (query.search() == null || StringUtils.containsIgnoreCase(DefaultGroups.ANYONE, query.search()))) {
       groups.add(0, new GroupWithPermissionDto().setName(DefaultGroups.ANYONE));
     }
@@ -188,4 +174,30 @@ public class PermissionFinder {
     return groups;
   }
 
+  private static class GroupWithPermissionMatchQuery implements Predicate<GroupWithPermissionDto> {
+    private final PermissionQuery query;
+
+    public GroupWithPermissionMatchQuery(PermissionQuery query) {
+      this.query = query;
+    }
+
+    @Override
+    public boolean apply(@Nonnull GroupWithPermissionDto dto) {
+      if (PermissionQuery.IN.equals(query.membership())) {
+        return dto.getPermission() != null;
+      } else if (PermissionQuery.OUT.equals(query.membership())) {
+        return dto.getPermission() == null;
+      }
+      return true;
+    }
+  }
+
+  private enum IsAnyoneGroup implements Predicate<GroupWithPermissionDto> {
+    INSTANCE;
+
+    @Override
+    public boolean apply(@Nonnull GroupWithPermissionDto group) {
+      return group.getName().equals(DefaultGroups.ANYONE);
+    }
+  }
 }

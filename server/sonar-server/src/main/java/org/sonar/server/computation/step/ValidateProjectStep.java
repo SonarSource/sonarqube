@@ -129,10 +129,8 @@ public class ValidateProjectStep implements ComputationStep {
     }
 
     private void validateWhenProvisioningEnforced(@Nullable ComponentDto baseProject, String rawProjectKey) {
-      if (baseProject == null) {
-        if (preventAutomaticProjectCreation) {
-          validationMessages.add(String.format("Unable to scan non-existing project '%s'", rawProjectKey));
-        }
+      if (baseProject == null && preventAutomaticProjectCreation) {
+        validationMessages.add(String.format("Unable to scan non-existing project '%s'", rawProjectKey));
       }
     }
 

@@ -24,17 +24,15 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.util.RubyUtils;
-
-import javax.annotation.Nullable;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.util.RubyUtils;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -87,12 +85,7 @@ public class IssueBulkChangeQuery {
     if (list == null || list.isEmpty()) {
       return Collections.emptyList();
     }
-    return newArrayList(Iterables.filter(list, new Predicate<String>() {
-      @Override
-      public boolean apply(@Nullable String input) {
-        return !Strings.isNullOrEmpty(input);
-      }
-    }));
+    return newArrayList(Iterables.filter(list, StringIsNotNull.INSTANCE));
   }
 
   public List<String> issues() {
@@ -138,4 +131,12 @@ public class IssueBulkChangeQuery {
     return ReflectionToStringBuilder.toString(this);
   }
 
+  private enum StringIsNotNull implements Predicate<String> {
+    INSTANCE;
+
+    @Override
+    public boolean apply(@Nullable String input) {
+      return !Strings.isNullOrEmpty(input);
+    }
+  }
 }

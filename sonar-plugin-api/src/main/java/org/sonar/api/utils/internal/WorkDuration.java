@@ -21,12 +21,10 @@
 package org.sonar.api.utils.internal;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.io.Serializable;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-
-import javax.annotation.Nullable;
-
-import java.io.Serializable;
 
 /**
  * @since 4.2
@@ -84,7 +82,7 @@ public class WorkDuration implements Serializable {
     long time = duration;
     Long currentTime = time / WorkDuration.DAY_POSITION_IN_LONG;
     if (currentTime > 0) {
-      days = (currentTime.intValue());
+      days = currentTime.intValue();
       time = time - (currentTime * WorkDuration.DAY_POSITION_IN_LONG);
     }
 

@@ -22,15 +22,18 @@ package org.sonar.server.platform;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.web.ServletFilter;
-
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.web.ServletFilter;
 
 /**
  * Inspired by http://stackoverflow.com/a/7592883/229031
@@ -50,7 +53,8 @@ public class MasterServletFilter implements Filter {
 
   @Override
   public void init(FilterConfig config) throws ServletException {
-    // Filters are already available in picocontainer unless a database migration is required. See org.sonar.server.startup.RegisterServletFilters.
+    // Filters are already available in picocontainer unless a database migration is required. See
+    // org.sonar.server.startup.RegisterServletFilters.
     init(config, Platform.getInstance().getContainer().getComponentsByType(ServletFilter.class));
   }
 

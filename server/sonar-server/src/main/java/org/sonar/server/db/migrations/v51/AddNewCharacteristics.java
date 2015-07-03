@@ -228,12 +228,7 @@ public class AddNewCharacteristics extends BaseDataChange {
 
     @CheckForNull
     public Characteristic findCharacteristicByKey(final String key) {
-      Characteristic characteristic = Iterables.find(characteristics, new Predicate<Characteristic>() {
-        @Override
-        public boolean apply(@Nullable Characteristic input) {
-          return input != null && input.key.equals(key);
-        }
-      }, null);
+      Characteristic characteristic = Iterables.find(characteristics, new CharacteristicKey(key), null);
       if (characteristic != null && characteristic.getParentId() != null) {
         throw MessageException.of(String.format("'%s' must be a characteristic. " + ERROR_SUFFIX, characteristic.getName()));
       }
@@ -242,12 +237,7 @@ public class AddNewCharacteristics extends BaseDataChange {
 
     @CheckForNull
     public Characteristic findSubCharacteristicByKey(final String key, Characteristic parent) {
-      Characteristic characteristic = Iterables.find(characteristics, new Predicate<Characteristic>() {
-        @Override
-        public boolean apply(@Nullable Characteristic input) {
-          return input != null && input.key.equals(key);
-        }
-      }, null);
+      Characteristic characteristic = Iterables.find(characteristics, new CharacteristicKey(key), null);
       if (characteristic != null) {
         Integer parentId = characteristic.getParentId();
         if (parentId == null) {
@@ -322,6 +312,19 @@ public class AddNewCharacteristics extends BaseDataChange {
           .setOrder(row.getNullableInt(4))
           .setParentId(row.getNullableInt(5));
       }
+    }
+  }
+
+  private static class CharacteristicKey implements Predicate<Characteristic> {
+    private final String key;
+
+    public CharacteristicKey(String key) {
+      this.key = key;
+    }
+
+    @Override
+    public boolean apply(@Nullable Characteristic input) {
+      return input != null && input.key.equals(key);
     }
   }
 }

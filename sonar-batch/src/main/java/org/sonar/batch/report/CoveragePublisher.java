@@ -21,6 +21,9 @@ package org.sonar.batch.report;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import javax.annotation.Nonnull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.measures.CoreMetrics;
@@ -32,9 +35,6 @@ import org.sonar.batch.protocol.output.BatchReport.Coverage;
 import org.sonar.batch.protocol.output.BatchReport.Coverage.Builder;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.scan.measure.MeasureCache;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 public class CoveragePublisher implements ReportPublisherStep {
 
@@ -91,12 +91,7 @@ public class CoveragePublisher implements ReportPublisherStep {
         }
       });
 
-      writer.writeComponentCoverage(resource.batchId(), Iterables.transform(coveragePerLine.values(), new Function<Coverage.Builder, Coverage>() {
-        @Override
-        public Coverage apply(Builder input) {
-          return input.build();
-        }
-      }));
+      writer.writeComponentCoverage(resource.batchId(), Iterables.transform(coveragePerLine.values(), BuildCoverage.INSTANCE));
     }
   }
 
@@ -123,8 +118,17 @@ public class CoveragePublisher implements ReportPublisherStep {
     }
   }
 
-  static interface MeasureOperation {
+  interface MeasureOperation {
     void apply(String value, Coverage.Builder builder);
+  }
+
+  private enum BuildCoverage implements Function<Coverage.Builder, Coverage>{
+    INSTANCE;
+
+    @Override
+    public Coverage apply(@Nonnull Builder input) {
+      return input.build();
+    }
   }
 
 }

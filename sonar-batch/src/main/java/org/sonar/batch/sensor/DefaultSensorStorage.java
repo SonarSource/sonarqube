@@ -23,6 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
@@ -193,22 +194,7 @@ public class DefaultSensorStorage implements SensorStorage {
     BatchReportWriter writer = reportPublisher.getWriter();
     DefaultInputFile inputFile = (DefaultInputFile) highlighting.inputFile();
     writer.writeComponentSyntaxHighlighting(resourceCache.get(inputFile).batchId(),
-      Iterables.transform(highlighting.getSyntaxHighlightingRuleSet(), new Function<SyntaxHighlightingRule, BatchReport.SyntaxHighlighting>() {
-        private BatchReport.SyntaxHighlighting.Builder builder = BatchReport.SyntaxHighlighting.newBuilder();
-        private Range.Builder rangeBuilder = Range.newBuilder();
-
-        @Override
-        public BatchReport.SyntaxHighlighting apply(SyntaxHighlightingRule input) {
-          builder.setRange(rangeBuilder.setStartLine(input.range().start().line())
-            .setStartOffset(input.range().start().lineOffset())
-            .setEndLine(input.range().end().line())
-            .setEndOffset(input.range().end().lineOffset())
-            .build());
-          builder.setType(BatchReportUtils.toProtocolType(input.getTextType()));
-          return builder.build();
-        }
-
-      }));
+      Iterables.transform(highlighting.getSyntaxHighlightingRuleSet(), new BuildSyntaxHighlighting()));
   }
 
   public void store(DefaultInputFile inputFile, Map<Symbol, Set<TextRange>> referencesBySymbol) {
@@ -259,6 +245,21 @@ public class DefaultSensorStorage implements SensorStorage {
       sonarIndex.addMeasure(file, new org.sonar.api.measures.Measure(type.coveredConditionsByLine()).setData(KeyValueFormat.format(defaultCoverage.coveredConditionsByLine())));
       sonarIndex.addMeasure(file, new org.sonar.api.measures.Measure(type.conditionsByLine()).setData(KeyValueFormat.format(defaultCoverage.conditionsByLine())));
     }
+  }
 
+  private static class BuildSyntaxHighlighting implements Function<SyntaxHighlightingRule, BatchReport.SyntaxHighlighting> {
+    private BatchReport.SyntaxHighlighting.Builder builder = BatchReport.SyntaxHighlighting.newBuilder();
+    private Range.Builder rangeBuilder = Range.newBuilder();
+
+    @Override
+    public BatchReport.SyntaxHighlighting apply(@Nonnull SyntaxHighlightingRule input) {
+      builder.setRange(rangeBuilder.setStartLine(input.range().start().line())
+        .setStartOffset(input.range().start().lineOffset())
+        .setEndLine(input.range().end().line())
+        .setEndOffset(input.range().end().lineOffset())
+        .build());
+      builder.setType(BatchReportUtils.toProtocolType(input.getTextType()));
+      return builder.build();
+    }
   }
 }

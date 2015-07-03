@@ -20,7 +20,6 @@
 
 package org.sonar.server.debt;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import java.util.Date;
 import java.util.List;
@@ -37,6 +36,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.debt.DebtPredicates.CharacteristicDtoMatchKey;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
@@ -160,12 +160,7 @@ public class DebtModelOperations {
   private CharacteristicDto findCharacteristicToSwitchWith(final CharacteristicDto dto, final boolean moveUpOrDown, SqlSession session) {
     // characteristics should be sort by 'order'
     List<CharacteristicDto> rootCharacteristics = dbClient.debtCharacteristicDao().selectEnabledRootCharacteristics(session);
-    int currentPosition = Iterables.indexOf(rootCharacteristics, new Predicate<CharacteristicDto>() {
-      @Override
-      public boolean apply(@Nullable CharacteristicDto input) {
-        return input != null && input.getKey().equals(dto.getKey());
-      }
-    });
+    int currentPosition = Iterables.indexOf(rootCharacteristics, new CharacteristicDtoMatchKey(dto.getKey()));
     Integer nextPosition = moveUpOrDown ?
       (currentPosition > 0 ? (currentPosition - 1) : null) :
       ((currentPosition < rootCharacteristics.size() - 1) ? (currentPosition + 1) : null);
@@ -269,5 +264,4 @@ public class DebtModelOperations {
       .setCreatedAt(dto.getCreatedAt())
       .setUpdatedAt(dto.getUpdatedAt());
   }
-
 }

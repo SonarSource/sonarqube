@@ -84,10 +84,10 @@ public final class MeasureKey {
 
   @Override
   public String toString() {
-    return com.google.common.base.Objects.toStringHelper(this)
-      .add("metricKey", metricKey)
-      .add("ruleId", ruleId)
-      .add("characteristicId", characteristicId)
-      .toString();
+    return "MeasureKey{" +
+      "metricKey='" + metricKey + '\'' +
+      ", ruleId=" + ruleId +
+      ", characteristicId=" + characteristicId +
+      '}';
   }
 }

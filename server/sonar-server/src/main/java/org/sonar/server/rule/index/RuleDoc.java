@@ -21,6 +21,12 @@ package org.sonar.server.rule.index;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
@@ -32,14 +38,6 @@ import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleParam;
 import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.IndexUtils;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Implementation of Rule based on an Elasticsearch document
@@ -173,13 +171,8 @@ public class RuleDoc extends BaseDoc implements Rule {
 
   @CheckForNull
   @Override
-  public RuleParam param(final String key) {
-    return Iterables.find(params(), new Predicate<RuleParam>() {
-      @Override
-      public boolean apply(@Nullable RuleParam input) {
-        return input != null && input.key().equals(key);
-      }
-    }, null);
+  public RuleParam param(String key) {
+    return Iterables.find(params(), new RuleParamMatchKey(key), null);
   }
 
   @Override
@@ -327,4 +320,16 @@ public class RuleDoc extends BaseDoc implements Rule {
     return ReflectionToStringBuilder.toString(this);
   }
 
+  private static class RuleParamMatchKey implements Predicate<RuleParam> {
+    private final String key;
+
+    public RuleParamMatchKey(String key) {
+      this.key = key;
+    }
+
+    @Override
+    public boolean apply(@Nullable RuleParam input) {
+      return input != null && input.key().equals(key);
+    }
+  }
 }

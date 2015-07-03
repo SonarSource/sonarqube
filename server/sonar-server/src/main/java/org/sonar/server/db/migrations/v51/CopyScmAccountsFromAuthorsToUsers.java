@@ -20,15 +20,14 @@
 
 package org.sonar.server.db.migrations.v51;
 
-import static com.google.common.collect.Lists.newArrayList;
-
+import com.google.common.base.Joiner;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
-
 import javax.annotation.CheckForNull;
-
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
@@ -37,9 +36,7 @@ import org.sonar.server.db.migrations.Upsert;
 import org.sonar.server.db.migrations.UpsertImpl;
 import org.sonar.server.util.ProgressLogger;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+import static com.google.common.collect.Lists.newArrayList;
 
 public class CopyScmAccountsFromAuthorsToUsers extends BaseDataChange {
 
@@ -64,12 +61,7 @@ public class CopyScmAccountsFromAuthorsToUsers extends BaseDataChange {
       context.prepareSelect("SELECT a.person_id, a.login FROM authors a," +
         "  (SELECT person_id, COUNT(*) AS nb FROM authors GROUP BY person_id HAVING COUNT(*) > 1) group_by_person" +
         "     WHERE a.person_id = group_by_person.person_id "
-        ).scroll(new Select.RowHandler() {
-          @Override
-          public void handle(Select.Row row) throws SQLException {
-            authorsByPersonId.put(row.getNullableLong(1), row.getNullableString(2));
-          }
-        });
+        ).scroll(new AuthorsByPersonIdHandler(authorsByPersonId));
 
       Upsert update = context.prepareUpsert("UPDATE users SET scm_accounts = ?, updated_at = ? WHERE id = ?");
       for (Long personId : authorsByPersonId.keySet()) {
@@ -124,12 +116,7 @@ public class CopyScmAccountsFromAuthorsToUsers extends BaseDataChange {
       select.setString(currentIndex, author);
     }
 
-    select.scroll(new Select.RowHandler() {
-      @Override
-      public void handle(Select.Row row) throws SQLException {
-        users.add(new User(row.getNullableLong(1), row.getNullableString(2), row.getNullableString(3), row.getNullableString(4)));
-      }
-    });
+    select.scroll(new UsersHandler(users));
     return users;
   }
 
@@ -152,6 +139,34 @@ public class CopyScmAccountsFromAuthorsToUsers extends BaseDataChange {
       this.login = login;
       this.email = email;
       this.scmAccounts = scmAccounts;
+    }
+  }
+
+  private static class AuthorsByPersonIdHandler implements Select.RowHandler {
+
+    private final Multimap<Long, String> authorsByPersonId;
+
+    private AuthorsByPersonIdHandler(Multimap<Long, String> authorsByPersonId) {
+      this.authorsByPersonId = authorsByPersonId;
+    }
+
+    @Override
+    public void handle(Select.Row row) throws SQLException {
+      authorsByPersonId.put(row.getNullableLong(1), row.getNullableString(2));
+    }
+  }
+
+  private static class UsersHandler implements Select.RowHandler {
+
+    private final List<User> users;
+
+    private UsersHandler(List<User> users) {
+      this.users = users;
+    }
+
+    @Override
+    public void handle(Select.Row row) throws SQLException {
+      users.add(new User(row.getNullableLong(1), row.getNullableString(2), row.getNullableString(3), row.getNullableString(4)));
     }
   }
 }

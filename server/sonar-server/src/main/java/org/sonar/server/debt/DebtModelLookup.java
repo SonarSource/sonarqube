@@ -20,21 +20,18 @@
 
 package org.sonar.server.debt;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import java.util.Collection;
+import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtCharacteristic;
-import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.List;
-
 import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.server.debt.DebtPredicates.ToDebtCharacteristic.INSTANCE;
+import static org.sonar.server.debt.DebtPredicates.toDebtCharacteristic;
 
 @ServerSide
 public class DebtModelLookup {
@@ -56,31 +53,17 @@ public class DebtModelLookup {
   @CheckForNull
   public DebtCharacteristic characteristicById(int id) {
     CharacteristicDto dto = dao.selectById(id);
-    return dto != null ? toCharacteristic(dto) : null;
+    return dto != null ? toDebtCharacteristic(dto) : null;
   }
 
   @CheckForNull
   public DebtCharacteristic characteristicByKey(String key) {
     CharacteristicDto dto = dao.selectByKey(key);
-    return dto != null ? toCharacteristic(dto) : null;
+    return dto != null ? toDebtCharacteristic(dto) : null;
   }
 
   private static List<DebtCharacteristic> toCharacteristics(Collection<CharacteristicDto> dtos) {
-    return newArrayList(Iterables.transform(dtos, new Function<CharacteristicDto, DebtCharacteristic>() {
-      @Override
-      public DebtCharacteristic apply(@Nullable CharacteristicDto input) {
-        return input != null ? toCharacteristic(input) : null;
-      }
-    }));
-  }
-
-  private static DebtCharacteristic toCharacteristic(CharacteristicDto dto) {
-    return new DefaultDebtCharacteristic()
-      .setId(dto.getId())
-      .setKey(dto.getKey())
-      .setName(dto.getName())
-      .setOrder(dto.getOrder())
-      .setParentId(dto.getParentId());
+    return newArrayList(Iterables.transform(dtos, INSTANCE));
   }
 
 }

@@ -21,6 +21,12 @@ package org.sonar.core.resource;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.component.Component;
 import org.sonar.api.resources.Scopes;
@@ -31,14 +37,6 @@ import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -358,16 +356,20 @@ public class ResourceDao implements DaoComponent {
   }
 
   public static List<Component> toComponents(List<ResourceDto> resourceDto) {
-    return newArrayList(Iterables.transform(resourceDto, new Function<ResourceDto, Component>() {
-      @Override
-      public Component apply(@Nullable ResourceDto resourceDto) {
-        return resourceDto == null ? null : toComponent(resourceDto);
-      }
-    }));
+    return newArrayList(Iterables.transform(resourceDto, ToComponent.INSTANCE));
   }
 
   public void insertUsingExistingSession(ResourceDto resourceDto, SqlSession session) {
     ResourceMapper resourceMapper = session.getMapper(ResourceMapper.class);
     resourceMapper.insert(resourceDto);
+  }
+
+  private enum ToComponent implements Function<ResourceDto, Component> {
+    INSTANCE;
+
+    @Override
+    public Component apply(@Nonnull ResourceDto resourceDto) {
+      return toComponent(resourceDto);
+    }
   }
 }

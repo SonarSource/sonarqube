@@ -330,17 +330,12 @@ public class UserUpdater {
   }
 
   private void addDefaultGroup(DbSession dbSession, UserDto userDto) {
-    final String defaultGroup = settings.getString(CoreProperties.CORE_DEFAULT_GROUP);
+    String defaultGroup = settings.getString(CoreProperties.CORE_DEFAULT_GROUP);
     if (defaultGroup == null) {
       throw new ServerException(HttpURLConnection.HTTP_INTERNAL_ERROR, String.format("The default group property '%s' is null", CoreProperties.CORE_DEFAULT_GROUP));
     }
     List<GroupDto> userGroups = dbClient.groupDao().findByUserLogin(dbSession, userDto.getLogin());
-    if (!Iterables.any(userGroups, new Predicate<GroupDto>() {
-      @Override
-      public boolean apply(@Nullable GroupDto input) {
-        return input != null && input.getKey().equals(defaultGroup);
-      }
-    })) {
+    if (!Iterables.any(userGroups, new GroupDtoMatchKey(defaultGroup))) {
       GroupDto groupDto = dbClient.groupDao().selectNullableByKey(dbSession, defaultGroup);
       if (groupDto == null) {
         throw new ServerException(HttpURLConnection.HTTP_INTERNAL_ERROR,
@@ -353,5 +348,18 @@ public class UserUpdater {
 
   public void index() {
     userIndexer.index();
+  }
+
+  private static class GroupDtoMatchKey implements Predicate<GroupDto> {
+    private final String key;
+
+    public GroupDtoMatchKey(String key) {
+      this.key = key;
+    }
+
+    @Override
+    public boolean apply(@Nullable GroupDto input) {
+      return input != null && input.getKey().equals(key);
+    }
   }
 }

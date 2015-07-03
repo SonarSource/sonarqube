@@ -268,12 +268,7 @@ public class ProjectRepositoryLoader {
   }
 
   private Map<RuleKey, Rule> ruleByRuleKey(Iterator<Rule> rules) {
-    return Maps.uniqueIndex(rules, new Function<Rule, RuleKey>() {
-      @Override
-      public RuleKey apply(@Nullable Rule input) {
-        return input != null ? input.key() : null;
-      }
-    });
+    return Maps.uniqueIndex(rules, MatchRuleKey.INSTANCE);
   }
 
   private void addManualRules(ProjectRepositories ref) {
@@ -368,6 +363,15 @@ public class ProjectRepositoryLoader {
     List<ComponentDto> findChildrenModule(String moduleKey) {
       String moduleUuid = moduleUuidsByKey.get(moduleKey);
       return newArrayList(moduleChildrenByModuleUuid.get(moduleUuid));
+    }
+  }
+
+  private enum MatchRuleKey implements Function<Rule, RuleKey>{
+    INSTANCE;
+
+    @Override
+    public RuleKey apply(@Nullable Rule input) {
+      return input != null ? input.key() : null;
     }
   }
 }

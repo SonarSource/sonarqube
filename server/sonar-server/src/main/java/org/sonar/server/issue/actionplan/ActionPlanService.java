@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
@@ -164,12 +165,7 @@ public class ActionPlanService {
     checkUserCanAccessProject(project.getKey(), userSession);
 
     List<ActionPlanStatsDto> actionPlanStatsDtos = actionPlanStatsDao.findByProjectId(project.getId());
-    List<ActionPlanStats> actionPlanStats = newArrayList(Iterables.transform(actionPlanStatsDtos, new Function<ActionPlanStatsDto, ActionPlanStats>() {
-      @Override
-      public ActionPlanStats apply(ActionPlanStatsDto actionPlanStatsDto) {
-        return actionPlanStatsDto.toActionPlanStat();
-      }
-    }));
+    List<ActionPlanStats> actionPlanStats = newArrayList(Iterables.transform(actionPlanStatsDtos, ToActionPlanStats.INSTANCE));
     Collections.sort(actionPlanStats, new ActionPlanDeadlineComparator());
     return actionPlanStats;
   }
@@ -179,12 +175,7 @@ public class ActionPlanService {
   }
 
   private List<ActionPlan> toActionPlans(List<ActionPlanDto> actionPlanDtos) {
-    return newArrayList(Iterables.transform(actionPlanDtos, new Function<ActionPlanDto, ActionPlan>() {
-      @Override
-      public ActionPlan apply(ActionPlanDto actionPlanDto) {
-        return actionPlanDto.toActionPlan();
-      }
-    }));
+    return newArrayList(Iterables.transform(actionPlanDtos, ToActionPlan.INSTANCE));
   }
 
   private ActionPlanDto findActionPlanDto(String actionPlanKey) {
@@ -211,4 +202,21 @@ public class ActionPlanService {
     userSession.checkProjectPermission(UserRole.ADMIN, projectKey);
   }
 
+  private enum ToActionPlanStats implements Function<ActionPlanStatsDto, ActionPlanStats> {
+    INSTANCE;
+
+    @Override
+    public ActionPlanStats apply(@Nonnull ActionPlanStatsDto actionPlanStatsDto) {
+      return actionPlanStatsDto.toActionPlanStat();
+    }
+  }
+
+  private enum ToActionPlan implements Function<ActionPlanDto, ActionPlan> {
+    INSTANCE;
+
+    @Override
+    public ActionPlan apply(@Nonnull ActionPlanDto actionPlanDto) {
+      return actionPlanDto.toActionPlan();
+    }
+  }
 }

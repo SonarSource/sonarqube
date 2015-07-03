@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
@@ -45,7 +46,8 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtCharacteristic;
-import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
+import org.sonar.server.debt.DebtPredicates.DebtCharacteristicMatchId;
+import org.sonar.server.debt.DebtPredicates.DebtCharacteristicMatchKey;
 import org.xml.sax.InputSource;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -178,13 +180,8 @@ public class DebtModelXMLExporter {
     return xml;
   }
 
-  private List<RuleDebt> rules(List<RuleDebt> rules, final String parentKey) {
-    return newArrayList(Iterables.filter(rules, new Predicate<RuleDebt>() {
-      @Override
-      public boolean apply(RuleDebt input) {
-        return parentKey.equals(input.subCharacteristicKey());
-      }
-    }));
+  private List<RuleDebt> rules(List<RuleDebt> rules, String parentKey) {
+    return newArrayList(Iterables.filter(rules, new RuleDebtSubCharKeyMatchKey(parentKey)));
   }
 
   public static class DebtModel {
@@ -220,47 +217,21 @@ public class DebtModelXMLExporter {
     }
 
     @CheckForNull
-    public DebtCharacteristic characteristicByKey(final String key) {
-      return Iterables.find(characteristicsByKey.values(), new Predicate<DebtCharacteristic>() {
-        @Override
-        public boolean apply(DebtCharacteristic input) {
-          return key.equals(input.key());
-        }
-      }, null);
+    public DebtCharacteristic characteristicByKey(String key) {
+      return Iterables.find(characteristicsByKey.values(), new DebtCharacteristicMatchKey(key), null);
     }
 
-    public DebtCharacteristic characteristicById(final Integer id) {
-      return Iterables.find(characteristicsByKey.values(), new Predicate<DebtCharacteristic>() {
-        @Override
-        public boolean apply(DebtCharacteristic input) {
-          return id.equals(((DefaultDebtCharacteristic) input).id());
-        }
-      });
+    public DebtCharacteristic characteristicById(int id) {
+      return Iterables.find(characteristicsByKey.values(), new DebtCharacteristicMatchId(id));
     }
 
     private static List<DebtCharacteristic> sortByOrder(List<DebtCharacteristic> characteristics) {
-      Collections.sort(characteristics, new Ordering<DebtCharacteristic>() {
-        @Override
-        public int compare(@Nullable DebtCharacteristic left, @Nullable DebtCharacteristic right) {
-          if (left == null || left.order() == null || right == null || right.order() == null) {
-            return -1;
-          }
-          return left.order() - right.order();
-        }
-      });
+      Collections.sort(characteristics, new SortByOrder());
       return characteristics;
     }
 
     private static List<DebtCharacteristic> sortByName(List<DebtCharacteristic> characteristics) {
-      Collections.sort(characteristics, new Ordering<DebtCharacteristic>() {
-        @Override
-        public int compare(@Nullable DebtCharacteristic left, @Nullable DebtCharacteristic right) {
-          if (left == null || right == null) {
-            return -1;
-          }
-          return StringUtils.defaultString(left.name()).compareTo(StringUtils.defaultString(right.name()));
-        }
-      });
+      Collections.sort(characteristics, new SortByName());
       return characteristics;
     }
   }
@@ -331,4 +302,36 @@ public class DebtModelXMLExporter {
     }
   }
 
+  private static class RuleDebtSubCharKeyMatchKey implements Predicate<RuleDebt> {
+    private final String key;
+
+    public RuleDebtSubCharKeyMatchKey(String key) {
+      this.key = key;
+    }
+
+    @Override
+    public boolean apply(@Nonnull RuleDebt input) {
+      return key.equals(input.subCharacteristicKey());
+    }
+  }
+
+  private static class SortByOrder extends Ordering<DebtCharacteristic> {
+    @Override
+    public int compare(@Nullable DebtCharacteristic left, @Nullable DebtCharacteristic right) {
+      if (left == null || left.order() == null || right == null || right.order() == null) {
+        return -1;
+      }
+      return left.order() - right.order();
+    }
+  }
+
+  private static class SortByName extends Ordering<DebtCharacteristic> {
+    @Override
+    public int compare(@Nullable DebtCharacteristic left, @Nullable DebtCharacteristic right) {
+      if (left == null || right == null) {
+        return -1;
+      }
+      return StringUtils.defaultString(left.name()).compareTo(StringUtils.defaultString(right.name()));
+    }
+  }
 }

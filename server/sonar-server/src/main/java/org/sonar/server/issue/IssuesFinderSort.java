@@ -21,12 +21,12 @@ package org.sonar.server.issue;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
-import org.sonar.api.rule.Severity;
-import org.sonar.core.issue.db.IssueDto;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import javax.annotation.Nonnull;
+import org.sonar.api.rule.Severity;
+import org.sonar.core.issue.db.IssueDto;
 
 /**
  * @since 3.6
@@ -123,12 +123,7 @@ class IssuesFinderSort {
   static class SeveritySortIssueProcessor extends IssueProcessor {
     @Override
     Function sortFieldFunction() {
-      return new Function<IssueDto, Integer>() {
-        @Override
-        public Integer apply(IssueDto issueDto) {
-          return Severity.ALL.indexOf(issueDto.getSeverity());
-        }
-      };
+      return IssueDtoToSeverity.INSTANCE;
     }
 
     @Override
@@ -182,6 +177,15 @@ class IssuesFinderSort {
     @Override
     Date sortField(IssueDto issueDto) {
       return issueDto.getIssueCloseDate();
+    }
+  }
+
+  private enum IssueDtoToSeverity implements Function<IssueDto, Integer> {
+    INSTANCE;
+
+    @Override
+    public Integer apply(@Nonnull IssueDto issueDto) {
+      return Severity.ALL.indexOf(issueDto.getSeverity());
     }
   }
 }

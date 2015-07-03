@@ -19,13 +19,16 @@
  */
 package org.sonar.server.db.migrations.v451;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
-
 import javax.annotation.Nullable;
-
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.migration.v45.Migration45Mapper;
@@ -34,12 +37,6 @@ import org.sonar.core.persistence.migration.v45.RuleParameter;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.MigrationStep;
 import org.sonar.server.util.ProgressLogger;
-
-import com.google.common.base.Predicate;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
 
 /**
  * See http://jira.sonarsource.com/browse/SONAR-5575
@@ -127,12 +124,20 @@ public class AddMissingCustomRuleParametersMigrationStep implements MigrationSte
     }
   }
 
-  private boolean hasParameter(final String parameter, Collection<RuleParameter> customRuleParams) {
-    return Iterables.any(customRuleParams, new Predicate<RuleParameter>() {
-      @Override
-      public boolean apply(@Nullable RuleParameter input) {
-        return input != null && input.getName().equals(parameter);
-      }
-    });
+  private boolean hasParameter(String parameter, Collection<RuleParameter> customRuleParams) {
+    return Iterables.any(customRuleParams, new MatchParameter(parameter));
+  }
+
+  private static class MatchParameter implements Predicate<RuleParameter> {
+    private final String parameter;
+
+    public MatchParameter(String parameter) {
+      this.parameter = parameter;
+    }
+
+    @Override
+    public boolean apply(@Nullable RuleParameter input) {
+      return input != null && input.getName().equals(parameter);
+    }
   }
 }

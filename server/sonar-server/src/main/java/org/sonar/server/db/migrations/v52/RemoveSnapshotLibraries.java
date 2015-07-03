@@ -42,13 +42,16 @@ public class RemoveSnapshotLibraries extends BaseDataChange {
     MassUpdate update = context.prepareMassUpdate().rowPluralName("snapshot libraries");
     update.select("SELECT s.id FROM snapshots s WHERE s.qualifier='LIB'");
     update.update("DELETE FROM snapshots WHERE id=?");
-    update.execute(new MassUpdate.Handler() {
-      @Override
-      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        update.setLong(1, row.getLong(1));
-        return true;
-      }
-    });
+    update.execute(MigrationHandler.INSTANCE);
   }
 
+  private enum MigrationHandler implements MassUpdate.Handler {
+    INSTANCE;
+
+    @Override
+    public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+      update.setLong(1, row.getLong(1));
+      return true;
+    }
+  }
 }

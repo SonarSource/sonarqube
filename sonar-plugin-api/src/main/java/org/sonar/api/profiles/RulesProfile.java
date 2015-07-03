@@ -21,6 +21,10 @@ package org.sonar.api.profiles;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.StringUtils;
@@ -30,11 +34,6 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.MessageException;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This class is badly named. It should be "QualityProfile". Indeed it does not relate only to rules but to metric thresholds too.
@@ -305,12 +304,7 @@ public class RulesProfile implements Cloneable {
    * @param optionalSeverity if null, then the default rule severity is used
    */
   public ActiveRule activateRule(final Rule rule, @Nullable RulePriority optionalSeverity) {
-    if (Iterables.any(activeRules, new Predicate<ActiveRule>() {
-      @Override
-      public boolean apply(ActiveRule input) {
-        return input.getRule().equals(rule);
-      }
-    })) {
+    if (Iterables.any(activeRules, new MatchRule(rule))) {
       throw MessageException.of(String.format(
         "The definition of the profile '%s' (language '%s') contains multiple occurrences of the '%s:%s' rule. The plugin which declares this profile should fix this.",
         getName(), getLanguage(), rule.getRepositoryKey(), rule.getKey()));
@@ -367,5 +361,18 @@ public class RulesProfile implements Cloneable {
 
   public static RulesProfile create() {
     return new RulesProfile();
+  }
+
+  private static class MatchRule implements Predicate<ActiveRule> {
+    private final Rule rule;
+
+    public MatchRule(Rule rule) {
+      this.rule = rule;
+    }
+
+    @Override
+    public boolean apply(ActiveRule input) {
+      return input.getRule().equals(rule);
+    }
   }
 }

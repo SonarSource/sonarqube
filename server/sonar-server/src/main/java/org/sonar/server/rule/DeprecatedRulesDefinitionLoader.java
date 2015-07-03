@@ -25,6 +25,7 @@ import java.io.Reader;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -191,12 +192,22 @@ public class DeprecatedRulesDefinitionLoader {
 
   @CheckForNull
   private RuleDebt findRequirement(List<RuleDebt> requirements, final String repoKey, final String ruleKey) {
-    return Iterables.find(requirements, new Predicate<RuleDebt>() {
-      @Override
-      public boolean apply(RuleDebt input) {
-        return input.ruleKey().equals(RuleKey.of(repoKey, ruleKey));
-      }
-    }, null);
+    return Iterables.find(requirements, new RuleDebtMatchRepoKeyAndRuleKey(repoKey, ruleKey), null);
   }
 
+  private static class RuleDebtMatchRepoKeyAndRuleKey implements Predicate<RuleDebt> {
+
+    private final String repoKey;
+    private final String ruleKey;
+
+    public RuleDebtMatchRepoKeyAndRuleKey(String repoKey, String ruleKey) {
+      this.repoKey = repoKey;
+      this.ruleKey = ruleKey;
+    }
+
+    @Override
+    public boolean apply(@Nonnull RuleDebt input) {
+      return input.ruleKey().equals(RuleKey.of(repoKey, ruleKey));
+    }
+  }
 }

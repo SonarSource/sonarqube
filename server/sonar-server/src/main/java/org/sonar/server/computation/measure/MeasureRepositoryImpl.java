@@ -25,10 +25,8 @@ import com.google.common.collect.SetMultimap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.persistence.DbSession;
@@ -173,7 +171,7 @@ public class MeasureRepositoryImpl implements MeasureRepository {
 
     ImmutableSetMultimap.Builder<String, Measure> builder = ImmutableSetMultimap.builder();
     for (Map.Entry<MeasureKey, Measure> entry : rawMeasures.entrySet()) {
-      builder.put(entry.getKey().metricKey, entry.getValue());
+      builder.put(entry.getKey().getMetricKey(), entry.getValue());
     }
     return builder.build();
   }
@@ -221,56 +219,5 @@ public class MeasureRepositoryImpl implements MeasureRepository {
 
   private enum OverridePolicy {
     OVERRIDE, DO_NOT_OVERRIDE
-  }
-
-  @Immutable
-  private static final class MeasureKey {
-    private static final int DEFAULT_INT_VALUE = -6253;
-
-    private final String metricKey;
-    private final int ruleId;
-    private final int characteristicId;
-
-    public MeasureKey(String metricKey, @Nullable Integer ruleId, @Nullable Integer characteristicId) {
-      // defensive code in case we badly chose the default value, we want to know it right away!
-      checkArgument(ruleId == null || ruleId != DEFAULT_INT_VALUE, "Unsupported rule id");
-      checkArgument(characteristicId == null || characteristicId != DEFAULT_INT_VALUE, "Unsupported characteristic id");
-
-      this.metricKey = requireNonNull(metricKey, "MetricKey can not be null");
-      this.ruleId = ruleId == null ? DEFAULT_INT_VALUE : ruleId;
-      this.characteristicId = characteristicId == null ? DEFAULT_INT_VALUE : characteristicId;
-    }
-
-    public MeasureKey(String key, @Nullable RuleDto rule, @Nullable Characteristic characteristic) {
-      this(key, rule == null ? null : rule.getId(), characteristic == null ? null : characteristic.getId());
-    }
-
-    @Override
-    public boolean equals(@Nullable Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      MeasureKey that = (MeasureKey) o;
-      return metricKey.equals(that.metricKey)
-        && ruleId == that.ruleId
-        && characteristicId == that.characteristicId;
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(metricKey, ruleId, characteristicId);
-    }
-
-    @Override
-    public String toString() {
-      return com.google.common.base.Objects.toStringHelper(this)
-        .add("metricKey", metricKey)
-        .add("ruleId", ruleId)
-        .add("characteristicId", characteristicId)
-        .toString();
-    }
   }
 }

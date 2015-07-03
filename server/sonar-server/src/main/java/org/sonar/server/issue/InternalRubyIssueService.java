@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -180,12 +181,7 @@ public class InternalRubyIssueService {
   }
 
   public List<String> listPluginActions() {
-    return newArrayList(Iterables.transform(actionService.listAllActions(), new Function<Action, String>() {
-      @Override
-      public String apply(Action input) {
-        return input.key();
-      }
-    }));
+    return newArrayList(Iterables.transform(actionService.listAllActions(), ActionToKey.INSTANCE));
   }
 
   public List<DefaultIssueComment> findComments(String issueKey) {
@@ -500,12 +496,7 @@ public class InternalRubyIssueService {
   }
 
   public Map<String, Object> sanitizeFilterQuery(Map<String, Object> filterQuery) {
-    return Maps.filterEntries(filterQuery, new Predicate<Map.Entry<String, Object>>() {
-      @Override
-      public boolean apply(Map.Entry<String, Object> input) {
-        return IssueFilterParameters.ALL.contains(input.getKey());
-      }
-    });
+    return Maps.filterEntries(filterQuery, MatchIssueFilterParameters.INSTANCE);
   }
 
   /**
@@ -798,5 +789,23 @@ public class InternalRubyIssueService {
       usersByLogin.put(reporter, userIndex.getByLogin(reporter));
     }
     return usersByLogin;
+  }
+
+  private enum ActionToKey implements Function<Action, String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nonnull Action input) {
+      return input.key();
+    }
+  }
+
+  private enum MatchIssueFilterParameters implements Predicate<Map.Entry<String, Object>> {
+    INSTANCE;
+
+    @Override
+    public boolean apply(@Nonnull Map.Entry<String, Object> input) {
+      return IssueFilterParameters.ALL.contains(input.getKey());
+    }
   }
 }

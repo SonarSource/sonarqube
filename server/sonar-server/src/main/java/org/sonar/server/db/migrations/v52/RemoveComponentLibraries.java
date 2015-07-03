@@ -42,13 +42,16 @@ public class RemoveComponentLibraries extends BaseDataChange {
     MassUpdate update = context.prepareMassUpdate().rowPluralName("component libraries");
     update.select("SELECT p.id FROM projects p WHERE p.qualifier='LIB'");
     update.update("DELETE FROM projects WHERE id=?");
-    update.execute(new MassUpdate.Handler() {
-      @Override
-      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        update.setLong(1, row.getLong(1));
-        return true;
-      }
-    });
+    update.execute(MigrationHandler.INSTANCE);
   }
 
+  private enum MigrationHandler implements MassUpdate.Handler {
+    INSTANCE;
+
+    @Override
+    public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+      update.setLong(1, row.getLong(1));
+      return true;
+    }
+  }
 }

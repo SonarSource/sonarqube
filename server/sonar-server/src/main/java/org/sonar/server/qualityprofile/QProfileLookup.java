@@ -22,14 +22,13 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.db.DbClient;
-
-import javax.annotation.CheckForNull;
-
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -147,12 +146,7 @@ public class QProfileLookup {
   }
 
   private List<QProfile> toQProfiles(List<QualityProfileDto> dtos) {
-    return newArrayList(Iterables.transform(dtos, new Function<QualityProfileDto, QProfile>() {
-      @Override
-      public QProfile apply(QualityProfileDto input) {
-        return QProfile.from(input);
-      }
-    }));
+    return newArrayList(Iterables.transform(dtos, ToQProfile.INSTANCE));
   }
 
   @CheckForNull
@@ -165,4 +159,12 @@ public class QProfileLookup {
     return db.qualityProfileDao().getByNameAndLanguage(name, language, session);
   }
 
+  private enum ToQProfile implements Function<QualityProfileDto, QProfile> {
+    INSTANCE;
+
+    @Override
+    public QProfile apply(@Nonnull QualityProfileDto input) {
+      return QProfile.from(input);
+    }
+  }
 }

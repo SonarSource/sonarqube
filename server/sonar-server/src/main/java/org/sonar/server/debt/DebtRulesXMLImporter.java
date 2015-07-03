@@ -27,6 +27,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -219,13 +220,8 @@ public class DebtRulesXMLImporter {
       return find(PROPERTY_OFFSET);
     }
 
-    private Property find(final String key) {
-      return Iterables.find(properties, new Predicate<Property>() {
-        @Override
-        public boolean apply(Property input) {
-          return input.getKey().equals(key);
-        }
-      }, null);
+    private Property find(String key) {
+      return Iterables.find(properties, new PropertyMathKey(key), null);
     }
   }
 
@@ -262,5 +258,19 @@ public class DebtRulesXMLImporter {
       return null;
     }
   }
+
+  private static class PropertyMathKey implements Predicate<Property> {
+    private final String key;
+
+    public PropertyMathKey(String key) {
+      this.key = key;
+    }
+
+    @Override
+    public boolean apply(@Nonnull Property input) {
+      return input.getKey().equals(key);
+    }
+  }
+
 
 }

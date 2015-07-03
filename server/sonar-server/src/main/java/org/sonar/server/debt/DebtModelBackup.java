@@ -22,10 +22,16 @@ package org.sonar.server.debt;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import java.io.Reader;
+import java.util.Date;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
@@ -42,16 +48,11 @@ import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtModelXMLExporter.DebtModel;
 import org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
+import org.sonar.server.debt.DebtPredicates.CharacteristicDtoMatchKey;
+import org.sonar.server.debt.DebtPredicates.CharacteristicDtoParentIdMatchId;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleOperations;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.io.Reader;
-import java.util.Date;
-import java.util.List;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -163,8 +164,9 @@ public class DebtModelBackup {
       // Restore default debt definitions
 
       RulesDefinition.Rule ruleDef;
-      if (rule.getTemplateId() != null) {
-        RuleDto templateRule = rule(rule.getTemplateId(), ruleDtos);
+      Integer ruleTemplateId = rule.getTemplateId();
+      if (ruleTemplateId != null) {
+        RuleDto templateRule = rule(ruleTemplateId, ruleDtos);
         ruleDef = ruleDef(templateRule.getRepositoryKey(), templateRule.getRuleKey(), rules);
       } else {
         ruleDef = ruleDef(rule.getRepositoryKey(), rule.getRuleKey(), rules);
@@ -300,75 +302,45 @@ public class DebtModelBackup {
     }
   }
 
-  private List<RuleDto> rules(@Nullable final String languageKey, DbSession session) {
+  private List<RuleDto> rules(@Nullable String languageKey, DbSession session) {
     List<RuleDto> rules = dbClient.ruleDao().selectEnabledAndNonManual(session);
     if (languageKey == null) {
       return rules;
     } else {
-      return newArrayList(Iterables.filter(rules, new Predicate<RuleDto>() {
-        @Override
-        public boolean apply(@Nullable RuleDto input) {
-          return input != null && languageKey.equals(input.getLanguage());
-        }
-      }));
+      return newArrayList(Iterables.filter(rules, new RuleDtoMatchLanguage(languageKey)));
     }
   }
 
   @CheckForNull
-  private static RuleDebt ruleDebt(final String repo, final String key, List<RuleDebt> ruleDebts) {
+  private static RuleDebt ruleDebt(String ruleRepo, String ruleKey, List<RuleDebt> ruleDebts) {
     if (ruleDebts.isEmpty()) {
       return null;
     }
-    return Iterables.find(ruleDebts, new Predicate<RuleDebt>() {
-      @Override
-      public boolean apply(@Nullable RuleDebt input) {
-        return input != null && repo.equals(input.ruleKey().repository()) && key.equals(input.ruleKey().rule());
-      }
-    }, null);
+    return Iterables.find(ruleDebts, new RuleDebtMatchRuleRepoAndRuleKey(ruleRepo, ruleKey), null);
   }
 
-  private static RuleDto rule(final Integer id, List<RuleDto> rules) {
-    return Iterables.find(rules, new Predicate<RuleDto>() {
-      @Override
-      public boolean apply(@Nullable RuleDto input) {
-        return input != null && id.equals(input.getId());
-      }
-    });
+  private static RuleDto rule(int id, List<RuleDto> rules) {
+    return Iterables.find(rules, new RuleDtoMatchId(id));
   }
 
   @CheckForNull
-  private static RulesDefinition.Rule ruleDef(final String repo, final String key, List<RulesDefinition.Rule> rules) {
-    return Iterables.find(rules, new Predicate<RulesDefinition.Rule>() {
-      @Override
-      public boolean apply(@Nullable RulesDefinition.Rule input) {
-        return input != null && repo.equals(input.repository().key()) && key.equals(input.key());
-      }
-    }, null);
+  private static RulesDefinition.Rule ruleDef(String ruleRepo, String ruleKey, List<RulesDefinition.Rule> rules) {
+    return Iterables.find(rules, new RuleDefMatchRuleRepoAndRuleKey(ruleRepo, ruleKey), null);
   }
 
   private static CharacteristicDto characteristicByKey(@Nullable final String key, List<CharacteristicDto> characteristicDtos, boolean failIfNotFound) {
     if (key == null) {
       return null;
     }
-    CharacteristicDto dto = Iterables.find(characteristicDtos, new Predicate<CharacteristicDto>() {
-      @Override
-      public boolean apply(@Nullable CharacteristicDto input) {
-        return input != null && key.equals(input.getKey());
-      }
-    }, null);
+    CharacteristicDto dto = Iterables.find(characteristicDtos, new CharacteristicDtoMatchKey(key), null);
     if (dto == null && failIfNotFound) {
       throw new NotFoundException(String.format("Characteristic '%s' has not been found", key));
     }
     return dto;
   }
 
-  private static List<CharacteristicDto> subCharacteristics(final Integer parentId, List<CharacteristicDto> allCharacteristics) {
-    return newArrayList(Iterables.filter(allCharacteristics, new Predicate<CharacteristicDto>() {
-      @Override
-      public boolean apply(@Nullable CharacteristicDto input) {
-        return input != null && parentId.equals(input.getParentId());
-      }
-    }));
+  private static List<CharacteristicDto> subCharacteristics(Integer parentId, List<CharacteristicDto> allCharacteristics) {
+    return newArrayList(Iterables.filter(allCharacteristics, new CharacteristicDtoParentIdMatchId(parentId)));
   }
 
   @CheckForNull
@@ -423,4 +395,61 @@ public class DebtModelBackup {
     userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
   }
 
+  private static class RuleDtoMatchLanguage implements Predicate<RuleDto> {
+    private final String languageKey;
+
+    public RuleDtoMatchLanguage(String languageKey) {
+      this.languageKey = languageKey;
+    }
+
+    @Override
+    public boolean apply(@Nonnull RuleDto input) {
+      return languageKey.equals(input.getLanguage());
+    }
+  }
+
+  private static class RuleDebtMatchRuleRepoAndRuleKey implements Predicate<RuleDebt> {
+
+    private final String ruleRepo;
+    private final String ruleKey;
+
+    public RuleDebtMatchRuleRepoAndRuleKey(String ruleRepo, String ruleKey) {
+      this.ruleRepo = ruleRepo;
+      this.ruleKey = ruleKey;
+    }
+
+    @Override
+    public boolean apply(@Nullable RuleDebt input) {
+      return input != null && ruleRepo.equals(input.ruleKey().repository()) && ruleKey.equals(input.ruleKey().rule());
+    }
+  }
+
+  private static class RuleDtoMatchId implements Predicate<RuleDto> {
+    private final int id;
+
+    public RuleDtoMatchId(int id) {
+      this.id = id;
+    }
+
+    @Override
+    public boolean apply(@Nonnull RuleDto input) {
+      return id == input.getId();
+    }
+  }
+
+  private static class RuleDefMatchRuleRepoAndRuleKey implements Predicate<RulesDefinition.Rule> {
+
+    private final String ruleRepo;
+    private final String ruleKey;
+
+    public RuleDefMatchRuleRepoAndRuleKey(String ruleRepo, String ruleKey) {
+      this.ruleRepo = ruleRepo;
+      this.ruleKey = ruleKey;
+    }
+
+    @Override
+    public boolean apply(@Nonnull RulesDefinition.Rule input) {
+      return ruleRepo.equals(input.repository().key()) && ruleKey.equals(input.key());
+    }
+  }
 }

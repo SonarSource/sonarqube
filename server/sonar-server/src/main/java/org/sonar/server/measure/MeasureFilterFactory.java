@@ -23,25 +23,23 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.MetricFinder;
-import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.System2;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.MetricFinder;
+import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Lists.transform;
 
 @ServerSide
 public class MeasureFilterFactory {
@@ -129,12 +127,7 @@ public class MeasureFilterFactory {
   }
 
   private List<String> sortFieldLabels() {
-    return newArrayList(Iterables.transform(Arrays.asList(MeasureFilterSort.Field.values()), new Function<MeasureFilterSort.Field, String>() {
-      @Override
-      public String apply(@Nullable MeasureFilterSort.Field input) {
-        return input != null ? input.name() : null;
-      }
-    }));
+    return newArrayList(Iterables.transform(Arrays.asList(MeasureFilterSort.Field.values()), FieldToName.INSTANCE));
   }
 
   @CheckForNull
@@ -160,19 +153,8 @@ public class MeasureFilterFactory {
     if (alertLevels == null || alertLevels.isEmpty()) {
       return null;
     }
-    final List<String> availableLevels = Lists.transform(Arrays.asList(Metric.Level.values()), new Function<Metric.Level, String>() {
-      @Override
-      public String apply(@Nullable Metric.Level input) {
-        return input != null ? input.name() : null;
-      }
-    });
-
-    List<String> alertLevelsUppercase = Lists.transform(alertLevels, new Function<String, String>() {
-      @Override
-      public String apply(@Nullable String input) {
-        return input != null && availableLevels.contains(input.toUpperCase()) ? input.toUpperCase() : null;
-      }
-    });
+    List<String> availableLevels = transform(Arrays.asList(Metric.Level.values()), MetricLevelToName.INSTANCE);
+    List<String> alertLevelsUppercase = transform(alertLevels, new AlertLevelToUppercase(availableLevels));
     String val = "('" + Joiner.on("', '").skipNulls().join(alertLevelsUppercase) + "')";
     Metric metric = metricFinder.findByKey(CoreMetrics.ALERT_STATUS_KEY);
     if (metric != null) {
@@ -228,4 +210,34 @@ public class MeasureFilterFactory {
     return null;
   }
 
+  private enum FieldToName implements Function<MeasureFilterSort.Field, String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nullable MeasureFilterSort.Field input) {
+      return input != null ? input.name() : null;
+    }
+  }
+
+  private enum MetricLevelToName implements Function<Metric.Level, String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nullable Metric.Level input) {
+      return input != null ? input.name() : null;
+    }
+  }
+
+  private static class AlertLevelToUppercase implements Function<String, String> {
+    private final List<String> availableLevels;
+
+    public AlertLevelToUppercase(List<String> availableLevels) {
+      this.availableLevels = availableLevels;
+    }
+
+    @Override
+    public String apply(@Nullable String input) {
+      return input != null && availableLevels.contains(input.toUpperCase()) ? input.toUpperCase() : null;
+    }
+  }
 }

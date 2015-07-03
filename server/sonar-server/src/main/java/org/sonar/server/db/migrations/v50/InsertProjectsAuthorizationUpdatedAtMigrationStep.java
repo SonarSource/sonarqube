@@ -21,7 +21,6 @@
 package org.sonar.server.db.migrations.v50;
 
 import java.sql.SQLException;
-
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
@@ -45,21 +44,20 @@ public class InsertProjectsAuthorizationUpdatedAtMigrationStep extends BaseDataC
 
   @Override
   public void execute(Context context) throws SQLException {
-    final long now = system.now();
-
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("SELECT p.id FROM projects p WHERE p.scope=? AND p.enabled=? and p.authorization_updated_at IS NULL").setString(1, "PRJ").setBoolean(2, true);
     massUpdate.update("UPDATE projects SET authorization_updated_at=? WHERE id=?");
     massUpdate.rowPluralName("projects");
-    massUpdate.execute(new MassUpdate.Handler() {
-      @Override
-      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        Long id = row.getNullableLong(1);
-        update.setLong(1, now);
-        update.setLong(2, id);
-        return true;
-      }
-    });
+    massUpdate.execute(new MigrationHandler());
   }
 
+  private class MigrationHandler implements MassUpdate.Handler {
+    @Override
+    public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+      Long id = row.getNullableLong(1);
+      update.setLong(1, system.now());
+      update.setLong(2, id);
+      return true;
+    }
+  }
 }

@@ -72,21 +72,37 @@ public class DefaultDebtModel implements DebtModel {
   @Override
   @CheckForNull
   public DebtCharacteristic characteristicByKey(final String key) {
-    return Iterables.find(characteristicsByKey.values(), new Predicate<DebtCharacteristic>() {
-      @Override
-      public boolean apply(DebtCharacteristic input) {
-        return key.equals(input.key());
-      }
-    }, null);
+    return Iterables.find(characteristicsByKey.values(), new MatchDebtCharacteristicKey(key), null);
   }
 
   @CheckForNull
-  public DebtCharacteristic characteristicById(final int id) {
-    return Iterables.find(characteristicsByKey.values(), new Predicate<DebtCharacteristic>() {
-      @Override
-      public boolean apply(DebtCharacteristic input) {
-        return id == ((DefaultDebtCharacteristic) input).id();
-      }
-    }, null);
+  public DebtCharacteristic characteristicById(int id) {
+    return Iterables.find(characteristicsByKey.values(), new MatchDebtCharacteristicId(id), null);
+  }
+
+  private static class MatchDebtCharacteristicKey implements Predicate<DebtCharacteristic> {
+    private final String key;
+
+    public MatchDebtCharacteristicKey(String key) {
+      this.key = key;
+    }
+
+    @Override
+    public boolean apply(DebtCharacteristic input) {
+      return key.equals(input.key());
+    }
+  }
+
+  private static class MatchDebtCharacteristicId implements Predicate<DebtCharacteristic> {
+    private final int id;
+
+    public MatchDebtCharacteristicId(int id) {
+      this.id = id;
+    }
+
+    @Override
+    public boolean apply(DebtCharacteristic input) {
+      return id == ((DefaultDebtCharacteristic) input).id();
+    }
   }
 }

@@ -25,6 +25,7 @@ import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import org.sonar.api.component.Component;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.log.Logger;
@@ -56,14 +57,8 @@ public class DefaultComponentFinder {
     }
   }
 
-  private Collection<Component> search(final ComponentQuery query, List<? extends Component> allComponents) {
-    return newArrayList(Iterables.filter(allComponents, new Predicate<Component>() {
-      @Override
-      public boolean apply(Component component) {
-        return new KeyFilter().accept(component, query.keys()) &&
-          new NameFilter().accept(component, query.names());
-      }
-    }));
+  private Collection<Component> search(ComponentQuery query, List<? extends Component> allComponents) {
+    return newArrayList(Iterables.filter(allComponents, new MatchQuery(query)));
   }
 
   abstract static class Filter {
@@ -109,6 +104,20 @@ public class DefaultComponentFinder {
       index++;
     }
     return pagedComponents;
+  }
+
+  private static class MatchQuery implements Predicate<Component> {
+    private final ComponentQuery query;
+
+    public MatchQuery(ComponentQuery query) {
+      this.query = query;
+    }
+
+    @Override
+    public boolean apply(@Nonnull Component component) {
+      return new KeyFilter().accept(component, query.keys()) &&
+        new NameFilter().accept(component, query.names());
+    }
   }
 
 }

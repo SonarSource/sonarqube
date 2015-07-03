@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
@@ -44,7 +45,6 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueStorage;
-import org.sonar.server.notification.NotificationManager;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
@@ -52,6 +52,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.notification.IssueChangeNotification;
+import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.user.UserSession;
 
@@ -180,12 +181,7 @@ public class IssueBulkChangeService {
   }
 
   private Action getAction(final String actionKey) {
-    Action action = Iterables.find(actions, new Predicate<Action>() {
-      @Override
-      public boolean apply(Action action) {
-        return action.key().equals(actionKey);
-      }
-    }, null);
+    Action action = Iterables.find(actions, new ActionMatchKey(actionKey), null);
     if (action == null) {
       throw new BadRequestException("The action : '" + actionKey + "' is unknown");
     }
@@ -261,6 +257,19 @@ public class IssueBulkChangeService {
 
     public ComponentDto project(String key) {
       return projects.get(key);
+    }
+  }
+
+  private static class ActionMatchKey implements Predicate<Action> {
+    private final String key;
+
+    public ActionMatchKey(String key) {
+      this.key = key;
+    }
+
+    @Override
+    public boolean apply(@Nonnull Action action) {
+      return action.key().equals(key);
     }
   }
 }

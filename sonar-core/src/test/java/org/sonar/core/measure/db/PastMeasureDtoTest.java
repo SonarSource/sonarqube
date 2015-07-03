@@ -45,6 +45,26 @@ public class PastMeasureDtoTest {
     assertThat(dto.getPersonId()).isEqualTo(5);
   }
 
+  @Test
+  public void test_has_value() throws Exception {
+    PastMeasureDto measureWithValue = new PastMeasureDto()
+      .setId(10L)
+      .setValue(1d)
+      .setMetricId(2)
+      .setRuleId(3)
+      .setCharacteristicId(4)
+      .setPersonId(5);
+    assertThat(measureWithValue.hasValue()).isTrue();
+
+    PastMeasureDto measureWithoutValue = new PastMeasureDto()
+      .setId(10L)
+      .setMetricId(2)
+      .setRuleId(3)
+      .setCharacteristicId(4)
+      .setPersonId(5);
+    assertThat(measureWithoutValue.hasValue()).isFalse();
+  }
+
   @Test(expected = NullPointerException.class)
   public void get_value_throw_a_NPE_if_value_is_null() throws Exception {
     new PastMeasureDto().getValue();

@@ -20,10 +20,12 @@
 
 package org.sonar.server.computation.step;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.ObjectUtils;
@@ -34,7 +36,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
@@ -275,12 +276,16 @@ public class PersistComponentsStep implements ComputationStep {
   }
 
   private static Map<String, ComponentDto> componentDtosByKey(List<ComponentDto> components) {
-    return Maps.uniqueIndex(components, new NonNullInputFunction<ComponentDto, String>() {
-      @Override
-      public String doApply(ComponentDto input) {
-        return input.key();
-      }
-    });
+    return Maps.uniqueIndex(components, ComponentKey.INSTANCE);
+  }
+
+  private enum ComponentKey implements Function<ComponentDto, String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nonnull ComponentDto input) {
+      return input.key();
+    }
   }
 
   @Override

@@ -23,6 +23,11 @@ package org.sonar.server.issue.filter;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Paging;
 import org.sonar.core.issue.IssueFilterSerializer;
@@ -42,12 +47,6 @@ import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.user.UserSession;
-
-import javax.annotation.CheckForNull;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -189,12 +188,7 @@ public class IssueFilterService {
   }
 
   public String serializeFilterQuery(Map<String, Object> filterQuery) {
-    Map<String, Object> filterQueryFiltered = Maps.filterEntries(filterQuery, new Predicate<Map.Entry<String, Object>>() {
-      @Override
-      public boolean apply(Map.Entry<String, Object> input) {
-        return IssueFilterParameters.ALL_WITHOUT_PAGINATION.contains(input.getKey());
-      }
-    });
+    Map<String, Object> filterQueryFiltered = Maps.filterEntries(filterQuery, MatchIssueFilterParameters.INSTANCE);
     return serializer.serialize(filterQueryFiltered);
   }
 
@@ -275,12 +269,7 @@ public class IssueFilterService {
 
   @CheckForNull
   private IssueFilterFavouriteDto selectFavouriteFilterForUser(Long filterId, final String user) {
-    return Iterables.find(selectFavouriteFilters(filterId), new Predicate<IssueFilterFavouriteDto>() {
-      @Override
-      public boolean apply(IssueFilterFavouriteDto input) {
-        return input.getUserLogin().equals(user);
-      }
-    }, null);
+    return Iterables.find(selectFavouriteFilters(filterId), new IssueFilterFavouriteDtoMatchUser(user), null);
   }
 
   private List<IssueFilterFavouriteDto> selectFavouriteFilters(Long filterId) {
@@ -296,13 +285,8 @@ public class IssueFilterService {
   }
 
   @CheckForNull
-  private IssueFilterDto findFilterWithSameName(List<IssueFilterDto> dtos, final String name) {
-    return Iterables.find(dtos, new Predicate<IssueFilterDto>() {
-      @Override
-      public boolean apply(IssueFilterDto input) {
-        return input.getName().equals(name);
-      }
-    }, null);
+  private IssueFilterDto findFilterWithSameName(List<IssueFilterDto> dtos, String name) {
+    return Iterables.find(dtos, new IssueFilterDtoMatchName(name), null);
   }
 
   private void addFavouriteIssueFilter(Long issueFilterId, String user) {
@@ -364,6 +348,41 @@ public class IssueFilterService {
 
     public Paging paging() {
       return paging;
+    }
+  }
+
+  private enum MatchIssueFilterParameters implements Predicate<Map.Entry<String, Object>> {
+    INSTANCE;
+
+    @Override
+    public boolean apply(@Nonnull Map.Entry<String, Object> input) {
+      return IssueFilterParameters.ALL_WITHOUT_PAGINATION.contains(input.getKey());
+    }
+  }
+
+  private static class IssueFilterDtoMatchName implements Predicate<IssueFilterDto> {
+    private final String name;
+
+    public IssueFilterDtoMatchName(String name) {
+      this.name = name;
+    }
+
+    @Override
+    public boolean apply(@Nonnull IssueFilterDto input) {
+      return input.getName().equals(name);
+    }
+  }
+
+  private static class IssueFilterFavouriteDtoMatchUser implements Predicate<IssueFilterFavouriteDto> {
+    private final String user;
+
+    public IssueFilterFavouriteDtoMatchUser(String user) {
+      this.user = user;
+    }
+
+    @Override
+    public boolean apply(@Nonnull IssueFilterFavouriteDto input) {
+      return input.getUserLogin().equals(user);
     }
   }
 

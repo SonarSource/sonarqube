@@ -82,7 +82,7 @@ public class DebtCharacteristicsXMLImporter {
   }
 
   @CheckForNull
-  private void process(DebtModel debtModel, @Nullable String parent, SMInputCursor chcCursor) throws XMLStreamException {
+  private static void process(DebtModel debtModel, @Nullable String parent, SMInputCursor chcCursor) throws XMLStreamException {
     DefaultDebtCharacteristic characteristic = new DefaultDebtCharacteristic();
     SMInputCursor cursor = chcCursor.childElementCursor();
     while (cursor.getNext() != null) {

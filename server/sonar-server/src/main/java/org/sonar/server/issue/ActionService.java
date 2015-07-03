@@ -24,13 +24,18 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
-import org.sonar.api.server.ServerSide;
+import java.util.Date;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.sonar.api.component.Component;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.action.Actions;
 import org.sonar.api.issue.action.Function;
+import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
@@ -40,12 +45,6 @@ import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Date;
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -87,13 +86,8 @@ public class ActionService {
     }
   }
 
-  public List<Action> listAvailableActions(final Issue issue) {
-    return newArrayList(Iterables.filter(actions.list(), new Predicate<Action>() {
-      @Override
-      public boolean apply(Action action) {
-        return action.supports(issue);
-      }
-    }));
+  public List<Action> listAvailableActions(Issue issue) {
+    return newArrayList(Iterables.filter(actions.list(), new SupportIssue(issue)));
   }
 
   public Issue execute(String issueKey, String actionKey, UserSession userSession) {
@@ -125,12 +119,7 @@ public class ActionService {
 
   @CheckForNull
   private Action getAction(final String actionKey) {
-    return Iterables.find(actions.list(), new Predicate<Action>() {
-      @Override
-      public boolean apply(Action action) {
-        return action.key().equals(actionKey);
-      }
-    }, null);
+    return Iterables.find(actions.list(), new ActionMatchKey(actionKey), null);
   }
 
   // TODO org.sonar.server.properties.ProjectSettings should be used instead
@@ -180,4 +169,29 @@ public class ActionService {
     }
   }
 
+  private static class SupportIssue implements Predicate<Action> {
+    private final Issue issue;
+
+    public SupportIssue(Issue issue) {
+      this.issue = issue;
+    }
+
+    @Override
+    public boolean apply(@Nonnull Action action) {
+      return action.supports(issue);
+    }
+  }
+
+  private static class ActionMatchKey implements Predicate<Action> {
+    private final String key;
+
+    public ActionMatchKey(String key) {
+      this.key = key;
+    }
+
+    @Override
+    public boolean apply(@Nonnull Action action) {
+      return action.key().equals(key);
+    }
+  }
 }

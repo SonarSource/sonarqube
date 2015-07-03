@@ -25,9 +25,13 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
+import java.util.Collection;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.log.Logger;
@@ -40,12 +44,6 @@ import org.sonar.core.technicaldebt.db.RequirementMigrationDto;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.RegisterRules;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.List;
 
 /**
  * This script copy every requirements from characteristics table (every row where rule_id is not null) to the rules table.
@@ -138,13 +136,9 @@ public class CopyRequirementsFromCharacteristicsToRules {
     }
   }
 
+  @CheckForNull
   private static RequirementMigrationDto enabledRequirement(Collection<RequirementMigrationDto> requirementsForRule) {
-    return Iterables.find(requirementsForRule, new Predicate<RequirementMigrationDto>() {
-      @Override
-      public boolean apply(@Nullable RequirementMigrationDto input) {
-        return input != null && input.isEnabled();
-      }
-    }, null);
+    return Iterables.find(requirementsForRule, EnabledRequirement.INSTANCE, null);
   }
 
   private void convertDisableRequirement(RuleDto rule, DbSession session) {
@@ -222,4 +216,12 @@ public class CopyRequirementsFromCharacteristicsToRules {
     }
   }
 
+  private enum EnabledRequirement implements Predicate<RequirementMigrationDto> {
+    INSTANCE;
+
+    @Override
+    public boolean apply(@Nullable RequirementMigrationDto input) {
+      return input != null && input.isEnabled();
+    }
+  }
 }
