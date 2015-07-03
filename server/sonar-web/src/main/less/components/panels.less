@@ -25,10 +25,8 @@
   padding: 10px;
 }
 
-.panel:not(.hidden) + .panel {
-  margin-top: 10px;
-  padding-top: 20px;
-  border-top: 1px solid @barBorderColor;
+.panel:not(:last-child) {
+  border-bottom: 1px solid @barBorderColor;
 }
 
 .panel-vertical {

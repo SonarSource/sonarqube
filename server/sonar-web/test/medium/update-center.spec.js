@@ -42,7 +42,7 @@ define(function (require) {
           .checkElementExist('.js-plugin-name')
           .checkElementCount('li[data-system]', 1)
           .checkElementInclude('li[data-system] .js-plugin-name', 'SonarQube 5.3')
-          .checkElementInclude('li[data-system] .js-plugin-category', 'System Update')
+          .checkElementInclude('li[data-system] .js-plugin-category', 'System Upgrade')
           .checkElementInclude('li[data-system] .js-plugin-description', 'New!')
           .checkElementCount('li[data-system] .js-plugin-release-notes', 1)
           .checkElementCount('li[data-system] .js-plugin-date', 1)
@@ -152,7 +152,7 @@ define(function (require) {
           .checkElementInclude('li:not(.hidden)[data-id] .js-plugin-name', 'JavaScript');
     });
 
-    bdd.it('should show plugin changelog', function () {
+    bdd.it('should show changelog of plugin update', function () {
       return this.remote
           .open('#installed')
           .mockFromString('/api/l10n/index', '{}')
@@ -169,6 +169,22 @@ define(function (require) {
           .checkElementCount('.bubble-popup .js-plugin-changelog-description', 2);
     });
 
+    bdd.it('should show changelog of plugin release', function () {
+      return this.remote
+          .open('#available')
+          .mockFromString('/api/l10n/index', '{}')
+          .mockFromFile('/api/plugins/available', 'update-center-spec/available.json')
+          .mockFromFile('/api/plugins/pending', 'update-center-spec/pending.json')
+          .startApp('update-center', { urlRoot: '/test/medium/base.html' })
+          .checkElementExist('.js-plugin-name')
+          .clickElement('li[data-id="abap"] .js-changelog')
+          .checkElementExist('.bubble-popup')
+          .checkElementCount('.bubble-popup .js-plugin-changelog-version', 1)
+          .checkElementCount('.bubble-popup .js-plugin-changelog-date', 1)
+          .checkElementCount('.bubble-popup .js-plugin-changelog-link', 1)
+          .checkElementCount('.bubble-popup .js-plugin-changelog-description', 1);
+    });
+
     bdd.it('should update plugin', function () {
       return this.remote
           .open('#installed')
@@ -181,7 +197,7 @@ define(function (require) {
           .checkElementExist('.js-plugin-name')
           .clickElement('li[data-id="scmgit"] .js-update')
           .checkElementNotExist('li[data-id="scmgit"] .js-spinner')
-          .checkElementInclude('li[data-id="scmgit"]', 'To Be Installed');
+          .checkElementInclude('li[data-id="scmgit"]', 'Update Pending');
     });
 
     bdd.it('should uninstall plugin', function () {
@@ -196,7 +212,7 @@ define(function (require) {
           .checkElementExist('.js-plugin-name')
           .clickElement('li[data-id="scmgit"] .js-uninstall')
           .checkElementNotExist('li[data-id="scmgit"] .js-spinner')
-          .checkElementInclude('li[data-id="scmgit"]', 'To Be Uninstalled');
+          .checkElementInclude('li[data-id="scmgit"]', 'Uninstall Pending');
     });
 
     bdd.it('should install plugin', function () {
@@ -210,7 +226,7 @@ define(function (require) {
           .checkElementExist('.js-plugin-name')
           .clickElement('li[data-id="abap"] .js-install')
           .checkElementNotExist('li[data-id="abap"] .js-spinner')
-          .checkElementInclude('li[data-id="abap"]', 'To Be Installed');
+          .checkElementInclude('li[data-id="abap"]', 'Install Pending');
     });
 
     bdd.it('should cancel all pending', function () {

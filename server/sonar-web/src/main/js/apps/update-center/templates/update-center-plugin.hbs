@@ -46,9 +46,10 @@
         </div>
         <div class="overflow-hidden">
           {{{release.description}}}
+          <button class="button-link js-changelog issue-rule icon-ellipsis-h" data-idx="{{@index}}"></button>
           {{#notEmpty update.requires}}
             <p class="little-spacer-top">
-              <strong>Requires</strong>: {{#each update.requires}}{{name}}{{/each}}
+              <strong>Installing this plugin will also install</strong>: {{#each update.requires}} {{name}}{{/each}}
             </p>
           {{/notEmpty}}
         </div>
@@ -63,13 +64,13 @@
       <li class="little-spacer-bottom">
         <ul class="list-inline">
           {{#if homepageUrl}}
-            <li><a class="js-plugin-homepage" href="{{homepageUrl}}">Homepage</a></li>
+            <li><a class="js-plugin-homepage" href="{{homepageUrl}}" target="_blank">Homepage</a></li>
           {{/if}}
           {{#if issueTrackerUrl}}
-            <li><a class="js-plugin-issues" href="{{issueTrackerUrl}}">Issue Tracker</a></li>
+            <li><a class="js-plugin-issues" href="{{issueTrackerUrl}}" target="_blank">Issue Tracker</a></li>
           {{/if}}
           {{#if termsAndConditionsUrl}}
-            <li><a class="js-plugin-terms" href="{{termsAndConditionsUrl}}">Terms and Conditions</a></li>
+            <li><a class="js-plugin-terms" href="{{termsAndConditionsUrl}}" target="_blank">Terms and Conditions</a></li>
           {{/if}}
         </ul>
       </li>
@@ -83,7 +84,7 @@
       <li class="little-spacer-bottom">
         Developed by
         {{#if organizationUrl}}
-          <a class="js-plugin-organization" href="{{organizationUrl}}">{{organizationName}}</a>
+          <a class="js-plugin-organization" href="{{organizationUrl}}" target="_blank">{{organizationName}}</a>
         {{else}}
           <span class="js-plugin-organization">{{organizationName}}</span>
         {{/if}}
@@ -94,11 +95,11 @@
 
 <div class="pull-right big-spacer-left nowrap text-right">
   {{#eq _status 'installing'}}
-    <p class="text-success">To Be Installed</p>
+    <p class="text-success">{{#if version}}Update{{else}}Install{{/if}} Pending</p>
   {{/eq}}
 
   {{#eq _status 'uninstalling'}}
-    <p class="text-danger">To Be Uninstalled</p>
+    <p class="text-danger">Uninstall Pending</p>
   {{/eq}}
 
   {{#unless _status}}

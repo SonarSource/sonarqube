@@ -51,7 +51,9 @@ define([
       e.stopPropagation();
       $('body').click();
       var index = $(e.currentTarget).data('idx'),
-          update = this.model.get('updates')[index],
+          // if show changelog of update, show details of this update
+          // otherwise show changelog of the available release
+          update = this.model.has('release') ? this.model.toJSON() : this.model.get('updates')[index],
           popup = new PluginChangelogView({
             triggerEl: $(e.currentTarget),
             model: new Backbone.Model(update)

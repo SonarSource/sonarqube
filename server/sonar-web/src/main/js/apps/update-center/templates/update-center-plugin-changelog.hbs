@@ -3,38 +3,12 @@
 
   <ul class="js-plugin-changelog-list">
     {{#each previousUpdates}}
-      <li class="spacer-bottom">
-        <div class="pull-left spacer-right">
-          <span class="js-plugin-changelog-version badge badge-success little-spacer-bottom">{{release.version}}</span>
-        </div>
-        <div class="pull-left spacer-right">
-          <p class="js-plugin-changelog-date note">{{d release.date}}</p>
-        </div>
-        {{#if release.changeLogUrl}}
-          <div class="pull-right spacer-left">
-            <a class="js-plugin-changelog-link" href="{{release.changeLogUrl}}">Release Notes</a>
-          </div>
-        {{/if}}
-        <div class="js-plugin-changelog-description overflow-hidden">
-          {{{release.description}}}
-        </div>
+      <li class="big-spacer-bottom">
+        {{> '_update-center-plugin-changelog-entry'}}
       </li>
     {{/each}}
     <li class="spacer-bottom">
-      <div class="pull-left spacer-right">
-        <span class="js-plugin-changelog-version badge badge-success little-spacer-bottom">{{release.version}}</span>
-      </div>
-      <div class="pull-left spacer-right">
-        <p class="js-plugin-changelog-date note">{{d release.date}}</p>
-      </div>
-      {{#if release.changeLogUrl}}
-        <div class="pull-right spacer-left">
-          <a class="js-plugin-changelog-link" href="{{release.changeLogUrl}}">Release Notes</a>
-        </div>
-      {{/if}}
-      <div class="js-plugin-changelog-description overflow-hidden">
-        {{{release.description}}}
-      </div>
+      {{> '_update-center-plugin-changelog-entry'}}
     </li>
   </ul>
 </div>

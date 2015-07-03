@@ -11,14 +11,14 @@
 <div class="display-inline-block text-top width-20">
   <div>
     <strong class="js-plugin-name">SonarQube {{version}}</strong>
-    <span class="js-plugin-category badge badge-success spacer-left">System Update</span>
+    <span class="js-plugin-category badge badge-success spacer-left">System Upgrade</span>
   </div>
   <div class="js-plugin-description little-spacer-top">{{{description}}}</div>
 
   <ul class="big-spacer-top">
     {{#if changeLogUrl}}
       <li class="little-spacer-bottom">
-        <a class="js-plugin-release-notes" href="{{changeLogUrl}}">Release Notes</a>
+        <a class="js-plugin-release-notes" href="{{changeLogUrl}}" target="_blank">Release Notes</a>
       </li>
     {{/if}}
     {{#if releaseDate}}
@@ -33,9 +33,9 @@
   </div>
   <ul class="js-plugin-update-steps list-styled overflow-hidden bordered-left">
     <li class="little-spacer-bottom">Stop SonarQube</li>
-    <li class="little-spacer-bottom"><a href="{{downloadUrl}}">Download</a> and install
+    <li class="little-spacer-bottom"><a href="{{downloadUrl}}" target="_blank">Download</a> and install
       SonarQube {{version}} after having carefully read the
-      <a href="http://redirect.sonarsource.com/doc/upgrading.html">upgrade guide</a>.
+      <a href="http://redirect.sonarsource.com/doc/upgrading.html" target="_blank">upgrade guide</a>.
     </li>
     {{#each plugins.incompatible}}
       <li class="little-spacer-bottom">
