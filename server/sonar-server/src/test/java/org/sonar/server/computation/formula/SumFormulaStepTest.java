@@ -21,7 +21,6 @@
 package org.sonar.server.computation.formula;
 
 import com.google.common.collect.Lists;
-import org.assertj.guava.api.Assertions;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,6 +33,7 @@ import org.sonar.server.computation.metric.MetricRepositoryRule;
 import org.sonar.server.computation.step.ComputeFormulaMeasuresStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
@@ -97,11 +97,11 @@ public class SumFormulaStepTest {
     assertThat(toEntries(measureRepository.getNewRawMeasures(1))).containsOnly(entryOf(LINES_KEY, newMeasureBuilder().create(20)));
     assertThat(toEntries(measureRepository.getNewRawMeasures(11))).containsOnly(entryOf(LINES_KEY, newMeasureBuilder().create(18)));
     assertThat(toEntries(measureRepository.getNewRawMeasures(111))).containsOnly(entryOf(LINES_KEY, newMeasureBuilder().create(18)));
-    Assertions.assertThat(measureRepository.getNewRawMeasures(1111)).isEmpty();
-    Assertions.assertThat(measureRepository.getNewRawMeasures(1112)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(1111)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(1112)).isEmpty();
     assertThat(toEntries(measureRepository.getNewRawMeasures(12))).containsOnly(entryOf(LINES_KEY, newMeasureBuilder().create(2)));
     assertThat(toEntries(measureRepository.getNewRawMeasures(121))).containsOnly(entryOf(LINES_KEY, newMeasureBuilder().create(2)));
-    Assertions.assertThat(measureRepository.getNewRawMeasures(1211)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(1211)).isEmpty();
   }
 
 }

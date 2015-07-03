@@ -21,7 +21,6 @@
 package org.sonar.server.computation.formula;
 
 import com.google.common.collect.Lists;
-import org.assertj.guava.api.Assertions;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,6 +33,7 @@ import org.sonar.server.computation.metric.MetricRepositoryRule;
 import org.sonar.server.computation.step.ComputeFormulaMeasuresStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY;
@@ -97,11 +97,11 @@ public class DistributionFormulaStepTest {
     assertThat(toEntries(measureRepository.getNewRawMeasures(1))).containsOnly(entryOf(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, newMeasureBuilder().create("0.5=4;3.5=10;6.5=12")));
     assertThat(toEntries(measureRepository.getNewRawMeasures(11))).containsOnly(entryOf(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, newMeasureBuilder().create("0.5=3;3.5=7;6.5=10")));
     assertThat(toEntries(measureRepository.getNewRawMeasures(111))).containsOnly(entryOf(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, newMeasureBuilder().create("0.5=3;3.5=7;6.5=10")));
-    Assertions.assertThat(measureRepository.getNewRawMeasures(1111)).isEmpty();
-    Assertions.assertThat(measureRepository.getNewRawMeasures(1112)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(1111)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(1112)).isEmpty();
     assertThat(toEntries(measureRepository.getNewRawMeasures(12))).containsOnly(entryOf(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, newMeasureBuilder().create("0.5=1;3.5=3;6.5=2")));
     assertThat(toEntries(measureRepository.getNewRawMeasures(121))).containsOnly(entryOf(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, newMeasureBuilder().create("0.5=1;3.5=3;6.5=2")));
-    Assertions.assertThat(measureRepository.getNewRawMeasures(1211)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(1211)).isEmpty();
   }
 
 }

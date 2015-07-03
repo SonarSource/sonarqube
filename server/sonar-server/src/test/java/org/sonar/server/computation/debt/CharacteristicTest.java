@@ -45,10 +45,28 @@ public class CharacteristicTest {
   }
 
   @Test
+  public void test_equals_and_hashcode() throws Exception {
+    Characteristic characteristic = new Characteristic(1, "PORTABILITY", null);
+    Characteristic sameCharacteristic = new Characteristic(1, "PORTABILITY", null);
+    Characteristic anotherCharacteristic = new Characteristic(2, "MAINTABILITY", null);
+
+    assertThat(characteristic).isEqualTo(characteristic);
+    assertThat(characteristic).isEqualTo(sameCharacteristic);
+    assertThat(characteristic).isNotEqualTo(anotherCharacteristic);
+    assertThat(characteristic).isNotEqualTo(null);
+    assertThat(characteristic).isNotEqualTo("foo");
+
+    assertThat(characteristic.hashCode()).isEqualTo(characteristic.hashCode());
+    assertThat(characteristic.hashCode()).isEqualTo(sameCharacteristic.hashCode());
+    assertThat(characteristic.hashCode()).isNotEqualTo(anotherCharacteristic.hashCode());
+  }
+
+  @Test
   public void creating_a_new_characteristic_with_null_key_throws_a_NPE() throws Exception {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("key cannot be null");
 
     new Characteristic(1, null, null);
   }
+
 }

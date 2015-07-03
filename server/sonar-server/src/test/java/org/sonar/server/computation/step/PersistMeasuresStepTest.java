@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.computation.step;
 
 import java.util.Arrays;
@@ -29,15 +28,15 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.api.rule.RuleKey;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.batch.protocol.Constants.MeasureValueType;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.metric.db.MetricDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.DbTester;
+import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
@@ -46,7 +45,7 @@ import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.measure.MeasureRepositoryImpl;
-import org.sonar.server.computation.metric.MetricRepositoryImpl;
+import org.sonar.server.computation.metric.MetricRepositoryRule;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
@@ -54,6 +53,12 @@ import org.sonar.server.rule.db.RuleDao;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.measures.CoreMetrics.DUPLICATIONS_DATA;
+import static org.sonar.api.measures.CoreMetrics.DUPLICATIONS_DATA_KEY;
+import static org.sonar.api.measures.CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION;
+import static org.sonar.api.measures.CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION_KEY;
+import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION;
+import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY;
 
 @Category(DbTests.class)
 public class PersistMeasuresStepTest extends BaseStepTest {
@@ -62,23 +67,29 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   private static final String STRING_METRIC_KEY = "string-metric-key";
   private static final String DOUBLE_METRIC_KEY = "double-metric-key";
   private static final String OPTIMIZED_METRIC_KEY = "optimized-metric-key";
-  private static final RuleKey RULE_KEY = RuleKey.of("repo", "rule-key");
+
+  private static final Metric STRING_METRIC = new Metric.Builder(STRING_METRIC_KEY, "String metric", Metric.ValueType.STRING).create();
+  private static final Metric DOUBLE_METRIC = new Metric.Builder(DOUBLE_METRIC_KEY, "Double metric", Metric.ValueType.FLOAT).create();
+
   private static final int PROJECT_REF = 1;
   private static final int FILE_REF = 2;
 
   @ClassRule
   public static DbTester dbTester = new DbTester();
+
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+
+  @Rule
+  public MetricRepositoryRule metricRepository = new MetricRepositoryRule();
 
   DbClient dbClient;
   DbSession session;
   DbIdsRepository dbIdsRepository = new DbIdsRepository();
-  MetricDto stringMetric;
-  MetricDto doubleMetric;
-  MetricDto optimizedMetric;
+  RuleDto rule;
   ComponentDto projectDto;
   ComponentDto fileDto;
 
@@ -91,17 +102,6 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new MeasureDao(), new ComponentDao(), new MetricDao(), new RuleDao(System2.INSTANCE));
     session = dbClient.openSession(false);
 
-    stringMetric = new MetricDto().setValueType("STRING").setShortName("String metric").setKey(STRING_METRIC_KEY).setEnabled(true);
-    dbClient.metricDao().insert(session, stringMetric);
-    doubleMetric = new MetricDto().setValueType("FLOAT").setShortName("Double metric").setKey(DOUBLE_METRIC_KEY).setEnabled(true);
-    dbClient.metricDao().insert(session, doubleMetric);
-    optimizedMetric = new MetricDto().setValueType("BOOL").setShortName("Optimized metric").setKey(OPTIMIZED_METRIC_KEY).setEnabled(true).setOptimizedBestValue(true)
-      .setBestValue(1d);
-    dbClient.metricDao().insert(session, optimizedMetric);
-    session.commit();
-
-    MetricRepositoryImpl metricRepository = new MetricRepositoryImpl(dbClient);
-    metricRepository.start();
     MeasureRepository measureRepository = new MeasureRepositoryImpl(dbClient, reportReader, metricRepository);
     session.commit();
 
@@ -127,6 +127,9 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
   @Test
   public void insert_measures_from_report() throws Exception {
+    metricRepository.add(1, STRING_METRIC);
+    metricRepository.add(2, DOUBLE_METRIC);
+
     reportReader.putMeasures(PROJECT_REF, Arrays.asList(
       BatchReport.Measure.newBuilder()
         .setValueType(MeasureValueType.STRING)
@@ -156,23 +159,21 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     sut.execute();
     session.commit();
 
-    assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(FILE_REF);
+    assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(2);
 
     List<Map<String, Object>> dtos = retrieveDtos();
 
     Map<String, Object> dto = dtos.get(0);
     assertThat(dto.get("snapshotId")).isEqualTo(3L);
     assertThat(dto.get("componentId")).isEqualTo(projectDto.getId());
-    assertThat(dto.get("metricId")).isEqualTo(stringMetric.getId().longValue());
-    assertThat(dto.get("ruleId")).isNull();
+    assertThat(dto.get("metricId")).isEqualTo(1L);
     assertThat(dto.get("textValue")).isEqualTo("measure-data");
     assertThat(dto.get("severity")).isNull();
 
     dto = dtos.get(PROJECT_REF);
     assertThat(dto.get("snapshotId")).isEqualTo(4L);
     assertThat(dto.get("componentId")).isEqualTo(fileDto.getId());
-    assertThat(dto.get("metricId")).isEqualTo(doubleMetric.getId().longValue());
-    assertThat(dto.get("characteristicId")).isNull();
+    assertThat(dto.get("metricId")).isEqualTo(2L);
     assertThat(dto.get("value")).isEqualTo(123.1d);
     assertThat(dto.get("severity")).isNull();
   }
@@ -185,6 +186,8 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
   @Test
   public void bestValue_measure_of_bestValueOptimized_metrics_are_not_persisted() {
+    metricRepository.add(1, new Metric.Builder(OPTIMIZED_METRIC_KEY, "Optimized metric", Metric.ValueType.BOOL).setOptimizedBestValue(true).setBestValue(1d).create());
+
     reportReader.putMeasures(FILE_REF, Arrays.asList(
       BatchReport.Measure.newBuilder()
         .setValueType(MeasureValueType.BOOLEAN)
@@ -200,6 +203,9 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
   @Test
   public void empty_values_are_not_persisted() {
+    metricRepository.add(1, STRING_METRIC);
+    metricRepository.add(2, DOUBLE_METRIC);
+
     reportReader.putMeasures(FILE_REF, Arrays.asList(
       BatchReport.Measure.newBuilder()
         .setValueType(MeasureValueType.STRING)
@@ -215,6 +221,86 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     session.commit();
 
     assertThat(retrieveDtos()).isEmpty();
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void fail_with_ISE_when_trying_to_insert_forbidden_measures() throws Exception {
+    metricRepository.add(1, DUPLICATIONS_DATA);
+
+    reportReader.putMeasures(FILE_REF, Arrays.asList(
+      BatchReport.Measure.newBuilder()
+        .setValueType(MeasureValueType.STRING)
+        .setStringValue("{duplications}")
+        .setMetricKey(DUPLICATIONS_DATA_KEY)
+        .build()));
+
+    sut.execute();
+  }
+
+  @Test
+  public void do_not_insert_file_complexity_distribution_metric_on_files() throws Exception {
+    metricRepository.add(1, FILE_COMPLEXITY_DISTRIBUTION);
+
+    reportReader.putMeasures(PROJECT_REF, Arrays.asList(
+      BatchReport.Measure.newBuilder()
+        .setValueType(MeasureValueType.STRING)
+        .setStringValue("0=1;2=10")
+        .setMetricKey(FILE_COMPLEXITY_DISTRIBUTION_KEY)
+        .build()));
+
+    // Should not be persisted
+    reportReader.putMeasures(FILE_REF, Arrays.asList(
+      BatchReport.Measure.newBuilder()
+        .setValueType(MeasureValueType.STRING)
+        .setStringValue("0=1;2=10")
+        .setMetricKey(FILE_COMPLEXITY_DISTRIBUTION_KEY)
+        .build()));
+
+    sut.execute();
+
+    session.commit();
+
+    assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
+
+    List<Map<String, Object>> dtos = retrieveDtos();
+
+    Map<String, Object> dto = dtos.get(0);
+    assertThat(dto.get("snapshotId")).isEqualTo(3L);
+    assertThat(dto.get("componentId")).isEqualTo(projectDto.getId());
+    assertThat(dto.get("textValue")).isEqualTo("0=1;2=10");
+  }
+
+  @Test
+  public void do_not_insert_function_complexity_distribution_metric_on_files() throws Exception {
+    metricRepository.add(1, FUNCTION_COMPLEXITY_DISTRIBUTION);
+
+    reportReader.putMeasures(PROJECT_REF, Arrays.asList(
+      BatchReport.Measure.newBuilder()
+        .setValueType(MeasureValueType.STRING)
+        .setStringValue("0=1;2=10")
+        .setMetricKey(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)
+        .build()));
+
+    // Should not be persisted
+    reportReader.putMeasures(FILE_REF, Arrays.asList(
+      BatchReport.Measure.newBuilder()
+        .setValueType(MeasureValueType.STRING)
+        .setStringValue("0=1;2=10")
+        .setMetricKey(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)
+        .build()));
+
+    sut.execute();
+
+    session.commit();
+
+    assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
+
+    List<Map<String, Object>> dtos = retrieveDtos();
+
+    Map<String, Object> dto = dtos.get(0);
+    assertThat(dto.get("snapshotId")).isEqualTo(3L);
+    assertThat(dto.get("componentId")).isEqualTo(projectDto.getId());
+    assertThat(dto.get("textValue")).isEqualTo("0=1;2=10");
   }
 
   private ComponentDto addComponent(String key) {

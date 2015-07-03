@@ -53,10 +53,10 @@ public class MeasureKeyTest {
   }
 
   @Test
-  public void test_equals() throws Exception {
+  public void test_equals_and_hashcode() throws Exception {
     MeasureKey measureKey = new MeasureKey("metricKey", (Integer) null, null);
     MeasureKey measureKey2 = new MeasureKey("metricKey", (Integer) null, null);
-    MeasureKey anotheMeasureKey = new MeasureKey("anotherMetricKey", (Integer) null, null);
+    MeasureKey anotherMeasureKey = new MeasureKey("anotherMetricKey", (Integer) null, null);
 
     MeasureKey ruleMeasureKey = new MeasureKey("metricKey", 1, null);
     MeasureKey ruleMeasureKey2 = new MeasureKey("metricKey", 1, null);
@@ -69,13 +69,20 @@ public class MeasureKeyTest {
     assertThat(measureKey).isEqualTo(measureKey);
     assertThat(measureKey).isEqualTo(measureKey2);
     assertThat(measureKey).isNotEqualTo(null);
-    assertThat(measureKey).isNotEqualTo(anotheMeasureKey);
+    assertThat(measureKey).isNotEqualTo(anotherMeasureKey);
 
     assertThat(ruleMeasureKey).isEqualTo(ruleMeasureKey2);
     assertThat(ruleMeasureKey).isNotEqualTo(anotherRuleMeasureKey);
 
     assertThat(characteristicMeasureKey).isEqualTo(characteristicMeasureKey2);
     assertThat(characteristicMeasureKey).isNotEqualTo(anotherCharacteristicMeasureKey);
+
+    assertThat(measureKey.hashCode()).isEqualTo(measureKey.hashCode());
+    assertThat(measureKey.hashCode()).isEqualTo(measureKey2.hashCode());
+    assertThat(measureKey.hashCode()).isNotEqualTo(anotherMeasureKey.hashCode());
+
+    assertThat(ruleMeasureKey.hashCode()).isEqualTo(ruleMeasureKey2.hashCode());
+    assertThat(characteristicMeasureKey.hashCode()).isEqualTo(characteristicMeasureKey2.hashCode());
   }
 
   @Test

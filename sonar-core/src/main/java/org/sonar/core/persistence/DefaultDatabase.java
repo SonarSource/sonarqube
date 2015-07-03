@@ -49,7 +49,6 @@ public class DefaultDatabase implements Database {
   private static final String SONAR_JDBC = "sonar.jdbc.";
   private static final String SONAR_JDBC_DIALECT = "sonar.jdbc.dialect";
   private static final String SONAR_JDBC_URL = "sonar.jdbc.url";
-  private static final String VALIDATE = "validate";
 
   private Settings settings;
   private BasicDataSource datasource;

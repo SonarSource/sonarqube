@@ -51,8 +51,7 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   private final Set<Integer> loadedComponents = new HashSet<>();
   private final Map<Integer, Map<MeasureKey, Measure>> measures = new HashMap<>();
 
-  public MeasureRepositoryImpl(DbClient dbClient, BatchReportReader reportReader,
-    MetricRepository metricRepository) {
+  public MeasureRepositoryImpl(DbClient dbClient, BatchReportReader reportReader, MetricRepository metricRepository) {
     this.dbClient = dbClient;
     this.reportReader = reportReader;
     this.batchMeasureToMeasure = new BatchMeasureToMeasure();
