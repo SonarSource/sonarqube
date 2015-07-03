@@ -20,7 +20,6 @@
 package org.sonar.server.computation.issue;
 
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.component.Component;
 
 public abstract class IssueVisitor {
@@ -29,7 +28,7 @@ public abstract class IssueVisitor {
    * This method is called for each component before processing its issues.
    * The component does not necessarily have issues.
    */
-  public void beforeComponent(Component component, Tracking tracking) {
+  public void beforeComponent(Component component) {
 
   }
 

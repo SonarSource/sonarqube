@@ -28,7 +28,6 @@ import java.util.Map;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.db.IssueChangeDto;
-import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
@@ -61,7 +60,7 @@ public class NewDebtAggregator extends IssueVisitor {
   }
 
   @Override
-  public void beforeComponent(Component component, Tracking tracking) {
+  public void beforeComponent(Component component) {
     currentSum = new DebtSum();
     sumsByComponentRef.put(component.getRef(), currentSum);
     List<IssueChangeDto> changes = dbClient.issueChangeDao().selectChangelogOfNonClosedIssuesByComponent(component.getUuid());

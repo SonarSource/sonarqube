@@ -20,47 +20,61 @@
 package org.sonar.core.issue.tracking;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
-import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class Tracking<RAW extends Trackable, BASE extends Trackable> {
 
   /**
-   * Tracked issues -> a raw issue is associated to a base issue
+   * Matched issues -> a raw issue is associated to a base issue
    */
   private final IdentityHashMap<RAW, BASE> rawToBase = new IdentityHashMap<>();
+  private final IdentityHashMap<BASE, RAW> baseToRaw = new IdentityHashMap<>();
 
-  /**
-   * The raw issues that are not associated to a base issue.
-   */
-  private final Set<RAW> unmatchedRaws = Collections.newSetFromMap(new IdentityHashMap<RAW, Boolean>());
+  private final Collection<RAW> raws;
+  private final Collection<BASE> bases;
 
-  /**
-   * IdentityHashSet of the base issues that are not associated to a raw issue.
-   */
-  private final Set<BASE> unmatchedBases = Collections.newSetFromMap(new IdentityHashMap<BASE, Boolean>());
+  private final Predicate<RAW> unmatchedRawPredicate = new Predicate<RAW>() {
+    @Override
+    public boolean apply(@Nonnull RAW raw) {
+      return !rawToBase.containsKey(raw);
+    }
+  };
+
+  private final Predicate<BASE> unmatchedBasePredicate = new Predicate<BASE>() {
+    @Override
+    public boolean apply(@Nonnull BASE raw) {
+      return !baseToRaw.containsKey(raw);
+    }
+  };
 
   /**
    * The manual issues that are still valid (related source code still exists). They
    * are grouped by line. Lines start with 1. The key 0 references the manual
    * issues that do not relate to a line.
    */
-  private final Multimap<Integer, BASE> openManualIssues = ArrayListMultimap.create();
+  private final Multimap<Integer, BASE> openManualIssuesByLine = ArrayListMultimap.create();
 
   public Tracking(Input<RAW> rawInput, Input<BASE> baseInput) {
-    this.unmatchedRaws.addAll(rawInput.getIssues());
-    this.unmatchedBases.addAll(baseInput.getIssues());
+    this.raws = rawInput.getIssues();
+    this.bases = baseInput.getIssues();
   }
 
-  public Set<RAW> getUnmatchedRaws() {
-    return unmatchedRaws;
+  /**
+   * Returns an Iterable to be traversed when matching issues. That means
+   * that the traversal does not fail if method {@link #match(Trackable, Trackable)}
+   * is called.
+   */
+  public Iterable<RAW> getUnmatchedRaws() {
+    return Iterables.filter(raws, unmatchedRawPredicate);
   }
 
   public Map<RAW, BASE> getMatchedRaws() {
@@ -73,58 +87,42 @@ public class Tracking<RAW extends Trackable, BASE extends Trackable> {
   }
 
   /**
-   * The base issues that are not matched by a raw issue and that need to be closed. Manual
+   * The base issues that are not matched by a raw issue and that need to be closed.
    */
-  public Set<BASE> getUnmatchedBases() {
-    return unmatchedBases;
+  public Iterable<BASE> getUnmatchedBases() {
+    return Iterables.filter(bases, unmatchedBasePredicate);
   }
 
   boolean containsUnmatchedBase(BASE base) {
-    return unmatchedBases.contains(base);
+    return !baseToRaw.containsKey(base);
   }
 
-  void associateRawToBase(RAW raw, BASE base) {
+  void match(RAW raw, BASE base) {
     rawToBase.put(raw, base);
-    if (!unmatchedBases.remove(base)) {
-      throw new IllegalStateException(String.format("Fail to associate base issue %s to %s among %s", base, raw, this));
-    }
-  }
-
-  void markRawAsAssociated(RAW raw) {
-    if (!unmatchedRaws.remove(raw)) {
-      throw new IllegalStateException(String.format("Fail to mark issue as associated: %s among %s", raw, this));
-    }
-  }
-
-  void markRawsAsAssociated(Collection<RAW> c) {
-    // important : do not use unmatchedRaws.removeAll(Collection) as it's buggy. See:
-    // http://stackoverflow.com/questions/19682542/why-identityhashmap-keyset-removeallkeys-does-not-use-identity-is-it-a-bug/19682543#19682543
-    // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6588783
-    for (RAW raw : c) {
-      markRawAsAssociated(raw);
-    }
+    baseToRaw.put(base, raw);
   }
 
   boolean isComplete() {
-    return unmatchedRaws.isEmpty() || unmatchedBases.isEmpty();
+    return rawToBase.size() == raws.size();
   }
 
   public Multimap<Integer, BASE> getOpenManualIssuesByLine() {
-    return openManualIssues;
+    return openManualIssuesByLine;
   }
 
-  void associateManualIssueToLine(BASE manualIssue, @Nullable Integer line) {
-    openManualIssues.put(line, manualIssue);
-    unmatchedBases.remove(manualIssue);
+  void keepManualIssueOpen(BASE manualIssue, @Nullable Integer line) {
+    openManualIssuesByLine.put(line, manualIssue);
+    baseToRaw.put(manualIssue, null);
   }
 
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
       .add("rawToBase", rawToBase)
-      .add("unmatchedRaws", unmatchedRaws)
-      .add("unmatchedBases", unmatchedBases)
-      .add("openManualIssues", openManualIssues)
+      .add("baseToRaw", baseToRaw)
+      .add("raws", raws)
+      .add("bases", bases)
+      .add("openManualIssuesByLine", openManualIssuesByLine)
       .toString();
   }
 }

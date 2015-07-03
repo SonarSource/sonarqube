@@ -27,7 +27,6 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
@@ -106,7 +105,7 @@ public class IssueCounter extends IssueVisitor {
   }
 
   @Override
-  public void beforeComponent(Component component, Tracking tracking) {
+  public void beforeComponent(Component component) {
     // TODO optimization no need to instantiate counter if no open issues
     currentCounters = new Counters();
     countersByComponentRef.put(component.getRef(), currentCounters);

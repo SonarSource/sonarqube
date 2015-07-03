@@ -23,9 +23,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang.StringUtils;
@@ -75,7 +73,6 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
       baseSearch.put(factory.create(base), base);
     }
 
-    Collection<RAW> trackedRaws = new ArrayList<>();
     for (RAW raw : tracking.getUnmatchedRaws()) {
       SearchKey rawKey = factory.create(raw);
       Collection<BASE> bases = baseSearch.get(rawKey);
@@ -83,21 +80,19 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
         // TODO taking the first one. Could be improved if there are more than 2 issues on the same line.
         // Message could be checked to take the best one.
         BASE match = bases.iterator().next();
-        tracking.associateRawToBase(raw, match);
+        tracking.match(raw, match);
         baseSearch.remove(rawKey, match);
-        trackedRaws.add(raw);
       }
     }
-    tracking.markRawsAsAssociated(trackedRaws);
   }
 
   private void relocateManualIssues(Input<RAW> rawInput, Input<BASE> baseInput, Tracking<RAW, BASE> tracking) {
     // FIXME copy of Set if required to avoid concurrent modifications (see tracking.associateManualIssueToLine())
-    Iterable<BASE> manualIssues = from(new HashSet<>(tracking.getUnmatchedBases())).filter(IsManual.INSTANCE);
+    Iterable<BASE> manualIssues = from(tracking.getUnmatchedBases()).filter(IsManual.INSTANCE);
     for (BASE base : manualIssues) {
       if (base.getLine() == null) {
         // no need to relocate. Location is unchanged.
-        tracking.associateManualIssueToLine(base, null);
+        tracking.keepManualIssueOpen(base, null);
       } else {
         String baseHash = base.getLineHash();
         if (Strings.isNullOrEmpty(baseHash)) {
@@ -106,11 +101,11 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
         if (!Strings.isNullOrEmpty(baseHash)) {
           int[] rawLines = rawInput.getLineHashSequence().getLinesForHash(baseHash);
           if (rawLines.length == 1) {
-            tracking.associateManualIssueToLine(base, rawLines[0]);
+            tracking.keepManualIssueOpen(base, rawLines[0]);
           } else if (rawLines.length == 0 && rawInput.getLineHashSequence().hasLine(base.getLine())) {
             // still valid (???). We didn't manage to correctly detect code move, so the
             // issue is kept at the same location, even if code changes
-            tracking.associateManualIssueToLine(base, base.getLine());
+            tracking.keepManualIssueOpen(base, base.getLine());
           }
           // TODO if hash found multiple times, , pick the closest line
         }

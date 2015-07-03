@@ -19,6 +19,8 @@
  */
 package org.sonar.server.computation.issue;
 
+import com.google.common.base.Objects;
+import java.util.Collections;
 import java.util.List;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
@@ -58,7 +60,7 @@ public class TrackerBaseInputFactory {
       DbSession session = dbClient.openSession(false);
       try {
         List<String> hashes = dbClient.fileSourceDao().selectLineHashes(session, component.getUuid());
-        return new LineHashSequence(hashes);
+        return new LineHashSequence(Objects.firstNonNull(hashes, Collections.<String>emptyList()));
       } finally {
         MyBatis.closeQuietly(session);
       }

@@ -75,22 +75,23 @@ public class IntegrateIssuesStep implements ComputationStep {
   }
 
   private void processIssues(Component component) {
-    Tracking<DefaultIssue, DefaultIssue> tracking = tracker.track(component);
     DiskCache<DefaultIssue>.DiskAppender cacheAppender = issueCache.newAppender();
     try {
-      issueVisitors.beforeComponent(component, tracking);
+      Tracking<DefaultIssue, DefaultIssue> tracking = tracker.track(component);
+      issueVisitors.beforeComponent(component);
       fillNewOpenIssues(component, tracking, cacheAppender);
       fillExistingOpenIssues(component, tracking, cacheAppender);
       closeUnmatchedBaseIssues(component, tracking, cacheAppender);
       issueVisitors.afterComponent(component);
+    } catch (Exception e) {
+      Loggers.get(getClass()).error(String.format("Fail to process issues of %s", component.getKey()), e);
     } finally {
       cacheAppender.close();
     }
   }
 
   private void fillNewOpenIssues(Component component, Tracking<DefaultIssue, DefaultIssue> tracking, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
-    Set<DefaultIssue> issues = tracking.getUnmatchedRaws();
-    for (DefaultIssue issue : issues) {
+    for (DefaultIssue issue : tracking.getUnmatchedRaws()) {
       issueLifecycle.initNewOpenIssue(issue);
       process(component, issue, cacheAppender);
     }
@@ -113,7 +114,6 @@ public class IntegrateIssuesStep implements ComputationStep {
 
   private void closeUnmatchedBaseIssues(Component component, Tracking<DefaultIssue, DefaultIssue> tracking, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
     for (DefaultIssue issue : tracking.getUnmatchedBases()) {
-      Loggers.get(getClass()).info("--- close base " + issue);
       // TODO should replace flag "beingClosed" by express call to transition "automaticClose"
       issue.setBeingClosed(true);
       // TODO manual issues -> was updater.setResolution(newIssue, Issue.RESOLUTION_REMOVED, changeContext);. Is it a problem ?

@@ -26,7 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
@@ -67,43 +66,43 @@ public class IssueAssignerTest {
       .addChangesetIndexByLine(1)
       .build());
 
-    underTest.beforeComponent(file, mock(Tracking.class));
-//    underTest.onIssue(file, issue);
-//    sut.init("ANY_UUID", 123_456_789, reportReader);
-//
-//    assertThat(sut.lineAuthor(1)).isEqualTo("charb");
-//    assertThat(sut.lineAuthor(2)).isEqualTo("charb");
-//    assertThat(sut.lineAuthor(3)).isEqualTo("wolinski");
-//    // compute last author
-//    assertThat(sut.lineAuthor(4)).isEqualTo("wolinski");
-//    assertThat(sut.lineAuthor(null)).isEqualTo("wolinski");
+    underTest.beforeComponent(file);
+    // underTest.onIssue(file, issue);
+    // sut.init("ANY_UUID", 123_456_789, reportReader);
+    //
+    // assertThat(sut.lineAuthor(1)).isEqualTo("charb");
+    // assertThat(sut.lineAuthor(2)).isEqualTo("charb");
+    // assertThat(sut.lineAuthor(3)).isEqualTo("wolinski");
+    // // compute last author
+    // assertThat(sut.lineAuthor(4)).isEqualTo("wolinski");
+    // assertThat(sut.lineAuthor(null)).isEqualTo("wolinski");
   }
 
-//  @Test
-//  public void line_author_from_index() throws Exception {
-//    esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
-//      newSourceLine("cabu", "123-456-789", 123_456_789, 1),
-//      newSourceLine("cabu", "123-456-789", 123_456_789, 2),
-//      newSourceLine("cabu", "123-123-789", 123_456_789, 3),
-//      newSourceLine("wolinski", "987-654-321", 987_654_321, 4),
-//      newSourceLine("cabu", "123-456-789", 123_456_789, 5)
-//      );
-//
-//    sut.init("DEFAULT_UUID", 123, reportReader);
-//
-//    assertThat(sut.lineAuthor(1)).isEqualTo("cabu");
-//    assertThat(sut.lineAuthor(2)).isEqualTo("cabu");
-//    assertThat(sut.lineAuthor(3)).isEqualTo("cabu");
-//    assertThat(sut.lineAuthor(4)).isEqualTo("wolinski");
-//    assertThat(sut.lineAuthor(5)).isEqualTo("cabu");
-//    assertThat(sut.lineAuthor(6)).isEqualTo("wolinski");
-//  }
-//
-//  @Test(expected = IllegalStateException.class)
-//  public void fail_when_component_ref_is_not_filled() {
-//    sut.init("ANY_UUID", null, reportReader);
-//    sut.lineAuthor(0);
-//  }
+  // @Test
+  // public void line_author_from_index() throws Exception {
+  // esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
+  // newSourceLine("cabu", "123-456-789", 123_456_789, 1),
+  // newSourceLine("cabu", "123-456-789", 123_456_789, 2),
+  // newSourceLine("cabu", "123-123-789", 123_456_789, 3),
+  // newSourceLine("wolinski", "987-654-321", 987_654_321, 4),
+  // newSourceLine("cabu", "123-456-789", 123_456_789, 5)
+  // );
+  //
+  // sut.init("DEFAULT_UUID", 123, reportReader);
+  //
+  // assertThat(sut.lineAuthor(1)).isEqualTo("cabu");
+  // assertThat(sut.lineAuthor(2)).isEqualTo("cabu");
+  // assertThat(sut.lineAuthor(3)).isEqualTo("cabu");
+  // assertThat(sut.lineAuthor(4)).isEqualTo("wolinski");
+  // assertThat(sut.lineAuthor(5)).isEqualTo("cabu");
+  // assertThat(sut.lineAuthor(6)).isEqualTo("wolinski");
+  // }
+  //
+  // @Test(expected = IllegalStateException.class)
+  // public void fail_when_component_ref_is_not_filled() {
+  // sut.init("ANY_UUID", null, reportReader);
+  // sut.lineAuthor(0);
+  // }
 
   private BatchReport.Changesets.Changeset.Builder newChangeset(String author, String revision, long date) {
     return BatchReport.Changesets.Changeset.newBuilder()

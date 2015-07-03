@@ -123,15 +123,14 @@ class BlockRecognizer<RAW extends Trackable, BASE extends Trackable> {
     for (RAW raw : raws) {
       for (BASE base : bases) {
         if (result.containsUnmatchedBase(base) && base.getRuleKey().equals(raw.getRuleKey())) {
-          result.associateRawToBase(raw, base);
-          result.markRawAsAssociated(raw);
+          result.match(raw, base);
           break;
         }
       }
     }
   }
 
-  private static <T extends Trackable> Multimap<Integer, T> groupByLine(Collection<T> trackables, BlockHashSequence hashSequence) {
+  private static <T extends Trackable> Multimap<Integer, T> groupByLine(Iterable<T> trackables, BlockHashSequence hashSequence) {
     Multimap<Integer, T> result = LinkedHashMultimap.create();
     for (T trackable : trackables) {
       Integer line = trackable.getLine();

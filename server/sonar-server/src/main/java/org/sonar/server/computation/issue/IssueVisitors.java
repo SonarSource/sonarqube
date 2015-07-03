@@ -20,7 +20,6 @@
 package org.sonar.server.computation.issue;
 
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.component.Component;
 
 public class IssueVisitors {
@@ -31,9 +30,9 @@ public class IssueVisitors {
     this.visitors = visitors;
   }
 
-  public void beforeComponent(Component component, Tracking tracking) {
+  public void beforeComponent(Component component) {
     for (IssueVisitor visitor : visitors) {
-      visitor.beforeComponent(component, tracking);
+      visitor.beforeComponent(component);
     }
   }
 

@@ -25,7 +25,6 @@ import org.mockito.Mockito;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.measure.Measure;
@@ -78,7 +77,7 @@ public class NewDebtAggregatorTest {
     when(calculator.calculate(same(unresolved2), anyList(), same(PERIOD))).thenReturn(3L);
     verifyNoMoreInteractions(calculator);
 
-    underTest.beforeComponent(file, mock(Tracking.class));
+    underTest.beforeComponent(file);
     underTest.onIssue(file, unresolved1);
     underTest.onIssue(file, unresolved2);
     underTest.onIssue(file, unresolvedWithoutDebt);
@@ -105,7 +104,7 @@ public class NewDebtAggregatorTest {
     DefaultIssue unresolved = new DefaultIssue().setDebt(Duration.create(10));
     verifyZeroInteractions(calculator);
 
-    underTest.beforeComponent(file, mock(Tracking.class));
+    underTest.beforeComponent(file);
     underTest.onIssue(file, unresolved);
     underTest.afterComponent(file);
 

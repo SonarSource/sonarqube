@@ -93,7 +93,7 @@ public class DebtAggregatorTest {
     DefaultIssue unresolvedWithoutDebt = new DefaultIssue().setRuleKey(rule.getKey());
     DefaultIssue resolved = new DefaultIssue().setDebt(Duration.create(50)).setResolution(RESOLUTION_FIXED).setRuleKey(rule.getKey());
 
-    underTest.beforeComponent(file, mock(Tracking.class));
+    underTest.beforeComponent(file);
     underTest.onIssue(file, unresolved1);
     underTest.onIssue(file, unresolved2);
     underTest.onIssue(file, unresolvedWithoutDebt);
@@ -118,10 +118,10 @@ public class DebtAggregatorTest {
     DefaultIssue fileIssue = new DefaultIssue().setDebt(Duration.create(10)).setRuleKey(rule.getKey());
     DefaultIssue projectIssue = new DefaultIssue().setDebt(Duration.create(30)).setRuleKey(rule.getKey());
 
-    underTest.beforeComponent(file, mock(Tracking.class));
+    underTest.beforeComponent(file);
     underTest.onIssue(file, fileIssue);
     underTest.afterComponent(file);
-    underTest.beforeComponent(project, mock(Tracking.class));
+    underTest.beforeComponent(project);
     underTest.onIssue(project, projectIssue);
     underTest.afterComponent(project);
 

@@ -26,7 +26,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -104,7 +103,6 @@ public class IssueCounterTest {
   @Rule
   public PeriodsHolderRule periodsHolder = new PeriodsHolderRule();
 
-  Tracking tracking = mock(Tracking.class);
   MetricRepository metricRepository = mock(MetricRepository.class);
   MeasureRepository measureRepository;
   IssueCounter sut;
@@ -122,21 +120,21 @@ public class IssueCounterTest {
     periodsHolder.setPeriods();
 
     // bottom-up traversal -> from files to project
-    sut.beforeComponent(FILE1, tracking);
+    sut.beforeComponent(FILE1);
     sut.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER));
     sut.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR));
     sut.onIssue(FILE1, createIssue(RESOLUTION_FALSE_POSITIVE, STATUS_RESOLVED, MAJOR));
     sut.afterComponent(FILE1);
 
-    sut.beforeComponent(FILE2, tracking);
+    sut.beforeComponent(FILE2);
     sut.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, BLOCKER));
     sut.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, MAJOR));
     sut.afterComponent(FILE2);
 
-    sut.beforeComponent(FILE3, tracking);
+    sut.beforeComponent(FILE3);
     sut.afterComponent(FILE3);
 
-    sut.beforeComponent(PROJECT, tracking);
+    sut.beforeComponent(PROJECT);
     sut.afterComponent(PROJECT);
 
     // count by status
@@ -163,18 +161,18 @@ public class IssueCounterTest {
     periodsHolder.setPeriods();
 
     // bottom-up traversal -> from files to project
-    sut.beforeComponent(FILE1, tracking);
+    sut.beforeComponent(FILE1);
     sut.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER));
     // this resolved issue is ignored
     sut.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR));
     sut.afterComponent(FILE1);
 
-    sut.beforeComponent(FILE2, tracking);
+    sut.beforeComponent(FILE2);
     sut.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, BLOCKER));
     sut.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, MAJOR));
     sut.afterComponent(FILE2);
 
-    sut.beforeComponent(PROJECT, tracking);
+    sut.beforeComponent(PROJECT);
     sut.afterComponent(PROJECT);
 
     assertThat(measureRepository.getRawMeasure(FILE1, BLOCKER_ISSUES_METRIC).get().getIntValue()).isEqualTo(1);
@@ -195,7 +193,7 @@ public class IssueCounterTest {
     Period period = newPeriod(3, 1500000000000L);
     periodsHolder.setPeriods(period);
 
-    sut.beforeComponent(FILE1, tracking);
+    sut.beforeComponent(FILE1);
     // created before -> existing issues
     sut.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate() - 1000000L));
     // created during the first analysis starting the period -> existing issues
@@ -205,10 +203,10 @@ public class IssueCounterTest {
     sut.onIssue(FILE1, createIssueAt(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR, period.getSnapshotDate() + 200000L));
     sut.afterComponent(FILE1);
 
-    sut.beforeComponent(FILE2, tracking);
+    sut.beforeComponent(FILE2);
     sut.afterComponent(FILE2);
 
-    sut.beforeComponent(PROJECT, tracking);
+    sut.beforeComponent(PROJECT);
     sut.afterComponent(PROJECT);
 
     assertVariation(FILE1, NEW_ISSUES_METRIC, period.getIndex(), 1);

@@ -26,7 +26,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.debt.Characteristic;
 import org.sonar.server.computation.debt.DebtModelHolder;
@@ -56,7 +55,7 @@ public class DebtAggregator extends IssueVisitor {
   }
 
   @Override
-  public void beforeComponent(Component component, Tracking tracking) {
+  public void beforeComponent(Component component) {
     currentDebt = new Debt();
     debtsByComponentRef.put(component.getRef(), currentDebt);
 

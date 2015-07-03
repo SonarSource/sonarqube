@@ -28,7 +28,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.source.index.SourceLineDoc;
@@ -63,20 +62,11 @@ public class IssueAssigner extends IssueVisitor {
   }
 
   @Override
-  public void beforeComponent(Component component, Tracking tracking) {
-    // optimization - do not load data if there are no new issues
-    if (!tracking.getUnmatchedRaws().isEmpty()) {
-      scmChangesets = loadScmChangesetsFromReport(component);
-      if (scmChangesets == null) {
-        scmChangesets = loadScmChangesetsFromIndex(component);
-      }
-      computeLastCommitDateAndAuthor();
-    }
-  }
-
-  @Override
   public void onIssue(Component component, DefaultIssue issue) {
     if (issue.isNew()) {
+      // optimization - do not load SCM data of this component if there are no new issues
+      loadScmChangesetsIfNeeded(component);
+
       String scmAuthor = guessScmAuthor(issue.line());
       issue.setAuthorLogin(scmAuthor);
       if (scmAuthor != null) {
@@ -87,6 +77,16 @@ public class IssueAssigner extends IssueVisitor {
           issue.setAssignee(assigneeLogin);
         }
       }
+    }
+  }
+
+  private void loadScmChangesetsIfNeeded(Component component) {
+    if (scmChangesets == null) {
+      scmChangesets = loadScmChangesetsFromReport(component);
+      if (scmChangesets == null) {
+        scmChangesets = loadScmChangesetsFromIndex(component);
+      }
+      computeLastCommitDateAndAuthor();
     }
   }
 
