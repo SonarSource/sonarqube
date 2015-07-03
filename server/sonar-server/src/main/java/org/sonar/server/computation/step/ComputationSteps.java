@@ -65,7 +65,8 @@ public class ComputationSteps {
 
       // Must be executed after computation of differential measures
       QualityGateMeasuresStep.class,
-
+      ComputeQProfileMeasureStep.class,
+      // Must be executed after computation of quality profile measure
       QualityProfileEventsStep.class,
 
       // Must be executed after computation of quality gate measure
