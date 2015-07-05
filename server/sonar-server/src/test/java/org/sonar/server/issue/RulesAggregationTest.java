@@ -23,7 +23,7 @@ package org.sonar.server.issue;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.rule.RuleTesting;
+import org.sonar.db.rule.RuleTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

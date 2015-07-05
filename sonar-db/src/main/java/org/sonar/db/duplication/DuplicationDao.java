@@ -22,10 +22,11 @@ package org.sonar.db.duplication;
 import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
-public class DuplicationDao {
+public class DuplicationDao implements Dao {
 
   private final MyBatis mybatis;
 

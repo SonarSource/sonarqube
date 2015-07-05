@@ -1,8 +1,0 @@
-<dataset>
-
-  <active_rule_parameters id="1" active_rule_id="2" rules_parameter_id="3" rules_parameter_key="newMax" value="30"/>
-  <active_rule_parameters id="2" active_rule_id="1" rules_parameter_id="2" rules_parameter_key="format" value="html"/>
-
-  <active_rule_parameters id="3" active_rule_id="2" rules_parameter_id="1" rules_parameter_key="max" value="15"/>
-
-</dataset>

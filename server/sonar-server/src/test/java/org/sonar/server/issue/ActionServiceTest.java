@@ -39,7 +39,7 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.rule.RuleTesting;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
 

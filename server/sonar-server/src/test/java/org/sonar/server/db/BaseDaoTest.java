@@ -43,8 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BaseDaoTest {
 
   @ClassRule
-  public static DbTester db = new DbTester()
-    .schema(BaseDaoTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, BaseDaoTest.class, "schema.sql");
 
   private static final String DTO_ALIAS = "fake";
 

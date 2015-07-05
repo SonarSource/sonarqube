@@ -63,7 +63,7 @@ public class MyBatisTest {
     MyBatis myBatis = new MyBatis(database, queue);
     myBatis.start();
 
-    SqlSession session = myBatis.openBatchSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       assertThat(session.getConnection(), notNullValue());
       assertThat(session.getMapper(RuleMapper.class), notNullValue());

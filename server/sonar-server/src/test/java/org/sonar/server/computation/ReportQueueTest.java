@@ -35,7 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.computation.db.AnalysisReportDao;
+import org.sonar.db.compute.AnalysisReportDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 

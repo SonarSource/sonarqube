@@ -24,6 +24,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.db.migrations.MigrationStep;
@@ -43,7 +44,7 @@ public class FeedFileSourcesBinaryDataTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(FeedFileSourcesBinaryDataTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, FeedFileSourcesBinaryDataTest.class, "schema.sql");
 
   @Test
   public void convert_csv_to_protobuf() throws Exception {

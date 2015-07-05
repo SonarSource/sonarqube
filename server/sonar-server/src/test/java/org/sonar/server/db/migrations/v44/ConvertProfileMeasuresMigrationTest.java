@@ -23,6 +23,7 @@ package org.sonar.server.db.migrations.v44;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.server.db.DbClient;
 
@@ -35,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ConvertProfileMeasuresMigrationTest {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(ConvertProfileMeasuresMigrationTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, ConvertProfileMeasuresMigrationTest.class, "schema.sql");
 
   ConvertProfileMeasuresMigrationStep migration;
 

@@ -23,12 +23,13 @@ package org.sonar.server.db.migrations.v43;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
 public class RequirementMeasuresMigrationStepTest {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(RequirementMeasuresMigrationStepTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, RequirementMeasuresMigrationStepTest.class, "schema.sql");
 
   RequirementMeasuresMigrationStep migration;
 

@@ -20,9 +20,10 @@
 package org.sonar.db.measure;
 
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.db.Dao;
 import org.sonar.db.MyBatis;
 
-public class MeasureFilterDao {
+public class MeasureFilterDao implements Dao {
   private MyBatis mybatis;
 
   public MeasureFilterDao(MyBatis mybatis) {

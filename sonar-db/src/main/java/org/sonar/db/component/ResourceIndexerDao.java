@@ -19,16 +19,19 @@
  */
 package org.sonar.db.component;
 
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.utils.System2;
+import org.sonar.db.AbstractDao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
-public class ResourceIndexerDao {
+public class ResourceIndexerDao extends AbstractDao {
 
   private static final String SELECT_RESOURCES = "org.sonar.db.component.ResourceIndexerMapper.selectResources";
   public static final int MINIMUM_KEY_SIZE = 3;
@@ -41,17 +44,19 @@ public class ResourceIndexerDao {
   private static final String[] NOT_RENAMABLE_QUALIFIERS = {Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE, Qualifiers.CLASS};
   private static final String[] NOT_RENAMABLE_SCOPES = {Scopes.FILE};
 
-  private final MyBatis mybatis;
+  public ResourceIndexerDao(MyBatis myBatis, System2 system2) {
+    super(myBatis, system2);
+  }
 
-  public ResourceIndexerDao(MyBatis mybatis) {
-    this.mybatis = mybatis;
+  public List<Long> selectProjectIdsFromQueryAndViewOrSubViewUuid(DbSession session, String query, String viewOrSubViewUuid) {
+    return session.getMapper(ResourceIndexerMapper.class).selectProjectIdsFromQueryAndViewOrSubViewUuid(query + "%", "%." + viewOrSubViewUuid + ".%");
   }
 
   /**
    * This method is reentrant. It can be executed even if the project is already indexed.
    */
   public ResourceIndexerDao indexProject(final long rootProjectId) {
-    DbSession session = mybatis.openSession(true);
+    DbSession session = myBatis().openSession(true);
     try {
       indexProject(rootProjectId, session);
       session.commit();
@@ -71,7 +76,7 @@ public class ResourceIndexerDao {
    * This method is reentrant. It can be executed even if some projects are already indexed.
    */
   public ResourceIndexerDao indexProjects() {
-    final DbSession session = mybatis.openSession(true);
+    final DbSession session = myBatis().openSession(true);
     try {
       final ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
       session.select("org.sonar.db.component.ResourceIndexerMapper.selectRootProjectIds", /* workaround to get booleans */ResourceIndexerQuery.create(), new ResultHandler() {
@@ -132,7 +137,7 @@ public class ResourceIndexerDao {
   }
 
   public boolean indexResource(long id) {
-    DbSession session = mybatis.openSession(false);
+    DbSession session = myBatis().openSession(false);
     try {
       return indexResource(session, id);
     } finally {
@@ -156,7 +161,7 @@ public class ResourceIndexerDao {
 
   public boolean indexResource(int id, String name, String qualifier, int rootId) {
     boolean indexed = false;
-    SqlSession session = mybatis.openSession(false);
+    SqlSession session = myBatis().openSession(false);
     ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
     try {
       indexed = indexResource(id, name, qualifier, rootId, session, mapper);

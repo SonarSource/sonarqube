@@ -25,32 +25,20 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.config.Logback;
-import org.sonar.db.measure.MeasureFilterDao;
 import org.sonar.db.DaoUtils;
-import org.sonar.db.version.DatabaseVersion;
+import org.sonar.db.DatabaseChecker;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.MyBatis;
+import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.semaphore.SemaphoreUpdater;
 import org.sonar.db.semaphore.SemaphoresImpl;
-import org.sonar.db.purge.PurgeProfiler;
-import org.sonar.server.activity.db.ActivityDao;
+import org.sonar.db.version.DatabaseVersion;
 import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.component.db.ComponentIndexDao;
-import org.sonar.server.component.db.ComponentLinkDao;
-import org.sonar.server.component.db.SnapshotDao;
-import org.sonar.server.computation.db.AnalysisReportDao;
-import org.sonar.server.measure.custom.persistence.CustomMeasureDao;
-import org.sonar.server.dashboard.db.DashboardDao;
-import org.sonar.server.dashboard.db.WidgetDao;
-import org.sonar.server.dashboard.db.WidgetPropertyDao;
-import org.sonar.server.db.DatabaseChecker;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
 import org.sonar.server.db.migrations.MigrationStepModule;
-import org.sonar.server.event.db.EventDao;
-import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.measure.persistence.MeasureDao;
+import org.sonar.server.measure.custom.persistence.CustomMeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerFileSystem;
@@ -67,11 +55,9 @@ import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.search.EsSearchModule;
 import org.sonar.server.search.IndexQueue;
-import org.sonar.server.source.db.FileSourceDao;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
-import org.sonar.server.user.db.UserGroupDao;
 
 public class PlatformLevel1 extends PlatformLevel {
   private final Platform platform;
@@ -124,12 +110,6 @@ public class PlatformLevel1 extends PlatformLevel {
       // users
       GroupDao.class,
       UserDao.class,
-      UserGroupDao.class,
-
-      // dashboards
-      DashboardDao.class,
-      WidgetDao.class,
-      WidgetPropertyDao.class,
 
       // rules/qprofiles
       RuleNormalizer.class,
@@ -141,24 +121,13 @@ public class PlatformLevel1 extends PlatformLevel {
 
       // issues
       IssueIndex.class,
-      IssueDao.class,
 
       // measures
-      MeasureDao.class,
       MetricDao.class,
-      MeasureFilterDao.class,
       CustomMeasureDao.class,
 
       // components
-      ComponentDao.class,
-      ComponentIndexDao.class,
-      ComponentLinkDao.class,
-      SnapshotDao.class,
-
-      EventDao.class,
-      ActivityDao.class,
-      AnalysisReportDao.class,
-      FileSourceDao.class);
+      ComponentDao.class);
     addAll(CorePropertyDefinitions.all());
     add(MigrationStepModule.class);
     addAll(DaoUtils.getDaoClasses());

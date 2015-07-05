@@ -26,6 +26,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.server.ServerSide;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.measure.CustomMeasureDto;
 import org.sonar.db.measure.CustomMeasureMapper;
 import org.sonar.db.Dao;
@@ -49,7 +50,7 @@ public class CustomMeasureDao implements Dao {
   }
 
   public void deleteByMetricIds(final DbSession session, final List<Integer> metricIds) {
-    DaoUtils.executeLargeInputsWithoutOutput(metricIds, new Function<List<Integer>, Void>() {
+    DatabaseUtils.executeLargeInputsWithoutOutput(metricIds, new Function<List<Integer>, Void>() {
       @Override
       public Void apply(@Nonnull List<Integer> input) {
         mapper(session).deleteByMetricIds(metricIds);

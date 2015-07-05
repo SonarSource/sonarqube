@@ -29,33 +29,28 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.sonar.api.issue.ActionPlan;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
+import org.sonar.db.DbSession;
+import org.sonar.db.component.ResourceDao;
+import org.sonar.db.component.ResourceDto;
+import org.sonar.db.component.ResourceQuery;
 import org.sonar.db.issue.ActionPlanDao;
 import org.sonar.db.issue.ActionPlanDto;
 import org.sonar.db.issue.ActionPlanStatsDao;
 import org.sonar.db.issue.ActionPlanStatsDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.server.issue.IssueStorage;
-import org.sonar.db.DbSession;
-import org.sonar.db.component.ResourceDao;
-import org.sonar.db.component.ResourceDto;
-import org.sonar.db.component.ResourceQuery;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.issue.IssueStorage;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-/**
- * @since 3.6
- */
-@ServerSide
 public class ActionPlanService {
 
   private final DbClient dbClient;

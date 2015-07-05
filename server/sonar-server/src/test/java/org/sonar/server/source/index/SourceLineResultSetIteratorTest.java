@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;
@@ -42,7 +43,7 @@ import static org.junit.Assert.fail;
 public class SourceLineResultSetIteratorTest {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(SourceLineResultSetIteratorTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, SourceLineResultSetIteratorTest.class, "schema.sql");
 
   DbClient dbClient;
 

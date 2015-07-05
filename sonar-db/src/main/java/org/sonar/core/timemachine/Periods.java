@@ -30,11 +30,9 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.i18n.I18n;
-import org.sonar.api.server.ServerSide;
 
 import static org.sonar.api.utils.DateUtils.longToDate;
 
-@ServerSide
 public class Periods {
 
   private final Settings settings;

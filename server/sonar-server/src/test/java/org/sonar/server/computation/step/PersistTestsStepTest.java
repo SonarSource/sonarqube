@@ -43,7 +43,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.component.FileAttributes;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.source.db.FileSourceDao;
+import org.sonar.db.source.FileSourceDao;
 import org.sonar.server.source.db.FileSourceDb;
 
 import static org.assertj.core.api.Assertions.assertThat;

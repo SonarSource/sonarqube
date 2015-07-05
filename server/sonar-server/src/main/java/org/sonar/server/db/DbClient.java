@@ -25,51 +25,47 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.IdentityHashMap;
 import java.util.Map;
-import org.sonar.api.server.ServerSide;
-import org.sonar.db.issue.ActionPlanDao;
-import org.sonar.db.issue.IssueChangeDao;
-import org.sonar.db.issue.IssueFilterDao;
-import org.sonar.db.permission.PermissionTemplateDao;
+import javax.annotation.Nullable;
 import org.sonar.db.Dao;
 import org.sonar.db.Database;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.activity.ActivityDao;
+import org.sonar.db.component.ComponentLinkDao;
+import org.sonar.db.component.ResourceDao;
+import org.sonar.db.component.ResourceIndexerDao;
+import org.sonar.db.component.SnapshotDao;
+import org.sonar.db.compute.AnalysisReportDao;
+import org.sonar.db.dashboard.DashboardDao;
+import org.sonar.db.dashboard.WidgetDao;
+import org.sonar.db.dashboard.WidgetPropertyDao;
+import org.sonar.db.debt.CharacteristicDao;
+import org.sonar.db.event.EventDao;
+import org.sonar.db.issue.ActionPlanDao;
+import org.sonar.db.issue.IssueChangeDao;
+import org.sonar.db.issue.IssueDao;
+import org.sonar.db.issue.IssueFilterDao;
+import org.sonar.db.loadedtemplate.LoadedTemplateDao;
+import org.sonar.db.measure.MeasureDao;
+import org.sonar.db.permission.PermissionTemplateDao;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
-import org.sonar.db.component.ResourceDao;
-import org.sonar.db.debt.CharacteristicDao;
-import org.sonar.db.loadedtemplate.LoadedTemplateDao;
+import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.user.AuthorDao;
 import org.sonar.db.user.AuthorizationDao;
 import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.RoleDao;
-import org.sonar.server.activity.db.ActivityDao;
+import org.sonar.db.user.UserGroupDao;
 import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.component.db.ComponentIndexDao;
-import org.sonar.server.component.db.ComponentLinkDao;
-import org.sonar.server.component.db.SnapshotDao;
-import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.measure.custom.persistence.CustomMeasureDao;
-import org.sonar.server.dashboard.db.DashboardDao;
-import org.sonar.server.dashboard.db.WidgetDao;
-import org.sonar.server.dashboard.db.WidgetPropertyDao;
-import org.sonar.server.event.db.EventDao;
-import org.sonar.server.issue.db.IssueDao;
-import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.source.db.FileSourceDao;
 import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
-import org.sonar.server.user.db.UserGroupDao;
 
-/**
- * Facade for all db components, mainly DAOs
- */
-@ServerSide
 public class DbClient {
 
   private final Database db;
@@ -103,7 +99,7 @@ public class DbClient {
   private final WidgetPropertyDao widgetPropertyDao;
   private final FileSourceDao fileSourceDao;
   private final AuthorDao authorDao;
-  private final ComponentIndexDao componentIndexDao;
+  private final ResourceIndexerDao componentIndexDao;
   private final ComponentLinkDao componentLinkDao;
   private final EventDao eventDao;
   private final PurgeDao purgeDao;
@@ -148,7 +144,7 @@ public class DbClient {
     widgetPropertyDao = getDao(map, WidgetPropertyDao.class);
     fileSourceDao = getDao(map, FileSourceDao.class);
     authorDao = getDao(map, AuthorDao.class);
-    componentIndexDao = getDao(map, ComponentIndexDao.class);
+    componentIndexDao = getDao(map, ResourceIndexerDao.class);
     componentLinkDao = getDao(map, ComponentLinkDao.class);
     eventDao = getDao(map, EventDao.class);
     purgeDao = getDao(map, PurgeDao.class);
@@ -161,6 +157,10 @@ public class DbClient {
 
   public DbSession openSession(boolean batch) {
     return myBatis.openSession(batch);
+  }
+
+  public void closeSession(@Nullable DbSession session) {
+    MyBatis.closeQuietly(session);
   }
 
   public RuleDao ruleDao() {
@@ -283,7 +283,7 @@ public class DbClient {
     return authorDao;
   }
 
-  public ComponentIndexDao componentIndexDao() {
+  public ResourceIndexerDao componentIndexDao() {
     return componentIndexDao;
   }
 

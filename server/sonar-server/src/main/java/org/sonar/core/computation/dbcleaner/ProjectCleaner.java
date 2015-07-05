@@ -28,13 +28,13 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.TimeUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.db.purge.period.DefaultPeriodCleaner;
 import org.sonar.db.DbSession;
 import org.sonar.db.purge.IdUuidPair;
 import org.sonar.db.purge.PurgeConfiguration;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeListener;
 import org.sonar.db.purge.PurgeProfiler;
+import org.sonar.db.purge.period.DefaultPeriodCleaner;
 import org.sonar.server.issue.index.IssueIndex;
 
 import static org.sonar.db.purge.PurgeConfiguration.newDefaultPurgeConfiguration;
@@ -100,7 +100,7 @@ public class ProjectCleaner {
 
   private void doPurge(DbSession session, PurgeConfiguration configuration) {
     try {
-      purgeDao.purge(session, configuration, purgeListener);
+      purgeDao.purge(session, configuration, purgeListener, profiler);
     } catch (Exception e) {
       // purge errors must no fail the report analysis
       LOG.error("Fail to purge data [id=" + configuration.rootProjectIdUuid().getId() + "]", e);

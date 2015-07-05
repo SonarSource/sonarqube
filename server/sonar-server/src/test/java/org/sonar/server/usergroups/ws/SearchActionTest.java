@@ -35,7 +35,7 @@ import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.db.GroupDao;
-import org.sonar.server.user.db.UserGroupDao;
+import org.sonar.db.user.UserGroupDao;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 

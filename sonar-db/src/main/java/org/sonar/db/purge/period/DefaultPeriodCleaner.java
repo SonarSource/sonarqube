@@ -29,6 +29,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbSession;
 import org.sonar.db.purge.PurgeDao;
+import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.purge.PurgeSnapshotQuery;
 import org.sonar.db.purge.PurgeableSnapshotDto;
 
@@ -36,10 +37,12 @@ import org.sonar.db.purge.PurgeableSnapshotDto;
 public class DefaultPeriodCleaner {
 
   private static final Logger LOG = Loggers.get(DefaultPeriodCleaner.class);
-  private PurgeDao purgeDao;
+  private final PurgeDao purgeDao;
+  private final PurgeProfiler profiler;
 
-  public DefaultPeriodCleaner(PurgeDao purgeDao) {
+  public DefaultPeriodCleaner(PurgeDao purgeDao, PurgeProfiler profiler) {
     this.purgeDao = purgeDao;
+    this.profiler = profiler;
   }
 
   public void clean(DbSession session, long projectId, Settings settings) {
@@ -58,8 +61,8 @@ public class DefaultPeriodCleaner {
   private void delete(List<PurgeableSnapshotDto> snapshots, DbSession session) {
     for (PurgeableSnapshotDto snapshot : snapshots) {
       LOG.debug("<- Delete snapshot: {} [{}]", DateUtils.formatDateTime(snapshot.getDate()), snapshot.getSnapshotId());
-      purgeDao.deleteSnapshots(PurgeSnapshotQuery.create().setRootSnapshotId(snapshot.getSnapshotId()), session);
-      purgeDao.deleteSnapshots(PurgeSnapshotQuery.create().setId(snapshot.getSnapshotId()), session);
+      purgeDao.deleteSnapshots(PurgeSnapshotQuery.create().setRootSnapshotId(snapshot.getSnapshotId()), session, profiler);
+      purgeDao.deleteSnapshots(PurgeSnapshotQuery.create().setId(snapshot.getSnapshotId()), session, profiler);
     }
   }
 

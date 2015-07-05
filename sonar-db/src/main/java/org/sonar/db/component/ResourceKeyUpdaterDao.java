@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
@@ -36,7 +37,7 @@ import org.sonar.db.MyBatis;
  *
  * @since 3.2
  */
-public class ResourceKeyUpdaterDao {
+public class ResourceKeyUpdaterDao implements Dao {
   private MyBatis mybatis;
 
   public ResourceKeyUpdaterDao(MyBatis mybatis) {

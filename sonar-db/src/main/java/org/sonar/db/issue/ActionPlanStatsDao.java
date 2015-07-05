@@ -22,18 +22,18 @@ package org.sonar.db.issue;
 
 import java.util.List;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.utils.System2;
+import org.sonar.db.AbstractDao;
 import org.sonar.db.MyBatis;
 
-public class ActionPlanStatsDao {
+public class ActionPlanStatsDao extends AbstractDao {
 
-  private final MyBatis mybatis;
-
-  public ActionPlanStatsDao(MyBatis mybatis) {
-    this.mybatis = mybatis;
+  public ActionPlanStatsDao(MyBatis myBatis, System2 system2) {
+    super(myBatis, system2);
   }
 
   public List<ActionPlanStatsDto> findByProjectId(Long projectId) {
-    SqlSession session = mybatis.openSession(false);
+    SqlSession session = myBatis().openSession(false);
     try {
       return session.getMapper(ActionPlanStatsMapper.class).findByProjectId(projectId);
     } finally {

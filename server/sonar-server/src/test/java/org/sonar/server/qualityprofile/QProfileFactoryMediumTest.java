@@ -34,7 +34,7 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
-import org.sonar.server.rule.RuleTesting;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;

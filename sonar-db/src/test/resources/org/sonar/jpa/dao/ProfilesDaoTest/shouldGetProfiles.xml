@@ -1,7 +1,0 @@
-<dataset>
-
-  <rules_profiles id="1" name="profile one" language="java" is_default="[false]"/>
-  <rules_profiles id="2" name="profile two" language="java" is_default="[false]"/>
-  <rules_profiles id="3" name="profile three" language="plsql" is_default="[false]"/>
-
-</dataset>

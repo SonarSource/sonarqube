@@ -39,7 +39,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.measure.persistence.MeasureDao;
+import org.sonar.db.measure.MeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.test.DbTests;
 

@@ -24,12 +24,13 @@ import java.sql.Types;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
 public class AddManualMeasuresComponentUuidColumnTest {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(AddManualMeasuresComponentUuidColumnTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, AddManualMeasuresComponentUuidColumnTest.class, "schema.sql");
 
   AddManualMeasuresComponentUuidColumn sut;
 

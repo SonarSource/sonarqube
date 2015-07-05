@@ -19,17 +19,24 @@
  */
 package org.sonar.db;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import javax.annotation.Nullable;
 import org.slf4j.LoggerFactory;
 
-/**
- * @since 2.13
- */
+import static com.google.common.collect.Lists.newArrayList;
+
 public final class DatabaseUtils {
+
+  private static final int PARTITION_SIZE_FOR_ORACLE = 1000;
+
   private DatabaseUtils() {
     // only static methods
   }
@@ -65,5 +72,53 @@ public final class DatabaseUtils {
         // ignore
       }
     }
+  }
+
+  /**
+   * Partition by 1000 elements a list of input and execute a function on each part.
+   *
+   * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
+   * and with MsSQL when there's more than 2000 parameters in a query
+   */
+  public static <OUTPUT, INPUT> List<OUTPUT> executeLargeInputs(Collection<INPUT> input, Function<List<INPUT>, List<OUTPUT>> function) {
+    if (input.isEmpty()) {
+      return Collections.emptyList();
+    }
+    List<OUTPUT> results = newArrayList();
+    List<List<INPUT>> partitionList = Lists.partition(newArrayList(input), PARTITION_SIZE_FOR_ORACLE);
+    for (List<INPUT> partition : partitionList) {
+      List<OUTPUT> subResults = function.apply(partition);
+      results.addAll(subResults);
+    }
+    return results;
+  }
+
+  /**
+   * Partition by 1000 elements a list of input and execute a function on each part.
+   * The function has not output (ex: delete operation)
+   *
+   * The goal is to prevent issue with ORACLE when there's more than 1000 elements in a 'in ('X', 'Y', ...)'
+   * and with MsSQL when there's more than 2000 parameters in a query
+   */
+  public static <INPUT> void executeLargeInputsWithoutOutput(Collection<INPUT> input, Function<List<INPUT>, Void> function) {
+    if (input.isEmpty()) {
+      return;
+    }
+
+    List<List<INPUT>> partitions = Lists.partition(newArrayList(input), PARTITION_SIZE_FOR_ORACLE);
+    for (List<INPUT> partition : partitions) {
+      function.apply(partition);
+    }
+  }
+
+  public static String repeatCondition(String sql, int count, String separator) {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < count; i++) {
+      sb.append(sql);
+      if (i < count - 1) {
+        sb.append(" ").append(separator).append(" ");
+      }
+    }
+    return sb.toString();
   }
 }

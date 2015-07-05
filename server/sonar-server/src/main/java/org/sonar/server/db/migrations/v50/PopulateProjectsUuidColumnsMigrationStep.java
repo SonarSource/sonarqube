@@ -33,7 +33,7 @@ import org.sonar.db.version.v50.Component;
 import org.sonar.db.version.v50.Migration50Mapper;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.MigrationStep;
-import org.sonar.server.util.ProgressLogger;
+import org.sonar.core.util.ProgressLogger;
 
 import java.util.List;
 import java.util.Map;

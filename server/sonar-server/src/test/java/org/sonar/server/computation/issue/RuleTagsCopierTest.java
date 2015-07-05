@@ -28,7 +28,7 @@ import org.sonar.server.computation.component.Component;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.server.rule.RuleTesting.XOO_X1;
+import static org.sonar.db.rule.RuleTesting.XOO_X1;
 
 public class RuleTagsCopierTest {
 

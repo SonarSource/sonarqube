@@ -19,23 +19,22 @@
  */
 package org.sonar.server.startup;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.db.issue.IssueFilterDao;
 import org.sonar.db.DbTester;
+import org.sonar.db.dashboard.DashboardDao;
+import org.sonar.db.dashboard.WidgetDao;
+import org.sonar.db.dashboard.WidgetPropertyDao;
+import org.sonar.db.issue.IssueFilterDao;
 import org.sonar.db.loadedtemplate.LoadedTemplateDao;
-import org.sonar.server.dashboard.db.DashboardDao;
-import org.sonar.server.dashboard.db.WidgetDao;
-import org.sonar.server.dashboard.db.WidgetPropertyDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -86,7 +85,7 @@ public class RenameIssueWidgetsTest {
         new WidgetPropertyDao(dbTester.myBatis()),
         new IssueFilterDao(dbTester.myBatis()),
         new LoadedTemplateDao(dbTester.myBatis()),
-        new DashboardDao()
+        new DashboardDao(dbTester.myBatis())
       ),
       system2,
       null);

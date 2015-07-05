@@ -21,13 +21,14 @@ package org.sonar.db.rule;
 
 import java.util.List;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.db.Dao;
 import org.sonar.db.MyBatis;
 
 /**
  * @deprecated in 4.4 moved to org.sonar.server.rule.db.RuleDao.
  */
 @Deprecated
-public class RuleDao {
+public class RuleDao implements Dao {
 
   private MyBatis mybatis;
 

@@ -22,11 +22,9 @@ package org.sonar.db.dashboard;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.server.ServerSide;
 import org.sonar.db.Dao;
 import org.sonar.db.MyBatis;
 
-@ServerSide
 public class ActiveDashboardDao implements Dao {
 
   private MyBatis mybatis;

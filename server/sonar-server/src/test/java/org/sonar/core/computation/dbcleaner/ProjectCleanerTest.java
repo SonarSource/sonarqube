@@ -20,24 +20,29 @@
 
 package org.sonar.core.computation.dbcleaner;
 
+import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
-import org.sonar.db.purge.period.DefaultPeriodCleaner;
+import org.sonar.core.config.PurgeConstants;
 import org.sonar.db.DbSession;
 import org.sonar.db.purge.IdUuidPair;
 import org.sonar.db.purge.PurgeConfiguration;
-import org.sonar.core.config.PurgeConstants;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeListener;
 import org.sonar.db.purge.PurgeProfiler;
+import org.sonar.db.purge.period.DefaultPeriodCleaner;
 import org.sonar.server.issue.index.IssueIndex;
 
-import java.util.Date;
-
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class ProjectCleanerTest {
 
@@ -86,17 +91,17 @@ public class ProjectCleanerTest {
     sut.purge(mock(DbSession.class), mock(IdUuidPair.class), settings);
 
     verify(periodCleaner).clean(any(DbSession.class), any(Long.class), any(Settings.class));
-    verify(dao).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class));
+    verify(dao).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class), any(PurgeProfiler.class));
     verify(issueIndex).deleteClosedIssuesOfProjectBefore(any(String.class), any(Date.class));
   }
 
   @Test
   public void if_dao_purge_fails_it_should_not_interrupt_program_execution() {
-    doThrow(RuntimeException.class).when(dao).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class));
+    doThrow(RuntimeException.class).when(dao).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class), any(PurgeProfiler.class));
 
     sut.purge(mock(DbSession.class), mock(IdUuidPair.class), settings);
 
-    verify(dao).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class));
+    verify(dao).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class), any(PurgeProfiler.class));
   }
 
   @Test

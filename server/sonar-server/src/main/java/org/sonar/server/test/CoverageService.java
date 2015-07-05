@@ -30,7 +30,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-import org.sonar.server.measure.persistence.MeasureDao;
+import org.sonar.db.measure.MeasureDao;
 import org.sonar.server.user.UserSession;
 
 @ServerSide

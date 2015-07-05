@@ -42,7 +42,7 @@ import static org.mockito.Mockito.when;
 public class ConvertIssueDebtToMinutesMigrationStepTest {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(ConvertIssueDebtToMinutesMigrationStepTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, ConvertIssueDebtToMinutesMigrationStepTest.class, "schema.sql");
 
   @Mock
   System2 system2;

@@ -42,7 +42,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.db.GroupDao;
-import org.sonar.server.user.db.UserGroupDao;
+import org.sonar.db.user.UserGroupDao;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 

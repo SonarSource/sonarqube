@@ -34,7 +34,7 @@ import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.Upsert;
 import org.sonar.server.db.migrations.UpsertImpl;
-import org.sonar.server.util.ProgressLogger;
+import org.sonar.core.util.ProgressLogger;
 
 import static com.google.common.collect.Lists.newArrayList;
 

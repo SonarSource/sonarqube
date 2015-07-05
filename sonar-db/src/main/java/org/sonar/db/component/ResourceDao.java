@@ -32,27 +32,24 @@ import org.sonar.api.component.Component;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
-import org.sonar.db.Dao;
+import org.sonar.db.AbstractDao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class ResourceDao implements Dao {
-  private MyBatis mybatis;
-  private System2 system2;
+public class ResourceDao extends AbstractDao {
 
-  public ResourceDao(MyBatis mybatis, System2 system2) {
-    this.mybatis = mybatis;
-    this.system2 = system2;
+  public ResourceDao(MyBatis myBatis, System2 system2) {
+    super(myBatis, system2);
   }
 
   public List<ResourceDto> getResources(ResourceQuery query) {
-    SqlSession session = mybatis.openSession(false);
+    SqlSession session = myBatis().openSession(false);
     try {
       return session.getMapper(ResourceMapper.class).selectResources(query);
     } finally {
-      MyBatis.closeQuietly(session);
+      myBatis().closeQuietly(session);
     }
   }
 
@@ -66,11 +63,11 @@ public class ResourceDao implements Dao {
    */
   @CheckForNull
   public ResourceDto getResource(ResourceQuery query) {
-    DbSession session = mybatis.openSession(false);
+    DbSession session = myBatis().openSession(false);
     try {
       return getResource(query, session);
     } finally {
-      MyBatis.closeQuietly(session);
+      myBatis().closeQuietly(session);
     }
   }
 
@@ -84,30 +81,30 @@ public class ResourceDao implements Dao {
   }
 
   public List<Long> getResourceIds(ResourceQuery query) {
-    SqlSession session = mybatis.openSession(false);
+    SqlSession session = myBatis().openSession(false);
     try {
       return session.getMapper(ResourceMapper.class).selectResourceIds(query);
     } finally {
-      MyBatis.closeQuietly(session);
+      myBatis().closeQuietly(session);
     }
   }
 
   public ResourceDto getResource(long projectId) {
-    SqlSession session = mybatis.openSession(false);
+    SqlSession session = myBatis().openSession(false);
     try {
       return getResource(projectId, session);
     } finally {
-      MyBatis.closeQuietly(session);
+      myBatis().closeQuietly(session);
     }
   }
 
   @CheckForNull
   public ResourceDto getResource(String componentUuid) {
-    SqlSession session = mybatis.openSession(false);
+    SqlSession session = myBatis().openSession(false);
     try {
       return session.getMapper(ResourceMapper.class).selectResourceByUuid(componentUuid);
     } finally {
-      MyBatis.closeQuietly(session);
+      myBatis().closeQuietly(session);
     }
   }
 
@@ -126,11 +123,11 @@ public class ResourceDao implements Dao {
   }
 
   public List<ResourceDto> getDescendantProjects(long projectId) {
-    SqlSession session = mybatis.openSession(false);
+    SqlSession session = myBatis().openSession(false);
     try {
       return getDescendantProjects(projectId, session);
     } finally {
-      MyBatis.closeQuietly(session);
+      myBatis().closeQuietly(session);
     }
   }
 
@@ -153,9 +150,9 @@ public class ResourceDao implements Dao {
    * Used by the Views Plugin
    */
   public ResourceDao insertOrUpdate(ResourceDto... resources) {
-    SqlSession session = mybatis.openSession(false);
+    SqlSession session = myBatis().openSession(false);
     ResourceMapper mapper = session.getMapper(ResourceMapper.class);
-    Date now = new Date(system2.now());
+    Date now = new Date(now());
     try {
       for (ResourceDto resource : resources) {
         if (resource.getId() == null) {
@@ -175,7 +172,7 @@ public class ResourceDao implements Dao {
       }
       session.commit();
     } finally {
-      MyBatis.closeQuietly(session);
+      myBatis().closeQuietly(session);
     }
     return this;
   }
@@ -184,7 +181,7 @@ public class ResourceDao implements Dao {
    * Should not be called from batch side (used to reindex permission in E/S)
    */
   public void updateAuthorizationDate(Long projectId, SqlSession session) {
-    session.getMapper(ResourceMapper.class).updateAuthorizationDate(projectId, system2.now());
+    session.getMapper(ResourceMapper.class).updateAuthorizationDate(projectId, now());
   }
 
   @CheckForNull
@@ -222,11 +219,11 @@ public class ResourceDao implements Dao {
 
   @CheckForNull
   public ResourceDto getRootProjectByComponentKey(String componentKey) {
-    DbSession session = mybatis.openSession(false);
+    DbSession session = myBatis().openSession(false);
     try {
       return getRootProjectByComponentKey(session, componentKey);
     } finally {
-      MyBatis.closeQuietly(session);
+      myBatis().closeQuietly(session);
     }
   }
 
@@ -253,7 +250,7 @@ public class ResourceDao implements Dao {
    */
   @CheckForNull
   public ResourceDto getRootProjectByComponentId(long componentId) {
-    DbSession session = mybatis.openSession(false);
+    DbSession session = myBatis().openSession(false);
     try {
       ResourceDto component = getParentModuleByComponentId(componentId, session);
       Long rootId = component != null ? component.getRootId() : null;
@@ -263,7 +260,7 @@ public class ResourceDao implements Dao {
         return component;
       }
     } finally {
-      MyBatis.closeQuietly(session);
+      myBatis().closeQuietly(session);
     }
   }
 
@@ -271,11 +268,11 @@ public class ResourceDao implements Dao {
     if (qualifiers.isEmpty()) {
       return Collections.emptyList();
     }
-    SqlSession session = mybatis.openSession(false);
+    SqlSession session = myBatis().openSession(false);
     try {
       return toComponents(session.getMapper(ResourceMapper.class).selectProjectsByQualifiers(qualifiers));
     } finally {
-      MyBatis.closeQuietly(session);
+      myBatis().closeQuietly(session);
     }
   }
 
@@ -286,11 +283,11 @@ public class ResourceDao implements Dao {
     if (qualifiers.isEmpty()) {
       return Collections.emptyList();
     }
-    SqlSession session = mybatis.openSession(false);
+    SqlSession session = myBatis().openSession(false);
     try {
       return toComponents(session.getMapper(ResourceMapper.class).selectProjectsIncludingNotCompletedOnesByQualifiers(qualifiers));
     } finally {
-      MyBatis.closeQuietly(session);
+      myBatis().closeQuietly(session);
     }
   }
 
@@ -304,11 +301,11 @@ public class ResourceDao implements Dao {
     if (qualifiers.isEmpty()) {
       return Collections.emptyList();
     }
-    SqlSession session = mybatis.openSession(false);
+    SqlSession session = myBatis().openSession(false);
     try {
       return toComponents(session.getMapper(ResourceMapper.class).selectGhostsProjects(qualifiers));
     } finally {
-      MyBatis.closeQuietly(session);
+      myBatis().closeQuietly(session);
     }
   }
 
@@ -319,11 +316,11 @@ public class ResourceDao implements Dao {
     if (qualifiers.isEmpty()) {
       return Collections.emptyList();
     }
-    SqlSession session = mybatis.openSession(false);
+    SqlSession session = myBatis().openSession(false);
     try {
       return session.getMapper(ResourceMapper.class).selectProvisionedProjects(qualifiers);
     } finally {
-      MyBatis.closeQuietly(session);
+      myBatis().closeQuietly(session);
     }
   }
 
@@ -335,11 +332,11 @@ public class ResourceDao implements Dao {
   }
 
   public ResourceDto selectProvisionedProject(String key) {
-    DbSession session = mybatis.openSession(false);
+    DbSession session = myBatis().openSession(false);
     try {
       return selectProvisionedProject(session, key);
     } finally {
-      MyBatis.closeQuietly(session);
+      myBatis().closeQuietly(session);
     }
   }
 

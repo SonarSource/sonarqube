@@ -54,8 +54,8 @@ import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
-import org.sonar.server.rule.RuleTesting;
-import org.sonar.server.source.db.FileSourceDao;
+import org.sonar.db.rule.RuleTesting;
+import org.sonar.db.source.FileSourceDao;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 

@@ -39,7 +39,7 @@ import org.sonar.db.DbTester;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.component.db.SnapshotDao;
+import org.sonar.db.component.SnapshotDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;

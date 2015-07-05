@@ -29,7 +29,7 @@ import org.sonar.db.DbTester;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.index.IssueIndexDefinition;
-import org.sonar.server.rule.RuleTesting;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.search.IndexDefinition;

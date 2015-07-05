@@ -55,7 +55,7 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
     when(system2.now()).thenReturn(1450000000000L);
     dbSession = getMyBatis().openSession(false);
 
-    sut = new PurgeDao(getMyBatis(), new ResourceDao(getMyBatis(), system2), new PurgeProfiler(), system2);
+    sut = new PurgeDao(getMyBatis(), new ResourceDao(getMyBatis(), system2), system2);
   }
 
   @After
@@ -66,14 +66,14 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
   @Test
   public void shouldDeleteAbortedBuilds() {
     setupData("shouldDeleteAbortedBuilds");
-    sut.purge(newConfigurationWith30Days(), PurgeListener.EMPTY);
+    sut.purge(newConfigurationWith30Days(), PurgeListener.EMPTY, new PurgeProfiler());
     checkTables("shouldDeleteAbortedBuilds", "snapshots");
   }
 
   @Test
   public void should_purge_project() {
     setupData("shouldPurgeProject");
-    sut.purge(newConfigurationWith30Days(), PurgeListener.EMPTY);
+    sut.purge(newConfigurationWith30Days(), PurgeListener.EMPTY, new PurgeProfiler());
     checkTables("shouldPurgeProject", "projects", "snapshots");
   }
 
@@ -88,28 +88,28 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
   @Test
   public void delete_file_sources_of_disabled_resources() {
     setupData("delete_file_sources_of_disabled_resources");
-    sut.purge(newConfigurationWith30Days(system2), PurgeListener.EMPTY);
+    sut.purge(newConfigurationWith30Days(system2), PurgeListener.EMPTY, new PurgeProfiler());
     checkTables("delete_file_sources_of_disabled_resources", "file_sources");
   }
 
   @Test
   public void shouldDeleteHistoricalDataOfDirectoriesAndFiles() {
     setupData("shouldDeleteHistoricalDataOfDirectoriesAndFiles");
-    sut.purge(new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[] {Scopes.DIRECTORY, Scopes.FILE}, 30), PurgeListener.EMPTY);
+    sut.purge(new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[] {Scopes.DIRECTORY, Scopes.FILE}, 30), PurgeListener.EMPTY, new PurgeProfiler());
     checkTables("shouldDeleteHistoricalDataOfDirectoriesAndFiles", "projects", "snapshots");
   }
 
   @Test
   public void disable_resources_without_last_snapshot() {
     setupData("disable_resources_without_last_snapshot");
-    sut.purge(newConfigurationWith30Days(system2), PurgeListener.EMPTY);
+    sut.purge(newConfigurationWith30Days(system2), PurgeListener.EMPTY, new PurgeProfiler());
     checkTables("disable_resources_without_last_snapshot", new String[] {"issue_close_date", "issue_update_date"}, "projects", "snapshots", "issues");
   }
 
   @Test
   public void shouldDeleteSnapshots() {
     setupData("shouldDeleteSnapshots");
-    sut.deleteSnapshots(PurgeSnapshotQuery.create().setIslast(false).setResourceId(1L));
+    sut.deleteSnapshots(PurgeSnapshotQuery.create().setIslast(false).setResourceId(1L), new PurgeProfiler());
     checkTables("shouldDeleteSnapshots", "snapshots");
   }
 
@@ -130,21 +130,21 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
   @Test
   public void should_delete_project_and_associated_data() {
     setupData("shouldDeleteProject");
-    sut.deleteResourceTree(new IdUuidPair(1L, "A"));
+    sut.deleteResourceTree(new IdUuidPair(1L, "A"), new PurgeProfiler());
     assertEmptyTables("projects", "snapshots", "action_plans", "issues", "issue_changes", "file_sources");
   }
 
   @Test
   public void should_delete_old_closed_issues() {
     setupData("should_delete_old_closed_issues");
-    sut.purge(newConfigurationWith30Days(), PurgeListener.EMPTY);
+    sut.purge(newConfigurationWith30Days(), PurgeListener.EMPTY, new PurgeProfiler());
     checkTables("should_delete_old_closed_issues", "issues", "issue_changes");
   }
 
   @Test
   public void should_delete_all_closed_issues() {
     setupData("should_delete_all_closed_issues");
-    sut.purge(new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 0), PurgeListener.EMPTY);
+    sut.purge(new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 0), PurgeListener.EMPTY, new PurgeProfiler());
     checkTables("should_delete_all_closed_issues", "issues", "issue_changes");
   }
 

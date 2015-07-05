@@ -19,8 +19,11 @@
  */
 package org.sonar.db.dashboard;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
 public class DashboardDao implements Dao {
@@ -62,4 +65,21 @@ public class DashboardDao implements Dao {
     }
   }
 
+  @CheckForNull
+  public DashboardDto getNullableByKey(DbSession session, Long key) {
+    return mapper(session).selectById(key);
+  }
+
+  /**
+   * Get dashboard if allowed : shared or owned by logged-in user
+   * @param userId id of logged-in user, null if anonymous
+   */
+  @CheckForNull
+  public DashboardDto getAllowedByKey(DbSession session, Long key, @Nullable Long userId) {
+    return mapper(session).selectAllowedById(key, userId != null ? userId : -1L);
+  }
+
+  private DashboardMapper mapper(DbSession session) {
+    return session.getMapper(DashboardMapper.class);
+  }
 }

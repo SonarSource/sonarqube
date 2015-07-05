@@ -19,6 +19,7 @@
  */
 package org.sonar.server.db.migrations.v51;
 
+import java.util.Date;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -26,15 +27,13 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
-import java.util.Date;
-
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class FeedIssueTagsTest {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(FeedIssueTagsTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, FeedIssueTagsTest.class, "schema.sql");
 
   FeedIssueTags migration;
 

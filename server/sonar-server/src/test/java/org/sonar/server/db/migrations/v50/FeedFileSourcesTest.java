@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 public class FeedFileSourcesTest {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(FeedFileSourcesTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, FeedFileSourcesTest.class, "schema.sql");
 
   private static final long NOW = 1414770242000L;
 

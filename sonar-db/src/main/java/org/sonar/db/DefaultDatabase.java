@@ -30,10 +30,10 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.DialectUtils;
 import org.sonar.db.profiling.ProfiledDataSource;
@@ -43,7 +43,7 @@ import org.sonar.db.profiling.ProfiledDataSource;
  */
 public class DefaultDatabase implements Database {
 
-  private static final Logger LOG = LoggerFactory.getLogger(Database.class);
+  private static final Logger LOG = Loggers.get(Database.class);
 
   private static final String DEFAULT_URL = "jdbc:h2:tcp://localhost/sonar";
   private static final String SONAR_JDBC = "sonar.jdbc.";
@@ -65,18 +65,10 @@ public class DefaultDatabase implements Database {
       initSettings();
       initDatasource();
       checkConnection();
-      doAfterStart();
 
     } catch (Exception e) {
       throw new IllegalStateException("Fail to connect to database", e);
     }
-  }
-
-  /**
-   * Override to execute post-startup code.
-   */
-  protected void doAfterStart() {
-    // nothing to do
   }
 
   @VisibleForTesting
@@ -104,7 +96,6 @@ public class DefaultDatabase implements Database {
   private void checkConnection() {
     Connection connection = null;
     try {
-      LOG.debug("Testing JDBC connection");
       connection = datasource.getConnection();
     } catch (SQLException e) {
       throw new IllegalStateException("Can not connect to database. Please check connectivity and settings (see the properties prefixed by 'sonar.jdbc.').", e);
@@ -176,7 +167,7 @@ public class DefaultDatabase implements Database {
   }
 
   private static void completeDefaultProperty(Properties props, String key, String defaultValue) {
-    if (props.getProperty(key) == null && defaultValue != null) {
+    if (props.getProperty(key) == null) {
       props.setProperty(key, defaultValue);
     }
   }

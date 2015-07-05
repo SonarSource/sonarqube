@@ -3,6 +3,16 @@
 
 <mapper namespace="org.sonar.db.component.ResourceIndexerMapper">
 
+  <select id="selectProjectIdsFromQueryAndViewOrSubViewUuid" parameterType="map" resultType="long">
+    SELECT r.resource_id FROM resource_index r
+    INNER JOIN projects copy ON copy.copy_resource_id = r.resource_id
+    <where>
+      AND copy.module_uuid_path LIKE #{viewUuidQuery}
+      AND r.kee LIKE #{query}
+    </where>
+    ORDER BY r.name_size
+  </select>
+
   <!--
   The column PROJECTS.ROOT_ID is not exact on multi-modules projects. The root id must
   be loaded from the table SNAPSHOTS

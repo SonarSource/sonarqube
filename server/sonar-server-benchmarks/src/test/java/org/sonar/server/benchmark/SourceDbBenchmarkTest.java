@@ -19,6 +19,11 @@
  */
 package org.sonar.server.benchmark;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.util.Arrays;
+import java.util.Timer;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
@@ -27,19 +32,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.db.DbTester;
+import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.source.db.FileSourceDao;
 import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.source.index.SourceLineResultSetIterator;
-
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Timer;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -63,7 +61,7 @@ public class SourceDbBenchmarkTest {
     scrollRows();
   }
 
-  private void scrollRows() throws SQLException {
+  private void scrollRows() throws Exception {
     LOGGER.info("Scroll table FILE_SOURCES");
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis());
     Connection connection = dbTester.openConnection();

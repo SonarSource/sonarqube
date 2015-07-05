@@ -33,7 +33,7 @@ import static org.sonar.api.utils.DateUtils.parseDate;
 
 public class FeedSnapshotsLongDatesTest {
   @ClassRule
-  public static DbTester db = new DbTester().schema(FeedSnapshotsLongDatesTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, FeedSnapshotsLongDatesTest.class, "schema.sql");
 
   @Test
   public void execute() throws Exception {

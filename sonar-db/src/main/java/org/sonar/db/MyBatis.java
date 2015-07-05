@@ -23,6 +23,9 @@ package org.sonar.db;
 import ch.qos.logback.classic.Level;
 import com.google.common.io.Closeables;
 import java.io.InputStream;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.annotation.Nullable;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.logging.LogFactory;
@@ -35,10 +38,10 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.apache.ibatis.type.JdbcType;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.activity.ActivityDto;
 import org.sonar.db.activity.ActivityMapper;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentIndexMapper;
 import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.db.component.ComponentLinkMapper;
 import org.sonar.db.component.ComponentMapper;
@@ -144,8 +147,6 @@ public class MyBatis {
 
   private final Database database;
   private SqlSessionFactory sessionFactory;
-
-  // TODO this queue should directly be an IndexQueue. Pending move of persistence to sonar-server
   private WorkQueue<?> queue;
 
   public MyBatis(Database database, WorkQueue<?> queue) {
@@ -153,12 +154,13 @@ public class MyBatis {
     this.queue = queue;
   }
 
+  // FIXME should be visible only to DAOs -> to be moved to AbstractDao
   public static void closeQuietly(@Nullable SqlSession session) {
     if (session != null) {
       try {
         session.close();
       } catch (Exception e) {
-        LoggerFactory.getLogger(MyBatis.class).warn("Fail to close session", e);
+        Loggers.get(MyBatis.class).warn("Fail to close db session", e);
         // do not re-throw the exception
       }
     }
@@ -255,7 +257,7 @@ public class MyBatis {
       GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class,
       MeasureMapper.class, MetricMapper.class, CustomMeasureMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, SnapshotMapper.class,
       ProjectQgateAssociationMapper.class, EventMapper.class,
-      AnalysisReportMapper.class, ComponentIndexMapper.class, ComponentLinkMapper.class,
+      AnalysisReportMapper.class, ComponentLinkMapper.class,
       Migration45Mapper.class, Migration50Mapper.class
     };
     loadMappers(conf, mappers);
@@ -274,14 +276,6 @@ public class MyBatis {
   @Deprecated
   public SqlSession openSession() {
     return openSession(false);
-  }
-
-  /**
-   * @deprecated since 4.4. Replaced by <code>openSession(true)</code>.
-   */
-  @Deprecated
-  public BatchSession openBatchSession() {
-    return (BatchSession) openSession(true);
   }
 
   /**
@@ -322,5 +316,32 @@ public class MyBatis {
 
   private void loadAlias(Configuration conf, String alias, Class dtoClass) {
     conf.getTypeAliasRegistry().registerAlias(alias, dtoClass);
+  }
+
+  /**
+   * Create a PreparedStatement for SELECT requests with scrolling of results
+   */
+  public PreparedStatement newScrollingSelectStatement(DbSession session, String sql) {
+    int fetchSize = database.getDialect().getScrollDefaultFetchSize();
+    return newScrollingSelectStatement(session, sql, fetchSize);
+  }
+
+  /**
+   * Create a PreparedStatement for SELECT requests with scrolling of results row by row (only one row
+   * in memory at a time)
+   */
+  public PreparedStatement newScrollingSingleRowSelectStatement(DbSession session, String sql) {
+    int fetchSize = database.getDialect().getScrollSingleRowFetchSize();
+    return newScrollingSelectStatement(session, sql, fetchSize);
+  }
+
+  private PreparedStatement newScrollingSelectStatement(DbSession session, String sql, int fetchSize) {
+    try {
+      PreparedStatement stmt = session.getConnection().prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+      stmt.setFetchSize(fetchSize);
+      return stmt;
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to create SQL statement: " + sql, e);
+    }
   }
 }

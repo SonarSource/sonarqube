@@ -38,6 +38,7 @@ import org.sonar.db.issue.ActionPlanDao;
 import org.sonar.db.issue.ActionPlanDto;
 import org.sonar.db.issue.ActionPlanStatsDao;
 import org.sonar.db.issue.ActionPlanStatsDto;
+import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.server.issue.IssueStorage;
 import org.sonar.db.DbSession;
@@ -77,7 +78,7 @@ public class ActionPlanServiceTest {
   ResourceDao resourceDao;
 
   @Mock
-  org.sonar.server.issue.db.IssueDao issueDao;
+  IssueDao issueDao;
 
   @Mock
   IssueUpdater issueUpdater;

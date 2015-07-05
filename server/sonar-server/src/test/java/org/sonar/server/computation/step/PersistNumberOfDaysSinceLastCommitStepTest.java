@@ -40,7 +40,7 @@ import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.measure.persistence.MeasureDao;
+import org.sonar.db.measure.MeasureDao;
 import org.sonar.server.source.index.SourceLineIndex;
 
 import static org.mockito.Matchers.anyString;

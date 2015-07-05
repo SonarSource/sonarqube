@@ -47,7 +47,7 @@ import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.measure.MeasureRepositoryImpl;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.measure.persistence.MeasureDao;
+import org.sonar.db.measure.MeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.test.DbTests;

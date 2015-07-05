@@ -27,7 +27,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.server.activity.db.ActivityDao;
+import org.sonar.db.activity.ActivityDao;
 import org.sonar.server.db.DbClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 public class ChangeLogMigrationTest {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(ChangeLogMigrationTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, ChangeLogMigrationTest.class, "schema.sql");
 
   System2 system2 = mock(System2.class);
   DbClient dbClient;

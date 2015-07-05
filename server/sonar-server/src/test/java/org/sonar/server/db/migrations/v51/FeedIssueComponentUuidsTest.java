@@ -23,11 +23,12 @@ package org.sonar.server.db.migrations.v51;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
 public class FeedIssueComponentUuidsTest {
   @ClassRule
-  public static DbTester db = new DbTester().schema(FeedIssueComponentUuidsTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, FeedIssueComponentUuidsTest.class, "schema.sql");
 
   FeedIssueComponentUuids sut;
 

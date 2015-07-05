@@ -28,7 +28,7 @@ import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
-import org.sonar.server.util.Slug;
+import org.sonar.core.util.Slug;
 
 /**
  * Feed the new columns RULES_PROFILES.KEE and PARENT_KEE.

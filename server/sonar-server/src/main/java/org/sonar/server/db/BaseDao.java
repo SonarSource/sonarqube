@@ -19,16 +19,13 @@
  */
 package org.sonar.server.db;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -49,7 +46,6 @@ import org.sonar.server.search.action.RefreshIndex;
 import org.sonar.server.search.action.UpsertDto;
 import org.sonar.server.search.action.UpsertNestedItem;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
 /**
@@ -120,7 +116,7 @@ import static com.google.common.collect.Maps.newHashMap;
  * @param <DTO> Produced DTO class from this dao
  * @param <KEY> DTO Key class
  */
-public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializable> implements DeprecatedDao<DTO,KEY>, Dao {
+public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializable> implements DeprecatedDao<DTO, KEY>, Dao {
 
   private static final Logger LOGGER = Loggers.get(BaseDao.class);
 
@@ -136,10 +132,6 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
     this.mapperClass = mapperClass;
     this.indexDefinition = indexDefinition;
     this.system2 = system2;
-  }
-
-  protected BaseDao(Class<MAPPER> mapperClass, System2 system2) {
-    this(null, mapperClass, system2);
   }
 
   public String getIndexType() {
@@ -165,27 +157,6 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
     return value;
   }
 
-  public List<DTO> getByKeys(DbSession session, KEY... keys) {
-    return getByKeys(session, ImmutableList.<KEY>copyOf(keys));
-  }
-
-  public List<DTO> getByKeys(DbSession session, Collection<KEY> keys) {
-    if (keys.isEmpty()) {
-      return Collections.emptyList();
-    }
-    List<DTO> components = newArrayList();
-    List<List<KEY>> partitionList = Lists.partition(newArrayList(keys), 1000);
-    for (List<KEY> partition : partitionList) {
-      List<DTO> dtos = doGetByKeys(session, partition);
-      components.addAll(dtos);
-    }
-    return components;
-  }
-
-  protected List<DTO> doGetByKeys(DbSession session, Collection<KEY> keys) {
-    throw notImplemented(this);
-  }
-
   @Override
   public DTO update(DbSession session, DTO item) {
     Date now = new Date(system2.now());
@@ -195,7 +166,7 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
 
   @Override
   public DTO update(DbSession session, DTO item, DTO... others) {
-    update(session, Lists.<DTO>asList(item, others));
+    update(session, Lists.asList(item, others));
     return item;
   }
 
@@ -305,16 +276,6 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
     if (hasIndex()) {
       this.enqueueUpdate(nestedItem, key, session);
     }
-  }
-
-  @VisibleForTesting
-  public List<DTO> findAfterDate(final DbSession session, Date date, Map<String, String> params) {
-    return session.selectList(getSynchronizeStatementFQN(), getSynchronizationParams(date, params));
-  }
-
-  @VisibleForTesting
-  public List<DTO> findAfterDate(final DbSession session, Date date) {
-    return findAfterDate(session, date, Collections.<String, String>emptyMap());
   }
 
   // Synchronization methods

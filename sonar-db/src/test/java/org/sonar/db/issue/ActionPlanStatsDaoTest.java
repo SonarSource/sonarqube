@@ -21,24 +21,23 @@
 package org.sonar.db.issue;
 
 import java.util.Collection;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.AbstractDaoTestCase;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ActionPlanStatsDaoTest extends AbstractDaoTestCase {
+public class ActionPlanStatsDaoTest {
 
-  ActionPlanStatsDao dao;
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @Before
-  public void createDao() {
-    dao = new ActionPlanStatsDao(getMyBatis());
-  }
+  ActionPlanStatsDao dao = dbTester.getDbClient().getActionPlanStatsDao();
 
   @Test
   public void should_find_by_project() {
-    setupData("shared", "should_find_by_project");
+    dbTester.prepareDbUnit(getClass(), "shared.xml", "should_find_by_project.xml");
 
     Collection<ActionPlanStatsDto> result = dao.findByProjectId(1l);
     assertThat(result).isNotEmpty();

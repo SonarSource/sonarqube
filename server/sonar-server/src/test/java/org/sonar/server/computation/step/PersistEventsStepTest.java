@@ -40,7 +40,7 @@ import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.event.db.EventDao;
+import org.sonar.db.event.EventDao;
 import org.sonar.test.DbTests;
 
 import static org.mockito.Matchers.any;

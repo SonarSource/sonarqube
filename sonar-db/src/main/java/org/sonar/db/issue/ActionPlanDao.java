@@ -25,13 +25,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.server.ServerSide;
 import org.sonar.db.Dao;
 import org.sonar.db.MyBatis;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-@ServerSide
 public class ActionPlanDao implements Dao {
 
   private final MyBatis mybatis;

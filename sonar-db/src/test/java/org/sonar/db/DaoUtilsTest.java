@@ -19,67 +19,14 @@
  */
 package org.sonar.db;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import java.util.Collections;
-import java.util.List;
 import org.junit.Test;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 public class DaoUtilsTest {
 
   @Test
   public void list_all_dao_classes() {
-    List<Class> daoClasses = DaoUtils.getDaoClasses();
-
-    assertThat(daoClasses).isNotEmpty();
-  }
-
-  @Test
-  public void repeatCondition() {
-    assertThat(DaoUtils.repeatCondition("uuid=?", 1, "or")).isEqualTo("uuid=?");
-    assertThat(DaoUtils.repeatCondition("uuid=?", 3, "or")).isEqualTo("uuid=? or uuid=? or uuid=?");
-  }
-
-  @Test
-  public void execute_large_inputs() {
-    List<Integer> inputs = newArrayList();
-    List<String> expectedOutputs = newArrayList();
-    for (int i = 0; i < 2010; i++) {
-      inputs.add(i);
-      expectedOutputs.add(Integer.toString(i));
-    }
-
-    List<String> outputs = DaoUtils.executeLargeInputs(inputs, new Function<List<Integer>, List<String>>() {
-      @Override
-      public List<String> apply(List<Integer> input) {
-        // Check that each partition is only done on 1000 elements max
-        assertThat(input.size()).isLessThanOrEqualTo(1000);
-        return newArrayList(Iterables.transform(input, new Function<Integer, String>() {
-          @Override
-          public String apply(Integer input) {
-            return Integer.toString(input);
-          }
-        }));
-      }
-    });
-
-    assertThat(outputs).isEqualTo(expectedOutputs);
-  }
-
-  @Test
-  public void execute_large_inputs_on_empty_list() {
-    List<String> outputs = DaoUtils.executeLargeInputs(Collections.<Integer>emptyList(), new Function<List<Integer>, List<String>>() {
-      @Override
-      public List<String> apply(List<Integer> input) {
-        fail("No partition should be made on empty list");
-        return Collections.emptyList();
-      }
-    });
-
-    assertThat(outputs).isEmpty();
+    assertThat(DaoUtils.getDaoClasses()).isNotEmpty();
   }
 }

@@ -34,7 +34,7 @@ import org.sonar.db.version.v44.Migration44Mapper;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.core.rule.SeverityUtil;
 import org.sonar.server.activity.Activity;
-import org.sonar.server.activity.db.ActivityDao;
+import org.sonar.db.activity.ActivityDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.MigrationStep;
 import org.sonar.server.qualityprofile.ActiveRuleChange;

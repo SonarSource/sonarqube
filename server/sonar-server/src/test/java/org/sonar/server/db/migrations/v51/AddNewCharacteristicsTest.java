@@ -36,7 +36,7 @@ import static org.mockito.Mockito.when;
 public class AddNewCharacteristicsTest {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(AddNewCharacteristicsTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, AddNewCharacteristicsTest.class, "schema.sql");
 
   MigrationStep migration;
 

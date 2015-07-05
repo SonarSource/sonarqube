@@ -27,6 +27,7 @@ import java.util.List;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
 import org.sonar.db.DaoUtils;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDao;
@@ -112,7 +113,7 @@ public class AuthorDao implements Dao {
   }
 
   public List<String> selectScmAccountsByDeveloperUuids(final SqlSession session, Collection<String> developerUuids) {
-    return DaoUtils.executeLargeInputs(developerUuids, new Function<List<String>, List<String>>() {
+    return DatabaseUtils.executeLargeInputs(developerUuids, new Function<List<String>, List<String>>() {
       @Override
       public List<String> apply(List<String> partition) {
         return session.getMapper(AuthorMapper.class).selectScmAccountsByDeveloperUuids(partition);

@@ -30,9 +30,11 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.purge.PurgeDao;
+import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.purge.PurgeSnapshotQuery;
 import org.sonar.db.purge.PurgeableSnapshotDto;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.anyListOf;
 import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.eq;
@@ -52,13 +54,13 @@ public class DefaultPeriodCleanerTest {
     Filter filter1 = newLazyFilter();
     Filter filter2 = newLazyFilter();
 
-    DefaultPeriodCleaner cleaner = new DefaultPeriodCleaner(dao);
+    DefaultPeriodCleaner cleaner = new DefaultPeriodCleaner(dao, new PurgeProfiler());
     cleaner.doClean(123L, Arrays.asList(filter1, filter2), session);
 
     verify(filter1).log();
     verify(filter2).log();
-    verify(dao, times(2)).deleteSnapshots(argThat(newRootSnapshotQuery()), eq(session));
-    verify(dao, times(2)).deleteSnapshots(argThat(newSnapshotIdQuery()), eq(session));
+    verify(dao, times(2)).deleteSnapshots(argThat(newRootSnapshotQuery()), eq(session), any(PurgeProfiler.class));
+    verify(dao, times(2)).deleteSnapshots(argThat(newSnapshotIdQuery()), eq(session), any(PurgeProfiler.class));
   }
 
   private BaseMatcher<PurgeSnapshotQuery> newRootSnapshotQuery() {

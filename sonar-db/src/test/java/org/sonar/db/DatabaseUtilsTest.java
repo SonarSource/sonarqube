@@ -19,15 +19,21 @@
  */
 package org.sonar.db;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collections;
+import java.util.List;
 import org.junit.Test;
 import org.sonar.db.dialect.Oracle;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -141,5 +147,50 @@ public class DatabaseUtilsTest extends AbstractDaoTestCase {
       sql = "SELECT 1 FROM DUAL";
     }
     return sql;
+  }
+
+  @Test
+  public void repeatCondition() {
+    assertThat(DatabaseUtils.repeatCondition("uuid=?", 1, "or")).isEqualTo("uuid=?");
+    assertThat(DatabaseUtils.repeatCondition("uuid=?", 3, "or")).isEqualTo("uuid=? or uuid=? or uuid=?");
+  }
+
+  @Test
+  public void execute_large_inputs() {
+    List<Integer> inputs = newArrayList();
+    List<String> expectedOutputs = newArrayList();
+    for (int i = 0; i < 2010; i++) {
+      inputs.add(i);
+      expectedOutputs.add(Integer.toString(i));
+    }
+
+    List<String> outputs = DatabaseUtils.executeLargeInputs(inputs, new Function<List<Integer>, List<String>>() {
+      @Override
+      public List<String> apply(List<Integer> input) {
+        // Check that each partition is only done on 1000 elements max
+        assertThat(input.size()).isLessThanOrEqualTo(1000);
+        return newArrayList(Iterables.transform(input, new Function<Integer, String>() {
+          @Override
+          public String apply(Integer input) {
+            return Integer.toString(input);
+          }
+        }));
+      }
+    });
+
+    assertThat(outputs).isEqualTo(expectedOutputs);
+  }
+
+  @Test
+  public void execute_large_inputs_on_empty_list() {
+    List<String> outputs = DatabaseUtils.executeLargeInputs(Collections.<Integer>emptyList(), new Function<List<Integer>, List<String>>() {
+      @Override
+      public List<String> apply(List<Integer> input) {
+        fail("No partition should be made on empty list");
+        return Collections.emptyList();
+      }
+    });
+
+    assertThat(outputs).isEmpty();
   }
 }

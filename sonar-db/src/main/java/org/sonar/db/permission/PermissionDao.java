@@ -27,13 +27,12 @@ import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.api.server.ServerSide;
+import org.sonar.db.Dao;
 import org.sonar.db.MyBatis;
 
 import static com.google.common.collect.Maps.newHashMap;
 
-@ServerSide
-public class PermissionDao {
+public class PermissionDao implements Dao {
 
   private static final String QUERY_PARAMETER = "query";
   private static final String COMPONENT_ID_PARAMETER = "componentId";

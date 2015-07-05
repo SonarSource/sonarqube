@@ -34,7 +34,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.source.db.FileSourceDao;
+import org.sonar.db.source.FileSourceDao;
 import org.sonar.server.test.db.TestTesting;
 import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndexDefinition;

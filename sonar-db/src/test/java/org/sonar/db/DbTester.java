@@ -20,14 +20,8 @@
 package org.sonar.db;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -36,19 +30,13 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.text.StrSubstitutor;
 import org.dbunit.Assertion;
-import org.dbunit.DataSourceDatabaseTester;
 import org.dbunit.DatabaseUnitException;
-import org.dbunit.IDatabaseTester;
 import org.dbunit.assertion.DiffCollectingFailureHandler;
 import org.dbunit.assertion.Difference;
 import org.dbunit.database.DatabaseConfig;
@@ -61,13 +49,10 @@ import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.ext.mssql.InsertIdentityOperation;
 import org.dbunit.operation.DatabaseOperation;
-import org.junit.AssumptionViolatedException;
+import org.junit.After;
 import org.junit.rules.ExternalResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.config.Settings;
-import org.sonar.db.deprecated.NullQueue;
-import org.sonar.db.dialect.Dialect;
+import org.picocontainer.containers.TransientPicoContainer;
+import org.sonar.api.utils.System2;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -78,96 +63,77 @@ import static org.junit.Assert.fail;
  * This class should be call using @ClassRule in order to create the schema once (ft @Rule is used
  * the schema will be recreated before each test).
  * Data will be truncated each time you call prepareDbUnit().
- * <p/>
+ * <p>
  * File using {@link DbTester} must be annotated with {@link org.sonar.test.DbTests} so
  * that they can be executed on all supported DBs (Oracle, MySQL, ...).
  */
 public class DbTester extends ExternalResource {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DbTester.class);
+  private final System2 system2;
+  private final TestDb db;
+  private DbClient2 client;
+  private DbSession session = null;
 
-  private Database db;
-  private DatabaseCommands commands;
-  private IDatabaseTester tester;
-  private MyBatis myBatis;
-  private String schemaPath = null;
+  @Deprecated
+  public DbTester() {
+    this.system2 = System2.INSTANCE;
+    this.db = TestDb.create(null);
+  }
 
-  public DbTester schema(Class baseClass, String filename) {
-    String path = StringUtils.replaceChars(baseClass.getCanonicalName(), '.', '/');
-    schemaPath = path + "/" + filename;
-    return this;
+  private DbTester(System2 system2, @Nullable String schemaPath) {
+    this.system2 = system2;
+    this.db = TestDb.create(schemaPath);
+  }
+
+  public static DbTester create(System2 system2) {
+    return new DbTester(system2, null);
+  }
+
+  public static DbTester createForSchema(System2 system2, Class testClass, String filename) {
+    String path = StringUtils.replaceChars(testClass.getCanonicalName(), '.', '/');
+    String schemaPath = path + "/" + filename;
+    return new DbTester(system2, schemaPath);
   }
 
   @Override
   protected void before() throws Throwable {
-    Settings settings = new Settings().setProperties(Maps.fromProperties(System.getProperties()));
-    if (settings.hasKey("orchestrator.configUrl")) {
-      loadOrchestratorSettings(settings);
-    }
-    String login = settings.getString("sonar.jdbc.username");
-    for (String key : settings.getKeysStartingWith("sonar.jdbc")) {
-      LOG.info(key + ": " + settings.getString(key));
-    }
-    String dialect = settings.getString("sonar.jdbc.dialect");
-    if (dialect != null && !"h2".equals(dialect)) {
-      db = new DefaultDatabase(settings);
-    } else {
-      db = new H2Database("h2Tests" + DigestUtils.md5Hex(StringUtils.defaultString(schemaPath)), schemaPath == null);
-    }
-    db.start();
-    if (schemaPath != null) {
-      // will fail if not H2
-      if (db.getDialect().getId().equals("h2")) {
-        ((H2Database) db).executeScript(schemaPath);
-      } else {
-        db.stop();
-        throw new AssumptionViolatedException("Test disabled because it supports only H2");
-      }
-    }
-    LOG.info("Test Database: " + db);
-
-    commands = DatabaseCommands.forDialect(db.getDialect());
-    tester = new DataSourceDatabaseTester(db.getDataSource(), commands.useLoginAsSchema() ? login : null);
-
-    myBatis = new MyBatis(db, new NullQueue());
-    myBatis.start();
-
     truncateTables();
   }
 
-  public void truncateTables() {
-    try {
-      commands.truncateDatabase(db.getDataSource());
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to truncate db tables", e);
+  @After
+  public void closeSession() throws Exception {
+    if (session != null) {
+      MyBatis.closeQuietly(session);
     }
   }
 
-  @Override
-  protected void after() {
-    db.stop();
-    db = null;
-    myBatis = null;
+  public DbSession getSession() {
+    if (session == null) {
+      session = db.getMyBatis().openSession(false);
+    }
+    return session;
   }
 
-  public Database database() {
-    return db;
+  public void truncateTables() {
+    db.truncateTables();
   }
 
-  public Dialect dialect() {
-    return db.getDialect();
-  }
-
-  public MyBatis myBatis() {
-    return myBatis;
-  }
-
-  public Connection openConnection() throws SQLException {
-    return db.getDataSource().getConnection();
+  public DbClient2 getDbClient() {
+    if (client == null) {
+      TransientPicoContainer ioc = new TransientPicoContainer();
+      ioc.addComponent(db.getMyBatis());
+      ioc.addComponent(system2);
+      for (Class daoClass : DaoUtils.getDaoClasses()) {
+        ioc.addComponent(daoClass);
+      }
+      List<Dao> daos = ioc.getComponents(Dao.class);
+      client = new DbClient2(db.getMyBatis(), daos.toArray(new Dao[daos.size()]));
+    }
+    return client;
   }
 
   public void executeUpdateSql(String sql) {
-    try (Connection connection = openConnection()) {
+    try (Connection connection = db.getDatabase().getDataSource().getConnection()) {
       new QueryRunner().update(connection, sql);
     } catch (Exception e) {
       throw new IllegalStateException("Fail to execute sql: " + sql);
@@ -191,7 +157,7 @@ public class DbTester extends ExternalResource {
     Preconditions.checkArgument(StringUtils.contains(sql, "count("),
       "Parameter must be a SQL request containing 'count(x)' function. Got " + sql);
     try (
-      Connection connection = openConnection();
+      Connection connection = db.getDatabase().getDataSource().getConnection();
       PreparedStatement stmt = connection.prepareStatement(sql);
       ResultSet rs = stmt.executeQuery()) {
       if (rs.next()) {
@@ -206,7 +172,7 @@ public class DbTester extends ExternalResource {
 
   public List<Map<String, Object>> select(String selectSql) {
     try (
-      Connection connection = openConnection();
+      Connection connection = db.getDatabase().getDataSource().getConnection();
       PreparedStatement stmt = connection.prepareStatement(selectSql);
       ResultSet rs = stmt.executeQuery()) {
       return getHashMap(rs);
@@ -259,8 +225,7 @@ public class DbTester extends ExternalResource {
   public void prepareDbUnit(Class testClass, String... testNames) {
     InputStream[] streams = new InputStream[testNames.length];
     try {
-      // Purge previous data
-      commands.truncateDatabase(db.getDataSource());
+      db.truncateTables();
 
       for (int i = 0; i < testNames.length; i++) {
         String path = "/" + testClass.getName().replace('.', '/') + "/" + testNames[i];
@@ -271,7 +236,7 @@ public class DbTester extends ExternalResource {
       }
 
       prepareDbUnit(streams);
-      commands.resetPrimaryKeys(db.getDataSource());
+      db.getCommands().resetPrimaryKeys(db.getDatabase().getDataSource());
     } catch (SQLException e) {
       throw translateException("Could not setup DBUnit data", e);
     } finally {
@@ -288,9 +253,9 @@ public class DbTester extends ExternalResource {
       for (int i = 0; i < dataSetStream.length; i++) {
         dataSets[i] = dbUnitDataSet(dataSetStream[i]);
       }
-      tester.setDataSet(new CompositeDataSet(dataSets));
+      db.getDbUnitTester().setDataSet(new CompositeDataSet(dataSets));
       connection = dbUnitConnection();
-      new InsertIdentityOperation(DatabaseOperation.INSERT).execute(connection, tester.getDataSet());
+      new InsertIdentityOperation(DatabaseOperation.INSERT).execute(connection, db.getDbUnitTester().getDataSet());
     } catch (Exception e) {
       throw translateException("Could not setup DBUnit data", e);
     } finally {
@@ -339,7 +304,7 @@ public class DbTester extends ExternalResource {
   }
 
   public void assertColumnDefinition(String table, String column, int expectedType, @Nullable Integer expectedSize) {
-    try (Connection connection = openConnection();
+    try (Connection connection = db.getDatabase().getDataSource().getConnection();
       PreparedStatement stmt = connection.prepareStatement("select * from " + table);
       ResultSet res = stmt.executeQuery()) {
       Integer columnIndex = getColumnIndex(res, column);
@@ -389,8 +354,8 @@ public class DbTester extends ExternalResource {
 
   private IDatabaseConnection dbUnitConnection() {
     try {
-      IDatabaseConnection connection = tester.getConnection();
-      connection.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, commands.getDbUnitFactory());
+      IDatabaseConnection connection = db.getDbUnitTester().getConnection();
+      connection.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, db.getDbUnitFactory());
       return connection;
     } catch (Exception e) {
       throw translateException("Error while getting connection", e);
@@ -413,41 +378,26 @@ public class DbTester extends ExternalResource {
     return runtimeException;
   }
 
-  private void loadOrchestratorSettings(Settings settings) throws URISyntaxException, IOException {
-    String url = settings.getString("orchestrator.configUrl");
-    URI uri = new URI(url);
-    InputStream input = null;
-    try {
-      if (url.startsWith("file:")) {
-        File file = new File(uri);
-        input = FileUtils.openInputStream(file);
-      } else {
-        HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
-        int responseCode = connection.getResponseCode();
-        if (responseCode >= 400) {
-          throw new IllegalStateException("Fail to request: " + uri + ". Status code=" + responseCode);
-        }
-
-        input = connection.getInputStream();
-
-      }
-      Properties props = new Properties();
-      props.load(input);
-      settings.addProperties(props);
-      for (Map.Entry<String, String> entry : settings.getProperties().entrySet()) {
-        String interpolatedValue = StrSubstitutor.replace(entry.getValue(), System.getenv(), "${", "}");
-        settings.setProperty(entry.getKey(), interpolatedValue);
-      }
-    } finally {
-      IOUtils.closeQuietly(input);
-    }
-  }
-
   private static void doClobFree(Clob clob) throws SQLException {
     try {
       clob.free();
     } catch (AbstractMethodError e) {
       // JTS driver do not implement free() as it's using JDBC 3.0
     }
+  }
+
+  @Deprecated
+  public MyBatis myBatis() {
+    return db.getMyBatis();
+  }
+
+  @Deprecated
+  public Connection openConnection() throws Exception {
+    return db.getDatabase().getDataSource().getConnection();
+  }
+
+  @Deprecated
+  public Database database() {
+    return db.getDatabase();
   }
 }

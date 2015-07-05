@@ -39,7 +39,7 @@ import org.elasticsearch.search.SearchHit;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.server.util.ProgressLogger;
+import org.sonar.core.util.ProgressLogger;
 
 import java.util.Map;
 import java.util.concurrent.Semaphore;

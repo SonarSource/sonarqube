@@ -24,7 +24,7 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.db.ResultSetIterator;
+import org.sonar.db.ResultSetIterator;
 import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper.Row;

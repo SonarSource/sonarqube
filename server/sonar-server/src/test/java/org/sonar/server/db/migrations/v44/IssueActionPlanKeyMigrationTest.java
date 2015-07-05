@@ -36,7 +36,7 @@ import static org.mockito.Mockito.when;
 public class IssueActionPlanKeyMigrationTest {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(IssueActionPlanKeyMigrationTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, IssueActionPlanKeyMigrationTest.class, "schema.sql");
 
   @Mock
   System2 system2;

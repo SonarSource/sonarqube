@@ -30,7 +30,7 @@ import org.sonar.server.db.migrations.MigrationStep;
 public class UpdateProjectsModuleUuidPathTest {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(UpdateProjectsModuleUuidPathTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, UpdateProjectsModuleUuidPathTest.class, "schema.sql");
 
   MigrationStep migration;
 

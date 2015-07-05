@@ -51,7 +51,7 @@ import org.sonar.server.activity.ActivityService;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
-import org.sonar.server.rule.RuleTesting;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;

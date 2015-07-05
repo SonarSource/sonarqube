@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.System2;
 import org.sonar.db.AbstractDaoTestCase;
 import org.sonar.db.BatchSession;
 import org.sonar.db.DbTester;
@@ -44,7 +45,7 @@ import static org.junit.Assert.fail;
 public class BaseDataChangeTest extends AbstractDaoTestCase {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(BaseDataChangeTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, BaseDataChangeTest.class, "schema.sql");
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();

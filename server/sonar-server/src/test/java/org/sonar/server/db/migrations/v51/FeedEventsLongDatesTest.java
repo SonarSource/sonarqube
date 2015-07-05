@@ -34,7 +34,7 @@ import static org.sonar.api.utils.DateUtils.parseDate;
 
 public class FeedEventsLongDatesTest {
   @ClassRule
-  public static DbTester db = new DbTester().schema(FeedEventsLongDatesTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, FeedEventsLongDatesTest.class, "schema.sql");
 
   @Before
   public void before() {

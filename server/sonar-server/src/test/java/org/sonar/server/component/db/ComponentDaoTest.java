@@ -30,10 +30,10 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.test.DbTests;
@@ -290,7 +290,7 @@ public class ComponentDaoTest {
     assertThat(result.isEnabled()).isFalse();
   }
 
-  @Test(expected = NotFoundException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void fail_to_get_by_id_when_project_not_found() {
     loadBasicDataInDatabase();
 

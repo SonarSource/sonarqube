@@ -48,19 +48,17 @@ public class PurgeDao implements Dao {
   private final MyBatis mybatis;
   private final ResourceDao resourceDao;
   private final System2 system2;
-  private final PurgeProfiler profiler;
 
-  public PurgeDao(MyBatis mybatis, ResourceDao resourceDao, PurgeProfiler profiler, System2 system2) {
+  public PurgeDao(MyBatis mybatis, ResourceDao resourceDao, System2 system2) {
     this.mybatis = mybatis;
     this.resourceDao = resourceDao;
-    this.profiler = profiler;
     this.system2 = system2;
   }
 
-  public PurgeDao purge(PurgeConfiguration conf, PurgeListener purgeListener) {
+  public PurgeDao purge(PurgeConfiguration conf, PurgeListener listener, PurgeProfiler profiler) {
     DbSession session = mybatis.openSession(true);
     try {
-      purge(session, conf, purgeListener);
+      purge(session, conf, listener, profiler);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -68,7 +66,7 @@ public class PurgeDao implements Dao {
     return this;
   }
 
-  public void purge(DbSession session, PurgeConfiguration conf, PurgeListener purgeListener) {
+  public void purge(DbSession session, PurgeConfiguration conf, PurgeListener listener, PurgeProfiler profiler) {
     PurgeMapper mapper = session.getMapper(PurgeMapper.class);
     PurgeCommands commands = new PurgeCommands(session, mapper, profiler);
     List<ResourceDto> projects = getProjects(conf.rootProjectIdUuid().getId(), session);
@@ -78,7 +76,7 @@ public class PurgeDao implements Dao {
       purge(project, conf.scopesWithoutHistoricalData(), commands);
     }
     for (ResourceDto project : projects) {
-      disableOrphanResources(project, session, mapper, purgeListener);
+      disableOrphanResources(project, session, mapper, listener);
     }
     deleteOldClosedIssues(conf, mapper);
   }
@@ -171,16 +169,16 @@ public class PurgeDao implements Dao {
     return result;
   }
 
-  public PurgeDao deleteResourceTree(IdUuidPair rootIdUuid) {
+  public PurgeDao deleteResourceTree(IdUuidPair rootIdUuid, PurgeProfiler profiler) {
     DbSession session = mybatis.openSession(true);
     try {
-      return deleteResourceTree(session, rootIdUuid);
+      return deleteResourceTree(session, rootIdUuid, profiler);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public PurgeDao deleteResourceTree(DbSession session, IdUuidPair rootIdUuid) {
+  public PurgeDao deleteResourceTree(DbSession session, IdUuidPair rootIdUuid, PurgeProfiler profiler) {
     deleteProject(rootIdUuid, mapper(session), new PurgeCommands(session, profiler));
     deleteFileSources(rootIdUuid.getUuid(), new PurgeCommands(session, profiler));
     return this;
@@ -209,17 +207,17 @@ public class PurgeDao implements Dao {
     mapper.resolveResourceIssuesNotAlreadyResolved(componentIdUuid.getUuid(), system2.now());
   }
 
-  public PurgeDao deleteSnapshots(PurgeSnapshotQuery query) {
+  public PurgeDao deleteSnapshots(PurgeSnapshotQuery query, PurgeProfiler profiler) {
     final DbSession session = mybatis.openSession(true);
     try {
-      return deleteSnapshots(query, session);
+      return deleteSnapshots(query, session, profiler);
 
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public PurgeDao deleteSnapshots(PurgeSnapshotQuery query, final DbSession session) {
+  public PurgeDao deleteSnapshots(PurgeSnapshotQuery query, DbSession session, PurgeProfiler profiler) {
     new PurgeCommands(session, profiler).deleteSnapshots(query);
     return this;
   }

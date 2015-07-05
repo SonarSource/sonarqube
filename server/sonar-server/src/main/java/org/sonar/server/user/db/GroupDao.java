@@ -33,9 +33,6 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMapper;
 import org.sonar.server.exceptions.NotFoundException;
 
-/**
- * @since 3.2
- */
 public class GroupDao implements Dao {
 
   private static final String SQL_WILDCARD = "%";

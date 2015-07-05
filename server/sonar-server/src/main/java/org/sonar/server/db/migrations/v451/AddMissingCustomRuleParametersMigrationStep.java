@@ -36,7 +36,7 @@ import org.sonar.db.version.v45.Rule;
 import org.sonar.db.version.v45.RuleParameter;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.MigrationStep;
-import org.sonar.server.util.ProgressLogger;
+import org.sonar.core.util.ProgressLogger;
 
 /**
  * See http://jira.sonarsource.com/browse/SONAR-5575

@@ -23,10 +23,11 @@ package org.sonar.db.notification;
 import java.util.Collections;
 import java.util.List;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
-public class NotificationQueueDao {
+public class NotificationQueueDao implements Dao {
 
   private final MyBatis mybatis;
 

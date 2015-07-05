@@ -34,6 +34,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
 import org.sonar.db.DaoUtils;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
@@ -77,7 +78,7 @@ public class GroupMembershipDao implements Dao {
 
   public Map<String, Integer> countUsersByGroups(final DbSession session, Collection<Long> groupIds) {
     final Map<String, Integer> result = Maps.newHashMap();
-    DaoUtils.executeLargeInputs(groupIds, new Function<List<Long>, List<GroupUserCount>>() {
+    DatabaseUtils.executeLargeInputs(groupIds, new Function<List<Long>, List<GroupUserCount>>() {
       @Override
       public List<GroupUserCount> apply(@Nonnull List<Long> input) {
         List<GroupUserCount> userCounts = mapper(session).countUsersByGroup(input);
@@ -93,7 +94,7 @@ public class GroupMembershipDao implements Dao {
 
   public Multimap<String, String> selectGroupsByLogins(final DbSession session, Collection<String> logins) {
     final Multimap<String, String> result = ArrayListMultimap.create();
-    DaoUtils.executeLargeInputs(logins, new Function<List<String>, List<LoginGroup>>() {
+    DatabaseUtils.executeLargeInputs(logins, new Function<List<String>, List<LoginGroup>>() {
       @Override
       public List<LoginGroup> apply(@Nonnull List<String> input) {
         List<LoginGroup> groupMemberships = mapper(session).selectGroupsByLogins(input);

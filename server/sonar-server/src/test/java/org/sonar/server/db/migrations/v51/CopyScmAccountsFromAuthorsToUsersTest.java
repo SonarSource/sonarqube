@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 public class CopyScmAccountsFromAuthorsToUsersTest {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(CopyScmAccountsFromAuthorsToUsersTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, CopyScmAccountsFromAuthorsToUsersTest.class, "schema.sql");
 
   MigrationStep migration;
   System2 system = mock(System2.class);

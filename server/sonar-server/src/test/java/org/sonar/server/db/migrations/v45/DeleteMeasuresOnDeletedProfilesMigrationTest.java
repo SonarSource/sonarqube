@@ -23,6 +23,7 @@ package org.sonar.server.db.migrations.v45;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.MigrationStep;
@@ -36,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DeleteMeasuresOnDeletedProfilesMigrationTest {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(DeleteMeasuresOnDeletedProfilesMigrationTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, DeleteMeasuresOnDeletedProfilesMigrationTest.class, "schema.sql");
 
   MigrationStep migration;
 

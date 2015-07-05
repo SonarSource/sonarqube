@@ -36,6 +36,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.resources.Scopes;
 import org.sonar.db.Dao;
 import org.sonar.db.DaoUtils;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
@@ -83,7 +84,7 @@ public class PropertiesDao implements Dao {
     String sql = "SELECT count(*) FROM properties pp " +
       "left outer join projects pj on pp.resource_id = pj.id " +
       "where pp.user_id is not null and (pp.resource_id is null or pj.uuid=?) " +
-      "and (" + DaoUtils.repeatCondition("pp.prop_key like ?", dispatcherKeys.size(), "or") + ")";
+      "and (" + DatabaseUtils.repeatCondition("pp.prop_key like ?", dispatcherKeys.size(), "or") + ")";
     try {
       pstmt = connection.prepareStatement(sql);
       pstmt.setString(1, projectUuid);

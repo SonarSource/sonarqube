@@ -24,13 +24,13 @@ import java.util.List;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-import org.sonar.server.component.db.SnapshotDao;
+import org.sonar.db.component.SnapshotDao;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.db.DbClient;
 
-import static org.sonar.server.component.db.SnapshotDao.isLast;
+import static org.sonar.db.component.SnapshotDao.isLast;
 
 public class SwitchSnapshotStep implements ComputationStep {
 

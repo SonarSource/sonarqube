@@ -24,15 +24,13 @@ import javax.annotation.CheckForNull;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.utils.Semaphores;
 import org.sonar.api.utils.System2;
+import org.sonar.db.Dao;
 import org.sonar.db.MyBatis;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.api.utils.DateUtils.longToDate;
 
-/**
- * @since 3.4
- */
-public class SemaphoreDao {
+public class SemaphoreDao implements Dao {
 
   private static final String SEMAPHORE_NAME_MUST_NOT_BE_EMPTY = "Semaphore name must not be empty";
   private final MyBatis mybatis;

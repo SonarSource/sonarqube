@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 public class RenameComponentRelatedParamsInIssueFiltersMigrationTest {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(RenameComponentRelatedParamsInIssueFiltersMigrationTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, RenameComponentRelatedParamsInIssueFiltersMigrationTest.class, "schema.sql");
 
   MigrationStep migration;
   System2 system = mock(System2.class);

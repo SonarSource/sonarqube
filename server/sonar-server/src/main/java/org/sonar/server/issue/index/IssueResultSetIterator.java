@@ -28,7 +28,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.db.ResultSetIterator;
+import org.sonar.db.ResultSetIterator;
 import org.sonar.server.db.migrations.SqlUtil;
 
 import javax.annotation.CheckForNull;

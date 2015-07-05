@@ -75,7 +75,7 @@ public class ComponentServiceTest {
 
     when(i18n.message(Locale.getDefault(), "qualifier.TRK", "Project")).thenReturn("Project");
 
-    service = new ComponentService(dbClient, new ResourceKeyUpdaterDao(dbTester.myBatis()), i18n, new ResourceIndexerDao(dbTester.myBatis()),
+    service = new ComponentService(dbClient, new ResourceKeyUpdaterDao(dbTester.myBatis()), i18n, new ResourceIndexerDao(dbTester.myBatis(), mock(System2.class)),
       userSessionRule, System2.INSTANCE);
   }
 

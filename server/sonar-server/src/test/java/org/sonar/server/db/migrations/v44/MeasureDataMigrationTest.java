@@ -25,13 +25,14 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MeasureDataMigrationTest {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(MeasureDataMigrationTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, MeasureDataMigrationTest.class, "schema.sql");
 
   MeasureDataMigrationStep migration;
 

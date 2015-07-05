@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 public class IssueChangelogMigrationStepTest {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(IssueChangelogMigrationStepTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, IssueChangelogMigrationStepTest.class, "schema.sql");
 
   @Mock
   System2 system2;
@@ -65,7 +65,7 @@ public class IssueChangelogMigrationStepTest {
 
     migration.execute();
 
-    db.assertDbUnit(getClass(), "migrate_issue_changelog_debt_result.xml", new String[]{"updated_at"}, "issue_changes");
+    db.assertDbUnit(getClass(), "migrate_issue_changelog_debt_result.xml", new String[] {"updated_at"}, "issue_changes");
   }
 
   @Test

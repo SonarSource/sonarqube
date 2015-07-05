@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 
 public class FeedIssueChangesLongDatesTest {
   @ClassRule
-  public static DbTester db = new DbTester().schema(FeedIssueChangesLongDatesTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, FeedIssueChangesLongDatesTest.class, "schema.sql");
 
   @Test
   public void execute() throws Exception {

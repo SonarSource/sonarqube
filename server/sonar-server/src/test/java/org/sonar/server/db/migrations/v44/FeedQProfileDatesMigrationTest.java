@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 public class FeedQProfileDatesMigrationTest {
 
   @ClassRule
-  public static DbTester db = new DbTester().schema(FeedQProfileDatesMigrationTest.class, "schema.sql");
+  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, FeedQProfileDatesMigrationTest.class, "schema.sql");
 
   FeedQProfileDatesMigrationStep migration;
 

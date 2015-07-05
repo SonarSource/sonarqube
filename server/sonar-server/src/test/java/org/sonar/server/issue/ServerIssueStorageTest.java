@@ -38,7 +38,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.issue.db.IssueDao;
+import org.sonar.db.issue.IssueDao;
 import org.sonar.server.issue.index.IssueIndexer;
 
 import java.util.Collection;

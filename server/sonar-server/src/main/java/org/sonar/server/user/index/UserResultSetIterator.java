@@ -23,7 +23,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.db.ResultSetIterator;
+import org.sonar.db.ResultSetIterator;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

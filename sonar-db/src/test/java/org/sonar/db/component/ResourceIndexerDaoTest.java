@@ -22,14 +22,15 @@ package org.sonar.db.component;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.utils.System2;
 import org.sonar.db.AbstractDaoTestCase;
+import org.sonar.db.DbSession;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class ResourceIndexerDaoTest extends AbstractDaoTestCase {
 
@@ -37,7 +38,7 @@ public class ResourceIndexerDaoTest extends AbstractDaoTestCase {
 
   @Before
   public void createDao() {
-    dao = new ResourceIndexerDao(getMyBatis());
+    dao = new ResourceIndexerDao(getMyBatis(), mock(System2.class));
   }
 
   @Test
@@ -88,17 +89,17 @@ public class ResourceIndexerDaoTest extends AbstractDaoTestCase {
       // project
       rs = connection.createStatement().executeQuery("select count(resource_id) from resource_index where resource_id=1");
       rs.next();
-      assertThat(rs.getInt(1), greaterThan(0));
+      assertThat(rs.getInt(1)).isGreaterThan(0);
 
       // directory
       rs = connection.createStatement().executeQuery("select count(resource_id) from resource_index where resource_id=2");
       rs.next();
-      assertThat(rs.getInt(1), Is.is(0));
+      assertThat(rs.getInt(1)).isEqualTo(0);
 
       // file
       rs = connection.createStatement().executeQuery("select count(resource_id) from resource_index where resource_id=3");
       rs.next();
-      assertThat(rs.getInt(1), greaterThan(0));
+      assertThat(rs.getInt(1)).isGreaterThan(0);
     } finally {
       if (null != rs) {
         rs.close();
@@ -149,5 +150,17 @@ public class ResourceIndexerDaoTest extends AbstractDaoTestCase {
     dao.indexResource(1, "Struts", Qualifiers.PROJECT, 1);
 
     checkTables("shouldNotReindexUnchangedResource", new String[] {"id"}, "resource_index");
+  }
+
+  @Test
+  public void select_project_ids_from_query_and_view_or_sub_view_uuid() {
+    setupData("select_project_ids_from_query_and_view_or_sub_view_uuid");
+    String viewUuid = "EFGH";
+
+    DbSession session = getMyBatis().openSession(false);
+    assertThat(dao.selectProjectIdsFromQueryAndViewOrSubViewUuid(session, "project", viewUuid)).containsOnly(1L, 2L);
+    assertThat(dao.selectProjectIdsFromQueryAndViewOrSubViewUuid(session, "one", viewUuid)).containsOnly(1L);
+    assertThat(dao.selectProjectIdsFromQueryAndViewOrSubViewUuid(session, "two", viewUuid)).containsOnly(2L);
+    assertThat(dao.selectProjectIdsFromQueryAndViewOrSubViewUuid(session, "unknown", viewUuid)).isEmpty();
   }
 }

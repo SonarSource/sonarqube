@@ -38,7 +38,7 @@ import org.sonar.db.debt.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.NewRule;
 import org.sonar.server.rule.RuleService;
-import org.sonar.server.rule.RuleTesting;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;

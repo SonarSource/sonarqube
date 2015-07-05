@@ -23,7 +23,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicLong;
 import org.sonar.db.Database;
-import org.sonar.server.util.ProgressLogger;
+import org.sonar.core.util.ProgressLogger;
 
 public class MassUpdate {
 

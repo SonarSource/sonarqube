@@ -34,18 +34,17 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
-import org.sonar.api.server.ServerSide;
-import org.sonar.db.metric.MetricDto;
-import org.sonar.db.metric.MetricMapper;
 import org.sonar.db.Dao;
 import org.sonar.db.DaoUtils;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
+import org.sonar.db.metric.MetricDto;
+import org.sonar.db.metric.MetricMapper;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-@ServerSide
 public class MetricDao implements Dao {
 
   @CheckForNull
@@ -54,7 +53,7 @@ public class MetricDao implements Dao {
   }
 
   public List<MetricDto> selectNullableByKeys(final DbSession session, List<String> keys) {
-    return DaoUtils.executeLargeInputs(keys, new Function<List<String>, List<MetricDto>>() {
+    return DatabaseUtils.executeLargeInputs(keys, new Function<List<String>, List<MetricDto>>() {
       @Override
       public List<MetricDto> apply(@Nonnull List<String> input) {
         return mapper(session).selectByKeys(input);
@@ -115,7 +114,7 @@ public class MetricDao implements Dao {
 
   public List<MetricDto> selectByIds(final DbSession session, Set<Integer> idsSet) {
     List<Integer> ids = new ArrayList<>(idsSet);
-    return DaoUtils.executeLargeInputs(ids, new Function<List<Integer>, List<MetricDto>>() {
+    return DatabaseUtils.executeLargeInputs(ids, new Function<List<Integer>, List<MetricDto>>() {
       @Override
       public List<MetricDto> apply(@Nonnull List<Integer> ids) {
         return mapper(session).selectByIds(ids);
@@ -136,7 +135,7 @@ public class MetricDao implements Dao {
   }
 
   public void disableByIds(final DbSession session, List<Integer> ids) {
-    DaoUtils.executeLargeInputsWithoutOutput(ids, new Function<List<Integer>, Void>() {
+    DatabaseUtils.executeLargeInputsWithoutOutput(ids, new Function<List<Integer>, Void>() {
       @Override
       public Void apply(@Nonnull List<Integer> input) {
         mapper(session).disableByIds(input);

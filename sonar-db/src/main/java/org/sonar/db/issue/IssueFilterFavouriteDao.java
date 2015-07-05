@@ -22,9 +22,10 @@ package org.sonar.db.issue;
 
 import java.util.List;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.db.Dao;
 import org.sonar.db.MyBatis;
 
-public class IssueFilterFavouriteDao {
+public class IssueFilterFavouriteDao implements Dao {
 
   private final MyBatis mybatis;
 

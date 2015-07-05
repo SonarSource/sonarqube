@@ -34,15 +34,15 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.server.computation.issue.UpdateConflictResolver;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.issue.IssueDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.RuleCacheLoader;
 import org.sonar.server.computation.issue.RuleRepositoryImpl;
+import org.sonar.server.computation.issue.UpdateConflictResolver;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.rule.db.RuleDao;
 
 import static org.mockito.Mockito.mock;

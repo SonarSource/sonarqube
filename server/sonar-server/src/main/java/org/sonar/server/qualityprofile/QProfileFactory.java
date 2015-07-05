@@ -28,7 +28,7 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Verifications;
-import org.sonar.server.util.Slug;
+import org.sonar.core.util.Slug;
 
 import javax.annotation.CheckForNull;
 

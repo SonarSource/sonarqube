@@ -30,6 +30,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.Dao;
 import org.sonar.db.DaoUtils;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
@@ -49,7 +50,7 @@ public class AuthorizationDao implements Dao {
     if (componentIds.isEmpty()) {
       return Collections.emptySet();
     }
-    return DaoUtils.executeLargeInputs(componentIds, new Function<List<Long>, List<Long>>() {
+    return DatabaseUtils.executeLargeInputs(componentIds, new Function<List<Long>, List<Long>>() {
       @Override
       public List<Long> apply(List<Long> partition) {
         if (userId == null) {
