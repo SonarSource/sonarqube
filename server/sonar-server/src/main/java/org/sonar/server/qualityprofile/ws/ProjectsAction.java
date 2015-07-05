@@ -37,7 +37,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ProjectQprofileAssociationDto;
 import org.sonar.core.util.NonNullInputFunction;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 

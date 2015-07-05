@@ -40,7 +40,7 @@ public class DbClientTest {
   public DbTester db = new DbTester();
 
   @Test
-  public void facade() throws Exception {
+  public void get_daos() throws Exception {
     MyBatis myBatis = db.myBatis();
     RuleDao ruleDao = new RuleDao(System2.INSTANCE);
     QualityProfileDao qualityProfileDao = new QualityProfileDao(myBatis, System2.INSTANCE);
@@ -48,7 +48,7 @@ public class DbClientTest {
 
     DbClient client = new DbClient(db.database(), myBatis, ruleDao, activeRuleDao, qualityProfileDao);
 
-    assertThat(client.database()).isSameAs(db.database());
+    assertThat(client.getDatabase()).isSameAs(db.database());
     DbSession dbSession = client.openSession(true);
     assertThat(dbSession).isNotNull();
     assertThat(dbSession.getConnection().isClosed()).isFalse();

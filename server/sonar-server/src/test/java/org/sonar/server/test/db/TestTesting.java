@@ -23,6 +23,7 @@ package org.sonar.server.test.db;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.utils.internal.Uuids;
+import org.sonar.db.DbSession;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.server.source.db.FileSourceDb.Test.TestStatus;
@@ -40,16 +41,18 @@ public class TestTesting {
     // only static stuff
   }
 
-  public static void updateDataColumn(Connection connection, String fileUuid, List<FileSourceDb.Test> tests) throws SQLException {
-    updateDataColumn(connection, fileUuid, FileSourceDto.encodeTestData(tests));
+  public static void updateDataColumn(DbSession session, String fileUuid, List<FileSourceDb.Test> tests) throws SQLException {
+    updateDataColumn(session, fileUuid, FileSourceDto.encodeTestData(tests));
   }
 
-  public static void updateDataColumn(Connection connection, String fileUuid, byte[] data) throws SQLException {
+  public static void updateDataColumn(DbSession session, String fileUuid, byte[] data) throws SQLException {
+    Connection connection = session.getConnection();
     PreparedStatement stmt = connection.prepareStatement("UPDATE file_sources SET binary_data = ? WHERE file_uuid=? AND data_type='TEST'");
     stmt.setBytes(1, data);
     stmt.setString(2, fileUuid);
     stmt.executeUpdate();
     stmt.close();
+    connection.commit();
   }
 
   /**

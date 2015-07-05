@@ -22,8 +22,9 @@ package org.sonar.server.test.index;
 
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbSession;
 import org.sonar.db.source.FileSourceDto;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 import org.sonar.db.ResultSetIterator;
 import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
@@ -61,9 +62,9 @@ import static org.sonar.server.test.index.TestIndexDefinition.TYPE;
  */
 public class TestResultSetIterator extends ResultSetIterator<Row> {
 
-  public static TestResultSetIterator create(DbClient dbClient, Connection connection, long afterDate, @Nullable String projectUuid) {
+  public static TestResultSetIterator create(DbClient dbClient, DbSession session, long afterDate, @Nullable String projectUuid) {
     try {
-      return new TestResultSetIterator(FileSourcesUpdaterHelper.preparedStatementToSelectFileSources(dbClient, connection, FileSourceDto.Type.TEST, afterDate, projectUuid));
+      return new TestResultSetIterator(FileSourcesUpdaterHelper.preparedStatementToSelectFileSources(dbClient, session, FileSourceDto.Type.TEST, afterDate, projectUuid));
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to prepare SQL request to select all tests", e);
     }

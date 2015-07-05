@@ -28,7 +28,7 @@ import org.sonar.db.component.SnapshotDao;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 
 import static org.sonar.db.component.SnapshotDao.isLast;
 

@@ -54,7 +54,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.db.DbSession;
 import org.sonar.server.component.ws.ComponentJsonWriter;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;

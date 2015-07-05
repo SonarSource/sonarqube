@@ -20,12 +20,10 @@
 
 package org.sonar.server.user.index;
 
-import java.sql.Connection;
 import java.util.Iterator;
-import org.apache.commons.dbutils.DbUtils;
 import org.elasticsearch.action.update.UpdateRequest;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
@@ -45,15 +43,12 @@ public class UserIndexer extends BaseIndexer {
     bulk.setLarge(lastUpdatedAt == 0L);
 
     DbSession dbSession = dbClient.openSession(false);
-    Connection dbConnection = dbSession.getConnection();
     try {
-      UserResultSetIterator rowIt = UserResultSetIterator.create(dbClient, dbConnection, lastUpdatedAt);
+      UserResultSetIterator rowIt = UserResultSetIterator.create(dbClient, dbSession, lastUpdatedAt);
       long maxUpdatedAt = doIndex(bulk, rowIt);
       rowIt.close();
       return maxUpdatedAt;
-
     } finally {
-      DbUtils.closeQuietly(dbConnection);
       dbSession.close();
     }
   }

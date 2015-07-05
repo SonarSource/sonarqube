@@ -34,7 +34,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.version.v45.Migration45Mapper;
 import org.sonar.db.version.v45.Rule;
 import org.sonar.db.version.v45.RuleParameter;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 import org.sonar.server.db.migrations.MigrationStep;
 import org.sonar.core.util.ProgressLogger;
 

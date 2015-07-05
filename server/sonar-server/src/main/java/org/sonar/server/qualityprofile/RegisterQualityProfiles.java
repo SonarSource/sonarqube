@@ -38,7 +38,7 @@ import org.sonar.api.utils.log.Profiler;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 import org.sonar.server.platform.PersistentSettings;
 
 import javax.annotation.Nullable;

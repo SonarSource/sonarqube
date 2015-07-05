@@ -31,7 +31,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.DbSession;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;

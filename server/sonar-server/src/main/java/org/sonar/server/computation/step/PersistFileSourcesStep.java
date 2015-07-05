@@ -45,7 +45,7 @@ import org.sonar.server.computation.source.HighlightingLineReader;
 import org.sonar.server.computation.source.LineReader;
 import org.sonar.server.computation.source.ScmLineReader;
 import org.sonar.server.computation.source.SymbolsLineReader;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.server.util.CloseableIterator;
 

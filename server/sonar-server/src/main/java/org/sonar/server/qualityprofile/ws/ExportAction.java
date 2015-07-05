@@ -31,7 +31,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.qualityprofile.QProfileBackuper;

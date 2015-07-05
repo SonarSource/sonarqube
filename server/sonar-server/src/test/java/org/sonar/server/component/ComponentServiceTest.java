@@ -38,7 +38,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ResourceIndexerDao;
+import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.db.component.ResourceKeyUpdaterDao;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
@@ -75,7 +75,7 @@ public class ComponentServiceTest {
 
     when(i18n.message(Locale.getDefault(), "qualifier.TRK", "Project")).thenReturn("Project");
 
-    service = new ComponentService(dbClient, new ResourceKeyUpdaterDao(dbTester.myBatis()), i18n, new ResourceIndexerDao(dbTester.myBatis(), mock(System2.class)),
+    service = new ComponentService(dbClient, new ResourceKeyUpdaterDao(dbTester.myBatis()), i18n, new ResourceIndexDao(dbTester.myBatis(), mock(System2.class)),
       userSessionRule, System2.INSTANCE);
   }
 

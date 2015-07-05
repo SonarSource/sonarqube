@@ -20,16 +20,15 @@
 
 package org.sonar.server.db.migrations.v44;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.server.db.DbClient;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -100,16 +99,16 @@ public class ConvertProfileMeasuresMigrationTest {
 
     migration.execute();
 
-    Connection connection = db.openConnection();
-    Statement stmt = connection.createStatement();
-    ResultSet rs = stmt.executeQuery("select * from project_measures where id=2");
-    try {
-      // measure is deleted
-      assertThat(rs.next()).isFalse();
-    } finally {
-      rs.close();
-      stmt.close();
-      connection.close();
+    try (Connection connection = db.openConnection()) {
+      Statement stmt = connection.createStatement();
+      ResultSet rs = stmt.executeQuery("select * from project_measures where id=2");
+      try {
+        // measure is deleted
+        assertThat(rs.next()).isFalse();
+      } finally {
+        rs.close();
+        stmt.close();
+      }
     }
   }
 }

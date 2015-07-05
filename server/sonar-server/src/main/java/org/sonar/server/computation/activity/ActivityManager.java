@@ -20,13 +20,13 @@
 package org.sonar.server.computation.activity;
 
 import javax.annotation.CheckForNull;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.compute.AnalysisReportDto;
+import org.sonar.server.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.compute.AnalysisReportDto;
 import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.ActivityService;
-import org.sonar.server.db.DbClient;
 
 import static org.sonar.api.utils.DateUtils.formatDateTimeNullSafe;
 import static org.sonar.api.utils.DateUtils.longToDate;

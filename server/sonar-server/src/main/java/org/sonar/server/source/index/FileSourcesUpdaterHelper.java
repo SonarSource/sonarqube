@@ -28,7 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 
 public class FileSourcesUpdaterHelper {
 
@@ -48,11 +49,11 @@ public class FileSourcesUpdaterHelper {
     // only static stuff
   }
 
-  public static PreparedStatement preparedStatementToSelectFileSources(DbClient dbClient, Connection connection, String dataType, long afterDate, @Nullable String projectUuid)
+  public static PreparedStatement preparedStatementToSelectFileSources(DbClient dbClient, DbSession session, String dataType, long afterDate, @Nullable String projectUuid)
     throws SQLException {
     String sql = createSQL(dataType, afterDate, projectUuid);
     // rows are big, so they are scrolled once at a time (one row in memory at a time)
-    PreparedStatement stmt = dbClient.newScrollingSingleRowSelectStatement(connection, sql);
+    PreparedStatement stmt = dbClient.getMyBatis().newScrollingSingleRowSelectStatement(session, sql);
     int index = 1;
     if (afterDate > 0L) {
       stmt.setLong(index, afterDate);

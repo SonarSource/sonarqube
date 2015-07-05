@@ -31,9 +31,7 @@ import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
-import org.sonar.api.server.ServerSide;
 import org.sonar.db.Dao;
-import org.sonar.db.DaoUtils;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -45,10 +43,6 @@ import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
 
-/**
- * @since 4.3
- */
-@ServerSide
 public class ComponentDao implements Dao {
 
   public ComponentDto selectById(long id, DbSession session) {

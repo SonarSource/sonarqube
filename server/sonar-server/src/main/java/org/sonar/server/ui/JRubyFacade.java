@@ -46,7 +46,7 @@ import org.sonar.db.version.DatabaseVersion;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
-import org.sonar.db.component.ResourceIndexerDao;
+import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.component.ComponentCleanerService;
@@ -304,11 +304,11 @@ public final class JRubyFacade {
   }
 
   public void indexProjects() {
-    get(ResourceIndexerDao.class).indexProjects();
+    get(ResourceIndexDao.class).indexProjects();
   }
 
   public void indexResource(long resourceId) {
-    get(ResourceIndexerDao.class).indexResource(resourceId);
+    get(ResourceIndexDao.class).indexResource(resourceId);
   }
 
   /*

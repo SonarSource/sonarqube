@@ -38,7 +38,7 @@ import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;

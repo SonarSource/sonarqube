@@ -51,7 +51,6 @@ import static org.mockito.Mockito.when;
 public class ServerIssueStorageTest extends AbstractDaoTestCase {
 
   DbClient dbClient;
-  DbSession session;
 
   ServerIssueStorage storage;
 
@@ -59,26 +58,19 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
   public void setupDbClient() {
     System2 system = mock(System2.class);
     when(system.now()).thenReturn(2000000000L);
-    dbClient = new DbClient(getDatabase(), getMyBatis(),
+    dbClient = new DbClient(dbTester.database(), getMyBatis(),
       new ComponentDao(),
       new IssueDao(getMyBatis()),
       new ResourceDao(getMyBatis(), system));
-    session = dbClient.openSession(false);
 
-    storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), dbClient, mock(IssueIndexer.class));
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
+    storage = new ServerIssueStorage(new FakeRuleFinder(), dbClient, mock(IssueIndexer.class));
   }
 
   @Test
   public void load_component_id_from_db() {
     setupData("load_component_id_from_db");
-    session.commit();
 
-    long componentId = storage.component(session, new DefaultIssue().setComponentKey("struts:Action")).getId();
+    long componentId = storage.component(dbTester.getSession(), new DefaultIssue().setComponentKey("struts:Action")).getId();
 
     assertThat(componentId).isEqualTo(100);
   }
@@ -86,9 +78,8 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
   @Test
   public void load_project_id_from_db() {
     setupData("load_project_id_from_db");
-    session.commit();
 
-    long projectId = storage.project(session, new DefaultIssue().setProjectKey("struts")).getId();
+    long projectId = storage.project(dbTester.getSession(), new DefaultIssue().setProjectKey("struts")).getId();
 
     assertThat(projectId).isEqualTo(1);
   }

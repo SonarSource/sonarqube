@@ -29,7 +29,7 @@ import org.sonar.core.issue.tracking.LineHashSequence;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 
 /**
  * Factory of {@link Input} of base data for issue tracking. Data are lazy-loaded.

@@ -28,7 +28,7 @@ import org.sonar.core.util.UtcDateUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.version.v44.Migration44Mapper;
 import org.sonar.db.version.v44.QProfileDto44;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 import org.sonar.server.db.migrations.MigrationStep;
 
 /**

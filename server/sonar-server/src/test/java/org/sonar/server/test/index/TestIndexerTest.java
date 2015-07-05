@@ -21,6 +21,11 @@
 package org.sonar.server.test.index;
 
 import com.google.common.collect.Iterators;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -31,6 +36,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
@@ -40,13 +46,6 @@ import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.test.db.TestTesting;
 import org.sonar.test.DbTests;
 import org.sonar.test.TestUtils;
-
-import java.io.IOException;
-import java.sql.Connection;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -68,7 +67,7 @@ public class TestIndexerTest {
   public static EsTester es = new EsTester().addDefinitions(new TestIndexDefinition(new Settings()));
 
   @ClassRule
-  public static DbTester db = new DbTester();
+  public static DbTester db = DbTester.create(System2.INSTANCE);
 
   private TestIndexer sut;
 
@@ -83,9 +82,7 @@ public class TestIndexerTest {
   @Test
   public void index_tests() throws Exception {
     db.prepareDbUnit(getClass(), "db.xml");
-    Connection connection = db.openConnection();
-    TestTesting.updateDataColumn(connection, "FILE_UUID", TestTesting.newRandomTests(3));
-    connection.close();
+    TestTesting.updateDataColumn(db.getSession(), "FILE_UUID", TestTesting.newRandomTests(3));
 
     sut.index();
 
@@ -96,9 +93,7 @@ public class TestIndexerTest {
   public void index_tests_from_project() throws Exception {
     db.prepareDbUnit(getClass(), "db.xml");
 
-    Connection connection = db.openConnection();
-    TestTesting.updateDataColumn(connection, "FILE_UUID", TestTesting.newRandomTests(3));
-    connection.close();
+    TestTesting.updateDataColumn(db.getSession(), "FILE_UUID", TestTesting.newRandomTests(3));
 
     sut.index("PROJECT_UUID");
     assertThat(countDocuments()).isEqualTo(3);
@@ -108,9 +103,7 @@ public class TestIndexerTest {
   public void index_nothing_from_unknown_project() throws Exception {
     db.prepareDbUnit(getClass(), "db.xml");
 
-    Connection connection = db.openConnection();
-    TestTesting.updateDataColumn(connection, "FILE_UUID", TestTesting.newRandomTests(3));
-    connection.close();
+    TestTesting.updateDataColumn(db.getSession(), "FILE_UUID", TestTesting.newRandomTests(3));
 
     sut.index("UNKNOWN");
     assertThat(countDocuments()).isZero();

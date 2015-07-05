@@ -32,7 +32,7 @@ import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 
 /**
  * Persist snapshots

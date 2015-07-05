@@ -42,7 +42,7 @@ import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 
 @Properties({
   @Property(

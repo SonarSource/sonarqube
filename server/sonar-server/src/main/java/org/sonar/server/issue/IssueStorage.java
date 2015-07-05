@@ -32,6 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueChangeMapper;
+import org.sonar.server.db.DbClient;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -46,12 +47,16 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public abstract class IssueStorage {
 
-  private final MyBatis mybatis;
   private final RuleFinder ruleFinder;
+  private final DbClient dbClient;
 
-  protected IssueStorage(MyBatis mybatis, RuleFinder ruleFinder) {
-    this.mybatis = mybatis;
+  protected IssueStorage(DbClient dbClient, RuleFinder ruleFinder) {
+    this.dbClient = dbClient;
     this.ruleFinder = ruleFinder;
+  }
+
+  protected DbClient getDbClient() {
+    return dbClient;
   }
 
   public void save(DefaultIssue issue) {
@@ -63,7 +68,7 @@ public abstract class IssueStorage {
   }
 
   public void save(Iterable<DefaultIssue> issues) {
-    DbSession session = mybatis.openSession(true);
+    DbSession session = dbClient.openSession(true);
     try {
       doSave(session, issues);
     } finally {
@@ -108,7 +113,7 @@ public abstract class IssueStorage {
 
   private void update(List<DefaultIssue> toBeUpdated, long now) {
     if (!toBeUpdated.isEmpty()) {
-      DbSession session = mybatis.openSession(false);
+      DbSession session = dbClient.openSession(false);
       try {
         IssueChangeMapper issueChangeMapper = session.getMapper(IssueChangeMapper.class);
         for (DefaultIssue issue : toBeUpdated) {

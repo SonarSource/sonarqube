@@ -22,12 +22,14 @@ package org.sonar.server.activity.index;
 import org.apache.commons.dbutils.DbUtils;
 import org.assertj.core.data.MapEntry;
 import org.elasticsearch.action.update.UpdateRequest;
+import org.jruby.RubyProcess;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
@@ -41,21 +43,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ActivityResultSetIteratorTest {
 
   @ClassRule
-  public static DbTester dbTester = new DbTester();
-
-  DbClient client;
-  Connection connection;
+  public static DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Before
   public void setUp() throws Exception {
     dbTester.truncateTables();
-    client = new DbClient(dbTester.database(), dbTester.myBatis());
-    connection = dbTester.openConnection();
-  }
-
-  @After
-  public void tearDown() {
-    DbUtils.closeQuietly(connection);
   }
 
   /**
@@ -64,7 +56,7 @@ public class ActivityResultSetIteratorTest {
   @Test
   public void traverse() {
     dbTester.prepareDbUnit(getClass(), "traverse.xml");
-    ActivityResultSetIterator it = ActivityResultSetIterator.create(client, connection, 0L);
+    ActivityResultSetIterator it = ActivityResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
 
     assertThat(it.hasNext()).isTrue();
     UpdateRequest request = it.next();
@@ -86,7 +78,7 @@ public class ActivityResultSetIteratorTest {
   @Test
   public void traverse_after_date() {
     dbTester.prepareDbUnit(getClass(), "traverse.xml");
-    ActivityResultSetIterator it = ActivityResultSetIterator.create(client, connection, DateUtils.parseDate("2014-12-01").getTime());
+    ActivityResultSetIterator it = ActivityResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), DateUtils.parseDate("2014-12-01").getTime());
 
     assertThat(it.hasNext()).isTrue();
     UpdateRequest request = it.next();
@@ -103,7 +95,7 @@ public class ActivityResultSetIteratorTest {
   @Test
   public void nothing_to_traverse() {
     dbTester.prepareDbUnit(getClass(), "traverse.xml");
-    ActivityResultSetIterator it = ActivityResultSetIterator.create(client, connection, DateUtils.parseDate("2030-01-01").getTime());
+    ActivityResultSetIterator it = ActivityResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), DateUtils.parseDate("2030-01-01").getTime());
 
     assertThat(it.hasNext()).isFalse();
     it.close();

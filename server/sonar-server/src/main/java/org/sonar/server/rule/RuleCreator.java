@@ -22,10 +22,13 @@ package org.sonar.server.rule;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import org.sonar.api.server.ServerSide;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
@@ -37,11 +40,6 @@ import org.sonar.server.exceptions.Errors;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.util.TypeValidations;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 

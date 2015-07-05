@@ -22,7 +22,7 @@ package org.sonar.db.component;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
-public interface ResourceIndexerMapper {
+public interface ResourceIndexMapper {
 
   List<Long> selectProjectIdsFromQueryAndViewOrSubViewUuid(@Param("query") String query, @Param("viewUuidQuery") String viewUuidQuery);
 

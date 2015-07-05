@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.source.db;
+package org.sonar.server.source.index;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -27,6 +27,7 @@ import java.util.Arrays;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.db.source.FileSourceDto;
+import org.sonar.server.source.db.FileSourceDb;
 
 public class FileSourceTesting {
 
@@ -44,6 +45,7 @@ public class FileSourceTesting {
     stmt.setString(2, fileUuid);
     stmt.executeUpdate();
     stmt.close();
+    connection.commit();
   }
 
   /**

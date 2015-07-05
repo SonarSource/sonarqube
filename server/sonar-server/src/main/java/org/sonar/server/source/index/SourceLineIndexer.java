@@ -19,20 +19,17 @@
  */
 package org.sonar.server.source.index;
 
+import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
-
-import javax.annotation.Nullable;
-
-import java.sql.Connection;
-import java.util.Iterator;
 
 import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_FILE_UUID;
 import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_PROJECT_UUID;
@@ -50,7 +47,7 @@ public class SourceLineIndexer extends BaseIndexer {
     this.dbClient = dbClient;
   }
 
-  public void index(final String projectUuid){
+  public void index(final String projectUuid) {
     super.index(new IndexerTask() {
       @Override
       public long index(long lastUpdatedAt) {
@@ -69,9 +66,8 @@ public class SourceLineIndexer extends BaseIndexer {
     bulk.setLarge(lastUpdatedAt == 0L);
 
     DbSession dbSession = dbClient.openSession(false);
-    Connection dbConnection = dbSession.getConnection();
     try {
-      SourceLineResultSetIterator rowIt = SourceLineResultSetIterator.create(dbClient, dbConnection, lastUpdatedAt, projectUuid);
+      SourceLineResultSetIterator rowIt = SourceLineResultSetIterator.create(dbClient, dbSession, lastUpdatedAt, projectUuid);
       long maxUpdatedAt = doIndex(bulk, rowIt);
       rowIt.close();
       return maxUpdatedAt;
@@ -118,7 +114,7 @@ public class SourceLineIndexer extends BaseIndexer {
           .must(FilterBuilders.termFilter(FIELD_FILE_UUID, fileRow.getFileUuid()).cache(false))
           .must(FilterBuilders.rangeFilter(SourceLineIndexDefinition.FIELD_LINE).gt(numberOfLines).cache(false))
           .cache(false)
-      ));
+        ));
     bulk.addDeletion(searchRequest);
   }
 

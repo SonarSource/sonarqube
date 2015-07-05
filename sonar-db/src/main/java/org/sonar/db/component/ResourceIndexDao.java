@@ -31,9 +31,9 @@ import org.sonar.db.AbstractDao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
-public class ResourceIndexerDao extends AbstractDao {
+public class ResourceIndexDao extends AbstractDao {
 
-  private static final String SELECT_RESOURCES = "org.sonar.db.component.ResourceIndexerMapper.selectResources";
+  private static final String SELECT_RESOURCES = "org.sonar.db.component.ResourceIndexMapper.selectResources";
   public static final int MINIMUM_KEY_SIZE = 3;
   public static final int SINGLE_INDEX_SIZE = 2;
 
@@ -44,18 +44,18 @@ public class ResourceIndexerDao extends AbstractDao {
   private static final String[] NOT_RENAMABLE_QUALIFIERS = {Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE, Qualifiers.CLASS};
   private static final String[] NOT_RENAMABLE_SCOPES = {Scopes.FILE};
 
-  public ResourceIndexerDao(MyBatis myBatis, System2 system2) {
+  public ResourceIndexDao(MyBatis myBatis, System2 system2) {
     super(myBatis, system2);
   }
 
   public List<Long> selectProjectIdsFromQueryAndViewOrSubViewUuid(DbSession session, String query, String viewOrSubViewUuid) {
-    return session.getMapper(ResourceIndexerMapper.class).selectProjectIdsFromQueryAndViewOrSubViewUuid(query + "%", "%." + viewOrSubViewUuid + ".%");
+    return session.getMapper(ResourceIndexMapper.class).selectProjectIdsFromQueryAndViewOrSubViewUuid(query + "%", "%." + viewOrSubViewUuid + ".%");
   }
 
   /**
    * This method is reentrant. It can be executed even if the project is already indexed.
    */
-  public ResourceIndexerDao indexProject(final long rootProjectId) {
+  public ResourceIndexDao indexProject(final long rootProjectId) {
     DbSession session = myBatis().openSession(true);
     try {
       indexProject(rootProjectId, session);
@@ -68,18 +68,18 @@ public class ResourceIndexerDao extends AbstractDao {
   }
 
   public void indexProject(final long rootProjectId, DbSession session) {
-    ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
+    ResourceIndexMapper mapper = session.getMapper(ResourceIndexMapper.class);
     doIndexProject(rootProjectId, session, mapper);
   }
 
   /**
    * This method is reentrant. It can be executed even if some projects are already indexed.
    */
-  public ResourceIndexerDao indexProjects() {
+  public ResourceIndexDao indexProjects() {
     final DbSession session = myBatis().openSession(true);
     try {
-      final ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
-      session.select("org.sonar.db.component.ResourceIndexerMapper.selectRootProjectIds", /* workaround to get booleans */ResourceIndexerQuery.create(), new ResultHandler() {
+      final ResourceIndexMapper mapper = session.getMapper(ResourceIndexMapper.class);
+      session.select(ResourceIndexMapper.class.getName() + ".selectRootProjectIds", /* workaround to get booleans */ResourceIndexQuery.create(), new ResultHandler() {
         @Override
         public void handleResult(ResultContext context) {
           Integer rootProjectId = (Integer) context.getResultObject();
@@ -94,9 +94,9 @@ public class ResourceIndexerDao extends AbstractDao {
     }
   }
 
-  private void doIndexProject(long rootProjectId, SqlSession session, final ResourceIndexerMapper mapper) {
+  private void doIndexProject(long rootProjectId, SqlSession session, final ResourceIndexMapper mapper) {
     // non indexed resources
-    ResourceIndexerQuery query = ResourceIndexerQuery.create()
+    ResourceIndexQuery query = ResourceIndexQuery.create()
       .setNonIndexedOnly(true)
       .setQualifiers(NOT_RENAMABLE_QUALIFIERS)
       .setScopes(NOT_RENAMABLE_SCOPES)
@@ -112,7 +112,7 @@ public class ResourceIndexerDao extends AbstractDao {
 
     // some resources can be renamed, so index must be regenerated
     // -> delete existing rows and create them again
-    query = ResourceIndexerQuery.create()
+    query = ResourceIndexQuery.create()
       .setNonIndexedOnly(false)
       .setQualifiers(RENAMABLE_QUALIFIERS)
       .setScopes(RENAMABLE_SCOPES)
@@ -129,7 +129,7 @@ public class ResourceIndexerDao extends AbstractDao {
     });
   }
 
-  void doIndex(ResourceDto resource, ResourceIndexerMapper mapper) {
+  void doIndex(ResourceDto resource, ResourceIndexMapper mapper) {
     String key = nameToKey(resource.getName());
     if (key.length() >= MINIMUM_KEY_SIZE || key.length() == SINGLE_INDEX_SIZE) {
       insertIndexEntries(key, resource.getId(), resource.getQualifier(), resource.getRootId(), resource.getName().length(), mapper);
@@ -147,7 +147,7 @@ public class ResourceIndexerDao extends AbstractDao {
 
   public boolean indexResource(DbSession session, long id) {
     boolean indexed = false;
-    ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
+    ResourceIndexMapper mapper = session.getMapper(ResourceIndexMapper.class);
     ResourceDto resource = mapper.selectResourceToIndex(id);
     if (resource != null) {
       Long rootId = resource.getRootId();
@@ -162,7 +162,7 @@ public class ResourceIndexerDao extends AbstractDao {
   public boolean indexResource(int id, String name, String qualifier, int rootId) {
     boolean indexed = false;
     SqlSession session = myBatis().openSession(false);
-    ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
+    ResourceIndexMapper mapper = session.getMapper(ResourceIndexMapper.class);
     try {
       indexed = indexResource(id, name, qualifier, rootId, session, mapper);
     } finally {
@@ -171,7 +171,7 @@ public class ResourceIndexerDao extends AbstractDao {
     return indexed;
   }
 
-  private boolean indexResource(long id, String name, String qualifier, long rootId, SqlSession session, ResourceIndexerMapper mapper) {
+  private boolean indexResource(long id, String name, String qualifier, long rootId, SqlSession session, ResourceIndexMapper mapper) {
     boolean indexed = false;
     String key = nameToKey(name);
     if (key.length() >= MINIMUM_KEY_SIZE || key.length() == SINGLE_INDEX_SIZE) {
@@ -185,7 +185,7 @@ public class ResourceIndexerDao extends AbstractDao {
     return indexed;
   }
 
-  private void insertIndexEntries(String key, long resourceId, String qualifier, long rootId, int nameLength, ResourceIndexerMapper mapper) {
+  private void insertIndexEntries(String key, long resourceId, String qualifier, long rootId, int nameLength, ResourceIndexMapper mapper) {
     ResourceIndexDto dto = new ResourceIndexDto()
       .setResourceId(resourceId)
       .setQualifier(qualifier)
@@ -205,7 +205,7 @@ public class ResourceIndexerDao extends AbstractDao {
    * If the resource is indexed with a different key, then this index is dropped and the
    * resource must be indexed again.
    */
-  private boolean sanitizeIndex(long resourceId, String key, ResourceIndexerMapper mapper) {
+  private boolean sanitizeIndex(long resourceId, String key, ResourceIndexMapper mapper) {
     ResourceIndexDto masterIndex = mapper.selectMasterIndexByResourceId(resourceId);
     if (masterIndex != null && !StringUtils.equals(key, masterIndex.getKey())) {
       // resource has been renamed -> drop existing indexes

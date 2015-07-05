@@ -21,8 +21,9 @@ package org.sonar.server.user.index;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 import org.sonar.db.ResultSetIterator;
 
 import java.sql.Connection;
@@ -50,10 +51,10 @@ class UserResultSetIterator extends ResultSetIterator<UserDoc> {
 
   private static final String SQL_AFTER_DATE = SQL_ALL + " where u.updated_at>?";
 
-  static UserResultSetIterator create(DbClient dbClient, Connection connection, long afterDate) {
+  static UserResultSetIterator create(DbClient dbClient, DbSession session, long afterDate) {
     try {
       String sql = afterDate > 0L ? SQL_AFTER_DATE : SQL_ALL;
-      PreparedStatement stmt = dbClient.newScrollingSelectStatement(connection, sql);
+      PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, sql);
       if (afterDate > 0L) {
         stmt.setLong(1, afterDate);
       }

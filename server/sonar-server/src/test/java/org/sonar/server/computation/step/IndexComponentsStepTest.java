@@ -23,7 +23,7 @@ package org.sonar.server.computation.step;
 import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.component.ResourceIndexerDao;
+import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -43,9 +43,9 @@ public class IndexComponentsStepTest extends BaseStepTest {
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
-  ResourceIndexerDao resourceIndexerDao = mock(ResourceIndexerDao.class);
+  ResourceIndexDao resourceIndexDao = mock(ResourceIndexDao.class);
   DbIdsRepository dbIdsRepository = new DbIdsRepository();
-  IndexComponentsStep sut = new IndexComponentsStep(resourceIndexerDao, dbIdsRepository, treeRootHolder);
+  IndexComponentsStep sut = new IndexComponentsStep(resourceIndexDao, dbIdsRepository, treeRootHolder);
 
   @Test
   public void call_indexProject_of_dao() throws IOException {
@@ -55,7 +55,7 @@ public class IndexComponentsStepTest extends BaseStepTest {
 
     sut.execute();
 
-    verify(resourceIndexerDao).indexProject(123L);
+    verify(resourceIndexDao).indexProject(123L);
   }
 
   @Override

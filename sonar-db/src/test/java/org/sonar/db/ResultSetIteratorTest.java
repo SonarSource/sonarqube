@@ -24,9 +24,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.NoSuchElementException;
-import org.apache.commons.dbutils.DbUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -42,107 +39,105 @@ public class ResultSetIteratorTest {
   @ClassRule
   public static DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, ResultSetIteratorTest.class, "schema.sql");
 
-  Connection connection = null;
-
-  @Before
-  public void setUp() throws Exception {
-    connection = dbTester.openConnection();
-  }
-
-  @After
-  public void tearDown() {
-    DbUtils.closeQuietly(connection);
-  }
-
   @Test
   public void create_iterator_from_statement() throws Exception {
     dbTester.prepareDbUnit(getClass(), "feed.xml");
 
-    PreparedStatement stmt = connection.prepareStatement("select * from issues order by id");
-    FirstIntColumnIterator iterator = new FirstIntColumnIterator(stmt);
+    try (Connection connection = dbTester.openConnection()) {
+      PreparedStatement stmt = connection.prepareStatement("select * from issues order by id");
+      FirstIntColumnIterator iterator = new FirstIntColumnIterator(stmt);
 
-    assertThat(iterator.hasNext()).isTrue();
+      assertThat(iterator.hasNext()).isTrue();
 
-    // calling multiple times hasNext() is ok
-    assertThat(iterator.hasNext()).isTrue();
+      // calling multiple times hasNext() is ok
+      assertThat(iterator.hasNext()).isTrue();
 
-    assertThat(iterator.next()).isEqualTo(10);
-    assertThat(iterator.hasNext()).isTrue();
-    assertThat(iterator.next()).isEqualTo(20);
+      assertThat(iterator.next()).isEqualTo(10);
+      assertThat(iterator.hasNext()).isTrue();
+      assertThat(iterator.next()).isEqualTo(20);
 
-    // call next() without calling hasNext()
-    assertThat(iterator.next()).isEqualTo(30);
-    assertThat(iterator.hasNext()).isFalse();
+      // call next() without calling hasNext()
+      assertThat(iterator.next()).isEqualTo(30);
+      assertThat(iterator.hasNext()).isFalse();
 
-    try {
-      iterator.next();
-      fail();
-    } catch (NoSuchElementException e) {
-      // ok
+      try {
+        iterator.next();
+        fail();
+      } catch (NoSuchElementException e) {
+        // ok
+      }
+
+      iterator.close();
+      // statement is closed by ResultSetIterator
+      assertThat(stmt.isClosed()).isTrue();
     }
-
-    iterator.close();
-    // statement is closed by ResultSetIterator
-    assertThat(stmt.isClosed()).isTrue();
   }
 
   @Test
   public void iterate_empty_list() throws Exception {
     dbTester.prepareDbUnit(getClass(), "feed.xml");
 
-    PreparedStatement stmt = connection.prepareStatement("select * from issues where id < 0");
-    FirstIntColumnIterator iterator = new FirstIntColumnIterator(stmt);
+    try (Connection connection = dbTester.openConnection()) {
+      PreparedStatement stmt = connection.prepareStatement("select * from issues where id < 0");
+      FirstIntColumnIterator iterator = new FirstIntColumnIterator(stmt);
 
-    assertThat(iterator.hasNext()).isFalse();
+      assertThat(iterator.hasNext()).isFalse();
+    }
   }
 
   @Test
   public void create_iterator_from_result_set() throws Exception {
     dbTester.prepareDbUnit(getClass(), "feed.xml");
 
-    PreparedStatement stmt = connection.prepareStatement("select * from issues order by id");
-    ResultSet rs = stmt.executeQuery();
-    FirstIntColumnIterator iterator = new FirstIntColumnIterator(rs);
+    try (Connection connection = dbTester.openConnection()) {
+      PreparedStatement stmt = connection.prepareStatement("select * from issues order by id");
+      ResultSet rs = stmt.executeQuery();
+      FirstIntColumnIterator iterator = new FirstIntColumnIterator(rs);
 
-    assertThat(iterator.next()).isEqualTo(10);
-    assertThat(iterator.next()).isEqualTo(20);
-    assertThat(iterator.next()).isEqualTo(30);
+      assertThat(iterator.next()).isEqualTo(10);
+      assertThat(iterator.next()).isEqualTo(20);
+      assertThat(iterator.next()).isEqualTo(30);
 
-    iterator.close();
-    assertThat(rs.isClosed()).isTrue();
-    stmt.close();
+      iterator.close();
+      assertThat(rs.isClosed()).isTrue();
+      stmt.close();
+    }
   }
 
   @Test
   public void remove_row_is_not_supported() throws Exception {
-    PreparedStatement stmt = connection.prepareStatement("select * from issues order by id");
-    FirstIntColumnIterator iterator = new FirstIntColumnIterator(stmt);
+    try (Connection connection = dbTester.openConnection()) {
+      PreparedStatement stmt = connection.prepareStatement("select * from issues order by id");
+      FirstIntColumnIterator iterator = new FirstIntColumnIterator(stmt);
 
-    try {
-      iterator.remove();
-      fail();
-    } catch (UnsupportedOperationException ok) {
-      // ok
+      try {
+        iterator.remove();
+        fail();
+      } catch (UnsupportedOperationException ok) {
+        // ok
+      }
+
+      iterator.close();
     }
-
-    iterator.close();
   }
 
   @Test
   public void fail_to_read_row() throws Exception {
     dbTester.prepareDbUnit(getClass(), "feed.xml");
 
-    PreparedStatement stmt = connection.prepareStatement("select * from issues order by id");
-    FailIterator iterator = new FailIterator(stmt);
+    try (Connection connection = dbTester.openConnection()) {
+      PreparedStatement stmt = connection.prepareStatement("select * from issues order by id");
+      FailIterator iterator = new FailIterator(stmt);
 
-    assertThat(iterator.hasNext()).isTrue();
-    try {
-      iterator.next();
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e.getCause()).isInstanceOf(SQLException.class);
+      assertThat(iterator.hasNext()).isTrue();
+      try {
+        iterator.next();
+        fail();
+      } catch (IllegalStateException e) {
+        assertThat(e.getCause()).isInstanceOf(SQLException.class);
+      }
+      iterator.close();
     }
-    iterator.close();
   }
 
   private static class FirstIntColumnIterator extends ResultSetIterator<Integer> {

@@ -48,7 +48,7 @@ import org.sonar.db.component.ComponentMapper;
 import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.component.ResourceDto;
 import org.sonar.db.component.ResourceIndexDto;
-import org.sonar.db.component.ResourceIndexerMapper;
+import org.sonar.db.component.ResourceIndexMapper;
 import org.sonar.db.component.ResourceKeyUpdaterMapper;
 import org.sonar.db.component.ResourceMapper;
 import org.sonar.db.component.SnapshotDto;
@@ -249,7 +249,7 @@ public class MyBatis {
       IssueMapper.class, IssueChangeMapper.class, IssueFilterMapper.class, IssueFilterFavouriteMapper.class,
       IsAliveMapper.class,
       LoadedTemplateMapper.class, MeasureFilterMapper.class, Migration44Mapper.class, PermissionTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,
-      ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, RoleMapper.class, RuleMapper.class,
+      ResourceKeyUpdaterMapper.class, ResourceIndexMapper.class, RoleMapper.class, RuleMapper.class,
       SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, GroupMapper.class, UserGroupMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
       FileSourceMapper.class, ActionPlanMapper.class,
       ActionPlanStatsMapper.class,

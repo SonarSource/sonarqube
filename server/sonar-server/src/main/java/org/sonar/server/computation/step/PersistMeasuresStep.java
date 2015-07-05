@@ -41,7 +41,7 @@ import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.measure.MeasureToMeasureDto;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 
 import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;

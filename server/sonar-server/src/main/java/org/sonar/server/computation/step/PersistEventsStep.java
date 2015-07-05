@@ -33,7 +33,7 @@ import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 
 import static com.google.common.collect.Iterables.transform;
 

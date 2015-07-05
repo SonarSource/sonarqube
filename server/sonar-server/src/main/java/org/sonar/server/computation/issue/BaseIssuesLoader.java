@@ -35,7 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 
 import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.core.rule.RuleKeyFunctions.stringToRuleKey;

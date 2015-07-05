@@ -19,24 +19,23 @@
  */
 package org.sonar.server.activity.index;
 
-import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.action.update.UpdateRequest;
-import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.server.db.DbClient;
-import org.sonar.db.ResultSetIterator;
-import org.sonar.server.es.EsUtils;
-import org.sonar.server.util.DateCollector;
-
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
+import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.ResultSetIterator;
+import org.sonar.server.es.EsUtils;
+import org.sonar.server.util.DateCollector;
 
 /**
  * Scrolls over table ACTIVITIES and reads documents to populate
@@ -64,10 +63,10 @@ class ActivityResultSetIterator extends ResultSetIterator<UpdateRequest> {
     super(stmt);
   }
 
-  static ActivityResultSetIterator create(DbClient dbClient, Connection connection, long afterDate) {
+  static ActivityResultSetIterator create(DbClient dbClient, DbSession session, long afterDate) {
     try {
       String sql = afterDate > 0L ? SQL_AFTER_DATE : SQL_ALL;
-      PreparedStatement stmt = dbClient.newScrollingSelectStatement(connection, sql);
+      PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, sql);
       if (afterDate > 0L) {
         stmt.setTimestamp(1, new Timestamp(afterDate));
       }

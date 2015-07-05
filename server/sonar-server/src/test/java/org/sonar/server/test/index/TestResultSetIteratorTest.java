@@ -20,28 +20,23 @@
 
 package org.sonar.server.test.index;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import org.assertj.core.data.MapEntry;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.server.source.db.FileSourceDb.Test.TestStatus;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
-import org.sonar.server.source.index.SourceLineResultSetIteratorTest;
 import org.sonar.server.test.db.TestTesting;
 import org.sonar.test.DbTests;
-
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -50,33 +45,22 @@ import static org.assertj.core.api.Assertions.fail;
 public class TestResultSetIteratorTest {
 
   @ClassRule
-  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, SourceLineResultSetIteratorTest.class, "schema.sql");
-
-  DbClient dbClient;
-
-  Connection connection;
+  public static DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   TestResultSetIterator sut;
-
-  @Before
-  public void setUp() throws Exception {
-    dbClient = new DbClient(db.database(), db.myBatis());
-    connection = db.openConnection();
-  }
 
   @After
   public void after() throws Exception {
     if (sut != null) {
       sut.close();
     }
-    connection.close();
   }
 
   @Test
   public void traverse_db() throws Exception {
-    db.prepareDbUnit(getClass(), "shared.xml");
-    TestTesting.updateDataColumn(connection, "F1", newFakeTests(3));
-    sut = TestResultSetIterator.create(dbClient, connection, 0L, null);
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    TestTesting.updateDataColumn(dbTester.getSession(), "F1", newFakeTests(3));
+    sut = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
 
     FileSourcesUpdaterHelper.Row row = sut.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
@@ -103,15 +87,15 @@ public class TestResultSetIteratorTest {
    */
   @Test
   public void minimal_data() throws Exception {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
     List<FileSourceDb.Test> tests = Arrays.asList(
       FileSourceDb.Test.newBuilder()
         .setUuid("U1")
         .setName("N1")
         .build()
       );
-    TestTesting.updateDataColumn(connection, "F1", tests);
-    sut = TestResultSetIterator.create(dbClient, connection, 0L, null);
+    TestTesting.updateDataColumn(dbTester.getSession(), "F1", tests);
+    sut = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
 
     FileSourcesUpdaterHelper.Row row = sut.next();
 
@@ -139,18 +123,18 @@ public class TestResultSetIteratorTest {
 
   @Test
   public void filter_by_date() {
-    db.prepareDbUnit(getClass(), "shared.xml");
-    sut = TestResultSetIterator.create(dbClient, connection, 2000000000000L, null);
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    sut = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 2000000000000L, null);
 
     assertThat(sut.hasNext()).isFalse();
   }
 
   @Test
   public void filter_by_project() throws Exception {
-    db.prepareDbUnit(getClass(), "filter_by_project.xml");
-    TestTesting.updateDataColumn(connection, "F1", newFakeTests(1));
+    dbTester.prepareDbUnit(getClass(), "filter_by_project.xml");
+    TestTesting.updateDataColumn(dbTester.getSession(), "F1", newFakeTests(1));
 
-    sut = TestResultSetIterator.create(dbClient, connection, 0L, "P1");
+    sut = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, "P1");
 
     FileSourcesUpdaterHelper.Row row = sut.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
@@ -162,10 +146,10 @@ public class TestResultSetIteratorTest {
 
   @Test
   public void filter_by_project_and_date() throws Exception {
-    db.prepareDbUnit(getClass(), "filter_by_project_and_date.xml");
-    TestTesting.updateDataColumn(connection, "F1", newFakeTests(1));
+    dbTester.prepareDbUnit(getClass(), "filter_by_project_and_date.xml");
+    TestTesting.updateDataColumn(dbTester.getSession(), "F1", newFakeTests(1));
 
-    sut = TestResultSetIterator.create(dbClient, connection, 1400000000000L, "P1");
+    sut = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 1400000000000L, "P1");
 
     FileSourcesUpdaterHelper.Row row = sut.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
@@ -177,11 +161,11 @@ public class TestResultSetIteratorTest {
 
   @Test
   public void fail_on_bad_data_format() throws Exception {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    TestTesting.updateDataColumn(connection, "F1", "THIS_IS_NOT_PROTOBUF".getBytes());
+    TestTesting.updateDataColumn(dbTester.getSession(), "F1", "THIS_IS_NOT_PROTOBUF".getBytes());
 
-    sut = TestResultSetIterator.create(dbClient, connection, 0L, null);
+    sut = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
     try {
       assertThat(sut.hasNext()).isTrue();
       sut.next();

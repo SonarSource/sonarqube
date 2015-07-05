@@ -19,27 +19,17 @@
  */
 package org.sonar.db.component;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.utils.System2;
 import org.sonar.db.AbstractDaoTestCase;
 import org.sonar.db.DbSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
-public class ResourceIndexerDaoTest extends AbstractDaoTestCase {
+public class ResourceIndexDaoTest extends AbstractDaoTestCase {
 
-  private static ResourceIndexerDao dao;
-
-  @Before
-  public void createDao() {
-    dao = new ResourceIndexerDao(getMyBatis(), mock(System2.class));
-  }
+  ResourceIndexDao dao = dbTester.getDbClient().componentIndexDao();
 
   @Test
   public void shouldIndexResource() {
@@ -82,29 +72,12 @@ public class ResourceIndexerDaoTest extends AbstractDaoTestCase {
     setupData("shouldNotIndexPackages");
 
     dao.indexProject(1);
-
-    Connection connection = getConnection();
-    ResultSet rs = null;
-    try {
-      // project
-      rs = connection.createStatement().executeQuery("select count(resource_id) from resource_index where resource_id=1");
-      rs.next();
-      assertThat(rs.getInt(1)).isGreaterThan(0);
-
-      // directory
-      rs = connection.createStatement().executeQuery("select count(resource_id) from resource_index where resource_id=2");
-      rs.next();
-      assertThat(rs.getInt(1)).isEqualTo(0);
-
-      // file
-      rs = connection.createStatement().executeQuery("select count(resource_id) from resource_index where resource_id=3");
-      rs.next();
-      assertThat(rs.getInt(1)).isGreaterThan(0);
-    } finally {
-      if (null != rs) {
-        rs.close();
-      }
-    }
+    // project
+    assertThat(dbTester.countSql("select count(resource_id) from resource_index where resource_id=1")).isGreaterThan(0);
+    // directory
+    assertThat(dbTester.countSql("select count(resource_id) from resource_index where resource_id=2")).isEqualTo(0);
+    // file
+    assertThat(dbTester.countSql("select count(resource_id) from resource_index where resource_id=3")).isGreaterThan(0);
   }
 
   @Test
@@ -157,7 +130,7 @@ public class ResourceIndexerDaoTest extends AbstractDaoTestCase {
     setupData("select_project_ids_from_query_and_view_or_sub_view_uuid");
     String viewUuid = "EFGH";
 
-    DbSession session = getMyBatis().openSession(false);
+    DbSession session = dbTester.getSession();
     assertThat(dao.selectProjectIdsFromQueryAndViewOrSubViewUuid(session, "project", viewUuid)).containsOnly(1L, 2L);
     assertThat(dao.selectProjectIdsFromQueryAndViewOrSubViewUuid(session, "one", viewUuid)).containsOnly(1L);
     assertThat(dao.selectProjectIdsFromQueryAndViewOrSubViewUuid(session, "two", viewUuid)).containsOnly(2L);

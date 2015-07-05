@@ -49,7 +49,6 @@ import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.ext.mssql.InsertIdentityOperation;
 import org.dbunit.operation.DatabaseOperation;
-import org.junit.After;
 import org.junit.rules.ExternalResource;
 import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.utils.System2;
@@ -71,7 +70,7 @@ public class DbTester extends ExternalResource {
 
   private final System2 system2;
   private final TestDb db;
-  private DbClient2 client;
+  private DbClient client;
   private DbSession session = null;
 
   @Deprecated
@@ -100,11 +99,12 @@ public class DbTester extends ExternalResource {
     truncateTables();
   }
 
-  @After
-  public void closeSession() throws Exception {
+  @Override
+  protected void after() {
     if (session != null) {
       MyBatis.closeQuietly(session);
     }
+    db.close();
   }
 
   public DbSession getSession() {
@@ -118,7 +118,7 @@ public class DbTester extends ExternalResource {
     db.truncateTables();
   }
 
-  public DbClient2 getDbClient() {
+  public DbClient getDbClient() {
     if (client == null) {
       TransientPicoContainer ioc = new TransientPicoContainer();
       ioc.addComponent(db.getMyBatis());
@@ -127,7 +127,7 @@ public class DbTester extends ExternalResource {
         ioc.addComponent(daoClass);
       }
       List<Dao> daos = ioc.getComponents(Dao.class);
-      client = new DbClient2(db.getMyBatis(), daos.toArray(new Dao[daos.size()]));
+      client = new DbClient(db.getDatabase(), db.getMyBatis(), daos.toArray(new Dao[daos.size()]));
     }
     return client;
   }
@@ -263,6 +263,24 @@ public class DbTester extends ExternalResource {
     }
   }
 
+  public void assertDbUnitTable(Class testClass, String filename, String table, String... columns) {
+    IDatabaseConnection connection = dbUnitConnection();
+    try {
+      IDataSet dataSet = connection.createDataSet();
+      String path = "/" + testClass.getName().replace('.', '/') + "/" + filename;
+      IDataSet expectedDataSet = dbUnitDataSet(testClass.getResourceAsStream(path));
+      ITable filteredTable = DefaultColumnFilter.includedColumnsTable(dataSet.getTable(table), columns);
+      ITable filteredExpectedTable = DefaultColumnFilter.includedColumnsTable(expectedDataSet.getTable(table), columns);
+      Assertion.assertEquals(filteredExpectedTable, filteredTable);
+    } catch (DatabaseUnitException e) {
+      fail(e.getMessage());
+    } catch (SQLException e) {
+      throw translateException("Error while checking results", e);
+    } finally {
+      closeQuietly(connection);
+    }
+  }
+
   public void assertDbUnit(Class testClass, String filename, String... tables) {
     assertDbUnit(testClass, filename, new String[0], tables);
   }
@@ -372,7 +390,7 @@ public class DbTester extends ExternalResource {
     }
   }
 
-  private static RuntimeException translateException(String msg, Exception cause) {
+  public static RuntimeException translateException(String msg, Exception cause) {
     RuntimeException runtimeException = new RuntimeException(String.format("%s: [%s] %s", msg, cause.getClass().getName(), cause.getMessage()));
     runtimeException.setStackTrace(cause.getStackTrace());
     return runtimeException;
@@ -400,4 +418,9 @@ public class DbTester extends ExternalResource {
   public Database database() {
     return db.getDatabase();
   }
+
+  public DatabaseCommands getCommands() {
+    return db.getCommands();
+  }
+
 }

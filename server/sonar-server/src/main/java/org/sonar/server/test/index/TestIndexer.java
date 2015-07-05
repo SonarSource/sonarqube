@@ -20,23 +20,24 @@
 
 package org.sonar.server.test.index;
 
+import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 
-import javax.annotation.Nullable;
-import java.sql.Connection;
-import java.util.Iterator;
-
 import static org.sonar.server.source.index.SourceLineIndexDefinition.FIELD_PROJECT_UUID;
-import static org.sonar.server.test.index.TestIndexDefinition.*;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_FILE_UUID;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_UPDATED_AT;
+import static org.sonar.server.test.index.TestIndexDefinition.INDEX;
+import static org.sonar.server.test.index.TestIndexDefinition.TYPE;
 
 /**
  * Add to Elasticsearch index {@link TestIndexDefinition} the rows of
@@ -76,9 +77,8 @@ public class TestIndexer extends BaseIndexer {
     bulk.setLarge(lastUpdatedAt == 0L);
 
     DbSession dbSession = dbClient.openSession(false);
-    Connection dbConnection = dbSession.getConnection();
     try {
-      TestResultSetIterator rowIt = TestResultSetIterator.create(dbClient, dbConnection, lastUpdatedAt, projectUuid);
+      TestResultSetIterator rowIt = TestResultSetIterator.create(dbClient, dbSession, lastUpdatedAt, projectUuid);
       long maxUpdatedAt = doIndex(bulk, rowIt);
       rowIt.close();
       return maxUpdatedAt;

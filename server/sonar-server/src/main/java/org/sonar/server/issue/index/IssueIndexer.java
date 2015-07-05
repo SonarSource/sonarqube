@@ -19,19 +19,16 @@
  */
 package org.sonar.server.issue.index;
 
-import org.apache.commons.dbutils.DbUtils;
+import java.util.Iterator;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
-
-import java.sql.Connection;
-import java.util.Iterator;
 
 public class IssueIndexer extends BaseIndexer {
 
@@ -60,16 +57,13 @@ public class IssueIndexer extends BaseIndexer {
 
   private long doIndex(BulkIndexer bulk, long lastUpdatedAt) {
     DbSession dbSession = dbClient.openSession(false);
-    Connection dbConnection = dbSession.getConnection();
     long maxDate;
     try {
-      IssueResultSetIterator rowIt = IssueResultSetIterator.create(dbClient, dbConnection, lastUpdatedAt);
+      IssueResultSetIterator rowIt = IssueResultSetIterator.create(dbClient, dbSession, lastUpdatedAt);
       maxDate = doIndex(bulk, rowIt);
       rowIt.close();
       return maxDate;
-
     } finally {
-      DbUtils.closeQuietly(dbConnection);
       dbSession.close();
     }
   }
@@ -97,7 +91,7 @@ public class IssueIndexer extends BaseIndexer {
       .setQuery(QueryBuilders.filteredQuery(
         QueryBuilders.matchAllQuery(),
         FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, uuid))
-      ));
+        ));
     bulk.addDeletion(search);
     bulk.stop();
   }

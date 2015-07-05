@@ -60,6 +60,17 @@ class TestDb {
   private DatabaseCommands commands;
   private IDatabaseTester tester;
   private MyBatis myBatis;
+  private boolean isDefault;
+
+  static TestDb create(@Nullable String schemaPath) {
+    if (schemaPath == null) {
+      if (DEFAULT == null) {
+        DEFAULT = new TestDb(null);
+      }
+      return DEFAULT;
+    }
+    return new TestDb(schemaPath);
+  }
 
   private TestDb(@Nullable String schemaPath) {
     if (db == null) {
@@ -87,6 +98,7 @@ class TestDb {
           throw new AssumptionViolatedException("Test disabled because it supports only H2");
         }
       }
+      isDefault = (schemaPath == null);
       LOG.info("Test Database: " + db);
 
       commands = DatabaseCommands.forDialect(db.getDialect());
@@ -105,20 +117,10 @@ class TestDb {
     }
   }
 
-  static TestDb create(@Nullable String schemaPath) {
-    if (schemaPath == null) {
-      if (DEFAULT == null) {
-        DEFAULT = new TestDb(null);
-      }
-      return DEFAULT;
+  void close() {
+    if (!isDefault) {
+      db.stop();
     }
-    return new TestDb(schemaPath);
-  }
-
-  void stop() {
-    db.stop();
-    db = null;
-    myBatis = null;
   }
 
   Database getDatabase() {

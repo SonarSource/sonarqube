@@ -44,7 +44,7 @@ import org.sonar.db.issue.ActionPlanDto;
 import org.sonar.db.issue.ActionPlanStatsDao;
 import org.sonar.db.issue.ActionPlanStatsDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueStorage;
 import org.sonar.server.user.UserSession;

@@ -19,13 +19,12 @@
  */
 package org.sonar.server.issue;
 
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.api.rules.RuleFinder;
+import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueIndexer;
 
@@ -35,12 +34,10 @@ import org.sonar.server.issue.index.IssueIndexer;
 @ServerSide
 public class ServerIssueStorage extends IssueStorage {
 
-  private final DbClient dbClient;
   private final IssueIndexer indexer;
 
-  public ServerIssueStorage(MyBatis mybatis, RuleFinder ruleFinder, DbClient dbClient, IssueIndexer indexer) {
-    super(mybatis, ruleFinder);
-    this.dbClient = dbClient;
+  public ServerIssueStorage(RuleFinder ruleFinder, DbClient dbClient, IssueIndexer indexer) {
+    super(dbClient, ruleFinder);
     this.indexer = indexer;
   }
 
@@ -51,14 +48,14 @@ public class ServerIssueStorage extends IssueStorage {
     int ruleId = rule(issue).getId();
     IssueDto dto = IssueDto.toDtoForServerInsert(issue, component, project, ruleId, now);
 
-    dbClient.issueDao().insert(session, dto);
+    getDbClient().issueDao().insert(session, dto);
   }
 
   @Override
   protected void doUpdate(DbSession session, long now, DefaultIssue issue) {
     IssueDto dto = IssueDto.toDtoForUpdate(issue, now);
 
-    dbClient.issueDao().update(session, dto);
+    getDbClient().issueDao().update(session, dto);
   }
 
   @Override
@@ -67,10 +64,10 @@ public class ServerIssueStorage extends IssueStorage {
   }
 
   protected ComponentDto component(DbSession session, DefaultIssue issue) {
-    return dbClient.componentDao().selectByKey(session, issue.componentKey());
+    return getDbClient().componentDao().selectByKey(session, issue.componentKey());
   }
 
   protected ComponentDto project(DbSession session, DefaultIssue issue) {
-    return dbClient.componentDao().selectByKey(session, issue.projectKey());
+    return getDbClient().componentDao().selectByKey(session, issue.projectKey());
   }
 }

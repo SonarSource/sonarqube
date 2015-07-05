@@ -36,7 +36,7 @@ import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 
 public class NewDebtAggregator extends IssueVisitor {
 

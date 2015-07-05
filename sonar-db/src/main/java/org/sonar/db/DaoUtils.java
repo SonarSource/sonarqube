@@ -24,7 +24,7 @@ import java.util.List;
 import org.sonar.db.activity.ActivityDao;
 import org.sonar.db.component.ComponentLinkDao;
 import org.sonar.db.component.ResourceDao;
-import org.sonar.db.component.ResourceIndexerDao;
+import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.db.component.ResourceKeyUpdaterDao;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.compute.AnalysisReportDao;
@@ -97,7 +97,7 @@ public final class DaoUtils {
       QualityProfileDao.class,
       PurgeDao.class,
       CharacteristicDao.class,
-      ResourceIndexerDao.class,
+      ResourceIndexDao.class,
       ResourceDao.class,
       ResourceKeyUpdaterDao.class,
       RoleDao.class,

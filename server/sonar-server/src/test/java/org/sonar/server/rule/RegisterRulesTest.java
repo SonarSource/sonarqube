@@ -66,7 +66,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     when(system.now()).thenReturn(DATE1.getTime());
     RuleDao ruleDao = new RuleDao(system);
     ActiveRuleDao activeRuleDao = new ActiveRuleDao(new QualityProfileDao(getMyBatis(), system), ruleDao, system);
-    dbClient = new DbClient(getDatabase(), getMyBatis(), ruleDao, activeRuleDao,
+    dbClient = new DbClient(dbTester.database(), getMyBatis(), ruleDao, activeRuleDao,
       new QualityProfileDao(getMyBatis(), system), new CharacteristicDao(getMyBatis()));
     dbSession = dbClient.openSession(false);
   }

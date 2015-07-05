@@ -26,7 +26,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 
 import java.io.File;
 import java.io.IOException;

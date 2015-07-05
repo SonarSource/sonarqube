@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import java.sql.Connection;
 import java.util.List;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Before;
@@ -28,13 +27,14 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.source.FileSourceDao;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
-import org.sonar.db.source.FileSourceDao;
 import org.sonar.server.test.db.TestTesting;
 import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndexDefinition;
@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class IndexTestsStepTest extends BaseStepTest {
 
   @ClassRule
-  public static DbTester dbTester = new DbTester();
+  public static DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new TestIndexDefinition(new Settings()));
@@ -71,9 +71,7 @@ public class IndexTestsStepTest extends BaseStepTest {
   @Test
   public void index_test() throws Exception {
     dbTester.prepareDbUnit(getClass(), "index_source.xml");
-    Connection connection = dbTester.openConnection();
-    TestTesting.updateDataColumn(connection, "FILE1_UUID", TestTesting.newRandomTests(1));
-    connection.close();
+    TestTesting.updateDataColumn(dbTester.getSession(), "FILE1_UUID", TestTesting.newRandomTests(1));
 
     treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey("PROJECT_KEY").build());
 

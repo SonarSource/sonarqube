@@ -36,7 +36,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.debt.Characteristic;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;

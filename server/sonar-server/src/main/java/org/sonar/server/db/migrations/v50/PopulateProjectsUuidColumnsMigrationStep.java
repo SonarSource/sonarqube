@@ -31,7 +31,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbSession;
 import org.sonar.db.version.v50.Component;
 import org.sonar.db.version.v50.Migration50Mapper;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 import org.sonar.server.db.migrations.MigrationStep;
 import org.sonar.core.util.ProgressLogger;
 

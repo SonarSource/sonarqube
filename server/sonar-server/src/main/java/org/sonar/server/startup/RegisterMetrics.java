@@ -32,9 +32,9 @@ import org.sonar.api.measures.Metrics;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.db.metric.MetricDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.server.db.DbClient;
 
 import static com.google.common.collect.FluentIterable.from;

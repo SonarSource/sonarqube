@@ -34,7 +34,7 @@ import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.server.user.UserSession;

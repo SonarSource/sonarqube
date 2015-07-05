@@ -22,12 +22,14 @@ package org.sonar.server.issue.index;
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import org.apache.commons.dbutils.DbUtils;
+import org.jruby.RubyProcess;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
@@ -41,27 +43,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class IssueResultSetIteratorTest {
 
   @ClassRule
-  public static DbTester dbTester = new DbTester();
+  public static DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DbClient client;
-  Connection connection;
 
   @Before
   public void setUp() throws Exception {
     dbTester.truncateTables();
-    client = new DbClient(dbTester.database(), dbTester.myBatis());
-    connection = dbTester.openConnection();
-  }
-
-  @After
-  public void tearDown() {
-    DbUtils.closeQuietly(connection);
   }
 
   @Test
   public void iterator_over_one_issue() {
     dbTester.prepareDbUnit(getClass(), "one_issue.xml");
-    IssueResultSetIterator it = IssueResultSetIterator.create(client, connection, 0L);
+    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
     Map<String, IssueDoc> issuesByKey = issuesByKey(it);
     it.close();
 
@@ -95,7 +88,7 @@ public class IssueResultSetIteratorTest {
   @Test
   public void iterator_over_issues() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    IssueResultSetIterator it = IssueResultSetIterator.create(client, connection, 0L);
+    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
     Map<String, IssueDoc> issuesByKey = issuesByKey(it);
     it.close();
 
@@ -153,7 +146,7 @@ public class IssueResultSetIteratorTest {
   @Test
   public void extract_directory_path() {
     dbTester.prepareDbUnit(getClass(), "extract_directory_path.xml");
-    IssueResultSetIterator it = IssueResultSetIterator.create(client, connection, 0L);
+    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
     Map<String, IssueDoc> issuesByKey = issuesByKey(it);
     it.close();
 
@@ -175,7 +168,7 @@ public class IssueResultSetIteratorTest {
   @Test
   public void extract_file_path() {
     dbTester.prepareDbUnit(getClass(), "extract_file_path.xml");
-    IssueResultSetIterator it = IssueResultSetIterator.create(client, connection, 0L);
+    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
     Map<String, IssueDoc> issuesByKey = issuesByKey(it);
     it.close();
 
@@ -197,7 +190,7 @@ public class IssueResultSetIteratorTest {
   @Test
   public void select_after_date() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    IssueResultSetIterator it = IssueResultSetIterator.create(client, connection, 1420000000000L);
+    IssueResultSetIterator it = IssueResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 1_420_000_000_000L);
 
     assertThat(it.hasNext()).isTrue();
     IssueDoc issue = it.next();

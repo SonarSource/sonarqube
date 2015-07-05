@@ -21,18 +21,14 @@ package org.sonar.server.user.index;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
-import org.apache.commons.dbutils.DbUtils;
-import org.junit.After;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
-
-import java.sql.Connection;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,27 +36,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UserResultSetIteratorTest {
 
   @ClassRule
-  public static DbTester dbTester = new DbTester();
-
-  DbClient client;
-  Connection connection;
+  public static DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Before
   public void setUp() throws Exception {
     dbTester.truncateTables();
-    client = new DbClient(dbTester.database(), dbTester.myBatis());
-    connection = dbTester.openConnection();
-  }
-
-  @After
-  public void tearDown() {
-    DbUtils.closeQuietly(connection);
   }
 
   @Test
   public void iterator_over_users() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    UserResultSetIterator it = UserResultSetIterator.create(client, connection, 0L);
+    UserResultSetIterator it = UserResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L);
     Map<String, UserDoc> usersByLogin = Maps.uniqueIndex(it, new Function<UserDoc, String>() {
       @Override
       public String apply(UserDoc user) {
@@ -99,7 +85,7 @@ public class UserResultSetIteratorTest {
   @Test
   public void select_after_date() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    UserResultSetIterator it = UserResultSetIterator.create(client, connection, 1520000000000L);
+    UserResultSetIterator it = UserResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 1520000000000L);
 
     assertThat(it.hasNext()).isTrue();
     UserDoc user = it.next();

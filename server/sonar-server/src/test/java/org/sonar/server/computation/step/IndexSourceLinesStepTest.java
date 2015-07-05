@@ -28,13 +28,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.db.DbTester;
+import org.sonar.db.source.FileSourceDao;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
-import org.sonar.db.source.FileSourceDao;
-import org.sonar.server.source.db.FileSourceTesting;
+import org.sonar.server.source.index.FileSourceTesting;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndexDefinition;
 import org.sonar.server.source.index.SourceLineIndexer;
@@ -69,9 +69,9 @@ public class IndexSourceLinesStepTest extends BaseStepTest {
   @Test
   public void index_source() throws Exception {
     dbTester.prepareDbUnit(getClass(), "index_source.xml");
-    Connection connection = dbTester.openConnection();
-    FileSourceTesting.updateDataColumn(connection, "FILE1_UUID", FileSourceTesting.newRandomData(1).build());
-    connection.close();
+    try (Connection connection = dbTester.openConnection()) {
+      FileSourceTesting.updateDataColumn(connection, "FILE1_UUID", FileSourceTesting.newRandomData(1).build());
+    }
 
     treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey("PROJECT_KEY").build());
 

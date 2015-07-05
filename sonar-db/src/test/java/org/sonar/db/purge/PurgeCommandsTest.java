@@ -27,6 +27,7 @@ import org.sonar.db.AbstractDaoTestCase;
 import org.sonar.db.MyBatis;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PurgeCommandsTest extends AbstractDaoTestCase {
 
@@ -117,7 +118,12 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
       new PurgeCommands(session, profiler).deleteResources(newArrayList(new IdUuidPair(1L, "1")));
     }
 
-    assertEmptyTables("projects", "snapshots", "events", "issues", "issue_changes", "authors");
+    assertThat(dbTester.countRowsOfTable("projects")).isZero();
+    assertThat(dbTester.countRowsOfTable("snapshots")).isZero();
+    assertThat(dbTester.countRowsOfTable("events")).isZero();
+    assertThat(dbTester.countRowsOfTable("issues")).isZero();
+    assertThat(dbTester.countRowsOfTable("issue_changes")).isZero();
+    assertThat(dbTester.countRowsOfTable("authors")).isZero();
   }
 
   /**

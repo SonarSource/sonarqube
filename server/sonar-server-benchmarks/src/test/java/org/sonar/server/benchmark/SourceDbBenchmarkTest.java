@@ -20,7 +20,6 @@
 package org.sonar.server.benchmark;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.Arrays;
 import java.util.Timer;
 import java.util.concurrent.atomic.AtomicLong;
@@ -30,11 +29,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.source.FileSourceDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.source.index.SourceLineResultSetIterator;
@@ -50,7 +49,7 @@ public class SourceDbBenchmarkTest {
   public static final String PROJECT_UUID = Uuids.create();
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
   public Benchmark benchmark = new Benchmark();
@@ -63,8 +62,6 @@ public class SourceDbBenchmarkTest {
 
   private void scrollRows() throws Exception {
     LOGGER.info("Scroll table FILE_SOURCES");
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis());
-    Connection connection = dbTester.openConnection();
     AtomicLong counter = new AtomicLong();
     ProgressTask progress = new ProgressTask(LOGGER, "source file", counter);
     Timer timer = new Timer("SourceDbScroll");
@@ -72,7 +69,7 @@ public class SourceDbBenchmarkTest {
 
     try {
       long start = System.currentTimeMillis();
-      SourceLineResultSetIterator it = SourceLineResultSetIterator.create(dbClient, connection, 0L, null);
+      SourceLineResultSetIterator it = SourceLineResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
       while (it.hasNext()) {
         FileSourcesUpdaterHelper.Row row = it.next();
         assertThat(row.getUpdateRequests().size()).isEqualTo(NUMBER_OF_LINES);
@@ -86,7 +83,6 @@ public class SourceDbBenchmarkTest {
       benchmark.expectBetween("Throughput to scroll FILE_SOURCES", throughputPerSecond, 9, 13);
 
     } finally {
-      DbUtils.closeQuietly(connection);
       timer.cancel();
     }
   }

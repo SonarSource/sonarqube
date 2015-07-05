@@ -22,23 +22,15 @@ package org.sonar.db.issue;
 
 import java.util.Collection;
 import java.util.List;
-import org.apache.ibatis.session.SqlSession;
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.db.AbstractDaoTestCase;
-import org.sonar.db.MyBatis;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ActionPlanDaoTest extends AbstractDaoTestCase {
 
-  ActionPlanDao dao;
-
-  @Before
-  public void createDao() {
-    dao = new ActionPlanDao(getMyBatis());
-  }
+  ActionPlanDao dao = dbTester.getDbClient().actionPlanDao();
 
   @Test
   public void should_insert_new_action_plan() {
@@ -92,13 +84,11 @@ public class ActionPlanDaoTest extends AbstractDaoTestCase {
   public void should_find_by_keys_on_huge_number_of_keys() {
     setupData("shared");
 
-    SqlSession session = getMyBatis().openSession();
     List<String> hugeNbOKeys = newArrayList();
     for (int i = 0; i < 4500; i++) {
       hugeNbOKeys.add("ABCD" + i);
     }
     List<ActionPlanDto> result = dao.findByKeys(hugeNbOKeys);
-    MyBatis.closeQuietly(session);
 
     // The goal of this test is only to check that the query do no fail, not to check the number of results
     assertThat(result).isEmpty();

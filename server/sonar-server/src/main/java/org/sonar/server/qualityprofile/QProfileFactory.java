@@ -20,25 +20,21 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Lists;
+import java.util.Date;
+import java.util.List;
+import javax.annotation.CheckForNull;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.server.ServerSide;
+import org.sonar.core.util.Slug;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Verifications;
-import org.sonar.core.util.Slug;
-
-import javax.annotation.CheckForNull;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * Create, delete, rename and set as default profile.
  */
-@ServerSide
 public class QProfileFactory {
 
   private final DbClient db;

@@ -58,7 +58,7 @@ public class DatabaseMigratorTest extends AbstractDaoTestCase {
 
   @Test
   public void should_support_only_creation_of_h2_database() {
-    when(dbClient.database().getDialect()).thenReturn(new MySql());
+    when(dbClient.getDatabase().getDialect()).thenReturn(new MySql());
 
     assertThat(migrator.createDatabase()).isFalse();
     verify(dbClient, never()).openSession(anyBoolean());
@@ -82,7 +82,7 @@ public class DatabaseMigratorTest extends AbstractDaoTestCase {
   @Test
   public void should_create_schema_on_h2() {
     Dialect supportedDialect = new H2();
-    when(dbClient.database().getDialect()).thenReturn(supportedDialect);
+    when(dbClient.getDatabase().getDialect()).thenReturn(supportedDialect);
     Connection connection = mock(Connection.class);
     DbSession session = mock(DbSession.class);
     when(session.getConnection()).thenReturn(connection);

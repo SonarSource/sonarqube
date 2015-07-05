@@ -19,22 +19,17 @@
  */
 package org.sonar.server.source.index;
 
+import java.sql.Connection;
+import java.util.Map;
 import org.assertj.core.data.MapEntry;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;
-import org.sonar.server.source.db.FileSourceTesting;
 import org.sonar.test.DbTests;
-
-import java.sql.Connection;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -43,34 +38,24 @@ import static org.junit.Assert.fail;
 public class SourceLineResultSetIteratorTest {
 
   @ClassRule
-  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, SourceLineResultSetIteratorTest.class, "schema.sql");
-
-  DbClient dbClient;
-
-  Connection connection;
+  public static DbTester db = DbTester.create(System2.INSTANCE);
 
   SourceLineResultSetIterator iterator;
 
-  @Before
-  public void setUp() throws Exception {
-    dbClient = new DbClient(db.database(), db.myBatis());
-    connection = db.openConnection();
-  }
-
-  @After
   public void after() throws Exception {
     if (iterator != null) {
       iterator.close();
     }
-    connection.close();
   }
 
   @Test
   public void traverse_db() throws Exception {
     db.prepareDbUnit(getClass(), "shared.xml");
-    FileSourceTesting.updateDataColumn(connection, "F1", FileSourceTesting.newFakeData(3).build());
+    try (Connection connection = db.openConnection()) {
+      FileSourceTesting.updateDataColumn(connection, "F1", FileSourceTesting.newFakeData(3).build());
+    }
 
-    iterator = SourceLineResultSetIterator.create(dbClient, connection, 0L, null);
+    iterator = SourceLineResultSetIterator.create(db.getDbClient(), db.getSession(), 0L, null);
     assertThat(iterator.hasNext()).isTrue();
     FileSourcesUpdaterHelper.Row row = iterator.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
@@ -97,7 +82,7 @@ public class SourceLineResultSetIteratorTest {
       MapEntry.entry(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, 7),
       MapEntry.entry(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, 8),
       MapEntry.entry(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, 9)
-    );
+      );
   }
 
   /**
@@ -108,9 +93,11 @@ public class SourceLineResultSetIteratorTest {
     db.prepareDbUnit(getClass(), "shared.xml");
     FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
     dataBuilder.addLinesBuilder().setLine(1).build();
-    FileSourceTesting.updateDataColumn(connection, "F1", dataBuilder.build());
+    try (Connection connection = db.openConnection()) {
+      FileSourceTesting.updateDataColumn(connection, "F1", dataBuilder.build());
+    }
 
-    iterator = SourceLineResultSetIterator.create(dbClient, connection, 0L, null);
+    iterator = SourceLineResultSetIterator.create(db.getDbClient(), db.getSession(), 0L, null);
     FileSourcesUpdaterHelper.Row row = iterator.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
     assertThat(row.getFileUuid()).isEqualTo("F1");
@@ -122,7 +109,7 @@ public class SourceLineResultSetIteratorTest {
       MapEntry.entry(SourceLineIndexDefinition.FIELD_PROJECT_UUID, "P1"),
       MapEntry.entry(SourceLineIndexDefinition.FIELD_FILE_UUID, "F1"),
       MapEntry.entry(SourceLineIndexDefinition.FIELD_LINE, 1)
-    );
+      );
     // null values
     assertThat(doc).containsKeys(
       SourceLineIndexDefinition.FIELD_SCM_REVISION,
@@ -138,14 +125,14 @@ public class SourceLineResultSetIteratorTest {
       SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS,
       SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS,
       SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS
-    );
+      );
   }
 
   @Test
   public void filter_by_date() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    iterator = SourceLineResultSetIterator.create(dbClient, connection, 2000000000000L, null);
+    iterator = SourceLineResultSetIterator.create(db.getDbClient(), db.getSession(), 2000000000000L, null);
     assertThat(iterator.hasNext()).isFalse();
   }
 
@@ -154,9 +141,11 @@ public class SourceLineResultSetIteratorTest {
     db.prepareDbUnit(getClass(), "filter_by_project.xml");
     FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
     dataBuilder.addLinesBuilder().setLine(1).build();
-    FileSourceTesting.updateDataColumn(connection, "F1", dataBuilder.build());
+    try (Connection connection = db.openConnection()) {
+      FileSourceTesting.updateDataColumn(connection, "F1", dataBuilder.build());
+    }
 
-    iterator = SourceLineResultSetIterator.create(dbClient, connection, 0L, "P1");
+    iterator = SourceLineResultSetIterator.create(db.getDbClient(), db.getSession(), 0L, "P1");
 
     FileSourcesUpdaterHelper.Row row = iterator.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
@@ -171,9 +160,11 @@ public class SourceLineResultSetIteratorTest {
     db.prepareDbUnit(getClass(), "filter_by_project_and_date.xml");
     FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
     dataBuilder.addLinesBuilder().setLine(1).build();
-    FileSourceTesting.updateDataColumn(connection, "F1", dataBuilder.build());
+    try (Connection connection = db.openConnection()) {
+      FileSourceTesting.updateDataColumn(connection, "F1", dataBuilder.build());
+    }
 
-    iterator = SourceLineResultSetIterator.create(dbClient, connection, 1400000000000L, "P1");
+    iterator = SourceLineResultSetIterator.create(db.getDbClient(), db.getSession(), 1400000000000L, "P1");
 
     FileSourcesUpdaterHelper.Row row = iterator.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
@@ -187,9 +178,11 @@ public class SourceLineResultSetIteratorTest {
   public void fail_on_bad_data_format() throws Exception {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    FileSourceTesting.updateDataColumn(connection, "F1", "THIS_IS_NOT_PROTOBUF".getBytes());
+    try (Connection connection = db.openConnection()) {
+      FileSourceTesting.updateDataColumn(connection, "F1", "THIS_IS_NOT_PROTOBUF".getBytes());
+    }
 
-    iterator = SourceLineResultSetIterator.create(dbClient, connection, 0L, null);
+    iterator = SourceLineResultSetIterator.create(db.getDbClient(), db.getSession(), 0L, null);
     try {
       assertThat(iterator.hasNext()).isTrue();
       iterator.next();

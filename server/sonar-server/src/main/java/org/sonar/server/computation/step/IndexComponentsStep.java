@@ -20,7 +20,7 @@
 
 package org.sonar.server.computation.step;
 
-import org.sonar.db.component.ResourceIndexerDao;
+import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
 
@@ -29,19 +29,19 @@ import org.sonar.server.computation.component.TreeRootHolder;
  */
 public class IndexComponentsStep implements ComputationStep {
 
-  private final ResourceIndexerDao resourceIndexerDao;
+  private final ResourceIndexDao resourceIndexDao;
   private final DbIdsRepository dbIdsRepository;
   private final TreeRootHolder treeRootHolder;
 
-  public IndexComponentsStep(ResourceIndexerDao resourceIndexerDao, DbIdsRepository dbIdsRepository, TreeRootHolder treeRootHolder) {
-    this.resourceIndexerDao = resourceIndexerDao;
+  public IndexComponentsStep(ResourceIndexDao resourceIndexDao, DbIdsRepository dbIdsRepository, TreeRootHolder treeRootHolder) {
+    this.resourceIndexDao = resourceIndexDao;
     this.dbIdsRepository = dbIdsRepository;
     this.treeRootHolder = treeRootHolder;
   }
 
   @Override
   public void execute() {
-    resourceIndexerDao.indexProject(dbIdsRepository.getComponentId(treeRootHolder.getRoot()));
+    resourceIndexDao.indexProject(dbIdsRepository.getComponentId(treeRootHolder.getRoot()));
   }
 
   @Override

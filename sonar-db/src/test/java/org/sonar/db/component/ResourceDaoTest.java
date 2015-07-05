@@ -307,7 +307,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
 
     session.rollback();
 
-    assertEmptyTables("projects");
+    assertThat(dbTester.countRowsOfTable("projects")).isZero();
   }
 
   @Test

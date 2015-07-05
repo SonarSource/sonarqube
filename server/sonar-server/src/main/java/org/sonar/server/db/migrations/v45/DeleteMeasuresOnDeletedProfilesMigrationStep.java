@@ -22,7 +22,7 @@ package org.sonar.server.db.migrations.v45;
 
 import org.sonar.db.DbSession;
 import org.sonar.db.version.v44.Migration44Mapper;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 import org.sonar.server.db.migrations.MigrationStep;
 import org.sonar.server.db.migrations.v44.ConvertProfileMeasuresMigrationStep;
 

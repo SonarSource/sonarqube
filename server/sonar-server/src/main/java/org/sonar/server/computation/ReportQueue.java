@@ -35,7 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.process.ProcessProperties;
 import org.sonar.db.compute.AnalysisReportDao;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 
 import static org.sonar.db.compute.AnalysisReportDto.Status.PENDING;
 

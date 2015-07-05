@@ -35,10 +35,10 @@ import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.AbstractDaoTestCase;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
+import org.sonar.server.db.DbClient;
 
 public class IssueStorageTest extends AbstractDaoTestCase {
 
@@ -58,7 +58,8 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
   @Test
   public void batch_insert_new_issues() {
-    FakeBatchSaver saver = new FakeBatchSaver(getMyBatis(), new FakeRuleFinder());
+    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis());
+    FakeBatchSaver saver = new FakeBatchSaver(dbClient, new FakeRuleFinder());
 
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
     // override generated key
@@ -93,7 +94,8 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
   @Test
   public void batch_insert_new_issues_with_session() {
-    FakeBatchSaver saver = new FakeBatchSaver(getMyBatis(), new FakeRuleFinder());
+    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis());
+    FakeBatchSaver saver = new FakeBatchSaver(dbClient, new FakeRuleFinder());
 
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
     // override generated key
@@ -131,7 +133,8 @@ public class IssueStorageTest extends AbstractDaoTestCase {
   public void server_insert_new_issues_with_session() {
     ComponentDto project = new ComponentDto().setId(10L).setUuid("uuid-10");
     ComponentDto component = new ComponentDto().setId(100L).setUuid("uuid-100");
-    FakeServerSaver saver = new FakeServerSaver(getMyBatis(), new FakeRuleFinder(), component, project);
+    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis());
+    FakeServerSaver saver = new FakeServerSaver(dbClient, new FakeRuleFinder(), component, project);
 
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
     // override generated key
@@ -169,7 +172,8 @@ public class IssueStorageTest extends AbstractDaoTestCase {
   public void batch_update_issues() {
     setupData("should_update_issues");
 
-    FakeBatchSaver saver = new FakeBatchSaver(getMyBatis(), new FakeRuleFinder());
+    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis());
+    FakeBatchSaver saver = new FakeBatchSaver(dbClient, new FakeRuleFinder());
 
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
     // override generated key
@@ -215,7 +219,8 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
     ComponentDto project = new ComponentDto().setId(10L).setUuid("whatever-uuid");
     ComponentDto component = new ComponentDto().setId(100L).setUuid("whatever-uuid-2");
-    FakeServerSaver saver = new FakeServerSaver(getMyBatis(), new FakeRuleFinder(), component, project);
+    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis());
+    FakeServerSaver saver = new FakeServerSaver(dbClient, new FakeRuleFinder(), component, project);
 
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
     // override generated key
@@ -256,8 +261,8 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
   static class FakeBatchSaver extends IssueStorage {
 
-    protected FakeBatchSaver(MyBatis mybatis, RuleFinder ruleFinder) {
-      super(mybatis, ruleFinder);
+    protected FakeBatchSaver(DbClient dbClient, RuleFinder ruleFinder) {
+      super(dbClient, ruleFinder);
     }
 
     @Override
@@ -280,8 +285,8 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     private final ComponentDto component;
     private final ComponentDto project;
 
-    protected FakeServerSaver(MyBatis mybatis, RuleFinder ruleFinder, ComponentDto component, ComponentDto project) {
-      super(mybatis, ruleFinder);
+    protected FakeServerSaver(DbClient dbClient, RuleFinder ruleFinder, ComponentDto component, ComponentDto project) {
+      super(dbClient, ruleFinder);
       this.component = component;
       this.project = project;
     }

@@ -19,13 +19,11 @@
  */
 package org.sonar.server.activity.index;
 
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
-
-import java.sql.Connection;
 
 /**
  * Add to Elasticsearch index {@link org.sonar.server.activity.index.ActivityIndexDefinition} the rows of
@@ -47,9 +45,8 @@ public class ActivityIndexer extends BaseIndexer {
     bulk.setLarge(lastUpdatedAt == 0L);
 
     DbSession dbSession = dbClient.openSession(false);
-    Connection dbConnection = dbSession.getConnection();
     try {
-      ActivityResultSetIterator it = ActivityResultSetIterator.create(dbClient, dbConnection, lastUpdatedAt);
+      ActivityResultSetIterator it = ActivityResultSetIterator.create(dbClient, dbSession, lastUpdatedAt);
       bulk.start();
       while (it.hasNext()) {
         bulk.add(it.next());

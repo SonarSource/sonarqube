@@ -25,7 +25,7 @@ import org.apache.commons.dbutils.DbUtils;
 import org.sonar.db.version.DatabaseVersion;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -122,7 +122,7 @@ public class DatabaseMonitor extends BaseMonitorMBean implements DatabaseMonitor
   }
 
   private BasicDataSource commonsDbcp() {
-    return (BasicDataSource) dbClient.database().getDataSource();
+    return (BasicDataSource) dbClient.getDatabase().getDataSource();
   }
 
   private void completeDbAttributes(Map<String, Object> attributes) {

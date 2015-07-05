@@ -25,7 +25,7 @@ import org.apache.commons.dbutils.DbUtils;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.db.DbSession;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
@@ -58,14 +58,12 @@ public class IssueAuthorizationIndexer extends BaseIndexer {
     final BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX);
 
     DbSession dbSession = dbClient.openSession(false);
-    Connection dbConnection = dbSession.getConnection();
     try {
       IssueAuthorizationDao dao = new IssueAuthorizationDao();
-      Collection<IssueAuthorizationDao.Dto> authorizations = dao.selectAfterDate(dbClient, dbConnection, lastUpdatedAt);
+      Collection<IssueAuthorizationDao.Dto> authorizations = dao.selectAfterDate(dbClient, dbSession, lastUpdatedAt);
       return doIndex(bulk, authorizations);
 
     } finally {
-      DbUtils.closeQuietly(dbConnection);
       dbSession.close();
     }
   }

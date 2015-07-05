@@ -21,8 +21,9 @@ package org.sonar.server.source.index;
 
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbSession;
 import org.sonar.db.source.FileSourceDto;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 import org.sonar.db.ResultSetIterator;
 import org.sonar.server.es.EsUtils;
 import org.sonar.server.source.db.FileSourceDb;
@@ -46,9 +47,9 @@ import static org.sonar.server.source.index.FileSourcesUpdaterHelper.Row;
  */
 public class SourceLineResultSetIterator extends ResultSetIterator<FileSourcesUpdaterHelper.Row> {
 
-  public static SourceLineResultSetIterator create(DbClient dbClient, Connection connection, long afterDate, @Nullable String projectUuid) {
+  public static SourceLineResultSetIterator create(DbClient dbClient, DbSession session, long afterDate, @Nullable String projectUuid) {
     try {
-      return new SourceLineResultSetIterator(FileSourcesUpdaterHelper.preparedStatementToSelectFileSources(dbClient, connection, FileSourceDto.Type.SOURCE, afterDate,
+      return new SourceLineResultSetIterator(FileSourcesUpdaterHelper.preparedStatementToSelectFileSources(dbClient, session, FileSourceDto.Type.SOURCE, afterDate,
         projectUuid));
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to prepare SQL request to select all file sources", e);

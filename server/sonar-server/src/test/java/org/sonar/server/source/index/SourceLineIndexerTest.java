@@ -21,6 +21,11 @@ package org.sonar.server.source.index;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
+import java.io.IOException;
+import java.sql.Connection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -36,15 +41,8 @@ import org.sonar.db.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.source.db.FileSourceDb;
-import org.sonar.server.source.db.FileSourceTesting;
 import org.sonar.test.DbTests;
 import org.sonar.test.TestUtils;
-
-import java.io.IOException;
-import java.sql.Connection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -90,9 +88,9 @@ public class SourceLineIndexerTest {
   public void index_source_lines() throws Exception {
     db.prepareDbUnit(getClass(), "db.xml");
 
-    Connection connection = db.openConnection();
-    FileSourceTesting.updateDataColumn(connection, "FILE_UUID", FileSourceTesting.newRandomData(3).build());
-    connection.close();
+    try (Connection connection = db.openConnection()) {
+      FileSourceTesting.updateDataColumn(connection, "FILE_UUID", FileSourceTesting.newRandomData(3).build());
+    }
 
     indexer.index();
     assertThat(countDocuments()).isEqualTo(3);
@@ -102,9 +100,9 @@ public class SourceLineIndexerTest {
   public void index_source_lines_from_project() throws Exception {
     db.prepareDbUnit(getClass(), "db.xml");
 
-    Connection connection = db.openConnection();
-    FileSourceTesting.updateDataColumn(connection, "FILE_UUID", FileSourceTesting.newRandomData(3).build());
-    connection.close();
+    try (Connection connection = db.openConnection()) {
+      FileSourceTesting.updateDataColumn(connection, "FILE_UUID", FileSourceTesting.newRandomData(3).build());
+    }
 
     indexer.index("PROJECT_UUID");
     assertThat(countDocuments()).isEqualTo(3);
@@ -114,9 +112,9 @@ public class SourceLineIndexerTest {
   public void index_nothing_from_unknown_project() throws Exception {
     db.prepareDbUnit(getClass(), "db.xml");
 
-    Connection connection = db.openConnection();
-    FileSourceTesting.updateDataColumn(connection, "FILE_UUID", FileSourceTesting.newRandomData(3).build());
-    connection.close();
+    try (Connection connection = db.openConnection()) {
+      FileSourceTesting.updateDataColumn(connection, "FILE_UUID", FileSourceTesting.newRandomData(3).build());
+    }
 
     indexer.index("UNKNOWN");
     assertThat(countDocuments()).isZero();

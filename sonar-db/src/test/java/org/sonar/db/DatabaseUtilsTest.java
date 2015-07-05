@@ -41,8 +41,8 @@ import static org.mockito.Mockito.verify;
 public class DatabaseUtilsTest extends AbstractDaoTestCase {
 
   @Test
-  public void should_close_connection() throws SQLException {
-    Connection connection = getConnection();
+  public void should_close_connection() throws Exception {
+    Connection connection = dbTester.openConnection();
     assertThat(isClosed(connection)).isFalse();
 
     DatabaseUtils.closeQuietly(connection);
@@ -56,8 +56,8 @@ public class DatabaseUtilsTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_close_statement_and_resultset() throws SQLException {
-    Connection connection = getConnection();
+  public void should_close_statement_and_resultset() throws Exception {
+    Connection connection = dbTester.openConnection();
     try {
       PreparedStatement statement = connection.prepareStatement(selectDual());
       ResultSet rs = statement.executeQuery();
@@ -143,7 +143,7 @@ public class DatabaseUtilsTest extends AbstractDaoTestCase {
 
   private String selectDual() {
     String sql = "SELECT 1";
-    if (Oracle.ID.equals(getDatabase().getDialect().getId())) {
+    if (Oracle.ID.equals(dbTester.database().getDialect().getId())) {
       sql = "SELECT 1 FROM DUAL";
     }
     return sql;

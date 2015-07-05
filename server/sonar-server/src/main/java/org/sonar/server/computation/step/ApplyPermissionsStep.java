@@ -26,7 +26,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 
 /**

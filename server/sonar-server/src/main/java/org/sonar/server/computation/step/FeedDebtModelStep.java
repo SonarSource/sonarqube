@@ -31,7 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.debt.CharacteristicDto;
 import org.sonar.server.computation.debt.Characteristic;
 import org.sonar.server.computation.debt.MutableDebtModelHolder;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 
 import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.FluentIterable.from;

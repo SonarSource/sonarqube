@@ -28,7 +28,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.core.util.NonNullInputFunction;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 
 import java.util.Collection;
 import java.util.Map;

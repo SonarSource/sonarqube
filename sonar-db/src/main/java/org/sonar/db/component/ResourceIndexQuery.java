@@ -19,17 +19,17 @@
  */
 package org.sonar.db.component;
 
-final class ResourceIndexerQuery {
+final class ResourceIndexQuery {
   private long rootProjectId;
   private String[] scopes = null;
   private String[] qualifiers = null;
   private boolean nonIndexedOnly = false;
 
-  private ResourceIndexerQuery() {
+  private ResourceIndexQuery() {
   }
 
-  public static ResourceIndexerQuery create() {
-    return new ResourceIndexerQuery();
+  public static ResourceIndexQuery create() {
+    return new ResourceIndexQuery();
   }
 
   public String[] getScopes() {
@@ -40,12 +40,12 @@ final class ResourceIndexerQuery {
     return qualifiers;
   }
 
-  public ResourceIndexerQuery setScopes(String[] scopes) {
+  public ResourceIndexQuery setScopes(String[] scopes) {
     this.scopes = scopes;
     return this;
   }
 
-  public ResourceIndexerQuery setQualifiers(String[] qualifiers) {
+  public ResourceIndexQuery setQualifiers(String[] qualifiers) {
     this.qualifiers = qualifiers;
     return this;
   }
@@ -54,7 +54,7 @@ final class ResourceIndexerQuery {
     return rootProjectId;
   }
 
-  public ResourceIndexerQuery setRootProjectId(long i) {
+  public ResourceIndexQuery setRootProjectId(long i) {
     this.rootProjectId = i;
     return this;
   }
@@ -63,7 +63,7 @@ final class ResourceIndexerQuery {
     return nonIndexedOnly;
   }
 
-  public ResourceIndexerQuery setNonIndexedOnly(boolean b) {
+  public ResourceIndexQuery setNonIndexedOnly(boolean b) {
     this.nonIndexedOnly = b;
     return this;
   }

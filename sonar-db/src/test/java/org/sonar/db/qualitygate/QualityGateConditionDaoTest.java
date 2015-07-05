@@ -31,16 +31,11 @@ public class QualityGateConditionDaoTest extends AbstractDaoTestCase {
     "id", "qgate_id", "metric_id", "operator", "value_warning", "value_error", "period"
   };
 
-  private static QualityGateConditionDao dao;
-
-  @Before
-  public void createDao() {
-    dao = new QualityGateConditionDao(getMyBatis());
-  }
+  QualityGateConditionDao dao = dbTester.getDbClient().gateConditionDao();
 
   @Test
   public void testInsert() throws Exception {
-    setupData("insert");
+    setupData("insert.xml");
     QualityGateConditionDto newCondition = new QualityGateConditionDto()
       .setQualityGateId(1L).setMetricId(2L).setOperator("GT").setWarningThreshold("10").setErrorThreshold("20").setPeriod(3);
     dao.insert(newCondition);
@@ -50,14 +45,14 @@ public class QualityGateConditionDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void testSelectForQualityGate() throws Exception {
-    setupData("selectForQualityGate");
+    setupData("selectForQualityGate.xml");
     assertThat(dao.selectForQualityGate(1L)).hasSize(3);
     assertThat(dao.selectForQualityGate(2L)).hasSize(2);
   }
 
   @Test
   public void testSelectById() throws Exception {
-    setupData("selectForQualityGate");
+    setupData("selectForQualityGate.xml");
     QualityGateConditionDto selectById = dao.selectById(1L);
     assertThat(selectById).isNotNull();
     assertThat(selectById.getId()).isNotNull().isNotEqualTo(0L);
@@ -72,21 +67,22 @@ public class QualityGateConditionDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void testDelete() throws Exception {
-    setupData("selectForQualityGate");
+    setupData("selectForQualityGate.xml");
     dao.delete(new QualityGateConditionDto().setId(1L));
     checkTable("delete", "quality_gate_conditions", COLUMNS_WITHOUT_TIMESTAMPS);
   }
 
   @Test
   public void testUpdate() throws Exception {
-    setupData("selectForQualityGate");
+    setupData("selectForQualityGate.xml");
     dao.update(new QualityGateConditionDto().setId(1L).setMetricId(7L).setOperator(">").setPeriod(1).setWarningThreshold("50").setErrorThreshold("80"));
-    checkTable("update", "quality_gate_conditions", COLUMNS_WITHOUT_TIMESTAMPS);
+    checkTable("update-result.xml", "quality_gate_conditions", COLUMNS_WITHOUT_TIMESTAMPS);
   }
 
+  @Test
   public void shouldCleanConditions() {
-    setupData("shouldCleanConditions");
+    setupData("shouldCleanConditions.xml");
     dao.deleteConditionsWithInvalidMetrics();
-    checkTables("shouldCleanConditions", "quality_gate_conditions");
+    checkTables("shouldCleanConditions-result.xml", new String[]{"created_at", "updated_at"}, "quality_gate_conditions");
   }
 }

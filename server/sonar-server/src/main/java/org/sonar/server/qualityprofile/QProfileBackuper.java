@@ -45,7 +45,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.text.XmlWriter;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.search.IndexClient;
 

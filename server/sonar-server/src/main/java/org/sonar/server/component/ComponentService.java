@@ -42,7 +42,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ResourceIndexerDao;
+import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.db.component.ResourceKeyUpdaterDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
@@ -58,16 +58,16 @@ public class ComponentService {
 
   private final ResourceKeyUpdaterDao resourceKeyUpdaterDao;
   private final I18n i18n;
-  private final ResourceIndexerDao resourceIndexerDao;
+  private final ResourceIndexDao resourceIndexDao;
   private final UserSession userSession;
   private final System2 system2;
 
-  public ComponentService(DbClient dbClient, ResourceKeyUpdaterDao resourceKeyUpdaterDao, I18n i18n, ResourceIndexerDao resourceIndexerDao,
+  public ComponentService(DbClient dbClient, ResourceKeyUpdaterDao resourceKeyUpdaterDao, I18n i18n, ResourceIndexDao resourceIndexDao,
                           UserSession userSession, System2 system2) {
     this.dbClient = dbClient;
     this.resourceKeyUpdaterDao = resourceKeyUpdaterDao;
     this.i18n = i18n;
-    this.resourceIndexerDao = resourceIndexerDao;
+    this.resourceIndexDao = resourceIndexDao;
     this.userSession = userSession;
     this.system2 = system2;
   }
@@ -177,7 +177,7 @@ public class ComponentService {
           .setCreatedAt(new Date(system2.now()))
         ;
       dbClient.componentDao().insert(session, component);
-      resourceIndexerDao.indexResource(session, component.getId());
+      resourceIndexDao.indexResource(session, component.getId());
       session.commit();
 
       return component.key();

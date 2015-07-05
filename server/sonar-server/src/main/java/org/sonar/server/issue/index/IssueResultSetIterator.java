@@ -27,7 +27,8 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.ResultSetIterator;
 import org.sonar.server.db.migrations.SqlUtil;
 
@@ -100,10 +101,10 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     super(stmt);
   }
 
-  static IssueResultSetIterator create(DbClient dbClient, Connection connection, long afterDate) {
+  static IssueResultSetIterator create(DbClient dbClient, DbSession session, long afterDate) {
     try {
       String sql = afterDate > 0L ? SQL_AFTER_DATE : SQL_ALL;
-      PreparedStatement stmt = dbClient.newScrollingSelectStatement(connection, sql);
+      PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, sql);
       if (afterDate > 0L) {
         stmt.setLong(1, afterDate);
       }

@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 import org.sonar.db.activity.ActivityDao;
 import org.sonar.db.component.ComponentLinkDao;
 import org.sonar.db.component.ResourceDao;
-import org.sonar.db.component.ResourceIndexerDao;
+import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.compute.AnalysisReportDao;
 import org.sonar.db.dashboard.DashboardDao;
@@ -52,8 +52,9 @@ import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.UserGroupDao;
 
-public class DbClient2 {
+public class DbClient {
 
+  private final Database database;
   private final MyBatis myBatis;
   private final QualityProfileDao qualityProfileDao;
   private final CharacteristicDao debtCharacteristicDao;
@@ -79,13 +80,14 @@ public class DbClient2 {
   private final WidgetPropertyDao widgetPropertyDao;
   private final FileSourceDao fileSourceDao;
   private final AuthorDao authorDao;
-  private final ResourceIndexerDao componentIndexDao;
+  private final ResourceIndexDao componentIndexDao;
   private final ComponentLinkDao componentLinkDao;
   private final EventDao eventDao;
   private final PurgeDao purgeDao;
   private final QualityGateConditionDao gateConditionDao;
 
-  public DbClient2(MyBatis myBatis, Dao[] daos) {
+  public DbClient(Database database, MyBatis myBatis, Dao[] daos) {
+    this.database = database;
     this.myBatis = myBatis;
 
     Map<Class, Dao> map = new IdentityHashMap<>();
@@ -116,11 +118,17 @@ public class DbClient2 {
     widgetPropertyDao = getDao(map, WidgetPropertyDao.class);
     fileSourceDao = getDao(map, FileSourceDao.class);
     authorDao = getDao(map, AuthorDao.class);
-    componentIndexDao = getDao(map, ResourceIndexerDao.class);
+    componentIndexDao = getDao(map, ResourceIndexDao.class);
     componentLinkDao = getDao(map, ComponentLinkDao.class);
     eventDao = getDao(map, EventDao.class);
     purgeDao = getDao(map, PurgeDao.class);
     gateConditionDao = getDao(map, QualityGateConditionDao.class);
+    doOnLoad(map);
+  }
+
+  // should be removed, but till used by sonar-server
+  protected void doOnLoad(Map<Class, Dao> daoByClass) {
+
   }
 
   public DbSession openSession(boolean batch) {
@@ -129,6 +137,10 @@ public class DbClient2 {
 
   public void closeSession(@Nullable DbSession session) {
     MyBatis.closeQuietly(session);
+  }
+
+  public Database getDatabase() {
+    return database;
   }
 
   public IssueDao issueDao() {
@@ -223,7 +235,7 @@ public class DbClient2 {
     return authorDao;
   }
 
-  public ResourceIndexerDao componentIndexDao() {
+  public ResourceIndexDao componentIndexDao() {
     return componentIndexDao;
   }
 
@@ -247,7 +259,12 @@ public class DbClient2 {
     return gateConditionDao;
   }
 
-  private <K extends Dao> K getDao(Map<Class, Dao> map, Class<K> clazz) {
+  protected <K extends Dao> K getDao(Map<Class, Dao> map, Class<K> clazz) {
     return (K) map.get(clazz);
+  }
+
+  // should be removed. Still used by some old DAO in sonar-server
+  public MyBatis getMyBatis() {
+    return myBatis;
   }
 }

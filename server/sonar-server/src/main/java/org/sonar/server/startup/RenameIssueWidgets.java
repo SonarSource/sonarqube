@@ -32,7 +32,7 @@ import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 import org.sonar.server.issue.filter.RegisterIssueFilters;
 
 import java.util.Date;

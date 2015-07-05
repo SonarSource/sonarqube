@@ -107,27 +107,23 @@ public class PlatformLevel1 extends PlatformLevel {
       // Elasticsearch
       EsSearchModule.class,
 
-      // users
+      // DAOs to be moved to sonar-db
       GroupDao.class,
       UserDao.class,
+      RuleDao.class,
+      ActiveRuleDao.class,
+      MetricDao.class,
+      CustomMeasureDao.class,
+      ComponentDao.class,
 
       // rules/qprofiles
       RuleNormalizer.class,
       ActiveRuleNormalizer.class,
       RuleIndex.class,
       ActiveRuleIndex.class,
-      RuleDao.class,
-      ActiveRuleDao.class,
 
       // issues
-      IssueIndex.class,
-
-      // measures
-      MetricDao.class,
-      CustomMeasureDao.class,
-
-      // components
-      ComponentDao.class);
+      IssueIndex.class);
     addAll(CorePropertyDefinitions.all());
     add(MigrationStepModule.class);
     addAll(DaoUtils.getDaoClasses());

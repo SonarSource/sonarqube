@@ -21,17 +21,16 @@ package org.sonar.server.issue.index;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.server.db.DbClient;
-
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 
 /**
  * No streaming because of union of joins -> no need to use ResultSetIterator
@@ -146,13 +145,13 @@ public class IssueAuthorizationDao {
       "        AND group_roles.group_id IS NULL " +
       "    ) project_authorization";
 
-  Collection<Dto> selectAfterDate(DbClient dbClient, Connection connection, long afterDate) {
+  Collection<Dto> selectAfterDate(DbClient dbClient, DbSession session, long afterDate) {
     try {
       Map<String, Dto> dtosByProjectUuid = Maps.newHashMap();
       PreparedStatement stmt = null;
       ResultSet rs = null;
       try {
-        stmt = createStatement(dbClient, connection, afterDate);
+        stmt = createStatement(dbClient, session, afterDate);
         rs = stmt.executeQuery();
         while (rs.next()) {
           processRow(rs, dtosByProjectUuid);
@@ -167,14 +166,14 @@ public class IssueAuthorizationDao {
     }
   }
 
-  private PreparedStatement createStatement(DbClient dbClient, Connection connection, long afterDate) throws SQLException {
+  private PreparedStatement createStatement(DbClient dbClient, DbSession session, long afterDate) throws SQLException {
     String sql;
     if (afterDate > 0L) {
       sql = StringUtils.replace(SQL_TEMPLATE, "{dateCondition}", " AND projects.authorization_updated_at>? ");
     } else {
       sql = StringUtils.replace(SQL_TEMPLATE, "{dateCondition}", "");
     }
-    PreparedStatement stmt = dbClient.newScrollingSelectStatement(connection, sql);
+    PreparedStatement stmt = dbClient.getMyBatis().newScrollingSelectStatement(session, sql);
     if (afterDate > 0L) {
       for (int i = 1; i <= 4; i++) {
         stmt.setLong(i, afterDate);

@@ -20,17 +20,16 @@
 package org.sonar.server.db.migrations;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.sql.Connection;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.picocontainer.Startable;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.platform.ServerUpgradeStatus;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.db.DbClient;
 import org.sonar.db.DdlUtils;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.plugins.ServerPluginRepository;
-
-import java.sql.Connection;
 
 /**
  * Restore schema by executing DDL scripts. Only H2 database is supported.
@@ -70,13 +69,13 @@ public class DatabaseMigrator implements Startable {
    */
   @VisibleForTesting
   boolean createDatabase() {
-    if (DdlUtils.supportsDialect(dbClient.database().getDialect().getId()) && serverUpgradeStatus.isFreshInstall()) {
+    if (DdlUtils.supportsDialect(dbClient.getDatabase().getDialect().getId()) && serverUpgradeStatus.isFreshInstall()) {
       Loggers.get(getClass()).info("Create database");
       SqlSession session = dbClient.openSession(false);
       Connection connection = null;
       try {
         connection = session.getConnection();
-        createSchema(connection, dbClient.database().getDialect().getId());
+        createSchema(connection, dbClient.getDatabase().getDialect().getId());
         return true;
       } finally {
         session.close();

@@ -21,18 +21,14 @@ package org.sonar.server.issue.index;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import org.apache.commons.dbutils.DbUtils;
-import org.junit.After;
+import java.util.Collection;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
-
-import java.sql.Connection;
-import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,29 +36,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class IssueAuthorizationDaoTest {
 
   @ClassRule
-  public static DbTester dbTester = new DbTester();
+  public static DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   IssueAuthorizationDao dao = new IssueAuthorizationDao();
-  DbClient client;
-  Connection connection;
 
   @Before
   public void setUp() throws Exception {
     dbTester.truncateTables();
-    client = new DbClient(dbTester.database(), dbTester.myBatis());
-    connection = dbTester.openConnection();
-  }
-
-  @After
-  public void tearDown() {
-    DbUtils.closeQuietly(connection);
   }
 
   @Test
   public void select_all() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    Collection<IssueAuthorizationDao.Dto> dtos = dao.selectAfterDate(client, connection, 0L);
+    Collection<IssueAuthorizationDao.Dto> dtos = dao.selectAfterDate(dbTester.getDbClient(), dbTester.getSession(), 0L);
     assertThat(dtos).hasSize(2);
 
     IssueAuthorizationDao.Dto abc = Iterables.find(dtos, new ProjectPredicate("ABC"));
@@ -80,7 +67,7 @@ public class IssueAuthorizationDaoTest {
   public void select_after_date() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    Collection<IssueAuthorizationDao.Dto> dtos = dao.selectAfterDate(client, connection, 1500000000L);
+    Collection<IssueAuthorizationDao.Dto> dtos = dao.selectAfterDate(dbTester.getDbClient(), dbTester.getSession(), 1500000000L);
 
     // only project DEF was updated in this period
     assertThat(dtos).hasSize(1);
@@ -94,7 +81,7 @@ public class IssueAuthorizationDaoTest {
   public void no_authorization() {
     dbTester.prepareDbUnit(getClass(), "no_authorization.xml");
 
-    Collection<IssueAuthorizationDao.Dto> dtos = dao.selectAfterDate(client, connection, 0L);
+    Collection<IssueAuthorizationDao.Dto> dtos = dao.selectAfterDate(dbTester.getDbClient(), dbTester.getSession(), 0L);
 
     assertThat(dtos).hasSize(1);
     IssueAuthorizationDao.Dto abc = Iterables.find(dtos, new ProjectPredicate("ABC"));

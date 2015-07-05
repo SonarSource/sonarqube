@@ -19,11 +19,8 @@
  */
 package org.sonar.db.user;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
 import org.sonar.db.AbstractDaoTestCase;
-import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,12 +28,7 @@ import static org.junit.Assert.fail;
 
 public class AuthorDaoTest extends AbstractDaoTestCase {
 
-  private AuthorDao dao;
-
-  @Before
-  public void setUp() {
-    dao = new AuthorDao(getMyBatis(), new ResourceDao(getMyBatis(), System2.INSTANCE));
-  }
+  AuthorDao dao = dbTester.getDbClient().authorDao();
 
   @Test
   public void shouldSelectByLogin() {
