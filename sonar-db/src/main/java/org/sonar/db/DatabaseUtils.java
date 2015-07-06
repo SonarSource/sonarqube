@@ -33,13 +33,9 @@ import org.slf4j.LoggerFactory;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public final class DatabaseUtils {
+public class DatabaseUtils {
 
   private static final int PARTITION_SIZE_FOR_ORACLE = 1000;
-
-  private DatabaseUtils() {
-    // only static methods
-  }
 
   public static void closeQuietly(@Nullable Connection connection) {
     if (connection != null) {

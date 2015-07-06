@@ -21,7 +21,7 @@ package org.sonar.db.property;
 
 import com.google.common.base.Objects;
 
-public final class PropertyDto {
+public class PropertyDto {
   private Long id;
   private String key;
   private String value;

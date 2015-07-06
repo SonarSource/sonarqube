@@ -123,7 +123,12 @@ public class PlatformLevel1 extends PlatformLevel {
       ActiveRuleIndex.class,
 
       // issues
-      IssueIndex.class);
+      IssueIndex.class,
+
+      // Classes kept for backward compatibility of plugins/libs (like sonar-license) that are directly calling classes from the core
+      org.sonar.core.properties.PropertiesDao.class,
+      org.sonar.core.persistence.MyBatis.class
+    );
     addAll(CorePropertyDefinitions.all());
     add(MigrationStepModule.class);
     addAll(DaoUtils.getDaoClasses());
