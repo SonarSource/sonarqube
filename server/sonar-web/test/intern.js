@@ -22,8 +22,7 @@ define(['intern'], function (intern) {
     functionalSuites: [
       'test/medium/users.spec',
       'test/medium/issues.spec',
-      'test/medium/update-center.spec',
-      'test/medium/coding-rules.spec'
+      'test/medium/update-center.spec'
     ],
 
     tunnel: tunnel,
