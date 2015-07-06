@@ -96,7 +96,7 @@ public class DbTester extends ExternalResource {
 
   @Override
   protected void before() throws Throwable {
-    truncateTables();
+    db.start();
   }
 
   @Override
@@ -104,7 +104,7 @@ public class DbTester extends ExternalResource {
     if (session != null) {
       MyBatis.closeQuietly(session);
     }
-    db.close();
+    db.stop();
   }
 
   public DbSession getSession() {
@@ -323,8 +323,8 @@ public class DbTester extends ExternalResource {
 
   public void assertColumnDefinition(String table, String column, int expectedType, @Nullable Integer expectedSize) {
     try (Connection connection = db.getDatabase().getDataSource().getConnection();
-      PreparedStatement stmt = connection.prepareStatement("select * from " + table);
-      ResultSet res = stmt.executeQuery()) {
+         PreparedStatement stmt = connection.prepareStatement("select * from " + table);
+         ResultSet res = stmt.executeQuery()) {
       Integer columnIndex = getColumnIndex(res, column);
       if (columnIndex == null) {
         fail("The column '" + column + "' does not exist");
@@ -336,7 +336,7 @@ public class DbTester extends ExternalResource {
       }
 
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to check column");
+      throw new IllegalStateException("Fail to check column", e);
     }
   }
 
@@ -353,7 +353,7 @@ public class DbTester extends ExternalResource {
       return null;
 
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to get column idnex");
+      throw new IllegalStateException("Fail to get column index", e);
     }
   }
 
@@ -387,6 +387,7 @@ public class DbTester extends ExternalResource {
       }
     } catch (SQLException e) {
       // ignore
+      e.printStackTrace();
     }
   }
 
@@ -417,10 +418,6 @@ public class DbTester extends ExternalResource {
   @Deprecated
   public Database database() {
     return db.getDatabase();
-  }
-
-  public DatabaseCommands getCommands() {
-    return db.getCommands();
   }
 
 }
