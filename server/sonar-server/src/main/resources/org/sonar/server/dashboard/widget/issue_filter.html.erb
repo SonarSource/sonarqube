@@ -11,7 +11,7 @@
 
   <% if is_enough_permissions %>
 
-    <% @widget_title = "<a href=\"#{url_for({:controller => 'issues', :action => 'index'})}#id=#{filter.id}\">#{h(filter.name)}</a>" %>
+    <% @widget_title = "<a href=\"#{url_for({:controller => 'issues', :action => 'index'})}#id=#{filter.id}|facetMode=#{display_mode}\">#{h(filter.name)}</a>" %>
     <% if widget_properties['displayFilterDescription'] && !filter.description.blank? %>
       <p class="note spacer-bottom"><%= h filter.description -%></p>
     <% end %>
