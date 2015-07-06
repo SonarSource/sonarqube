@@ -128,7 +128,7 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitor<FormulaExe
   }
 
   private void processFile(Component file, Path<FormulaExecutorComponentVisitor.Counters> path) {
-    CounterContext counterContext = new CounterContextImpl(file);
+    FileAggregateContext counterContext = new FileAggregateContextImpl(file);
     for (Formula formula : formulas) {
       Counter counter = formula.createNewCounter();
       counter.aggregate(counterContext);
@@ -139,7 +139,7 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitor<FormulaExe
 
   private void addNewMeasure(Component component, Formula formula, Counter counter) {
     Metric metric = metricRepository.getByKey(formula.getOutputMetricKey());
-    Optional<Measure> measure = formula.createMeasure(counter, component.getType());
+    Optional<Measure> measure = formula.createMeasure(counter, new CreateMeasureContextImpl(component));
     if (measure.isPresent()) {
       measureRepository.add(component, metric, measure.get());
     }
@@ -151,11 +151,16 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitor<FormulaExe
     }
   }
 
-  private class CounterContextImpl implements CounterContext {
+  private class FileAggregateContextImpl implements FileAggregateContext {
     private final Component file;
 
-    public CounterContextImpl(Component file) {
+    public FileAggregateContextImpl(Component file) {
       this.file = file;
+    }
+
+    @Override
+    public Component getFile() {
+      return file;
     }
 
     @Override
@@ -187,6 +192,24 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitor<FormulaExe
     @CheckForNull
     public Counter getCounter(String metricKey) {
       return countersByFormula.get(metricKey);
+    }
+  }
+
+  private class CreateMeasureContextImpl implements CreateMeasureContext {
+    private final Component component;
+
+    public CreateMeasureContextImpl(Component component) {
+      this.component = component;
+    }
+
+    @Override
+    public Component getComponent() {
+      return component;
+    }
+
+    @Override
+    public List<Period> getPeriods() {
+      return periodsHolder.getPeriods();
     }
   }
 }

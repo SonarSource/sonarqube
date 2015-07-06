@@ -26,7 +26,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.measure.Measure;
+import org.sonar.server.computation.period.PeriodsHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -40,7 +42,11 @@ public class DistributionFormulaTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  CounterContext counterContext = mock(CounterContext.class);
+  FileAggregateContext fileAggregateContext = mock(FileAggregateContext.class);
+  CreateMeasureContext projectCreateMeasureContext = new DumbCreateMeasureContext(
+      DumbComponent.builder(Component.Type.PROJECT, 1).build(), mock(PeriodsHolder.class));
+  CreateMeasureContext fileCreateMeasureContext = new DumbCreateMeasureContext(
+      DumbComponent.builder(Component.Type.FILE, 1).build(), mock(PeriodsHolder.class));
 
   @Test
   public void check_new_counter_class() {
@@ -64,43 +70,43 @@ public class DistributionFormulaTest {
   public void create_measure() {
     DistributionFormula.DistributionCounter counter = BASIC_DISTRIBUTION_FORMULA.createNewCounter();
     addMeasure(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, "0=3;3=7;6=10");
-    counter.aggregate(counterContext);
+    counter.aggregate(fileAggregateContext);
 
-    assertThat(BASIC_DISTRIBUTION_FORMULA.createMeasure(counter, Component.Type.PROJECT).get().getData()).isEqualTo("0=3;3=7;6=10");
+    assertThat(BASIC_DISTRIBUTION_FORMULA.createMeasure(counter, projectCreateMeasureContext).get().getData()).isEqualTo("0=3;3=7;6=10");
   }
 
   @Test
   public void create_measure_when_counter_is_aggregating_from_another_counter() {
     DistributionFormula.DistributionCounter anotherCounter = BASIC_DISTRIBUTION_FORMULA.createNewCounter();
     addMeasure(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, "0=3;3=7;6=10");
-    anotherCounter.aggregate(counterContext);
+    anotherCounter.aggregate(fileAggregateContext);
 
     DistributionFormula.DistributionCounter counter = BASIC_DISTRIBUTION_FORMULA.createNewCounter();
     counter.aggregate(anotherCounter);
 
-    assertThat(BASIC_DISTRIBUTION_FORMULA.createMeasure(counter, Component.Type.PROJECT).get().getData()).isEqualTo("0=3;3=7;6=10");
+    assertThat(BASIC_DISTRIBUTION_FORMULA.createMeasure(counter, projectCreateMeasureContext).get().getData()).isEqualTo("0=3;3=7;6=10");
   }
 
   @Test
   public void create_no_measure_when_no_value() {
     DistributionFormula.DistributionCounter counter = BASIC_DISTRIBUTION_FORMULA.createNewCounter();
-    when(counterContext.getMeasure(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(Optional.<Measure>absent());
-    counter.aggregate(counterContext);
+    when(fileAggregateContext.getMeasure(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(Optional.<Measure>absent());
+    counter.aggregate(fileAggregateContext);
 
-    Assertions.assertThat(BASIC_DISTRIBUTION_FORMULA.createMeasure(counter, Component.Type.PROJECT)).isAbsent();
+    Assertions.assertThat(BASIC_DISTRIBUTION_FORMULA.createMeasure(counter, projectCreateMeasureContext)).isAbsent();
   }
 
   @Test
   public void not_create_measure_when_on_file() {
     DistributionFormula.DistributionCounter counter = BASIC_DISTRIBUTION_FORMULA.createNewCounter();
     addMeasure(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, "0=3;3=7;6=10");
-    counter.aggregate(counterContext);
+    counter.aggregate(fileAggregateContext);
 
-    Assertions.assertThat(BASIC_DISTRIBUTION_FORMULA.createMeasure(counter, Component.Type.FILE)).isAbsent();
+    Assertions.assertThat(BASIC_DISTRIBUTION_FORMULA.createMeasure(counter, fileCreateMeasureContext)).isAbsent();
   }
 
   private void addMeasure(String metricKey, String value) {
-    when(counterContext.getMeasure(metricKey)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(value)));
+    when(fileAggregateContext.getMeasure(metricKey)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(value)));
   }
 
 }

@@ -39,7 +39,8 @@ public class DistributionFormula implements Formula<DistributionFormula.Distribu
   }
 
   @Override
-  public Optional<Measure> createMeasure(DistributionCounter counter, Component.Type componentType) {
+  public Optional<Measure> createMeasure(DistributionCounter counter, CreateMeasureContext context) {
+    Component.Type componentType = context.getComponent().getType();
     Optional<String> value = counter.getValue();
     if (value.isPresent() && componentType.isHigherThan(Component.Type.FILE)) {
       return Optional.of(Measure.newMeasureBuilder().create(value.get()));
@@ -67,8 +68,8 @@ public class DistributionFormula implements Formula<DistributionFormula.Distribu
     }
 
     @Override
-    public void aggregate(CounterContext counterContext) {
-      Optional<Measure> measureOptional = counterContext.getMeasure(metricKey);
+    public void aggregate(FileAggregateContext context) {
+      Optional<Measure> measureOptional = context.getMeasure(metricKey);
       String data = measureOptional.isPresent() ? measureOptional.get().getData() : null;
       if (data != null) {
         initialized = true;

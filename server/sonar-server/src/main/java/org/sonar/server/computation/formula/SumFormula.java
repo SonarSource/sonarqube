@@ -39,9 +39,9 @@ public class SumFormula implements Formula<SumFormula.SumCounter> {
   }
 
   @Override
-  public Optional<Measure> createMeasure(SumCounter counter, Component.Type componentType) {
+  public Optional<Measure> createMeasure(SumCounter counter, CreateMeasureContext context) {
     Optional<Integer> valueOptional = counter.getValue();
-    if (valueOptional.isPresent() && componentType.isHigherThan(Component.Type.FILE)) {
+    if (valueOptional.isPresent() && context.getComponent().getType().isHigherThan(Component.Type.FILE)) {
       return Optional.of(Measure.newMeasureBuilder().create(valueOptional.get()));
     }
     return Optional.absent();
@@ -66,8 +66,8 @@ public class SumFormula implements Formula<SumFormula.SumCounter> {
     }
 
     @Override
-    public void aggregate(CounterContext counterContext) {
-      Optional<Measure> measureOptional = counterContext.getMeasure(metricKey);
+    public void aggregate(FileAggregateContext context) {
+      Optional<Measure> measureOptional = context.getMeasure(metricKey);
       if (measureOptional.isPresent()) {
         addValue(measureOptional.get().getIntValue());
       }

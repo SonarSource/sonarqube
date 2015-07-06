@@ -24,7 +24,6 @@ import com.google.common.base.Optional;
 import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.measure.Measure;
 
 public class AverageFormula implements Formula<AverageFormula.AverageCounter> {
@@ -49,7 +48,7 @@ public class AverageFormula implements Formula<AverageFormula.AverageCounter> {
   }
 
   @Override
-  public Optional<Measure> createMeasure(AverageCounter counter, Component.Type componentType) {
+  public Optional<Measure> createMeasure(AverageCounter counter, CreateMeasureContext context) {
     Optional<Double> mainValueOptional = counter.getMainValue();
     Optional<Double> byValueOptional = counter.getByValue();
     if (mainValueOptional.isPresent() && byValueOptional.isPresent()) {
@@ -123,12 +122,12 @@ public class AverageFormula implements Formula<AverageFormula.AverageCounter> {
     }
 
     @Override
-    public void aggregate(CounterContext counterContext) {
-      Optional<Double> mainValueOptional = getDoubleValue(counterContext.getMeasure(mainMetric));
+    public void aggregate(FileAggregateContext context) {
+      Optional<Double> mainValueOptional = getDoubleValue(context.getMeasure(mainMetric));
       if (!mainValueOptional.isPresent() && fallbackMetric != null) {
-        mainValueOptional = getDoubleValue(counterContext.getMeasure(fallbackMetric));
+        mainValueOptional = getDoubleValue(context.getMeasure(fallbackMetric));
       }
-      Optional<Double> byValueOptional = getDoubleValue(counterContext.getMeasure(byMetric));
+      Optional<Double> byValueOptional = getDoubleValue(context.getMeasure(byMetric));
       addValuesIfPresent(mainValueOptional, byValueOptional);
     }
 

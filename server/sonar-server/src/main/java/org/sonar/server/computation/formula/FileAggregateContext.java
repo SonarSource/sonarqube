@@ -22,15 +22,27 @@ package org.sonar.server.computation.formula;
 
 import com.google.common.base.Optional;
 import java.util.List;
+import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.period.Period;
 
-public interface CounterContext {
+/**
+ * The context passing information to {@link Counter#aggregate(FileAggregateContext)}.
+ */
+public interface FileAggregateContext {
 
+  /**
+   * The Component representing the currently processed File.
+   */
+  Component getFile();
+
+  /**
+   * Retrieve the measure for the current File with the metric key if it exists.
+   */
   Optional<Measure> getMeasure(String metricKey);
 
   /**
-   * Lists of Periods defined for the current project. They can be used to aggregate values of MeasureVariations.
+   * Lists of Periods defined for the current project. They can be used to retrieve variations Measure.
    */
   List<Period> getPeriods();
 

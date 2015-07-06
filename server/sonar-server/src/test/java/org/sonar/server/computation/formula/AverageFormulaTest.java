@@ -27,7 +27,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.measure.Measure;
+import org.sonar.server.computation.period.PeriodsHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -47,7 +49,9 @@ public class AverageFormulaTest {
     .setByMetricKey(FUNCTIONS_KEY)
     .build();
 
-  CounterContext counterContext = mock(CounterContext.class);
+  FileAggregateContext fileAggregateContext = mock(FileAggregateContext.class);
+  CreateMeasureContext createMeasureContext = new DumbCreateMeasureContext(
+      DumbComponent.builder(Component.Type.PROJECT, 1).build(), mock(PeriodsHolder.class));
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -103,9 +107,9 @@ public class AverageFormulaTest {
     AverageFormula.AverageCounter counter = BASIC_AVERAGE_FORMULA.createNewCounter();
     addMeasure(COMPLEXITY_IN_FUNCTIONS_KEY, 10d);
     addMeasure(FUNCTIONS_KEY, 2d);
-    counter.aggregate(counterContext);
+    counter.aggregate(fileAggregateContext);
 
-    assertThat(BASIC_AVERAGE_FORMULA.createMeasure(counter, Component.Type.PROJECT).get().getDoubleValue()).isEqualTo(5d);
+    assertThat(BASIC_AVERAGE_FORMULA.createMeasure(counter, createMeasureContext).get().getDoubleValue()).isEqualTo(5d);
   }
 
   @Test
@@ -113,12 +117,12 @@ public class AverageFormulaTest {
     AverageFormula.AverageCounter anotherCounter = BASIC_AVERAGE_FORMULA.createNewCounter();
     addMeasure(COMPLEXITY_IN_FUNCTIONS_KEY, 10d);
     addMeasure(FUNCTIONS_KEY, 2d);
-    anotherCounter.aggregate(counterContext);
+    anotherCounter.aggregate(fileAggregateContext);
 
     AverageFormula.AverageCounter counter = BASIC_AVERAGE_FORMULA.createNewCounter();
     counter.aggregate(anotherCounter);
 
-    assertThat(BASIC_AVERAGE_FORMULA.createMeasure(counter, Component.Type.PROJECT).get().getDoubleValue()).isEqualTo(5d);
+    assertThat(BASIC_AVERAGE_FORMULA.createMeasure(counter, createMeasureContext).get().getDoubleValue()).isEqualTo(5d);
   }
 
   @Test
@@ -126,9 +130,9 @@ public class AverageFormulaTest {
     AverageFormula.AverageCounter counter = BASIC_AVERAGE_FORMULA.createNewCounter();
     addMeasure(COMPLEXITY_IN_FUNCTIONS_KEY, 10d);
     addMeasure(FUNCTIONS_KEY, 2d);
-    counter.aggregate(counterContext);
+    counter.aggregate(fileAggregateContext);
 
-    assertThat(BASIC_AVERAGE_FORMULA.createMeasure(counter, Component.Type.PROJECT).get().getDoubleValue()).isEqualTo(5d);
+    assertThat(BASIC_AVERAGE_FORMULA.createMeasure(counter, createMeasureContext).get().getDoubleValue()).isEqualTo(5d);
   }
 
   @Test
@@ -136,9 +140,9 @@ public class AverageFormulaTest {
     AverageFormula.AverageCounter counter = BASIC_AVERAGE_FORMULA.createNewCounter();
     addMeasure(COMPLEXITY_IN_FUNCTIONS_KEY, 10);
     addMeasure(FUNCTIONS_KEY, 2);
-    counter.aggregate(counterContext);
+    counter.aggregate(fileAggregateContext);
 
-    assertThat(BASIC_AVERAGE_FORMULA.createMeasure(counter, Component.Type.PROJECT).get().getDoubleValue()).isEqualTo(5);
+    assertThat(BASIC_AVERAGE_FORMULA.createMeasure(counter, createMeasureContext).get().getDoubleValue()).isEqualTo(5);
   }
 
   @Test
@@ -146,19 +150,19 @@ public class AverageFormulaTest {
     AverageFormula.AverageCounter counter = BASIC_AVERAGE_FORMULA.createNewCounter();
     addMeasure(COMPLEXITY_IN_FUNCTIONS_KEY, 10L);
     addMeasure(FUNCTIONS_KEY, 2L);
-    counter.aggregate(counterContext);
+    counter.aggregate(fileAggregateContext);
 
-    assertThat(BASIC_AVERAGE_FORMULA.createMeasure(counter, Component.Type.PROJECT).get().getDoubleValue()).isEqualTo(5L);
+    assertThat(BASIC_AVERAGE_FORMULA.createMeasure(counter, createMeasureContext).get().getDoubleValue()).isEqualTo(5L);
   }
 
   @Test
   public void not_create_measure_when_aggregated_measure_has_no_value() {
     AverageFormula.AverageCounter counter = BASIC_AVERAGE_FORMULA.createNewCounter();
     addMeasure(COMPLEXITY_IN_FUNCTIONS_KEY, 10L);
-    when(counterContext.getMeasure(FUNCTIONS_KEY)).thenReturn(Optional.of(Measure.newMeasureBuilder().createNoValue()));
-    counter.aggregate(counterContext);
+    when(fileAggregateContext.getMeasure(FUNCTIONS_KEY)).thenReturn(Optional.of(Measure.newMeasureBuilder().createNoValue()));
+    counter.aggregate(fileAggregateContext);
 
-    Assertions.assertThat(BASIC_AVERAGE_FORMULA.createMeasure(counter, Component.Type.PROJECT)).isAbsent();
+    Assertions.assertThat(BASIC_AVERAGE_FORMULA.createMeasure(counter, createMeasureContext)).isAbsent();
   }
 
   @Test
@@ -168,29 +172,29 @@ public class AverageFormulaTest {
 
     AverageFormula.AverageCounter counter = BASIC_AVERAGE_FORMULA.createNewCounter();
     addMeasure(COMPLEXITY_IN_FUNCTIONS_KEY, 10L);
-    when(counterContext.getMeasure(FUNCTIONS_KEY)).thenReturn(Optional.of(Measure.newMeasureBuilder().create("data")));
-    counter.aggregate(counterContext);
+    when(fileAggregateContext.getMeasure(FUNCTIONS_KEY)).thenReturn(Optional.of(Measure.newMeasureBuilder().create("data")));
+    counter.aggregate(fileAggregateContext);
 
-    BASIC_AVERAGE_FORMULA.createMeasure(counter, Component.Type.PROJECT);
+    BASIC_AVERAGE_FORMULA.createMeasure(counter, createMeasureContext);
   }
 
   @Test
   public void no_measure_created_when_counter_has_no_value() {
     AverageFormula.AverageCounter counter = BASIC_AVERAGE_FORMULA.createNewCounter();
-    when(counterContext.getMeasure(anyString())).thenReturn(Optional.<Measure>absent());
-    counter.aggregate(counterContext);
+    when(fileAggregateContext.getMeasure(anyString())).thenReturn(Optional.<Measure>absent());
+    counter.aggregate(fileAggregateContext);
 
-    Assertions.assertThat(BASIC_AVERAGE_FORMULA.createMeasure(counter, Component.Type.PROJECT)).isAbsent();
+    Assertions.assertThat(BASIC_AVERAGE_FORMULA.createMeasure(counter, createMeasureContext)).isAbsent();
   }
 
   @Test
   public void not_create_measure_when_only_one_measure() {
     AverageFormula.AverageCounter counter = BASIC_AVERAGE_FORMULA.createNewCounter();
     addMeasure(COMPLEXITY_IN_FUNCTIONS_KEY, 10L);
-    when(counterContext.getMeasure(FUNCTIONS_KEY)).thenReturn(Optional.<Measure>absent());
-    counter.aggregate(counterContext);
+    when(fileAggregateContext.getMeasure(FUNCTIONS_KEY)).thenReturn(Optional.<Measure>absent());
+    counter.aggregate(fileAggregateContext);
 
-    Assertions.assertThat(BASIC_AVERAGE_FORMULA.createMeasure(counter, Component.Type.PROJECT)).isAbsent();
+    Assertions.assertThat(BASIC_AVERAGE_FORMULA.createMeasure(counter, createMeasureContext)).isAbsent();
   }
 
   @Test
@@ -198,9 +202,9 @@ public class AverageFormulaTest {
     AverageFormula.AverageCounter counter = BASIC_AVERAGE_FORMULA.createNewCounter();
     addMeasure(COMPLEXITY_IN_FUNCTIONS_KEY, 10d);
     addMeasure(FUNCTIONS_KEY, 0d);
-    counter.aggregate(counterContext);
+    counter.aggregate(fileAggregateContext);
 
-    Assertions.assertThat(BASIC_AVERAGE_FORMULA.createMeasure(counter, Component.Type.PROJECT)).isAbsent();
+    Assertions.assertThat(BASIC_AVERAGE_FORMULA.createMeasure(counter, createMeasureContext)).isAbsent();
   }
 
   @Test
@@ -213,12 +217,12 @@ public class AverageFormulaTest {
       .build();
 
     AverageFormula.AverageCounter counter = sut.createNewCounter();
-    when(counterContext.getMeasure(COMPLEXITY_IN_FUNCTIONS_KEY)).thenReturn(Optional.<Measure>absent());
+    when(fileAggregateContext.getMeasure(COMPLEXITY_IN_FUNCTIONS_KEY)).thenReturn(Optional.<Measure>absent());
     addMeasure(COMPLEXITY_KEY, 10d);
     addMeasure(FUNCTIONS_KEY, 2d);
-    counter.aggregate(counterContext);
+    counter.aggregate(fileAggregateContext);
 
-    assertThat(sut.createMeasure(counter, Component.Type.PROJECT).get().getDoubleValue()).isEqualTo(5d);
+    assertThat(sut.createMeasure(counter, createMeasureContext).get().getDoubleValue()).isEqualTo(5d);
   }
 
   @Test
@@ -234,21 +238,21 @@ public class AverageFormulaTest {
     addMeasure(COMPLEXITY_IN_FUNCTIONS_KEY, 10d);
     addMeasure(COMPLEXITY_KEY, 12d);
     addMeasure(FUNCTIONS_KEY, 2d);
-    counter.aggregate(counterContext);
+    counter.aggregate(fileAggregateContext);
 
-    assertThat(sut.createMeasure(counter, Component.Type.PROJECT).get().getDoubleValue()).isEqualTo(5d);
+    assertThat(sut.createMeasure(counter, createMeasureContext).get().getDoubleValue()).isEqualTo(5d);
   }
 
   private void addMeasure(String metricKey, double value) {
-    when(counterContext.getMeasure(metricKey)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(value)));
+    when(fileAggregateContext.getMeasure(metricKey)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(value)));
   }
 
   private void addMeasure(String metricKey, int value) {
-    when(counterContext.getMeasure(metricKey)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(value)));
+    when(fileAggregateContext.getMeasure(metricKey)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(value)));
   }
 
   private void addMeasure(String metricKey, long value) {
-    when(counterContext.getMeasure(metricKey)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(value)));
+    when(fileAggregateContext.getMeasure(metricKey)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(value)));
   }
 
 }

@@ -179,7 +179,7 @@ public class FormulaExecutorComponentVisitorTest {
     }
 
     @Override
-    public Optional<Measure> createMeasure(FakeCounter counter, Component.Type componentType) {
+    public Optional<Measure> createMeasure(FakeCounter counter, CreateMeasureContext context) {
       if (counter.value <= 0) {
         return Optional.absent();
       }
@@ -201,8 +201,8 @@ public class FormulaExecutorComponentVisitorTest {
     }
 
     @Override
-    public void aggregate(CounterContext counterContext) {
-      Optional<Measure> measureOptional = counterContext.getMeasure(LINES_KEY);
+    public void aggregate(FileAggregateContext context) {
+      Optional<Measure> measureOptional = context.getMeasure(LINES_KEY);
       if (measureOptional.isPresent()) {
         value += measureOptional.get().getIntValue();
       }
@@ -217,7 +217,7 @@ public class FormulaExecutorComponentVisitorTest {
     }
 
     @Override
-    public Optional<Measure> createMeasure(FakeVariationCounter counter, Component.Type componentType) {
+    public Optional<Measure> createMeasure(FakeVariationCounter counter, CreateMeasureContext context) {
       Optional<MeasureVariations> measureVariations = counter.values.toMeasureVariations();
       if (measureVariations.isPresent()) {
         return Optional.of(
@@ -244,12 +244,12 @@ public class FormulaExecutorComponentVisitorTest {
     }
 
     @Override
-    public void aggregate(CounterContext counterContext) {
-      Optional<Measure> measureOptional = counterContext.getMeasure(NEW_LINES_TO_COVER_KEY);
+    public void aggregate(FileAggregateContext context) {
+      Optional<Measure> measureOptional = context.getMeasure(NEW_LINES_TO_COVER_KEY);
       if (!measureOptional.isPresent()) {
         return;
       }
-      for (Period period : counterContext.getPeriods()) {
+      for (Period period : context.getPeriods()) {
         this.values.increment(
           period,
           (int) measureOptional.get().getVariations().getVariation(period.getIndex()));

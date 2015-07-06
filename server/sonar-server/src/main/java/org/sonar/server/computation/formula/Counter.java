@@ -35,6 +35,6 @@ public interface Counter<T extends Counter<T>> {
   /**
    * This method is called on {@link Type#FILE} levels, in order to populate the counter with one or more {@link Type#FILE} measures.
    */
-  void aggregate(CounterContext counterContext);
+  void aggregate(FileAggregateContext context);
 
 }

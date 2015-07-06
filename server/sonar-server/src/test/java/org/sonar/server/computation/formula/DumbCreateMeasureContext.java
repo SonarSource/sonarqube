@@ -17,33 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.computation.formula;
 
-import com.google.common.base.Optional;
-import org.sonar.server.computation.measure.Measure;
+import java.util.List;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.period.Period;
+import org.sonar.server.computation.period.PeriodsHolder;
 
-/**
- * A formula is used to aggregated data on all nodes of a component tree
- */
-public interface Formula<COUNTER extends Counter> {
+public class DumbCreateMeasureContext implements CreateMeasureContext {
+  private final Component component;
+  private final PeriodsHolder periodsHolder;
 
-  /**
-   * Method responsible for creating an new instance of a the counter used by this formula.
-   */
-  COUNTER createNewCounter();
+  public DumbCreateMeasureContext(Component component, PeriodsHolder periodsHolder) {
+    this.component = component;
+    this.periodsHolder = periodsHolder;
+  }
 
-  /**
-   * This method is used to create a measure on each node, using the value of the counter
-   * If {@link Optional#absent()} is returned, no measure will be created
-   *
-   * @param context the context for which the measure must be created
-   */
-  Optional<Measure> createMeasure(COUNTER counter, CreateMeasureContext context);
+  @Override
+  public Component getComponent() {
+    return component;
+  }
 
-  /**
-   * The metric associated to the measure
-   */
-  String getOutputMetricKey();
-
+  @Override
+  public List<Period> getPeriods() {
+    return periodsHolder.getPeriods();
+  }
 }

@@ -17,33 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.computation.formula;
 
-import com.google.common.base.Optional;
-import org.sonar.server.computation.measure.Measure;
+import java.util.List;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.period.Period;
 
 /**
- * A formula is used to aggregated data on all nodes of a component tree
+ * Context passing information to implementation of {@link Formula#createMeasure(Counter, CreateMeasureContext)} method.
  */
-public interface Formula<COUNTER extends Counter> {
+public interface CreateMeasureContext {
+  /**
+   * The component for which the measure is to be created.
+   */
+  Component getComponent();
 
   /**
-   * Method responsible for creating an new instance of a the counter used by this formula.
+   * The periods for which variations of the measure can be created.
    */
-  COUNTER createNewCounter();
-
-  /**
-   * This method is used to create a measure on each node, using the value of the counter
-   * If {@link Optional#absent()} is returned, no measure will be created
-   *
-   * @param context the context for which the measure must be created
-   */
-  Optional<Measure> createMeasure(COUNTER counter, CreateMeasureContext context);
-
-  /**
-   * The metric associated to the measure
-   */
-  String getOutputMetricKey();
-
+  List<Period> getPeriods();
 }
