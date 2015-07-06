@@ -1,0 +1,29 @@
+<div class="js-actions">
+  {{#if version}}
+
+    <div class="button-group">
+      {{#each updates}}
+        {{#eq status 'COMPATIBLE'}}
+          <button class="js-update" data-verion="{{release.version}}">Update to {{release.version}}</button>
+        {{/eq}}
+      {{/each}}
+      <button class="js-uninstall button-red">Uninstall</button>
+    </div>
+
+  {{else}}
+
+    {{#if termsAndConditionsUrl}}
+      <p class="little-spacer-bottom">
+        <input class="js-terms" type="checkbox" name="plugin-terms" id="plugin-terms-{{key}}">
+        <label for="plugin-terms-{{key}}">
+          I accept the
+          <a class="js-plugin-terms" href="{{termsAndConditionsUrl}}" target="_blank">Terms and Conditions</a>
+        </label>
+      </p>
+      <button class="js-install" disabled>Install</button>
+    {{else}}
+      <button class="js-install">Install</button>
+    {{/if}}
+
+  {{/if}}
+</div>

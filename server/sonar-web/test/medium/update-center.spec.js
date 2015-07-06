@@ -224,12 +224,12 @@ define(function (require) {
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/plugins/available', 'update-center-spec/available.json')
           .mockFromFile('/api/plugins/pending', 'update-center-spec/pending.json')
-          .mockFromString('/api/plugins/install', '{}', { data: { key: 'abap' } })
+          .mockFromString('/api/plugins/install', '{}', { data: { key: 'android' } })
           .startApp('update-center', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('.js-plugin-name')
-          .clickElement('li[data-id="abap"] .js-install')
-          .checkElementNotExist('li[data-id="abap"] .js-spinner')
-          .checkElementInclude('li[data-id="abap"]', 'Install Pending');
+          .clickElement('li[data-id="android"] .js-install')
+          .checkElementNotExist('li[data-id="android"] .js-spinner')
+          .checkElementInclude('li[data-id="android"]', 'Install Pending');
     });
 
     bdd.it('should cancel all pending', function () {
@@ -244,6 +244,24 @@ define(function (require) {
           .checkElementExist('.js-pending')
           .clickElement('.js-cancel-all')
           .checkElementNotExist('.js-pending');
+    });
+
+    bdd.it('should should check terms and conditions', function () {
+      return this.remote
+          .open('#available')
+          .mockFromString('/api/l10n/index', '{}')
+          .mockFromFile('/api/plugins/available', 'update-center-spec/available.json')
+          .mockFromFile('/api/plugins/pending', 'update-center-spec/pending.json')
+          .mockFromString('/api/plugins/install', '{}', { data: { key: 'abap' } })
+          .startApp('update-center', { urlRoot: '/test/medium/base.html' })
+          .checkElementExist('.js-plugin-name')
+          .checkElementExist('li[data-id="abap"] .js-terms')
+          .checkElementExist('li[data-id="abap"] .js-install[disabled]')
+          .clickElement('li[data-id="abap"] .js-terms')
+          .checkElementNotExist('li[data-id="abap"] .js-install[disabled]')
+          .clickElement('li[data-id="abap"] .js-install')
+          .checkElementNotExist('li[data-id="abap"] .js-spinner')
+          .checkElementInclude('li[data-id="abap"]', 'Install Pending');
     });
   });
 });

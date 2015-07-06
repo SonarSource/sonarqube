@@ -69,9 +69,6 @@
           {{#if issueTrackerUrl}}
             <li><a class="js-plugin-issues" href="{{issueTrackerUrl}}" target="_blank">Issue Tracker</a></li>
           {{/if}}
-          {{#if termsAndConditionsUrl}}
-            <li><a class="js-plugin-terms" href="{{termsAndConditionsUrl}}" target="_blank">Terms and Conditions</a></li>
-          {{/if}}
         </ul>
       </li>
     {{/any}}
@@ -104,17 +101,6 @@
 
   {{#unless _status}}
     <i class="js-spinner spinner hidden"></i>
-    <div class="js-actions button-group">
-      {{#each updates}}
-        {{#eq status 'COMPATIBLE'}}
-          <button class="js-update" data-verion="{{release.version}}">Update to {{release.version}}</button>
-        {{/eq}}
-      {{/each}}
-      {{#if version}}
-        <button class="js-uninstall button-red">Uninstall</button>
-      {{else}}
-        <button class="js-install">Install</button>
-      {{/if}}
-    </div>
+    {{> '_update-center-plugin-actions'}}
   {{/unless}}
 </div>

@@ -21,7 +21,8 @@ define([
       'click .js-changelog': 'onChangelogClick',
       'click .js-install': 'install',
       'click .js-update': 'update',
-      'click .js-uninstall': 'uninstall'
+      'click .js-uninstall': 'uninstall',
+      'change .js-terms': 'onTermsChange'
     },
 
     getTemplate: function () {
@@ -80,6 +81,11 @@ define([
 
     uninstall: function () {
       this.model.uninstall();
+    },
+
+    onTermsChange: function () {
+      var isAccepted = this.$('.js-terms').is(':checked');
+      this.$('.js-install').prop('disabled', !isAccepted);
     }
   });
 
