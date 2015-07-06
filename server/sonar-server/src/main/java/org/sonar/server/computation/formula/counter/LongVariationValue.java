@@ -21,8 +21,12 @@ package org.sonar.server.computation.formula.counter;
 
 import com.google.common.base.Optional;
 import javax.annotation.Nullable;
+import org.sonar.server.computation.formula.Counter;
 import org.sonar.server.computation.measure.MeasureVariations;
+import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
+
+import static org.sonar.server.computation.period.PeriodsHolder.MAX_NUMBER_OF_PERIODS;
 
 /**
  * Convenience class wrapping a long to compute the value of a MeasureVariation as an long and know it is has ever been
@@ -32,21 +36,27 @@ import org.sonar.server.computation.period.PeriodsHolder;
  * creating using method {@link #newArray()}.
  * </p>
  */
-import static org.sonar.server.computation.period.PeriodsHolder.MAX_NUMBER_OF_PERIODS;
-
 public class LongVariationValue {
   private boolean set = false;
   private long value = 0L;
 
-  public void increment(long increment) {
+  /**
+   * @return the current LongVariationValue so that chained calls on a specific LongVariationValue instance can be done
+   */
+  public LongVariationValue increment(long increment) {
     this.value += increment;
     this.set = true;
+    return this;
   }
 
-  public void increment(@Nullable LongVariationValue value) {
-    if (value != null) {
+  /**
+   * @return the current LongVariationValue so that chained calls on a specific LongVariationValue instance can be done
+   */
+  public LongVariationValue increment(@Nullable LongVariationValue value) {
+    if (value != null && value.isSet()) {
       increment(value.value);
     }
+    return this;
   }
 
   public boolean isSet() {
@@ -75,22 +85,32 @@ public class LongVariationValue {
       }
     }
 
-    public void increment(int index, long value) {
-      this.values[index].increment(value);
+    public LongVariationValue get(Period period) {
+      return values[period.getIndex() - 1];
     }
 
-    public void incrementAll(Array source) {
+    /**
+     * @return the current Array, so that chained calls on a specific Array instance can be done
+     */
+    public Array increment(Period period, long value) {
+      this.values[period.getIndex() - 1].increment(value);
+      return this;
+    }
+
+    /**
+     * @return the current Array, so that chained calls on a specific Array instance can be done
+     */
+    public Array incrementAll(Array source) {
       for (int i = 0; i < this.values.length; i++) {
         if (source.values[i].isSet()) {
           this.values[i].increment(source.values[i]);
         }
       }
+      return this;
     }
 
     /**
      * Creates a new MeasureVariations from the current array.
-     *
-     * @throws IllegalArgumentException if none of the {@link LongVariationValue} in the array is set
      */
     public Optional<MeasureVariations> toMeasureVariations() {
       if (!isAnySet()) {
@@ -106,8 +126,8 @@ public class LongVariationValue {
     }
 
     private boolean isAnySet() {
-      for (LongVariationValue value : values) {
-        if (value.isSet()) {
+      for (LongVariationValue variationValue : values) {
+        if (variationValue.isSet()) {
           return true;
         }
       }

@@ -23,6 +23,7 @@ import com.google.common.base.Optional;
 import javax.annotation.Nullable;
 import org.sonar.server.computation.formula.Counter;
 import org.sonar.server.computation.measure.MeasureVariations;
+import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
 
 import static org.sonar.server.computation.period.PeriodsHolder.MAX_NUMBER_OF_PERIODS;
@@ -39,15 +40,23 @@ public class DoubleVariationValue {
   private boolean set = false;
   private double value = 0L;
 
-  public void increment(double increment) {
+  /**
+   * @return the current DoubleVariationValue so that chained calls on a specific DoubleVariationValue instance can be done
+   */
+  public DoubleVariationValue increment(double increment) {
     this.value += increment;
     this.set = true;
+    return this;
   }
 
-  public void increment(@Nullable DoubleVariationValue value) {
-    if (value != null) {
+  /**
+   * @return the current DoubleVariationValue so that chained calls on a specific DoubleVariationValue instance can be done
+   */
+  public DoubleVariationValue increment(@Nullable DoubleVariationValue value) {
+    if (value != null && value.isSet()) {
       increment(value.value);
     }
+    return this;
   }
 
   public boolean isSet() {
@@ -76,22 +85,32 @@ public class DoubleVariationValue {
       }
     }
 
-    public void increment(int index, double value) {
-      this.values[index].increment(value);
+    public DoubleVariationValue get(Period period) {
+      return values[period.getIndex() - 1];
     }
 
-    public void incrementAll(Array source) {
+    /**
+     * @return the current Array, so that chained calls on a specific Array instance can be done
+     */
+    public Array increment(Period period, double value) {
+      this.values[period.getIndex() - 1].increment(value);
+      return this;
+    }
+
+    /**
+     * @return the current Array, so that chained calls on a specific Array instance can be done
+     */
+    public Array incrementAll(Array source) {
       for (int i = 0; i < this.values.length; i++) {
         if (source.values[i].isSet()) {
           this.values[i].increment(source.values[i]);
         }
       }
+      return this;
     }
 
     /**
      * Creates a new MeasureVariations from the current array.
-     *
-     * @throws IllegalArgumentException if none of the {@link DoubleVariationValue} in the array is set
      */
     public Optional<MeasureVariations> toMeasureVariations() {
       if (!isAnySet()) {
@@ -100,15 +119,15 @@ public class DoubleVariationValue {
       Double[] variations = new Double[values.length];
       for (int i = 0; i < values.length; i++) {
         if (values[i].isSet()) {
-          variations[i] = (double) values[i].getValue();
+          variations[i] = values[i].getValue();
         }
       }
       return Optional.of(new MeasureVariations(variations));
     }
 
     private boolean isAnySet() {
-      for (DoubleVariationValue value : values) {
-        if (value.isSet()) {
+      for (DoubleVariationValue variationValue : values) {
+        if (variationValue.isSet()) {
           return true;
         }
       }

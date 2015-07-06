@@ -22,7 +22,6 @@ package org.sonar.server.computation.formula;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import org.assertj.guava.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
@@ -82,7 +81,7 @@ public class FormulaExecutorComponentVisitorTest {
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
   @Rule
   public PeriodsHolderRule periodsHolder = new PeriodsHolderRule()
-    .setPeriods(new Period(2, "some mode", null, 95l, 756l));
+    .setPeriods(new Period(2, "some mode", null, 95l, 756l), new Period(5, "some other mode", null, 756L, 956L));
 
   FormulaExecutorComponentVisitor underTest = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
     .withVariationSupport(periodsHolder)
@@ -112,24 +111,24 @@ public class FormulaExecutorComponentVisitorTest {
   public void verify_aggregation_on_variations() throws Exception {
     treeRootHolder.setRoot(BALANCED_COMPONENT_TREE);
 
-    measureRepository.addRawMeasure(1111, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(10));
-    measureRepository.addRawMeasure(1112, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(8));
-    measureRepository.addRawMeasure(1211, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(2));
+    measureRepository.addRawMeasure(1111, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(10, 20));
+    measureRepository.addRawMeasure(1112, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(8, 16));
+    measureRepository.addRawMeasure(1211, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(2, 4));
 
     underTest.visit(BALANCED_COMPONENT_TREE);
 
-    assertThat(toEntries(measureRepository.getNewRawMeasures(1))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(20)));
-    assertThat(toEntries(measureRepository.getNewRawMeasures(11))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(18)));
-    assertThat(toEntries(measureRepository.getNewRawMeasures(111))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(18)));
-    assertThat(toEntries(measureRepository.getNewRawMeasures(1111))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(10)));
-    assertThat(toEntries(measureRepository.getNewRawMeasures(1112))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(8)));
-    assertThat(toEntries(measureRepository.getNewRawMeasures(12))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(2)));
-    assertThat(toEntries(measureRepository.getNewRawMeasures(121))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(2)));
-    assertThat(toEntries(measureRepository.getNewRawMeasures(1211))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(2)));
+    assertThat(toEntries(measureRepository.getNewRawMeasures(1))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(20, 40)));
+    assertThat(toEntries(measureRepository.getNewRawMeasures(11))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(18, 36)));
+    assertThat(toEntries(measureRepository.getNewRawMeasures(111))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(18, 36)));
+    assertThat(toEntries(measureRepository.getNewRawMeasures(1111))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(10, 20)));
+    assertThat(toEntries(measureRepository.getNewRawMeasures(1112))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(8, 16)));
+    assertThat(toEntries(measureRepository.getNewRawMeasures(12))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(2, 4)));
+    assertThat(toEntries(measureRepository.getNewRawMeasures(121))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(2, 4)));
+    assertThat(toEntries(measureRepository.getNewRawMeasures(1211))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(2, 4)));
   }
 
-  private static Measure createMeasureWithVariation(double variation2Value) {
-    return newMeasureBuilder().setVariations(new MeasureVariations(null, null, variation2Value)).createNoValue();
+  private static Measure createMeasureWithVariation(double variation2Value, double variation5Value) {
+    return newMeasureBuilder().setVariations(new MeasureVariations(null, variation2Value, null, null, variation5Value)).createNoValue();
   }
 
   @Test
@@ -148,10 +147,10 @@ public class FormulaExecutorComponentVisitorTest {
 
     underTest.visit(project);
 
-    Assertions.assertThat(measureRepository.getNewRawMeasures(1)).isEmpty();
-    Assertions.assertThat(measureRepository.getNewRawMeasures(11)).isEmpty();
-    Assertions.assertThat(measureRepository.getNewRawMeasures(111)).isEmpty();
-    Assertions.assertThat(measureRepository.getNewRawMeasures(1111)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(1)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(11)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(111)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(1111)).isEmpty();
   }
 
   @Test
@@ -252,8 +251,8 @@ public class FormulaExecutorComponentVisitorTest {
       }
       for (Period period : counterContext.getPeriods()) {
         this.values.increment(
-          period.getIndex(),
-          (int) measureOptional.get().getVariations().getVariation(period.getIndex() + 1));
+          period,
+          (int) measureOptional.get().getVariations().getVariation(period.getIndex()));
       }
     }
   }
