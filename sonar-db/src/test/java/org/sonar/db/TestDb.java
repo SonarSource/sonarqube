@@ -41,7 +41,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.deprecated.NullQueue;
-import org.sonar.db.dialect.H2;
 
 /**
  * This class should be call using @ClassRule in order to create the schema once (ft @Rule is used
@@ -92,11 +91,11 @@ class TestDb {
       db.start();
       if (schemaPath != null) {
         // will fail if not H2
-        if (H2.ID.equals(db.getDialect().getId())) {
+        if (db.getDialect().getId().equals("h2")) {
           ((H2Database) db).executeScript(schemaPath);
         } else {
           db.stop();
-
+          throw new AssumptionViolatedException("Test disabled because it supports only H2");
         }
       }
       isDefault = (schemaPath == null);
@@ -110,12 +109,6 @@ class TestDb {
     }
   }
 
-  void start() {
-    if (!isDefault && !H2.ID.equals(db.getDialect().getId())) {
-      throw new AssumptionViolatedException("Test disabled because it supports only H2");
-    }
-  }
-
   void truncateTables() {
     try {
       commands.truncateDatabase(db.getDataSource());
@@ -124,7 +117,7 @@ class TestDb {
     }
   }
 
-  void stop() {
+  void close() {
     if (!isDefault) {
       db.stop();
     }
