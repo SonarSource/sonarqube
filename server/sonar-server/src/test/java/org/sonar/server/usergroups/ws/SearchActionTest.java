@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.server.ws.WebService.Param;
@@ -44,8 +45,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Category(DbTests.class)
 public class SearchActionTest {
 
-  @ClassRule
-  public static final DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
 
   private WsTester tester;
 

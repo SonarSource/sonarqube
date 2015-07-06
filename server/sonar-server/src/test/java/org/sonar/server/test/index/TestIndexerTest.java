@@ -33,6 +33,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
@@ -66,8 +67,8 @@ public class TestIndexerTest {
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new TestIndexDefinition(new Settings()));
 
-  @ClassRule
-  public static DbTester db = DbTester.create(System2.INSTANCE);
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private TestIndexer sut;
 

@@ -19,19 +19,18 @@
  */
 package org.sonar.server.db.migrations.v51;
 
+import java.sql.Types;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.server.db.migrations.MigrationStep;
 
-import java.sql.Types;
-
 public class AddIssuesColumnsTest {
 
-  @ClassRule
-  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, AddIssuesColumnsTest.class, "schema.sql");
+  @Rule
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, AddIssuesColumnsTest.class, "schema.sql");
 
   MigrationStep migration;
 

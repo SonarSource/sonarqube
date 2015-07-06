@@ -49,8 +49,8 @@ public class HashActionTest {
   final static String COMPONENT_KEY = "Action.java";
   final static String PROJECT_UUID = "ABCD";
 
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();

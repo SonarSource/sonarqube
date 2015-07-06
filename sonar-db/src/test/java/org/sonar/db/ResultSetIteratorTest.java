@@ -24,7 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.NoSuchElementException;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
@@ -36,8 +36,8 @@ import static org.junit.Assert.fail;
 @Category(DbTests.class)
 public class ResultSetIteratorTest {
 
-  @ClassRule
-  public static DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, ResultSetIteratorTest.class, "schema.sql");
+  @Rule
+  public DbTester dbTester = DbTester.createForSchema(System2.INSTANCE, ResultSetIteratorTest.class, "schema.sql");
 
   @Test
   public void create_iterator_from_statement() throws Exception {

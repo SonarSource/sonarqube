@@ -23,6 +23,7 @@ package org.sonar.server.platform;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.db.DbTester;
@@ -48,8 +49,8 @@ public class BackendCleanupMediumTest {
   @ClassRule
   public static EsTester esTester = new EsTester();
 
-  @ClassRule
-  public static DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
 
   BackendCleanup backendCleanup;
 

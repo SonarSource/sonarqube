@@ -50,8 +50,8 @@ public class FillComponentsStepTest extends BaseStepTest {
 
   private static final String PROJECT_KEY = "PROJECT_KEY";
 
-  @ClassRule
-  public static DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
   @Rule

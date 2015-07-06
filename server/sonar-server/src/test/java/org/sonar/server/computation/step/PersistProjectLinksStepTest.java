@@ -48,8 +48,8 @@ import static org.mockito.Mockito.when;
 @Category(DbTests.class)
 public class PersistProjectLinksStepTest extends BaseStepTest {
 
-  @ClassRule
-  public static DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();

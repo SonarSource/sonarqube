@@ -81,8 +81,8 @@ import static org.sonar.server.project.ws.BulkDeleteAction.PARAM_KEYS;
 public class BulkDeleteActionTest {
 
   private static final String ACTION = "bulk_delete";
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()), new SourceLineIndexDefinition(new Settings()),
     new TestIndexDefinition(new Settings()));

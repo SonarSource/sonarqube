@@ -51,8 +51,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Category(DbTests.class)
 public class RemoveUserActionTest {
 
-  @ClassRule
-  public static final DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
 
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone();

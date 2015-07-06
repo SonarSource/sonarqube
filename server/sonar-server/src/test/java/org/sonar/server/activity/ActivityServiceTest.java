@@ -44,8 +44,8 @@ import static org.mockito.Mockito.when;
 
 public class ActivityServiceTest {
 
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new ActivityIndexDefinition(new Settings()));
   @Rule

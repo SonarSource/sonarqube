@@ -64,8 +64,8 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
 
-  @ClassRule
-  public static DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();

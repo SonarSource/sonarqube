@@ -21,30 +21,23 @@ package org.sonar.server.issue.index;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
-import org.apache.commons.dbutils.DbUtils;
-import org.jruby.RubyProcess;
-import org.junit.After;
+import java.util.Map;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
-
-import java.sql.Connection;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Category(DbTests.class)
 public class IssueResultSetIteratorTest {
 
-  @ClassRule
-  public static DbTester dbTester = DbTester.create(System2.INSTANCE);
-
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Before
   public void setUp() throws Exception {

@@ -19,39 +19,37 @@
  */
 package org.sonar.server.db;
 
+import java.util.Date;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.DbTester;
+import org.sonar.db.MyBatis;
 import org.sonar.server.db.fake.FakeDao;
 import org.sonar.server.db.fake.FakeDto;
 import org.sonar.server.db.fake.FakeMapper;
 import org.sonar.test.DbTests;
-
-import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Category(DbTests.class)
 public class BaseDaoTest {
 
-  @ClassRule
-  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, BaseDaoTest.class, "schema.sql");
+  @Rule
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, BaseDaoTest.class, "schema.sql");
 
   private static final String DTO_ALIAS = "fake";
 
   private FakeDao dao;
   private DbSession session;
 
-  @BeforeClass
-  public static void setupBatis() {
+  @Before
+  public void setupBatis() {
     MyBatis batis = db.myBatis();
     batis.getSessionFactory().getConfiguration().getTypeAliasRegistry().registerAlias(DTO_ALIAS, FakeDto.class);
     batis.getSessionFactory().getConfiguration().addMapper(FakeMapper.class);

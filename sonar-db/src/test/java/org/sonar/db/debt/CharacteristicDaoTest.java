@@ -23,7 +23,7 @@ package org.sonar.db.debt;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
@@ -39,8 +39,8 @@ public class CharacteristicDaoTest {
 
   private static final String[] EXCLUDED_COLUMNS = new String[] {"id", "root_id", "rule_id", "function_key", "factor_unit", "factor_value", "offset_unit", "offset_value"};
 
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
 
   CharacteristicDao dao;
 

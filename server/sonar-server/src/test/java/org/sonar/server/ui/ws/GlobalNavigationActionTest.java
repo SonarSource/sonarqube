@@ -51,8 +51,8 @@ import static org.mockito.Mockito.mock;
 
 public class GlobalNavigationActionTest {
 
-  @ClassRule
-  public static final DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 

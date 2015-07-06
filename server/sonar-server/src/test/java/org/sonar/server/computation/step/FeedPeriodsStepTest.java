@@ -56,8 +56,8 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
   private static final String PROJECT_KEY = "PROJECT_KEY";
 
-  @ClassRule
-  public static final DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();

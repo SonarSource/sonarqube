@@ -46,8 +46,8 @@ import org.sonar.server.ws.WsTester;
 
 public class GroupsActionTest {
 
-  @ClassRule
-  public static final DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 

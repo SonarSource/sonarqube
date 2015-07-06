@@ -23,6 +23,7 @@ package org.sonar.server.computation.component;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
@@ -44,8 +45,8 @@ public class ProjectSettingsRepositoryTest {
 
   private static final String PROJECT_KEY = "PROJECT_KEY";
 
-  @ClassRule
-  public static final DbTester dbTester = new DbTester();
+  @Rule
+  public final DbTester dbTester = new DbTester();
 
   DbClient dbClient;
 

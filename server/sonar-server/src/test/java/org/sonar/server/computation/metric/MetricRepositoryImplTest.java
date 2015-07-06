@@ -37,8 +37,8 @@ public class MetricRepositoryImplTest {
   private static final String SOME_KEY = "some_key";
   private static final long SOME_ID = 156;
 
-  @ClassRule
-  public static final DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
   @Rule
   public final ExpectedException expectedException = ExpectedException.none();
 

@@ -43,8 +43,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class IndexSourceLinesStepTest extends BaseStepTest {
 
-  @ClassRule
-  public static DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
 
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));

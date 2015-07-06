@@ -79,8 +79,8 @@ import static org.sonar.server.project.ws.DeleteAction.PARAM_KEY;
 public class DeleteActionTest {
 
   private static final String ACTION = "delete";
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()), new SourceLineIndexDefinition(new Settings()),
     new TestIndexDefinition(new Settings()));

@@ -52,8 +52,8 @@ import static org.sonar.server.metric.ws.MetricTesting.newMetricDto;
 @Category(DbTests.class)
 public class DeleteActionTest {
 
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule

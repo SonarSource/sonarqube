@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.server.ws.WebService.Param;
@@ -42,8 +43,8 @@ import static org.sonar.server.metric.ws.SearchAction.PARAM_IS_CUSTOM;
 @Category(DbTests.class)
 public class SearchActionTest {
 
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
   DbClient dbClient;
   DbSession dbSession;
   WsTester ws;

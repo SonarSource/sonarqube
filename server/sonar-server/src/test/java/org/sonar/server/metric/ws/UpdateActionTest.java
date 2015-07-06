@@ -62,8 +62,8 @@ public class UpdateActionTest {
   private static final String DEFAULT_DESCRIPTION = "custom-metric-description";
   private static final String DEFAULT_TYPE = ValueType.INT.name();
 
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule

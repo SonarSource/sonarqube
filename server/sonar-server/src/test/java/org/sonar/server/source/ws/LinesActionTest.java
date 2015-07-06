@@ -58,8 +58,8 @@ public class LinesActionTest {
 
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));
-  @ClassRule
-  public static DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 

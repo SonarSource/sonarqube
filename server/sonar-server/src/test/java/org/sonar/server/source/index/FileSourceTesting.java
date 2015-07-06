@@ -45,7 +45,6 @@ public class FileSourceTesting {
     stmt.setString(2, fileUuid);
     stmt.executeUpdate();
     stmt.close();
-    connection.commit();
   }
 
   /**

@@ -69,8 +69,8 @@ public class IssuesActionTest {
   private final static String MODULE_KEY = "struts-core";
   private final static String FILE_KEY = "Action.java";
 
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
   @Rule

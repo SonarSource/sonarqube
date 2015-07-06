@@ -28,7 +28,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.db.DbSession;
@@ -41,8 +41,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Category(DbTests.class)
 public class MeasureDaoTest {
 
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
 
   DbSession session;
   MeasureDao sut;

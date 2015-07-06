@@ -51,8 +51,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Category(DbTests.class)
 public class GhostsActionTest {
 
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   WsTester ws;

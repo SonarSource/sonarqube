@@ -19,31 +19,25 @@
  */
 package org.sonar.server.activity.index;
 
-import org.apache.commons.dbutils.DbUtils;
+import java.util.Map;
 import org.assertj.core.data.MapEntry;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.jruby.RubyProcess;
-import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
-
-import java.sql.Connection;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Category(DbTests.class)
 public class ActivityResultSetIteratorTest {
 
-  @ClassRule
-  public static DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Before
   public void setUp() throws Exception {

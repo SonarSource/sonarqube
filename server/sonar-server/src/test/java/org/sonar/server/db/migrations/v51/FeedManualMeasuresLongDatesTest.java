@@ -22,6 +22,7 @@ package org.sonar.server.db.migrations.v51;
 
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -33,8 +34,8 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.parseDate;
 
 public class FeedManualMeasuresLongDatesTest {
-  @ClassRule
-  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, FeedManualMeasuresLongDatesTest.class, "schema.sql");
+  @Rule
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, FeedManualMeasuresLongDatesTest.class, "schema.sql");
 
   @Before
   public void before() {

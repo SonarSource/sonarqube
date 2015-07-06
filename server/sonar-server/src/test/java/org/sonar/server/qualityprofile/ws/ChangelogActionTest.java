@@ -26,6 +26,7 @@ import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.Severity;
@@ -61,8 +62,8 @@ import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P1_KEY;
 
 public class ChangelogActionTest {
 
-  @ClassRule
-  public static DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
 
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new ActivityIndexDefinition(new Settings()));

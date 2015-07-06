@@ -42,8 +42,8 @@ import static org.mockito.Mockito.mock;
 
 public class RenameActionTest {
 
-  @ClassRule
-  public static DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 

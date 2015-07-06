@@ -23,7 +23,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import java.util.Collection;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
@@ -35,8 +35,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Category(DbTests.class)
 public class IssueAuthorizationDaoTest {
 
-  @ClassRule
-  public static DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   IssueAuthorizationDao dao = new IssueAuthorizationDao();
 

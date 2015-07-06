@@ -22,6 +22,7 @@ package org.sonar.server.db.migrations.v44;
 
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -35,8 +36,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class IssueActionPlanKeyMigrationTest {
 
-  @ClassRule
-  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, IssueActionPlanKeyMigrationTest.class, "schema.sql");
+  @Rule
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, IssueActionPlanKeyMigrationTest.class, "schema.sql");
 
   @Mock
   System2 system2;

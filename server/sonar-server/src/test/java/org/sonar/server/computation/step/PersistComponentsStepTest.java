@@ -58,8 +58,8 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   private static final String PROJECT_KEY = "PROJECT_KEY";
 
-  @ClassRule
-  public static DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();

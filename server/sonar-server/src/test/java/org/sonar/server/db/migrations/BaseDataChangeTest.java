@@ -44,8 +44,8 @@ import static org.junit.Assert.fail;
 @Category(DbTests.class)
 public class BaseDataChangeTest extends AbstractDaoTestCase {
 
-  @ClassRule
-  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, BaseDataChangeTest.class, "schema.sql");
+  @Rule
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, BaseDataChangeTest.class, "schema.sql");
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();

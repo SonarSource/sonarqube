@@ -54,8 +54,8 @@ public class ListActionTest {
 
   WsTester ws;
 
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new TestIndexDefinition(new Settings()));
   @Rule

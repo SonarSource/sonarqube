@@ -67,8 +67,8 @@ public class MetricsActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
   DbClient dbClient;
   DbSession dbSession;
   WsTester ws;

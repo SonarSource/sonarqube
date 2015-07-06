@@ -21,6 +21,7 @@ package org.sonar.server.issue.filter;
 
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
@@ -38,8 +39,8 @@ import static org.mockito.Mockito.when;
 @Category(DbTests.class)
 public class RegisterIssueFiltersTest {
 
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
 
   RegisterIssueFilters taskUnderTest;
 

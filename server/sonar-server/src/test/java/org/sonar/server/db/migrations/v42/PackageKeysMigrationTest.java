@@ -19,7 +19,7 @@
  */
 package org.sonar.server.db.migrations.v42;
 
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -27,8 +27,8 @@ import org.sonar.server.db.migrations.MigrationStep;
 
 public class PackageKeysMigrationTest {
 
-  @ClassRule
-  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, PackageKeysMigrationTest.class, "schema.sql");
+  @Rule
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, PackageKeysMigrationTest.class, "schema.sql");
 
   MigrationStep migration = new PackageKeysMigrationStep(db.database());
 

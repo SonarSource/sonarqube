@@ -74,8 +74,8 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   private static final int PROJECT_REF = 1;
   private static final int FILE_REF = 2;
 
-  @ClassRule
-  public static DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();

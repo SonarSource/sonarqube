@@ -21,6 +21,7 @@ package org.sonar.server.computation.activity;
 
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mockito.ArgumentCaptor;
@@ -38,8 +39,8 @@ import static org.mockito.Mockito.verify;
 
 @Category(DbTests.class)
 public class ActivityManagerTest {
-  @ClassRule
-  public static DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
 
   ArgumentCaptor<Activity> activityArgumentCaptor = ArgumentCaptor.forClass(Activity.class);
 

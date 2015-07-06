@@ -96,6 +96,7 @@ public class DbTester extends ExternalResource {
 
   @Override
   protected void before() throws Throwable {
+    db.start();
     truncateTables();
   }
 
@@ -104,7 +105,7 @@ public class DbTester extends ExternalResource {
     if (session != null) {
       MyBatis.closeQuietly(session);
     }
-    db.close();
+    db.stop();
   }
 
   public DbSession getSession() {
@@ -225,8 +226,6 @@ public class DbTester extends ExternalResource {
   public void prepareDbUnit(Class testClass, String... testNames) {
     InputStream[] streams = new InputStream[testNames.length];
     try {
-      db.truncateTables();
-
       for (int i = 0; i < testNames.length; i++) {
         String path = "/" + testClass.getName().replace('.', '/') + "/" + testNames[i];
         streams[i] = testClass.getResourceAsStream(path);

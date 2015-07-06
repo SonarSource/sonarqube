@@ -27,7 +27,7 @@ import java.util.Map;
 import org.assertj.core.data.MapEntry;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.junit.After;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
@@ -44,8 +44,8 @@ import static org.assertj.core.api.Assertions.fail;
 @Category(DbTests.class)
 public class TestResultSetIteratorTest {
 
-  @ClassRule
-  public static DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   TestResultSetIterator sut;
 

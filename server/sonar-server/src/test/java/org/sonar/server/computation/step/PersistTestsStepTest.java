@@ -66,8 +66,8 @@ public class PersistTestsStepTest extends BaseStepTest {
   private static final String TEST_FILE_PATH_1 = "TEST-PATH-1";
   private static final String TEST_FILE_PATH_2 = "TEST-PATH-2";
 
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();

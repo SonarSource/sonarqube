@@ -23,6 +23,7 @@ package org.sonar.server.metric.ws;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.db.metric.MetricDto;
@@ -39,8 +40,8 @@ import static org.sonar.server.metric.ws.MetricTesting.newMetricDto;
 @Category(DbTests.class)
 public class DomainsActionTest {
 
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
   WsTester ws;
   DbClient dbClient;
   DbSession dbSession;

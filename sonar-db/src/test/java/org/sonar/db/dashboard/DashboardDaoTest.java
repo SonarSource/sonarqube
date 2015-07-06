@@ -21,7 +21,7 @@ package org.sonar.db.dashboard;
 
 import java.util.Date;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.db.DbTester;
@@ -35,8 +35,8 @@ import static org.junit.Assert.assertThat;
 @Category(DbTests.class)
 public class DashboardDaoTest {
 
-  @ClassRule
-  public static final DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
 
   private DashboardDao dao;
 

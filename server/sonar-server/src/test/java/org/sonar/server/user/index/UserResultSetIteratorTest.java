@@ -23,7 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
@@ -35,8 +35,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Category(DbTests.class)
 public class UserResultSetIteratorTest {
 
-  @ClassRule
-  public static DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Before
   public void setUp() throws Exception {

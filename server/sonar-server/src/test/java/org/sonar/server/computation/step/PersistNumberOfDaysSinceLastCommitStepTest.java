@@ -49,8 +49,8 @@ import static org.mockito.Mockito.when;
 
 public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
 
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();

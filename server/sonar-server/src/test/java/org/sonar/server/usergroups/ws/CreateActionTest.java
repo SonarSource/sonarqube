@@ -45,8 +45,8 @@ import org.sonar.test.DbTests;
 @Category(DbTests.class)
 public class CreateActionTest {
 
-  @ClassRule
-  public static final DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();

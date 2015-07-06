@@ -22,7 +22,7 @@ package org.sonar.db.user;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.db.DbSession;
@@ -32,8 +32,8 @@ import org.sonar.test.DbTests;
 @Category(DbTests.class)
 public class UserGroupDaoTest {
 
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
 
   private UserGroupDao dao;
   private DbSession session;

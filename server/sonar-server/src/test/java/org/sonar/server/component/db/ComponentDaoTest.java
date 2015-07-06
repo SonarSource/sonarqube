@@ -49,8 +49,8 @@ public class ComponentDaoTest {
 
   ComponentDao sut;
 
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
 
   DbSession session;
 

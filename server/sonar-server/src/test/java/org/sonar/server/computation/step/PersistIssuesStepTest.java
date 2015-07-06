@@ -55,8 +55,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  @ClassRule
-  public static DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();

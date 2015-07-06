@@ -53,8 +53,8 @@ import static org.mockito.Mockito.mock;
 @Category(DbTests.class)
 public class ProjectsActionTest {
 
-  @ClassRule
-  public static final DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 

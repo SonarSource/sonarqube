@@ -23,6 +23,7 @@ package org.sonar.server.user.db;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
@@ -41,8 +42,8 @@ import static org.mockito.Mockito.mock;
 @Category(DbTests.class)
 public class UserDaoTest {
 
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
 
   private UserDao dao;
   private DbSession session;

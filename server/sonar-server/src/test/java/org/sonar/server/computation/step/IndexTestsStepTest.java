@@ -44,8 +44,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class IndexTestsStepTest extends BaseStepTest {
 
-  @ClassRule
-  public static DbTester dbTester = DbTester.create(System2.INSTANCE);
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new TestIndexDefinition(new Settings()));

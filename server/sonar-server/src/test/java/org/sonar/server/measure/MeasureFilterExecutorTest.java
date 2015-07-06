@@ -21,6 +21,7 @@ package org.sonar.server.measure;
 
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.measures.CoreMetrics;
@@ -56,8 +57,8 @@ public class MeasureFilterExecutorTest {
   private static final Metric METRIC_PROFILE = new Metric.Builder("profile", "Profile", Metric.ValueType.STRING).create().setId(2);
   private static final Metric METRIC_COVERAGE = new Metric.Builder("coverage", "Coverage", Metric.ValueType.FLOAT).create().setId(3);
   private static final Metric METRIC_UNKNOWN = new Metric.Builder("unknown", "Unknown", Metric.ValueType.FLOAT).create().setId(4);
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
   private MeasureFilterExecutor executor;
 
   @Before

@@ -61,8 +61,8 @@ import static org.mockito.Mockito.when;
 
 public class ExportActionTest {
 
-  @ClassRule
-  public static final DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 

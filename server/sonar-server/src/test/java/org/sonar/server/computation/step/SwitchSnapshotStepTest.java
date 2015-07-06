@@ -42,8 +42,8 @@ import static org.mockito.Mockito.when;
 @Category(DbTests.class)
 public class SwitchSnapshotStepTest {
 
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();

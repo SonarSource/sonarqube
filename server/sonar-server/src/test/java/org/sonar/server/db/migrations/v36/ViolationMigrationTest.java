@@ -19,7 +19,7 @@
  */
 package org.sonar.server.db.migrations.v36;
 
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
@@ -29,8 +29,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ViolationMigrationTest {
 
-  @ClassRule
-  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, ViolationMigrationTest.class, "schema.sql");
+  @Rule
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, ViolationMigrationTest.class, "schema.sql");
 
   @Test
   public void migrate_violations() {

@@ -21,6 +21,7 @@ package org.sonar.server.db.migrations.v50;
 
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -32,8 +33,8 @@ import static org.mockito.Mockito.when;
 
 public class ReplaceIssueFiltersProjectKeyByUuidTest {
 
-  @ClassRule
-  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, ReplaceIssueFiltersProjectKeyByUuidTest.class, "schema.sql");
+  @Rule
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, ReplaceIssueFiltersProjectKeyByUuidTest.class, "schema.sql");
 
   MigrationStep migration;
   System2 system = mock(System2.class);

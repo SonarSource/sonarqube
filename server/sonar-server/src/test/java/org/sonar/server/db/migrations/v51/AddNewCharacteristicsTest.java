@@ -21,6 +21,7 @@ package org.sonar.server.db.migrations.v51;
 
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
@@ -35,8 +36,8 @@ import static org.mockito.Mockito.when;
 
 public class AddNewCharacteristicsTest {
 
-  @ClassRule
-  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, AddNewCharacteristicsTest.class, "schema.sql");
+  @Rule
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, AddNewCharacteristicsTest.class, "schema.sql");
 
   MigrationStep migration;
 

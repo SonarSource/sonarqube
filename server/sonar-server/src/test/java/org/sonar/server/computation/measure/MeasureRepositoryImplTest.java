@@ -68,8 +68,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(DataProviderRunner.class)
 public class MeasureRepositoryImplTest {
-  @ClassRule
-  public static final DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 

@@ -22,6 +22,7 @@ package org.sonar.server.db.migrations.v44;
 
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UtcDateUtils;
@@ -36,8 +37,8 @@ import static org.mockito.Mockito.when;
 
 public class FeedQProfileDatesMigrationTest {
 
-  @ClassRule
-  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, FeedQProfileDatesMigrationTest.class, "schema.sql");
+  @Rule
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, FeedQProfileDatesMigrationTest.class, "schema.sql");
 
   FeedQProfileDatesMigrationStep migration;
 

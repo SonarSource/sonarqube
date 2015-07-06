@@ -50,8 +50,8 @@ public class ScmActionTest {
   private static final String FILE_UUID = "FILE_A";
   private static final String PROJECT_UUID = "PROJECT_A";
 
-  @ClassRule
-  public static DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));
   @Rule

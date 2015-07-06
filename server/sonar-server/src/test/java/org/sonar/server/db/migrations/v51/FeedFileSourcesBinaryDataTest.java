@@ -43,8 +43,8 @@ public class FeedFileSourcesBinaryDataTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  @ClassRule
-  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, FeedFileSourcesBinaryDataTest.class, "schema.sql");
+  @Rule
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, FeedFileSourcesBinaryDataTest.class, "schema.sql");
 
   @Test
   public void convert_csv_to_protobuf() throws Exception {

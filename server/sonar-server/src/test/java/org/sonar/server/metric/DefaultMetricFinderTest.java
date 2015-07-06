@@ -22,6 +22,7 @@ package org.sonar.server.metric;
 import java.util.Arrays;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.db.DbTester;
@@ -36,8 +37,8 @@ import static org.junit.Assert.assertThat;
 @Category(DbTests.class)
 public class DefaultMetricFinderTest {
 
-  @ClassRule
-  public static DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
 
   DefaultMetricFinder finder;
 

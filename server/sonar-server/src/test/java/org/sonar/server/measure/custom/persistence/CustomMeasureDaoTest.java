@@ -25,6 +25,7 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.db.measure.CustomMeasureDto;
@@ -39,8 +40,8 @@ import static org.sonar.server.measure.custom.persistence.CustomMeasureTesting.n
 
 @Category(DbTests.class)
 public class CustomMeasureDaoTest {
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
 
   CustomMeasureDao sut;
   DbSession session;

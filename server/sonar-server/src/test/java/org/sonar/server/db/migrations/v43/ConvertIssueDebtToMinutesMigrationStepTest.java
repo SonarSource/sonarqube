@@ -20,8 +20,10 @@
 
 package org.sonar.server.db.migrations.v43;
 
+import java.util.List;
+import java.util.Map;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -32,17 +34,14 @@ import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
 
-import java.util.List;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConvertIssueDebtToMinutesMigrationStepTest {
 
-  @ClassRule
-  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, ConvertIssueDebtToMinutesMigrationStepTest.class, "schema.sql");
+  @Rule
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, ConvertIssueDebtToMinutesMigrationStepTest.class, "schema.sql");
 
   @Mock
   System2 system2;

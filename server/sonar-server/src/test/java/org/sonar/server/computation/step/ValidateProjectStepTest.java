@@ -53,8 +53,8 @@ public class ValidateProjectStepTest {
   private static final String PROJECT_KEY = "PROJECT_KEY";
   private static final String MODULE_KEY = "MODULE_KEY";
 
-  @ClassRule
-  public static DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
   @Rule
   public ExpectedException thrown = ExpectedException.none();
   @Rule

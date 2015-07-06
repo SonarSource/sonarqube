@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
@@ -40,8 +40,8 @@ import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.DESC;
 @Category(DbTests.class)
 public class SnapshotDaoTest {
 
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
 
   DbSession session;
 

@@ -71,8 +71,8 @@ import static org.mockito.Mockito.when;
 
 public class ComponentNavigationActionTest {
 
-  @ClassRule
-  public static final DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 

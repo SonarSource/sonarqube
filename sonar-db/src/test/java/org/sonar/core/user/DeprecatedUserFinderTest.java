@@ -19,8 +19,8 @@
  */
 package org.sonar.core.user;
 
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.database.model.User;
@@ -37,11 +37,11 @@ import static org.mockito.Mockito.mock;
 @Category(DbTests.class)
 public class DeprecatedUserFinderTest {
 
-  @ClassRule
-  public static final DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
 
-  @BeforeClass
-  public static void init() {
+  @Before
+  public void init() {
     dbTester.prepareDbUnit(DeprecatedUserFinderTest.class, "fixture.xml");
   }
 

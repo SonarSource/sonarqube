@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.db.DbSession;
@@ -39,8 +39,8 @@ import static org.assertj.core.data.MapEntry.entry;
 @Category(DbTests.class)
 public class GroupMembershipDaoTest {
 
-  @ClassRule
-  public static final DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
 
   private GroupMembershipDao dao;
 

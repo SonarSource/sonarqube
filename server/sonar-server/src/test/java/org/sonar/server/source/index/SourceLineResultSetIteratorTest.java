@@ -23,7 +23,7 @@ import java.sql.Connection;
 import java.util.Map;
 import org.assertj.core.data.MapEntry;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
@@ -37,8 +37,8 @@ import static org.junit.Assert.fail;
 @Category(DbTests.class)
 public class SourceLineResultSetIteratorTest {
 
-  @ClassRule
-  public static DbTester db = DbTester.create(System2.INSTANCE);
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   SourceLineResultSetIterator iterator;
 

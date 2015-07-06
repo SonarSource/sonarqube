@@ -23,6 +23,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -46,8 +47,8 @@ import static org.mockito.Mockito.mock;
 @RunWith(MockitoJUnitRunner.class)
 public class BackupActionTest {
 
-  @ClassRule
-  public static final DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
 
   // TODO Replace with proper DbTester + EsTester medium test once DaoV2 is removed
   @Mock

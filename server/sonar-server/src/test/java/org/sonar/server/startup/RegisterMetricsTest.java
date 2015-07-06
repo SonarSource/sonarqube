@@ -22,6 +22,7 @@ package org.sonar.server.startup;
 import java.util.Collections;
 import java.util.List;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.measures.CoreMetrics;
@@ -39,8 +40,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Category(DbTests.class)
 public class RegisterMetricsTest {
 
-  @ClassRule
-  public static DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
 
   /**
    * Insert new metrics, including custom metrics

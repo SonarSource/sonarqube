@@ -52,8 +52,8 @@ public class DeleteActionTest {
 
   public static final String ACTION = "delete";
 
-  @ClassRule
-  public static DbTester db = new DbTester();
+  @Rule
+  public DbTester db = new DbTester();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule

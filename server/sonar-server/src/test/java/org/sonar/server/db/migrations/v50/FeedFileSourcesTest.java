@@ -23,6 +23,7 @@ package org.sonar.server.db.migrations.v50;
 import org.apache.commons.dbutils.DbUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -40,8 +41,8 @@ import static org.mockito.Mockito.when;
 
 public class FeedFileSourcesTest {
 
-  @ClassRule
-  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, FeedFileSourcesTest.class, "schema.sql");
+  @Rule
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, FeedFileSourcesTest.class, "schema.sql");
 
   private static final long NOW = 1414770242000L;
 

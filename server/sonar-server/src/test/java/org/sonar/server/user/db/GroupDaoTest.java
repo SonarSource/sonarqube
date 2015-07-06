@@ -23,6 +23,7 @@ package org.sonar.server.user.db;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
@@ -39,8 +40,8 @@ import static org.mockito.Mockito.when;
 @Category(DbTests.class)
 public class GroupDaoTest {
 
-  @ClassRule
-  public static final DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
 
   GroupDao dao;
   DbSession session;

@@ -78,8 +78,8 @@ public class FillMeasuresWithVariationsStepTest {
 
   static final Component PROJECT = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_DTO.uuid()).build();
 
-  @ClassRule
-  public static DbTester dbTester = new DbTester();
+  @Rule
+  public DbTester dbTester = new DbTester();
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
