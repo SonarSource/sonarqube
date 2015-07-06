@@ -19,10 +19,7 @@
  */
 package org.sonar.process;
 
-import java.util.concurrent.TimeUnit;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.Timeout;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -30,11 +27,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class StopWatcherTest {
-
-  @Rule
-  public Timeout timeout = new Timeout(1000, TimeUnit.MILLISECONDS);
-
-  @Test
+  @Test(timeout = 1000)
   public void stop_if_receive_command() throws InterruptedException {
     ProcessCommands commands = mock(ProcessCommands.class);
     when(commands.askedForStop()).thenReturn(false, true);
@@ -47,7 +40,7 @@ public class StopWatcherTest {
     verify(stoppable).stopAsync();
   }
 
-  @Test
+  @Test(timeout = 5000)
   public void stop_watching_on_interruption() throws InterruptedException {
     ProcessCommands commands = mock(ProcessCommands.class);
     when(commands.askedForStop()).thenReturn(false);
