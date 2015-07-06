@@ -42,7 +42,7 @@ define([
         // Go!
         Backbone.history.start({
           pushState: true,
-          root: getRoot()
+          root: options.urlRoot
         });
       };
 
@@ -51,13 +51,6 @@ define([
       init.call(App, options);
     });
   });
-
-  function getRoot () {
-    var COMPUTATION = '/computation',
-        path = window.location.pathname,
-        pos = path.indexOf(COMPUTATION);
-    return path.substr(0, pos + COMPUTATION.length);
-  }
 
   return App;
 

@@ -157,6 +157,7 @@ define(function (require) {
     return new this.constructor(this, function () {
       return this.parent
           .get(require.toUrl(url))
+          .mockFromString('/api/l10n/index', '{}')
           .checkElementExist('#content');
     });
   };
