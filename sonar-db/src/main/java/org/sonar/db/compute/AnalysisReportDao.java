@@ -21,15 +21,11 @@
 package org.sonar.db.compute;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.api.utils.System2;
-import org.sonar.db.compute.AnalysisReportDto;
-import org.sonar.db.compute.AnalysisReportMapper;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-
-import javax.annotation.CheckForNull;
-
-import java.util.List;
 
 import static org.sonar.db.compute.AnalysisReportDto.Status.PENDING;
 import static org.sonar.db.compute.AnalysisReportDto.Status.WORKING;

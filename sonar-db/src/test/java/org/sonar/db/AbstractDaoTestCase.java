@@ -34,13 +34,16 @@ import org.sonar.test.DbTests;
 @Deprecated
 public abstract class AbstractDaoTestCase {
 
+  private static final String XML_SUFFIX = ".xml";
+  private static final String XML_RESULT_SUFFIX = "-result.xml";
+
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   protected void setupData(String... testNames) {
     List<String> filenames = new ArrayList<>();
     for (String testName : testNames) {
-      filenames.add(testName + (testName.endsWith(".xml") ? "" : ".xml"));
+      filenames.add(testName + (testName.endsWith(XML_SUFFIX) ? "" : XML_SUFFIX));
     }
     dbTester.prepareDbUnit(getClass(), filenames.toArray(new String[filenames.size()]));
   }
@@ -50,11 +53,11 @@ public abstract class AbstractDaoTestCase {
   }
 
   protected void checkTables(String testName, String[] excludedColumnNames, String... tables) {
-    dbTester.assertDbUnit(getClass(), testName + (testName.endsWith("-result.xml") ? "" : "-result.xml"), excludedColumnNames, tables);
+    dbTester.assertDbUnit(getClass(), testName + (testName.endsWith(XML_RESULT_SUFFIX) ? "" : XML_RESULT_SUFFIX), excludedColumnNames, tables);
   }
 
   protected void checkTable(String testName, String table, String... columns) {
-    dbTester.assertDbUnitTable(getClass(), testName + (testName.endsWith("-result.xml") ? "" : "-result.xml"), table, columns);
+    dbTester.assertDbUnitTable(getClass(), testName + (testName.endsWith(XML_RESULT_SUFFIX) ? "" : XML_RESULT_SUFFIX), table, columns);
   }
 
   @Deprecated

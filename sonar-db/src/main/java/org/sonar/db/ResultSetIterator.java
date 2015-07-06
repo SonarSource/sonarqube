@@ -19,14 +19,13 @@
  */
 package org.sonar.db;
 
-import org.apache.commons.dbutils.DbUtils;
-
 import java.io.Closeable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import org.apache.commons.dbutils.DbUtils;
 
 /**
  * Forward-only {@link java.util.Iterator} over a {@link java.sql.ResultSet}. Rows are

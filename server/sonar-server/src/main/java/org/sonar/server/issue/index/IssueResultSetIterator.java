@@ -24,6 +24,12 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Date;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
@@ -31,15 +37,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ResultSetIterator;
 import org.sonar.server.db.migrations.SqlUtil;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Date;
 
 import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.server.db.migrations.SqlUtil.getLong;

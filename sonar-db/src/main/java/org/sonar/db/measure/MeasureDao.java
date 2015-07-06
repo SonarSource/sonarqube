@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.db.Dao;
-import org.sonar.db.DaoUtils;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.SnapshotDto;

@@ -31,11 +31,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class NotificationQueueDaoTest extends AbstractDaoTestCase {
 
-  NotificationQueueDao dao;
+  NotificationQueueDao dao = new NotificationQueueDao(dbTester.myBatis());
 
   @Before
-  public void createDao() {
-    dao = new NotificationQueueDao(getMyBatis());
+  public void setUp() throws Exception {
+    dbTester.truncateTables();
   }
 
   @Test

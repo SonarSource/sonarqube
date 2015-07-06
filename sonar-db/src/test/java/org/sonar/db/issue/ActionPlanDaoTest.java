@@ -22,6 +22,7 @@ package org.sonar.db.issue;
 
 import java.util.Collection;
 import java.util.List;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.db.AbstractDaoTestCase;
 
@@ -31,6 +32,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ActionPlanDaoTest extends AbstractDaoTestCase {
 
   ActionPlanDao dao = dbTester.getDbClient().actionPlanDao();
+
+  @Before
+  public void setUp() throws Exception {
+    dbTester.truncateTables();
+  }
 
   @Test
   public void should_insert_new_action_plan() {

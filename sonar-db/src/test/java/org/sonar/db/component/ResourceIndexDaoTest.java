@@ -20,6 +20,7 @@
 package org.sonar.db.component;
 
 import java.sql.SQLException;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.AbstractDaoTestCase;
@@ -30,6 +31,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ResourceIndexDaoTest extends AbstractDaoTestCase {
 
   ResourceIndexDao dao = dbTester.getDbClient().componentIndexDao();
+
+  @Before
+  public void setUp() throws Exception {
+    dbTester.truncateTables();
+  }
 
   @Test
   public void shouldIndexResource() {

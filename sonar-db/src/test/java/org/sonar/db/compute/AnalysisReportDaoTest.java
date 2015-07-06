@@ -20,6 +20,7 @@
 
 package org.sonar.db.compute;
 
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -28,14 +29,10 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.System2;
-import org.sonar.db.compute.AnalysisReportDao;
-import org.sonar.db.compute.AnalysisReportDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.MyBatis;
 import org.sonar.test.DbTests;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

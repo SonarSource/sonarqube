@@ -20,8 +20,6 @@
 package org.sonar.db.dashboard;
 
 import java.util.Collection;
-import org.sonar.db.dashboard.WidgetDto;
-import org.sonar.db.dashboard.WidgetMapper;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;

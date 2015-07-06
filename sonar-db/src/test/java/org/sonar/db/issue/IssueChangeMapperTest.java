@@ -19,26 +19,15 @@
  */
 package org.sonar.db.issue;
 
-import org.apache.ibatis.session.SqlSession;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.db.AbstractDaoTestCase;
-import org.sonar.db.MyBatis;
 
 public class IssueChangeMapperTest extends AbstractDaoTestCase {
-  SqlSession session;
-  IssueChangeMapper mapper;
 
   @Before
-  public void setUp() {
-    session = getMyBatis().openSession();
-    mapper = session.getMapper(IssueChangeMapper.class);
-  }
-
-  @After
-  public void tearDown() {
-    MyBatis.closeQuietly(session);
+  public void setUp() throws Exception {
+    dbTester.truncateTables();
   }
 
   @Test
@@ -52,8 +41,8 @@ public class IssueChangeMapperTest extends AbstractDaoTestCase {
     dto.setCreatedAt(1_500_000_000_000L);
     dto.setUpdatedAt(1_500_000_000_000L);
     dto.setIssueChangeCreationDate(1_500_000_000_000L);
-    mapper.insert(dto);
-    session.commit();
+    dbTester.getSession().getMapper(IssueChangeMapper.class).insert(dto);
+    dbTester.getSession().commit();
 
     checkTables("insert_diff", new String[] {"id"}, "issue_changes");
   }
@@ -68,8 +57,8 @@ public class IssueChangeMapperTest extends AbstractDaoTestCase {
     dto.setChangeData("the comment");
     dto.setCreatedAt(1_500_000_000_000L);
     dto.setUpdatedAt(1_500_000_000_000L);
-    mapper.insert(dto);
-    session.commit();
+    dbTester.getSession().getMapper(IssueChangeMapper.class).insert(dto);
+    dbTester.getSession().commit();
 
     checkTables("insert_comment", new String[] {"id"}, "issue_changes");
   }

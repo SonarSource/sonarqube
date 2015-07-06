@@ -80,15 +80,6 @@ public class ResourceDao extends AbstractDao {
     return null;
   }
 
-  public List<Long> getResourceIds(ResourceQuery query) {
-    SqlSession session = myBatis().openSession(false);
-    try {
-      return session.getMapper(ResourceMapper.class).selectResourceIds(query);
-    } finally {
-      myBatis().closeQuietly(session);
-    }
-  }
-
   public ResourceDto getResource(long projectId) {
     SqlSession session = myBatis().openSession(false);
     try {

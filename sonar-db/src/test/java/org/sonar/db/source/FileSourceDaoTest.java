@@ -25,30 +25,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.db.AbstractDaoTestCase;
-import org.sonar.db.DbSession;
 import org.sonar.db.source.FileSourceDto.Type;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FileSourceDaoTest extends AbstractDaoTestCase {
 
-  DbSession session;
-
-  FileSourceDao sut;
+  FileSourceDao sut = dbTester.getDbClient().fileSourceDao();
 
   @Before
-  public void setUpTestData() {
-    session = getMyBatis().openSession(false);
-    sut = new FileSourceDao(getMyBatis());
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
+  public void setUp() throws Exception {
+    dbTester.truncateTables();
   }
 
   @Test
@@ -71,7 +61,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
     setupData("shared");
 
     ReaderToStringFunction fn = new ReaderToStringFunction();
-    sut.readLineHashesStream(session, "FILE1_UUID", fn);
+    sut.readLineHashesStream(dbTester.getSession(), "FILE1_UUID", fn);
 
     assertThat(fn.result).isEqualTo("ABC\\nDEF\\nGHI");
   }
@@ -81,7 +71,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
     setupData("shared");
 
     ReaderToStringFunction fn = new ReaderToStringFunction();
-    sut.readLineHashesStream(session, "unknown", fn);
+    sut.readLineHashesStream(dbTester.getSession(), "unknown", fn);
 
     assertThat(fn.result).isNull();
   }
@@ -91,7 +81,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
     setupData("no_line_hashes_when_only_test_data");
 
     ReaderToStringFunction fn = new ReaderToStringFunction();
-    sut.readLineHashesStream(session, "FILE1_UUID", fn);
+    sut.readLineHashesStream(dbTester.getSession(), "FILE1_UUID", fn);
 
     assertThat(fn.result).isNull();
   }
@@ -136,8 +126,8 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
   public void update_date_when_updated_date_is_zero() {
     setupData("update_date_when_updated_date_is_zero");
 
-    sut.updateDateWhenUpdatedDateIsZero(session, "ABCD", 1500000000002L);
-    session.commit();
+    sut.updateDateWhenUpdatedDateIsZero(dbTester.getSession(), "ABCD", 1500000000002L);
+    dbTester.getSession().commit();
 
     checkTable("update_date_when_updated_date_is_zero", "file_sources", "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at",
       "data_type");
