@@ -40,12 +40,8 @@ public class UpdateCenterTest {
   @Test
   public void test_console() {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("server-update-center",
-      "/updatecenter/installed-plugins.html",
-      "/updatecenter/plugin-updates.html",
-      "/updatecenter/refresh-update-center.html",
-      "/updatecenter/system-updates.html",
-      "/updatecenter/available-plugins.html"
-      ).build();
+      "/updatecenter/installed-plugins.html")
+      .build();
     orchestrator.executeSelenese(selenese);
   }
 
