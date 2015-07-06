@@ -1,5 +1,5 @@
 <div class="panel panel-vertical bordered-bottom spacer-bottom">
-  <div class="display-inline-block text-top big-spacer-right">
+  <div class="display-inline-block text-top nowrap big-spacer-right">
     <ul class="radio-toggle">
       <li>
         <input type="radio" name="update-center-filter" value="installed" id="update-center-filter-installed"
@@ -17,11 +17,21 @@
         <label for="update-center-filter-available">Available</label>
       </li>
     </ul>
+
+    <ul class="radio-toggle">
+      <li>
+        <input type="radio" name="update-center-filter" value="system" id="update-center-filter-system"
+               {{#eq state.section 'system'}}checked{{/eq}}>
+        <label for="update-center-filter-system">System Upgrades</label>
+      </li>
+    </ul>
   </div>
 
-  <form id="update-center-search-form" class="search-box display-inline-block text-top">
-    <button id="update-center-search-submit" class="search-box-submit button-clean"><i class="icon-search"></i></button>
-    <input id="update-center-search-query" class="search-box-input" type="search" name="q" placeholder="Search"
-           maxlength="100" autocomplete="off">
-  </form>
+  {{#notEq state.section 'system'}}
+    <form id="update-center-search-form" class="search-box display-inline-block text-top">
+      <button id="update-center-search-submit" class="search-box-submit button-clean"><i class="icon-search"></i></button>
+      <input id="update-center-search-query" class="search-box-input" type="search" name="q" placeholder="Search"
+             maxlength="100" autocomplete="off">
+    </form>
+  {{/notEq}}
 </div>

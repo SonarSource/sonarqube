@@ -5,7 +5,8 @@ define(function () {
       '': 'index',
       'installed': 'showInstalled',
       'updates': 'showUpdates',
-      'available': 'showAvailable'
+      'available': 'showAvailable',
+      'system': 'showSystemUpgrades'
     },
 
     initialize: function (options) {
@@ -26,6 +27,10 @@ define(function () {
 
     showAvailable: function () {
       this.controller.showAvailable();
+    },
+
+    showSystemUpgrades: function () {
+      this.controller.showSystemUpgrades();
     }
   });
 

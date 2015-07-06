@@ -30,12 +30,10 @@ define(function (require) {
           .checkElementNotExist('li[data-id="scmgit"] .js-install');
     });
 
-    bdd.it('should show system update', function () {
+    bdd.it('should show system upgrade', function () {
       return this.remote
-          .open('#updates')
+          .open('#system')
           .mockFromString('/api/l10n/index', '{}')
-          .mockFromFile('/api/plugins/installed', 'update-center-spec/installed.json')
-          .mockFromFile('/api/plugins/updates', 'update-center-spec/updates.json')
           .mockFromFile('/api/plugins/pending', 'update-center-spec/pending.json')
           .mockFromFile('/api/system/upgrades', 'update-center-spec/system-updates.json')
           .startApp('update-center', { urlRoot: '/test/medium/base.html' })
@@ -71,7 +69,6 @@ define(function (require) {
           .mockFromFile('/api/plugins/installed', 'update-center-spec/installed.json')
           .mockFromFile('/api/plugins/updates', 'update-center-spec/updates.json')
           .mockFromFile('/api/plugins/pending', 'update-center-spec/pending.json')
-          .mockFromFile('/api/system/upgrades', 'update-center-spec/system-updates.json')
           .startApp('update-center', { urlRoot: '/test/medium/base.html' })
           .checkElementExist('.js-plugin-name')
           .checkElementCount('li[data-id]', 4)
@@ -116,6 +113,9 @@ define(function (require) {
           .checkElementCount('li[data-id]', 4)
           .checkElementExist('li[data-id="scmgit"]')
           .checkElementExist('#update-center-filter-updates:checked')
+          .clickElement('[for="update-center-filter-system"]')
+          .checkElementExist('li[data-system]')
+          .checkElementExist('#update-center-filter-system:checked')
           .clickElement('[for="update-center-filter-installed"]')
           .checkElementExist('li[data-id="javascript"]')
           .checkElementCount('li[data-id]', 5)
@@ -130,7 +130,10 @@ define(function (require) {
           .checkElementExist('li[data-id="scmgit"]')
           .checkElementCount('li[data-id]', 4)
           .checkElementExist('li[data-id="scmgit"]')
-          .checkElementExist('#update-center-filter-updates:checked');
+          .checkElementExist('#update-center-filter-updates:checked')
+          .clickElement('[for="update-center-filter-system"]')
+          .checkElementExist('li[data-system]')
+          .checkElementExist('#update-center-filter-system:checked');
     });
 
     bdd.it('should search', function () {

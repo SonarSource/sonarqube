@@ -37,4 +37,8 @@ class UpdatecenterNewController < ApplicationController
   def available
     render :action => 'index'
   end
+
+  def system
+    render :action => 'index'
+  end
 end

@@ -19,6 +19,11 @@ define(function () {
     showAvailable: function () {
       this.state.set({ section: 'available' });
       this.collection.fetchAvailable();
+    },
+
+    showSystemUpgrades: function () {
+      this.state.set({ section: 'system' });
+      this.collection.fetchSystemUpgrades();
     }
   });
 

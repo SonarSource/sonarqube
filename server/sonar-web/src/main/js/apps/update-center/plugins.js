@@ -110,7 +110,7 @@ define([
       return Backbone.ajax(opts);
     },
 
-    _fetchSystemUpdates: function () {
+    _fetchSystemUpgrades: function () {
       if (this._systemUpdates) {
         return $.Deferred().resolve().promise();
       }
@@ -140,7 +140,7 @@ define([
 
     fetchUpdates: function () {
       var that = this;
-      return $.when(this._fetchInstalled(), this._fetchUpdates(), this._fetchPending(), this._fetchSystemUpdates())
+      return $.when(this._fetchInstalled(), this._fetchUpdates(), this._fetchPending())
           .done(function () {
             var plugins = new Plugins();
             plugins.set(that._installed);
@@ -158,6 +158,13 @@ define([
         plugins.set(that._available);
         plugins.set(that._pending, { add: false, remove: false });
         that.reset(plugins.models);
+      });
+    },
+
+    fetchSystemUpgrades: function () {
+      var that = this;
+      return $.when(this._fetchSystemUpgrades()).done(function () {
+        that.reset(that._systemUpdates);
       });
     },
 
