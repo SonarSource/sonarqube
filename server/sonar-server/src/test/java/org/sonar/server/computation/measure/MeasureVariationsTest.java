@@ -23,6 +23,8 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.server.computation.period.Period;
+import org.sonar.server.computation.period.PeriodsHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
@@ -233,7 +235,7 @@ public class MeasureVariationsTest {
     MeasureVariations.Builder builder = newMeasureVariationsBuilder().setVariation(4, 12d);
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Variation for index 4 has already been set");
+    expectedException.expectMessage("Variation for Period 4 has already been set");
 
     builder.setVariation(4, 1d);
   }
@@ -241,13 +243,40 @@ public class MeasureVariationsTest {
   @Test
   public void verify_MeasureVariations_built_by_builder() {
     MeasureVariations variations = newMeasureVariationsBuilder()
-      .setVariation(1, 1d)
-      .setVariation(2, 2d)
-      .setVariation(3, 3d)
-      .setVariation(4, 4d)
-      .setVariation(5, 5d)
-      .build();
+        .setVariation(1, 1d)
+        .setVariation(2, 2d)
+        .setVariation(3, 3d)
+        .setVariation(4, 4d)
+        .setVariation(5, 5d)
+        .build();
 
     verifyAsVariations(variations, 1d, 2d, 3d, 4d, 5d);
+  }
+
+  @Test
+  public void verify_MeasureVariations_built_by_builder_from_Period() {
+    MeasureVariations.Builder builder = newMeasureVariationsBuilder();
+    for (int i = 1; i <= PeriodsHolder.MAX_NUMBER_OF_PERIODS; i++) {
+      builder.setVariation(createPeriod(i), i);
+    }
+    MeasureVariations variations = builder.build();
+
+    verifyAsVariations(variations, 1d, 2d, 3d, 4d, 5d);
+  }
+
+  @Test
+  public void builder_isEmpty_returns_true_if_builder_has_not_been_used() {
+    assertThat(newMeasureVariationsBuilder().isEmpty()).isTrue();
+  }
+
+  @Test
+  public void builder_isEmpty_returns_false_if_any_variation_has_been_set() {
+    for (int i = 1; i <= PeriodsHolder.MAX_NUMBER_OF_PERIODS; i++) {
+      assertThat(newMeasureVariationsBuilder().setVariation(createPeriod(i), i).isEmpty()).isFalse();
+    }
+  }
+
+  private static Period createPeriod(int i) {
+    return new Period(i, "mode " + i, null, 100L + i, 952L + i);
   }
 }

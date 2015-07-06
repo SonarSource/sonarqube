@@ -23,6 +23,7 @@ import com.google.common.base.Objects;
 import java.util.Arrays;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.server.computation.period.Period;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -50,12 +51,38 @@ public final class MeasureVariations {
       // prevents instantiation outside static method
     }
 
+    /**
+     * @deprecated use {@link #setVariation(Period, double)} instead
+     */
+    @Deprecated
     public Builder setVariation(int index, double variation) {
       checkArgument(index > 0 && index < 6, "Variation index must be >= 1 and <= 5");
       int arrayIndex = index - 1;
-      checkState(variations[arrayIndex] == null, String.format("Variation for index %s has already been set", index));
+      checkState(variations[arrayIndex] == null, String.format("Variation for Period %s has already been set", index));
       variations[arrayIndex] = variation;
       return this;
+    }
+
+    public Builder setVariation(Period period, double variation) {
+      int arrayIndex = period.getIndex() - 1;
+      checkState(variations[arrayIndex] == null, String.format("Variation for Period %s has already been set", period.getIndex()));
+      variations[arrayIndex] = variation;
+      return this;
+    }
+
+    /**
+     * Indicates whether any variation has been set in the builder.
+     * This method can be used to know beforehand whether the {@link #build()} method will raise a
+     * {@link IllegalArgumentException} because the constructor of {@link MeasureVariations} has been invoked with no
+     * value.
+     */
+    public boolean isEmpty() {
+      for (Double variation : variations) {
+        if (variation != null) {
+          return false;
+        }
+      }
+      return true;
     }
 
     public MeasureVariations build() {
