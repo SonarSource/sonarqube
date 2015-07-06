@@ -30,7 +30,7 @@ define(function (require) {
           .startApp('computation', { urlRoot: '/test/medium/base.html' })
           .checkElementCount('#computation-list li[data-id]', 2)
           .clearMocks()
-          .mockFromFile('/api/computation/history', 'computation-spec/history-big-2.json', { data: { p: '2' } })
+          .mockFromFile('/api/computation/history', 'computation-spec/history-big-2.json', { data: { p: 2 } })
           .clickElement('#computation-fetch-more')
           .checkElementCount('#computation-list li[data-id]', 3);
     });

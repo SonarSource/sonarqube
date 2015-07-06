@@ -109,6 +109,15 @@ define(function (require) {
     });
   };
 
+  Command.prototype.submitForm = function (selector) {
+    return new this.constructor(this, function () {
+      return this.parent
+          .execute(function (selector) {
+            jQuery(selector).submit();
+          }, [selector]);
+    });
+  };
+
   Command.prototype.mockFromFile = function (url, file, options) {
     var response = fs.readFileSync('src/test/json/' + file, 'utf-8');
     return new this.constructor(this, function () {
@@ -132,7 +141,7 @@ define(function (require) {
     return new this.constructor(this, function () {
       return this.parent
           .execute(function () {
-            jQuery.mockjaxClear();
+            jQuery.mockjax.clear();
           });
     });
   };
@@ -159,6 +168,15 @@ define(function (require) {
           .get(require.toUrl(url))
           .mockFromString('/api/l10n/index', '{}')
           .checkElementExist('#content');
+    });
+  };
+
+  Command.prototype.forceJSON = function () {
+    return new this.constructor(this, function () {
+      return this.parent
+          .execute(function () {
+            jQuery.ajaxSetup({ dataType: 'json' });
+          });
     });
   };
 
