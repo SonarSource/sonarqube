@@ -1,52 +1,56 @@
-<div class="display-inline-block text-top big-spacer-right">
-  <svg width="60" height="60" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;">
-    <g id="Layer1">
-        <path d="M52.0841,58.4777L48.8003,58.4777C48.8003,32.0551 26.9663,10.4603 0,10.4603L0,7.06778C28.7278,7.06778 52.1493,30.2719 52.1493,58.4777L52.084,58.4777L52.0841,58.4777Z" style="fill:rgb(75,159,213);fill-rule:nonzero;"/>
-        <path d="M54.3675,40.7974C50.4096,24.2044 36.97,10.2646 20.0072,5.45851L20.7684,2.7619C38.6228,7.95943 52.8453,22.5952 56.9554,40.2755L54.3675,40.7974L54.3675,40.7974L54.3675,40.7974Z" style="fill:rgb(75,159,213);fill-rule:nonzero;"/>
-        <path d="M58.0863,25.27C53.9978,16.332 47.1475,8.65532 38.5792,3.47949L39.6666,1.52228C48.561,6.87202 55.8898,15.0924 60,24.3784L58.0863,25.27L58.0863,25.27L58.0863,25.27L58.0863,25.27Z" style="fill:rgb(75,159,213);fill-rule:nonzero;"/>
-    </g>
-</svg>
-</div>
+<table class="width-100">
+  <tr>
+    <td class="text-top big-spacer-right">
+      <svg width="60" height="60" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;">
+        <g id="Layer1">
+            <path d="M52.0841,58.4777L48.8003,58.4777C48.8003,32.0551 26.9663,10.4603 0,10.4603L0,7.06778C28.7278,7.06778 52.1493,30.2719 52.1493,58.4777L52.084,58.4777L52.0841,58.4777Z" style="fill:rgb(75,159,213);fill-rule:nonzero;"/>
+            <path d="M54.3675,40.7974C50.4096,24.2044 36.97,10.2646 20.0072,5.45851L20.7684,2.7619C38.6228,7.95943 52.8453,22.5952 56.9554,40.2755L54.3675,40.7974L54.3675,40.7974L54.3675,40.7974Z" style="fill:rgb(75,159,213);fill-rule:nonzero;"/>
+            <path d="M58.0863,25.27C53.9978,16.332 47.1475,8.65532 38.5792,3.47949L39.6666,1.52228C48.561,6.87202 55.8898,15.0924 60,24.3784L58.0863,25.27L58.0863,25.27L58.0863,25.27L58.0863,25.27Z" style="fill:rgb(75,159,213);fill-rule:nonzero;"/>
+        </g>
+      </svg>
+    </td>
 
-<div class="display-inline-block text-top width-20">
-  <div>
-    <strong class="js-plugin-name">SonarQube {{version}}</strong>
-    <span class="js-plugin-category badge badge-success spacer-left">System Upgrade</span>
-  </div>
-  <div class="js-plugin-description little-spacer-top">{{{description}}}</div>
+    <td class="text-top width-20 big-spacer-right">
+      <div>
+        <strong class="js-plugin-name">SonarQube {{version}}</strong>
+        <span class="js-plugin-category badge badge-success spacer-left">System Upgrade</span>
+      </div>
+      <div class="js-plugin-description little-spacer-top">{{{description}}}</div>
 
-  <ul class="big-spacer-top">
-    {{#if changeLogUrl}}
-      <li class="little-spacer-bottom">
-        <a class="js-plugin-release-notes" href="{{changeLogUrl}}" target="_blank">Release Notes</a>
-      </li>
-    {{/if}}
-    {{#if releaseDate}}
-      <li class="little-spacer-bottom">Released: <span class="js-plugin-date">{{d releaseDate}}</span></li>
-    {{/if}}
-  </ul>
-</div>
+      <ul class="big-spacer-top">
+        {{#if changeLogUrl}}
+          <li class="little-spacer-bottom">
+            <a class="js-plugin-release-notes" href="{{changeLogUrl}}" target="_blank">Release Notes</a>
+          </li>
+        {{/if}}
+        {{#if releaseDate}}
+          <li class="little-spacer-bottom">Released: <span class="js-plugin-date">{{d releaseDate}}</span></li>
+        {{/if}}
+      </ul>
+    </td>
 
-<div class="display-inline-block text-top width-60 big-spacer-left">
-  <div class="pull-left spacer-right">
-    <strong>How to upgrade</strong>
-  </div>
-  <ul class="js-plugin-update-steps list-styled overflow-hidden bordered-left">
-    <li class="little-spacer-bottom">Stop SonarQube</li>
-    <li class="little-spacer-bottom"><a href="{{downloadUrl}}" target="_blank">Download</a> and install
-      SonarQube {{version}} after having carefully read the
-      <a href="http://redirect.sonarsource.com/doc/upgrading.html" target="_blank">upgrade guide</a>.
-    </li>
-    {{#each plugins.incompatible}}
-      <li class="little-spacer-bottom">
-        Uninstall the plugin {{name}} which is not compatible with SonarQube {{../version}}.
-      </li>
-    {{/each}}
-    {{#each plugins.requireUpdate}}
-      <li class="little-spacer-bottom">
-        Replace current version of plugin {{name}} by version {{version}}.
-      </li>
-    {{/each}}
-    <li>Start SonarQube</li>
-  </ul>
-</div>
+    <td class="text-top width-60">
+      <div class="pull-left spacer-right">
+        <strong>How to upgrade</strong>
+      </div>
+      <ul class="js-plugin-update-steps list-styled overflow-hidden bordered-left">
+        <li class="little-spacer-bottom">Stop SonarQube</li>
+        <li class="little-spacer-bottom"><a href="{{downloadUrl}}" target="_blank">Download</a> and install
+          SonarQube {{version}} after having carefully read the
+          <a href="http://redirect.sonarsource.com/doc/upgrading.html" target="_blank">upgrade guide</a>.
+        </li>
+        {{#each plugins.incompatible}}
+          <li class="little-spacer-bottom">
+            Uninstall the plugin {{name}} which is not compatible with SonarQube {{../version}}.
+          </li>
+        {{/each}}
+        {{#each plugins.requireUpdate}}
+          <li class="little-spacer-bottom">
+            Replace current version of plugin {{name}} by version {{version}}.
+          </li>
+        {{/each}}
+        <li>Start SonarQube</li>
+      </ul>
+    </td>
+  </tr>
+</table>
