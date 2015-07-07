@@ -93,7 +93,7 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
     return new MeasureRepositoryRule(new TreeComponentProvider(treeRoot), requireNonNull(metricRepositoryRule));
   }
 
-  public void addBaseMeasure(Component component, Metric metric, Measure measure) {
+  public MeasureRepositoryRule addBaseMeasure(Component component, Metric metric, Measure measure) {
     checkBaseMeasureArgument(measure);
 
     checkAndInitProvidersState();
@@ -102,9 +102,11 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
     checkState(!baseMeasures.containsKey(internalKey), format("Can not add a BaseMeasure twice for a Component (ref=%s) and Metric (key=%s)", component.getRef(), metric.getKey()));
 
     baseMeasures.put(internalKey, measure);
+
+    return this;
   }
 
-  public void addBaseMeasure(int componentRef, String metricKey, Measure measure) {
+  public MeasureRepositoryRule addBaseMeasure(int componentRef, String metricKey, Measure measure) {
     checkBaseMeasureArgument(measure);
 
     checkAndInitProvidersState();
@@ -113,6 +115,8 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
     checkState(!baseMeasures.containsKey(internalKey), format("Can not add a BaseMeasure twice for a Component (ref=%s) and Metric (key=%s)", componentRef, metricKey));
 
     baseMeasures.put(internalKey, measure);
+
+    return this;
   }
 
   private static void checkBaseMeasureArgument(Measure measure) {
@@ -139,7 +143,7 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
     return builder.build();
   }
 
-  public void addRawMeasure(int componentRef, String metricKey, Measure measure) {
+  public MeasureRepositoryRule addRawMeasure(int componentRef, String metricKey, Measure measure) {
     checkAndInitProvidersState();
 
     InternalKey internalKey = new InternalKey(componentProvider.getByRef(componentRef), metricRepositoryRule.getByKey(metricKey), measure.getRuleId(),
@@ -150,6 +154,8 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
 
     rawMeasures.put(internalKey, measure);
     initialRawMeasures.put(internalKey, measure);
+
+    return this;
   }
 
   @Override
