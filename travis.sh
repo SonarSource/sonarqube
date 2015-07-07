@@ -6,6 +6,57 @@ function installTravisTools {
   curl -sSL https://raw.githubusercontent.com/sonarsource/travis-utils/v4/install.sh | bash
 }
 
+function reset_ruby {
+  unset GEM_PATH GEM_HOME RAILS_ENV
+}
+
+function install_jars {
+  echo "Install jars into local maven repository"
+
+  mkdir -p ~/.m2/repository
+  cp -r /tmp/travis-utils/m2repo/* ~/.m2/repository
+}
+
+# Usage: runDatabaseCI "database" "jdbc_url" "login" "pwd"
+function runDatabaseCI {
+  # Build current version of SonarQube (Don't create a zip)
+  mvn install -DskipTests -Pdev -Dassembly.format=dir -Dchecksum.failOnError=false -T2 -Dsource.skip=true
+
+  # Start server
+  reset_ruby
+  cd sonar-application/target/sonarqube-*/sonarqube-*
+  (exec java -jar lib/sonar-application-*.jar \
+    -Dsonar.log.console=true \
+    -Dsonar.jdbc.url=$2 -Dsonar.jdbc.username=$3 -Dsonar.jdbc.password=${4:-} \
+    -Dsonar.web.javaAdditionalOpts="-Djava.security.egd=file:/dev/./urandom"
+    "$@") &
+  pid=$!
+
+  # Wait for server to be up and running
+  for i in {1..30}; do
+    set +e
+    curl -s http://localhost:9000/api/system/status | grep "UP"
+    retval=$?
+    set -e
+    if [ $retval -eq 0 ]; then
+      # Success. Let's stop the server
+      # Should we use orchestrator's stop command?
+      kill -9 $pid
+
+      # Run the tests
+      install_jars
+      cd ../../../..
+      mvn package -pl :sonar-db -am -PdbTests -Dsonar.jdbc.dialect=$1 -Dsonar.jdbc.url=$2 -Dsonar.jdbc.username=$3 -Dsonar.jdbc.password=${4:-} -V
+      exit $?
+    fi
+
+    sleep 1
+  done
+
+  # Failed to start
+  exit 1
+}
+
 case "$JOB" in
 
 H2)
@@ -17,7 +68,7 @@ POSTGRES)
 
   psql -c 'create database sonar;' -U postgres
 
-  travis_runDatabaseCI "postgresql" "jdbc:postgresql://localhost/sonar" "postgres" ""
+  runDatabaseCI "postgresql" "jdbc:postgresql://localhost/sonar" "postgres" ""
   ;;
 
 MYSQL)
@@ -28,7 +79,7 @@ MYSQL)
   mysql -e "GRANT ALL ON sonar.* TO 'sonar'@'localhost';" -uroot
   mysql -e "FLUSH PRIVILEGES;" -uroot
 
-  travis_runDatabaseCI "mysql" "jdbc:mysql://localhost/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance" "sonar" "sonar"
+  runDatabaseCI "mysql" "jdbc:mysql://localhost/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance" "sonar" "sonar"
   ;;
 
 WEB)

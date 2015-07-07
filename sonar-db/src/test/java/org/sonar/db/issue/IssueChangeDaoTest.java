@@ -105,7 +105,8 @@ public class IssueChangeDaoTest {
     dbTester.prepareDbUnit(getClass(), "selectChangelogOfNonClosedIssuesByComponent.xml");
 
     List<IssueChangeDto> dtos = dao.selectChangelogOfNonClosedIssuesByComponent("FILE_1");
-    assertThat(dtos).extracting("id").containsExactly(100L, 103L);
+    // no need to have ordered results (see NewDebtCalculator)
+    assertThat(dtos).extracting("id").containsOnly(100L, 103L);
   }
 
   @Test
