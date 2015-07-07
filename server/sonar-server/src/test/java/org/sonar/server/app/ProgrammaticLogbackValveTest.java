@@ -23,6 +23,7 @@ import ch.qos.logback.access.spi.IAccessEvent;
 import ch.qos.logback.core.ConsoleAppender;
 
 import org.apache.catalina.Container;
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.sonar.process.LogbackHelper;
 
@@ -31,6 +32,11 @@ import static org.mockito.Mockito.mock;
 
 public class ProgrammaticLogbackValveTest {
 
+  @AfterClass
+  public static void resetLogback() throws Exception {
+    new LogbackHelper().resetFromXml("/logback-test.xml");
+  }
+
   @Test
   public void startInternal() throws Exception {
     ProgrammaticLogbackValve valve = new ProgrammaticLogbackValve();
@@ -38,9 +44,12 @@ public class ProgrammaticLogbackValveTest {
     LogbackHelper helper = new LogbackHelper();
     ConsoleAppender<IAccessEvent> appender = helper.newConsoleAppender(valve, "CONSOLE", "combined");
     valve.addAppender(appender);
+
     valve.start();
     assertThat(valve.isStarted()).isTrue();
+
     valve.stop();
     assertThat(valve.isStarted()).isFalse();
   }
+
 }
