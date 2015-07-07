@@ -39,13 +39,13 @@ import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserGroupDao;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
-import org.sonar.db.user.UserGroupDao;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
@@ -58,7 +58,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SearchActionTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @ClassRule
   public static final EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));

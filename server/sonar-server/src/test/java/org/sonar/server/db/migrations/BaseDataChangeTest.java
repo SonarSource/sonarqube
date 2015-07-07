@@ -19,29 +19,27 @@
  */
 package org.sonar.server.db.migrations;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.db.AbstractDaoTestCase;
 import org.sonar.db.BatchSession;
 import org.sonar.db.DbTester;
 import org.sonar.server.db.migrations.Select.Row;
 import org.sonar.server.db.migrations.Select.RowReader;
 import org.sonar.test.DbTests;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 @Category(DbTests.class)
-public class BaseDataChangeTest extends AbstractDaoTestCase {
+public class BaseDataChangeTest {
 
   @Rule
   public DbTester db = DbTester.createForSchema(System2.INSTANCE, BaseDataChangeTest.class, "schema.sql");
@@ -444,7 +442,7 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
           .list(new Select.RowReader<Object[]>() {
             @Override
             public Object[] read(Select.Row row) throws SQLException {
-              return new Object[] {
+              return new Object[]{
                 // id, login, age, enabled
                 row.getLong(1),
                 row.getString(2),
@@ -469,7 +467,7 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
   static class UserReader implements Select.RowReader<Object[]> {
     @Override
     public Object[] read(Select.Row row) throws SQLException {
-      return new Object[] {
+      return new Object[]{
         // id, login, age, enabled
         row.getNullableLong(1),
         row.getNullableString(2),

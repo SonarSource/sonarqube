@@ -26,9 +26,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.component.ComponentTesting;
@@ -45,7 +46,7 @@ public class ProjectSettingsRepositoryTest {
   private static final String PROJECT_KEY = "PROJECT_KEY";
 
   @Rule
-  public final DbTester dbTester = new DbTester();
+  public final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   DbClient dbClient;
 

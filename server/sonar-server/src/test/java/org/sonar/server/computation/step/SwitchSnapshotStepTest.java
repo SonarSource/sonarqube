@@ -42,7 +42,7 @@ import static org.mockito.Mockito.when;
 public class SwitchSnapshotStepTest {
 
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();

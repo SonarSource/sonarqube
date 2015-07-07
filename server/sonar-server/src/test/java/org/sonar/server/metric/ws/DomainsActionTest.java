@@ -25,9 +25,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.db.metric.MetricDto;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.server.ws.WsTester;
@@ -40,7 +41,7 @@ import static org.sonar.server.metric.ws.MetricTesting.newMetricDto;
 public class DomainsActionTest {
 
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester db = DbTester.create(System2.INSTANCE);
   WsTester ws;
   DbClient dbClient;
   DbSession dbSession;

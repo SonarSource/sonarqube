@@ -31,6 +31,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.event.EventDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -39,7 +40,6 @@ import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
 import org.sonar.server.db.DbClient;
-import org.sonar.db.event.EventDao;
 import org.sonar.test.DbTests;
 
 import static org.mockito.Matchers.any;
@@ -50,7 +50,7 @@ import static org.mockito.Mockito.when;
 public class PersistEventsStepTest extends BaseStepTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();

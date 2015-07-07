@@ -20,6 +20,9 @@
 
 package org.sonar.server.batch;
 
+import java.io.ByteArrayInputStream;
+import java.util.Arrays;
+import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -32,10 +35,10 @@ import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants.Severity;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
@@ -53,11 +56,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
-import javax.annotation.Nullable;
-
-import java.io.ByteArrayInputStream;
-import java.util.Arrays;
-
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -70,7 +68,7 @@ public class IssuesActionTest {
   private final static String FILE_KEY = "Action.java";
 
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
   @Rule

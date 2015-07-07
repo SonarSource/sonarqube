@@ -28,16 +28,17 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.metric.MetricDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDao;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.debt.CharacteristicDao;
+import org.sonar.db.measure.MeasureDao;
+import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
-import org.sonar.db.component.SnapshotDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -52,7 +53,6 @@ import org.sonar.server.computation.metric.MetricRepositoryImpl;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderRule;
 import org.sonar.server.db.DbClient;
-import org.sonar.db.measure.MeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.test.DbTests;
@@ -78,7 +78,7 @@ public class FillMeasuresWithVariationsStepTest {
   static final Component PROJECT = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_DTO.uuid()).build();
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();

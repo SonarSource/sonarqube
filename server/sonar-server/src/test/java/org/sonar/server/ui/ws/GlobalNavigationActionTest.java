@@ -32,13 +32,13 @@ import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.Page;
 import org.sonar.api.web.UserRole;
 import org.sonar.api.web.View;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.db.dashboard.ActiveDashboardDao;
 import org.sonar.db.dashboard.ActiveDashboardDto;
 import org.sonar.db.dashboard.DashboardDao;
 import org.sonar.db.dashboard.DashboardDto;
-import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbSession;
-import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.tester.UserSessionRule;
@@ -51,7 +51,7 @@ import static org.mockito.Mockito.mock;
 public class GlobalNavigationActionTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 

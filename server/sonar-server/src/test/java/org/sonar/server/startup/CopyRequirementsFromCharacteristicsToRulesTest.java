@@ -29,8 +29,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.rule.RuleDto;
 import org.sonar.db.loadedtemplate.LoadedTemplateDao;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.test.DbTests;
@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
 public class CopyRequirementsFromCharacteristicsToRulesTest {
 
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   @Mock
   System2 system2;

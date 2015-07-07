@@ -24,10 +24,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardLayout;
-import org.sonar.db.issue.IssueFilterDao;
 import org.sonar.db.DbTester;
+import org.sonar.db.issue.IssueFilterDao;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ProjectIssuesDashboardTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   ProjectIssuesDashboard template;
 

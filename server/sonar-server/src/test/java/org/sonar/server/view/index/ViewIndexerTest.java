@@ -33,11 +33,13 @@ import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.issue.IssueDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.IssueDao;
+import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.user.RoleDao;
 import org.sonar.server.component.ComponentTesting;
@@ -48,13 +50,11 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueTesting;
-import org.sonar.db.issue.IssueDao;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.test.DbTests;
@@ -66,7 +66,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ViewIndexerTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()), new ViewIndexDefinition(new Settings()));

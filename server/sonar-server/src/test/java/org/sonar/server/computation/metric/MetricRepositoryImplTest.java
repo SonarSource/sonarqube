@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.metric.persistence.MetricDao;
@@ -37,7 +38,7 @@ public class MetricRepositoryImplTest {
   private static final long SOME_ID = 156;
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public final ExpectedException expectedException = ExpectedException.none();
 

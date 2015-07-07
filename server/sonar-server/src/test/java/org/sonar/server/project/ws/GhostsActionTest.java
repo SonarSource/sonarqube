@@ -29,15 +29,16 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDao;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.component.db.ComponentDao;
-import org.sonar.db.component.SnapshotDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
@@ -51,7 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GhostsActionTest {
 
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   WsTester ws;

@@ -27,12 +27,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.MyBatis;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
@@ -50,7 +51,7 @@ public class FillComponentsStepTest extends BaseStepTest {
   private static final String PROJECT_KEY = "PROJECT_KEY";
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
   @Rule

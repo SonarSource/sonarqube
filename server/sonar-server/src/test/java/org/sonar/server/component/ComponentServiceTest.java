@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 import org.assertj.core.api.Fail;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,10 +32,10 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.db.component.ResourceKeyUpdaterDao;
 import org.sonar.server.component.db.ComponentDao;
@@ -55,32 +54,28 @@ import static org.mockito.Mockito.when;
 @Category(DbTests.class)
 public class ComponentServiceTest {
 
+  System2 system2 = System2.INSTANCE;
+
   @Rule
-  public DbTester dbTester = new DbTester();
-  
+  public DbTester dbTester = DbTester.create(system2);
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   DbClient dbClient;
-  DbSession session;
+  DbSession session = dbTester.getSession();
   I18n i18n = mock(I18n.class);
   ComponentService service;
 
   @Before
   public void setUp() {
     dbTester.truncateTables();
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao());
-    session = dbClient.openSession(false);
+    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new ResourceKeyUpdaterDao(dbTester.myBatis()),
+      new ResourceIndexDao(dbTester.myBatis(), system2));
 
     when(i18n.message(Locale.getDefault(), "qualifier.TRK", "Project")).thenReturn("Project");
 
-    service = new ComponentService(dbClient, new ResourceKeyUpdaterDao(dbTester.myBatis()), i18n, new ResourceIndexDao(dbTester.myBatis(), mock(System2.class)),
-      userSessionRule, System2.INSTANCE);
-  }
-
-  @After
-  public void after() {
-    session.close();
+    service = new ComponentService(dbClient, i18n, userSessionRule, System2.INSTANCE);
   }
 
   @Test

@@ -41,7 +41,7 @@ import static org.mockito.Mockito.mock;
 public class RuleCacheLoaderTest {
 
   @org.junit.Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @org.junit.Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();

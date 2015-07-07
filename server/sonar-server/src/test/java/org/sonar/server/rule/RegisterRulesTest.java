@@ -20,9 +20,11 @@
 package org.sonar.server.rule;
 
 import com.google.common.collect.Sets;
-import org.junit.After;
+import java.util.Date;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -31,49 +33,45 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.db.AbstractDaoTestCase;
-import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
+import org.sonar.db.debt.CharacteristicDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.db.debt.CharacteristicDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.db.RuleDao;
-
-import java.util.Date;
-import java.util.List;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class RegisterRulesTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class RegisterRulesTest {
 
   static final Date DATE1 = DateUtils.parseDateTime("2014-01-01T19:10:03+0100");
   static final Date DATE2 = DateUtils.parseDateTime("2014-02-01T12:10:03+0100");
   static final Date DATE3 = DateUtils.parseDateTime("2014-03-01T12:10:03+0100");
 
-  RuleActivator ruleActivator = mock(RuleActivator.class);
   System2 system;
+
+  @org.junit.Rule
+  public DbTester dbTester = DbTester.create(system);
+
+  RuleActivator ruleActivator = mock(RuleActivator.class);
+
   DbClient dbClient;
-  DbSession dbSession;
 
   @Before
   public void before() {
     system = mock(System2.class);
     when(system.now()).thenReturn(DATE1.getTime());
     RuleDao ruleDao = new RuleDao(system);
-    ActiveRuleDao activeRuleDao = new ActiveRuleDao(new QualityProfileDao(getMyBatis(), system), ruleDao, system);
-    dbClient = new DbClient(dbTester.database(), getMyBatis(), ruleDao, activeRuleDao,
-      new QualityProfileDao(getMyBatis(), system), new CharacteristicDao(getMyBatis()));
-    dbSession = dbClient.openSession(false);
-  }
-
-  @After
-  public void after() {
-    dbSession.close();
+    ActiveRuleDao activeRuleDao = new ActiveRuleDao(new QualityProfileDao(dbTester.myBatis(), system), ruleDao, system);
+    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), ruleDao, activeRuleDao,
+      new QualityProfileDao(dbTester.myBatis(), system), new CharacteristicDao(dbTester.myBatis()));
   }
 
   @Test
@@ -81,9 +79,9 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     execute(new FakeRepositoryV1());
 
     // verify db
-    assertThat(dbClient.ruleDao().findAll(dbSession)).hasSize(2);
+    assertThat(dbClient.ruleDao().findAll(dbTester.getSession())).hasSize(2);
     RuleKey ruleKey1 = RuleKey.of("fake", "rule1");
-    RuleDto rule1 = dbClient.ruleDao().getNullableByKey(dbSession, ruleKey1);
+    RuleDto rule1 = dbClient.ruleDao().getNullableByKey(dbTester.getSession(), ruleKey1);
     assertThat(rule1.getName()).isEqualTo("One");
     assertThat(rule1.getDescription()).isEqualTo("Description of One");
     assertThat(rule1.getSeverityString()).isEqualTo(Severity.BLOCKER);
@@ -95,7 +93,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE1);
     // TODO check characteristic and remediation function
 
-    List<RuleParamDto> params = dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, ruleKey1);
+    List<RuleParamDto> params = dbClient.ruleDao().findRuleParamsByRuleKey(dbTester.getSession(), ruleKey1);
     assertThat(params).hasSize(2);
     RuleParamDto param = getParam(params, "param1");
     assertThat(param.getDescription()).isEqualTo("parameter one");
@@ -105,13 +103,13 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   @Test
   public void do_not_update_rules_when_no_changes() {
     execute(new FakeRepositoryV1());
-    assertThat(dbClient.ruleDao().findAll(dbSession)).hasSize(2);
+    assertThat(dbClient.ruleDao().findAll(dbTester.getSession())).hasSize(2);
 
     when(system.now()).thenReturn(DATE2.getTime());
     execute(new FakeRepositoryV1());
 
     RuleKey ruleKey1 = RuleKey.of("fake", "rule1");
-    RuleDto rule1 = dbClient.ruleDao().getNullableByKey(dbSession, ruleKey1);
+    RuleDto rule1 = dbClient.ruleDao().getNullableByKey(dbTester.getSession(), ruleKey1);
     assertThat(rule1.getCreatedAt()).isEqualTo(DATE1);
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE1);
   }
@@ -119,22 +117,22 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   @Test
   public void update_and_remove_rules_on_changes() {
     execute(new FakeRepositoryV1());
-    assertThat(dbClient.ruleDao().findAll(dbSession)).hasSize(2);
+    assertThat(dbClient.ruleDao().findAll(dbTester.getSession())).hasSize(2);
 
     // user adds tags and sets markdown note
     RuleKey ruleKey1 = RuleKey.of("fake", "rule1");
-    RuleDto rule1 = dbClient.ruleDao().getNullableByKey(dbSession, ruleKey1);
+    RuleDto rule1 = dbClient.ruleDao().getNullableByKey(dbTester.getSession(), ruleKey1);
     rule1.setTags(Sets.newHashSet("usertag1", "usertag2"));
     rule1.setNoteData("user *note*");
     rule1.setNoteUserLogin("marius");
-    dbClient.ruleDao().update(dbSession, rule1);
-    dbSession.commit();
+    dbClient.ruleDao().update(dbTester.getSession(), rule1);
+    dbTester.getSession().commit();
 
     when(system.now()).thenReturn(DATE2.getTime());
     execute(new FakeRepositoryV2());
 
     // rule1 has been updated
-    rule1 = dbClient.ruleDao().getNullableByKey(dbSession, ruleKey1);
+    rule1 = dbClient.ruleDao().getNullableByKey(dbTester.getSession(), ruleKey1);
     assertThat(rule1.getName()).isEqualTo("One v2");
     assertThat(rule1.getDescription()).isEqualTo("Description of One v2");
     assertThat(rule1.getSeverityString()).isEqualTo(Severity.INFO);
@@ -148,19 +146,19 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE2);
 
     // TODO check characteristic and remediation function
-    List<RuleParamDto> params = dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, ruleKey1);
+    List<RuleParamDto> params = dbClient.ruleDao().findRuleParamsByRuleKey(dbTester.getSession(), ruleKey1);
     assertThat(params).hasSize(2);
     RuleParamDto param = getParam(params, "param1");
     assertThat(param.getDescription()).isEqualTo("parameter one v2");
     assertThat(param.getDefaultValue()).isEqualTo("default1 v2");
 
     // rule2 has been removed -> status set to REMOVED but db row is not deleted
-    RuleDto rule2 = dbClient.ruleDao().getNullableByKey(dbSession, RuleKey.of("fake", "rule2"));
+    RuleDto rule2 = dbClient.ruleDao().getNullableByKey(dbTester.getSession(), RuleKey.of("fake", "rule2"));
     assertThat(rule2.getStatus()).isEqualTo(RuleStatus.REMOVED);
     assertThat(rule2.getUpdatedAt()).isEqualTo(DATE2);
 
     // rule3 has been created
-    RuleDto rule3 = dbClient.ruleDao().getNullableByKey(dbSession, RuleKey.of("fake", "rule3"));
+    RuleDto rule3 = dbClient.ruleDao().getNullableByKey(dbTester.getSession(), RuleKey.of("fake", "rule3"));
     assertThat(rule3).isNotNull();
     assertThat(rule3.getStatus()).isEqualTo(RuleStatus.READY);
   }
@@ -168,28 +166,28 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   @Test
   public void do_not_update_already_removed_rules() {
     execute(new FakeRepositoryV1());
-    assertThat(dbClient.ruleDao().findAll(dbSession)).hasSize(2);
+    assertThat(dbClient.ruleDao().findAll(dbTester.getSession())).hasSize(2);
 
-    RuleDto rule2 = dbClient.ruleDao().getByKey(dbSession, RuleKey.of("fake", "rule2"));
+    RuleDto rule2 = dbClient.ruleDao().getByKey(dbTester.getSession(), RuleKey.of("fake", "rule2"));
     assertThat(rule2.getStatus()).isEqualTo(RuleStatus.READY);
 
     when(system.now()).thenReturn(DATE2.getTime());
     execute(new FakeRepositoryV2());
 
     // On MySQL, need to update a rule otherwise rule2 will be seen as READY, but why ???
-    dbClient.ruleDao().update(dbSession, dbClient.ruleDao().getByKey(dbSession, RuleKey.of("fake", "rule1")));
-    dbSession.commit();
+    dbClient.ruleDao().update(dbTester.getSession(), dbClient.ruleDao().getByKey(dbTester.getSession(), RuleKey.of("fake", "rule1")));
+    dbTester.getSession().commit();
 
     // rule2 is removed
-    rule2 = dbClient.ruleDao().getNullableByKey(dbSession, RuleKey.of("fake", "rule2"));
+    rule2 = dbClient.ruleDao().getNullableByKey(dbTester.getSession(), RuleKey.of("fake", "rule2"));
     assertThat(rule2.getStatus()).isEqualTo(RuleStatus.REMOVED);
 
     when(system.now()).thenReturn(DATE3.getTime());
     execute(new FakeRepositoryV2());
-    dbSession.commit();
+    dbTester.getSession().commit();
 
     // -> rule2 is still removed, but not update at DATE3
-    rule2 = dbClient.ruleDao().getNullableByKey(dbSession, RuleKey.of("fake", "rule2"));
+    rule2 = dbClient.ruleDao().getNullableByKey(dbTester.getSession(), RuleKey.of("fake", "rule2"));
     assertThat(rule2.getStatus()).isEqualTo(RuleStatus.REMOVED);
     assertThat(rule2.getUpdatedAt()).isEqualTo(DATE2);
   }
@@ -197,14 +195,14 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   @Test
   public void mass_insert() {
     execute(new BigRepository());
-    assertThat(dbClient.ruleDao().findAll(dbSession)).hasSize(BigRepository.SIZE);
-    assertThat(dbClient.ruleDao().findAllRuleParams(dbSession)).hasSize(BigRepository.SIZE * 20);
+    assertThat(dbClient.ruleDao().findAll(dbTester.getSession())).hasSize(BigRepository.SIZE);
+    assertThat(dbClient.ruleDao().findAllRuleParams(dbTester.getSession())).hasSize(BigRepository.SIZE * 20);
   }
 
   @Test
   public void manage_repository_extensions() {
     execute(new FindbugsRepository(), new FbContribRepository());
-    List<RuleDto> rules = dbClient.ruleDao().findAll(dbSession);
+    List<RuleDto> rules = dbClient.ruleDao().findAll(dbTester.getSession());
     assertThat(rules).hasSize(2);
     for (RuleDto rule : rules) {
       assertThat(rule.getRepositoryKey()).isEqualTo("findbugs");
@@ -212,14 +210,14 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   }
 
   private void execute(RulesDefinition... defs) {
-    RuleDefinitionsLoader loader = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), new RuleRepositories(),defs);
+    RuleDefinitionsLoader loader = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), new RuleRepositories(), defs);
     Languages languages = mock(Languages.class);
     when(languages.get("java")).thenReturn(mock(Language.class));
 
     RegisterRules task = new RegisterRules(loader, ruleActivator, dbClient, languages);
     task.start();
     // Execute a commit to refresh session state as the task is using its own session
-    dbSession.commit();
+    dbTester.getSession().commit();
   }
 
   private RuleParamDto getParam(List<RuleParamDto> params, String key) {

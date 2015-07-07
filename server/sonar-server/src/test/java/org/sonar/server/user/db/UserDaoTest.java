@@ -20,6 +20,7 @@
 
 package org.sonar.server.user.db;
 
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,8 +33,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.test.DbTests;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -42,7 +41,7 @@ import static org.mockito.Mockito.mock;
 public class UserDaoTest {
 
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private UserDao dao;
   private DbSession session;

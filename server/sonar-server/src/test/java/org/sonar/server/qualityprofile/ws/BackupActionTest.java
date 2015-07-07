@@ -29,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.language.LanguageTesting;
@@ -47,7 +48,7 @@ import static org.mockito.Mockito.mock;
 public class BackupActionTest {
 
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   // TODO Replace with proper DbTester + EsTester medium test once DaoV2 is removed
   @Mock

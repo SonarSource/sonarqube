@@ -21,13 +21,13 @@ package org.sonar.server.startup;
 
 import java.util.Collections;
 import java.util.List;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.server.db.DbClient;
@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RegisterMetricsTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   /**
    * Insert new metrics, including custom metrics

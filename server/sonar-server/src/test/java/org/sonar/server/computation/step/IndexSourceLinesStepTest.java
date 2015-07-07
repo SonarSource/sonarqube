@@ -27,6 +27,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
@@ -44,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class IndexSourceLinesStepTest extends BaseStepTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));

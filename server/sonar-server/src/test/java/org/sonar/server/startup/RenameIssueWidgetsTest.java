@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
 public class RenameIssueWidgetsTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Test
   public void should_rename_widgets() {

@@ -21,44 +21,38 @@ package org.sonar.server.issue;
 
 import java.util.Collection;
 import java.util.Date;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
+import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.db.AbstractDaoTestCase;
 import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
 import org.sonar.server.db.DbClient;
+import org.sonar.test.DbTests;
 
-public class IssueStorageTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class IssueStorageTest {
 
   IssueChangeContext context = IssueChangeContext.createUser(new Date(), "emmerik");
 
-  DbSession session;
+  @org.junit.Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @Before
-  public void before() {
-    session = getMyBatis().openSession(false);
-  }
-
-  @After
-  public void after() {
-    session.close();
-  }
+  DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis());
 
   @Test
   public void batch_insert_new_issues() {
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis());
     FakeBatchSaver saver = new FakeBatchSaver(dbClient, new FakeRuleFinder());
 
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
@@ -89,12 +83,12 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
     saver.save(issue);
 
-    checkTables("should_insert_new_issues", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    dbTester.assertDbUnit(getClass(), "should_insert_new_issues-result.xml",
+      new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   @Test
   public void batch_insert_new_issues_with_session() {
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis());
     FakeBatchSaver saver = new FakeBatchSaver(dbClient, new FakeRuleFinder());
 
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
@@ -123,17 +117,17 @@ public class IssueStorageTest extends AbstractDaoTestCase {
       .setProjectUuid("uuid-10")
       .setComponentKey("struts:Action");
 
-    saver.save(session, issue);
-    session.commit();
+    saver.save(dbTester.getSession(), issue);
+    dbTester.getSession().commit();
 
-    checkTables("should_insert_new_issues", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    dbTester.assertDbUnit(getClass(), "should_insert_new_issues-result.xml",
+      new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   @Test
   public void server_insert_new_issues_with_session() {
     ComponentDto project = new ComponentDto().setId(10L).setUuid("uuid-10");
     ComponentDto component = new ComponentDto().setId(100L).setUuid("uuid-100");
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis());
     FakeServerSaver saver = new FakeServerSaver(dbClient, new FakeRuleFinder(), component, project);
 
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
@@ -162,17 +156,17 @@ public class IssueStorageTest extends AbstractDaoTestCase {
       .setComponentUuid("component-uuid")
       .setProjectUuid("project-uuid");
 
-    saver.save(session, issue);
-    session.commit();
+    saver.save(dbTester.getSession(), issue);
+    dbTester.getSession().commit();
 
-    checkTables("should_insert_new_issues", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    dbTester.assertDbUnit(getClass(), "should_insert_new_issues-result.xml",
+      new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   @Test
   public void batch_update_issues() {
-    setupData("should_update_issues");
+    dbTester.prepareDbUnit(getClass(), "should_update_issues.xml");
 
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis());
     FakeBatchSaver saver = new FakeBatchSaver(dbClient, new FakeRuleFinder());
 
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
@@ -185,7 +179,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
       .setNew(false)
       .setChanged(true)
 
-      // updated fields
+        // updated fields
       .setLine(5000)
       .setDebt(Duration.create(10L))
       .setChecksum("FFFFF")
@@ -204,22 +198,21 @@ public class IssueStorageTest extends AbstractDaoTestCase {
       .setComponentUuid("uuid-100")
       .setProjectUuid("uuid-10")
 
-      // unmodifiable fields
+        // unmodifiable fields
       .setRuleKey(RuleKey.of("xxx", "unknown"))
       .setComponentKey("not:a:component");
 
     saver.save(issue);
 
-    checkTables("should_update_issues", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    dbTester.assertDbUnit(getClass(), "should_update_issues-result.xml", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   @Test
   public void server_update_issues() {
-    setupData("should_update_issues");
+    dbTester.prepareDbUnit(getClass(), "should_update_issues.xml");
 
     ComponentDto project = new ComponentDto().setId(10L).setUuid("whatever-uuid");
     ComponentDto component = new ComponentDto().setId(100L).setUuid("whatever-uuid-2");
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis());
     FakeServerSaver saver = new FakeServerSaver(dbClient, new FakeRuleFinder(), component, project);
 
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
@@ -232,7 +225,7 @@ public class IssueStorageTest extends AbstractDaoTestCase {
       .setNew(false)
       .setChanged(true)
 
-      // updated fields
+        // updated fields
       .setLine(5000)
       .setDebt(Duration.create(10L))
       .setChecksum("FFFFF")
@@ -250,13 +243,13 @@ public class IssueStorageTest extends AbstractDaoTestCase {
       .setCloseDate(date)
       .setProjectUuid("uuid-10")
 
-      // unmodifiable fields
+        // unmodifiable fields
       .setRuleKey(RuleKey.of("xxx", "unknown"))
       .setComponentKey("not:a:component");
 
     saver.save(issue);
 
-    checkTables("should_update_issues", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    dbTester.assertDbUnit(getClass(), "should_update_issues-result.xml", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   static class FakeBatchSaver extends IssueStorage {

@@ -26,9 +26,9 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.user.AuthorizationDao;
@@ -53,7 +53,7 @@ import static org.mockito.Mockito.mock;
 public class ProjectsActionTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 

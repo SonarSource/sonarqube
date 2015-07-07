@@ -27,6 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbSession;
@@ -48,7 +49,7 @@ import static org.mockito.Mockito.when;
 public class PersistProjectLinksStepTest extends BaseStepTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();

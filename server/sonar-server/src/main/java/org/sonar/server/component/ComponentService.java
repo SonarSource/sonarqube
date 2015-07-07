@@ -38,12 +38,10 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ResourceIndexDao;
-import org.sonar.db.component.ResourceKeyUpdaterDao;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -56,18 +54,13 @@ public class ComponentService {
 
   private final DbClient dbClient;
 
-  private final ResourceKeyUpdaterDao resourceKeyUpdaterDao;
   private final I18n i18n;
-  private final ResourceIndexDao resourceIndexDao;
   private final UserSession userSession;
   private final System2 system2;
 
-  public ComponentService(DbClient dbClient, ResourceKeyUpdaterDao resourceKeyUpdaterDao, I18n i18n, ResourceIndexDao resourceIndexDao,
-                          UserSession userSession, System2 system2) {
+  public ComponentService(DbClient dbClient, I18n i18n, UserSession userSession, System2 system2) {
     this.dbClient = dbClient;
-    this.resourceKeyUpdaterDao = resourceKeyUpdaterDao;
     this.i18n = i18n;
-    this.resourceIndexDao = resourceIndexDao;
     this.userSession = userSession;
     this.system2 = system2;
   }
@@ -115,7 +108,7 @@ public class ComponentService {
     try {
       ComponentDto projectOrModule = getByKey(session, projectOrModuleKey);
       userSession.checkProjectUuidPermission(UserRole.ADMIN, projectOrModule.projectUuid());
-      resourceKeyUpdaterDao.updateKey(projectOrModule.getId(), newKey);
+      dbClient.resourceKeyUpdaterDao().updateKey(projectOrModule.getId(), newKey);
       session.commit();
 
       session.commit();
@@ -129,7 +122,7 @@ public class ComponentService {
     try {
       ComponentDto project = getByKey(projectKey);
       userSession.checkProjectUuidPermission(UserRole.ADMIN, project.projectUuid());
-      return resourceKeyUpdaterDao.checkModuleKeysBeforeRenaming(project.getId(), stringToReplace, replacementString);
+      return dbClient.resourceKeyUpdaterDao().checkModuleKeysBeforeRenaming(project.getId(), stringToReplace, replacementString);
     } finally {
       session.close();
     }
@@ -141,7 +134,7 @@ public class ComponentService {
     try {
       ComponentDto project = getByKey(session, projectKey);
       userSession.checkProjectUuidPermission(UserRole.ADMIN, project.projectUuid());
-      resourceKeyUpdaterDao.bulkUpdateKey(session, project.getId(), stringToReplace, replacementString);
+      dbClient.resourceKeyUpdaterDao().bulkUpdateKey(session, project.getId(), stringToReplace, replacementString);
       session.commit();
     } finally {
       session.close();
@@ -164,20 +157,19 @@ public class ComponentService {
 
       String uuid = Uuids.create();
       ComponentDto component = new ComponentDto()
-          .setUuid(uuid)
-          .setModuleUuid(null)
-          .setModuleUuidPath(ComponentDto.MODULE_UUID_PATH_SEP + uuid + ComponentDto.MODULE_UUID_PATH_SEP)
-          .setProjectUuid(uuid)
-          .setKey(keyWithBranch)
-          .setDeprecatedKey(keyWithBranch)
-          .setName(newComponent.name())
-          .setLongName(newComponent.name())
-          .setScope(Scopes.PROJECT)
-          .setQualifier(newComponent.qualifier())
-          .setCreatedAt(new Date(system2.now()))
-        ;
+        .setUuid(uuid)
+        .setModuleUuid(null)
+        .setModuleUuidPath(ComponentDto.MODULE_UUID_PATH_SEP + uuid + ComponentDto.MODULE_UUID_PATH_SEP)
+        .setProjectUuid(uuid)
+        .setKey(keyWithBranch)
+        .setDeprecatedKey(keyWithBranch)
+        .setName(newComponent.name())
+        .setLongName(newComponent.name())
+        .setScope(Scopes.PROJECT)
+        .setQualifier(newComponent.qualifier())
+        .setCreatedAt(new Date(system2.now()));
       dbClient.componentDao().insert(session, component);
-      resourceIndexDao.indexResource(session, component.getId());
+      dbClient.componentIndexDao().indexResource(session, component.getId());
       session.commit();
 
       return component.key();

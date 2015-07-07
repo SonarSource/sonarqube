@@ -21,16 +21,15 @@
 package org.sonar.server.user;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.AbstractDaoTestCase;
-import org.sonar.core.user.GroupMembership;
-import org.sonar.db.user.GroupMembershipDao;
-import org.sonar.db.user.UserDao;
-import org.sonar.server.exceptions.NotFoundException;
-
 import java.util.List;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
+import org.sonar.core.user.GroupMembership;
+import org.sonar.db.DbTester;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -38,21 +37,17 @@ import static org.junit.Assert.fail;
 /**
  * Use BbUnit tests because there's no IT on this feature for the moment
  */
-public class GroupMembershipServiceTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class GroupMembershipServiceTest {
 
-  GroupMembershipService service;
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @Before
-  public void before() {
-    GroupMembershipDao membershipDao = new GroupMembershipDao(getMyBatis());
-    UserDao userDao = new UserDao(getMyBatis(), System2.INSTANCE);
-    GroupMembershipFinder finder = new GroupMembershipFinder(userDao, membershipDao);
-    service = new GroupMembershipService(finder);
-  }
+  GroupMembershipService service = new GroupMembershipService(new GroupMembershipFinder(dbTester.getDbClient().userDao(), dbTester.getDbClient().groupMembershipDao()));
 
   @Test
   public void find_all_member_groups() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     GroupMembershipFinder.Membership queryResult = service.find(ImmutableMap.<String, Object>of(
       "user", "user1",
@@ -66,7 +61,7 @@ public class GroupMembershipServiceTest extends AbstractDaoTestCase {
 
   @Test
   public void find_all_member_groups_when_no_selected_parameter() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     GroupMembershipFinder.Membership queryResult = service.find(ImmutableMap.<String, Object>of(
       "user", "user1"));
@@ -79,7 +74,7 @@ public class GroupMembershipServiceTest extends AbstractDaoTestCase {
 
   @Test
   public void find_member_groups() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     GroupMembershipFinder.Membership queryResult = service.find(ImmutableMap.<String, Object>of(
       "user", "user1",
@@ -91,7 +86,7 @@ public class GroupMembershipServiceTest extends AbstractDaoTestCase {
 
   @Test
   public void find_not_member_groups() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     GroupMembershipFinder.Membership queryResult = service.find(ImmutableMap.<String, Object>of(
       "user", "user1",
@@ -104,14 +99,14 @@ public class GroupMembershipServiceTest extends AbstractDaoTestCase {
 
   @Test
   public void find_with_paging_with_more_results() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     GroupMembershipFinder.Membership queryResult = service.find(ImmutableMap.<String, Object>of(
       "user", "user1",
       "selected", "all",
       "page", 1,
       "pageSize", 2
-      ));
+    ));
     List<GroupMembership> result = queryResult.groups();
     assertThat(result).hasSize(2);
     assertThat(queryResult.hasMoreResults()).isTrue();
@@ -119,14 +114,14 @@ public class GroupMembershipServiceTest extends AbstractDaoTestCase {
 
   @Test
   public void find_with_paging_with_no_more_results() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     GroupMembershipFinder.Membership queryResult = service.find(ImmutableMap.<String, Object>of(
       "user", "user1",
       "selected", "all",
       "page", 3,
       "pageSize", 1
-      ));
+    ));
     List<GroupMembership> result = queryResult.groups();
     assertThat(result).hasSize(1);
     assertThat(queryResult.hasMoreResults()).isFalse();
@@ -134,7 +129,7 @@ public class GroupMembershipServiceTest extends AbstractDaoTestCase {
 
   @Test
   public void fail_if_user_not_found() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     try {
       service.find(ImmutableMap.<String, Object>of(
@@ -148,7 +143,7 @@ public class GroupMembershipServiceTest extends AbstractDaoTestCase {
 
   @Test
   public void find_matched_groups_name() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     GroupMembershipFinder.Membership queryResult = service.find(ImmutableMap.<String, Object>of(
       "user", "user1",

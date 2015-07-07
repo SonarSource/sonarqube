@@ -19,18 +19,17 @@
  */
 package org.sonar.server.issue.filter;
 
+import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.db.issue.IssueFilterDao;
 import org.sonar.db.DbTester;
+import org.sonar.db.issue.IssueFilterDao;
 import org.sonar.db.loadedtemplate.LoadedTemplateDao;
 import org.sonar.test.DbTests;
-
-import java.util.Date;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -39,7 +38,7 @@ import static org.mockito.Mockito.when;
 public class RegisterIssueFiltersTest {
 
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   RegisterIssueFilters taskUnderTest;
 

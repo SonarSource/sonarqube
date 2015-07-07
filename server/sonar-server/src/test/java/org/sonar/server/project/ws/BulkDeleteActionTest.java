@@ -82,7 +82,7 @@ public class BulkDeleteActionTest {
 
   private static final String ACTION = "bulk_delete";
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()), new SourceLineIndexDefinition(new Settings()),
     new TestIndexDefinition(new Settings()));

@@ -30,18 +30,18 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.permission.PermissionTemplateDao;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.permission.PermissionTemplateDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.user.RoleDao;
+import org.sonar.db.user.UserGroupDao;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.db.GroupDao;
-import org.sonar.db.user.UserGroupDao;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
@@ -51,7 +51,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DeleteActionTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();

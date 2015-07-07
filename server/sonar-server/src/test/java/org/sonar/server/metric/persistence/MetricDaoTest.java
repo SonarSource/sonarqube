@@ -25,9 +25,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.db.metric.MetricDto;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.test.DbTests;
 
@@ -37,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MetricDaoTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   DbSession session;
 

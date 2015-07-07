@@ -19,18 +19,18 @@
  */
 package org.sonar.server.user.index;
 
+import java.util.List;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.test.DbTests;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UserIndexerTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));

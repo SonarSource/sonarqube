@@ -21,6 +21,9 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -33,15 +36,10 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.tester.ServerTester;
-
-import javax.annotation.Nullable;
-
-import java.util.List;
-import java.util.Map;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -171,7 +169,7 @@ public class QProfileCopierMediumTest {
 
   private void verifyOneActiveRule(QProfileName profileName, String expectedSeverity,
     @Nullable String expectedInheritance, Map<String, String> expectedParams) {
-    QualityProfileDto dto = db.qualityProfileDao().getByNameAndLanguage(profileName.getName(), profileName.getLanguage());
+    QualityProfileDto dto = db.qualityProfileDao().getByNameAndLanguage(profileName.getName(), profileName.getLanguage(), dbSession);
     verifyOneActiveRule(dto.getKey(), expectedSeverity, expectedInheritance, expectedParams);
   }
 

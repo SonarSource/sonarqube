@@ -61,7 +61,7 @@ import static org.mockito.Mockito.when;
 public class ExportActionTest {
 
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 

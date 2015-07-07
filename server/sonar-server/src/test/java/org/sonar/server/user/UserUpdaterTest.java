@@ -40,6 +40,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserGroupDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
@@ -47,7 +48,6 @@ import org.sonar.server.exceptions.Message;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
-import org.sonar.db.user.UserGroupDao;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.Validation;
@@ -65,7 +65,7 @@ import static org.mockito.Mockito.when;
 public class UserUpdaterTest {
 
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));

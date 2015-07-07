@@ -20,6 +20,8 @@
 
 package org.sonar.server.test.ws;
 
+import java.util.Arrays;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -27,10 +29,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
@@ -43,9 +46,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
-import java.util.Arrays;
-import java.util.List;
-
 @Category(DbTests.class)
 public class ListActionTest {
   DbClient dbClient;
@@ -55,7 +55,7 @@ public class ListActionTest {
   WsTester ws;
 
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new TestIndexDefinition(new Settings()));
   @Rule

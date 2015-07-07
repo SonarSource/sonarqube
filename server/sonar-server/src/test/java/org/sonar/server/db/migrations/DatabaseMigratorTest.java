@@ -19,20 +19,18 @@
  */
 package org.sonar.server.db.migrations;
 
+import java.sql.Connection;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.api.platform.ServerUpgradeStatus;
-import org.sonar.db.AbstractDaoTestCase;
 import org.sonar.db.DbSession;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MySql;
 import org.sonar.server.db.DbClient;
-
-import java.sql.Connection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyBoolean;
@@ -41,7 +39,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class DatabaseMigratorTest extends AbstractDaoTestCase {
+public class DatabaseMigratorTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();

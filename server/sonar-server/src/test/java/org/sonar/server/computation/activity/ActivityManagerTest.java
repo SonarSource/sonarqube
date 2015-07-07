@@ -24,8 +24,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mockito.ArgumentCaptor;
-import org.sonar.db.compute.AnalysisReportDto;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.compute.AnalysisReportDto;
 import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.component.db.ComponentDao;
@@ -39,7 +40,7 @@ import static org.mockito.Mockito.verify;
 @Category(DbTests.class)
 public class ActivityManagerTest {
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   ArgumentCaptor<Activity> activityArgumentCaptor = ArgumentCaptor.forClass(Activity.class);
 

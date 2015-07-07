@@ -19,21 +19,21 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import java.util.LinkedHashMap;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.version.DatabaseVersion;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.version.DatabaseVersion;
 import org.sonar.server.db.DbClient;
-
-import java.util.LinkedHashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DatabaseMonitorTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   DatabaseMonitor sut;
 

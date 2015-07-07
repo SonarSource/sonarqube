@@ -44,7 +44,7 @@ import static org.mockito.Mockito.mock;
 public class SearchActionTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 

@@ -36,13 +36,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.SnapshotDao;
+import org.sonar.db.measure.MeasureDao;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.component.db.ComponentDao;
-import org.sonar.db.component.SnapshotDao;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
@@ -52,7 +54,6 @@ import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.db.DbClient;
-import org.sonar.db.measure.MeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
 
 import static com.google.common.collect.FluentIterable.from;
@@ -68,7 +69,7 @@ import static org.mockito.Mockito.when;
 @RunWith(DataProviderRunner.class)
 public class MeasureRepositoryImplTest {
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 

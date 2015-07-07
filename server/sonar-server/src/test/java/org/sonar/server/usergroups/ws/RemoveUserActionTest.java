@@ -35,13 +35,13 @@ import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserGroupDao;
 import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
-import org.sonar.db.user.UserGroupDao;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
@@ -51,7 +51,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RemoveUserActionTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
   public final UserSessionRule userSession = UserSessionRule.standalone();

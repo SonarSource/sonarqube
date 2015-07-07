@@ -32,6 +32,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserGroupDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
@@ -44,7 +45,6 @@ import org.sonar.server.user.SecurityRealmFactory;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
-import org.sonar.db.user.UserGroupDao;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
@@ -60,7 +60,7 @@ public class ChangePasswordActionTest {
   static final Settings settings = new Settings().setProperty("sonar.defaultGroup", "sonar-users");
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @ClassRule
   public static final EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(settings));

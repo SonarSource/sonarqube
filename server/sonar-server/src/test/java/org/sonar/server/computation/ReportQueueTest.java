@@ -20,6 +20,9 @@
 
 package org.sonar.server.computation;
 
+import java.io.File;
+import java.io.InputStream;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
@@ -30,18 +33,14 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
-import org.sonar.db.compute.AnalysisReportDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.compute.AnalysisReportDao;
+import org.sonar.db.compute.AnalysisReportDto;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.component.db.ComponentDao;
-import org.sonar.db.compute.AnalysisReportDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
-
-import java.io.File;
-import java.io.InputStream;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -55,7 +54,7 @@ public class ReportQueueTest {
   static final long NOW = 1_500_000_000_000L;
 
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   DbClient dbClient;
   DbSession session;

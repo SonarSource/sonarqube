@@ -73,12 +73,6 @@ public class DbTester extends ExternalResource {
   private DbClient client;
   private DbSession session = null;
 
-  @Deprecated
-  public DbTester() {
-    this.system2 = System2.INSTANCE;
-    this.db = TestDb.create(null);
-  }
-
   private DbTester(System2 system2, @Nullable String schemaPath) {
     this.system2 = system2;
     this.db = TestDb.create(schemaPath);

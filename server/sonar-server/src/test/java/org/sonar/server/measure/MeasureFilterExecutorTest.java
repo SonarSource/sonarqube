@@ -19,6 +19,10 @@
  */
 package org.sonar.server.measure;
 
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,15 +31,10 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ResourceDao;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.test.DbTests;
-
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,7 +56,7 @@ public class MeasureFilterExecutorTest {
   private static final Metric METRIC_COVERAGE = new Metric.Builder("coverage", "Coverage", Metric.ValueType.FLOAT).create().setId(3);
   private static final Metric METRIC_UNKNOWN = new Metric.Builder("unknown", "Unknown", Metric.ValueType.FLOAT).create().setId(4);
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester db = DbTester.create(System2.INSTANCE);
   private MeasureFilterExecutor executor;
 
   @Before

@@ -40,25 +40,25 @@ import org.sonar.api.web.ResourceLanguage;
 import org.sonar.api.web.ResourceQualifier;
 import org.sonar.api.web.ResourceScope;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.dashboard.ActiveDashboardDao;
 import org.sonar.db.dashboard.ActiveDashboardDto;
 import org.sonar.db.dashboard.DashboardDao;
 import org.sonar.db.dashboard.DashboardDto;
-import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbSession;
-import org.sonar.db.DbTester;
+import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.component.db.ComponentDao;
-import org.sonar.db.component.SnapshotDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.db.measure.MeasureDao;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.db.UserDao;
@@ -71,7 +71,7 @@ import static org.mockito.Mockito.when;
 public class ComponentNavigationActionTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 

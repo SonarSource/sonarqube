@@ -20,49 +20,39 @@
 package org.sonar.server.rule.db;
 
 import com.google.common.collect.Iterables;
-import org.junit.After;
-import org.junit.Before;
+import java.util.List;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.db.AbstractDaoTestCase;
-import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleParamDto;
-
-import java.util.List;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class RuleDaoTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class RuleDaoTest {
 
-  private RuleDao dao;
-  private DbSession session;
-  private System2 system2;
+  private System2 system2 = mock(System2.class);
 
-  @Before
-  public void before() {
-    this.session = getMyBatis().openSession(false);
-    this.system2 = mock(System2.class);
-    this.dao = new RuleDao(system2);
-  }
+  @org.junit.Rule
+  public DbTester dbTester = DbTester.create(system2);
 
-  @After
-  public void after() {
-    this.session.close();
-  }
+  private RuleDao dao = new RuleDao(system2);
 
   @Test
   public void select_all() {
-    setupData("selectAll");
-    List<RuleDto> ruleDtos = dao.findAll(session);
+    dbTester.prepareDbUnit(getClass(), "selectAll.xml");
+    List<RuleDto> ruleDtos = dao.findAll(dbTester.getSession());
 
     assertThat(ruleDtos).hasSize(1);
 
@@ -87,8 +77,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_enables_and_non_manual() {
-    setupData("select_enables_and_non_manual");
-    List<RuleDto> ruleDtos = dao.findByEnabledAndNotManual(session);
+    dbTester.prepareDbUnit(getClass(), "select_enables_and_non_manual.xml");
+    List<RuleDto> ruleDtos = dao.findByEnabledAndNotManual(dbTester.getSession());
 
     assertThat(ruleDtos.size()).isEqualTo(1);
     RuleDto ruleDto = ruleDtos.get(0);
@@ -112,8 +102,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_by_id() {
-    setupData("selectById");
-    RuleDto ruleDto = dao.getById(session, 2);
+    dbTester.prepareDbUnit(getClass(), "selectById.xml");
+    RuleDto ruleDto = dao.getById(dbTester.getSession(), 2);
 
     assertThat(ruleDto.getId()).isEqualTo(2);
     assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
@@ -125,16 +115,16 @@ public class RuleDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_by_rule_key() {
-    setupData("select_by_rule_key");
-    assertThat(dao.getNullableByKey(session, RuleKey.of("checkstyle", "AvoidComparison"))).isNotNull();
-    assertThat(dao.getNullableByKey(session, RuleKey.of("checkstyle", "Unknown"))).isNull();
-    assertThat(dao.getNullableByKey(session, RuleKey.of("Unknown", "AvoidComparison"))).isNull();
+    dbTester.prepareDbUnit(getClass(), "select_by_rule_key.xml");
+    assertThat(dao.getNullableByKey(dbTester.getSession(), RuleKey.of("checkstyle", "AvoidComparison"))).isNotNull();
+    assertThat(dao.getNullableByKey(dbTester.getSession(), RuleKey.of("checkstyle", "Unknown"))).isNull();
+    assertThat(dao.getNullableByKey(dbTester.getSession(), RuleKey.of("Unknown", "AvoidComparison"))).isNull();
   }
 
   @Test
   public void select_by_name() {
-    setupData("select_by_name");
-    RuleDto ruleDto = dao.getByName("Avoid Null", session);
+    dbTester.prepareDbUnit(getClass(), "select_by_name.xml");
+    RuleDto ruleDto = dao.getByName("Avoid Null", dbTester.getSession());
 
     assertThat(ruleDto).isNotNull();
 
@@ -147,10 +137,10 @@ public class RuleDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_non_manual() {
-    setupData("selectNonManual");
-    List<RuleDto> ruleDtos = dao.findByNonManual(session);
-    session.commit();
-    session.close();
+    dbTester.prepareDbUnit(getClass(), "selectNonManual.xml");
+    List<RuleDto> ruleDtos = dao.findByNonManual(dbTester.getSession());
+    dbTester.getSession().commit();
+    dbTester.getSession().close();
 
     assertThat(ruleDtos.size()).isEqualTo(1);
     RuleDto ruleDto = ruleDtos.get(0);
@@ -163,10 +153,9 @@ public class RuleDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void update() {
-
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-01-01").getTime());
 
-    setupData("update");
+    dbTester.prepareDbUnit(getClass(), "update.xml");
 
     RuleDto ruleToUpdate = new RuleDto()
       .setId(1)
@@ -196,18 +185,17 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setEffortToFixDescription("squid.S115.effortToFix");
 
 
-    dao.update(session, ruleToUpdate);
-    session.commit();
+    dao.update(dbTester.getSession(), ruleToUpdate);
+    dbTester.getSession().commit();
 
-    checkTables("update", "rules");
+    dbTester.assertDbUnit(getClass(), "update-result.xml", "rules");
   }
 
   @Test
   public void insert() {
-
     when(system2.now()).thenReturn(DateUtils.parseDate("2013-12-16").getTime());
 
-    setupData("empty");
+    dbTester.prepareDbUnit(getClass(), "empty.xml");
 
     RuleDto ruleToInsert = new RuleDto()
       .setId(1)
@@ -232,17 +220,17 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultRemediationOffset("10h")
       .setEffortToFixDescription("squid.S115.effortToFix");
 
-    dao.insert(session, ruleToInsert);
-    session.commit();
+    dao.insert(dbTester.getSession(), ruleToInsert);
+    dbTester.getSession().commit();
 
-    checkTables("insert", "rules");
+    dbTester.assertDbUnit(getClass(), "insert-result.xml", "rules");
   }
 
   @Test
   public void insert_all() {
     when(system2.now()).thenReturn(DateUtils.parseDate("2013-12-16").getTime());
 
-    setupData("empty");
+    dbTester.prepareDbUnit(getClass(), "empty.xml");
 
     RuleDto ruleToInsert1 = new RuleDto()
       .setId(1)
@@ -290,16 +278,16 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultRemediationOffset("5min")
       .setEffortToFixDescription("squid.S115.effortToFix2");
 
-    dao.insert(session, ruleToInsert1, ruleToInsert2);
-    session.commit();
+    dao.insert(dbTester.getSession(), ruleToInsert1, ruleToInsert2);
+    dbTester.getSession().commit();
 
-    checkTables("insert_all", "rules");
+    dbTester.assertDbUnit(getClass(), "insert_all-result.xml", "rules");
   }
 
   @Test
   public void select_parameters() {
-    setupData("selectParameters");
-    List<RuleParamDto> ruleDtos = dao.findAllRuleParams(session);
+    dbTester.prepareDbUnit(getClass(), "selectParameters.xml");
+    List<RuleParamDto> ruleDtos = dao.findAllRuleParams(dbTester.getSession());
 
     assertThat(ruleDtos.size()).isEqualTo(1);
     RuleParamDto ruleDto = ruleDtos.get(0);
@@ -312,9 +300,9 @@ public class RuleDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_parameters_by_rule_id() {
-    setupData("select_parameters_by_rule_id");
-    RuleDto rule = dao.getById(session, 1);
-    List<RuleParamDto> ruleDtos = dao.findRuleParamsByRuleKey(session, rule.getKey());
+    dbTester.prepareDbUnit(getClass(), "select_parameters_by_rule_id.xml");
+    RuleDto rule = dao.getById(dbTester.getSession(), 1);
+    List<RuleParamDto> ruleDtos = dao.findRuleParamsByRuleKey(dbTester.getSession(), rule.getKey());
 
     assertThat(ruleDtos.size()).isEqualTo(1);
     RuleParamDto ruleDto = ruleDtos.get(0);
@@ -327,9 +315,9 @@ public class RuleDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void insert_parameter() {
-    setupData("insert_parameter");
+    dbTester.prepareDbUnit(getClass(), "insert_parameter.xml");
 
-    RuleDto rule1 = dao.getById(session, 1);
+    RuleDto rule1 = dao.getById(dbTester.getSession(), 1);
 
     RuleParamDto param = RuleParamDto.createFor(rule1)
       .setName("max")
@@ -337,19 +325,19 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultValue("30")
       .setDescription("My Parameter");
 
-    dao.addRuleParam(session, rule1, param);
-    session.commit();
+    dao.addRuleParam(dbTester.getSession(), rule1, param);
+    dbTester.getSession().commit();
 
-    checkTables("insert_parameter", "rules_parameters");
+    dbTester.assertDbUnit(getClass(), "insert_parameter-result.xml", "rules_parameters");
   }
 
   @Test
   public void update_parameter() {
-    setupData("update_parameter");
+    dbTester.prepareDbUnit(getClass(), "update_parameter.xml");
 
-    RuleDto rule1 = dao.getById(session, 1);
+    RuleDto rule1 = dao.getById(dbTester.getSession(), 1);
 
-    List<RuleParamDto> params = dao.findRuleParamsByRuleKey(session, rule1.getKey());
+    List<RuleParamDto> params = dao.findRuleParamsByRuleKey(dbTester.getSession(), rule1.getKey());
     assertThat(params).hasSize(1);
 
     RuleParamDto param = Iterables.getFirst(params, null);
@@ -361,9 +349,9 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultValue("^[a-z]+(\\.[a-z][a-z0-9]*)*$")
       .setDescription("Regular expression used to check the package names against.");
 
-    dao.updateRuleParam(session, rule1, param);
-    session.commit();
+    dao.updateRuleParam(dbTester.getSession(), rule1, param);
+    dbTester.getSession().commit();
 
-    checkTables("update_parameter", "rules_parameters");
+    dbTester.assertDbUnit(getClass(), "update_parameter-result.xml", "rules_parameters");
   }
 }

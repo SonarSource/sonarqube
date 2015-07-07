@@ -38,6 +38,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
@@ -73,7 +74,7 @@ public class SourceLineIndexerTest {
   public static EsTester es = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));
 
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private SourceLineIndexer indexer;
 

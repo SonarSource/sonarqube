@@ -21,6 +21,11 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import javax.xml.stream.XMLStreamException;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.After;
@@ -35,17 +40,10 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
-
-import javax.xml.stream.XMLStreamException;
-
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -130,7 +128,7 @@ public class QProfileBackuperMediumTest {
       Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), StandardCharsets.UTF_8)),
       null);
 
-    QualityProfileDto profile = db.qualityProfileDao().getByNameAndLanguage("P1", "xoo");
+    QualityProfileDto profile = db.qualityProfileDao().getByNameAndLanguage("P1", "xoo", dbSession);
     assertThat(profile).isNotNull();
 
     List<ActiveRule> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(profile.getKey()));
@@ -305,7 +303,7 @@ public class QProfileBackuperMediumTest {
     List<ActiveRule> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(QProfileTesting.XOO_P1_KEY));
     assertThat(activeRules).hasSize(0);
 
-    QualityProfileDto target = db.qualityProfileDao().getByNameAndLanguage("P3", "xoo");
+    QualityProfileDto target = db.qualityProfileDao().getByNameAndLanguage("P3", "xoo", dbSession);
     assertThat(target).isNotNull();
     activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(target.getKey()));
     assertThat(activeRules).hasSize(1);

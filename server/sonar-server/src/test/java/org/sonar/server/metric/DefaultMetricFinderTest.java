@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.metric.persistence.MetricDao;
@@ -37,7 +38,7 @@ import static org.junit.Assert.assertThat;
 public class DefaultMetricFinderTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   DefaultMetricFinder finder;
 

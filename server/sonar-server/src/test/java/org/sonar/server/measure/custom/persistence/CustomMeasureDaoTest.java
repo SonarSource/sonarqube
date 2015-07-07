@@ -27,9 +27,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.db.measure.CustomMeasureDto;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.measure.CustomMeasureDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
@@ -40,7 +41,7 @@ import static org.sonar.server.measure.custom.persistence.CustomMeasureTesting.n
 @Category(DbTests.class)
 public class CustomMeasureDaoTest {
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   CustomMeasureDao sut;
   DbSession session;

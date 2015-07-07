@@ -29,6 +29,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbTester;
+import org.sonar.db.measure.MeasureDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -39,7 +40,6 @@ import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.db.DbClient;
-import org.sonar.db.measure.MeasureDao;
 import org.sonar.server.source.index.SourceLineIndex;
 
 import static org.mockito.Matchers.anyString;
@@ -49,7 +49,7 @@ import static org.mockito.Mockito.when;
 public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
 
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();

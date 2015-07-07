@@ -61,7 +61,7 @@ public class DeactivateActionTest {
   static final Settings settings = new Settings();
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @ClassRule
   public static final EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(settings));
   @Rule

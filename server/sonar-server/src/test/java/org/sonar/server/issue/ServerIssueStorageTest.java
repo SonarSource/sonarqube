@@ -20,11 +20,11 @@
 
 package org.sonar.server.issue;
 
+import java.util.Collection;
+import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.DefaultIssueComment;
-import org.sonar.core.issue.IssueChangeContext;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
@@ -32,41 +32,44 @@ import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
-import org.sonar.db.AbstractDaoTestCase;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.DefaultIssueComment;
+import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.db.DbTester;
 import org.sonar.db.component.ResourceDao;
+import org.sonar.db.issue.IssueDao;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
-import org.sonar.db.issue.IssueDao;
 import org.sonar.server.issue.index.IssueIndexer;
-
-import java.util.Collection;
-import java.util.Date;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ServerIssueStorageTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class ServerIssueStorageTest {
 
-  DbClient dbClient;
+  System2 system = mock(System2.class);
 
-  ServerIssueStorage storage;
+  @org.junit.Rule
+  public DbTester dbTester = DbTester.create(system);
+
+  DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(),
+    new ComponentDao(),
+    new IssueDao(dbTester.myBatis()),
+    new ResourceDao(dbTester.myBatis(), system));
+
+  ServerIssueStorage storage = new ServerIssueStorage(new FakeRuleFinder(), dbClient, mock(IssueIndexer.class));
 
   @Before
   public void setupDbClient() {
-    System2 system = mock(System2.class);
     when(system.now()).thenReturn(2000000000L);
-    dbClient = new DbClient(dbTester.database(), getMyBatis(),
-      new ComponentDao(),
-      new IssueDao(getMyBatis()),
-      new ResourceDao(getMyBatis(), system));
-
-    storage = new ServerIssueStorage(new FakeRuleFinder(), dbClient, mock(IssueIndexer.class));
   }
 
   @Test
   public void load_component_id_from_db() {
-    setupData("load_component_id_from_db");
+    dbTester.prepareDbUnit(getClass(), "load_component_id_from_db.xml");
 
     long componentId = storage.component(dbTester.getSession(), new DefaultIssue().setComponentKey("struts:Action")).getId();
 
@@ -75,7 +78,7 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
 
   @Test
   public void load_project_id_from_db() {
-    setupData("load_project_id_from_db");
+    dbTester.prepareDbUnit(getClass(), "load_project_id_from_db.xml");
 
     long projectId = storage.project(dbTester.getSession(), new DefaultIssue().setProjectKey("struts")).getId();
 
@@ -84,7 +87,7 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
 
   @Test
   public void should_insert_new_issues() {
-    setupData("should_insert_new_issues");
+    dbTester.prepareDbUnit(getClass(), "should_insert_new_issues.xml");
 
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
     // override generated key
@@ -113,12 +116,13 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
 
     storage.save(issue);
 
-    checkTables("should_insert_new_issues", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    dbTester.assertDbUnit(getClass(), "should_insert_new_issues-result.xml",
+      new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   @Test
   public void should_update_issues() {
-    setupData("should_update_issues");
+    dbTester.prepareDbUnit(getClass(), "should_update_issues.xml");
 
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), "emmerik");
 
@@ -132,7 +136,7 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
       .setNew(false)
       .setChanged(true)
 
-      // updated fields
+        // updated fields
       .setLine(5000)
       .setProjectUuid("CDEF")
       .setDebt(Duration.create(10L))
@@ -150,14 +154,15 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
       .setUpdateDate(date)
       .setCloseDate(date)
 
-      // unmodifiable fields
+        // unmodifiable fields
       .setRuleKey(RuleKey.of("xxx", "unknown"))
       .setComponentKey("struts:Action")
       .setProjectKey("struts");
 
     storage.save(issue);
 
-    checkTables("should_update_issues", new String[] {"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+    dbTester.assertDbUnit(getClass(), "should_update_issues-result.xml",
+      new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   static class FakeRuleFinder implements RuleFinder {

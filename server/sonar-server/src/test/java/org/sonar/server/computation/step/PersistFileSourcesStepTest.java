@@ -21,7 +21,6 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.base.Optional;
-import java.io.IOException;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -35,6 +34,7 @@ import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
@@ -43,7 +43,6 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.db.DbClient;
-import org.sonar.db.source.FileSourceDao;
 import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.test.DbTests;
 
@@ -63,7 +62,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   private static final String FILE_UUID = "FILE";
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();

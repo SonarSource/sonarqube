@@ -39,6 +39,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.index.ActivityDoc;
@@ -52,7 +53,6 @@ import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.ActiveRuleChange.Type;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileTesting;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.user.db.UserDao;
 import org.sonar.server.ws.WsTester;
@@ -63,7 +63,7 @@ import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P1_KEY;
 public class ChangelogActionTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new ActivityIndexDefinition(new Settings()));

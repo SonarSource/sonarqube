@@ -32,9 +32,10 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.batch.protocol.Constants.MeasureValueType;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
@@ -46,7 +47,6 @@ import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.measure.MeasureRepositoryImpl;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
 import org.sonar.server.db.DbClient;
-import org.sonar.db.measure.MeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.test.DbTests;
@@ -74,7 +74,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   private static final int FILE_REF = 2;
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();

@@ -40,7 +40,7 @@ import static org.mockito.Mockito.when;
 public class GroupDaoTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   GroupDao dao;
   DbSession session;

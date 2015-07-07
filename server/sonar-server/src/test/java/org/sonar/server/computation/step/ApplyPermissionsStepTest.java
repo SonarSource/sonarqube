@@ -32,13 +32,13 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ResourceDao;
 import org.sonar.db.permission.PermissionFacade;
 import org.sonar.db.permission.PermissionTemplateDao;
 import org.sonar.db.permission.PermissionTemplateDto;
-import org.sonar.db.DbSession;
-import org.sonar.db.DbTester;
-import org.sonar.db.component.ResourceDao;
 import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.user.RoleDao;
 import org.sonar.server.component.ComponentTesting;
@@ -65,7 +65,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   public static EsTester esTester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
@@ -88,7 +88,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
 
     RoleDao roleDao = new RoleDao();
     PermissionTemplateDao permissionTemplateDao = new PermissionTemplateDao(dbTester.myBatis(), System2.INSTANCE);
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), roleDao, permissionTemplateDao);
+    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), roleDao, permissionTemplateDao, new ResourceDao(dbTester.myBatis(), System2.INSTANCE));
     dbSession = dbClient.openSession(false);
 
     settings = new Settings();
@@ -98,8 +98,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
 
     dbIdsRepository = new DbIdsRepository();
 
-    step = new ApplyPermissionsStep(dbClient, dbIdsRepository, issueAuthorizationIndexer, new PermissionFacade(roleDao, null,
-      new ResourceDao(dbTester.myBatis(), System2.INSTANCE), permissionTemplateDao, settings), treeRootHolder);
+    step = new ApplyPermissionsStep(dbClient, dbIdsRepository, issueAuthorizationIndexer, new PermissionFacade(dbClient, settings), treeRootHolder);
   }
 
   @After

@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DbClientTest {
 
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   @Test
   public void get_daos() throws Exception {

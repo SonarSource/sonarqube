@@ -35,6 +35,7 @@ import org.sonar.batch.protocol.output.BatchReport.CoverageDetail;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.MyBatis;
+import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
@@ -42,7 +43,6 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.component.FileAttributes;
 import org.sonar.server.db.DbClient;
-import org.sonar.db.source.FileSourceDao;
 import org.sonar.server.source.db.FileSourceDb;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,7 +66,7 @@ public class PersistTestsStepTest extends BaseStepTest {
   private static final String TEST_FILE_PATH_2 = "TEST-PATH-2";
 
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
