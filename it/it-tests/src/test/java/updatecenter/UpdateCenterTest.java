@@ -14,7 +14,6 @@ import org.junit.Test;
 import org.sonar.wsclient.services.Plugin;
 import org.sonar.wsclient.services.UpdateCenterQuery;
 
-import static junit.framework.Assert.assertNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.pluginArtifact;
 
@@ -32,7 +31,8 @@ public class UpdateCenterTest {
     assertThat(plugins.size()).isGreaterThan(0);
 
     Plugin installedPlugin = findPlugin(plugins, "fake");
-    assertNotNull(installedPlugin);
+
+    assertThat(installedPlugin).isNotNull();
     assertThat(installedPlugin.getName()).isEqualTo("Plugins :: Fake");
     assertThat(installedPlugin.getVersion()).isEqualTo("1.0-SNAPSHOT");
   }
