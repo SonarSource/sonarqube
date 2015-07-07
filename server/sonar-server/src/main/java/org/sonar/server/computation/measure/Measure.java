@@ -91,6 +91,7 @@ public final class Measure {
   private Measure(ValueType valueType, @Nullable Integer ruleId, @Nullable Integer characteristicId,
     @Nullable Double value, @Nullable String data, @Nullable Level dataLevel,
     @Nullable String description, @Nullable QualityGateStatus qualityGateStatus, @Nullable MeasureVariations variations) {
+    checkArgument(value == null || !Double.isNaN(value), "Nan is not allowed as a Measure value");
     this.valueType = valueType;
     this.ruleId = ruleId;
     this.characteristicId = characteristicId;
@@ -107,7 +108,6 @@ public final class Measure {
     if (value == null) {
       return null;
     }
-    checkArgument(!Double.isNaN(value), "Measure value can not be NaN");
     BigDecimal bd = BigDecimal.valueOf(value);
     return bd.setScale(DEFAULT_PRECISION, RoundingMode.HALF_UP).doubleValue();
   }

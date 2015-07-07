@@ -32,11 +32,16 @@ import static com.google.common.collect.FluentIterable.from;
 
 @Immutable
 public final class MeasureVariations {
+  private static final String NAN_ERROR_MESSAGE = "NaN is not allowed in MeasureVariation";
+
   private final Double[] variations = new Double[5];
 
   public MeasureVariations(Double... variations) {
     checkArgument(variations.length <= 5, "There can not be more than 5 variations");
     checkArgument(!from(Arrays.asList(variations)).filter(notNull()).isEmpty(), "There must be at least one variation");
+    for (Double variation : variations) {
+      checkArgument(variation == null || !Double.isNaN(variation), NAN_ERROR_MESSAGE);
+    }
     System.arraycopy(variations, 0, this.variations, 0, variations.length);
   }
 
@@ -57,6 +62,7 @@ public final class MeasureVariations {
     @Deprecated
     public Builder setVariation(int index, double variation) {
       checkArgument(index > 0 && index < 6, "Variation index must be >= 1 and <= 5");
+      checkArgument(!Double.isNaN(variation), NAN_ERROR_MESSAGE);
       int arrayIndex = index - 1;
       checkState(variations[arrayIndex] == null, String.format("Variation for Period %s has already been set", index));
       variations[arrayIndex] = variation;
@@ -66,6 +72,7 @@ public final class MeasureVariations {
     public Builder setVariation(Period period, double variation) {
       int arrayIndex = period.getIndex() - 1;
       checkState(variations[arrayIndex] == null, String.format("Variation for Period %s has already been set", period.getIndex()));
+      checkArgument(!Double.isNaN(variation), NAN_ERROR_MESSAGE);
       variations[arrayIndex] = variation;
       return this;
     }
@@ -110,14 +117,14 @@ public final class MeasureVariations {
     return hasVariation(5);
   }
 
-  private void checkHasVariation(int i) {
-    if (!hasVariation(i)) {
-      throw new IllegalStateException(String.format("Variation %s has not been set", i));
+  private void checkHasVariation(int periodIndex) {
+    if (!hasVariation(periodIndex)) {
+      throw new IllegalStateException(String.format("Variation %s has not been set", periodIndex));
     }
   }
 
-  public boolean hasVariation(int i) {
-    return variations[i - 1] != null;
+  public boolean hasVariation(int periodIndex) {
+    return variations[periodIndex - 1] != null;
   }
 
   public double getVariation1() {

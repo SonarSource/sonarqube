@@ -32,6 +32,7 @@ import static org.sonar.server.computation.measure.MeasureVariations.newMeasureV
 
 public class MeasureVariationsTest {
   public static final String NO_VARIATION_ERROR_MESSAGE = "There must be at least one variation";
+  public static final String NAN_ERROR_MESSAGE = "NaN is not allowed in MeasureVariation";
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -89,6 +90,46 @@ public class MeasureVariationsTest {
     expectedException.expectMessage(NO_VARIATION_ERROR_MESSAGE);
 
     new MeasureVariations((Double) null, (Double) null, (Double) null, (Double) null, (Double) null);
+  }
+
+  @Test
+  public void constructor_throws_IAE_if_any_arg_1_is_NaN() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage(NAN_ERROR_MESSAGE);
+
+    new MeasureVariations(Double.NaN);
+  }
+
+  @Test
+  public void constructor_throws_IAE_if_any_arg_2_is_NaN() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage(NAN_ERROR_MESSAGE);
+
+    new MeasureVariations(1d, Double.NaN);
+  }
+
+  @Test
+  public void constructor_throws_IAE_if_any_arg_3_is_NaN() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage(NAN_ERROR_MESSAGE);
+
+    new MeasureVariations(1d, 2d, Double.NaN);
+  }
+
+  @Test
+  public void constructor_throws_IAE_if_any_arg_4_is_NaN() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage(NAN_ERROR_MESSAGE);
+
+    new MeasureVariations(1d, 2d, 3d, Double.NaN);
+  }
+
+  @Test
+  public void constructor_throws_IAE_if_any_arg_5_is_NaN() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage(NAN_ERROR_MESSAGE);
+
+    new MeasureVariations(1d, 2d, 3d, 5d, Double.NaN);
   }
 
   @Test
@@ -243,12 +284,12 @@ public class MeasureVariationsTest {
   @Test
   public void verify_MeasureVariations_built_by_builder() {
     MeasureVariations variations = newMeasureVariationsBuilder()
-        .setVariation(1, 1d)
-        .setVariation(2, 2d)
-        .setVariation(3, 3d)
-        .setVariation(4, 4d)
-        .setVariation(5, 5d)
-        .build();
+      .setVariation(1, 1d)
+      .setVariation(2, 2d)
+      .setVariation(3, 3d)
+      .setVariation(4, 4d)
+      .setVariation(5, 5d)
+      .build();
 
     verifyAsVariations(variations, 1d, 2d, 3d, 4d, 5d);
   }
@@ -273,6 +314,30 @@ public class MeasureVariationsTest {
   public void builder_isEmpty_returns_false_if_any_variation_has_been_set() {
     for (int i = 1; i <= PeriodsHolder.MAX_NUMBER_OF_PERIODS; i++) {
       assertThat(newMeasureVariationsBuilder().setVariation(createPeriod(i), i).isEmpty()).isFalse();
+    }
+  }
+
+  @Test
+  public void builder_setVariation_for_index_throws_IAE_if_value_is_NaN() {
+    for (int i = 1; i <= PeriodsHolder.MAX_NUMBER_OF_PERIODS; i++) {
+      try {
+        newMeasureVariationsBuilder().setVariation(i, Double.NaN);
+        fail("An IAE should have been raised");
+      } catch (IllegalArgumentException e) {
+        assertThat(e).hasMessage(NAN_ERROR_MESSAGE);
+      }
+    }
+  }
+
+  @Test
+  public void builder_setVariation_for_Period_throws_IAE_if_value_is_NaN() {
+    for (int i = 1; i <= PeriodsHolder.MAX_NUMBER_OF_PERIODS; i++) {
+      try {
+        newMeasureVariationsBuilder().setVariation(createPeriod(i), Double.NaN);
+        fail("An IAE should have been raised");
+      } catch (IllegalArgumentException e) {
+        assertThat(e).hasMessage(NAN_ERROR_MESSAGE);
+      }
     }
   }
 

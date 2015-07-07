@@ -57,7 +57,7 @@ public class MeasureTest {
   private static final int SOME_CHARACTERISTIC_ID = 42;
 
   @Rule
-  public final ExpectedException executionException = ExpectedException.none();
+  public final ExpectedException expectedException = ExpectedException.none();
 
   @DataProvider
   public static Object[][] all_but_INT_MEASURE() {
@@ -107,16 +107,16 @@ public class MeasureTest {
 
   @Test
   public void forRule_throw_UOE_if_characteristicId_is_already_set() {
-    executionException.expect(UnsupportedOperationException.class);
-    executionException.expectMessage("A measure can not be associated to both a Characteristic and a Rule");
+    expectedException.expect(UnsupportedOperationException.class);
+    expectedException.expectMessage("A measure can not be associated to both a Characteristic and a Rule");
 
     newMeasureBuilder().forCharacteristic(SOME_CHARACTERISTIC_ID).forRule(SOME_RULE_ID);
   }
 
   @Test
   public void forCharacteristic_throw_UOE_if_ruleKey_is_already_set() {
-    executionException.expect(UnsupportedOperationException.class);
-    executionException.expectMessage("A measure can not be associated to both a Characteristic and a Rule");
+    expectedException.expect(UnsupportedOperationException.class);
+    expectedException.expectMessage("A measure can not be associated to both a Characteristic and a Rule");
 
     newMeasureBuilder().forRule(SOME_RULE_ID).forCharacteristic(SOME_CHARACTERISTIC_ID);
   }
@@ -346,6 +346,22 @@ public class MeasureTest {
     assertThat(newMeasureBuilder().create(30d).getDoubleValue()).isEqualTo(30d);
     assertThat(newMeasureBuilder().create(30.01d).getDoubleValue()).isEqualTo(30d);
     assertThat(newMeasureBuilder().create(30.1d).getDoubleValue()).isEqualTo(30.1d);
+  }
+
+  @Test
+  public void create_with_double_value_throws_IAE_if_value_is_NaN() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Nan is not allowed as a Measure value");
+
+    newMeasureBuilder().create(Double.NaN);
+  }
+
+  @Test
+  public void create_with_double_value_data_throws_IAE_if_value_is_NaN() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Nan is not allowed as a Measure value");
+
+    newMeasureBuilder().create(Double.NaN, "some data");
   }
 
   private enum WrapInArray implements Function<Measure, Measure[]> {
