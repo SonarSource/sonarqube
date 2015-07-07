@@ -44,6 +44,11 @@ import org.sonar.server.computation.qualityprofile.QualityProfile;
 
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 
+/**
+ * Computation of quality profile events
+ *
+ * As it depends upon {@link CoreMetrics#QUALITY_PROFILES_KEY}, it must be executed after {@link ComputeQProfileMeasureStep}
+ */
 public class QualityProfileEventsStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;
@@ -60,7 +65,6 @@ public class QualityProfileEventsStep implements ComputationStep {
     this.eventRepository = eventRepository;
     this.languageRepository = languageRepository;
   }
-
 
   @Override
   public void execute() {

@@ -115,8 +115,8 @@ public class MeasureRepositoryImpl implements MeasureRepository {
     if (existingMeasure.isPresent()) {
       throw new UnsupportedOperationException(
         format(
-          "a measure can be set only once for a specific Component (ref=%s), Metric (key=%s)%s. Use update method",
-          component.getRef(),
+          "a measure can be set only once for a specific Component (key=%s), Metric (key=%s)%s. Use update method",
+          component.getKey(),
           metric.getKey(),
           buildRuleOrCharacteristicMsgPart(measure)
         ));
@@ -133,8 +133,8 @@ public class MeasureRepositoryImpl implements MeasureRepository {
     if (!existingMeasure.isPresent()) {
       throw new UnsupportedOperationException(
         format(
-          "a measure can be updated only if one already exists for a specific Component (ref=%s), Metric (key=%s)%s. Use add method",
-          component.getRef(),
+          "a measure can be updated only if one already exists for a specific Component (key=%s), Metric (key=%s)%s. Use add method",
+          component.getKey(),
           metric.getKey(),
           buildRuleOrCharacteristicMsgPart(measure)
         ));

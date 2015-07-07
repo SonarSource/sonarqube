@@ -74,8 +74,8 @@ public abstract class DepthTraversalTypeAwareVisitor implements TypeAwareVisitor
   }
 
   private void visitChildren(Component component) {
-    if (component.getType() != maxDepth) {
-      for (Component child : component.getChildren()) {
+    for (Component child : component.getChildren()) {
+      if (!child.getType().isDeeperThan(maxDepth)) {
         visit(child);
       }
     }
