@@ -59,6 +59,7 @@ public class ComputationSteps {
       SqaleMeasuresStep.class,
       NewCoverageMeasuresStep.class,
       NewCoverageAggregationStep.class,
+      CoverageMeasuresStep.class,
 
       // Must be executed after computation of all measures
       FillMeasuresWithVariationsStep.class,
