@@ -24,9 +24,12 @@ script:
 cache:
   directories:
     - '$HOME/.m2/repository'
+    - 'server/sonar-web/node'
+    - 'server/sonar-web/node_modules'
 
 before_cache:
   - 'rm -rf $HOME/.m2/repository/org/codehaus/sonar'
+  - 'rm -f server/sonar-web/npm-debug.log'
 
 notifications:
   email: false
