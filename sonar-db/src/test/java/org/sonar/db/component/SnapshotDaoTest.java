@@ -22,13 +22,11 @@ package org.sonar.db.component;
 
 import java.util.Date;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.db.DbSession;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.test.DbTests;
 
@@ -41,28 +39,15 @@ import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.DESC;
 public class SnapshotDaoTest {
 
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
-  DbSession session;
-
-  SnapshotDao sut;
-
-  @Before
-  public void createDao() {
-    session = db.myBatis().openSession(false);
-    sut = new SnapshotDao();
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
-  }
+  SnapshotDao sut = db.getDbClient().snapshotDao();
 
   @Test
   public void get_by_key() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    SnapshotDto result = sut.selectNullableById(session, 3L);
+    SnapshotDto result = sut.selectNullableById(db.getSession(), 3L);
     assertThat(result).isNotNull();
     assertThat(result.getId()).isEqualTo(3L);
     assertThat(result.getComponentId()).isEqualTo(3L);
@@ -97,12 +82,12 @@ public class SnapshotDaoTest {
     assertThat(result.getCreatedAt()).isEqualTo(1228172400000L);
     assertThat(result.getBuildDate()).isEqualTo(1317247200000L);
 
-    assertThat(sut.selectNullableById(session, 999L)).isNull();
+    assertThat(sut.selectNullableById(db.getSession(), 999L)).isNull();
   }
 
   @Test
   public void lastSnapshot_returns_null_when_no_last_snapshot() {
-    SnapshotDto snapshot = sut.selectLastSnapshotByComponentId(session, 123L);
+    SnapshotDto snapshot = sut.selectLastSnapshotByComponentId(db.getSession(), 123L);
 
     assertThat(snapshot).isNull();
   }
@@ -111,7 +96,7 @@ public class SnapshotDaoTest {
   public void lastSnapshot_from_one_resource() {
     db.prepareDbUnit(getClass(), "snapshots.xml");
 
-    SnapshotDto snapshot = sut.selectLastSnapshotByComponentId(session, 2L);
+    SnapshotDto snapshot = sut.selectLastSnapshotByComponentId(db.getSession(), 2L);
 
     assertThat(snapshot).isNotNull();
     assertThat(snapshot.getId()).isEqualTo(4L);
@@ -121,7 +106,7 @@ public class SnapshotDaoTest {
   public void lastSnapshot_from_one_resource_without_last_is_null() {
     db.prepareDbUnit(getClass(), "snapshots.xml");
 
-    SnapshotDto snapshot = sut.selectLastSnapshotByComponentId(session, 5L);
+    SnapshotDto snapshot = sut.selectLastSnapshotByComponentId(db.getSession(), 5L);
 
     assertThat(snapshot).isNull();
   }
@@ -130,7 +115,7 @@ public class SnapshotDaoTest {
   public void snapshot_and_child_retrieved() {
     db.prepareDbUnit(getClass(), "snapshots.xml");
 
-    List<SnapshotDto> snapshots = sut.selectSnapshotAndChildrenOfProjectScope(session, 1L);
+    List<SnapshotDto> snapshots = sut.selectSnapshotAndChildrenOfProjectScope(db.getSession(), 1L);
 
     assertThat(snapshots).isNotEmpty();
     assertThat(snapshots).extracting("id").containsOnly(1L, 6L);
@@ -140,7 +125,7 @@ public class SnapshotDaoTest {
   public void select_snapshots_by_component_id() {
     db.prepareDbUnit(getClass(), "snapshots.xml");
 
-    List<SnapshotDto> snapshots = sut.selectSnapshotsByComponentId(session, 1L);
+    List<SnapshotDto> snapshots = sut.selectSnapshotsByComponentId(db.getSession(), 1L);
 
     assertThat(snapshots).hasSize(3);
   }
@@ -149,37 +134,37 @@ public class SnapshotDaoTest {
   public void select_snapshots_by_query() {
     db.prepareDbUnit(getClass(), "select_snapshots_by_query.xml");
 
-    assertThat(sut.selectSnapshotsByQuery(session, new SnapshotQuery())).hasSize(6);
+    assertThat(sut.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery())).hasSize(6);
 
-    assertThat(sut.selectSnapshotsByQuery(session, new SnapshotQuery().setComponentId(1L))).hasSize(3);
+    assertThat(sut.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(1L))).hasSize(3);
 
-    assertThat(sut.selectSnapshotsByQuery(session, new SnapshotQuery().setComponentId(1L).setVersion("2.2-SNAPSHOT"))).extracting("id").containsOnly(3L);
+    assertThat(sut.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(1L).setVersion("2.2-SNAPSHOT"))).extracting("id").containsOnly(3L);
 
-    assertThat(sut.selectSnapshotsByQuery(session, new SnapshotQuery().setComponentId(1L).setIsLast(true))).extracting("id").containsOnly(1L);
-    assertThat(sut.selectSnapshotsByQuery(session, new SnapshotQuery().setComponentId(1L).setIsLast(false))).extracting("id").containsOnly(2L, 3L);
+    assertThat(sut.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(1L).setIsLast(true))).extracting("id").containsOnly(1L);
+    assertThat(sut.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(1L).setIsLast(false))).extracting("id").containsOnly(2L, 3L);
 
-    assertThat(sut.selectSnapshotsByQuery(session, new SnapshotQuery().setComponentId(1L).setCreatedAfter(1228172400002L))).extracting("id").containsOnly(2L, 3L);
-    assertThat(sut.selectSnapshotsByQuery(session, new SnapshotQuery().setComponentId(1L).setCreatedBefore(1228172400002L))).extracting("id").containsOnly(1L);
+    assertThat(sut.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(1L).setCreatedAfter(1228172400002L))).extracting("id").containsOnly(2L, 3L);
+    assertThat(sut.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(1L).setCreatedBefore(1228172400002L))).extracting("id").containsOnly(1L);
 
-    assertThat(sut.selectSnapshotsByQuery(session, new SnapshotQuery().setComponentId(2L).setStatus("P"))).hasSize(1);
-    assertThat(sut.selectSnapshotsByQuery(session, new SnapshotQuery().setComponentId(2L).setStatus("U"))).hasSize(1);
+    assertThat(sut.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(2L).setStatus("P"))).hasSize(1);
+    assertThat(sut.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(2L).setStatus("U"))).hasSize(1);
 
-    assertThat(sut.selectSnapshotsByQuery(session, new SnapshotQuery().setComponentId(1L).setSort(BY_DATE, ASC)).get(0).getId()).isEqualTo(1L);
-    assertThat(sut.selectSnapshotsByQuery(session, new SnapshotQuery().setComponentId(1L).setSort(BY_DATE, DESC)).get(0).getId()).isEqualTo(3L);
+    assertThat(sut.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(1L).setSort(BY_DATE, ASC)).get(0).getId()).isEqualTo(1L);
+    assertThat(sut.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(1L).setSort(BY_DATE, DESC)).get(0).getId()).isEqualTo(3L);
   }
 
   @Test
   public void select_previous_version_snapshots() {
     db.prepareDbUnit(getClass(), "select_previous_version_snapshots.xml");
 
-    List<SnapshotDto> snapshots = sut.selectPreviousVersionSnapshots(session, 1L, "1.2-SNAPSHOT");
+    List<SnapshotDto> snapshots = sut.selectPreviousVersionSnapshots(db.getSession(), 1L, "1.2-SNAPSHOT");
     assertThat(snapshots).hasSize(2);
 
     SnapshotDto firstSnapshot = snapshots.get(0);
     assertThat(firstSnapshot.getVersion()).isEqualTo("1.1");
 
     // All snapshots are returned on an unknown version
-    assertThat(sut.selectPreviousVersionSnapshots(session, 1L, "UNKNOWN")).hasSize(3);
+    assertThat(sut.selectPreviousVersionSnapshots(db.getSession(), 1L, "UNKNOWN")).hasSize(3);
   }
 
   @Test
@@ -188,21 +173,21 @@ public class SnapshotDaoTest {
 
     SnapshotDto dto = defaultSnapshot().setCreatedAt(1403042400000L);
 
-    sut.insert(session, dto);
-    session.commit();
+    sut.insert(db.getSession(), dto);
+    db.getSession().commit();
 
     assertThat(dto.getId()).isNotNull();
-    db.assertDbUnit(getClass(), "insert-result.xml", new String[] {"id"}, "snapshots");
+    db.assertDbUnit(getClass(), "insert-result.xml", new String[]{"id"}, "snapshots");
   }
 
   @Test
   public void insert_snapshots() {
     db.prepareDbUnit(getClass(), "empty.xml");
 
-    sut.insert(session,
+    sut.insert(db.getSession(),
       new SnapshotDto().setComponentId(1L).setLast(false),
       new SnapshotDto().setComponentId(2L).setLast(false));
-    session.commit();
+    db.getSession().commit();
 
     assertThat(db.countRowsOfTable("snapshots")).isEqualTo(2);
   }
@@ -212,10 +197,10 @@ public class SnapshotDaoTest {
     db.prepareDbUnit(getClass(), "snapshots.xml");
     SnapshotDto snapshot = defaultSnapshot().setId(1L);
 
-    sut.updateSnapshotAndChildrenLastFlagAndStatus(session, snapshot, false, SnapshotDto.STATUS_PROCESSED);
-    session.commit();
+    sut.updateSnapshotAndChildrenLastFlagAndStatus(db.getSession(), snapshot, false, SnapshotDto.STATUS_PROCESSED);
+    db.getSession().commit();
 
-    List<SnapshotDto> snapshots = sut.selectSnapshotAndChildrenOfProjectScope(session, 1L);
+    List<SnapshotDto> snapshots = sut.selectSnapshotAndChildrenOfProjectScope(db.getSession(), 1L);
     assertThat(snapshots).hasSize(2);
     assertThat(snapshots).extracting("id").containsOnly(1L, 6L);
     assertThat(snapshots).extracting("last").containsOnly(false);
@@ -227,10 +212,10 @@ public class SnapshotDaoTest {
     db.prepareDbUnit(getClass(), "snapshots.xml");
     SnapshotDto snapshot = defaultSnapshot().setId(1L);
 
-    sut.updateSnapshotAndChildrenLastFlag(session, snapshot, false);
-    session.commit();
+    sut.updateSnapshotAndChildrenLastFlag(db.getSession(), snapshot, false);
+    db.getSession().commit();
 
-    List<SnapshotDto> snapshots = sut.selectSnapshotAndChildrenOfProjectScope(session, 1L);
+    List<SnapshotDto> snapshots = sut.selectSnapshotAndChildrenOfProjectScope(db.getSession(), 1L);
     assertThat(snapshots).hasSize(2);
     assertThat(snapshots).extracting("id").containsOnly(1L, 6L);
     assertThat(snapshots).extracting("last").containsOnly(false);

@@ -285,20 +285,6 @@ public class QualityProfileDao implements Dao {
     return getMapper(session).selectByNameAndLanguage(name, language);
   }
 
-  /**
-   * @deprecated Replaced by
-   *    {@link #getByNameAndLanguage(String, String, DbSession)}
-   */
-  @Deprecated
-  public QualityProfileDto getByNameAndLanguage(String name, String language) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      return getByNameAndLanguage(name, language, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   public List<ComponentDto> selectProjects(String profileName, String language) {
     DbSession session = mybatis.openSession(false);
     try {

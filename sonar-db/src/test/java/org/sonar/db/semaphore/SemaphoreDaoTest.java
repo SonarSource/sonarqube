@@ -22,29 +22,34 @@ package org.sonar.db.semaphore;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.Semaphores;
 import org.sonar.api.utils.System2;
-import org.sonar.db.AbstractDaoTestCase;
-import org.sonar.db.MyBatis;
+import org.sonar.db.DbTester;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SemaphoreDaoTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class SemaphoreDaoTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
-  private SemaphoreDao dao;
-  private System2 system;
+
+  System2 system = System2.INSTANCE;
+
+  @Rule
+  public DbTester dbTester = DbTester.create(system);
+
+  SemaphoreDao dao = dbTester.getDbClient().semaphoreDao();
 
   @Before
-  public void before() {
-    system = System2.INSTANCE;
-    dao = new SemaphoreDao(getMyBatis(), system);
+  public void setUp() throws Exception {
+    dbTester.truncateTables();
   }
 
   @Test
@@ -52,7 +57,6 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Semaphore name must not be empty");
 
-    SemaphoreDao dao = new SemaphoreDao(getMyBatis(), system);
     dao.acquire(null, 5000);
   }
 
@@ -61,7 +65,6 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Semaphore name must not be empty");
 
-    SemaphoreDao dao = new SemaphoreDao(getMyBatis(), system);
     dao.acquire("", 5000);
   }
 
@@ -70,7 +73,6 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Semaphore max age must be positive: -5000");
 
-    SemaphoreDao dao = new SemaphoreDao(getMyBatis(), system);
     dao.acquire("foo", -5000);
   }
 
@@ -79,7 +81,6 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Semaphore name must not be empty");
 
-    SemaphoreDao dao = new SemaphoreDao(getMyBatis(), system);
     dao.release(null);
   }
 
@@ -164,7 +165,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void fail_to_acquire_locked_semaphore() {
-    setupData("old_semaphore");
+    dbTester.prepareDbUnit(getClass(), "old_semaphore.xml");
     Semaphores.Semaphore lock = dao.acquire("foo", Integer.MAX_VALUE);
     assertThat(lock.isLocked()).isFalse();
     assertThat(lock.getDurationSinceLocked()).isNotNull();
@@ -179,7 +180,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void acquire_long_locked_semaphore() {
-    setupData("old_semaphore");
+    dbTester.prepareDbUnit(getClass(), "old_semaphore.xml");
     Semaphores.Semaphore lock = dao.acquire("foo", 60);
     assertThat(lock.isLocked()).isTrue();
     assertThat(lock.getDurationSinceLocked()).isNull();
@@ -194,7 +195,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void acquire_locked_semaphore_when_timeout_is_zero() {
-    setupData("old_semaphore");
+    dbTester.prepareDbUnit(getClass(), "old_semaphore.xml");
     Semaphores.Semaphore lock = dao.acquire("foo", 0);
     assertThat(lock.isLocked()).isTrue();
     assertThat(lock.getDurationSinceLocked()).isNull();
@@ -212,7 +213,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void fail_to_acquire_locked_semaphore_when_no_timeout() {
-    setupData("old_semaphore");
+    dbTester.prepareDbUnit(getClass(), "old_semaphore.xml");
     Semaphores.Semaphore lock = dao.acquire("foo");
     assertThat(lock.isLocked()).isFalse();
     assertThat(lock.getDurationSinceLocked()).isNotNull();
@@ -257,12 +258,8 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
   }
 
   private SemaphoreDto selectSemaphore(String name) {
-    SqlSession session = getMyBatis().openSession();
-    try {
-      return dao.selectSemaphore(name, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+    dbTester.getSession().commit();
+    return dao.selectSemaphore(name, dbTester.getSession());
   }
 
   private boolean isRecent(Long date) {

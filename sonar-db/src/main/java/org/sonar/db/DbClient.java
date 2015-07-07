@@ -26,30 +26,41 @@ import org.sonar.db.activity.ActivityDao;
 import org.sonar.db.component.ComponentLinkDao;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceIndexDao;
+import org.sonar.db.component.ResourceKeyUpdaterDao;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.compute.AnalysisReportDao;
+import org.sonar.db.dashboard.ActiveDashboardDao;
 import org.sonar.db.dashboard.DashboardDao;
 import org.sonar.db.dashboard.WidgetDao;
 import org.sonar.db.dashboard.WidgetPropertyDao;
 import org.sonar.db.debt.CharacteristicDao;
+import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.ActionPlanDao;
 import org.sonar.db.issue.ActionPlanStatsDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueFilterDao;
+import org.sonar.db.issue.IssueFilterFavouriteDao;
 import org.sonar.db.loadedtemplate.LoadedTemplateDao;
 import org.sonar.db.measure.MeasureDao;
+import org.sonar.db.measure.MeasureFilterDao;
+import org.sonar.db.notification.NotificationQueueDao;
+import org.sonar.db.permission.PermissionDao;
 import org.sonar.db.permission.PermissionTemplateDao;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.purge.PurgeDao;
+import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
+import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
+import org.sonar.db.semaphore.SemaphoreDao;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.user.AuthorDao;
 import org.sonar.db.user.AuthorizationDao;
 import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.RoleDao;
+import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserGroupDao;
 
 public class DbClient {
@@ -62,20 +73,26 @@ public class DbClient {
   private final PropertiesDao propertiesDao;
   private final SnapshotDao snapshotDao;
   private final ResourceDao resourceDao;
+  private final ResourceKeyUpdaterDao resourceKeyUpdaterDao;
   private final MeasureDao measureDao;
+  private final MeasureFilterDao measureFilterDao;
   private final ActivityDao activityDao;
   private final AuthorizationDao authorizationDao;
+  private final UserDao userDao;
   private final UserGroupDao userGroupDao;
   private final GroupMembershipDao groupMembershipDao;
   private final RoleDao roleDao;
+  private final PermissionDao permissionDao;
   private final PermissionTemplateDao permissionTemplateDao;
   private final IssueDao issueDao;
   private final IssueFilterDao issueFilterDao;
+  private final IssueFilterFavouriteDao issueFilterFavouriteDao;
   private final IssueChangeDao issueChangeDao;
   private final ActionPlanDao actionPlanDao;
   private final ActionPlanStatsDao actionPlanStatsDao;
   private final AnalysisReportDao analysisReportDao;
   private final DashboardDao dashboardDao;
+  private final ActiveDashboardDao activeDashboardDao;
   private final WidgetDao widgetDao;
   private final WidgetPropertyDao widgetPropertyDao;
   private final FileSourceDao fileSourceDao;
@@ -84,7 +101,12 @@ public class DbClient {
   private final ComponentLinkDao componentLinkDao;
   private final EventDao eventDao;
   private final PurgeDao purgeDao;
+  private final QualityGateDao qualityGateDao;
   private final QualityGateConditionDao gateConditionDao;
+  private final ProjectQgateAssociationDao projectQgateAssociationDao;
+  private final DuplicationDao duplicationDao;
+  private final NotificationQueueDao notificationQueueDao;
+  private final SemaphoreDao semaphoreDao;
 
   public DbClient(Database database, MyBatis myBatis, Dao[] daos) {
     this.database = database;
@@ -100,20 +122,26 @@ public class DbClient {
     propertiesDao = getDao(map, PropertiesDao.class);
     snapshotDao = getDao(map, SnapshotDao.class);
     resourceDao = getDao(map, ResourceDao.class);
+    resourceKeyUpdaterDao = getDao(map, ResourceKeyUpdaterDao.class);
     measureDao = getDao(map, MeasureDao.class);
+    measureFilterDao = getDao(map, MeasureFilterDao.class);
     activityDao = getDao(map, ActivityDao.class);
     authorizationDao = getDao(map, AuthorizationDao.class);
+    userDao = getDao(map, UserDao.class);
     userGroupDao = getDao(map, UserGroupDao.class);
     groupMembershipDao = getDao(map, GroupMembershipDao.class);
     roleDao = getDao(map, RoleDao.class);
+    permissionDao = getDao(map, PermissionDao.class);
     permissionTemplateDao = getDao(map, PermissionTemplateDao.class);
     issueDao = getDao(map, IssueDao.class);
     issueFilterDao = getDao(map, IssueFilterDao.class);
+    issueFilterFavouriteDao = getDao(map, IssueFilterFavouriteDao.class);
     issueChangeDao = getDao(map, IssueChangeDao.class);
     actionPlanDao = getDao(map, ActionPlanDao.class);
     actionPlanStatsDao = getDao(map, ActionPlanStatsDao.class);
     analysisReportDao = getDao(map, AnalysisReportDao.class);
     dashboardDao = getDao(map, DashboardDao.class);
+    activeDashboardDao = getDao(map, ActiveDashboardDao.class);
     widgetDao = getDao(map, WidgetDao.class);
     widgetPropertyDao = getDao(map, WidgetPropertyDao.class);
     fileSourceDao = getDao(map, FileSourceDao.class);
@@ -122,7 +150,12 @@ public class DbClient {
     componentLinkDao = getDao(map, ComponentLinkDao.class);
     eventDao = getDao(map, EventDao.class);
     purgeDao = getDao(map, PurgeDao.class);
+    qualityGateDao = getDao(map, QualityGateDao.class);
     gateConditionDao = getDao(map, QualityGateConditionDao.class);
+    projectQgateAssociationDao = getDao(map, ProjectQgateAssociationDao.class);
+    duplicationDao = getDao(map, DuplicationDao.class);
+    notificationQueueDao = getDao(map, NotificationQueueDao.class);
+    semaphoreDao = getDao(map, SemaphoreDao.class);
     doOnLoad(map);
   }
 
@@ -149,6 +182,10 @@ public class DbClient {
 
   public IssueFilterDao issueFilterDao() {
     return issueFilterDao;
+  }
+
+  public IssueFilterFavouriteDao issueFilterFavouriteDao() {
+    return issueFilterFavouriteDao;
   }
 
   public IssueChangeDao issueChangeDao() {
@@ -179,8 +216,16 @@ public class DbClient {
     return resourceDao;
   }
 
+  public ResourceKeyUpdaterDao resourceKeyUpdaterDao() {
+    return resourceKeyUpdaterDao;
+  }
+
   public MeasureDao measureDao() {
     return measureDao;
+  }
+
+  public MeasureFilterDao measureFilterDao() {
+    return measureFilterDao;
   }
 
   public ActivityDao activityDao() {
@@ -189,6 +234,10 @@ public class DbClient {
 
   public AuthorizationDao authorizationDao() {
     return authorizationDao;
+  }
+
+  public UserDao userDao() {
+    return userDao;
   }
 
   public UserGroupDao userGroupDao() {
@@ -201,6 +250,10 @@ public class DbClient {
 
   public RoleDao roleDao() {
     return roleDao;
+  }
+
+  public PermissionDao permissionDao() {
+    return permissionDao;
   }
 
   public PermissionTemplateDao permissionTemplateDao() {
@@ -217,6 +270,10 @@ public class DbClient {
 
   public DashboardDao dashboardDao() {
     return dashboardDao;
+  }
+
+  public ActiveDashboardDao activeDashboardDao() {
+    return activeDashboardDao;
   }
 
   public WidgetDao widgetDao() {
@@ -255,8 +312,28 @@ public class DbClient {
     return actionPlanStatsDao;
   }
 
+  public QualityGateDao qualityGateDao() {
+    return qualityGateDao;
+  }
+
   public QualityGateConditionDao gateConditionDao() {
     return gateConditionDao;
+  }
+
+  public ProjectQgateAssociationDao projectQgateAssociationDao() {
+    return projectQgateAssociationDao;
+  }
+
+  public DuplicationDao duplicationDao() {
+    return duplicationDao;
+  }
+
+  public NotificationQueueDao notificationQueueDao() {
+    return notificationQueueDao;
+  }
+
+  public SemaphoreDao semaphoreDao() {
+    return semaphoreDao;
   }
 
   protected <K extends Dao> K getDao(Map<Class, Dao> map, Class<K> clazz) {

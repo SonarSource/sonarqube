@@ -20,12 +20,10 @@
 
 package org.sonar.db.user;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.db.DbSession;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.test.DbTests;
 
@@ -33,37 +31,26 @@ import org.sonar.test.DbTests;
 public class UserGroupDaoTest {
 
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private UserGroupDao dao;
-  private DbSession session;
-
-  @Before
-  public void before() {
-    db.truncateTables();
-    this.session = db.myBatis().openSession(false);
-    this.dao = new UserGroupDao();
-  }
-
-  @After
-  public void after() {
-    this.session.close();
-  }
+  UserGroupDao dao = dbTester.getDbClient().userGroupDao();
 
   @Test
   public void insert() {
-    UserGroupDto userGroupDto = new UserGroupDto().setUserId(1L).setGroupId(2L);
-    dao.insert(session, userGroupDto);
-    session.commit();
+    dbTester.truncateTables();
 
-    db.assertDbUnit(getClass(), "insert-result.xml", "groups_users");
+    UserGroupDto userGroupDto = new UserGroupDto().setUserId(1L).setGroupId(2L);
+    dao.insert(dbTester.getSession(), userGroupDto);
+    dbTester.getSession().commit();
+
+    dbTester.assertDbUnit(getClass(), "insert-result.xml", "groups_users");
   }
 
   @Test
   public void delete_members_by_group_id() {
-    db.prepareDbUnit(getClass(), "delete_members_by_group_id.xml");
-    dao.deleteMembersByGroupId(session, 1L);
-    session.commit();
-    db.assertDbUnit(getClass(), "delete_members_by_group_id-result.xml", "groups_users");
+    dbTester.prepareDbUnit(getClass(), "delete_members_by_group_id.xml");
+    dao.deleteMembersByGroupId(dbTester.getSession(), 1L);
+    dbTester.getSession().commit();
+    dbTester.assertDbUnit(getClass(), "delete_members_by_group_id-result.xml", "groups_users");
   }
 }

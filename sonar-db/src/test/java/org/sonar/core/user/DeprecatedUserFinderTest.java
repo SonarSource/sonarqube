@@ -38,7 +38,7 @@ import static org.mockito.Mockito.mock;
 public class DeprecatedUserFinderTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Before
   public void init() {

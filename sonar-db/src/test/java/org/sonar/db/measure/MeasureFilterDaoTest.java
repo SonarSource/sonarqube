@@ -19,23 +19,23 @@
  */
 package org.sonar.db.measure;
 
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.AbstractDaoTestCase;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MeasureFilterDaoTest extends AbstractDaoTestCase {
-  private MeasureFilterDao dao;
+public class MeasureFilterDaoTest {
 
-  @Before
-  public void createDao() {
-    dao = new MeasureFilterDao(getMyBatis());
-  }
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
+
+  MeasureFilterDao dao = db.getDbClient().measureFilterDao();
 
   @Test
   public void should_find_filter() {
-    setupData("shared");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
     MeasureFilterDto filter = dao.findSystemFilterByName("Projects");
 
@@ -45,14 +45,14 @@ public class MeasureFilterDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_not_find_filter() {
-    setupData("shared");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
     assertThat(dao.findSystemFilterByName("Unknown")).isNull();
   }
 
   @Test
   public void should_insert() {
-    setupData("shared");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
     MeasureFilterDto filterDto = new MeasureFilterDto();
     filterDto.setName("Project Treemap");
@@ -63,6 +63,6 @@ public class MeasureFilterDaoTest extends AbstractDaoTestCase {
 
     dao.insert(filterDto);
 
-    checkTables("shouldInsert", new String[] {"created_at", "updated_at"}, "measure_filters");
+    db.assertDbUnit(getClass(), "shouldInsert-result.xml", new String[]{"created_at", "updated_at"}, "measure_filters");
   }
 }

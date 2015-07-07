@@ -20,15 +20,13 @@
 
 package org.sonar.db.user;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.test.DbTests;
 
@@ -38,58 +36,44 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RoleDaoTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DbSession session;
-
-  RoleDao dao;
-
-  @Before
-  public void setUp() {
-    dbTester.truncateTables();
-    session = dbTester.myBatis().openSession(false);
-    dao = new RoleDao();
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
-  }
+  RoleDao dao = dbTester.getDbClient().roleDao();
 
   @Test
   public void retrieve_global_user_permissions() {
     dbTester.prepareDbUnit(getClass(), "globalUserPermissions.xml");
 
-    assertThat(dao.selectUserPermissions(session, "admin_user", null)).containsOnly(GlobalPermissions.SYSTEM_ADMIN, GlobalPermissions.QUALITY_PROFILE_ADMIN);
-    assertThat(dao.selectUserPermissions(session, "profile_admin_user", null)).containsOnly(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    assertThat(dao.selectUserPermissions(dbTester.getSession(), "admin_user", null)).containsOnly(GlobalPermissions.SYSTEM_ADMIN, GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    assertThat(dao.selectUserPermissions(dbTester.getSession(), "profile_admin_user", null)).containsOnly(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
   @Test
   public void retrieve_resource_user_permissions() {
     dbTester.prepareDbUnit(getClass(), "resourceUserPermissions.xml");
 
-    assertThat(dao.selectUserPermissions(session, "admin_user", 1L)).containsOnly(UserRole.ADMIN, UserRole.USER);
-    assertThat(dao.selectUserPermissions(session, "browse_admin_user", 1L)).containsOnly(UserRole.USER);
+    assertThat(dao.selectUserPermissions(dbTester.getSession(), "admin_user", 1L)).containsOnly(UserRole.ADMIN, UserRole.USER);
+    assertThat(dao.selectUserPermissions(dbTester.getSession(), "browse_admin_user", 1L)).containsOnly(UserRole.USER);
   }
 
   @Test
   public void retrieve_global_group_permissions() {
     dbTester.prepareDbUnit(getClass(), "globalGroupPermissions.xml");
 
-    assertThat(dao.selectGroupPermissions(session, "sonar-administrators", null)).containsOnly(GlobalPermissions.SYSTEM_ADMIN, GlobalPermissions.QUALITY_PROFILE_ADMIN,
+    assertThat(dao.selectGroupPermissions(dbTester.getSession(), "sonar-administrators", null)).containsOnly(GlobalPermissions.SYSTEM_ADMIN, GlobalPermissions.QUALITY_PROFILE_ADMIN,
       GlobalPermissions.DASHBOARD_SHARING);
-    assertThat(dao.selectGroupPermissions(session, "sonar-users", null)).containsOnly(GlobalPermissions.DASHBOARD_SHARING);
-    assertThat(dao.selectGroupPermissions(session, DefaultGroups.ANYONE, null)).containsOnly(GlobalPermissions.PREVIEW_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
-    assertThat(dao.selectGroupPermissions(session, "anyone", null)).containsOnly(GlobalPermissions.PREVIEW_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
-    assertThat(dao.selectGroupPermissions(session, "AnYoNe", null)).containsOnly(GlobalPermissions.PREVIEW_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
+    assertThat(dao.selectGroupPermissions(dbTester.getSession(), "sonar-users", null)).containsOnly(GlobalPermissions.DASHBOARD_SHARING);
+    assertThat(dao.selectGroupPermissions(dbTester.getSession(), DefaultGroups.ANYONE, null)).containsOnly(GlobalPermissions.PREVIEW_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
+    assertThat(dao.selectGroupPermissions(dbTester.getSession(), "anyone", null)).containsOnly(GlobalPermissions.PREVIEW_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
+    assertThat(dao.selectGroupPermissions(dbTester.getSession(), "AnYoNe", null)).containsOnly(GlobalPermissions.PREVIEW_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
   }
 
   @Test
   public void retrieve_resource_group_permissions() {
     dbTester.prepareDbUnit(getClass(), "resourceGroupPermissions.xml");
 
-    assertThat(dao.selectGroupPermissions(session, "sonar-administrators", 1L)).containsOnly(UserRole.ADMIN, UserRole.CODEVIEWER);
-    assertThat(dao.selectGroupPermissions(session, "sonar-users", 1L)).containsOnly(UserRole.CODEVIEWER);
+    assertThat(dao.selectGroupPermissions(dbTester.getSession(), "sonar-administrators", 1L)).containsOnly(UserRole.ADMIN, UserRole.CODEVIEWER);
+    assertThat(dao.selectGroupPermissions(dbTester.getSession(), "sonar-users", 1L)).containsOnly(UserRole.CODEVIEWER);
   }
 
   @Test
@@ -98,8 +82,8 @@ public class RoleDaoTest {
 
     UserRoleDto userRoleToDelete = new UserRoleDto().setUserId(200L).setRole(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    dao.deleteUserRole(userRoleToDelete, session);
-    session.commit();
+    dao.deleteUserRole(userRoleToDelete, dbTester.getSession());
+    dbTester.getSession().commit();
 
     dbTester.assertDbUnit(getClass(), "globalUserPermissions-result.xml", "user_roles");
   }
@@ -110,8 +94,8 @@ public class RoleDaoTest {
 
     UserRoleDto userRoleToDelete = new UserRoleDto().setUserId(200L).setRole(UserRole.USER).setResourceId(1L);
 
-    dao.deleteUserRole(userRoleToDelete, session);
-    session.commit();
+    dao.deleteUserRole(userRoleToDelete, dbTester.getSession());
+    dbTester.getSession().commit();
 
     dbTester.assertDbUnit(getClass(), "resourceUserPermissions-result.xml", "user_roles");
   }
@@ -122,8 +106,8 @@ public class RoleDaoTest {
 
     GroupRoleDto groupRoleToDelete = new GroupRoleDto().setGroupId(100L).setRole(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    dao.deleteGroupRole(groupRoleToDelete, session);
-    session.commit();
+    dao.deleteGroupRole(groupRoleToDelete, dbTester.getSession());
+    dbTester.getSession().commit();
 
     dbTester.assertDbUnit(getClass(), "globalGroupPermissions-result.xml", "group_roles");
   }
@@ -134,8 +118,8 @@ public class RoleDaoTest {
 
     GroupRoleDto groupRoleToDelete = new GroupRoleDto().setGroupId(100L).setRole(UserRole.CODEVIEWER).setResourceId(1L);
 
-    dao.deleteGroupRole(groupRoleToDelete, session);
-    session.commit();
+    dao.deleteGroupRole(groupRoleToDelete, dbTester.getSession());
+    dbTester.getSession().commit();
 
     dbTester.assertDbUnit(getClass(), "resourceGroupPermissions-result.xml", "group_roles");
   }
@@ -144,8 +128,8 @@ public class RoleDaoTest {
   public void delete_all_group_permissions_by_group_id() {
     dbTester.prepareDbUnit(getClass(), "deleteGroupPermissionsByGroupId.xml");
 
-    dao.deleteGroupRolesByGroupId(session, 100L);
-    session.commit();
+    dao.deleteGroupRolesByGroupId(dbTester.getSession(), 100L);
+    dbTester.getSession().commit();
 
     dbTester.assertDbUnit(getClass(), "deleteGroupPermissionsByGroupId-result.xml", "group_roles");
   }

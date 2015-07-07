@@ -19,31 +19,23 @@
  */
 package org.sonar.db.issue;
 
-import org.apache.ibatis.session.SqlSession;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.db.AbstractDaoTestCase;
-import org.sonar.db.MyBatis;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class IssueMapperTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class IssueMapperTest {
 
-  SqlSession session;
-  IssueMapper mapper;
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @Before
-  public void setUp() {
-    session = getMyBatis().openSession();
-    mapper = session.getMapper(IssueMapper.class);
-  }
-
-  @After
-  public void tearDown() {
-    MyBatis.closeQuietly(session);
-  }
+  IssueMapper mapper = dbTester.getSession().getMapper(IssueMapper.class);
 
   @Test
   public void insert() {
@@ -73,14 +65,14 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     dto.setUpdatedAt(1_500_000_000_000L);
 
     mapper.insert(dto);
-    session.commit();
+    dbTester.getSession().commit();
 
-    checkTables("testInsert", new String[] {"id"}, "issues");
+    dbTester.assertDbUnit(getClass(), "testInsert-result.xml", new String[]{"id"}, "issues");
   }
 
   @Test
   public void update() {
-    setupData("testUpdate");
+    dbTester.prepareDbUnit(getClass(), "testUpdate.xml");
 
     IssueDto dto = new IssueDto();
     dto.setComponentUuid("uuid-123");
@@ -108,14 +100,14 @@ public class IssueMapperTest extends AbstractDaoTestCase {
     dto.setUpdatedAt(1_500_000_000_000L);
 
     mapper.update(dto);
-    session.commit();
+    dbTester.getSession().commit();
 
-    checkTables("testUpdate", new String[] {"id"}, "issues");
+    dbTester.assertDbUnit(getClass(), "testUpdate-result.xml", new String[]{"id"}, "issues");
   }
 
   @Test
   public void updateBeforeSelectedDate_without_conflict() {
-    setupData("testUpdate");
+    dbTester.prepareDbUnit(getClass(), "testUpdate.xml");
 
     IssueDto dto = new IssueDto();
     dto.setComponentUuid("uuid-123");
@@ -146,14 +138,14 @@ public class IssueMapperTest extends AbstractDaoTestCase {
 
     int count = mapper.updateIfBeforeSelectedDate(dto);
     assertThat(count).isEqualTo(1);
-    session.commit();
+    dbTester.getSession().commit();
 
-    checkTables("testUpdate", new String[] {"id"}, "issues");
+    dbTester.assertDbUnit(getClass(), "testUpdate-result.xml", new String[]{"id"}, "issues");
   }
 
   @Test
   public void updateBeforeSelectedDate_with_conflict() {
-    setupData("updateBeforeSelectedDate_with_conflict");
+    dbTester.prepareDbUnit(getClass(), "updateBeforeSelectedDate_with_conflict.xml");
 
     IssueDto dto = new IssueDto();
     dto.setComponentUuid("uuid-123");
@@ -184,8 +176,8 @@ public class IssueMapperTest extends AbstractDaoTestCase {
 
     int count = mapper.updateIfBeforeSelectedDate(dto);
     assertThat(count).isEqualTo(0);
-    session.commit();
+    dbTester.getSession().commit();
 
-    checkTables("updateBeforeSelectedDate_with_conflict", new String[] {"id"}, "issues");
+    dbTester.assertDbUnit(getClass(), "updateBeforeSelectedDate_with_conflict-result.xml", new String[]{"id"}, "issues");
   }
 }

@@ -20,199 +20,196 @@
 
 package org.sonar.db.permission;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.AbstractDaoTestCase;
-import org.sonar.db.DbSession;
-import org.sonar.db.component.ResourceDao;
-import org.sonar.db.user.RoleDao;
-import org.sonar.db.user.UserDao;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbTester;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class PermissionFacadeTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class PermissionFacadeTest {
 
   @Rule
   public ExpectedException throwable = ExpectedException.none();
 
-  DbSession session;
-  System2 system2;
+  System2 system2 = mock(System2.class);
+
+  @Rule
+  public DbTester dbTester = DbTester.create(system2);
+
   PermissionFacade permissionFacade;
-  PermissionTemplateDao permissionTemplateDao;
-  ResourceDao resourceDao;
 
   @Before
   public void setUp() {
-    system2 = mock(System2.class);
     when(system2.now()).thenReturn(123456789L);
 
-    session = getMyBatis().openSession(false);
-    RoleDao roleDao = new RoleDao();
-    UserDao userDao = new UserDao(getMyBatis(), system2);
-    permissionTemplateDao = new PermissionTemplateDao(getMyBatis(), System2.INSTANCE);
     Settings settings = new Settings();
-    resourceDao = new ResourceDao(getMyBatis(), system2);
-    permissionFacade = new PermissionFacade(roleDao, userDao, resourceDao, permissionTemplateDao, settings);
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
+    permissionFacade = new PermissionFacade(dbTester.getDbClient(), settings);
   }
 
   @Test
   public void should_apply_permission_template() {
-    setupData("should_apply_permission_template");
+    dbTester.prepareDbUnit(getClass(), "should_apply_permission_template.xml");
 
-    assertThat(permissionFacade.selectGroupPermissions(session, "sonar-administrators", 123L)).isEmpty();
-    assertThat(permissionFacade.selectGroupPermissions(session, "sonar-users", 123L)).isEmpty();
-    assertThat(permissionFacade.selectGroupPermissions(session, "Anyone", 123L)).isEmpty();
-    assertThat(permissionFacade.selectUserPermissions(session, "marius", 123L)).isEmpty();
+    assertThat(permissionFacade.selectGroupPermissions(dbTester.getSession(), "sonar-administrators", 123L)).isEmpty();
+    assertThat(permissionFacade.selectGroupPermissions(dbTester.getSession(), "sonar-users", 123L)).isEmpty();
+    assertThat(permissionFacade.selectGroupPermissions(dbTester.getSession(), "Anyone", 123L)).isEmpty();
+    assertThat(permissionFacade.selectUserPermissions(dbTester.getSession(), "marius", 123L)).isEmpty();
 
-    permissionFacade.applyPermissionTemplate(session, "default_20130101_010203", 123L);
+    permissionFacade.applyPermissionTemplate(dbTester.getSession(), "default_20130101_010203", 123L);
 
-    assertThat(permissionFacade.selectGroupPermissions(session, "sonar-administrators", 123L)).containsOnly("admin", "issueadmin");
-    assertThat(permissionFacade.selectGroupPermissions(session, "sonar-users", 123L)).containsOnly("user", "codeviewer");
-    assertThat(permissionFacade.selectGroupPermissions(session, "Anyone", 123L)).containsOnly("user", "codeviewer");
+    assertThat(permissionFacade.selectGroupPermissions(dbTester.getSession(), "sonar-administrators", 123L)).containsOnly("admin", "issueadmin");
+    assertThat(permissionFacade.selectGroupPermissions(dbTester.getSession(), "sonar-users", 123L)).containsOnly("user", "codeviewer");
+    assertThat(permissionFacade.selectGroupPermissions(dbTester.getSession(), "Anyone", 123L)).containsOnly("user", "codeviewer");
 
-    assertThat(permissionFacade.selectUserPermissions(session, "marius", 123L)).containsOnly("admin");
+    assertThat(permissionFacade.selectUserPermissions(dbTester.getSession(), "marius", 123L)).containsOnly("admin");
 
-    assertThat(resourceDao.getResource(123L, session).getAuthorizationUpdatedAt()).isEqualTo(123456789L);
+    assertThat(dbTester.getDbClient().resourceDao().getResource(123L, dbTester.getSession()).getAuthorizationUpdatedAt()).isEqualTo(123456789L);
   }
 
   @Test
   public void should_count_component_permissions() {
-    setupData("should_count_component_permissions");
+    dbTester.prepareDbUnit(getClass(), "should_count_component_permissions.xml");
 
-    assertThat(permissionFacade.countComponentPermissions(session, 123L)).isEqualTo(2);
+    assertThat(permissionFacade.countComponentPermissions(dbTester.getSession(), 123L)).isEqualTo(2);
   }
 
   @Test
   public void should_add_user_permission() {
-    setupData("should_add_user_permission");
+    dbTester.prepareDbUnit(getClass(), "should_add_user_permission.xml");
 
-    permissionFacade.insertUserPermission(123L, 200L, UserRole.ADMIN, session);
-    session.commit();
+    permissionFacade.insertUserPermission(123L, 200L, UserRole.ADMIN, dbTester.getSession());
+    dbTester.getSession().commit();
 
-    checkTable("should_add_user_permission", "user_roles", "user_id", "resource_id", "role");
-    checkTable("should_add_user_permission", "projects", "authorization_updated_at");
+    dbTester.assertDbUnitTable(getClass(), "should_add_user_permission-result.xml", "user_roles", "user_id", "resource_id", "role");
+    dbTester.assertDbUnitTable(getClass(), "should_add_user_permission-result.xml", "projects", "authorization_updated_at");
   }
 
   @Test
   public void should_delete_user_permission() {
-    setupData("should_delete_user_permission");
+    dbTester.prepareDbUnit(getClass(), "should_delete_user_permission.xml");
 
-    permissionFacade.deleteUserPermission(123L, 200L, UserRole.ADMIN, session);
-    session.commit();
+    permissionFacade.deleteUserPermission(123L, 200L, UserRole.ADMIN, dbTester.getSession());
+    dbTester.getSession().commit();
 
-    checkTable("should_delete_user_permission", "user_roles", "user_id", "resource_id", "role");
-    checkTable("should_delete_user_permission", "projects", "authorization_updated_at");
+    dbTester.assertDbUnitTable(getClass(), "should_delete_user_permission-result.xml", "user_roles", "user_id", "resource_id", "role");
+    dbTester.assertDbUnitTable(getClass(), "should_delete_user_permission-result.xml", "projects", "authorization_updated_at");
   }
 
   @Test
   public void should_insert_group_permission() {
-    setupData("should_insert_group_permission");
+    dbTester.prepareDbUnit(getClass(), "should_insert_group_permission.xml");
 
-    permissionFacade.insertGroupPermission(123L, 100L, UserRole.USER, session);
-    session.commit();
+    permissionFacade.insertGroupPermission(123L, 100L, UserRole.USER, dbTester.getSession());
+    dbTester.getSession().commit();
 
-    checkTable("should_insert_group_permission", "group_roles", "group_id", "resource_id", "role");
-    checkTable("should_insert_group_permission", "projects", "authorization_updated_at");
+    dbTester.assertDbUnitTable(getClass(), "should_insert_group_permission-result.xml", "group_roles", "group_id", "resource_id", "role");
+    dbTester.assertDbUnitTable(getClass(), "should_insert_group_permission-result.xml", "projects", "authorization_updated_at");
   }
 
   @Test
   public void should_insert_group_name_permission() {
-    setupData("should_insert_group_permission");
+    dbTester.prepareDbUnit(getClass(), "should_insert_group_permission.xml");
 
-    permissionFacade.insertGroupPermission(123L, "devs", UserRole.USER, session);
-    session.commit();
+    permissionFacade.insertGroupPermission(123L, "devs", UserRole.USER, dbTester.getSession());
+    dbTester.getSession().commit();
 
-    checkTable("should_insert_group_permission", "group_roles", "group_id", "resource_id", "role");
-    checkTable("should_insert_group_permission", "projects", "authorization_updated_at");
+    dbTester.assertDbUnitTable(getClass(), "should_insert_group_permission-result.xml", "group_roles", "group_id", "resource_id", "role");
+    dbTester.assertDbUnitTable(getClass(), "should_insert_group_permission-result.xml", "projects", "authorization_updated_at");
   }
 
   @Test
   public void should_insert_anyone_group_permission() {
-    setupData("should_insert_anyone_group_permission");
+    dbTester.prepareDbUnit(getClass(), "should_insert_anyone_group_permission.xml");
 
-    permissionFacade.insertGroupPermission(123L, "Anyone", UserRole.USER, session);
-    session.commit();
+    permissionFacade.insertGroupPermission(123L, "Anyone", UserRole.USER, dbTester.getSession());
+    dbTester.getSession().commit();
 
-    checkTable("should_insert_anyone_group_permission", "group_roles", "group_id", "resource_id", "role");
-    checkTable("should_insert_anyone_group_permission", "projects", "authorization_updated_at");
+    dbTester.assertDbUnitTable(getClass(), "should_insert_anyone_group_permission-result.xml", "group_roles", "group_id", "resource_id", "role");
+    dbTester.assertDbUnitTable(getClass(), "should_insert_anyone_group_permission-result.xml", "projects", "authorization_updated_at");
   }
 
   @Test
   public void should_delete_group_permission() {
-    setupData("should_delete_group_permission");
+    dbTester.prepareDbUnit(getClass(), "should_delete_group_permission.xml");
 
-    permissionFacade.deleteGroupPermission(123L, 100L, UserRole.USER, session);
-    session.commit();
+    permissionFacade.deleteGroupPermission(123L, 100L, UserRole.USER, dbTester.getSession());
+    dbTester.getSession().commit();
 
-    checkTable("should_delete_group_permission", "group_roles", "group_id", "resource_id", "role");
-    checkTable("should_delete_group_permission", "projects", "authorization_updated_at");
+    dbTester.assertDbUnitTable(getClass(), "should_delete_group_permission-result.xml", "group_roles", "group_id", "resource_id", "role");
+    dbTester.assertDbUnitTable(getClass(), "should_delete_group_permission-result.xml", "projects", "authorization_updated_at");
   }
 
   @Test
   public void should_delete_group_name_permission() {
-    setupData("should_delete_group_permission");
+    dbTester.prepareDbUnit(getClass(), "should_delete_group_permission.xml");
 
-    permissionFacade.deleteGroupPermission(123L, "devs", UserRole.USER, session);
-    session.commit();
+    permissionFacade.deleteGroupPermission(123L, "devs", UserRole.USER, dbTester.getSession());
+    dbTester.getSession().commit();
 
-    checkTable("should_delete_group_permission", "group_roles", "group_id", "resource_id", "role");
-    checkTable("should_delete_group_permission", "projects", "authorization_updated_at");
+    dbTester.assertDbUnitTable(getClass(), "should_delete_group_permission-result.xml", "group_roles", "group_id", "resource_id", "role");
+    dbTester.assertDbUnitTable(getClass(), "should_delete_group_permission-result.xml", "projects", "authorization_updated_at");
   }
 
   @Test
   public void should_retrieve_permission_template() {
+    dbTester.truncateTables();
+
     PermissionTemplateDto permissionTemplateDto = new PermissionTemplateDto().setName("Test template").setKee("test_template");
     PermissionTemplateDto templateWithPermissions = new PermissionTemplateDto().setKee("test_template");
-    permissionTemplateDao = mock(PermissionTemplateDao.class);
-    when(permissionTemplateDao.selectTemplateByKey(session, "test_template")).thenReturn(permissionTemplateDto);
-    when(permissionTemplateDao.selectPermissionTemplate(session, "test_template")).thenReturn(templateWithPermissions);
+    PermissionTemplateDao permissionTemplateDao = mock(PermissionTemplateDao.class);
+    when(permissionTemplateDao.selectTemplateByKey(dbTester.getSession(), "test_template")).thenReturn(permissionTemplateDto);
+    when(permissionTemplateDao.selectPermissionTemplate(dbTester.getSession(), "test_template")).thenReturn(templateWithPermissions);
 
-    permissionFacade = new PermissionFacade(null, null, null, permissionTemplateDao, null);
+    DbClient dbClient = mock(DbClient.class);
+    when(dbClient.permissionTemplateDao()).thenReturn(permissionTemplateDao);
+    permissionFacade = new PermissionFacade(dbClient, null);
 
-    PermissionTemplateDto permissionTemplate = permissionFacade.getPermissionTemplateWithPermissions(session, "test_template");
+    PermissionTemplateDto permissionTemplate = permissionFacade.getPermissionTemplateWithPermissions(dbTester.getSession(), "test_template");
 
     assertThat(permissionTemplate).isSameAs(templateWithPermissions);
   }
 
   @Test
   public void should_fail_on_unmatched_template() {
+    dbTester.truncateTables();
+
     throwable.expect(IllegalArgumentException.class);
 
-    permissionTemplateDao = mock(PermissionTemplateDao.class);
+    PermissionTemplateDao permissionTemplateDao = mock(PermissionTemplateDao.class);
 
-    permissionFacade = new PermissionFacade(null, null, null, permissionTemplateDao, null);
-    permissionFacade.getPermissionTemplateWithPermissions(session, "unmatched");
+    DbClient dbClient = mock(DbClient.class);
+    when(dbClient.permissionTemplateDao()).thenReturn(permissionTemplateDao);
+    permissionFacade = new PermissionFacade(dbClient, null);
+    permissionFacade.getPermissionTemplateWithPermissions(dbTester.getSession(), "unmatched");
   }
 
   @Test
   public void should_remove_all_permissions() {
-    setupData("should_remove_all_permissions");
+    dbTester.prepareDbUnit(getClass(), "should_remove_all_permissions.xml");
 
-    assertThat(permissionFacade.selectGroupPermissions(session, "devs", 123L)).hasSize(1);
-    assertThat(permissionFacade.selectGroupPermissions(session, "other", 123L)).isEmpty();
-    assertThat(permissionFacade.selectUserPermissions(session, "dave.loper", 123L)).hasSize(1);
-    assertThat(permissionFacade.selectUserPermissions(session, "other.user", 123L)).isEmpty();
+    assertThat(permissionFacade.selectGroupPermissions(dbTester.getSession(), "devs", 123L)).hasSize(1);
+    assertThat(permissionFacade.selectGroupPermissions(dbTester.getSession(), "other", 123L)).isEmpty();
+    assertThat(permissionFacade.selectUserPermissions(dbTester.getSession(), "dave.loper", 123L)).hasSize(1);
+    assertThat(permissionFacade.selectUserPermissions(dbTester.getSession(), "other.user", 123L)).isEmpty();
 
-    permissionFacade.removeAllPermissions(123L, session);
-    session.commit();
+    permissionFacade.removeAllPermissions(123L, dbTester.getSession());
+    dbTester.getSession().commit();
 
-    checkTable("should_remove_all_permissions", "group_roles", "group_id", "resource_id", "role");
-    checkTable("should_remove_all_permissions", "user_roles", "user_id", "resource_id", "role");
+    dbTester.assertDbUnitTable(getClass(), "should_remove_all_permissions-result.xml", "group_roles", "group_id", "resource_id", "role");
+    dbTester.assertDbUnitTable(getClass(), "should_remove_all_permissions-result.xml", "user_roles", "user_id", "resource_id", "role");
 
-    assertThat(permissionFacade.selectGroupPermissions(session, "devs", 123L)).isEmpty();
-    assertThat(permissionFacade.selectUserPermissions(session, "dave.loper", 123L)).isEmpty();
+    assertThat(permissionFacade.selectGroupPermissions(dbTester.getSession(), "devs", 123L)).isEmpty();
+    assertThat(permissionFacade.selectUserPermissions(dbTester.getSession(), "dave.loper", 123L)).isEmpty();
   }
 }

@@ -22,28 +22,29 @@ package org.sonar.db.source;
 
 import com.google.common.base.Function;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Reader;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.AbstractDaoTestCase;
+import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
 import org.sonar.db.source.FileSourceDto.Type;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FileSourceDaoTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class FileSourceDaoTest {
+
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   FileSourceDao sut = dbTester.getDbClient().fileSourceDao();
 
-  @Before
-  public void setUp() {
-    dbTester.truncateTables();
-  }
-
   @Test
   public void select() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     FileSourceDto fileSourceDto = sut.selectSource("FILE1_UUID");
 
@@ -58,7 +59,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_line_hashes() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     ReaderToStringFunction fn = new ReaderToStringFunction();
     sut.readLineHashesStream(dbTester.getSession(), "FILE1_UUID", fn);
@@ -68,7 +69,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void no_line_hashes_on_unknown_file() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     ReaderToStringFunction fn = new ReaderToStringFunction();
     sut.readLineHashesStream(dbTester.getSession(), "unknown", fn);
@@ -78,7 +79,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void no_line_hashes_when_only_test_data() {
-    setupData("no_line_hashes_when_only_test_data");
+    dbTester.prepareDbUnit(getClass(), "no_line_hashes_when_only_test_data.xml");
 
     ReaderToStringFunction fn = new ReaderToStringFunction();
     sut.readLineHashesStream(dbTester.getSession(), "FILE1_UUID", fn);
@@ -88,7 +89,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void insert() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     sut.insert(new FileSourceDto()
       .setProjectUuid("PRJ_UUID")
@@ -101,12 +102,13 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
       .setCreatedAt(1500000000000L)
       .setUpdatedAt(1500000000001L));
 
-    checkTable("insert", "file_sources", "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type");
+    dbTester.assertDbUnitTable(getClass(), "insert-result.xml", "file_sources",
+      "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type");
   }
 
   @Test
   public void update() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     sut.update(new FileSourceDto()
       .setId(101L)
@@ -119,18 +121,19 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
       .setDataType(Type.SOURCE)
       .setUpdatedAt(1500000000002L));
 
-    checkTable("update", "file_sources", "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type");
+    dbTester.assertDbUnitTable(getClass(), "update-result.xml", "file_sources",
+      "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type");
   }
 
   @Test
   public void update_date_when_updated_date_is_zero() {
-    setupData("update_date_when_updated_date_is_zero");
+    dbTester.prepareDbUnit(getClass(), "update_date_when_updated_date_is_zero.xml");
 
     sut.updateDateWhenUpdatedDateIsZero(dbTester.getSession(), "ABCD", 1500000000002L);
     dbTester.getSession().commit();
 
-    checkTable("update_date_when_updated_date_is_zero", "file_sources", "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at",
-      "data_type");
+    dbTester.assertDbUnitTable(getClass(), "update_date_when_updated_date_is_zero-result.xml", "file_sources",
+      "project_uuid", "file_uuid", "data_hash", "line_hashes", "src_hash", "created_at", "updated_at", "data_type");
   }
 
   private static class ReaderToStringFunction implements Function<Reader, String> {
@@ -139,21 +142,6 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
 
     @Override
     public String apply(Reader input) {
-      try {
-        result = IOUtils.toString(input);
-        return IOUtils.toString(input);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
-  }
-
-  private static class InputStreamToStringFunction implements Function<InputStream, String> {
-
-    String result = null;
-
-    @Override
-    public String apply(InputStream input) {
       try {
         result = IOUtils.toString(input);
         return IOUtils.toString(input);

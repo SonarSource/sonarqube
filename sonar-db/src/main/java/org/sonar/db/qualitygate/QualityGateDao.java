@@ -22,12 +22,10 @@ package org.sonar.db.qualitygate;
 import java.util.Collection;
 import java.util.Date;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.db.Dao;
 import org.sonar.db.MyBatis;
 
-/**
- * @since 4.3
- */
-public class QualityGateDao {
+public class QualityGateDao implements Dao{
 
   private final MyBatis myBatis;
 

@@ -20,10 +20,18 @@
 package org.sonar.db.issue;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.AbstractDaoTestCase;
+import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
+import org.sonar.test.DbTests;
 
-public class IssueChangeMapperTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class IssueChangeMapperTest {
+
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Before
   public void setUp() {
@@ -44,7 +52,7 @@ public class IssueChangeMapperTest extends AbstractDaoTestCase {
     dbTester.getSession().getMapper(IssueChangeMapper.class).insert(dto);
     dbTester.getSession().commit();
 
-    checkTables("insert_diff", new String[] {"id"}, "issue_changes");
+    dbTester.assertDbUnit(getClass(), "insert_diff-result.xml", new String[]{"id"}, "issue_changes");
   }
 
   @Test
@@ -60,6 +68,6 @@ public class IssueChangeMapperTest extends AbstractDaoTestCase {
     dbTester.getSession().getMapper(IssueChangeMapper.class).insert(dto);
     dbTester.getSession().commit();
 
-    checkTables("insert_comment", new String[] {"id"}, "issue_changes");
+    dbTester.assertDbUnit(getClass(), "insert_comment-result.xml", new String[]{"id"}, "issue_changes");
   }
 }

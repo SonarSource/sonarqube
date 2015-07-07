@@ -20,14 +20,11 @@
 package org.sonar.db.dashboard;
 
 import java.util.Collection;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.db.DbSession;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.MyBatis;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,30 +32,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Category(DbTests.class)
 public class WidgetDaoTest {
 
-  WidgetDao dao;
-
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private DbSession session;
-
-  @Before
-  public void setUp() {
-    dao = new WidgetDao(dbTester.myBatis());
-    session = dbTester.myBatis().openSession(false);
-  }
-
-  @After
-  public void tearDown() {
-    MyBatis.closeQuietly(session);
-  }
+  WidgetDao dao = dbTester.getDbClient().widgetDao();
 
   @Test
   public void should_select_all() {
     dbTester.prepareDbUnit(this.getClass(), "before.xml");
-    session.commit();
 
-    Collection<WidgetDto> widgets = dao.findAll(session);
+    Collection<WidgetDto> widgets = dao.findAll(dbTester.getSession());
     assertThat(widgets).hasSize(5);
     for (WidgetDto widget : widgets) {
       assertThat(widget.getId()).isNotNull();

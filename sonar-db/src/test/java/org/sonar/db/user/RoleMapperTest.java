@@ -19,60 +19,52 @@
  */
 package org.sonar.db.user;
 
-import org.apache.ibatis.session.SqlSession;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.AbstractDaoTestCase;
-import org.sonar.db.MyBatis;
+import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RoleMapperTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class RoleMapperTest {
 
-  private SqlSession session;
-
-  @Before
-  public void openSession() {
-    session = getMyBatis().openSession();
-  }
-
-  @After
-  public void closeSession() {
-    MyBatis.closeQuietly(session);
-  }
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Test
   public void count_roles() {
-    setupData("countRoles");
+    dbTester.prepareDbUnit(getClass(), "countRoles.xml");
 
-    RoleMapper mapper = session.getMapper(RoleMapper.class);
+    RoleMapper mapper = dbTester.getSession().getMapper(RoleMapper.class);
     assertThat(mapper.countResourceGroupRoles(123L)).isEqualTo(2);
     assertThat(mapper.countResourceUserRoles(123L)).isEqualTo(1);
   }
 
   @Test
   public void delete_roles_by_resource_id() {
-    setupData("deleteRolesByResourceId");
+    dbTester.prepareDbUnit(getClass(), "deleteRolesByResourceId.xml");
 
-    RoleMapper mapper = session.getMapper(RoleMapper.class);
+    RoleMapper mapper = dbTester.getSession().getMapper(RoleMapper.class);
     mapper.deleteGroupRolesByResourceId(123L);
     mapper.deleteUserRolesByResourceId(123L);
-    session.commit();
+    dbTester.getSession().commit();
 
-    checkTables("deleteRolesByResourceId", "group_roles", "user_roles");
+    dbTester.assertDbUnit(getClass(), "deleteRolesByResourceId-result.xml", "group_roles", "user_roles");
   }
 
   @Test
   public void insert_roles() {
-    setupData("insertRoles");
+    dbTester.prepareDbUnit(getClass(), "insertRoles.xml");
 
-    RoleMapper mapper = session.getMapper(RoleMapper.class);
+    RoleMapper mapper = dbTester.getSession().getMapper(RoleMapper.class);
     mapper.insertGroupRole(new GroupRoleDto().setRole("admin").setGroupId(100L).setResourceId(123L));
     mapper.insertGroupRole(new GroupRoleDto().setRole("user").setResourceId(123L));// Anyone
     mapper.insertUserRole(new UserRoleDto().setRole("codeviewer").setUserId(200L).setResourceId(123L));// Anyone
-    session.commit();
+    dbTester.getSession().commit();
 
-    checkTables("insertRoles", "group_roles", "user_roles");
+    dbTester.assertDbUnit(getClass(), "insertRoles-result.xml", "group_roles", "user_roles");
   }
 }

@@ -30,6 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ServerSide;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
@@ -41,9 +42,9 @@ import org.sonar.db.user.UserRoleDto;
 
 /**
  * This facade wraps db operations related to permissions
- *
+ * <p/>
  * Should be removed when batch will no more create permission, and be replaced by a new PermissionService in module server (probably be a merge with InternalPermissionService)
- *
+ * <p/>
  * WARNING, this class is called by Views to apply default permission template on new views
  */
 @ServerSide
@@ -55,11 +56,11 @@ public class PermissionFacade {
   private final Settings settings;
   private final ResourceDao resourceDao;
 
-  public PermissionFacade(RoleDao roleDao, UserDao userDao, ResourceDao resourceDao, PermissionTemplateDao permissionTemplateDao, Settings settings) {
-    this.roleDao = roleDao;
-    this.userDao = userDao;
-    this.resourceDao = resourceDao;
-    this.permissionTemplateDao = permissionTemplateDao;
+  public PermissionFacade(DbClient dbClient, Settings settings) {
+    this.roleDao = dbClient.roleDao();
+    this.userDao = dbClient.userDao();
+    this.resourceDao = dbClient.resourceDao();
+    this.permissionTemplateDao = dbClient.permissionTemplateDao();
     this.settings = settings;
   }
 
@@ -233,7 +234,7 @@ public class PermissionFacade {
   private void checkAtMostOneMatchForComponentKey(final String componentKey, List<PermissionTemplateDto> matchingTemplates) {
     if (matchingTemplates.size() > 1) {
       StringBuilder templatesNames = new StringBuilder();
-      for (Iterator<PermissionTemplateDto> it = matchingTemplates.iterator(); it.hasNext();) {
+      for (Iterator<PermissionTemplateDto> it = matchingTemplates.iterator(); it.hasNext(); ) {
         templatesNames.append("\"").append(it.next().getName()).append("\"");
         if (it.hasNext()) {
           templatesNames.append(", ");

@@ -21,9 +21,9 @@ package org.sonar.db.component;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -42,60 +42,18 @@ import static org.mockito.Mockito.when;
 @Category(DbTests.class)
 public class ResourceDaoTest {
 
-  System2 system2 = mock(System2.class);
+  static System2 system = mock(System2.class);
 
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester dbTester = DbTester.create(system);
 
-  ResourceDao dao = dbTester.getDbClient().resourceDao();
-
-  @Before
-  public void createDao() {
-    when(system2.now()).thenReturn(1_500_000_000_000L);
-  }
-
-  @Test
-  public void testDescendantProjects_do_not_include_self() {
-    dbTester.prepareDbUnit(getClass(), "fixture.xml");
-
-    List<ResourceDto> resources = dao.getDescendantProjects(1L);
-
-    assertThat(resources).extracting("id").containsOnly(2L);
-  }
-
-  @Test
-  public void testDescendantProjects_id_not_found() {
-    dbTester.prepareDbUnit(getClass(), "fixture.xml");
-
-    List<ResourceDto> resources = dao.getDescendantProjects(33333L);
-
-    assertThat(resources).isEmpty();
-  }
-
-  @Test
-  public void get_resource_by_id() {
-    dbTester.prepareDbUnit(getClass(), "fixture.xml");
-
-    ResourceDto resource = dao.getResource(1L);
-
-    assertThat(resource.getUuid()).isEqualTo("ABCD");
-    assertThat(resource.getProjectUuid()).isEqualTo("ABCD");
-    assertThat(resource.getPath()).isNull();
-    assertThat(resource.getName()).isEqualTo("Struts");
-    assertThat(resource.getLongName()).isEqualTo("Apache Struts");
-    assertThat(resource.getScope()).isEqualTo("PRJ");
-    assertThat(resource.getDescription()).isEqualTo("the description");
-    assertThat(resource.getLanguage()).isEqualTo("java");
-    assertThat(resource.isEnabled()).isTrue();
-    assertThat(resource.getAuthorizationUpdatedAt()).isNotNull();
-    assertThat(resource.getCreatedAt()).isNotNull();
-  }
+  ResourceDao sut = dbTester.getDbClient().resourceDao();
 
   @Test
   public void get_resource_by_uuid() {
     dbTester.prepareDbUnit(getClass(), "fixture.xml");
 
-    ResourceDto resource = dao.getResource("ABCD");
+    ResourceDto resource = sut.getResource("ABCD");
 
     assertThat(resource.getUuid()).isEqualTo("ABCD");
     assertThat(resource.getProjectUuid()).isEqualTo("ABCD");
@@ -111,115 +69,115 @@ public class ResourceDaoTest {
   }
 
   @Test
-  public void get_resource_path_and_module_key() {
-    dbTester.prepareDbUnit(getClass(), "fixture.xml");
-
-    ResourceDto dir = dao.getResource(3L);
-    assertThat(dir.getPath()).isEqualTo("src/org/struts");
-
-    ResourceDto file = dao.getResource(4L);
-    assertThat(file.getPath()).isEqualTo("src/org/struts/RequestContext.java");
-  }
-
-  @Test
-  public void get_uuid() {
-    dbTester.prepareDbUnit(getClass(), "fixture.xml");
-
-    ResourceDto file = dao.getResource(4L);
-    assertThat(file.getUuid()).isEqualTo("DEFG");
-    assertThat(file.getProjectUuid()).isEqualTo("ABCD");
-    assertThat(file.getModuleUuid()).isEqualTo("BCDE");
-    assertThat(file.getModuleUuidPath()).isEqualTo(".ABCD.BCDE.");
-  }
-
-  @Test
-  public void getResource_not_found() {
-    dbTester.prepareDbUnit(getClass(), "fixture.xml");
-
-    assertThat(dao.getResource(987654321L)).isNull();
-  }
-
-  @Test
-  public void getResources_all() {
-    dbTester.prepareDbUnit(getClass(), "fixture.xml");
-
-    List<ResourceDto> resources = dao.getResources(ResourceQuery.create());
-
-    assertThat(resources).hasSize(4);
-  }
-
-  @Test
-  public void getResources_filter_by_qualifier() {
-    dbTester.prepareDbUnit(getClass(), "fixture.xml");
-
-    List<ResourceDto> resources = dao.getResources(ResourceQuery.create().setQualifiers(new String[] {"TRK", "BRC"}));
-    assertThat(resources).extracting("qualifier").containsOnly("TRK", "BRC");
-
-    resources = dao.getResources(ResourceQuery.create().setQualifiers(new String[] {"XXX"}));
-    assertThat(resources).isEmpty();
-
-    resources = dao.getResources(ResourceQuery.create().setQualifiers(new String[] {}));
-    assertThat(resources).hasSize(4);
-  }
-
-  @Test
-  public void getResources_filter_by_key() {
+  public void getResource_filter_by_key() {
     dbTester.prepareDbUnit(getClass(), "fixture.xml");
 
     ResourceQuery query = ResourceQuery.create().setKey("org.struts:struts-core");
-    List<ResourceDto> resources = dao.getResources(query);
-    assertThat(resources).hasSize(1);
-    assertThat(resources.get(0).getKey()).isEqualTo("org.struts:struts-core");
 
-    assertThat(dao.getResource(query).getKey()).isEqualTo("org.struts:struts-core");
+    assertThat(sut.getResource(query).getKey()).isEqualTo("org.struts:struts-core");
   }
 
   @Test
   public void find_root_project_by_component_key() {
     dbTester.prepareDbUnit(getClass(), "fixture.xml");
 
-    assertThat(dao.getRootProjectByComponentKey("org.struts:struts-core:src/org/struts/RequestContext.java").getKey()).isEqualTo("org.struts:struts");
-    assertThat(dao.getRootProjectByComponentKey("org.struts:struts-core:src/org/struts").getKey()).isEqualTo("org.struts:struts");
-    assertThat(dao.getRootProjectByComponentKey("org.struts:struts-core").getKey()).isEqualTo("org.struts:struts");
-    assertThat(dao.getRootProjectByComponentKey("org.struts:struts").getKey()).isEqualTo("org.struts:struts");
+    assertThat(sut.getRootProjectByComponentKey("org.struts:struts-core:src/org/struts/RequestContext.java").getKey()).isEqualTo("org.struts:struts");
+    assertThat(sut.getRootProjectByComponentKey("org.struts:struts-core:src/org/struts").getKey()).isEqualTo("org.struts:struts");
+    assertThat(sut.getRootProjectByComponentKey("org.struts:struts-core").getKey()).isEqualTo("org.struts:struts");
+    assertThat(sut.getRootProjectByComponentKey("org.struts:struts").getKey()).isEqualTo("org.struts:struts");
 
-    assertThat(dao.getRootProjectByComponentKey("unknown")).isNull();
+    assertThat(sut.getRootProjectByComponentKey("unknown")).isNull();
   }
 
   @Test
-  public void find_root_project_by_component_Id() {
+  public void should_insert_using_existing_session() {
+    dbTester.prepareDbUnit(getClass(), "insert.xml");
+
+    ResourceDto file1 = new ResourceDto().setUuid("ABCD")
+      .setKey("org.struts:struts:/src/main/java/org/struts/Action.java")
+      .setDeprecatedKey("org.struts:struts:org.struts.Action").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
+      .setLanguage("java").setName("Action").setLongName("org.struts.Action");
+    ResourceDto file2 = new ResourceDto().setUuid("BCDE")
+      .setKey("org.struts:struts:/src/main/java/org/struts/Filter.java")
+      .setDeprecatedKey("org.struts:struts:org.struts.Filter").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
+      .setLanguage("java").setName("Filter").setLongName("org.struts.Filter");
+
+    sut.insertUsingExistingSession(file1, dbTester.getSession());
+    sut.insertUsingExistingSession(file2, dbTester.getSession());
+
+    dbTester.getSession().rollback();
+
+    assertThat(dbTester.countRowsOfTable("projects")).isZero();
+  }
+
+  @Test
+  public void should_find_component_by_key() {
     dbTester.prepareDbUnit(getClass(), "fixture.xml");
 
-    assertThat(dao.getRootProjectByComponentId(4l).getKey()).isEqualTo("org.struts:struts");
-    assertThat(dao.getRootProjectByComponentId(3l).getKey()).isEqualTo("org.struts:struts");
-    assertThat(dao.getRootProjectByComponentId(2l).getKey()).isEqualTo("org.struts:struts");
-    assertThat(dao.getRootProjectByComponentId(1l).getKey()).isEqualTo("org.struts:struts");
+    assertThat(sut.findByKey("org.struts:struts")).isNotNull();
+    Component component = sut.findByKey("org.struts:struts-core:src/org/struts/RequestContext.java");
+    assertThat(component).isNotNull();
+    assertThat(component.path()).isEqualTo("src/org/struts/RequestContext.java");
+    assertThat(sut.findByKey("unknown")).isNull();
   }
 
   @Test
-  public void find_parent_by_component_id() {
-    dbTester.prepareDbUnit(getClass(), "fixture.xml");
+  public void should_select_projects_by_qualifiers() {
+    dbTester.prepareDbUnit(getClass(), "fixture-including-ghost-projects-and-technical-project.xml");
 
-    assertThat(dao.getParentModuleByComponentId(4l, dbTester.getSession()).getKey()).isEqualTo("org.struts:struts");
-    assertThat(dao.getParentModuleByComponentId(3l, dbTester.getSession()).getKey()).isEqualTo("org.struts:struts");
-    assertThat(dao.getParentModuleByComponentId(2l, dbTester.getSession()).getKey()).isEqualTo("org.struts:struts");
-    assertThat(dao.getParentModuleByComponentId(1l, dbTester.getSession()).getKey()).isEqualTo("org.struts:struts");
+    List<Component> components = sut.selectProjectsByQualifiers(newArrayList("TRK"));
+    assertThat(components).hasSize(1);
+    assertThat(components.get(0).key()).isEqualTo("org.struts:struts");
+    assertThat(((ComponentDto) components.get(0)).getId()).isEqualTo(1L);
+
+    assertThat(sut.selectProjectsIncludingNotCompletedOnesByQualifiers(newArrayList("unknown"))).isEmpty();
+    assertThat(sut.selectProjectsIncludingNotCompletedOnesByQualifiers(Collections.<String>emptyList())).isEmpty();
   }
 
   @Test
-  public void should_update() {
-    dbTester.prepareDbUnit(getClass(), "update.xml");
-    ResourceDto project = new ResourceDto()
-      .setKey("org.struts:struts")
-      .setDeprecatedKey("deprecated key").setScope(Scopes.PROJECT).setQualifier(Qualifiers.PROJECT)
-      .setName("Struts").setLongName("Apache Struts").setLanguage("java").setDescription("MVC Framework")
-      .setPath("/foo/bar")
-      .setId(1L);
+  public void should_select_projects_including_not_finished_by_qualifiers() {
+    dbTester.prepareDbUnit(getClass(), "fixture-including-ghost-projects-and-technical-project.xml");
 
-    dao.insertOrUpdate(project);
+    List<Component> components = sut.selectProjectsIncludingNotCompletedOnesByQualifiers(newArrayList("TRK"));
+    assertThat(getKeys(components)).containsOnly("org.struts:struts", "org.apache.shindig", "org.sample:sample");
 
-    assertThat(project.getId()).isNotNull();
-    dbTester.assertDbUnit(getClass(), "update-result.xml", "projects");
+    assertThat(sut.selectProjectsIncludingNotCompletedOnesByQualifiers(newArrayList("unknown"))).isEmpty();
+    assertThat(sut.selectProjectsIncludingNotCompletedOnesByQualifiers(Collections.<String>emptyList())).isEmpty();
+  }
+
+  @Test
+  public void should_select_ghosts_projects_by_qualifiers() {
+    dbTester.prepareDbUnit(getClass(), "fixture-including-ghost-projects-and-technical-project.xml");
+
+    List<Component> components = sut.selectGhostsProjects(newArrayList("TRK"));
+    assertThat(components).hasSize(1);
+    assertThat(getKeys(components)).containsOnly("org.apache.shindig");
+
+    assertThat(sut.selectGhostsProjects(newArrayList("unknown"))).isEmpty();
+    assertThat(sut.selectGhostsProjects(Collections.<String>emptyList())).isEmpty();
+  }
+
+  @Test
+  public void should_select_provisioned_projects_by_qualifiers() {
+    dbTester.prepareDbUnit(getClass(), "fixture-including-ghost-projects-and-technical-project.xml");
+
+    List<ResourceDto> components = sut.selectProvisionedProjects(newArrayList("TRK"));
+    assertThat(components).hasSize(1);
+    assertThat(components.get(0).getKey()).isEqualTo("org.sample:sample");
+
+    assertThat(sut.selectProvisionedProjects(newArrayList("unknown"))).isEmpty();
+    assertThat(sut.selectProvisionedProjects(Collections.<String>emptyList())).isEmpty();
+  }
+
+  @Test
+  public void update_authorization_date() {
+    dbTester.prepareDbUnit(getClass(), "update_authorization_date.xml");
+
+    when(system.now()).thenReturn(987654321L);
+    sut.updateAuthorizationDate(1L, dbTester.getSession());
+    dbTester.getSession().commit();
+
+    dbTester.assertDbUnit(getClass(), "update_authorization_date-result.xml", "projects");
   }
 
   private List<String> getKeys(final List<Component> components) {

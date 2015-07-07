@@ -20,13 +20,10 @@
 package org.sonar.db.property;
 
 import org.junit.Test;
-import org.sonar.db.AbstractDaoTestCase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PropertyDtoTest extends AbstractDaoTestCase {
-
-  private PropertiesDao dao;
+public class PropertyDtoTest {
 
   @Test
   public void testEquals() {

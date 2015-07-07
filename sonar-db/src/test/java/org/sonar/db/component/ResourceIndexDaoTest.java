@@ -19,63 +19,70 @@
  */
 package org.sonar.db.component;
 
-import java.sql.SQLException;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.db.AbstractDaoTestCase;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ResourceIndexDaoTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class ResourceIndexDaoTest {
+
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   ResourceIndexDao dao = dbTester.getDbClient().componentIndexDao();
 
   @Before
-  public void setUp() {
+  public void setUp() throws Exception {
     dbTester.truncateTables();
   }
 
   @Test
   public void shouldIndexResource() {
-    setupData("shouldIndexResource");
+    dbTester.prepareDbUnit(getClass(), "shouldIndexResource.xml");
 
     dao.indexResource(10, "ZipUtils", "FIL", 8);
 
-    checkTables("shouldIndexResource", new String[] {"id"}, "resource_index");
+    dbTester.assertDbUnit(getClass(), "shouldIndexResource-result.xml", new String[]{"id"}, "resource_index");
   }
 
   @Test
   public void shouldIndexProjects() {
-    setupData("shouldIndexProjects");
+    dbTester.prepareDbUnit(getClass(), "shouldIndexProjects.xml");
 
     dao.indexProjects();
 
-    checkTables("shouldIndexProjects", new String[] {"id"}, "resource_index");
+    dbTester.assertDbUnit(getClass(), "shouldIndexProjects-result.xml", new String[]{"id"}, "resource_index");
   }
 
   @Test
   public void shouldIndexMultiModulesProject() {
-    setupData("shouldIndexMultiModulesProject");
+    dbTester.prepareDbUnit(getClass(), "shouldIndexMultiModulesProject.xml");
 
     dao.indexProject(1);
 
-    checkTables("shouldIndexMultiModulesProject", new String[] {"id"}, "resource_index");
+    dbTester.assertDbUnit(getClass(), "shouldIndexMultiModulesProject-result.xml", new String[]{"id"}, "resource_index");
   }
 
   @Test
   public void shouldReindexProjectAfterRenaming() {
-    setupData("shouldReindexProjectAfterRenaming");
+    dbTester.prepareDbUnit(getClass(), "shouldReindexProjectAfterRenaming.xml");
 
     dao.indexProject(1);
 
-    checkTables("shouldReindexProjectAfterRenaming", new String[] {"id"}, "resource_index");
+    dbTester.assertDbUnit(getClass(), "shouldReindexProjectAfterRenaming-result.xml", new String[]{"id"}, "resource_index");
   }
 
   @Test
   public void shouldNotIndexPackages() {
-    setupData("shouldNotIndexPackages");
+    dbTester.prepareDbUnit(getClass(), "shouldNotIndexPackages.xml");
 
     dao.indexProject(1);
     // project
@@ -88,52 +95,53 @@ public class ResourceIndexDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void shouldIndexTwoLettersLongResources() {
-    setupData("shouldIndexTwoLettersLongResource");
+    dbTester.prepareDbUnit(getClass(), "shouldIndexTwoLettersLongResource.xml");
 
     dao.indexResource(10, "AB", Qualifiers.PROJECT, 3);
 
-    checkTables("shouldIndexTwoLettersLongResource", new String[] {"id"}, "resource_index");
+    dbTester.assertDbUnit(getClass(), "shouldIndexTwoLettersLongResource-result.xml", new String[]{"id"}, "resource_index");
   }
 
   @Test
   public void shouldReIndexTwoLettersLongResources() {
-    setupData("shouldReIndexTwoLettersLongResource");
+    dbTester.prepareDbUnit(getClass(), "shouldReIndexTwoLettersLongResource.xml");
 
     dao.indexResource(1, "AS", Qualifiers.PROJECT, 1);
 
-    checkTables("shouldReIndexTwoLettersLongResource", new String[] {"id"}, "resource_index");
+    dbTester.assertDbUnit(getClass(), "shouldReIndexTwoLettersLongResource-result.xml", new String[]{"id"}, "resource_index");
   }
 
   @Test
   public void shouldReIndexNewTwoLettersLongResource() {
-    setupData("shouldReIndexNewTwoLettersLongResource");
+    dbTester.prepareDbUnit(getClass(), "shouldReIndexNewTwoLettersLongResource.xml");
 
     dao.indexResource(1, "AS", Qualifiers.PROJECT, 1);
 
-    checkTables("shouldReIndexNewTwoLettersLongResource", new String[] {"id"}, "resource_index");
+    dbTester.assertDbUnit(getClass(), "shouldReIndexNewTwoLettersLongResource-result.xml", new String[]{"id"}, "resource_index");
   }
 
   @Test
   public void shouldReindexResource() {
-    setupData("shouldReindexResource");
+    dbTester.prepareDbUnit(getClass(), "shouldReindexResource.xml");
 
     dao.indexResource(1, "New Struts", Qualifiers.PROJECT, 1);
 
-    checkTables("shouldReindexResource", new String[] {"id"}, "resource_index");
+    dbTester.assertDbUnit(getClass(), "shouldReindexResource-result.xml", new String[]{"id"}, "resource_index");
   }
 
   @Test
   public void shouldNotReindexUnchangedResource() {
-    setupData("shouldNotReindexUnchangedResource");
+    dbTester.prepareDbUnit(getClass(), "shouldNotReindexUnchangedResource.xml");
 
     dao.indexResource(1, "Struts", Qualifiers.PROJECT, 1);
 
-    checkTables("shouldNotReindexUnchangedResource", new String[] {"id"}, "resource_index");
+    dbTester.assertDbUnit(getClass(), "shouldNotReindexUnchangedResource-result.xml", new String[]{"id"}, "resource_index");
   }
 
   @Test
   public void select_project_ids_from_query_and_view_or_sub_view_uuid() {
-    setupData("select_project_ids_from_query_and_view_or_sub_view_uuid");
+    dbTester.prepareDbUnit(getClass(), "select_project_ids_from_query_and_view_or_sub_view_uuid.xml");
+
     String viewUuid = "EFGH";
 
     DbSession session = dbTester.getSession();

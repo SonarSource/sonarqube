@@ -49,9 +49,10 @@ import org.sonar.db.permission.PermissionDao;
 import org.sonar.db.permission.PermissionTemplateDao;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.purge.PurgeDao;
+import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
+import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
-import org.sonar.db.rule.RuleDao;
 import org.sonar.db.semaphore.SemaphoreDao;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.user.AuthorDao;
@@ -93,7 +94,9 @@ public final class DaoUtils {
       PermissionDao.class,
       PermissionTemplateDao.class,
       PropertiesDao.class,
+      QualityGateDao.class,
       QualityGateConditionDao.class,
+      ProjectQgateAssociationDao.class,
       QualityProfileDao.class,
       PurgeDao.class,
       CharacteristicDao.class,
@@ -101,13 +104,12 @@ public final class DaoUtils {
       ResourceDao.class,
       ResourceKeyUpdaterDao.class,
       RoleDao.class,
-      RuleDao.class,
       SemaphoreDao.class,
       SnapshotDao.class,
       UserDao.class,
       UserGroupDao.class,
       WidgetDao.class,
       WidgetPropertyDao.class
-      );
+    );
   }
 }

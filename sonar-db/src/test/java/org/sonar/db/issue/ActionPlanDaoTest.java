@@ -22,55 +22,61 @@ package org.sonar.db.issue;
 
 import java.util.Collection;
 import java.util.List;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.AbstractDaoTestCase;
+import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
+import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ActionPlanDaoTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class ActionPlanDaoTest {
+
+  private static final String[] EXCLUDED_COLUMNS = new String[] {"id", "created_at", "updated_at"};
+
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   ActionPlanDao dao = dbTester.getDbClient().actionPlanDao();
 
-  @Before
-  public void setUp() {
-    dbTester.truncateTables();
-  }
-
   @Test
   public void should_insert_new_action_plan() {
+    dbTester.truncateTables();
+
     ActionPlanDto actionPlanDto = new ActionPlanDto().setKey("ABC").setName("Long term").setDescription("Long term action plan").setStatus("OPEN")
       .setProjectId(1l).setUserLogin("arthur");
 
     dao.save(actionPlanDto);
 
-    checkTables("should_insert_new_action_plan", new String[] {"id", "created_at", "updated_at"}, "action_plans");
+    dbTester.assertDbUnit(getClass(), "should_insert_new_action_plan-result.xml", EXCLUDED_COLUMNS, "action_plans");
   }
 
   @Test
   public void should_update_action_plan() {
-    setupData("should_update_action_plan");
+    dbTester.prepareDbUnit(getClass(), "should_update_action_plan.xml");
 
     ActionPlanDto actionPlanDto = new ActionPlanDto().setKey("ABC").setName("Long term").setDescription("Long term action plan").setStatus("OPEN")
       .setProjectId(1l).setUserLogin("arthur");
     dao.update(actionPlanDto);
 
-    checkTables("should_update_action_plan", new String[] {"id", "created_at", "updated_at"}, "action_plans");
+    dbTester.assertDbUnit(getClass(), "should_update_action_plan-result.xml", EXCLUDED_COLUMNS, "action_plans");
   }
 
   @Test
   public void should_delete_action_plan() {
-    setupData("should_delete_action_plan");
+    dbTester.prepareDbUnit(getClass(), "should_delete_action_plan.xml");
 
     dao.delete("BCD");
 
-    checkTables("should_delete_action_plan", new String[] {"id", "created_at", "updated_at"}, "action_plans");
+    dbTester.assertDbUnit(getClass(), "should_delete_action_plan-result.xml", EXCLUDED_COLUMNS, "action_plans");
   }
 
   @Test
   public void should_find_by_key() {
-    setupData("shared", "should_find_by_key");
+    dbTester.prepareDbUnit(getClass(), "shared.xml", "should_find_by_key.xml");
 
     ActionPlanDto result = dao.findByKey("ABC");
     assertThat(result).isNotNull();
@@ -80,7 +86,7 @@ public class ActionPlanDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_find_by_keys() {
-    setupData("shared", "should_find_by_keys");
+    dbTester.prepareDbUnit(getClass(), "shared.xml", "should_find_by_keys.xml");
 
     Collection<ActionPlanDto> result = dao.findByKeys(newArrayList("ABC", "ABD", "ABE"));
     assertThat(result).hasSize(3);
@@ -88,7 +94,7 @@ public class ActionPlanDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_find_by_keys_on_huge_number_of_keys() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     List<String> hugeNbOKeys = newArrayList();
     for (int i = 0; i < 4500; i++) {
@@ -102,7 +108,7 @@ public class ActionPlanDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_find_open_by_project_id() {
-    setupData("shared", "should_find_open_by_project_id");
+    dbTester.prepareDbUnit(getClass(), "shared.xml", "should_find_open_by_project_id.xml");
 
     Collection<ActionPlanDto> result = dao.findOpenByProjectId(1l);
     assertThat(result).hasSize(2);
@@ -110,7 +116,7 @@ public class ActionPlanDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_find_by_name_and_project_id() {
-    setupData("shared", "should_find_by_name_and_project_id");
+    dbTester.prepareDbUnit(getClass(), "shared.xml", "should_find_by_name_and_project_id.xml");
 
     Collection<ActionPlanDto> result = dao.findByNameAndProjectId("SHORT_TERM", 1l);
     assertThat(result).hasSize(2);

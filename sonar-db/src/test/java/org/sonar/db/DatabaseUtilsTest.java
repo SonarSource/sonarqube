@@ -28,8 +28,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.List;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
 import org.sonar.db.dialect.Oracle;
+import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +42,11 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class DatabaseUtilsTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class DatabaseUtilsTest {
+
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Test
   public void should_close_connection() throws Exception {

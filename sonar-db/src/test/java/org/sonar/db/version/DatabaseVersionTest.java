@@ -19,26 +19,35 @@
  */
 package org.sonar.db.version;
 
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.AbstractDaoTestCase;
+import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DatabaseVersionTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class DatabaseVersionTest {
+
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
   @Test
   public void getVersion() {
-    setupData("getVersion");
+    dbTester.prepareDbUnit(getClass(), "getVersion.xml");
 
-    Integer version = new DatabaseVersion(getMyBatis()).getVersion();
+    Integer version = new DatabaseVersion(dbTester.myBatis()).getVersion();
 
     assertThat(version).isEqualTo(123);
   }
 
   @Test
   public void getVersion_no_rows() {
-    setupData("getVersion_no_rows");
+    dbTester.prepareDbUnit(getClass(), "getVersion_no_rows.xml");
 
-    Integer version = new DatabaseVersion(getMyBatis()).getVersion();
+    Integer version = new DatabaseVersion(dbTester.myBatis()).getVersion();
 
     assertThat(version).isNull();
   }

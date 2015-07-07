@@ -21,7 +21,6 @@
 package org.sonar.db.compute;
 
 import java.util.List;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -41,23 +40,20 @@ public class AnalysisReportDaoTest {
 
   private static final String DEFAULT_PROJECT_KEY = "123456789-987654321";
 
-  System2 system2 = mock(System2.class);
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
+  static System2 system2 = mock(System2.class);
 
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
   AnalysisReportDao sut = db.getDbClient().analysisReportDao();
-
-  @Before
-  public void before() {
-    when(system2.now()).thenReturn(1_500_000_000_000L);
-  }
 
   @Test
   public void insert_multiple_reports() {
     db.prepareDbUnit(getClass(), "empty.xml");
+    when(system2.now()).thenReturn(1_500_000_000_000L);
 
     AnalysisReportDto report1 = new AnalysisReportDto().setProjectKey("ProjectKey1").setProjectName("Project 1").setUuid("UUID_1").setStatus(PENDING);
     AnalysisReportDto report2 = new AnalysisReportDto().setProjectKey("ProjectKey2").setProjectName("Project 2").setUuid("UUID_2").setStatus(PENDING);

@@ -22,24 +22,25 @@ package org.sonar.db.notification;
 
 import java.util.Arrays;
 import java.util.Collection;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.notifications.Notification;
-import org.sonar.db.AbstractDaoTestCase;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class NotificationQueueDaoTest extends AbstractDaoTestCase {
+public class NotificationQueueDaoTest {
 
-  NotificationQueueDao dao = new NotificationQueueDao(dbTester.myBatis());
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
-  @Before
-  public void setUp() {
-    dbTester.truncateTables();
-  }
+  NotificationQueueDao dao = db.getDbClient().notificationQueueDao();
 
   @Test
   public void should_insert_new_notification_queue() throws Exception {
+    db.truncateTables();
+
     NotificationQueueDto notificationQueueDto = NotificationQueueDto.toNotificationQueueDto(new Notification("email"));
 
     dao.insert(Arrays.asList(notificationQueueDto));
@@ -50,6 +51,8 @@ public class NotificationQueueDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_count_notification_queue() {
+    db.truncateTables();
+
     NotificationQueueDto notificationQueueDto = NotificationQueueDto.toNotificationQueueDto(new Notification("email"));
 
     assertThat(dao.count()).isEqualTo(0);
@@ -61,19 +64,19 @@ public class NotificationQueueDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_delete_notification() {
-    setupData("should_delete_notification");
+    db.prepareDbUnit(getClass(), "should_delete_notification.xml");
 
     NotificationQueueDto dto1 = new NotificationQueueDto().setId(1L);
     NotificationQueueDto dto3 = new NotificationQueueDto().setId(3L);
 
     dao.delete(Arrays.asList(dto1, dto3));
 
-    checkTables("should_delete_notification", "notifications");
+    db.assertDbUnit(getClass(), "should_delete_notification-result.xml", "notifications");
   }
 
   @Test
   public void should_findOldest() {
-    setupData("should_findOldest");
+    db.prepareDbUnit(getClass(), "should_findOldest.xml");
 
     Collection<NotificationQueueDto> result = dao.findOldest(3);
     assertThat(result).hasSize(3);

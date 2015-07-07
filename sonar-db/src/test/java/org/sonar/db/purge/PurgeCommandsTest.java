@@ -20,38 +20,34 @@
 package org.sonar.db.purge;
 
 import java.util.List;
-import org.apache.ibatis.session.SqlSession;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.AbstractDaoTestCase;
-import org.sonar.db.MyBatis;
+import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
+import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PurgeCommandsTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class PurgeCommandsTest {
 
-  private PurgeProfiler profiler;
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @Before
-  public void prepare() {
-    profiler = new PurgeProfiler();
-  }
+  private PurgeProfiler profiler = new PurgeProfiler();
 
   /**
    * Test that all related data is deleted.
    */
   @Test
   public void shouldDeleteSnapshot() {
-    setupData("shouldDeleteSnapshot");
+    dbTester.prepareDbUnit(getClass(), "shouldDeleteSnapshot.xml");
 
-    SqlSession session = getMyBatis().openSession();
-    try {
-      new PurgeCommands(session, profiler).deleteSnapshots(PurgeSnapshotQuery.create().setId(5L));
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-    checkTables("shouldDeleteSnapshot", "snapshots", "project_measures", "duplications_index", "events");
+    new PurgeCommands(dbTester.getSession(), profiler).deleteSnapshots(PurgeSnapshotQuery.create().setId(5L));
+
+    dbTester.assertDbUnit(getClass(), "shouldDeleteSnapshot-result.xml", "snapshots", "project_measures", "duplications_index", "events");
   }
 
   /**
@@ -59,12 +55,9 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
    */
   @Test
   public void should_not_fail_when_deleting_huge_number_of_snapshots() {
-    SqlSession session = getMyBatis().openSession();
-    try {
-      new PurgeCommands(session, profiler).deleteSnapshots(getHugeNumberOfIds());
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+    dbTester.truncateTables();
+
+    new PurgeCommands(dbTester.getSession(), profiler).deleteSnapshots(getHugeNumberOfIds());
     // The goal of this test is only to check that the query do no fail, not to check result
   }
 
@@ -73,28 +66,20 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
    */
   @Test
   public void shouldPurgeSnapshot() {
-    setupData("shouldPurgeSnapshot");
+    dbTester.prepareDbUnit(getClass(), "shouldPurgeSnapshot.xml");
 
-    SqlSession session = getMyBatis().openSession();
-    try {
-      new PurgeCommands(session, profiler).purgeSnapshots(PurgeSnapshotQuery.create().setId(1L));
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-    checkTables("shouldPurgeSnapshot", "snapshots", "project_measures", "duplications_index", "events");
+    new PurgeCommands(dbTester.getSession(), profiler).purgeSnapshots(PurgeSnapshotQuery.create().setId(1L));
+
+    dbTester.assertDbUnit(getClass(), "shouldPurgeSnapshot-result.xml", "snapshots", "project_measures", "duplications_index", "events");
   }
 
   @Test
   public void delete_wasted_measures_when_purging_snapshot() {
-    setupData("shouldDeleteWastedMeasuresWhenPurgingSnapshot");
+    dbTester.prepareDbUnit(getClass(), "shouldDeleteWastedMeasuresWhenPurgingSnapshot.xml");
 
-    SqlSession session = getMyBatis().openSession();
-    try {
-      new PurgeCommands(session, profiler).purgeSnapshots(PurgeSnapshotQuery.create().setId(1L));
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-    checkTables("shouldDeleteWastedMeasuresWhenPurgingSnapshot", "project_measures");
+    new PurgeCommands(dbTester.getSession(), profiler).purgeSnapshots(PurgeSnapshotQuery.create().setId(1L));
+
+    dbTester.assertDbUnit(getClass(), "shouldDeleteWastedMeasuresWhenPurgingSnapshot-result.xml", "project_measures");
   }
 
   /**
@@ -102,21 +87,17 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
    */
   @Test
   public void should_not_fail_when_purging_huge_number_of_snapshots() {
-    SqlSession session = getMyBatis().openSession();
-    try {
-      new PurgeCommands(session, profiler).purgeSnapshots(getHugeNumberOfIds());
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+    dbTester.truncateTables();
+
+    new PurgeCommands(dbTester.getSession(), profiler).purgeSnapshots(getHugeNumberOfIds());
     // The goal of this test is only to check that the query do no fail, not to check result
   }
 
   @Test
   public void shouldDeleteResource() {
-    setupData("shouldDeleteResource");
-    try (SqlSession session = getMyBatis().openSession()) {
-      new PurgeCommands(session, profiler).deleteResources(newArrayList(new IdUuidPair(1L, "1")));
-    }
+    dbTester.prepareDbUnit(getClass(), "shouldDeleteResource.xml");
+
+    new PurgeCommands(dbTester.getSession(), profiler).deleteResources(newArrayList(new IdUuidPair(1L, "1")));
 
     assertThat(dbTester.countRowsOfTable("projects")).isZero();
     assertThat(dbTester.countRowsOfTable("snapshots")).isZero();
@@ -131,12 +112,8 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
    */
   @Test
   public void should_not_fail_when_deleting_huge_number_of_resources() {
-    SqlSession session = getMyBatis().openSession();
-    try {
-      new PurgeCommands(session, profiler).deleteResources(getHugeNumberOfIdUuids());
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+    dbTester.truncateTables();
+    new PurgeCommands(dbTester.getSession(), profiler).deleteResources(getHugeNumberOfIdUuids());
     // The goal of this test is only to check that the query do no fail, not to check result
   }
 

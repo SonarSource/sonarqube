@@ -21,24 +21,26 @@
 package org.sonar.db.issue;
 
 import java.util.List;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.AbstractDaoTestCase;
+import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class IssueFilterDaoTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class IssueFilterDaoTest {
 
-  IssueFilterDao dao;
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @Before
-  public void createDao() {
-    dao = new IssueFilterDao(getMyBatis());
-  }
+  IssueFilterDao dao = dbTester.getDbClient().issueFilterDao();
 
   @Test
   public void should_select_by_id() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     IssueFilterDto filter = dao.selectById(1L);
 
@@ -51,7 +53,7 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_select_by_user() {
-    setupData("should_select_by_user");
+    dbTester.prepareDbUnit(getClass(), "should_select_by_user.xml");
 
     List<IssueFilterDto> results = dao.selectByUser("michael");
 
@@ -60,7 +62,7 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_select_by_user_with_only_favorite_filters() {
-    setupData("should_select_by_user_with_only_favorite_filters");
+    dbTester.prepareDbUnit(getClass(), "should_select_by_user_with_only_favorite_filters.xml");
 
     List<IssueFilterDto> results = dao.selectFavoriteFiltersByUser("michael");
 
@@ -71,14 +73,14 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_select_shared() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     assertThat(dao.selectSharedFilters()).hasSize(1);
   }
 
   @Test
   public void should_select_provided_by_name() {
-    setupData("should_select_provided_by_name");
+    dbTester.prepareDbUnit(getClass(), "should_select_provided_by_name.xml");
 
     assertThat(dao.selectProvidedFilterByName("Unresolved Issues").getName()).isEqualTo("Unresolved Issues");
     assertThat(dao.selectProvidedFilterByName("My Unresolved Issues").getName()).isEqualTo("My Unresolved Issues");
@@ -87,7 +89,7 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_insert() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     IssueFilterDto filterDto = new IssueFilterDto();
     filterDto.setName("Sonar Open issues");
@@ -98,12 +100,12 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
 
     dao.insert(filterDto);
 
-    checkTables("should_insert", new String[] {"created_at", "updated_at"}, "issue_filters");
+    dbTester.assertDbUnit(getClass(), "should_insert-result.xml", new String[]{"created_at", "updated_at"}, "issue_filters");
   }
 
   @Test
   public void should_update() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     IssueFilterDto filterDto = new IssueFilterDto();
     filterDto.setId(2L);
@@ -115,15 +117,15 @@ public class IssueFilterDaoTest extends AbstractDaoTestCase {
 
     dao.update(filterDto);
 
-    checkTables("should_update", new String[] {"created_at", "updated_at"}, "issue_filters");
+    dbTester.assertDbUnit(getClass(), "should_update-result.xml", new String[]{"created_at", "updated_at"}, "issue_filters");
   }
 
   @Test
   public void should_delete() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     dao.delete(1l);
 
-    checkTables("should_delete", new String[] {"created_at", "updated_at"}, "issue_filters");
+    dbTester.assertDbUnit(getClass(), "should_delete-result.xml", new String[] {"created_at", "updated_at"}, "issue_filters");
   }
 }

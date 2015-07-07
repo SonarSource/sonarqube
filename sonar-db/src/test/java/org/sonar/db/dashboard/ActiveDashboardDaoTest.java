@@ -19,10 +19,10 @@
  */
 package org.sonar.db.dashboard;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.test.DbTests;
 
@@ -32,15 +32,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ActiveDashboardDaoTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private ActiveDashboardDao dao;
-
-  @Before
-  public void createDao() {
-    dbTester.truncateTables();
-    dao = new ActiveDashboardDao(dbTester.myBatis());
-  }
+  ActiveDashboardDao dao = dbTester.getDbClient().activeDashboardDao();
 
   @Test
   public void shouldInsert() {

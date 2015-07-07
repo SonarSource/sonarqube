@@ -26,12 +26,10 @@ import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.db.DbSession;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.test.DbTests;
 
@@ -42,28 +40,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MeasureDaoTest {
 
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
-  DbSession session;
-  MeasureDao sut;
-
-  @Before
-  public void setUp() {
-    db.truncateTables();
-    session = db.myBatis().openSession(false);
-    sut = new MeasureDao();
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
-  }
+  MeasureDao sut = db.getDbClient().measureDao();
 
   @Test
   public void get_value_by_key() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    MeasureDto result = sut.findByComponentKeyAndMetricKey(session, "org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc");
+    MeasureDto result = sut.findByComponentKeyAndMetricKey(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc");
     assertThat(result.getId()).isEqualTo(22);
     assertThat(result.getValue()).isEqualTo(10d);
     assertThat(result.getData()).isNull();
@@ -81,7 +66,7 @@ public class MeasureDaoTest {
   public void get_data_by_key() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    MeasureDto result = sut.findByComponentKeyAndMetricKey(session, "org.struts:struts-core:src/org/struts/RequestContext.java", "authors_by_line");
+    MeasureDto result = sut.findByComponentKeyAndMetricKey(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java", "authors_by_line");
     assertThat(result.getId()).isEqualTo(20);
     assertThat(result.getData()).isEqualTo("0123456789012345678901234567890123456789");
   }
@@ -90,7 +75,7 @@ public class MeasureDaoTest {
   public void get_text_value_by_key() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    MeasureDto result = sut.findByComponentKeyAndMetricKey(session, "org.struts:struts-core:src/org/struts/RequestContext.java", "coverage_line_hits_data");
+    MeasureDto result = sut.findByComponentKeyAndMetricKey(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java", "coverage_line_hits_data");
     assertThat(result.getId()).isEqualTo(21);
     assertThat(result.getData()).isEqualTo("36=1;37=1;38=1;39=1;43=1;48=1;53=1");
   }
@@ -99,11 +84,11 @@ public class MeasureDaoTest {
   public void find_by_component_key_and_metrics() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    List<MeasureDto> results = sut.findByComponentKeyAndMetricKeys(session, "org.struts:struts-core:src/org/struts/RequestContext.java",
+    List<MeasureDto> results = sut.findByComponentKeyAndMetricKeys(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java",
       newArrayList("ncloc", "authors_by_line"));
     assertThat(results).hasSize(2);
 
-    results = sut.findByComponentKeyAndMetricKeys(session, "org.struts:struts-core:src/org/struts/RequestContext.java", newArrayList("ncloc"));
+    results = sut.findByComponentKeyAndMetricKeys(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java", newArrayList("ncloc"));
     assertThat(results).hasSize(1);
 
     MeasureDto result = results.get(0);
@@ -122,7 +107,7 @@ public class MeasureDaoTest {
   public void find_by_component_key_and_metric() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    MeasureDto result = sut.findByComponentKeyAndMetricKey(session, "org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc");
+    MeasureDto result = sut.findByComponentKeyAndMetricKey(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc");
     assertThat(result.getId()).isEqualTo(22);
     assertThat(result.getValue()).isEqualTo(10d);
     assertThat(result.getMetricKey()).isEqualTo("ncloc");
@@ -133,22 +118,22 @@ public class MeasureDaoTest {
     assertThat(result.getVariation(4)).isEqualTo(4d);
     assertThat(result.getVariation(5)).isEqualTo(-5d);
 
-    assertThat(sut.findByComponentKeyAndMetricKey(session, "org.struts:struts-core:src/org/struts/RequestContext.java", "unknown")).isNull();
+    assertThat(sut.findByComponentKeyAndMetricKey(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java", "unknown")).isNull();
   }
 
   @Test
   public void exists_by_key() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    assertThat(sut.existsByKey(session, "org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc")).isTrue();
-    assertThat(sut.existsByKey(session, "org.struts:struts-core:src/org/struts/RequestContext.java", "unknown")).isFalse();
+    assertThat(sut.existsByKey(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc")).isTrue();
+    assertThat(sut.existsByKey(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java", "unknown")).isFalse();
   }
 
   @Test
   public void select_past_measures_by_component_uuid_and_root_snapshot_id_and_metric_keys() {
     db.prepareDbUnit(getClass(), "past_measures.xml");
 
-    List<PastMeasureDto> fileMeasures = sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(session, "CDEF", 1000L, ImmutableSet.of(1, 2));
+    List<PastMeasureDto> fileMeasures = sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(db.getSession(), "CDEF", 1000L, ImmutableSet.of(1, 2));
     assertThat(fileMeasures).hasSize(2);
 
     PastMeasureDto fileMeasure1 = fileMeasures.get(0);
@@ -162,7 +147,7 @@ public class MeasureDaoTest {
     assertThat(fileMeasure2.getValue()).isEqualTo(60d);
     assertThat(fileMeasure2.getMetricId()).isEqualTo(2);
 
-    List<PastMeasureDto> projectMeasures = sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(session, "ABCD", 1000L, ImmutableSet.of(1, 2));
+    List<PastMeasureDto> projectMeasures = sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(db.getSession(), "ABCD", 1000L, ImmutableSet.of(1, 2));
     assertThat(projectMeasures).hasSize(2);
 
     PastMeasureDto projectMeasure1 = projectMeasures.get(0);
@@ -173,16 +158,17 @@ public class MeasureDaoTest {
     assertThat(projectMeasure2.getValue()).isEqualTo(80d);
     assertThat(projectMeasure2.getMetricId()).isEqualTo(2);
 
-    assertThat(sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(session, "UNKNOWN", 1000L, ImmutableSet.of(1, 2))).isEmpty();
-    assertThat(sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(session, "CDEF", 987654L, ImmutableSet.of(1, 2))).isEmpty();
-    assertThat(sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(session, "CDEF", 1000L, ImmutableSet.of(123, 456))).isEmpty();
+    assertThat(sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(db.getSession(), "UNKNOWN", 1000L, ImmutableSet.of(1, 2))).isEmpty();
+    assertThat(sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(db.getSession(), "CDEF", 987654L, ImmutableSet.of(1, 2))).isEmpty();
+    assertThat(sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(db.getSession(), "CDEF", 1000L, ImmutableSet.of(123, 456))).isEmpty();
   }
 
   @Test
   public void select_past_measures_on_rule_by_component_uuid_and_root_snapshot_id_and_metric_keys() {
     db.prepareDbUnit(getClass(), "past_measures_with_rule_id.xml");
+    db.getSession().commit();
 
-    List<PastMeasureDto> measures = sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(session, "ABCD", 1000L, ImmutableSet.of(1));
+    List<PastMeasureDto> measures = sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(db.getSession(), "ABCD", 1000L, ImmutableSet.of(1));
     assertThat(measures).hasSize(3);
 
     Map<Long, PastMeasureDto> pastMeasuresById = pastMeasuresById(measures);
@@ -213,7 +199,7 @@ public class MeasureDaoTest {
   public void select_past_measures_on_characteristic_by_component_uuid_and_root_snapshot_id_and_metric_keys() {
     db.prepareDbUnit(getClass(), "past_measures_with_characteristic_id.xml");
 
-    List<PastMeasureDto> measures = sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(session, "ABCD", 1000L, ImmutableSet.of(1));
+    List<PastMeasureDto> measures = sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(db.getSession(), "ABCD", 1000L, ImmutableSet.of(1));
     assertThat(measures).hasSize(3);
 
     Map<Long, PastMeasureDto> pastMeasuresById = pastMeasuresById(measures);
@@ -244,7 +230,7 @@ public class MeasureDaoTest {
   public void select_past_measures_on_person_by_component_uuid_and_root_snapshot_id_and_metric_keys() {
     db.prepareDbUnit(getClass(), "past_measures_with_person_id.xml");
 
-    List<PastMeasureDto> measures = sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(session, "ABCD", 1000L, ImmutableSet.of(1));
+    List<PastMeasureDto> measures = sut.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(db.getSession(), "ABCD", 1000L, ImmutableSet.of(1));
     assertThat(measures).hasSize(3);
 
     Map<Long, PastMeasureDto> pastMeasuresById = pastMeasuresById(measures);
@@ -275,25 +261,25 @@ public class MeasureDaoTest {
   public void insert() {
     db.prepareDbUnit(getClass(), "empty.xml");
 
-    sut.insert(session, new MeasureDto()
-      .setSnapshotId(2L)
-      .setMetricId(3)
-      .setCharacteristicId(4)
-      .setPersonId(23)
-      .setRuleId(5)
-      .setComponentId(6L)
-      .setValue(2.0d)
-      .setData("measure-value")
-      .setVariation(1, 1.0d)
-      .setVariation(2, 2.0d)
-      .setVariation(3, 3.0d)
-      .setVariation(4, 4.0d)
-      .setVariation(5, 5.0d)
-      .setAlertStatus("alert")
-      .setAlertText("alert-text")
-      .setDescription("measure-description")
-      );
-    session.commit();
+    sut.insert(db.getSession(), new MeasureDto()
+        .setSnapshotId(2L)
+        .setMetricId(3)
+        .setCharacteristicId(4)
+        .setPersonId(23)
+        .setRuleId(5)
+        .setComponentId(6L)
+        .setValue(2.0d)
+        .setData("measure-value")
+        .setVariation(1, 1.0d)
+        .setVariation(2, 2.0d)
+        .setVariation(3, 3.0d)
+        .setVariation(4, 4.0d)
+        .setVariation(5, 5.0d)
+        .setAlertStatus("alert")
+        .setAlertText("alert-text")
+        .setDescription("measure-description")
+    );
+    db.getSession().commit();
 
     db.assertDbUnit(getClass(), "insert-result.xml", new String[] {"id"}, "project_measures");
   }
@@ -302,18 +288,18 @@ public class MeasureDaoTest {
   public void insert_measures() {
     db.prepareDbUnit(getClass(), "empty.xml");
 
-    sut.insert(session, new MeasureDto()
-      .setSnapshotId(2L)
-      .setMetricId(3)
-      .setComponentId(6L)
-      .setValue(2.0d),
+    sut.insert(db.getSession(), new MeasureDto()
+        .setSnapshotId(2L)
+        .setMetricId(3)
+        .setComponentId(6L)
+        .setValue(2.0d),
       new MeasureDto()
         .setSnapshotId(3L)
         .setMetricId(4)
         .setComponentId(6L)
         .setValue(4.0d)
-      );
-    session.commit();
+    );
+    db.getSession().commit();
 
     assertThat(db.countRowsOfTable("project_measures")).isEqualTo(2);
   }

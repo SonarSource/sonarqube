@@ -23,42 +23,32 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.user.UserQuery;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.db.AbstractDaoTestCase;
-import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class UserDaoTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class UserDaoTest {
 
-  UserDao dao;
+  System2 system2 = mock(System2.class);
 
-  System2 system2;
+  @Rule
+  public DbTester dbTester = DbTester.create(system2);
 
-  DbSession session;
-
-  @Before
-  public void setUp() {
-    session = getMyBatis().openSession(false);
-    system2 = mock(System2.class);
-    dao = new UserDao(getMyBatis(), system2);
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
-  }
+  UserDao dao = dbTester.getDbClient().userDao();
 
   @Test
   public void selectUserByLogin_ignore_inactive() {
-    setupData("selectActiveUserByLogin");
+    dbTester.prepareDbUnit(getClass(), "selectActiveUserByLogin.xml");
 
     UserDto user = dao.getUser(50);
     assertThat(user.getLogin()).isEqualTo("inactive_user");
@@ -69,7 +59,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void selectUserByLogin_not_found() {
-    setupData("selectActiveUserByLogin");
+    dbTester.prepareDbUnit(getClass(), "selectActiveUserByLogin.xml");
 
     UserDto user = dao.selectActiveUserByLogin("not_found");
     assertThat(user).isNull();
@@ -77,7 +67,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void selectUsersByLogins() {
-    setupData("selectUsersByLogins");
+    dbTester.prepareDbUnit(getClass(), "selectUsersByLogins.xml");
 
     Collection<UserDto> users = dao.selectUsersByLogins(Arrays.asList("marius", "inactive_user", "other"));
     assertThat(users).hasSize(2);
@@ -86,6 +76,8 @@ public class UserDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void selectUsersByLogins_empty_logins() {
+    dbTester.truncateTables();
+
     // no need to access db
     Collection<UserDto> users = dao.selectUsersByLogins(Collections.<String>emptyList());
     assertThat(users).isEmpty();
@@ -93,7 +85,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void selectUsersByQuery_all() {
-    setupData("selectUsersByQuery");
+    dbTester.prepareDbUnit(getClass(), "selectUsersByQuery.xml");
 
     UserQuery query = UserQuery.builder().includeDeactivated().build();
     List<UserDto> users = dao.selectUsers(query);
@@ -102,7 +94,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void selectUsersByQuery_only_actives() {
-    setupData("selectUsersByQuery");
+    dbTester.prepareDbUnit(getClass(), "selectUsersByQuery.xml");
 
     UserQuery query = UserQuery.ALL_ACTIVES;
     List<UserDto> users = dao.selectUsers(query);
@@ -112,7 +104,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void selectUsersByQuery_filter_by_login() {
-    setupData("selectUsersByQuery");
+    dbTester.prepareDbUnit(getClass(), "selectUsersByQuery.xml");
 
     UserQuery query = UserQuery.builder().logins("marius", "john").build();
     List<UserDto> users = dao.selectUsers(query);
@@ -122,7 +114,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void selectUsersByQuery_search_by_login_text() {
-    setupData("selectUsersByText");
+    dbTester.prepareDbUnit(getClass(), "selectUsersByText.xml");
 
     UserQuery query = UserQuery.builder().searchText("sbr").build();
     List<UserDto> users = dao.selectUsers(query);
@@ -132,7 +124,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void selectUsersByQuery_search_by_name_text() {
-    setupData("selectUsersByText");
+    dbTester.prepareDbUnit(getClass(), "selectUsersByText.xml");
 
     UserQuery query = UserQuery.builder().searchText("Simon").build();
     List<UserDto> users = dao.selectUsers(query);
@@ -142,7 +134,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void selectUsersByQuery_escape_special_characters_in_like() {
-    setupData("selectUsersByText");
+    dbTester.prepareDbUnit(getClass(), "selectUsersByText.xml");
 
     UserQuery query = UserQuery.builder().searchText("%s%").build();
     // we expect really a login or name containing the 3 characters "%s%"
@@ -153,7 +145,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void selectGroupByName() {
-    setupData("selectGroupByName");
+    dbTester.prepareDbUnit(getClass(), "selectGroupByName.xml");
 
     GroupDto group = dao.selectGroupByName("sonar-users");
     assertThat(group).isNotNull();
@@ -166,7 +158,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void selectGroupByName_not_found() {
-    setupData("selectGroupByName");
+    dbTester.prepareDbUnit(getClass(), "selectGroupByName.xml");
 
     GroupDto group = dao.selectGroupByName("not-found");
     assertThat(group).isNull();
@@ -187,8 +179,8 @@ public class UserDaoTest extends AbstractDaoTestCase {
       .setCryptedPassword("abcd")
       .setCreatedAt(date)
       .setUpdatedAt(date);
-    dao.insert(session, userDto);
-    session.commit();
+    dao.insert(dbTester.getSession(), userDto);
+    dbTester.getSession().commit();
 
     UserDto user = dao.selectActiveUserByLogin("john");
     assertThat(user).isNotNull();
@@ -206,7 +198,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void update_user() {
-    setupData("update_user");
+    dbTester.prepareDbUnit(getClass(), "update_user.xml");
 
     Long date = DateUtils.parseDate("2014-06-21").getTime();
 
@@ -220,8 +212,8 @@ public class UserDaoTest extends AbstractDaoTestCase {
       .setSalt("12345")
       .setCryptedPassword("abcde")
       .setUpdatedAt(date);
-    dao.update(session, userDto);
-    session.commit();
+    dao.update(dbTester.getSession(), userDto);
+    dbTester.getSession().commit();
 
     UserDto user = dao.getUser(1);
     assertThat(user).isNotNull();
@@ -239,7 +231,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void deactivate_user() {
-    setupData("deactivate_user");
+    dbTester.prepareDbUnit(getClass(), "deactivate_user.xml");
 
     when(system2.now()).thenReturn(1500000000000L);
 
@@ -253,7 +245,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
     assertThat(userDto.isActive()).isFalse();
     assertThat(userDto.getUpdatedAt()).isEqualTo(1500000000000L);
 
-    checkTables("deactivate_user",
+    dbTester.assertDbUnit(getClass(), "deactivate_user-result.xml",
       "dashboards", "active_dashboards", "groups_users", "issue_filters",
       "issue_filter_favourites", "measure_filters", "measure_filter_favourites",
       "properties", "user_roles");
@@ -261,7 +253,7 @@ public class UserDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void deactivate_missing_user() {
-    setupData("deactivate_user");
+    dbTester.prepareDbUnit(getClass(), "deactivate_user.xml");
 
     String login = "does_not_exist";
     boolean deactivated = dao.deactivateUserByLogin(login);

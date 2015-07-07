@@ -23,15 +23,12 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.component.Component;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.internal.Uuids;
 import org.sonar.db.AbstractDao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -42,19 +39,6 @@ public class ResourceDao extends AbstractDao {
 
   public ResourceDao(MyBatis myBatis, System2 system2) {
     super(myBatis, system2);
-  }
-
-  public List<ResourceDto> getResources(ResourceQuery query) {
-    SqlSession session = myBatis().openSession(false);
-    try {
-      return session.getMapper(ResourceMapper.class).selectResources(query);
-    } finally {
-      myBatis().closeQuietly(session);
-    }
-  }
-
-  public List<ResourceDto> getResources(ResourceQuery query, SqlSession session) {
-    return session.getMapper(ResourceMapper.class).selectResources(query);
   }
 
   /**
@@ -72,7 +56,7 @@ public class ResourceDao extends AbstractDao {
   }
 
   @CheckForNull
-  public ResourceDto getResource(ResourceQuery query, DbSession session) {
+  private ResourceDto getResource(ResourceQuery query, DbSession session) {
     List<ResourceDto> resources = getResources(query, session);
     if (!resources.isEmpty()) {
       return resources.get(0);
@@ -80,13 +64,8 @@ public class ResourceDao extends AbstractDao {
     return null;
   }
 
-  public ResourceDto getResource(long projectId) {
-    SqlSession session = myBatis().openSession(false);
-    try {
-      return getResource(projectId, session);
-    } finally {
-      myBatis().closeQuietly(session);
-    }
+  private List<ResourceDto> getResources(ResourceQuery query, SqlSession session) {
+    return session.getMapper(ResourceMapper.class).selectResources(query);
   }
 
   @CheckForNull
@@ -108,20 +87,6 @@ public class ResourceDao extends AbstractDao {
     return session.getMapper(ResourceMapper.class).selectLastSnapshotByResourceKey(resourceKey);
   }
 
-  @CheckForNull
-  public SnapshotDto getLastSnapshotByResourceUuid(String componentUuid, SqlSession session) {
-    return session.getMapper(ResourceMapper.class).selectLastSnapshotByResourceUuid(componentUuid);
-  }
-
-  public List<ResourceDto> getDescendantProjects(long projectId) {
-    SqlSession session = myBatis().openSession(false);
-    try {
-      return getDescendantProjects(projectId, session);
-    } finally {
-      myBatis().closeQuietly(session);
-    }
-  }
-
   public List<ResourceDto> getDescendantProjects(long projectId, SqlSession session) {
     ResourceMapper mapper = session.getMapper(ResourceMapper.class);
     List<ResourceDto> resources = newArrayList();
@@ -137,40 +102,6 @@ public class ResourceDao extends AbstractDao {
     }
   }
 
-  /**
-   * Used by the Views Plugin
-   */
-  public ResourceDao insertOrUpdate(ResourceDto... resources) {
-    SqlSession session = myBatis().openSession(false);
-    ResourceMapper mapper = session.getMapper(ResourceMapper.class);
-    Date now = new Date(now());
-    try {
-      for (ResourceDto resource : resources) {
-        if (resource.getId() == null) {
-          // Fix for Views
-          if (resource.getUuid() == null && Scopes.PROJECT.equals(resource.getScope())) {
-            String uuid = Uuids.create();
-            resource.setUuid(uuid);
-            resource.setProjectUuid(uuid);
-            resource.setModuleUuidPath("");
-          }
-          resource.setCreatedAt(now);
-          resource.setAuthorizationUpdatedAt(now.getTime());
-          mapper.insert(resource);
-        } else {
-          mapper.update(resource);
-        }
-      }
-      session.commit();
-    } finally {
-      myBatis().closeQuietly(session);
-    }
-    return this;
-  }
-
-  /**
-   * Should not be called from batch side (used to reindex permission in E/S)
-   */
   public void updateAuthorizationDate(Long projectId, SqlSession session) {
     session.getMapper(ResourceMapper.class).updateAuthorizationDate(projectId, now());
   }
@@ -178,12 +109,6 @@ public class ResourceDao extends AbstractDao {
   @CheckForNull
   public Component findByKey(String key) {
     ResourceDto resourceDto = getResource(ResourceQuery.create().setKey(key));
-    return resourceDto != null ? toComponent(resourceDto) : null;
-  }
-
-  @CheckForNull
-  public Component findById(Long id, SqlSession session) {
-    ResourceDto resourceDto = getResource(id, session);
     return resourceDto != null ? toComponent(resourceDto) : null;
   }
 
@@ -195,7 +120,7 @@ public class ResourceDao extends AbstractDao {
    * The implementation should rather use a new column already containing the root project, see https://jira.sonarsource.com/browse/SONAR-5188.
    */
   @CheckForNull
-  public ResourceDto getRootProjectByComponentKey(DbSession session, String componentKey) {
+  private ResourceDto getRootProjectByComponentKey(DbSession session, String componentKey) {
     ResourceDto component = getResource(ResourceQuery.create().setKey(componentKey), session);
     if (component != null) {
       Long rootId = component.getRootId();
@@ -219,7 +144,7 @@ public class ResourceDao extends AbstractDao {
   }
 
   @CheckForNull
-  ResourceDto getParentModuleByComponentId(Long componentId, DbSession session) {
+  private ResourceDto getParentModuleByComponentId(Long componentId, DbSession session) {
     ResourceDto component = getResource(componentId, session);
     if (component != null) {
       Long rootId = component.getRootId();
@@ -230,29 +155,6 @@ public class ResourceDao extends AbstractDao {
       }
     }
     return null;
-  }
-
-  /**
-   * Return the root project of a component.
-   * Will return the component itself if it's already the root project
-   * Can return null if the component that does exists.
-   *
-   * The implementation should rather use a new column already containing the root project, see https://jira.sonarsource.com/browse/SONAR-5188.
-   */
-  @CheckForNull
-  public ResourceDto getRootProjectByComponentId(long componentId) {
-    DbSession session = myBatis().openSession(false);
-    try {
-      ResourceDto component = getParentModuleByComponentId(componentId, session);
-      Long rootId = component != null ? component.getRootId() : null;
-      if (rootId != null) {
-        return getParentModuleByComponentId(rootId, session);
-      } else {
-        return component;
-      }
-    } finally {
-      myBatis().closeQuietly(session);
-    }
   }
 
   public List<Component> selectProjectsByQualifiers(Collection<String> qualifiers) {
@@ -320,15 +222,6 @@ public class ResourceDao extends AbstractDao {
    */
   public ResourceDto selectProvisionedProject(DbSession session, String key) {
     return session.getMapper(ResourceMapper.class).selectProvisionedProject(key);
-  }
-
-  public ResourceDto selectProvisionedProject(String key) {
-    DbSession session = myBatis().openSession(false);
-    try {
-      return selectProvisionedProject(session, key);
-    } finally {
-      myBatis().closeQuietly(session);
-    }
   }
 
   public static ComponentDto toComponent(ResourceDto resourceDto) {

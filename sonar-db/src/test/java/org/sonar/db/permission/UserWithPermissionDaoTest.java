@@ -24,26 +24,28 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.AbstractDaoTestCase;
+import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UserWithPermissionDaoTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class UserWithPermissionDaoTest {
 
   private static final long COMPONENT_ID = 100L;
 
-  private PermissionDao dao;
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @Before
-  public void setUp() {
-    dao = new PermissionDao(getMyBatis());
-  }
+  PermissionDao dao = dbTester.getDbClient().permissionDao();
 
   @Test
   public void select_all_users_for_project_permission() {
-    setupData("users_with_permissions");
+    dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
     PermissionQuery query = PermissionQuery.builder().permission("user").build();
     List<UserWithPermissionDto> result = dao.selectUsers(query, COMPONENT_ID);
@@ -67,7 +69,7 @@ public class UserWithPermissionDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_all_users_for_global_permission() {
-    setupData("users_with_permissions");
+    dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
     PermissionQuery query = PermissionQuery.builder().permission("admin").build();
     List<UserWithPermissionDto> result = dao.selectUsers(query, null);
@@ -88,7 +90,7 @@ public class UserWithPermissionDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_only_user_with_permission() {
-    setupData("users_with_permissions");
+    dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
     // user1 and user2 have permission user
     assertThat(dao.selectUsers(PermissionQuery.builder().permission("user").membership(PermissionQuery.IN).build(), COMPONENT_ID)).hasSize(2);
@@ -96,7 +98,7 @@ public class UserWithPermissionDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_only_user_without_permission() {
-    setupData("users_with_permissions");
+    dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
     // Only user3 has not the user permission
     assertThat(dao.selectUsers(PermissionQuery.builder().permission("user").membership(PermissionQuery.OUT).build(), COMPONENT_ID)).hasSize(1);
@@ -104,7 +106,7 @@ public class UserWithPermissionDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void search_by_user_name() {
-    setupData("users_with_permissions");
+    dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
     List<UserWithPermissionDto> result = dao.selectUsers(PermissionQuery.builder().permission("user").search("SEr1").build(), COMPONENT_ID);
     assertThat(result).hasSize(1);
@@ -116,7 +118,7 @@ public class UserWithPermissionDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_only_enable_users() {
-    setupData("select_only_enable_users");
+    dbTester.prepareDbUnit(getClass(), "select_only_enable_users.xml");
 
     PermissionQuery query = PermissionQuery.builder().permission("user").build();
     List<UserWithPermissionDto> result = dao.selectUsers(query, COMPONENT_ID);
@@ -133,7 +135,7 @@ public class UserWithPermissionDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_be_sorted_by_user_name() {
-    setupData("users_with_permissions_should_be_sorted_by_user_name");
+    dbTester.prepareDbUnit(getClass(), "users_with_permissions_should_be_sorted_by_user_name.xml");
 
     List<UserWithPermissionDto> result = dao.selectUsers(PermissionQuery.builder().permission("user").build(), COMPONENT_ID);
     assertThat(result).hasSize(3);
@@ -144,7 +146,7 @@ public class UserWithPermissionDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_be_paginated() {
-    setupData("users_with_permissions");
+    dbTester.prepareDbUnit(getClass(), "users_with_permissions.xml");
 
     List<UserWithPermissionDto> result = dao.selectUsers(PermissionQuery.builder().permission("user").build(), COMPONENT_ID, 0, 2);
     assertThat(result).hasSize(2);

@@ -21,24 +21,26 @@
 package org.sonar.db.qualitygate;
 
 import java.util.List;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.AbstractDaoTestCase;
+import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ProjectQgateAssociationDaoTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class ProjectQgateAssociationDaoTest {
 
-  private ProjectQgateAssociationDao dao;
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @Before
-  public void setUp() {
-    dao = new ProjectQgateAssociationDao(getMyBatis());
-  }
+  ProjectQgateAssociationDao dao = dbTester.getDbClient().projectQgateAssociationDao();
 
   @Test
   public void select_all_projects_by_query() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     ProjectQgateAssociationQuery query = ProjectQgateAssociationQuery.builder().gateId("42").build();
     List<ProjectQgateAssociationDto> result = dao.selectProjects(query, 42L);
@@ -47,7 +49,7 @@ public class ProjectQgateAssociationDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_projects_by_query() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     assertThat(dao.selectProjects(ProjectQgateAssociationQuery.builder().gateId("42").membership(ProjectQgateAssociationQuery.IN).build(), 42L)).hasSize(3);
     assertThat(dao.selectProjects(ProjectQgateAssociationQuery.builder().gateId("42").membership(ProjectQgateAssociationQuery.OUT).build(), 42L)).hasSize(2);
@@ -55,7 +57,7 @@ public class ProjectQgateAssociationDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void search_by_project_name() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     List<ProjectQgateAssociationDto> result = dao.selectProjects(ProjectQgateAssociationQuery.builder().gateId("42").projectSearch("one").build(), 42L);
     assertThat(result).hasSize(1);
@@ -70,7 +72,7 @@ public class ProjectQgateAssociationDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_be_sorted_by_project_name() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     List<ProjectQgateAssociationDto> result = dao.selectProjects(ProjectQgateAssociationQuery.builder().gateId("42").build(), 42L);
     assertThat(result).hasSize(5);

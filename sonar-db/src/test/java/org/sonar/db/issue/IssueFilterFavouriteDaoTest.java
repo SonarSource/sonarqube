@@ -21,24 +21,26 @@
 package org.sonar.db.issue;
 
 import java.util.List;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.AbstractDaoTestCase;
+import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class IssueFilterFavouriteDaoTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class IssueFilterFavouriteDaoTest {
 
-  IssueFilterFavouriteDao dao;
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @Before
-  public void createDao() {
-    dao = new IssueFilterFavouriteDao(getMyBatis());
-  }
+  IssueFilterFavouriteDao dao = dbTester.getDbClient().issueFilterFavouriteDao();
 
   @Test
   public void should_select_by_id() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     IssueFilterFavouriteDto dto = dao.selectById(1L);
     assertThat(dto.getId()).isEqualTo(1L);
@@ -51,7 +53,7 @@ public class IssueFilterFavouriteDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_select_by_filter_id() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     List<IssueFilterFavouriteDto> dtos = dao.selectByFilterId(11L);
     assertThat(dtos).hasSize(1);
@@ -67,7 +69,7 @@ public class IssueFilterFavouriteDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void should_insert() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     IssueFilterFavouriteDto dto = new IssueFilterFavouriteDto();
     dto.setUserLogin("arthur");
@@ -75,25 +77,25 @@ public class IssueFilterFavouriteDaoTest extends AbstractDaoTestCase {
 
     dao.insert(dto);
 
-    checkTables("should_insert", new String[] {"created_at"}, "issue_filter_favourites");
+    dbTester.assertDbUnit(getClass(), "should_insert-result.xml", new String[]{"created_at"}, "issue_filter_favourites");
   }
 
   @Test
   public void should_delete() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     dao.delete(3l);
 
-    checkTables("should_delete", new String[] {"created_at"}, "issue_filter_favourites");
+    dbTester.assertDbUnit(getClass(), "should_delete-result.xml", new String[]{"created_at"}, "issue_filter_favourites");
   }
 
   @Test
   public void should_delete_by_issue_filter_id() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     dao.deleteByFilterId(10l);
 
-    checkTables("should_delete_by_issue_filter_id", new String[] {"created_at"}, "issue_filter_favourites");
+    dbTester.assertDbUnit(getClass(), "should_delete_by_issue_filter_id-result.xml", new String[]{"created_at"}, "issue_filter_favourites");
   }
 
 }

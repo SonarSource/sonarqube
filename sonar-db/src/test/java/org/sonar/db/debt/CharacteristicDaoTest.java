@@ -21,13 +21,11 @@
 package org.sonar.db.debt;
 
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.db.DbSession;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.test.DbTests;
 
@@ -40,23 +38,9 @@ public class CharacteristicDaoTest {
   private static final String[] EXCLUDED_COLUMNS = new String[] {"id", "root_id", "rule_id", "function_key", "factor_unit", "factor_value", "offset_unit", "offset_value"};
 
   @Rule
-  public DbTester db = new DbTester();
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
-  CharacteristicDao dao;
-
-  DbSession session;
-
-  @Before
-  public void createDao() {
-    db.truncateTables();
-    session = db.myBatis().openSession(false);
-    dao = new CharacteristicDao(db.myBatis());
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
-  }
+  CharacteristicDao dao = db.getDbClient().debtCharacteristicDao();
 
   @Test
   public void select_enabled_characteristics() {
@@ -190,6 +174,8 @@ public class CharacteristicDaoTest {
 
   @Test
   public void insert_characteristic() {
+    db.truncateTables();
+
     CharacteristicDto dto = new CharacteristicDto()
       .setKey("COMPILER_RELATED_PORTABILITY")
       .setName("Compiler related portability")
@@ -198,25 +184,28 @@ public class CharacteristicDaoTest {
       .setCreatedAt(DateUtils.parseDate("2013-11-20"));
 
     dao.insert(dto);
+    db.getSession().commit();
 
     db.assertDbUnit(getClass(), "insert_characteristic-result.xml", EXCLUDED_COLUMNS, "characteristics");
   }
 
   @Test
   public void insert_characteristics() {
-    dao.insert(session, new CharacteristicDto()
-      .setKey("COMPILER_RELATED_PORTABILITY")
-      .setName("Compiler related portability")
-      .setOrder(1)
-      .setEnabled(true)
-      .setCreatedAt(DateUtils.parseDate("2013-11-20")),
+    db.truncateTables();
+
+    dao.insert(db.getSession(), new CharacteristicDto()
+        .setKey("COMPILER_RELATED_PORTABILITY")
+        .setName("Compiler related portability")
+        .setOrder(1)
+        .setEnabled(true)
+        .setCreatedAt(DateUtils.parseDate("2013-11-20")),
       new CharacteristicDto()
         .setKey("PORTABILITY")
         .setName("portability")
         .setOrder(2)
         .setEnabled(true)
         .setCreatedAt(DateUtils.parseDate("2013-11-20")));
-    session.commit();
+    db.getSession().commit();
 
     assertThat(db.countRowsOfTable("characteristics")).isEqualTo(2);
   }
@@ -227,16 +216,17 @@ public class CharacteristicDaoTest {
 
     CharacteristicDto dto = new CharacteristicDto()
       .setId(1)
-      // The Key should not be changed
+        // The Key should not be changed
       .setKey("NEW_KEY")
       .setName("New name")
       .setOrder(2)
-      // Created date should not changed
+        // Created date should not changed
       .setCreatedAt(DateUtils.parseDate("2013-11-22"))
       .setUpdatedAt(DateUtils.parseDate("2014-03-19"))
       .setEnabled(false);
 
     dao.update(dto);
+    db.getSession().commit();
 
     db.assertDbUnit(getClass(), "update_characteristic-result.xml", EXCLUDED_COLUMNS, "characteristics");
   }

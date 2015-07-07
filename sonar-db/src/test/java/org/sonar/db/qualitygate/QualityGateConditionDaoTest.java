@@ -19,39 +19,47 @@
  */
 package org.sonar.db.qualitygate;
 
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.AbstractDaoTestCase;
+import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class QualityGateConditionDaoTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class QualityGateConditionDaoTest {
 
   private static final String[] COLUMNS_WITHOUT_TIMESTAMPS = {
     "id", "qgate_id", "metric_id", "operator", "value_warning", "value_error", "period"
   };
 
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
   QualityGateConditionDao dao = dbTester.getDbClient().gateConditionDao();
 
   @Test
   public void testInsert() throws Exception {
-    setupData("insert.xml");
+    dbTester.prepareDbUnit(getClass(), "insert.xml");
     QualityGateConditionDto newCondition = new QualityGateConditionDto()
       .setQualityGateId(1L).setMetricId(2L).setOperator("GT").setWarningThreshold("10").setErrorThreshold("20").setPeriod(3);
     dao.insert(newCondition);
-    checkTable("insert", "quality_gate_conditions", "metric_id", "operator", "error_value", "warning_value", "period");
+    dbTester.assertDbUnitTable(getClass(), "insert-result.xml", "quality_gate_conditions", "metric_id", "operator", "error_value", "warning_value", "period");
     assertThat(newCondition.getId()).isNotNull();
   }
 
   @Test
   public void testSelectForQualityGate() throws Exception {
-    setupData("selectForQualityGate.xml");
+    dbTester.prepareDbUnit(getClass(), "selectForQualityGate.xml");
     assertThat(dao.selectForQualityGate(1L)).hasSize(3);
     assertThat(dao.selectForQualityGate(2L)).hasSize(2);
   }
 
   @Test
   public void testSelectById() throws Exception {
-    setupData("selectForQualityGate.xml");
+    dbTester.prepareDbUnit(getClass(), "selectForQualityGate.xml");
     QualityGateConditionDto selectById = dao.selectById(1L);
     assertThat(selectById).isNotNull();
     assertThat(selectById.getId()).isNotNull().isNotEqualTo(0L);
@@ -66,22 +74,22 @@ public class QualityGateConditionDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void testDelete() throws Exception {
-    setupData("selectForQualityGate.xml");
+    dbTester.prepareDbUnit(getClass(), "selectForQualityGate.xml");
     dao.delete(new QualityGateConditionDto().setId(1L));
-    checkTable("delete", "quality_gate_conditions", COLUMNS_WITHOUT_TIMESTAMPS);
+    dbTester.assertDbUnitTable(getClass(), "delete-result.xml", "quality_gate_conditions", COLUMNS_WITHOUT_TIMESTAMPS);
   }
 
   @Test
   public void testUpdate() throws Exception {
-    setupData("selectForQualityGate.xml");
+    dbTester.prepareDbUnit(getClass(), "selectForQualityGate.xml");
     dao.update(new QualityGateConditionDto().setId(1L).setMetricId(7L).setOperator(">").setPeriod(1).setWarningThreshold("50").setErrorThreshold("80"));
-    checkTable("update-result.xml", "quality_gate_conditions", COLUMNS_WITHOUT_TIMESTAMPS);
+    dbTester.assertDbUnitTable(getClass(), "update-result.xml", "quality_gate_conditions", COLUMNS_WITHOUT_TIMESTAMPS);
   }
 
   @Test
   public void shouldCleanConditions() {
-    setupData("shouldCleanConditions.xml");
+    dbTester.prepareDbUnit(getClass(), "shouldCleanConditions.xml");
     dao.deleteConditionsWithInvalidMetrics();
-    checkTables("shouldCleanConditions-result.xml", new String[]{"created_at", "updated_at"}, "quality_gate_conditions");
+    dbTester.assertDbUnit(getClass(), "shouldCleanConditions-result.xml", new String[]{"created_at", "updated_at"}, "quality_gate_conditions");
   }
 }

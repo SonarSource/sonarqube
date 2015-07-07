@@ -21,12 +21,10 @@
 package org.sonar.db.event;
 
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.sonar.db.DbSession;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.test.DbTests;
 
@@ -36,32 +34,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class EventDaoTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DbSession session;
-
-  EventDao dao;
-
-  @Before
-  public void setup() {
-    dbTester.truncateTables();
-    session = dbTester.myBatis().openSession(false);
-    dao = new EventDao();
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
-  }
+  EventDao dao = dbTester.getDbClient().eventDao();
 
   @Test
   public void select_by_component_uuid() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    List<EventDto> dtos = dao.selectByComponentUuid(session, "ABCD");
+    List<EventDto> dtos = dao.selectByComponentUuid(dbTester.getSession(), "ABCD");
     assertThat(dtos).hasSize(3);
 
-    dtos = dao.selectByComponentUuid(session, "BCDE");
+    dtos = dao.selectByComponentUuid(dbTester.getSession(), "BCDE");
     assertThat(dtos).hasSize(1);
 
     EventDto dto = dtos.get(0);
@@ -80,7 +64,7 @@ public class EventDaoTest {
   public void return_different_categories() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    List<EventDto> dtos = dao.selectByComponentUuid(session, "ABCD");
+    List<EventDto> dtos = dao.selectByComponentUuid(dbTester.getSession(), "ABCD");
     assertThat(dtos).extracting("category").containsOnly(EventDto.CATEGORY_ALERT, EventDto.CATEGORY_PROFILE, EventDto.CATEGORY_VERSION);
   }
 
@@ -88,7 +72,7 @@ public class EventDaoTest {
   public void insert() {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    dao.insert(session, new EventDto()
+    dao.insert(dbTester.getSession(), new EventDto()
       .setName("1.0")
       .setCategory(EventDto.CATEGORY_VERSION)
       .setDescription("Version 1.0")
@@ -98,7 +82,7 @@ public class EventDaoTest {
       .setSnapshotId(1000L)
       .setCreatedAt(1225630680000L)
       );
-    session.commit();
+    dbTester.getSession().commit();
 
     dbTester.assertDbUnit(getClass(), "insert-result.xml", new String[] {"id"}, "events");
   }
@@ -107,8 +91,8 @@ public class EventDaoTest {
   public void delete() {
     dbTester.prepareDbUnit(getClass(), "delete.xml");
 
-    dao.delete(session, 1L);
-    session.commit();
+    dao.delete(dbTester.getSession(), 1L);
+    dbTester.getSession().commit();
 
     assertThat(dbTester.countRowsOfTable("events")).isEqualTo(0);
   }

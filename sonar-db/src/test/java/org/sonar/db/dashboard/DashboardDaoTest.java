@@ -20,10 +20,10 @@
 package org.sonar.db.dashboard;
 
 import java.util.Date;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.test.DbTests;
 
@@ -36,15 +36,9 @@ import static org.junit.Assert.assertThat;
 public class DashboardDaoTest {
 
   @Rule
-  public DbTester dbTester = new DbTester();
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  private DashboardDao dao;
-
-  @Before
-  public void createDao() {
-    dbTester.truncateTables();
-    dao = new DashboardDao(dbTester.myBatis());
-  }
+  DashboardDao dao = dbTester.getDbClient().dashboardDao();
 
   @Test
   public void shouldSelectGlobalDashboard() {

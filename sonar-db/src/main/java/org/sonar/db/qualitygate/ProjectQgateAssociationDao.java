@@ -26,9 +26,10 @@ import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.db.Dao;
 import org.sonar.db.MyBatis;
 
-public class ProjectQgateAssociationDao {
+public class ProjectQgateAssociationDao implements Dao {
 
   private final MyBatis mybatis;
 

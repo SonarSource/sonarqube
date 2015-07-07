@@ -23,37 +23,29 @@ package org.sonar.db.issue;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.ibatis.executor.result.DefaultResultHandler;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.db.AbstractDaoTestCase;
-import org.sonar.db.DbSession;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class IssueDaoTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class IssueDaoTest {
 
-  DbSession session;
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  IssueDao dao;
-
-  @Before
-  public void createDao() {
-    session = getMyBatis().openSession(false);
-    dao = new IssueDao(getMyBatis());
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
-  }
+  IssueDao dao = dbTester.getDbClient().issueDao();
 
   @Test
   public void select_non_closed_issues_by_module() {
-    setupData("shared", "should_select_non_closed_issues_by_module");
+    dbTester.prepareDbUnit(getClass(), "shared.xml", "should_select_non_closed_issues_by_module.xml");
 
     // 400 is a non-root module, we should find 2 issues from classes and one on itself
     DefaultResultHandler handler = new DefaultResultHandler();
@@ -83,7 +75,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void select_non_closed_issues_by_module_on_removed_project() {
     // All issues are linked on a project that is not existing anymore
 
-    setupData("shared", "should_select_non_closed_issues_by_module_on_removed_project");
+    dbTester.prepareDbUnit(getClass(), "shared.xml", "should_select_non_closed_issues_by_module_on_removed_project.xml");
 
     // 400 is a non-root module, we should find 2 issues from classes and one on itself
     DefaultResultHandler handler = new DefaultResultHandler();
@@ -99,9 +91,9 @@ public class IssueDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void get_by_key() {
-    setupData("shared", "get_by_key");
+    dbTester.prepareDbUnit(getClass(), "shared.xml", "get_by_key.xml");
 
-    IssueDto issue = dao.selectByKey(session, "ABCDE");
+    IssueDto issue = dao.selectByKey(dbTester.getSession(), "ABCDE");
     assertThat(issue.getKee()).isEqualTo("ABCDE");
     assertThat(issue.getId()).isEqualTo(100L);
     assertThat(issue.getComponentUuid()).isEqualTo("CDEF");
@@ -133,17 +125,17 @@ public class IssueDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void get_by_keys() {
-    setupData("shared", "get_by_key");
+    dbTester.prepareDbUnit(getClass(), "shared.xml", "get_by_key.xml");
 
-    List<IssueDto> issues = dao.selectByKeys(session, Arrays.asList("ABCDE"));
+    List<IssueDto> issues = dao.selectByKeys(dbTester.getSession(), Arrays.asList("ABCDE"));
     assertThat(issues).hasSize(1);
   }
 
   @Test
   public void find_by_action_plan() {
-    setupData("shared", "find_by_action_plan");
+    dbTester.prepareDbUnit(getClass(), "shared.xml", "find_by_action_plan.xml");
 
-    List<IssueDto> issues = dao.findByActionPlan(session, "AP-1");
+    List<IssueDto> issues = dao.findByActionPlan(dbTester.getSession(), "AP-1");
     assertThat(issues).hasSize(1);
 
     IssueDto issue = issues.get(0);
@@ -178,6 +170,8 @@ public class IssueDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void insert() {
+    dbTester.truncateTables();
+
     IssueDto dto = new IssueDto();
     dto.setComponent(new ComponentDto().setKey("struts:Action").setId(123L).setUuid("component-uuid"));
     dto.setProject(new ComponentDto().setKey("struts").setId(100L).setUuid("project-uuid"));
@@ -203,9 +197,9 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     dto.setCreatedAt(1_400_000_000_000L);
     dto.setUpdatedAt(1_450_000_000_000L);
 
-    dao.insert(session, dto);
-    session.commit();
+    dao.insert(dbTester.getSession(), dto);
+    dbTester.getSession().commit();
 
-    checkTables("insert", new String[] {"id"}, "issues");
+    dbTester.assertDbUnit(getClass(), "insert-result.xml", new String[] {"id"}, "issues");
   }
 }

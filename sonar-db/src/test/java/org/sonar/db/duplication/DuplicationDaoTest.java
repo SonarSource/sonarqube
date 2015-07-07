@@ -21,25 +21,27 @@ package org.sonar.db.duplication;
 
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.AbstractDaoTestCase;
+import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
+import org.sonar.test.DbTests;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class DuplicationDaoTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class DuplicationDaoTest {
 
-  private DuplicationDao dao;
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
-  @Before
-  public void createDao() {
-    dao = new DuplicationDao(getMyBatis());
-  }
+  DuplicationDao dao = db.getDbClient().duplicationDao();
 
   @Test
   public void shouldGetByHash() {
-    setupData("shouldGetByHash");
+    db.prepareDbUnit(getClass(), "shouldGetByHash.xml");
 
     List<DuplicationUnitDto> blocks = dao.selectCandidates(10, 7, "java");
     assertThat(blocks.size(), is(1));
@@ -58,11 +60,11 @@ public class DuplicationDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void shouldInsert() {
-    setupData("shouldInsert");
+    db.prepareDbUnit(getClass(), "shouldInsert.xml");
 
     dao.insert(Arrays.asList(new DuplicationUnitDto(1, 2, "bb", 0, 1, 2)));
 
-    checkTables("shouldInsert", "duplications_index");
+    db.assertDbUnit(getClass(), "shouldInsert-result.xml", "duplications_index");
   }
 
 }

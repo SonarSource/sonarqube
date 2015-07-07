@@ -19,25 +19,25 @@
  */
 package org.sonar.db.loadedtemplate;
 
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.db.AbstractDaoTestCase;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class LoadedTemplateDaoTest extends AbstractDaoTestCase {
+public class LoadedTemplateDaoTest {
 
-  private LoadedTemplateDao dao;
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @Before
-  public void createDao() {
-    dao = new LoadedTemplateDao(getMyBatis());
-  }
+  LoadedTemplateDao dao = dbTester.getDbClient().loadedTemplateDao();
 
   @Test
   public void shouldCountByTypeAndKey() {
-    setupData("shouldCountByTypeAndKey");
+    dbTester.prepareDbUnit(getClass(), "shouldCountByTypeAndKey.xml");
+
     assertThat(dao.countByTypeAndKey("DASHBOARD", "HOTSPOTS"), is(1));
     assertThat(dao.countByTypeAndKey("DASHBOARD", "UNKNOWN"), is(0));
     assertThat(dao.countByTypeAndKey("PROFILE", "HOTSPOTS"), is(0));
@@ -45,11 +45,11 @@ public class LoadedTemplateDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void shouldInsert() {
-    setupData("shouldInsert");
+    dbTester.prepareDbUnit(getClass(), "shouldInsert.xml");
 
     LoadedTemplateDto template = new LoadedTemplateDto("SQALE", "DASHBOARD");
     dao.insert(template);
 
-    checkTables("shouldInsert", "loaded_templates");
+    dbTester.assertDbUnit(getClass(), "shouldInsert-result.xml", "loaded_templates");
   }
 }

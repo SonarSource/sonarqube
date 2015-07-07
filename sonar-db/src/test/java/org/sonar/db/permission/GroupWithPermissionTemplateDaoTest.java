@@ -21,27 +21,28 @@
 package org.sonar.db.permission;
 
 import java.util.List;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
-import org.sonar.db.AbstractDaoTestCase;
+import org.sonar.db.DbTester;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class GroupWithPermissionTemplateDaoTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class GroupWithPermissionTemplateDaoTest {
 
   private static final long TEMPLATE_ID = 50L;
 
-  private PermissionTemplateDao dao;
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @Before
-  public void setUp() {
-    dao = new PermissionTemplateDao(getMyBatis(), System2.INSTANCE);
-  }
+  PermissionTemplateDao dao = dbTester.getDbClient().permissionTemplateDao();
 
   @Test
   public void select_groups() {
-    setupData("groups_with_permissions");
+    dbTester.prepareDbUnit(getClass(), "groups_with_permissions.xml");
 
     PermissionQuery query = PermissionQuery.builder().permission("user").build();
     List<GroupWithPermissionDto> result = dao.selectGroups(query, TEMPLATE_ID);
@@ -71,7 +72,7 @@ public class GroupWithPermissionTemplateDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void anyone_group_is_not_returned_when_it_has_no_permission() {
-    setupData("groups_with_permissions");
+    dbTester.prepareDbUnit(getClass(), "groups_with_permissions.xml");
 
     // Anyone group has not the permission 'admin', so it's not returned
     PermissionQuery query = PermissionQuery.builder().permission("admin").build();
@@ -93,7 +94,7 @@ public class GroupWithPermissionTemplateDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void search_by_groups_name() {
-    setupData("groups_with_permissions");
+    dbTester.prepareDbUnit(getClass(), "groups_with_permissions.xml");
 
     List<GroupWithPermissionDto> result = dao.selectGroups(PermissionQuery.builder().permission("user").search("aDMini").build(), TEMPLATE_ID);
     assertThat(result).hasSize(1);
@@ -105,7 +106,7 @@ public class GroupWithPermissionTemplateDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void search_groups_should_be_sorted_by_group_name() {
-    setupData("groups_with_permissions_should_be_sorted_by_group_name");
+    dbTester.prepareDbUnit(getClass(), "groups_with_permissions_should_be_sorted_by_group_name.xml");
 
     List<GroupWithPermissionDto> result = dao.selectGroups(PermissionQuery.builder().permission("user").build(), TEMPLATE_ID);
     assertThat(result).hasSize(4);

@@ -20,7 +20,6 @@
 package org.sonar.db.purge;
 
 import java.util.List;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -43,11 +42,6 @@ public class PurgeDaoTest {
 
   PurgeDao sut = dbTester.getDbClient().purgeDao();
 
-  @Before
-  public void before() {
-    when(system2.now()).thenReturn(1450000000000L);
-  }
-
   @Test
   public void shouldDeleteAbortedBuilds() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteAbortedBuilds.xml");
@@ -62,14 +56,6 @@ public class PurgeDaoTest {
     dbTester.assertDbUnit(getClass(), "shouldPurgeProject-result.xml", "projects", "snapshots");
   }
 
-  private PurgeConfiguration newConfigurationWith30Days() {
-    return new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 30);
-  }
-
-  private PurgeConfiguration newConfigurationWith30Days(System2 system2) {
-    return new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 30, system2);
-  }
-
   @Test
   public void delete_file_sources_of_disabled_resources() {
     dbTester.prepareDbUnit(getClass(), "delete_file_sources_of_disabled_resources.xml");
@@ -80,13 +66,14 @@ public class PurgeDaoTest {
   @Test
   public void shouldDeleteHistoricalDataOfDirectoriesAndFiles() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteHistoricalDataOfDirectoriesAndFiles.xml");
-    sut.purge(new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[] {Scopes.DIRECTORY, Scopes.FILE}, 30), PurgeListener.EMPTY, new PurgeProfiler());
+    sut.purge(new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[]{Scopes.DIRECTORY, Scopes.FILE}, 30), PurgeListener.EMPTY, new PurgeProfiler());
     dbTester.assertDbUnit(getClass(), "shouldDeleteHistoricalDataOfDirectoriesAndFiles-result.xml", "projects", "snapshots");
   }
 
   @Test
   public void disable_resources_without_last_snapshot() {
     dbTester.prepareDbUnit(getClass(), "disable_resources_without_last_snapshot.xml");
+    when(system2.now()).thenReturn(1450000000000L);
     sut.purge(newConfigurationWith30Days(system2), PurgeListener.EMPTY, new PurgeProfiler());
     dbTester.assertDbUnit(getClass(), "disable_resources_without_last_snapshot-result.xml", new String[]{"issue_close_date", "issue_update_date"}, "projects", "snapshots", "issues");
   }
@@ -154,5 +141,13 @@ public class PurgeDaoTest {
       }
     }
     return null;
+  }
+
+  private static PurgeConfiguration newConfigurationWith30Days() {
+    return new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 30);
+  }
+
+  private static PurgeConfiguration newConfigurationWith30Days(System2 system2) {
+    return new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 30, system2);
   }
 }

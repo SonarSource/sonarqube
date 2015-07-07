@@ -20,38 +20,39 @@
 package org.sonar.db.component;
 
 import java.util.Map;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
-import org.sonar.db.AbstractDaoTestCase;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ResourceKeyUpdaterDaoTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class ResourceKeyUpdaterDaoTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private ResourceKeyUpdaterDao dao;
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @Before
-  public void createDao() {
-    dao = new ResourceKeyUpdaterDao(getMyBatis());
-  }
+  ResourceKeyUpdaterDao dao = dbTester.getDbClient().resourceKeyUpdaterDao();
 
   @Test
   public void shouldUpdateKey() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     dao.updateKey(2, "struts:core");
 
-    checkTables("shouldUpdateKey", "projects");
+    dbTester.assertDbUnit(getClass(), "shouldUpdateKey-result.xml", "projects");
   }
 
   @Test
   public void shouldNotUpdateKey() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Impossible to update key: a resource with \"org.struts:struts-ui\" key already exists.");
@@ -61,25 +62,25 @@ public class ResourceKeyUpdaterDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void shouldBulkUpdateKey() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     dao.bulkUpdateKey(1, "org.struts", "org.apache.struts");
 
-    checkTables("shouldBulkUpdateKey", "projects");
+    dbTester.assertDbUnit(getClass(), "shouldBulkUpdateKey-result.xml", "projects");
   }
 
   @Test
   public void shouldBulkUpdateKeyOnOnlyOneSubmodule() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     dao.bulkUpdateKey(1, "struts-ui", "struts-web");
 
-    checkTables("shouldBulkUpdateKeyOnOnlyOneSubmodule", "projects");
+    dbTester.assertDbUnit(getClass(), "shouldBulkUpdateKeyOnOnlyOneSubmodule-result.xml", "projects");
   }
 
   @Test
   public void shouldFailBulkUpdateKeyIfKeyAlreadyExist() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Impossible to update key: a resource with \"foo:struts-core\" key already exists.");
@@ -89,16 +90,16 @@ public class ResourceKeyUpdaterDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void shouldNotUpdateAllSubmodules() {
-    setupData("shouldNotUpdateAllSubmodules");
+    dbTester.prepareDbUnit(getClass(), "shouldNotUpdateAllSubmodules.xml");
 
     dao.bulkUpdateKey(1, "org.struts", "org.apache.struts");
 
-    checkTables("shouldNotUpdateAllSubmodules", "projects");
+    dbTester.assertDbUnit(getClass(), "shouldNotUpdateAllSubmodules-result.xml", "projects");
   }
 
   @Test
   public void shouldCheckModuleKeysBeforeRenaming() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     Map<String, String> checkResults = dao.checkModuleKeysBeforeRenaming(1, "org.struts", "foo");
     assertThat(checkResults.size()).isEqualTo(3);

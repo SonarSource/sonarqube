@@ -22,44 +22,34 @@ package org.sonar.db.issue;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.db.AbstractDaoTestCase;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
+import org.sonar.db.DbTester;
+import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class IssueChangeDaoTest extends AbstractDaoTestCase {
+@Category(DbTests.class)
+public class IssueChangeDaoTest {
 
-  DbSession session;
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  IssueChangeDao dao;
-
-  @Before
-  public void createDao() {
-    session = getMyBatis().openSession(false);
-    dao = new IssueChangeDao(getMyBatis());
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
-  }
+  IssueChangeDao dao = dbTester.getDbClient().issueChangeDao();
 
   @Test
   public void select_comments_by_issues() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    DbSession session = getMyBatis().openSession(false);
-    List<DefaultIssueComment> comments = dao.selectCommentsByIssues(session, Arrays.asList("1000"));
-    MyBatis.closeQuietly(session);
+    List<DefaultIssueComment> comments = dao.selectCommentsByIssues(dbTester.getSession(), Arrays.asList("1000"));
     assertThat(comments).hasSize(2);
 
     // chronological order
@@ -74,15 +64,13 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_comments_by_issues_on_huge_number_of_issues() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    DbSession session = getMyBatis().openSession(false);
     List<String> hugeNbOfIssues = newArrayList();
     for (int i = 0; i < 4500; i++) {
       hugeNbOfIssues.add("ABCD" + i);
     }
-    List<DefaultIssueComment> comments = dao.selectCommentsByIssues(session, hugeNbOfIssues);
-    MyBatis.closeQuietly(session);
+    List<DefaultIssueComment> comments = dao.selectCommentsByIssues(dbTester.getSession(), hugeNbOfIssues);
 
     // The goal of this test is only to check that the query do no fail, not to check the number of results
     assertThat(comments).isEmpty();
@@ -90,7 +78,7 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_comment_by_key() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     DefaultIssueComment comment = dao.selectCommentByKey("FGHIJ");
     assertThat(comment).isNotNull();
@@ -103,7 +91,7 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_issue_changelog_from_issue_key() {
-    setupData("shared");
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     List<FieldDiffs> changelog = dao.selectChangelogByIssue("1000");
     assertThat(changelog).hasSize(1);
@@ -114,7 +102,7 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void selectChangelogOfNonClosedIssuesByComponent() {
-    setupData("selectChangelogOfNonClosedIssuesByComponent");
+    dbTester.prepareDbUnit(getClass(), "selectChangelogOfNonClosedIssuesByComponent.xml");
 
     List<IssueChangeDto> dtos = dao.selectChangelogOfNonClosedIssuesByComponent("FILE_1");
     assertThat(dtos).extracting("id").containsExactly(100L, 103L);
@@ -122,6 +110,8 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void select_comments_by_issues_empty_input() {
+    dbTester.truncateTables();
+
     // no need to connect to db
     DbSession session = mock(DbSession.class);
     List<DefaultIssueComment> comments = dao.selectCommentsByIssues(session, Collections.<String>emptyList());
@@ -131,23 +121,23 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void delete() {
-    setupData("delete");
+    dbTester.prepareDbUnit(getClass(), "delete.xml");
 
     assertThat(dao.delete("COMMENT-2")).isTrue();
 
-    checkTable("delete", "issue_changes");
+    dbTester.assertDbUnit(getClass(), "delete-result.xml", "issue_changes");
   }
 
   @Test
   public void delete_unknown_key() {
-    setupData("delete");
+    dbTester.prepareDbUnit(getClass(), "delete.xml");
 
     assertThat(dao.delete("UNKNOWN")).isFalse();
   }
 
   @Test
   public void insert() {
-    setupData("empty");
+    dbTester.truncateTables();
 
     IssueChangeDto changeDto = new IssueChangeDto()
       .setKey("EFGH")
@@ -159,15 +149,15 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
       .setUpdatedAt(1_501_000_000_000L)
       .setIssueChangeCreationDate(1_502_000_000_000L);
 
-    dao.insert(session, changeDto);
-    session.commit();
+    dao.insert(dbTester.getSession(), changeDto);
+    dbTester.getSession().commit();
 
-    checkTable("insert", "issue_changes");
+    dbTester.assertDbUnit(getClass(), "insert-result.xml", new String[]{"id"}, "issue_changes");
   }
 
   @Test
   public void update() {
-    setupData("update");
+    dbTester.prepareDbUnit(getClass(), "update.xml");
 
     IssueChangeDto change = new IssueChangeDto();
     change.setKey("COMMENT-2");
@@ -178,12 +168,12 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
 
     assertThat(dao.update(change)).isTrue();
 
-    checkTable("update", "issue_changes");
+    dbTester.assertDbUnit(getClass(), "update-result.xml", "issue_changes");
   }
 
   @Test
   public void update_unknown_key() {
-    setupData("update");
+    dbTester.prepareDbUnit(getClass(), "update.xml");
 
     IssueChangeDto change = new IssueChangeDto();
     change.setKey("UNKNOWN");
