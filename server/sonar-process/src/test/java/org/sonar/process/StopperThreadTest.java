@@ -26,25 +26,21 @@ import org.mockito.stubbing.Answer;
 import static org.mockito.Mockito.*;
 
 public class StopperThreadTest {
+  ProcessCommands commands = mock(ProcessCommands.class);
+  Monitored monitored = mock(Monitored.class);
 
-  @Test(timeout = 3000L)
-  public void stop_in_a_timely_fashion() throws InterruptedException {
-    ProcessCommands commands = mock(ProcessCommands.class);
-    Monitored monitored = mock(Monitored.class);
-
+  @Test
+  public void stop_in_a_timely_fashion() {
     // max stop timeout is 5 seconds, but test fails after 3 seconds
     // -> guarantees that stop is immediate
     StopperThread stopper = new StopperThread(monitored, commands, 5000L);
     stopper.start();
-    stopper.join();
 
-    verify(monitored).stop();
+    verify(monitored, timeout(3000)).stop();
   }
 
-  @Test(timeout = 3000L)
-  public void stop_timeout() throws InterruptedException {
-    ProcessCommands commands = mock(ProcessCommands.class);
-    Monitored monitored = mock(Monitored.class);
+  @Test
+  public void stop_timeout() {
     doAnswer(new Answer() {
       @Override
       public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -56,8 +52,7 @@ public class StopperThreadTest {
     // max stop timeout is 100 milliseconds
     StopperThread stopper = new StopperThread(monitored, commands, 100L);
     stopper.start();
-    stopper.join();
 
-    verify(monitored).stop();
+    verify(monitored, timeout(3000)).stop();
   }
 }
