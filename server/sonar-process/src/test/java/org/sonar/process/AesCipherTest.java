@@ -48,7 +48,7 @@ public class AesCipherTest {
     String key = cipher.generateRandomSecretKey();
 
     assertThat(StringUtils.isNotBlank(key)).isTrue();
-    assertThat(Base64.isArrayByteBase64(key.getBytes())).isTrue();
+    assertThat(Base64.isBase64(key.getBytes())).isTrue();
   }
 
   @Test
@@ -58,7 +58,7 @@ public class AesCipherTest {
     String encryptedText = cipher.encrypt("this is a secret");
 
     assertThat(StringUtils.isNotBlank(encryptedText)).isTrue();
-    assertThat(Base64.isArrayByteBase64(encryptedText.getBytes())).isTrue();
+    assertThat(Base64.isBase64(encryptedText.getBytes())).isTrue();
   }
 
   @Test

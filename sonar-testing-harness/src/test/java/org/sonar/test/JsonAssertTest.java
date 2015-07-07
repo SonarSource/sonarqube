@@ -72,7 +72,7 @@ public class JsonAssertTest {
 
   @Test(expected = IllegalStateException.class)
   public void fail_to_load_url() throws Exception {
-    assertJson(new File("target/missing").toURL());
+    assertJson(new File("target/missing").toURI().toURL());
   }
 
   @Test

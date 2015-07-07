@@ -19,14 +19,14 @@
  */
 package org.sonar.duplications.junit;
 
-import org.junit.rules.TestWatchman;
-import org.junit.runners.model.FrameworkMethod;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
-public class TestNamePrinter extends TestWatchman {
+public class TestNamePrinter extends TestWatcher {
 
   @Override
-  public void starting(FrameworkMethod method) {
-    System.out.println("Executing " + method.getName());
+  protected void starting(Description description) {
+    System.out.println("Executing " + description.getMethodName());
   }
 
 }
