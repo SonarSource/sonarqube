@@ -23,7 +23,7 @@
     {
       "key": "visualstudio",
       "name": "Analysis Bootstrapper for Visual Studio Projects",
-      "category": "Languages",
+      "category": "Integration",
       "description": "Bootstraps the analysis from Visual Studio solution and project files.",
       "license": "GNU LGPL 3",
       "organizationName": "SonarSource",

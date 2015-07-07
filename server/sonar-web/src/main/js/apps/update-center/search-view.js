@@ -10,7 +10,12 @@ define([
 
       'submit #update-center-search-form': 'onFormSubmit',
       'search #update-center-search-query': 'debouncedOnKeyUp',
-      'keyup #update-center-search-query': 'debouncedOnKeyUp'
+      'keyup #update-center-search-query': 'debouncedOnKeyUp',
+      'change #update-center-search-query': 'debouncedOnKeyUp'
+    },
+
+    collectionEvents: {
+      'filter': 'onFilter'
     },
 
     initialize: function () {
@@ -55,6 +60,12 @@ define([
       setTimeout(function () {
         that.$('#update-center-search-query').focus();
       }, 0);
+    },
+
+    onFilter: function (model) {
+      var q = model.get('category');
+      this.$('#update-center-search-query').val(q)
+      this.search(q);
     },
 
     serializeData: function () {

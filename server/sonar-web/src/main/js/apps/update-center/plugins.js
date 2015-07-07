@@ -146,7 +146,6 @@ define([
             plugins.set(that._installed);
             plugins.set(that._updates, { remove: true });
             plugins.set(that._pending, { add: false, remove: false });
-            plugins.add(that._systemUpdates);
             that.reset(plugins.models);
           });
     },

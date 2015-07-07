@@ -22,7 +22,8 @@ define([
       'click .js-install': 'install',
       'click .js-update': 'update',
       'click .js-uninstall': 'uninstall',
-      'change .js-terms': 'onTermsChange'
+      'change .js-terms': 'onTermsChange',
+      'click .js-plugin-category': 'onCategoryClick'
     },
 
     getTemplate: function () {
@@ -86,6 +87,11 @@ define([
     onTermsChange: function () {
       var isAccepted = this.$('.js-terms').is(':checked');
       this.$('.js-install').prop('disabled', !isAccepted);
+    },
+
+    onCategoryClick: function (e) {
+      e.preventDefault();
+      this.model.trigger('filter', this.model);
     }
   });
 

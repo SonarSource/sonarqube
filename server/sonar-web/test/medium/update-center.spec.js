@@ -155,6 +155,18 @@ define(function (require) {
           .checkElementInclude('li:not(.hidden)[data-id] .js-plugin-name', 'JavaScript');
     });
 
+    bdd.it('should search by category on click', function () {
+      return this.remote
+          .open('#available')
+          .mockFromString('/api/l10n/index', '{}')
+          .mockFromFile('/api/plugins/available', 'update-center-spec/available.json')
+          .mockFromFile('/api/plugins/pending', 'update-center-spec/pending.json')
+          .startApp('update-center', { urlRoot: '/test/medium/base.html' })
+          .checkElementCount('li[data-id]:not(.hidden)', 3)
+          .clickElement('li[data-id="abap"] .js-plugin-category')
+          .checkElementCount('li[data-id]:not(.hidden)', 2);
+    });
+
     bdd.it('should show changelog of plugin update', function () {
       return this.remote
           .open('#installed')
