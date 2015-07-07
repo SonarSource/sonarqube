@@ -20,7 +20,6 @@
 
 package org.sonar.server.issue;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.issue.DefaultIssue;
@@ -34,7 +33,6 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
 import org.sonar.db.AbstractDaoTestCase;
-import org.sonar.db.DbSession;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;

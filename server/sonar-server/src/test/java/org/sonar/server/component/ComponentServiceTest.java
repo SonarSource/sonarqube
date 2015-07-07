@@ -26,7 +26,6 @@ import java.util.Map;
 import org.assertj.core.api.Fail;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;

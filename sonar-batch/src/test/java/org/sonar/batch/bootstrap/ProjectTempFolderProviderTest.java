@@ -30,7 +30,6 @@ import org.sonar.api.CoreProperties;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

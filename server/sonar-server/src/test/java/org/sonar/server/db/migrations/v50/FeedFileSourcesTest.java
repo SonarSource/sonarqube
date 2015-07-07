@@ -22,7 +22,6 @@ package org.sonar.server.db.migrations.v50;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;

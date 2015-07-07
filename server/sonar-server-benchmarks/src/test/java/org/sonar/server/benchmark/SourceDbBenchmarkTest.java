@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Timer;
 import java.util.concurrent.atomic.AtomicLong;
-import org.apache.commons.dbutils.DbUtils;
+
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;

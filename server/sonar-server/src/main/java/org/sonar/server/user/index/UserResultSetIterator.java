@@ -26,7 +26,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.db.DbClient;
 import org.sonar.db.ResultSetIterator;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;

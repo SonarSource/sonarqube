@@ -21,7 +21,6 @@ package org.sonar.server.issue.index;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.dbutils.DbUtils;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.db.DbSession;
@@ -30,7 +29,6 @@ import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 
-import java.sql.Connection;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;

@@ -25,8 +25,6 @@ import org.junit.rules.ExternalResource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.server.exceptions.NotFoundException;
 
-import static java.util.Objects.requireNonNull;
-
 public class RuleRepositoryRule extends ExternalResource implements RuleRepository {
 
   private final Map<RuleKey, Rule> rulesByKey = new HashMap<>();

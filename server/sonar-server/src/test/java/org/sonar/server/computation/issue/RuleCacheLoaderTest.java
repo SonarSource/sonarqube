@@ -21,7 +21,6 @@ package org.sonar.server.computation.issue;
 
 import java.util.Collections;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.rule.RuleKey;

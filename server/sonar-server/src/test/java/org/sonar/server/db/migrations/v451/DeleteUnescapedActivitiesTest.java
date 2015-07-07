@@ -19,7 +19,6 @@
  */
 package org.sonar.server.db.migrations.v451;
 
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;

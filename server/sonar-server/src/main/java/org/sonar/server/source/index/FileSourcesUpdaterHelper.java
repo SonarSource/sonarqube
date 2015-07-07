@@ -21,7 +21,7 @@
 package org.sonar.server.source.index;
 
 import com.google.common.base.Joiner;
-import java.sql.Connection;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;

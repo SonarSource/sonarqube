@@ -37,7 +37,6 @@ import org.sonar.db.rule.RuleTesting;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 
 public class DebtAggregatorTest {

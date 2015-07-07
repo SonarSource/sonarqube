@@ -20,7 +20,6 @@
 package org.sonar.server.db.migrations.v51;
 
 import org.apache.commons.dbutils.DbUtils;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;

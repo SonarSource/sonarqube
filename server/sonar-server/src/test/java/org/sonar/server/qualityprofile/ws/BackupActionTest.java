@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile.ws;
 import java.io.PrintWriter;
 import java.io.Writer;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;

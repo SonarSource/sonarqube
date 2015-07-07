@@ -21,13 +21,11 @@ package org.sonar.api.batch.rule.internal;
 
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.batch.debt.DebtRemediationFunction;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.utils.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

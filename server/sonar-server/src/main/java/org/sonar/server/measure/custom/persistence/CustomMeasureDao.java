@@ -30,7 +30,6 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.measure.CustomMeasureDto;
 import org.sonar.db.measure.CustomMeasureMapper;
 import org.sonar.db.Dao;
-import org.sonar.db.DaoUtils;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;

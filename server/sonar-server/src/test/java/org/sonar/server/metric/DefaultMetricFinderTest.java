@@ -21,7 +21,6 @@ package org.sonar.server.metric;
 
 import java.util.Arrays;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
