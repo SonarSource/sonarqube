@@ -64,7 +64,7 @@ define([
 
     onFilter: function (model) {
       var q = model.get('category');
-      this.$('#update-center-search-query').val(q)
+      this.$('#update-center-search-query').val(q);
       this.search(q);
     },
 
