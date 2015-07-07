@@ -68,7 +68,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
   PersistDuplicationsStep sut;
 
   @Before
-  public void setup() throws Exception {
+  public void setup() {
     dbTester.truncateTables();
     session = dbTester.myBatis().openSession(false);
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new MeasureDao(), new MetricDao());
@@ -128,7 +128,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void persist_duplications_on_same_file_linked_on_a_module() throws Exception {
+  public void persist_duplications_on_same_file_linked_on_a_module() {
     Component file = DumbComponent.builder(Component.Type.FILE, 3).setUuid("CDEF").setKey("MODULE_KEY:file").build();
     Component module = DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(file).build();
     Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(module).build();

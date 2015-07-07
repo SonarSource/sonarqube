@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class MigrationStepModuleTest {
   @Test
-  public void verify_count_of_added_MigrationStep_types() throws Exception {
+  public void verify_count_of_added_MigrationStep_types() {
     ComponentContainer container = new ComponentContainer();
     new MigrationStepModule().configure(container);
     assertThat(container.size()).isEqualTo(55);

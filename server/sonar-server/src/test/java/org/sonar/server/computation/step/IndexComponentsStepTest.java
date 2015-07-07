@@ -48,7 +48,7 @@ public class IndexComponentsStepTest extends BaseStepTest {
   IndexComponentsStep sut = new IndexComponentsStep(resourceIndexDao, dbIdsRepository, treeRootHolder);
 
   @Test
-  public void call_indexProject_of_dao() throws IOException {
+  public void call_indexProject_of_dao() {
     Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("PROJECT_UUID").setKey(PROJECT_KEY).build();
     dbIdsRepository.setComponentId(project, 123L);
     treeRootHolder.setRoot(project);

@@ -74,7 +74,7 @@ public class SqaleMeasuresStepTest {
   private SqaleMeasuresStep underTest = new SqaleMeasuresStep(treeRootHolder, metricRepository, measureRepository, sqaleRatingSettings);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     // assumes SQALE rating configuration is consistent
     when(sqaleRatingSettings.getRatingGrid()).thenReturn(RATING_GRID);
     when(sqaleRatingSettings.getSizeMetricKey(LANGUAGE_KEY_1)).thenReturn(METRIC_KEY_1);

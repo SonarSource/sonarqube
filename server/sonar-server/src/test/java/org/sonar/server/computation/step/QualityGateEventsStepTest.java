@@ -74,7 +74,7 @@ public class QualityGateEventsStepTest {
   private QualityGateEventsStep underTest = new QualityGateEventsStep(treeRootHolder, metricRepository, measureRepository, eventRepository, notificationManager);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(metricRepository.getByKey(ALERT_STATUS_KEY)).thenReturn(alertStatusMetric);
     treeRootHolder.setRoot(PROJECT_COMPONENT);
   }

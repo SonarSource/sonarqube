@@ -49,7 +49,7 @@ public class ActivityManagerTest {
   ActivityManager underTest;
 
   @Before
-  public void setup() throws Exception {
+  public void setup() {
     dbTester.truncateTables();
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao());
 
@@ -57,7 +57,7 @@ public class ActivityManagerTest {
   }
 
   @Test
-  public void process_existing_project() throws Exception {
+  public void process_existing_project() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     underTest.saveActivity(reportDto);
@@ -72,7 +72,7 @@ public class ActivityManagerTest {
   }
 
   @Test
-  public void process_new_project() throws Exception {
+  public void process_new_project() {
     underTest.saveActivity(reportDto);
 
     // execute only the steps supporting the project qualifier

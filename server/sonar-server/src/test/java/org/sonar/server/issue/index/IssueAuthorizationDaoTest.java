@@ -41,7 +41,7 @@ public class IssueAuthorizationDaoTest {
   IssueAuthorizationDao dao = new IssueAuthorizationDao();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
   }
 

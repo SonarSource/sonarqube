@@ -62,7 +62,7 @@ public class CharacteristicTest {
   }
 
   @Test
-  public void creating_a_new_characteristic_with_null_key_throws_a_NPE() throws Exception {
+  public void creating_a_new_characteristic_with_null_key_throws_a_NPE() {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("key cannot be null");
 

@@ -45,7 +45,7 @@ public class MetricRepositoryImplTest {
   private MetricRepositoryImpl underTest = new MetricRepositoryImpl(dbClient);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
   }
 

@@ -37,7 +37,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
   FileSourceDao sut = dbTester.getDbClient().fileSourceDao();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
   }
 

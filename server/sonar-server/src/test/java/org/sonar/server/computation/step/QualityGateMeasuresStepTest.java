@@ -80,7 +80,7 @@ public class QualityGateMeasuresStepTest {
   private QualityGateMeasuresStep underTest = new QualityGateMeasuresStep(treeRootHolder, qualityGateHolder, measureRepository, metricRepository, resultTextConverter);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     treeRootHolder.setRoot(PROJECT_COMPONENT);
 
     when(metricRepository.getByKey(CoreMetrics.ALERT_STATUS_KEY)).thenReturn(ALERT_STATUS_METRIC);

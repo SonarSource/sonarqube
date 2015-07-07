@@ -87,7 +87,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void do_not_send_notifications_if_no_subscribers() throws IOException {
+  public void do_not_send_notifications_if_no_subscribers() {
     when(notifService.hasProjectSubscribersForTypes(PROJECT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(false);
 
     sut.execute();

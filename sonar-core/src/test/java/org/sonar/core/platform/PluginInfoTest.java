@@ -209,7 +209,7 @@ public class PluginInfoTest {
    * it as base plugin anymore
    */
   @Test
-  public void l10n_plugins_should_not_extend_english_plugin() throws Exception {
+  public void l10n_plugins_should_not_extend_english_plugin() {
     PluginInfo pluginInfo = new PluginInfo("l10nfr").setBasePlugin("l10nen");
     assertThat(pluginInfo.getBasePlugin()).isNull();
 

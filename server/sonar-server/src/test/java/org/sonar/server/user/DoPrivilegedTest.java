@@ -34,7 +34,7 @@ public class DoPrivilegedTest {
   private MockUserSession session = new MockUserSession(LOGIN);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     threadLocalUserSession.set(session);
   }
 

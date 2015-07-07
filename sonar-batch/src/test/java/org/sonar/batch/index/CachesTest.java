@@ -45,7 +45,7 @@ public class CachesTest extends AbstractCachesTest {
   }
 
   @Test
-  public void should_clean_resources() throws PersistitException {
+  public void should_clean_resources() {
     Cache<String> c = caches.<String>createCache("test1");
     for (int i = 0; i < 1_000_000; i++) {
       c.put("a" + i, "a" + i);

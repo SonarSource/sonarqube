@@ -65,14 +65,14 @@ public class ComputeFormulaMeasuresStepTest {
   ComputeFormulaMeasuresStep sut;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     FormulaRepository formulaRepository = mock(FormulaRepository.class);
     when(formulaRepository.getFormulas()).thenReturn(Lists.<Formula>newArrayList(new FakeFormula()));
     sut = new ComputeFormulaMeasuresStep(treeRootHolder, measureRepository, metricRepository, formulaRepository);
   }
 
   @Test
-  public void add_measures() throws Exception {
+  public void add_measures() {
     DumbComponent project = DumbComponent.builder(PROJECT, 1)
       .addChildren(
         DumbComponent.builder(MODULE, 11)
@@ -111,7 +111,7 @@ public class ComputeFormulaMeasuresStepTest {
   }
 
   @Test
-  public void add_no_measure() throws Exception {
+  public void add_no_measure() {
     DumbComponent project = DumbComponent.builder(PROJECT, 1)
       .addChildren(
         DumbComponent.builder(MODULE, 11)
@@ -134,7 +134,7 @@ public class ComputeFormulaMeasuresStepTest {
   }
 
   @Test
-  public void add_no_measure_when_no_file() throws Exception {
+  public void add_no_measure_when_no_file() {
     DumbComponent project = DumbComponent.builder(PROJECT, 1)
       .addChildren(
         DumbComponent.builder(MODULE, 11)
@@ -153,7 +153,7 @@ public class ComputeFormulaMeasuresStepTest {
   }
 
   @Test
-  public void add_no_measure_on_module_without_file() throws Exception {
+  public void add_no_measure_on_module_without_file() {
     DumbComponent project = DumbComponent.builder(PROJECT, 1)
       .addChildren(
         DumbComponent.builder(MODULE, 11)

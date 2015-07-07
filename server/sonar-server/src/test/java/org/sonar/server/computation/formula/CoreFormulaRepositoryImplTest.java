@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CoreFormulaRepositoryImplTest {
 
   @Test
-  public void check_formulas_are_not_empty() throws Exception {
+  public void check_formulas_are_not_empty() {
     assertThat(new CoreFormulaRepositoryImpl().getFormulas()).isNotEmpty();
 
   }

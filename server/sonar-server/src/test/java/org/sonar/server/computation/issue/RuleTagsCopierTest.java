@@ -41,7 +41,7 @@ public class RuleTagsCopierTest {
   RuleTagsCopier underTest = new RuleTagsCopier(ruleRepository);
 
   @Test
-  public void copy_tags_if_new_rule() throws Exception {
+  public void copy_tags_if_new_rule() {
     rule.setTags(Sets.newHashSet("bug", "performance"));
     issue.setNew(true);
 
@@ -51,7 +51,7 @@ public class RuleTagsCopierTest {
   }
 
   @Test
-  public void do_not_copy_tags_if_existing_rule() throws Exception {
+  public void do_not_copy_tags_if_existing_rule() {
     rule.setTags(Sets.newHashSet("bug", "performance"));
     issue.setNew(false).setTags(asList("misra"));
 
@@ -61,7 +61,7 @@ public class RuleTagsCopierTest {
   }
 
   @Test
-  public void do_not_copy_tags_if_existing_rule_without_tags() throws Exception {
+  public void do_not_copy_tags_if_existing_rule_without_tags() {
     rule.setTags(Sets.newHashSet("bug", "performance"));
     issue.setNew(false).setTags(Collections.<String>emptyList());
 

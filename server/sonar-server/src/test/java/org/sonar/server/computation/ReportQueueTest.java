@@ -80,7 +80,7 @@ public class ReportQueueTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     session.close();
   }
 

@@ -34,7 +34,7 @@ public class ActionPlanDaoTest extends AbstractDaoTestCase {
   ActionPlanDao dao = dbTester.getDbClient().actionPlanDao();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
   }
 

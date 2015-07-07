@@ -51,12 +51,12 @@ public class DefaultAssigneeTest {
   }
 
   @Test
-  public void no_default_assignee() throws Exception {
+  public void no_default_assignee() {
     assertThat(underTest.getLogin()).isNull();
   }
 
   @Test
-  public void default_assignee() throws Exception {
+  public void default_assignee() {
     settings.setProperty(CoreProperties.DEFAULT_ISSUE_ASSIGNEE, "erik");
     when(userIndex.getNullableByLogin("erik")).thenReturn(new UserDoc().setLogin("erik"));
 
@@ -64,7 +64,7 @@ public class DefaultAssigneeTest {
   }
 
   @Test
-  public void configured_login_does_not_exist() throws Exception {
+  public void configured_login_does_not_exist() {
     settings.setProperty(CoreProperties.DEFAULT_ISSUE_ASSIGNEE, "erik");
     when(userIndex.getNullableByLogin("erik")).thenReturn(null);
 

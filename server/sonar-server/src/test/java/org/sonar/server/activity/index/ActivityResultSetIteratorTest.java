@@ -40,7 +40,7 @@ public class ActivityResultSetIteratorTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
   }
 

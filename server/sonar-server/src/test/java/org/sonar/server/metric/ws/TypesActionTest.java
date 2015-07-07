@@ -32,7 +32,7 @@ public class TypesActionTest {
   WsTester ws;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     ws = new WsTester(new MetricsWs(new TypesAction()));
   }
 

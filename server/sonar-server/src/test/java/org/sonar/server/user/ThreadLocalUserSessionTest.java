@@ -42,7 +42,7 @@ public class ThreadLocalUserSessionTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     // clean up for next test
     threadLocalUserSession.remove();
   }

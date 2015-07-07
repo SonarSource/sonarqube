@@ -91,7 +91,7 @@ public class UpdateActionTest {
   }
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbClient = new DbClient(db.database(), db.myBatis(), new CustomMeasureDao(), new ComponentDao(), new MetricDao());
     dbSession = dbClient.openSession(false);
     db.truncateTables();

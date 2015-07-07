@@ -65,13 +65,13 @@ public class CustomMeasuresCopyStepTest {
   CustomMeasuresCopyStep sut;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new CustomMeasureDao());
     sut = new CustomMeasuresCopyStep(treeRootHolder, dbClient, metricRepository, measureRepository);
   }
 
   @Test
-  public void copy_custom_measures() throws Exception {
+  public void copy_custom_measures() {
     dbTester.prepareDbUnit(getClass(), "custom-measures.xml");
 
     // custom metrics

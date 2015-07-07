@@ -47,7 +47,7 @@ public class RubyUserSessionTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     // clean up for next test
     threadLocalUserSession.remove();
   }

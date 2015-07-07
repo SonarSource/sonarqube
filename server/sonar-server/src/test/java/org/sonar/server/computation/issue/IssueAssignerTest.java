@@ -50,7 +50,7 @@ public class IssueAssignerTest {
   IssueAssigner underTest;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     esTester.truncateIndices();
     underTest = new IssueAssigner(new SourceLineIndex(esTester.client()), reportReader, scmAccountToUser, defaultAssignee);
   }

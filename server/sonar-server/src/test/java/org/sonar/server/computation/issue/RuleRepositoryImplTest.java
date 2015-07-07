@@ -34,7 +34,7 @@ public class RuleRepositoryImplTest {
   RuleRepositoryImpl underTest = new RuleRepositoryImpl(cacheLoader);
 
   @Test
-  public void getByKey() throws Exception {
+  public void getByKey() {
     when(cacheLoader.load(XOO_X1)).thenReturn(new DumbRule(XOO_X1));
 
     assertThat(underTest.getByKey(XOO_X1).getKey()).isEqualTo(XOO_X1);

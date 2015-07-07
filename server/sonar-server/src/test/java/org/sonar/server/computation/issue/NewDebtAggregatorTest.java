@@ -99,7 +99,7 @@ public class NewDebtAggregatorTest {
   }
 
   @Test
-  public void no_measures_if_no_periods() throws Exception {
+  public void no_measures_if_no_periods() {
     periodsHolder.setPeriods();
     DefaultIssue unresolved = new DefaultIssue().setDebt(Duration.create(10));
     verifyZeroInteractions(calculator);

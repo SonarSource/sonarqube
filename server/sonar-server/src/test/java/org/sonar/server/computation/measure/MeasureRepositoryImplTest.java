@@ -101,7 +101,7 @@ public class MeasureRepositoryImplTest {
   private DbSession dbSession;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(metric1.getKey()).thenReturn(METRIC_KEY_1);
     when(metric1.getType()).thenReturn(Metric.MetricType.STRING);
     when(metric2.getKey()).thenReturn(METRIC_KEY_2);
@@ -113,7 +113,7 @@ public class MeasureRepositoryImplTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     if (dbSession != null) {
       dbSession.close();
     }

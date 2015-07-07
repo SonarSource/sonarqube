@@ -96,7 +96,7 @@ public class BulkDeleteActionTest {
   ResourceType resourceType;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     ComponentDao componentDao = new ComponentDao();
     ResourceDao resourceDao = new ResourceDao(db.myBatis(), System2.INSTANCE);
     PurgeDao purgeDao = new PurgeDao(db.myBatis(), resourceDao, System2.INSTANCE);
@@ -114,7 +114,7 @@ public class BulkDeleteActionTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     dbSession.close();
   }
 

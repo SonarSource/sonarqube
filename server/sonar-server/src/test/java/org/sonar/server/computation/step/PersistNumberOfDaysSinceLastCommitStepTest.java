@@ -68,7 +68,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   LanguageRepository languageRepository;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     db.truncateTables();
     dbClient = new DbClient(db.database(), db.myBatis(), new MeasureDao());
     sourceLineIndex = mock(SourceLineIndex.class);

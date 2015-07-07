@@ -50,7 +50,7 @@ public class TestResultSetIteratorTest {
   TestResultSetIterator sut;
 
   @After
-  public void after() throws Exception {
+  public void after() {
     if (sut != null) {
       sut.close();
     }

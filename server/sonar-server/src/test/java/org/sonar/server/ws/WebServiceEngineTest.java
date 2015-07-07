@@ -291,7 +291,7 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void should_handle_headers() throws Exception {
+  public void should_handle_headers() {
     ServletResponse response = new ServletResponse();
     String name = "Content-Disposition";
     String value = "attachment; filename=sonarqube.zip";

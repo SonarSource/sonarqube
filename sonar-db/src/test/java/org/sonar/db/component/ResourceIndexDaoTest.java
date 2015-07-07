@@ -33,7 +33,7 @@ public class ResourceIndexDaoTest extends AbstractDaoTestCase {
   ResourceIndexDao dao = dbTester.getDbClient().componentIndexDao();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
   }
 
@@ -74,7 +74,7 @@ public class ResourceIndexDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void shouldNotIndexPackages() throws SQLException {
+  public void shouldNotIndexPackages() {
     setupData("shouldNotIndexPackages");
 
     dao.indexProject(1);

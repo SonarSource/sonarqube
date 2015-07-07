@@ -63,7 +63,7 @@ public class AverageFormulaStepTest {
   ComputeFormulaMeasuresStep sut;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     FormulaRepository formulaRepository = mock(FormulaRepository.class);
     when(formulaRepository.getFormulas()).thenReturn(Lists.<Formula>newArrayList(
       AverageFormula.Builder.newBuilder()
@@ -75,7 +75,7 @@ public class AverageFormulaStepTest {
   }
 
   @Test
-  public void add_measures() throws Exception {
+  public void add_measures() {
     DumbComponent project = builder(PROJECT, 1)
       .addChildren(
         builder(MODULE, 11)

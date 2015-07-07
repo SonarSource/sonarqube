@@ -82,7 +82,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   ApplyPermissionsStep step;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
     esTester.truncateIndices();
 
@@ -103,12 +103,12 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     dbSession.close();
   }
 
   @Test
-  public void grant_permission() throws Exception {
+  public void grant_permission() {
     ComponentDto projectDto = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
     dbClient.componentDao().insert(dbSession, projectDto);
 
@@ -136,7 +136,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void nothing_to_do() throws Exception {
+  public void nothing_to_do() {
     long authorizationUpdatedAt = 1000L;
 
     ComponentDto projectDto = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY).setAuthorizationUpdatedAt(authorizationUpdatedAt);

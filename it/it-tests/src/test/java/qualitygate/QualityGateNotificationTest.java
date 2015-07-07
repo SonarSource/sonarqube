@@ -43,7 +43,7 @@ public class QualityGateNotificationTest {
     .build();
 
   @Before
-  public void cleanUp() throws Exception {
+  public void cleanUp() {
     orchestrator.resetData();
   }
 

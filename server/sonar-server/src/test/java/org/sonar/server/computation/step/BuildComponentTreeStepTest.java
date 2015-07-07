@@ -52,7 +52,7 @@ public class BuildComponentTreeStepTest {
   private BuildComponentTreeStep underTest = new BuildComponentTreeStep(reportReader, treeRootHolder);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     reportReader.setMetadata(Metadata.newBuilder().setRootComponentRef(ROOT_REF).build());
   }
 

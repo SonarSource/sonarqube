@@ -80,7 +80,7 @@ public class MeasureCacheTest extends AbstractCachesTest {
   }
 
   @Test
-  public void should_add_measure_with_big_data() throws InterruptedException {
+  public void should_add_measure_with_big_data() {
     Project p = new Project("struts");
 
     assertThat(measureCache.entries()).hasSize(0);

@@ -169,7 +169,7 @@ public class SnapshotDaoTest {
   }
 
   @Test
-  public void select_previous_version_snapshots() throws Exception {
+  public void select_previous_version_snapshots() {
     db.prepareDbUnit(getClass(), "select_previous_version_snapshots.xml");
 
     List<SnapshotDto> snapshots = sut.selectPreviousVersionSnapshots(session, 1L, "1.2-SNAPSHOT");

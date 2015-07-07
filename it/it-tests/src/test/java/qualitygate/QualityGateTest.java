@@ -38,7 +38,7 @@ public class QualityGateTest {
     .build();
 
   @Before
-  public void cleanUp() throws Exception {
+  public void cleanUp() {
     orchestrator.resetData();
     provisionnedProjectId = Long.parseLong(orchestrator.getServer().adminWsClient().projectClient().create(NewProject.create().key(PROJECT_KEY).name("Sample")).id());
   }

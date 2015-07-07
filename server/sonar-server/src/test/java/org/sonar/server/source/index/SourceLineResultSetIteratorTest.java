@@ -42,7 +42,7 @@ public class SourceLineResultSetIteratorTest {
 
   SourceLineResultSetIterator iterator;
 
-  public void after() throws Exception {
+  public void after() {
     if (iterator != null) {
       iterator.close();
     }

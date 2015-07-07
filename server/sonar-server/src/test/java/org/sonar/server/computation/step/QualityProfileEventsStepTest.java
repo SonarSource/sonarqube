@@ -83,7 +83,7 @@ public class QualityProfileEventsStepTest {
   private QualityProfileEventsStep underTest = new QualityProfileEventsStep(treeRootHolder, metricRepository, measureRepository, languageRepository, eventRepository);
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     when(metricRepository.getByKey(CoreMetrics.QUALITY_PROFILES_KEY)).thenReturn(qualityProfileMetric);
     treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("uuid").setKey("key").build());
   }

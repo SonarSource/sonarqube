@@ -498,7 +498,7 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void select_ghost_projects() throws Exception {
+  public void select_ghost_projects() {
     db.prepareDbUnit(getClass(), "select_ghost_projects.xml");
 
     List<ComponentDto> result = sut.selectGhostProjects(session, null, new SearchOptions());

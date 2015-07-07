@@ -63,7 +63,7 @@ public class DeleteActionTest {
   MetricDao metricDao;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbClient = new DbClient(db.database(), db.myBatis(), new MetricDao(), new CustomMeasureDao());
     dbSession = dbClient.openSession(false);
     db.truncateTables();
@@ -73,7 +73,7 @@ public class DeleteActionTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     dbSession.close();
   }
 

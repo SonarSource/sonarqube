@@ -86,7 +86,7 @@ public class PersistTestsStepTest extends BaseStepTest {
   long now = 123456789L;
 
   @Before
-  public void setup() throws Exception {
+  public void setup() {
     db.truncateTables();
     session = db.myBatis().openSession(false);
     dbClient = new DbClient(db.database(), db.myBatis(), new FileSourceDao(db.myBatis()));

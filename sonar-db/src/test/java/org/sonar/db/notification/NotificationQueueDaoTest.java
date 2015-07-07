@@ -34,7 +34,7 @@ public class NotificationQueueDaoTest extends AbstractDaoTestCase {
   NotificationQueueDao dao = new NotificationQueueDao(dbTester.myBatis());
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
   }
 

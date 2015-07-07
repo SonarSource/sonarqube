@@ -46,14 +46,14 @@ public class DomainsActionTest {
   DbSession dbSession;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbClient = new DbClient(db.database(), db.myBatis(), new MetricDao());
     dbSession = dbClient.openSession(false);
     ws = new WsTester(new MetricsWs(new DomainsAction(dbClient)));
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     dbSession.close();
   }
 

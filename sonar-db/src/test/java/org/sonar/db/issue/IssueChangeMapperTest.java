@@ -26,7 +26,7 @@ import org.sonar.db.AbstractDaoTestCase;
 public class IssueChangeMapperTest extends AbstractDaoTestCase {
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
   }
 

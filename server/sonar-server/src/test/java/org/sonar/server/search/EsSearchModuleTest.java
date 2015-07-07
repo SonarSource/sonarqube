@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class EsSearchModuleTest {
   @Test
-  public void verify_count_of_added_components() throws Exception {
+  public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
     new EsSearchModule().configure(container);
     assertThat(container.size()).isEqualTo(5);

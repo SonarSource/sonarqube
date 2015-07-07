@@ -43,7 +43,7 @@ public class PluginClassloaderFactoryTest {
   PluginClassloaderFactory factory = new PluginClassloaderFactory(temp);
 
   @Test
-  public void create_isolated_classloader() throws Exception {
+  public void create_isolated_classloader() {
     PluginClassloaderDef def = basePluginDef();
     Map<PluginClassloaderDef, ClassLoader> map = factory.create(asList(def));
 
@@ -61,7 +61,7 @@ public class PluginClassloaderFactoryTest {
   }
 
   @Test
-  public void create_classloader_compatible_with_with_old_api_dependencies() throws Exception {
+  public void create_classloader_compatible_with_with_old_api_dependencies() {
     PluginClassloaderDef def = basePluginDef();
     def.setCompatibilityMode(true);
     ClassLoader classLoader = factory.create(asList(def)).get(def);
@@ -75,7 +75,7 @@ public class PluginClassloaderFactoryTest {
   }
 
   @Test
-  public void classloader_exports_resources_to_other_classloaders() throws Exception {
+  public void classloader_exports_resources_to_other_classloaders() {
     PluginClassloaderDef baseDef = basePluginDef();
     PluginClassloaderDef dependentDef = dependentPluginDef();
     Map<PluginClassloaderDef, ClassLoader> map = factory.create(asList(baseDef, dependentDef));

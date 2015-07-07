@@ -51,7 +51,7 @@ public class FeedDebtModelStepTest extends BaseStepTest {
   FeedDebtModelStep sut;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     dbTester.truncateTables();
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new CharacteristicDao(dbTester.myBatis()));
     dbSession = dbClient.openSession(false);
@@ -60,7 +60,7 @@ public class FeedDebtModelStepTest extends BaseStepTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     dbSession.close();
   }
 
@@ -70,7 +70,7 @@ public class FeedDebtModelStepTest extends BaseStepTest {
   }
 
   @Test
-  public void feed_characteristics() throws Exception {
+  public void feed_characteristics() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     sut.execute();

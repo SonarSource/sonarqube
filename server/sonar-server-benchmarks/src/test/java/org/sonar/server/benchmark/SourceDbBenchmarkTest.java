@@ -60,7 +60,7 @@ public class SourceDbBenchmarkTest {
     scrollRows();
   }
 
-  private void scrollRows() throws Exception {
+  private void scrollRows() {
     LOGGER.info("Scroll table FILE_SOURCES");
     AtomicLong counter = new AtomicLong();
     ProgressTask progress = new ProgressTask(LOGGER, "source file", counter);

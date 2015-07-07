@@ -66,7 +66,7 @@ public class PastMeasureDtoTest {
   }
 
   @Test(expected = NullPointerException.class)
-  public void get_value_throw_a_NPE_if_value_is_null() throws Exception {
+  public void get_value_throw_a_NPE_if_value_is_null() {
     new PastMeasureDto().getValue();
   }
 }
