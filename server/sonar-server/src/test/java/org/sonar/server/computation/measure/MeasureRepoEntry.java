@@ -22,6 +22,8 @@ package org.sonar.server.computation.measure;
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.SetMultimap;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
@@ -107,7 +109,25 @@ public final class MeasureRepoEntry {
     if (!measure.hasVariations()) {
       return true;
     }
-    return Objects.equals(measure.getVariations(), measure1.getVariations());
+    MeasureVariations variations = measure.getVariations();
+    MeasureVariations variations1 = measure1.getVariations();
+    for (int i = 1; i <= 5; i++) {
+      if (variations.hasVariation(i) != variations1.hasVariation(i)) {
+        return false;
+      }
+      if (variations.hasVariation(i)
+          && Double.compare(scale(variations.getVariation(i)), scale(variations1.getVariation(i))) != 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private static final int DOUBLE_PRECISION = 1;
+
+  private static double scale(double value) {
+    BigDecimal bd = BigDecimal.valueOf(value);
+    return bd.setScale(DOUBLE_PRECISION, RoundingMode.HALF_UP).doubleValue();
   }
 
   private static boolean equalsByQualityGateStatus(Measure measure, Measure measure1) {
