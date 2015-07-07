@@ -39,23 +39,11 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.util.Properties;
-import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class LogbackHelperTest {
-
-  static {
-    // Attempt to prevent test false-positives :
-    // java.lang.ClassCastException: org.slf4j.helpers.SubstituteLogger cannot be cast to ch.qos.logback.classic.Logger
-    // at org.sonar.process.LogbackHelper.getRootContext(LogbackHelper.java:51)
-    // at org.sonar.process.LogbackHelperTest.createRollingPolicy_none(LogbackHelperTest.java:119)
-    //
-    // It occurs when the initialization step is still not finished. Substitute loggers are used.
-    // http://www.slf4j.org/codes.html#substituteLogger
-    LoggerFactory.getLogger(LogbackHelperTest.class);
-  }
 
   Props props = new Props(new Properties());
   LogbackHelper sut = new LogbackHelper();

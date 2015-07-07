@@ -48,8 +48,20 @@ public class LogbackHelper {
   public static final String MAX_FILES_PROPERTY = "sonar.log.maxFiles";
 
   public LoggerContext getRootContext() {
-    Logger rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-    return rootLogger.getLoggerContext();
+    org.slf4j.Logger logger;
+    while (!((logger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)) instanceof Logger)) {
+      // It occurs when the initialization step is still not finished because of a race condition
+      // on ILoggerFactory.getILoggerFactory
+      // http://jira.qos.ch/browse/SLF4J-167
+      // Substitute loggers are used.
+      // http://www.slf4j.org/codes.html#substituteLogger
+      try {
+        Thread.sleep(10);
+      } catch (InterruptedException e) {
+        // Ignore
+      }
+    }
+    return ((Logger) logger).getLoggerContext();
   }
 
   public LoggerContextListener enableJulChangePropagation(LoggerContext loggerContext) {
