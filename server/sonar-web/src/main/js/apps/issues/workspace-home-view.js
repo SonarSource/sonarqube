@@ -115,14 +115,21 @@ define([
       });
     },
 
+    _addFormattedValues: function (values) {
+      return values.map(function (v) {
+        var text = window.formatMeasure(v.count, 'SHORT_INT');
+        return _.extend(v, { text: text });
+      });
+    },
+
     onRender: function () {
       var values = this.model.get('createdAt'),
           myValues = this.model.get('myCreatedAt');
       if (values != null) {
-        this.$('.js-barchart').barchart(values);
+        this.$('.js-barchart').barchart(this._addFormattedValues(values));
       }
       if (myValues != null) {
-        this.$('.js-my-barchart').barchart(myValues);
+        this.$('.js-my-barchart').barchart(this._addFormattedValues(myValues));
       }
       this.$('[data-toggle="tooltip"]').tooltip({ container: 'body' });
     },
