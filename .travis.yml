@@ -15,6 +15,9 @@ env:
   - JOB=ITS_UPDATECENTER
   - JOB=ITS_TESTING
 
+matrix:
+  fast_finish: true
+
 script:
   - ./travis.sh
 
