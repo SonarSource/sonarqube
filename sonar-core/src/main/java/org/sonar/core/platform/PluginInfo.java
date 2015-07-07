@@ -288,7 +288,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
 
   public PluginInfo setBasePlugin(@Nullable String s) {
     if ("l10nen".equals(s)) {
-      Loggers.get(PluginInfo.class).info("Plugin [{}] still defines 'l10nen' as base plugin. " +
+      Loggers.get(PluginInfo.class).info("Plugin [{}] defines 'l10nen' as base plugin. " +
         "This metadata can be removed from manifest of l10n plugins since version 5.2.", key);
       basePlugin = null;
     } else {
