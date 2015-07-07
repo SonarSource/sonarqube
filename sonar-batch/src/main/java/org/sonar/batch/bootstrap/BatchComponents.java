@@ -22,18 +22,9 @@ package org.sonar.batch.bootstrap;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
-import org.sonar.batch.compute.BranchCoverageDecorator;
 import org.sonar.batch.compute.CommentDensityDecorator;
-import org.sonar.batch.compute.CoverageDecorator;
 import org.sonar.batch.compute.DirectoriesDecorator;
 import org.sonar.batch.compute.FilesDecorator;
-import org.sonar.batch.compute.ItBranchCoverageDecorator;
-import org.sonar.batch.compute.ItCoverageDecorator;
-import org.sonar.batch.compute.ItLineCoverageDecorator;
-import org.sonar.batch.compute.LineCoverageDecorator;
-import org.sonar.batch.compute.OverallBranchCoverageDecorator;
-import org.sonar.batch.compute.OverallCoverageDecorator;
-import org.sonar.batch.compute.OverallLineCoverageDecorator;
 import org.sonar.batch.compute.UnitTestDecorator;
 import org.sonar.batch.cpd.CpdComponents;
 import org.sonar.batch.issue.tracking.IssueTracking;
@@ -48,8 +39,8 @@ import org.sonar.batch.scm.ScmConfiguration;
 import org.sonar.batch.scm.ScmSensor;
 import org.sonar.batch.source.CodeColorizerSensor;
 import org.sonar.batch.source.LinesSensor;
-import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.component.DefaultResourceTypes;
+import org.sonar.core.config.CorePropertyDefinitions;
 
 public class BatchComponents {
   private BatchComponents() {
@@ -82,15 +73,6 @@ public class BatchComponents {
 
       // to be moved to compute engine
       UnitTestDecorator.class,
-      LineCoverageDecorator.class,
-      CoverageDecorator.class,
-      BranchCoverageDecorator.class,
-      ItLineCoverageDecorator.class,
-      ItCoverageDecorator.class,
-      ItBranchCoverageDecorator.class,
-      OverallLineCoverageDecorator.class,
-      OverallCoverageDecorator.class,
-      OverallBranchCoverageDecorator.class,
       CommentDensityDecorator.class,
       DirectoriesDecorator.class,
       FilesDecorator.class
