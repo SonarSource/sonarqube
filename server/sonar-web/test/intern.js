@@ -24,7 +24,8 @@ define(['intern'], function (intern) {
       'test/medium/issues.spec',
       'test/medium/update-center.spec',
       'test/medium/computation.spec',
-      'test/medium/coding-rules.spec'
+      'test/medium/coding-rules.spec',
+      'test/medium/custom-measures.spec'
     ],
 
     tunnel: tunnel,

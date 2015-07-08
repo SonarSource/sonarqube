@@ -1,0 +1,53 @@
+{
+  "customMeasures": [
+    {
+      "id": "3",
+      "value": "35",
+      "description": "",
+      "metric": {
+        "id": "157",
+        "key": "team_size",
+        "type": "INT",
+        "name": "Team size",
+        "domain": "Management"
+      },
+      "projectId": "eb294572-a6a4-43cf-acc2-33c2fe37c02e",
+      "projectKey": "backbone",
+      "createdAt": "2015-07-08T12:13:15+0200",
+      "updatedAt": "2015-07-08T12:13:15+0200",
+      "pending": true,
+      "user": {
+        "login": "admin",
+        "name": "Administrator",
+        "email": "",
+        "active": true
+      }
+    },
+    {
+      "id": "1",
+      "value": "3.2000123E7",
+      "description": "Description...",
+      "metric": {
+        "id": "155",
+        "key": "burned_budget",
+        "type": "FLOAT",
+        "name": "Burned budget",
+        "domain": "Management"
+      },
+      "projectId": "eb294572-a6a4-43cf-acc2-33c2fe37c02e",
+      "projectKey": "backbone",
+      "createdAt": "2015-07-08T09:21:50+0200",
+      "updatedAt": "2015-07-08T12:25:37+0200",
+      "pending": true,
+      "user": {
+        "login": "admin",
+        "name": "Administrator",
+        "email": "",
+        "active": true
+      }
+    }
+  ],
+  "total": 4,
+  "p": 2,
+  "ps": 2
+}

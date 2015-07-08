@@ -1,0 +1,64 @@
+{
+  "metrics": [
+    {
+      "id": "155",
+      "key": "burned_budget",
+      "type": "FLOAT",
+      "name": "Burned budget",
+      "domain": "Management",
+      "direction": 0,
+      "qualitative": false,
+      "hidden": false,
+      "custom": true
+    },
+    {
+      "id": "156",
+      "key": "business_value",
+      "type": "FLOAT",
+      "name": "Business value",
+      "domain": "Management",
+      "direction": 1,
+      "qualitative": true,
+      "hidden": false,
+      "custom": true
+    },
+    {
+      "id": "159",
+      "key": "dist",
+      "type": "DISTRIB",
+      "name": "Distribution",
+      "description": "",
+      "domain": "",
+      "direction": 0,
+      "qualitative": false,
+      "hidden": false,
+      "custom": true
+    },
+    {
+      "id": "160",
+      "key": "rating",
+      "type": "RATING",
+      "name": "Rating",
+      "description": "",
+      "domain": "",
+      "direction": 0,
+      "qualitative": false,
+      "hidden": false,
+      "custom": true
+    },
+    {
+      "id": "157",
+      "key": "team_size",
+      "type": "INT",
+      "name": "Team size",
+      "domain": "Management",
+      "direction": 0,
+      "qualitative": false,
+      "hidden": false,
+      "custom": true
+    }
+  ],
+  "total": 5,
+  "p": 1,
+  "ps": 100
+}

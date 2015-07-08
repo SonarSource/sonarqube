@@ -1,0 +1,53 @@
+{
+  "customMeasures": [
+    {
+      "id": "5",
+      "value": "1.0",
+      "description": "",
+      "metric": {
+        "id": "160",
+        "key": "rating",
+        "type": "RATING",
+        "name": "Rating",
+        "domain": ""
+      },
+      "projectId": "eb294572-a6a4-43cf-acc2-33c2fe37c02e",
+      "projectKey": "backbone",
+      "createdAt": "2015-07-08T12:26:41+0200",
+      "updatedAt": "2015-07-08T12:27:41+0200",
+      "pending": true,
+      "user": {
+        "login": "admin",
+        "name": "Administrator",
+        "email": "",
+        "active": true
+      }
+    },
+    {
+      "id": "4",
+      "value": "1",
+      "description": "",
+      "metric": {
+        "id": "159",
+        "key": "dist",
+        "type": "DISTRIB",
+        "name": "Distribution",
+        "domain": ""
+      },
+      "projectId": "eb294572-a6a4-43cf-acc2-33c2fe37c02e",
+      "projectKey": "backbone",
+      "createdAt": "2015-07-08T12:26:22+0200",
+      "updatedAt": "2015-07-08T12:26:22+0200",
+      "pending": true,
+      "user": {
+        "login": "admin",
+        "name": "Administrator",
+        "email": "",
+        "active": true
+      }
+    }
+  ],
+  "total": 4,
+  "p": 1,
+  "ps": 2
+}
