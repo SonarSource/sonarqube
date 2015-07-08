@@ -27,12 +27,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.tester.UserSessionRule;
@@ -47,6 +47,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ShowActionTest {
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -85,7 +86,7 @@ public class ShowActionTest {
       "",
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {",
       "}"
-      ));
+    ));
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "show").setParam("key", fileKey);
     request.execute().assertJson(getClass(), "show_source.json");
@@ -100,7 +101,7 @@ public class ShowActionTest {
       " */",
       "",
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {"
-      ));
+    ));
     WsTester.TestRequest request = tester
       .newGetRequest("api/sources", "show")
       .setParam("key", fileKey)
@@ -118,7 +119,7 @@ public class ShowActionTest {
       " */",
       "",
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {"
-      ));
+    ));
     WsTester.TestRequest request = tester
       .newGetRequest("api/sources", "show")
       .setParam("key", fileKey)

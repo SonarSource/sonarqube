@@ -38,13 +38,15 @@ import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.protocol.input.QProfile;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.db.rule.RuleTesting;
+import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
 import org.sonar.server.component.ComponentTesting;
@@ -54,8 +56,6 @@ import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
-import org.sonar.db.rule.RuleTesting;
-import org.sonar.db.source.FileSourceDao;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -67,6 +67,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester().addXoo();
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
@@ -658,7 +659,7 @@ public class ProjectRepositoryLoaderMediumTest {
       .setRulesUpdatedAt(DateUtils.formatDateTime(DateUtils.parseDateTime("2014-01-14T13:00:00+0100"))).setDefault(true);
     tester.get(DbClient.class).qualityProfileDao().insert(dbSession, profileDto);
 
-    for (int i = 0; i<20; i++) {
+    for (int i = 0; i < 20; i++) {
       RuleKey ruleKey = RuleKey.of("squid", "Rule" + i);
       tester.get(DbClient.class).ruleDao().insert(dbSession, RuleTesting.newDto(ruleKey).setName("Rule" + i).setLanguage(ServerTester.Xoo.KEY));
       tester.get(RuleActivator.class).activate(dbSession, new RuleActivation(ruleKey).setSeverity(Severity.MINOR), profileDto.getKey());
@@ -840,7 +841,7 @@ public class ProjectRepositoryLoaderMediumTest {
     return new FileSourceDto()
       .setFileUuid(file.uuid())
       .setProjectUuid(file.projectUuid())
-      //.setSourceData(",,,,,,,,,,,,,,,unchanged&#13;&#10;,,,,,,,,,,,,,,,content&#13;&#10;")
+        //.setSourceData(",,,,,,,,,,,,,,,unchanged&#13;&#10;,,,,,,,,,,,,,,,content&#13;&#10;")
       .setDataHash("0263047cd758c68c27683625f072f010")
       .setLineHashes("8d7b3d6b83c0a517eac07e1aac94b773")
       .setCreatedAt(System.currentTimeMillis())

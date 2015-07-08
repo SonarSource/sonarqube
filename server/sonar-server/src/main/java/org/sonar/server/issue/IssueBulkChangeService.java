@@ -36,17 +36,17 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.issue.IssueDto;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.IssueDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.index.IssueDoc;
@@ -72,7 +72,7 @@ public class IssueBulkChangeService {
   private final UserSession userSession;
 
   public IssueBulkChangeService(DbClient dbClient, IssueService issueService, IssueStorage issueStorage, DefaultRuleFinder ruleFinder,
-    NotificationManager notificationService, List<Action> actions, UserSession userSession) {
+                                NotificationManager notificationService, List<Action> actions, UserSession userSession) {
     this.dbClient = dbClient;
     this.issueService = issueService;
     this.issueStorage = issueStorage;

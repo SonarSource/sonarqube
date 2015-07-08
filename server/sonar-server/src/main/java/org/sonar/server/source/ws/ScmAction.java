@@ -32,10 +32,10 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
@@ -148,7 +148,7 @@ public class ScmAction implements SourcesWsAction {
       .isEquals();
   }
 
-  private static boolean hasScm(SourceLineDoc line){
+  private static boolean hasScm(SourceLineDoc line) {
     return !Strings.isNullOrEmpty(line.scmAuthor()) || line.scmDate() != null || !Strings.isNullOrEmpty(line.scmRevision());
   }
 }

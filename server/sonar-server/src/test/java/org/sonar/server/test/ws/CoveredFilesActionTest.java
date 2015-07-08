@@ -25,8 +25,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.test.index.CoveredFileDoc;
 import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.tester.UserSessionRule;
@@ -65,7 +65,7 @@ public class CoveredFilesActionTest {
     when(testIndex.coveredFiles("test-uuid")).thenReturn(Arrays.asList(
       new CoveredFileDoc().setFileUuid("bar-uuid").setCoveredLines(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)),
       new CoveredFileDoc().setFileUuid("file-uuid").setCoveredLines(Arrays.asList(1, 2, 3))
-      ));
+    ));
     when(dbClient.componentDao().selectByUuids(any(DbSession.class), anyList())).thenReturn(
       Arrays.asList(
         newFileDto(newProjectDto(), "bar-uuid").setKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),

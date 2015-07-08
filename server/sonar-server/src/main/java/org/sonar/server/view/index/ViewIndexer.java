@@ -23,10 +23,10 @@ package org.sonar.server.view.index;
 import java.util.List;
 import java.util.Map;
 import org.elasticsearch.action.update.UpdateRequest;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.UuidWithProjectUuidDto;
-import org.sonar.db.DbSession;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
@@ -48,7 +48,7 @@ public class ViewIndexer extends BaseIndexer {
    * It's currently not possible to index only data from db that are not existing in the index because we have no way to last when the structure of a view is changed :
    * - Either the definition has changed -> No updated at column in the projects table,
    * - Either the view is defined by a regex -> A new analysed project automatically steps into the view.
-   *
+   * <p/>
    * The views lookup cache will not be cleared
    */
   @Override
@@ -72,7 +72,7 @@ public class ViewIndexer extends BaseIndexer {
   /**
    * Index a root view : it will load projects on each sub views and index it.
    * Used by the compute engine to reindex a root view.
-   *
+   * <p/>
    * The views lookup cache will be cleared
    */
   public void index(String rootViewUuid) {
@@ -90,7 +90,7 @@ public class ViewIndexer extends BaseIndexer {
 
   /**
    * Index a single document.
-   *
+   * <p/>
    * The views lookup cache will be cleared
    */
   public void index(ViewDoc viewDoc) {

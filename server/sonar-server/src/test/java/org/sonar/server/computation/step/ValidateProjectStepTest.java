@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,18 +31,15 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.DbSession;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.SnapshotDao;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
-import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
-import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 @Category(DbTests.class)
@@ -55,16 +51,17 @@ public class ValidateProjectStepTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
-  DbClient dbClient;
-
-  DbSession dbSession;
+  DbClient dbClient = dbTester.getDbClient();
 
   Settings settings;
 
@@ -73,16 +70,9 @@ public class ValidateProjectStepTest {
   @Before
   public void setUp() {
     dbTester.truncateTables();
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new SnapshotDao());
-    dbSession = dbClient.openSession(false);
     settings = new Settings();
 
     sut = new ValidateProjectStep(dbClient, settings, reportReader, treeRootHolder);
-  }
-
-  @After
-  public void tearDown() {
-    dbSession.close();
   }
 
   @Test
@@ -95,8 +85,8 @@ public class ValidateProjectStepTest {
       .build());
 
     settings.appendProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, "true");
-    dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY));
-    dbSession.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY));
+    dbTester.getSession().commit();
     treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
     sut.execute();
@@ -221,8 +211,8 @@ public class ValidateProjectStepTest {
       .build());
 
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(MODULE_KEY);
-    dbClient.componentDao().insert(dbSession, project);
-    dbSession.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), project);
+    dbTester.getSession().commit();
 
     treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
       DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY).build())
@@ -253,10 +243,10 @@ public class ValidateProjectStepTest {
 
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
     ComponentDto anotherProject = ComponentTesting.newProjectDto().setKey(anotherProjectKey);
-    dbClient.componentDao().insert(dbSession, project, anotherProject);
+    dbClient.componentDao().insert(dbTester.getSession(), project, anotherProject);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", anotherProject).setKey(MODULE_KEY);
-    dbClient.componentDao().insert(dbSession, module);
-    dbSession.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), module);
+    dbTester.getSession().commit();
 
     treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
       DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY).build())
@@ -288,10 +278,10 @@ public class ValidateProjectStepTest {
       .build());
 
     ComponentDto anotherProject = ComponentTesting.newProjectDto().setKey(anotherProjectKey);
-    dbClient.componentDao().insert(dbSession, anotherProject);
+    dbClient.componentDao().insert(dbTester.getSession(), anotherProject);
     ComponentDto module = ComponentTesting.newModuleDto("ABCD", anotherProject).setKey(PROJECT_KEY);
-    dbClient.componentDao().insert(dbSession, module);
-    dbSession.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), module);
+    dbTester.getSession().commit();
 
     treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
       DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY).build())
@@ -313,9 +303,9 @@ public class ValidateProjectStepTest {
       .build());
 
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
-    dbClient.componentDao().insert(dbSession, project);
-    dbClient.snapshotDao().insert(dbSession, SnapshotTesting.createForProject(project).setCreatedAt(1420088400000L)); // 2015-01-01
-    dbSession.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), project);
+    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.createForProject(project).setCreatedAt(1420088400000L)); // 2015-01-01
+    dbTester.getSession().commit();
 
     treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
@@ -340,9 +330,9 @@ public class ValidateProjectStepTest {
       .build());
 
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
-    dbClient.componentDao().insert(dbSession, project);
-    dbClient.snapshotDao().insert(dbSession, SnapshotTesting.createForProject(project).setCreatedAt(1433131200000L)); // 2015-06-01
-    dbSession.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), project);
+    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.createForProject(project).setCreatedAt(1433131200000L)); // 2015-06-01
+    dbTester.getSession().commit();
 
     treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 

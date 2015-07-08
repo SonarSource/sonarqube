@@ -24,7 +24,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import java.text.SimpleDateFormat;
 import java.util.List;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,17 +33,14 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.DbSession;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.SnapshotDao;
-import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
-import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -70,9 +66,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
   PeriodsHolderImpl periodsHolder = new PeriodsHolderImpl();
 
-  DbClient dbClient;
-
-  DbSession dbSession;
+  DbClient dbClient = dbTester.getDbClient();
 
   Settings settings = new Settings();
 
@@ -85,9 +79,6 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
   @Before
   public void setUp() throws Exception {
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new SnapshotDao());
-    dbSession = dbClient.openSession(false);
-
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setAnalysisDate(DATE_FORMAT.parse("2008-11-30").getTime())
       .build());
@@ -95,11 +86,6 @@ public class FeedPeriodsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).setVersion("1.1").build());
 
     sut = new FeedPeriodsStep(dbClient, settings, treeRootHolder, reportReader, periodsHolder);
-  }
-
-  @After
-  public void tearDown() {
-    dbSession.close();
   }
 
   @Test

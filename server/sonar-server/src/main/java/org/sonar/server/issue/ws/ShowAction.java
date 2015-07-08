@@ -43,10 +43,10 @@ import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.markdown.Markdown;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtModelService;
 import org.sonar.server.issue.IssueChangelog;
 import org.sonar.server.issue.IssueChangelogService;
@@ -78,8 +78,8 @@ public class ShowAction implements IssuesWsAction {
   private final UserSession userSession;
 
   public ShowAction(DbClient dbClient, IssueService issueService, IssueChangelogService issueChangelogService, IssueCommentService commentService,
-    IssueActionsWriter actionsWriter, ActionPlanService actionPlanService, UserFinder userFinder, DebtModelService debtModel, RuleService ruleService,
-    I18n i18n, Durations durations, UserSession userSession) {
+                    IssueActionsWriter actionsWriter, ActionPlanService actionPlanService, UserFinder userFinder, DebtModelService debtModel, RuleService ruleService,
+                    I18n i18n, Durations durations, UserSession userSession) {
     this.dbClient = dbClient;
     this.issueService = issueService;
     this.issueChangelogService = issueChangelogService;
@@ -187,7 +187,7 @@ public class ShowAction implements IssuesWsAction {
       .prop("componentEnabled", component.isEnabled())
       .prop("project", project.key())
       .prop("projectName", projectName)
-      // TODO replace subProject names by parentProject
+        // TODO replace subProject names by parentProject
       .prop("subProject", parentProjectKey)
       .prop("subProjectName", parentProjectName);
   }

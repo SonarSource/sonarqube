@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.component.db;
+package org.sonar.db.component;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -35,10 +35,6 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentMapper;
-import org.sonar.db.component.FilePathWithHashDto;
-import org.sonar.db.component.UuidWithProjectUuidDto;
 
 import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
 

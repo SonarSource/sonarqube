@@ -45,11 +45,11 @@ import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.user.DefaultUser;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtModelService;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueChangelog;
@@ -149,10 +149,10 @@ public class ShowActionTest {
 
     tester = new WsTester(new IssuesWs(
       new ShowAction(
-          dbClient, issueService, issueChangelogService, commentService,
-          new IssueActionsWriter(issueService, actionService, userSessionRule),
-          actionPlanService, userFinder, debtModel, ruleService, i18n, durations, userSessionRule)
-      ));
+        dbClient, issueService, issueChangelogService, commentService,
+        new IssueActionsWriter(issueService, actionService, userSessionRule),
+        actionPlanService, userFinder, debtModel, ruleService, i18n, durations, userSessionRule)
+    ));
   }
 
   @Test
@@ -212,7 +212,7 @@ public class ShowActionTest {
       .setLongName("SonarQube :: Server")
       .setQualifier("BRC")
       .setParentProjectId(1L);
-    when(componentDao.selectById(session, module.getId() )).thenReturn(Optional.of(module));
+    when(componentDao.selectById(session, module.getId())).thenReturn(Optional.of(module));
 
     // File
     ComponentDto file = ComponentTesting.newFileDto(module)
@@ -432,7 +432,7 @@ public class ShowActionTest {
         .setMarkdownText("Another comment")
         .setUserLogin("arthur")
         .setCreatedAt(date2)
-      ));
+    ));
 
     when(userFinder.findByLogin("john")).thenReturn(new DefaultUser().setLogin("john").setName("John"));
     when(userFinder.findByLogin("arthur")).thenReturn(new DefaultUser().setLogin("arthur").setName("Arthur"));

@@ -22,6 +22,7 @@ package org.sonar.db;
 import java.util.Arrays;
 import java.util.List;
 import org.sonar.db.activity.ActivityDao;
+import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentLinkDao;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceIndexDao;
@@ -76,6 +77,7 @@ public final class DaoUtils {
       AnalysisReportDao.class,
       AuthorDao.class,
       AuthorizationDao.class,
+      ComponentDao.class,
       ComponentLinkDao.class,
       DashboardDao.class,
       DuplicationDao.class,

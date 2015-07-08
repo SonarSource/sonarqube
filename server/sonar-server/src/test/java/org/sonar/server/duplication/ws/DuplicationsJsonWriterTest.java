@@ -31,9 +31,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.db.ComponentDao;
 import org.sonar.test.JsonAssert;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -85,7 +85,7 @@ public class DuplicationsJsonWriterTest {
     blocks.add(new DuplicationsParser.Block(newArrayList(
       new DuplicationsParser.Duplication(file1, 57, 12),
       new DuplicationsParser.Duplication(file2, 73, 12)
-      )));
+    )));
 
     test(blocks,
       "{\n" +
@@ -143,7 +143,7 @@ public class DuplicationsJsonWriterTest {
     blocks.add(new DuplicationsParser.Block(newArrayList(
       new DuplicationsParser.Duplication(file1, 57, 12),
       new DuplicationsParser.Duplication(file2, 73, 12)
-      )));
+    )));
 
     test(blocks,
       "{\n" +
@@ -191,7 +191,7 @@ public class DuplicationsJsonWriterTest {
       new DuplicationsParser.Duplication(file1, 57, 12),
       // Duplication on a removed file
       new DuplicationsParser.Duplication(null, 73, 12)
-      )));
+    )));
 
     test(blocks,
       "{\n" +

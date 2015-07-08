@@ -22,7 +22,6 @@ package org.sonar.server.computation.step;
 
 import java.util.Arrays;
 import java.util.List;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,17 +31,14 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.CoverageDetail;
-import org.sonar.db.DbSession;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.MyBatis;
-import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.component.FileAttributes;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,8 +58,6 @@ public class PersistTestsStepTest extends BaseStepTest {
   private static final String TEST_FILE_UUID_2 = "TEST-FILE-2";
   private static final String MAIN_FILE_UUID_1 = "MAIN-FILE-1";
   private static final String MAIN_FILE_UUID_2 = "MAIN-FILE-2";
-  private static final String TEST_FILE_PATH_1 = "TEST-PATH-1";
-  private static final String TEST_FILE_PATH_2 = "TEST-PATH-2";
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
@@ -77,8 +71,7 @@ public class PersistTestsStepTest extends BaseStepTest {
   @Rule
   public LogTester log = new LogTester();
 
-  DbSession session;
-  DbClient dbClient;
+  DbClient dbClient = db.getDbClient();
   Component root;
 
   PersistTestsStep sut;
@@ -88,9 +81,6 @@ public class PersistTestsStepTest extends BaseStepTest {
   @Before
   public void setup() {
     db.truncateTables();
-    session = db.myBatis().openSession(false);
-    dbClient = new DbClient(db.database(), db.myBatis(), new FileSourceDao(db.myBatis()));
-
     System2 system2 = mock(System2.class);
     when(system2.now()).thenReturn(now);
 
@@ -102,14 +92,9 @@ public class PersistTestsStepTest extends BaseStepTest {
         DumbComponent.builder(Component.Type.FILE, 4).setUuid(TEST_FILE_UUID_2).setKey("TEST_FILE2_KEY").setFileAttributes(new FileAttributes(true, null)).build(),
         DumbComponent.builder(Component.Type.FILE, 5).setUuid(MAIN_FILE_UUID_1).setKey("MAIN_FILE1_KEY").build(),
         DumbComponent.builder(Component.Type.FILE, 6).setUuid(MAIN_FILE_UUID_2).setKey("MAIN_FILE2_KEY").build()
-        ).build()
-      ).build();
+      ).build()
+    ).build();
     treeRootHolder.setRoot(root);
-  }
-
-  @After
-  public void tearDown() {
-    MyBatis.closeQuietly(session);
   }
 
   @Override
@@ -129,11 +114,11 @@ public class PersistTestsStepTest extends BaseStepTest {
   public void insert_several_tests_in_a_report() {
     List<BatchReport.Test> batchTests = Arrays.asList(
       newTest(1), newTest(2)
-      );
+    );
     reportReader.putTests(TEST_FILE_REF_1, batchTests);
     List<CoverageDetail> coverageDetails = Arrays.asList(
       newCoverageDetail(1, MAIN_FILE_REF_1)
-      );
+    );
     reportReader.putCoverageDetails(TEST_FILE_REF_1, coverageDetails);
 
     sut.execute();
@@ -230,7 +215,7 @@ public class PersistTestsStepTest extends BaseStepTest {
   @Test
   public void update_existing_test() {
     // ARRANGE
-    dbClient.fileSourceDao().insert(session, new FileSourceDto()
+    dbClient.fileSourceDao().insert(db.getSession(), new FileSourceDto()
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(TEST_FILE_UUID_1)
       .setTestData(Arrays.asList(FileSourceDb.Test.newBuilder()
@@ -243,7 +228,7 @@ public class PersistTestsStepTest extends BaseStepTest {
         .build()))
       .setCreatedAt(100_000)
       .setUpdatedAt(100_000));
-    session.commit();
+    db.getSession().commit();
     assertThat(dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1)).isNotNull();
 
     BatchReport.Test newBatchTest = newTest(1);
@@ -291,9 +276,9 @@ public class PersistTestsStepTest extends BaseStepTest {
     return CoverageDetail.newBuilder()
       .setTestName("name#" + id)
       .addCoveredFile(CoverageDetail.CoveredFile.newBuilder()
-        .addAllCoveredLine(Arrays.asList(lines))
-        .setFileRef(covered_file_ref)
-        .build()
+          .addAllCoveredLine(Arrays.asList(lines))
+          .setFileRef(covered_file_ref)
+          .build()
       )
       .build();
   }

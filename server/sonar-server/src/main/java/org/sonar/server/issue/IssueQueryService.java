@@ -49,10 +49,10 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.rule.RuleKeyFunctions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentService;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
@@ -121,8 +121,8 @@ public class IssueQueryService {
           ObjectUtils.defaultIfNull(
             params.get(IssueFilterParameters.PROJECT_KEYS),
             params.get(IssueFilterParameters.PROJECTS)
-            )
-          ),
+          )
+        ),
         RubyUtils.toStrings(params.get(IssueFilterParameters.MODULE_UUIDS)),
         RubyUtils.toStrings(params.get(IssueFilterParameters.DIRECTORIES)),
         RubyUtils.toStrings(params.get(IssueFilterParameters.FILE_UUIDS)),
@@ -226,12 +226,12 @@ public class IssueQueryService {
   }
 
   private boolean mergeDeprecatedComponentParameters(DbSession session, Boolean onComponentOnly,
-    @Nullable Collection<String> components,
-    @Nullable Collection<String> componentUuids,
-    @Nullable Collection<String> componentKeys,
-    @Nullable Collection<String> componentRootUuids,
-    @Nullable Collection<String> componentRoots,
-    Set<String> allComponentUuids) {
+                                                     @Nullable Collection<String> components,
+                                                     @Nullable Collection<String> componentUuids,
+                                                     @Nullable Collection<String> componentKeys,
+                                                     @Nullable Collection<String> componentRootUuids,
+                                                     @Nullable Collection<String> componentRoots,
+                                                     Set<String> allComponentUuids) {
     boolean effectiveOnComponentOnly = false;
 
     failIfBothParametersSet(componentRootUuids, componentRoots, "componentRoots and componentRootUuids cannot be set simultaneously");
@@ -264,13 +264,13 @@ public class IssueQueryService {
   }
 
   private void addComponentParameters(IssueQuery.Builder builder, DbSession session,
-    boolean onComponentOnly,
-    Collection<String> componentUuids,
-    @Nullable Collection<String> projectUuids, @Nullable Collection<String> projects,
-    @Nullable Collection<String> moduleUuids,
-    @Nullable Collection<String> directories,
-    @Nullable Collection<String> fileUuids,
-    @Nullable Collection<String> authors) {
+                                      boolean onComponentOnly,
+                                      Collection<String> componentUuids,
+                                      @Nullable Collection<String> projectUuids, @Nullable Collection<String> projects,
+                                      @Nullable Collection<String> moduleUuids,
+                                      @Nullable Collection<String> directories,
+                                      @Nullable Collection<String> fileUuids,
+                                      @Nullable Collection<String> authors) {
 
     builder.onComponentOnly(onComponentOnly);
     if (onComponentOnly) {

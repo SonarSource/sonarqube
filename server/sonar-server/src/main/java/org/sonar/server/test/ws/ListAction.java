@@ -33,11 +33,11 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.test.index.CoveredFileDoc;
@@ -118,7 +118,7 @@ public class ListAction implements TestsWsAction {
     SearchOptions searchOptions = new SearchOptions().setPage(
       request.mandatoryParamAsInt(WebService.Param.PAGE),
       request.mandatoryParamAsInt(WebService.Param.PAGE_SIZE)
-      );
+    );
 
     DbSession dbSession = dbClient.openSession(false);
     SearchResult<TestDoc> tests;
@@ -187,7 +187,7 @@ public class ListAction implements TestsWsAction {
   }
 
   private SearchResult<TestDoc> searchTests(DbSession dbSession, @Nullable String testUuid, @Nullable String testFileUuid, @Nullable String testFileKey,
-    @Nullable String sourceFileUuid, @Nullable Integer sourceFileLineNumber, SearchOptions searchOptions) {
+                                            @Nullable String sourceFileUuid, @Nullable Integer sourceFileLineNumber, SearchOptions searchOptions) {
     if (testUuid != null) {
       return searchTestsByTestUuid(dbSession, testUuid, searchOptions);
     }

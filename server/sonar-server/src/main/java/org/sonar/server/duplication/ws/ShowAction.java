@@ -31,13 +31,13 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
 public class ShowAction implements RequestHandler {

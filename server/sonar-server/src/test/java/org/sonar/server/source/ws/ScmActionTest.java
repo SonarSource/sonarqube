@@ -21,7 +21,6 @@
 package org.sonar.server.source.ws;
 
 import java.util.Date;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -30,13 +29,11 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.DbSession;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.source.index.SourceLineDoc;
@@ -53,30 +50,22 @@ public class ScmActionTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   WsTester tester;
 
-  DbClient dbClient;
-
-  DbSession session;
+  DbClient dbClient = dbTester.getDbClient();
 
   @Before
   public void setUp() {
     dbTester.truncateTables();
     esTester.truncateIndices();
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao());
-    session = dbClient.openSession(false);
-
     tester = new WsTester(new SourcesWs(new ScmAction(dbClient, new SourceLineIndex(esTester.client()), userSessionRule, new ComponentFinder(dbClient))));
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
   }
 
   @Test
@@ -86,7 +75,7 @@ public class ScmActionTest {
 
     esTester.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
       newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1)
-      );
+    );
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY);
     request.execute().assertJson(getClass(), "show_scm.json");
@@ -102,7 +91,7 @@ public class ScmActionTest {
       newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 2),
       newSourceLine("julien", "456-789-101", DateUtils.parseDateTime("2015-03-27T12:34:56+0000"), 3),
       newSourceLine("simon", "789-101-112", DateUtils.parseDateTime("2015-03-31T12:34:56+0000"), 4)
-      );
+    );
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY).setParam("from", "2").setParam("to", "3");
     request.execute().assertJson(getClass(), "show_scm_from_given_range_lines.json");
@@ -119,7 +108,7 @@ public class ScmActionTest {
       newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 2),
       newSourceLine("julien", "456-789-101", DateUtils.parseDateTime("2015-03-27T12:34:56+0000"), 3),
       newSourceLine("simon", "789-101-112", DateUtils.parseDateTime("2015-03-31T12:34:56+0000"), 4)
-      );
+    );
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY).setParam("commits_by_line", "true");
     request.execute().assertJson(getClass(), "not_group_lines_by_commit.json");
@@ -136,7 +125,7 @@ public class ScmActionTest {
       newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 2),
       newSourceLine("julien", "456-789-101", DateUtils.parseDateTime("2015-03-27T12:34:56+0000"), 3),
       newSourceLine("simon", "789-101-112", DateUtils.parseDateTime("2015-03-31T12:34:56+0000"), 4)
-      );
+    );
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY).setParam("commits_by_line", "false");
     request.execute().assertJson(getClass(), "group_lines_by_commit.json");
@@ -182,8 +171,8 @@ public class ScmActionTest {
 
   private void initFile() {
     ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID);
-    dbClient.componentDao().insert(session, project, ComponentTesting.newFileDto(project, FILE_UUID).setKey(FILE_KEY));
-    session.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), project, ComponentTesting.newFileDto(project, FILE_UUID).setKey(FILE_KEY));
+    dbTester.getSession().commit();
   }
 
   private SourceLineDoc newSourceLine(String author, String revision, Date date, int line) {

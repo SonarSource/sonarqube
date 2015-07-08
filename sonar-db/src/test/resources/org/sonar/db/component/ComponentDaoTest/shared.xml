@@ -5,10 +5,10 @@
 
 
   <!-- root project -->
-  <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts" deprecated_kee="org.struts:struts"
+  <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" deprecated_kee="org.struts:struts" name="Struts"
             uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD."
             description="the description" long_name="Apache Struts"
-            enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" created_at="[null]" authorization_updated_at="123456789" />
+            enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" authorization_updated_at="123456789"/>
   <snapshots id="1" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -29,10 +29,10 @@
              version="[null]" path=""/>
 
   <!-- module -->
-  <projects id="2" root_id="1" kee="org.struts:struts-core" name="Struts Core" deprecated_kee="[null]"
+  <projects id="2" root_id="1" kee="org.struts:struts-core" name="Struts Core"
             uuid="EFGH" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD.EFGH."
             scope="PRJ" qualifier="BRC" long_name="Struts Core"
-            description="[null]" enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" created_at="[null]" authorization_updated_at="[null]" />
+            description="[null]" enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" authorization_updated_at="[null]"/>
   <snapshots id="2" project_id="2" parent_snapshot_id="1" root_project_id="1" root_snapshot_id="1"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -44,11 +44,11 @@
              version="[null]" path="1."/>
 
   <!-- directory -->
-  <projects long_name="org.struts" id="3" scope="DIR" qualifier="DIR" kee="org.struts:struts-core:src/org/struts" deprecated_kee="[null]"
+  <projects long_name="org.struts" id="3" scope="DIR" qualifier="DIR" kee="org.struts:struts-core:src/org/struts"
             uuid="GHIJ" project_uuid="ABCD" module_uuid="EFGH" module_uuid_path=".ABCD.EFGH."
             name="src/org/struts" root_id="2"
             description="[null]"
-            enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="src/org/struts" created_at="[null]" authorization_updated_at="[null]" />
+            enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="src/org/struts" authorization_updated_at="[null]"/>
   <snapshots id="3" project_id="3" parent_snapshot_id="2" root_project_id="1" root_snapshot_id="1"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -60,11 +60,11 @@
              version="[null]" path="1.2."/>
 
   <!-- file -->
-  <!--<projects long_name="org.struts.RequestContext" id="4" scope="FIL" qualifier="FIL" kee="org.struts:struts-core:src/org/struts/RequestContext.java"-->
-  <!--uuid="KLMN" project_uuid="ABCD" module_uuid="EFGH" module_uuid_path=".ABCD.EFGH."-->
-            <!--name="RequestContext.java" root_id="2"-->
-            <!--description="[null]"-->
-            <!--enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="src/org/struts/RequestContext.java" authorization_updated_at="[null]" />-->
+  <projects long_name="org.struts.RequestContext" id="4" scope="FIL" qualifier="FIL" kee="org.struts:struts-core:src/org/struts/RequestContext.java"
+            uuid="KLMN" project_uuid="ABCD" module_uuid="EFGH" module_uuid_path=".ABCD.EFGH."
+            name="RequestContext.java" root_id="2"
+            description="[null]"
+            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="src/org/struts/RequestContext.java" authorization_updated_at="[null]"/>
 
   <snapshots id="4" project_id="4" parent_snapshot_id="3" root_project_id="1" root_snapshot_id="1"
              status="P" islast="[true]" purge_status="[null]"
@@ -76,19 +76,20 @@
              depth="[null]" scope="FIL" qualifier="CLA" created_at="1228222680000" build_date="1228222680000"
              version="[null]" path="1.2.3."/>
 
+  <!-- Disabled projects -->
   <projects id="10" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.disabled.project" name="Disabled Project"
             uuid="DCBA" project_uuid="DCBA" module_uuid="[null]" module_uuid_path="."
             description="the description" long_name="Disabled project"
-            enabled="[false]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" authorization_updated_at="123456789" />
+            enabled="[false]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" authorization_updated_at="123456789"/>
 
   <!-- Developer and technical project copy -->
   <projects id="11" root_id="[null]" scope="PRJ" qualifier="DEV" kee="DEV:anakin@skywalker.name" name="Anakin Skywalker"
             uuid="OPQR" project_uuid="OPQR" module_uuid="[null]" module_uuid_path=".OPQR."
             description="the description" long_name="Anakin Skywalker"
-            enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" authorization_updated_at="123456789" />
-  <projects id="12"  root_id="11" scope="PRJ" qualifier="DEV_PRJ" kee="DEV:anakin@skywalker.name:org.struts:struts" name="Apache Struts"
+            enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" authorization_updated_at="123456789"/>
+  <projects id="12" root_id="11" scope="PRJ" qualifier="DEV_PRJ" kee="DEV:anakin@skywalker.name:org.struts:struts" name="Apache Struts"
             uuid="STUV" project_uuid="OPQR" module_uuid="OPQR" module_uuid_path=".OPQR."
             description="the description" long_name="Apache Struts"
-            enabled="[true]" language="[null]" copy_resource_id="1" person_id="11" path="[null]" authorization_updated_at="123456789" />
+            enabled="[true]" language="[null]" copy_resource_id="1" person_id="11" path="[null]" authorization_updated_at="123456789"/>
 
 </dataset>

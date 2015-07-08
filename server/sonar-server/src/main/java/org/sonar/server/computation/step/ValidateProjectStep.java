@@ -35,15 +35,15 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentKeys;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.server.db.DbClient;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 
@@ -139,7 +139,7 @@ public class ValidateProjectStep implements ComputationStep {
         // Project key is already used as a module of another project
         ComponentDto anotherBaseProject = componentDao.selectNonNullByUuid(session, baseProject.get().projectUuid());
         validationMessages.add(String.format("The project \"%s\" is already defined in SonarQube but as a module of project \"%s\". "
-          + "If you really want to stop directly analysing project \"%s\", please first delete it from SonarQube and then relaunch the analysis of project \"%s\".",
+            + "If you really want to stop directly analysing project \"%s\", please first delete it from SonarQube and then relaunch the analysis of project \"%s\".",
           rawProjectKey, anotherBaseProject.key(), anotherBaseProject.key(), rawProjectKey));
       }
     }
@@ -151,7 +151,7 @@ public class ValidateProjectStep implements ComputationStep {
         Long lastAnalysisDate = snapshotDto != null ? snapshotDto.getCreatedAt() : null;
         if (lastAnalysisDate != null && currentAnalysisDate <= snapshotDto.getCreatedAt()) {
           validationMessages.add(String.format("Date of analysis cannot be older than the date of the last known analysis on this project. Value: \"%s\". " +
-            "Latest analysis: \"%s\". It's only possible to rebuild the past in a chronological order.",
+              "Latest analysis: \"%s\". It's only possible to rebuild the past in a chronological order.",
             formatDateTime(new Date(currentAnalysisDate)), formatDateTime(new Date(lastAnalysisDate))));
         }
       }
@@ -175,7 +175,7 @@ public class ValidateProjectStep implements ComputationStep {
       if (baseModule.projectUuid().equals(baseModule.uuid())) {
         // module is actually a project
         validationMessages.add(String.format("The project \"%s\" is already defined in SonarQube but not as a module of project \"%s\". "
-          + "If you really want to stop directly analysing project \"%s\", please first delete it from SonarQube and then relaunch the analysis of project \"%s\".",
+            + "If you really want to stop directly analysing project \"%s\", please first delete it from SonarQube and then relaunch the analysis of project \"%s\".",
           rawModuleKey, rawProjectKey, rawModuleKey, rawProjectKey));
       }
     }

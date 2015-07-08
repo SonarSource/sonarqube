@@ -31,11 +31,11 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.batch.protocol.input.BatchInput;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.plugins.MimeTypes;
@@ -86,7 +86,7 @@ public class IssuesAction implements BatchWsAction {
       Map<String, String> keysByUUid = keysByUUid(session, component);
 
       BatchInput.ServerIssue.Builder issueBuilder = BatchInput.ServerIssue.newBuilder();
-      for (Iterator<IssueDoc> issueDocIterator = issueIndex.selectIssuesForBatch(component); issueDocIterator.hasNext();) {
+      for (Iterator<IssueDoc> issueDocIterator = issueIndex.selectIssuesForBatch(component); issueDocIterator.hasNext(); ) {
         handleIssue(issueDocIterator.next(), issueBuilder, keysByUUid, response.stream().output());
       }
     } finally {

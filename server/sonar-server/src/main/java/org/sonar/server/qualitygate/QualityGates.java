@@ -37,6 +37,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
@@ -44,7 +45,6 @@ import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Errors;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -71,7 +71,7 @@ public class QualityGates {
   private final Settings settings;
 
   public QualityGates(QualityGateDao dao, QualityGateConditionDao conditionDao, MetricFinder metricFinder, PropertiesDao propertiesDao, ComponentDao componentDao,
-    MyBatis myBatis, UserSession userSession, Settings settings) {
+                      MyBatis myBatis, UserSession userSession, Settings settings) {
     this.dao = dao;
     this.conditionDao = conditionDao;
     this.metricFinder = metricFinder;
@@ -117,10 +117,10 @@ public class QualityGates {
       dao.insert(destinationGate, session);
       for (QualityGateConditionDto sourceCondition : conditionDao.selectForQualityGate(sourceId, session)) {
         conditionDao.insert(new QualityGateConditionDto().setQualityGateId(destinationGate.getId())
-          .setMetricId(sourceCondition.getMetricId()).setOperator(sourceCondition.getOperator())
-          .setWarningThreshold(sourceCondition.getWarningThreshold()).setErrorThreshold(sourceCondition.getErrorThreshold()).setPeriod(sourceCondition.getPeriod()),
+            .setMetricId(sourceCondition.getMetricId()).setOperator(sourceCondition.getOperator())
+            .setWarningThreshold(sourceCondition.getWarningThreshold()).setErrorThreshold(sourceCondition.getErrorThreshold()).setPeriod(sourceCondition.getPeriod()),
           session
-          );
+        );
       }
       session.commit();
     } finally {
@@ -172,7 +172,7 @@ public class QualityGates {
   }
 
   public QualityGateConditionDto createCondition(long qGateId, String metricKey, String operator,
-    @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
+                                                 @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
     checkPermission();
     getNonNullQgate(qGateId);
     Metric metric = getNonNullMetric(metricKey);
@@ -185,7 +185,7 @@ public class QualityGates {
   }
 
   public QualityGateConditionDto updateCondition(long condId, String metricKey, String operator,
-    @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
+                                                 @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
     checkPermission();
     QualityGateConditionDto condition = getNonNullCondition(condId);
     Metric metric = getNonNullMetric(metricKey);

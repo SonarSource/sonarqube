@@ -19,21 +19,20 @@
  */
 package org.sonar.server.platform.ws;
 
+import java.io.File;
+import java.util.Date;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.IsAliveMapper;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.ws.WsTester;
-
-import java.io.File;
-import java.util.Date;
-import java.util.Set;
 
 import static com.google.common.base.Predicates.in;
 import static com.google.common.base.Predicates.not;

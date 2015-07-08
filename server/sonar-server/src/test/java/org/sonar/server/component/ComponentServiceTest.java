@@ -33,13 +33,10 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ResourceIndexDao;
-import org.sonar.db.component.ResourceKeyUpdaterDao;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -63,7 +60,7 @@ public class ComponentServiceTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  DbClient dbClient;
+  DbClient dbClient = dbTester.getDbClient();
   DbSession session = dbTester.getSession();
   I18n i18n = mock(I18n.class);
   ComponentService service;
@@ -71,11 +68,7 @@ public class ComponentServiceTest {
   @Before
   public void setUp() {
     dbTester.truncateTables();
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new ResourceKeyUpdaterDao(dbTester.myBatis()),
-      new ResourceIndexDao(dbTester.myBatis(), system2));
-
     when(i18n.message(Locale.getDefault(), "qualifier.TRK", "Project")).thenReturn("Project");
-
     service = new ComponentService(dbClient, i18n, userSessionRule, System2.INSTANCE, new ComponentFinder(dbClient));
   }
 

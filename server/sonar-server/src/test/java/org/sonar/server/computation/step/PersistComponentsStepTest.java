@@ -23,7 +23,6 @@ package org.sonar.server.computation.step;
 import com.google.common.base.Optional;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,19 +31,16 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.DbSession;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.SnapshotDao;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.component.FileAttributes;
-import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,9 +68,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   System2 system2 = mock(System2.class);
 
-  DbSession session;
-
-  DbClient dbClient;
+  DbClient dbClient = dbTester.getDbClient();
 
   Date now;
 
@@ -83,9 +77,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
   @Before
   public void setup() throws Exception {
     dbTester.truncateTables();
-    session = dbTester.myBatis().openSession(false);
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new SnapshotDao());
-
     dbIdsRepository = new DbIdsRepository();
 
     now = DATE_FORMAT.parse("2015-06-02");
@@ -97,11 +88,6 @@ public class PersistComponentsStepTest extends BaseStepTest {
   @Override
   protected ComputationStep step() {
     return sut;
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
   }
 
   @Test
@@ -143,11 +129,11 @@ public class PersistComponentsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(project);
 
     sut.execute();
-    session.commit();
+    dbTester.getSession().commit();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
 
-    ComponentDto projectDto = dbClient.componentDao().selectByKey(session, PROJECT_KEY).get();
+    ComponentDto projectDto = dbClient.componentDao().selectByKey(dbTester.getSession(), PROJECT_KEY).get();
     assertThat(projectDto.name()).isEqualTo("Project");
     assertThat(projectDto.description()).isEqualTo("Project description");
     assertThat(projectDto.path()).isNull();
@@ -160,7 +146,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     assertThat(projectDto.parentProjectId()).isNull();
     assertThat(projectDto.getCreatedAt()).isEqualTo(now);
 
-    ComponentDto moduleDto = dbClient.componentDao().selectByKey(session, "MODULE_KEY").get();
+    ComponentDto moduleDto = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY").get();
     assertThat(moduleDto.name()).isEqualTo("Module");
     assertThat(moduleDto.description()).isEqualTo("Module description");
     assertThat(moduleDto.path()).isEqualTo("module");
@@ -173,7 +159,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     assertThat(moduleDto.parentProjectId()).isEqualTo(projectDto.getId());
     assertThat(moduleDto.getCreatedAt()).isEqualTo(now);
 
-    ComponentDto directoryDto = dbClient.componentDao().selectByKey(session, "MODULE_KEY:src/main/java/dir").get();
+    ComponentDto directoryDto = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY:src/main/java/dir").get();
     assertThat(directoryDto.name()).isEqualTo("src/main/java/dir");
     assertThat(directoryDto.description()).isNull();
     assertThat(directoryDto.path()).isEqualTo("src/main/java/dir");
@@ -186,7 +172,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     assertThat(directoryDto.parentProjectId()).isEqualTo(moduleDto.getId());
     assertThat(directoryDto.getCreatedAt()).isEqualTo(now);
 
-    ComponentDto fileDto = dbClient.componentDao().selectByKey(session, "MODULE_KEY:src/main/java/dir/Foo.java").get();
+    ComponentDto fileDto = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY:src/main/java/dir/Foo.java").get();
     assertThat(fileDto.name()).isEqualTo("Foo.java");
     assertThat(fileDto.description()).isNull();
     assertThat(fileDto.path()).isEqualTo("src/main/java/dir/Foo.java");
@@ -235,11 +221,11 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
     sut.execute();
 
-    ComponentDto directory = dbClient.componentDao().selectByKey(session, "PROJECT_KEY:/").get();
+    ComponentDto directory = dbClient.componentDao().selectByKey(dbTester.getSession(), "PROJECT_KEY:/").get();
     assertThat(directory.name()).isEqualTo("/");
     assertThat(directory.path()).isEqualTo("/");
 
-    ComponentDto file = dbClient.componentDao().selectByKey(session, "PROJECT_KEY:pom.xml").get();
+    ComponentDto file = dbClient.componentDao().selectByKey(dbTester.getSession(), "PROJECT_KEY:pom.xml").get();
     assertThat(file.name()).isEqualTo("pom.xml");
     assertThat(file.path()).isEqualTo("pom.xml");
   }
@@ -274,7 +260,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
     sut.execute();
 
-    ComponentDto file = dbClient.componentDao().selectByKey(session, PROJECT_KEY + ":src/test/java/dir/FooTest.java").get();
+    ComponentDto file = dbClient.componentDao().selectByKey(dbTester.getSession(), PROJECT_KEY + ":src/test/java/dir/FooTest.java").get();
     assertThat(file.name()).isEqualTo("FooTest.java");
     assertThat(file.path()).isEqualTo("src/test/java/dir/FooTest.java");
     assertThat(file.qualifier()).isEqualTo("UTS");
@@ -285,10 +271,10 @@ public class PersistComponentsStepTest extends BaseStepTest {
   public void persist_only_new_components() {
     // Project amd module already exists
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
-    dbClient.componentDao().insert(session, project);
+    dbClient.componentDao().insert(dbTester.getSession(), project);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_KEY").setName("Module");
-    dbClient.componentDao().insert(session, module);
-    session.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), module);
+    dbTester.getSession().commit();
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -328,11 +314,11 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
 
-    ComponentDto projectReloaded = dbClient.componentDao().selectByKey(session, PROJECT_KEY).get();
+    ComponentDto projectReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), PROJECT_KEY).get();
     assertThat(projectReloaded.getId()).isEqualTo(project.getId());
     assertThat(projectReloaded.uuid()).isEqualTo(project.uuid());
 
-    ComponentDto moduleReloaded = dbClient.componentDao().selectByKey(session, "MODULE_KEY").get();
+    ComponentDto moduleReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY").get();
     assertThat(moduleReloaded.getId()).isEqualTo(module.getId());
     assertThat(moduleReloaded.uuid()).isEqualTo(module.uuid());
     assertThat(moduleReloaded.moduleUuid()).isEqualTo(module.moduleUuid());
@@ -340,13 +326,13 @@ public class PersistComponentsStepTest extends BaseStepTest {
     assertThat(moduleReloaded.projectUuid()).isEqualTo(module.projectUuid());
     assertThat(moduleReloaded.parentProjectId()).isEqualTo(module.parentProjectId());
 
-    ComponentDto directory = dbClient.componentDao().selectByKey(session, "MODULE_KEY:src/main/java/dir").get();
+    ComponentDto directory = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY:src/main/java/dir").get();
     assertThat(directory.moduleUuid()).isEqualTo(module.uuid());
     assertThat(directory.moduleUuidPath()).isEqualTo(module.moduleUuidPath());
     assertThat(directory.projectUuid()).isEqualTo(project.uuid());
     assertThat(directory.parentProjectId()).isEqualTo(module.getId());
 
-    ComponentDto file = dbClient.componentDao().selectByKey(session, "MODULE_KEY:src/main/java/dir/Foo.java").get();
+    ComponentDto file = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY:src/main/java/dir/Foo.java").get();
     assertThat(file.moduleUuid()).isEqualTo(module.uuid());
     assertThat(file.moduleUuidPath()).isEqualTo(module.moduleUuidPath());
     assertThat(file.projectUuid()).isEqualTo(project.uuid());
@@ -403,23 +389,23 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(5);
 
-    Optional<ComponentDto> project = dbClient.componentDao().selectByKey(session, PROJECT_KEY);
+    Optional<ComponentDto> project = dbClient.componentDao().selectByKey(dbTester.getSession(), PROJECT_KEY);
     assertThat(project).isPresent();
     assertThat(project.get().parentProjectId()).isNull();
 
-    Optional<ComponentDto> module = dbClient.componentDao().selectByKey(session, "MODULE_KEY");
+    Optional<ComponentDto> module = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY");
     assertThat(module).isPresent();
     assertThat(module.get().parentProjectId()).isEqualTo(project.get().getId());
 
-    Optional<ComponentDto> subModule1 = dbClient.componentDao().selectByKey(session, "SUB_MODULE_1_KEY");
+    Optional<ComponentDto> subModule1 = dbClient.componentDao().selectByKey(dbTester.getSession(), "SUB_MODULE_1_KEY");
     assertThat(subModule1).isPresent();
     assertThat(subModule1.get().parentProjectId()).isEqualTo(project.get().getId());
 
-    Optional<ComponentDto> subModule2 = dbClient.componentDao().selectByKey(session, "SUB_MODULE_2_KEY");
+    Optional<ComponentDto> subModule2 = dbClient.componentDao().selectByKey(dbTester.getSession(), "SUB_MODULE_2_KEY");
     assertThat(subModule2).isPresent();
     assertThat(subModule2.get().parentProjectId()).isEqualTo(project.get().getId());
 
-    Optional<ComponentDto> directory = dbClient.componentDao().selectByKey(session, "SUB_MODULE_2_KEY:src/main/java/dir");
+    Optional<ComponentDto> directory = dbClient.componentDao().selectByKey(dbTester.getSession(), "SUB_MODULE_2_KEY:src/main/java/dir");
     assertThat(directory).isPresent();
     assertThat(directory.get().parentProjectId()).isEqualTo(subModule2.get().getId());
   }
@@ -464,22 +450,22 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
 
-    ComponentDto project = dbClient.componentDao().selectByKey(session, PROJECT_KEY).get();
+    ComponentDto project = dbClient.componentDao().selectByKey(dbTester.getSession(), PROJECT_KEY).get();
     assertThat(project.moduleUuid()).isNull();
     assertThat(project.moduleUuidPath()).isEqualTo("." + project.uuid() + ".");
     assertThat(project.parentProjectId()).isNull();
 
-    ComponentDto moduleA = dbClient.componentDao().selectByKey(session, "MODULE_A").get();
+    ComponentDto moduleA = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_A").get();
     assertThat(moduleA.moduleUuid()).isEqualTo(project.uuid());
     assertThat(moduleA.moduleUuidPath()).isEqualTo(project.moduleUuidPath() + moduleA.uuid() + ".");
     assertThat(moduleA.parentProjectId()).isEqualTo(project.getId());
 
-    ComponentDto subModuleA = dbClient.componentDao().selectByKey(session, "SUB_MODULE_A").get();
+    ComponentDto subModuleA = dbClient.componentDao().selectByKey(dbTester.getSession(), "SUB_MODULE_A").get();
     assertThat(subModuleA.moduleUuid()).isEqualTo(moduleA.uuid());
     assertThat(subModuleA.moduleUuidPath()).isEqualTo(moduleA.moduleUuidPath() + subModuleA.uuid() + ".");
     assertThat(subModuleA.parentProjectId()).isEqualTo(project.getId());
 
-    ComponentDto moduleB = dbClient.componentDao().selectByKey(session, "MODULE_B").get();
+    ComponentDto moduleB = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_B").get();
     assertThat(moduleB.moduleUuid()).isEqualTo(project.uuid());
     assertThat(moduleB.moduleUuidPath()).isEqualTo(project.moduleUuidPath() + moduleB.uuid() + ".");
     assertThat(moduleB.parentProjectId()).isEqualTo(project.getId());
@@ -488,13 +474,13 @@ public class PersistComponentsStepTest extends BaseStepTest {
   @Test
   public void nothing_to_persist() {
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
-    dbClient.componentDao().insert(session, project);
+    dbClient.componentDao().insert(dbTester.getSession(), project);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_KEY").setName("Module");
-    dbClient.componentDao().insert(session, module);
+    dbClient.componentDao().insert(dbTester.getSession(), module);
     ComponentDto directory = ComponentTesting.newDirectory(module, "src/main/java/dir").setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir");
     ComponentDto file = ComponentTesting.newFileDto(module, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java").setKey("MODULE_KEY:src/main/java/dir/Foo.java");
-    dbClient.componentDao().insert(session, directory, file);
-    session.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), directory, file);
+    dbTester.getSession().commit();
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -533,12 +519,12 @@ public class PersistComponentsStepTest extends BaseStepTest {
     sut.execute();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
-    assertThat(dbClient.componentDao().selectByKey(session, PROJECT_KEY).get().getId()).isEqualTo(project.getId());
-    assertThat(dbClient.componentDao().selectByKey(session, "MODULE_KEY").get().getId()).isEqualTo(module.getId());
-    assertThat(dbClient.componentDao().selectByKey(session, "MODULE_KEY:src/main/java/dir").get().getId()).isEqualTo(directory.getId());
-    assertThat(dbClient.componentDao().selectByKey(session, "MODULE_KEY:src/main/java/dir/Foo.java").get().getId()).isEqualTo(file.getId());
+    assertThat(dbClient.componentDao().selectByKey(dbTester.getSession(), PROJECT_KEY).get().getId()).isEqualTo(project.getId());
+    assertThat(dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY").get().getId()).isEqualTo(module.getId());
+    assertThat(dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY:src/main/java/dir").get().getId()).isEqualTo(directory.getId());
+    assertThat(dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY:src/main/java/dir/Foo.java").get().getId()).isEqualTo(file.getId());
 
-    ComponentDto projectReloaded = dbClient.componentDao().selectByKey(session, PROJECT_KEY).get();
+    ComponentDto projectReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), PROJECT_KEY).get();
     assertThat(projectReloaded.getId()).isEqualTo(project.getId());
     assertThat(projectReloaded.uuid()).isEqualTo(project.uuid());
     assertThat(projectReloaded.moduleUuid()).isEqualTo(project.moduleUuid());
@@ -546,7 +532,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     assertThat(projectReloaded.projectUuid()).isEqualTo(project.projectUuid());
     assertThat(projectReloaded.parentProjectId()).isEqualTo(project.parentProjectId());
 
-    ComponentDto moduleReloaded = dbClient.componentDao().selectByKey(session, "MODULE_KEY").get();
+    ComponentDto moduleReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY").get();
     assertThat(moduleReloaded.getId()).isEqualTo(module.getId());
     assertThat(moduleReloaded.uuid()).isEqualTo(module.uuid());
     assertThat(moduleReloaded.moduleUuid()).isEqualTo(module.moduleUuid());
@@ -554,7 +540,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     assertThat(moduleReloaded.projectUuid()).isEqualTo(module.projectUuid());
     assertThat(moduleReloaded.parentProjectId()).isEqualTo(module.parentProjectId());
 
-    ComponentDto directoryReloaded = dbClient.componentDao().selectByKey(session, "MODULE_KEY:src/main/java/dir").get();
+    ComponentDto directoryReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY:src/main/java/dir").get();
     assertThat(directoryReloaded.uuid()).isEqualTo(directory.uuid());
     assertThat(directoryReloaded.moduleUuid()).isEqualTo(directory.moduleUuid());
     assertThat(directoryReloaded.moduleUuidPath()).isEqualTo(directory.moduleUuidPath());
@@ -563,7 +549,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     assertThat(directoryReloaded.name()).isEqualTo(directory.name());
     assertThat(directoryReloaded.path()).isEqualTo(directory.path());
 
-    ComponentDto fileReloaded = dbClient.componentDao().selectByKey(session, "MODULE_KEY:src/main/java/dir/Foo.java").get();
+    ComponentDto fileReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY:src/main/java/dir/Foo.java").get();
     assertThat(fileReloaded.uuid()).isEqualTo(file.uuid());
     assertThat(fileReloaded.moduleUuid()).isEqualTo(file.moduleUuid());
     assertThat(fileReloaded.moduleUuidPath()).isEqualTo(file.moduleUuidPath());
@@ -576,10 +562,10 @@ public class PersistComponentsStepTest extends BaseStepTest {
   @Test
   public void update_module_name() {
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
-    dbClient.componentDao().insert(session, project);
+    dbClient.componentDao().insert(dbTester.getSession(), project);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_KEY").setName("Module").setPath("path");
-    dbClient.componentDao().insert(session, module);
-    session.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), module);
+    dbTester.getSession().commit();
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -602,20 +588,20 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
     sut.execute();
 
-    ComponentDto projectReloaded = dbClient.componentDao().selectByKey(session, PROJECT_KEY).get();
+    ComponentDto projectReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), PROJECT_KEY).get();
     assertThat(projectReloaded.name()).isEqualTo("New project name");
 
-    ComponentDto moduleReloaded = dbClient.componentDao().selectByKey(session, "MODULE_KEY").get();
+    ComponentDto moduleReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY").get();
     assertThat(moduleReloaded.name()).isEqualTo("New module name");
   }
 
   @Test
   public void update_module_description() {
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project").setDescription("Project description");
-    dbClient.componentDao().insert(session, project);
+    dbClient.componentDao().insert(dbTester.getSession(), project);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_KEY").setName("Module");
-    dbClient.componentDao().insert(session, module);
-    session.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), module);
+    dbTester.getSession().commit();
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -639,20 +625,20 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
     sut.execute();
 
-    ComponentDto projectReloaded = dbClient.componentDao().selectByKey(session, PROJECT_KEY).get();
+    ComponentDto projectReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), PROJECT_KEY).get();
     assertThat(projectReloaded.description()).isEqualTo("New project description");
 
-    ComponentDto moduleReloaded = dbClient.componentDao().selectByKey(session, "MODULE_KEY").get();
+    ComponentDto moduleReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY").get();
     assertThat(moduleReloaded.description()).isEqualTo("New module description");
   }
 
   @Test
   public void update_module_path() {
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
-    dbClient.componentDao().insert(session, project);
+    dbClient.componentDao().insert(dbTester.getSession(), project);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_KEY").setName("Module").setPath("path");
-    dbClient.componentDao().insert(session, module);
-    session.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), module);
+    dbTester.getSession().commit();
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -675,21 +661,21 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
     sut.execute();
 
-    ComponentDto moduleReloaded = dbClient.componentDao().selectByKey(session, "MODULE_KEY").get();
+    ComponentDto moduleReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY").get();
     assertThat(moduleReloaded.path()).isEqualTo("New path");
   }
 
   @Test
   public void update_module_uuid_when_moving_a_module() {
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
-    dbClient.componentDao().insert(session, project);
+    dbClient.componentDao().insert(dbTester.getSession(), project);
     ComponentDto moduleA = ComponentTesting.newModuleDto("EDCB", project).setKey("MODULE_A").setName("Module A");
     ComponentDto moduleB = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_B").setName("Module B");
-    dbClient.componentDao().insert(session, moduleA, moduleB);
+    dbClient.componentDao().insert(dbTester.getSession(), moduleA, moduleB);
     ComponentDto directory = ComponentTesting.newDirectory(moduleB, "src/main/java/dir").setUuid("CDEF").setKey("MODULE_B:src/main/java/dir");
     ComponentDto file = ComponentTesting.newFileDto(moduleB, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java").setKey("MODULE_B:src/main/java/dir/Foo.java");
-    dbClient.componentDao().insert(session, directory, file);
-    session.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), directory, file);
+    dbTester.getSession().commit();
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -739,9 +725,9 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(5);
 
-    ComponentDto moduleAreloaded = dbClient.componentDao().selectByKey(session, "MODULE_A").get();
+    ComponentDto moduleAreloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_A").get();
 
-    ComponentDto moduleBReloaded = dbClient.componentDao().selectByKey(session, "MODULE_B").get();
+    ComponentDto moduleBReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_B").get();
     assertThat(moduleBReloaded).isNotNull();
     assertThat(moduleBReloaded.uuid()).isEqualTo(moduleB.uuid());
     assertThat(moduleBReloaded.moduleUuid()).isEqualTo(moduleAreloaded.uuid());
@@ -749,7 +735,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     assertThat(moduleBReloaded.projectUuid()).isEqualTo(project.uuid());
     assertThat(moduleBReloaded.parentProjectId()).isEqualTo(project.getId());
 
-    ComponentDto directoryReloaded = dbClient.componentDao().selectByKey(session, "MODULE_B:src/main/java/dir").get();
+    ComponentDto directoryReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_B:src/main/java/dir").get();
     assertThat(directoryReloaded).isNotNull();
     assertThat(directoryReloaded.uuid()).isEqualTo(directory.uuid());
     assertThat(directoryReloaded.moduleUuid()).isEqualTo(moduleBReloaded.uuid());
@@ -757,7 +743,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     assertThat(directoryReloaded.projectUuid()).isEqualTo(project.uuid());
     assertThat(directoryReloaded.parentProjectId()).isEqualTo(moduleBReloaded.getId());
 
-    ComponentDto fileReloaded = dbClient.componentDao().selectByKey(session, "MODULE_B:src/main/java/dir/Foo.java").get();
+    ComponentDto fileReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_B:src/main/java/dir/Foo.java").get();
     assertThat(fileReloaded).isNotNull();
     assertThat(fileReloaded.uuid()).isEqualTo(file.uuid());
     assertThat(fileReloaded.moduleUuid()).isEqualTo(moduleBReloaded.uuid());
@@ -770,10 +756,10 @@ public class PersistComponentsStepTest extends BaseStepTest {
   public void do_not_update_created_at_on_existing_component() {
     Date oldDate = DateUtils.parseDate("2015-01-01");
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project").setCreatedAt(oldDate);
-    dbClient.componentDao().insert(session, project);
+    dbClient.componentDao().insert(dbTester.getSession(), project);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_KEY").setName("Module").setPath("path").setCreatedAt(oldDate);
-    dbClient.componentDao().insert(session, module);
-    session.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), module);
+    dbTester.getSession().commit();
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -787,7 +773,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
     sut.execute();
 
-    Optional<ComponentDto> projectReloaded = dbClient.componentDao().selectByKey(session, PROJECT_KEY);
+    Optional<ComponentDto> projectReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), PROJECT_KEY);
     assertThat(projectReloaded.get().name()).isEqualTo("New project name");
     assertThat(projectReloaded.get().getCreatedAt()).isNotEqualTo(now);
   }

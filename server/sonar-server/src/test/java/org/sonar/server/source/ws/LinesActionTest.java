@@ -22,7 +22,6 @@ package org.sonar.server.source.ws;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Date;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -31,12 +30,11 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.DbSession;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -74,8 +72,6 @@ public class LinesActionTest {
 
   ComponentDao componentDao;
 
-  DbSession session;
-
   WsTester wsTester;
 
   @Before
@@ -86,14 +82,8 @@ public class LinesActionTest {
     htmlSourceDecorator = new HtmlSourceDecorator();
     sourceLineIndex = new SourceLineIndex(esTester.client());
     componentDao = new ComponentDao();
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), componentDao);
-    session = dbClient.openSession(false);
+    DbClient dbClient = dbTester.getDbClient();
     wsTester = new WsTester(new SourcesWs(new LinesAction(dbClient, sourceLineIndex, htmlSourceDecorator, userSessionRule)));
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
   }
 
   @Test
@@ -289,7 +279,7 @@ public class LinesActionTest {
   private void newFile() {
     ComponentDto project = ComponentTesting.newProjectDto(PROJECT_UUID);
     ComponentDto file = ComponentTesting.newFileDto(project, FILE_UUID).setKey(FILE_KEY);
-    componentDao.insert(session, project, file);
-    session.commit();
+    componentDao.insert(dbTester.getSession(), project, file);
+    dbTester.getSession().commit();
   }
 }

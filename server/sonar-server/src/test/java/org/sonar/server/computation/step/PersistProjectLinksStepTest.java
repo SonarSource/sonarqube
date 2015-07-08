@@ -21,7 +21,6 @@
 package org.sonar.server.computation.step;
 
 import java.util.Locale;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,14 +29,11 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentLinkDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
-import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,15 +53,10 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
-  DbSession session;
-
   PersistProjectLinksStep step;
 
   @Before
   public void setup() {
-    session = dbTester.myBatis().openSession(false);
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentLinkDao());
-
     I18n i18n = mock(I18n.class);
     when(i18n.message(Locale.ENGLISH, "project_links.homepage", null)).thenReturn("Home");
     when(i18n.message(Locale.ENGLISH, "project_links.scm", null)).thenReturn("Sources");
@@ -73,17 +64,12 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
     when(i18n.message(Locale.ENGLISH, "project_links.ci", null)).thenReturn("Continuous integration");
     when(i18n.message(Locale.ENGLISH, "project_links.issue", null)).thenReturn("Issues");
 
-    step = new PersistProjectLinksStep(dbClient, i18n, treeRootHolder, reportReader);
+    step = new PersistProjectLinksStep(dbTester.getDbClient(), i18n, treeRootHolder, reportReader);
   }
 
   @Override
   protected ComputationStep step() {
     return step;
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
   }
 
   @Test

@@ -28,12 +28,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.source.FileSourceDao;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.test.db.TestTesting;
 import org.sonar.server.test.index.TestDoc;
@@ -53,11 +52,10 @@ public class IndexTestsStepTest extends BaseStepTest {
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
-  DbClient dbClient;
+  DbClient dbClient = dbTester.getDbClient();
 
   @Before
   public void setUp() {
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new FileSourceDao(null));
     esTester.truncateIndices();
   }
 

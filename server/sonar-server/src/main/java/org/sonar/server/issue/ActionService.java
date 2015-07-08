@@ -39,10 +39,10 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -62,7 +62,7 @@ public class ActionService {
   private final Actions actions;
 
   public ActionService(DbClient dbClient, IssueService issueService, IssueStorage issueStorage, IssueUpdater updater, Settings settings, PropertiesDao propertiesDao,
-    Actions actions) {
+                       Actions actions) {
     this.dbClient = dbClient;
     this.issueService = issueService;
     this.issueStorage = issueStorage;

@@ -22,18 +22,16 @@ package org.sonar.server.computation.step;
 import java.sql.Connection;
 import java.util.List;
 import org.elasticsearch.search.SearchHit;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.source.FileSourceDao;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.source.index.FileSourceTesting;
 import org.sonar.server.source.index.SourceLineDoc;
@@ -53,12 +51,7 @@ public class IndexSourceLinesStepTest extends BaseStepTest {
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
-  DbClient dbClient;
-
-  @Before
-  public void setUp() {
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new FileSourceDao(null));
-  }
+  DbClient dbClient = dbTester.getDbClient();
 
   @Override
   protected ComputationStep step() {

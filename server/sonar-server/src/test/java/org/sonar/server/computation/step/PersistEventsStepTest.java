@@ -22,16 +22,13 @@ package org.sonar.server.computation.step;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.event.EventDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -39,7 +36,6 @@ import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
-import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import static org.mockito.Matchers.any;
@@ -49,8 +45,10 @@ import static org.mockito.Mockito.when;
 @Category(DbTests.class)
 public class PersistEventsStepTest extends BaseStepTest {
 
+  System2 system2 = mock(System2.class);
+
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(system2);
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
@@ -60,31 +58,19 @@ public class PersistEventsStepTest extends BaseStepTest {
 
   DbIdsRepository dbIdsRepository = new DbIdsRepository();
 
-  DbSession session;
   EventRepository eventRepository = mock(EventRepository.class);
   PersistEventsStep step;
 
   @Before
   public void setup() {
-    session = dbTester.myBatis().openSession(false);
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new EventDao());
-
-    System2 system2 = mock(System2.class);
     when(system2.now()).thenReturn(1225630680000L);
-
-    step = new PersistEventsStep(dbClient, system2, treeRootHolder, reportReader, eventRepository, dbIdsRepository);
-
+    step = new PersistEventsStep(dbTester.getDbClient(), system2, treeRootHolder, reportReader, eventRepository, dbIdsRepository);
     when(eventRepository.getEvents(any(Component.class))).thenReturn(Collections.<Event>emptyList());
   }
 
   @Override
   protected ComputationStep step() {
     return step;
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
   }
 
   @Test
@@ -107,7 +93,7 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void persist_report_events_with_component_children() {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    DumbComponent module = DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").build(); 
+    DumbComponent module = DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").build();
     DumbComponent root = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").addChildren(module).build();
     treeRootHolder.setRoot(root);
 

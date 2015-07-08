@@ -27,8 +27,8 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.config.Settings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
+import org.sonar.db.DbClient;
 import org.sonar.db.property.PropertiesDao;
-import org.sonar.server.db.DbClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
@@ -73,16 +73,16 @@ public class NotificationServiceTest {
 
     service = new NotificationService(settings, manager,
       dbClient,
-      new NotificationDispatcher[] {commentOnIssueAssignedToMe, commentOnIssueCreatedByMe, qualityGateChange});
+      new NotificationDispatcher[]{commentOnIssueAssignedToMe, commentOnIssueCreatedByMe, qualityGateChange});
   }
 
   /**
    * Given:
    * Simon wants to receive notifications by email on comments for reviews assigned to him or created by him.
-   *
+   * <p/>
    * When:
    * Freddy adds comment to review created by Simon and assigned to Simon.
-   *
+   * <p/>
    * Then:
    * Only one notification should be delivered to Simon by Email.
    */
@@ -103,10 +103,10 @@ public class NotificationServiceTest {
    * Given:
    * Evgeny wants to receive notification by GTalk on comments for reviews created by him.
    * Simon wants to receive notification by Email on comments for reviews assigned to him.
-   *
+   * <p/>
    * When:
    * Freddy adds comment to review created by Evgeny and assigned to Simon.
-   *
+   * <p/>
    * Then:
    * Two notifications should be delivered - one to Simon by Email and another to Evgeny by GTalk.
    */
@@ -128,17 +128,17 @@ public class NotificationServiceTest {
   /**
    * Given:
    * Simon wants to receive notifications by Email and GTLak on comments for reviews assigned to him.
-   *
+   * <p/>
    * When:
    * Freddy adds comment to review created by Evgeny and assigned to Simon.
-   *
+   * <p/>
    * Then:
    * Two notifications should be delivered to Simon - one by Email and another by GTalk.
    */
   @Test
   public void scenario3() {
     setUpMocks();
-    doAnswer(addUser(ASSIGNEE_SIMON, new NotificationChannel[] {emailChannel, gtalkChannel}))
+    doAnswer(addUser(ASSIGNEE_SIMON, new NotificationChannel[]{emailChannel, gtalkChannel}))
       .when(commentOnIssueAssignedToMe).dispatch(same(notification), any(NotificationDispatcher.Context.class));
 
     service.start();
@@ -153,10 +153,10 @@ public class NotificationServiceTest {
   /**
    * Given:
    * Nobody wants to receive notifications.
-   *
+   * <p/>
    * When:
    * Freddy adds comment to review created by Evgeny and assigned to Simon.
-   *
+   * <p/>
    * Then:
    * No notifications.
    */
@@ -245,7 +245,7 @@ public class NotificationServiceTest {
   }
 
   private static Answer<Object> addUser(final String user, final NotificationChannel channel) {
-    return addUser(user, new NotificationChannel[] {channel});
+    return addUser(user, new NotificationChannel[]{channel});
   }
 
   private static Answer<Object> addUser(final String user, final NotificationChannel[] channels) {

@@ -43,6 +43,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
@@ -50,7 +51,6 @@ import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -328,7 +328,7 @@ public class QualityGatesTest {
 
     QualityGateConditionDto newCondition = qGates.createCondition(qGateId, metricKey, operator, warningThreshold, null, null);
     assertThat(newCondition.getQualityGateId()).isEqualTo(qGateId);
-    assertThat(newCondition.getMetricId()).isEqualTo((long)metricId);
+    assertThat(newCondition.getMetricId()).isEqualTo((long) metricId);
     assertThat(newCondition.getOperator()).isEqualTo(operator);
     assertThat(newCondition.getWarningThreshold()).isEqualTo(warningThreshold);
     assertThat(newCondition.getErrorThreshold()).isNull();
@@ -351,7 +351,7 @@ public class QualityGatesTest {
 
     QualityGateConditionDto newCondition = qGates.createCondition(qGateId, metricKey, operator, null, errorThreshold, period);
     assertThat(newCondition.getQualityGateId()).isEqualTo(qGateId);
-    assertThat(newCondition.getMetricId()).isEqualTo((long)metricId);
+    assertThat(newCondition.getMetricId()).isEqualTo((long) metricId);
     assertThat(newCondition.getMetricKey()).isEqualTo(metricKey);
     assertThat(newCondition.getOperator()).isEqualTo(operator);
     assertThat(newCondition.getWarningThreshold()).isNull();
@@ -465,7 +465,7 @@ public class QualityGatesTest {
 
     assertThat(qGates.updateCondition(condId, metricKey, operator, null, errorThreshold, period)).isEqualTo(condition);
     assertThat(condition.getId()).isEqualTo(condId);
-    assertThat(condition.getMetricId()).isEqualTo((long)metricId);
+    assertThat(condition.getMetricId()).isEqualTo((long) metricId);
     assertThat(condition.getMetricKey()).isEqualTo(metricKey);
     assertThat(condition.getOperator()).isEqualTo(operator);
     assertThat(condition.getWarningThreshold()).isNull();

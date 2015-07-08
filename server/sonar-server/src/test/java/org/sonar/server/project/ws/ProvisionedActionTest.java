@@ -22,7 +22,6 @@ package org.sonar.server.project.ws;
 
 import com.google.common.io.Resources;
 import org.apache.commons.lang.StringUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,15 +31,13 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbSession;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -62,19 +59,11 @@ public class ProvisionedActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   WsTester ws;
-  DbClient dbClient;
-  DbSession dbSession;
+  DbClient dbClient = db.getDbClient();
   ComponentDao componentDao;
-
-  @After
-  public void tearDown() {
-    dbSession.close();
-  }
 
   @Before
   public void setUp() {
-    dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(), new SnapshotDao());
-    dbSession = dbClient.openSession(false);
     componentDao = dbClient.componentDao();
     db.truncateTables();
     ws = new WsTester(new ProjectsWs(new ProvisionedAction(dbClient, userSessionRule)));
@@ -84,10 +73,10 @@ public class ProvisionedActionTest {
   public void all_provisioned_projects_without_analyzed_projects() throws Exception {
     userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
     ComponentDto analyzedProject = ComponentTesting.newProjectDto("analyzed-uuid-1");
-    componentDao.insert(dbSession, newProvisionedProject("1"), newProvisionedProject("2"), analyzedProject);
+    componentDao.insert(db.getSession(), newProvisionedProject("1"), newProvisionedProject("2"), analyzedProject);
     SnapshotDto snapshot = SnapshotTesting.createForProject(analyzedProject);
-    dbClient.snapshotDao().insert(dbSession, snapshot);
-    dbSession.commit();
+    dbClient.snapshotDao().insert(db.getSession(), snapshot);
+    db.getSession().commit();
 
     WsTester.Result result = ws.newGetRequest("api/projects", "provisioned").execute();
 
@@ -99,9 +88,9 @@ public class ProvisionedActionTest {
   public void provisioned_projects_with_correct_pagination() throws Exception {
     userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
     for (int i = 1; i <= 10; i++) {
-      componentDao.insert(dbSession, newProvisionedProject(String.valueOf(i)));
+      componentDao.insert(db.getSession(), newProvisionedProject(String.valueOf(i)));
     }
-    dbSession.commit();
+    db.getSession().commit();
 
     WsTester.TestRequest request = ws.newGetRequest("api/projects", "provisioned")
       .setParam(Param.PAGE, "3")
@@ -115,8 +104,8 @@ public class ProvisionedActionTest {
   @Test
   public void provisioned_projects_with_desired_fields() throws Exception {
     userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
-    componentDao.insert(dbSession, newProvisionedProject("1"));
-    dbSession.commit();
+    componentDao.insert(db.getSession(), newProvisionedProject("1"));
+    db.getSession().commit();
 
     String jsonOutput = ws.newGetRequest("api/projects", "provisioned")
       .setParam(Param.FIELDS, "key")
@@ -130,8 +119,8 @@ public class ProvisionedActionTest {
   @Test
   public void provisioned_projects_with_query() throws Exception {
     userSessionRule.setGlobalPermissions(GlobalPermissions.PROVISIONING);
-    componentDao.insert(dbSession, newProvisionedProject("1"), newProvisionedProject("2"));
-    dbSession.commit();
+    componentDao.insert(db.getSession(), newProvisionedProject("1"), newProvisionedProject("2"));
+    db.getSession().commit();
 
     String jsonOutput = ws.newGetRequest("api/projects", "provisioned")
       .setParam(Param.TEXT_QUERY, "PROVISIONED-name-2")
@@ -140,9 +129,9 @@ public class ProvisionedActionTest {
     assertThat(jsonOutput)
       .contains("provisioned-name-2", "provisioned-uuid-2")
       .doesNotContain("provisioned-uuid-1");
-    assertThat(componentDao.countProvisionedProjects(dbSession, "name-2")).isEqualTo(1);
-    assertThat(componentDao.countProvisionedProjects(dbSession, "key-2")).isEqualTo(1);
-    assertThat(componentDao.countProvisionedProjects(dbSession, "visioned-name-")).isEqualTo(2);
+    assertThat(componentDao.countProvisionedProjects(db.getSession(), "name-2")).isEqualTo(1);
+    assertThat(componentDao.countProvisionedProjects(db.getSession(), "key-2")).isEqualTo(1);
+    assertThat(componentDao.countProvisionedProjects(db.getSession(), "visioned-name-")).isEqualTo(2);
   }
 
   @Test
@@ -156,8 +145,8 @@ public class ProvisionedActionTest {
       .setKey("com.microsoft.roslyn:roslyn")
       .setName("Roslyn")
       .setCreatedAt(DateUtils.parseDateTime("2013-03-04T23:03:44+0100"));
-    componentDao.insert(dbSession, hBaseProject, roslynProject);
-    dbSession.commit();
+    componentDao.insert(db.getSession(), hBaseProject, roslynProject);
+    db.getSession().commit();
 
     WsTester.Result result = ws.newGetRequest("api/projects", "provisioned").execute();
 
@@ -168,7 +157,7 @@ public class ProvisionedActionTest {
   public void fail_when_not_enough_privileges() throws Exception {
     expectedException.expect(ForbiddenException.class);
     userSessionRule.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
-    componentDao.insert(dbSession, newProvisionedProject("1"));
+    componentDao.insert(db.getSession(), newProvisionedProject("1"));
 
     ws.newGetRequest("api/projects", "provisioned").execute();
   }

@@ -32,18 +32,18 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -59,6 +59,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IssueCommentServiceTest {
+
   @Mock
   private DbClient dbClient;
 

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.source.ws;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,12 +27,9 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.DbSession;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.source.FileSourceDao;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -56,23 +52,14 @@ public class HashActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  DbSession session;
-
   WsTester tester;
 
   @Before
   public void before() {
     db.truncateTables();
-    this.session = db.myBatis().openSession(false);
-
-    DbClient dbClient = new DbClient(db.database(), db.myBatis(), new FileSourceDao(db.myBatis()), new ComponentDao());
+    DbClient dbClient = db.getDbClient();
 
     tester = new WsTester(new SourcesWs(new HashAction(dbClient, userSessionRule, new ComponentFinder(dbClient))));
-  }
-
-  @After
-  public void after() {
-    this.session.close();
   }
 
   @Test

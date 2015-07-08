@@ -28,11 +28,11 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.BatchSession;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueChangeMapper;
-import org.sonar.server.db.DbClient;
 
 import static com.google.common.collect.Lists.newArrayList;
 

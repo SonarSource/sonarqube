@@ -25,12 +25,12 @@ import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ServerSide;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.purge.IdUuidPair;
 import org.sonar.db.purge.PurgeProfiler;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.source.index.SourceLineIndexer;
@@ -48,7 +48,7 @@ public class ComponentCleanerService {
   private final ComponentFinder componentFinder;
 
   public ComponentCleanerService(DbClient dbClient, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
-    SourceLineIndexer sourceLineIndexer, TestIndexer testIndexer, ResourceTypes resourceTypes, ComponentFinder componentFinder) {
+                                 SourceLineIndexer sourceLineIndexer, TestIndexer testIndexer, ResourceTypes resourceTypes, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.issueAuthorizationIndexer = issueAuthorizationIndexer;
     this.issueIndexer = issueIndexer;

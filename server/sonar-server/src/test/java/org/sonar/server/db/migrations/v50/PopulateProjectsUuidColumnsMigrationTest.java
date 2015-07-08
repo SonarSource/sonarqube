@@ -21,16 +21,14 @@
 package org.sonar.server.db.migrations.v50;
 
 import com.google.common.collect.ImmutableSet;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbSession;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.version.v50.Component;
 import org.sonar.db.version.v50.Migration50Mapper;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.MigrationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,9 +38,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
   @Rule
   public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateProjectsUuidColumnsMigrationTest.class, "schema.sql");
 
-  DbSession session;
-
-  DbClient dbClient;
+  DbClient dbClient = db.getDbClient();
 
   Migration50Mapper mapper;
 
@@ -52,15 +48,8 @@ public class PopulateProjectsUuidColumnsMigrationTest {
   public void setUp() {
     db.executeUpdateSql("truncate table projects");
     db.executeUpdateSql("truncate table snapshots");
-    dbClient = new DbClient(db.database(), db.myBatis());
-    session = dbClient.openSession(false);
-    mapper = session.getMapper(Migration50Mapper.class);
+    mapper = db.getSession().getMapper(Migration50Mapper.class);
     migration = new PopulateProjectsUuidColumnsMigrationStep(dbClient);
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
   }
 
   @Test
@@ -68,7 +57,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     db.prepareDbUnit(getClass(), "migrate_components.xml");
 
     migration.execute();
-    session.commit();
+    db.getSession().commit();
 
     Component root = mapper.selectComponentByKey("org.struts:struts");
     assertThat(root.getUuid()).isNotNull();
@@ -109,7 +98,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     db.prepareDbUnit(getClass(), "not_migrate_already_migrated_components.xml");
 
     migration.execute();
-    session.commit();
+    db.getSession().commit();
 
     Component root = mapper.selectComponentByKey("org.struts:struts");
     assertThat(root.getUuid()).isEqualTo("ABCD");
@@ -153,7 +142,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     db.prepareDbUnit(getClass(), "migrate_disable_components.xml");
 
     migration.execute();
-    session.commit();
+    db.getSession().commit();
 
     Component root = mapper.selectComponentByKey("org.struts:struts");
     assertThat(root.getUuid()).isNotNull();
@@ -192,7 +181,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     db.prepareDbUnit(getClass(), "migrate_provisioned_project.xml");
 
     migration.execute();
-    session.commit();
+    db.getSession().commit();
 
     Component root = mapper.selectComponentByKey("org.struts:struts");
     assertThat(root.getUuid()).isNotNull();
@@ -206,7 +195,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     db.prepareDbUnit(getClass(), "migrate_library.xml");
 
     migration.execute();
-    session.commit();
+    db.getSession().commit();
 
     Component root = mapper.selectComponentByKey("org.hamcrest:hamcrest-library");
     assertThat(root.getUuid()).isNotNull();
@@ -220,7 +209,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     db.prepareDbUnit(getClass(), "migrate_view.xml");
 
     migration.execute();
-    session.commit();
+    db.getSession().commit();
 
     Component view = mapper.selectComponentByKey("view");
     assertThat(view.getUuid()).isNotNull();
@@ -246,7 +235,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     db.prepareDbUnit(getClass(), "migrate_developer.xml");
 
     migration.execute();
-    session.commit();
+    db.getSession().commit();
 
     Component dev = mapper.selectComponentByKey("DEV:developer@company.net");
     assertThat(dev.getUuid()).isNotNull();
@@ -266,7 +255,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     db.prepareDbUnit(getClass(), "migrate_components_without_uuid.xml");
 
     migration.execute();
-    session.commit();
+    db.getSession().commit();
 
     // Root project migrated
     Component root = mapper.selectComponentByKey("org.struts:struts");
@@ -295,7 +284,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     db.prepareDbUnit(getClass(), "not_fail_when_module_has_no_root_id.xml");
 
     migration.execute();
-    session.commit();
+    db.getSession().commit();
 
     // Root project migrated
     Component root = mapper.selectComponentByKey("org.struts:struts");
@@ -317,7 +306,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     db.prepareDbUnit(getClass(), "not_fail_when_project_has_two_active_snapshots.xml");
 
     migration.execute();
-    session.commit();
+    db.getSession().commit();
 
     // Root project migrated
     Component root = mapper.selectComponentByKey("org.struts:struts");

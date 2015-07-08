@@ -30,6 +30,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.component.SnapshotDto;
@@ -38,7 +39,6 @@ import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -228,7 +228,7 @@ public class FillMeasuresWithVariationsStepTest {
       newMeasureDto(DEBT_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 10d),
       newMeasureDto(FILE_COMPLEXITY_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 2d),
       newMeasureDto(BUILD_BREAKER_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 1d)
-      );
+    );
     session.commit();
 
     periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
@@ -263,8 +263,8 @@ public class FillMeasuresWithVariationsStepTest {
     treeRootHolder.setRoot(PROJECT);
 
     reportReader.putMeasures(PROJECT.getRef(), Collections.singletonList(
-      BatchReport.Measure.newBuilder().setIntValue(80).setMetricKey(ISSUES_METRIC.getKey()).build())
-      );
+        BatchReport.Measure.newBuilder().setIntValue(80).setMetricKey(ISSUES_METRIC.getKey()).build())
+    );
 
     sut.execute();
 

@@ -29,8 +29,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.compute.AnalysisReportDto;
 import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.ActivityService;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,9 +51,7 @@ public class ActivityManagerTest {
   @Before
   public void setup() {
     dbTester.truncateTables();
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao());
-
-    underTest = new ActivityManager(activityService, dbClient);
+    underTest = new ActivityManager(activityService, dbTester.getDbClient());
   }
 
   @Test

@@ -30,10 +30,10 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.user.UserSession;
 
@@ -71,7 +71,7 @@ public class ProvisionedAction implements ProjectsWsAction {
     SearchOptions options = new SearchOptions().setPage(
       request.mandatoryParamAsInt(Param.PAGE),
       request.mandatoryParamAsInt(Param.PAGE_SIZE)
-      );
+    );
     Set<String> desiredFields = desiredFields(request);
     String query = request.param(Param.TEXT_QUERY);
 

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.component.db;
+package org.sonar.db.component;
 
 import com.google.common.base.Optional;
 import java.util.Collections;
@@ -30,8 +30,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;

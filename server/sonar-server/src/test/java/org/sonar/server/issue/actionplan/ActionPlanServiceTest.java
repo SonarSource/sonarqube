@@ -20,6 +20,8 @@
 
 package org.sonar.server.issue.actionplan;
 
+import java.util.Collection;
+import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,36 +30,37 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.component.ResourceDao;
+import org.sonar.db.component.ResourceDto;
+import org.sonar.db.component.ResourceQuery;
 import org.sonar.db.issue.ActionPlanDao;
 import org.sonar.db.issue.ActionPlanDto;
 import org.sonar.db.issue.ActionPlanStatsDao;
 import org.sonar.db.issue.ActionPlanStatsDto;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.server.issue.IssueStorage;
-import org.sonar.db.DbSession;
-import org.sonar.db.component.ResourceDao;
-import org.sonar.db.component.ResourceDto;
-import org.sonar.db.component.ResourceQuery;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.issue.IssueStorage;
 import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.user.UserSession;
-
-import java.util.Collection;
-import java.util.Date;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ActionPlanServiceTest {

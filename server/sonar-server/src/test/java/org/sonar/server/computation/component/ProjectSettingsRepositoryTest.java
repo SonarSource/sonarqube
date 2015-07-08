@@ -27,14 +27,13 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.test.DbTests;
 
@@ -48,7 +47,7 @@ public class ProjectSettingsRepositoryTest {
   @Rule
   public final DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient;
+  DbClient dbClient = dbTester.getDbClient();
 
   DbSession session;
 
@@ -61,7 +60,6 @@ public class ProjectSettingsRepositoryTest {
     dbTester.truncateTables();
     globalSettings = new Settings();
     PropertiesDao propertiesDao = new PropertiesDao(dbTester.myBatis());
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), propertiesDao, new ComponentDao());
     session = dbClient.openSession(false);
     sut = new ProjectSettingsRepository(new ProjectSettingsFactory(globalSettings, propertiesDao));
   }

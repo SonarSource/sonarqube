@@ -22,9 +22,9 @@ package org.sonar.server.component;
 
 import com.google.common.base.Optional;
 import javax.annotation.Nullable;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.base.Preconditions.checkArgument;

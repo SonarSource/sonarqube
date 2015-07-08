@@ -32,23 +32,23 @@ import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.db.component.SnapshotDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.PermissionChange;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
@@ -63,6 +63,7 @@ public class IssueBulkChangeServiceMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester().withStartupTasks().withEsIndexes();
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 

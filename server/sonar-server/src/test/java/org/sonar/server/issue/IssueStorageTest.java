@@ -33,12 +33,12 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
-import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 @Category(DbTests.class)
@@ -49,7 +49,7 @@ public class IssueStorageTest {
   @org.junit.Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis());
+  DbClient dbClient = dbTester.getDbClient();
 
   @Test
   public void batch_insert_new_issues() {

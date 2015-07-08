@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.ws;
 
+import com.google.common.io.Resources;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -26,13 +27,11 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.IsAliveMapper;
-import org.sonar.db.DbClient;
 import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.platform.Platform;
-
-import com.google.common.io.Resources;
 
 /**
  * Implementation of the {@code status} action for the System WebService.

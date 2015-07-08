@@ -28,11 +28,11 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentCleanerService;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
@@ -110,7 +110,7 @@ public class DeleteAction implements ProjectsWsAction {
         throw new NotFoundException(String.format("Component with uuid '%s' not found", uuid));
       }
       return componentDto.get();
-    } else if (uuid == null && key != null)  {
+    } else if (uuid == null && key != null) {
       Optional<ComponentDto> componentDto = dbClient.componentDao().selectByKey(session, key);
       if (!componentDto.isPresent()) {
         throw new NotFoundException(String.format("Component with key '%s' not found", key));

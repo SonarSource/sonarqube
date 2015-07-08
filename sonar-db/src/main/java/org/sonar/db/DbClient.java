@@ -23,6 +23,7 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.db.activity.ActivityDao;
+import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentLinkDao;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceIndexDao;
@@ -71,6 +72,7 @@ public class DbClient {
   private final LoadedTemplateDao loadedTemplateDao;
   private final PropertiesDao propertiesDao;
   private final SnapshotDao snapshotDao;
+  private final ComponentDao componentDao;
   private final ResourceDao resourceDao;
   private final ResourceKeyUpdaterDao resourceKeyUpdaterDao;
   private final MeasureDao measureDao;
@@ -119,6 +121,7 @@ public class DbClient {
     loadedTemplateDao = getDao(map, LoadedTemplateDao.class);
     propertiesDao = getDao(map, PropertiesDao.class);
     snapshotDao = getDao(map, SnapshotDao.class);
+    componentDao = getDao(map, ComponentDao.class);
     resourceDao = getDao(map, ResourceDao.class);
     resourceKeyUpdaterDao = getDao(map, ResourceKeyUpdaterDao.class);
     measureDao = getDao(map, MeasureDao.class);
@@ -207,6 +210,10 @@ public class DbClient {
 
   public SnapshotDao snapshotDao() {
     return snapshotDao;
+  }
+
+  public ComponentDao componentDao() {
+    return componentDao;
   }
 
   public ResourceDao resourceDao() {

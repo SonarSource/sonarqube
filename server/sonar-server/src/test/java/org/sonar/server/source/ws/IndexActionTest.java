@@ -28,12 +28,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
@@ -46,6 +46,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IndexActionTest {
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -82,7 +83,7 @@ public class IndexActionTest {
     when(sourceService.getLinesAsTxt(file.uuid(), 1, null)).thenReturn(newArrayList(
       "public class HelloWorld {",
       "}"
-      ));
+    ));
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "index").setParam("resource", fileKey);
     request.execute().assertJson(this.getClass(), "index-result.json");
@@ -97,7 +98,7 @@ public class IndexActionTest {
     when(sourceService.getLinesAsTxt(file.uuid(), 1, 2)).thenReturn(newArrayList(
       "public class HelloWorld {",
       "}"
-      ));
+    ));
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "index")
       .setParam("resource", fileKey).setParam("from", "1").setParam("to", "3");

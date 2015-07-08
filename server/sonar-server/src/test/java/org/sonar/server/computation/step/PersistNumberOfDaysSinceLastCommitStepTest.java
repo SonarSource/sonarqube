@@ -28,8 +28,8 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.measure.MeasureDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -39,7 +39,6 @@ import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepository;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.source.index.SourceLineIndex;
 
 import static org.mockito.Matchers.anyString;
@@ -61,7 +60,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
 
   PersistNumberOfDaysSinceLastCommitStep sut;
 
-  DbClient dbClient;
+  DbClient dbClient = db.getDbClient();
   SourceLineIndex sourceLineIndex;
   MetricRepository metricRepository;
   Settings projectSettings;
@@ -70,7 +69,6 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   @Before
   public void setUp() {
     db.truncateTables();
-    dbClient = new DbClient(db.database(), db.myBatis(), new MeasureDao());
     sourceLineIndex = mock(SourceLineIndex.class);
     metricRepository = mock(MetricRepository.class);
     projectSettings = new Settings();
@@ -101,7 +99,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
 
     sut.execute();
 
-    db.assertDbUnit(getClass(), "insert-from-report-result.xml", new String[] {"id"}, "project_measures");
+    db.assertDbUnit(getClass(), "insert-from-report-result.xml", new String[]{"id"}, "project_measures");
   }
 
   @Test
@@ -112,7 +110,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
 
     sut.execute();
 
-    db.assertDbUnit(getClass(), "insert-from-index-result.xml", new String[] {"id"}, "project_measures");
+    db.assertDbUnit(getClass(), "insert-from-index-result.xml", new String[]{"id"}, "project_measures");
   }
 
   @Test

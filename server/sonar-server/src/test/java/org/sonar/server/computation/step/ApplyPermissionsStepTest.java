@@ -32,22 +32,18 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ResourceDao;
 import org.sonar.db.permission.PermissionFacade;
-import org.sonar.db.permission.PermissionTemplateDao;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupRoleDto;
-import org.sonar.db.user.RoleDao;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DumbComponent;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexDefinition;
@@ -72,7 +68,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
 
   DbSession dbSession;
 
-  DbClient dbClient;
+  DbClient dbClient = dbTester.getDbClient();
 
   Settings settings;
 
@@ -86,9 +82,6 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     dbTester.truncateTables();
     esTester.truncateIndices();
 
-    RoleDao roleDao = new RoleDao();
-    PermissionTemplateDao permissionTemplateDao = new PermissionTemplateDao(dbTester.myBatis(), System2.INSTANCE);
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), roleDao, permissionTemplateDao, new ResourceDao(dbTester.myBatis(), System2.INSTANCE));
     dbSession = dbClient.openSession(false);
 
     settings = new Settings();

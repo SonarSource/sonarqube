@@ -32,8 +32,8 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.rule.index.RuleIndex;
@@ -150,6 +150,6 @@ public class NewIssuesNotificationTest {
     return new RuleDoc(ImmutableMap.<String, Object>of(
       RuleNormalizer.RuleField.NAME.field(), name,
       RuleNormalizer.RuleField.LANGUAGE.field(), language
-      ));
+    ));
   }
 }

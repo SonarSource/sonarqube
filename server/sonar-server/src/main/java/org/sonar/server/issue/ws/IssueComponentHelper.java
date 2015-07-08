@@ -23,9 +23,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.component.ComponentDto;
 
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -41,7 +41,7 @@ public class IssueComponentHelper {
   }
 
   public Map<String, ComponentDto> prepareComponentsAndProjects(Set<String> projectUuids, Set<String> componentUuids, Map<String, ComponentDto> componentsByUuid,
-      Collection<ComponentDto> componentDtos, List<ComponentDto> projectDtos, DbSession session) {
+                                                                Collection<ComponentDto> componentDtos, List<ComponentDto> projectDtos, DbSession session) {
     Map<String, ComponentDto> projectsByComponentUuid;
     List<ComponentDto> fileDtos = dbClient.componentDao().selectByUuids(session, componentUuids);
     List<ComponentDto> subProjectDtos = dbClient.componentDao().selectSubProjectsByComponentUuids(session, componentUuids);

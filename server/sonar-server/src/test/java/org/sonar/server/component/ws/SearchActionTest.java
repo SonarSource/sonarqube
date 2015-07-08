@@ -29,11 +29,7 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ResourceIndexDao;
-import org.sonar.db.user.AuthorizationDao;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -58,10 +54,7 @@ public class SearchActionTest {
   @Before
   public void setUp() {
     dbTester.truncateTables();
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(),
-      new ComponentDao(), new AuthorizationDao(dbTester.myBatis()), new ResourceIndexDao(dbTester.myBatis(), mock(System2.class))
-      );
-    tester = new WsTester(new ComponentsWs(mock(AppAction.class), new SearchAction(dbClient, userSessionRule, new ComponentFinder(dbClient))));
+    tester = new WsTester(new ComponentsWs(mock(AppAction.class), new SearchAction(dbTester.getDbClient(), userSessionRule, new ComponentFinder(dbTester.getDbClient()))));
   }
 
   @Test

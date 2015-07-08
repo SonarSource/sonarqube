@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue.ws;
 
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -31,19 +32,19 @@ import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.PermissionChange;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
@@ -52,14 +53,13 @@ import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.Result;
 
-import java.util.List;
-
 import static com.google.common.collect.Lists.newArrayList;
 
 public class SearchActionComponentsMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester().withStartupTasks().withEsIndexes();
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 

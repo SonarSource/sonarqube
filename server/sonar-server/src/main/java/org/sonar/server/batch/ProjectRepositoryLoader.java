@@ -42,13 +42,13 @@ import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.UtcDateUtils;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.QProfileFactory;
@@ -170,7 +170,7 @@ public class ProjectRepositoryLoader {
   }
 
   private void addSettingsToChildrenModules(ProjectRepositories ref, String moduleKey, Map<String, String> parentProperties, TreeModuleSettings treeModuleSettings,
-    boolean hasScanPerm, DbSession session) {
+                                            boolean hasScanPerm, DbSession session) {
     Map<String, String> currentParentProperties = newHashMap();
     currentParentProperties.putAll(parentProperties);
     currentParentProperties.putAll(getPropertiesMap(treeModuleSettings.findModuleSettings(moduleKey), hasScanPerm));
@@ -242,9 +242,9 @@ public class ProjectRepositoryLoader {
       Map<RuleKey, Rule> languageRules = ruleByRuleKey(ruleService.search(new RuleQuery().setLanguages(newArrayList(qProfile.language())),
         new QueryContext(userSession).setLimit(100).setFieldsToReturn(newArrayList(
           RuleNormalizer.RuleField.KEY.field(), RuleNormalizer.RuleField.NAME.field(), RuleNormalizer.RuleField.INTERNAL_KEY.field(), RuleNormalizer.RuleField.TEMPLATE_KEY.field()
-          )).setScroll(true))
+        )).setScroll(true))
         .scroll());
-      for (Iterator<ActiveRule> activeRuleIterator = qProfileLoader.findActiveRulesByProfile(qProfile.key()); activeRuleIterator.hasNext();) {
+      for (Iterator<ActiveRule> activeRuleIterator = qProfileLoader.findActiveRulesByProfile(qProfile.key()); activeRuleIterator.hasNext(); ) {
         ActiveRule activeRule = activeRuleIterator.next();
         Rule rule = languageRules.get(activeRule.key().ruleKey());
         if (rule == null) {
@@ -339,7 +339,7 @@ public class ProjectRepositoryLoader {
     private Multimap<String, ComponentDto> moduleChildrenByModuleUuid;
 
     private TreeModuleSettings(Map<String, String> moduleUuidsByKey, Map<String, Long> moduleIdsByKey, List<ComponentDto> moduleChildren,
-      List<PropertyDto> moduleChildrenSettings, ComponentDto module) {
+                               List<PropertyDto> moduleChildrenSettings, ComponentDto module) {
       this.moduleIdsByKey = moduleIdsByKey;
       this.moduleUuidsByKey = moduleUuidsByKey;
       propertiesByModuleId = ArrayListMultimap.create();
@@ -368,7 +368,7 @@ public class ProjectRepositoryLoader {
     }
   }
 
-  private enum MatchRuleKey implements Function<Rule, RuleKey>{
+  private enum MatchRuleKey implements Function<Rule, RuleKey> {
     INSTANCE;
 
     @Override

@@ -21,7 +21,6 @@
 package org.sonar.server.computation.step;
 
 import java.util.List;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,15 +29,13 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.DbSession;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
-import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -47,7 +44,6 @@ import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.component.FileAttributes;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderRule;
-import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,9 +71,7 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
 
   DbIdsRepository dbIdsRepository;
 
-  DbSession session;
-
-  DbClient dbClient;
+  DbClient dbClient = dbTester.getDbClient();
 
   long analysisDate;
 
@@ -88,9 +82,6 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
   @Before
   public void setup() {
     dbTester.truncateTables();
-    session = dbTester.myBatis().openSession(false);
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new SnapshotDao());
-
     analysisDate = DateUtils.parseDateQuietly("2015-06-01").getTime();
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setAnalysisDate(analysisDate)
@@ -112,22 +103,17 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     return sut;
   }
 
-  @After
-  public void tearDown() {
-    session.close();
-  }
-
   @Test
   public void persist_snapshots() {
     ComponentDto projectDto = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
-    dbClient.componentDao().insert(session, projectDto);
+    dbClient.componentDao().insert(dbTester.getSession(), projectDto);
     ComponentDto moduleDto = ComponentTesting.newModuleDto("BCDE", projectDto).setKey("MODULE_KEY").setName("Module");
-    dbClient.componentDao().insert(session, moduleDto);
+    dbClient.componentDao().insert(dbTester.getSession(), moduleDto);
     ComponentDto directoryDto = ComponentTesting.newDirectory(moduleDto, "CDEF", "MODULE_KEY:src/main/java/dir").setKey("MODULE_KEY:src/main/java/dir");
-    dbClient.componentDao().insert(session, directoryDto);
+    dbClient.componentDao().insert(dbTester.getSession(), directoryDto);
     ComponentDto fileDto = ComponentTesting.newFileDto(moduleDto, "DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java");
-    dbClient.componentDao().insert(session, fileDto);
-    session.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), fileDto);
+    dbTester.getSession().commit();
 
     Component file = DumbComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build();
     Component directory = DumbComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(file).build();
@@ -213,14 +199,14 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
   @Test
   public void persist_unit_test() {
     ComponentDto projectDto = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
-    dbClient.componentDao().insert(session, projectDto);
+    dbClient.componentDao().insert(dbTester.getSession(), projectDto);
     ComponentDto moduleDto = ComponentTesting.newModuleDto("BCDE", projectDto).setKey("MODULE_KEY").setName("Module");
-    dbClient.componentDao().insert(session, moduleDto);
+    dbClient.componentDao().insert(dbTester.getSession(), moduleDto);
     ComponentDto directoryDto = ComponentTesting.newDirectory(moduleDto, "CDEF", "MODULE_KEY:src/test/java/dir").setKey("MODULE_KEY:src/test/java/dir");
-    dbClient.componentDao().insert(session, directoryDto);
+    dbClient.componentDao().insert(dbTester.getSession(), directoryDto);
     ComponentDto fileDto = ComponentTesting.newFileDto(moduleDto, "DEFG").setKey("MODULE_KEY:src/test/java/dir/FooTest.java").setQualifier("UTS");
-    dbClient.componentDao().insert(session, fileDto);
-    session.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), fileDto);
+    dbTester.getSession().commit();
 
     Component file = DumbComponent.builder(Component.Type.FILE, 3).setUuid("DEFG").setKey(PROJECT_KEY + ":src/main/java/dir/Foo.java").setFileAttributes(new FileAttributes(true, null)).build();
     Component directory = DumbComponent.builder(Component.Type.DIRECTORY, 2).setUuid("CDEF").setKey(PROJECT_KEY + ":src/main/java/dir").addChildren(file).build();
@@ -241,14 +227,14 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
   @Test
   public void persist_snapshots_on_multi_modules() {
     ComponentDto projectDto = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
-    dbClient.componentDao().insert(session, projectDto);
+    dbClient.componentDao().insert(dbTester.getSession(), projectDto);
     ComponentDto moduleADto = ComponentTesting.newModuleDto("BCDE", projectDto).setKey("MODULE_A");
-    dbClient.componentDao().insert(session, moduleADto);
+    dbClient.componentDao().insert(dbTester.getSession(), moduleADto);
     ComponentDto subModuleADto = ComponentTesting.newModuleDto("CDEF", moduleADto).setKey("SUB_MODULE_A");
-    dbClient.componentDao().insert(session, subModuleADto);
+    dbClient.componentDao().insert(dbTester.getSession(), subModuleADto);
     ComponentDto moduleBDto = ComponentTesting.newModuleDto("DEFG", projectDto).setKey("MODULE_B");
-    dbClient.componentDao().insert(session, moduleBDto);
-    session.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), moduleBDto);
+    dbTester.getSession().commit();
 
     Component moduleB = DumbComponent.builder(Component.Type.MODULE, 4).setUuid("DEFG").setKey("MODULE_B").build();
     Component subModuleA = DumbComponent.builder(Component.Type.MODULE, 3).setUuid("CDEF").setKey("SUB_MODULE_A").build();
@@ -297,10 +283,10 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
   @Test
   public void persist_snapshots_with_periods() {
     ComponentDto projectDto = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
-    dbClient.componentDao().insert(session, projectDto);
+    dbClient.componentDao().insert(dbTester.getSession(), projectDto);
     SnapshotDto snapshotDto = SnapshotTesting.createForProject(projectDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime());
-    dbClient.snapshotDao().insert(session, snapshotDto);
-    session.commit();
+    dbClient.snapshotDao().insert(dbTester.getSession(), snapshotDto);
+    dbTester.getSession().commit();
     periodsHolderRule.setPeriods(new Period(1, CoreProperties.TIMEMACHINE_MODE_DATE, "2015-01-01", analysisDate, 123L));
 
     Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build();
@@ -320,26 +306,26 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     periodsHolderRule.setPeriods(new Period(1, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, null, analysisDate, 123L));
 
     ComponentDto projectDto = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
-    dbClient.componentDao().insert(session, projectDto);
+    dbClient.componentDao().insert(dbTester.getSession(), projectDto);
     SnapshotDto projectSnapshot = SnapshotTesting.createForProject(projectDto);
-    dbClient.snapshotDao().insert(session, projectSnapshot);
+    dbClient.snapshotDao().insert(dbTester.getSession(), projectSnapshot);
 
     ComponentDto moduleDto = ComponentTesting.newModuleDto("BCDE", projectDto).setKey("MODULE_KEY").setName("Module");
-    dbClient.componentDao().insert(session, moduleDto);
+    dbClient.componentDao().insert(dbTester.getSession(), moduleDto);
     SnapshotDto moduleSnapshot = SnapshotTesting.createForComponent(moduleDto, projectSnapshot);
-    dbClient.snapshotDao().insert(session, moduleSnapshot);
+    dbClient.snapshotDao().insert(dbTester.getSession(), moduleSnapshot);
 
     ComponentDto directoryDto = ComponentTesting.newDirectory(moduleDto, "CDEF", "MODULE_KEY:src/main/java/dir").setKey("MODULE_KEY:src/main/java/dir");
-    dbClient.componentDao().insert(session, directoryDto);
+    dbClient.componentDao().insert(dbTester.getSession(), directoryDto);
     SnapshotDto directorySnapshot = SnapshotTesting.createForComponent(directoryDto, moduleSnapshot);
-    dbClient.snapshotDao().insert(session, directorySnapshot);
+    dbClient.snapshotDao().insert(dbTester.getSession(), directorySnapshot);
 
     ComponentDto fileDto = ComponentTesting.newFileDto(moduleDto, "DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java");
-    dbClient.componentDao().insert(session, fileDto);
+    dbClient.componentDao().insert(dbTester.getSession(), fileDto);
     SnapshotDto fileSnapshot = SnapshotTesting.createForComponent(fileDto, directorySnapshot);
-    dbClient.snapshotDao().insert(session, fileSnapshot);
+    dbClient.snapshotDao().insert(dbTester.getSession(), fileSnapshot);
 
-    session.commit();
+    dbTester.getSession().commit();
 
     Component file = DumbComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build();
     Component directory = DumbComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(file).build();
@@ -370,10 +356,10 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
   @Test
   public void set_no_period_on_snapshots_when_no_period() {
     ComponentDto projectDto = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
-    dbClient.componentDao().insert(session, projectDto);
+    dbClient.componentDao().insert(dbTester.getSession(), projectDto);
     SnapshotDto snapshotDto = SnapshotTesting.createForProject(projectDto);
-    dbClient.snapshotDao().insert(session, snapshotDto);
-    session.commit();
+    dbClient.snapshotDao().insert(dbTester.getSession(), snapshotDto);
+    dbTester.getSession().commit();
 
     Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build();
     treeRootHolder.setRoot(project);
@@ -388,7 +374,7 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
   }
 
   private SnapshotDto getUnprocessedSnapshot(long componentId) {
-    List<SnapshotDto> projectSnapshots = dbClient.snapshotDao().selectSnapshotsByQuery(session,
+    List<SnapshotDto> projectSnapshots = dbClient.snapshotDao().selectSnapshotsByQuery(dbTester.getSession(),
       new SnapshotQuery().setComponentId(componentId).setIsLast(false).setStatus(SnapshotDto.STATUS_UNPROCESSED));
     assertThat(projectSnapshots).hasSize(1);
     return projectSnapshots.get(0);

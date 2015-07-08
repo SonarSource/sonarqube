@@ -22,7 +22,6 @@ package org.sonar.server.project.ws;
 
 import com.google.common.io.Resources;
 import org.apache.commons.lang.StringUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,15 +30,12 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.DbSession;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -58,20 +54,12 @@ public class GhostsActionTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   WsTester ws;
 
-  DbClient dbClient;
-  DbSession dbSession;
+  DbClient dbClient = db.getDbClient();
 
   @Before
   public void setUp() {
-    dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(), new SnapshotDao());
-    dbSession = dbClient.openSession(false);
     ws = new WsTester(new ProjectsWs(new GhostsAction(dbClient, userSessionRule)));
     db.truncateTables();
-  }
-
-  @After
-  public void tearDown() {
-    dbSession.close();
   }
 
   @Test
@@ -153,17 +141,17 @@ public class GhostsActionTest {
       .setKey("org.apache.hbas:hbase")
       .setName("HBase")
       .setCreatedAt(DateUtils.parseDateTime("2015-03-04T23:03:44+0100"));
-    dbClient.componentDao().insert(dbSession, hBaseProject);
-    dbClient.snapshotDao().insert(dbSession, SnapshotTesting.createForProject(hBaseProject)
+    dbClient.componentDao().insert(db.getSession(), hBaseProject);
+    dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.createForProject(hBaseProject)
       .setStatus(SnapshotDto.STATUS_UNPROCESSED));
     ComponentDto roslynProject = ComponentTesting.newProjectDto("c526ef20-131b-4486-9357-063fa64b5079")
       .setKey("com.microsoft.roslyn:roslyn")
       .setName("Roslyn")
       .setCreatedAt(DateUtils.parseDateTime("2013-03-04T23:03:44+0100"));
-    dbClient.componentDao().insert(dbSession, roslynProject);
-    dbClient.snapshotDao().insert(dbSession, SnapshotTesting.createForProject(roslynProject)
+    dbClient.componentDao().insert(db.getSession(), roslynProject);
+    dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.createForProject(roslynProject)
       .setStatus(SnapshotDto.STATUS_UNPROCESSED));
-    dbSession.commit();
+    db.getSession().commit();
 
     WsTester.Result result = ws.newGetRequest("api/projects", "ghosts").execute();
 
@@ -182,11 +170,11 @@ public class GhostsActionTest {
       .newProjectDto("ghost-uuid-" + id)
       .setName("ghost-name-" + id)
       .setKey("ghost-key-" + id);
-    dbClient.componentDao().insert(dbSession, project);
+    dbClient.componentDao().insert(db.getSession(), project);
     SnapshotDto snapshot = SnapshotTesting.createForProject(project)
       .setStatus(SnapshotDto.STATUS_UNPROCESSED);
-    dbClient.snapshotDao().insert(dbSession, snapshot);
-    dbSession.commit();
+    dbClient.snapshotDao().insert(db.getSession(), snapshot);
+    db.getSession().commit();
   }
 
   private void insertNewActiveProject(String id) {
@@ -194,9 +182,9 @@ public class GhostsActionTest {
       .newProjectDto("analyzed-uuid-" + id)
       .setName("analyzed-name-" + id)
       .setKey("analyzed-key-" + id);
-    dbClient.componentDao().insert(dbSession, project);
+    dbClient.componentDao().insert(db.getSession(), project);
     SnapshotDto snapshot = SnapshotTesting.createForProject(project);
-    dbClient.snapshotDao().insert(dbSession, snapshot);
-    dbSession.commit();
+    dbClient.snapshotDao().insert(db.getSession(), snapshot);
+    db.getSession().commit();
   }
 }

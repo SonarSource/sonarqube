@@ -28,6 +28,7 @@ import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDto;
@@ -35,7 +36,6 @@ import org.sonar.db.permission.PermissionFacade;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
@@ -63,7 +63,7 @@ public class InternalPermissionService {
   private final ComponentFinder componentFinder;
 
   public InternalPermissionService(DbClient dbClient, PermissionFacade permissionFacade, PermissionFinder finder,
-    IssueAuthorizationIndexer issueAuthorizationIndexer, UserSession userSession, ComponentFinder componentFinder) {
+                                   IssueAuthorizationIndexer issueAuthorizationIndexer, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.permissionFacade = permissionFacade;
     this.finder = finder;

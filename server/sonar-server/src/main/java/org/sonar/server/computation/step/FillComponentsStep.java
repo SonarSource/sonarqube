@@ -25,14 +25,14 @@ import java.util.List;
 import java.util.Map;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.core.component.ComponentKeys;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentImpl;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.server.db.DbClient;
 
 /**
  * Read all components from the batch report and fill component UUID and key.

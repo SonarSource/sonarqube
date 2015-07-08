@@ -24,34 +24,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.apache.commons.lang.time.DateUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rule.Severity;
-import org.sonar.db.DbSession;
-import org.sonar.db.qualityprofile.ActiveRuleDto;
-import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.rule.RuleDto;
-import org.sonar.db.rule.RuleParamDto;
-import org.sonar.db.debt.CharacteristicDto;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.debt.DebtTesting;
-import org.sonar.server.qualityprofile.ActiveRule;
-import org.sonar.server.qualityprofile.QProfileTesting;
-import org.sonar.server.rule.Rule;
-import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.search.FacetValue;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
-import org.sonar.server.tester.ServerTester;
-
-import javax.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -61,6 +33,32 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.time.DateUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
+import org.sonar.db.DbSession;
+import org.sonar.db.debt.CharacteristicDto;
+import org.sonar.db.qualityprofile.ActiveRuleDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleParamDto;
+import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.debt.DebtTesting;
+import org.sonar.server.qualityprofile.ActiveRule;
+import org.sonar.server.qualityprofile.QProfileTesting;
+import org.sonar.server.rule.Rule;
+import org.sonar.server.rule.db.RuleDao;
+import org.sonar.server.search.FacetValue;
+import org.sonar.server.search.QueryContext;
+import org.sonar.server.search.Result;
+import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -729,7 +727,7 @@ public class RuleIndexMediumTest {
 
     // 4. get all active rules on profile
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto2.getKey()),
+        .setQProfileKey(qualityProfileDto2.getKey()),
       new QueryContext(userSessionRule));
     assertThat(result.getHits()).hasSize(1);
     assertThat(result.getHits().get(0).name()).isEqualTo(rule1.getName());
@@ -766,7 +764,7 @@ public class RuleIndexMediumTest {
       ActiveRuleDto.createFor(qualityProfileDto2, rule3)
         .setSeverity("BLOCKER")
         .setInheritance(ActiveRule.Inheritance.INHERITED.name())
-      );
+    );
 
     dbSession.commit();
 
@@ -788,52 +786,52 @@ public class RuleIndexMediumTest {
 
     // 3. get Inherited Rules on profile1
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto1.getKey())
-      .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
+        .setQProfileKey(qualityProfileDto1.getKey())
+        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
       new QueryContext(userSessionRule)
-      );
+    );
     assertThat(result.getHits()).hasSize(0);
 
     // 4. get Inherited Rules on profile2
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto2.getKey())
-      .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
+        .setQProfileKey(qualityProfileDto2.getKey())
+        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
       new QueryContext(userSessionRule)
-      );
+    );
     assertThat(result.getHits()).hasSize(2);
 
     // 5. get Overridden Rules on profile1
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto1.getKey())
-      .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
+        .setQProfileKey(qualityProfileDto1.getKey())
+        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryContext(userSessionRule)
-      );
+    );
     assertThat(result.getHits()).hasSize(0);
 
     // 6. get Overridden Rules on profile2
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto2.getKey())
-      .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
+        .setQProfileKey(qualityProfileDto2.getKey())
+        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryContext(userSessionRule)
-      );
+    );
     assertThat(result.getHits()).hasSize(1);
 
     // 7. get Inherited AND Overridden Rules on profile1
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto1.getKey())
-      .setInheritance(ImmutableSet.of(
-        ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
+        .setQProfileKey(qualityProfileDto1.getKey())
+        .setInheritance(ImmutableSet.of(
+          ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryContext(userSessionRule)
-      );
+    );
     assertThat(result.getHits()).hasSize(0);
 
     // 8. get Inherited AND Overridden Rules on profile2
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto2.getKey())
-      .setInheritance(ImmutableSet.of(
-        ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
+        .setQProfileKey(qualityProfileDto2.getKey())
+        .setInheritance(ImmutableSet.of(
+          ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryContext(userSessionRule)
-      );
+    );
     assertThat(result.getHits()).hasSize(3);
   }
 

@@ -19,16 +19,13 @@
  */
 package org.sonar.server.db.migrations.v44;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbSession;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.activity.ActivityDao;
-import org.sonar.server.db.DbClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -40,23 +37,13 @@ public class ChangeLogMigrationTest {
   public DbTester db = DbTester.createForSchema(System2.INSTANCE, ChangeLogMigrationTest.class, "schema.sql");
 
   System2 system2 = mock(System2.class);
-  DbClient dbClient;
-  ActivityDao dao;
+  DbClient dbClient = db.getDbClient();
   ChangeLogMigrationStep migration;
-  DbSession session;
 
   @Before
   public void setUp() {
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-03-13").getTime());
-    dao = new ActivityDao(db.myBatis(), system2);
-    dbClient = new DbClient(db.database(), db.myBatis(), dao);
-    migration = new ChangeLogMigrationStep(dao, dbClient);
-    session = dbClient.openSession(false);
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
+    migration = new ChangeLogMigrationStep(dbClient.activityDao(), dbClient);
   }
 
   @Test

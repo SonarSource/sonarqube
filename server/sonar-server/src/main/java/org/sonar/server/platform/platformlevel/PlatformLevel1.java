@@ -32,7 +32,6 @@ import org.sonar.db.MyBatis;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.semaphore.SemaphoresImpl;
 import org.sonar.db.version.DatabaseVersion;
-import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
 import org.sonar.server.db.migrations.MigrationStepModule;
@@ -112,7 +111,6 @@ public class PlatformLevel1 extends PlatformLevel {
       ActiveRuleDao.class,
       MetricDao.class,
       CustomMeasureDao.class,
-      ComponentDao.class,
 
       // rules/qprofiles
       RuleNormalizer.class,

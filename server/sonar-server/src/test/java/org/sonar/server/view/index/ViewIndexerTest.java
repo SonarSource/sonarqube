@@ -35,6 +35,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
@@ -43,7 +44,6 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.user.RoleDao;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
@@ -75,7 +75,7 @@ public class ViewIndexerTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   DbClient dbClient;
-  
+
   DbSession dbSession;
 
   ViewIndexer indexer;

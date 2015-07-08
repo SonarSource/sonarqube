@@ -32,15 +32,15 @@ import org.sonar.api.issue.condition.Condition;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -196,7 +196,7 @@ public class ActionServiceTest {
   }
 
   @Test
-  public void get_project_settings(){
+  public void get_project_settings() {
     Component project = mock(Component.class);
     when(project.key()).thenReturn("struts");
 

@@ -21,7 +21,6 @@ package org.sonar.server.ui.ws;
 
 import java.util.Date;
 import java.util.Locale;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,28 +41,20 @@ import org.sonar.api.web.ResourceScope;
 import org.sonar.api.web.UserRole;
 import org.sonar.api.web.View;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbSession;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.dashboard.ActiveDashboardDao;
 import org.sonar.db.dashboard.ActiveDashboardDto;
-import org.sonar.db.dashboard.DashboardDao;
 import org.sonar.db.dashboard.DashboardDto;
-import org.sonar.db.measure.MeasureDao;
-import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.Views;
-import org.sonar.server.user.db.UserDao;
 import org.sonar.server.ws.WsTester;
 
 import static org.mockito.Matchers.any;
@@ -72,20 +63,15 @@ import static org.mockito.Mockito.when;
 
 public class ComponentNavigationActionTest {
 
+  System2 system = mock(System2.class);
+
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(system);
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private DbSession session;
-
-  private UserDao userDao;
-
-  private DashboardDao dashboardDao;
-
-  private ActiveDashboardDao activeDashboardDao;
-
-  private DbClient dbClient;
+  private DbClient dbClient = dbTester.getDbClient();
 
   private I18n i18n;
 
@@ -94,15 +80,6 @@ public class ComponentNavigationActionTest {
   @Before
   public void before() {
     dbTester.truncateTables();
-
-    System2 system = mock(System2.class);
-    userDao = new UserDao(dbTester.myBatis(), system);
-    dashboardDao = new DashboardDao(dbTester.myBatis());
-    activeDashboardDao = new ActiveDashboardDao(dbTester.myBatis());
-    dbClient = new DbClient(
-      dbTester.database(), dbTester.myBatis(), userDao, dashboardDao, activeDashboardDao,
-      new ComponentDao(), new SnapshotDao(), new PropertiesDao(dbTester.myBatis()),
-      new MeasureDao());
 
     i18n = mock(I18n.class);
     when(i18n.message(any(Locale.class), any(String.class), any(String.class)))
@@ -114,13 +91,6 @@ public class ComponentNavigationActionTest {
       });
 
     resourceTypes = mock(ResourceTypes.class);
-
-    session = dbClient.openSession(false);
-  }
-
-  @After
-  public void after() {
-    session.close();
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -137,8 +107,8 @@ public class ComponentNavigationActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_on_missing_permission() throws Exception {
-    dbClient.componentDao().insert(session, ComponentTesting.newProjectDto("abcd").setKey("polop"));
-    session.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), ComponentTesting.newProjectDto("abcd").setKey("polop"));
+    dbTester.getSession().commit();
 
     WsTester wsTester = newdWsTester();
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "polop").execute();
@@ -146,9 +116,9 @@ public class ComponentNavigationActionTest {
 
   @Test
   public void no_snapshot_anonymous() throws Exception {
-    dbClient.componentDao().insert(session, ComponentTesting.newProjectDto("abcd")
+    dbClient.componentDao().insert(dbTester.getSession(), ComponentTesting.newProjectDto("abcd")
       .setKey("polop").setName("Polop"));
-    session.commit();
+    dbTester.getSession().commit();
 
     userSessionRule.addProjectUuidPermissions(UserRole.USER, "abcd");
 
@@ -161,9 +131,9 @@ public class ComponentNavigationActionTest {
     int userId = 42;
     ComponentDto project = ComponentTesting.newProjectDto("abcd")
       .setKey("polop").setName("Polop");
-    dbClient.componentDao().insert(session, project);
-    dbClient.propertiesDao().setProperty(new PropertyDto().setKey("favourite").setResourceId(project.getId()).setUserId((long) userId), session);
-    session.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), project);
+    dbClient.propertiesDao().setProperty(new PropertyDto().setKey("favourite").setResourceId(project.getId()).setUserId((long) userId), dbTester.getSession());
+    dbTester.getSession().commit();
 
     userSessionRule.login("obiwan").setUserId(userId).addProjectUuidPermissions(UserRole.USER, "abcd");
 
@@ -178,10 +148,10 @@ public class ComponentNavigationActionTest {
     int userId = 42;
     ComponentDto project = ComponentTesting.newProjectDto("abcd")
       .setKey("polop").setName("Polop");
-    dbClient.componentDao().insert(session, project);
-    dbClient.snapshotDao().insert(session, new SnapshotDto().setCreatedAt(snapshotDate.getTime()).setVersion("3.14")
+    dbClient.componentDao().insert(dbTester.getSession(), project);
+    dbClient.snapshotDao().insert(dbTester.getSession(), new SnapshotDto().setCreatedAt(snapshotDate.getTime()).setVersion("3.14")
       .setLast(true).setQualifier(project.qualifier()).setComponentId(project.getId()).setRootProjectId(project.getId()).setScope(project.scope()));
-    session.commit();
+    dbTester.getSession().commit();
 
     userSessionRule.login("obiwan").setUserId(userId).addProjectUuidPermissions(UserRole.USER, "abcd");
 
@@ -191,12 +161,12 @@ public class ComponentNavigationActionTest {
 
   @Test
   public void with_dashboards() throws Exception {
-    dbClient.componentDao().insert(session, ComponentTesting.newProjectDto("abcd")
+    dbClient.componentDao().insert(dbTester.getSession(), ComponentTesting.newProjectDto("abcd")
       .setKey("polop").setName("Polop"));
     DashboardDto dashboard = new DashboardDto().setGlobal(false).setName("Anon Dashboard").setShared(true).setColumnLayout("100%");
-    dashboardDao.insert(dashboard);
-    activeDashboardDao.insert(new ActiveDashboardDto().setDashboardId(dashboard.getId()));
-    session.commit();
+    dbClient.dashboardDao().insert(dashboard);
+    dbClient.activeDashboardDao().insert(new ActiveDashboardDto().setDashboardId(dashboard.getId()));
+    dbTester.getSession().commit();
 
     userSessionRule.addProjectUuidPermissions(UserRole.USER, "abcd");
 
@@ -206,12 +176,12 @@ public class ComponentNavigationActionTest {
 
   @Test
   public void with_default_dashboards() throws Exception {
-    dbClient.componentDao().insert(session, ComponentTesting.newProjectDto("abcd")
+    dbClient.componentDao().insert(dbTester.getSession(), ComponentTesting.newProjectDto("abcd")
       .setKey("polop").setName("Polop"));
     DashboardDto dashboard = new DashboardDto().setGlobal(false).setName("Anon Dashboard").setShared(true).setColumnLayout("100%");
-    dashboardDao.insert(dashboard);
-    activeDashboardDao.insert(new ActiveDashboardDto().setDashboardId(dashboard.getId()));
-    session.commit();
+    dbClient.dashboardDao().insert(dashboard);
+    dbClient.activeDashboardDao().insert(new ActiveDashboardDto().setDashboardId(dashboard.getId()));
+    dbTester.getSession().commit();
 
     userSessionRule.login("obiwan").addProjectUuidPermissions(UserRole.USER, "abcd");
 
@@ -223,9 +193,9 @@ public class ComponentNavigationActionTest {
   public void with_extensions() throws Exception {
     ComponentDto project = ComponentTesting.newProjectDto("abcd")
       .setKey("polop").setName("Polop").setLanguage("xoo");
-    dbClient.componentDao().insert(session, project);
-    dbClient.snapshotDao().insert(session, SnapshotTesting.createForProject(project));
-    session.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), project);
+    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.createForProject(project));
+    dbTester.getSession().commit();
 
     userSessionRule.addProjectUuidPermissions(UserRole.USER, "abcd");
 
@@ -237,9 +207,9 @@ public class ComponentNavigationActionTest {
   public void admin_with_extensions() throws Exception {
     ComponentDto project = ComponentTesting.newProjectDto("abcd")
       .setKey("polop").setName("Polop").setLanguage("xoo");
-    dbClient.componentDao().insert(session, project);
-    dbClient.snapshotDao().insert(session, SnapshotTesting.createForProject(project));
-    session.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), project);
+    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.createForProject(project));
+    dbTester.getSession().commit();
 
     userSessionRule
       .addProjectUuidPermissions(UserRole.USER, "abcd")
@@ -253,9 +223,9 @@ public class ComponentNavigationActionTest {
   public void with_admin_rights() throws Exception {
     final String language = "xoo";
     int userId = 42;
-    dbClient.componentDao().insert(session, ComponentTesting.newProjectDto("abcd")
+    dbClient.componentDao().insert(dbTester.getSession(), ComponentTesting.newProjectDto("abcd")
       .setKey("polop").setName("Polop").setLanguage(language));
-    session.commit();
+    dbTester.getSession().commit();
 
     userSessionRule.login("obiwan").setUserId(userId)
       .addProjectUuidPermissions(UserRole.USER, "abcd")
@@ -304,8 +274,8 @@ public class ComponentNavigationActionTest {
     int userId = 42;
     ComponentDto project = ComponentTesting.newProjectDto("abcd")
       .setKey("polop").setName("Polop");
-    dbClient.componentDao().insert(session, project);
-    session.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), project);
+    dbTester.getSession().commit();
 
     userSessionRule.login("obiwan").setUserId(userId)
       .addProjectUuidPermissions(UserRole.USER, "abcd")
@@ -333,8 +303,8 @@ public class ComponentNavigationActionTest {
       .setKey("polop").setName("Polop");
     ComponentDto module = ComponentTesting.newModuleDto("bcde", project)
       .setKey("palap").setName("Palap");
-    dbClient.componentDao().insert(session, project, module);
-    session.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), project, module);
+    dbTester.getSession().commit();
 
     userSessionRule.login("obiwan").setUserId(userId)
       .addProjectUuidPermissions(UserRole.USER, "abcd")
@@ -348,9 +318,9 @@ public class ComponentNavigationActionTest {
   public void with_quality_profile_admin_rights() throws Exception {
     final String language = "xoo";
     int userId = 42;
-    dbClient.componentDao().insert(session, ComponentTesting.newProjectDto("abcd")
+    dbClient.componentDao().insert(dbTester.getSession(), ComponentTesting.newProjectDto("abcd")
       .setKey("polop").setName("Polop").setLanguage(language));
-    session.commit();
+    dbTester.getSession().commit();
 
     userSessionRule.login("obiwan").setUserId(userId)
       .addProjectUuidPermissions(UserRole.USER, "abcd")
@@ -382,17 +352,17 @@ public class ComponentNavigationActionTest {
     ComponentDto file = ComponentTesting.newFileDto(module, "cdef").setName("Source.xoo")
       .setKey("palap:src/main/xoo/Source.xoo")
       .setPath(directory.path());
-    dbClient.componentDao().insert(session, project, module, directory, file);
+    dbClient.componentDao().insert(dbTester.getSession(), project, module, directory, file);
 
     SnapshotDto projectSnapshot = SnapshotTesting.createForProject(project);
-    dbClient.snapshotDao().insert(session, projectSnapshot);
+    dbClient.snapshotDao().insert(dbTester.getSession(), projectSnapshot);
     SnapshotDto moduleSnapshot = SnapshotTesting.createForComponent(module, projectSnapshot);
-    dbClient.snapshotDao().insert(session, moduleSnapshot);
+    dbClient.snapshotDao().insert(dbTester.getSession(), moduleSnapshot);
     SnapshotDto directorySnapshot = SnapshotTesting.createForComponent(directory, moduleSnapshot);
-    dbClient.snapshotDao().insert(session, directorySnapshot);
-    dbClient.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, directorySnapshot));
+    dbClient.snapshotDao().insert(dbTester.getSession(), directorySnapshot);
+    dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.createForComponent(file, directorySnapshot));
 
-    session.commit();
+    dbTester.getSession().commit();
 
     userSessionRule.addProjectUuidPermissions(UserRole.USER, "abcd");
 
@@ -400,9 +370,9 @@ public class ComponentNavigationActionTest {
     wsTester.newGetRequest("api/navigation", "component").setParam("componentKey", "palap:src/main/xoo/Source.xoo").execute().assertJson(getClass(), "breadcrumbs.json");
   }
 
-  private WsTester newdWsTester(View... views){
-    return new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, activeDashboardDao,
-      new Views(userSessionRule, views), i18n, resourceTypes, userSessionRule, new ComponentFinder(dbClient))));
+  private WsTester newdWsTester(View... views) {
+    return new WsTester(new NavigationWs(new ComponentNavigationAction(dbClient, new Views(userSessionRule, views), i18n, resourceTypes, userSessionRule,
+      new ComponentFinder(dbClient))));
   }
 
   private View[] createViews() {
@@ -457,6 +427,6 @@ public class ComponentNavigationActionTest {
       }
     }
     Page adminPage = new AdminPage();
-    return new Page[] {page1, page2, adminPage};
+    return new Page[]{page1, page2, adminPage};
   }
 }

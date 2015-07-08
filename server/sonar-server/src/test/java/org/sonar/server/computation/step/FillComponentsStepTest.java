@@ -22,7 +22,6 @@ package org.sonar.server.computation.step;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,17 +29,14 @@ import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.DbSession;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentTreeBuilder;
-import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,28 +48,21 @@ public class FillComponentsStepTest extends BaseStepTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
-  DbClient dbClient;
-  DbSession session;
+  DbClient dbClient = dbTester.getDbClient();
 
   FillComponentsStep sut;
 
   @Before
   public void setup() {
     dbTester.truncateTables();
-    session = dbTester.myBatis().openSession(false);
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao());
-
     sut = new FillComponentsStep(dbClient, reportReader, treeRootHolder);
-  }
-
-  @After
-  public void tearDown() {
-    MyBatis.closeQuietly(session);
   }
 
   @Override
@@ -132,13 +121,13 @@ public class FillComponentsStepTest extends BaseStepTest {
   @Test
   public void return_existing_uuids() {
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
-    dbClient.componentDao().insert(session, project);
+    dbClient.componentDao().insert(dbTester.getSession(), project);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_KEY");
-    dbClient.componentDao().insert(session, module);
+    dbClient.componentDao().insert(dbTester.getSession(), module);
     ComponentDto directory = ComponentTesting.newDirectory(module, "CDEF", "src/main/java/dir").setKey("MODULE_KEY:src/main/java/dir");
     ComponentDto file = ComponentTesting.newFileDto(module, "DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java");
-    dbClient.componentDao().insert(session, directory, file);
-    session.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), directory, file);
+    dbTester.getSession().commit();
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)

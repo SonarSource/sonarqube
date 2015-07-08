@@ -36,6 +36,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
@@ -45,7 +46,6 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
-import org.sonar.server.db.DbClient;
 
 import static org.sonar.db.component.SnapshotQuery.SORT_FIELD.BY_DATE;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.ASC;
@@ -53,7 +53,7 @@ import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.DESC;
 
 /**
  * Populates the {@link org.sonar.server.computation.period.PeriodsHolder}
- *
+ * <p/>
  * Here is how these periods are computed :
  * - Read the 5 period properties ${@link CoreProperties#TIMEMACHINE_PERIOD_PREFIX}
  * - Try to find the matching snapshots from the properties
@@ -72,7 +72,7 @@ public class FeedPeriodsStep implements ComputationStep {
   private final PeriodsHolderImpl periodsHolder;
 
   public FeedPeriodsStep(DbClient dbClient, Settings settings, TreeRootHolder treeRootHolder, BatchReportReader batchReportReader,
-    PeriodsHolderImpl periodsHolder) {
+                         PeriodsHolderImpl periodsHolder) {
     this.dbClient = dbClient;
     this.settings = settings;
     this.treeRootHolder = treeRootHolder;

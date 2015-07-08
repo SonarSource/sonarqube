@@ -20,20 +20,18 @@
 
 package org.sonar.server.project.ws;
 
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentCleanerService;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
-
-import javax.annotation.Nullable;
-
-import java.util.List;
 
 public class BulkDeleteAction implements ProjectsWsAction {
   private static final String ACTION = "bulk_delete";

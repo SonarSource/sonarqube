@@ -31,8 +31,9 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.sonar.db.measure.PastMeasureDto;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.measure.PastMeasureDto;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
@@ -44,14 +45,13 @@ import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
-import org.sonar.db.DbClient;
 
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 /**
  * Set variations on all numeric measures found in the repository.
  * This step MUST be executed after all steps that create some measures
- *
+ * <p/>
  * Note that measures on developer are not handle yet.
  */
 public class FillMeasuresWithVariationsStep implements ComputationStep {
@@ -72,7 +72,7 @@ public class FillMeasuresWithVariationsStep implements ComputationStep {
   };
 
   public FillMeasuresWithVariationsStep(DbClient dbClient, TreeRootHolder treeRootHolder, PeriodsHolder periodsHolder, MetricRepository metricRepository,
-    MeasureRepository measureRepository) {
+                                        MeasureRepository measureRepository) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.periodsHolder = periodsHolder;

@@ -22,7 +22,7 @@ package org.sonar.server.issue.notification;
 
 import org.junit.Test;
 import org.sonar.api.utils.Durations;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.user.index.UserIndex;
 

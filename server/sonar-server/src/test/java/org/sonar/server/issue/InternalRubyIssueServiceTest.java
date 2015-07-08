@@ -33,18 +33,18 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.action.Action;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.FieldDiffs;
 import org.sonar.api.user.User;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultActionPlan;
-import org.sonar.db.issue.IssueFilterDto;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.FieldDiffs;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
 import org.sonar.db.component.ResourceQuery;
+import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.server.component.ws.ComponentJsonWriter;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
@@ -70,6 +70,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class InternalRubyIssueServiceTest {
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 

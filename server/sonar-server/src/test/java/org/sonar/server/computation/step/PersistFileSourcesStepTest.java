@@ -22,7 +22,6 @@ package org.sonar.server.computation.step;
 
 import com.google.common.base.Optional;
 import java.util.List;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,9 +31,8 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.DbSession;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
@@ -42,7 +40,6 @@ import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.language.LanguageRepository;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.test.DbTests;
 
@@ -61,8 +58,10 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   private static final String PROJECT_KEY = "PROJECT_KEY";
   private static final String FILE_UUID = "FILE";
 
+  System2 system2 = mock(System2.class);
+
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(system2);
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
@@ -73,8 +72,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  DbSession session;
-  DbClient dbClient;
+  DbClient dbClient = dbTester.getDbClient();
   PersistFileSourcesStep sut;
 
   long now = 123456789L;
@@ -82,10 +80,6 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   @Before
   public void setup() {
     dbTester.truncateTables();
-    session = dbTester.myBatis().openSession(false);
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new FileSourceDao(dbTester.myBatis()));
-
-    System2 system2 = mock(System2.class);
     when(system2.now()).thenReturn(now);
     sut = new PersistFileSourcesStep(dbClient, system2, treeRootHolder, reportReader);
   }
@@ -93,11 +87,6 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   @Override
   protected ComputationStep step() {
     return sut;
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
   }
 
   @Test
@@ -138,7 +127,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(FILE_REF)
       .setType(Constants.ComponentType.FILE)
-      // Lines is set to 3 but only 2 lines are read from the file -> the last lines should be added
+        // Lines is set to 3 but only 2 lines are read from the file -> the last lines should be added
       .setLines(3)
       .build());
     reportReader.putFileSourceLines(FILE_REF, "line1", "line2");
@@ -230,13 +219,13 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     initBasicReport(1);
 
     reportReader.putSyntaxHighlighting(FILE_REF, newArrayList(BatchReport.SyntaxHighlighting.newBuilder()
-      .setRange(BatchReport.Range.newBuilder()
-        .setStartLine(1).setEndLine(1)
-        .setStartOffset(2).setEndOffset(4)
-        .build())
-      .setType(Constants.HighlightingType.ANNOTATION)
-      .build()
-      ));
+        .setRange(BatchReport.Range.newBuilder()
+          .setStartLine(1).setEndLine(1)
+          .setStartOffset(2).setEndOffset(4)
+          .build())
+        .setType(Constants.HighlightingType.ANNOTATION)
+        .build()
+    ));
 
     sut.execute();
 
@@ -259,10 +248,10 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
           .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(4)
           .build())
         .addReference(BatchReport.Range.newBuilder()
-          .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
-          .build()
+            .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
+            .build()
         ).build()
-      ));
+    ));
 
     sut.execute();
 
@@ -294,7 +283,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
             .build())
           .build())
         .build()
-      ));
+    ));
 
     sut.execute();
 
@@ -315,7 +304,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     String lineHashes = "137f72c3708c6bd0de00a0e5a69c699b";
     String dataHash = "29f25900140c94db38035128cb6de6a2";
 
-    dbClient.fileSourceDao().insert(session, new FileSourceDto()
+    dbClient.fileSourceDao().insert(dbTester.getSession(), new FileSourceDto()
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
       .setSrcHash(srcHash)
@@ -329,7 +318,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
         .build())
       .setCreatedAt(past)
       .setUpdatedAt(past));
-    session.commit();
+    dbTester.getSession().commit();
 
     // Sources from the report
     initBasicReport(1);
@@ -349,7 +338,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void update_sources_when_source_updated() {
     // Existing sources
     long past = 150000L;
-    dbClient.fileSourceDao().insert(session, new FileSourceDto()
+    dbClient.fileSourceDao().insert(dbTester.getSession(), new FileSourceDto()
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
       .setDataType(Type.SOURCE)
@@ -364,7 +353,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
         .build())
       .setCreatedAt(past)
       .setUpdatedAt(past));
-    session.commit();
+    dbTester.getSession().commit();
 
     initBasicReport(1);
 
@@ -380,11 +369,11 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void update_sources_when_src_hash_is_missing() {
     // Existing sources
     long past = 150000L;
-    dbClient.fileSourceDao().insert(session, new FileSourceDto()
+    dbClient.fileSourceDao().insert(dbTester.getSession(), new FileSourceDto()
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
       .setDataType(Type.SOURCE)
-      // Source hash is missing, update will be made
+        // Source hash is missing, update will be made
       .setLineHashes("137f72c3708c6bd0de00a0e5a69c699b")
       .setDataHash("29f25900140c94db38035128cb6de6a2")
       .setSourceData(FileSourceDb.Data.newBuilder()
@@ -395,7 +384,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
         .build())
       .setCreatedAt(past)
       .setUpdatedAt(past));
-    session.commit();
+    dbTester.getSession().commit();
 
     initBasicReport(1);
 
@@ -414,14 +403,14 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     initBasicReport(1);
 
     reportReader.putSyntaxHighlighting(FILE_REF, newArrayList(BatchReport.SyntaxHighlighting.newBuilder()
-      .setRange(BatchReport.Range.newBuilder()
-        .setStartLine(1).setEndLine(1)
-        // Wrong offset -> fail
-        .setStartOffset(4).setEndOffset(2)
-        .build())
-      .setType(Constants.HighlightingType.ANNOTATION)
-      .build()
-      ));
+        .setRange(BatchReport.Range.newBuilder()
+          .setStartLine(1).setEndLine(1)
+            // Wrong offset -> fail
+          .setStartOffset(4).setEndOffset(2)
+          .build())
+        .setType(Constants.HighlightingType.ANNOTATION)
+        .build()
+    ));
 
     try {
       sut.execute();

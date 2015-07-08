@@ -32,6 +32,9 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.ActionPlanDao;
 import org.sonar.db.issue.ActionPlanDto;
@@ -39,19 +42,16 @@ import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.PermissionChange;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.tester.ServerTester;
@@ -64,6 +64,7 @@ public class SearchActionMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester().withStartupTasks().withEsIndexes();
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 

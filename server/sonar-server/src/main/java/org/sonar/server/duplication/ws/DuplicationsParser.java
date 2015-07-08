@@ -37,8 +37,8 @@ import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.db.ComponentDao;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -116,7 +116,7 @@ public class DuplicationsParser {
 
     @Override
     public int compare(@Nullable Duplication d1,
-      @Nullable Duplication d2) {
+                       @Nullable Duplication d2) {
       if (d1 == null || d2 == null) {
         return -1;
       }
@@ -153,7 +153,7 @@ public class DuplicationsParser {
 
     @Override
     public int compare(@Nullable Block b1,
-      @Nullable Block b2) {
+                       @Nullable Block b2) {
       if (b1 == null || b2 == null) {
         return -1;
       }

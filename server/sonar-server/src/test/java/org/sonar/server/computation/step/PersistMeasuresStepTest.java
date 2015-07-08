@@ -34,10 +34,10 @@ import org.sonar.batch.protocol.Constants.MeasureValueType;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -214,7 +214,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
         .setValueType(MeasureValueType.DOUBLE)
         .setMetricKey(DOUBLE_METRIC_KEY)
         .build()
-      ));
+    ));
 
     sut.execute();
     session.commit();

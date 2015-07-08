@@ -35,11 +35,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ResourceDao;
-import org.sonar.db.issue.IssueDao;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.test.DbTests;
 
@@ -55,10 +52,7 @@ public class ServerIssueStorageTest {
   @org.junit.Rule
   public DbTester dbTester = DbTester.create(system);
 
-  DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(),
-    new ComponentDao(),
-    new IssueDao(dbTester.myBatis()),
-    new ResourceDao(dbTester.myBatis(), system));
+  DbClient dbClient = dbTester.getDbClient();
 
   ServerIssueStorage storage = new ServerIssueStorage(new FakeRuleFinder(), dbClient, mock(IssueIndexer.class));
 

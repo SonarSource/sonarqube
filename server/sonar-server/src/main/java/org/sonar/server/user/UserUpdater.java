@@ -267,7 +267,7 @@ public class UserUpdater {
   }
 
   private void validateScmAccounts(DbSession dbSession, List<String> scmAccounts, @Nullable String login, @Nullable String email, @Nullable UserDto existingUser,
-    List<Message> messages) {
+                                   List<Message> messages) {
     for (String scmAccount : scmAccounts) {
       if (scmAccount.equals(login) || scmAccount.equals(email)) {
         messages.add(Message.of("user.login_or_email_used_as_scm_account"));

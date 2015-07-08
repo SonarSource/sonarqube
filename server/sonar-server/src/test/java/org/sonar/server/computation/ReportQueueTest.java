@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,13 +32,10 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbSession;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.compute.AnalysisReportDao;
 import org.sonar.db.compute.AnalysisReportDto;
 import org.sonar.process.ProcessProperties;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,18 +49,18 @@ public class ReportQueueTest {
 
   static final long NOW = 1_500_000_000_000L;
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  System2 system = mock(System2.class);
 
-  DbClient dbClient;
-  DbSession session;
+  @Rule
+  public DbTester db = DbTester.create(system);
+
+  DbClient dbClient = db.getDbClient();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   Settings settings = new Settings();
   File dataDir;
-  System2 system = mock(System2.class);
   ReportQueue sut;
 
   @Before
@@ -73,14 +69,7 @@ public class ReportQueueTest {
     settings.setProperty(ProcessProperties.PATH_DATA, dataDir.getAbsolutePath());
     when(system.now()).thenReturn(NOW);
 
-    dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao(), new AnalysisReportDao(system));
-    session = dbClient.openSession(false);
     sut = new ReportQueue(dbClient, settings);
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
   }
 
   @Test
@@ -95,7 +84,7 @@ public class ReportQueueTest {
     assertThat(item.dto.getUuid()).isNotEmpty();
     assertThat(item.dto.getId()).isGreaterThan(0L);
 
-    List<AnalysisReportDto> reports = dbClient.analysisReportDao().selectByProjectKey(session, "P1");
+    List<AnalysisReportDto> reports = dbClient.analysisReportDao().selectByProjectKey(db.getSession(), "P1");
     assertThat(reports).hasSize(1);
     AnalysisReportDto report = reports.get(0);
 
@@ -110,7 +99,7 @@ public class ReportQueueTest {
     assertThat(report.getStartedAt()).isNull();
     assertThat(report.getFinishedAt()).isNull();
 
-    assertThat(FileUtils.listFiles(analysisDir(), new String[] {"zip"}, false)).hasSize(1);
+    assertThat(FileUtils.listFiles(analysisDir(), new String[]{"zip"}, false)).hasSize(1);
   }
 
   @Test

@@ -20,13 +20,13 @@
 package org.sonar.server.computation.activity;
 
 import com.google.common.base.Optional;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.compute.AnalysisReportDto;
 import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.ActivityService;
-import org.sonar.server.db.DbClient;
 
 import static org.sonar.api.utils.DateUtils.formatDateTimeNullSafe;
 import static org.sonar.api.utils.DateUtils.longToDate;
@@ -46,17 +46,17 @@ public class ActivityManager {
     activity.setType(Activity.Type.ANALYSIS_REPORT);
     activity.setAction("LOG_ANALYSIS_REPORT");
     activity
-        .setData("key", String.valueOf(report.getId()))
-        .setData("projectKey", report.getProjectKey())
-        .setData("status", String.valueOf(report.getStatus()))
-        .setData("submittedAt", formatDateTimeNullSafe(longToDate(report.getCreatedAt())))
-        .setData("startedAt", formatDateTimeNullSafe(longToDate(report.getStartedAt())))
-        .setData("finishedAt", formatDateTimeNullSafe(longToDate(report.getFinishedAt())));
+      .setData("key", String.valueOf(report.getId()))
+      .setData("projectKey", report.getProjectKey())
+      .setData("status", String.valueOf(report.getStatus()))
+      .setData("submittedAt", formatDateTimeNullSafe(longToDate(report.getCreatedAt())))
+      .setData("startedAt", formatDateTimeNullSafe(longToDate(report.getStartedAt())))
+      .setData("finishedAt", formatDateTimeNullSafe(longToDate(report.getFinishedAt())));
     if (projectOptional.isPresent()) {
       ComponentDto project = projectOptional.get();
       activity
-          .setData("projectName", project.name())
-          .setData("projectUuid", project.uuid());
+        .setData("projectName", project.name())
+        .setData("projectUuid", project.uuid());
     }
     activityService.save(activity);
   }

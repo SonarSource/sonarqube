@@ -36,7 +36,9 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.MeasureDto;
@@ -45,8 +47,6 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -84,6 +84,7 @@ public class AppActionTest {
 
   @Mock
   MeasureDao measureDao;
+
   @Mock
   Durations durations;
 

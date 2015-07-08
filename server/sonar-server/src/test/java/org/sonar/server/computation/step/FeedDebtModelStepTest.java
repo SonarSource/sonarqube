@@ -26,13 +26,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.debt.CharacteristicDao;
 import org.sonar.server.computation.debt.Characteristic;
 import org.sonar.server.computation.debt.DebtModelHolderImpl;
 import org.sonar.server.computation.debt.MutableDebtModelHolder;
-import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +42,7 @@ public class FeedDebtModelStepTest extends BaseStepTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DbClient dbClient;
+  DbClient dbClient = dbTester.getDbClient();
 
   DbSession dbSession;
 
@@ -54,7 +53,6 @@ public class FeedDebtModelStepTest extends BaseStepTest {
   @Before
   public void setUp() {
     dbTester.truncateTables();
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new CharacteristicDao(dbTester.myBatis()));
     dbSession = dbClient.openSession(false);
 
     sut = new FeedDebtModelStep(dbClient, debtModelHolder);

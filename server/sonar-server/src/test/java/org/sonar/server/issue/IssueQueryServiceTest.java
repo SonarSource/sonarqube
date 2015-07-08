@@ -42,12 +42,12 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDao;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.AuthorDao;
 import org.sonar.server.component.ComponentService;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -63,6 +63,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IssueQueryServiceTest {
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 

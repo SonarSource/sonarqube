@@ -22,7 +22,6 @@ package org.sonar.server.test.ws;
 
 import java.util.Arrays;
 import java.util.List;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -31,12 +30,10 @@ import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.DbSession;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.test.index.CoveredFileDoc;
@@ -49,23 +46,23 @@ import org.sonar.test.DbTests;
 
 @Category(DbTests.class)
 public class ListActionTest {
-  DbClient dbClient;
-  DbSession dbSession;
+
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
+
+  @ClassRule
+  public static EsTester es = new EsTester().addDefinitions(new TestIndexDefinition(new Settings()));
+
+  @Rule
+  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+
+  DbClient dbClient = db.getDbClient();
   TestIndex testIndex;
 
   WsTester ws;
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-  @ClassRule
-  public static EsTester es = new EsTester().addDefinitions(new TestIndexDefinition(new Settings()));
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
-
   @Before
   public void setUp() {
-    dbClient = new DbClient(db.database(), db.myBatis(), new ComponentDao());
-    dbSession = dbClient.openSession(false);
     db.truncateTables();
     es.truncateIndices();
     testIndex = new TestIndex(es.client());
@@ -73,17 +70,12 @@ public class ListActionTest {
     ws = new WsTester(new TestsWs(new ListAction(dbClient, testIndex, userSessionRule, new ComponentFinder(dbClient))));
   }
 
-  @After
-  public void tearDown() {
-    dbSession.close();
-  }
-
   @Test
   public void list_based_on_test_uuid() throws Exception {
     userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID);
 
-    dbClient.componentDao().insert(dbSession, TestFile1.newDto());
-    dbSession.commit();
+    dbClient.componentDao().insert(db.getSession(), TestFile1.newDto());
+    db.getSession().commit();
 
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
       new TestDoc()
@@ -95,7 +87,7 @@ public class ListActionTest {
         .setMessage(TestFile1.MESSAGE)
         .setCoveredFiles(TestFile1.COVERED_FILES)
         .setStackTrace(TestFile1.STACKTRACE)
-      );
+    );
 
     WsTester.TestRequest request = ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_UUID, TestFile1.UUID);
 
@@ -105,8 +97,8 @@ public class ListActionTest {
   @Test
   public void list_based_on_test_file_uuid() throws Exception {
     userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID);
-    dbClient.componentDao().insert(dbSession, TestFile1.newDto());
-    dbSession.commit();
+    dbClient.componentDao().insert(db.getSession(), TestFile1.newDto());
+    db.getSession().commit();
 
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
       new TestDoc()
@@ -127,8 +119,8 @@ public class ListActionTest {
   @Test
   public void list_based_on_test_file_key() throws Exception {
     userSessionRule.addComponentPermission(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID, TestFile1.KEY);
-    dbClient.componentDao().insert(dbSession, TestFile1.newDto());
-    dbSession.commit();
+    dbClient.componentDao().insert(db.getSession(), TestFile1.newDto());
+    db.getSession().commit();
 
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
       new TestDoc()
@@ -140,7 +132,7 @@ public class ListActionTest {
         .setStatus(TestFile1.STATUS)
         .setMessage(TestFile1.MESSAGE)
         .setStackTrace(TestFile1.STACKTRACE)
-      );
+    );
 
     WsTester.TestRequest request = ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_FILE_KEY, TestFile1.KEY);
 
@@ -151,7 +143,7 @@ public class ListActionTest {
   public void list_based_on_main_file_and_line_number() throws Exception {
     String mainFileUuid = "MAIN-FILE-UUID";
     userSessionRule.addProjectUuidPermissions(UserRole.CODEVIEWER, TestFile1.PROJECT_UUID);
-    dbClient.componentDao().insert(dbSession,
+    dbClient.componentDao().insert(db.getSession(),
       new ComponentDto()
         .setUuid(TestFile1.FILE_UUID)
         .setLongName(TestFile1.LONG_NAME)
@@ -165,8 +157,8 @@ public class ListActionTest {
       new ComponentDto()
         .setUuid(mainFileUuid)
         .setProjectUuid(TestFile1.PROJECT_UUID)
-      );
-    dbSession.commit();
+    );
+    db.getSession().commit();
 
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
       new TestDoc()
@@ -209,24 +201,24 @@ public class ListActionTest {
   @Test(expected = ForbiddenException.class)
   public void fail_when_no_sufficent_privilege_on_file_uuid() throws Exception {
     userSessionRule.addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
-    dbClient.componentDao().insert(dbSession, TestFile1.newDto());
-    dbSession.commit();
+    dbClient.componentDao().insert(db.getSession(), TestFile1.newDto());
+    db.getSession().commit();
     ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_FILE_UUID, TestFile1.FILE_UUID).execute();
   }
 
   @Test(expected = ForbiddenException.class)
   public void fail_when_no_sufficent_privilege_on_test_uuid() throws Exception {
     userSessionRule.addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
-    dbClient.componentDao().insert(dbSession, TestFile1.newDto());
-    dbSession.commit();
+    dbClient.componentDao().insert(db.getSession(), TestFile1.newDto());
+    db.getSession().commit();
     ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_FILE_UUID, TestFile1.FILE_UUID).execute();
   }
 
   @Test(expected = ForbiddenException.class)
   public void fail_when_no_sufficent_privilege_on_file_key() throws Exception {
     userSessionRule.addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
-    dbClient.componentDao().insert(dbSession, TestFile1.newDto());
-    dbSession.commit();
+    dbClient.componentDao().insert(db.getSession(), TestFile1.newDto());
+    db.getSession().commit();
     ws.newGetRequest("api/tests", "list").setParam(ListAction.TEST_FILE_KEY, TestFile1.KEY).execute();
   }
 
@@ -234,8 +226,8 @@ public class ListActionTest {
   public void fail_when_no_sufficient_privilege_on_main_file_uuid() throws Exception {
     userSessionRule.addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
     String mainFileUuid = "MAIN-FILE-UUID";
-    dbClient.componentDao().insert(dbSession, new ComponentDto().setUuid(mainFileUuid).setProjectUuid(TestFile1.PROJECT_UUID));
-    dbSession.commit();
+    dbClient.componentDao().insert(db.getSession(), new ComponentDto().setUuid(mainFileUuid).setProjectUuid(TestFile1.PROJECT_UUID));
+    db.getSession().commit();
 
     ws.newGetRequest("api/tests", "list")
       .setParam(ListAction.SOURCE_FILE_UUID, mainFileUuid)

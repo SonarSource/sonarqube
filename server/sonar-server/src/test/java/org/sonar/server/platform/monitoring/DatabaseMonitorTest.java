@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.version.DatabaseVersion;
-import org.sonar.server.db.DbClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,8 +39,7 @@ public class DatabaseMonitorTest {
   @Before
   public void setUp() {
     DatabaseVersion dbVersion = new DatabaseVersion(dbTester.myBatis());
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis());
-    sut = new DatabaseMonitor(dbVersion, dbClient);
+    sut = new DatabaseMonitor(dbVersion, dbTester.getDbClient());
   }
 
   @Test
@@ -56,6 +54,6 @@ public class DatabaseMonitorTest {
   @Test
   public void pool_info() {
     LinkedHashMap<String, Object> attributes = sut.attributes();
-    assertThat((int)attributes.get("Pool Max Connections")).isGreaterThan(0);
+    assertThat((int) attributes.get("Pool Max Connections")).isGreaterThan(0);
   }
 }

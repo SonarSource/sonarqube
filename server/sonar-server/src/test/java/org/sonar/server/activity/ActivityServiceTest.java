@@ -28,13 +28,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.activity.ActivityDao;
-import org.sonar.db.issue.IssueDao;
 import org.sonar.server.activity.index.ActivityDoc;
 import org.sonar.server.activity.index.ActivityIndexDefinition;
 import org.sonar.server.activity.index.ActivityIndexer;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -46,8 +44,10 @@ public class ActivityServiceTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new ActivityIndexDefinition(new Settings()));
+
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().login();
 
@@ -56,9 +56,7 @@ public class ActivityServiceTest {
 
   @Before
   public void before() {
-    ActivityDao activityDao = new ActivityDao(db.myBatis(), system);
-    IssueDao issueDao = new IssueDao(db.myBatis());
-    DbClient dbClient = new DbClient(db.database(), db.myBatis(), issueDao, activityDao);
+    DbClient dbClient = db.getDbClient();
     ActivityIndexer indexer = new ActivityIndexer(dbClient, es.client());
     // indexers are disabled by default
     indexer.setEnabled(true);

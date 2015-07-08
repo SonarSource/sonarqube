@@ -28,12 +28,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.tester.UserSessionRule;
@@ -45,6 +45,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RawActionTest {
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -81,7 +82,7 @@ public class RawActionTest {
     when(sourceService.getLinesAsTxt(file.uuid(), null, null)).thenReturn(newArrayList(
       "public class HelloWorld {",
       "}"
-      ));
+    ));
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "raw").setParam("key", fileKey);
     String result = request.execute().outputAsString();

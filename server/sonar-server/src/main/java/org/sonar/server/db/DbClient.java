@@ -23,7 +23,6 @@ import java.util.Map;
 import org.sonar.db.Dao;
 import org.sonar.db.Database;
 import org.sonar.db.MyBatis;
-import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.measure.custom.persistence.CustomMeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
@@ -38,7 +37,6 @@ import org.sonar.server.user.db.UserDao;
 public class DbClient extends org.sonar.db.DbClient {
 
   private ActiveRuleDao activeRuleDao;
-  private ComponentDao componentDao;
   private CustomMeasureDao customMeasureDao;
   private GroupDao groupDao;
   private MetricDao metricDao;
@@ -52,7 +50,6 @@ public class DbClient extends org.sonar.db.DbClient {
   @Override
   protected void doOnLoad(Map<Class, Dao> daoByClass) {
     this.activeRuleDao = (ActiveRuleDao) daoByClass.get(ActiveRuleDao.class);
-    this.componentDao = (ComponentDao) daoByClass.get(ComponentDao.class);
     this.customMeasureDao = (CustomMeasureDao) daoByClass.get(CustomMeasureDao.class);
     this.groupDao = (GroupDao) daoByClass.get(GroupDao.class);
     this.metricDao = (MetricDao) daoByClass.get(MetricDao.class);
@@ -62,10 +59,6 @@ public class DbClient extends org.sonar.db.DbClient {
 
   public ActiveRuleDao activeRuleDao() {
     return activeRuleDao;
-  }
-
-  public ComponentDao componentDao() {
-    return componentDao;
   }
 
   public CustomMeasureDao customMeasureDao() {

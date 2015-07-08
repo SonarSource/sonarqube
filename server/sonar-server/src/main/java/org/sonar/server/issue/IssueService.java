@@ -47,10 +47,10 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.exceptions.NotFoundException;
@@ -83,14 +83,14 @@ public class IssueService {
   private final UserSession userSession;
 
   public IssueService(DbClient dbClient, IssueIndex issueIndex,
-    IssueWorkflow workflow,
-    IssueStorage issueStorage,
-    IssueUpdater issueUpdater,
-    NotificationManager notificationService,
-    ActionPlanService actionPlanService,
-    RuleFinder ruleFinder,
-    UserFinder userFinder,
-    UserIndex userIndex, SourceLineIndex sourceLineIndex, UserSession userSession) {
+                      IssueWorkflow workflow,
+                      IssueStorage issueStorage,
+                      IssueUpdater issueUpdater,
+                      NotificationManager notificationService,
+                      ActionPlanService actionPlanService,
+                      RuleFinder ruleFinder,
+                      UserFinder userFinder,
+                      UserIndex userIndex, SourceLineIndex sourceLineIndex, UserSession userSession) {
     this.dbClient = dbClient;
     this.issueIndex = issueIndex;
     this.workflow = workflow;
@@ -239,7 +239,7 @@ public class IssueService {
   }
 
   public DefaultIssue createManualIssue(String componentKey, RuleKey ruleKey, @Nullable Integer line, @Nullable String message, @Nullable String severity,
-    @Nullable Double effortToFix) {
+                                        @Nullable Double effortToFix) {
     verifyLoggedIn();
 
     DbSession session = dbClient.openSession(false);

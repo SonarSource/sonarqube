@@ -23,7 +23,6 @@ package org.sonar.server.batch;
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import javax.annotation.Nullable;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -36,14 +35,10 @@ import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants.Severity;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.issue.IssueDao;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.IssueTesting;
@@ -80,11 +75,8 @@ public class IssuesActionTest {
   IssueIndex issueIndex;
   IssueIndexer issueIndexer;
   IssueAuthorizationIndexer issueAuthorizationIndexer;
-  ComponentDao componentDao;
 
   WsTester tester;
-
-  DbSession session;
 
   IssuesAction issuesAction;
 
@@ -92,21 +84,13 @@ public class IssuesActionTest {
   public void before() {
     db.truncateTables();
     es.truncateIndices();
-    this.session = db.myBatis().openSession(false);
 
-    componentDao = new ComponentDao();
-    DbClient dbClient = new DbClient(db.database(), db.myBatis(), new IssueDao(db.myBatis()), componentDao);
     issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule);
     issueIndexer = new IssueIndexer(null, es.client());
     issueAuthorizationIndexer = new IssueAuthorizationIndexer(null, es.client());
-    issuesAction = new IssuesAction(dbClient, issueIndex, userSessionRule, new ComponentFinder(dbClient));
+    issuesAction = new IssuesAction(db.getDbClient(), issueIndex, userSessionRule, new ComponentFinder(db.getDbClient()));
 
     tester = new WsTester(new BatchWs(new BatchIndex(mock(Server.class)), issuesAction));
-  }
-
-  @After
-  public void after() {
-    this.session.close();
   }
 
   @Test
@@ -114,8 +98,8 @@ public class IssuesActionTest {
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey(MODULE_KEY);
     ComponentDto file = ComponentTesting.newFileDto(module, "CDEF").setKey(FILE_KEY).setPath(null);
-    componentDao.insert(session, project, module, file);
-    session.commit();
+    db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
+    db.getSession().commit();
 
     indexIssues(IssueTesting.newDoc("EFGH", file)
       .setRuleKey("squid:AvoidCycle")
@@ -153,8 +137,8 @@ public class IssuesActionTest {
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey(MODULE_KEY);
     ComponentDto file = ComponentTesting.newFileDto(module, "CDEF").setKey(FILE_KEY).setPath("src/org/struts/Action.java");
-    componentDao.insert(session, project, module, file);
-    session.commit();
+    db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
+    db.getSession().commit();
 
     indexIssues(IssueTesting.newDoc("EFGH", file)
       .setRuleKey("squid:AvoidCycle")
@@ -192,8 +176,8 @@ public class IssuesActionTest {
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey(MODULE_KEY);
     ComponentDto file = ComponentTesting.newFileDto(module, "CDEF").setKey(FILE_KEY).setPath("src/org/struts/Action.java");
-    componentDao.insert(session, project, module, file);
-    session.commit();
+    db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
+    db.getSession().commit();
 
     indexIssues(IssueTesting.newDoc("EFGH", file)
       .setRuleKey("squid:AvoidCycle")
@@ -230,8 +214,8 @@ public class IssuesActionTest {
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey(MODULE_KEY);
     ComponentDto file = ComponentTesting.newFileDto(module, "CDEF").setKey(FILE_KEY).setPath("src/org/struts/Action.java");
-    componentDao.insert(session, project, module, file);
-    session.commit();
+    db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
+    db.getSession().commit();
 
     indexIssues(IssueTesting.newDoc("EFGH", file)
       .setRuleKey("squid:AvoidCycle")
@@ -267,8 +251,8 @@ public class IssuesActionTest {
   public void issues_attached_on_module() throws Exception {
     ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey(MODULE_KEY);
-    componentDao.insert(session, project, module);
-    session.commit();
+    db.getDbClient().componentDao().insert(db.getSession(), project, module);
+    db.getSession().commit();
 
     indexIssues(IssueTesting.newDoc("EFGH", module)
       .setRuleKey("squid:AvoidCycle")
@@ -306,8 +290,8 @@ public class IssuesActionTest {
     // File and module are removed
     ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey(MODULE_KEY).setEnabled(false);
     ComponentDto file = ComponentTesting.newFileDto(module, "CDEF").setKey(FILE_KEY).setPath("src/org/struts/Action.java").setEnabled(false);
-    componentDao.insert(session, project, module, file);
-    session.commit();
+    db.getDbClient().componentDao().insert(db.getSession(), project, module, file);
+    db.getSession().commit();
 
     indexIssues(IssueTesting.newDoc("EFGH", file)
       .setRuleKey("squid:AvoidCycle")

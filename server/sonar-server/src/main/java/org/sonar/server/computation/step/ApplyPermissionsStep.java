@@ -21,12 +21,12 @@
 package org.sonar.server.computation.step;
 
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.db.permission.PermissionFacade;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.permission.PermissionFacade;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.db.DbClient;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 
 /**
@@ -41,7 +41,7 @@ public class ApplyPermissionsStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
 
   public ApplyPermissionsStep(DbClient dbClient, DbIdsRepository dbIdsRepository, IssueAuthorizationIndexer indexer,
-    PermissionFacade permissionFacade, TreeRootHolder treeRootHolder) {
+                              PermissionFacade permissionFacade, TreeRootHolder treeRootHolder) {
     this.dbClient = dbClient;
     this.dbIdsRepository = dbIdsRepository;
     this.indexer = indexer;

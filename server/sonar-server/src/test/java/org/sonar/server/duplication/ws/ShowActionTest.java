@@ -32,13 +32,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -51,6 +51,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ShowActionTest {
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -92,7 +93,7 @@ public class ShowActionTest {
     String data = "{duplications}";
     when(measureDao.findByComponentKeyAndMetricKey(session, componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(
       new MeasureDto().setComponentKey(componentKey).setMetricKey(CoreMetrics.DUPLICATIONS_DATA_KEY).setData("{duplications}")
-      );
+    );
 
     List<DuplicationsParser.Block> blocks = newArrayList(new DuplicationsParser.Block(newArrayList(new DuplicationsParser.Duplication(componentDto, 1, 2))));
     when(parser.parse(componentDto, data, session)).thenReturn(blocks);
@@ -115,7 +116,7 @@ public class ShowActionTest {
     String data = "{duplications}";
     when(measureDao.findByComponentKeyAndMetricKey(session, componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(
       new MeasureDto().setComponentKey(componentKey).setMetricKey(CoreMetrics.DUPLICATIONS_DATA_KEY).setData("{duplications}")
-      );
+    );
 
     List<DuplicationsParser.Block> blocks = newArrayList(new DuplicationsParser.Block(newArrayList(new DuplicationsParser.Duplication(componentDto, 1, 2))));
     when(parser.parse(componentDto, data, session)).thenReturn(blocks);

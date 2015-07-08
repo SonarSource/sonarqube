@@ -59,16 +59,19 @@ public class SqaleMeasuresStepTest {
   private static final Metric METRIC_2 = new MetricImpl(2, METRIC_KEY_2, "metric2", Metric.MetricType.WORK_DUR);
   private static final String LANGUAGE_KEY_1 = "lKey1";
   private static final String LANGUAGE_KEY_2 = "lKey2";
-  private static final double[] RATING_GRID = new double[] {34, 50, 362, 900, 36258};
+  private static final double[] RATING_GRID = new double[]{34, 50, 362, 900, 36258};
   private static final long DEV_COST_LANGUAGE_1 = 33;
   private static final long DEV_COST_LANGUAGE_2 = 42;
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule().add(METRIC_1).add(METRIC_2);
+
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
+
   private SqaleRatingSettings sqaleRatingSettings = mock(SqaleRatingSettings.class);
 
   private SqaleMeasuresStep underTest = new SqaleMeasuresStep(treeRootHolder, metricRepository, measureRepository, sqaleRatingSettings);
@@ -100,7 +103,7 @@ public class SqaleMeasuresStepTest {
       MeasureRepoEntry.entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create("0")),
       MeasureRepoEntry.entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(0d)),
       MeasureRepoEntry.entryOf(SQALE_RATING_KEY, createSqaleRatingMeasure(A))
-      );
+    );
   }
 
   private Measure createSqaleRatingMeasure(SqaleRatingGrid.SqaleRating sqaleRating) {
@@ -122,7 +125,7 @@ public class SqaleMeasuresStepTest {
    * processing a tree of a single Component of type FILE.
    */
   private void verify_computation_of_measure_for_file(long debt, long languageCost, String metricKey, String languageKey,
-    SqaleRatingGrid.SqaleRating expectedRating) {
+                                                      SqaleRatingGrid.SqaleRating expectedRating) {
     long measureValue = 10;
 
     DumbComponent fileComponent = createFileComponent(languageKey, 1);
@@ -242,7 +245,7 @@ public class SqaleMeasuresStepTest {
       MeasureRepoEntry.entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create(Long.toString(expectedDevCost))),
       MeasureRepoEntry.entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(expectedDebtRatio * 100.0)),
       MeasureRepoEntry.entryOf(SQALE_RATING_KEY, createSqaleRatingMeasure(expectedRating))
-      );
+    );
   }
 
 }

@@ -46,27 +46,27 @@ import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.issue.action.Action;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.DefaultIssueComment;
-import org.sonar.core.issue.FieldDiffs;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
-import org.sonar.db.issue.IssueFilterDto;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.DefaultIssueComment;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.workflow.Transition;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
 import org.sonar.db.component.ResourceQuery;
+import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.server.component.ws.ComponentJsonWriter;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.actionplan.ActionPlanService;
@@ -86,7 +86,7 @@ import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * Used through ruby code <pre>Internal.issues</pre>
- *
+ * <p/>
  * All the issue features that are not published to public API.
  *
  * @since 3.6
@@ -696,6 +696,7 @@ public class InternalRubyIssueService {
 
   /**
    * Used by issue modification actions currently implemented in Rails
+   *
    * @return the JSON representation of the modified issue, as a ready to use string
    */
   public String writeIssueJson(@Nullable Issue original) {

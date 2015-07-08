@@ -40,11 +40,11 @@ import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
@@ -217,7 +217,7 @@ public class MeasureRepositoryImplTest {
     Measure.newMeasureBuilder().create("sds"),
     Measure.newMeasureBuilder().create(Measure.Level.OK),
     Measure.newMeasureBuilder().createNoValue()
-    );
+  );
 
   @DataProvider
   public static Object[][] measures() {
@@ -225,7 +225,7 @@ public class MeasureRepositoryImplTest {
       @Nullable
       @Override
       public Object[] apply(Measure input) {
-        return new Measure[] {input};
+        return new Measure[]{input};
       }
     }).toArray(Object[].class);
   }
@@ -354,7 +354,7 @@ public class MeasureRepositoryImplTest {
 
     reportReader.putMeasures(FILE_COMPONENT.getRef(), ImmutableList.of(
       BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue(value).build()
-      ));
+    ));
 
     Optional<Measure> res = underTest.getRawMeasure(FILE_COMPONENT, metric1);
 
@@ -370,7 +370,7 @@ public class MeasureRepositoryImplTest {
   public void getRawMeasure_retrieves_added_measure_over_batch_measure() {
     reportReader.putMeasures(FILE_COMPONENT.getRef(), ImmutableList.of(
       BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build()
-      ));
+    ));
 
     Measure addedMeasure = SOME_MEASURE;
     underTest.add(FILE_COMPONENT, metric1, addedMeasure);
@@ -385,7 +385,7 @@ public class MeasureRepositoryImplTest {
   public void getRawMeasure_retrieves_measure_from_batch_and_caches_it_locally_so_that_it_can_be_updated() {
     reportReader.putMeasures(FILE_COMPONENT.getRef(), ImmutableList.of(
       BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build()
-      ));
+    ));
 
     Optional<Measure> measure = underTest.getRawMeasure(FILE_COMPONENT, metric1);
 

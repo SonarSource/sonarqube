@@ -34,13 +34,13 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.server.db.DbClient;
 
 /**
  * Persist components
