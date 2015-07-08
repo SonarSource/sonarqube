@@ -53,7 +53,6 @@ import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
-import org.sonar.db.semaphore.SemaphoreDao;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.user.AuthorDao;
 import org.sonar.db.user.AuthorizationDao;
@@ -104,7 +103,6 @@ public final class DaoUtils {
       ResourceDao.class,
       ResourceKeyUpdaterDao.class,
       RoleDao.class,
-      SemaphoreDao.class,
       SnapshotDao.class,
       UserDao.class,
       UserGroupDao.class,

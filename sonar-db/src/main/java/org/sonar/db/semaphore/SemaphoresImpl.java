@@ -21,34 +21,24 @@ package org.sonar.db.semaphore;
 
 import org.sonar.api.utils.Semaphores;
 
-/**
- * @since 3.4
- */
 public class SemaphoresImpl implements Semaphores {
-
-  private SemaphoreDao dao;
-  private SemaphoreUpdater updater;
-
-  public SemaphoresImpl(SemaphoreDao dao, SemaphoreUpdater updater) {
-    this.dao = dao;
-    this.updater = updater;
-  }
 
   @Override
   public Semaphore acquire(String name, int maxAgeInSeconds, int updatePeriodInSeconds) {
-    Semaphore semaphore = dao.acquire(name, maxAgeInSeconds);
-    updater.scheduleForUpdate(semaphore, updatePeriodInSeconds);
-    return semaphore;
+    throw fail();
   }
 
   @Override
   public Semaphore acquire(String name) {
-    return dao.acquire(name);
+    throw fail();
   }
 
   @Override
   public void release(String name) {
-    updater.stopUpdate(name);
-    dao.release(name);
+    throw fail();
+  }
+
+  private RuntimeException fail() {
+    throw new UnsupportedOperationException("Semaphores are not supported since 5.2 and the drop of database connection from analyzer");
   }
 }

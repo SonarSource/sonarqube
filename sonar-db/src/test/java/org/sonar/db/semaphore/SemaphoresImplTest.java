@@ -20,32 +20,21 @@
 package org.sonar.db.semaphore;
 
 import org.junit.Test;
-import org.sonar.api.utils.Semaphores;
-
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class SemaphoresImplTest {
 
-  @Test
-  public void should_be_a_bridge_over_dao() {
-    SemaphoreDao dao = mock(SemaphoreDao.class);
-    SemaphoreUpdater updater = mock(SemaphoreUpdater.class);
-    Semaphores.Semaphore semaphore = new Semaphores.Semaphore();
-    when(dao.acquire(anyString(), anyInt())).thenReturn(semaphore);
+  @Test(expected = UnsupportedOperationException.class)
+  public void acquire_is_unsupported() {
+    new SemaphoresImpl().acquire("foo");
+  }
 
-    SemaphoresImpl impl = new SemaphoresImpl(dao, updater);
+  @Test(expected = UnsupportedOperationException.class)
+  public void acquire_with_timeout_is_unsupported() {
+    new SemaphoresImpl().acquire("foo", 1, 2);
+  }
 
-    impl.acquire("do-xxx", 50000, 10);
-    verify(dao).acquire("do-xxx", 50000);
-
-    impl.acquire("do-xxx");
-    verify(dao).acquire("do-xxx");
-
-    impl.release("do-xxx");
-    verify(dao).release("do-xxx");
+  @Test(expected = UnsupportedOperationException.class)
+  public void release_is_unsupported() {
+    new SemaphoresImpl().release("foo");
   }
 }

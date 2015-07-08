@@ -30,7 +30,6 @@ import org.sonar.db.DatabaseChecker;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.MyBatis;
 import org.sonar.db.purge.PurgeProfiler;
-import org.sonar.db.semaphore.SemaphoreUpdater;
 import org.sonar.db.semaphore.SemaphoresImpl;
 import org.sonar.db.version.DatabaseVersion;
 import org.sonar.server.component.db.ComponentDao;
@@ -89,7 +88,6 @@ public class PlatformLevel1 extends PlatformLevel {
       DatabaseVersion.class,
       PurgeProfiler.class,
       DefaultServerFileSystem.class,
-      SemaphoreUpdater.class,
       SemaphoresImpl.class,
       TempFolderCleaner.class,
       new TempFolderProvider(),
