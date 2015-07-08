@@ -30,12 +30,9 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
-import org.sonar.server.computation.step.ComputeFormulaMeasuresStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
@@ -45,24 +42,21 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 
-public class SumFormulaStepTest {
+public class SumFormulaExecutionTest {
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule().add(CoreMetrics.LINES);
-
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  ComputeFormulaMeasuresStep sut;
+  FormulaExecutorComponentVisitor sut;
 
   @Before
-  public void setUp() {
-    FormulaRepository formulaRepository = mock(FormulaRepository.class);
-    when(formulaRepository.getFormulas()).thenReturn(Lists.<Formula>newArrayList(new SumFormula(LINES_KEY)));
-    sut = new ComputeFormulaMeasuresStep(treeRootHolder, measureRepository, metricRepository, formulaRepository);
+  public void setUp() throws Exception {
+    sut = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
+      .buildFor(Lists.<Formula>newArrayList(new SumFormula(LINES_KEY)));
   }
 
   @Test
@@ -92,7 +86,7 @@ public class SumFormulaStepTest {
     measureRepository.addRawMeasure(1112, LINES_KEY, newMeasureBuilder().create(8));
     measureRepository.addRawMeasure(1211, LINES_KEY, newMeasureBuilder().create(2));
 
-    sut.execute();
+    sut.visit(project);
 
     assertThat(toEntries(measureRepository.getNewRawMeasures(1))).containsOnly(entryOf(LINES_KEY, newMeasureBuilder().create(20)));
     assertThat(toEntries(measureRepository.getNewRawMeasures(11))).containsOnly(entryOf(LINES_KEY, newMeasureBuilder().create(18)));

@@ -47,9 +47,10 @@ public class PeriodsHolderRule implements TestRule, PeriodsHolder {
     this.delegate = new PeriodsHolderImpl();
   }
 
-  public void setPeriods(Period... periods) {
+  public PeriodsHolderRule setPeriods(Period... periods) {
     delegate = new PeriodsHolderImpl();
     delegate.setPeriods(Arrays.asList(periods));
+    return this;
   }
 
   @Override

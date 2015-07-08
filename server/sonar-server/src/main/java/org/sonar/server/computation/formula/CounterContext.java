@@ -21,10 +21,17 @@
 package org.sonar.server.computation.formula;
 
 import com.google.common.base.Optional;
+import java.util.List;
 import org.sonar.server.computation.measure.Measure;
+import org.sonar.server.computation.period.Period;
 
 public interface CounterContext {
 
   Optional<Measure> getMeasure(String metricKey);
+
+  /**
+   * Lists of Periods defined for the current project. They can be used to aggregate values of MeasureVariations.
+   */
+  List<Period> getPeriods();
 
 }

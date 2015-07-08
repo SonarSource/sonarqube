@@ -38,7 +38,7 @@ import static org.sonar.api.measures.CoreMetrics.GENERATED_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.GENERATED_NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.STATEMENTS_KEY;
 
-public class CoreFormulaRepositoryImpl implements FormulaRepository {
+public class CoreFormulaRepositoryImpl implements CoreFormulaRepository {
 
   private static final List<Formula> FORMULAS = ImmutableList.<Formula>of(
     // TODO When all decorators will be moved to CE, uncomment commented lines to activate all formulas and remove formulas declaration in

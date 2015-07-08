@@ -30,11 +30,9 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
-import org.sonar.server.computation.step.ComputeFormulaMeasuresStep;
+import org.sonar.server.computation.period.PeriodsHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.COMPLEXITY_IN_FUNCTIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.FUNCTIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_KEY;
@@ -46,32 +44,31 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 
-public class AverageFormulaStepTest {
+public class AverageFormulaExecutionTest {
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(CoreMetrics.FUNCTION_COMPLEXITY)
     .add(CoreMetrics.COMPLEXITY_IN_FUNCTIONS)
     .add(CoreMetrics.FUNCTIONS);
-
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
+  @Rule
+  public PeriodsHolderRule periodsHolder = new PeriodsHolderRule();
 
-  ComputeFormulaMeasuresStep sut;
+  FormulaExecutorComponentVisitor sut;
 
   @Before
-  public void setUp() {
-    FormulaRepository formulaRepository = mock(FormulaRepository.class);
-    when(formulaRepository.getFormulas()).thenReturn(Lists.<Formula>newArrayList(
-      AverageFormula.Builder.newBuilder()
-        .setOutputMetricKey(FUNCTION_COMPLEXITY_KEY)
-        .setMainMetricKey(COMPLEXITY_IN_FUNCTIONS_KEY)
-        .setByMetricKey(FUNCTIONS_KEY)
-        .build()));
-    sut = new ComputeFormulaMeasuresStep(treeRootHolder, measureRepository, metricRepository, formulaRepository);
+  public void setUp() throws Exception {
+    sut = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
+      .buildFor(Lists.<Formula>newArrayList(
+        AverageFormula.Builder.newBuilder()
+          .setOutputMetricKey(FUNCTION_COMPLEXITY_KEY)
+          .setMainMetricKey(COMPLEXITY_IN_FUNCTIONS_KEY)
+          .setByMetricKey(FUNCTIONS_KEY)
+          .build()));
   }
 
   @Test
@@ -106,7 +103,7 @@ public class AverageFormulaStepTest {
     measureRepository.addRawMeasure(1211, COMPLEXITY_IN_FUNCTIONS_KEY, newMeasureBuilder().create(9));
     measureRepository.addRawMeasure(1211, FUNCTIONS_KEY, newMeasureBuilder().create(2));
 
-    sut.execute();
+    sut.visit(project);
 
     assertThat(toEntries(measureRepository.getNewRawMeasures(1))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(3d)));
     assertThat(toEntries(measureRepository.getNewRawMeasures(11))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(2d)));

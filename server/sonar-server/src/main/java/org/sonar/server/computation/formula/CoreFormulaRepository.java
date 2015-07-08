@@ -22,7 +22,7 @@ package org.sonar.server.computation.formula;
 
 import java.util.List;
 
-public interface FormulaRepository {
+public interface CoreFormulaRepository {
 
   List<Formula> getFormulas();
 
