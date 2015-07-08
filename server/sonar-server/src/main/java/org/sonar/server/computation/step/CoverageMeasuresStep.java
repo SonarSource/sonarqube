@@ -39,28 +39,28 @@ import org.sonar.server.computation.period.PeriodsHolder;
  */
 public class CoverageMeasuresStep implements ComputationStep {
   private static final ImmutableList<Formula> COVERAGE_FORMULAS = ImmutableList.<Formula>of(
-    // code
-    new CodeCoverageFormula(),
-    new NewCodeCoverageFormula(),
-    new ItCoverageFormula(),
-    new NewItCoverageFormula(),
-    new OverallCodeCoverageFormula(),
-    new NewOverallCodeCoverageFormula(),
-    // branch
-    new BranchCoverageFormula(),
-    new NewBranchCoverageFormula(),
-    new ItBranchCoverageFormula(),
-    new NewItBranchCoverageFormula(),
-    new OverallBranchCoverageFormula(),
-    new NewOverallBranchCoverageFormula(),
-    // line
-    new LineCoverageFormula(),
-    new NewLineCoverageFormula(),
-    new ItLineCoverageFormula(),
-    new NewItLinesCoverageFormula(),
-    new OverallLineCoverageFormula(),
-    new NewOverallLineCoverageFormula()
-    );
+      // code
+      new CodeCoverageFormula(),
+      new NewCodeCoverageFormula(),
+      new ItCoverageFormula(),
+      new NewItCoverageFormula(),
+      new OverallCodeCoverageFormula(),
+      new NewOverallCodeCoverageFormula(),
+      // branch
+      new BranchCoverageFormula(),
+      new NewBranchCoverageFormula(),
+      new ItBranchCoverageFormula(),
+      new NewItBranchCoverageFormula(),
+      new OverallBranchCoverageFormula(),
+      new NewOverallBranchCoverageFormula(),
+      // line
+      new LineCoverageFormula(),
+      new NewLineCoverageFormula(),
+      new ItLineCoverageFormula(),
+      new NewItLinesCoverageFormula(),
+      new OverallLineCoverageFormula(),
+      new NewOverallLineCoverageFormula()
+  );
 
   private final TreeRootHolder treeRootHolder;
   private final PeriodsHolder periodsHolder;

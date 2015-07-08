@@ -58,7 +58,6 @@ public class ComputationSteps {
       // SQALE measures depend on issues
       SqaleMeasuresStep.class,
       NewCoverageMeasuresStep.class,
-      NewCoverageAggregationStep.class,
       CoverageMeasuresStep.class,
 
       // Must be executed after computation of all measures

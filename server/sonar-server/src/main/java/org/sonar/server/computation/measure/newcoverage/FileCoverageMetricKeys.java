@@ -37,6 +37,7 @@ public class FileCoverageMetricKeys implements NewCoverageMetricKeys {
     return CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY;
   }
 
+  /* output metrics */
   @Override
   public String newLinesToCover() {
     return CoreMetrics.NEW_LINES_TO_COVER_KEY;
