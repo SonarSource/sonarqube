@@ -84,14 +84,14 @@ import java.util.List;
 @ServerSide
 public class RulesDefinitionXmlLoader {
 
-  public void load(RulesDefinition.NewRepository repo, InputStream input, String encoding) {
+  public void load(RulesDefinition.NewExtendedRepository repo, InputStream input, String encoding) {
     load(repo, input, Charset.forName(encoding));
   }
 
   /**
    * @since 5.1
    */
-  public void load(RulesDefinition.NewRepository repo, InputStream input, Charset charset) {
+  public void load(RulesDefinition.NewExtendedRepository repo, InputStream input, Charset charset) {
     try (Reader reader = new InputStreamReader(input, charset)) {
       load(repo, reader);
     } catch (IOException e) {
@@ -99,7 +99,7 @@ public class RulesDefinitionXmlLoader {
     }
   }
 
-  public void load(RulesDefinition.NewRepository repo, Reader reader) {
+  public void load(RulesDefinition.NewExtendedRepository repo, Reader reader) {
     XMLInputFactory xmlFactory = XMLInputFactory.newInstance();
     xmlFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
     xmlFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);
@@ -122,7 +122,7 @@ public class RulesDefinitionXmlLoader {
     }
   }
 
-  private void processRule(RulesDefinition.NewRepository repo, SMInputCursor ruleC) throws XMLStreamException {
+  private void processRule(RulesDefinition.NewExtendedRepository repo, SMInputCursor ruleC) throws XMLStreamException {
     String key = null;
     String name = null;
     String description = null;
