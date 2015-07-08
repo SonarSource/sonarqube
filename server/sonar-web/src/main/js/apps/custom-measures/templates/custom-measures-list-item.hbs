@@ -29,6 +29,10 @@
 </div>
 
 <div class="display-inline-block text-top width-30">
-  Created on <span class="js-custom-measure-created-at">{{d createdAt}}</span>
+  {{#if updatedAt}}
+    Updated on <span class="js-custom-measure-created-at">{{d updatedAt}}</span>
+  {{else}}
+    Created on <span class="js-custom-measure-created-at">{{d createdAt}}</span>
+  {{/if}}
   by <span class="js-custom-measure-user">{{user.name}}</span>
 </div>
