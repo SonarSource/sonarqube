@@ -21,8 +21,6 @@ package org.sonar.server.computation.container;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import java.util.Set;
 import org.junit.Test;
 import org.picocontainer.ComponentAdapter;
@@ -30,6 +28,7 @@ import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.computation.step.ComputationStep;
 
+import static com.google.common.collect.FluentIterable.from;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -60,14 +59,11 @@ public class ComputeEngineContainerImplTest {
 
     Set<String> stepsCanonicalNames = StepsExplorer.retrieveStepPackageStepsCanonicalNames();
 
-    Set<String> typesInContainer = Sets.newHashSet(
-      Iterables.transform(
-        Iterables.filter(
-          Iterables.transform(
-            ceContainer.getPicoContainer().getComponentAdapters(),
-            ComponentAdapterToImplementationClass.INSTANCE),
-          IsComputationStep.INSTANCE),
-        StepsExplorer.ClassToCanonicalName.INSTANCE));
+    Set<String> typesInContainer = from(ceContainer.getPicoContainer().getComponentAdapters())
+      .transform(ComponentAdapterToImplementationClass.INSTANCE)
+      .filter(IsComputationStep.INSTANCE)
+      .transform(StepsExplorer.toCanonicalName())
+      .toSet();
 
     assertThat(typesInContainer).isEqualTo(stepsCanonicalNames);
   }

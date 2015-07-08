@@ -20,27 +20,49 @@
 package org.sonar.server.computation.container;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
+import com.google.common.base.Predicate;
+import java.lang.reflect.Modifier;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import org.reflections.Reflections;
 import org.sonar.server.computation.step.ComputationStep;
+
+import static com.google.common.base.Predicates.notNull;
+import static com.google.common.collect.FluentIterable.from;
 
 public class StepsExplorer {
   /**
    * Compute set of canonical names of classes implementing ComputationStep in package step using reflection.
    */
-  static Set<String> retrieveStepPackageStepsCanonicalNames() {
+  public static Set<String> retrieveStepPackageStepsCanonicalNames() {
     Reflections reflections = new Reflections("org.sonar.server.computation.step");
 
-    return Sets.newHashSet(Iterables.transform(reflections.getSubTypesOf(ComputationStep.class), ClassToCanonicalName.INSTANCE));
+    return from(reflections.getSubTypesOf(ComputationStep.class))
+        .filter(NotAbstractClass.INSTANCE)
+        .transform(ClassToCanonicalName.INSTANCE)
+        // anonymous classes do not have canonical names
+        .filter(notNull())
+        .toSet();
   }
 
-  enum ClassToCanonicalName implements Function<Class<?>, String> {
+  private enum NotAbstractClass implements Predicate<Class<? extends ComputationStep>> {
     INSTANCE;
 
     @Override
-    public String apply(Class<?> input) {
+    public boolean apply(Class<? extends ComputationStep> input) {
+      return !Modifier.isAbstract(input.getModifiers());
+    }
+  }
+
+  public static Function<Class<?>, String> toCanonicalName() {
+    return ClassToCanonicalName.INSTANCE;
+  }
+
+  private enum ClassToCanonicalName implements Function<Class<?>, String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nonnull Class<?> input) {
       return input.getCanonicalName();
     }
   }

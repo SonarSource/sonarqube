@@ -22,17 +22,16 @@ package org.sonar.server.computation.step;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import java.util.Set;
 import org.junit.Test;
 import org.picocontainer.ComponentAdapter;
-import org.reflections.Reflections;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.computation.container.ComputeEngineContainerImpl;
+import org.sonar.server.computation.container.StepsExplorer;
 
+import static com.google.common.collect.FluentIterable.from;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -53,36 +52,15 @@ public class ComputationStepsTest {
   public void all_steps_from_package_step_are_present_in_container() {
     ComputeEngineContainerImpl ceContainer = new ComputeEngineContainerImpl(new ComponentContainer(), mock(ReportQueue.Item.class));
 
-    Set<String> stepsCanonicalNames = retrieveStepPackageStepsCanonicalNames();
+    Set<String> stepsCanonicalNames = StepsExplorer.retrieveStepPackageStepsCanonicalNames();
 
-    Set<String> typesInContainer = Sets.newHashSet(
-        Iterables.transform(
-            Iterables.filter(
-                Iterables.transform(
-                    ceContainer.getPicoContainer().getComponentAdapters(),
-                    ComponentAdapterToImplementationClass.INSTANCE),
-                IsComputationStep.INSTANCE),
-            ClassToCanonicalName.INSTANCE));
+    Set<String> typesInContainer = from(ceContainer.getPicoContainer().getComponentAdapters())
+        .transform(ComponentAdapterToImplementationClass.INSTANCE)
+        .filter(IsComputationStep.INSTANCE)
+        .transform(StepsExplorer.toCanonicalName())
+        .toSet();
 
     assertThat(typesInContainer).isEqualTo(stepsCanonicalNames);
-  }
-
-  /**
-   * Compute set of canonical names of classes implementing ComputationStep in package step using reflection.
-   */
-  private Set<String> retrieveStepPackageStepsCanonicalNames() {
-    Reflections reflections = new Reflections("org.sonar.server.computation.step");
-
-    return Sets.newHashSet(Iterables.transform(reflections.getSubTypesOf(ComputationStep.class), ClassToCanonicalName.INSTANCE));
-  }
-
-  private enum ClassToCanonicalName implements Function<Class<?>, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(Class<?> input) {
-      return input.getCanonicalName();
-    }
   }
 
   private enum ComponentAdapterToImplementationClass implements Function<ComponentAdapter<?>, Class<?>> {
