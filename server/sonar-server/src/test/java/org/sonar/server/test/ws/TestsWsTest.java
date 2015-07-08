@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.tester.UserSessionRule;
@@ -41,7 +42,7 @@ public class TestsWsTest {
   @Before
   public void setUp() {
     WsTester tester = new WsTester(new TestsWs(
-      new ListAction(mock(DbClient.class), mock(TestIndex.class), userSessionRule),
+      new ListAction(mock(DbClient.class), mock(TestIndex.class), userSessionRule, mock(ComponentFinder.class)),
       new CoveredFilesAction(mock(DbClient.class), mock(TestIndex.class), userSessionRule)));
     controller = tester.controller("api/tests");
   }

@@ -20,6 +20,9 @@
 package org.sonar.server.issue.notification;
 
 import com.google.common.collect.Multiset;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -34,10 +37,6 @@ import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 
 import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_DATE;
 import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_KEY;
@@ -113,7 +112,7 @@ public class NewIssuesNotification extends Notification {
     try {
       for (int i = 0; i < 5 && i < componentStats.size(); i++) {
         String uuid = componentStats.get(i).getElement();
-        String componentName = dbClient.componentDao().selectByUuid(dbSession, uuid).name();
+        String componentName = dbClient.componentDao().selectNonNullByUuid(dbSession, uuid).name();
         setFieldValue(metric + DOT + (i + 1) + LABEL, componentName);
         setFieldValue(metric + DOT + (i + 1) + COUNT, String.valueOf(componentStats.get(i).getCount()));
       }

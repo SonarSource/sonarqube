@@ -20,6 +20,7 @@
 
 package org.sonar.server.computation.step;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -35,10 +36,10 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
-import org.sonar.db.DbSession;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.TreeRootHolder;
@@ -91,11 +92,11 @@ public class FeedPeriodsStep implements ComputationStep {
 
   private List<Period> buildPeriods(DbSession session) {
     Component project = treeRootHolder.getRoot();
-    ComponentDto projectDto = dbClient.componentDao().selectNullableByKey(session, project.getKey());
+    Optional<ComponentDto> projectDto = dbClient.componentDao().selectByKey(session, project.getKey());
     // No project on first analysis, no period
-    if (projectDto != null) {
+    if (projectDto.isPresent()) {
       List<Period> periods = new ArrayList<>(5);
-      PeriodResolver periodResolver = new PeriodResolver(session, projectDto.getId(), batchReportReader.readMetadata().getAnalysisDate(), project.getVersion(),
+      PeriodResolver periodResolver = new PeriodResolver(session, projectDto.get().getId(), batchReportReader.readMetadata().getAnalysisDate(), project.getVersion(),
         // TODO qualifier will be different for Views
         Qualifiers.PROJECT);
 

@@ -24,27 +24,32 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.db.user.AuthorizationDao;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Fail.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.mock;
 
 @Category(DbTests.class)
 public class SearchActionTest {
 
   @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -56,7 +61,7 @@ public class SearchActionTest {
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(),
       new ComponentDao(), new AuthorizationDao(dbTester.myBatis()), new ResourceIndexDao(dbTester.myBatis(), mock(System2.class))
       );
-    tester = new WsTester(new ComponentsWs(mock(AppAction.class), new SearchAction(dbClient, userSessionRule)));
+    tester = new WsTester(new ComponentsWs(mock(AppAction.class), new SearchAction(dbClient, userSessionRule, new ComponentFinder(dbClient))));
   }
 
   @Test
@@ -108,16 +113,26 @@ public class SearchActionTest {
 
   @Test
   public void fail_when_search_param_is_too_short() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Minimum search is 2 characters");
+
+
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "EFGH").setParam("q", "s");
+    request.execute();
+  }
 
-    try {
-      request.execute();
-      failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Minimum search is 2 characters");
-    }
+  @Test
+  public void fail_when_project_uuid_does_not_exists() throws Exception {
+    thrown.expect(NotFoundException.class);
+    thrown.expectMessage("Component id 'UNKNOWN' not found");
+
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, "EFGH");
+
+    WsTester.TestRequest request = tester.newGetRequest("api/components", "search").setParam("componentUuid", "UNKNOWN").setParam("q", "st");
+    request.execute();
   }
 }

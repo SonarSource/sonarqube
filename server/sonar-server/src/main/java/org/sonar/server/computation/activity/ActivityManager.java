@@ -19,14 +19,14 @@
  */
 package org.sonar.server.computation.activity;
 
-import javax.annotation.CheckForNull;
-import org.sonar.server.db.DbClient;
+import com.google.common.base.Optional;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.compute.AnalysisReportDto;
 import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.ActivityService;
+import org.sonar.server.db.DbClient;
 
 import static org.sonar.api.utils.DateUtils.formatDateTimeNullSafe;
 import static org.sonar.api.utils.DateUtils.longToDate;
@@ -41,7 +41,7 @@ public class ActivityManager {
   }
 
   public void saveActivity(AnalysisReportDto report) {
-    ComponentDto project = loadProject(report.getProjectKey());
+    Optional<ComponentDto> projectOptional = loadProject(report.getProjectKey());
     Activity activity = new Activity();
     activity.setType(Activity.Type.ANALYSIS_REPORT);
     activity.setAction("LOG_ANALYSIS_REPORT");
@@ -52,7 +52,8 @@ public class ActivityManager {
         .setData("submittedAt", formatDateTimeNullSafe(longToDate(report.getCreatedAt())))
         .setData("startedAt", formatDateTimeNullSafe(longToDate(report.getStartedAt())))
         .setData("finishedAt", formatDateTimeNullSafe(longToDate(report.getFinishedAt())));
-    if (project != null) {
+    if (projectOptional.isPresent()) {
+      ComponentDto project = projectOptional.get();
       activity
           .setData("projectName", project.name())
           .setData("projectUuid", project.uuid());
@@ -60,11 +61,10 @@ public class ActivityManager {
     activityService.save(activity);
   }
 
-  @CheckForNull
-  private ComponentDto loadProject(String projectKey) {
+  private Optional<ComponentDto> loadProject(String projectKey) {
     DbSession session = dbClient.openSession(false);
     try {
-      return dbClient.componentDao().selectNullableByKey(session, projectKey);
+      return dbClient.componentDao().selectByKey(session, projectKey);
     } finally {
       MyBatis.closeQuietly(session);
     }

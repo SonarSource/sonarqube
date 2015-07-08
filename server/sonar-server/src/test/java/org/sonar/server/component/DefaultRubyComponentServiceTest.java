@@ -20,6 +20,7 @@
 
 package org.sonar.server.component;
 
+import com.google.common.base.Optional;
 import java.util.List;
 import java.util.Map;
 import org.junit.Before;
@@ -68,9 +69,16 @@ public class DefaultRubyComponentServiceTest {
   @Test
   public void find_by_uuid() {
     ComponentDto component = new ComponentDto();
-    when(componentService.getNullableByUuid("ABCD")).thenReturn(component);
+    when(componentService.getByUuid("ABCD")).thenReturn(Optional.of(component));
 
     assertThat(service.findByUuid("ABCD")).isEqualTo(component);
+  }
+
+  @Test
+  public void not_find_by_uuid() {
+    when(componentService.getByUuid("ABCD")).thenReturn(Optional.<ComponentDto>absent());
+
+    assertThat(service.findByUuid("ABCD")).isNull();
   }
 
   @Test

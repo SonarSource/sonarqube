@@ -33,6 +33,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
@@ -70,7 +71,7 @@ public class ScmActionTest {
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao());
     session = dbClient.openSession(false);
 
-    tester = new WsTester(new SourcesWs(new ScmAction(dbClient, new SourceLineIndex(esTester.client()), userSessionRule)));
+    tester = new WsTester(new SourcesWs(new ScmAction(dbClient, new SourceLineIndex(esTester.client()), userSessionRule, new ComponentFinder(dbClient))));
   }
 
   @After

@@ -35,14 +35,14 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -62,12 +62,14 @@ public class AppAction implements RequestHandler {
   private final Durations durations;
   private final I18n i18n;
   private final UserSession userSession;
+  private final ComponentFinder componentFinder;
 
-  public AppAction(DbClient dbClient, Durations durations, I18n i18n, UserSession userSession) {
+  public AppAction(DbClient dbClient, Durations durations, I18n i18n, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.durations = durations;
     this.i18n = i18n;
     this.userSession = userSession;
+    this.componentFinder = componentFinder;
   }
 
   void define(WebService.NewController controller) {
@@ -98,10 +100,7 @@ public class AppAction implements RequestHandler {
 
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto component = dbClient.componentDao().selectNullableByUuid(session, componentUuid);
-      if (component == null) {
-        throw new NotFoundException(String.format("Component '%s' does not exist", componentUuid));
-      }
+      ComponentDto component = componentFinder.getByUuid(session, componentUuid);
       userSession.checkComponentPermission(UserRole.USER, component.getKey());
 
       Map<String, MeasureDto> measuresByMetricKey = measuresByMetricKey(component, session);
@@ -119,12 +118,12 @@ public class AppAction implements RequestHandler {
 
   private void appendComponent(JsonWriter json, ComponentDto component, UserSession userSession, DbSession session) {
     List<PropertyDto> propertyDtos = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-      .setKey("favourite")
-      .setComponentId(component.getId())
-      .setUserId(userSession.getUserId())
-      .build(),
+        .setKey("favourite")
+        .setComponentId(component.getId())
+        .setUserId(userSession.getUserId())
+        .build(),
       session
-      );
+    );
     boolean isFavourite = propertyDtos.size() == 1;
 
     json.prop("key", component.key());
@@ -135,7 +134,7 @@ public class AppAction implements RequestHandler {
     json.prop("q", component.qualifier());
 
     ComponentDto parentProject = nullableComponentById(component.parentProjectId(), session);
-    ComponentDto project = dbClient.componentDao().selectByUuid(session, component.projectUuid());
+    ComponentDto project = dbClient.componentDao().selectNonNullByUuid(session, component.projectUuid());
 
     // Do not display parent project if parent project and project are the same
     boolean displayParentProject = parentProject != null && !parentProject.getId().equals(project.getId());
@@ -191,7 +190,7 @@ public class AppAction implements RequestHandler {
   @CheckForNull
   private ComponentDto nullableComponentById(@Nullable Long componentId, DbSession session) {
     if (componentId != null) {
-      return dbClient.componentDao().selectById(componentId, session);
+      return dbClient.componentDao().selectNonNullById(session, componentId);
     }
     return null;
   }
@@ -225,7 +224,7 @@ public class AppAction implements RequestHandler {
   }
 
   @CheckForNull
-  private static Double getDoubleValue(MeasureDto measure, Metric metric){
+  private static Double getDoubleValue(MeasureDto measure, Metric metric) {
     Double value = measure.getValue();
     if (BooleanUtils.isTrue(metric.isOptimizedBestValue()) && value == null) {
       value = metric.getBestValue();

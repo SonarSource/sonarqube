@@ -20,6 +20,7 @@
 
 package org.sonar.server.source.ws;
 
+import com.google.common.base.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,8 +28,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
@@ -68,14 +70,14 @@ public class IndexActionTest {
   public void setUp() {
     when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.openSession(false)).thenReturn(session);
-    tester = new WsTester(new SourcesWs(new IndexAction(dbClient, sourceService, userSessionRule)));
+    tester = new WsTester(new SourcesWs(new IndexAction(dbClient, sourceService, userSessionRule, new ComponentFinder(dbClient))));
   }
 
   @Test
   public void get_json() throws Exception {
     String fileKey = "src/Foo.java";
     userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
-    when(componentDao.selectByKey(session, fileKey)).thenReturn(file);
+    when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
 
     when(sourceService.getLinesAsTxt(file.uuid(), 1, null)).thenReturn(newArrayList(
       "public class HelloWorld {",
@@ -90,7 +92,7 @@ public class IndexActionTest {
   public void limit_range() throws Exception {
     String fileKey = "src/Foo.java";
     userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
-    when(componentDao.selectByKey(session, fileKey)).thenReturn(file);
+    when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
 
     when(sourceService.getLinesAsTxt(file.uuid(), 1, 2)).thenReturn(newArrayList(
       "public class HelloWorld {",
@@ -111,7 +113,7 @@ public class IndexActionTest {
   public void close_db_session() throws Exception {
     String fileKey = "src/Foo.java";
     userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
-    when(componentDao.selectByKey(session, fileKey)).thenThrow(new NotFoundException());
+    when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.<ComponentDto>absent());
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "index").setParam("resource", fileKey);
     try {

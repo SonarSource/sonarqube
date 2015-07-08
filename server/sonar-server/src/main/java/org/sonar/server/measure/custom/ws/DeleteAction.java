@@ -24,11 +24,11 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.CustomMeasureDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.measure.CustomMeasureDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
@@ -81,7 +81,7 @@ public class DeleteAction implements CustomMeasuresWsAction {
       return;
     }
 
-    ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, customMeasure.getComponentUuid());
+    ComponentDto component = dbClient.componentDao().selectNonNullByUuid(dbSession, customMeasure.getComponentUuid());
     userSession.checkLoggedIn().checkProjectUuidPermission(UserRole.ADMIN, component.projectUuid());
   }
 }

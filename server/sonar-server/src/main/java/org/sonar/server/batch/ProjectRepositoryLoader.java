@@ -21,6 +21,7 @@
 package org.sonar.server.batch;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -39,12 +40,12 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.UserRole;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
-import org.sonar.core.util.UtcDateUtils;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.util.UtcDateUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.db.DbClient;
@@ -93,9 +94,10 @@ public class ProjectRepositoryLoader {
     try {
       ProjectRepositories ref = new ProjectRepositories();
       String projectKey = query.getModuleKey();
-      ComponentDto module = dbClient.componentDao().selectNullableByKey(session, query.getModuleKey());
+      Optional<ComponentDto> moduleOptional = dbClient.componentDao().selectByKey(session, query.getModuleKey());
       // Current project/module can be null when analysing a new project
-      if (module != null) {
+      if (moduleOptional.isPresent()) {
+        ComponentDto module = moduleOptional.get();
         // Scan permission is enough to analyze all projects but preview permission is limited to projects user can access
         if (query.isPreview() && !userSession.hasProjectPermissionByUuid(UserRole.USER, module.projectUuid())) {
           throw new ForbiddenException("You're not authorized to access to project '" + module.name() + "', please contact your SonarQube administrator.");
@@ -138,7 +140,7 @@ public class ProjectRepositoryLoader {
 
   private ComponentDto getProject(ComponentDto module, DbSession session) {
     if (!module.isRootProject()) {
-      return dbClient.componentDao().selectNullableByUuid(session, module.projectUuid());
+      return dbClient.componentDao().selectNonNullByUuid(session, module.projectUuid());
     } else {
       return module;
     }
@@ -159,7 +161,7 @@ public class ProjectRepositoryLoader {
   private void aggregateParentModules(ComponentDto component, List<ComponentDto> parents, DbSession session) {
     String moduleUuid = component.moduleUuid();
     if (moduleUuid != null) {
-      ComponentDto parent = dbClient.componentDao().selectByUuid(session, moduleUuid);
+      ComponentDto parent = dbClient.componentDao().selectNonNullByUuid(session, moduleUuid);
       if (parent != null) {
         parents.add(parent);
         aggregateParentModules(parent, parents, session);

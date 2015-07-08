@@ -34,6 +34,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
@@ -69,7 +70,7 @@ public class ListActionTest {
     es.truncateIndices();
     testIndex = new TestIndex(es.client());
 
-    ws = new WsTester(new TestsWs(new ListAction(dbClient, testIndex, userSessionRule)));
+    ws = new WsTester(new TestsWs(new ListAction(dbClient, testIndex, userSessionRule, new ComponentFinder(dbClient))));
   }
 
   @After

@@ -124,7 +124,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     step.execute();
     dbSession.commit();
 
-    assertThat(dbClient.componentDao().selectByKey(dbSession, PROJECT_KEY).getAuthorizationUpdatedAt()).isNotNull();
+    assertThat(dbClient.componentDao().selectNonNullByKey(dbSession, PROJECT_KEY).getAuthorizationUpdatedAt()).isNotNull();
     assertThat(dbClient.roleDao().selectGroupPermissions(dbSession, DefaultGroups.ANYONE, projectDto.getId())).containsOnly(UserRole.USER);
     List<SearchHit> issueAuthorizationHits = esTester.getDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION);
     assertThat(issueAuthorizationHits).hasSize(1);

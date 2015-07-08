@@ -20,13 +20,19 @@
 package org.sonar.server.issue;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.server.notification.NotificationManager;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
@@ -35,13 +41,15 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueBuilder;
+import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
-import org.sonar.db.issue.IssueDto;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.IssueDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -50,21 +58,12 @@ import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.notification.IssueChangeNotification;
+import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 @ServerSide
 public class IssueService {
@@ -245,8 +244,12 @@ public class IssueService {
 
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto component = dbClient.componentDao().selectByKey(session, componentKey);
-      ComponentDto project = dbClient.componentDao().selectByUuid(session, component.projectUuid());
+      Optional<ComponentDto> componentOptional = dbClient.componentDao().selectByKey(session, componentKey);
+      if (!componentOptional.isPresent()) {
+        throw new NotFoundException(String.format("Component with key '%s' not found", componentKey));
+      }
+      ComponentDto component = componentOptional.get();
+      ComponentDto project = dbClient.componentDao().selectNonNullByUuid(session, component.projectUuid());
 
       userSession.checkProjectPermission(UserRole.USER, project.getKey());
       if (!ruleKey.isManual()) {
@@ -296,13 +299,13 @@ public class IssueService {
     }
     issueStorage.save(session, issue);
     Rule rule = getNullableRuleByKey(issue.ruleKey());
-    ComponentDto project = dbClient.componentDao().selectByKey(session, projectKey);
+    ComponentDto project = dbClient.componentDao().selectNonNullByKey(session, projectKey);
     notificationService.scheduleForSending(new IssueChangeNotification()
       .setIssue(issue)
       .setChangeAuthorLogin(context.login())
       .setRuleName(rule != null ? rule.getName() : null)
       .setProject(project.getKey(), project.name())
-      .setComponent(dbClient.componentDao().selectNullableByKey(session, issue.componentKey()))
+      .setComponent(dbClient.componentDao().selectNonNullByKey(session, issue.componentKey()))
       .setComment(comment));
   }
 

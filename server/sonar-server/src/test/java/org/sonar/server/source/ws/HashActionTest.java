@@ -31,6 +31,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.source.FileSourceDao;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -66,7 +67,7 @@ public class HashActionTest {
 
     DbClient dbClient = new DbClient(db.database(), db.myBatis(), new FileSourceDao(db.myBatis()), new ComponentDao());
 
-    tester = new WsTester(new SourcesWs(new HashAction(dbClient, userSessionRule)));
+    tester = new WsTester(new SourcesWs(new HashAction(dbClient, userSessionRule, new ComponentFinder(dbClient))));
   }
 
   @After

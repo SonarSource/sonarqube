@@ -26,16 +26,16 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.metric.MetricDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.metric.MetricDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.metric.ws.MetricJsonWriter;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.measure.custom.ws.CustomMeasureValidator.checkPermissions;
-import static org.sonar.server.measure.custom.ws.ProjectFinder.searchProject;
 
 public class MetricsAction implements CustomMeasuresWsAction {
   public static final String ACTION = "metrics";
@@ -44,10 +44,12 @@ public class MetricsAction implements CustomMeasuresWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final ComponentFinder componentFinder;
 
-  public MetricsAction(DbClient dbClient, UserSession userSession) {
+  public MetricsAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.componentFinder = componentFinder;
   }
 
   @Override
@@ -75,7 +77,7 @@ public class MetricsAction implements CustomMeasuresWsAction {
     DbSession dbSession = dbClient.openSession(false);
 
     try {
-      ComponentDto project = searchProject(dbSession, dbClient, request);
+      ComponentDto project = componentFinder.getByKeyOrUuid(dbSession, request.param(CreateAction.PARAM_PROJECT_ID), request.param(CreateAction.PARAM_PROJECT_KEY));
       checkPermissions(userSession, project);
       List<MetricDto> metrics = searchMetrics(dbSession, project);
 

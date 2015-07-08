@@ -27,13 +27,14 @@ import javax.annotation.Nullable;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.permission.PermissionFacade;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDto;
+import org.sonar.db.permission.PermissionFacade;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -59,14 +60,16 @@ public class InternalPermissionService {
   private final PermissionFinder finder;
   private final IssueAuthorizationIndexer issueAuthorizationIndexer;
   private final UserSession userSession;
+  private final ComponentFinder componentFinder;
 
   public InternalPermissionService(DbClient dbClient, PermissionFacade permissionFacade, PermissionFinder finder,
-    IssueAuthorizationIndexer issueAuthorizationIndexer, UserSession userSession) {
+    IssueAuthorizationIndexer issueAuthorizationIndexer, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.permissionFacade = permissionFacade;
     this.finder = finder;
     this.issueAuthorizationIndexer = issueAuthorizationIndexer;
     this.userSession = userSession;
+    this.componentFinder = componentFinder;
   }
 
   public List<String> globalPermissions() {
@@ -122,7 +125,7 @@ public class InternalPermissionService {
 
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto component = dbClient.componentDao().selectByKey(session, componentKey);
+      ComponentDto component = componentFinder.getByKey(session, componentKey);
       ResourceDto provisioned = dbClient.resourceDao().selectProvisionedProject(session, componentKey);
       if (provisioned == null) {
         checkProjectAdminPermission(componentKey);
@@ -160,7 +163,7 @@ public class InternalPermissionService {
       }
 
       for (String componentKey : query.getSelectedComponents()) {
-        ComponentDto component = dbClient.componentDao().selectByKey(session, componentKey);
+        ComponentDto component = componentFinder.getByKey(session, componentKey);
         permissionFacade.applyPermissionTemplate(session, query.getTemplateKey(), component.getId());
         projectsChanged = true;
       }
@@ -254,7 +257,7 @@ public class InternalPermissionService {
     if (componentKey == null) {
       return null;
     } else {
-      ComponentDto component = dbClient.componentDao().selectByKey(session, componentKey);
+      ComponentDto component = componentFinder.getByKey(session, componentKey);
       return component.getId();
     }
   }

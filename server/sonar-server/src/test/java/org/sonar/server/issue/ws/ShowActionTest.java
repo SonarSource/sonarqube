@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue.ws;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import java.util.Date;
 import java.util.List;
@@ -31,9 +32,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.Issue;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.DefaultIssueComment;
-import org.sonar.core.issue.FieldDiffs;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.user.User;
@@ -41,11 +39,14 @@ import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.core.issue.DefaultActionPlan;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.DefaultIssueComment;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.workflow.Transition;
-import org.sonar.db.DbSession;
 import org.sonar.core.user.DefaultUser;
+import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
@@ -65,6 +66,7 @@ import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -143,6 +145,8 @@ public class ShowActionTest {
 
     when(i18n.message(any(Locale.class), eq("created"), eq((String) null))).thenReturn("Created");
 
+    when(componentDao.selectById(eq(session), anyLong())).thenReturn(Optional.<ComponentDto>absent());
+
     tester = new WsTester(new IssuesWs(
       new ShowAction(
           dbClient, issueService, issueChangelogService, commentService,
@@ -160,7 +164,7 @@ public class ShowActionTest {
       .setKey("org.sonar.Sonar")
       .setLongName("SonarQube")
       .setName("SonarQube");
-    when(componentDao.selectByUuid(session, project.uuid())).thenReturn(project);
+    when(componentDao.selectNonNullByUuid(session, project.uuid())).thenReturn(project);
 
     ComponentDto file = ComponentTesting.newFileDto(project)
       .setId(10L)
@@ -169,7 +173,7 @@ public class ShowActionTest {
       .setName("SonarQube :: Issue Client")
       .setQualifier("FIL")
       .setParentProjectId(1L);
-    when(componentDao.selectByUuid(session, file.uuid())).thenReturn(file);
+    when(componentDao.selectNonNullByUuid(session, file.uuid())).thenReturn(file);
 
     DefaultIssue issue = new DefaultIssue()
       .setKey(issueKey)
@@ -199,7 +203,7 @@ public class ShowActionTest {
       .setId(1L)
       .setKey("org.sonar.Sonar")
       .setLongName("SonarQube");
-    when(componentDao.selectByUuid(session, project.uuid())).thenReturn(project);
+    when(componentDao.selectNonNullByUuid(session, project.uuid())).thenReturn(project);
 
     // Module
     ComponentDto module = ComponentTesting.newModuleDto(project)
@@ -208,7 +212,7 @@ public class ShowActionTest {
       .setLongName("SonarQube :: Server")
       .setQualifier("BRC")
       .setParentProjectId(1L);
-    when(componentDao.selectNullableById(module.getId(), session)).thenReturn(module);
+    when(componentDao.selectById(session, module.getId() )).thenReturn(Optional.of(module));
 
     // File
     ComponentDto file = ComponentTesting.newFileDto(module)
@@ -217,7 +221,7 @@ public class ShowActionTest {
       .setLongName("SonarQube :: Issue Client")
       .setQualifier("FIL")
       .setParentProjectId(2L);
-    when(componentDao.selectByUuid(session, file.uuid())).thenReturn(file);
+    when(componentDao.selectNonNullByUuid(session, file.uuid())).thenReturn(file);
 
     DefaultIssue issue = new DefaultIssue()
       .setKey(issueKey)
@@ -249,7 +253,7 @@ public class ShowActionTest {
       .setKey("org.sonar.Sonar")
       .setName("SonarQube")
       .setLongName(null);
-    when(componentDao.selectByUuid(session, project.uuid())).thenReturn(project);
+    when(componentDao.selectNonNullByUuid(session, project.uuid())).thenReturn(project);
 
     // Module
     ComponentDto module = ComponentTesting.newModuleDto(project)
@@ -259,7 +263,7 @@ public class ShowActionTest {
       .setLongName(null)
       .setQualifier("BRC")
       .setParentProjectId(1L);
-    when(componentDao.selectNullableById(module.getId(), session)).thenReturn(module);
+    when(componentDao.selectById(session, module.getId())).thenReturn(Optional.of(module));
 
     // File
     ComponentDto file = ComponentTesting.newFileDto(module)
@@ -268,7 +272,7 @@ public class ShowActionTest {
       .setLongName("SonarQube :: Issue Client")
       .setQualifier("FIL")
       .setParentProjectId(2L);
-    when(componentDao.selectByUuid(session, file.uuid())).thenReturn(file);
+    when(componentDao.selectNonNullByUuid(session, file.uuid())).thenReturn(file);
 
     DefaultIssue issue = new DefaultIssue()
       .setKey(issueKey)
@@ -300,7 +304,7 @@ public class ShowActionTest {
       .setKey("org.sonar.Sonar")
       .setLongName("SonarQube")
       .setName("SonarQube");
-    when(componentDao.selectByUuid(session, project.uuid())).thenReturn(project);
+    when(componentDao.selectNonNullByUuid(session, project.uuid())).thenReturn(project);
 
     ComponentDto file = ComponentTesting.newFileDto(project)
       .setId(10L)
@@ -310,7 +314,7 @@ public class ShowActionTest {
       .setName("SonarQube :: Issue Client")
       .setQualifier("FIL")
       .setParentProjectId(1L);
-    when(componentDao.selectByUuid(session, file.uuid())).thenReturn(file);
+    when(componentDao.selectNonNullByUuid(session, file.uuid())).thenReturn(file);
 
     DefaultIssue issue = createIssue()
       .setComponentUuid(file.uuid())
@@ -500,7 +504,7 @@ public class ShowActionTest {
       .setKey("org.sonar.Sonar")
       .setLongName("SonarQube")
       .setName("SonarQube");
-    when(componentDao.selectByUuid(session, project.uuid())).thenReturn(project);
+    when(componentDao.selectNonNullByUuid(session, project.uuid())).thenReturn(project);
 
     ComponentDto file = ComponentTesting.newFileDto(project)
       .setId(10L)
@@ -509,7 +513,7 @@ public class ShowActionTest {
       .setName("SonarQube :: Issue Client")
       .setQualifier("FIL")
       .setParentProjectId(1L);
-    when(componentDao.selectByUuid(session, file.uuid())).thenReturn(file);
+    when(componentDao.selectNonNullByUuid(session, file.uuid())).thenReturn(file);
 
     return createIssue()
       .setComponentUuid(file.uuid())

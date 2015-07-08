@@ -30,21 +30,20 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
+import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.computation.dbcleaner.IndexPurgeListener;
 import org.sonar.core.computation.dbcleaner.ProjectCleaner;
-import org.sonar.db.purge.period.DefaultPeriodCleaner;
-import org.sonar.server.issue.filter.IssueFilterSerializer;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.FunctionExecutor;
 import org.sonar.core.issue.workflow.IssueWorkflow;
-import org.sonar.db.permission.PermissionFacade;
-import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
-import org.sonar.db.qualitygate.QualityGateConditionDao;
-import org.sonar.db.qualitygate.QualityGateDao;
-import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.core.user.DeprecatedUserFinder;
+import org.sonar.db.permission.PermissionFacade;
+import org.sonar.db.purge.period.DefaultPeriodCleaner;
+import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
+import org.sonar.db.qualitygate.QualityGateConditionDao;
+import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.activity.RubyQProfileActivityService;
 import org.sonar.server.activity.index.ActivityIndex;
@@ -58,6 +57,7 @@ import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.charts.DistributionAreaChart;
 import org.sonar.server.charts.DistributionBarChart;
 import org.sonar.server.component.ComponentCleanerService;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
@@ -139,6 +139,7 @@ import org.sonar.server.issue.SetSeverityAction;
 import org.sonar.server.issue.TransitionAction;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.actionplan.ActionPlanWs;
+import org.sonar.server.issue.filter.IssueFilterSerializer;
 import org.sonar.server.issue.filter.IssueFilterService;
 import org.sonar.server.issue.filter.IssueFilterWriter;
 import org.sonar.server.issue.filter.IssueFilterWs;
@@ -570,6 +571,7 @@ public class PlatformLevel4 extends PlatformLevel {
       DefaultComponentFinder.class,
       DefaultRubyComponentService.class,
       ComponentService.class,
+      ComponentFinder.class,
       ResourcesWs.class,
       ComponentsWs.class,
       org.sonar.server.component.ws.AppAction.class,

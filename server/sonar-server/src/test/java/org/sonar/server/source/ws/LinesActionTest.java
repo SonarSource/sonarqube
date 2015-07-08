@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -47,7 +48,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.junit.Assert.fail;
 
 public class LinesActionTest {
@@ -56,10 +56,15 @@ public class LinesActionTest {
   private static final String FILE_UUID = "efgh";
   private static final String FILE_KEY = "Foo.java";
 
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));
+
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -202,7 +207,7 @@ public class LinesActionTest {
         .setItCoveredConditions(null)
         .setDuplications(null)
         .setUpdateDate(new Date())
-      );
+    );
 
     WsTester.TestRequest request = wsTester
       .newGetRequest("api/sources", "lines")
@@ -235,7 +240,7 @@ public class LinesActionTest {
         .setItCoveredConditions(null)
         .setDuplications(null)
         .setUpdateDate(new Date())
-      );
+    );
 
     userSessionRule.login("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
 
@@ -245,16 +250,29 @@ public class LinesActionTest {
 
   @Test
   public void fail_when_no_uuid_or_key_param() throws Exception {
-    newFile();
-    userSessionRule.login("login").addProjectUuidPermissions(UserRole.CODEVIEWER, PROJECT_UUID);
-    WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines");
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Param uuid or param key is missing");
 
-    try {
-      request.execute();
-      failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Param uuid or param key is missing");
-    }
+    WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines");
+    request.execute();
+  }
+
+  @Test
+  public void fail_when_file_key_does_not_exists() throws Exception {
+    thrown.expect(NotFoundException.class);
+    thrown.expectMessage("Component with key 'Foo.java' not found");
+
+    WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines").setParam("key", FILE_KEY);
+    request.execute();
+  }
+
+  @Test
+  public void fail_when_file_uuid_does_not_exists() throws Exception {
+    thrown.expect(NotFoundException.class);
+    thrown.expectMessage("Component with uuid 'ABCD' not found");
+
+    WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines").setParam("uuid", "ABCD");
+    request.execute();
   }
 
   @Test(expected = ForbiddenException.class)

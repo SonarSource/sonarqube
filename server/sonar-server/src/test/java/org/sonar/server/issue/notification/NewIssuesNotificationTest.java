@@ -22,14 +22,16 @@ package org.sonar.server.issue.notification;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import java.util.Date;
+import java.util.Locale;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.Rule;
@@ -37,9 +39,6 @@ import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.user.index.UserIndex;
-
-import java.util.Date;
-import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -84,8 +83,8 @@ public class NewIssuesNotificationTest {
   public void set_statistics() {
     addIssueNTimes(newIssue1(), 5);
     addIssueNTimes(newIssue2(), 3);
-    when(dbClient.componentDao().selectByUuid(any(DbSession.class), eq("file-uuid")).name()).thenReturn("file-name");
-    when(dbClient.componentDao().selectByUuid(any(DbSession.class), eq("directory-uuid")).name()).thenReturn("directory-name");
+    when(dbClient.componentDao().selectNonNullByUuid(any(DbSession.class), eq("file-uuid")).name()).thenReturn("file-name");
+    when(dbClient.componentDao().selectNonNullByUuid(any(DbSession.class), eq("directory-uuid")).name()).thenReturn("directory-name");
     when(ruleIndex.getByKey(RuleKey.of("SonarQube", "rule-the-world"))).thenReturn(newRule("Rule the World", "Java"));
     when(ruleIndex.getByKey(RuleKey.of("SonarQube", "rule-the-universe"))).thenReturn(newRule("Rule the Universe", "Clojure"));
 

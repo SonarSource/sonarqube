@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,8 @@ public class DefaultRubyComponentService implements RubyComponentService {
 
   @CheckForNull
   public Component findByUuid(String uuid) {
-    return componentService.getNullableByUuid(uuid);
+    Optional<ComponentDto> componentOptional = componentService.getByUuid(uuid);
+    return componentOptional.isPresent() ? componentOptional.get() : null;
   }
 
   /**

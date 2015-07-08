@@ -21,31 +21,33 @@
 package org.sonar.server.source.ws;
 
 import com.google.common.io.Resources;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 public class RawAction implements SourcesWsAction {
 
   private final DbClient dbClient;
   private final SourceService sourceService;
   private final UserSession userSession;
+  private final ComponentFinder componentFinder;
 
-  public RawAction(DbClient dbClient, SourceService sourceService, UserSession userSession) {
+  public RawAction(DbClient dbClient, SourceService sourceService, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.sourceService = sourceService;
     this.userSession = userSession;
+    this.componentFinder = componentFinder;
   }
 
   @Override
@@ -68,7 +70,7 @@ public class RawAction implements SourcesWsAction {
     String fileKey = request.mandatoryParam("key");
     userSession.checkComponentPermission(UserRole.CODEVIEWER, fileKey);
     try (DbSession session = dbClient.openSession(false)) {
-      ComponentDto componentDto = dbClient.componentDao().selectByKey(session, fileKey);
+      ComponentDto componentDto = componentFinder.getByKey(session, fileKey);
       List<String> lines = sourceService.getLinesAsTxt(componentDto.uuid(), null, null);
       response.stream().setMediaType("text/plain");
       IOUtils.writeLines(lines, "\n", response.stream().output(), StandardCharsets.UTF_8);

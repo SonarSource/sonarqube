@@ -27,6 +27,7 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Durations;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -42,7 +43,10 @@ public class ComponentsWsTest {
 
   @Before
   public void setUp() {
-    WsTester tester = new WsTester(new ComponentsWs(new AppAction(mock(DbClient.class), mock(Durations.class), mock(I18n.class), userSessionRule), new SearchAction(mock(DbClient.class), userSessionRule)));
+    WsTester tester = new WsTester(new ComponentsWs(
+      new AppAction(mock(DbClient.class), mock(Durations.class), mock(I18n.class), userSessionRule, mock(ComponentFinder.class)),
+      new SearchAction(mock(DbClient.class), userSessionRule, mock(ComponentFinder.class)))
+    );
     controller = tester.controller("api/components");
   }
 

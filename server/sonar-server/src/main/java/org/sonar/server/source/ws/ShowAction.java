@@ -20,30 +20,32 @@
 package org.sonar.server.source.ws;
 
 import com.google.common.io.Resources;
+import java.util.List;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
-
-import java.util.List;
 
 public class ShowAction implements SourcesWsAction {
 
   private final SourceService sourceService;
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final ComponentFinder componentFinder;
 
-  public ShowAction(SourceService sourceService, DbClient dbClient, UserSession userSession) {
+  public ShowAction(SourceService sourceService, DbClient dbClient, UserSession userSession, ComponentFinder componentFinder) {
     this.sourceService = sourceService;
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.componentFinder = componentFinder;
   }
 
   @Override
@@ -87,7 +89,7 @@ public class ShowAction implements SourcesWsAction {
 
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto componentDto = dbClient.componentDao().selectByKey(session, fileKey);
+      ComponentDto componentDto = componentFinder.getByKey(session, fileKey);
       List<String> linesHtml = sourceService.getLinesAsHtml(componentDto.uuid(), from, to);
       JsonWriter json = response.newJsonWriter().beginObject();
       writeSource(linesHtml, from, json);

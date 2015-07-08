@@ -19,7 +19,10 @@
  */
 package org.sonar.server.source.ws;
 
+import com.google.common.base.Optional;
 import com.google.common.io.Resources;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -27,18 +30,15 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.user.UserSession;
-
-import java.util.Date;
-import java.util.List;
 
 public class LinesAction implements SourcesWsAction {
 
@@ -150,11 +150,19 @@ public class LinesAction implements SourcesWsAction {
     try {
       String fileUuid = request.param(PARAM_UUID);
       if (fileUuid != null) {
-        return dbClient.componentDao().selectByUuid(session, fileUuid);
+        Optional<ComponentDto> componentDto = dbClient.componentDao().selectByUuid(session, fileUuid);
+        if (!componentDto.isPresent()) {
+          throw new NotFoundException(String.format("Component with uuid '%s' not found", fileUuid));
+        }
+        return componentDto.get();
       }
       String fileKey = request.param(PARAM_KEY);
       if (fileKey != null) {
-        return dbClient.componentDao().selectByKey(session, fileKey);
+        Optional<ComponentDto> componentDto = dbClient.componentDao().selectByKey(session, fileKey);
+        if (!componentDto.isPresent()) {
+          throw new NotFoundException(String.format("Component with key '%s' not found", fileKey));
+        }
+        return componentDto.get();
       }
       throw new IllegalArgumentException(String.format("Param %s or param %s is missing", PARAM_UUID, PARAM_KEY));
     } finally {

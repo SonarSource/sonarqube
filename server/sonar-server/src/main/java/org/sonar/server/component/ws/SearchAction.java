@@ -31,9 +31,10 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.user.UserSession;
@@ -50,10 +51,12 @@ public class SearchAction implements RequestHandler {
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final ComponentFinder componentFinder;
 
-  public SearchAction(DbClient dbClient, UserSession userSession) {
+  public SearchAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.componentFinder = componentFinder;
   }
 
   void define(WebService.NewController controller) {
@@ -84,14 +87,14 @@ public class SearchAction implements RequestHandler {
     if (query.length() < MINIMUM_SEARCH_CHARACTERS) {
       throw new IllegalArgumentException(String.format("Minimum search is %s characters", MINIMUM_SEARCH_CHARACTERS));
     }
-    String viewOrSubUuid = request.mandatoryParam(PARAM_COMPONENT_UUID);
+    String componentUuid = request.mandatoryParam(PARAM_COMPONENT_UUID);
 
     JsonWriter json = response.newJsonWriter();
     json.beginObject();
 
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto componentDto = dbClient.componentDao().selectByUuid(session, viewOrSubUuid);
+      ComponentDto componentDto = componentFinder.getByUuid(session, componentUuid);
       userSession.checkProjectUuidPermission(UserRole.USER, componentDto.projectUuid());
 
       Set<Long> projectIds = newLinkedHashSet(dbClient.componentIndexDao().selectProjectIdsFromQueryAndViewOrSubViewUuid(session, query, componentDto.uuid()));

@@ -40,14 +40,15 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.Page;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.dashboard.ActiveDashboardDao;
 import org.sonar.db.dashboard.DashboardDto;
-import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
@@ -72,14 +73,17 @@ public class ComponentNavigationAction implements NavigationWsAction {
   private final I18n i18n;
   private final ResourceTypes resourceTypes;
   private final UserSession userSession;
+  private final ComponentFinder componentFinder;
 
-  public ComponentNavigationAction(DbClient dbClient, ActiveDashboardDao activeDashboardDao, Views views, I18n i18n, ResourceTypes resourceTypes, UserSession userSession) {
+  public ComponentNavigationAction(DbClient dbClient, ActiveDashboardDao activeDashboardDao, Views views, I18n i18n, ResourceTypes resourceTypes, UserSession userSession,
+                                   ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.activeDashboardDao = activeDashboardDao;
     this.views = views;
     this.i18n = i18n;
     this.resourceTypes = resourceTypes;
     this.userSession = userSession;
+    this.componentFinder = componentFinder;
   }
 
   @Override
@@ -105,7 +109,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
     DbSession session = dbClient.openSession(false);
 
     try {
-      ComponentDto component = dbClient.componentDao().selectByKey(session, componentKey);
+      ComponentDto component = componentFinder.getByKey(session, componentKey);
 
       userSession.checkProjectUuidPermission(UserRole.USER, component.projectUuid());
 
@@ -260,7 +264,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
       SnapshotDto currentSnapshot = snapshot;
       while (currentSnapshot.getParentId() != null) {
         currentSnapshot = dbClient.snapshotDao().selectById(session, currentSnapshot.getParentId());
-        componentPath.add(0, dbClient.componentDao().selectById(currentSnapshot.getComponentId(), session));
+        componentPath.add(0, dbClient.componentDao().selectNonNullById(session, currentSnapshot.getComponentId()));
       }
     }
 

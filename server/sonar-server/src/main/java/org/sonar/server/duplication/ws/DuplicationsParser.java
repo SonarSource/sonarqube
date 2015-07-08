@@ -21,26 +21,24 @@
 package org.sonar.server.duplication.ws;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang.StringUtils;
-import org.codehaus.staxmate.SMInputFactory;
-import org.codehaus.staxmate.in.SMHierarchicCursor;
-import org.codehaus.staxmate.in.SMInputCursor;
-import org.sonar.api.server.ServerSide;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.DbSession;
-import org.sonar.server.component.db.ComponentDao;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.staxmate.SMInputFactory;
+import org.codehaus.staxmate.in.SMHierarchicCursor;
+import org.codehaus.staxmate.in.SMInputCursor;
+import org.sonar.api.server.ServerSide;
+import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.db.ComponentDao;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -88,7 +86,7 @@ public class DuplicationsParser {
   private Duplication createDuplication(Map<String, ComponentDto> componentsByKey, String from, String size, String componentKey, DbSession session) {
     ComponentDto component = componentsByKey.get(componentKey);
     if (component == null) {
-      component = componentDao.selectNullableByKey(session, componentKey);
+      component = componentDao.selectNonNullByKey(session, componentKey);
       componentsByKey.put(componentKey, component);
     }
     return new Duplication(component, Integer.valueOf(from), Integer.valueOf(size));

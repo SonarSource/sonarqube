@@ -40,6 +40,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDao;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
@@ -69,8 +70,10 @@ public class IssuesActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -96,7 +99,7 @@ public class IssuesActionTest {
     issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule);
     issueIndexer = new IssueIndexer(null, es.client());
     issueAuthorizationIndexer = new IssueAuthorizationIndexer(null, es.client());
-    issuesAction = new IssuesAction(dbClient, issueIndex, userSessionRule);
+    issuesAction = new IssuesAction(dbClient, issueIndex, userSessionRule, new ComponentFinder(dbClient));
 
     tester = new WsTester(new BatchWs(new BatchIndex(mock(Server.class)), issuesAction));
   }

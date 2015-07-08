@@ -22,28 +22,30 @@ package org.sonar.server.source.ws;
 import com.google.common.base.Function;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Resources;
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.Response;
-import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.DbSession;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.user.UserSession;
-
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.UserRole;
+import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.user.UserSession;
 
 public class HashAction implements SourcesWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final ComponentFinder componentFinder;
 
-  public HashAction(DbClient dbClient, UserSession userSession) {
+  public HashAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
+    this.componentFinder = componentFinder;
   }
 
   @Override
@@ -66,7 +68,7 @@ public class HashAction implements SourcesWsAction {
   public void handle(Request request, Response response) throws Exception {
     try (DbSession session = dbClient.openSession(false)) {
       final String componentKey = request.mandatoryParam("key");
-      final ComponentDto component = dbClient.componentDao().selectByKey(session, componentKey);
+      final ComponentDto component = componentFinder.getByKey(session, componentKey);
       userSession.checkProjectUuidPermission(UserRole.USER, component.projectUuid());
 
       response.stream().setMediaType("text/plain");

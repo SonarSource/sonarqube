@@ -39,6 +39,7 @@ import static org.mockito.Mockito.verify;
 
 @Category(DbTests.class)
 public class ActivityManagerTest {
+
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 

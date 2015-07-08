@@ -22,17 +22,17 @@ package org.sonar.server.qualityprofile;
 
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 
 /**
- * Should be refactored in order to use project key. Mabye should it be move to {@link QProfileFactory}
+ * Should be refactored in order to use project key. Maybe should it be move to {@link QProfileFactory}
  * Permission checks should also be done in the upper service.
  */
 @ServerSide
@@ -55,7 +55,7 @@ public class QProfileProjectOperations {
   }
 
   void addProject(String profileKey, String projectUuid, UserSession userSession, DbSession session) {
-    ComponentDto project = db.componentDao().selectByUuid(session, projectUuid);
+    ComponentDto project = db.componentDao().selectNonNullByUuid(session, projectUuid);
     checkPermission(userSession, project.key());
     QualityProfileDto qualityProfile = findNotNull(profileKey, session);
 
@@ -77,7 +77,7 @@ public class QProfileProjectOperations {
   public void removeProject(String profileKey, String projectUuid, UserSession userSession) {
     DbSession session = db.openSession(false);
     try {
-      ComponentDto project = db.componentDao().selectByUuid(session, projectUuid);
+      ComponentDto project = db.componentDao().selectNonNullByUuid(session, projectUuid);
       checkPermission(userSession, project.key());
       QualityProfileDto qualityProfile = findNotNull(profileKey, session);
 
@@ -91,7 +91,7 @@ public class QProfileProjectOperations {
   public void removeProject(String language, long projectId, UserSession userSession) {
     DbSession session = db.openSession(false);
     try {
-      ComponentDto project = db.componentDao().selectById(projectId, session);
+      ComponentDto project = db.componentDao().selectNonNullById(session, projectId);
       checkPermission(userSession, project.key());
 
       QualityProfileDto associatedProfile = db.qualityProfileDao().getByProjectAndLanguage(project.getKey(), language, session);

@@ -21,12 +21,13 @@
 package org.sonar.server.component.db;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.resources.Qualifiers;
@@ -39,36 +40,33 @@ import org.sonar.db.component.ComponentMapper;
 import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.component.UuidWithProjectUuidDto;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
 
 public class ComponentDao implements Dao {
 
-  public ComponentDto selectById(long id, DbSession session) {
-    ComponentDto componentDto = selectNullableById(id, session);
-    if (componentDto == null) {
+  public ComponentDto selectNonNullById(DbSession session, long id) {
+    Optional<ComponentDto> componentDto = selectById(session, id);
+    if (!componentDto.isPresent()) {
       throw new IllegalArgumentException(String.format("Component id does not exist: %d", id));
     }
-    return componentDto;
+    return componentDto.get();
   }
 
-  @CheckForNull
-  public ComponentDto selectNullableById(long id, DbSession session) {
-    return mapper(session).selectById(id);
+  public Optional<ComponentDto> selectById(DbSession session, long id) {
+    return Optional.fromNullable(mapper(session).selectById(id));
   }
 
-  @CheckForNull
-  public ComponentDto selectNullableByUuid(DbSession session, String uuid) {
-    return mapper(session).selectByUuid(uuid);
+  public Optional<ComponentDto> selectByUuid(DbSession session, String uuid) {
+    return Optional.fromNullable(mapper(session).selectByUuid(uuid));
   }
 
-  public ComponentDto selectByUuid(DbSession session, String uuid) {
-    ComponentDto componentDto = selectNullableByUuid(session, uuid);
-    if (componentDto == null) {
-      throw new NotFoundException(String.format("Component with uuid '%s' not found", uuid));
+  public ComponentDto selectNonNullByUuid(DbSession session, String uuid) {
+    Optional<ComponentDto> componentDto = selectByUuid(session, uuid);
+    if (!componentDto.isPresent()) {
+      throw new IllegalArgumentException(String.format("Component with uuid '%s' not found", uuid));
     }
-    return componentDto;
+    return componentDto.get();
   }
 
   public boolean existsById(Long id, DbSession session) {
@@ -101,7 +99,7 @@ public class ComponentDao implements Dao {
   public List<ComponentDto> selectByIds(final DbSession session, Collection<Long> ids) {
     return DatabaseUtils.executeLargeInputs(ids, new Function<List<Long>, List<ComponentDto>>() {
       @Override
-      public List<ComponentDto> apply(List<Long> partition) {
+      public List<ComponentDto> apply(@Nonnull List<Long> partition) {
         return mapper(session).selectByIds(partition);
       }
     });
@@ -110,7 +108,7 @@ public class ComponentDao implements Dao {
   public List<ComponentDto> selectByUuids(final DbSession session, Collection<String> uuids) {
     return DatabaseUtils.executeLargeInputs(uuids, new Function<List<String>, List<ComponentDto>>() {
       @Override
-      public List<ComponentDto> apply(List<String> partition) {
+      public List<ComponentDto> apply(@Nonnull List<String> partition) {
         return mapper(session).selectByUuids(partition);
       }
     });
@@ -119,7 +117,7 @@ public class ComponentDao implements Dao {
   public List<String> selectExistingUuids(final DbSession session, Collection<String> uuids) {
     return DatabaseUtils.executeLargeInputs(uuids, new Function<List<String>, List<String>>() {
       @Override
-      public List<String> apply(List<String> partition) {
+      public List<String> apply(@Nonnull List<String> partition) {
         return mapper(session).selectExistingUuids(partition);
       }
     });
@@ -137,17 +135,16 @@ public class ComponentDao implements Dao {
     return mapper(session).selectByKeys(keys);
   }
 
-  public ComponentDto selectByKey(DbSession session, String key) {
-    ComponentDto value = selectNullableByKey(session, key);
-    if (value == null) {
-      throw new NotFoundException(String.format("Component key '%s' not found", key));
+  public ComponentDto selectNonNullByKey(DbSession session, String key) {
+    Optional<ComponentDto> component = selectByKey(session, key);
+    if (!component.isPresent()) {
+      throw new IllegalArgumentException(String.format("Component key '%s' not found", key));
     }
-    return mapper(session).selectByKey(key);
+    return component.get();
   }
 
-  @CheckForNull
-  public ComponentDto selectNullableByKey(DbSession session, String key) {
-    return mapper(session).selectByKey(key);
+  public Optional<ComponentDto> selectByKey(DbSession session, String key) {
+    return Optional.fromNullable(mapper(session).selectByKey(key));
   }
 
   public List<UuidWithProjectUuidDto> selectAllViewsAndSubViews(DbSession session) {

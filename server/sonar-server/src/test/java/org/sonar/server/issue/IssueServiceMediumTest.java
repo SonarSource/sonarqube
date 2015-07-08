@@ -38,14 +38,15 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.issue.workflow.Transition;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.ActionPlanDto;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.core.issue.workflow.Transition;
-import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentTesting;
@@ -60,7 +61,6 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.PermissionChange;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
@@ -80,6 +80,7 @@ public class IssueServiceMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester().withStartupTasks().withEsIndexes();
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
@@ -456,6 +457,18 @@ public class IssueServiceMediumTest {
     session.commit();
 
     service.createManualIssue(file.key(), rule.getKey(), 10, "Fix it", null, 2d);
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void fail_to_create_manual_issue_on_unknown_component() {
+    ComponentDto project = newProject();
+    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
+
+    RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
+    tester.get(RuleDao.class).insert(session, manualRule);
+    session.commit();
+
+    service.createManualIssue("UNKNOWN", manualRule.getKey(), null, "Fix it", Severity.MINOR, 2d);
   }
 
   @Test

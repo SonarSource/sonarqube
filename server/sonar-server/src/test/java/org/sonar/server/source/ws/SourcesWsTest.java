@@ -23,6 +23,7 @@ package org.sonar.server.source.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
@@ -37,11 +38,11 @@ public class SourcesWsTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  ShowAction showAction = new ShowAction(mock(SourceService.class), mock(DbClient.class), userSessionRule);
-  RawAction rawAction = new RawAction(mock(DbClient.class), mock(SourceService.class), userSessionRule);
+  ShowAction showAction = new ShowAction(mock(SourceService.class), mock(DbClient.class), userSessionRule, mock(ComponentFinder.class));
+  RawAction rawAction = new RawAction(mock(DbClient.class), mock(SourceService.class), userSessionRule, mock(ComponentFinder.class));
   LinesAction linesAction = new LinesAction(mock(DbClient.class), mock(SourceLineIndex.class), mock(HtmlSourceDecorator.class), userSessionRule);
-  HashAction hashAction = new HashAction(mock(DbClient.class), userSessionRule);
-  IndexAction indexAction = new IndexAction(mock(DbClient.class), mock(SourceService.class), userSessionRule);
+  HashAction hashAction = new HashAction(mock(DbClient.class), userSessionRule, mock(ComponentFinder.class));
+  IndexAction indexAction = new IndexAction(mock(DbClient.class), mock(SourceService.class), userSessionRule, mock(ComponentFinder.class));
   WsTester tester = new WsTester(new SourcesWs(showAction, rawAction, linesAction, hashAction, indexAction));
 
   @Test

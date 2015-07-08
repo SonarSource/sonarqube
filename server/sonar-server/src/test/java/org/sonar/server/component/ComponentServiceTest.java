@@ -47,6 +47,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -75,7 +76,7 @@ public class ComponentServiceTest {
 
     when(i18n.message(Locale.getDefault(), "qualifier.TRK", "Project")).thenReturn("Project");
 
-    service = new ComponentService(dbClient, i18n, userSessionRule, System2.INSTANCE);
+    service = new ComponentService(dbClient, i18n, userSessionRule, System2.INSTANCE, new ComponentFinder(dbClient));
   }
 
   @Test
@@ -94,14 +95,14 @@ public class ComponentServiceTest {
   @Test
   public void get_by_uuid() {
     ComponentDto project = createProject("sample:root");
-    assertThat(service.getByUuid(project.uuid())).isNotNull();
+    assertThat(service.getNonNullByUuid(project.uuid())).isNotNull();
   }
 
   @Test
   public void get_nullable_by_uuid() {
     ComponentDto project = createProject("sample:root");
-    assertThat(service.getNullableByUuid(project.uuid())).isNotNull();
-    assertThat(service.getNullableByUuid("unknown")).isNull();
+    assertThat(service.getByUuid(project.uuid())).isPresent();
+    assertThat(service.getByUuid("unknown")).isAbsent();
   }
 
   @Test

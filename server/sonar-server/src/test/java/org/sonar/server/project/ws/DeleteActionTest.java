@@ -47,6 +47,7 @@ import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.component.ComponentCleanerService;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.component.db.ComponentDao;
@@ -69,6 +70,7 @@ import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -79,18 +81,26 @@ import static org.sonar.server.project.ws.DeleteAction.PARAM_KEY;
 public class DeleteActionTest {
 
   private static final String ACTION = "delete";
+
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()), new SourceLineIndexDefinition(new Settings()),
     new TestIndexDefinition(new Settings()));
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
   WsTester ws;
+
   DbClient dbClient;
+
   DbSession dbSession;
+
   ResourceType resourceType;
 
   @Before
@@ -104,8 +114,18 @@ public class DeleteActionTest {
     when(resourceType.getBooleanProperty(anyString())).thenReturn(true);
     ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
     when(mockResourceTypes.get(anyString())).thenReturn(resourceType);
-    ws = new WsTester(new ProjectsWs(new DeleteAction(new ComponentCleanerService(dbClient, new IssueAuthorizationIndexer(dbClient, es.client()), new IssueIndexer(
-      dbClient, es.client()), new SourceLineIndexer(dbClient, es.client()), new TestIndexer(dbClient, es.client()), mockResourceTypes), dbClient, userSessionRule)));
+    ws = new WsTester(new ProjectsWs(
+      new DeleteAction(
+        new ComponentCleanerService(
+          dbClient,
+          new IssueAuthorizationIndexer(dbClient, es.client()),
+          new IssueIndexer(dbClient, es.client()),
+          new SourceLineIndexer(dbClient, es.client()),
+          new TestIndexer(dbClient, es.client()),
+          mockResourceTypes,
+          new ComponentFinder(dbClient)),
+        dbClient,
+        userSessionRule)));
     userSessionRule.login("login").setGlobalPermissions(UserRole.ADMIN);
     db.truncateTables();
     es.truncateIndices();
@@ -125,8 +145,8 @@ public class DeleteActionTest {
       .setParam(PARAM_ID, "project-uuid-1").execute();
     dbSession.commit();
 
-    assertThat(dbClient.componentDao().selectNullableByUuid(dbSession, "project-uuid-1")).isNull();
-    assertThat(dbClient.componentDao().selectByUuid(dbSession, "project-uuid-2")).isNotNull();
+    assertThat(dbClient.componentDao().selectByUuid(dbSession, "project-uuid-1")).isAbsent();
+    assertThat(dbClient.componentDao().selectNonNullByUuid(dbSession, "project-uuid-2")).isNotNull();
     assertThat(dbClient.snapshotDao().selectNullableById(dbSession, snapshotId1)).isNull();
     assertThat(dbClient.snapshotDao().selectNullableById(dbSession, snapshotId2)).isNotNull();
     assertThat(dbClient.issueDao().selectNullableByKey(dbSession, "issue-key-1")).isNull();
@@ -142,8 +162,8 @@ public class DeleteActionTest {
       .setParam(PARAM_KEY, "project-key-1").execute();
     dbSession.commit();
 
-    assertThat(dbClient.componentDao().selectNullableByUuid(dbSession, "project-uuid-1")).isNull();
-    assertThat(dbClient.componentDao().selectByUuid(dbSession, "project-uuid-2")).isNotNull();
+    assertThat(dbClient.componentDao().selectByUuid(dbSession, "project-uuid-1")).isAbsent();
+    assertThat(dbClient.componentDao().selectNonNullByUuid(dbSession, "project-uuid-2")).isNotNull();
   }
 
   @Test
@@ -154,7 +174,7 @@ public class DeleteActionTest {
     newRequest().setParam(PARAM_ID, "project-uuid-1").execute();
     dbSession.commit();
 
-    assertThat(dbClient.componentDao().selectNullableByUuid(dbSession, "project-uuid-1")).isNull();
+    assertThat(dbClient.componentDao().selectByUuid(dbSession, "project-uuid-1")).isAbsent();
   }
 
   @Test
@@ -166,7 +186,7 @@ public class DeleteActionTest {
     newRequest().setParam(PARAM_KEY, "project-key-1").execute();
     dbSession.commit();
 
-    assertThat(dbClient.componentDao().selectNullableByUuid(dbSession, "project-uuid-1")).isNull();
+    assertThat(dbClient.componentDao().selectByUuid(dbSession, "project-uuid-1")).isAbsent();
   }
 
   @Test

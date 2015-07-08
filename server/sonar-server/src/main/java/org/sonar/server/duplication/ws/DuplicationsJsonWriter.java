@@ -21,13 +21,14 @@
 package org.sonar.server.duplication.ws;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Optional;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.db.ComponentDao;
 
 import static com.google.common.collect.Maps.newHashMap;
@@ -88,8 +89,9 @@ public class DuplicationsJsonWriter {
     for (Map.Entry<String, String> entry : refByComponentKey.entrySet()) {
       String componentKey = entry.getKey();
       String ref = entry.getValue();
-      ComponentDto file = componentDao.selectNullableByKey(session, componentKey);
-      if (file != null) {
+      Optional<ComponentDto> fileOptional = componentDao.selectByKey(session, componentKey);
+      if (fileOptional.isPresent()) {
+        ComponentDto file = fileOptional.get();
         json.name(ref).beginObject();
 
         addFile(json, file);
@@ -127,8 +129,9 @@ public class DuplicationsJsonWriter {
   private ComponentDto getProject(String projectUuid, Map<String, ComponentDto> projectsByUuid, DbSession session) {
     ComponentDto project = projectsByUuid.get(projectUuid);
     if (project == null) {
-      project = componentDao.selectNullableByUuid(session, projectUuid);
-      if (project != null) {
+      Optional<ComponentDto> projectOptional = componentDao.selectByUuid(session, projectUuid);
+      if (projectOptional.isPresent()) {
+        project = projectOptional.get();
         projectsByUuid.put(project.uuid(), project);
       }
     }
@@ -138,8 +141,9 @@ public class DuplicationsJsonWriter {
   private ComponentDto getParentProject(@Nullable Long projectId, Map<Long, ComponentDto> subProjectsById, DbSession session) {
     ComponentDto project = subProjectsById.get(projectId);
     if (project == null && projectId != null) {
-      project = componentDao.selectNullableById(projectId, session);
-      if (project != null) {
+      Optional<ComponentDto> projectOptional = componentDao.selectById(session, projectId);
+      if (projectOptional.isPresent()) {
+        project = projectOptional.get();
         subProjectsById.put(project.getId(), project);
       }
     }

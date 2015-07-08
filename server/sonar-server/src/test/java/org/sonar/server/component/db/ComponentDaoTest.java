@@ -20,6 +20,7 @@
 
 package org.sonar.server.component.db;
 
+import com.google.common.base.Optional;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Rule;
@@ -32,11 +33,11 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 
 @Category(DbTests.class)
 public class ComponentDaoTest {
@@ -51,9 +52,9 @@ public class ComponentDaoTest {
 
   @Test
   public void get_by_uuid() {
-    loadBasicDataInDatabase();
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    ComponentDto result = sut.selectNullableByUuid(db.getSession(), "KLMN");
+    ComponentDto result = sut.selectByUuid(db.getSession(), "KLMN").get();
     assertThat(result).isNotNull();
     assertThat(result.uuid()).isEqualTo("KLMN");
     assertThat(result.moduleUuid()).isEqualTo("EFGH");
@@ -68,17 +69,15 @@ public class ComponentDaoTest {
     assertThat(result.scope()).isEqualTo("FIL");
     assertThat(result.language()).isEqualTo("java");
     assertThat(result.getCopyResourceId()).isNull();
-  }
 
-  private void loadBasicDataInDatabase() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    assertThat(sut.selectByUuid(db.getSession(), "UNKNOWN")).isAbsent();
   }
 
   @Test
   public void get_by_uuid_on_technical_project_copy() {
-    loadBasicDataInDatabase();
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    ComponentDto result = sut.selectNullableByUuid(db.getSession(), "STUV");
+    ComponentDto result = sut.selectByUuid(db.getSession(), "STUV").get();
     assertThat(result).isNotNull();
     assertThat(result.uuid()).isEqualTo("STUV");
     assertThat(result.moduleUuid()).isEqualTo("OPQR");
@@ -97,28 +96,30 @@ public class ComponentDaoTest {
 
   @Test
   public void get_by_uuid_on_disabled_component() {
-    loadBasicDataInDatabase();
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    ComponentDto result = sut.selectNullableByUuid(db.getSession(), "DCBA");
+    ComponentDto result = sut.selectByUuid(db.getSession(), "DCBA").get();
     assertThat(result).isNotNull();
     assertThat(result.isEnabled()).isFalse();
   }
 
   @Test
   public void fail_to_get_by_uuid_when_component_not_found() {
-    thrown.expect(NotFoundException.class);
+    thrown.expect(IllegalArgumentException.class);
 
-    loadBasicDataInDatabase();
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    sut.selectByUuid(db.getSession(), "unknown");
+    sut.selectNonNullByUuid(db.getSession(), "unknown");
   }
 
   @Test
   public void get_by_key() {
-    loadBasicDataInDatabase();
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    ComponentDto result = sut.selectNullableByKey(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java");
-    assertThat(result).isNotNull();
+    Optional<ComponentDto> optional = sut.selectByKey(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java");
+    assertThat(optional).isPresent();
+
+    ComponentDto result = optional.get();
     assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(result.path()).isEqualTo("src/org/struts/RequestContext.java");
     assertThat(result.name()).isEqualTo("RequestContext.java");
@@ -128,33 +129,31 @@ public class ComponentDaoTest {
     assertThat(result.language()).isEqualTo("java");
     assertThat(result.parentProjectId()).isEqualTo(2);
 
-    assertThat(sut.selectNullableByKey(db.getSession(), "unknown")).isNull();
+    assertThat(sut.selectByKey(db.getSession(), "unknown")).isAbsent();
   }
 
   @Test
   public void fail_to_get_by_key_when_component_not_found() {
-    thrown.expect(NotFoundException.class);
+    thrown.expect(IllegalArgumentException.class);
 
-    loadBasicDataInDatabase();
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    sut.selectByUuid(db.getSession(), "unknown");
+    sut.selectNonNullByKey(db.getSession(), "unknown");
   }
 
   @Test
   public void get_by_key_on_disabled_component() {
-    loadBasicDataInDatabase();
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    ComponentDto result = sut.selectByKey(db.getSession(), "org.disabled.project");
-    assertThat(result).isNotNull();
+    ComponentDto result = sut.selectNonNullByKey(db.getSession(), "org.disabled.project");
     assertThat(result.isEnabled()).isFalse();
   }
 
   @Test
   public void get_by_key_on_a_root_project() {
-    loadBasicDataInDatabase();
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    ComponentDto result = sut.selectByKey(db.getSession(), "org.struts:struts");
-    assertThat(result).isNotNull();
+    ComponentDto result = sut.selectNonNullByKey(db.getSession(), "org.struts:struts");
     assertThat(result.key()).isEqualTo("org.struts:struts");
     assertThat(result.deprecatedKey()).isEqualTo("org.struts:struts");
     assertThat(result.path()).isNull();
@@ -170,7 +169,7 @@ public class ComponentDaoTest {
 
   @Test
   public void get_by_keys() {
-    loadBasicDataInDatabase();
+    db.prepareDbUnit(getClass(), "shared.xml");
 
     List<ComponentDto> results = sut.selectByKeys(db.getSession(), Collections.singletonList("org.struts:struts-core:src/org/struts/RequestContext.java"));
     assertThat(results).hasSize(1);
@@ -191,7 +190,7 @@ public class ComponentDaoTest {
 
   @Test
   public void get_by_ids() {
-    loadBasicDataInDatabase();
+    db.prepareDbUnit(getClass(), "shared.xml");
 
     List<ComponentDto> results = sut.selectByIds(db.getSession(), newArrayList(4L));
     assertThat(results).hasSize(1);
@@ -212,7 +211,7 @@ public class ComponentDaoTest {
 
   @Test
   public void get_by_uuids() {
-    loadBasicDataInDatabase();
+    db.prepareDbUnit(getClass(), "shared.xml");
 
     List<ComponentDto> results = sut.selectByUuids(db.getSession(), newArrayList("KLMN"));
     assertThat(results).hasSize(1);
@@ -237,7 +236,7 @@ public class ComponentDaoTest {
 
   @Test
   public void get_by_uuids_on_removed_components() {
-    loadBasicDataInDatabase();
+    db.prepareDbUnit(getClass(), "shared.xml");
 
     List<ComponentDto> results = sut.selectByUuids(db.getSession(), newArrayList("DCBA"));
     assertThat(results).hasSize(1);
@@ -249,7 +248,7 @@ public class ComponentDaoTest {
 
   @Test
   public void select_existing_uuids() {
-    loadBasicDataInDatabase();
+    db.prepareDbUnit(getClass(), "shared.xml");
 
     List<String> results = sut.selectExistingUuids(db.getSession(), newArrayList("KLMN"));
     assertThat(results).containsOnly("KLMN");
@@ -260,38 +259,38 @@ public class ComponentDaoTest {
 
   @Test
   public void get_by_id() {
-    loadBasicDataInDatabase();
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    assertThat(sut.selectById(4L, db.getSession())).isNotNull();
+    assertThat(sut.selectNonNullById(db.getSession(), 4L)).isNotNull();
   }
 
   @Test
   public void get_by_id_on_disabled_component() {
-    loadBasicDataInDatabase();
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    ComponentDto result = sut.selectNullableById(10L, db.getSession());
-    assertThat(result).isNotNull();
-    assertThat(result.isEnabled()).isFalse();
+    Optional<ComponentDto> result = sut.selectById(db.getSession(), 10L);
+    assertThat(result).isPresent();
+    assertThat(result.get().isEnabled()).isFalse();
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_to_get_by_id_when_project_not_found() {
-    loadBasicDataInDatabase();
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    sut.selectById(111L, db.getSession());
+    sut.selectNonNullById(db.getSession(), 111L);
   }
 
   @Test
   public void get_nullable_by_id() {
-    loadBasicDataInDatabase();
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    assertThat(sut.selectNullableById(4L, db.getSession())).isNotNull();
-    assertThat(sut.selectNullableById(111L, db.getSession())).isNull();
+    assertThat(sut.selectById(db.getSession(), 4L)).isPresent();
+    assertThat(sut.selectById(db.getSession(), 111L)).isAbsent();
   }
 
   @Test
   public void count_by_id() {
-    loadBasicDataInDatabase();
+    db.prepareDbUnit(getClass(), "shared.xml");
 
     assertThat(sut.existsById(4L, db.getSession())).isTrue();
     assertThat(sut.existsById(111L, db.getSession())).isFalse();

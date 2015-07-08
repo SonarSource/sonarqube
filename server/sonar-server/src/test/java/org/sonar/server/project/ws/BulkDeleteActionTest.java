@@ -49,6 +49,7 @@ import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.component.ComponentCleanerService;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.component.db.ComponentDao;
@@ -83,13 +84,17 @@ public class BulkDeleteActionTest {
   private static final String ACTION = "bulk_delete";
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()), new SourceLineIndexDefinition(new Settings()),
     new TestIndexDefinition(new Settings()));
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
   WsTester ws;
   DbClient dbClient;
   DbSession dbSession;
@@ -106,8 +111,17 @@ public class BulkDeleteActionTest {
     when(resourceType.getBooleanProperty(anyString())).thenReturn(true);
     ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
     when(mockResourceTypes.get(anyString())).thenReturn(resourceType);
-    ws = new WsTester(new ProjectsWs(new BulkDeleteAction(new ComponentCleanerService(dbClient, new IssueAuthorizationIndexer(dbClient, es.client()), new IssueIndexer(
-      dbClient, es.client()), new SourceLineIndexer(dbClient, es.client()), new TestIndexer(dbClient, es.client()), mockResourceTypes), dbClient, userSessionRule)));
+    ws = new WsTester(new ProjectsWs(
+      new BulkDeleteAction(
+        new ComponentCleanerService(dbClient,
+          new IssueAuthorizationIndexer(dbClient, es.client()),
+          new IssueIndexer(dbClient, es.client()),
+          new SourceLineIndexer(dbClient, es.client()),
+          new TestIndexer(dbClient, es.client()), mockResourceTypes, new ComponentFinder(dbClient)
+        ),
+        dbClient,
+        userSessionRule
+      )));
     userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     db.truncateTables();
     es.truncateIndices();
@@ -130,7 +144,7 @@ public class BulkDeleteActionTest {
     dbSession.commit();
 
     assertThat(dbClient.componentDao().selectByUuids(dbSession, Arrays.asList("project-uuid-1", "project-uuid-3", "project-uuid-4"))).isEmpty();
-    assertThat(dbClient.componentDao().selectByUuid(dbSession, "project-uuid-2")).isNotNull();
+    assertThat(dbClient.componentDao().selectNonNullByUuid(dbSession, "project-uuid-2")).isNotNull();
     assertThat(dbClient.snapshotDao().selectNullableById(dbSession, snapshotId1)).isNull();
     assertThat(dbClient.snapshotDao().selectNullableById(dbSession, snapshotId3)).isNull();
     assertThat(dbClient.snapshotDao().selectNullableById(dbSession, snapshotId4)).isNull();
@@ -151,7 +165,7 @@ public class BulkDeleteActionTest {
     dbSession.commit();
 
     assertThat(dbClient.componentDao().selectByUuids(dbSession, Arrays.asList("project-uuid-1", "project-uuid-3", "project-uuid-4"))).isEmpty();
-    assertThat(dbClient.componentDao().selectByUuid(dbSession, "project-uuid-2")).isNotNull();
+    assertThat(dbClient.componentDao().selectNonNullByUuid(dbSession, "project-uuid-2")).isNotNull();
   }
 
   @Test

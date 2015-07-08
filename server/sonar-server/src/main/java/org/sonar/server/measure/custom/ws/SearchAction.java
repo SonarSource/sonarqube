@@ -34,18 +34,18 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserIndex;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValidator.checkPermissions;
 
@@ -59,12 +59,14 @@ public class SearchAction implements CustomMeasuresWsAction {
   private final UserIndex userIndex;
   private final CustomMeasureJsonWriter customMeasureJsonWriter;
   private final UserSession userSession;
+  private final ComponentFinder componentFinder;
 
-  public SearchAction(DbClient dbClient, UserIndex userIndex, CustomMeasureJsonWriter customMeasureJsonWriter, UserSession userSession) {
+  public SearchAction(DbClient dbClient, UserIndex userIndex, CustomMeasureJsonWriter customMeasureJsonWriter, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.userIndex = userIndex;
     this.customMeasureJsonWriter = customMeasureJsonWriter;
     this.userSession = userSession;
+    this.componentFinder = componentFinder;
   }
 
   @Override
@@ -98,7 +100,7 @@ public class SearchAction implements CustomMeasuresWsAction {
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      ComponentDto project = searchProject(dbSession, projectUuid, projectKey);
+      ComponentDto project = componentFinder.getByKeyOrUuid(dbSession, projectUuid, projectKey);
       checkPermissions(userSession, project);
       Long lastAnalysisDateMs = searchLastSnapshot(dbSession, project);
       List<CustomMeasureDto> customMeasures = searchCustomMeasures(dbSession, project, searchOptions);
@@ -146,18 +148,6 @@ public class SearchAction implements CustomMeasuresWsAction {
     return FluentIterable.from(customMeasures)
       .transform(CustomMeasureToUserLoginFunction.INSTANCE)
       .toMap(new UserLoginToUserFunction());
-  }
-
-  private ComponentDto searchProject(DbSession dbSession, @Nullable String projectUuid, @Nullable String projectKey) {
-    checkArgument(projectUuid != null ^ projectKey != null, "The project id or project key must be provided, not both.");
-    ComponentDto project;
-    if (projectUuid != null) {
-      project = dbClient.componentDao().selectByUuid(dbSession, projectUuid);
-    } else {
-      project = dbClient.componentDao().selectByKey(dbSession, projectKey);
-    }
-
-    return project;
   }
 
   private enum CustomMeasureToUserLoginFunction implements Function<CustomMeasureDto, String> {

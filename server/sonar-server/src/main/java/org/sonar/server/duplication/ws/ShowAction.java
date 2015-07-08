@@ -22,6 +22,8 @@ package org.sonar.server.duplication.ws;
 
 import com.google.common.base.Preconditions;
 import com.google.common.io.Resources;
+import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
@@ -29,37 +31,32 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.db.DbClient;
-import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDao;
+import org.sonar.db.measure.MeasureDto;
+import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
-
-import javax.annotation.CheckForNull;
-
-import java.util.List;
 
 public class ShowAction implements RequestHandler {
 
   private final DbClient dbClient;
-  private final ComponentDao componentDao;
   private final MeasureDao measureDao;
   private final DuplicationsParser parser;
   private final DuplicationsJsonWriter duplicationsJsonWriter;
   private final UserSession userSession;
+  private final ComponentFinder componentFinder;
 
-  public ShowAction(DbClient dbClient, ComponentDao componentDao, MeasureDao measureDao, DuplicationsParser parser,
-    DuplicationsJsonWriter duplicationsJsonWriter, UserSession userSession) {
+  public ShowAction(DbClient dbClient, MeasureDao measureDao, DuplicationsParser parser,
+                    DuplicationsJsonWriter duplicationsJsonWriter, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
-    this.componentDao = componentDao;
     this.measureDao = measureDao;
     this.parser = parser;
     this.duplicationsJsonWriter = duplicationsJsonWriter;
     this.userSession = userSession;
+    this.componentFinder = componentFinder;
   }
 
   void define(WebService.NewController controller) {
@@ -87,16 +84,12 @@ public class ShowAction implements RequestHandler {
     Preconditions.checkArgument(fileKey != null || fileUuid != null, "At least one of 'key' or 'uuid' must be provided");
 
     DbSession session = dbClient.openSession(false);
-    if (fileKey == null) {
-      fileKey = componentDao.selectByUuid(session, fileUuid).key();
-    }
-
-    userSession.checkComponentPermission(UserRole.CODEVIEWER, fileKey);
-
     try {
-      ComponentDto component = findComponent(fileKey, session);
+      ComponentDto component = componentFinder.getByKeyOrUuid(session, fileUuid, fileKey);
+      String componentKey = component.key();
+      userSession.checkComponentPermission(UserRole.CODEVIEWER, componentKey);
       JsonWriter json = response.newJsonWriter().beginObject();
-      String duplications = findDataFromComponent(fileKey, CoreMetrics.DUPLICATIONS_DATA_KEY, session);
+      String duplications = findDataFromComponent(componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY, session);
       List<DuplicationsParser.Block> blocks = parser.parse(component, duplications, session);
       duplicationsJsonWriter.write(blocks, json, session);
       json.endObject().close();
@@ -112,13 +105,5 @@ public class ShowAction implements RequestHandler {
       return measure.getData();
     }
     return null;
-  }
-
-  private ComponentDto findComponent(String key, DbSession session) {
-    ComponentDto componentDto = componentDao.selectNullableByKey(session, key);
-    if (componentDto == null) {
-      throw new NotFoundException(String.format("Component with key '%s' not found", key));
-    }
-    return componentDto;
   }
 }

@@ -45,15 +45,17 @@ public class ComponentCleanerService {
   private final SourceLineIndexer sourceLineIndexer;
   private final TestIndexer testIndexer;
   private final ResourceTypes resourceTypes;
+  private final ComponentFinder componentFinder;
 
   public ComponentCleanerService(DbClient dbClient, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
-    SourceLineIndexer sourceLineIndexer, TestIndexer testIndexer, ResourceTypes resourceTypes) {
+    SourceLineIndexer sourceLineIndexer, TestIndexer testIndexer, ResourceTypes resourceTypes, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.issueAuthorizationIndexer = issueAuthorizationIndexer;
     this.issueIndexer = issueIndexer;
     this.sourceLineIndexer = sourceLineIndexer;
     this.testIndexer = testIndexer;
     this.resourceTypes = resourceTypes;
+    this.componentFinder = componentFinder;
   }
 
   public void delete(DbSession dbSession, List<ComponentDto> projects) {
@@ -65,7 +67,7 @@ public class ComponentCleanerService {
   public void delete(String projectKey) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      ComponentDto project = dbClient.componentDao().selectByKey(dbSession, projectKey);
+      ComponentDto project = componentFinder.getByKey(dbSession, projectKey);
       delete(dbSession, project);
     } finally {
       MyBatis.closeQuietly(dbSession);

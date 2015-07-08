@@ -24,22 +24,20 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
-
-import javax.annotation.Nullable;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -75,17 +73,17 @@ public class DuplicationsParserTest {
     // Current file
     String key1 = "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/utils/command/CommandExecutor.java";
     currentFile = ComponentTesting.newFileDto(project1).setId(10L).setKey(key1).setLongName("CommandExecutor");
-    when(componentDao.selectNullableByKey(session, key1)).thenReturn(currentFile);
+    when(componentDao.selectNonNullByKey(session, key1)).thenReturn(currentFile);
 
     // File on same project
     String key2 = "org.codehaus.sonar:sonar-plugin-api:src/main/java/com/sonar/orchestrator/util/CommandExecutor.java";
     fileOnSameProject = ComponentTesting.newFileDto(project1).setId(11L).setKey(key2).setLongName("CommandExecutor");
-    when(componentDao.selectNullableByKey(session, key2)).thenReturn(fileOnSameProject);
+    when(componentDao.selectNonNullByKey(session, key2)).thenReturn(fileOnSameProject);
 
     // File on different project
     String key3 = "com.sonarsource.orchestrator:sonar-orchestrator:src/main/java/com/sonar/orchestrator/util/CommandExecutor.java";
     fileOnDifferentProject = ComponentTesting.newFileDto(project2).setId(12L).setKey(key3).setLongName("CommandExecutor");
-    when(componentDao.selectNullableByKey(session, key3)).thenReturn(fileOnDifferentProject);
+    when(componentDao.selectNonNullByKey(session, key3)).thenReturn(fileOnDifferentProject);
 
     parser = new DuplicationsParser(componentDao);
   }

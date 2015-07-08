@@ -19,6 +19,7 @@
  */
 package org.sonar.server.source.ws;
 
+import com.google.common.base.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,8 +27,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
@@ -68,14 +70,14 @@ public class ShowActionTest {
   public void setUp() {
     when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.openSession(false)).thenReturn(session);
-    tester = new WsTester(new SourcesWs(new ShowAction(sourceService, dbClient, userSessionRule)));
+    tester = new WsTester(new SourcesWs(new ShowAction(sourceService, dbClient, userSessionRule, new ComponentFinder(dbClient))));
   }
 
   @Test
   public void show_source() throws Exception {
     String fileKey = "src/Foo.java";
     userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
-    when(componentDao.selectByKey(session, fileKey)).thenReturn(file);
+    when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
     when(sourceService.getLinesAsHtml(eq(file.uuid()), anyInt(), anyInt())).thenReturn(newArrayList(
       "/*",
       " * Header",
@@ -93,7 +95,7 @@ public class ShowActionTest {
   public void show_source_with_from_and_to_params() throws Exception {
     String fileKey = "src/Foo.java";
     userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
-    when(componentDao.selectByKey(session, fileKey)).thenReturn(file);
+    when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
     when(sourceService.getLinesAsHtml(file.uuid(), 3, 5)).thenReturn(newArrayList(
       " */",
       "",
@@ -111,7 +113,7 @@ public class ShowActionTest {
   public void show_source_accept_from_less_than_one() throws Exception {
     String fileKey = "src/Foo.java";
     userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "polop", fileKey);
-    when(componentDao.selectByKey(session, fileKey)).thenReturn(file);
+    when(componentDao.selectByKey(session, fileKey)).thenReturn(Optional.of(file));
     when(sourceService.getLinesAsHtml(file.uuid(), 1, 5)).thenReturn(newArrayList(
       " */",
       "",

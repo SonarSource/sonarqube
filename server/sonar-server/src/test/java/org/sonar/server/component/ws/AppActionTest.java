@@ -20,6 +20,7 @@
 
 package org.sonar.server.component.ws;
 
+import com.google.common.base.Optional;
 import java.util.List;
 import java.util.Locale;
 import org.junit.Before;
@@ -35,17 +36,18 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.measure.MeasureDao;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.db.measure.MeasureDao;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -62,6 +64,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AppActionTest {
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -104,7 +107,7 @@ public class AppActionTest {
 
     when(measureDao.findByComponentKeyAndMetricKeys(eq(session), anyString(), anyListOf(String.class))).thenReturn(measures);
 
-    tester = new WsTester(new ComponentsWs(new AppAction(dbClient, durations, i18n, userSessionRule), mock(SearchAction.class)));
+    tester = new WsTester(new ComponentsWs(new AppAction(dbClient, durations, i18n, userSessionRule, new ComponentFinder(dbClient)), mock(SearchAction.class)));
   }
 
   @Test
@@ -121,9 +124,9 @@ public class AppActionTest {
       .setLongName("src/main/java/org/sonar/api/Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java")
       .setParentProjectId(5L);
-    when(componentDao.selectNullableByUuid(session, COMPONENT_UUID)).thenReturn(file);
-    when(componentDao.selectById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
-    when(componentDao.selectByUuid(session, project.uuid())).thenReturn(project);
+    when(componentDao.selectByUuid(session, COMPONENT_UUID)).thenReturn(Optional.of(file));
+    when(componentDao.selectNonNullById(session, 5L)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
+    when(componentDao.selectNonNullByUuid(session, project.uuid())).thenReturn(project);
     when(propertiesDao.selectByQuery(any(PropertyQuery.class), eq(session))).thenReturn(newArrayList(new PropertyDto()));
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("uuid", COMPONENT_UUID);
@@ -195,13 +198,13 @@ public class AppActionTest {
   @Test
   public void fail_on_unknown_component() {
     userSessionRule.login("john").addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
-    when(componentDao.selectNullableByUuid(session, COMPONENT_UUID)).thenReturn(null);
+    when(componentDao.selectByUuid(session, COMPONENT_UUID)).thenReturn(Optional.<ComponentDto>absent());
 
     try {
       tester.newGetRequest("api/components", "app").setParam("uuid", COMPONENT_UUID).execute();
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("Component 'ABCDE' does not exist");
+      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("Component id 'ABCDE' not found");
     }
   }
 
@@ -225,9 +228,9 @@ public class AppActionTest {
       .setLongName("src/main/java/org/sonar/api/Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java")
       .setParentProjectId(5L);
-    when(componentDao.selectNullableByUuid(session, COMPONENT_UUID)).thenReturn(file);
-    when(componentDao.selectById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
-    when(componentDao.selectByUuid(session, project.uuid())).thenReturn(project);
+    when(componentDao.selectByUuid(session, COMPONENT_UUID)).thenReturn(Optional.of(file));
+    when(componentDao.selectNonNullById(session, 5L)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
+    when(componentDao.selectNonNullByUuid(session, project.uuid())).thenReturn(project);
     return file;
   }
 

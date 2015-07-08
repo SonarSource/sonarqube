@@ -22,6 +22,7 @@ package org.sonar.server.component;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
 import java.util.Collection;
@@ -57,12 +58,14 @@ public class ComponentService {
   private final I18n i18n;
   private final UserSession userSession;
   private final System2 system2;
+  private final ComponentFinder componentFinder;
 
-  public ComponentService(DbClient dbClient, I18n i18n, UserSession userSession, System2 system2) {
+  public ComponentService(DbClient dbClient, I18n i18n, UserSession userSession, System2 system2, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.i18n = i18n;
     this.userSession = userSession;
     this.system2 = system2;
+    this.componentFinder = componentFinder;
   }
 
   public ComponentDto getByKey(String key) {
@@ -78,26 +81,27 @@ public class ComponentService {
   public ComponentDto getNullableByKey(String key) {
     DbSession session = dbClient.openSession(false);
     try {
-      return getNullableByKey(session, key);
+      Optional<ComponentDto> component = dbClient.componentDao().selectByKey(session, key);
+      return component.isPresent() ? component.get() : null;
     } finally {
       session.close();
     }
   }
 
-  public ComponentDto getByUuid(String uuid) {
+  public ComponentDto getNonNullByUuid(String uuid) {
     DbSession session = dbClient.openSession(false);
     try {
-      return dbClient.componentDao().selectByUuid(session, uuid);
+      return dbClient.componentDao().selectNonNullByUuid(session, uuid);
     } finally {
       session.close();
     }
   }
 
   @CheckForNull
-  public ComponentDto getNullableByUuid(String uuid) {
+  public Optional<ComponentDto> getByUuid(String uuid) {
     DbSession session = dbClient.openSession(false);
     try {
-      return dbClient.componentDao().selectNullableByUuid(session, uuid);
+      return dbClient.componentDao().selectByUuid(session, uuid);
     } finally {
       session.close();
     }
@@ -254,12 +258,7 @@ public class ComponentService {
     return String.format(message, i18n.message(Locale.getDefault(), "qualifier." + qualifier, "Project"), key);
   }
 
-  @CheckForNull
-  private ComponentDto getNullableByKey(DbSession session, String key) {
-    return dbClient.componentDao().selectNullableByKey(session, key);
-  }
-
   private ComponentDto getByKey(DbSession session, String key) {
-    return dbClient.componentDao().selectByKey(session, key);
+    return componentFinder.getByKey(session, key);
   }
 }

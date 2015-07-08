@@ -22,6 +22,7 @@ package org.sonar.server.computation.step;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,15 +30,14 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.core.component.ComponentKeys;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
@@ -122,31 +122,31 @@ public class ValidateProjectStep implements ComputationStep {
       validateBatchKey(rawProject);
 
       String rawProjectKey = rawProject.getKey();
-      ComponentDto baseProject = loadBaseComponent(rawProjectKey);
+      Optional<ComponentDto> baseProject = loadBaseComponent(rawProjectKey);
       validateWhenProvisioningEnforced(baseProject, rawProjectKey);
       validateProjectKey(baseProject, rawProjectKey);
       validateAnalysisDate(baseProject);
     }
 
-    private void validateWhenProvisioningEnforced(@Nullable ComponentDto baseProject, String rawProjectKey) {
-      if (baseProject == null && preventAutomaticProjectCreation) {
+    private void validateWhenProvisioningEnforced(Optional<ComponentDto> baseProject, String rawProjectKey) {
+      if (!baseProject.isPresent() && preventAutomaticProjectCreation) {
         validationMessages.add(String.format("Unable to scan non-existing project '%s'", rawProjectKey));
       }
     }
 
-    private void validateProjectKey(@Nullable ComponentDto baseProject, String rawProjectKey) {
-      if (baseProject != null && !baseProject.projectUuid().equals(baseProject.uuid())) {
+    private void validateProjectKey(Optional<ComponentDto> baseProject, String rawProjectKey) {
+      if (baseProject.isPresent() && !baseProject.get().projectUuid().equals(baseProject.get().uuid())) {
         // Project key is already used as a module of another project
-        ComponentDto anotherBaseProject = componentDao.selectByUuid(session, baseProject.projectUuid());
+        ComponentDto anotherBaseProject = componentDao.selectNonNullByUuid(session, baseProject.get().projectUuid());
         validationMessages.add(String.format("The project \"%s\" is already defined in SonarQube but as a module of project \"%s\". "
           + "If you really want to stop directly analysing project \"%s\", please first delete it from SonarQube and then relaunch the analysis of project \"%s\".",
           rawProjectKey, anotherBaseProject.key(), anotherBaseProject.key(), rawProjectKey));
       }
     }
 
-    private void validateAnalysisDate(@Nullable ComponentDto baseProject) {
-      if (baseProject != null) {
-        SnapshotDto snapshotDto = dbClient.snapshotDao().selectLastSnapshotByComponentId(session, baseProject.getId());
+    private void validateAnalysisDate(Optional<ComponentDto> baseProject) {
+      if (baseProject.isPresent()) {
+        SnapshotDto snapshotDto = dbClient.snapshotDao().selectLastSnapshotByComponentId(session, baseProject.get().getId());
         long currentAnalysisDate = reportReader.readMetadata().getAnalysisDate();
         Long lastAnalysisDate = snapshotDto != null ? snapshotDto.getCreatedAt() : null;
         if (lastAnalysisDate != null && currentAnalysisDate <= snapshotDto.getCreatedAt()) {
@@ -163,13 +163,12 @@ public class ValidateProjectStep implements ComputationStep {
       String rawModuleKey = rawModule.getKey();
       validateBatchKey(rawModule);
 
-      ComponentDto baseModule = loadBaseComponent(rawModuleKey);
-      if (baseModule == null) {
+      Optional<ComponentDto> baseModule = loadBaseComponent(rawModuleKey);
+      if (!baseModule.isPresent()) {
         return;
       }
-
-      validateModuleIsNotAlreadyUsedAsProject(baseModule, rawProjectKey, rawModuleKey);
-      validateModuleKeyIsNotAlreadyUsedInAnotherProject(baseModule, rawModuleKey);
+      validateModuleIsNotAlreadyUsedAsProject(baseModule.get(), rawProjectKey, rawModuleKey);
+      validateModuleKeyIsNotAlreadyUsedInAnotherProject(baseModule.get(), rawModuleKey);
     }
 
     private void validateModuleIsNotAlreadyUsedAsProject(ComponentDto baseModule, String rawProjectKey, String rawModuleKey) {
@@ -183,7 +182,7 @@ public class ValidateProjectStep implements ComputationStep {
 
     private void validateModuleKeyIsNotAlreadyUsedInAnotherProject(ComponentDto baseModule, String rawModuleKey) {
       if (!baseModule.projectUuid().equals(baseModule.uuid()) && !baseModule.projectUuid().equals(rawProject.getUuid())) {
-        ComponentDto projectModule = componentDao.selectByUuid(session, baseModule.projectUuid());
+        ComponentDto projectModule = componentDao.selectNonNullByUuid(session, baseModule.projectUuid());
         validationMessages.add(String.format("Module \"%s\" is already part of project \"%s\"", rawModuleKey, projectModule.key()));
       }
     }
@@ -209,13 +208,13 @@ public class ValidateProjectStep implements ComputationStep {
       }
     }
 
-    private ComponentDto loadBaseComponent(String rawComponentKey) {
+    private Optional<ComponentDto> loadBaseComponent(String rawComponentKey) {
       ComponentDto baseComponent = baseModulesByKey.get(rawComponentKey);
       if (baseComponent == null) {
         // Load component from key to be able to detect issue (try to analyze a module, etc.)
-        return componentDao.selectNullableByKey(session, rawComponentKey);
+        return componentDao.selectByKey(session, rawComponentKey);
       }
-      return baseComponent;
+      return Optional.of(baseComponent);
     }
   }
 

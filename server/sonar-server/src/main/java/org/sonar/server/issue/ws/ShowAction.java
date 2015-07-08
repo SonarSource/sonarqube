@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
+import com.google.common.base.Optional;
 import com.google.common.io.Resources;
 import java.util.Date;
 import java.util.List;
@@ -29,8 +30,6 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
-import org.sonar.core.issue.DefaultIssueComment;
-import org.sonar.core.issue.FieldDiffs;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.server.ws.Request;
@@ -42,8 +41,10 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.core.issue.DefaultIssueComment;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtModelService;
@@ -168,16 +169,16 @@ public class ShowAction implements IssuesWsAction {
   }
 
   private void addComponents(DbSession session, Issue issue, JsonWriter json) {
-    ComponentDto component = dbClient.componentDao().selectByUuid(session, issue.componentUuid());
+    ComponentDto component = dbClient.componentDao().selectNonNullByUuid(session, issue.componentUuid());
     Long parentProjectId = component.parentProjectId();
-    ComponentDto parentProject = parentProjectId != null ? dbClient.componentDao().selectNullableById(parentProjectId, session) : null;
-    ComponentDto project = dbClient.componentDao().selectByUuid(session, component.projectUuid());
+    Optional<ComponentDto> parentProject = parentProjectId != null ? dbClient.componentDao().selectById(session, parentProjectId) : Optional.<ComponentDto>absent();
+    ComponentDto project = dbClient.componentDao().selectNonNullByUuid(session, component.projectUuid());
 
     String projectName = project.longName() != null ? project.longName() : project.name();
     // Do not display sub project long name if sub project and project are the same
-    boolean displayParentProjectName = parentProject != null && !parentProject.getId().equals(project.getId());
-    String parentProjectKey = displayParentProjectName ? parentProject.key() : null;
-    String parentProjectName = displayParentProjectName ? projectName(parentProject) : null;
+    boolean displayParentProjectName = parentProject.isPresent() && !parentProject.get().getId().equals(project.getId());
+    String parentProjectKey = displayParentProjectName ? parentProject.get().key() : null;
+    String parentProjectName = displayParentProjectName ? projectName(parentProject.get()) : null;
 
     json
       .prop("component", component.key())

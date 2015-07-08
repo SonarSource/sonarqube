@@ -22,6 +22,8 @@ package org.sonar.server.source.ws;
 
 import com.google.common.base.Strings;
 import com.google.common.io.Resources;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.sonar.api.server.ws.Request;
@@ -30,27 +32,27 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.user.UserSession;
 
-import java.util.Date;
-import java.util.List;
-
 public class ScmAction implements SourcesWsAction {
 
   private final DbClient dbClient;
   private final SourceLineIndex sourceLineIndex;
   private final UserSession userSession;
+  private final ComponentFinder componentFinder;
 
-  public ScmAction(DbClient dbClient, SourceLineIndex sourceLineIndex, UserSession userSession) {
+  public ScmAction(DbClient dbClient, SourceLineIndex sourceLineIndex, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.sourceLineIndex = sourceLineIndex;
     this.userSession = userSession;
+    this.componentFinder = componentFinder;
   }
 
   @Override
@@ -102,7 +104,7 @@ public class ScmAction implements SourcesWsAction {
 
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto fileDto = dbClient.componentDao().selectByKey(session, fileKey);
+      ComponentDto fileDto = componentFinder.getByKey(session, fileKey);
       userSession.checkProjectUuidPermission(UserRole.CODEVIEWER, fileDto.projectUuid());
       List<SourceLineDoc> sourceLines = sourceLineIndex.getLines(fileDto.uuid(), from, to);
       if (sourceLines.isEmpty()) {

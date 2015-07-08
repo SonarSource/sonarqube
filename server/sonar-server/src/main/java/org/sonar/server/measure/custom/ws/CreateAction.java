@@ -27,11 +27,12 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.UserSession;
@@ -41,7 +42,6 @@ import org.sonar.server.user.index.UserIndex;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValidator.checkPermissions;
 import static org.sonar.server.measure.custom.ws.CustomMeasureValueDescription.measureValueDescription;
-import static org.sonar.server.measure.custom.ws.ProjectFinder.searchProject;
 
 public class CreateAction implements CustomMeasuresWsAction {
   public static final String ACTION = "create";
@@ -58,15 +58,17 @@ public class CreateAction implements CustomMeasuresWsAction {
   private final CustomMeasureValidator validator;
   private final CustomMeasureJsonWriter customMeasureJsonWriter;
   private final UserIndex userIndex;
+  private final ComponentFinder componentFinder;
 
   public CreateAction(DbClient dbClient, UserSession userSession, System2 system, CustomMeasureValidator validator, CustomMeasureJsonWriter customMeasureJsonWriter,
-    UserIndex userIndex) {
+    UserIndex userIndex, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.system = system;
     this.validator = validator;
     this.customMeasureJsonWriter = customMeasureJsonWriter;
     this.userIndex = userIndex;
+    this.componentFinder = componentFinder;
   }
 
   @Override
@@ -113,7 +115,7 @@ public class CreateAction implements CustomMeasuresWsAction {
     long now = system.now();
 
     try {
-      ComponentDto component = searchProject(dbSession, dbClient, request);
+      ComponentDto component = componentFinder.getByKeyOrUuid(dbSession, request.param(CreateAction.PARAM_PROJECT_ID), request.param(CreateAction.PARAM_PROJECT_KEY));
       MetricDto metric = searchMetric(dbSession, request);
       checkPermissions(userSession, component);
       checkIsProjectOrModule(component);

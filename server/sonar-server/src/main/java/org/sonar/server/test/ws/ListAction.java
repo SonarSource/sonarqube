@@ -33,9 +33,10 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -54,11 +55,13 @@ public class ListAction implements TestsWsAction {
   private final DbClient dbClient;
   private final TestIndex testIndex;
   private final UserSession userSession;
+  private final ComponentFinder componentFinder;
 
-  public ListAction(DbClient dbClient, TestIndex testIndex, UserSession userSession) {
+  public ListAction(DbClient dbClient, TestIndex testIndex, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.testIndex = testIndex;
     this.userSession = userSession;
+    this.componentFinder = componentFinder;
   }
 
   @Override
@@ -210,7 +213,7 @@ public class ListAction implements TestsWsAction {
 
   private SearchResult<TestDoc> searchTestsByTestFileKey(DbSession dbSession, String testFileKey, SearchOptions searchOptions) {
     userSession.checkComponentPermission(UserRole.CODEVIEWER, testFileKey);
-    ComponentDto testFile = dbClient.componentDao().selectByKey(dbSession, testFileKey);
+    ComponentDto testFile = componentFinder.getByKey(dbSession, testFileKey);
 
     return testIndex.searchByTestFileUuid(testFile.uuid(), searchOptions);
   }
@@ -226,7 +229,7 @@ public class ListAction implements TestsWsAction {
   }
 
   private void checkComponentUuidPermission(DbSession dbSession, String componentUuid) {
-    ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, componentUuid);
+    ComponentDto component = dbClient.componentDao().selectNonNullByUuid(dbSession, componentUuid);
     userSession.checkProjectUuidPermission(UserRole.CODEVIEWER, component.projectUuid());
   }
 }

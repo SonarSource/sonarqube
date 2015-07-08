@@ -42,6 +42,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.measure.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.component.db.ComponentDao;
@@ -63,18 +64,23 @@ import static org.sonar.server.measure.custom.persistence.CustomMeasureTesting.n
 import static org.sonar.server.metric.ws.MetricTesting.newMetricDto;
 
 public class SearchActionTest {
+
   private static final String DEFAULT_PROJECT_UUID = "project-uuid";
   private static final String DEFAULT_PROJECT_KEY = "project-key";
   private static final String METRIC_KEY_PREFIX = "metric-key-";
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
+
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
+
   WsTester ws;
   DbClient dbClient;
   DbSession dbSession;
@@ -96,7 +102,7 @@ public class SearchActionTest {
     db.truncateTables();
     CustomMeasureJsonWriter customMeasureJsonWriter = new CustomMeasureJsonWriter(new UserJsonWriter(userSessionRule));
     UserIndex userIndex = new UserIndex(es.client());
-    ws = new WsTester(new CustomMeasuresWs(new SearchAction(dbClient, userIndex, customMeasureJsonWriter, userSessionRule)));
+    ws = new WsTester(new CustomMeasuresWs(new SearchAction(dbClient, userIndex, customMeasureJsonWriter, userSessionRule, new ComponentFinder(dbClient))));
     defaultProject = insertDefaultProject();
     userSessionRule.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
@@ -237,7 +243,7 @@ public class SearchActionTest {
   @Test
   public void fail_when_project_id_and_project_key_provided() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The project id or project key must be provided, not both.");
+    expectedException.expectMessage("The component key or the component id must be provided, not both.");
 
     newRequest()
       .setParam(SearchAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
@@ -248,14 +254,14 @@ public class SearchActionTest {
   @Test
   public void fail_when_project_id_nor_project_key_provided() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The project id or project key must be provided, not both.");
+    expectedException.expectMessage("The component key or the component id must be provided, not both.");
     newRequest().execute();
   }
 
   @Test
   public void fail_when_project_not_found_in_db() throws Exception {
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Component with uuid 'wrong-project-uuid' not found");
+    expectedException.expectMessage("Component id 'wrong-project-uuid' not found");
 
     newRequest().setParam(SearchAction.PARAM_PROJECT_ID, "wrong-project-uuid").execute();
   }

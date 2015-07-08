@@ -27,11 +27,11 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserIndex;
@@ -95,7 +95,7 @@ public class UpdateAction implements CustomMeasuresWsAction {
     try {
       CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectById(dbSession, id);
       MetricDto metric = dbClient.metricDao().selectById(dbSession, customMeasure.getMetricId());
-      ComponentDto component = dbClient.componentDao().selectByUuid(dbSession, customMeasure.getComponentUuid());
+      ComponentDto component = dbClient.componentDao().selectNonNullByUuid(dbSession, customMeasure.getComponentUuid());
       checkPermissions(userSession, component);
       User user = userIndex.getByLogin(userSession.getLogin());
 

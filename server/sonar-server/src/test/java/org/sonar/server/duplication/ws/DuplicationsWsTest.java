@@ -23,9 +23,9 @@ package org.sonar.server.duplication.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.db.measure.MeasureDao;
+import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -37,7 +37,8 @@ public class DuplicationsWsTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   WsTester tester = new WsTester(new DuplicationsWs(
-    new ShowAction(mock(DbClient.class), mock(ComponentDao.class), mock(MeasureDao.class), mock(DuplicationsParser.class), mock(DuplicationsJsonWriter.class), userSessionRule)));
+    new ShowAction(mock(DbClient.class), mock(MeasureDao.class), mock(DuplicationsParser.class), mock(DuplicationsJsonWriter.class), userSessionRule,
+      mock(ComponentFinder.class))));
 
   @Test
   public void define_ws() {

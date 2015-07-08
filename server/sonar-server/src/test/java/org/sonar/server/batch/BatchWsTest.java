@@ -30,6 +30,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.db.property.PropertiesDao;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.tester.UserSessionRule;
@@ -60,7 +61,7 @@ public class BatchWsTest {
     tester = new WsTester(new BatchWs(batchIndex,
       new GlobalAction(mock(DbClient.class), mock(PropertiesDao.class), userSessionRule),
       new ProjectAction(mock(ProjectRepositoryLoader.class)),
-      new IssuesAction(mock(DbClient.class), mock(IssueIndex.class), userSessionRule)));
+      new IssuesAction(mock(DbClient.class), mock(IssueIndex.class), userSessionRule, mock(ComponentFinder.class))));
   }
 
   @Test

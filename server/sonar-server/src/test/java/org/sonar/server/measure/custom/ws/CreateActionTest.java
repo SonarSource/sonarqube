@@ -41,6 +41,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
@@ -68,15 +69,21 @@ public class CreateActionTest {
 
   private static final String DEFAULT_PROJECT_UUID = "project-uuid";
   private static final String DEFAULT_PROJECT_KEY = "project-key";
+
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
+
   DbClient dbClient;
+
   DbSession dbSession;
 
   WsTester ws;
@@ -95,7 +102,7 @@ public class CreateActionTest {
     dbClient = new DbClient(db.database(), db.myBatis(), new CustomMeasureDao(), new MetricDao(), new ComponentDao());
     dbSession = dbClient.openSession(false);
     ws = new WsTester(new CustomMeasuresWs(new CreateAction(dbClient, userSession, System2.INSTANCE, new CustomMeasureValidator(newFullTypeValidations()),
-      new CustomMeasureJsonWriter(new UserJsonWriter(userSession)), new UserIndex(es.client()))));
+      new CustomMeasureJsonWriter(new UserJsonWriter(userSession)), new UserIndex(es.client()), new ComponentFinder(dbClient))));
     db.truncateTables();
     userSession.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
@@ -272,7 +279,7 @@ public class CreateActionTest {
   @Test
   public void fail_when_project_id_nor_project_key_provided() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The project key or the project id must be provided, not both.");
+    expectedException.expectMessage("The component key or the component id must be provided, not both.");
     MetricDto metric = insertMetricAndProject(ValueType.STRING, DEFAULT_PROJECT_UUID);
 
     newRequest()
@@ -284,7 +291,7 @@ public class CreateActionTest {
   @Test
   public void fail_when_project_id_and_project_key_are_provided() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The project key or the project id must be provided, not both.");
+    expectedException.expectMessage("The component key or the component id must be provided, not both.");
     MetricDto metric = insertMetricAndProject(ValueType.STRING, DEFAULT_PROJECT_UUID);
 
     newRequest()
@@ -298,7 +305,7 @@ public class CreateActionTest {
   @Test
   public void fail_when_project_key_does_not_exist_in_db() throws Exception {
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project key 'another-project-key' not found");
+    expectedException.expectMessage("Component key 'another-project-key' not found");
     insertMetricAndProject(ValueType.STRING, DEFAULT_PROJECT_UUID);
 
     newRequest()
@@ -311,7 +318,7 @@ public class CreateActionTest {
   @Test
   public void fail_when_project_id_does_not_exist_in_db() throws Exception {
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("Project id 'another-project-uuid' not found");
+    expectedException.expectMessage("Component id 'another-project-uuid' not found");
     MetricDto metric = insertMetricAndProject(ValueType.STRING, DEFAULT_PROJECT_UUID);
 
     newRequest()

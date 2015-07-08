@@ -20,26 +20,26 @@
 
 package org.sonar.server.batch;
 
-import org.sonar.api.resources.Scopes;
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.Response;
-import org.sonar.api.server.ws.WebService;
-import org.sonar.batch.protocol.input.BatchInput;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.issue.index.IssueDoc;
-import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.plugins.MimeTypes;
-import org.sonar.server.user.UserSession;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.sonar.api.resources.Scopes;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.batch.protocol.input.BatchInput;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.issue.index.IssueDoc;
+import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.plugins.MimeTypes;
+import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -50,11 +50,13 @@ public class IssuesAction implements BatchWsAction {
   private final DbClient dbClient;
   private final IssueIndex issueIndex;
   private final UserSession userSession;
+  private final ComponentFinder componentFinder;
 
-  public IssuesAction(DbClient dbClient, IssueIndex issueIndex, UserSession userSession) {
+  public IssuesAction(DbClient dbClient, IssueIndex issueIndex, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.issueIndex = issueIndex;
     this.userSession = userSession;
+    this.componentFinder = componentFinder;
   }
 
   @Override
@@ -80,7 +82,7 @@ public class IssuesAction implements BatchWsAction {
     response.stream().setMediaType(MimeTypes.PROTOBUF);
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto component = dbClient.componentDao().selectByKey(session, moduleKey);
+      ComponentDto component = componentFinder.getByKey(session, moduleKey);
       Map<String, String> keysByUUid = keysByUUid(session, component);
 
       BatchInput.ServerIssue.Builder issueBuilder = BatchInput.ServerIssue.newBuilder();
@@ -145,7 +147,7 @@ public class IssuesAction implements BatchWsAction {
       if (moduleUuid == null) {
         throw new IllegalArgumentException(String.format("The component '%s' has no module uuid", component.uuid()));
       }
-      ComponentDto module = dbClient.componentDao().selectByUuid(session, moduleUuid);
+      ComponentDto module = dbClient.componentDao().selectNonNullByUuid(session, moduleUuid);
       keysByUUid.put(module.uuid(), module.key());
     }
     return keysByUUid;

@@ -20,7 +20,9 @@
 
 package org.sonar.server.duplication.ws;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,17 +32,16 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.measure.MeasureDao;
+import org.sonar.db.measure.MeasureDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.db.measure.MeasureDao;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Matchers.any;
@@ -76,7 +77,8 @@ public class ShowActionTest {
   @Before
   public void setUp() {
     when(dbClient.openSession(false)).thenReturn(session);
-    tester = new WsTester(new DuplicationsWs(new ShowAction(dbClient, componentDao, measureDao, parser, duplicationsJsonWriter, userSessionRule)));
+    when(dbClient.componentDao()).thenReturn(componentDao);
+    tester = new WsTester(new DuplicationsWs(new ShowAction(dbClient, measureDao, parser, duplicationsJsonWriter, userSessionRule, new ComponentFinder(dbClient))));
   }
 
   @Test
@@ -84,8 +86,8 @@ public class ShowActionTest {
     String componentKey = "src/Foo.java";
     userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
 
-    ComponentDto componentDto = new ComponentDto().setId(10L);
-    when(componentDao.selectNullableByKey(session, componentKey)).thenReturn(componentDto);
+    ComponentDto componentDto = new ComponentDto().setId(10L).setKey(componentKey);
+    when(componentDao.selectByKey(session, componentKey)).thenReturn(Optional.of(componentDto));
 
     String data = "{duplications}";
     when(measureDao.findByComponentKeyAndMetricKey(session, componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(
@@ -107,10 +109,8 @@ public class ShowActionTest {
     String componentKey = "src/Foo.java";
     userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
 
-    when(componentDao.selectByUuid(session, uuid)).thenReturn(new ComponentDto().setKey(componentKey));
-
-    ComponentDto componentDto = new ComponentDto().setId(10L);
-    when(componentDao.selectNullableByKey(session, componentKey)).thenReturn(componentDto);
+    ComponentDto componentDto = new ComponentDto().setId(10L).setKey(componentKey);
+    when(componentDao.selectByUuid(session, uuid)).thenReturn(Optional.of(componentDto));
 
     String data = "{duplications}";
     when(measureDao.findByComponentKeyAndMetricKey(session, componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(
@@ -131,8 +131,8 @@ public class ShowActionTest {
     String componentKey = "src/Foo.java";
     userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
 
-    ComponentDto componentDto = new ComponentDto().setId(10L);
-    when(componentDao.selectNullableByKey(session, componentKey)).thenReturn(componentDto);
+    ComponentDto componentDto = new ComponentDto().setId(10L).setKey(componentKey);
+    when(componentDao.selectByKey(session, componentKey)).thenReturn(Optional.of(componentDto));
 
     when(measureDao.findByComponentKeyAndMetricKey(session, componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(null);
 
@@ -145,7 +145,8 @@ public class ShowActionTest {
   @Test(expected = NotFoundException.class)
   public void fail_when_file_not_found() throws Exception {
     String componentKey = "src/Foo.java";
-    userSessionRule.addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
+
+    when(componentDao.selectByKey(session, componentKey)).thenReturn(Optional.<ComponentDto>absent());
 
     WsTester.TestRequest request = tester.newGetRequest("api/duplications", "show").setParam("key", componentKey);
     request.execute();
