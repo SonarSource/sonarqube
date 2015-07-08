@@ -4,27 +4,36 @@
   </div>
   <div class="modal-body">
     <div class="js-modal-messages"></div>
+
     {{#unless id}}
-      <div class="modal-field">
-        <label for="create-custom-measure-metric">Metric<em class="mandatory">*</em></label>
-        <select id="create-custom-measure-metric" name="metric" required>
-          {{#each metrics}}
-            <option value="{{id}}" {{#eq id ../metric.id}}selected{{/eq}}>{{name}}</option>
-          {{/each}}
-        </select>
-      </div>
+      {{#if canCreateMetric}}
+        <div class="modal-field">
+          <label for="create-custom-measure-metric">Metric<em class="mandatory">*</em></label>
+          <select id="create-custom-measure-metric" name="metric" required>
+            {{#each metrics}}
+              <option value="{{id}}" {{#eq id ../metric.id}}selected{{/eq}}>{{name}}</option>
+            {{/each}}
+          </select>
+        </div>
+      {{else}}
+        <div class="alert alert-warning">{{t 'custom_measures.all_metrics_taken'}}</div>
+      {{/if}}
     {{/unless}}
+
     <div class="modal-field">
       <label for="create-custom-measure-value">Value<em class="mandatory">*</em></label>
       <input id="create-custom-measure-value" name="value" type="text" maxlength="200" required value="{{value}}">
     </div>
+
     <div class="modal-field">
       <label for="create-custom-measure-description">Description</label>
       <textarea id="create-custom-measure-description" name="description">{{description}}</textarea>
     </div>
   </div>
   <div class="modal-foot">
-    <button id="create-custom-measure-submit">{{#if id}}Update{{else}}Create{{/if}}</button>
+    <button id="create-custom-measure-submit" {{#unless canCreateMetric}}disabled{{/unless}}>
+      {{#if id}}Update{{else}}Create{{/if}}
+    </button>
     <a href="#" class="js-modal-close" id="create-custom-measure-cancel">Cancel</a>
   </div>
 </form>

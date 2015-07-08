@@ -32,9 +32,20 @@ define([
       this.sendRequest();
     },
 
+    getAvailableMetrics: function () {
+      var takenMetrics = this.collection.getTakenMetrics();
+      return this.metrics.toJSON().filter(function (metric) {
+        return takenMetrics.indexOf(metric.id) === -1;
+      });
+    },
+
     serializeData: function () {
-      // TODO show only not taken metrics
-      return _.extend(this._super(), { metrics: this.metrics.toJSON() });
+      var metrics = this.getAvailableMetrics(),
+          isNew = !this.model;
+      return _.extend(this._super(), {
+        metrics: metrics,
+        canCreateMetric: !isNew || (isNew && metrics.length > 0)
+      });
     }
   });
 

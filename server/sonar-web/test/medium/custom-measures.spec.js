@@ -68,6 +68,34 @@ define(function (require) {
           .checkElementInclude('[data-id="6"] .js-custom-measure-value', '17');
     });
 
+    bdd.it('should filter available metrics', function () {
+      return this.remote
+          .open()
+          .mockFromFile('/api/custom_measures/search', 'custom-measures-spec/search.json',
+          { data: { projectId: projectId } })
+          .mockFromFile('/api/metrics/search', 'custom-measures-spec/metrics.json', { data: { isCustom: true } })
+          .startApp('custom-measures', { projectId: projectId })
+          .clickElement('#custom-measures-create')
+          .checkElementExist('#create-custom-measure-form')
+          .checkElementCount('#create-custom-measure-metric option', 1)
+          .checkElementExist('#create-custom-measure-metric option[value="156"]');
+    });
+
+    bdd.it('should show warning when there are no available metrics', function () {
+      return this.remote
+          .open()
+          .mockFromFile('/api/custom_measures/search', 'custom-measures-spec/search.json',
+          { data: { projectId: projectId } })
+          .mockFromFile('/api/metrics/search', 'custom-measures-spec/metrics-limited.json',
+          { data: { isCustom: true } })
+          .startApp('custom-measures', { projectId: projectId })
+          .clickElement('#custom-measures-create')
+          .checkElementExist('#create-custom-measure-form')
+          .checkElementNotExist('#create-custom-measure-metric')
+          .checkElementExist('#create-custom-measure-form .alert-warning')
+          .checkElementExist('#create-custom-measure-submit[disabled]');
+    });
+
     bdd.it('should update a custom measure', function () {
       return this.remote
           .open()

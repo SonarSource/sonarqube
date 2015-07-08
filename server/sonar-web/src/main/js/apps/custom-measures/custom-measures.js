@@ -38,6 +38,13 @@ define([
 
     hasMore: function () {
       return this.total > this.p * this.ps;
+    },
+
+    getTakenMetrics: function () {
+      var metrics = this.map(function (model) {
+        return model.get('metric').id;
+      });
+      return _.uniq(metrics);
     }
 
   });
