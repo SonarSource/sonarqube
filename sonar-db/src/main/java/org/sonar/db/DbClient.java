@@ -54,7 +54,6 @@ import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
-import org.sonar.db.semaphore.SemaphoreDao;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.user.AuthorDao;
 import org.sonar.db.user.AuthorizationDao;
@@ -106,7 +105,6 @@ public class DbClient {
   private final ProjectQgateAssociationDao projectQgateAssociationDao;
   private final DuplicationDao duplicationDao;
   private final NotificationQueueDao notificationQueueDao;
-  private final SemaphoreDao semaphoreDao;
 
   public DbClient(Database database, MyBatis myBatis, Dao[] daos) {
     this.database = database;
@@ -155,7 +153,6 @@ public class DbClient {
     projectQgateAssociationDao = getDao(map, ProjectQgateAssociationDao.class);
     duplicationDao = getDao(map, DuplicationDao.class);
     notificationQueueDao = getDao(map, NotificationQueueDao.class);
-    semaphoreDao = getDao(map, SemaphoreDao.class);
     doOnLoad(map);
   }
 
@@ -330,10 +327,6 @@ public class DbClient {
 
   public NotificationQueueDao notificationQueueDao() {
     return notificationQueueDao;
-  }
-
-  public SemaphoreDao semaphoreDao() {
-    return semaphoreDao;
   }
 
   protected <K extends Dao> K getDao(Map<Class, Dao> map, Class<K> clazz) {

@@ -19,11 +19,14 @@
 #
 
 #
-# SonarQube 5.1
+# SonarQube 5.2
+# SONAR-6701
 #
-class FeedSemaphoresLongDates < ActiveRecord::Migration
-  def self.up
-    execute_java_migration('org.sonar.server.db.migrations.v51.FeedSemaphoresLongDates')
-  end
-end
+class DropSemaphores < ActiveRecord::Migration
 
+  def self.up
+    remove_index :semaphores, :name => 'uniq_semaphore_checksums'
+    drop_table 'semaphores'
+  end
+
+end

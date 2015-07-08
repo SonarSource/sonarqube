@@ -58,7 +58,6 @@ import org.sonar.server.db.migrations.v51.FeedIssueComponentUuids;
 import org.sonar.server.db.migrations.v51.FeedIssueTags;
 import org.sonar.server.db.migrations.v51.FeedIssuesLongDates;
 import org.sonar.server.db.migrations.v51.FeedManualMeasuresLongDates;
-import org.sonar.server.db.migrations.v51.FeedSemaphoresLongDates;
 import org.sonar.server.db.migrations.v51.FeedSnapshotsLongDates;
 import org.sonar.server.db.migrations.v51.FeedUsersLongDates;
 import org.sonar.server.db.migrations.v51.RemovePermissionsOnModulesMigrationStep;
@@ -129,7 +128,6 @@ public class MigrationStepModule extends Module {
       FeedSnapshotsLongDates.class,
       FeedIssuesLongDates.class,
       FeedFileSourcesBinaryData.class,
-      FeedSemaphoresLongDates.class,
       FeedManualMeasuresLongDates.class,
       FeedEventsLongDates.class,
       AddNewCharacteristics.class,

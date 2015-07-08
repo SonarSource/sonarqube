@@ -121,8 +121,6 @@ import org.sonar.db.qualityprofile.QualityProfileMapper;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleMapper;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.db.semaphore.SemaphoreDto;
-import org.sonar.db.semaphore.SemaphoreMapper;
 import org.sonar.db.source.FileSourceMapper;
 import org.sonar.db.user.AuthorDto;
 import org.sonar.db.user.AuthorMapper;
@@ -206,7 +204,6 @@ public class MyBatis {
     loadAlias(conf, "Rule", RuleDto.class);
     loadAlias(conf, "RuleParam", RuleParamDto.class);
     loadAlias(conf, "Snapshot", SnapshotDto.class);
-    loadAlias(conf, "Semaphore", SemaphoreDto.class);
     loadAlias(conf, "SchemaMigration", SchemaMigrationDto.class);
     loadAlias(conf, "User", UserDto.class);
     loadAlias(conf, "UserRole", UserRoleDto.class);
@@ -250,7 +247,7 @@ public class MyBatis {
       IsAliveMapper.class,
       LoadedTemplateMapper.class, MeasureFilterMapper.class, Migration44Mapper.class, PermissionTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,
       ResourceKeyUpdaterMapper.class, ResourceIndexMapper.class, RoleMapper.class, RuleMapper.class,
-      SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, GroupMapper.class, UserGroupMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
+      SchemaMigrationMapper.class, UserMapper.class, GroupMapper.class, UserGroupMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
       FileSourceMapper.class, ActionPlanMapper.class,
       ActionPlanStatsMapper.class,
       NotificationQueueMapper.class, CharacteristicMapper.class,
