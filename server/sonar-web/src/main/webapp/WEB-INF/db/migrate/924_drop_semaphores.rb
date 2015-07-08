@@ -20,6 +20,7 @@
 
 #
 # SonarQube 5.2
+# SONAR-6701
 #
 class DropSemaphores < ActiveRecord::Migration
 
