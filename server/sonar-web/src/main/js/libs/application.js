@@ -495,6 +495,7 @@ function closeModalWindow () {
    * @param {number} value
    */
   var ratingFormatter = function (value) {
+    value = parseInt(value, 10)
     return String.fromCharCode(97 + value - 1).toUpperCase();
   };
 

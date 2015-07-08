@@ -1,0 +1,34 @@
+<div class="pull-right big-spacer-left nowrap">
+  <a class="js-custom-measure-update icon-edit" title="Update" data-toggle="tooltip" href="#"></a>
+  <a class="js-custom-measure-delete icon-delete" title="Delete" data-toggle="tooltip" href="#"></a>
+</div>
+
+<div class="display-inline-block text-middle text-right width-10 big-spacer-right text-ellipsis"
+     title="{{formatMeasure value metric.type}}">
+  <span class="js-custom-measure-value emphasised-measure">
+    {{formatMeasure value metric.type}}
+  </span>
+</div>
+
+<div class="display-inline-block text-middle width-20">
+  <div>
+    <strong class="js-custom-measure-metric-name">
+      {{metric.name}}
+    </strong>
+    {{#if pending}}
+      <span class="js-custom-measure-pending badge badge-warning spacer-left"
+            title="{{t 'custom_measures.pending_tooltip'}}"
+            data-toggle="tooltip" data-placement="bottom">{{t 'custom_measures.pending'}}</span>
+    {{/if}}
+  </div>
+  <span class="js-custom-measure-domain note">{{metric.domain}}</span>
+</div>
+
+<div class="display-inline-block text-top width-20">
+  <span class="js-custom-measure-description">{{description}}</span>
+</div>
+
+<div class="display-inline-block text-top width-30">
+  Created on <span class="js-custom-measure-created-at">{{d createdAt}}</span>
+  by <span class="js-custom-measure-user">{{user.name}}</span>
+</div>

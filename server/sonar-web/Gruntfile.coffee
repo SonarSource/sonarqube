@@ -120,6 +120,7 @@ module.exports = (grunt) ->
           'build-app:api-documentation'
           'build-app:coding-rules'
           'build-app:computation'
+          'build-app:custom-measures'
           'build-app:drilldown'
           'build-app:groups'
           'build-app:issues'
@@ -213,9 +214,12 @@ module.exports = (grunt) ->
           ]
           '<%= BUILD_PATH %>/js/apps/account/templates.js': [
             '<%= SOURCE_PATH %>/js/apps/account/templates/**/*.hbs'
-          ],
+          ]
           '<%= BUILD_PATH %>/js/apps/update-center/templates.js': [
             '<%= SOURCE_PATH %>/js/apps/update-center/templates/**/*.hbs'
+          ]
+          '<%= BUILD_PATH %>/js/apps/custom-measures/templates.js': [
+            '<%= SOURCE_PATH %>/js/apps/custom-measures/templates/**/*.hbs'
           ]
 
 
