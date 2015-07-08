@@ -38,7 +38,7 @@ public class SemaphoresImpl implements Semaphores {
     throw fail();
   }
 
-  private RuntimeException fail() {
+  private static RuntimeException fail() {
     throw new UnsupportedOperationException("Semaphores are not supported since 5.2 and the drop of database connection from analyzer");
   }
 }
