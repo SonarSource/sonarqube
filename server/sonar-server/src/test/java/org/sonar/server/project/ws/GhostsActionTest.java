@@ -53,6 +53,7 @@ public class GhostsActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   WsTester ws;

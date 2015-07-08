@@ -32,7 +32,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.FilePathWithHashDto;
-import org.sonar.server.es.SearchOptions;
 import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -465,7 +464,7 @@ public class ComponentDaoTest {
   public void select_provisioned_projects() {
     db.prepareDbUnit(getClass(), "select_provisioned_projects.xml");
 
-    List<ComponentDto> result = sut.selectProvisionedProjects(db.getSession(), new SearchOptions(), null);
+    List<ComponentDto> result = sut.selectProvisionedProjects(db.getSession(), 0, 10, null);
     ComponentDto project = result.get(0);
 
     assertThat(result).hasSize(1);
@@ -485,7 +484,7 @@ public class ComponentDaoTest {
   public void select_ghost_projects() {
     db.prepareDbUnit(getClass(), "select_ghost_projects.xml");
 
-    List<ComponentDto> result = sut.selectGhostProjects(db.getSession(), null, new SearchOptions());
+    List<ComponentDto> result = sut.selectGhostProjects(db.getSession(), 0, 10, null);
 
     assertThat(result).hasSize(1);
     assertThat(result.get(0).key()).isEqualTo("org.ghost.project");

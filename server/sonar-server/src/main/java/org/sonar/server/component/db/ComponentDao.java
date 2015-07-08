@@ -39,7 +39,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentMapper;
 import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.component.UuidWithProjectUuidDto;
-import org.sonar.server.es.SearchOptions;
 
 import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
 
@@ -155,12 +154,12 @@ public class ComponentDao implements Dao {
     return mapper(session).selectProjectsFromView("%." + viewUuid + ".%", projectViewUuid);
   }
 
-  public List<ComponentDto> selectProvisionedProjects(DbSession session, SearchOptions searchOptions, @Nullable String query) {
+  public List<ComponentDto> selectProvisionedProjects(DbSession session, int offset, int limit, @Nullable String query) {
     Map<String, String> parameters = newHashMapWithExpectedSize(2);
     addProjectQualifier(parameters);
     addPartialQueryParameterIfNotNull(parameters, query);
 
-    return mapper(session).selectProvisionedProjects(parameters, new RowBounds(searchOptions.getOffset(), searchOptions.getLimit()));
+    return mapper(session).selectProvisionedProjects(parameters, new RowBounds(offset, limit));
   }
 
   public int countProvisionedProjects(DbSession session, @Nullable String query) {
@@ -171,12 +170,12 @@ public class ComponentDao implements Dao {
     return mapper(session).countProvisionedProjects(parameters);
   }
 
-  public List<ComponentDto> selectGhostProjects(DbSession session, @Nullable String query, SearchOptions options) {
+  public List<ComponentDto> selectGhostProjects(DbSession session, int offset, int limit, @Nullable String query) {
     Map<String, String> parameters = newHashMapWithExpectedSize(2);
     addProjectQualifier(parameters);
     addPartialQueryParameterIfNotNull(parameters, query);
 
-    return mapper(session).selectGhostProjects(parameters, new RowBounds(options.getOffset(), options.getLimit()));
+    return mapper(session).selectGhostProjects(parameters, new RowBounds(offset, limit));
   }
 
   public long countGhostProjects(DbSession session, @Nullable String query) {

@@ -54,8 +54,10 @@ public class ProvisionedActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 

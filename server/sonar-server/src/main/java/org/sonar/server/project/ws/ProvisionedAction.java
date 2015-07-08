@@ -21,22 +21,21 @@
 package org.sonar.server.project.ws;
 
 import com.google.common.io.Resources;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.user.UserSession;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
 
@@ -78,7 +77,7 @@ public class ProvisionedAction implements ProjectsWsAction {
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      List<ComponentDto> projects = dbClient.componentDao().selectProvisionedProjects(dbSession, options, query);
+      List<ComponentDto> projects = dbClient.componentDao().selectProvisionedProjects(dbSession, options.getOffset(), options.getLimit(), query);
       int nbOfProjects = dbClient.componentDao().countProvisionedProjects(dbSession, query);
       JsonWriter json = response.newJsonWriter().beginObject();
       writeProjects(projects, json, desiredFields);
