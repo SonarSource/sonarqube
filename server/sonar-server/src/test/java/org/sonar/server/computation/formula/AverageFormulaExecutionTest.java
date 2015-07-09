@@ -33,6 +33,7 @@ import org.sonar.server.computation.metric.MetricRepositoryRule;
 import org.sonar.server.computation.period.PeriodsHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.COMPLEXITY_IN_FUNCTIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.FUNCTIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_KEY;
@@ -113,6 +114,29 @@ public class AverageFormulaExecutionTest {
     assertThat(toEntries(measureRepository.getNewRawMeasures(12))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(4.5d)));
     assertThat(toEntries(measureRepository.getNewRawMeasures(121))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(4.5d)));
     assertThat(toEntries(measureRepository.getNewRawMeasures(1211))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(4.5d)));
+  }
+
+  @Test
+  public void not_add_measures_when_no_data_on_file() {
+    DumbComponent project = builder(PROJECT, 1)
+      .addChildren(
+        builder(MODULE, 11)
+          .addChildren(
+            builder(DIRECTORY, 111)
+              .addChildren(
+                builder(Component.Type.FILE, 1111).build()
+              ).build()
+          ).build()
+      ).build();
+
+    treeRootHolder.setRoot(project);
+
+    sut.visit(project);
+
+    assertThat(measureRepository.getNewRawMeasures(1)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(11)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(111)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(1111)).isEmpty();
   }
 
 }

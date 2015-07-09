@@ -98,4 +98,27 @@ public class DistributionFormulaExecutionTest {
     assertThat(measureRepository.getNewRawMeasures(1211)).isEmpty();
   }
 
+  @Test
+  public void not_add_measures_when_no_data_on_file() {
+    DumbComponent project = builder(PROJECT, 1)
+      .addChildren(
+        builder(MODULE, 11)
+          .addChildren(
+            builder(DIRECTORY, 111)
+              .addChildren(
+                builder(Component.Type.FILE, 1111).build()
+              ).build()
+          ).build()
+      ).build();
+
+    treeRootHolder.setRoot(project);
+
+    sut.visit(project);
+
+    assertThat(measureRepository.getNewRawMeasures(1)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(11)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(111)).isEmpty();
+    assertThat(measureRepository.getNewRawMeasures(1111)).isEmpty();
+  }
+
 }
