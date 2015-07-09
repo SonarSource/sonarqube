@@ -3,58 +3,7 @@
 set -euo pipefail
 
 function installTravisTools {
-  curl -sSL https://raw.githubusercontent.com/sonarsource/travis-utils/v4/install.sh | bash
-}
-
-function reset_ruby {
-  unset GEM_PATH GEM_HOME RAILS_ENV
-}
-
-function install_jars {
-  echo "Install jars into local maven repository"
-
-  mkdir -p ~/.m2/repository
-  cp -r /tmp/travis-utils/m2repo/* ~/.m2/repository
-}
-
-# Usage: runDatabaseCI "database" "jdbc_url" "login" "pwd"
-function runDatabaseCI {
-  # Build current version of SonarQube (Don't create a zip)
-  mvn install -DskipTests -Pdev -Dassembly.format=dir -Dchecksum.failOnError=false -T2 -Dsource.skip=true
-
-  # Start server
-  reset_ruby
-  cd sonar-application/target/sonarqube-*/sonarqube-*
-  (exec java -jar lib/sonar-application-*.jar \
-    -Dsonar.log.console=true \
-    -Dsonar.jdbc.url=$2 -Dsonar.jdbc.username=$3 -Dsonar.jdbc.password=${4:-} \
-    -Dsonar.web.javaAdditionalOpts="-Djava.security.egd=file:/dev/./urandom"
-    "$@") &
-  pid=$!
-
-  # Wait for server to be up and running
-  for i in {1..30}; do
-    set +e
-    curl -s http://localhost:9000/api/system/status | grep "UP"
-    retval=$?
-    set -e
-    if [ $retval -eq 0 ]; then
-      # Success. Let's stop the server
-      # Should we use orchestrator's stop command?
-      kill -9 $pid
-
-      # Run the tests
-      install_jars
-      cd ../../../..
-      mvn package -pl :sonar-db -am -PdbTests -Dsonar.jdbc.dialect=$1 -Dsonar.jdbc.url=$2 -Dsonar.jdbc.username=$3 -Dsonar.jdbc.password=${4:-} -V
-      exit $?
-    fi
-
-    sleep 1
-  done
-
-  # Failed to start
-  exit 1
+  curl -sSL https://raw.githubusercontent.com/sonarsource/travis-utils/v6/install.sh | bash
 }
 
 case "$JOB" in
@@ -83,8 +32,7 @@ MYSQL)
   ;;
 
 WEB)
-  export DISPLAY=:99.0
-  /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16
+  travis_start_xvfb
   wget http://selenium-release.storage.googleapis.com/2.46/selenium-server-standalone-2.46.0.jar
   nohup java -jar selenium-server-standalone-2.46.0.jar &
   sleep 3
