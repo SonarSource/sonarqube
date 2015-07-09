@@ -21,21 +21,29 @@ package org.sonar.server.computation.formula;
 
 import java.util.List;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
 
 public class DumbCreateMeasureContext implements CreateMeasureContext {
   private final Component component;
+  private final Metric metric;
   private final PeriodsHolder periodsHolder;
 
-  public DumbCreateMeasureContext(Component component, PeriodsHolder periodsHolder) {
+  public DumbCreateMeasureContext(Component component, Metric metric, PeriodsHolder periodsHolder) {
     this.component = component;
+    this.metric = metric;
     this.periodsHolder = periodsHolder;
   }
 
   @Override
   public Component getComponent() {
     return component;
+  }
+
+  @Override
+  public Metric getMetric() {
+    return metric;
   }
 
   @Override

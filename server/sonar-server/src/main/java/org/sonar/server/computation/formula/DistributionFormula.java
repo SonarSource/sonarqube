@@ -49,8 +49,8 @@ public class DistributionFormula implements Formula<DistributionFormula.Distribu
   }
 
   @Override
-  public String getOutputMetricKey() {
-    return metricKey;
+  public String[] getOutputMetricKeys() {
+    return new String[] {metricKey};
   }
 
   class DistributionCounter implements Counter<DistributionCounter> {

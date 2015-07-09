@@ -28,6 +28,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.measure.Measure;
+import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.period.PeriodsHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,9 +45,9 @@ public class DistributionFormulaTest {
 
   FileAggregateContext fileAggregateContext = mock(FileAggregateContext.class);
   CreateMeasureContext projectCreateMeasureContext = new DumbCreateMeasureContext(
-      DumbComponent.builder(Component.Type.PROJECT, 1).build(), mock(PeriodsHolder.class));
+      DumbComponent.builder(Component.Type.PROJECT, 1).build(), mock(Metric.class), mock(PeriodsHolder.class));
   CreateMeasureContext fileCreateMeasureContext = new DumbCreateMeasureContext(
-      DumbComponent.builder(Component.Type.FILE, 1).build(), mock(PeriodsHolder.class));
+      DumbComponent.builder(Component.Type.FILE, 1).build(), mock(Metric.class), mock(PeriodsHolder.class));
 
   @Test
   public void check_new_counter_class() {
@@ -63,7 +64,7 @@ public class DistributionFormulaTest {
 
   @Test
   public void check_output_metric_key_is_function_complexity_distribution() {
-    assertThat(BASIC_DISTRIBUTION_FORMULA.getOutputMetricKey()).isEqualTo(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY);
+    assertThat(BASIC_DISTRIBUTION_FORMULA.getOutputMetricKeys()).containsOnly(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY);
   }
 
   @Test

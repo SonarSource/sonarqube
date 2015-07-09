@@ -40,7 +40,7 @@ public class SingleWithUncoveredFormula extends CoverageFormula<SingleWithUncove
   }
 
   @Override
-  public String getOutputMetricKey() {
-    return outputKeys;
+  public String[] getOutputMetricKeys() {
+    return new String[] {outputKeys};
   }
 }

@@ -21,6 +21,7 @@ package org.sonar.server.computation.formula;
 
 import java.util.List;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.period.Period;
 
 /**
@@ -31,6 +32,11 @@ public interface CreateMeasureContext {
    * The component for which the measure is to be created.
    */
   Component getComponent();
+
+  /**
+   * The Metric for which the measure is to be created.
+   */
+  Metric getMetric();
 
   /**
    * The periods for which variations of the measure can be created.

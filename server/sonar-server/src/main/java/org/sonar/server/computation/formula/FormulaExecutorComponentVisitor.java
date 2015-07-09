@@ -94,8 +94,6 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitor<FormulaExe
     }
   }
 
-
-
   @Override
   protected void visitProject(Component project, Path<FormulaExecutorComponentVisitor.Counters> path) {
     processNotFile(project, path);
@@ -118,10 +116,12 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitor<FormulaExe
 
   private void processNotFile(Component component, Path<FormulaExecutorComponentVisitor.Counters> path) {
     for (Formula formula : formulas) {
-      Counter counter = path.current().getCounter(formula.getOutputMetricKey());
+      Counter counter = path.current().getCounter(formula);
       // If there were no file under this node, the counter won't be initialized
       if (counter != null) {
-        addNewMeasure(component, formula, counter);
+        for (String metricKey : formula.getOutputMetricKeys()) {
+          addNewMeasure(component, metricKey, formula, counter);
+        }
         aggregateToParent(path, formula, counter);
       }
     }
@@ -132,14 +132,16 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitor<FormulaExe
     for (Formula formula : formulas) {
       Counter counter = formula.createNewCounter();
       counter.aggregate(counterContext);
-      addNewMeasure(file, formula, counter);
+      for (String metricKey : formula.getOutputMetricKeys()) {
+        addNewMeasure(file, metricKey, formula, counter);
+      }
       aggregateToParent(path, formula, counter);
     }
   }
 
-  private void addNewMeasure(Component component, Formula formula, Counter counter) {
-    Metric metric = metricRepository.getByKey(formula.getOutputMetricKey());
-    Optional<Measure> measure = formula.createMeasure(counter, new CreateMeasureContextImpl(component));
+  private void addNewMeasure(Component component, String metricKey, Formula formula, Counter counter) {
+    Metric metric = metricRepository.getByKey(metricKey);
+    Optional<Measure> measure = formula.createMeasure(counter, new CreateMeasureContextImpl(component, metric));
     if (measure.isPresent()) {
       measureRepository.add(component, metric, measure.get());
     }
@@ -147,7 +149,7 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitor<FormulaExe
 
   private void aggregateToParent(Path<FormulaExecutorComponentVisitor.Counters> path, Formula formula, Counter currentCounter) {
     if (!path.isRoot()) {
-      path.parent().aggregate(formula.getOutputMetricKey(), currentCounter);
+      path.parent().aggregate(formula, currentCounter);
     }
   }
 
@@ -175,12 +177,12 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitor<FormulaExe
   }
 
   public static class Counters {
-    Map<String, Counter> countersByFormula = new HashMap<>();
+    Map<Formula, Counter> countersByFormula = new HashMap<>();
 
-    public void aggregate(String metricKey, Counter childCounter) {
-      Counter counter = countersByFormula.get(metricKey);
+    public void aggregate(Formula formula, Counter childCounter) {
+      Counter counter = countersByFormula.get(formula);
       if (counter == null) {
-        countersByFormula.put(metricKey, childCounter);
+        countersByFormula.put(formula, childCounter);
       } else {
         counter.aggregate(childCounter);
       }
@@ -190,21 +192,28 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitor<FormulaExe
      * Counter can be null on a level when it has not been fed by children levels
      */
     @CheckForNull
-    public Counter getCounter(String metricKey) {
-      return countersByFormula.get(metricKey);
+    public Counter getCounter(Formula formula) {
+      return countersByFormula.get(formula);
     }
   }
 
   private class CreateMeasureContextImpl implements CreateMeasureContext {
     private final Component component;
+    private final Metric metric;
 
-    public CreateMeasureContextImpl(Component component) {
+    public CreateMeasureContextImpl(Component component, Metric metric) {
       this.component = component;
+      this.metric = metric;
     }
 
     @Override
     public Component getComponent() {
       return component;
+    }
+
+    @Override
+    public Metric getMetric() {
+      return metric;
     }
 
     @Override

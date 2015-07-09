@@ -32,6 +32,7 @@ import org.sonar.server.computation.formula.counter.IntVariationValue;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.measure.MeasureVariations;
+import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderRule;
@@ -107,6 +108,46 @@ public class FormulaExecutorComponentVisitorTest {
     assertThat(toEntries(measureRepository.getNewRawMeasures(1211))).containsOnly(entryOf(NCLOC_KEY, newMeasureBuilder().create(2)));
   }
 
+
+  @Test
+  public void verify_multi_metric_formula_support_and_aggregation() throws Exception {
+    treeRootHolder.setRoot(BALANCED_COMPONENT_TREE);
+
+    measureRepository.addRawMeasure(1111, LINES_KEY, newMeasureBuilder().create(10));
+    measureRepository.addRawMeasure(1112, LINES_KEY, newMeasureBuilder().create(8));
+    measureRepository.addRawMeasure(1211, LINES_KEY, newMeasureBuilder().create(2));
+
+    FormulaExecutorComponentVisitor underTest = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
+        .withVariationSupport(periodsHolder)
+        .buildFor(ImmutableList.<Formula>of(new FakeMultiMetricFormula()));
+    underTest.visit(BALANCED_COMPONENT_TREE);
+
+    assertThat(toEntries(measureRepository.getNewRawMeasures(1))).containsOnly(
+        entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(30)),
+        entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(120)));
+    assertThat(toEntries(measureRepository.getNewRawMeasures(11))).containsOnly(
+        entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(28)),
+        entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(118)));
+    assertThat(toEntries(measureRepository.getNewRawMeasures(111))).containsOnly(
+        entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(28)),
+        entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(118)));
+    assertThat(toEntries(measureRepository.getNewRawMeasures(1111))).containsOnly(
+        entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(20)),
+        entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(110)));
+    assertThat(toEntries(measureRepository.getNewRawMeasures(1112))).containsOnly(
+        entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(18)),
+        entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(108)));
+    assertThat(toEntries(measureRepository.getNewRawMeasures(12))).containsOnly(
+        entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(12)),
+        entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(102)));
+    assertThat(toEntries(measureRepository.getNewRawMeasures(121))).containsOnly(
+        entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(12)),
+        entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(102)));
+    assertThat(toEntries(measureRepository.getNewRawMeasures(1211))).containsOnly(
+        entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(12)),
+        entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(102)));
+  }
+
   @Test
   public void verify_aggregation_on_variations() throws Exception {
     treeRootHolder.setRoot(BALANCED_COMPONENT_TREE);
@@ -171,7 +212,7 @@ public class FormulaExecutorComponentVisitorTest {
     assertThat(measureRepository.getNewRawMeasures(111)).isEmpty();
   }
 
-  private static class FakeFormula implements Formula<FakeCounter> {
+  private class FakeFormula implements Formula<FakeCounter> {
 
     @Override
     public FakeCounter createNewCounter() {
@@ -180,6 +221,12 @@ public class FormulaExecutorComponentVisitorTest {
 
     @Override
     public Optional<Measure> createMeasure(FakeCounter counter, CreateMeasureContext context) {
+      // verify the context which is passed to the method
+      assertThat(context.getPeriods()).isEqualTo(periodsHolder.getPeriods());
+      assertThat(context.getComponent()).isNotNull();
+      assertThat(context.getMetric()).isSameAs(metricRepository.getByKey(NCLOC_KEY));
+
+      // simplest computation
       if (counter.value <= 0) {
         return Optional.absent();
       }
@@ -187,12 +234,50 @@ public class FormulaExecutorComponentVisitorTest {
     }
 
     @Override
-    public String getOutputMetricKey() {
-      return NCLOC_KEY;
+    public String[] getOutputMetricKeys() {
+      return new String[] {NCLOC_KEY};
     }
   }
 
-  private static class FakeCounter implements Counter<FakeCounter> {
+  private class FakeMultiMetricFormula implements Formula<FakeCounter> {
+
+    @Override
+    public FakeCounter createNewCounter() {
+      return new FakeCounter();
+    }
+
+    @Override
+    public Optional<Measure> createMeasure(FakeCounter counter, CreateMeasureContext context) {
+      // verify the context which is passed to the method
+      assertThat(context.getPeriods()).isEqualTo(periodsHolder.getPeriods());
+      assertThat(context.getComponent()).isNotNull();
+      assertThat(context.getMetric())
+          .isIn(metricRepository.getByKey(NEW_LINES_TO_COVER_KEY), metricRepository.getByKey(NEW_IT_COVERAGE_KEY));
+
+      // simplest computation
+      if (counter.value <= 0) {
+        return Optional.absent();
+      }
+      return Optional.of(Measure.newMeasureBuilder().create(counter.value + metricOffset(context.getMetric())));
+    }
+
+    private int metricOffset(Metric metric) {
+      if (metric.getKey().equals(NEW_LINES_TO_COVER_KEY)) {
+        return 10;
+      }
+      if (metric.getKey().equals(NEW_IT_COVERAGE_KEY)) {
+        return 100;
+      }
+      throw new IllegalArgumentException("Unsupported metric " + metric);
+    }
+
+    @Override
+    public String[] getOutputMetricKeys() {
+      return new String[] { NEW_LINES_TO_COVER_KEY, NEW_IT_COVERAGE_KEY };
+    }
+  }
+
+  private class FakeCounter implements Counter<FakeCounter> {
     private int value = 0;
 
     @Override
@@ -202,6 +287,10 @@ public class FormulaExecutorComponentVisitorTest {
 
     @Override
     public void aggregate(FileAggregateContext context) {
+      // verify the context which is passed to the method
+      assertThat(context.getFile().getRef()).isIn(1111, 1112, 1211);
+      assertThat(context.getPeriods()).isEqualTo(periodsHolder.getPeriods());
+
       Optional<Measure> measureOptional = context.getMeasure(LINES_KEY);
       if (measureOptional.isPresent()) {
         value += measureOptional.get().getIntValue();
@@ -209,7 +298,7 @@ public class FormulaExecutorComponentVisitorTest {
     }
   }
 
-  private static class FakeVariationFormula implements Formula<FakeVariationCounter> {
+  private class FakeVariationFormula implements Formula<FakeVariationCounter> {
 
     @Override
     public FakeVariationCounter createNewCounter() {
@@ -218,6 +307,11 @@ public class FormulaExecutorComponentVisitorTest {
 
     @Override
     public Optional<Measure> createMeasure(FakeVariationCounter counter, CreateMeasureContext context) {
+      // verify the context which is passed to the method
+      assertThat(context.getPeriods()).isEqualTo(periodsHolder.getPeriods());
+      assertThat(context.getComponent()).isNotNull();
+      assertThat(context.getMetric()).isSameAs(metricRepository.getByKey(NEW_IT_COVERAGE_KEY));
+
       Optional<MeasureVariations> measureVariations = counter.values.toMeasureVariations();
       if (measureVariations.isPresent()) {
         return Optional.of(
@@ -230,12 +324,12 @@ public class FormulaExecutorComponentVisitorTest {
     }
 
     @Override
-    public String getOutputMetricKey() {
-      return NEW_IT_COVERAGE_KEY;
+    public String[] getOutputMetricKeys() {
+      return new String[] {NEW_IT_COVERAGE_KEY};
     }
   }
 
-  private static class FakeVariationCounter implements Counter<FakeVariationCounter> {
+  private class FakeVariationCounter implements Counter<FakeVariationCounter> {
     private final IntVariationValue.Array values = IntVariationValue.newArray();
 
     @Override
@@ -245,6 +339,10 @@ public class FormulaExecutorComponentVisitorTest {
 
     @Override
     public void aggregate(FileAggregateContext context) {
+      // verify the context which is passed to the method
+      assertThat(context.getFile().getRef()).isIn(1111, 1112, 1211);
+      assertThat(context.getPeriods()).isEqualTo(periodsHolder.getPeriods());
+
       Optional<Measure> measureOptional = context.getMeasure(NEW_LINES_TO_COVER_KEY);
       if (!measureOptional.isPresent()) {
         return;

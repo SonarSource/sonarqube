@@ -19,6 +19,8 @@
  */
 package org.sonar.server.computation.formula.coverage;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * A Formula which implements the aggregation the variations of lines and conditions measures (and their associated "uncovered" measures)
  * into the variations of a fifth measure.
@@ -28,8 +30,8 @@ public class LinesAndConditionsWithUncoveredVariationFormula extends CoverageVar
   private final String outputKey;
 
   public LinesAndConditionsWithUncoveredVariationFormula(LinesAndConditionsWithUncoveredMetricKeys inputKeys, String outputKey) {
-    this.inputKeys = inputKeys;
-    this.outputKey = outputKey;
+    this.inputKeys = requireNonNull(inputKeys);
+    this.outputKey = requireNonNull(outputKey);
   }
 
   @Override
@@ -38,7 +40,7 @@ public class LinesAndConditionsWithUncoveredVariationFormula extends CoverageVar
   }
 
   @Override
-  public String getOutputMetricKey() {
-    return outputKey;
+  public String[] getOutputMetricKeys() {
+    return new String[] {outputKey};
   }
 }

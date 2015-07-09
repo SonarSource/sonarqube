@@ -21,16 +21,17 @@
 package org.sonar.server.computation.formula;
 
 import com.google.common.base.Optional;
-import java.util.Objects;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.measure.Measure;
+
+import static java.util.Objects.requireNonNull;
 
 public class SumFormula implements Formula<SumFormula.SumCounter> {
 
   private final String metricKey;
 
   public SumFormula(String metricKey) {
-    this.metricKey = Objects.requireNonNull(metricKey, "Metric key cannot be null");
+    this.metricKey = requireNonNull(metricKey, "Metric key cannot be null");
   }
 
   @Override
@@ -49,8 +50,8 @@ public class SumFormula implements Formula<SumFormula.SumCounter> {
   }
 
   @Override
-  public String getOutputMetricKey() {
-    return metricKey;
+  public String[] getOutputMetricKeys() {
+    return new String[] {metricKey};
   }
 
   class SumCounter implements Counter<SumCounter> {

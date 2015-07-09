@@ -19,6 +19,8 @@
  */
 package org.sonar.server.computation.formula.coverage;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * A Formula which implements the aggregation of lines and conditions measures (and their associated "uncovered" measures)
  * into a fifth measure.
@@ -28,8 +30,8 @@ public class LinesAndConditionsWithUncoveredFormula extends CoverageFormula<Line
   private final String outputKey;
 
   public LinesAndConditionsWithUncoveredFormula(LinesAndConditionsWithUncoveredMetricKeys inputKeys, String outputKey) {
-    this.inputKeys = inputKeys;
-    this.outputKey = outputKey;
+    this.inputKeys = requireNonNull(inputKeys);
+    this.outputKey = requireNonNull(outputKey);
   }
 
   @Override
@@ -38,7 +40,7 @@ public class LinesAndConditionsWithUncoveredFormula extends CoverageFormula<Line
   }
 
   @Override
-  public String getOutputMetricKey() {
-    return outputKey;
+  public String[] getOutputMetricKeys() {
+    return new String[] {outputKey};
   }
 }

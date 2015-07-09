@@ -40,7 +40,7 @@ public class SingleWithUncoveredVariationFormula extends CoverageVariationFormul
   }
 
   @Override
-  public String getOutputMetricKey() {
-    return outputKey;
+  public String[] getOutputMetricKeys() {
+    return new String[] {outputKey};
   }
 }

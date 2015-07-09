@@ -26,12 +26,12 @@ import org.sonar.server.computation.measure.Measure;
 /**
  * A formula is used to aggregated data on all nodes of a component tree
  */
-public interface Formula<COUNTER extends Counter> {
+public interface Formula<T extends Counter> {
 
   /**
    * Method responsible for creating an new instance of a the counter used by this formula.
    */
-  COUNTER createNewCounter();
+  T createNewCounter();
 
   /**
    * This method is used to create a measure on each node, using the value of the counter
@@ -39,11 +39,11 @@ public interface Formula<COUNTER extends Counter> {
    *
    * @param context the context for which the measure must be created
    */
-  Optional<Measure> createMeasure(COUNTER counter, CreateMeasureContext context);
+  Optional<Measure> createMeasure(T counter, CreateMeasureContext context);
 
   /**
    * The metric associated to the measure
    */
-  String getOutputMetricKey();
+  String[] getOutputMetricKeys();
 
 }

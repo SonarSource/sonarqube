@@ -21,10 +21,11 @@
 package org.sonar.server.computation.formula;
 
 import com.google.common.base.Optional;
-import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.server.computation.measure.Measure;
+
+import static java.util.Objects.requireNonNull;
 
 public class AverageFormula implements Formula<AverageFormula.AverageCounter> {
 
@@ -62,8 +63,8 @@ public class AverageFormula implements Formula<AverageFormula.AverageCounter> {
   }
 
   @Override
-  public String getOutputMetricKey() {
-    return outputMetricKey;
+  public String[] getOutputMetricKeys() {
+    return new String[] {outputMetricKey};
   }
 
   public static class Builder {
@@ -102,9 +103,9 @@ public class AverageFormula implements Formula<AverageFormula.AverageCounter> {
     }
 
     public AverageFormula build() {
-      Objects.requireNonNull(outputMetricKey, "Output metric key cannot be null");
-      Objects.requireNonNull(mainMetric, "Main metric Key cannot be null");
-      Objects.requireNonNull(byMetric, "By metric Key cannot be null");
+      requireNonNull(outputMetricKey, "Output metric key cannot be null");
+      requireNonNull(mainMetric, "Main metric Key cannot be null");
+      requireNonNull(byMetric, "By metric Key cannot be null");
       return new AverageFormula(this);
     }
   }
