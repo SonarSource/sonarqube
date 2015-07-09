@@ -22,7 +22,6 @@ package org.sonar.batch.bootstrap;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
-import org.sonar.batch.compute.CommentDensityDecorator;
 import org.sonar.batch.compute.DirectoriesDecorator;
 import org.sonar.batch.compute.FilesDecorator;
 import org.sonar.batch.compute.UnitTestDecorator;
@@ -73,10 +72,9 @@ public class BatchComponents {
 
       // to be moved to compute engine
       UnitTestDecorator.class,
-      CommentDensityDecorator.class,
       DirectoriesDecorator.class,
       FilesDecorator.class
-      );
+    );
     components.addAll(CorePropertyDefinitions.all());
     // CPD
     components.addAll(CpdComponents.all());
