@@ -28,7 +28,7 @@ import org.sonar.db.MyBatis;
 
 public class DatabaseVersion {
 
-  public static final int LAST_VERSION = 924;
+  public static final int LAST_VERSION = 925;
 
   /**
    * List of all the tables.

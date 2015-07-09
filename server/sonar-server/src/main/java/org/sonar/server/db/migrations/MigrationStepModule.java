@@ -71,6 +71,7 @@ import org.sonar.server.db.migrations.v52.FeedMetricsBooleans;
 import org.sonar.server.db.migrations.v52.FeedProjectLinksComponentUuid;
 import org.sonar.server.db.migrations.v52.MoveProjectProfileAssociation;
 import org.sonar.server.db.migrations.v52.RemoveComponentLibraries;
+import org.sonar.server.db.migrations.v52.RemoveDuplicatedComponentKeys;
 import org.sonar.server.db.migrations.v52.RemoveSnapshotLibraries;
 
 public class MigrationStepModule extends Module {
@@ -144,6 +145,8 @@ public class MigrationStepModule extends Module {
       AddManualMeasuresComponentUuidColumn.class,
       FeedManualMeasuresComponentUuid.class,
       RemoveSnapshotLibraries.class,
-      RemoveComponentLibraries.class);
+      RemoveComponentLibraries.class,
+      RemoveDuplicatedComponentKeys.class
+    );
   }
 }
