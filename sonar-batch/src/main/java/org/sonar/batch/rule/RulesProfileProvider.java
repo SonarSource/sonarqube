@@ -20,19 +20,17 @@
 package org.sonar.batch.rule;
 
 import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.rule.internal.DefaultActiveRules;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
-
-import java.util.Collection;
-import java.util.Map;
 
 /**
  * Ensures backward-compatibility with extensions that use {@link org.sonar.api.profiles.RulesProfile}.
@@ -75,9 +73,15 @@ public class RulesProfileProvider extends ProviderAdapter {
     // TODO deprecatedProfile.setVersion(qProfile.version());
     deprecatedProfile.setName(qProfile.getName());
     deprecatedProfile.setLanguage(qProfile.getLanguage());
-    for (org.sonar.api.batch.rule.ActiveRule activeRule : ((DefaultActiveRules) activeRules).findByLanguage(qProfile.getLanguage())) {
+    for (org.sonar.api.batch.rule.ActiveRule activeRule : activeRules.findByLanguage(qProfile.getLanguage())) {
       Rule rule = Rule.create(activeRule.ruleKey().repository(), activeRule.ruleKey().rule());
       rule.setConfigKey(activeRule.internalKey());
+
+      // SONAR-6706
+      if (activeRule.templateRuleKey() != null) {
+        rule.setTemplate(Rule.create(activeRule.ruleKey().repository(), activeRule.templateRuleKey()));
+      }
+
       ActiveRule deprecatedActiveRule = deprecatedProfile.activateRule(rule,
         RulePriority.valueOf(activeRule.severity()));
       for (Map.Entry<String, String> param : activeRule.params().entrySet()) {
