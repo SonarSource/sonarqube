@@ -462,7 +462,9 @@ public interface CoreProperties {
    * @since 4.0
    */
   String PREVIEW_EXCLUDE_PLUGINS = "sonar.preview.excludePlugins";
-  String PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE = "buildstability,devcockpit,pdfreport,report,views,jira,buildbreaker";
+
+  // SONAR-6704 add scmstats to the list
+  String PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE = "buildstability,devcockpit,pdfreport,report,views,jira,buildbreaker,scmstats";
 
   /**
    * @since 4.0
