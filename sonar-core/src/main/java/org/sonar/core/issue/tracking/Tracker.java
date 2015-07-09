@@ -261,7 +261,7 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
       if (this == o) {
         return true;
       }
-      LineAndLineHashKey that = (LineAndLineHashKey) o;
+      LineHashKey that = (LineHashKey) o;
       // start with most discriminant field
       return lineHash.equals(that.lineHash)
         && ruleKey.equals(that.ruleKey);
