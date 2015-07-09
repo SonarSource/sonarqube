@@ -51,7 +51,7 @@ public class SumFormulaTest {
 
   @Test
   public void check_create_new_counter_class() {
-    assertThat(BASIC_SUM_FORMULA.createNewCounter().getClass()).isEqualTo(SumFormula.SumCounter.class);
+    assertThat(BASIC_SUM_FORMULA.createNewCounter().getClass()).isEqualTo(SumCounter.class);
   }
 
   @Test
@@ -69,7 +69,7 @@ public class SumFormulaTest {
 
   @Test
   public void create_measure() {
-    SumFormula.SumCounter counter = BASIC_SUM_FORMULA.createNewCounter();
+    SumCounter counter = BASIC_SUM_FORMULA.createNewCounter();
     addMeasure(LINES_KEY, 10);
     counter.aggregate(fileAggregateContext);
 
@@ -78,11 +78,11 @@ public class SumFormulaTest {
 
   @Test
   public void create_measure_when_counter_is_aggregating_from_another_counter() {
-    SumFormula.SumCounter anotherCounter = BASIC_SUM_FORMULA.createNewCounter();
+    SumCounter anotherCounter = BASIC_SUM_FORMULA.createNewCounter();
     addMeasure(LINES_KEY, 10);
     anotherCounter.aggregate(fileAggregateContext);
 
-    SumFormula.SumCounter counter = BASIC_SUM_FORMULA.createNewCounter();
+    SumCounter counter = BASIC_SUM_FORMULA.createNewCounter();
     counter.aggregate(anotherCounter);
 
     assertThat(BASIC_SUM_FORMULA.createMeasure(counter, projectCreateMeasureContext).get().getIntValue()).isEqualTo(10);
@@ -90,7 +90,7 @@ public class SumFormulaTest {
 
   @Test
   public void not_create_measure_on_file() {
-    SumFormula.SumCounter counter = BASIC_SUM_FORMULA.createNewCounter();
+    SumCounter counter = BASIC_SUM_FORMULA.createNewCounter();
     addMeasure(LINES_KEY, 10);
     counter.aggregate(fileAggregateContext);
 
@@ -99,7 +99,7 @@ public class SumFormulaTest {
 
   @Test
   public void not_create_measure_when_value_is_zero() {
-    SumFormula.SumCounter counter = BASIC_SUM_FORMULA.createNewCounter();
+    SumCounter counter = BASIC_SUM_FORMULA.createNewCounter();
     when(fileAggregateContext.getMeasure(LINES_KEY)).thenReturn(Optional.<Measure>absent());
     counter.aggregate(fileAggregateContext);
 

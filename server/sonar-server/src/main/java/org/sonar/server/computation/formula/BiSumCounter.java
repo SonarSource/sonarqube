@@ -21,37 +21,37 @@
 package org.sonar.server.computation.formula;
 
 import com.google.common.base.Optional;
-import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.measure.Measure;
 
-import static java.util.Objects.requireNonNull;
+/**
+ * This counter can be used to aggregate measure from two metrics
+ */
+public class BiSumCounter implements Counter<BiSumCounter> {
 
-public class SumFormula implements Formula<SumCounter> {
+  private final SumCounter sumCounter1;
+  private final SumCounter sumCounter2;
 
-  private final String metricKey;
-
-  public SumFormula(String metricKey) {
-    this.metricKey = requireNonNull(metricKey, "Metric key cannot be null");
+  public BiSumCounter(String metric1, String metric2) {
+    this.sumCounter1 = new SumCounter(metric1);
+    this.sumCounter2 = new SumCounter(metric2);
   }
 
   @Override
-  public SumCounter createNewCounter() {
-    return new SumCounter(metricKey);
+  public void aggregate(BiSumCounter counter) {
+    sumCounter1.aggregate(counter.sumCounter1);
+    sumCounter2.aggregate(counter.sumCounter2);
   }
 
   @Override
-  public Optional<Measure> createMeasure(SumCounter counter, CreateMeasureContext context) {
-    Optional<Integer> valueOptional = counter.getValue();
-    if (valueOptional.isPresent() && context.getComponent().getType().isHigherThan(Component.Type.FILE)) {
-      return Optional.of(Measure.newMeasureBuilder().create(valueOptional.get()));
-    }
-    return Optional.absent();
-
+  public void aggregate(FileAggregateContext context) {
+    sumCounter1.aggregate(context);
+    sumCounter2.aggregate(context);
   }
 
-  @Override
-  public String[] getOutputMetricKeys() {
-    return new String[] {metricKey};
+  public Optional<Integer> getValue1() {
+    return sumCounter1.getValue();
   }
 
+  public Optional<Integer> getValue2() {
+    return sumCounter2.getValue();
+  }
 }

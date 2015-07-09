@@ -21,37 +21,46 @@
 package org.sonar.server.computation.formula;
 
 import com.google.common.base.Optional;
-import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.measure.Measure;
 
-import static java.util.Objects.requireNonNull;
-
-public class SumFormula implements Formula<SumCounter> {
+/**
+ * Simple counter that do the sum of an integer measure
+ */
+public class SumCounter implements Counter<SumCounter> {
 
   private final String metricKey;
 
-  public SumFormula(String metricKey) {
-    this.metricKey = requireNonNull(metricKey, "Metric key cannot be null");
+  private int value = 0;
+  private boolean initialized = false;
+
+  public SumCounter(String metricKey) {
+    this.metricKey = metricKey;
   }
 
   @Override
-  public SumCounter createNewCounter() {
-    return new SumCounter(metricKey);
+  public void aggregate(SumCounter counter) {
+    if (counter.getValue().isPresent()) {
+      addValue(counter.getValue().get());
+    }
   }
 
   @Override
-  public Optional<Measure> createMeasure(SumCounter counter, CreateMeasureContext context) {
-    Optional<Integer> valueOptional = counter.getValue();
-    if (valueOptional.isPresent() && context.getComponent().getType().isHigherThan(Component.Type.FILE)) {
-      return Optional.of(Measure.newMeasureBuilder().create(valueOptional.get()));
+  public void aggregate(FileAggregateContext context) {
+    Optional<Measure> measureOptional = context.getMeasure(metricKey);
+    if (measureOptional.isPresent()) {
+      addValue(measureOptional.get().getIntValue());
+    }
+  }
+
+  private void addValue(int newValue) {
+    initialized = true;
+    value += newValue;
+  }
+
+  public Optional<Integer> getValue() {
+    if (initialized) {
+      return Optional.of(value);
     }
     return Optional.absent();
-
   }
-
-  @Override
-  public String[] getOutputMetricKeys() {
-    return new String[] {metricKey};
-  }
-
 }
