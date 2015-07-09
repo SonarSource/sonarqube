@@ -112,7 +112,7 @@ public class FillComponentsStep implements ComputationStep {
     private UuidFactory(String projectKey) {
       DbSession session = dbClient.openSession(false);
       try {
-        List<ComponentDto> components = dbClient.componentDao().selectComponentsFromProjectKey(session, projectKey);
+        List<ComponentDto> components = dbClient.componentDao().selectAllComponentsFromProjectKey(session, projectKey);
         for (ComponentDto componentDto : components) {
           uuidsByKey.put(componentDto.getKey(), componentDto.uuid());
         }

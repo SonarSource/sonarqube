@@ -420,23 +420,24 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void select_components_from_project() {
+  public void select_all_components_from_project() {
     db.prepareDbUnit(getClass(), "multi-modules.xml");
 
-    List<ComponentDto> components = sut.selectComponentsFromProjectKey(db.getSession(), "org.struts:struts");
-    assertThat(components).hasSize(5);
+    List<ComponentDto> components = sut.selectAllComponentsFromProjectKey(db.getSession(), "org.struts:struts");
+    // Removed components are included
+    assertThat(components).hasSize(8);
 
-    assertThat(sut.selectComponentsFromProjectKey(db.getSession(), "UNKNOWN")).isEmpty();
+    assertThat(sut.selectAllComponentsFromProjectKey(db.getSession(), "UNKNOWN")).isEmpty();
   }
 
   @Test
   public void select_modules_from_project() {
     db.prepareDbUnit(getClass(), "multi-modules.xml");
 
-    List<ComponentDto> components = sut.selectModulesFromProjectKey(db.getSession(), "org.struts:struts");
+    List<ComponentDto> components = sut.selectEnabledModulesFromProjectKey(db.getSession(), "org.struts:struts");
     assertThat(components).hasSize(3);
 
-    assertThat(sut.selectModulesFromProjectKey(db.getSession(), "UNKNOWN")).isEmpty();
+    assertThat(sut.selectEnabledModulesFromProjectKey(db.getSession(), "UNKNOWN")).isEmpty();
   }
 
   @Test

@@ -139,8 +139,7 @@
   </select>
 
   <sql id="modulesTreeQuery">
-    INNER JOIN projects module ON module.project_uuid = p.project_uuid AND module.uuid = #{moduleUuid} AND
-    module.scope='PRJ' AND module.enabled = ${_true}
+    INNER JOIN projects module ON module.project_uuid = p.project_uuid AND module.uuid = #{moduleUuid} AND module.scope='PRJ' AND module.enabled = ${_true}
     <where>
       <if test="excludeDisabled">
         p.enabled = ${_true}
@@ -215,7 +214,9 @@
     FROM projects p
     INNER JOIN projects root ON root.uuid=p.project_uuid AND root.kee=#{projectKey}
     <where>
-      AND p.enabled=${_true}
+      <if test="excludeDisabled">
+        p.enabled = ${_true}
+      </if>
       <if test="scope != null">
         AND p.scope=#{scope}
       </if>

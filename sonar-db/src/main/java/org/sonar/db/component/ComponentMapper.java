@@ -64,7 +64,7 @@ public interface ComponentMapper {
    * Return all descendant modules (including itself) from a given component uuid and scope
    */
   List<ComponentDto> selectDescendantModules(@Param("moduleUuid") String moduleUuid, @Param(value = "scope") String scope,
-    @Param(value = "excludeDisabled") boolean excludeDisabled);
+                                             @Param(value = "excludeDisabled") boolean excludeDisabled);
 
   /**
    * Return all files from a given project uuid and scope
@@ -75,19 +75,22 @@ public interface ComponentMapper {
    * Return all descendant files from a given module uuid and scope
    */
   List<FilePathWithHashDto> selectDescendantFiles(@Param("moduleUuid") String moduleUuid, @Param(value = "scope") String scope,
-    @Param(value = "excludeDisabled") boolean excludeDisabled);
+                                                  @Param(value = "excludeDisabled") boolean excludeDisabled);
 
   /**
    * Return uuids and project uuids from list of qualifiers
-   *
+   * <p/>
    * It's using a join on snapshots in order to use he indexed columns snapshots.qualifier
    */
   List<UuidWithProjectUuidDto> selectUuidsForQualifiers(@Param("qualifiers") String... qualifiers);
 
   /**
-   * Return all components of a project
+   * Return components of a given scope of a project
+   *
+   * @param scope scope of components to return. If null, all components are returned
    */
-  List<ComponentDto> selectComponentsFromProjectKeyAndScope(@Param("projectKey") String projectKey, @Nullable @Param("scope") String scope);
+  List<ComponentDto> selectComponentsFromProjectKeyAndScope(@Param("projectKey") String projectKey, @Nullable @Param("scope") String scope,
+                                                            @Param(value = "excludeDisabled") boolean excludeDisabled);
 
   /**
    * Return technical projects from a view or a sub-view

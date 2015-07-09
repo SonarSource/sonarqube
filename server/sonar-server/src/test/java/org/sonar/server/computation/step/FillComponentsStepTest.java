@@ -157,7 +157,6 @@ public class FillComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-
     treeRootHolder.setRoot(ComponentTreeBuilder.from(reportReader));
     sut.execute();
 
@@ -390,6 +389,65 @@ public class FillComponentsStepTest extends BaseStepTest {
 
     assertThat(componentsByRef.get(5).getKey()).isEqualTo("SUB_MODULE_KEY:src/main/java/dir/Foo.java");
     assertThat(componentsByRef.get(5).getUuid()).isNotNull();
+  }
+
+  @Test
+  public void return_existing_uuids_when_components_were_removed() {
+    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY);
+    dbClient.componentDao().insert(dbTester.getSession(), project);
+    ComponentDto removedModule = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_KEY").setEnabled(false);
+    dbClient.componentDao().insert(dbTester.getSession(), removedModule);
+    ComponentDto removedDirectory = ComponentTesting.newDirectory(removedModule, "CDEF", "src/main/java/dir").setKey("MODULE_KEY:src/main/java/dir").setEnabled(false);
+    ComponentDto removedFile = ComponentTesting.newFileDto(removedModule, "DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").setEnabled(false);
+    dbClient.componentDao().insert(dbTester.getSession(), removedDirectory, removedFile);
+    dbTester.getSession().commit();
+
+    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
+      .setRootComponentRef(1)
+      .build());
+
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setKey(PROJECT_KEY)
+      .addChildRef(2)
+      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(2)
+      .setType(Constants.ComponentType.MODULE)
+      .setKey("MODULE_KEY")
+      .addChildRef(3)
+      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(3)
+      .setType(Constants.ComponentType.DIRECTORY)
+      .setPath("src/main/java/dir")
+      .addChildRef(4)
+      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(4)
+      .setType(Constants.ComponentType.FILE)
+      .setPath("src/main/java/dir/Foo.java")
+      .build());
+
+    treeRootHolder.setRoot(ComponentTreeBuilder.from(reportReader));
+    sut.execute();
+
+    Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());
+
+    assertThat(componentsByRef.get(1).getKey()).isEqualTo(PROJECT_KEY);
+    assertThat(componentsByRef.get(1).getUuid()).isEqualTo("ABCD");
+
+    // No new UUID is generated on removed components
+
+    assertThat(componentsByRef.get(2).getKey()).isEqualTo("MODULE_KEY");
+    assertThat(componentsByRef.get(2).getUuid()).isEqualTo("BCDE");
+
+    assertThat(componentsByRef.get(3).getKey()).isEqualTo("MODULE_KEY:src/main/java/dir");
+    assertThat(componentsByRef.get(3).getUuid()).isEqualTo("CDEF");
+
+    assertThat(componentsByRef.get(4).getKey()).isEqualTo("MODULE_KEY:src/main/java/dir/Foo.java");
+    assertThat(componentsByRef.get(4).getUuid()).isEqualTo("DEFG");
   }
 
   private static Map<Integer, Component> getComponentsByRef(Component root) {

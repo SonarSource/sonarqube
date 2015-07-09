@@ -778,4 +778,164 @@ public class PersistComponentsStepTest extends BaseStepTest {
     assertThat(projectReloaded.get().getCreatedAt()).isNotEqualTo(now);
   }
 
+  @Test
+  public void persist_components_that_were_previously_removed() {
+    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
+    dbClient.componentDao().insert(dbTester.getSession(), project);
+    ComponentDto removedModule = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_KEY").setName("Module").setEnabled(false);
+    dbClient.componentDao().insert(dbTester.getSession(), removedModule);
+    ComponentDto removedDirectory = ComponentTesting.newDirectory(removedModule, "src/main/java/dir").setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").setEnabled(false);
+    ComponentDto removedFile = ComponentTesting.newFileDto(removedModule, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java").setKey("MODULE_KEY:src/main/java/dir/Foo.java").setEnabled(false);
+    dbClient.componentDao().insert(dbTester.getSession(), removedDirectory, removedFile);
+    dbTester.getSession().commit();
+
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setKey(PROJECT_KEY)
+      .setName("Project")
+      .addChildRef(2)
+      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(2)
+      .setType(Constants.ComponentType.MODULE)
+      .setKey("MODULE_KEY")
+      .setName("Module")
+      .addChildRef(3)
+      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(3)
+      .setType(Constants.ComponentType.DIRECTORY)
+      .setPath("src/main/java/dir")
+      .addChildRef(4)
+      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(4)
+      .setType(Constants.ComponentType.FILE)
+      .setPath("src/main/java/dir/Foo.java")
+      .build());
+
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
+      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(
+        DumbComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(
+          DumbComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build())
+          .build())
+        .build())
+      .build());
+
+    sut.execute();
+
+    assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
+    assertThat(dbClient.componentDao().selectByKey(dbTester.getSession(), PROJECT_KEY).get().getId()).isEqualTo(project.getId());
+    assertThat(dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY").get().getId()).isEqualTo(removedModule.getId());
+    assertThat(dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY:src/main/java/dir").get().getId()).isEqualTo(removedDirectory.getId());
+    assertThat(dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY:src/main/java/dir/Foo.java").get().getId()).isEqualTo(removedFile.getId());
+
+    ComponentDto projectReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), PROJECT_KEY).get();
+    assertThat(projectReloaded.getId()).isEqualTo(project.getId());
+    assertThat(projectReloaded.uuid()).isEqualTo(project.uuid());
+    assertThat(projectReloaded.moduleUuid()).isEqualTo(project.moduleUuid());
+    assertThat(projectReloaded.moduleUuidPath()).isEqualTo(project.moduleUuidPath());
+    assertThat(projectReloaded.projectUuid()).isEqualTo(project.projectUuid());
+    assertThat(projectReloaded.parentProjectId()).isEqualTo(project.parentProjectId());
+    assertThat(projectReloaded.isEnabled()).isTrue();
+
+    ComponentDto moduleReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY").get();
+    assertThat(moduleReloaded.getId()).isEqualTo(removedModule.getId());
+    assertThat(moduleReloaded.uuid()).isEqualTo(removedModule.uuid());
+    assertThat(moduleReloaded.moduleUuid()).isEqualTo(removedModule.moduleUuid());
+    assertThat(moduleReloaded.moduleUuidPath()).isEqualTo(removedModule.moduleUuidPath());
+    assertThat(moduleReloaded.projectUuid()).isEqualTo(removedModule.projectUuid());
+    assertThat(moduleReloaded.parentProjectId()).isEqualTo(removedModule.parentProjectId());
+    assertThat(moduleReloaded.isEnabled()).isTrue();
+
+    ComponentDto directoryReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY:src/main/java/dir").get();
+    assertThat(directoryReloaded.getId()).isEqualTo(removedDirectory.getId());
+    assertThat(directoryReloaded.uuid()).isEqualTo(removedDirectory.uuid());
+    assertThat(directoryReloaded.moduleUuid()).isEqualTo(removedDirectory.moduleUuid());
+    assertThat(directoryReloaded.moduleUuidPath()).isEqualTo(removedDirectory.moduleUuidPath());
+    assertThat(directoryReloaded.projectUuid()).isEqualTo(removedDirectory.projectUuid());
+    assertThat(directoryReloaded.parentProjectId()).isEqualTo(removedDirectory.parentProjectId());
+    assertThat(directoryReloaded.name()).isEqualTo(removedDirectory.name());
+    assertThat(directoryReloaded.path()).isEqualTo(removedDirectory.path());
+    assertThat(directoryReloaded.isEnabled()).isTrue();
+
+    ComponentDto fileReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY:src/main/java/dir/Foo.java").get();
+    assertThat(fileReloaded.getId()).isEqualTo(fileReloaded.getId());
+    assertThat(fileReloaded.uuid()).isEqualTo(removedFile.uuid());
+    assertThat(fileReloaded.moduleUuid()).isEqualTo(removedFile.moduleUuid());
+    assertThat(fileReloaded.moduleUuidPath()).isEqualTo(removedFile.moduleUuidPath());
+    assertThat(fileReloaded.projectUuid()).isEqualTo(removedFile.projectUuid());
+    assertThat(fileReloaded.parentProjectId()).isEqualTo(removedFile.parentProjectId());
+    assertThat(fileReloaded.name()).isEqualTo(removedFile.name());
+    assertThat(fileReloaded.path()).isEqualTo(removedFile.path());
+    assertThat(fileReloaded.isEnabled()).isTrue();
+  }
+
+  @Test
+  public void update_uuid_when_reactivating_removed_component() {
+    ComponentDto project = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
+    dbClient.componentDao().insert(dbTester.getSession(), project);
+    ComponentDto module = ComponentTesting.newModuleDto("BCDE", project).setKey("MODULE_KEY").setName("Module");
+    ComponentDto removedModule = ComponentTesting.newModuleDto("EDCD", project).setKey("REMOVED_MODULE_KEY").setName("Removed Module").setEnabled(false);
+    dbClient.componentDao().insert(dbTester.getSession(), module, removedModule);
+    ComponentDto directory = ComponentTesting.newDirectory(module, "src/main/java/dir").setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir");
+    // The file was attached to another module
+    ComponentDto removedFile = ComponentTesting.newFileDto(removedModule, "DEFG").setPath("src/main/java/dir/Foo.java").setName("Foo.java").setKey("MODULE_KEY:src/main/java/dir/Foo.java").setEnabled(false);
+    dbClient.componentDao().insert(dbTester.getSession(), directory, removedFile);
+    dbTester.getSession().commit();
+
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(1)
+      .setType(Constants.ComponentType.PROJECT)
+      .setKey(PROJECT_KEY)
+      .setName("Project")
+      .addChildRef(2)
+      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(2)
+      .setType(Constants.ComponentType.MODULE)
+      .setKey("MODULE_KEY")
+      .setName("Module")
+      .addChildRef(3)
+      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(3)
+      .setType(Constants.ComponentType.DIRECTORY)
+      .setPath("src/main/java/dir")
+      .addChildRef(4)
+      .build());
+    reportReader.putComponent(BatchReport.Component.newBuilder()
+      .setRef(4)
+      .setType(Constants.ComponentType.FILE)
+      .setPath("src/main/java/dir/Foo.java")
+      .build());
+
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
+      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(
+        DumbComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(
+          DumbComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build())
+          .build())
+        .build())
+      .build());
+
+    sut.execute();
+
+    // Projects contains 4 components from the report + one removed module
+    assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(5);
+
+    ComponentDto moduleReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY").get();
+
+    ComponentDto fileReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY:src/main/java/dir/Foo.java").get();
+    assertThat(fileReloaded.getId()).isEqualTo(removedFile.getId());
+    assertThat(fileReloaded.uuid()).isEqualTo(removedFile.uuid());
+    assertThat(fileReloaded.moduleUuid()).isEqualTo(moduleReloaded.uuid());
+    assertThat(fileReloaded.moduleUuidPath()).isEqualTo(moduleReloaded.moduleUuidPath());
+    assertThat(fileReloaded.projectUuid()).isEqualTo(moduleReloaded.projectUuid());
+    assertThat(fileReloaded.parentProjectId()).isEqualTo(moduleReloaded.getId());
+    assertThat(fileReloaded.name()).isEqualTo(removedFile.name());
+    assertThat(fileReloaded.path()).isEqualTo(removedFile.path());
+    assertThat(fileReloaded.isEnabled()).isTrue();
+  }
+
 }

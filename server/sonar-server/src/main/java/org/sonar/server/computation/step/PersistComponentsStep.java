@@ -67,7 +67,7 @@ public class PersistComponentsStep implements ComputationStep {
     DbSession session = dbClient.openSession(false);
     try {
       org.sonar.server.computation.component.Component root = treeRootHolder.getRoot();
-      List<ComponentDto> existingComponents = dbClient.componentDao().selectComponentsFromProjectKey(session, root.getKey());
+      List<ComponentDto> existingComponents = dbClient.componentDao().selectAllComponentsFromProjectKey(session, root.getKey());
       Map<String, ComponentDto> existingComponentDtosByKey = componentDtosByKey(existingComponents);
       PersistComponentExecutor persistComponentExecutor = new PersistComponentExecutor(session, existingComponentDtosByKey, reportReader);
       persistComponentExecutor.recursivelyProcessComponent(root, null);
@@ -266,6 +266,11 @@ public class PersistComponentsStep implements ComputationStep {
     }
     if (!ObjectUtils.equals(existingComponent.parentProjectId(), newComponent.parentProjectId())) {
       existingComponent.setParentProjectId(newComponent.parentProjectId());
+      isUpdated = true;
+    }
+    if (!existingComponent.isEnabled()) {
+      // If component was previously removed, re-enable it
+      existingComponent.setEnabled(true);
       isUpdated = true;
     }
     return isUpdated;

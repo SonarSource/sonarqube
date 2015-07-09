@@ -78,7 +78,7 @@ public class ValidateProjectStep implements ComputationStep {
   public void execute() {
     DbSession session = dbClient.openSession(false);
     try {
-      List<ComponentDto> baseModules = dbClient.componentDao().selectModulesFromProjectKey(session, treeRootHolder.getRoot().getKey());
+      List<ComponentDto> baseModules = dbClient.componentDao().selectEnabledModulesFromProjectKey(session, treeRootHolder.getRoot().getKey());
       Map<String, ComponentDto> baseModulesByKey = FluentIterable.from(baseModules).uniqueIndex(ComponentDtoToKey.INSTANCE);
       ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(session, dbClient.componentDao(),
         settings.getBoolean(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION), baseModulesByKey);
