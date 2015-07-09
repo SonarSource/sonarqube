@@ -19,13 +19,12 @@
  */
 package org.sonar.batch.rule;
 
+import java.util.Arrays;
 import org.junit.Test;
-import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
-
-import java.util.Arrays;
+import org.sonar.api.rule.RuleKey;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -35,7 +34,6 @@ import static org.mockito.Mockito.when;
 public class RulesProfileProviderTest {
 
   ModuleQProfiles qProfiles = mock(ModuleQProfiles.class);
-  ActiveRules activeRules = new ActiveRulesBuilder().build();
   Settings settings = new Settings();
   RulesProfileProvider provider = new RulesProfileProvider();
 
@@ -44,7 +42,7 @@ public class RulesProfileProviderTest {
     QProfile qProfile = new QProfile().setKey("java-sw").setName("Sonar way").setLanguage("java");
     when(qProfiles.findAll()).thenReturn(Arrays.asList(qProfile));
 
-    RulesProfile profile = provider.provide(qProfiles, activeRules, settings);
+    RulesProfile profile = provider.provide(qProfiles, new ActiveRulesBuilder().build(), settings);
 
     // merge of all profiles
     assertThat(profile).isNotNull().isInstanceOf(RulesProfileWrapper.class);
@@ -66,12 +64,23 @@ public class RulesProfileProviderTest {
     QProfile qProfile = new QProfile().setKey("java-sw").setName("Sonar way").setLanguage("java");
     when(qProfiles.findByLanguage("java")).thenReturn(qProfile);
 
-    RulesProfile profile = provider.provide(qProfiles, activeRules, settings);
+    RulesProfile profile = provider.provide(qProfiles, new ActiveRulesBuilder().build(), settings);
 
     // no merge, directly the old hibernate profile
     assertThat(profile).isNotNull();
     assertThat(profile.getLanguage()).isEqualTo("java");
     assertThat(profile.getName()).isEqualTo("Sonar way");
-    ;
+  }
+
+  @Test
+  public void support_rule_templates() {
+    QProfile qProfile = new QProfile().setKey("java-sw").setName("Sonar way").setLanguage("java");
+    when(qProfiles.findAll()).thenReturn(Arrays.asList(qProfile));
+    ActiveRulesBuilder activeRulesBuilder = new ActiveRulesBuilder();
+    activeRulesBuilder.create(RuleKey.of("java", "S001")).setTemplateRuleKey("T001").setLanguage("java").activate();
+
+    RulesProfile profile = provider.provide(qProfiles, activeRulesBuilder.build(), settings);
+
+    assertThat(profile.getActiveRule("java", "S001").getRule().getTemplate().getKey()).isEqualTo("T001");
   }
 }
