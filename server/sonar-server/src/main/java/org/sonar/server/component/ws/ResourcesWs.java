@@ -125,7 +125,7 @@ public class ResourcesWs implements WebService {
       .setResponseExample(Resources.getResource(this.getClass(), "resources-example-search.json"));
 
     action.createParam("s")
-      .setDescription("To filter on resources containing a specified text in their key")
+      .setDescription("To filter on resources containing a specified text in their name")
       .setExampleValue("sonar");
 
     action.createParam("display_key")
