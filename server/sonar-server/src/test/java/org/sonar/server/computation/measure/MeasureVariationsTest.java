@@ -235,66 +235,6 @@ public class MeasureVariationsTest {
   }
 
   @Test
-  public void equals_does_not_depend_on_constructor_argument() {
-    assertThat(new MeasureVariations(null, 1d, null)).isEqualTo(new MeasureVariations(null, 1d));
-  }
-
-  @Test
-  public void builder_throws_IAE_if_index_is_0() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Variation index must be >= 1 and <= 5");
-
-    newMeasureVariationsBuilder().setVariation(0, 12d);
-  }
-
-  @Test
-  public void builder_throws_IAE_if_index_is_less_than_0() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Variation index must be >= 1 and <= 5");
-
-    newMeasureVariationsBuilder().setVariation(-965, 12d);
-  }
-
-  @Test
-  public void builder_throws_IAE_if_index_is_6() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Variation index must be >= 1 and <= 5");
-
-    newMeasureVariationsBuilder().setVariation(6, 12d);
-  }
-
-  @Test
-  public void builder_throws_IAE_if_index_is_more_than_6() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Variation index must be >= 1 and <= 5");
-
-    newMeasureVariationsBuilder().setVariation(75, 12d);
-  }
-
-  @Test
-  public void builder_throws_ISE_if_variation_has_already_been_set() {
-    MeasureVariations.Builder builder = newMeasureVariationsBuilder().setVariation(4, 12d);
-
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Variation for Period 4 has already been set");
-
-    builder.setVariation(4, 1d);
-  }
-
-  @Test
-  public void verify_MeasureVariations_built_by_builder() {
-    MeasureVariations variations = newMeasureVariationsBuilder()
-      .setVariation(1, 1d)
-      .setVariation(2, 2d)
-      .setVariation(3, 3d)
-      .setVariation(4, 4d)
-      .setVariation(5, 5d)
-      .build();
-
-    verifyAsVariations(variations, 1d, 2d, 3d, 4d, 5d);
-  }
-
-  @Test
   public void verify_MeasureVariations_built_by_builder_from_Period() {
     MeasureVariations.Builder builder = newMeasureVariationsBuilder();
     for (int i = 1; i <= PeriodsHolder.MAX_NUMBER_OF_PERIODS; i++) {
@@ -314,18 +254,6 @@ public class MeasureVariationsTest {
   public void builder_isEmpty_returns_false_if_any_variation_has_been_set() {
     for (int i = 1; i <= PeriodsHolder.MAX_NUMBER_OF_PERIODS; i++) {
       assertThat(newMeasureVariationsBuilder().setVariation(createPeriod(i), i).isEmpty()).isFalse();
-    }
-  }
-
-  @Test
-  public void builder_setVariation_for_index_throws_IAE_if_value_is_NaN() {
-    for (int i = 1; i <= PeriodsHolder.MAX_NUMBER_OF_PERIODS; i++) {
-      try {
-        newMeasureVariationsBuilder().setVariation(i, Double.NaN);
-        fail("An IAE should have been raised");
-      } catch (IllegalArgumentException e) {
-        assertThat(e).hasMessage(NAN_ERROR_MESSAGE);
-      }
     }
   }
 

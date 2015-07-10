@@ -56,19 +56,6 @@ public final class MeasureVariations {
       // prevents instantiation outside static method
     }
 
-    /**
-     * @deprecated use {@link #setVariation(Period, double)} instead
-     */
-    @Deprecated
-    public Builder setVariation(int index, double variation) {
-      checkArgument(index > 0 && index < 6, "Variation index must be >= 1 and <= 5");
-      checkArgument(!Double.isNaN(variation), NAN_ERROR_MESSAGE);
-      int arrayIndex = index - 1;
-      checkState(variations[arrayIndex] == null, String.format("Variation for Period %s has already been set", index));
-      variations[arrayIndex] = variation;
-      return this;
-    }
-
     public Builder setVariation(Period period, double variation) {
       int arrayIndex = period.getIndex() - 1;
       checkState(variations[arrayIndex] == null, String.format("Variation for Period %s has already been set", period.getIndex()));

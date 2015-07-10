@@ -482,10 +482,10 @@ public class NewCoverageMeasuresStepTest {
   private static Measure createMeasure(@Nullable Double variationPeriod2, @Nullable Double variationPeriod5) {
     MeasureVariations.Builder variationBuilder = newMeasureVariationsBuilder();
     if (variationPeriod2 != null) {
-      variationBuilder.setVariation(2, variationPeriod2);
+      variationBuilder.setVariation(new Period(2, "", null, 1L, 2L), variationPeriod2);
     }
     if (variationPeriod5 != null) {
-      variationBuilder.setVariation(5, variationPeriod5);
+      variationBuilder.setVariation(new Period(5, "", null, 1L, 2L), variationPeriod5);
     }
     return newMeasureBuilder()
       .setVariations(variationBuilder.build())
