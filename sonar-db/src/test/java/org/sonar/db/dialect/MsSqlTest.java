@@ -29,7 +29,6 @@ public class MsSqlTest {
 
   @Test
   public void matchesJdbcURL() {
-    assertThat(msSql.matchesJdbcURL("jdbc:jtds:sqlserver://localhost;databaseName=SONAR;SelectMethod=Cursor")).isTrue();
     assertThat(msSql.matchesJdbcURL("jdbc:sqlserver://localhost:1433;databasename=sonar")).isTrue();
 
     assertThat(msSql.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
@@ -48,6 +47,12 @@ public class MsSqlTest {
     assertThat(msSql.getActiveRecordDialectCode()).isEqualTo("sqlserver");
     assertThat(msSql.getDefaultDriverClassName()).isEqualTo("com.microsoft.sqlserver.jdbc.SQLServerDriver");
     assertThat(msSql.getValidationQuery()).isEqualTo("SELECT 1");
+  }
+
+  @Test
+  public void do_not_support_jtds_since_5_2() throws Exception {
+    assertThat(msSql.matchesJdbcURL("jdbc:jtds:sqlserver://localhost;databaseName=SONAR;SelectMethod=Cursor")).isFalse();
+
   }
 
   @Test
