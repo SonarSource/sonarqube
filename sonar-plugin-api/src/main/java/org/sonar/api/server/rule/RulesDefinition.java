@@ -397,7 +397,7 @@ public interface RulesDefinition {
 
     /**
      * @deprecated returns empty list since 5.2. Concept of "extended repository" was misleading and not valuable. Simply declare
-     * repositories and use {@link #repositories()}
+     * repositories and use {@link #repositories()}. See http://jira.sonarsource.com/browse/SONAR-6709
      */
     @Deprecated
     public List<ExtendedRepository> extendedRepositories(String repositoryKey) {
@@ -406,7 +406,7 @@ public interface RulesDefinition {
 
     /**
      * @deprecated returns empty list since 5.2. Concept of "extended repository" was misleading and not valuable. Simply declare
-     * repositories and use {@link #repositories()}
+     * repositories and use {@link #repositories()}. See http://jira.sonarsource.com/browse/SONAR-6709
      */
     @Deprecated
     public List<ExtendedRepository> extendedRepositories() {
