@@ -183,7 +183,7 @@ public class ReportPublisher implements Startable {
     }
   }
 
-  private void dumpReportImpl(String dumpDirLocation, String projectKey, String relativeUrl, File report) throws IOException, URISyntaxException {
+  private static void dumpReportImpl(String dumpDirLocation, String projectKey, String relativeUrl, File report) throws IOException, URISyntaxException {
     File dumpDir = new File(dumpDirLocation);
     if (!dumpDir.exists() || !dumpDir.isDirectory()) {
       LOG.warn("Report dump directory '{}' does not exist or is not a directory", dumpDirLocation);
