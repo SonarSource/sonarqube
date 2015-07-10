@@ -21,7 +21,6 @@ package org.sonar.server.computation.step;
 
 import java.util.List;
 import java.util.Map;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,11 +28,9 @@ import org.junit.experimental.categories.Category;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
-import org.sonar.db.DbSession;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -43,9 +40,7 @@ import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.measure.MeasureVariations;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.metric.persistence.MetricDao;
-import org.sonar.server.rule.db.RuleDao;
+import org.sonar.server.computation.period.Period;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,8 +75,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  DbClient dbClient;
-  DbSession session;
+  DbClient dbClient = dbTester.getDbClient();
   DbIdsRepository dbIdsRepository = new DbIdsRepository();
   RuleDto rule;
   ComponentDto projectDto;
@@ -92,11 +86,6 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   @Before
   public void setUp() {
     dbTester.truncateTables();
-
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new MeasureDao(), new ComponentDao(), new MetricDao(), new RuleDao(System2.INSTANCE));
-    session = dbClient.openSession(false);
-
-    session.commit();
 
     sut = new PersistMeasuresStep(dbClient, metricRepository, dbIdsRepository, treeRootHolder, measureRepository);
 
@@ -113,45 +102,19 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     dbIdsRepository.setSnapshotId(file, 4L);
   }
 
-  @After
-  public void tearDown() {
-    session.close();
-  }
-
   @Test
   public void insert_measures_from_report() {
     metricRepository.add(1, STRING_METRIC);
     metricRepository.add(2, DOUBLE_METRIC);
 
-    measureRepository.addRawMeasure(PROJECT_REF, STRING_METRIC_KEY,
-      Measure.newMeasureBuilder().setVariations(
-        MeasureVariations.newMeasureVariationsBuilder()
-          .setVariation(1, 1.1d)
-          .setVariation(2, 2.2d)
-          .setVariation(3, 3.3d)
-          .setVariation(4, 4.4d)
-          .setVariation(5, 5.5d)
-          .build()
-      ).create("measure-data")
-    );
-    measureRepository.addRawMeasure(FILE_REF, DOUBLE_METRIC_KEY,
-      Measure.newMeasureBuilder().setVariations(
-        MeasureVariations.newMeasureVariationsBuilder()
-          .setVariation(1, 1.1d)
-          .setVariation(2, 2.2d)
-          .setVariation(3, 3.3d)
-          .setVariation(4, 4.4d)
-          .setVariation(5, 5.5d)
-          .build()
-      ).create(123.123d)
-    );
+    measureRepository.addRawMeasure(PROJECT_REF, STRING_METRIC_KEY, Measure.newMeasureBuilder().create("measure-data"));
+    measureRepository.addRawMeasure(FILE_REF, DOUBLE_METRIC_KEY, Measure.newMeasureBuilder().create(123.123d));
 
     sut.execute();
-    session.commit();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(2);
 
-    List<Map<String, Object>> dtos = retrieveDtos();
+    List<Map<String, Object>> dtos = selectSnapshots();
 
     Map<String, Object> dto = dtos.get(0);
     assertThat(dto.get("snapshotId")).isEqualTo(3L);
@@ -160,7 +123,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dto.get("textValue")).isEqualTo("measure-data");
     assertThat(dto.get("severity")).isNull();
 
-    dto = dtos.get(PROJECT_REF);
+    dto = dtos.get(1);
     assertThat(dto.get("snapshotId")).isEqualTo(4L);
     assertThat(dto.get("componentId")).isEqualTo(fileDto.getId());
     assertThat(dto.get("metricId")).isEqualTo(2L);
@@ -168,10 +131,30 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dto.get("severity")).isNull();
   }
 
-  private List<Map<String, Object>> retrieveDtos() {
-    return dbTester.select(
-      "select snapshot_id as \"snapshotId\", project_id as \"componentId\", metric_id as \"metricId\", rule_id as \"ruleId\", value as \"value\", text_value as \"textValue\", " +
-        "rule_priority as \"severity\" from project_measures");
+  @Test
+  public void insert_measure_with_variations_from_report() {
+    metricRepository.add(1, DOUBLE_METRIC);
+
+    measureRepository.addRawMeasure(PROJECT_REF, DOUBLE_METRIC_KEY,
+      Measure.newMeasureBuilder()
+        .setVariations(
+          MeasureVariations.newMeasureVariationsBuilder()
+            .setVariation(createPeriod(1), 1.1d)
+            .setVariation(createPeriod(2), 2.2d)
+            .setVariation(createPeriod(3), 3.3d)
+            .setVariation(createPeriod(4), 4.4d)
+            .setVariation(createPeriod(5), 5.5d)
+            .build()
+        )
+        .create(10d)
+    );
+
+    sut.execute();
+
+    assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
+    List<Map<String, Object>> dtos = selectSnapshots();
+    Map<String, Object> dto = dtos.get(0);
+    assertThat(dto.get("variation_value_1")).isEqualTo(1.1d);
   }
 
   @Test
@@ -181,9 +164,8 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     measureRepository.addRawMeasure(FILE_REF, OPTIMIZED_METRIC_KEY, Measure.newMeasureBuilder().create(true));
 
     sut.execute();
-    session.commit();
 
-    assertThat(retrieveDtos()).isEmpty();
+    assertThat(selectSnapshots()).isEmpty();
   }
 
   @Test
@@ -195,9 +177,8 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     measureRepository.addRawMeasure(FILE_REF, DOUBLE_METRIC_KEY, Measure.newMeasureBuilder().createNoValue());
 
     sut.execute();
-    session.commit();
 
-    assertThat(retrieveDtos()).isEmpty();
+    assertThat(selectSnapshots()).isEmpty();
   }
 
   @Test
@@ -209,11 +190,9 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
     sut.execute();
 
-    session.commit();
-
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 
-    List<Map<String, Object>> dtos = retrieveDtos();
+    List<Map<String, Object>> dtos = selectSnapshots();
 
     Map<String, Object> dto = dtos.get(0);
     assertThat(dto.get("snapshotId")).isEqualTo(3L);
@@ -230,11 +209,9 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
     sut.execute();
 
-    session.commit();
-
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 
-    List<Map<String, Object>> dtos = retrieveDtos();
+    List<Map<String, Object>> dtos = selectSnapshots();
 
     Map<String, Object> dto = dtos.get(0);
     assertThat(dto.get("snapshotId")).isEqualTo(3L);
@@ -244,9 +221,24 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
   private ComponentDto addComponent(String key) {
     ComponentDto componentDto = new ComponentDto().setKey(key).setUuid(Uuids.create());
-    dbClient.componentDao().insert(session, componentDto);
-    session.commit();
+    dbClient.componentDao().insert(dbTester.getSession(), componentDto);
     return componentDto;
+  }
+
+  private static Period createPeriod(Integer index){
+    return new Period(index, "mode" + index, null, index, index);
+  }
+
+  private List<Map<String, Object>> selectSnapshots() {
+    return dbTester.select(
+      "SELECT snapshot_id as \"snapshotId\", project_id as \"componentId\", metric_id as \"metricId\", rule_id as \"ruleId\", value as \"value\", text_value as \"textValue\", " +
+        "rule_priority as \"severity\", " +
+        "variation_value_1 as \"variation_value_1\", " +
+        "variation_value_2 as \"variation_value_2\", " +
+        "variation_value_3 as \"variation_value_3\", " +
+        "variation_value_4 as \"variation_value_4\", " +
+        "variation_value_5 as \"variation_value_5\"" +
+        "FROM project_measures");
   }
 
   @Override
