@@ -178,7 +178,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_SIZE)
-    .setFormula(new SumChildValuesFormula(false))
     .setHidden(true)
     .create();
 

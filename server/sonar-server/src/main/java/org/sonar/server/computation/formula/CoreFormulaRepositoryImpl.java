@@ -23,6 +23,7 @@ package org.sonar.server.computation.formula;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 
+import static org.sonar.api.measures.CoreMetrics.ACCESSORS_KEY;
 import static org.sonar.api.measures.CoreMetrics.CLASSES_KEY;
 import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.COMPLEXITY_IN_CLASSES_KEY;
@@ -41,8 +42,8 @@ import static org.sonar.api.measures.CoreMetrics.STATEMENTS_KEY;
 public class CoreFormulaRepositoryImpl implements CoreFormulaRepository {
 
   private static final List<Formula> FORMULAS = ImmutableList.<Formula>of(
-    // TODO When all decorators will be moved to CE, uncomment commented lines to activate all formulas and remove formulas declaration in
-    // {@link org.sonar.api.measures.CoreMetrics}
+    // TODO When all decorators will be moved to CE, uncomment commented lines to activate all formulas and remove formulas declaration in {@link org.sonar.api.measures.CoreMetrics}
+
     // Sum formulas
     // new SumFormula(LINES_KEY),
     new SumFormula(GENERATED_LINES_KEY),
@@ -56,7 +57,12 @@ public class CoreFormulaRepositoryImpl implements CoreFormulaRepository {
     // new SumFormula(PUBLIC_UNDOCUMENTED_API_KEY),
     new SumFormula(COMPLEXITY_KEY),
     new SumFormula(COMPLEXITY_IN_CLASSES_KEY),
+    // TODO this formula seems to be useless as this measure seems only required on files
     new SumFormula(COMPLEXITY_IN_FUNCTIONS_KEY),
+
+    new SumFormula(ACCESSORS_KEY),
+//    new SumFormula(CoreMetrics.COMMENT_LINES_KEY),
+
     // new SumFormula(LINES_TO_COVER_KEY),
     // new SumFormula(NEW_LINES_TO_COVER_KEY),
     // new SumFormula(UNCOVERED_LINES_KEY),
@@ -101,7 +107,7 @@ public class CoreFormulaRepositoryImpl implements CoreFormulaRepository {
       .setByMetricKey(FUNCTIONS_KEY)
       .setFallbackMetricKey(COMPLEXITY_KEY)
       .build()
-    );
+  );
 
   /**
    * Return list of formulas that was previously provided by CoreMetrics
