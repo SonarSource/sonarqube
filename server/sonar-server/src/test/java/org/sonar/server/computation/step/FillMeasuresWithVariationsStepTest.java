@@ -20,58 +20,42 @@
 
 package org.sonar.server.computation.step;
 
-import java.util.Collections;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.debt.CharacteristicDao;
-import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.measure.Measure;
-import org.sonar.server.computation.measure.MeasureRepository;
-import org.sonar.server.computation.measure.MeasureRepositoryImpl;
+import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.Metric;
-import org.sonar.server.computation.metric.Metric.MetricType;
 import org.sonar.server.computation.metric.MetricImpl;
-import org.sonar.server.computation.metric.MetricRepositoryImpl;
+import org.sonar.server.computation.metric.MetricRepositoryRule;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderRule;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.metric.persistence.MetricDao;
-import org.sonar.server.rule.db.RuleDao;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.component.SnapshotTesting.createForComponent;
 import static org.sonar.server.component.SnapshotTesting.createForProject;
-import static org.sonar.server.computation.metric.Metric.MetricType.BOOL;
-import static org.sonar.server.computation.metric.Metric.MetricType.FLOAT;
-import static org.sonar.server.computation.metric.Metric.MetricType.INT;
-import static org.sonar.server.metric.ws.MetricTesting.newMetricDto;
 
 @Category(DbTests.class)
 public class FillMeasuresWithVariationsStepTest {
 
-  static final MetricDto ISSUES_METRIC = newMetricDto().setKey("violations").setValueType(INT.name()).setEnabled(true);
-  static final MetricDto DEBT_METRIC = newMetricDto().setKey("sqale_index").setValueType(MetricType.WORK_DUR.name()).setEnabled(true);
-  static final MetricDto FILE_COMPLEXITY_METRIC = newMetricDto().setKey("file_complexity").setValueType(FLOAT.name()).setEnabled(true);
-  static final MetricDto BUILD_BREAKER_METRIC = newMetricDto().setKey("build_breaker").setValueType(BOOL.name()).setEnabled(true);
+  static final Metric ISSUES_METRIC = new MetricImpl(1, "violations", "violations", Metric.MetricType.INT);
+  static final Metric DEBT_METRIC = new MetricImpl(2, "sqale_index", "sqale_index", Metric.MetricType.WORK_DUR);
+  static final Metric FILE_COMPLEXITY_METRIC = new MetricImpl(3, "file_complexity", "file_complexity", Metric.MetricType.FLOAT);
+  static final Metric BUILD_BREAKER_METRIC = new MetricImpl(4, "build_breaker", "build_breaker", Metric.MetricType.BOOL);
 
   static final ComponentDto PROJECT_DTO = ComponentTesting.newProjectDto();
 
@@ -89,37 +73,29 @@ public class FillMeasuresWithVariationsStepTest {
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
-  MeasureRepository measureRepository;
+  @Rule
+  public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
+    .add(ISSUES_METRIC)
+    .add(DEBT_METRIC)
+    .add(FILE_COMPLEXITY_METRIC)
+    .add(BUILD_BREAKER_METRIC);
 
-  MetricRepositoryImpl metricRepository;
+  @Rule
+  public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  DbSession session;
+  DbSession session = dbTester.getSession();
 
-  DbClient dbClient;
+  DbClient dbClient = dbTester.getDbClient();
 
   FillMeasuresWithVariationsStep sut;
 
   @Before
   public void setUp() {
     dbTester.truncateTables();
-    session = dbTester.myBatis().openSession(false);
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new ComponentDao(), new SnapshotDao(), new MetricDao(), new MeasureDao(), new RuleDao(System2.INSTANCE),
-      new CharacteristicDao(dbTester.myBatis()));
-
-    dbClient.metricDao().insert(session, ISSUES_METRIC, DEBT_METRIC, FILE_COMPLEXITY_METRIC, BUILD_BREAKER_METRIC);
     dbClient.componentDao().insert(session, PROJECT_DTO);
     session.commit();
 
-    metricRepository = new MetricRepositoryImpl(dbClient);
-    metricRepository.start();
-    measureRepository = new MeasureRepositoryImpl(dbClient, reportReader, metricRepository);
-
     sut = new FillMeasuresWithVariationsStep(dbClient, treeRootHolder, periodsHolder, metricRepository, measureRepository);
-  }
-
-  @After
-  public void tearDown() {
-    session.close();
   }
 
   @Test
@@ -175,8 +151,8 @@ public class FillMeasuresWithVariationsStepTest {
 
     sut.execute();
 
-    assertThat(measureRepository.getRawMeasure(project, toMetric(ISSUES_METRIC)).get().getVariations().getVariation1()).isEqualTo(20d);
-    assertThat(measureRepository.getRawMeasure(directory, toMetric(ISSUES_METRIC)).get().getVariations().getVariation1()).isEqualTo(10d);
+    assertThat(measureRepository.getRawMeasure(project, ISSUES_METRIC).get().getVariations().getVariation1()).isEqualTo(20d);
+    assertThat(measureRepository.getRawMeasure(directory, ISSUES_METRIC).get().getVariations().getVariation1()).isEqualTo(10d);
   }
 
   @Test
@@ -210,7 +186,7 @@ public class FillMeasuresWithVariationsStepTest {
 
     assertThat(measureRepository.getRawMeasures(PROJECT).keys()).hasSize(1);
 
-    Measure measure = measureRepository.getRawMeasure(PROJECT, toMetric(ISSUES_METRIC)).get();
+    Measure measure = measureRepository.getRawMeasure(PROJECT, ISSUES_METRIC).get();
     assertThat(measure.hasVariations()).isTrue();
     assertThat(measure.getVariations().getVariation1()).isEqualTo(80d);
     assertThat(measure.getVariations().getVariation2()).isEqualTo(60d);
@@ -244,31 +220,10 @@ public class FillMeasuresWithVariationsStepTest {
 
     assertThat(measureRepository.getRawMeasures(PROJECT).keys()).hasSize(4);
 
-    assertThat(measureRepository.getRawMeasure(PROJECT, toMetric(ISSUES_METRIC)).get().getVariations().getVariation1()).isEqualTo(20d);
-    assertThat(measureRepository.getRawMeasure(PROJECT, toMetric(DEBT_METRIC)).get().getVariations().getVariation1()).isEqualTo(-5d);
-    assertThat(measureRepository.getRawMeasure(PROJECT, toMetric(FILE_COMPLEXITY_METRIC)).get().getVariations().getVariation1()).isEqualTo(1d);
-    assertThat(measureRepository.getRawMeasure(PROJECT, toMetric(BUILD_BREAKER_METRIC)).get().getVariations().getVariation1()).isEqualTo(-1d);
-  }
-
-  @Test
-  public void read_measure_from_batch() {
-    // Project
-    SnapshotDto period1ProjectSnapshot = createForProject(PROJECT_DTO);
-    dbClient.snapshotDao().insert(session, period1ProjectSnapshot);
-    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 60d));
-    session.commit();
-
-    periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
-
-    treeRootHolder.setRoot(PROJECT);
-
-    reportReader.putMeasures(PROJECT.getRef(), Collections.singletonList(
-        BatchReport.Measure.newBuilder().setIntValue(80).setMetricKey(ISSUES_METRIC.getKey()).build())
-    );
-
-    sut.execute();
-
-    assertThat(measureRepository.getRawMeasure(PROJECT, toMetric(ISSUES_METRIC)).get().getVariations().getVariation1()).isEqualTo(20d);
+    assertThat(measureRepository.getRawMeasure(PROJECT, ISSUES_METRIC).get().getVariations().getVariation1()).isEqualTo(20d);
+    assertThat(measureRepository.getRawMeasure(PROJECT, DEBT_METRIC).get().getVariations().getVariation1()).isEqualTo(-5d);
+    assertThat(measureRepository.getRawMeasure(PROJECT, FILE_COMPLEXITY_METRIC).get().getVariations().getVariation1()).isEqualTo(1d);
+    assertThat(measureRepository.getRawMeasure(PROJECT, BUILD_BREAKER_METRIC).get().getVariations().getVariation1()).isEqualTo(-1d);
   }
 
   private static MeasureDto newMeasureDto(int metricId, long projectId, long snapshotId, double value) {
@@ -279,11 +234,7 @@ public class FillMeasuresWithVariationsStepTest {
     return new Period(index, "mode", null, snapshotDto.getCreatedAt(), snapshotDto.getId());
   }
 
-  private void addRawMeasure(Component component, MetricDto metric, Measure measure) {
-    measureRepository.add(component, new MetricImpl(metric.getId(), metric.getKey(), metric.getShortName(), MetricType.valueOf(metric.getValueType())), measure);
-  }
-
-  private static Metric toMetric(MetricDto metric) {
-    return new MetricImpl(metric.getId(), metric.getKey(), metric.getShortName(), Metric.MetricType.valueOf(metric.getValueType()));
+  private void addRawMeasure(Component component, Metric metric, Measure measure) {
+    measureRepository.addRawMeasure(component.getRef(), metric.getKey(), measure);
   }
 }

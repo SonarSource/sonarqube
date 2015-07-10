@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.step;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.junit.After;
@@ -30,21 +29,19 @@ import org.junit.experimental.categories.Category;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
-import org.sonar.batch.protocol.Constants.MeasureValueType;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DumbComponent;
-import org.sonar.server.computation.measure.MeasureRepository;
-import org.sonar.server.computation.measure.MeasureRepositoryImpl;
+import org.sonar.server.computation.measure.Measure;
+import org.sonar.server.computation.measure.MeasureRepositoryRule;
+import org.sonar.server.computation.measure.MeasureVariations;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.metric.persistence.MetricDao;
@@ -80,10 +77,10 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
   @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  public MetricRepositoryRule metricRepository = new MetricRepositoryRule();
 
   @Rule
-  public MetricRepositoryRule metricRepository = new MetricRepositoryRule();
+  public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
   DbClient dbClient;
   DbSession session;
@@ -101,7 +98,6 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new MeasureDao(), new ComponentDao(), new MetricDao(), new RuleDao(System2.INSTANCE));
     session = dbClient.openSession(false);
 
-    MeasureRepository measureRepository = new MeasureRepositoryImpl(dbClient, reportReader, metricRepository);
     session.commit();
 
     sut = new PersistMeasuresStep(dbClient, metricRepository, dbIdsRepository, treeRootHolder, measureRepository);
@@ -129,31 +125,28 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     metricRepository.add(1, STRING_METRIC);
     metricRepository.add(2, DOUBLE_METRIC);
 
-    reportReader.putMeasures(PROJECT_REF, Arrays.asList(
-      BatchReport.Measure.newBuilder()
-        .setValueType(MeasureValueType.STRING)
-        .setStringValue("measure-data")
-        .setVariationValue1(1.1d)
-        .setVariationValue2(2.2d)
-        .setVariationValue3(3.3d)
-        .setVariationValue4(4.4d)
-        .setVariationValue5(5.5d)
-        .setDescription("measure-description")
-        .setMetricKey(STRING_METRIC_KEY)
-        .build()));
-
-    reportReader.putMeasures(FILE_REF, Arrays.asList(
-      BatchReport.Measure.newBuilder()
-        .setValueType(MeasureValueType.DOUBLE)
-        .setDoubleValue(123.123d)
-        .setVariationValue1(1.1d)
-        .setVariationValue2(2.2d)
-        .setVariationValue3(3.3d)
-        .setVariationValue4(4.4d)
-        .setVariationValue5(5.5d)
-        .setDescription("measure-description")
-        .setMetricKey(DOUBLE_METRIC_KEY)
-        .build()));
+    measureRepository.addRawMeasure(PROJECT_REF, STRING_METRIC_KEY,
+      Measure.newMeasureBuilder().setVariations(
+        MeasureVariations.newMeasureVariationsBuilder()
+          .setVariation(1, 1.1d)
+          .setVariation(2, 2.2d)
+          .setVariation(3, 3.3d)
+          .setVariation(4, 4.4d)
+          .setVariation(5, 5.5d)
+          .build()
+      ).create("measure-data")
+    );
+    measureRepository.addRawMeasure(FILE_REF, DOUBLE_METRIC_KEY,
+      Measure.newMeasureBuilder().setVariations(
+        MeasureVariations.newMeasureVariationsBuilder()
+          .setVariation(1, 1.1d)
+          .setVariation(2, 2.2d)
+          .setVariation(3, 3.3d)
+          .setVariation(4, 4.4d)
+          .setVariation(5, 5.5d)
+          .build()
+      ).create(123.123d)
+    );
 
     sut.execute();
     session.commit();
@@ -187,12 +180,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   public void bestValue_measure_of_bestValueOptimized_metrics_are_not_persisted() {
     metricRepository.add(1, new Metric.Builder(OPTIMIZED_METRIC_KEY, "Optimized metric", Metric.ValueType.BOOL).setOptimizedBestValue(true).setBestValue(1d).create());
 
-    reportReader.putMeasures(FILE_REF, Arrays.asList(
-      BatchReport.Measure.newBuilder()
-        .setValueType(MeasureValueType.BOOLEAN)
-        .setBooleanValue(true)
-        .setMetricKey(OPTIMIZED_METRIC_KEY)
-        .build()));
+    measureRepository.addRawMeasure(FILE_REF, OPTIMIZED_METRIC_KEY, Measure.newMeasureBuilder().create(true));
 
     sut.execute();
     session.commit();
@@ -205,16 +193,8 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     metricRepository.add(1, STRING_METRIC);
     metricRepository.add(2, DOUBLE_METRIC);
 
-    reportReader.putMeasures(FILE_REF, Arrays.asList(
-      BatchReport.Measure.newBuilder()
-        .setValueType(MeasureValueType.STRING)
-        .setMetricKey(STRING_METRIC_KEY)
-        .build(),
-      BatchReport.Measure.newBuilder()
-        .setValueType(MeasureValueType.DOUBLE)
-        .setMetricKey(DOUBLE_METRIC_KEY)
-        .build()
-    ));
+    measureRepository.addRawMeasure(FILE_REF, STRING_METRIC_KEY, Measure.newMeasureBuilder().createNoValue());
+    measureRepository.addRawMeasure(FILE_REF, DOUBLE_METRIC_KEY, Measure.newMeasureBuilder().createNoValue());
 
     sut.execute();
     session.commit();
@@ -240,20 +220,8 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   public void do_not_insert_file_complexity_distribution_metric_on_files() {
     metricRepository.add(1, FILE_COMPLEXITY_DISTRIBUTION);
 
-    reportReader.putMeasures(PROJECT_REF, Arrays.asList(
-      BatchReport.Measure.newBuilder()
-        .setValueType(MeasureValueType.STRING)
-        .setStringValue("0=1;2=10")
-        .setMetricKey(FILE_COMPLEXITY_DISTRIBUTION_KEY)
-        .build()));
-
-    // Should not be persisted
-    reportReader.putMeasures(FILE_REF, Arrays.asList(
-      BatchReport.Measure.newBuilder()
-        .setValueType(MeasureValueType.STRING)
-        .setStringValue("0=1;2=10")
-        .setMetricKey(FILE_COMPLEXITY_DISTRIBUTION_KEY)
-        .build()));
+    measureRepository.addRawMeasure(PROJECT_REF, FILE_COMPLEXITY_DISTRIBUTION_KEY, Measure.newMeasureBuilder().create("0=1;2=10"));
+    measureRepository.addRawMeasure(FILE_REF, FILE_COMPLEXITY_DISTRIBUTION_KEY, Measure.newMeasureBuilder().create("0=1;2=10"));
 
     sut.execute();
 
@@ -273,20 +241,8 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   public void do_not_insert_function_complexity_distribution_metric_on_files() {
     metricRepository.add(1, FUNCTION_COMPLEXITY_DISTRIBUTION);
 
-    reportReader.putMeasures(PROJECT_REF, Arrays.asList(
-      BatchReport.Measure.newBuilder()
-        .setValueType(MeasureValueType.STRING)
-        .setStringValue("0=1;2=10")
-        .setMetricKey(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)
-        .build()));
-
-    // Should not be persisted
-    reportReader.putMeasures(FILE_REF, Arrays.asList(
-      BatchReport.Measure.newBuilder()
-        .setValueType(MeasureValueType.STRING)
-        .setStringValue("0=1;2=10")
-        .setMetricKey(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)
-        .build()));
+    measureRepository.addRawMeasure(PROJECT_REF, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, Measure.newMeasureBuilder().create("0=1;2=10"));
+    measureRepository.addRawMeasure(FILE_REF, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, Measure.newMeasureBuilder().create("0=1;2=10"));
 
     sut.execute();
 

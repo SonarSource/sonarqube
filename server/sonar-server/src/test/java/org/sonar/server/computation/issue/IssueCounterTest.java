@@ -26,22 +26,19 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.measure.MeasureRepository;
-import org.sonar.server.computation.measure.MeasureRepositoryImpl;
+import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.measure.MeasureVariations;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
-import org.sonar.server.computation.metric.MetricRepository;
+import org.sonar.server.computation.metric.MetricRepositoryRule;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderRule;
-import org.sonar.db.rule.RuleTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
@@ -103,15 +100,32 @@ public class IssueCounterTest {
   @Rule
   public PeriodsHolderRule periodsHolder = new PeriodsHolderRule();
 
-  MetricRepository metricRepository = mock(MetricRepository.class);
-  MeasureRepository measureRepository;
+  @Rule
+  public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
+    .add(ISSUES_METRIC)
+    .add(OPEN_ISSUES_METRIC)
+    .add(REOPENED_ISSUES_METRIC)
+    .add(CONFIRMED_ISSUES_METRIC)
+    .add(BLOCKER_ISSUES_METRIC)
+    .add(CRITICAL_ISSUES_METRIC)
+    .add(MAJOR_ISSUES_METRIC)
+    .add(MINOR_ISSUES_METRIC)
+    .add(INFO_ISSUES_METRIC)
+    .add(NEW_ISSUES_METRIC)
+    .add(NEW_BLOCKER_ISSUES_METRIC)
+    .add(NEW_CRITICAL_ISSUES_METRIC)
+    .add(NEW_MAJOR_ISSUES_METRIC)
+    .add(NEW_MINOR_ISSUES_METRIC)
+    .add(NEW_INFO_ISSUES_METRIC)
+    .add(FALSE_POSITIVE_ISSUES_METRIC);
+
+  @Rule
+  public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
+
   IssueCounter sut;
 
   @Before
   public void setUp() {
-    initMetrics();
-    measureRepository = new MeasureRepositoryImpl(null, reportReader, metricRepository);
-
     sut = new IssueCounter(periodsHolder, metricRepository, measureRepository);
   }
 
@@ -243,22 +257,4 @@ public class IssueCounterTest {
     return new Period(index, "mode", null, date, 42l);
   }
 
-  private void initMetrics() {
-    when(metricRepository.getByKey(ISSUES_METRIC.getKey())).thenReturn(ISSUES_METRIC);
-    when(metricRepository.getByKey(OPEN_ISSUES_METRIC.getKey())).thenReturn(OPEN_ISSUES_METRIC);
-    when(metricRepository.getByKey(REOPENED_ISSUES_METRIC.getKey())).thenReturn(REOPENED_ISSUES_METRIC);
-    when(metricRepository.getByKey(CONFIRMED_ISSUES_METRIC.getKey())).thenReturn(CONFIRMED_ISSUES_METRIC);
-    when(metricRepository.getByKey(BLOCKER_ISSUES_METRIC.getKey())).thenReturn(BLOCKER_ISSUES_METRIC);
-    when(metricRepository.getByKey(CRITICAL_ISSUES_METRIC.getKey())).thenReturn(CRITICAL_ISSUES_METRIC);
-    when(metricRepository.getByKey(MAJOR_ISSUES_METRIC.getKey())).thenReturn(MAJOR_ISSUES_METRIC);
-    when(metricRepository.getByKey(MINOR_ISSUES_METRIC.getKey())).thenReturn(MINOR_ISSUES_METRIC);
-    when(metricRepository.getByKey(INFO_ISSUES_METRIC.getKey())).thenReturn(INFO_ISSUES_METRIC);
-    when(metricRepository.getByKey(NEW_ISSUES_METRIC.getKey())).thenReturn(NEW_ISSUES_METRIC);
-    when(metricRepository.getByKey(NEW_BLOCKER_ISSUES_METRIC.getKey())).thenReturn(NEW_BLOCKER_ISSUES_METRIC);
-    when(metricRepository.getByKey(NEW_CRITICAL_ISSUES_METRIC.getKey())).thenReturn(NEW_CRITICAL_ISSUES_METRIC);
-    when(metricRepository.getByKey(NEW_MAJOR_ISSUES_METRIC.getKey())).thenReturn(NEW_MAJOR_ISSUES_METRIC);
-    when(metricRepository.getByKey(NEW_MINOR_ISSUES_METRIC.getKey())).thenReturn(NEW_MINOR_ISSUES_METRIC);
-    when(metricRepository.getByKey(NEW_INFO_ISSUES_METRIC.getKey())).thenReturn(NEW_INFO_ISSUES_METRIC);
-    when(metricRepository.getByKey(FALSE_POSITIVE_ISSUES_METRIC.getKey())).thenReturn(FALSE_POSITIVE_ISSUES_METRIC);
-  }
 }
