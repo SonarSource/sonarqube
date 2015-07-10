@@ -29,10 +29,9 @@ import org.picocontainer.lifecycle.ReflectionLifecycleStrategy;
 import org.picocontainer.monitors.NullComponentMonitor;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.core.platform.Module;
-import org.sonar.server.computation.issue.UpdateConflictResolver;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.Module;
 import org.sonar.server.computation.ComputationService;
 import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.computation.activity.ActivityManager;
@@ -63,10 +62,11 @@ import org.sonar.server.computation.issue.ScmAccountToUserLoader;
 import org.sonar.server.computation.issue.TrackerBaseInputFactory;
 import org.sonar.server.computation.issue.TrackerExecution;
 import org.sonar.server.computation.issue.TrackerRawInputFactory;
+import org.sonar.server.computation.issue.UpdateConflictResolver;
 import org.sonar.server.computation.language.LanguageRepositoryImpl;
 import org.sonar.server.computation.measure.MeasureRepositoryImpl;
 import org.sonar.server.computation.measure.newcoverage.NewCoverageMetricKeysModule;
-import org.sonar.server.computation.metric.MetricRepositoryImpl;
+import org.sonar.server.computation.metric.MetricModule;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
 import org.sonar.server.computation.qualitygate.EvaluationResultTextConverterImpl;
 import org.sonar.server.computation.qualitygate.QualityGateHolderImpl;
@@ -143,6 +143,8 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
     return Arrays.asList(
       ActivityManager.class,
 
+      MetricModule.class,
+
       // holders
       BatchReportDirectoryHolderImpl.class,
       TreeRootHolderImpl.class,
@@ -155,7 +157,6 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
 
       // repositories
       LanguageRepositoryImpl.class,
-      MetricRepositoryImpl.class,
       MeasureRepositoryImpl.class,
       EventRepositoryImpl.class,
       ProjectSettingsRepository.class,

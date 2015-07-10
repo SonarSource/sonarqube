@@ -37,6 +37,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.debt.Characteristic;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
+import org.sonar.server.computation.metric.ReportMetricValidator;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -47,13 +48,16 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   private final BatchReportReader reportReader;
   private final BatchMeasureToMeasure batchMeasureToMeasure;
   private final MetricRepository metricRepository;
+  private final ReportMetricValidator reportMetricValidator;
+
   private final MeasureDtoToMeasure measureDtoToMeasure = new MeasureDtoToMeasure();
   private final Set<Integer> loadedComponents = new HashSet<>();
   private final Map<Integer, Map<MeasureKey, Measure>> measures = new HashMap<>();
 
-  public MeasureRepositoryImpl(DbClient dbClient, BatchReportReader reportReader, MetricRepository metricRepository) {
+  public MeasureRepositoryImpl(DbClient dbClient, BatchReportReader reportReader, MetricRepository metricRepository, ReportMetricValidator reportMetricValidator) {
     this.dbClient = dbClient;
     this.reportReader = reportReader;
+    this.reportMetricValidator = reportMetricValidator;
     this.batchMeasureToMeasure = new BatchMeasureToMeasure();
     this.metricRepository = metricRepository;
   }
@@ -181,8 +185,11 @@ public class MeasureRepositoryImpl implements MeasureRepository {
     }
 
     for (BatchReport.Measure batchMeasure : reportReader.readComponentMeasures(component.getRef())) {
-      Metric metric = metricRepository.getByKey(batchMeasure.getMetricKey());
-      addLocal(component, metric, batchMeasureToMeasure.toMeasure(batchMeasure, metric).get(), OverridePolicy.DO_NOT_OVERRIDE);
+      String metricKey = batchMeasure.getMetricKey();
+      if (reportMetricValidator.validate(metricKey)) {
+        Metric metric = metricRepository.getByKey(metricKey);
+        addLocal(component, metric, batchMeasureToMeasure.toMeasure(batchMeasure, metric).get(), OverridePolicy.DO_NOT_OVERRIDE);
+      }
     }
     loadedComponents.add(component.getRef());
   }

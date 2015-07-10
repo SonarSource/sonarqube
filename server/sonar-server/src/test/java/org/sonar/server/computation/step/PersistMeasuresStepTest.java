@@ -49,8 +49,6 @@ import org.sonar.server.rule.db.RuleDao;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.measures.CoreMetrics.DUPLICATIONS_DATA;
-import static org.sonar.api.measures.CoreMetrics.DUPLICATIONS_DATA_KEY;
 import static org.sonar.api.measures.CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION;
 import static org.sonar.api.measures.CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION;
@@ -200,20 +198,6 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     session.commit();
 
     assertThat(retrieveDtos()).isEmpty();
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void fail_with_ISE_when_trying_to_insert_forbidden_measures() {
-    metricRepository.add(1, DUPLICATIONS_DATA);
-
-    reportReader.putMeasures(FILE_REF, Arrays.asList(
-      BatchReport.Measure.newBuilder()
-        .setValueType(MeasureValueType.STRING)
-        .setStringValue("{duplications}")
-        .setMetricKey(DUPLICATIONS_DATA_KEY)
-        .build()));
-
-    sut.execute();
   }
 
   @Test

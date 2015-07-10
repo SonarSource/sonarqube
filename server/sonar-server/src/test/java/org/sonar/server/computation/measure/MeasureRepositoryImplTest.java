@@ -53,6 +53,7 @@ import org.sonar.server.computation.debt.Characteristic;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepository;
+import org.sonar.server.computation.metric.ReportMetricValidator;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.metric.persistence.MetricDao;
 
@@ -90,13 +91,15 @@ public class MeasureRepositoryImplTest {
   private static final RuleDto SOME_RULE = RuleDto.createFor(RuleKey.of("A", "1")).setId(963);
   private static final Characteristic SOME_CHARACTERISTIC = new Characteristic(741, "key", null);
 
+  private ReportMetricValidator reportMetricValidator = mock(ReportMetricValidator.class);
+
   private DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new MeasureDao(), new SnapshotDao(), new MetricDao(), new ComponentDao());
   private MetricRepository metricRepository = mock(MetricRepository.class);
-  private MeasureRepositoryImpl underTest = new MeasureRepositoryImpl(dbClient, reportReader, metricRepository);
+  private MeasureRepositoryImpl underTest = new MeasureRepositoryImpl(dbClient, reportReader, metricRepository, reportMetricValidator);
 
   private DbClient mockedDbClient = mock(DbClient.class);
   private BatchReportReader mockBatchReportReader = mock(BatchReportReader.class);
-  private MeasureRepositoryImpl underTestWithMock = new MeasureRepositoryImpl(mockedDbClient, mockBatchReportReader, metricRepository);
+  private MeasureRepositoryImpl underTestWithMock = new MeasureRepositoryImpl(mockedDbClient, mockBatchReportReader, metricRepository, reportMetricValidator);
 
   @CheckForNull
   private DbSession dbSession;
@@ -217,7 +220,7 @@ public class MeasureRepositoryImplTest {
     Measure.newMeasureBuilder().create("sds"),
     Measure.newMeasureBuilder().create(Measure.Level.OK),
     Measure.newMeasureBuilder().createNoValue()
-  );
+    );
 
   @DataProvider
   public static Object[][] measures() {
@@ -225,7 +228,7 @@ public class MeasureRepositoryImplTest {
       @Nullable
       @Override
       public Object[] apply(Measure input) {
-        return new Measure[]{input};
+        return new Measure[] {input};
       }
     }).toArray(Object[].class);
   }
@@ -352,9 +355,11 @@ public class MeasureRepositoryImplTest {
   public void getRawMeasure_returns_measure_from_batch_if_not_added_through_add_method() {
     String value = "trololo";
 
+    when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
+
     reportReader.putMeasures(FILE_COMPONENT.getRef(), ImmutableList.of(
       BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue(value).build()
-    ));
+      ));
 
     Optional<Measure> res = underTest.getRawMeasure(FILE_COMPONENT, metric1);
 
@@ -367,10 +372,25 @@ public class MeasureRepositoryImplTest {
   }
 
   @Test
+  public void getRawMeasure_returns_only_validate_measure_from_batch_if_not_added_through_add_method() {
+    when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
+    when(reportMetricValidator.validate(METRIC_KEY_2)).thenReturn(false);
+
+    reportReader.putMeasures(FILE_COMPONENT.getRef(), ImmutableList.of(
+      BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("value1").build(),
+      BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_2).setStringValue("value2").build()
+      ));
+
+    assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric1)).isPresent();
+    assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric2)).isAbsent();
+  }
+
+  @Test
   public void getRawMeasure_retrieves_added_measure_over_batch_measure() {
+    when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
     reportReader.putMeasures(FILE_COMPONENT.getRef(), ImmutableList.of(
       BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build()
-    ));
+      ));
 
     Measure addedMeasure = SOME_MEASURE;
     underTest.add(FILE_COMPONENT, metric1, addedMeasure);
@@ -383,9 +403,10 @@ public class MeasureRepositoryImplTest {
 
   @Test
   public void getRawMeasure_retrieves_measure_from_batch_and_caches_it_locally_so_that_it_can_be_updated() {
+    when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
     reportReader.putMeasures(FILE_COMPONENT.getRef(), ImmutableList.of(
       BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build()
-    ));
+      ));
 
     Optional<Measure> measure = underTest.getRawMeasure(FILE_COMPONENT, metric1);
 
@@ -444,6 +465,7 @@ public class MeasureRepositoryImplTest {
 
   @Test
   public void getRawMeasure_for_characteristic_returns_measure_for_specified_rule() {
+    when(reportMetricValidator.validate(metric1.getKey())).thenReturn(true);
     Measure measure = Measure.newMeasureBuilder().forCharacteristic(SOME_CHARACTERISTIC.getId()).createNoValue();
 
     underTest.add(FILE_COMPONENT, metric1, measure);
@@ -454,6 +476,8 @@ public class MeasureRepositoryImplTest {
 
   @Test
   public void getRawMeasures_returns_added_measures_over_batch_measures() {
+    when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
+    when(reportMetricValidator.validate(METRIC_KEY_2)).thenReturn(true);
     BatchReport.Measure batchMeasure1 = BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build();
     BatchReport.Measure batchMeasure2 = BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_2).setStringValue("some value").build();
     reportReader.putMeasures(FILE_COMPONENT.getRef(), ImmutableList.of(batchMeasure1, batchMeasure2));
