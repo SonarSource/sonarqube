@@ -19,12 +19,15 @@
  */
 package org.sonar.api.server.rule;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 
 import java.net.URL;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -32,6 +35,9 @@ import static org.junit.Assert.fail;
 public class RulesDefinitionTest {
 
   RulesDefinition.Context context = new RulesDefinition.Context();
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Test
   public void define_repositories() {
@@ -202,22 +208,49 @@ public class RulesDefinitionTest {
   }
 
   @Test
-  public void extend_repository() {
-    assertThat(context.extendedRepositories()).isEmpty();
-
-    // for example fb-contrib
-    RulesDefinition.NewExtendedRepository newFindbugs = context.extendRepository("findbugs", "java");
+  public void add_rules_to_existing_repository() {
+    RulesDefinition.NewRepository newFindbugs = context.createRepository("findbugs", "java").setName("Findbugs");
     newFindbugs.createRule("NPE").setName("NPE").setHtmlDescription("NPE");
     newFindbugs.done();
 
-    assertThat(context.repositories()).isEmpty();
-    assertThat(context.extendedRepositories()).hasSize(1);
-    assertThat(context.extendedRepositories("other")).isEmpty();
-    assertThat(context.extendedRepositories("findbugs")).hasSize(1);
+    RulesDefinition.NewRepository newFbContrib = context.createRepository("findbugs", "java");
+    newFbContrib.createRule("VULNERABILITY").setName("Vulnerability").setMarkdownDescription("Detect vulnerability");
+    newFbContrib.done();
 
-    RulesDefinition.ExtendedRepository findbugs = context.extendedRepositories("findbugs").get(0);
+    assertThat(context.repositories()).hasSize(1);
+    RulesDefinition.Repository findbugs = context.repository("findbugs");
+    assertThat(findbugs.key()).isEqualTo("findbugs");
     assertThat(findbugs.language()).isEqualTo("java");
-    assertThat(findbugs.rule("NPE")).isNotNull();
+    assertThat(findbugs.name()).isEqualTo("Findbugs");
+    assertThat(findbugs.rules()).extracting("key").containsOnly("NPE", "VULNERABILITY");
+  }
+
+  /**
+   * This is temporarily accepted only for the support of the common-rules that are still declared
+   * by plugins. It could be removed in 7.0
+   * @since 5.2
+   */
+  @Test
+  public void allow_to_replace_an_existing_common_rule() {
+    RulesDefinition.NewRepository newCommonJava1 = context.createRepository("common-java", "java").setName("Common Java");
+    newCommonJava1.createRule("coverage").setName("Lack of coverage").setHtmlDescription("Coverage must be high");
+    newCommonJava1.done();
+
+    RulesDefinition.NewRepository newCommonJava2 = context.createRepository("common-java", "java");
+    newCommonJava2.createRule("coverage").setName("Lack of coverage (V2)").setMarkdownDescription("Coverage must be high (V2)");
+    newCommonJava2.done();
+
+    RulesDefinition.Repository commonJava = context.repository("common-java");
+    assertThat(commonJava.rules()).hasSize(1);
+    RulesDefinition.Rule rule = commonJava.rule("coverage");
+    assertThat(rule.name()).isEqualTo("Lack of coverage (V2)");
+
+    // replacement but not merge -> keep only the v2 (which has markdown but not html description)
+    assertThat(rule.markdownDescription()).isEqualTo("Coverage must be high (V2)");
+    assertThat(rule.htmlDescription()).isNull();
+
+    // do not log warning
+    assertThat(logTester.logs()).isEmpty();
   }
 
   @Test
@@ -228,22 +261,13 @@ public class RulesDefinitionTest {
   }
 
   @Test
-  public void fail_if_duplicated_repo_keys() {
-    context.createRepository("findbugs", "java").done();
-    try {
-      context.createRepository("findbugs", "whatever_the_language").done();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("The rule repository 'findbugs' is defined several times");
-    }
-  }
-
-  @Test
   public void warning_if_duplicated_rule_keys() {
     RulesDefinition.NewRepository findbugs = context.createRepository("findbugs", "java");
     findbugs.createRule("NPE");
     findbugs.createRule("NPE");
     // do not fail as long as http://jira.sonarsource.com/browse/SONARJAVA-428 is not fixed
+    // and as common-rules are packaged within plugins (common-rules were integrated to core in v5.2)
+    assertThat(logTester.logs(LoggerLevel.WARN)).hasSize(1);
   }
 
   @Test

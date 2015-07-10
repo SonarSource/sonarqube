@@ -19,14 +19,12 @@
  */
 package org.sonar.server.rule;
 
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RulesDefinition;
 
 /**
- * Loads all instances of {@link org.sonar.api.server.rule.RulesDefinition}
- * and initializes {@link org.sonar.server.rule.RuleRepositories}. Used at server startup.
+ * Loads all instances of {@link RulesDefinition}
+ * and initializes {@link RuleRepositories}. Used at server startup.
  */
-@ServerSide
 public class RuleDefinitionsLoader {
 
   private final DeprecatedRulesDefinitionLoader deprecatedDefinitionConverter;

@@ -19,33 +19,32 @@
  */
 package org.sonar.api.server.rule;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Strings;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.ExtensionPoint;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rule.Severity;
-import org.sonar.api.server.debt.DebtRemediationFunction;
-import org.sonar.api.utils.log.Loggers;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
+import org.sonar.api.server.ServerSide;
+import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.api.utils.log.Loggers;
 
 /**
  * Defines some coding rules of the same repository. For example the Java Findbugs plugin provides an implementation of
@@ -363,18 +362,28 @@ public interface RulesDefinition {
   }
 
   /**
-   * Instantiated by core but not by plugins
+   * Instantiated by core but not by plugins, except for their tests.
    */
-  public class Context {
+  class Context {
     private final Map<String, Repository> repositoriesByKey = Maps.newHashMap();
-    private final ListMultimap<String, ExtendedRepository> extendedRepositoriesByKey = ArrayListMultimap.create();
 
+    /**
+     * New builder for {@link org.sonar.api.server.rule.RulesDefinition.Repository}.
+     * <p/>
+     * A plugin can add rules to a repository that is defined then executed by another plugin. For instance
+     * the FbContrib plugin contributes to the Findbugs plugin rules. In this case no need
+     * to execute {@link org.sonar.api.server.rule.RulesDefinition.NewRepository#setName(String)}
+     */
     public NewRepository createRepository(String key, String language) {
-      return new NewRepositoryImpl(this, key, language, false);
+      return new NewRepositoryImpl(this, key, language);
     }
 
-    public NewExtendedRepository extendRepository(String key, String language) {
-      return new NewRepositoryImpl(this, key, language, true);
+    /**
+     * @deprecated since 5.2. Simply use {@link #createRepository(String, String)}
+     */
+    @Deprecated
+    public NewRepository extendRepository(String key, String language) {
+      return createRepository(key, language);
     }
 
     @CheckForNull
@@ -386,23 +395,33 @@ public interface RulesDefinition {
       return ImmutableList.copyOf(repositoriesByKey.values());
     }
 
+    /**
+     * @deprecated returns empty list since 5.2. Concept of "extended repository" was misleading and not valuable. Simply declare
+     * repositories and use {@link #repositories()}
+     */
+    @Deprecated
     public List<ExtendedRepository> extendedRepositories(String repositoryKey) {
-      return ImmutableList.copyOf(extendedRepositoriesByKey.get(repositoryKey));
+      return Collections.emptyList();
     }
 
+    /**
+     * @deprecated returns empty list since 5.2. Concept of "extended repository" was misleading and not valuable. Simply declare
+     * repositories and use {@link #repositories()}
+     */
+    @Deprecated
     public List<ExtendedRepository> extendedRepositories() {
-      return ImmutableList.copyOf(extendedRepositoriesByKey.values());
+      return Collections.emptyList();
     }
 
     private void registerRepository(NewRepositoryImpl newRepository) {
-      if (repositoriesByKey.containsKey(newRepository.key)) {
-        throw new IllegalStateException(String.format("The rule repository '%s' is defined several times", newRepository.key));
+      Repository existing = repositoriesByKey.get(newRepository.key());
+      if (existing != null) {
+        if (!existing.language().equals(newRepository.language)) {
+          throw new IllegalStateException(String.format("The rule repository '%s' must not be defined for two different languages: %s and %s", newRepository.key,
+            existing.language(), newRepository.language));
+        }
       }
-      repositoriesByKey.put(newRepository.key, new RepositoryImpl(newRepository));
-    }
-
-    private void registerExtendedRepository(NewRepositoryImpl newRepository) {
-      extendedRepositoriesByKey.put(newRepository.key, new RepositoryImpl(newRepository));
+      repositoriesByKey.put(newRepository.key, new RepositoryImpl(newRepository, existing));
     }
   }
 
@@ -425,14 +444,12 @@ public interface RulesDefinition {
 
   class NewRepositoryImpl implements NewRepository {
     private final Context context;
-    private final boolean extended;
     private final String key;
     private String language;
     private String name;
     private final Map<String, NewRule> newRules = Maps.newHashMap();
 
-    private NewRepositoryImpl(Context context, String key, String language, boolean extended) {
-      this.extended = extended;
+    private NewRepositoryImpl(Context context, String key, String language) {
       this.context = context;
       this.key = this.name = key;
       this.language = language;
@@ -480,11 +497,15 @@ public interface RulesDefinition {
       // note that some validations can be done here, for example for
       // verifying that at least one rule is declared
 
-      if (extended) {
-        context.registerExtendedRepository(this);
-      } else {
-        context.registerRepository(this);
-      }
+      context.registerRepository(this);
+    }
+
+    @Override
+    public String toString() {
+      return Objects.toStringHelper(this)
+        .add("key", key)
+        .add("language", language)
+        .toString();
     }
   }
 
@@ -510,16 +531,30 @@ public interface RulesDefinition {
     private final String name;
     private final Map<String, Rule> rulesByKey;
 
-    private RepositoryImpl(NewRepositoryImpl newRepository) {
+    private RepositoryImpl(NewRepositoryImpl newRepository, @Nullable Repository mergeInto) {
       this.key = newRepository.key;
       this.language = newRepository.language;
-      this.name = newRepository.name;
-      ImmutableMap.Builder<String, Rule> ruleBuilder = ImmutableMap.builder();
+
+      Map<String, Rule> ruleBuilder = new HashMap<>();
+      if (mergeInto != null) {
+        if (!StringUtils.equals(newRepository.language, mergeInto.language()) || !StringUtils.equals(newRepository.key, mergeInto.key())) {
+          throw new IllegalArgumentException(String.format("Bug - language and key of the repositories to be merged should be the sames: %s and %s", newRepository, mergeInto));
+        }
+        this.name = StringUtils.defaultIfBlank(mergeInto.name(), newRepository.name);
+        for (Rule rule : mergeInto.rules()) {
+          if (!newRepository.key().startsWith("common-") && ruleBuilder.containsKey(rule.key())) {
+            Loggers.get(getClass()).warn("The rule '{}' of repository '{}' is declared several times", rule.key(), mergeInto.key());
+          }
+          ruleBuilder.put(rule.key(), rule);
+        }
+      } else {
+        this.name = newRepository.name;
+      }
       for (NewRule newRule : newRepository.newRules.values()) {
         newRule.validate();
         ruleBuilder.put(newRule.key, new Rule(this, newRule));
       }
-      this.rulesByKey = ruleBuilder.build();
+      this.rulesByKey = ImmutableMap.copyOf(ruleBuilder);
     }
 
     @Override
@@ -564,6 +599,14 @@ public interface RulesDefinition {
     public int hashCode() {
       return key.hashCode();
     }
+
+    @Override
+    public String toString() {
+      return Objects.toStringHelper(this)
+        .add("language", language)
+        .add("key", key)
+        .toString();
+    }
   }
 
   /**
@@ -607,7 +650,7 @@ public interface RulesDefinition {
     /**
      * Required rule name
      */
-    public NewRule setName(@Nullable String s) {
+    public NewRule setName(String s) {
       this.name = StringUtils.trimToNull(s);
       return this;
     }
