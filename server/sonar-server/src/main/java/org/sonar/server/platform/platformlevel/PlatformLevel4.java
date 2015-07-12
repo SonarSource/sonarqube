@@ -255,6 +255,7 @@ import org.sonar.server.qualityprofile.ws.RestoreAction;
 import org.sonar.server.qualityprofile.ws.RestoreBuiltInAction;
 import org.sonar.server.qualityprofile.ws.RuleActivationActions;
 import org.sonar.server.qualityprofile.ws.SetDefaultAction;
+import org.sonar.server.rule.CommonRuleDefinitionsImpl;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.rule.DeprecatedRulesDefinitionLoader;
 import org.sonar.server.rule.RubyRuleService;
@@ -449,6 +450,7 @@ public class PlatformLevel4 extends PlatformLevel {
       RuleRepositories.class,
       DeprecatedRulesDefinitionLoader.class,
       RuleDefinitionsLoader.class,
+      CommonRuleDefinitionsImpl.class,
       RulesDefinitionXmlLoader.class,
       RuleService.class,
       RuleUpdater.class,

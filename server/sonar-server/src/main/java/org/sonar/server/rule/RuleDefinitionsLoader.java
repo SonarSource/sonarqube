@@ -27,30 +27,35 @@ import org.sonar.api.server.rule.RulesDefinition;
  */
 public class RuleDefinitionsLoader {
 
-  private final DeprecatedRulesDefinitionLoader deprecatedDefinitionConverter;
-  private final RulesDefinition[] definitions;
-  private final RuleRepositories repositories;
+  private final DeprecatedRulesDefinitionLoader deprecatedDefConverter;
+  private final CommonRuleDefinitions coreCommonDefs;
+  private final RulesDefinition[] pluginDefs;
+  private final RuleRepositories output;
 
-  public RuleDefinitionsLoader(DeprecatedRulesDefinitionLoader deprecatedDefinitionConverter, RuleRepositories repositories, RulesDefinition[] definitions) {
-    this.deprecatedDefinitionConverter = deprecatedDefinitionConverter;
-    this.repositories = repositories;
-    this.definitions = definitions;
+  public RuleDefinitionsLoader(DeprecatedRulesDefinitionLoader deprecatedDefConverter, RuleRepositories output,
+    CommonRuleDefinitions coreCommonDefs, RulesDefinition[] pluginDefs) {
+    this.deprecatedDefConverter = deprecatedDefConverter;
+    this.output = output;
+    this.coreCommonDefs = coreCommonDefs;
+    this.pluginDefs = pluginDefs;
   }
 
   /**
    * Used when no definitions at all.
    */
-  public RuleDefinitionsLoader(DeprecatedRulesDefinitionLoader converter, RuleRepositories repositories) {
-    this(converter, repositories, new RulesDefinition[0]);
+  public RuleDefinitionsLoader(DeprecatedRulesDefinitionLoader converter, RuleRepositories output,
+    CommonRuleDefinitions coreCommonDefs) {
+    this(converter, output, coreCommonDefs, new RulesDefinition[0]);
   }
 
   public RulesDefinition.Context load() {
     RulesDefinition.Context context = new RulesDefinition.Context();
-    for (RulesDefinition definition : definitions) {
-      definition.define(context);
+    for (RulesDefinition pluginDefinition : pluginDefs) {
+      pluginDefinition.define(context);
     }
-    deprecatedDefinitionConverter.complete(context);
-    repositories.register(context);
+    deprecatedDefConverter.complete(context);
+    coreCommonDefs.define(context);
+    output.register(context);
     return context;
   }
 }

@@ -67,6 +67,7 @@ public class RegisterRulesMediumTest {
 
   @ClassRule
   public static final ServerTester TESTER = new ServerTester().addXoo().addComponents(RULE_DEFS);
+  public static final RuleKey X1_KEY = RuleKey.of("xoo", "x1");
   @org.junit.Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(TESTER);
 
@@ -127,18 +128,18 @@ public class RegisterRulesMediumTest {
       }
     });
 
-    // verify db
+    // verify db : rule x1 + 6 common rules
     List<RuleDto> rules = db.ruleDao().findAll(dbSession);
-    assertThat(rules).hasSize(1);
-    assertThat(rules.get(0).getKey()).isEqualTo(RuleKey.of("xoo", "x1"));
-    List<RuleParamDto> ruleParams = db.ruleDao().findAllRuleParams(dbSession);
+    assertThat(rules).hasSize(7);
+    assertThat(rules).extracting("key").contains(X1_KEY);
+    List<RuleParamDto> ruleParams = db.ruleDao().findRuleParamsByRuleKey(dbSession, X1_KEY);
     assertThat(ruleParams).hasSize(2);
 
-    // verify es
+    // verify es : rule x1 + 6 common rules
     Result<Rule> searchResult = ruleIndex.search(new RuleQuery(), new QueryContext(userSessionRule));
-    assertThat(searchResult.getTotal()).isEqualTo(1);
-    assertThat(searchResult.getHits()).hasSize(1);
-    Rule rule = ruleIndex.getByKey(RuleKey.of("xoo", "x1"));
+    assertThat(searchResult.getTotal()).isEqualTo(7);
+    assertThat(searchResult.getHits()).hasSize(7);
+    Rule rule = ruleIndex.getByKey(X1_KEY);
     assertThat(rule.severity()).isEqualTo(Severity.MINOR);
     assertThat(rule.name()).isEqualTo("x1 name");
     assertThat(rule.htmlDescription()).isEqualTo("x1 desc");
