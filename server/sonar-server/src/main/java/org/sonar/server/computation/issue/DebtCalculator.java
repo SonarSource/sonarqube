@@ -42,7 +42,7 @@ public class DebtCalculator {
   public Duration calculate(DefaultIssue issue) {
     Rule rule = ruleRepository.getByKey(issue.ruleKey());
     DebtRemediationFunction fn = rule.getRemediationFunction();
-    if (fn != null) {
+    if (fn != null && rule.getSubCharacteristicId() != null) {
       verifyEffortToFix(issue, fn);
 
       Duration debt = Duration.create(0);

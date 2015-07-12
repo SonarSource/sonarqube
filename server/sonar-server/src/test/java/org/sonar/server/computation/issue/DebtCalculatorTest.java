@@ -33,7 +33,7 @@ import static org.mockito.Mockito.mock;
 
 public class DebtCalculatorTest {
 
-  DumbRule rule = new DumbRule(RuleTesting.XOO_X1);
+  DumbRule rule = new DumbRule(RuleTesting.XOO_X1).setSubCharacteristicId(123);
   DefaultIssue issue = new DefaultIssue().setRuleKey(rule.getKey());
 
   @org.junit.Rule
@@ -43,6 +43,16 @@ public class DebtCalculatorTest {
 
   @Test
   public void no_debt_if_function_is_not_defined() {
+    DefaultIssue issue = new DefaultIssue().setRuleKey(rule.getKey());
+
+    assertThat(underTest.calculate(issue)).isNull();
+  }
+
+  @Test
+  public void no_debt_if_no_sqale_characteristic() {
+    rule.setSubCharacteristicId(null);
+    rule.setFunction(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "2min", null));
+
     DefaultIssue issue = new DefaultIssue().setRuleKey(rule.getKey());
 
     assertThat(underTest.calculate(issue)).isNull();

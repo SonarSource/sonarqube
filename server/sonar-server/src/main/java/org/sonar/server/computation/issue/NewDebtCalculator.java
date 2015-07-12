@@ -49,7 +49,6 @@ import static com.google.common.collect.FluentIterable.from;
 public class NewDebtCalculator {
 
   public long calculate(DefaultIssue issue, Collection<IssueChangeDto> debtChangelog, Period period) {
-
     if (issue.creationDate().getTime() > period.getSnapshotDate() + 1000L) {
       return Objects.firstNonNull(issue.debtInMinutes(), 0L);
     }
