@@ -210,7 +210,7 @@ public class RegisterRulesTest {
   }
 
   private void execute(RulesDefinition... defs) {
-    RuleDefinitionsLoader loader = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), new RuleRepositories(), defs);
+    RuleDefinitionsLoader loader = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), new RuleRepositories(), mock(CommonRuleDefinitionsImpl.class), defs);
     Languages languages = mock(Languages.class);
     when(languages.get("java")).thenReturn(mock(Language.class));
 
