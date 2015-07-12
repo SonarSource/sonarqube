@@ -32,6 +32,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.test.DbTests;
 
@@ -47,6 +50,9 @@ public class DatabaseUtilsTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Test
   public void should_close_connection() throws Exception {
@@ -200,5 +206,16 @@ public class DatabaseUtilsTest {
     });
 
     assertThat(outputs).isEmpty();
+  }
+
+  @Test
+  public void log_all_sql_exceptions() {
+    SQLException root = new SQLException("this is root", "123");
+    SQLException next = new SQLException("this is next", "456");
+    root.setNextException(next);
+
+    DatabaseUtils.log(Loggers.get(getClass()), root);
+
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("SQL error: 456. Message: this is next");
   }
 }

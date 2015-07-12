@@ -33,12 +33,12 @@ import org.apache.commons.dbutils.handlers.AbstractListHandler;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.db.Database;
-import org.sonar.server.db.migrations.SqlUtil;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.sonar.db.DatabaseUtils;
 
 class ViolationConverter implements Callable<Object> {
 
@@ -272,7 +272,7 @@ class ViolationConverter implements Callable<Object> {
       Map<String, Object> map = Maps.newHashMap();
       map.put(CREATED_AT, rs.getTimestamp(CREATED_AT));
       map.put(UPDATED_AT, rs.getTimestamp(UPDATED_AT));
-      map.put(USER_ID, SqlUtil.getLong(rs, USER_ID));
+      map.put(USER_ID, DatabaseUtils.getLong(rs, USER_ID));
       map.put(REVIEW_TEXT, rs.getString(REVIEW_TEXT));
       return map;
     }
@@ -284,26 +284,26 @@ class ViolationConverter implements Callable<Object> {
     @Override
     protected Map<String, Object> handleRow(ResultSet rs) throws SQLException {
       Map<String, Object> map = Maps.newHashMap();
-      map.put(REVIEW_ID, SqlUtil.getLong(rs, REVIEW_ID));
-      map.put(PROJECT_ID, SqlUtil.getLong(rs, PROJECT_ID));
-      map.put(ROOT_PROJECT_ID, SqlUtil.getLong(rs, ROOT_PROJECT_ID));
-      map.put(RULE_ID, SqlUtil.getLong(rs, RULE_ID));
-      map.put(SEVERITY, Objects.firstNonNull(SEVERITIES.get(SqlUtil.getInt(rs, "failureLevel")), SEVERITY_MAJOR));
+      map.put(REVIEW_ID, DatabaseUtils.getLong(rs, REVIEW_ID));
+      map.put(PROJECT_ID, DatabaseUtils.getLong(rs, PROJECT_ID));
+      map.put(ROOT_PROJECT_ID, DatabaseUtils.getLong(rs, ROOT_PROJECT_ID));
+      map.put(RULE_ID, DatabaseUtils.getLong(rs, RULE_ID));
+      map.put(SEVERITY, Objects.firstNonNull(SEVERITIES.get(DatabaseUtils.getInt(rs, "failureLevel")), SEVERITY_MAJOR));
       map.put(MESSAGE, rs.getString(MESSAGE));
-      map.put(LINE, SqlUtil.getInt(rs, LINE));
-      map.put(COST, SqlUtil.getDouble(rs, COST));
+      map.put(LINE, DatabaseUtils.getInt(rs, LINE));
+      map.put(COST, DatabaseUtils.getDouble(rs, COST));
       map.put(CHECKSUM, rs.getString(CHECKSUM));
       map.put(CREATED_AT, rs.getTimestamp(CREATED_AT));
       map.put(REVIEW_RESOLUTION, rs.getString(REVIEW_RESOLUTION));
       map.put(REVIEW_SEVERITY, Objects.firstNonNull(rs.getString(REVIEW_SEVERITY), SEVERITY_MAJOR));
       map.put(REVIEW_STATUS, rs.getString(REVIEW_STATUS));
-      map.put(REVIEW_REPORTER_ID, SqlUtil.getLong(rs, REVIEW_REPORTER_ID));
-      map.put(REVIEW_ASSIGNEE_ID, SqlUtil.getLong(rs, REVIEW_ASSIGNEE_ID));
+      map.put(REVIEW_REPORTER_ID, DatabaseUtils.getLong(rs, REVIEW_REPORTER_ID));
+      map.put(REVIEW_ASSIGNEE_ID, DatabaseUtils.getLong(rs, REVIEW_ASSIGNEE_ID));
       map.put(REVIEW_DATA, rs.getString(REVIEW_DATA));
       map.put(REVIEW_MANUAL_SEVERITY, rs.getBoolean(REVIEW_MANUAL_SEVERITY));
       map.put(REVIEW_UPDATED_AT, rs.getTimestamp(REVIEW_UPDATED_AT));
       map.put(REVIEW_MANUAL_VIOLATION, rs.getBoolean(REVIEW_MANUAL_VIOLATION));
-      map.put(PLAN_ID, SqlUtil.getLong(rs, PLAN_ID));
+      map.put(PLAN_ID, DatabaseUtils.getLong(rs, PLAN_ID));
       return map;
     }
   }

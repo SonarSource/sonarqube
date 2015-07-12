@@ -33,13 +33,13 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ResultSetIterator;
-import org.sonar.server.db.migrations.SqlUtil;
 
 import static org.sonar.api.utils.DateUtils.longToDate;
-import static org.sonar.server.db.migrations.SqlUtil.getLong;
+import static org.sonar.db.DatabaseUtils.getLong;
 
 /**
  * Scrolls over table ISSUES and reads documents to populate
@@ -154,9 +154,9 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     doc.setTechnicalUpdateDate(new Date(rs.getLong(3)));
     doc.setActionPlanKey(rs.getString(4));
     doc.setAssignee(rs.getString(5));
-    doc.setEffortToFix(SqlUtil.getDouble(rs, 6));
+    doc.setEffortToFix(DatabaseUtils.getDouble(rs, 6));
     doc.setAttributes(rs.getString(7));
-    doc.setLine(SqlUtil.getInt(rs, 8));
+    doc.setLine(DatabaseUtils.getInt(rs, 8));
     doc.setMessage(rs.getString(9));
     doc.setResolution(rs.getString(10));
     doc.setSeverity(rs.getString(11));

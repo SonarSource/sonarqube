@@ -29,11 +29,11 @@ import javax.annotation.Nullable;
 import org.apache.commons.dbutils.DbUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Database;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
-import org.sonar.server.db.migrations.SqlUtil;
 
 /**
  * Used in the Active Record Migration 710
@@ -108,7 +108,7 @@ public class ReplaceIssueFiltersProjectKeyByUuid extends BaseDataChange {
       try {
         rs = pstmt.executeQuery();
         if (rs.next()) {
-          String projectUuid = SqlUtil.getString(rs, "uuid");
+          String projectUuid = DatabaseUtils.getString(rs, "uuid");
           if (projectUuid != null) {
             newFields.append("projectUuids=").append(projectUuid);
           }

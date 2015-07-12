@@ -26,8 +26,8 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.Database;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.server.db.migrations.MigrationStep;
-import org.sonar.server.db.migrations.SqlUtil;
 
 /**
  * Used in the Active Record Migration 401
@@ -58,7 +58,7 @@ public class ViolationMigrationStep implements MigrationStep {
       }
     } catch (SQLException e) {
       LOGGER.error(FAILURE_MESSAGE, e);
-      SqlUtil.log(LOGGER, e);
+      DatabaseUtils.log(LOGGER, e);
       throw MessageException.of(FAILURE_MESSAGE);
 
     } catch (Exception e) {
