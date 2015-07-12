@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.MyBatis;
 
@@ -89,7 +90,7 @@ public class DatabaseVersion {
   }
 
   @VisibleForTesting
-  static Status getStatus(Integer currentVersion, int lastVersion) {
+  static Status getStatus(@Nullable Integer currentVersion, int lastVersion) {
     Status status = Status.FRESH_INSTALL;
     if (currentVersion != null) {
       if (currentVersion == lastVersion) {
