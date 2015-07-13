@@ -23,21 +23,21 @@ import org.junit.Test;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class StopWatcherTest {
-  @Test(timeout = 1000)
-  public void stop_if_receive_command() throws InterruptedException {
+  @Test
+  public void stop_if_receive_command() {
     ProcessCommands commands = mock(ProcessCommands.class);
     when(commands.askedForStop()).thenReturn(false, true);
     Stoppable stoppable = mock(Stoppable.class);
 
     StopWatcher watcher = new StopWatcher(commands, stoppable, 1L);
     watcher.start();
-    watcher.join();
 
-    verify(stoppable).stopAsync();
+    verify(stoppable, timeout(5000)).stopAsync();
   }
 
   @Test(timeout = 5000)
