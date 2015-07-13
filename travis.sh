@@ -60,19 +60,28 @@ PRANALYSIS)
 ITS_QUALITYGATE)
 	installTravisTools
 
-	travis_sonarqube_its "qualitygate"
+  export DISPLAY=:99.0
+  travis_start_xvfb
+
+  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="qualitygate"
   ;;
 
 ITS_UPDATECENTER)
 	installTravisTools
 
-	travis_sonarqube_its "updatecenter"
+  export DISPLAY=:99.0
+  travis_start_xvfb
+
+  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="updatecenter"
   ;;
 
 ITS_TESTING)
 	installTravisTools
 
-	travis_sonarqube_its "testing"
+  export DISPLAY=:99.0
+  travis_start_xvfb
+
+  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="testing"
   ;;
 
 *)
