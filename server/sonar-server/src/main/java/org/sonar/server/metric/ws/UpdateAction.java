@@ -37,6 +37,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.util.MetricKeyValidator;
 
 public class UpdateAction implements MetricsWsAction {
   private static final String ACTION = "update";
@@ -123,6 +124,9 @@ public class UpdateAction implements MetricsWsAction {
   private static MetricDto newMetricTemplate(Request request) {
     int id = request.mandatoryParamAsInt(PARAM_ID);
     String key = request.param(PARAM_KEY);
+    if (key != null) {
+      MetricKeyValidator.checkMetricKeyFormat(key);
+    }
     String type = request.param(PARAM_TYPE);
     String name = request.param(PARAM_NAME);
     String domain = request.param(PARAM_DOMAIN);

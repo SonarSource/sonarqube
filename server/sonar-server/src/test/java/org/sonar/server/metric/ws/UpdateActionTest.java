@@ -207,6 +207,20 @@ public class UpdateActionTest {
     newRequest().execute();
   }
 
+  @Test
+  public void fail_when_metric_key_is_not_well_formatted() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+
+    int id = insertMetric(newDefaultMetric());
+    dbClient.customMeasureDao().insert(dbSession, newCustomMeasureDto().setMetricId(id));
+    dbSession.commit();
+
+    newRequest()
+      .setParam(PARAM_ID, String.valueOf(id))
+      .setParam(PARAM_KEY, "not well formatted key")
+      .execute();
+  }
+
   private MetricDto newDefaultMetric() {
     return new MetricDto()
       .setKey(DEFAULT_KEY)
