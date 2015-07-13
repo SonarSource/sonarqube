@@ -28,15 +28,17 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.db.measure.CustomMeasureDto;
-import org.sonar.db.metric.MetricDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.measure.CustomMeasureDto;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.user.UserSession;
+
+import static org.sonar.server.util.MetricKeyValidator.checkMetricKeyFormat;
 
 public class CreateAction implements MetricsWsAction {
   private static final String ACTION = "create";
@@ -123,7 +125,7 @@ public class CreateAction implements MetricsWsAction {
   }
 
   private static MetricDto newMetricTemplate(Request request) {
-    String key = request.mandatoryParam(PARAM_KEY);
+    String key = checkMetricKeyFormat(request.mandatoryParam(PARAM_KEY));
     String name = request.mandatoryParam(PARAM_NAME);
     String type = Metric.ValueType.valueOf(request.mandatoryParam(PARAM_TYPE)).name();
     String domain = request.param(PARAM_DOMAIN);

@@ -257,11 +257,11 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_when_empty_key() throws Exception {
+  public void fail_when_ill_formatted_key() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
 
     newRequest()
-      .setParam(PARAM_KEY, "")
+      .setParam(PARAM_KEY, "(123:456)")
       .setParam(PARAM_NAME, DEFAULT_NAME)
       .setParam(PARAM_TYPE, DEFAULT_TYPE)
       .execute();
