@@ -45,6 +45,8 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
     .setLicense("p_license")
     .setOrganization("p_orga_name")
     .setOrganizationUrl("p_orga_url")
+    .setHomepageUrl("p_homepage_url")
+    .setIssueTrackerUrl("p_issue_url")
     .setTermsConditionsUrl("p_t_and_c_url");
   private static final Release FULL_PROPERTIES_PLUGIN_RELEASE = release(FULL_PROPERTIES_PLUGIN, "1.12.1")
     .setDate(DateUtils.parseDate("2015-04-16"))
@@ -82,7 +84,7 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
   public void verify_properties_displayed_in_json_per_plugin() throws Exception {
     when(updateCenter.findAvailablePlugins()).thenReturn(of(
       pluginUpdate(FULL_PROPERTIES_PLUGIN_RELEASE, COMPATIBLE)
-      ));
+    ));
 
     underTest.handle(request, response);
 
@@ -112,7 +114,7 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
   private void checkStatusDisplayedInJson(PluginUpdate.Status status, String expectedValue) throws Exception {
     when(updateCenter.findAvailablePlugins()).thenReturn(of(
       pluginUpdate(release(PLUGIN_1, "1.0.0"), status)
-      ));
+    ));
 
     underTest.handle(request, response);
 
@@ -126,7 +128,7 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
         "    }" +
         "  ]" +
         "}"
-      );
+    );
   }
 
   @Test
@@ -137,6 +139,6 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
       pluginUpdate("key2", "name2"),
       pluginUpdate("key0", "name0"),
       pluginUpdate("key1", "name1")
-      ));
+    ));
   }
 }

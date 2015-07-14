@@ -117,6 +117,8 @@ public class PluginWSCommons {
     jsonWriter.prop(PROPERTY_TERMS_AND_CONDITIONS_URL, plugin.getTermsConditionsUrl());
     jsonWriter.prop(PROPERTY_ORGANIZATION_NAME, plugin.getOrganization());
     jsonWriter.prop(PROPERTY_ORGANIZATION_URL, plugin.getOrganizationUrl());
+    jsonWriter.prop(PROPERTY_HOMEPAGE_URL, plugin.getHomepageUrl());
+    jsonWriter.prop(PROPERTY_ISSUE_TRACKER_URL, plugin.getIssueTrackerUrl());
   }
 
   public void writeRelease(JsonWriter jsonWriter, Release release) {

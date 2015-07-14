@@ -8,6 +8,8 @@
       "license": "p_license",
       "organizationName": "p_orga_name",
       "organizationUrl": "p_orga_url",
+      "homepageUrl": "p_homepage_url",
+      "issueTrackerUrl": "p_issue_url",
       "termsAndConditionsUrl": "p_t_and_c_url",
       "release": {
         "version": "1.12.1",
