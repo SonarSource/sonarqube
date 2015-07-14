@@ -24,10 +24,10 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
@@ -41,38 +41,33 @@ public class CustomMeasureValidator {
 
   public void setMeasureValue(CustomMeasureDto measure, String valueAsString, MetricDto metric) {
     Metric.ValueType metricType = Metric.ValueType.valueOf(metric.getValueType());
-    try {
-      switch (metricType) {
-        case BOOL:
-          checkAndSetBooleanMeasureValue(measure, valueAsString);
-          break;
-        case INT:
-        case MILLISEC:
-          checkAndSetIntegerMeasureValue(measure, valueAsString);
-          break;
-        case WORK_DUR:
-          checkAndSetLongMeasureValue(measure, valueAsString);
-          break;
-        case FLOAT:
-        case PERCENT:
-        case RATING:
-          checkAndSetFloatMeasureValue(measure, valueAsString);
-          break;
-        case LEVEL:
-          checkAndSetLevelMeasureValue(measure, valueAsString);
-          break;
-        case STRING:
-        case DATA:
-        case DISTRIB:
-          measure.setTextValue(valueAsString);
-          break;
-        default:
-          throw new IllegalArgumentException("Unsupported metric type:" + metricType.name());
-      }
-    } catch (Exception e) {
-      throw new IllegalArgumentException(String.format("Incorrect value '%s' for metric type '%s'", valueAsString, metricType.name()), e);
+    switch (metricType) {
+      case BOOL:
+        checkAndSetBooleanMeasureValue(measure, valueAsString);
+        break;
+      case INT:
+      case MILLISEC:
+        checkAndSetIntegerMeasureValue(measure, valueAsString);
+        break;
+      case WORK_DUR:
+        checkAndSetLongMeasureValue(measure, valueAsString);
+        break;
+      case FLOAT:
+      case PERCENT:
+      case RATING:
+        checkAndSetFloatMeasureValue(measure, valueAsString);
+        break;
+      case LEVEL:
+        checkAndSetLevelMeasureValue(measure, valueAsString);
+        break;
+      case STRING:
+      case DATA:
+      case DISTRIB:
+        measure.setTextValue(valueAsString);
+        break;
+      default:
+        throw new IllegalArgumentException("Unsupported metric type:" + metricType.name());
     }
-
   }
 
   private void checkAndSetLevelMeasureValue(CustomMeasureDto measure, String valueAsString) {

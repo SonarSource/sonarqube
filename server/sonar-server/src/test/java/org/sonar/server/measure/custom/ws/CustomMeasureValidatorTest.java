@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.measure.CustomMeasureDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.measure.custom.persistence.CustomMeasureTesting;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -96,16 +97,14 @@ public class CustomMeasureValidatorTest {
 
   @Test
   public void fail_when_non_compliant_value() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Incorrect value 'non-compliant-boolean-value' for metric type 'BOOL'");
+    expectedException.expect(BadRequestException.class);
 
     sut.setMeasureValue(customMeasure, "non-compliant-boolean-value", newMetricDto().setValueType(BOOL.name()));
   }
 
   @Test
   public void fail_when_non_compliant_level_value() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Incorrect value 'non-compliant-level-value' for metric type 'LEVEL'");
+    expectedException.expect(BadRequestException.class);
 
     sut.setMeasureValue(customMeasure, "non-compliant-level-value", newMetricDto().setValueType(LEVEL.name()));
   }
