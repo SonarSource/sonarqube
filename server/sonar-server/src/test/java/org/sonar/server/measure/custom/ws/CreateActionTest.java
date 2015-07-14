@@ -46,6 +46,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
@@ -393,8 +394,7 @@ public class CreateActionTest {
   public void fail_when_value_is_not_well_formatted() throws Exception {
     MetricDto metric = insertMetricAndProject(ValueType.BOOL, DEFAULT_PROJECT_UUID);
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Incorrect value 'non-correct-boolean-value' for metric type 'BOOL'");
+    expectedException.expect(BadRequestException.class);
 
     newRequest()
       .setParam(CreateAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)

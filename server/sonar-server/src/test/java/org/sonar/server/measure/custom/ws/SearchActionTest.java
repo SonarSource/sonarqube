@@ -125,7 +125,7 @@ public class SearchActionTest {
       .setParam(SearchAction.PARAM_PROJECT_ID, DEFAULT_PROJECT_UUID)
       .execute();
 
-    response.assertJson(getClass(), "metrics.json");
+    response.assertJson(getClass(), "custom-measures.json");
     String responseAsString = response.outputAsString();
     assertThat(responseAsString).matches(nameStringValuePattern("id", metric1.getId().toString()));
     assertThat(responseAsString).matches(nameStringValuePattern("id", metric2.getId().toString()));
@@ -302,7 +302,7 @@ public class SearchActionTest {
   }
 
   private static MetricDto newCustomMetric(String metricKey) {
-    return newMetricDto().setEnabled(true).setUserManaged(true).setKey(metricKey).setValueType(ValueType.STRING.name());
+    return newMetricDto().setEnabled(true).setUserManaged(true).setKey(metricKey).setDomain(metricKey + "-domain").setShortName(metricKey + "-name").setValueType(ValueType.STRING.name());
   }
 
   private CustomMeasureDto insertCustomMeasure(int id, MetricDto metric) {

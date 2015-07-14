@@ -4,10 +4,13 @@
       "description": "New arrivals",
       "metric": {
         "key": "team_size",
+        "name": "Team Size",
+        "domain": "Tests",
         "type": "INT"
       },
       "projectId": "project-uuid",
       "projectKey": "project-key",
+      "pending": true,
       "user": {
         "active": true,
         "email": "login@login.com",
@@ -20,10 +23,13 @@
       "description": "New funds",
       "metric": {
         "key": "burned_budget",
+        "name": "Burned Budget",
+        "domain": "Activity",
         "type": "INT"
       },
       "projectId": "project-uuid",
       "projectKey": "project-key",
+      "pending": false,
       "user": {
         "active": true,
         "email": "login@login.com",
@@ -36,10 +42,13 @@
       "description": "Great coverage",
       "metric": {
         "key": "uncovered_lines",
+        "name": "Uncovered lines",
+        "domain": "Code Coverage",
         "type": "INT"
       },
       "projectId": "project-uuid",
       "projectKey": "project-key",
+      "pending": false,
       "user": {
         "active": true,
         "email": "login@login.com",

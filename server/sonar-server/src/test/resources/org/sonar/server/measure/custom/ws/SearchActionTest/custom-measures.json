@@ -4,6 +4,8 @@
       "description": "description-1",
       "metric": {
         "key": "metric-key-1",
+        "name": "metric-key-1-name",
+        "domain": "metric-key-1-domain",
         "type": "STRING"
       },
       "projectId": "project-uuid",
@@ -21,6 +23,8 @@
       "description": "description-2",
       "metric": {
         "key": "metric-key-2",
+        "name": "metric-key-2-name",
+        "domain": "metric-key-2-domain",
         "type": "STRING"
       },
       "projectId": "project-uuid",
@@ -38,6 +42,8 @@
       "description": "description-3",
       "metric": {
         "key": "metric-key-3",
+        "name": "metric-key-3-name",
+        "domain": "metric-key-3-domain",
         "type": "STRING"
       },
       "projectId": "project-uuid",

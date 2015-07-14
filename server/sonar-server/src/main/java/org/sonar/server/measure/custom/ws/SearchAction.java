@@ -130,7 +130,7 @@ public class SearchAction implements CustomMeasuresWsAction {
   }
 
   private void writeResponse(Response response, List<CustomMeasureDto> customMeasures, int nbCustomMeasures, ComponentDto project, Map<Integer, MetricDto> metricsById,
-    Map<String, User> usersByLogin, @Nullable Long lastAnalysisDate, SearchOptions searchOptions, List<String> fieldsToReturn) {
+                             Map<String, User> usersByLogin, @Nullable Long lastAnalysisDate, SearchOptions searchOptions, List<String> fieldsToReturn) {
     JsonWriter json = response.newJsonWriter();
     json.beginObject();
     customMeasureJsonWriter.write(json, customMeasures, project, metricsById, usersByLogin, lastAnalysisDate, fieldsToReturn);
