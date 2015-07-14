@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.platformlevel;
 
+import java.util.List;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.issue.action.Actions;
 import org.sonar.api.profiles.AnnotationProfileParser;
@@ -313,22 +314,12 @@ import org.sonar.server.user.ws.UserJsonWriter;
 import org.sonar.server.user.ws.UserPropertiesWs;
 import org.sonar.server.user.ws.UsersWs;
 import org.sonar.server.usergroups.ws.UserGroupsModule;
-import org.sonar.server.util.BooleanTypeValidation;
-import org.sonar.server.util.FloatTypeValidation;
-import org.sonar.server.util.IntegerTypeValidation;
-import org.sonar.server.util.LongTypeValidation;
-import org.sonar.server.util.MetricLevelTypeValidation;
-import org.sonar.server.util.StringListTypeValidation;
-import org.sonar.server.util.StringTypeValidation;
-import org.sonar.server.util.TextTypeValidation;
-import org.sonar.server.util.TypeValidations;
+import org.sonar.server.util.TypeValidationModule;
 import org.sonar.server.view.index.ViewIndex;
 import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.ListingWs;
 import org.sonar.server.ws.WebServiceEngine;
-
-import java.util.List;
 
 public class PlatformLevel4 extends PlatformLevel {
 
@@ -705,16 +696,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // Properties
       PropertiesWs.class,
 
-      // Type validation
-      TypeValidations.class,
-      IntegerTypeValidation.class,
-      FloatTypeValidation.class,
-      BooleanTypeValidation.class,
-      TextTypeValidation.class,
-      StringTypeValidation.class,
-      StringListTypeValidation.class,
-      LongTypeValidation.class,
-      MetricLevelTypeValidation.class,
+      TypeValidationModule.class,
 
       // System
       RestartAction.class,
