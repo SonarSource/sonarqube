@@ -56,7 +56,7 @@ import org.sonar.server.batch.BatchWsModule;
 import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.charts.DistributionAreaChart;
 import org.sonar.server.charts.DistributionBarChart;
-import org.sonar.server.component.ComponentCleanerService;
+import org.sonar.server.project.ws.ProjectCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.DefaultComponentFinder;
@@ -573,7 +573,7 @@ public class PlatformLevel4 extends PlatformLevel {
       EventsWs.class,
       NewAlerts.class,
       NewAlerts.newMetadata(),
-      ComponentCleanerService.class,
+      ProjectCleanerService.class,
       ComponentJsonWriter.class,
 
       // views

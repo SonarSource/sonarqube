@@ -30,7 +30,6 @@ import org.sonar.api.component.RubyComponentService;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDao;
-import org.sonar.db.component.ResourceDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.util.RubyUtils;
@@ -94,17 +93,6 @@ public class DefaultRubyComponentService implements RubyComponentService {
     ComponentQuery query = toQuery(params);
     List<Component> components = resourceDao.selectProjectsIncludingNotCompletedOnesByQualifiers(query.qualifiers());
     return finder.find(query, components);
-  }
-
-  public DefaultComponentQueryResult findGhostsProjects(Map<String, Object> params) {
-    ComponentQuery query = toQuery(params);
-    List<Component> components = resourceDao.selectGhostsProjects(query.qualifiers());
-    return finder.find(query, components);
-  }
-
-  public List<ResourceDto> findProvisionedProjects(Map<String, Object> params) {
-    ComponentQuery query = toQuery(params);
-    return resourceDao.selectProvisionedProjects(query.qualifiers());
   }
 
   public void updateKey(String projectOrModuleKey, String newKey) {

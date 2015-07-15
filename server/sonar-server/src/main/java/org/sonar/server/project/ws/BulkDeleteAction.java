@@ -30,7 +30,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.user.UserSession;
 
 public class BulkDeleteAction implements ProjectsWsAction {
@@ -39,12 +38,12 @@ public class BulkDeleteAction implements ProjectsWsAction {
   public static final String PARAM_IDS = "ids";
   public static final String PARAM_KEYS = "keys";
 
-  private final ComponentCleanerService componentCleanerService;
+  private final ProjectCleanerService projectCleanerService;
   private final DbClient dbClient;
   private final UserSession userSession;
 
-  public BulkDeleteAction(ComponentCleanerService componentCleanerService, DbClient dbClient, UserSession userSession) {
-    this.componentCleanerService = componentCleanerService;
+  public BulkDeleteAction(ProjectCleanerService projectCleanerService, DbClient dbClient, UserSession userSession) {
+    this.projectCleanerService = projectCleanerService;
     this.dbClient = dbClient;
     this.userSession = userSession;
   }
@@ -78,7 +77,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       List<ComponentDto> projects = searchProjects(dbSession, uuids, keys);
-      componentCleanerService.delete(dbSession, projects);
+      projectCleanerService.delete(dbSession, projects);
     } finally {
       MyBatis.closeQuietly(dbSession);
     }
