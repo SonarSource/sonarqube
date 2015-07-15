@@ -52,9 +52,6 @@ public class CoreFormulaRepositoryImpl implements CoreFormulaRepository {
     new SumFormula(CLASSES_KEY),
     new SumFormula(FUNCTIONS_KEY),
     new SumFormula(STATEMENTS_KEY),
-    // new SumFormula(PUBLIC_API_KEY),
-    // new SumFormula(COMMENT_LINES_KEY),
-    // new SumFormula(PUBLIC_UNDOCUMENTED_API_KEY),
     new SumFormula(COMPLEXITY_KEY),
     new SumFormula(COMPLEXITY_IN_CLASSES_KEY),
     // TODO this formula seems to be useless as this measure seems only required on files
