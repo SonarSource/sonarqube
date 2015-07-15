@@ -22,7 +22,7 @@ package org.sonar.server.computation.step;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import org.apache.commons.lang.math.NumberUtils;
-import org.sonar.db.measure.CustomMeasureDto;
+import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.server.computation.component.Component;

@@ -26,7 +26,7 @@ import org.junit.experimental.categories.Category;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.measure.CustomMeasureDto;
+import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
@@ -37,7 +37,7 @@ import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.measure.custom.persistence.CustomMeasureDao;
+import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;

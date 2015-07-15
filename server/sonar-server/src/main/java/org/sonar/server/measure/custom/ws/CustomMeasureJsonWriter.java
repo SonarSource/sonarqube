@@ -31,7 +31,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.CustomMeasureDto;
+import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.metric.ws.MetricJsonWriter;
 import org.sonar.server.user.ws.UserJsonWriter;

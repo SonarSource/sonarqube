@@ -33,18 +33,18 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.CustomMeasureDto;
+import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.measure.custom.persistence.CustomMeasureDao;
+import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.measure.custom.persistence.CustomMeasureTesting.newCustomMeasureDto;
+import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
 import static org.sonar.server.measure.custom.ws.DeleteAction.PARAM_ID;
 
 @Category(DbTests.class)
@@ -102,7 +102,7 @@ public class DeleteActionTest {
 
   @Test
   public void fail_when_not_found_in_db() throws Exception {
-    expectedException.expect(NotFoundException.class);
+    expectedException.expect(IllegalArgumentException.class);
 
     newRequest().setParam(PARAM_ID, "42").execute();
   }

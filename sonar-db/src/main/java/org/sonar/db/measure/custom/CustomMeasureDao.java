@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.measure.custom.persistence;
+package org.sonar.db.measure.custom;
 
 import com.google.common.base.Function;
 import java.util.List;
@@ -26,13 +26,9 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.server.ServerSide;
-import org.sonar.db.DatabaseUtils;
-import org.sonar.db.measure.CustomMeasureDto;
-import org.sonar.db.measure.CustomMeasureMapper;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
-import org.sonar.server.es.SearchOptions;
-import org.sonar.server.exceptions.NotFoundException;
 
 @ServerSide
 public class CustomMeasureDao implements Dao {
@@ -66,7 +62,7 @@ public class CustomMeasureDao implements Dao {
   public CustomMeasureDto selectById(DbSession session, long id) {
     CustomMeasureDto customMeasure = selectNullableById(session, id);
     if (customMeasure == null) {
-      throw new NotFoundException(String.format("Custom measure '%d' not found.", id));
+      throw new IllegalArgumentException(String.format("Custom measure '%d' not found.", id));
     }
     return customMeasure;
   }
@@ -79,8 +75,8 @@ public class CustomMeasureDao implements Dao {
     return mapper(session).countByComponentIdAndMetricId(componentUuid, metricId);
   }
 
-  public List<CustomMeasureDto> selectByComponentUuid(DbSession session, String componentUuid, SearchOptions searchOptions) {
-    return mapper(session).selectByComponentUuid(componentUuid, new RowBounds(searchOptions.getOffset(), searchOptions.getLimit()));
+  public List<CustomMeasureDto> selectByComponentUuid(DbSession session, String componentUuid, int offset, int limit) {
+    return mapper(session).selectByComponentUuid(componentUuid, new RowBounds(offset, limit));
   }
 
   public List<CustomMeasureDto> selectByComponentUuid(DbSession session, String componentUuid) {

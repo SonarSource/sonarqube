@@ -38,7 +38,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.CustomMeasureDto;
+import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.db.DbClient;
@@ -126,7 +126,7 @@ public class SearchAction implements CustomMeasuresWsAction {
   }
 
   private List<CustomMeasureDto> searchCustomMeasures(DbSession dbSession, ComponentDto project, SearchOptions searchOptions) {
-    return dbClient.customMeasureDao().selectByComponentUuid(dbSession, project.uuid(), searchOptions);
+    return dbClient.customMeasureDao().selectByComponentUuid(dbSession, project.uuid(), searchOptions.getOffset(), searchOptions.getLimit());
   }
 
   private void writeResponse(Response response, List<CustomMeasureDto> customMeasures, int nbCustomMeasures, ComponentDto project, Map<Integer, MetricDto> metricsById,

@@ -18,27 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.measure.custom.persistence;
+package org.sonar.db.measure.custom;
 
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.math.RandomUtils;
-import org.sonar.api.utils.System2;
-import org.sonar.db.measure.CustomMeasureDto;
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.RowBounds;
 
-public class CustomMeasureTesting {
-  private CustomMeasureTesting() {
-    // static stuff only
-  }
+public interface CustomMeasureMapper {
+  void insert(CustomMeasureDto customMeasure);
 
-  public static CustomMeasureDto newCustomMeasureDto() {
-    return new CustomMeasureDto()
-      .setDescription(RandomStringUtils.randomAlphanumeric(255))
-      .setTextValue(RandomStringUtils.randomAlphanumeric(255))
-      .setUserLogin(RandomStringUtils.randomAlphanumeric(255))
-      .setValue(RandomUtils.nextDouble())
-      .setMetricId(RandomUtils.nextInt())
-      .setComponentUuid(RandomStringUtils.randomAlphanumeric(50))
-      .setCreatedAt(System2.INSTANCE.now())
-      .setUpdatedAt(System2.INSTANCE.now());
-  }
+  void update(CustomMeasureDto customMeasure);
+
+  void delete(long id);
+
+  void deleteByMetricIds(@Param("metricIds") List<Integer> metricIds);
+
+  CustomMeasureDto selectById(long id);
+
+  List<CustomMeasureDto> selectByMetricId(int id);
+
+  List<CustomMeasureDto> selectByComponentUuid(String s);
+
+  List<CustomMeasureDto> selectByComponentUuid(String s, RowBounds rowBounds);
+
+  int countByComponentUuid(String componentUuid);
+
+  int countByComponentIdAndMetricId(@Param("componentUuid") String componentUuid, @Param("metricId") int metricId);
 }

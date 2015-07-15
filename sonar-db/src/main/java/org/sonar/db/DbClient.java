@@ -46,6 +46,7 @@ import org.sonar.db.issue.IssueFilterFavouriteDao;
 import org.sonar.db.loadedtemplate.LoadedTemplateDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.MeasureFilterDao;
+import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.notification.NotificationQueueDao;
 import org.sonar.db.permission.PermissionDao;
 import org.sonar.db.permission.PermissionTemplateDao;
@@ -107,8 +108,9 @@ public class DbClient {
   private final ProjectQgateAssociationDao projectQgateAssociationDao;
   private final DuplicationDao duplicationDao;
   private final NotificationQueueDao notificationQueueDao;
+  private final CustomMeasureDao customMeasureDao;
 
-  public DbClient(Database database, MyBatis myBatis, Dao[] daos) {
+  public DbClient(Database database, MyBatis myBatis, Dao ... daos) {
     this.database = database;
     this.myBatis = myBatis;
 
@@ -156,6 +158,7 @@ public class DbClient {
     projectQgateAssociationDao = getDao(map, ProjectQgateAssociationDao.class);
     duplicationDao = getDao(map, DuplicationDao.class);
     notificationQueueDao = getDao(map, NotificationQueueDao.class);
+    customMeasureDao = getDao(map, CustomMeasureDao.class);
     doOnLoad(map);
   }
 
@@ -334,6 +337,10 @@ public class DbClient {
 
   public NotificationQueueDao notificationQueueDao() {
     return notificationQueueDao;
+  }
+
+  public CustomMeasureDao customMeasureDao() {
+    return customMeasureDao;
   }
 
   protected <K extends Dao> K getDao(Map<Class, Dao> map, Class<K> clazz) {

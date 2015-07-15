@@ -41,7 +41,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDao;
-import org.sonar.db.measure.CustomMeasureDto;
+import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTesting;
@@ -50,7 +50,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.measure.custom.persistence.CustomMeasureDao;
+import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserDoc;
@@ -60,7 +60,7 @@ import org.sonar.server.user.ws.UserJsonWriter;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.measure.custom.persistence.CustomMeasureTesting.newCustomMeasureDto;
+import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
 import static org.sonar.server.metric.ws.MetricTesting.newMetricDto;
 
 public class SearchActionTest {

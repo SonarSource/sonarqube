@@ -36,16 +36,15 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.CustomMeasureDto;
+import org.sonar.db.measure.custom.CustomMeasureDao;
+import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.measure.custom.persistence.CustomMeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.server.metric.ws.MetricTesting;
 import org.sonar.server.tester.UserSessionRule;
@@ -60,7 +59,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.measure.custom.persistence.CustomMeasureTesting.newCustomMeasureDto;
+import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
 import static org.sonar.server.measure.custom.ws.UpdateAction.PARAM_DESCRIPTION;
 import static org.sonar.server.measure.custom.ws.UpdateAction.PARAM_ID;
 import static org.sonar.server.measure.custom.ws.UpdateAction.PARAM_VALUE;
@@ -244,7 +243,7 @@ public class UpdateActionTest {
 
   @Test
   public void fail_if_not_in_db() throws Exception {
-    expectedException.expect(NotFoundException.class);
+    expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Custom measure '42' not found.");
 
     ws.newPostRequest(CustomMeasuresWs.ENDPOINT, UpdateAction.ACTION)

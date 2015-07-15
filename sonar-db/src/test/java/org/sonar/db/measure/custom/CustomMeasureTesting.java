@@ -18,7 +18,26 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-@ParametersAreNonnullByDefault
-package org.sonar.server.measure.custom.persistence;
+package org.sonar.db.measure.custom;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.math.RandomUtils;
+import org.sonar.api.utils.System2;
+
+public class CustomMeasureTesting {
+  private CustomMeasureTesting() {
+    // static stuff only
+  }
+
+  public static CustomMeasureDto newCustomMeasureDto() {
+    return new CustomMeasureDto()
+      .setDescription(RandomStringUtils.randomAlphanumeric(255))
+      .setTextValue(RandomStringUtils.randomAlphanumeric(255))
+      .setUserLogin(RandomStringUtils.randomAlphanumeric(255))
+      .setValue(RandomUtils.nextDouble())
+      .setMetricId(RandomUtils.nextInt())
+      .setComponentUuid(RandomStringUtils.randomAlphanumeric(50))
+      .setCreatedAt(System2.INSTANCE.now())
+      .setUpdatedAt(System2.INSTANCE.now());
+  }
+}

@@ -23,7 +23,7 @@ import java.util.Map;
 import org.sonar.db.Dao;
 import org.sonar.db.Database;
 import org.sonar.db.MyBatis;
-import org.sonar.server.measure.custom.persistence.CustomMeasureDao;
+import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.db.RuleDao;

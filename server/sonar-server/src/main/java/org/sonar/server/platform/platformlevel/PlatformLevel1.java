@@ -36,7 +36,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
 import org.sonar.server.db.migrations.MigrationStepModule;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.measure.custom.persistence.CustomMeasureDao;
+import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerFileSystem;
