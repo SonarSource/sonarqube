@@ -97,7 +97,6 @@ public class ComponentService {
     }
   }
 
-  @CheckForNull
   public Optional<ComponentDto> getByUuid(String uuid) {
     DbSession session = dbClient.openSession(false);
     try {

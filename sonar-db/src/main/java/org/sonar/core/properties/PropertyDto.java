@@ -28,11 +28,13 @@ package org.sonar.core.properties;
 @Deprecated
 public class PropertyDto extends org.sonar.db.property.PropertyDto {
 
+  @Override
   public PropertyDto setKey(String key) {
     super.setKey(key);
     return this;
   }
 
+  @Override
   public PropertyDto setValue(String value) {
     super.setValue(value);
     return this;

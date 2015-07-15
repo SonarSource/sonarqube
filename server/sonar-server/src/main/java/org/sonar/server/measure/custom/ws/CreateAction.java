@@ -115,7 +115,7 @@ public class CreateAction implements CustomMeasuresWsAction {
     long now = system.now();
 
     try {
-      ComponentDto component = componentFinder.getByKeyOrUuid(dbSession, request.param(CreateAction.PARAM_PROJECT_ID), request.param(CreateAction.PARAM_PROJECT_KEY));
+      ComponentDto component = componentFinder.getByUuidOrKey(dbSession, request.param(CreateAction.PARAM_PROJECT_ID), request.param(CreateAction.PARAM_PROJECT_KEY));
       MetricDto metric = searchMetric(dbSession, request);
       checkPermissions(userSession, component);
       checkIsProjectOrModule(component);

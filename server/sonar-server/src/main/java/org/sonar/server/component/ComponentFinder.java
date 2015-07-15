@@ -37,7 +37,7 @@ public class ComponentFinder {
     this.dbClient = dbClient;
   }
 
-  public ComponentDto getByKeyOrUuid(DbSession dbSession, @Nullable String componentUuid, @Nullable String componentKey) {
+  public ComponentDto getByUuidOrKey(DbSession dbSession, @Nullable String componentUuid, @Nullable String componentKey) {
     checkArgument(componentUuid != null ^ componentKey != null, "The component key or the component id must be provided, not both.");
 
     if (componentUuid != null) {

@@ -100,7 +100,7 @@ public class SearchAction implements CustomMeasuresWsAction {
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      ComponentDto project = componentFinder.getByKeyOrUuid(dbSession, projectUuid, projectKey);
+      ComponentDto project = componentFinder.getByUuidOrKey(dbSession, projectUuid, projectKey);
       checkPermissions(userSession, project);
       Long lastAnalysisDateMs = searchLastSnapshot(dbSession, project);
       List<CustomMeasureDto> customMeasures = searchCustomMeasures(dbSession, project, searchOptions);

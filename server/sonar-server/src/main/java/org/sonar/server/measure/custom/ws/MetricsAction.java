@@ -77,7 +77,7 @@ public class MetricsAction implements CustomMeasuresWsAction {
     DbSession dbSession = dbClient.openSession(false);
 
     try {
-      ComponentDto project = componentFinder.getByKeyOrUuid(dbSession, request.param(CreateAction.PARAM_PROJECT_ID), request.param(CreateAction.PARAM_PROJECT_KEY));
+      ComponentDto project = componentFinder.getByUuidOrKey(dbSession, request.param(CreateAction.PARAM_PROJECT_ID), request.param(CreateAction.PARAM_PROJECT_KEY));
       checkPermissions(userSession, project);
       List<MetricDto> metrics = searchMetrics(dbSession, project);
 

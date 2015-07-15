@@ -85,7 +85,7 @@ public class ShowAction implements RequestHandler {
 
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto component = componentFinder.getByKeyOrUuid(session, fileUuid, fileKey);
+      ComponentDto component = componentFinder.getByUuidOrKey(session, fileUuid, fileKey);
       String componentKey = component.key();
       userSession.checkComponentPermission(UserRole.CODEVIEWER, componentKey);
       JsonWriter json = response.newJsonWriter().beginObject();

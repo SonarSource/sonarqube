@@ -124,6 +124,7 @@ public class DeleteActionTest {
           new TestIndexer(dbClient, es.client()),
           mockResourceTypes,
           new ComponentFinder(dbClient)),
+        new ComponentFinder(dbClient),
         dbClient,
         userSessionRule)));
     userSessionRule.login("login").setGlobalPermissions(UserRole.ADMIN);

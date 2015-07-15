@@ -20,7 +20,6 @@
 
 package org.sonar.server.project.ws;
 
-import com.google.common.base.Optional;
 import java.util.Arrays;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
@@ -33,7 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentCleanerService;
-import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
 public class DeleteAction implements ProjectsWsAction {
@@ -43,11 +42,13 @@ public class DeleteAction implements ProjectsWsAction {
   public static final String PARAM_KEY = "key";
 
   private final ComponentCleanerService componentCleanerService;
+  private final ComponentFinder componentFinder;
   private final DbClient dbClient;
   private final UserSession userSession;
 
-  public DeleteAction(ComponentCleanerService componentCleanerService, DbClient dbClient, UserSession userSession) {
+  public DeleteAction(ComponentCleanerService componentCleanerService, ComponentFinder componentFinder, DbClient dbClient, UserSession userSession) {
     this.componentCleanerService = componentCleanerService;
+    this.componentFinder = componentFinder;
     this.dbClient = dbClient;
     this.userSession = userSession;
   }
@@ -80,7 +81,7 @@ public class DeleteAction implements ProjectsWsAction {
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      ComponentDto project = getProject(dbSession, uuid, key);
+      ComponentDto project = componentFinder.getByUuidOrKey(dbSession, uuid, key);
       componentCleanerService.delete(dbSession, Arrays.asList(project));
     } finally {
       MyBatis.closeQuietly(dbSession);
@@ -103,20 +104,4 @@ public class DeleteAction implements ProjectsWsAction {
     return uuid != null && !userSession.hasProjectPermissionByUuid(UserRole.ADMIN, uuid) && !userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
   }
 
-  private ComponentDto getProject(DbSession session, @Nullable String uuid, @Nullable String key) {
-    if (key == null && uuid != null) {
-      Optional<ComponentDto> componentDto = dbClient.componentDao().selectByUuid(session, uuid);
-      if (!componentDto.isPresent()) {
-        throw new NotFoundException(String.format("Component with uuid '%s' not found", uuid));
-      }
-      return componentDto.get();
-    } else if (uuid == null && key != null) {
-      Optional<ComponentDto> componentDto = dbClient.componentDao().selectByKey(session, key);
-      if (!componentDto.isPresent()) {
-        throw new NotFoundException(String.format("Component with key '%s' not found", key));
-      }
-      return componentDto.get();
-    }
-    throw new IllegalArgumentException("Id or key must be provided");
-  }
 }
