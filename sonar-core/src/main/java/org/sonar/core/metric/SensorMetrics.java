@@ -28,8 +28,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
+import org.sonar.api.server.ServerSide;
 
 import static org.sonar.api.measures.CoreMetrics.ACCESSORS;
 import static org.sonar.api.measures.CoreMetrics.CLASSES;
@@ -90,6 +92,8 @@ import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES;
  * <p/>
  * The batch should not send other metrics, and the Compute Engine should not allow other metrics from the batch report.
  */
+@ServerSide
+@BatchSide
 public class SensorMetrics {
 
   private static final Set<Metric> ALLOWED_CORE_METRICS = ImmutableSet.<Metric>of(
