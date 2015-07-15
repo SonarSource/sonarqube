@@ -22,15 +22,14 @@ package org.sonar.server.issue.notification;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.Duration;
-import org.sonar.core.util.MultiSets;
-
+import com.google.common.collect.Multisets;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.Duration;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.ASSIGNEE;
@@ -131,7 +130,7 @@ public class NewIssuesStatistics {
     }
 
     public List<Multiset.Entry<String>> statsForMetric(Metric metric) {
-      return MultiSets.listOrderedByHighestCounts(distributionFor(metric));
+      return Multisets.copyHighestCountFirst(distributionFor(metric)).entrySet().asList();
     }
 
     private Multiset<String> distributionFor(Metric metric) {
