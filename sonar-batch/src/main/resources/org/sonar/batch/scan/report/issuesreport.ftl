@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>Issues report of ${report.getTitle()}</title>
+  <title>Issues report of ${report.getTitle()?html}</title>
   <link href="issuesreport_files/sonar.css" media="all" rel="stylesheet" type="text/css">
   <link rel="shortcut icon" type="image/x-icon" href="issuesreport_files/favicon.ico">
   <script type="text/javascript" src="issuesreport_files/jquery.min.js"></script>
@@ -20,7 +20,7 @@
       <#if resourceReport_has_next>,</#if>
     </#list>
     ];
-    var nbResources = ${report.getResourcesWithReport()?size};
+    var nbResources = ${report.getResourcesWithReport()?size?c};
     var separators = new Array();
 
     function showLine(fileIndex, lineId) {
@@ -165,7 +165,7 @@
 <div id="reportHeader">
   <div id="logo"><img src="issuesreport_files/sonarqube-24x100.png" alt="SonarQube"/></div>
   <div class="title">Issues Report</div>
-  <div class="subtitle">${report.getTitle()} - ${report.getDate()?datetime}</div>
+  <div class="subtitle">${report.getTitle()?html} - ${report.getDate()?datetime}</div>
 </div>
 
 <#if report.isNoFile()>
@@ -366,7 +366,7 @@
               <div class="vtitle">
                 <i class="icon-severity-${issue.severity()?lower_case}"></i>
                 <#if issue.message()??>
-                <span class="rulename">${issue.message()}</span>
+                <span class="rulename">${issue.message()?html}</span>
                 <#else>
                 <span class="rulename">${ruleNameProvider.nameForHTML(issue.ruleKey())}</span>
                 </#if>
@@ -415,7 +415,7 @@
                           <div class="vtitle">
                             <i class="icon-severity-${issue.severity()?lower_case}"></i>
                             <#if issue.message()??>
-                            <span class="rulename">${issue.message()}</span>
+                            <span class="rulename">${issue.message()?html}</span>
                             <#else>
                             <span class="rulename">${ruleNameProvider.nameForHTML(issue.ruleKey())}</span>
                             </#if>
