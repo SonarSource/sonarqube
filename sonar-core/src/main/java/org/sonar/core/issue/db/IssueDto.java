@@ -660,6 +660,7 @@ public final class IssueDto implements Serializable {
     issue.setEffortToFix(effortToFix);
     issue.setDebt(debt != null ? Duration.create(debt) : null);
     issue.setLine(line);
+    issue.setChecksum(checksum);
     issue.setSeverity(severity);
     issue.setReporter(reporter);
     issue.setAssignee(assignee);
