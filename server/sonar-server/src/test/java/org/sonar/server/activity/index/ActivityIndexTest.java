@@ -39,18 +39,18 @@ public class ActivityIndexTest {
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new ActivityIndexDefinition(new Settings()));
 
-  ActivityIndex sut;
+  ActivityIndex underTest;
 
   @Before
   public void before() {
-    sut = new ActivityIndex(es.client());
+    underTest = new ActivityIndex(es.client());
   }
 
   @Test
   public void search_all() throws Exception {
     es.putDocuments("activities", "activity", newDoc(1, 1_500_000_000_000L), newDoc(2, 1_600_000_000_000L));
 
-    SearchResult<ActivityDoc> results = sut.search(new ActivityQuery(), new SearchOptions());
+    SearchResult<ActivityDoc> results = underTest.search(new ActivityQuery(), new SearchOptions());
     assertThat(results.getTotal()).isEqualTo(2L);
     assertThat(results.getDocs()).hasSize(2);
     assertThat(results.getDocs()).extracting("message").containsOnly("THE_MSG 1", "THE_MSG 2");
@@ -62,11 +62,11 @@ public class ActivityIndexTest {
 
     ActivityQuery query = new ActivityQuery();
     query.setTypes(Arrays.asList("ANALYSIS_REPORT"));
-    assertThat(sut.search(query, new SearchOptions()).getTotal()).isEqualTo(2L);
+    assertThat(underTest.search(query, new SearchOptions()).getTotal()).isEqualTo(2L);
 
     query = new ActivityQuery();
     query.setTypes(Arrays.asList("OTHER", "TYPES"));
-    assertThat(sut.search(query, new SearchOptions()).getTotal()).isEqualTo(0L);
+    assertThat(underTest.search(query, new SearchOptions()).getTotal()).isEqualTo(0L);
   }
 
   @Test
@@ -75,7 +75,7 @@ public class ActivityIndexTest {
 
     ActivityQuery query = new ActivityQuery();
     query.addDataOrFilter("foo", "bar2");
-    SearchResult<ActivityDoc> results = sut.search(query, new SearchOptions());
+    SearchResult<ActivityDoc> results = underTest.search(query, new SearchOptions());
     assertThat(results.getDocs()).hasSize(1);
     assertThat(results.getDocs().get(0).getKey()).isEqualTo("UUID2");
   }
@@ -86,13 +86,13 @@ public class ActivityIndexTest {
 
     ActivityQuery query = new ActivityQuery();
     query.setSince(new Date(1_550_000_000_000L));
-    SearchResult<ActivityDoc> results = sut.search(query, new SearchOptions());
+    SearchResult<ActivityDoc> results = underTest.search(query, new SearchOptions());
     assertThat(results.getDocs()).hasSize(1);
     assertThat(results.getDocs().get(0).getKey()).isEqualTo("UUID2");
 
     query = new ActivityQuery();
     query.setTo(new Date(1_550_000_000_000L));
-    results = sut.search(query, new SearchOptions());
+    results = underTest.search(query, new SearchOptions());
     assertThat(results.getDocs()).hasSize(1);
     assertThat(results.getDocs().get(0).getKey()).isEqualTo("UUID1");
   }

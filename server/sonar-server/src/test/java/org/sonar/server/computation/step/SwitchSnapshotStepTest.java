@@ -49,14 +49,14 @@ public class SwitchSnapshotStepTest {
 
   DbIdsRepository dbIdsRepository = new DbIdsRepository();
 
-  SwitchSnapshotStep sut;
+  SwitchSnapshotStep underTest;
 
   @Before
   public void before() {
     db.truncateTables();
     System2 system2 = mock(System2.class);
     when(system2.now()).thenReturn(DateUtils.parseDate("2011-09-29").getTime());
-    this.sut = new SwitchSnapshotStep(new DbClient(db.database(), db.myBatis(), new SnapshotDao()), treeRootHolder, dbIdsRepository);
+    underTest = new SwitchSnapshotStep(new DbClient(db.database(), db.myBatis(), new SnapshotDao()), treeRootHolder, dbIdsRepository);
   }
 
   @Test
@@ -67,7 +67,7 @@ public class SwitchSnapshotStepTest {
     treeRootHolder.setRoot(project);
     dbIdsRepository.setSnapshotId(project, 1);
 
-    sut.execute();
+    underTest.execute();
 
     db.assertDbUnit(getClass(), "snapshots-result.xml", "snapshots");
   }

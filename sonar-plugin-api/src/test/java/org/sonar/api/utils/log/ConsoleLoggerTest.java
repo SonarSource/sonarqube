@@ -30,7 +30,7 @@ import static org.mockito.Mockito.*;
 public class ConsoleLoggerTest {
 
   PrintStream stream = mock(PrintStream.class);
-  ConsoleLogger sut = new ConsoleLogger(stream);
+  ConsoleLogger underTest = new ConsoleLogger(stream);
 
   @Rule
   public LogTester tester = new LogTester();
@@ -38,74 +38,74 @@ public class ConsoleLoggerTest {
   @Test
   public void debug_enabled() {
     tester.setLevel(LoggerLevel.DEBUG);
-    assertThat(sut.isDebugEnabled()).isTrue();
-    assertThat(sut.isTraceEnabled()).isFalse();
-    sut.debug("message");
-    sut.debug("message {}", "foo");
-    sut.debug("message {} {}", "foo", "bar");
-    sut.debug("message {} {} {}", "foo", "bar", "baz");
+    assertThat(underTest.isDebugEnabled()).isTrue();
+    assertThat(underTest.isTraceEnabled()).isFalse();
+    underTest.debug("message");
+    underTest.debug("message {}", "foo");
+    underTest.debug("message {} {}", "foo", "bar");
+    underTest.debug("message {} {} {}", "foo", "bar", "baz");
     verify(stream, times(4)).println(anyString());
   }
 
   @Test
   public void debug_disabled() {
     tester.setLevel(LoggerLevel.INFO);
-    assertThat(sut.isDebugEnabled()).isFalse();
-    assertThat(sut.isTraceEnabled()).isFalse();
-    sut.debug("message");
-    sut.debug("message {}", "foo");
-    sut.debug("message {} {}", "foo", "bar");
-    sut.debug("message {} {} {}", "foo", "bar", "baz");
+    assertThat(underTest.isDebugEnabled()).isFalse();
+    assertThat(underTest.isTraceEnabled()).isFalse();
+    underTest.debug("message");
+    underTest.debug("message {}", "foo");
+    underTest.debug("message {} {}", "foo", "bar");
+    underTest.debug("message {} {} {}", "foo", "bar", "baz");
     verifyZeroInteractions(stream);
   }
 
   @Test
   public void trace_enabled() {
     tester.setLevel(LoggerLevel.TRACE);
-    assertThat(sut.isDebugEnabled()).isTrue();
-    assertThat(sut.isTraceEnabled()).isTrue();
-    sut.trace("message");
-    sut.trace("message {}", "foo");
-    sut.trace("message {} {}", "foo", "bar");
-    sut.trace("message {} {} {}", "foo", "bar", "baz");
+    assertThat(underTest.isDebugEnabled()).isTrue();
+    assertThat(underTest.isTraceEnabled()).isTrue();
+    underTest.trace("message");
+    underTest.trace("message {}", "foo");
+    underTest.trace("message {} {}", "foo", "bar");
+    underTest.trace("message {} {} {}", "foo", "bar", "baz");
     verify(stream, times(4)).println(anyString());
   }
 
   @Test
   public void trace_disabled() {
     tester.setLevel(LoggerLevel.DEBUG);
-    assertThat(sut.isTraceEnabled()).isFalse();
-    sut.trace("message");
-    sut.trace("message {}", "foo");
-    sut.trace("message {} {}", "foo", "bar");
-    sut.trace("message {} {} {}", "foo", "bar", "baz");
+    assertThat(underTest.isTraceEnabled()).isFalse();
+    underTest.trace("message");
+    underTest.trace("message {}", "foo");
+    underTest.trace("message {} {}", "foo", "bar");
+    underTest.trace("message {} {} {}", "foo", "bar", "baz");
     verifyZeroInteractions(stream);
   }
 
   @Test
   public void log() {
-    sut.info("message");
-    sut.info("message {}", "foo");
-    sut.info("message {} {}", "foo", "bar");
-    sut.info("message {} {} {}", "foo", "bar", "baz");
+    underTest.info("message");
+    underTest.info("message {}", "foo");
+    underTest.info("message {} {}", "foo", "bar");
+    underTest.info("message {} {} {}", "foo", "bar", "baz");
     verify(stream, times(4)).println(startsWith("INFO "));
 
-    sut.warn("message");
-    sut.warn("message {}", "foo");
-    sut.warn("message {} {}", "foo", "bar");
-    sut.warn("message {} {} {}", "foo", "bar", "baz");
+    underTest.warn("message");
+    underTest.warn("message {}", "foo");
+    underTest.warn("message {} {}", "foo", "bar");
+    underTest.warn("message {} {} {}", "foo", "bar", "baz");
     verify(stream, times(4)).println(startsWith("WARN "));
 
-    sut.error("message");
-    sut.error("message {}", "foo");
-    sut.error("message {} {}", "foo", "bar");
-    sut.error("message {} {} {}", "foo", "bar", "baz");
-    sut.error("message", new IllegalArgumentException());
+    underTest.error("message");
+    underTest.error("message {}", "foo");
+    underTest.error("message {} {}", "foo", "bar");
+    underTest.error("message {} {} {}", "foo", "bar", "baz");
+    underTest.error("message", new IllegalArgumentException());
     verify(stream, times(5)).println(startsWith("ERROR "));
   }
 
   @Test
   public void level_change_not_implemented_yet() {
-    assertThat(sut.setLevel(LoggerLevel.DEBUG)).isFalse();
+    assertThat(underTest.setLevel(LoggerLevel.DEBUG)).isFalse();
   }
 }

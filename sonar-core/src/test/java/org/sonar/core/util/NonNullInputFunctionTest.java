@@ -26,12 +26,12 @@ import static org.junit.Assert.fail;
 
 public class NonNullInputFunctionTest {
 
-  NonNullInputFunction<String, Integer> sut = new TestFunction();
+  NonNullInputFunction<String, Integer> underTest = new TestFunction();
 
   @Test
   public void fail_if_null_input() {
     try {
-      sut.apply(null);
+      underTest.apply(null);
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Null inputs are not allowed in this function");
@@ -40,7 +40,7 @@ public class NonNullInputFunctionTest {
 
   @Test
   public void apply() {
-    assertThat(sut.apply("foo")).isEqualTo(3);
+    assertThat(underTest.apply("foo")).isEqualTo(3);
   }
 
   private static class TestFunction extends NonNullInputFunction<String, Integer> {

@@ -37,12 +37,12 @@ public class DoNotFixNotificationDispatcherTest {
   NotificationDispatcher.Context context = mock(NotificationDispatcher.Context.class);
   NotificationChannel emailChannel = mock(NotificationChannel.class);
   NotificationChannel twitterChannel = mock(NotificationChannel.class);
-  DoNotFixNotificationDispatcher sut = new DoNotFixNotificationDispatcher(notifications);;
+  DoNotFixNotificationDispatcher underTest = new DoNotFixNotificationDispatcher(notifications);;
 
   @Test
   public void test_metadata() throws Exception {
     NotificationDispatcherMetadata metadata = DoNotFixNotificationDispatcher.newMetadata();
-    assertThat(metadata.getDispatcherKey()).isEqualTo(sut.getKey());
+    assertThat(metadata.getDispatcherKey()).isEqualTo(underTest.getKey());
     assertThat(metadata.getProperty(NotificationDispatcherMetadata.GLOBAL_NOTIFICATION)).isEqualTo("true");
     assertThat(metadata.getProperty(NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION)).isEqualTo("true");
   }
@@ -50,7 +50,7 @@ public class DoNotFixNotificationDispatcherTest {
   @Test
   public void should_not_dispatch_if_other_notification_type() {
     Notification notification = new Notification("other");
-    sut.performDispatch(notification, context);
+    underTest.performDispatch(notification, context);
 
     verify(context, never()).addUser(any(String.class), any(NotificationChannel.class));
   }
@@ -61,13 +61,13 @@ public class DoNotFixNotificationDispatcherTest {
     recipients.put("simon", emailChannel);
     recipients.put("freddy", twitterChannel);
     recipients.put("godin", twitterChannel);
-    when(notifications.findNotificationSubscribers(sut, "struts")).thenReturn(recipients);
+    when(notifications.findNotificationSubscribers(underTest, "struts")).thenReturn(recipients);
 
     Notification fpNotif = new IssueChangeNotification().setFieldValue("projectKey", "struts")
       .setFieldValue("changeAuthor", "godin")
       .setFieldValue("new.resolution", Issue.RESOLUTION_FALSE_POSITIVE)
       .setFieldValue("assignee", "freddy");
-    sut.performDispatch(fpNotif, context);
+    underTest.performDispatch(fpNotif, context);
 
     verify(context).addUser("simon", emailChannel);
     verify(context).addUser("freddy", twitterChannel);
@@ -84,13 +84,13 @@ public class DoNotFixNotificationDispatcherTest {
     Multimap<String, NotificationChannel> recipients = HashMultimap.create();
     recipients.put("simon", emailChannel);
     recipients.put("freddy", twitterChannel);
-    when(notifications.findNotificationSubscribers(sut, "struts")).thenReturn(recipients);
+    when(notifications.findNotificationSubscribers(underTest, "struts")).thenReturn(recipients);
 
     Notification fixedNotif = new IssueChangeNotification().setFieldValue("projectKey", "struts")
       .setFieldValue("changeAuthor", "godin")
       .setFieldValue("new.resolution", Issue.RESOLUTION_FIXED)
       .setFieldValue("assignee", "freddy");
-    sut.performDispatch(fixedNotif, context);
+    underTest.performDispatch(fixedNotif, context);
 
     verifyZeroInteractions(context);
   }

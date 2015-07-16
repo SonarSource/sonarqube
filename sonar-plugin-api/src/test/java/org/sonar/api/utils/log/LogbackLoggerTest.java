@@ -29,7 +29,7 @@ import static org.junit.Assert.fail;
 
 public class LogbackLoggerTest {
 
-  LogbackLogger sut = new LogbackLogger((ch.qos.logback.classic.Logger)LoggerFactory.getLogger(getClass()));
+  LogbackLogger underTest = new LogbackLogger((ch.qos.logback.classic.Logger)LoggerFactory.getLogger(getClass()));
 
   @Rule
   public LogTester tester = new LogTester();
@@ -37,55 +37,55 @@ public class LogbackLoggerTest {
   @Test
   public void log() {
     // no assertions. Simply verify that calls do not fail.
-    sut.trace("message");
-    sut.trace("message {}", "foo");
-    sut.trace("message {} {}", "foo", "bar");
-    sut.trace("message {} {} {}", "foo", "bar", "baz");
+    underTest.trace("message");
+    underTest.trace("message {}", "foo");
+    underTest.trace("message {} {}", "foo", "bar");
+    underTest.trace("message {} {} {}", "foo", "bar", "baz");
 
-    sut.debug("message");
-    sut.debug("message {}", "foo");
-    sut.debug("message {} {}", "foo", "bar");
-    sut.debug("message {} {} {}", "foo", "bar", "baz");
+    underTest.debug("message");
+    underTest.debug("message {}", "foo");
+    underTest.debug("message {} {}", "foo", "bar");
+    underTest.debug("message {} {} {}", "foo", "bar", "baz");
 
-    sut.info("message");
-    sut.info("message {}", "foo");
-    sut.info("message {} {}", "foo", "bar");
-    sut.info("message {} {} {}", "foo", "bar", "baz");
+    underTest.info("message");
+    underTest.info("message {}", "foo");
+    underTest.info("message {} {}", "foo", "bar");
+    underTest.info("message {} {} {}", "foo", "bar", "baz");
 
-    sut.warn("message");
-    sut.warn("message {}", "foo");
-    sut.warn("message {} {}", "foo", "bar");
-    sut.warn("message {} {} {}", "foo", "bar", "baz");
+    underTest.warn("message");
+    underTest.warn("message {}", "foo");
+    underTest.warn("message {} {}", "foo", "bar");
+    underTest.warn("message {} {} {}", "foo", "bar", "baz");
 
-    sut.error("message");
-    sut.error("message {}", "foo");
-    sut.error("message {} {}", "foo", "bar");
-    sut.error("message {} {} {}", "foo", "bar", "baz");
-    sut.error("message", new IllegalArgumentException(""));
+    underTest.error("message");
+    underTest.error("message {}", "foo");
+    underTest.error("message {} {}", "foo", "bar");
+    underTest.error("message {} {} {}", "foo", "bar", "baz");
+    underTest.error("message", new IllegalArgumentException(""));
   }
 
   @Test
   public void change_level() {
-    assertThat(sut.setLevel(LoggerLevel.INFO)).isTrue();
-    assertThat(sut.logbackLogger().getLevel()).isEqualTo(Level.INFO);
-    assertThat(sut.isDebugEnabled()).isFalse();
-    assertThat(sut.isTraceEnabled()).isFalse();
+    assertThat(underTest.setLevel(LoggerLevel.INFO)).isTrue();
+    assertThat(underTest.logbackLogger().getLevel()).isEqualTo(Level.INFO);
+    assertThat(underTest.isDebugEnabled()).isFalse();
+    assertThat(underTest.isTraceEnabled()).isFalse();
 
-    assertThat(sut.setLevel(LoggerLevel.DEBUG)).isTrue();
-    assertThat(sut.isDebugEnabled()).isTrue();
-    assertThat(sut.isTraceEnabled()).isFalse();
-    assertThat(sut.logbackLogger().getLevel()).isEqualTo(Level.DEBUG);
+    assertThat(underTest.setLevel(LoggerLevel.DEBUG)).isTrue();
+    assertThat(underTest.isDebugEnabled()).isTrue();
+    assertThat(underTest.isTraceEnabled()).isFalse();
+    assertThat(underTest.logbackLogger().getLevel()).isEqualTo(Level.DEBUG);
 
-    assertThat(sut.setLevel(LoggerLevel.TRACE)).isTrue();
-    assertThat(sut.isDebugEnabled()).isTrue();
-    assertThat(sut.isTraceEnabled()).isTrue();
-    assertThat(sut.logbackLogger().getLevel()).isEqualTo(Level.TRACE);
+    assertThat(underTest.setLevel(LoggerLevel.TRACE)).isTrue();
+    assertThat(underTest.isDebugEnabled()).isTrue();
+    assertThat(underTest.isTraceEnabled()).isTrue();
+    assertThat(underTest.logbackLogger().getLevel()).isEqualTo(Level.TRACE);
   }
 
   @Test
   public void info_level_can_not_be_disabled() {
     try {
-      sut.setLevel(LoggerLevel.ERROR);
+      underTest.setLevel(LoggerLevel.ERROR);
       fail();
 
     } catch (IllegalArgumentException e) {

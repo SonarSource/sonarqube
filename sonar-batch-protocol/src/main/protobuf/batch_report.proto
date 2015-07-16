@@ -45,13 +45,21 @@ message Metadata {
   optional string project_key = 2;
   optional string branch = 3;
   optional int32 root_component_ref = 4;
+}
 
-  /*
-    Keys of the rules that were enabled in Quality profiles.
-    A key is a string composed of the repository and the subKey, specific to the repository. Format is
-    "{repository}:{subKey}", for instance "java:NullDereference".
-  */
-  repeated string active_rule_key = 5;
+message ActiveRuleParameter {
+  optional string key = 1;
+  optional string value = 2;
+}
+
+/*
+  The rules that are enabled in the Quality profiles associated with the project
+*/
+message ActiveRule {
+  optional string rule_repository = 1;
+  optional string rule_key = 2;
+  optional Severity severity = 3;
+  repeated ActiveRuleParameter parameter = 4;
 }
 
 message ComponentLink {

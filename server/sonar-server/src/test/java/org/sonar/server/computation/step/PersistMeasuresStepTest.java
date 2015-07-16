@@ -81,13 +81,13 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   ComponentDto projectDto;
   ComponentDto fileDto;
 
-  PersistMeasuresStep sut;
+  PersistMeasuresStep underTest;
 
   @Before
   public void setUp() {
     dbTester.truncateTables();
 
-    sut = new PersistMeasuresStep(dbClient, metricRepository, dbIdsRepository, treeRootHolder, measureRepository);
+    underTest = new PersistMeasuresStep(dbClient, metricRepository, dbIdsRepository, treeRootHolder, measureRepository);
 
     projectDto = addComponent("project-key");
     fileDto = addComponent("file-key");
@@ -110,7 +110,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     measureRepository.addRawMeasure(PROJECT_REF, STRING_METRIC_KEY, Measure.newMeasureBuilder().create("measure-data"));
     measureRepository.addRawMeasure(FILE_REF, DOUBLE_METRIC_KEY, Measure.newMeasureBuilder().create(123.123d));
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(2);
 
@@ -149,7 +149,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
         .create(10d)
     );
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
     List<Map<String, Object>> dtos = selectSnapshots();
@@ -163,7 +163,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
     measureRepository.addRawMeasure(FILE_REF, OPTIMIZED_METRIC_KEY, Measure.newMeasureBuilder().create(true));
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(selectSnapshots()).isEmpty();
   }
@@ -176,7 +176,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     measureRepository.addRawMeasure(FILE_REF, STRING_METRIC_KEY, Measure.newMeasureBuilder().createNoValue());
     measureRepository.addRawMeasure(FILE_REF, DOUBLE_METRIC_KEY, Measure.newMeasureBuilder().createNoValue());
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(selectSnapshots()).isEmpty();
   }
@@ -188,7 +188,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     measureRepository.addRawMeasure(PROJECT_REF, FILE_COMPLEXITY_DISTRIBUTION_KEY, Measure.newMeasureBuilder().create("0=1;2=10"));
     measureRepository.addRawMeasure(FILE_REF, FILE_COMPLEXITY_DISTRIBUTION_KEY, Measure.newMeasureBuilder().create("0=1;2=10"));
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 
@@ -207,7 +207,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     measureRepository.addRawMeasure(PROJECT_REF, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, Measure.newMeasureBuilder().create("0=1;2=10"));
     measureRepository.addRawMeasure(FILE_REF, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, Measure.newMeasureBuilder().create("0=1;2=10"));
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 
@@ -243,6 +243,6 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
   @Override
   protected ComputationStep step() {
-    return sut;
+    return underTest;
   }
 }

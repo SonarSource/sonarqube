@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class WebLoggingTest {
 
   Props props = new Props(new Properties());
-  WebLogging sut = new WebLogging();
+  WebLogging underTest = new WebLogging();
 
   @AfterClass
   public static void resetLogback() throws Exception {
@@ -45,7 +45,7 @@ public class WebLoggingTest {
 
   @Test
   public void log_to_console() {
-    LoggerContext ctx = sut.configure(props);
+    LoggerContext ctx = underTest.configure(props);
 
     Logger root = ctx.getLogger(Logger.ROOT_LOGGER_NAME);
     Appender appender = root.getAppender("CONSOLE");
@@ -60,14 +60,14 @@ public class WebLoggingTest {
   @Test
   public void enable_debug_logs() {
     props.set("sonar.log.level", "DEBUG");
-    LoggerContext ctx = sut.configure(props);
+    LoggerContext ctx = underTest.configure(props);
     assertThat(ctx.getLogger(Logger.ROOT_LOGGER_NAME).getLevel()).isEqualTo(Level.DEBUG);
   }
 
   @Test
   public void enable_trace_logs() {
     props.set("sonar.log.level", "TRACE");
-    LoggerContext ctx = sut.configure(props);
+    LoggerContext ctx = underTest.configure(props);
     assertThat(ctx.getLogger(Logger.ROOT_LOGGER_NAME).getLevel()).isEqualTo(Level.TRACE);
   }
 }

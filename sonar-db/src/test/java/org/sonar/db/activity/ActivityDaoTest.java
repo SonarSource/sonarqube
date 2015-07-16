@@ -39,7 +39,7 @@ public class ActivityDaoTest {
   @Rule
   public DbTester dbTester = DbTester.create(system);
 
-  ActivityDao sut = dbTester.getDbClient().activityDao();
+  ActivityDao underTest = dbTester.getDbClient().activityDao();
 
   @Test
   public void insert() {
@@ -47,7 +47,7 @@ public class ActivityDaoTest {
     ActivityDto dto = new ActivityDto()
       .setKey("UUID_1").setAction("THE_ACTION").setType("THE_TYPE")
       .setAuthor("THE_AUTHOR").setData("THE_DATA");
-    sut.insert(dto);
+    underTest.insert(dto);
 
     Map<String, Object> map = dbTester.selectFirst("select created_at as \"createdAt\", log_action as \"action\", data_field as \"data\" from activities where log_key='UUID_1'");
     assertThat(map.get("action")).isEqualTo("THE_ACTION");

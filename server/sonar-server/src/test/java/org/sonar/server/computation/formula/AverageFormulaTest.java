@@ -228,20 +228,20 @@ public class AverageFormulaTest {
 
   @Test
   public void not_use_fallback_measure_if_main_measure_exists() {
-    AverageFormula sut = Builder.newBuilder()
+    AverageFormula underTest = Builder.newBuilder()
       .setOutputMetricKey(FUNCTION_COMPLEXITY_KEY)
       .setMainMetricKey(COMPLEXITY_IN_FUNCTIONS_KEY)
       .setByMetricKey(FUNCTIONS_KEY)
       .setFallbackMetricKey(CoreMetrics.COMPLEXITY_KEY)
       .build();
 
-    AverageFormula.AverageCounter counter = sut.createNewCounter();
+    AverageFormula.AverageCounter counter = underTest.createNewCounter();
     addMeasure(COMPLEXITY_IN_FUNCTIONS_KEY, 10d);
     addMeasure(COMPLEXITY_KEY, 12d);
     addMeasure(FUNCTIONS_KEY, 2d);
     counter.aggregate(fileAggregateContext);
 
-    assertThat(sut.createMeasure(counter, createMeasureContext).get().getDoubleValue()).isEqualTo(5d);
+    assertThat(underTest.createMeasure(counter, createMeasureContext).get().getDoubleValue()).isEqualTo(5d);
   }
 
   private void addMeasure(String metricKey, double value) {

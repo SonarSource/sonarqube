@@ -49,19 +49,19 @@ public class SubmitReportActionTest {
   ComputationThreadLauncher workerLauncher = mock(ComputationThreadLauncher.class);
   ReportQueue queue = mock(ReportQueue.class);
   WsTester wsTester;
-  SubmitReportAction sut;
+  SubmitReportAction underTest;
 
   @Before
   public void before() {
-    sut = new SubmitReportAction(queue, workerLauncher, userSessionRule);
-    wsTester = new WsTester(new ComputationWs(sut));
+    underTest = new SubmitReportAction(queue, workerLauncher, userSessionRule);
+    wsTester = new WsTester(new ComputationWs(underTest));
   }
 
   @Test
   public void define_metadata() {
     WebService.Context context = new WebService.Context();
     WebService.NewController controller = context.createController("api/computation");
-    sut.define(controller);
+    underTest.define(controller);
     controller.done();
 
     WebService.Action action = context.controller("api/computation").action("submit_report");

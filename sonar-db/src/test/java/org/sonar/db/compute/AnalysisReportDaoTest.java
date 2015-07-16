@@ -48,7 +48,7 @@ public class AnalysisReportDaoTest {
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  AnalysisReportDao sut = db.getDbClient().analysisReportDao();
+  AnalysisReportDao underTest = db.getDbClient().analysisReportDao();
 
   @Test
   public void insert_multiple_reports() {
@@ -58,8 +58,8 @@ public class AnalysisReportDaoTest {
     AnalysisReportDto report1 = new AnalysisReportDto().setProjectKey("ProjectKey1").setProjectName("Project 1").setUuid("UUID_1").setStatus(PENDING);
     AnalysisReportDto report2 = new AnalysisReportDto().setProjectKey("ProjectKey2").setProjectName("Project 2").setUuid("UUID_2").setStatus(PENDING);
 
-    sut.insert(db.getSession(), report1);
-    sut.insert(db.getSession(), report2);
+    underTest.insert(db.getSession(), report1);
+    underTest.insert(db.getSession(), report2);
     db.getSession().commit();
 
     db.assertDbUnit(getClass(), "insert-result.xml", "analysis_reports");
@@ -69,7 +69,7 @@ public class AnalysisReportDaoTest {
   public void resetAllToPendingStatus() {
     db.prepareDbUnit(getClass(), "update-all-to-status-pending.xml");
 
-    sut.resetAllToPendingStatus(db.getSession());
+    underTest.resetAllToPendingStatus(db.getSession());
     db.getSession().commit();
 
     db.assertDbUnit(getClass(), "update-all-to-status-pending-result.xml", "analysis_reports");
@@ -79,7 +79,7 @@ public class AnalysisReportDaoTest {
   public void truncate() {
     db.prepareDbUnit(getClass(), "any-analysis-reports.xml");
 
-    sut.truncate(db.getSession());
+    underTest.truncate(db.getSession());
     db.getSession().commit();
 
     db.assertDbUnit(getClass(), "truncate-result.xml", "analysis_reports");
@@ -90,7 +90,7 @@ public class AnalysisReportDaoTest {
     db.prepareDbUnit(getClass(), "select.xml");
 
     final String projectKey = "123456789-987654321";
-    List<AnalysisReportDto> reports = sut.selectByProjectKey(db.getSession(), projectKey);
+    List<AnalysisReportDto> reports = underTest.selectByProjectKey(db.getSession(), projectKey);
     AnalysisReportDto report = reports.get(0);
 
     assertThat(reports).hasSize(1);
@@ -105,7 +105,7 @@ public class AnalysisReportDaoTest {
     db.prepareDbUnit(getClass(), "select.xml");
 
     final String projectKey = "987654321-123456789";
-    List<AnalysisReportDto> reports = sut.selectByProjectKey(db.getSession(), projectKey);
+    List<AnalysisReportDto> reports = underTest.selectByProjectKey(db.getSession(), projectKey);
 
     assertThat(reports).hasSize(2);
   }
@@ -114,7 +114,7 @@ public class AnalysisReportDaoTest {
   public void pop_oldest_pending() {
     db.prepareDbUnit(getClass(), "pop_oldest_pending.xml");
 
-    AnalysisReportDto nextAvailableReport = sut.pop(db.getSession());
+    AnalysisReportDto nextAvailableReport = underTest.pop(db.getSession());
 
     assertThat(nextAvailableReport.getId()).isEqualTo(3);
     assertThat(nextAvailableReport.getProjectKey()).isEqualTo("P2");
@@ -124,7 +124,7 @@ public class AnalysisReportDaoTest {
   public void pop_null_if_no_pending_reports() {
     db.prepareDbUnit(getClass(), "pop_null_if_no_pending_reports.xml");
 
-    AnalysisReportDto nextAvailableReport = sut.pop(db.getSession());
+    AnalysisReportDto nextAvailableReport = underTest.pop(db.getSession());
 
     assertThat(nextAvailableReport).isNull();
   }
@@ -133,7 +133,7 @@ public class AnalysisReportDaoTest {
   public void getById_maps_all_the_fields_except_the_data() {
     db.prepareDbUnit(getClass(), "one_analysis_report.xml");
 
-    AnalysisReportDto report = sut.selectById(db.getSession(), 1L);
+    AnalysisReportDto report = underTest.selectById(db.getSession(), 1L);
 
     assertThat(report.getProjectKey()).isEqualTo(DEFAULT_PROJECT_KEY);
     assertThat(report.getCreatedAt()).isEqualTo(1_500_000_000_001L);
@@ -147,7 +147,7 @@ public class AnalysisReportDaoTest {
   public void getById_returns_null_when_id_not_found() {
     db.prepareDbUnit(getClass(), "select.xml");
 
-    AnalysisReportDto report = sut.selectById(db.getSession(), 4L);
+    AnalysisReportDto report = underTest.selectById(db.getSession(), 4L);
 
     assertThat(report).isNull();
   }
@@ -156,7 +156,7 @@ public class AnalysisReportDaoTest {
   public void delete_one_analysis_report() {
     db.prepareDbUnit(getClass(), "one_analysis_report.xml");
 
-    sut.delete(db.getSession(), 1);
+    underTest.delete(db.getSession(), 1);
     db.getSession().commit();
 
     db.assertDbUnit(getClass(), "truncate-result.xml", "analysis_reports");
@@ -166,7 +166,7 @@ public class AnalysisReportDaoTest {
   public void findAll_one_analysis_report() {
     db.prepareDbUnit(getClass(), "one_analysis_report.xml");
 
-    List<AnalysisReportDto> reports = sut.selectAll(db.getSession());
+    List<AnalysisReportDto> reports = underTest.selectAll(db.getSession());
 
     assertThat(reports).hasSize(1);
   }
@@ -175,7 +175,7 @@ public class AnalysisReportDaoTest {
   public void findAll_empty_table() {
     db.prepareDbUnit(getClass(), "empty.xml");
 
-    List<AnalysisReportDto> reports = sut.selectAll(db.getSession());
+    List<AnalysisReportDto> reports = underTest.selectAll(db.getSession());
 
     assertThat(reports).isEmpty();
   }
@@ -184,7 +184,7 @@ public class AnalysisReportDaoTest {
   public void findAll_three_analysis_reports() {
     db.prepareDbUnit(getClass(), "three_analysis_reports.xml");
 
-    List<AnalysisReportDto> reports = sut.selectAll(db.getSession());
+    List<AnalysisReportDto> reports = underTest.selectAll(db.getSession());
 
     assertThat(reports).hasSize(3);
   }

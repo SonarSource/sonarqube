@@ -28,14 +28,12 @@ import static org.mockito.Mockito.verify;
 
 public class IndexIssuesStepTest {
 
-  IndexIssuesStep sut;
-
   @Test
   public void call_indexers() {
     IssueIndexer issueIndexer = mock(IssueIndexer.class);
-    sut = new IndexIssuesStep(issueIndexer);
+    IndexIssuesStep underTest = new IndexIssuesStep(issueIndexer);
 
-    sut.execute();
+    underTest.execute();
 
     verify(issueIndexer).index();
   }

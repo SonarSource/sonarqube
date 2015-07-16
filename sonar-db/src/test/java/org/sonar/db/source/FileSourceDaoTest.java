@@ -40,13 +40,13 @@ public class FileSourceDaoTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  FileSourceDao sut = dbTester.getDbClient().fileSourceDao();
+  FileSourceDao underTest = dbTester.getDbClient().fileSourceDao();
 
   @Test
   public void select() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    FileSourceDto fileSourceDto = sut.selectSource("FILE1_UUID");
+    FileSourceDto fileSourceDto = underTest.selectSource("FILE1_UUID");
 
     assertThat(fileSourceDto.getBinaryData()).isNotEmpty();
     assertThat(fileSourceDto.getDataHash()).isEqualTo("hash");
@@ -62,7 +62,7 @@ public class FileSourceDaoTest {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     ReaderToStringFunction fn = new ReaderToStringFunction();
-    sut.readLineHashesStream(dbTester.getSession(), "FILE1_UUID", fn);
+    underTest.readLineHashesStream(dbTester.getSession(), "FILE1_UUID", fn);
 
     assertThat(fn.result).isEqualTo("ABC\\nDEF\\nGHI");
   }
@@ -72,7 +72,7 @@ public class FileSourceDaoTest {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     ReaderToStringFunction fn = new ReaderToStringFunction();
-    sut.readLineHashesStream(dbTester.getSession(), "unknown", fn);
+    underTest.readLineHashesStream(dbTester.getSession(), "unknown", fn);
 
     assertThat(fn.result).isNull();
   }
@@ -82,7 +82,7 @@ public class FileSourceDaoTest {
     dbTester.prepareDbUnit(getClass(), "no_line_hashes_when_only_test_data.xml");
 
     ReaderToStringFunction fn = new ReaderToStringFunction();
-    sut.readLineHashesStream(dbTester.getSession(), "FILE1_UUID", fn);
+    underTest.readLineHashesStream(dbTester.getSession(), "FILE1_UUID", fn);
 
     assertThat(fn.result).isNull();
   }
@@ -91,7 +91,7 @@ public class FileSourceDaoTest {
   public void insert() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    sut.insert(new FileSourceDto()
+    underTest.insert(new FileSourceDto()
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE2_UUID")
       .setBinaryData("FILE2_BINARY_DATA".getBytes())
@@ -110,7 +110,7 @@ public class FileSourceDaoTest {
   public void update() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    sut.update(new FileSourceDto()
+    underTest.update(new FileSourceDto()
       .setId(101L)
       .setProjectUuid("PRJ_UUID")
       .setFileUuid("FILE1_UUID")
@@ -129,7 +129,7 @@ public class FileSourceDaoTest {
   public void update_date_when_updated_date_is_zero() {
     dbTester.prepareDbUnit(getClass(), "update_date_when_updated_date_is_zero.xml");
 
-    sut.updateDateWhenUpdatedDateIsZero(dbTester.getSession(), "ABCD", 1500000000002L);
+    underTest.updateDateWhenUpdatedDateIsZero(dbTester.getSession(), "ABCD", 1500000000002L);
     dbTester.getSession().commit();
 
     dbTester.assertDbUnitTable(getClass(), "update_date_when_updated_date_is_zero-result.xml", "file_sources",

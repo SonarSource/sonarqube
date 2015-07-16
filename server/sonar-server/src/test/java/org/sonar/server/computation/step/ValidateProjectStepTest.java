@@ -65,14 +65,14 @@ public class ValidateProjectStepTest {
 
   Settings settings;
 
-  ValidateProjectStep sut;
+  ValidateProjectStep underTest;
 
   @Before
   public void setUp() {
     dbTester.truncateTables();
     settings = new Settings();
 
-    sut = new ValidateProjectStep(dbClient, settings, reportReader, treeRootHolder);
+    underTest = new ValidateProjectStep(dbClient, settings, reportReader, treeRootHolder);
   }
 
   @Test
@@ -89,7 +89,7 @@ public class ValidateProjectStepTest {
     dbTester.getSession().commit();
     treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
-    sut.execute();
+    underTest.execute();
   }
 
   @Test
@@ -107,7 +107,7 @@ public class ValidateProjectStepTest {
     settings.appendProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, "true");
     treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
-    sut.execute();
+    underTest.execute();
   }
 
   @Test
@@ -122,7 +122,7 @@ public class ValidateProjectStepTest {
     settings.appendProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, "false");
     treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
-    sut.execute();
+    underTest.execute();
   }
 
   @Test
@@ -138,7 +138,7 @@ public class ValidateProjectStepTest {
       .build());
     treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY + ":origin/master").build());
 
-    sut.execute();
+    underTest.execute();
   }
 
   @Test
@@ -158,7 +158,7 @@ public class ValidateProjectStepTest {
       .build());
     treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY + ":bran#ch").build());
 
-    sut.execute();
+    underTest.execute();
   }
 
   @Test
@@ -186,7 +186,7 @@ public class ValidateProjectStepTest {
       DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("Module$Key").build())
       .build());
 
-    sut.execute();
+    underTest.execute();
   }
 
   @Test
@@ -218,7 +218,7 @@ public class ValidateProjectStepTest {
       DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY).build())
       .build());
 
-    sut.execute();
+    underTest.execute();
   }
 
   @Test
@@ -252,7 +252,7 @@ public class ValidateProjectStepTest {
       DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY).build())
       .build());
 
-    sut.execute();
+    underTest.execute();
   }
 
   @Test
@@ -287,7 +287,7 @@ public class ValidateProjectStepTest {
       DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY).build())
       .build());
 
-    sut.execute();
+    underTest.execute();
   }
 
   @Test
@@ -309,7 +309,7 @@ public class ValidateProjectStepTest {
 
     treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
-    sut.execute();
+    underTest.execute();
   }
 
   @Test
@@ -336,6 +336,6 @@ public class ValidateProjectStepTest {
 
     treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
-    sut.execute();
+    underTest.execute();
   }
 }

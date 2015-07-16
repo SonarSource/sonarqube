@@ -37,14 +37,14 @@ public class StartupLogsTest {
   Tomcat tomcat = mock(Tomcat.class, Mockito.RETURNS_DEEP_STUBS);
   Logger logger = mock(Logger.class);
   Props props = new Props(new Properties());
-  StartupLogs sut = new StartupLogs(props, logger);
+  StartupLogs underTest = new StartupLogs(props, logger);
 
   @Test
   public void logAjp() {
     Connector connector = newConnector("AJP/1.3", "http");
     when(tomcat.getService().findConnectors()).thenReturn(new Connector[] {connector});
 
-    sut.log(tomcat);
+    underTest.log(tomcat);
 
     verify(logger).info("AJP/1.3 connector enabled on port 1234");
     verifyNoMoreInteractions(logger);
@@ -55,7 +55,7 @@ public class StartupLogsTest {
     Connector connector = newConnector("HTTP/1.1", "http");
     when(tomcat.getService().findConnectors()).thenReturn(new Connector[] {connector});
 
-    sut.log(tomcat);
+    underTest.log(tomcat);
 
     verify(logger).info("HTTP connector enabled on port 1234");
     verifyNoMoreInteractions(logger);
@@ -66,7 +66,7 @@ public class StartupLogsTest {
     Connector connector = newConnector("HTTP/1.1", "https");
     when(tomcat.getService().findConnectors()).thenReturn(new Connector[] {connector});
 
-    sut.log(tomcat);
+    underTest.log(tomcat);
 
     verify(logger).info("HTTPS connector enabled on port 1234 | ciphers=JVM defaults");
     verifyNoMoreInteractions(logger);
@@ -82,7 +82,7 @@ public class StartupLogsTest {
     when(connector.getProtocolHandler()).thenReturn(protocol);
     when(tomcat.getService().findConnectors()).thenReturn(new Connector[] {connector});
     props.set(TomcatConnectors.PROP_HTTPS_CIPHERS, "SSL_RSA,TLS_RSA_WITH_RC4");
-    sut.log(tomcat);
+    underTest.log(tomcat);
 
     verify(logger).info("HTTPS connector enabled on port 1234 | ciphers=SSL_RSA,TLS_RSA_WITH_RC4");
     verifyNoMoreInteractions(logger);
@@ -95,7 +95,7 @@ public class StartupLogsTest {
     when(connector.getScheme()).thenReturn("spdy");
     when(tomcat.getService().findConnectors()).thenReturn(new Connector[] {connector});
     try {
-      sut.log(tomcat);
+      underTest.log(tomcat);
       fail();
     } catch (IllegalArgumentException e) {
       // expected

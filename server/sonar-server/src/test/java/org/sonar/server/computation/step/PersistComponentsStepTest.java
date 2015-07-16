@@ -72,7 +72,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
   Date now;
 
-  PersistComponentsStep sut;
+  PersistComponentsStep underTest;
 
   @Before
   public void setup() throws Exception {
@@ -82,12 +82,12 @@ public class PersistComponentsStepTest extends BaseStepTest {
     now = DATE_FORMAT.parse("2015-06-02");
     when(system2.now()).thenReturn(now.getTime());
 
-    sut = new PersistComponentsStep(dbClient, treeRootHolder, reportReader, dbIdsRepository, system2);
+    underTest = new PersistComponentsStep(dbClient, treeRootHolder, reportReader, dbIdsRepository, system2);
   }
 
   @Override
   protected ComputationStep step() {
-    return sut;
+    return underTest;
   }
 
   @Test
@@ -128,7 +128,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
     Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(module).build();
     treeRootHolder.setRoot(project);
 
-    sut.execute();
+    underTest.execute();
     dbTester.getSession().commit();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
@@ -219,7 +219,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       ).build()
     ).build());
 
-    sut.execute();
+    underTest.execute();
 
     ComponentDto directory = dbClient.componentDao().selectByKey(dbTester.getSession(), "PROJECT_KEY:/").get();
     assertThat(directory.name()).isEqualTo("/");
@@ -258,7 +258,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
         .build())
       .build());
 
-    sut.execute();
+    underTest.execute();
 
     ComponentDto file = dbClient.componentDao().selectByKey(dbTester.getSession(), PROJECT_KEY + ":src/test/java/dir/FooTest.java").get();
     assertThat(file.name()).isEqualTo("FooTest.java");
@@ -310,7 +310,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
         .build())
       .build());
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
 
@@ -385,7 +385,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
         .build())
       .build());
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(5);
 
@@ -446,7 +446,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       DumbComponent.builder(Component.Type.MODULE, 4).setUuid("CDEF").setKey("MODULE_B").build())
       .build());
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
 
@@ -516,7 +516,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
         .build())
       .build());
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
     assertThat(dbClient.componentDao().selectByKey(dbTester.getSession(), PROJECT_KEY).get().getId()).isEqualTo(project.getId());
@@ -586,7 +586,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").build())
       .build());
 
-    sut.execute();
+    underTest.execute();
 
     ComponentDto projectReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), PROJECT_KEY).get();
     assertThat(projectReloaded.name()).isEqualTo("New project name");
@@ -623,7 +623,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").build())
       .build());
 
-    sut.execute();
+    underTest.execute();
 
     ComponentDto projectReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), PROJECT_KEY).get();
     assertThat(projectReloaded.description()).isEqualTo("New project description");
@@ -659,7 +659,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").build())
       .build());
 
-    sut.execute();
+    underTest.execute();
 
     ComponentDto moduleReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), "MODULE_KEY").get();
     assertThat(moduleReloaded.path()).isEqualTo("New path");
@@ -721,7 +721,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
         .build())
       .build());
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(5);
 
@@ -771,7 +771,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
 
     treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
-    sut.execute();
+    underTest.execute();
 
     Optional<ComponentDto> projectReloaded = dbClient.componentDao().selectByKey(dbTester.getSession(), PROJECT_KEY);
     assertThat(projectReloaded.get().name()).isEqualTo("New project name");
@@ -823,7 +823,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
         .build())
       .build());
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(4);
     assertThat(dbClient.componentDao().selectByKey(dbTester.getSession(), PROJECT_KEY).get().getId()).isEqualTo(project.getId());
@@ -919,7 +919,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
         .build())
       .build());
 
-    sut.execute();
+    underTest.execute();
 
     // Projects contains 4 components from the report + one removed module
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(5);

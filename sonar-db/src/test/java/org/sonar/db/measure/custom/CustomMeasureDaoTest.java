@@ -43,13 +43,13 @@ public class CustomMeasureDaoTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  CustomMeasureDao sut;
+  CustomMeasureDao underTest;
   DbSession session;
 
   @Before
   public void setUp() {
     session = db.getSession();
-    sut = new CustomMeasureDao();
+    underTest = new CustomMeasureDao();
     db.truncateTables();
   }
 
@@ -57,9 +57,9 @@ public class CustomMeasureDaoTest {
   public void insert() {
     CustomMeasureDto measure = newCustomMeasureDto();
 
-    sut.insert(session, measure);
+    underTest.insert(session, measure);
 
-    CustomMeasureDto result = sut.selectById(session, measure.getId());
+    CustomMeasureDto result = underTest.selectById(session, measure.getId());
     assertThat(result.getId()).isEqualTo(measure.getId());
     assertThat(result.getMetricId()).isEqualTo(measure.getMetricId());
     assertThat(result.getComponentUuid()).isEqualTo(measure.getComponentUuid());
@@ -74,56 +74,56 @@ public class CustomMeasureDaoTest {
   @Test
   public void delete_by_metric_id() {
     CustomMeasureDto measure = newCustomMeasureDto();
-    sut.insert(session, measure);
-    assertThat(sut.selectNullableById(session, measure.getId())).isNotNull();
+    underTest.insert(session, measure);
+    assertThat(underTest.selectNullableById(session, measure.getId())).isNotNull();
 
-    sut.deleteByMetricIds(session, Arrays.asList(measure.getMetricId()));
+    underTest.deleteByMetricIds(session, Arrays.asList(measure.getMetricId()));
 
-    assertThat(sut.selectNullableById(session, measure.getId())).isNull();
+    assertThat(underTest.selectNullableById(session, measure.getId())).isNull();
   }
 
   @Test
   public void update() {
     CustomMeasureDto measure = newCustomMeasureDto().setDescription("old-description");
-    sut.insert(session, measure);
+    underTest.insert(session, measure);
     measure.setDescription("new-description");
 
-    sut.update(session, measure);
+    underTest.update(session, measure);
 
-    assertThat(sut.selectNullableById(session, measure.getId()).getDescription()).isEqualTo("new-description");
+    assertThat(underTest.selectNullableById(session, measure.getId()).getDescription()).isEqualTo("new-description");
   }
 
   @Test
   public void delete() {
     CustomMeasureDto measure = newCustomMeasureDto();
-    sut.insert(session, measure);
+    underTest.insert(session, measure);
 
-    sut.delete(session, measure.getId());
-    assertThat(sut.selectNullableById(session, measure.getId())).isNull();
+    underTest.delete(session, measure.getId());
+    assertThat(underTest.selectNullableById(session, measure.getId())).isNull();
   }
 
   @Test
   public void select_by_component_uuid() {
-    sut.insert(session, newCustomMeasureDto().setComponentUuid("u1"));
-    sut.insert(session, newCustomMeasureDto().setComponentUuid("u1"));
-    sut.insert(session, newCustomMeasureDto().setComponentUuid("u2"));
+    underTest.insert(session, newCustomMeasureDto().setComponentUuid("u1"));
+    underTest.insert(session, newCustomMeasureDto().setComponentUuid("u1"));
+    underTest.insert(session, newCustomMeasureDto().setComponentUuid("u2"));
     session.commit();
 
-    List<CustomMeasureDto> result = sut.selectByComponentUuid(session, "u1");
+    List<CustomMeasureDto> result = underTest.selectByComponentUuid(session, "u1");
 
     assertThat(result).hasSize(2);
     assertThat(result).extracting("componentUuid").containsOnly("u1");
-    assertThat(sut.countByComponentUuid(session, "u1")).isEqualTo(2);
+    assertThat(underTest.countByComponentUuid(session, "u1")).isEqualTo(2);
   }
 
   @Test
   public void select_by_component_uuid_with_options() {
-    sut.insert(session, newCustomMeasureDto().setComponentUuid("u1"));
-    sut.insert(session, newCustomMeasureDto().setComponentUuid("u1"));
-    sut.insert(session, newCustomMeasureDto().setComponentUuid("u2"));
+    underTest.insert(session, newCustomMeasureDto().setComponentUuid("u1"));
+    underTest.insert(session, newCustomMeasureDto().setComponentUuid("u1"));
+    underTest.insert(session, newCustomMeasureDto().setComponentUuid("u2"));
     session.commit();
 
-    List<CustomMeasureDto> result = sut.selectByComponentUuid(session, "u1", 0, 100);
+    List<CustomMeasureDto> result = underTest.selectByComponentUuid(session, "u1", 0, 100);
 
     assertThat(result).hasSize(2);
     assertThat(result).extracting("componentUuid").containsOnly("u1");
@@ -131,20 +131,20 @@ public class CustomMeasureDaoTest {
 
   @Test
   public void select_by_metric_id() {
-    sut.insert(session, newCustomMeasureDto().setMetricId(123));
-    sut.insert(session, newCustomMeasureDto().setMetricId(123));
+    underTest.insert(session, newCustomMeasureDto().setMetricId(123));
+    underTest.insert(session, newCustomMeasureDto().setMetricId(123));
 
-    List<CustomMeasureDto> result = sut.selectByMetricId(session, 123);
+    List<CustomMeasureDto> result = underTest.selectByMetricId(session, 123);
 
     assertThat(result).hasSize(2);
   }
 
   @Test
   public void count_by_component_uuid_and_metric_id() {
-    sut.insert(session, newCustomMeasureDto().setMetricId(123).setComponentUuid("123"));
-    sut.insert(session, newCustomMeasureDto().setMetricId(123).setComponentUuid("123"));
+    underTest.insert(session, newCustomMeasureDto().setMetricId(123).setComponentUuid("123"));
+    underTest.insert(session, newCustomMeasureDto().setMetricId(123).setComponentUuid("123"));
 
-    int count = sut.countByComponentIdAndMetricId(session, "123", 123);
+    int count = underTest.countByComponentIdAndMetricId(session, "123", 123);
 
     assertThat(count).isEqualTo(2);
   }
@@ -153,7 +153,7 @@ public class CustomMeasureDaoTest {
   public void select_by_id_fail_if_no_measure_found() {
     expectedException.expect(IllegalArgumentException.class);
 
-    sut.selectById(session, 42L);
+    underTest.selectById(session, 42L);
   }
 
 }

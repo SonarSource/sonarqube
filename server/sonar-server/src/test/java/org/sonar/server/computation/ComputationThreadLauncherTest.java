@@ -41,7 +41,7 @@ public class ComputationThreadLauncherTest {
   @Rule
   public TestRule timeout = new DisableOnDebug(Timeout.seconds(60));
 
-  ComputationThreadLauncher sut;
+  ComputationThreadLauncher underTest;
   ReportQueue queue;
   ComponentContainer componentContainer;
   ContainerFactory containerFactory;
@@ -55,14 +55,14 @@ public class ComputationThreadLauncherTest {
 
   @After
   public void after() {
-    sut.stop();
+    underTest.stop();
   }
 
   @Test
   public void call_findAndBook_when_launching_a_recurrent_task() throws Exception {
-    sut = new ComputationThreadLauncher(queue, componentContainer, containerFactory, 0, 1, TimeUnit.MILLISECONDS);
+    underTest = new ComputationThreadLauncher(queue, componentContainer, containerFactory, 0, 1, TimeUnit.MILLISECONDS);
 
-    sut.onServerStart(mock(Server.class));
+    underTest.onServerStart(mock(Server.class));
 
     sleep();
 
@@ -71,10 +71,10 @@ public class ComputationThreadLauncherTest {
 
   @Test
   public void call_findAndBook_when_executing_task_immediately() throws Exception {
-    sut = new ComputationThreadLauncher(queue, componentContainer, containerFactory, 1, 1, TimeUnit.HOURS);
-    sut.start();
+    underTest = new ComputationThreadLauncher(queue, componentContainer, containerFactory, 1, 1, TimeUnit.HOURS);
+    underTest.start();
 
-    sut.startAnalysisTaskNow();
+    underTest.startAnalysisTaskNow();
 
     sleep();
 
@@ -83,8 +83,8 @@ public class ComputationThreadLauncherTest {
 
   @Test
   public void test_real_constructor() throws Exception {
-    sut = new ComputationThreadLauncher(queue, componentContainer);
-    sut.start();
+    underTest = new ComputationThreadLauncher(queue, componentContainer);
+    underTest.start();
   }
 
   private void sleep() throws InterruptedException {

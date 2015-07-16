@@ -40,16 +40,16 @@ public class DebtModelHolderImplTest {
   private static final Characteristic MAINTAINABILITY = new Characteristic(4, "MAINTAINABILITY", null);
   private static final Characteristic READABILITY = new Characteristic(5, "READABILITY", null);
 
-  DebtModelHolderImpl sut = new DebtModelHolderImpl();
+  DebtModelHolderImpl underTest = new DebtModelHolderImpl();
 
   @Test
   public void add_and_get_characteristics() {
-    sut.addCharacteristics(PORTABILITY, Arrays.asList(COMPILER_RELATED_PORTABILITY, HARDWARE_RELATED_PORTABILITY));
-    sut.addCharacteristics(MAINTAINABILITY, singletonList(READABILITY));
+    underTest.addCharacteristics(PORTABILITY, Arrays.asList(COMPILER_RELATED_PORTABILITY, HARDWARE_RELATED_PORTABILITY));
+    underTest.addCharacteristics(MAINTAINABILITY, singletonList(READABILITY));
 
-    assertThat(sut.getRootCharacteristics()).hasSize(2);
-    assertThat(sut.getCharacteristicById(PORTABILITY.getId()).getKey()).isEqualTo("PORTABILITY");
-    assertThat(sut.getCharacteristicById(COMPILER_RELATED_PORTABILITY.getId()).getKey()).isEqualTo("COMPILER_RELATED_PORTABILITY");
+    assertThat(underTest.getRootCharacteristics()).hasSize(2);
+    assertThat(underTest.getCharacteristicById(PORTABILITY.getId()).getKey()).isEqualTo("PORTABILITY");
+    assertThat(underTest.getCharacteristicById(COMPILER_RELATED_PORTABILITY.getId()).getKey()).isEqualTo("COMPILER_RELATED_PORTABILITY");
   }
 
   @Test
@@ -57,7 +57,7 @@ public class DebtModelHolderImplTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("rootCharacteristic cannot be null");
 
-    sut.addCharacteristics(null, singletonList(COMPILER_RELATED_PORTABILITY));
+    underTest.addCharacteristics(null, singletonList(COMPILER_RELATED_PORTABILITY));
   }
 
   @Test
@@ -65,7 +65,7 @@ public class DebtModelHolderImplTest {
     thrown.expect(NullPointerException.class);
     thrown.expectMessage("subCharacteristics cannot be null");
 
-    sut.addCharacteristics(PORTABILITY, null);
+    underTest.addCharacteristics(PORTABILITY, null);
   }
 
   @Test
@@ -73,15 +73,15 @@ public class DebtModelHolderImplTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("subCharacteristics cannot be empty");
 
-    sut.addCharacteristics(PORTABILITY, Collections.<Characteristic>emptyList());
+    underTest.addCharacteristics(PORTABILITY, Collections.<Characteristic>emptyList());
   }
 
   @Test
   public void get_root_characteristics() {
-    sut.addCharacteristics(PORTABILITY, Arrays.asList(COMPILER_RELATED_PORTABILITY, READABILITY));
-    sut.addCharacteristics(MAINTAINABILITY, singletonList(READABILITY));
+    underTest.addCharacteristics(PORTABILITY, Arrays.asList(COMPILER_RELATED_PORTABILITY, READABILITY));
+    underTest.addCharacteristics(MAINTAINABILITY, singletonList(READABILITY));
 
-    assertThat(sut.getRootCharacteristics()).hasSize(2);
+    assertThat(underTest.getRootCharacteristics()).hasSize(2);
   }
 
   @Test
@@ -89,7 +89,7 @@ public class DebtModelHolderImplTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Characteristics have not been initialized yet");
 
-    sut.getCharacteristicById(1);
+    underTest.getCharacteristicById(1);
   }
 
   @Test
@@ -97,6 +97,6 @@ public class DebtModelHolderImplTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Characteristics have not been initialized yet");
 
-    sut.getRootCharacteristics();
+    underTest.getRootCharacteristics();
   }
 }

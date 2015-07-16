@@ -51,11 +51,11 @@ public class DistributionFormulaExecutionTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  FormulaExecutorComponentVisitor sut;
+  FormulaExecutorComponentVisitor underTest;
 
   @Before
   public void setUp() throws Exception {
-    sut = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
+    underTest = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
       .buildFor(Lists.<Formula>newArrayList(new DistributionFormula(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)));
   }
 
@@ -86,7 +86,7 @@ public class DistributionFormulaExecutionTest {
     measureRepository.addRawMeasure(1112, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, newMeasureBuilder().create("0.5=0;3.5=2;6.5=1"));
     measureRepository.addRawMeasure(1211, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, newMeasureBuilder().create("0.5=1;3.5=3;6.5=2"));
 
-    sut.visit(project);
+    underTest.visit(project);
 
     assertThat(toEntries(measureRepository.getNewRawMeasures(1))).containsOnly(entryOf(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, newMeasureBuilder().create("0.5=4;3.5=10;6.5=12")));
     assertThat(toEntries(measureRepository.getNewRawMeasures(11))).containsOnly(entryOf(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, newMeasureBuilder().create("0.5=3;3.5=7;6.5=10")));
@@ -113,7 +113,7 @@ public class DistributionFormulaExecutionTest {
 
     treeRootHolder.setRoot(project);
 
-    sut.visit(project);
+    underTest.visit(project);
 
     assertThat(measureRepository.getNewRawMeasures(1)).isEmpty();
     assertThat(measureRepository.getNewRawMeasures(11)).isEmpty();

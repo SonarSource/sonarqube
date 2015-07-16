@@ -27,11 +27,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class MeasureDtoTest {
 
-  MeasureDto sut = new MeasureDto();
+  MeasureDto underTest = new MeasureDto();
 
   @Test
   public void test_getter_and_setter() throws Exception {
-    sut
+    underTest
       .setComponentKey("component")
       .setMetricKey("metric")
       .setId(10L)
@@ -43,33 +43,33 @@ public class MeasureDtoTest {
       .setVariation(4, 4d)
       .setVariation(5, 5d);
 
-    assertThat(sut.getId()).isEqualTo(10);
-    assertThat(sut.getValue()).isEqualTo(2d);
-    assertThat(sut.getData()).isNotNull();
-    assertThat(sut.getVariation(1)).isEqualTo(1d);
-    assertThat(sut.getVariation(2)).isEqualTo(2d);
-    assertThat(sut.getVariation(3)).isEqualTo(3d);
-    assertThat(sut.getVariation(4)).isEqualTo(4d);
-    assertThat(sut.getVariation(5)).isEqualTo(5d);
+    assertThat(underTest.getId()).isEqualTo(10);
+    assertThat(underTest.getValue()).isEqualTo(2d);
+    assertThat(underTest.getData()).isNotNull();
+    assertThat(underTest.getVariation(1)).isEqualTo(1d);
+    assertThat(underTest.getVariation(2)).isEqualTo(2d);
+    assertThat(underTest.getVariation(3)).isEqualTo(3d);
+    assertThat(underTest.getVariation(4)).isEqualTo(4d);
+    assertThat(underTest.getVariation(5)).isEqualTo(5d);
   }
 
   @Test
   public void value_with_text_over_4000_characters() {
-    assertThat(sut.setData(Strings.repeat("1", 4001)).getData()).isNotNull();
+    assertThat(underTest.setData(Strings.repeat("1", 4001)).getData()).isNotNull();
   }
 
   @Test
   public void text_value_under_4000_characters() {
-    assertThat(sut.setData("text value").getData()).isEqualTo("text value");
+    assertThat(underTest.setData("text value").getData()).isEqualTo("text value");
   }
 
   @Test(expected = IndexOutOfBoundsException.class)
   public void fail_to_set_out_of_bounds_variation() {
-    sut.setVariation(6, 1d);
+    underTest.setVariation(6, 1d);
   }
 
   @Test(expected = IndexOutOfBoundsException.class)
   public void fail_to_get_out_of_bounds_variation() {
-    sut.getVariation(6);
+    underTest.getVariation(6);
   }
 }

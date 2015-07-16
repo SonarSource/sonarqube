@@ -48,13 +48,13 @@ public class ComputationThreadTest {
   ReportQueue queue = mock(ReportQueue.class);
   ComponentContainer componentContainer = mock(ComponentContainer.class);
   ContainerFactory containerFactory = mock(ContainerFactory.class);
-  ComputationThread sut = new ComputationThread(queue, componentContainer, containerFactory);
+  ComputationThread underTest = new ComputationThread(queue, componentContainer, containerFactory);
 
   @Test
   public void do_nothing_if_queue_empty() {
     when(queue.pop()).thenReturn(null);
 
-    sut.run();
+    underTest.run();
 
     verify(queue).pop();
     verifyZeroInteractions(containerFactory);
@@ -68,7 +68,7 @@ public class ComputationThreadTest {
     when(queue.pop()).thenReturn(item);
     when(containerFactory.create(componentContainer, item)).thenReturn(mock(ComputeEngineContainer.class));
 
-    sut.run();
+    underTest.run();
 
     verify(queue).pop();
     verify(containerFactory).create(componentContainer, item);
@@ -78,7 +78,7 @@ public class ComputationThreadTest {
   public void handle_error_during_queue_pop() {
     when(queue.pop()).thenThrow(new IllegalStateException());
 
-    sut.run();
+    underTest.run();
 
     assertThat(logTester.logs()).contains("Failed to pop the queue of analysis reports");
   }
@@ -92,7 +92,7 @@ public class ComputationThreadTest {
     when(queue.pop()).thenReturn(item);
     doThrow(new IllegalStateException("pb")).when(queue).remove(item);
 
-    sut.run();
+    underTest.run();
 
     assertThat(logTester.logs()).contains("Failed to remove analysis report 1 from queue");
   }

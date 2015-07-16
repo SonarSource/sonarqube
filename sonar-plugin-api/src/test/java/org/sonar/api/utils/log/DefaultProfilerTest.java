@@ -30,21 +30,21 @@ public class DefaultProfilerTest {
   @Rule
   public LogTester tester = new LogTester();
 
-  Profiler sut = Profiler.create(Loggers.get("DefaultProfilerTest"));
+  Profiler underTest = Profiler.create(Loggers.get("DefaultProfilerTest"));
 
   @Test
   public void test_levels() throws Exception {
     // trace by default
-    assertThat(sut.isDebugEnabled()).isTrue();
-    assertThat(sut.isTraceEnabled()).isTrue();
+    assertThat(underTest.isDebugEnabled()).isTrue();
+    assertThat(underTest.isTraceEnabled()).isTrue();
 
     tester.setLevel(LoggerLevel.DEBUG);
-    assertThat(sut.isDebugEnabled()).isTrue();
-    assertThat(sut.isTraceEnabled()).isFalse();
+    assertThat(underTest.isDebugEnabled()).isTrue();
+    assertThat(underTest.isTraceEnabled()).isFalse();
 
     tester.setLevel(LoggerLevel.INFO);
-    assertThat(sut.isDebugEnabled()).isFalse();
-    assertThat(sut.isTraceEnabled()).isFalse();
+    assertThat(underTest.isDebugEnabled()).isFalse();
+    assertThat(underTest.isTraceEnabled()).isFalse();
   }
 
   @Test
@@ -52,25 +52,25 @@ public class DefaultProfilerTest {
     tester.setLevel(LoggerLevel.TRACE);
 
     // trace
-    sut.startTrace("Register rules");
+    underTest.startTrace("Register rules");
     assertThat(tester.logs()).containsOnly("Register rules");
-    sut.stopTrace();
+    underTest.stopTrace();
     assertThat(tester.logs()).hasSize(2);
     assertThat(tester.logs().get(1)).startsWith("Register rules (done) | time=");
     tester.clear();
 
     // debug
-    sut.startDebug("Register rules");
+    underTest.startDebug("Register rules");
     assertThat(tester.logs()).containsOnly("Register rules");
-    sut.stopTrace();
+    underTest.stopTrace();
     assertThat(tester.logs()).hasSize(2);
     assertThat(tester.logs().get(1)).startsWith("Register rules (done) | time=");
     tester.clear();
 
     // info
-    sut.startInfo("Register rules");
+    underTest.startInfo("Register rules");
     assertThat(tester.logs()).containsOnly("Register rules");
-    sut.stopTrace();
+    underTest.stopTrace();
     assertThat(tester.logs()).hasSize(2);
     assertThat(tester.logs().get(1)).startsWith("Register rules (done) | time=");
   }
@@ -80,24 +80,24 @@ public class DefaultProfilerTest {
     tester.setLevel(LoggerLevel.TRACE);
 
     // start TRACE and stop DEBUG
-    sut.startTrace("Register rules");
-    sut.stopDebug("Rules registered");
+    underTest.startTrace("Register rules");
+    underTest.stopDebug("Rules registered");
     assertThat(tester.logs()).hasSize(2);
     assertThat(tester.logs().get(0)).contains("Register rules");
     assertThat(tester.logs().get(1)).startsWith("Rules registered | time=");
     tester.clear();
 
     // start DEBUG and stop INFO
-    sut.startDebug("Register rules");
-    sut.stopInfo("Rules registered");
+    underTest.startDebug("Register rules");
+    underTest.stopInfo("Rules registered");
     assertThat(tester.logs()).hasSize(2);
     assertThat(tester.logs().get(0)).contains("Register rules");
     assertThat(tester.logs().get(1)).startsWith("Rules registered | time=");
     tester.clear();
 
     // start INFO and stop TRACE
-    sut.startInfo("Register rules");
-    sut.stopTrace("Rules registered");
+    underTest.startInfo("Register rules");
+    underTest.stopTrace("Rules registered");
     assertThat(tester.logs()).hasSize(2);
     assertThat(tester.logs().get(0)).contains("Register rules");
     assertThat(tester.logs().get(1)).startsWith("Rules registered | time=");
@@ -108,22 +108,22 @@ public class DefaultProfilerTest {
     tester.setLevel(LoggerLevel.TRACE);
 
     // trace
-    sut.start();
-    sut.stopTrace("Rules registered");
+    underTest.start();
+    underTest.stopTrace("Rules registered");
     assertThat(tester.logs()).hasSize(1);
     assertThat(tester.logs().get(0)).startsWith("Rules registered | time=");
     tester.clear();
 
     // debug
-    sut.start();
-    sut.stopDebug("Rules registered");
+    underTest.start();
+    underTest.stopDebug("Rules registered");
     assertThat(tester.logs()).hasSize(1);
     assertThat(tester.logs().get(0)).startsWith("Rules registered | time=");
     tester.clear();
 
     // info
-    sut.start();
-    sut.stopInfo("Rules registered");
+    underTest.start();
+    underTest.stopInfo("Rules registered");
     assertThat(tester.logs()).hasSize(1);
     assertThat(tester.logs().get(0)).startsWith("Rules registered | time=");
   }
@@ -148,12 +148,12 @@ public class DefaultProfilerTest {
 
   @Test
   public void empty_message() {
-    sut.addContext("foo", "bar");
-    sut.startInfo("");
+    underTest.addContext("foo", "bar");
+    underTest.startInfo("");
     assertThat(tester.logs()).containsOnly("foo=bar");
 
-    sut.addContext("after_start", true);
-    sut.stopInfo("");
+    underTest.addContext("after_start", true);
+    underTest.stopInfo("");
     assertThat(tester.logs()).hasSize(2);
     assertThat(tester.logs().get(1))
       .startsWith("time=")
@@ -162,9 +162,9 @@ public class DefaultProfilerTest {
 
   @Test
   public void fail_if_stop_without_message() {
-    sut.start();
+    underTest.start();
     try {
-      sut.stopInfo();
+      underTest.stopInfo();
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Profiler#stopXXX() can't be called without any message defined in start methods");
@@ -174,7 +174,7 @@ public class DefaultProfilerTest {
   @Test
   public void fail_if_stop_without_start() {
     try {
-      sut.stopDebug("foo");
+      underTest.stopDebug("foo");
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Profiler must be started before being stopped");

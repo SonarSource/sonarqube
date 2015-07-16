@@ -45,13 +45,13 @@ public class ComponentDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  ComponentDao sut = new ComponentDao();
+  ComponentDao underTest = new ComponentDao();
 
   @Test
   public void get_by_uuid() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    ComponentDto result = sut.selectByUuid(db.getSession(), "KLMN").get();
+    ComponentDto result = underTest.selectByUuid(db.getSession(), "KLMN").get();
     assertThat(result).isNotNull();
     assertThat(result.uuid()).isEqualTo("KLMN");
     assertThat(result.moduleUuid()).isEqualTo("EFGH");
@@ -67,14 +67,14 @@ public class ComponentDaoTest {
     assertThat(result.language()).isEqualTo("java");
     assertThat(result.getCopyResourceId()).isNull();
 
-    assertThat(sut.selectByUuid(db.getSession(), "UNKNOWN")).isAbsent();
+    assertThat(underTest.selectByUuid(db.getSession(), "UNKNOWN")).isAbsent();
   }
 
   @Test
   public void get_by_uuid_on_technical_project_copy() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    ComponentDto result = sut.selectByUuid(db.getSession(), "STUV").get();
+    ComponentDto result = underTest.selectByUuid(db.getSession(), "STUV").get();
     assertThat(result).isNotNull();
     assertThat(result.uuid()).isEqualTo("STUV");
     assertThat(result.moduleUuid()).isEqualTo("OPQR");
@@ -95,7 +95,7 @@ public class ComponentDaoTest {
   public void get_by_uuid_on_disabled_component() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    ComponentDto result = sut.selectByUuid(db.getSession(), "DCBA").get();
+    ComponentDto result = underTest.selectByUuid(db.getSession(), "DCBA").get();
     assertThat(result).isNotNull();
     assertThat(result.isEnabled()).isFalse();
   }
@@ -106,14 +106,14 @@ public class ComponentDaoTest {
 
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    sut.selectNonNullByUuid(db.getSession(), "unknown");
+    underTest.selectNonNullByUuid(db.getSession(), "unknown");
   }
 
   @Test
   public void get_by_key() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    Optional<ComponentDto> optional = sut.selectByKey(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java");
+    Optional<ComponentDto> optional = underTest.selectByKey(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(optional).isPresent();
 
     ComponentDto result = optional.get();
@@ -126,7 +126,7 @@ public class ComponentDaoTest {
     assertThat(result.language()).isEqualTo("java");
     assertThat(result.parentProjectId()).isEqualTo(2);
 
-    assertThat(sut.selectByKey(db.getSession(), "unknown")).isAbsent();
+    assertThat(underTest.selectByKey(db.getSession(), "unknown")).isAbsent();
   }
 
   @Test
@@ -135,14 +135,14 @@ public class ComponentDaoTest {
 
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    sut.selectNonNullByKey(db.getSession(), "unknown");
+    underTest.selectNonNullByKey(db.getSession(), "unknown");
   }
 
   @Test
   public void get_by_key_on_disabled_component() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    ComponentDto result = sut.selectNonNullByKey(db.getSession(), "org.disabled.project");
+    ComponentDto result = underTest.selectNonNullByKey(db.getSession(), "org.disabled.project");
     assertThat(result.isEnabled()).isFalse();
   }
 
@@ -150,7 +150,7 @@ public class ComponentDaoTest {
   public void get_by_key_on_a_root_project() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    ComponentDto result = sut.selectNonNullByKey(db.getSession(), "org.struts:struts");
+    ComponentDto result = underTest.selectNonNullByKey(db.getSession(), "org.struts:struts");
     assertThat(result.key()).isEqualTo("org.struts:struts");
     assertThat(result.deprecatedKey()).isEqualTo("org.struts:struts");
     assertThat(result.path()).isNull();
@@ -168,7 +168,7 @@ public class ComponentDaoTest {
   public void get_by_keys() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    List<ComponentDto> results = sut.selectByKeys(db.getSession(), Collections.singletonList("org.struts:struts-core:src/org/struts/RequestContext.java"));
+    List<ComponentDto> results = underTest.selectByKeys(db.getSession(), Collections.singletonList("org.struts:struts-core:src/org/struts/RequestContext.java"));
     assertThat(results).hasSize(1);
 
     ComponentDto result = results.get(0);
@@ -182,14 +182,14 @@ public class ComponentDaoTest {
     assertThat(result.language()).isEqualTo("java");
     assertThat(result.parentProjectId()).isEqualTo(2);
 
-    assertThat(sut.selectByKeys(db.getSession(), Collections.singletonList("unknown"))).isEmpty();
+    assertThat(underTest.selectByKeys(db.getSession(), Collections.singletonList("unknown"))).isEmpty();
   }
 
   @Test
   public void get_by_ids() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    List<ComponentDto> results = sut.selectByIds(db.getSession(), newArrayList(4L));
+    List<ComponentDto> results = underTest.selectByIds(db.getSession(), newArrayList(4L));
     assertThat(results).hasSize(1);
 
     ComponentDto result = results.get(0);
@@ -203,14 +203,14 @@ public class ComponentDaoTest {
     assertThat(result.language()).isEqualTo("java");
     assertThat(result.parentProjectId()).isEqualTo(2);
 
-    assertThat(sut.selectByIds(db.getSession(), newArrayList(555L))).isEmpty();
+    assertThat(underTest.selectByIds(db.getSession(), newArrayList(555L))).isEmpty();
   }
 
   @Test
   public void get_by_uuids() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    List<ComponentDto> results = sut.selectByUuids(db.getSession(), newArrayList("KLMN"));
+    List<ComponentDto> results = underTest.selectByUuids(db.getSession(), newArrayList("KLMN"));
     assertThat(results).hasSize(1);
 
     ComponentDto result = results.get(0);
@@ -228,14 +228,14 @@ public class ComponentDaoTest {
     assertThat(result.scope()).isEqualTo("FIL");
     assertThat(result.language()).isEqualTo("java");
 
-    assertThat(sut.selectByUuids(db.getSession(), newArrayList("unknown"))).isEmpty();
+    assertThat(underTest.selectByUuids(db.getSession(), newArrayList("unknown"))).isEmpty();
   }
 
   @Test
   public void get_by_uuids_on_removed_components() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    List<ComponentDto> results = sut.selectByUuids(db.getSession(), newArrayList("DCBA"));
+    List<ComponentDto> results = underTest.selectByUuids(db.getSession(), newArrayList("DCBA"));
     assertThat(results).hasSize(1);
 
     ComponentDto result = results.get(0);
@@ -247,25 +247,25 @@ public class ComponentDaoTest {
   public void select_existing_uuids() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    List<String> results = sut.selectExistingUuids(db.getSession(), newArrayList("KLMN"));
+    List<String> results = underTest.selectExistingUuids(db.getSession(), newArrayList("KLMN"));
     assertThat(results).containsOnly("KLMN");
 
-    assertThat(sut.selectExistingUuids(db.getSession(), newArrayList("KLMN", "unknown"))).hasSize(1);
-    assertThat(sut.selectExistingUuids(db.getSession(), newArrayList("unknown"))).isEmpty();
+    assertThat(underTest.selectExistingUuids(db.getSession(), newArrayList("KLMN", "unknown"))).hasSize(1);
+    assertThat(underTest.selectExistingUuids(db.getSession(), newArrayList("unknown"))).isEmpty();
   }
 
   @Test
   public void get_by_id() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    assertThat(sut.selectNonNullById(db.getSession(), 4L)).isNotNull();
+    assertThat(underTest.selectNonNullById(db.getSession(), 4L)).isNotNull();
   }
 
   @Test
   public void get_by_id_on_disabled_component() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    Optional<ComponentDto> result = sut.selectById(db.getSession(), 10L);
+    Optional<ComponentDto> result = underTest.selectById(db.getSession(), 10L);
     assertThat(result).isPresent();
     assertThat(result.get().isEnabled()).isFalse();
   }
@@ -274,23 +274,23 @@ public class ComponentDaoTest {
   public void fail_to_get_by_id_when_project_not_found() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    sut.selectNonNullById(db.getSession(), 111L);
+    underTest.selectNonNullById(db.getSession(), 111L);
   }
 
   @Test
   public void get_nullable_by_id() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    assertThat(sut.selectById(db.getSession(), 4L)).isPresent();
-    assertThat(sut.selectById(db.getSession(), 111L)).isAbsent();
+    assertThat(underTest.selectById(db.getSession(), 4L)).isPresent();
+    assertThat(underTest.selectById(db.getSession(), 111L)).isAbsent();
   }
 
   @Test
   public void count_by_id() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    assertThat(sut.existsById(4L, db.getSession())).isTrue();
-    assertThat(sut.existsById(111L, db.getSession())).isFalse();
+    assertThat(underTest.existsById(4L, db.getSession())).isTrue();
+    assertThat(underTest.existsById(111L, db.getSession())).isFalse();
   }
 
   @Test
@@ -298,34 +298,34 @@ public class ComponentDaoTest {
     db.prepareDbUnit(getClass(), "multi-modules.xml");
 
     // Sub project of a file
-    List<ComponentDto> results = sut.selectSubProjectsByComponentUuids(db.getSession(), newArrayList("HIJK"));
+    List<ComponentDto> results = underTest.selectSubProjectsByComponentUuids(db.getSession(), newArrayList("HIJK"));
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts-data");
 
     // Sub project of a directory
-    results = sut.selectSubProjectsByComponentUuids(db.getSession(), newArrayList("GHIJ"));
+    results = underTest.selectSubProjectsByComponentUuids(db.getSession(), newArrayList("GHIJ"));
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts-data");
 
     // Sub project of a sub module
-    results = sut.selectSubProjectsByComponentUuids(db.getSession(), newArrayList("FGHI"));
+    results = underTest.selectSubProjectsByComponentUuids(db.getSession(), newArrayList("FGHI"));
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts");
 
     // Sub project of a module
-    results = sut.selectSubProjectsByComponentUuids(db.getSession(), newArrayList("EFGH"));
+    results = underTest.selectSubProjectsByComponentUuids(db.getSession(), newArrayList("EFGH"));
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts");
 
     // Sub project of a project
-    assertThat(sut.selectSubProjectsByComponentUuids(db.getSession(), newArrayList("ABCD"))).isEmpty();
+    assertThat(underTest.selectSubProjectsByComponentUuids(db.getSession(), newArrayList("ABCD"))).isEmpty();
 
     // SUb projects of a component and a sub module
-    assertThat(sut.selectSubProjectsByComponentUuids(db.getSession(), newArrayList("HIJK", "FGHI"))).hasSize(2);
+    assertThat(underTest.selectSubProjectsByComponentUuids(db.getSession(), newArrayList("HIJK", "FGHI"))).hasSize(2);
 
-    assertThat(sut.selectSubProjectsByComponentUuids(db.getSession(), newArrayList("unknown"))).isEmpty();
+    assertThat(underTest.selectSubProjectsByComponentUuids(db.getSession(), newArrayList("unknown"))).isEmpty();
 
-    assertThat(sut.selectSubProjectsByComponentUuids(db.getSession(), Collections.<String>emptyList())).isEmpty();
+    assertThat(underTest.selectSubProjectsByComponentUuids(db.getSession(), Collections.<String>emptyList())).isEmpty();
   }
 
   @Test
@@ -333,20 +333,20 @@ public class ComponentDaoTest {
     db.prepareDbUnit(getClass(), "multi-modules.xml");
 
     // From root project
-    List<ComponentDto> modules = sut.selectEnabledDescendantModules(db.getSession(), "ABCD");
+    List<ComponentDto> modules = underTest.selectEnabledDescendantModules(db.getSession(), "ABCD");
     assertThat(modules).extracting("uuid").containsOnly("ABCD", "EFGH", "FGHI");
 
     // From module
-    modules = sut.selectEnabledDescendantModules(db.getSession(), "EFGH");
+    modules = underTest.selectEnabledDescendantModules(db.getSession(), "EFGH");
     assertThat(modules).extracting("uuid").containsOnly("EFGH", "FGHI");
 
     // From sub module
-    modules = sut.selectEnabledDescendantModules(db.getSession(), "FGHI");
+    modules = underTest.selectEnabledDescendantModules(db.getSession(), "FGHI");
     assertThat(modules).extracting("uuid").containsOnly("FGHI");
 
     // Folder
-    assertThat(sut.selectEnabledDescendantModules(db.getSession(), "GHIJ")).isEmpty();
-    assertThat(sut.selectEnabledDescendantModules(db.getSession(), "unknown")).isEmpty();
+    assertThat(underTest.selectEnabledDescendantModules(db.getSession(), "GHIJ")).isEmpty();
+    assertThat(underTest.selectEnabledDescendantModules(db.getSession(), "unknown")).isEmpty();
   }
 
   @Test
@@ -354,15 +354,15 @@ public class ComponentDaoTest {
     db.prepareDbUnit(getClass(), "multi-modules.xml");
 
     // From root project, disabled sub module is returned
-    List<ComponentDto> modules = sut.selectDescendantModules(db.getSession(), "ABCD");
+    List<ComponentDto> modules = underTest.selectDescendantModules(db.getSession(), "ABCD");
     assertThat(modules).extracting("uuid").containsOnly("ABCD", "EFGH", "FGHI", "IHGF");
 
     // From module, disabled sub module is returned
-    modules = sut.selectDescendantModules(db.getSession(), "EFGH");
+    modules = underTest.selectDescendantModules(db.getSession(), "EFGH");
     assertThat(modules).extracting("uuid").containsOnly("EFGH", "FGHI", "IHGF");
 
     // From removed sub module -> should not be returned
-    assertThat(sut.selectDescendantModules(db.getSession(), "IHGF")).isEmpty();
+    assertThat(underTest.selectDescendantModules(db.getSession(), "IHGF")).isEmpty();
   }
 
   @Test
@@ -370,30 +370,30 @@ public class ComponentDaoTest {
     db.prepareDbUnit(getClass(), "select_module_files_tree.xml");
 
     // From root project
-    List<FilePathWithHashDto> files = sut.selectEnabledDescendantFiles(db.getSession(), "ABCD");
+    List<FilePathWithHashDto> files = underTest.selectEnabledDescendantFiles(db.getSession(), "ABCD");
     assertThat(files).extracting("uuid").containsOnly("EFGHI", "HIJK");
     assertThat(files).extracting("moduleUuid").containsOnly("EFGH", "FGHI");
     assertThat(files).extracting("srcHash").containsOnly("srcEFGHI", "srcHIJK");
     assertThat(files).extracting("path").containsOnly("src/org/struts/pom.xml", "src/org/struts/RequestContext.java");
 
     // From module
-    files = sut.selectEnabledDescendantFiles(db.getSession(), "EFGH");
+    files = underTest.selectEnabledDescendantFiles(db.getSession(), "EFGH");
     assertThat(files).extracting("uuid").containsOnly("EFGHI", "HIJK");
     assertThat(files).extracting("moduleUuid").containsOnly("EFGH", "FGHI");
     assertThat(files).extracting("srcHash").containsOnly("srcEFGHI", "srcHIJK");
     assertThat(files).extracting("path").containsOnly("src/org/struts/pom.xml", "src/org/struts/RequestContext.java");
 
     // From sub module
-    files = sut.selectEnabledDescendantFiles(db.getSession(), "FGHI");
+    files = underTest.selectEnabledDescendantFiles(db.getSession(), "FGHI");
     assertThat(files).extracting("uuid").containsOnly("HIJK");
     assertThat(files).extracting("moduleUuid").containsOnly("FGHI");
     assertThat(files).extracting("srcHash").containsOnly("srcHIJK");
     assertThat(files).extracting("path").containsOnly("src/org/struts/RequestContext.java");
 
     // From directory
-    assertThat(sut.selectEnabledDescendantFiles(db.getSession(), "GHIJ")).isEmpty();
+    assertThat(underTest.selectEnabledDescendantFiles(db.getSession(), "GHIJ")).isEmpty();
 
-    assertThat(sut.selectEnabledDescendantFiles(db.getSession(), "unknown")).isEmpty();
+    assertThat(underTest.selectEnabledDescendantFiles(db.getSession(), "unknown")).isEmpty();
   }
 
   @Test
@@ -401,69 +401,69 @@ public class ComponentDaoTest {
     db.prepareDbUnit(getClass(), "select_module_files_tree.xml");
 
     // From root project
-    List<FilePathWithHashDto> files = sut.selectEnabledFilesFromProject(db.getSession(), "ABCD");
+    List<FilePathWithHashDto> files = underTest.selectEnabledFilesFromProject(db.getSession(), "ABCD");
     assertThat(files).extracting("uuid").containsOnly("EFGHI", "HIJK");
     assertThat(files).extracting("moduleUuid").containsOnly("EFGH", "FGHI");
     assertThat(files).extracting("srcHash").containsOnly("srcEFGHI", "srcHIJK");
     assertThat(files).extracting("path").containsOnly("src/org/struts/pom.xml", "src/org/struts/RequestContext.java");
 
     // From module
-    assertThat(sut.selectEnabledFilesFromProject(db.getSession(), "EFGH")).isEmpty();
+    assertThat(underTest.selectEnabledFilesFromProject(db.getSession(), "EFGH")).isEmpty();
 
     // From sub module
-    assertThat(sut.selectEnabledFilesFromProject(db.getSession(), "FGHI")).isEmpty();
+    assertThat(underTest.selectEnabledFilesFromProject(db.getSession(), "FGHI")).isEmpty();
 
     // From directory
-    assertThat(sut.selectEnabledFilesFromProject(db.getSession(), "GHIJ")).isEmpty();
+    assertThat(underTest.selectEnabledFilesFromProject(db.getSession(), "GHIJ")).isEmpty();
 
-    assertThat(sut.selectEnabledFilesFromProject(db.getSession(), "unknown")).isEmpty();
+    assertThat(underTest.selectEnabledFilesFromProject(db.getSession(), "unknown")).isEmpty();
   }
 
   @Test
   public void select_all_components_from_project() {
     db.prepareDbUnit(getClass(), "multi-modules.xml");
 
-    List<ComponentDto> components = sut.selectAllComponentsFromProjectKey(db.getSession(), "org.struts:struts");
+    List<ComponentDto> components = underTest.selectAllComponentsFromProjectKey(db.getSession(), "org.struts:struts");
     // Removed components are included
     assertThat(components).hasSize(8);
 
-    assertThat(sut.selectAllComponentsFromProjectKey(db.getSession(), "UNKNOWN")).isEmpty();
+    assertThat(underTest.selectAllComponentsFromProjectKey(db.getSession(), "UNKNOWN")).isEmpty();
   }
 
   @Test
   public void select_modules_from_project() {
     db.prepareDbUnit(getClass(), "multi-modules.xml");
 
-    List<ComponentDto> components = sut.selectEnabledModulesFromProjectKey(db.getSession(), "org.struts:struts");
+    List<ComponentDto> components = underTest.selectEnabledModulesFromProjectKey(db.getSession(), "org.struts:struts");
     assertThat(components).hasSize(3);
 
-    assertThat(sut.selectEnabledModulesFromProjectKey(db.getSession(), "UNKNOWN")).isEmpty();
+    assertThat(underTest.selectEnabledModulesFromProjectKey(db.getSession(), "UNKNOWN")).isEmpty();
   }
 
   @Test
   public void select_views_and_sub_views() {
     db.prepareDbUnit(getClass(), "shared_views.xml");
 
-    assertThat(sut.selectAllViewsAndSubViews(db.getSession())).extracting("uuid").containsOnly("ABCD", "EFGH", "FGHI", "IJKL");
-    assertThat(sut.selectAllViewsAndSubViews(db.getSession())).extracting("projectUuid").containsOnly("ABCD", "EFGH", "IJKL");
+    assertThat(underTest.selectAllViewsAndSubViews(db.getSession())).extracting("uuid").containsOnly("ABCD", "EFGH", "FGHI", "IJKL");
+    assertThat(underTest.selectAllViewsAndSubViews(db.getSession())).extracting("projectUuid").containsOnly("ABCD", "EFGH", "IJKL");
   }
 
   @Test
   public void select_projects_from_view() {
     db.prepareDbUnit(getClass(), "shared_views.xml");
 
-    assertThat(sut.selectProjectsFromView(db.getSession(), "ABCD", "ABCD")).containsOnly("JKLM");
-    assertThat(sut.selectProjectsFromView(db.getSession(), "EFGH", "EFGH")).containsOnly("KLMN", "JKLM");
-    assertThat(sut.selectProjectsFromView(db.getSession(), "FGHI", "EFGH")).containsOnly("JKLM");
-    assertThat(sut.selectProjectsFromView(db.getSession(), "IJKL", "IJKL")).isEmpty();
-    assertThat(sut.selectProjectsFromView(db.getSession(), "Unknown", "Unknown")).isEmpty();
+    assertThat(underTest.selectProjectsFromView(db.getSession(), "ABCD", "ABCD")).containsOnly("JKLM");
+    assertThat(underTest.selectProjectsFromView(db.getSession(), "EFGH", "EFGH")).containsOnly("KLMN", "JKLM");
+    assertThat(underTest.selectProjectsFromView(db.getSession(), "FGHI", "EFGH")).containsOnly("JKLM");
+    assertThat(underTest.selectProjectsFromView(db.getSession(), "IJKL", "IJKL")).isEmpty();
+    assertThat(underTest.selectProjectsFromView(db.getSession(), "Unknown", "Unknown")).isEmpty();
   }
 
   @Test
   public void select_provisioned_projects() {
     db.prepareDbUnit(getClass(), "select_provisioned_projects.xml");
 
-    List<ComponentDto> result = sut.selectProvisionedProjects(db.getSession(), 0, 10, null);
+    List<ComponentDto> result = underTest.selectProvisionedProjects(db.getSession(), 0, 10, null);
     ComponentDto project = result.get(0);
 
     assertThat(result).hasSize(1);
@@ -474,7 +474,7 @@ public class ComponentDaoTest {
   public void count_provisioned_projects() {
     db.prepareDbUnit(getClass(), "select_provisioned_projects.xml");
 
-    int numberOfProjects = sut.countProvisionedProjects(db.getSession(), null);
+    int numberOfProjects = underTest.countProvisionedProjects(db.getSession(), null);
 
     assertThat(numberOfProjects).isEqualTo(1);
   }
@@ -483,11 +483,11 @@ public class ComponentDaoTest {
   public void select_ghost_projects() {
     db.prepareDbUnit(getClass(), "select_ghost_projects.xml");
 
-    List<ComponentDto> result = sut.selectGhostProjects(db.getSession(), 0, 10, null);
+    List<ComponentDto> result = underTest.selectGhostProjects(db.getSession(), 0, 10, null);
 
     assertThat(result).hasSize(1);
     assertThat(result.get(0).key()).isEqualTo("org.ghost.project");
-    assertThat(sut.countGhostProjects(db.getSession(), null)).isEqualTo(1);
+    assertThat(underTest.countGhostProjects(db.getSession(), null)).isEqualTo(1);
   }
 
   @Test
@@ -515,7 +515,7 @@ public class ComponentDaoTest {
       .setCreatedAt(DateUtils.parseDate("2014-06-18"))
       .setAuthorizationUpdatedAt(123456789L);
 
-    sut.insert(db.getSession(), componentDto);
+    underTest.insert(db.getSession(), componentDto);
     db.getSession().commit();
 
     assertThat(componentDto.getId()).isNotNull();
@@ -544,7 +544,7 @@ public class ComponentDaoTest {
       .setCreatedAt(DateUtils.parseDate("2014-06-18"))
       .setAuthorizationUpdatedAt(123456789L);
 
-    sut.insert(db.getSession(), componentDto);
+    underTest.insert(db.getSession(), componentDto);
     db.getSession().commit();
 
     assertThat(componentDto.getId()).isNotNull();
@@ -574,7 +574,7 @@ public class ComponentDaoTest {
       .setEnabled(false)
       .setAuthorizationUpdatedAt(12345678910L);
 
-    sut.update(db.getSession(), componentDto);
+    underTest.update(db.getSession(), componentDto);
     db.getSession().commit();
 
     db.assertDbUnit(getClass(), "update-result.xml", "projects");

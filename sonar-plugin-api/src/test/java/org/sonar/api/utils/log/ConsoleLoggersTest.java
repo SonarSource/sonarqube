@@ -25,20 +25,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConsoleLoggersTest {
 
-  ConsoleLoggers sut = new ConsoleLoggers();
+  ConsoleLoggers underTest = new ConsoleLoggers();
 
   @Test
   public void newInstance() {
-    Logger logger = sut.newInstance("foo");
+    Logger logger = underTest.newInstance("foo");
     assertThat(logger).isInstanceOf(ConsoleLogger.class);
   }
 
   @Test
   public void level() {
     // INFO by default
-    assertThat(sut.getLevel()).isEqualTo(LoggerLevel.INFO);
+    assertThat(underTest.getLevel()).isEqualTo(LoggerLevel.INFO);
 
-    sut.setLevel(LoggerLevel.DEBUG);
-    assertThat(sut.getLevel()).isEqualTo(LoggerLevel.DEBUG);
+    underTest.setLevel(LoggerLevel.DEBUG);
+    assertThat(underTest.getLevel()).isEqualTo(LoggerLevel.DEBUG);
   }
 }

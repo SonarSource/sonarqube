@@ -61,7 +61,7 @@ public class ReportQueueTest {
 
   Settings settings = new Settings();
   File dataDir;
-  ReportQueue sut;
+  ReportQueue underTest;
 
   @Before
   public void setUp() throws Exception {
@@ -69,7 +69,7 @@ public class ReportQueueTest {
     settings.setProperty(ProcessProperties.PATH_DATA, dataDir.getAbsolutePath());
     when(system.now()).thenReturn(NOW);
 
-    sut = new ReportQueue(dbClient, settings);
+    underTest = new ReportQueue(dbClient, settings);
   }
 
   @Test
@@ -77,7 +77,7 @@ public class ReportQueueTest {
     // must:
     // 1. insert metadata in db
     // 2. copy report content to directory /data/analysis
-    ReportQueue.Item item = sut.add("P1", "Project 1", generateData());
+    ReportQueue.Item item = underTest.add("P1", "Project 1", generateData());
 
     assertThat(item).isNotNull();
     assertThat(item.zipFile).isFile().exists().hasContent("some data").hasParent(new File(dataDir, "analysis"));
@@ -104,47 +104,47 @@ public class ReportQueueTest {
 
   @Test
   public void pop_pending_items_in_fifo_order() {
-    sut.add("P1", "Project 1", generateData());
-    sut.add("P2", "Project 2", generateData());
-    sut.add("P3", "Project 3", generateData());
+    underTest.add("P1", "Project 1", generateData());
+    underTest.add("P2", "Project 2", generateData());
+    underTest.add("P3", "Project 3", generateData());
 
-    ReportQueue.Item item = sut.pop();
+    ReportQueue.Item item = underTest.pop();
     assertThat(item.dto.getProjectKey()).isEqualTo("P1");
     assertThat(item.zipFile).exists().isFile().hasExtension("zip");
 
     // status changed from PENDING to WORKING
     assertThat(item.dto.getStatus()).isEqualTo(WORKING);
 
-    assertThat(sut.pop().dto.getProjectKey()).isEqualTo("P2");
-    assertThat(sut.pop().dto.getProjectKey()).isEqualTo("P3");
+    assertThat(underTest.pop().dto.getProjectKey()).isEqualTo("P2");
+    assertThat(underTest.pop().dto.getProjectKey()).isEqualTo("P3");
 
     // queue is empty
-    assertThat(sut.pop()).isNull();
+    assertThat(underTest.pop()).isNull();
 
     // items are still in db, but in WORKING status
-    List<AnalysisReportDto> reports = sut.all();
+    List<AnalysisReportDto> reports = underTest.all();
     assertThat(reports).hasSize(3);
     assertThat(reports).extracting("status").containsOnly(WORKING);
   }
 
   @Test
   public void remove() {
-    ReportQueue.Item item = sut.add("P1", "Project 1", generateData());
+    ReportQueue.Item item = underTest.add("P1", "Project 1", generateData());
     assertThat(db.countRowsOfTable("analysis_reports")).isEqualTo(1);
 
-    sut.remove(item);
+    underTest.remove(item);
     assertThat(db.countRowsOfTable("analysis_reports")).isEqualTo(0);
     assertThat(item.zipFile).doesNotExist();
   }
 
   @Test
   public void do_not_pop_corrupted_item() {
-    ReportQueue.Item item = sut.add("P1", "Project 1", generateData());
+    ReportQueue.Item item = underTest.add("P1", "Project 1", generateData());
 
     // emulate corruption: file is missing on FS
     FileUtils.deleteQuietly(item.zipFile);
 
-    assertThat(sut.pop()).isNull();
+    assertThat(underTest.pop()).isNull();
 
     // table sanitized
     assertThat(db.countRowsOfTable("analysis_reports")).isEqualTo(0);
@@ -152,11 +152,11 @@ public class ReportQueueTest {
 
   @Test
   public void clear() {
-    sut.add("P1", "Project 1", generateData());
-    sut.add("P2", "Project 2", generateData());
+    underTest.add("P1", "Project 1", generateData());
+    underTest.add("P2", "Project 2", generateData());
     assertThat(analysisDir()).exists().isDirectory();
 
-    sut.clear();
+    underTest.clear();
 
     assertThat(db.countRowsOfTable("analysis_reports")).isEqualTo(0);
     assertThat(analysisDir()).doesNotExist();
@@ -164,23 +164,23 @@ public class ReportQueueTest {
 
   @Test
   public void clear_do_not_fail_when_directory_do_not_exist() {
-    sut.clear();
-    sut.clear();
+    underTest.clear();
+    underTest.clear();
   }
 
   @Test
   public void reset_to_pending_status() {
     // 2 pending
-    sut.add("P1", "Project 1", generateData());
-    sut.add("P2", "Project 2", generateData());
+    underTest.add("P1", "Project 1", generateData());
+    underTest.add("P2", "Project 2", generateData());
 
     // pop 1 -> 1 pending and 1 working
-    ReportQueue.Item workingItem = sut.pop();
+    ReportQueue.Item workingItem = underTest.pop();
     assertThat(workingItem.dto.getStatus()).isEqualTo(WORKING);
-    assertThat(sut.all()).extracting("status").contains(PENDING, WORKING);
+    assertThat(underTest.all()).extracting("status").contains(PENDING, WORKING);
 
-    sut.resetToPendingStatus();
-    assertThat(sut.all()).extracting("status").containsOnly(PENDING).hasSize(2);
+    underTest.resetToPendingStatus();
+    assertThat(underTest.all()).extracting("status").containsOnly(PENDING).hasSize(2);
 
   }
 

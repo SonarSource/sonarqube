@@ -70,11 +70,11 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
   Settings settings = new Settings();
 
-  FeedPeriodsStep sut;
+  FeedPeriodsStep underTest;
 
   @Override
   protected ComputationStep step() {
-    return sut;
+    return underTest;
   }
 
   @Before
@@ -85,14 +85,14 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
     treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).setVersion("1.1").build());
 
-    sut = new FeedPeriodsStep(dbClient, settings, treeRootHolder, reportReader, periodsHolder);
+    underTest = new FeedPeriodsStep(dbClient, settings, treeRootHolder, reportReader, periodsHolder);
   }
 
   @Test
   public void no_period_on_first_analysis() {
     // No project, no snapshot
 
-    sut.execute();
+    underTest.execute();
     assertThat(periodsHolder.getPeriods()).isEmpty();
   }
 
@@ -103,7 +103,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
     String textDate = "2008-11-22";
     settings.setProperty("sonar.timemachine.period1", textDate);
 
-    sut.execute();
+    underTest.execute();
     List<Period> periods = periodsHolder.getPeriods();
     assertThat(periods).hasSize(1);
 
@@ -120,7 +120,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
     settings.setProperty("sonar.timemachine.period1", "UNKNWOWN VERSION");
 
-    sut.execute();
+    underTest.execute();
     assertThat(periodsHolder.getPeriods()).isEmpty();
   }
 
@@ -130,7 +130,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
     settings.setProperty("sonar.timemachine.period1", "");
 
-    sut.execute();
+    underTest.execute();
     assertThat(periodsHolder.getPeriods()).isEmpty();
   }
 
@@ -140,7 +140,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
     settings.setProperty("sonar.timemachine.period1", "100");
 
-    sut.execute();
+    underTest.execute();
     assertThat(periodsHolder.getPeriods()).isEmpty();
   }
 
@@ -151,7 +151,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
     String textDate = "2008-11-22";
     settings.setProperty("sonar.timemachine.period1", textDate);
 
-    sut.execute();
+    underTest.execute();
     List<Period> periods = periodsHolder.getPeriods();
     assertThat(periods).hasSize(1);
 
@@ -173,7 +173,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
     settings.setProperty("sonar.timemachine.period1", date);
 
-    sut.execute();
+    underTest.execute();
     List<Period> periods = periodsHolder.getPeriods();
     assertThat(periods).hasSize(1);
 
@@ -192,7 +192,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
     // No analysis at and after this date
     settings.setProperty("sonar.timemachine.period1", "2008-11-30");
 
-    sut.execute();
+    underTest.execute();
     assertThat(periodsHolder.getPeriods()).isEmpty();
   }
 
@@ -202,7 +202,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
     settings.setProperty("sonar.timemachine.period1", "10");
 
-    sut.execute();
+    underTest.execute();
     List<Period> periods = periodsHolder.getPeriods();
     assertThat(periods).hasSize(1);
 
@@ -223,7 +223,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
     settings.setProperty("sonar.timemachine.period1", "0");
 
-    sut.execute();
+    underTest.execute();
     assertThat(periodsHolder.getPeriods()).isEmpty();
   }
 
@@ -233,7 +233,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
     settings.setProperty("sonar.timemachine.period1", "previous_analysis");
 
-    sut.execute();
+    underTest.execute();
     List<Period> periods = periodsHolder.getPeriods();
     assertThat(periods).hasSize(1);
 
@@ -254,7 +254,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
     settings.setProperty("sonar.timemachine.period1", "previous_analysis");
 
-    sut.execute();
+    underTest.execute();
     assertThat(periodsHolder.getPeriods()).isEmpty();
   }
 
@@ -264,7 +264,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
     settings.setProperty("sonar.timemachine.period1", "previous_version");
 
-    sut.execute();
+    underTest.execute();
     List<Period> periods = periodsHolder.getPeriods();
     assertThat(periods).hasSize(1);
 
@@ -285,7 +285,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
     settings.setProperty("sonar.timemachine.period1", "previous_version");
 
-    sut.execute();
+    underTest.execute();
     List<Period> periods = periodsHolder.getPeriods();
     assertThat(periods).hasSize(1);
 
@@ -303,7 +303,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
     settings.setProperty("sonar.timemachine.period1", "previous_version");
 
-    sut.execute();
+    underTest.execute();
     assertThat(periodsHolder.getPeriods()).isEmpty();
   }
 
@@ -313,7 +313,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
     settings.setProperty("sonar.timemachine.period1", "previous_version");
 
-    sut.execute();
+    underTest.execute();
     assertThat(periodsHolder.getPeriods()).isEmpty();
   }
 
@@ -323,7 +323,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
     settings.setProperty("sonar.timemachine.period1", "0.9");
 
-    sut.execute();
+    underTest.execute();
     List<Period> periods = periodsHolder.getPeriods();
     assertThat(periods).hasSize(1);
 
@@ -344,7 +344,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
     settings.setProperty("sonar.timemachine.period1", "0.8");
 
-    sut.execute();
+    underTest.execute();
     assertThat(periodsHolder.getPeriods()).isEmpty();
   }
 
@@ -358,7 +358,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
     settings.setProperty("sonar.timemachine.period4", "previous_version"); // Analysis from 2008-11-12 should be returned
     settings.setProperty("sonar.timemachine.period5", "0.9"); // Anaylsis from 2008-11-11
 
-    sut.execute();
+    underTest.execute();
     List<Period> periods = periodsHolder.getPeriods();
 
     List<String> periodModes = newArrayList(Iterables.transform(periods, new Function<Period, String>() {
@@ -398,7 +398,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
     settings.setProperty("sonar.timemachine.period4.TRK", "2008-11-22");
     settings.setProperty("sonar.timemachine.period5.TRK", "previous_analysis");
 
-    sut.execute();
+    underTest.execute();
     assertThat(periodsHolder.getPeriods()).hasSize(2);
   }
 

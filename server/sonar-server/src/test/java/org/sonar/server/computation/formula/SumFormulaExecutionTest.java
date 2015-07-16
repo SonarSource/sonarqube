@@ -51,11 +51,11 @@ public class SumFormulaExecutionTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  FormulaExecutorComponentVisitor sut;
+  FormulaExecutorComponentVisitor underTest;
 
   @Before
   public void setUp() throws Exception {
-    sut = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
+    underTest = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
       .buildFor(Lists.<Formula>newArrayList(new SumFormula(LINES_KEY)));
   }
 
@@ -86,7 +86,7 @@ public class SumFormulaExecutionTest {
     measureRepository.addRawMeasure(1112, LINES_KEY, newMeasureBuilder().create(8));
     measureRepository.addRawMeasure(1211, LINES_KEY, newMeasureBuilder().create(2));
 
-    sut.visit(project);
+    underTest.visit(project);
 
     assertThat(toEntries(measureRepository.getNewRawMeasures(1))).containsOnly(entryOf(LINES_KEY, newMeasureBuilder().create(20)));
     assertThat(toEntries(measureRepository.getNewRawMeasures(11))).containsOnly(entryOf(LINES_KEY, newMeasureBuilder().create(18)));
@@ -113,7 +113,7 @@ public class SumFormulaExecutionTest {
 
     treeRootHolder.setRoot(project);
 
-    sut.visit(project);
+    underTest.visit(project);
 
     assertThat(measureRepository.getNewRawMeasures(1)).isEmpty();
     assertThat(measureRepository.getNewRawMeasures(11)).isEmpty();

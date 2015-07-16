@@ -21,7 +21,6 @@ package org.sonar.server.computation;
 
 import com.google.common.collect.ImmutableList;
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import org.apache.commons.lang.RandomStringUtils;
@@ -55,11 +54,11 @@ public class ComputationServiceTest {
   ActivityManager activityManager = mock(ActivityManager.class);
   System2 system = mock(System2.class);
   AnalysisReportDto dto = AnalysisReportDto.newForTests(1L).setProjectKey("P1").setUuid("U1").setStatus(Status.PENDING);
-  ComputationService sut;
+  ComputationService underTest;
 
   @Before
   public void setUp() {
-    sut = new ComputationService(new ReportQueue.Item(dto, new File("Do_not_care")), steps, activityManager, system);
+    underTest = new ComputationService(new ReportQueue.Item(dto, new File("Do_not_care")), steps, activityManager, system);
   }
 
   @Test
@@ -68,7 +67,7 @@ public class ComputationServiceTest {
 
     when(steps.instances()).thenReturn(Arrays.asList(projectStep1, projectStep2));
 
-    sut.process();
+    underTest.process();
 
     // report is integrated -> status is set to SUCCESS
     assertThat(dto.getStatus()).isEqualTo(Status.SUCCESS);
@@ -89,7 +88,7 @@ public class ComputationServiceTest {
     when(steps.instances()).thenReturn(Collections.<ComputationStep>emptyList());
     logTester.setLevel(LoggerLevel.DEBUG);
 
-    sut.process();
+    underTest.process();
 
     assertThat(logTester.logs(LoggerLevel.DEBUG)).isNotEmpty();
   }
@@ -101,7 +100,7 @@ public class ComputationServiceTest {
     doThrow(new IllegalStateException(errorMessage)).when(projectStep1).execute();
 
     try {
-      sut.process();
+      underTest.process();
       fail();
     } catch (IllegalStateException e) {
       assertThat(e.getMessage()).isEqualTo(errorMessage);
@@ -116,7 +115,7 @@ public class ComputationServiceTest {
     doThrow(new IllegalStateException("pb")).when(projectStep1).execute();
 
     try {
-      sut.process();
+      underTest.process();
       fail();
     } catch (IllegalStateException e) {
       assertThat(e.getMessage()).isEqualTo("pb");

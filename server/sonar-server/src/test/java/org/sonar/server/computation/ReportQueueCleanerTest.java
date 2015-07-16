@@ -29,20 +29,20 @@ public class ReportQueueCleanerTest {
 
   ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
   ReportQueue queue = mock(ReportQueue.class);
-  ReportQueueCleaner sut = new ReportQueueCleaner(serverUpgradeStatus, queue);
+  ReportQueueCleaner underTest = new ReportQueueCleaner(serverUpgradeStatus, queue);
 
   @Test
   public void reset_reports_on_restart() {
-    sut.start();
+    underTest.start();
     verify(queue).resetToPendingStatus();
-    sut.stop();
+    underTest.stop();
   }
 
   @Test
   public void delete_all_reports_on_upgrade() {
     when(serverUpgradeStatus.isUpgraded()).thenReturn(Boolean.TRUE);
-    sut.start();
+    underTest.start();
     verify(queue).clear();
-    sut.stop();
+    underTest.stop();
   }
 }

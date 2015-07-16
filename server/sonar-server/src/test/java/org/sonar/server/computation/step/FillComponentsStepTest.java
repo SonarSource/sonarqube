@@ -57,17 +57,17 @@ public class FillComponentsStepTest extends BaseStepTest {
 
   DbClient dbClient = dbTester.getDbClient();
 
-  FillComponentsStep sut;
+  FillComponentsStep underTest;
 
   @Before
   public void setup() {
     dbTester.truncateTables();
-    sut = new FillComponentsStep(dbClient, reportReader, treeRootHolder);
+    underTest = new FillComponentsStep(dbClient, reportReader, treeRootHolder);
   }
 
   @Override
   protected ComputationStep step() {
-    return sut;
+    return underTest;
   }
 
   @Test
@@ -101,7 +101,7 @@ public class FillComponentsStepTest extends BaseStepTest {
       .build());
 
     treeRootHolder.setRoot(ComponentTreeBuilder.from(reportReader));
-    sut.execute();
+    underTest.execute();
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());
 
@@ -158,7 +158,7 @@ public class FillComponentsStepTest extends BaseStepTest {
       .build());
 
     treeRootHolder.setRoot(ComponentTreeBuilder.from(reportReader));
-    sut.execute();
+    underTest.execute();
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());
 
@@ -215,7 +215,7 @@ public class FillComponentsStepTest extends BaseStepTest {
       .build());
 
     treeRootHolder.setRoot(ComponentTreeBuilder.from(reportReader));
-    sut.execute();
+    underTest.execute();
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());
 
@@ -258,7 +258,7 @@ public class FillComponentsStepTest extends BaseStepTest {
       .build());
 
     treeRootHolder.setRoot(ComponentTreeBuilder.from(reportReader));
-    sut.execute();
+    underTest.execute();
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());
 
@@ -311,7 +311,7 @@ public class FillComponentsStepTest extends BaseStepTest {
       .build());
 
     treeRootHolder.setRoot(ComponentTreeBuilder.from(reportReader));
-    sut.execute();
+    underTest.execute();
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());
 
@@ -371,7 +371,7 @@ public class FillComponentsStepTest extends BaseStepTest {
       .build());
 
     treeRootHolder.setRoot(ComponentTreeBuilder.from(reportReader));
-    sut.execute();
+    underTest.execute();
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());
 
@@ -431,7 +431,7 @@ public class FillComponentsStepTest extends BaseStepTest {
       .build());
 
     treeRootHolder.setRoot(ComponentTreeBuilder.from(reportReader));
-    sut.execute();
+    underTest.execute();
 
     Map<Integer, Component> componentsByRef = getComponentsByRef(treeRootHolder.getRoot());
 

@@ -40,10 +40,9 @@ public class FileSourceDtoTest {
         .build()
       );
 
-    FileSourceDto sut = new FileSourceDto()
-      .setTestData(tests);
+    FileSourceDto underTest = new FileSourceDto().setTestData(tests);
 
-    assertThat(sut.getTestData()).hasSize(2);
-    assertThat(sut.getTestData().get(0).getName()).isEqualTo("name#1");
+    assertThat(underTest.getTestData()).hasSize(2);
+    assertThat(underTest.getTestData().get(0).getName()).isEqualTo("name#1");
   }
 }

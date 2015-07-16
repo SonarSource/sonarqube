@@ -30,24 +30,24 @@ public class FeedIssueComponentUuidsTest {
   @Rule
   public DbTester db = DbTester.createForSchema(System2.INSTANCE, FeedIssueComponentUuidsTest.class, "schema.sql");
 
-  FeedIssueComponentUuids sut;
+  FeedIssueComponentUuids underTest;
 
   @Before
   public void setUp() {
     db.truncateTables();
 
-    sut = new FeedIssueComponentUuids(db.database());
+    underTest = new FeedIssueComponentUuids(db.database());
   }
 
   @Test
   public void migrate_empty_db() throws Exception {
-    sut.execute();
+    underTest.execute();
   }
 
   @Test
   public void migrate() throws Exception {
     db.prepareDbUnit(this.getClass(), "before.xml");
-    sut.execute();
+    underTest.execute();
     db.assertDbUnit(this.getClass(), "after-result.xml", "issues");
   }
 }

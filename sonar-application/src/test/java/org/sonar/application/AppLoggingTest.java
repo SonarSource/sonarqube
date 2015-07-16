@@ -45,7 +45,7 @@ public class AppLoggingTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   Props props = new Props(new Properties());
-  AppLogging sut = new AppLogging();
+  AppLogging underTest = new AppLogging();
 
   @Before
   public void setUp() throws Exception {
@@ -60,7 +60,7 @@ public class AppLoggingTest {
 
   @Test
   public void configure_defaults() {
-    LoggerContext ctx = sut.configure(props);
+    LoggerContext ctx = underTest.configure(props);
 
     Logger gobbler = ctx.getLogger(AppLogging.GOBBLER_LOGGER);
     Appender<ILoggingEvent> appender = gobbler.getAppender(AppLogging.GOBBLER_APPENDER);
@@ -75,7 +75,7 @@ public class AppLoggingTest {
   public void configure_no_rotation() {
     props.set("sonar.log.rollingPolicy", "none");
 
-    LoggerContext ctx = sut.configure(props);
+    LoggerContext ctx = underTest.configure(props);
 
     Logger gobbler = ctx.getLogger(AppLogging.GOBBLER_LOGGER);
     Appender<ILoggingEvent> appender = gobbler.getAppender(AppLogging.GOBBLER_APPENDER);
@@ -86,7 +86,7 @@ public class AppLoggingTest {
   public void copyGobblerToConsole() {
     props.set("sonar.log.console", "true");
 
-    LoggerContext ctx = sut.configure(props);
+    LoggerContext ctx = underTest.configure(props);
     Logger gobbler = ctx.getLogger(AppLogging.GOBBLER_LOGGER);
     assertThat(gobbler.getAppender(AppLogging.GOBBLER_APPENDER)).isNotNull();
     assertThat(gobbler.getAppender(AppLogging.CONSOLE_APPENDER)).isNotNull();
