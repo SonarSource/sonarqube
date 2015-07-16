@@ -232,10 +232,6 @@ public class PurgeDao implements Dao {
     return projects;
   }
 
-  public List<String> selectPurgeableFiles(DbSession dbSession, Long projectId) {
-    return mapper(dbSession).selectPurgeableFileUuids(projectId);
-  }
-
   private PurgeMapper mapper(DbSession session) {
     return session.getMapper(PurgeMapper.class);
   }

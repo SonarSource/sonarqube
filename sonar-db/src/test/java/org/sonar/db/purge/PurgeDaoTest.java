@@ -66,7 +66,7 @@ public class PurgeDaoTest {
   @Test
   public void shouldDeleteHistoricalDataOfDirectoriesAndFiles() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteHistoricalDataOfDirectoriesAndFiles.xml");
-    sut.purge(new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[]{Scopes.DIRECTORY, Scopes.FILE}, 30), PurgeListener.EMPTY, new PurgeProfiler());
+    sut.purge(new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[] {Scopes.DIRECTORY, Scopes.FILE}, 30), PurgeListener.EMPTY, new PurgeProfiler());
     dbTester.assertDbUnit(getClass(), "shouldDeleteHistoricalDataOfDirectoriesAndFiles-result.xml", "projects", "snapshots");
   }
 
@@ -75,7 +75,8 @@ public class PurgeDaoTest {
     dbTester.prepareDbUnit(getClass(), "disable_resources_without_last_snapshot.xml");
     when(system2.now()).thenReturn(1450000000000L);
     sut.purge(newConfigurationWith30Days(system2), PurgeListener.EMPTY, new PurgeProfiler());
-    dbTester.assertDbUnit(getClass(), "disable_resources_without_last_snapshot-result.xml", new String[]{"issue_close_date", "issue_update_date"}, "projects", "snapshots", "issues");
+    dbTester.assertDbUnit(getClass(), "disable_resources_without_last_snapshot-result.xml", new String[] {"issue_close_date", "issue_update_date"}, "projects", "snapshots",
+      "issues");
   }
 
   @Test
@@ -123,15 +124,6 @@ public class PurgeDaoTest {
     dbTester.prepareDbUnit(getClass(), "should_delete_all_closed_issues.xml");
     sut.purge(new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 0), PurgeListener.EMPTY, new PurgeProfiler());
     dbTester.assertDbUnit(getClass(), "should_delete_all_closed_issues-result.xml", "issues", "issue_changes");
-  }
-
-  @Test
-  public void select_purgeable_file_uuids_and_only_them() {
-    dbTester.prepareDbUnit(getClass(), "select_purgeable_file_uuids.xml");
-
-    List<String> uuids = sut.selectPurgeableFiles(dbTester.getSession(), 1L);
-
-    assertThat(uuids).containsOnly("GHIJ");
   }
 
   private static PurgeableSnapshotDto getById(List<PurgeableSnapshotDto> snapshots, long id) {
