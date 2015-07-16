@@ -17,17 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.component;
+package org.sonar.server.computation.issue.commonrule;
 
-public interface MutableTreeRootHolder extends TreeRootHolder {
+import java.util.Collection;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.server.computation.component.Component;
 
-  /**
-   * Sets the root of the component tree in the TreeRootHolder. Settings a root more than once is allowed but it can
-   * never be set to {@code null}.
-   *
-   * @param newRoot a {@link Component}, can not be {@code null}
-   *                
-   * @throws NullPointerException if {@code newRoot} is {@code null}
-   */
-  MutableTreeRootHolder setRoot(Component newRoot);
+/**
+ * Generate the issues related to "common rules", which are
+ * the rules based on measure thresholds.
+ */
+public interface CommonRuleEngine {
+
+  Collection<DefaultIssue> process(Component component);
+
 }

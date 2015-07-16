@@ -63,6 +63,13 @@ import org.sonar.server.computation.issue.TrackerBaseInputFactory;
 import org.sonar.server.computation.issue.TrackerExecution;
 import org.sonar.server.computation.issue.TrackerRawInputFactory;
 import org.sonar.server.computation.issue.UpdateConflictResolver;
+import org.sonar.server.computation.issue.commonrule.BranchCoverageRule;
+import org.sonar.server.computation.issue.commonrule.CommentDensityRule;
+import org.sonar.server.computation.issue.commonrule.CommonRuleEngineImpl;
+import org.sonar.server.computation.issue.commonrule.DuplicatedBlockRule;
+import org.sonar.server.computation.issue.commonrule.LineCoverageRule;
+import org.sonar.server.computation.issue.commonrule.SkippedTestRule;
+import org.sonar.server.computation.issue.commonrule.TestErrorRule;
 import org.sonar.server.computation.language.LanguageRepositoryImpl;
 import org.sonar.server.computation.measure.MeasureRepositoryImpl;
 import org.sonar.server.computation.measure.newcoverage.NewCoverageMetricKeysModule;
@@ -71,6 +78,7 @@ import org.sonar.server.computation.period.PeriodsHolderImpl;
 import org.sonar.server.computation.qualitygate.EvaluationResultTextConverterImpl;
 import org.sonar.server.computation.qualitygate.QualityGateHolderImpl;
 import org.sonar.server.computation.qualitygate.QualityGateServiceImpl;
+import org.sonar.server.computation.qualityprofile.ActiveRulesHolderImpl;
 import org.sonar.server.computation.sqale.SqaleRatingSettings;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
@@ -152,6 +160,7 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       QualityGateHolderImpl.class,
       DebtModelHolderImpl.class,
       SqaleRatingSettings.class,
+      ActiveRulesHolderImpl.class,
 
       BatchReportReaderImpl.class,
 
@@ -162,7 +171,6 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       ProjectSettingsRepository.class,
       DbIdsRepository.class,
       CoreFormulaRepositoryImpl.class,
-
       QualityGateServiceImpl.class,
       EvaluationResultTextConverterImpl.class,
 
@@ -178,6 +186,15 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       DefaultAssignee.class,
       IssueVisitors.class,
       IssueLifecycle.class,
+
+      // common rules
+      CommonRuleEngineImpl.class,
+      BranchCoverageRule.class,
+      LineCoverageRule.class,
+      CommentDensityRule.class,
+      DuplicatedBlockRule.class,
+      TestErrorRule.class,
+      SkippedTestRule.class,
 
       // order is important: DebtAggregator then NewDebtAggregator (new debt requires debt)
       DebtCalculator.class,

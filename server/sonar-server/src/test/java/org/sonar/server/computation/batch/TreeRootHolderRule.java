@@ -27,11 +27,12 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.MutableTreeRootHolder;
 import org.sonar.server.computation.component.TreeRootHolder;
 
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 
-public class TreeRootHolderRule implements TestRule, TreeRootHolder {
+public class TreeRootHolderRule implements TestRule, MutableTreeRootHolder {
   private Component root;
   private Map<Integer, Component> componentsByRef = new HashMap<>();
 
@@ -74,7 +75,7 @@ public class TreeRootHolderRule implements TestRule, TreeRootHolder {
     return component;
   }
 
-  public void setRoot(Component newRoot) {
+  public TreeRootHolderRule setRoot(Component newRoot) {
     this.root = Objects.requireNonNull(newRoot);
     new DepthTraversalTypeAwareVisitor(Component.Type.FILE, POST_ORDER) {
       @Override
@@ -82,5 +83,6 @@ public class TreeRootHolderRule implements TestRule, TreeRootHolder {
         componentsByRef.put(component.getRef(), component);
       }
     }.visit(root);
+    return this;
   }
 }

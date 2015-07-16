@@ -17,17 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.component;
+package org.sonar.server.computation.qualityprofile;
 
-public interface MutableTreeRootHolder extends TreeRootHolder {
+import com.google.common.base.Optional;
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.rules.ExternalResource;
+import org.sonar.api.rule.RuleKey;
 
-  /**
-   * Sets the root of the component tree in the TreeRootHolder. Settings a root more than once is allowed but it can
-   * never be set to {@code null}.
-   *
-   * @param newRoot a {@link Component}, can not be {@code null}
-   *                
-   * @throws NullPointerException if {@code newRoot} is {@code null}
-   */
-  MutableTreeRootHolder setRoot(Component newRoot);
+public class ActiveRulesHolderRule extends ExternalResource implements ActiveRulesHolder {
+
+  private final Map<RuleKey, ActiveRule> activeRulesByKey = new HashMap<>();
+
+  @Override
+  public Optional<ActiveRule> get(RuleKey ruleKey) {
+    return Optional.fromNullable(activeRulesByKey.get(ruleKey));
+  }
+
+  public ActiveRulesHolderRule put(ActiveRule activeRule) {
+    activeRulesByKey.put(activeRule.getRuleKey(), activeRule);
+    return this;
+  }
+
+  @Override
+  protected void after() {
+    activeRulesByKey.clear();
+  }
 }

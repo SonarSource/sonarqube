@@ -34,9 +34,10 @@ public class TreeRootHolderImpl implements MutableTreeRootHolder {
   private Map<Integer, Component> componentsByRef = new HashMap<>();
 
   @Override
-  public void setRoot(Component newRoot) {
+  public MutableTreeRootHolder setRoot(Component newRoot) {
     this.root = Objects.requireNonNull(newRoot);
     feedComponentsByRef();
+    return this;
   }
 
   @Override

@@ -17,17 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.component;
+package org.sonar.server.rule;
 
-public interface MutableTreeRootHolder extends TreeRootHolder {
+public class CommonRuleKeys {
 
-  /**
-   * Sets the root of the component tree in the TreeRootHolder. Settings a root more than once is allowed but it can
-   * never be set to {@code null}.
-   *
-   * @param newRoot a {@link Component}, can not be {@code null}
-   *                
-   * @throws NullPointerException if {@code newRoot} is {@code null}
-   */
-  MutableTreeRootHolder setRoot(Component newRoot);
+  public static final String REPOSITORY_PREFIX = "common-";
+
+  public static final String INSUFFICIENT_BRANCH_COVERAGE = "InsufficientBranchCoverage";
+  public static final String INSUFFICIENT_LINE_COVERAGE = "InsufficientLineCoverage";
+  public static final String INSUFFICIENT_COMMENT_DENSITY = "InsufficientCommentDensity";
+  public static final String DUPLICATED_BLOCKS = "DuplicatedBlocks";
+  public static final String FAILED_UNIT_TESTS = "FailedUnitTests";
+  public static final String SKIPPED_UNIT_TESTS = "SkippedUnitTests";
+
+  private CommonRuleKeys() {
+    // only static methods
+  }
+
+  public static String commonRepositoryForLang(String language) {
+    return REPOSITORY_PREFIX + language;
+  }
 }

@@ -45,22 +45,26 @@ public class ComputationSteps {
       ValidateProjectStep.class,
 
       FeedDebtModelStep.class,
+      FeedActiveRulesStep.class,
 
       // load project related stuffs
       QualityGateLoadingStep.class,
       FeedPeriodsStep.class,
 
       // data computation
-      IntegrateIssuesStep.class,
-      CoreMetricFormulaExecutorStep.class,
+      CoverageMeasuresStep.class,
+      CommentMeasuresStep.class,
+
+      // must be executed after the measures required for common rules (coverage, comment density, duplications)
       CustomMeasuresCopyStep.class,
       CommentMeasuresStep.class,
       DuplicationMeasuresStep.class,
+      IntegrateIssuesStep.class,
+      CoreMetricFormulaExecutorStep.class,
 
       // SQALE measures depend on issues
       SqaleMeasuresStep.class,
       NewCoverageMeasuresStep.class,
-      CoverageMeasuresStep.class,
 
       // Must be executed after computation of all measures
       FillMeasuresWithVariationsStep.class,
