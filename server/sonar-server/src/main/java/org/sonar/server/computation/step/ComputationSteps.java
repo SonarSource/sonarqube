@@ -55,7 +55,6 @@ public class ComputationSteps {
       CoreMetricFormulaExecutorStep.class,
       CustomMeasuresCopyStep.class,
       CommentMeasuresStep.class,
-      DocumentationMeasuresStep.class,
 
       // SQALE measures depend on issues
       SqaleMeasuresStep.class,
