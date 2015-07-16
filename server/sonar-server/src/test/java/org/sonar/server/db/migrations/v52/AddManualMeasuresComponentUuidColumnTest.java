@@ -32,16 +32,16 @@ public class AddManualMeasuresComponentUuidColumnTest {
   @Rule
   public DbTester db = DbTester.createForSchema(System2.INSTANCE, AddManualMeasuresComponentUuidColumnTest.class, "schema.sql");
 
-  AddManualMeasuresComponentUuidColumn sut;
+  AddManualMeasuresComponentUuidColumn underTest;
 
   @Before
   public void setUp() {
-    sut = new AddManualMeasuresComponentUuidColumn(db.database());
+    underTest = new AddManualMeasuresComponentUuidColumn(db.database());
   }
 
   @Test
   public void update_columns() throws Exception {
-    sut.execute();
+    underTest.execute();
 
     db.assertColumnDefinition("manual_measures", "component_uuid", Types.VARCHAR, 50);
   }

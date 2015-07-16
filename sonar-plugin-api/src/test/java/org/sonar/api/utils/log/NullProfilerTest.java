@@ -25,24 +25,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class NullProfilerTest {
 
-  NullProfiler sut = NullProfiler.NULL_INSTANCE;
+  NullProfiler underTest = NullProfiler.NULL_INSTANCE;
 
   @Test
   public void do_not_fail() {
-    assertThat(sut.start()).isSameAs(sut);
-    assertThat(sut.startTrace("")).isSameAs(sut);
-    assertThat(sut.startDebug("")).isSameAs(sut);
-    assertThat(sut.startInfo("")).isSameAs(sut);
+    assertThat(underTest.start()).isSameAs(underTest);
+    assertThat(underTest.startTrace("")).isSameAs(underTest);
+    assertThat(underTest.startDebug("")).isSameAs(underTest);
+    assertThat(underTest.startInfo("")).isSameAs(underTest);
 
-    assertThat(sut.stopTrace()).isSameAs(sut);
-    assertThat(sut.stopTrace("")).isSameAs(sut);
-    assertThat(sut.stopDebug("")).isSameAs(sut);
-    assertThat(sut.stopDebug()).isSameAs(sut);
-    assertThat(sut.stopInfo()).isSameAs(sut);
-    assertThat(sut.stopInfo("")).isSameAs(sut);
+    assertThat(underTest.stopTrace()).isSameAs(underTest);
+    assertThat(underTest.stopTrace("")).isSameAs(underTest);
+    assertThat(underTest.stopDebug("")).isSameAs(underTest);
+    assertThat(underTest.stopDebug()).isSameAs(underTest);
+    assertThat(underTest.stopInfo()).isSameAs(underTest);
+    assertThat(underTest.stopInfo("")).isSameAs(underTest);
 
-    assertThat(sut.isDebugEnabled()).isFalse();
-    assertThat(sut.isTraceEnabled()).isFalse();
-    assertThat(sut.addContext("foo", "bar")).isSameAs(sut);
+    assertThat(underTest.isDebugEnabled()).isFalse();
+    assertThat(underTest.isTraceEnabled()).isFalse();
+    assertThat(underTest.addContext("foo", "bar")).isSameAs(underTest);
   }
 }

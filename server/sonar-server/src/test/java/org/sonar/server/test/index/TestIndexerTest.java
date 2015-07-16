@@ -70,14 +70,14 @@ public class TestIndexerTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private TestIndexer sut;
+  private TestIndexer underTest;
 
   @Before
   public void setUp() {
     es.truncateIndices();
     db.truncateTables();
-    sut = new TestIndexer(new DbClient(db.database(), db.myBatis()), es.client());
-    sut.setEnabled(true);
+    underTest = new TestIndexer(new DbClient(db.database(), db.myBatis()), es.client());
+    underTest.setEnabled(true);
   }
 
   @Test
@@ -85,7 +85,7 @@ public class TestIndexerTest {
     db.prepareDbUnit(getClass(), "db.xml");
     TestTesting.updateDataColumn(db.getSession(), "FILE_UUID", TestTesting.newRandomTests(3));
 
-    sut.index();
+    underTest.index();
 
     assertThat(countDocuments()).isEqualTo(3);
   }
@@ -96,7 +96,7 @@ public class TestIndexerTest {
 
     TestTesting.updateDataColumn(db.getSession(), "FILE_UUID", TestTesting.newRandomTests(3));
 
-    sut.index("PROJECT_UUID");
+    underTest.index("PROJECT_UUID");
     assertThat(countDocuments()).isEqualTo(3);
   }
 
@@ -106,7 +106,7 @@ public class TestIndexerTest {
 
     TestTesting.updateDataColumn(db.getSession(), "FILE_UUID", TestTesting.newRandomTests(3));
 
-    sut.index("UNKNOWN");
+    underTest.index("UNKNOWN");
     assertThat(countDocuments()).isZero();
   }
 
@@ -131,7 +131,7 @@ public class TestIndexerTest {
         .addCoveredFile(FileSourceDb.Test.CoveredFile.newBuilder().setFileUuid("MAIN_UUID_1").addCoveredLine(42))
         .build()
       ));
-    sut.index(Iterators.singletonIterator(dbRow));
+    underTest.index(Iterators.singletonIterator(dbRow));
 
     assertThat(countDocuments()).isEqualTo(2L);
 
@@ -158,7 +158,7 @@ public class TestIndexerTest {
     indexTest("P1", "F1", "T2", "U112");
     indexTest("P1", "F2", "T1", "U121");
 
-    sut.deleteByFile("F1");
+    underTest.deleteByFile("F1");
 
     List<SearchHit> hits = getDocuments();
     Map<String, Object> document = hits.get(0).getSource();
@@ -174,7 +174,7 @@ public class TestIndexerTest {
     indexTest("P1", "F2", "T1", "U121");
     indexTest("P2", "F3", "T1", "U231");
 
-    sut.deleteByProject("P1");
+    underTest.deleteByProject("P1");
 
     List<SearchHit> hits = getDocuments();
     assertThat(hits).hasSize(1);

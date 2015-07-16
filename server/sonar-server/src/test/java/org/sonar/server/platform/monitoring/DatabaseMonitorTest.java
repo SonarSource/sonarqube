@@ -34,17 +34,17 @@ public class DatabaseMonitorTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  DatabaseMonitor sut;
+  DatabaseMonitor underTest;
 
   @Before
   public void setUp() {
     DatabaseVersion dbVersion = new DatabaseVersion(dbTester.myBatis());
-    sut = new DatabaseMonitor(dbVersion, dbTester.getDbClient());
+    underTest = new DatabaseMonitor(dbVersion, dbTester.getDbClient());
   }
 
   @Test
   public void db_info() {
-    LinkedHashMap<String, Object> attributes = sut.attributes();
+    LinkedHashMap<String, Object> attributes = underTest.attributes();
     assertThat(attributes.get("Database")).isEqualTo("H2");
     assertThat(attributes.get("Database Version").toString()).startsWith("1.");
     assertThat(attributes.get("Username")).isEqualTo("SONAR");
@@ -53,7 +53,7 @@ public class DatabaseMonitorTest {
 
   @Test
   public void pool_info() {
-    LinkedHashMap<String, Object> attributes = sut.attributes();
+    LinkedHashMap<String, Object> attributes = underTest.attributes();
     assertThat((int) attributes.get("Pool Max Connections")).isGreaterThan(0);
   }
 }

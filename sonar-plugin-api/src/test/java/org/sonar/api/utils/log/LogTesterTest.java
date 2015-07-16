@@ -25,44 +25,44 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class LogTesterTest {
 
-  LogTester sut = new LogTester();
+  LogTester underTest = new LogTester();
 
   @Test
   public void debugLevel() throws Throwable {
-    LoggerLevel initial = sut.getLevel();
+    LoggerLevel initial = underTest.getLevel();
 
     // when LogTester is used, then debug logs are enabled by default
-    sut.before();
-    assertThat(sut.getLevel()).isEqualTo(LoggerLevel.TRACE);
+    underTest.before();
+    assertThat(underTest.getLevel()).isEqualTo(LoggerLevel.TRACE);
     assertThat(Loggers.getFactory().getLevel()).isEqualTo(LoggerLevel.TRACE);
 
     // change
-    sut.setLevel(LoggerLevel.INFO);
-    assertThat(sut.getLevel()).isEqualTo(LoggerLevel.INFO);
+    underTest.setLevel(LoggerLevel.INFO);
+    assertThat(underTest.getLevel()).isEqualTo(LoggerLevel.INFO);
     assertThat(Loggers.getFactory().getLevel()).isEqualTo(LoggerLevel.INFO);
 
     // reset to initial level after execution of test
-    sut.after();
-    assertThat(sut.getLevel()).isEqualTo(initial);
+    underTest.after();
+    assertThat(underTest.getLevel()).isEqualTo(initial);
     assertThat(Loggers.getFactory().getLevel()).isEqualTo(initial);
   }
 
   @Test
   public void intercept_logs() throws Throwable {
-    sut.before();
+    underTest.before();
     Loggers.get("logger1").info("an information");
     Loggers.get("logger2").warn("warning: {}", 42);
 
-    assertThat(sut.logs()).containsExactly("an information", "warning: 42");
-    assertThat(sut.logs(LoggerLevel.ERROR)).isEmpty();
-    assertThat(sut.logs(LoggerLevel.INFO)).containsOnly("an information");
-    assertThat(sut.logs(LoggerLevel.WARN)).containsOnly("warning: 42");
+    assertThat(underTest.logs()).containsExactly("an information", "warning: 42");
+    assertThat(underTest.logs(LoggerLevel.ERROR)).isEmpty();
+    assertThat(underTest.logs(LoggerLevel.INFO)).containsOnly("an information");
+    assertThat(underTest.logs(LoggerLevel.WARN)).containsOnly("warning: 42");
 
-    sut.clear();
-    assertThat(sut.logs()).isEmpty();
-    assertThat(sut.logs(LoggerLevel.INFO)).isEmpty();
+    underTest.clear();
+    assertThat(underTest.logs()).isEmpty();
+    assertThat(underTest.logs(LoggerLevel.INFO)).isEmpty();
 
-    sut.after();
+    underTest.after();
     assertThat(LogInterceptors.get()).isSameAs(NullInterceptor.NULL_INSTANCE);
   }
 }

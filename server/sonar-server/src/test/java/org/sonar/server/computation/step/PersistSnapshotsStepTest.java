@@ -77,7 +77,7 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
 
   long now;
 
-  PersistSnapshotsStep sut;
+  PersistSnapshotsStep underTest;
 
   @Before
   public void setup() {
@@ -92,7 +92,7 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
 
     when(system2.now()).thenReturn(now);
 
-    sut = new PersistSnapshotsStep(system2, dbClient, treeRootHolder, reportReader, dbIdsRepository, periodsHolderRule);
+    underTest = new PersistSnapshotsStep(system2, dbClient, treeRootHolder, reportReader, dbIdsRepository, periodsHolderRule);
 
     // initialize PeriodHolder to empty by default
     periodsHolderRule.setPeriods();
@@ -100,7 +100,7 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
 
   @Override
   protected ComputationStep step() {
-    return sut;
+    return underTest;
   }
 
   @Test
@@ -126,7 +126,7 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     dbIdsRepository.setComponentId(directory, directoryDto.getId());
     dbIdsRepository.setComponentId(file, fileDto.getId());
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(4);
 
@@ -217,7 +217,7 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     dbIdsRepository.setComponentId(directory, directoryDto.getId());
     dbIdsRepository.setComponentId(file, fileDto.getId());
 
-    sut.execute();
+    underTest.execute();
 
     SnapshotDto fileSnapshot = getUnprocessedSnapshot(fileDto.getId());
     assertThat(fileSnapshot.getQualifier()).isEqualTo("UTS");
@@ -247,7 +247,7 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     dbIdsRepository.setComponentId(subModuleA, subModuleADto.getId());
     dbIdsRepository.setComponentId(moduleB, moduleBDto.getId());
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(4);
 
@@ -293,7 +293,7 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(project);
     dbIdsRepository.setComponentId(project, projectDto.getId());
 
-    sut.execute();
+    underTest.execute();
 
     SnapshotDto projectSnapshot = getUnprocessedSnapshot(projectDto.getId());
     assertThat(projectSnapshot.getPeriodMode(1)).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DATE);
@@ -338,7 +338,7 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     dbIdsRepository.setComponentId(directory, directoryDto.getId());
     dbIdsRepository.setComponentId(file, fileDto.getId());
 
-    sut.execute();
+    underTest.execute();
 
     SnapshotDto newProjectSnapshot = getUnprocessedSnapshot(projectDto.getId());
     assertThat(newProjectSnapshot.getPeriodMode(1)).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
@@ -365,7 +365,7 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(project);
     dbIdsRepository.setComponentId(project, projectDto.getId());
 
-    sut.execute();
+    underTest.execute();
 
     SnapshotDto projectSnapshot = getUnprocessedSnapshot(projectDto.getId());
     assertThat(projectSnapshot.getPeriodMode(1)).isNull();

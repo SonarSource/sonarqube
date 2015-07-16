@@ -42,7 +42,7 @@ public class ReportIteratorTest {
 
   File file;
 
-  ReportIterator<BatchReport.Coverage> sut;
+  ReportIterator<BatchReport.Coverage> underTest;
 
   @Before
   public void setUp() throws Exception {
@@ -60,34 +60,34 @@ public class ReportIteratorTest {
 
   @After
   public void tearDown() {
-    if (sut != null) {
-      sut.close();
+    if (underTest != null) {
+      underTest.close();
     }
   }
 
   @Test
   public void read_report() {
-    sut = new ReportIterator<>(file, BatchReport.Coverage.PARSER);
-    assertThat(sut.next().getLine()).isEqualTo(1);
+    underTest = new ReportIterator<>(file, BatchReport.Coverage.PARSER);
+    assertThat(underTest.next().getLine()).isEqualTo(1);
   }
 
   @Test
   public void do_not_fail_when_calling_has_next_with_iterator_already_closed() {
-    sut = new ReportIterator<>(file, BatchReport.Coverage.PARSER);
-    assertThat(sut.next().getLine()).isEqualTo(1);
-    assertThat(sut.hasNext()).isFalse();
+    underTest = new ReportIterator<>(file, BatchReport.Coverage.PARSER);
+    assertThat(underTest.next().getLine()).isEqualTo(1);
+    assertThat(underTest.hasNext()).isFalse();
 
-    sut.close();
-    assertThat(sut.hasNext()).isFalse();
+    underTest.close();
+    assertThat(underTest.hasNext()).isFalse();
   }
 
   @Test(expected = NoSuchElementException.class)
   public void test_error() throws Exception {
-    sut = new ReportIterator<>(file, BatchReport.Coverage.PARSER);
-    sut.next();
+    underTest = new ReportIterator<>(file, BatchReport.Coverage.PARSER);
+    underTest.next();
 
     // fail !
-    sut.next();
+    underTest.next();
   }
 
 }

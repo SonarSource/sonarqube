@@ -27,16 +27,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SystemMonitorTest {
 
-  SystemMonitor sut = new SystemMonitor();
+  SystemMonitor underTest = new SystemMonitor();
 
   @Test
   public void name() {
-    assertThat(sut.name()).isEqualTo("System");
+    assertThat(underTest.name()).isEqualTo("System");
   }
 
   @Test
   public void system_properties() {
-    LinkedHashMap<String, Object> attributes = sut.attributes();
+    LinkedHashMap<String, Object> attributes = underTest.attributes();
 
     assertThat(attributes).containsKeys("System Date", "Processors");
   }

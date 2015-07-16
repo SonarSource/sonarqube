@@ -35,7 +35,7 @@ import static org.mockito.Mockito.verify;
 
 public class ProjectSettingsRespositoryTest {
 
-  private ProjectSettings sut;
+  private ProjectSettings underTest;
 
   private Settings settings;
 
@@ -46,11 +46,11 @@ public class ProjectSettingsRespositoryTest {
 
   @Test
   public void call_global_settings_method_when_no_project_specific_settings() {
-    this.sut = new ProjectSettings(settings, Maps.<String, String>newHashMap());
+    this.underTest = new ProjectSettings(settings, Maps.<String, String>newHashMap());
 
-    sut.getInt("anyKey");
-    sut.getBoolean("anyKey");
-    sut.getString("anyKey");
+    underTest.getInt("anyKey");
+    underTest.getBoolean("anyKey");
+    underTest.getString("anyKey");
 
     verify(settings, times(1)).getBoolean(anyString());
     verify(settings, times(1)).getInt(anyString());
@@ -61,18 +61,18 @@ public class ProjectSettingsRespositoryTest {
   public void getInt_property_throws_exception_when_value_is_not_formatted_correctly() {
     HashMap<String, String> properties = Maps.newHashMap();
     properties.put("intKey", "wrongIntValue");
-    this.sut = new ProjectSettings(settings, properties);
+    this.underTest = new ProjectSettings(settings, properties);
 
-    sut.getInt("intKey");
+    underTest.getInt("intKey");
   }
 
   @Test
   public void getInt_property_return_0_when_empty_property() {
     HashMap<String, String> properties = Maps.newHashMap();
     properties.put("intKey", "");
-    this.sut = new ProjectSettings(settings, properties);
+    this.underTest = new ProjectSettings(settings, properties);
 
-    int value = sut.getInt("intKey");
+    int value = underTest.getInt("intKey");
 
     assertThat(value).isEqualTo(0);
   }
@@ -81,9 +81,9 @@ public class ProjectSettingsRespositoryTest {
   public void getInt_property_return_the_int_value() {
     HashMap<String, String> properties = Maps.newHashMap();
     properties.put("intKey", "123");
-    this.sut = new ProjectSettings(settings, properties);
+    this.underTest = new ProjectSettings(settings, properties);
 
-    int value = sut.getInt("intKey");
+    int value = underTest.getInt("intKey");
 
     assertThat(value).isEqualTo(123);
   }
@@ -92,9 +92,9 @@ public class ProjectSettingsRespositoryTest {
   public void getString_returns_String_property() {
     HashMap<String, String> properties = Maps.newHashMap();
     properties.put("stringKey", "stringValue");
-    this.sut = new ProjectSettings(settings, properties);
+    this.underTest = new ProjectSettings(settings, properties);
 
-    String value = sut.getString("stringKey");
+    String value = underTest.getString("stringKey");
 
     assertThat(value).isEqualTo("stringValue");
   }
@@ -103,9 +103,9 @@ public class ProjectSettingsRespositoryTest {
   public void getBoolean_returns_exception_when_value_is_not_formatted_correctly() {
     HashMap<String, String> properties = Maps.newHashMap();
     properties.put("boolKey", "wronglyFormattedBoolean");
-    this.sut = new ProjectSettings(settings, properties);
+    this.underTest = new ProjectSettings(settings, properties);
 
-    boolean key = sut.getBoolean("boolKey");
+    boolean key = underTest.getBoolean("boolKey");
 
     assertThat(key).isFalse();
   }
@@ -114,9 +114,9 @@ public class ProjectSettingsRespositoryTest {
   public void getBoolean_returns_false_when_value_is_empty() {
     HashMap<String, String> properties = Maps.newHashMap();
     properties.put("boolKey", "");
-    this.sut = new ProjectSettings(settings, properties);
+    this.underTest = new ProjectSettings(settings, properties);
 
-    boolean key = sut.getBoolean("boolKey");
+    boolean key = underTest.getBoolean("boolKey");
 
     assertThat(key).isFalse();
   }
@@ -126,10 +126,10 @@ public class ProjectSettingsRespositoryTest {
     HashMap<String, String> properties = Maps.newHashMap();
     properties.put("boolKey1", "true");
     properties.put("boolKey2", "True");
-    this.sut = new ProjectSettings(settings, properties);
+    this.underTest = new ProjectSettings(settings, properties);
 
-    boolean key1 = sut.getBoolean("boolKey1");
-    boolean key2 = sut.getBoolean("boolKey2");
+    boolean key1 = underTest.getBoolean("boolKey1");
+    boolean key2 = underTest.getBoolean("boolKey2");
 
     assertThat(key1).isTrue();
     assertThat(key2).isTrue();

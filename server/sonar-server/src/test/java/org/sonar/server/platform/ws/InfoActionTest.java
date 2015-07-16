@@ -43,13 +43,13 @@ public class InfoActionTest {
 
   Monitor monitor1 = mock(Monitor.class);
   Monitor monitor2 = mock(Monitor.class);
-  InfoAction sut = new InfoAction(userSessionRule, monitor1, monitor2);
+  InfoAction underTest = new InfoAction(userSessionRule, monitor1, monitor2);
 
   @Test(expected = ForbiddenException.class)
   public void should_fail_when_does_not_have_admin_right() {
     userSessionRule.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
-    sut.handle(mock(Request.class), mock(Response.class));
+    underTest.handle(mock(Request.class), mock(Response.class));
   }
 
   @Test
@@ -67,7 +67,7 @@ public class InfoActionTest {
     when(monitor2.attributes()).thenReturn(attributes2);
 
     WsTester.TestResponse response = new WsTester.TestResponse();
-    sut.handle(new SimpleGetRequest(), response);
+    underTest.handle(new SimpleGetRequest(), response);
     assertThat(response.outputAsString()).isEqualTo("{\"Monitor One\":{\"foo\":\"bar\"},\"Monitor Two\":{\"one\":1,\"two\":2}}");
   }
 }

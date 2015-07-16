@@ -57,11 +57,11 @@ public class PurgeConfigurationTest {
     settings.setProperty(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES, 5);
     Date now = new Date();
 
-    PurgeConfiguration sut = PurgeConfiguration.newDefaultPurgeConfiguration(settings, new IdUuidPair(42L, "any-uuid"));
+    PurgeConfiguration underTest = PurgeConfiguration.newDefaultPurgeConfiguration(settings, new IdUuidPair(42L, "any-uuid"));
 
-    assertThat(sut.scopesWithoutHistoricalData()).contains(Scopes.FILE)
+    assertThat(underTest.scopesWithoutHistoricalData()).contains(Scopes.FILE)
       .doesNotContain(Scopes.DIRECTORY);
-    assertThat(sut.maxLiveDateOfClosedIssues(now)).isEqualTo(DateUtils.addDays(now, -5));
+    assertThat(underTest.maxLiveDateOfClosedIssues(now)).isEqualTo(DateUtils.addDays(now, -5));
   }
 
   @Test
@@ -69,8 +69,8 @@ public class PurgeConfigurationTest {
     Settings settings = new Settings();
     settings.setProperty(PurgeConstants.PROPERTY_CLEAN_DIRECTORY, true);
 
-    PurgeConfiguration sut = PurgeConfiguration.newDefaultPurgeConfiguration(settings, new IdUuidPair(42L, "any-uuid"));
+    PurgeConfiguration underTest = PurgeConfiguration.newDefaultPurgeConfiguration(settings, new IdUuidPair(42L, "any-uuid"));
 
-    assertThat(sut.scopesWithoutHistoricalData()).contains(Scopes.DIRECTORY, Scopes.FILE);
+    assertThat(underTest.scopesWithoutHistoricalData()).contains(Scopes.DIRECTORY, Scopes.FILE);
   }
 }

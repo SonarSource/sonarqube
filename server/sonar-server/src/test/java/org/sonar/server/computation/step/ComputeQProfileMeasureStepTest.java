@@ -59,11 +59,11 @@ public class ComputeQProfileMeasureStepTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  ComputeQProfileMeasureStep sut;
+  ComputeQProfileMeasureStep underTest;
 
   @Before
   public void setUp() throws Exception {
-    sut = new ComputeQProfileMeasureStep(treeRootHolder, measureRepository, metricRepository);
+    underTest = new ComputeQProfileMeasureStep(treeRootHolder, measureRepository, metricRepository);
   }
 
   @Test
@@ -82,7 +82,7 @@ public class ComputeQProfileMeasureStepTest {
     QualityProfile qp = createQProfile(QP_NAME_1, LANGUAGE_KEY_1);
     addMeasure(111, qp);
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(toEntries(measureRepository.getNewRawMeasures(1))).containsOnly(entryOf(CoreMetrics.QUALITY_PROFILES_KEY, newMeasureBuilder().create(toJson(qp))));
   }
@@ -106,7 +106,7 @@ public class ComputeQProfileMeasureStepTest {
     QualityProfile qp2 = createQProfile(QP_NAME_2, LANGUAGE_KEY_2);
     addMeasure(12, qp2);
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(toEntries(measureRepository.getNewRawMeasures(1))).containsOnly(entryOf(CoreMetrics.QUALITY_PROFILES_KEY, newMeasureBuilder().create(toJson(qp1, qp2))));
   }
@@ -124,7 +124,7 @@ public class ComputeQProfileMeasureStepTest {
 
     treeRootHolder.setRoot(project);
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(measureRepository.getNewRawMeasures(1)).isEmpty();
   }
@@ -138,7 +138,7 @@ public class ComputeQProfileMeasureStepTest {
     QualityProfile qp = createQProfile(QP_NAME_1, LANGUAGE_KEY_1);
     addMeasure(1, qp);
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(measureRepository.getNewRawMeasures(1)).isEmpty();
   }

@@ -30,32 +30,32 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class LongTypeValidationTest {
 
-  LongTypeValidation sut = new LongTypeValidation();
+  LongTypeValidation underTest = new LongTypeValidation();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void key_is_long_type_name() {
-    assertThat(sut.key()).isEqualTo(PropertyType.LONG.name());
+    assertThat(underTest.key()).isEqualTo(PropertyType.LONG.name());
   }
 
   @Test
   public void do_not_fail_with_long_values() {
-    sut.validate("1984", null);
-    sut.validate("-1984", null);
+    underTest.validate("1984", null);
+    underTest.validate("-1984", null);
   }
 
   @Test
   public void fail_when_float() {
     expectedException.expect(BadRequestException.class);
 
-    sut.validate("3.14", null);
+    underTest.validate("3.14", null);
   }
 
   @Test
   public void fail_when_string() {
     expectedException.expect(BadRequestException.class);
 
-    sut.validate("original string", null);
+    underTest.validate("original string", null);
   }
 }

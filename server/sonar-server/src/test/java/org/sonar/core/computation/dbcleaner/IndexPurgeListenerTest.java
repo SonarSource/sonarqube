@@ -33,9 +33,9 @@ public class IndexPurgeListenerTest {
   public void call_source_line_indexer() {
     SourceLineIndexer sourceLineIndexer = mock(SourceLineIndexer.class);
     TestIndexer testIndexer = mock(TestIndexer.class);
-    IndexPurgeListener sut = new IndexPurgeListener(sourceLineIndexer, testIndexer);
+    IndexPurgeListener underTest = new IndexPurgeListener(sourceLineIndexer, testIndexer);
 
-    sut.onComponentDisabling("123456");
+    underTest.onComponentDisabling("123456");
 
     verify(sourceLineIndexer).deleteByFile("123456");
     verify(testIndexer).deleteByFile("123456");

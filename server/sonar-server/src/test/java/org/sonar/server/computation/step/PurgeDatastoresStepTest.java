@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import java.io.IOException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -60,7 +59,7 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
   ProjectCleaner projectCleaner = mock(ProjectCleaner.class);
   ProjectSettingsRepository projectSettingsRepository = mock(ProjectSettingsRepository.class);
 
-  PurgeDatastoresStep sut = new PurgeDatastoresStep(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS), projectCleaner, dbIdsRepository, treeRootHolder, projectSettingsRepository);
+  PurgeDatastoresStep underTest = new PurgeDatastoresStep(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS), projectCleaner, dbIdsRepository, treeRootHolder, projectSettingsRepository);
 
   @Before
   public void setUp() {
@@ -77,7 +76,7 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
       .setRootComponentRef(1)
       .build());
 
-    sut.execute();
+    underTest.execute();
 
     ArgumentCaptor<IdUuidPair> argumentCaptor = ArgumentCaptor.forClass(IdUuidPair.class);
     verify(projectCleaner).purge(any(DbSession.class), argumentCaptor.capture(), any(Settings.class));
@@ -87,6 +86,6 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
 
   @Override
   protected ComputationStep step() {
-    return sut;
+    return underTest;
   }
 }

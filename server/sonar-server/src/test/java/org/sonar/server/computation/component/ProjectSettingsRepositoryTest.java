@@ -53,7 +53,7 @@ public class ProjectSettingsRepositoryTest {
 
   Settings globalSettings;
 
-  ProjectSettingsRepository sut;
+  ProjectSettingsRepository underTest;
 
   @Before
   public void createDao() {
@@ -61,7 +61,7 @@ public class ProjectSettingsRepositoryTest {
     globalSettings = new Settings();
     PropertiesDao propertiesDao = new PropertiesDao(dbTester.myBatis());
     session = dbClient.openSession(false);
-    sut = new ProjectSettingsRepository(new ProjectSettingsFactory(globalSettings, propertiesDao));
+    underTest = new ProjectSettingsRepository(new ProjectSettingsFactory(globalSettings, propertiesDao));
   }
 
   @After
@@ -73,7 +73,7 @@ public class ProjectSettingsRepositoryTest {
   public void get_project_settings_from_global_settings() {
     globalSettings.setProperty("key", "value");
 
-    Settings settings = sut.getProjectSettings(PROJECT_KEY);
+    Settings settings = underTest.getProjectSettings(PROJECT_KEY);
 
     assertThat(settings.getString("key")).isEqualTo("value");
   }
@@ -85,7 +85,7 @@ public class ProjectSettingsRepositoryTest {
     dbClient.propertiesDao().setProperty(new PropertyDto().setResourceId(project.getId()).setKey("key").setValue("value"), session);
     session.commit();
 
-    Settings settings = sut.getProjectSettings(PROJECT_KEY);
+    Settings settings = underTest.getProjectSettings(PROJECT_KEY);
 
     assertThat(settings.getString("key")).isEqualTo("value");
   }
@@ -94,10 +94,10 @@ public class ProjectSettingsRepositoryTest {
   public void call_twice_get_project_settings() {
     globalSettings.setProperty("key", "value");
 
-    Settings settings = sut.getProjectSettings(PROJECT_KEY);
+    Settings settings = underTest.getProjectSettings(PROJECT_KEY);
     assertThat(settings.getString("key")).isEqualTo("value");
 
-    settings = sut.getProjectSettings(PROJECT_KEY);
+    settings = underTest.getProjectSettings(PROJECT_KEY);
     assertThat(settings.getString("key")).isEqualTo("value");
   }
 }

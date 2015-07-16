@@ -38,14 +38,14 @@ import static org.mockito.Mockito.when;
 
 public class IsQueueEmptyWsTest {
 
-  IsQueueEmptyWs.IsQueueEmptyAction sut;
+  IsQueueEmptyWs.IsQueueEmptyAction underTest;
   ReportQueue queue;
   Response response;
 
   @Before
   public void before() {
     queue = mock(ReportQueue.class);
-    sut = new IsQueueEmptyWs.IsQueueEmptyAction(queue);
+    underTest = new IsQueueEmptyWs.IsQueueEmptyAction(queue);
 
     response = mock(Response.class);
     when(response.stream()).thenReturn(new FakeStream());
@@ -55,7 +55,7 @@ public class IsQueueEmptyWsTest {
   public void send_true_when_queue_is_empty() throws Exception {
     when(queue.all()).thenReturn(new ArrayList<AnalysisReportDto>());
 
-    sut.handle(mock(Request.class), response);
+    underTest.handle(mock(Request.class), response);
 
     assertThat(response.stream().toString()).isEqualTo("true");
   }
@@ -64,7 +64,7 @@ public class IsQueueEmptyWsTest {
   public void send_false_when_queue_is_not_empty() throws Exception {
     when(queue.all()).thenReturn(Lists.newArrayList(AnalysisReportDto.newForTests(1L)));
 
-    sut.handle(mock(Request.class), response);
+    underTest.handle(mock(Request.class), response);
 
     assertThat(response.stream().toString()).isEqualTo("false");
   }

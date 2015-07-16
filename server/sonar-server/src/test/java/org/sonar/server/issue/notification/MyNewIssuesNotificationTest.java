@@ -32,18 +32,18 @@ import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate
 
 public class MyNewIssuesNotificationTest {
 
-  MyNewIssuesNotification sut = new MyNewIssuesNotification(mock(UserIndex.class), mock(RuleIndex.class), mock(DbClient.class), mock(Durations.class));
+  MyNewIssuesNotification underTest = new MyNewIssuesNotification(mock(UserIndex.class), mock(RuleIndex.class), mock(DbClient.class), mock(Durations.class));
 
   @Test
   public void set_assignee() {
-    sut.setAssignee("myAssignee");
+    underTest.setAssignee("myAssignee");
 
-    assertThat(sut.getFieldValue(FIELD_ASSIGNEE)).isEqualTo("myAssignee");
+    assertThat(underTest.getFieldValue(FIELD_ASSIGNEE)).isEqualTo("myAssignee");
   }
 
   @Test
   public void set_with_a_specific_type() {
-    assertThat(sut.getType()).isEqualTo(MyNewIssuesNotification.MY_NEW_ISSUES_NOTIF_TYPE);
+    assertThat(underTest.getType()).isEqualTo(MyNewIssuesNotification.MY_NEW_ISSUES_NOTIF_TYPE);
 
   }
 }

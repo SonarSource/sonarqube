@@ -48,14 +48,14 @@ public class FeedDebtModelStepTest extends BaseStepTest {
 
   MutableDebtModelHolder debtModelHolder = new DebtModelHolderImpl();
 
-  FeedDebtModelStep sut;
+  FeedDebtModelStep underTest;
 
   @Before
   public void setUp() {
     dbTester.truncateTables();
     dbSession = dbClient.openSession(false);
 
-    sut = new FeedDebtModelStep(dbClient, debtModelHolder);
+    underTest = new FeedDebtModelStep(dbClient, debtModelHolder);
   }
 
   @After
@@ -65,14 +65,14 @@ public class FeedDebtModelStepTest extends BaseStepTest {
 
   @Override
   protected ComputationStep step() {
-    return sut;
+    return underTest;
   }
 
   @Test
   public void feed_characteristics() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    sut.execute();
+    underTest.execute();
 
     Collection<Characteristic> rootChars = debtModelHolder.getRootCharacteristics();
     assertThat(rootChars).extracting("id").containsOnly(1);

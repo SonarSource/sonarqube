@@ -29,8 +29,8 @@ public class JvmPropertiesMonitorTest {
 
   @Test
   public void attributes() {
-    JvmPropertiesMonitor sut = new JvmPropertiesMonitor();
-    LinkedHashMap<String, Object> attributes = sut.attributes();
+    JvmPropertiesMonitor underTest = new JvmPropertiesMonitor();
+    LinkedHashMap<String, Object> attributes = underTest.attributes();
 
     assertThat(attributes).containsKeys("java.vm.vendor", "os.name");
   }

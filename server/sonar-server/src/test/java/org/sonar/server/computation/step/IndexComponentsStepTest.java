@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.component.ResourceIndexDao;
@@ -45,7 +44,7 @@ public class IndexComponentsStepTest extends BaseStepTest {
 
   ResourceIndexDao resourceIndexDao = mock(ResourceIndexDao.class);
   DbIdsRepository dbIdsRepository = new DbIdsRepository();
-  IndexComponentsStep sut = new IndexComponentsStep(resourceIndexDao, dbIdsRepository, treeRootHolder);
+  IndexComponentsStep underTest = new IndexComponentsStep(resourceIndexDao, dbIdsRepository, treeRootHolder);
 
   @Test
   public void call_indexProject_of_dao() {
@@ -53,13 +52,13 @@ public class IndexComponentsStepTest extends BaseStepTest {
     dbIdsRepository.setComponentId(project, 123L);
     treeRootHolder.setRoot(project);
 
-    sut.execute();
+    underTest.execute();
 
     verify(resourceIndexDao).indexProject(123L);
   }
 
   @Override
   protected ComputationStep step() {
-    return sut;
+    return underTest;
   }
 }

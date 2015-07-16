@@ -46,7 +46,7 @@ import static org.junit.Assert.fail;
 public class LogbackHelperTest {
 
   Props props = new Props(new Properties());
-  LogbackHelper sut = new LogbackHelper();
+  LogbackHelper underTest = new LogbackHelper();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -64,15 +64,15 @@ public class LogbackHelperTest {
 
   @Test
   public void getRootContext() {
-    assertThat(sut.getRootContext()).isNotNull();
+    assertThat(underTest.getRootContext()).isNotNull();
   }
 
   @Test
   public void enableJulChangePropagation() {
-    LoggerContext ctx = sut.getRootContext();
+    LoggerContext ctx = underTest.getRootContext();
     int countListeners = ctx.getCopyOfListenerList().size();
 
-    LoggerContextListener propagator = sut.enableJulChangePropagation(ctx);
+    LoggerContextListener propagator = underTest.enableJulChangePropagation(ctx);
     assertThat(ctx.getCopyOfListenerList().size()).isEqualTo(countListeners + 1);
 
     ctx.removeListener(propagator);
@@ -80,8 +80,8 @@ public class LogbackHelperTest {
 
   @Test
   public void newConsoleAppender() {
-    LoggerContext ctx = sut.getRootContext();
-    ConsoleAppender<?> appender = sut.newConsoleAppender(ctx, "MY_APPENDER", "%msg%n");
+    LoggerContext ctx = underTest.getRootContext();
+    ConsoleAppender<?> appender = underTest.newConsoleAppender(ctx, "MY_APPENDER", "%msg%n");
 
     assertThat(appender.getName()).isEqualTo("MY_APPENDER");
     assertThat(appender.getContext()).isSameAs(ctx);
@@ -91,9 +91,9 @@ public class LogbackHelperTest {
 
   @Test
   public void configureLogger() {
-    LoggerContext ctx = sut.getRootContext();
+    LoggerContext ctx = underTest.getRootContext();
 
-    Logger logger = sut.configureLogger(ctx, "my_logger", Level.WARN);
+    Logger logger = underTest.configureLogger(ctx, "my_logger", Level.WARN);
 
     assertThat(logger.getLevel()).isEqualTo(Level.WARN);
     assertThat(logger.getName()).isEqualTo("my_logger");
@@ -101,8 +101,8 @@ public class LogbackHelperTest {
 
   @Test
   public void createRollingPolicy_defaults() {
-    LoggerContext ctx = sut.getRootContext();
-    LogbackHelper.RollingPolicy policy = sut.createRollingPolicy(ctx, props, "sonar");
+    LoggerContext ctx = underTest.getRootContext();
+    LogbackHelper.RollingPolicy policy = underTest.createRollingPolicy(ctx, props, "sonar");
     FileAppender appender = policy.createAppender("SONAR_FILE");
     assertThat(appender).isInstanceOf(RollingFileAppender.class);
 
@@ -116,8 +116,8 @@ public class LogbackHelperTest {
   @Test
   public void createRollingPolicy_none() {
     props.set("sonar.log.rollingPolicy", "none");
-    LoggerContext ctx = sut.getRootContext();
-    LogbackHelper.RollingPolicy policy = sut.createRollingPolicy(ctx, props, "sonar");
+    LoggerContext ctx = underTest.getRootContext();
+    LogbackHelper.RollingPolicy policy = underTest.createRollingPolicy(ctx, props, "sonar");
 
     Appender appender = policy.createAppender("SONAR_FILE");
     assertThat(appender).isNotInstanceOf(RollingFileAppender.class).isInstanceOf(FileAppender.class);
@@ -127,8 +127,8 @@ public class LogbackHelperTest {
   public void createRollingPolicy_size() {
     props.set("sonar.log.rollingPolicy", "size:1MB");
     props.set("sonar.log.maxFiles", "20");
-    LoggerContext ctx = sut.getRootContext();
-    LogbackHelper.RollingPolicy policy = sut.createRollingPolicy(ctx, props, "sonar");
+    LoggerContext ctx = underTest.getRootContext();
+    LogbackHelper.RollingPolicy policy = underTest.createRollingPolicy(ctx, props, "sonar");
 
     Appender appender = policy.createAppender("SONAR_FILE");
     assertThat(appender).isInstanceOf(RollingFileAppender.class);
@@ -147,8 +147,8 @@ public class LogbackHelperTest {
     props.set("sonar.log.rollingPolicy", "time:yyyy-MM");
     props.set("sonar.log.maxFiles", "20");
 
-    LoggerContext ctx = sut.getRootContext();
-    LogbackHelper.RollingPolicy policy = sut.createRollingPolicy(ctx, props, "sonar");
+    LoggerContext ctx = underTest.getRootContext();
+    LogbackHelper.RollingPolicy policy = underTest.createRollingPolicy(ctx, props, "sonar");
 
     RollingFileAppender appender = (RollingFileAppender) policy.createAppender("SONAR_FILE");
 
@@ -162,8 +162,8 @@ public class LogbackHelperTest {
   public void createRollingPolicy_fail_if_unknown_policy() {
     props.set("sonar.log.rollingPolicy", "unknown:foo");
     try {
-      LoggerContext ctx = sut.getRootContext();
-      sut.createRollingPolicy(ctx, props, "sonar");
+      LoggerContext ctx = underTest.getRootContext();
+      underTest.createRollingPolicy(ctx, props, "sonar");
       fail();
     } catch (MessageException e) {
       assertThat(e).hasMessage("Unsupported value for property sonar.log.rollingPolicy: unknown:foo");

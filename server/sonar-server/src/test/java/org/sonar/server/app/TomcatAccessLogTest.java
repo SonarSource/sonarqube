@@ -39,7 +39,7 @@ import static org.mockito.Mockito.*;
 
 public class TomcatAccessLogTest {
 
-  TomcatAccessLog sut = new TomcatAccessLog();
+  TomcatAccessLog underTest = new TomcatAccessLog();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -55,7 +55,7 @@ public class TomcatAccessLogTest {
     Tomcat tomcat = mock(Tomcat.class, Mockito.RETURNS_DEEP_STUBS);
     Props props = new Props(new Properties());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
-    sut.configure(tomcat, props);
+    underTest.configure(tomcat, props);
 
     verify(tomcat.getHost().getPipeline()).addValve(any(ProgrammaticLogbackValve.class));
   }

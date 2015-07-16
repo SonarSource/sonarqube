@@ -50,7 +50,7 @@ import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.TAG
 
 public class MyNewIssuesEmailTemplateTest {
 
-  MyNewIssuesEmailTemplate sut;
+  MyNewIssuesEmailTemplate underTest;
   DefaultI18n i18n;
   UserIndex userIndex;
   Date date;
@@ -75,13 +75,13 @@ public class MyNewIssuesEmailTemplateTest {
     when(i18n.message(any(Locale.class), eq("severity.MINOR"), anyString())).thenReturn("Minor");
     when(i18n.message(any(Locale.class), eq("severity.INFO"), anyString())).thenReturn("Info");
 
-    sut = new MyNewIssuesEmailTemplate(settings, i18n);
+    underTest = new MyNewIssuesEmailTemplate(settings, i18n);
   }
 
   @Test
   public void no_format_if_not_the_correct_notif() {
     Notification notification = new Notification("new-issues");
-    EmailMessage message = sut.format(notification);
+    EmailMessage message = underTest.format(notification);
     assertThat(message).isNull();
   }
 
@@ -92,7 +92,7 @@ public class MyNewIssuesEmailTemplateTest {
     addRules(notification);
     addComponents(notification);
 
-    EmailMessage message = sut.format(notification);
+    EmailMessage message = underTest.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
     String file = IOUtils.toString(getClass().getResource("MyNewIssuesEmailTemplateTest/email_with_all_details.txt"), StandardCharsets.UTF_8);
@@ -103,7 +103,7 @@ public class MyNewIssuesEmailTemplateTest {
   public void message_id() {
     Notification notification = newNotification();
 
-    EmailMessage message = sut.format(notification);
+    EmailMessage message = underTest.format(notification);
 
     assertThat(message.getMessageId()).isEqualTo("my-new-issues/org.apache:struts");
   }
@@ -112,7 +112,7 @@ public class MyNewIssuesEmailTemplateTest {
   public void subject() {
     Notification notification = newNotification();
 
-    EmailMessage message = sut.format(notification);
+    EmailMessage message = underTest.format(notification);
 
     assertThat(message.getSubject()).isEqualTo("You have 32 new issues on project Struts");
   }
@@ -121,7 +121,7 @@ public class MyNewIssuesEmailTemplateTest {
   public void format_email_with_no_assignees_tags_nor_components() throws Exception {
     Notification notification = newNotification();
 
-    EmailMessage message = sut.format(notification);
+    EmailMessage message = underTest.format(notification);
 
     // TODO datetime to be completed when test is isolated from JVM timezone
     String file = IOUtils.toString(getClass().getResource("MyNewIssuesEmailTemplateTest/email_with_no_assignee_tags_components.txt"), StandardCharsets.UTF_8);
@@ -134,7 +134,7 @@ public class MyNewIssuesEmailTemplateTest {
       .setFieldValue(SEVERITY + ".count", "32")
       .setFieldValue("projectName", "Struts");
 
-    EmailMessage message = sut.format(notification);
+    EmailMessage message = underTest.format(notification);
     assertThat(message.getMessage()).doesNotContain("See it");
   }
 

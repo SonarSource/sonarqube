@@ -31,25 +31,25 @@ public class FeedManualMeasuresComponentUuidTest {
   @Rule
   public DbTester db = DbTester.createForSchema(System2.INSTANCE, FeedManualMeasuresComponentUuidTest.class, "schema.sql");
 
-  FeedManualMeasuresComponentUuid sut;
+  FeedManualMeasuresComponentUuid underTest;
 
   @Before
   public void setUp() {
     db.executeUpdateSql("truncate table manual_measures");
     db.executeUpdateSql("truncate table projects");
 
-    sut = new FeedManualMeasuresComponentUuid(db.database());
+    underTest = new FeedManualMeasuresComponentUuid(db.database());
   }
 
   @Test
   public void migrate_empty_db() throws Exception {
-    sut.execute();
+    underTest.execute();
   }
 
   @Test
   public void migrate() throws Exception {
     db.prepareDbUnit(this.getClass(), "migrate.xml");
-    sut.execute();
+    underTest.execute();
     db.assertDbUnit(this.getClass(), "migrate-result.xml", "manual_measures");
   }
 }

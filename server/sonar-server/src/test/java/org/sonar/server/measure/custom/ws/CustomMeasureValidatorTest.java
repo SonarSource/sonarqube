@@ -43,54 +43,54 @@ public class CustomMeasureValidatorTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-  CustomMeasureValidator sut = new CustomMeasureValidator(newFullTypeValidations());
+  CustomMeasureValidator underTest = new CustomMeasureValidator(newFullTypeValidations());
   CustomMeasureDto customMeasure = CustomMeasureTesting.newCustomMeasureDto();
 
   @Test
   public void set_boolean_true_value() {
-    sut.setMeasureValue(customMeasure, "true", newMetricDto().setValueType(BOOL.name()));
+    underTest.setMeasureValue(customMeasure, "true", newMetricDto().setValueType(BOOL.name()));
 
     assertThat(customMeasure.getValue()).isCloseTo(1.0d, defaultOffset());
   }
 
   @Test
   public void set_boolean_false_value() {
-    sut.setMeasureValue(customMeasure, "false", newMetricDto().setValueType(BOOL.name()));
+    underTest.setMeasureValue(customMeasure, "false", newMetricDto().setValueType(BOOL.name()));
 
     assertThat(customMeasure.getValue()).isCloseTo(0.0d, defaultOffset());
   }
 
   @Test
   public void set_integer_value() {
-    sut.setMeasureValue(customMeasure, "1984", newMetricDto().setValueType(INT.name()));
+    underTest.setMeasureValue(customMeasure, "1984", newMetricDto().setValueType(INT.name()));
 
     assertThat(customMeasure.getValue()).isCloseTo(1984d, defaultOffset());
   }
 
   @Test
   public void set_float_value() {
-    sut.setMeasureValue(customMeasure, "3.14", newMetricDto().setValueType(FLOAT.name()));
+    underTest.setMeasureValue(customMeasure, "3.14", newMetricDto().setValueType(FLOAT.name()));
 
     assertThat(customMeasure.getValue()).isCloseTo(3.14d, defaultOffset());
   }
 
   @Test
   public void set_long_value() {
-    sut.setMeasureValue(customMeasure, "123456789", newMetricDto().setValueType(WORK_DUR.name()));
+    underTest.setMeasureValue(customMeasure, "123456789", newMetricDto().setValueType(WORK_DUR.name()));
 
     assertThat(customMeasure.getValue()).isCloseTo(123456789d, defaultOffset());
   }
 
   @Test
   public void set_level_value() {
-    sut.setMeasureValue(customMeasure, WARN.name(), newMetricDto().setValueType(LEVEL.name()));
+    underTest.setMeasureValue(customMeasure, WARN.name(), newMetricDto().setValueType(LEVEL.name()));
 
     assertThat(customMeasure.getTextValue()).isEqualTo(WARN.name());
   }
 
   @Test
   public void set_string_value() {
-    sut.setMeasureValue(customMeasure, "free-text-string", newMetricDto().setValueType(STRING.name()));
+    underTest.setMeasureValue(customMeasure, "free-text-string", newMetricDto().setValueType(STRING.name()));
 
     assertThat(customMeasure.getTextValue()).isEqualTo("free-text-string");
   }
@@ -99,14 +99,14 @@ public class CustomMeasureValidatorTest {
   public void fail_when_non_compliant_value() {
     expectedException.expect(BadRequestException.class);
 
-    sut.setMeasureValue(customMeasure, "non-compliant-boolean-value", newMetricDto().setValueType(BOOL.name()));
+    underTest.setMeasureValue(customMeasure, "non-compliant-boolean-value", newMetricDto().setValueType(BOOL.name()));
   }
 
   @Test
   public void fail_when_non_compliant_level_value() {
     expectedException.expect(BadRequestException.class);
 
-    sut.setMeasureValue(customMeasure, "non-compliant-level-value", newMetricDto().setValueType(LEVEL.name()));
+    underTest.setMeasureValue(customMeasure, "non-compliant-level-value", newMetricDto().setValueType(LEVEL.name()));
   }
 
   private Offset<Double> defaultOffset() {

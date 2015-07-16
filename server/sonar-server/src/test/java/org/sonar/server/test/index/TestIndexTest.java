@@ -36,7 +36,7 @@ public class TestIndexTest {
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new TestIndexDefinition(new Settings()));
 
-  TestIndex sut = new TestIndex(es.client());
+  TestIndex underTest = new TestIndex(es.client());
 
   @Before
   public void setup() {
@@ -49,7 +49,7 @@ public class TestIndexTest {
       newTestDoc("1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
       newTestDoc("2", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
 
-    List<CoveredFileDoc> result = sut.coveredFiles("uuid-1");
+    List<CoveredFileDoc> result = underTest.coveredFiles("uuid-1");
 
     assertThat(result).hasSize(3);
     assertThat(result).extractingResultOf("fileUuid").containsOnly("main-uuid-3", "main-uuid-4", "main-uuid-5");
@@ -63,7 +63,7 @@ public class TestIndexTest {
       newTestDoc("1", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")),
       newTestDoc("2", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
 
-    List<TestDoc> result = sut.searchByTestFileUuid("file-uuid-1", searchOptions()).getDocs();
+    List<TestDoc> result = underTest.searchByTestFileUuid("file-uuid-1", searchOptions()).getDocs();
 
     assertThat(result).hasSize(2);
     assertThat(result).extractingResultOf("name").containsOnly("name-1");
@@ -76,7 +76,7 @@ public class TestIndexTest {
       newTestDoc("2", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
       newTestDoc("3", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
 
-    List<TestDoc> result = sut.searchBySourceFileUuidAndLineNumber("main-uuid-5", 82, searchOptions()).getDocs();
+    List<TestDoc> result = underTest.searchBySourceFileUuidAndLineNumber("main-uuid-5", 82, searchOptions()).getDocs();
 
     assertThat(result).hasSize(2);
     assertThat(result).extractingResultOf("name").containsOnly("name-2", "name-3");
@@ -88,7 +88,7 @@ public class TestIndexTest {
       newTestDoc("1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
       newTestDoc("2", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
 
-    TestDoc test = sut.searchByTestUuid("uuid-1");
+    TestDoc test = underTest.searchByTestUuid("uuid-1");
 
     assertThat(test.testUuid()).isEqualTo("uuid-1");
     assertThat(test.fileUuid()).isEqualTo("file-uuid-1");
@@ -106,7 +106,7 @@ public class TestIndexTest {
       newTestDoc("1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
       newTestDoc("2", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
 
-    List<TestDoc> result = sut.searchByTestUuid("uuid-1", searchOptions()).getDocs();
+    List<TestDoc> result = underTest.searchByTestUuid("uuid-1", searchOptions()).getDocs();
 
     assertThat(result).hasSize(1);
     assertThat(result.get(0).testUuid()).isEqualTo("uuid-1");

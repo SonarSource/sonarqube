@@ -30,29 +30,29 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class BaseMonitorMBeanTest {
 
-  FakeMonitor sut = new FakeMonitor();
+  FakeMonitor underTest = new FakeMonitor();
 
   @Test
   public void test_registration() throws Exception {
     assertThat(getMBean()).isNull();
 
-    sut.start();
+    underTest.start();
     assertThat(getMBean()).isNotNull();
 
-    sut.stop();
+    underTest.stop();
     assertThat(getMBean()).isNull();
   }
 
   @Test
   public void do_not_fail_when_stopping_unstarted() throws Exception {
-    sut.stop();
+    underTest.stop();
     assertThat(getMBean()).isNull();
   }
 
   @CheckForNull
   private ObjectInstance getMBean() throws Exception {
     try {
-      return ManagementFactory.getPlatformMBeanServer().getObjectInstance(sut.objectName());
+      return ManagementFactory.getPlatformMBeanServer().getObjectInstance(underTest.objectName());
     } catch (InstanceNotFoundException e) {
       return null;
     }

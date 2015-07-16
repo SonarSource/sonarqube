@@ -33,7 +33,7 @@ import static org.mockito.Mockito.*;
 
 public class MyNewIssuesNotificationDispatcherTest {
 
-  private MyNewIssuesNotificationDispatcher sut;
+  private MyNewIssuesNotificationDispatcher underTest;
 
   private NotificationManager notificationManager = mock(NotificationManager.class);
   private NotificationDispatcher.Context context = mock(NotificationDispatcher.Context.class);
@@ -43,13 +43,13 @@ public class MyNewIssuesNotificationDispatcherTest {
 
   @Before
   public void setUp() {
-    sut = new MyNewIssuesNotificationDispatcher(notificationManager);
+    underTest = new MyNewIssuesNotificationDispatcher(notificationManager);
   }
 
   @Test
   public void do_not_dispatch_if_no_new_notification() {
     Notification notification = new Notification("other-notif");
-    sut.performDispatch(notification, context);
+    underTest.performDispatch(notification, context);
 
     verify(context, never()).addUser(any(String.class), any(NotificationChannel.class));
   }
@@ -59,12 +59,12 @@ public class MyNewIssuesNotificationDispatcherTest {
     Multimap<String, NotificationChannel> recipients = HashMultimap.create();
     recipients.put("user1", emailChannel);
     recipients.put("user2", twitterChannel);
-    when(notificationManager.findNotificationSubscribers(sut, "struts")).thenReturn(recipients);
+    when(notificationManager.findNotificationSubscribers(underTest, "struts")).thenReturn(recipients);
 
     Notification notification = new Notification(MyNewIssuesNotification.MY_NEW_ISSUES_NOTIF_TYPE)
       .setFieldValue("projectKey", "struts")
       .setFieldValue("assignee", "user1");
-    sut.performDispatch(notification, context);
+    underTest.performDispatch(notification, context);
 
     verify(context).addUser("user1", emailChannel);
     verifyNoMoreInteractions(context);

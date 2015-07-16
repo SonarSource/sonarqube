@@ -59,24 +59,24 @@ public class NewIssuesNotificationTest {
   RuleIndex ruleIndex = mock(RuleIndex.class);
   DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
   Durations durations = mock(Durations.class);
-  NewIssuesNotification sut = new NewIssuesNotification(userIndex, ruleIndex, dbClient, durations);
+  NewIssuesNotification underTest = new NewIssuesNotification(userIndex, ruleIndex, dbClient, durations);
 
   @Test
   public void set_project() {
-    sut.setProject("project-key", "project-uuid", "project-long-name");
+    underTest.setProject("project-key", "project-uuid", "project-long-name");
 
-    assertThat(sut.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_NAME)).isEqualTo("project-long-name");
-    assertThat(sut.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_UUID)).isEqualTo("project-uuid");
-    assertThat(sut.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_KEY)).isEqualTo("project-key");
+    assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_NAME)).isEqualTo("project-long-name");
+    assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_UUID)).isEqualTo("project-uuid");
+    assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_KEY)).isEqualTo("project-key");
   }
 
   @Test
   public void set_date() {
     Date date = new Date();
 
-    sut.setAnalysisDate(date);
+    underTest.setAnalysisDate(date);
 
-    assertThat(sut.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_DATE)).isEqualTo(DateUtils.formatDateTime(date));
+    assertThat(underTest.getFieldValue(NewIssuesEmailTemplate.FIELD_PROJECT_DATE)).isEqualTo(DateUtils.formatDateTime(date));
   }
 
   @Test
@@ -88,36 +88,36 @@ public class NewIssuesNotificationTest {
     when(ruleIndex.getByKey(RuleKey.of("SonarQube", "rule-the-world"))).thenReturn(newRule("Rule the World", "Java"));
     when(ruleIndex.getByKey(RuleKey.of("SonarQube", "rule-the-universe"))).thenReturn(newRule("Rule the Universe", "Clojure"));
 
-    sut.setStatistics("project-long-name", stats);
+    underTest.setStatistics("project-long-name", stats);
 
-    assertThat(sut.getFieldValue(SEVERITY + ".INFO.count")).isEqualTo("5");
-    assertThat(sut.getFieldValue(SEVERITY + ".BLOCKER.count")).isEqualTo("3");
-    assertThat(sut.getFieldValue(ASSIGNEE + ".1.label")).isEqualTo("maynard");
-    assertThat(sut.getFieldValue(ASSIGNEE + ".1.count")).isEqualTo("5");
-    assertThat(sut.getFieldValue(ASSIGNEE + ".2.label")).isEqualTo("keenan");
-    assertThat(sut.getFieldValue(ASSIGNEE + ".2.count")).isEqualTo("3");
-    assertThat(sut.getFieldValue(TAG + ".1.label")).isEqualTo("owasp");
-    assertThat(sut.getFieldValue(TAG + ".1.count")).isEqualTo("8");
-    assertThat(sut.getFieldValue(TAG + ".2.label")).isEqualTo("bug");
-    assertThat(sut.getFieldValue(TAG + ".2.count")).isEqualTo("5");
-    assertThat(sut.getFieldValue(COMPONENT + ".1.label")).isEqualTo("file-name");
-    assertThat(sut.getFieldValue(COMPONENT + ".1.count")).isEqualTo("5");
-    assertThat(sut.getFieldValue(COMPONENT + ".2.label")).isEqualTo("directory-name");
-    assertThat(sut.getFieldValue(COMPONENT + ".2.count")).isEqualTo("3");
-    assertThat(sut.getFieldValue(RULE + ".1.label")).isEqualTo("Rule the World (Java)");
-    assertThat(sut.getFieldValue(RULE + ".1.count")).isEqualTo("5");
-    assertThat(sut.getFieldValue(RULE + ".2.label")).isEqualTo("Rule the Universe (Clojure)");
-    assertThat(sut.getFieldValue(RULE + ".2.count")).isEqualTo("3");
-    assertThat(sut.getDefaultMessage()).startsWith("8 new issues on project-long-name");
+    assertThat(underTest.getFieldValue(SEVERITY + ".INFO.count")).isEqualTo("5");
+    assertThat(underTest.getFieldValue(SEVERITY + ".BLOCKER.count")).isEqualTo("3");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".1.label")).isEqualTo("maynard");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".1.count")).isEqualTo("5");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".2.label")).isEqualTo("keenan");
+    assertThat(underTest.getFieldValue(ASSIGNEE + ".2.count")).isEqualTo("3");
+    assertThat(underTest.getFieldValue(TAG + ".1.label")).isEqualTo("owasp");
+    assertThat(underTest.getFieldValue(TAG + ".1.count")).isEqualTo("8");
+    assertThat(underTest.getFieldValue(TAG + ".2.label")).isEqualTo("bug");
+    assertThat(underTest.getFieldValue(TAG + ".2.count")).isEqualTo("5");
+    assertThat(underTest.getFieldValue(COMPONENT + ".1.label")).isEqualTo("file-name");
+    assertThat(underTest.getFieldValue(COMPONENT + ".1.count")).isEqualTo("5");
+    assertThat(underTest.getFieldValue(COMPONENT + ".2.label")).isEqualTo("directory-name");
+    assertThat(underTest.getFieldValue(COMPONENT + ".2.count")).isEqualTo("3");
+    assertThat(underTest.getFieldValue(RULE + ".1.label")).isEqualTo("Rule the World (Java)");
+    assertThat(underTest.getFieldValue(RULE + ".1.count")).isEqualTo("5");
+    assertThat(underTest.getFieldValue(RULE + ".2.label")).isEqualTo("Rule the Universe (Clojure)");
+    assertThat(underTest.getFieldValue(RULE + ".2.count")).isEqualTo("3");
+    assertThat(underTest.getDefaultMessage()).startsWith("8 new issues on project-long-name");
   }
 
   @Test
   public void set_debt() {
     when(durations.format(any(Locale.class), any(Duration.class))).thenReturn("55 min");
 
-    sut.setDebt(Duration.create(55));
+    underTest.setDebt(Duration.create(55));
 
-    assertThat(sut.getFieldValue(DEBT + ".count")).isEqualTo("55 min");
+    assertThat(underTest.getFieldValue(DEBT + ".count")).isEqualTo("55 min");
   }
 
   private void addIssueNTimes(DefaultIssue issue, int times) {

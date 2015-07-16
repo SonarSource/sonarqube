@@ -36,11 +36,11 @@ import static org.mockito.Mockito.when;
 public class PluginsMonitorTest {
 
   PluginRepository repo = mock(PluginRepository.class);
-  PluginsMonitor sut = new PluginsMonitor(repo);
+  PluginsMonitor underTest = new PluginsMonitor(repo);
 
   @Test
   public void name() {
-    assertThat(sut.name()).isEqualTo("Plugins");
+    assertThat(underTest.name()).isEqualTo("Plugins");
   }
 
   @Test
@@ -55,7 +55,7 @@ public class PluginsMonitorTest {
       new PluginInfo("no-version")
         .setName("No Version")));
 
-    LinkedHashMap<String, Object> attributes = sut.attributes();
+    LinkedHashMap<String, Object> attributes = underTest.attributes();
 
     assertThat(attributes).containsKeys("key-1", "key-2");
     assertThat((Map) attributes.get("key-1"))

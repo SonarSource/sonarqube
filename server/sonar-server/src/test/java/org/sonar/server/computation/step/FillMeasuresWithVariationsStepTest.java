@@ -87,7 +87,7 @@ public class FillMeasuresWithVariationsStepTest {
 
   DbClient dbClient = dbTester.getDbClient();
 
-  FillMeasuresWithVariationsStep sut;
+  FillMeasuresWithVariationsStep underTest;
 
   @Before
   public void setUp() {
@@ -95,7 +95,7 @@ public class FillMeasuresWithVariationsStepTest {
     dbClient.componentDao().insert(session, PROJECT_DTO);
     session.commit();
 
-    sut = new FillMeasuresWithVariationsStep(dbClient, treeRootHolder, periodsHolder, metricRepository, measureRepository);
+    underTest = new FillMeasuresWithVariationsStep(dbClient, treeRootHolder, periodsHolder, metricRepository, measureRepository);
   }
 
   @Test
@@ -109,7 +109,7 @@ public class FillMeasuresWithVariationsStepTest {
 
     treeRootHolder.setRoot(PROJECT);
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(measureRepository.getRawMeasures(PROJECT).keys()).isEmpty();
   }
@@ -120,7 +120,7 @@ public class FillMeasuresWithVariationsStepTest {
     treeRootHolder.setRoot(project);
     periodsHolder.setPeriods();
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(measureRepository.getRawMeasures(project).keys()).isEmpty();
   }
@@ -149,7 +149,7 @@ public class FillMeasuresWithVariationsStepTest {
     addRawMeasure(project, ISSUES_METRIC, Measure.newMeasureBuilder().create(80, null));
     addRawMeasure(directory, ISSUES_METRIC, Measure.newMeasureBuilder().create(20, null));
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(measureRepository.getRawMeasure(project, ISSUES_METRIC).get().getVariations().getVariation1()).isEqualTo(20d);
     assertThat(measureRepository.getRawMeasure(directory, ISSUES_METRIC).get().getVariations().getVariation1()).isEqualTo(10d);
@@ -182,7 +182,7 @@ public class FillMeasuresWithVariationsStepTest {
 
     addRawMeasure(PROJECT, ISSUES_METRIC, Measure.newMeasureBuilder().create(80, null));
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(measureRepository.getRawMeasures(PROJECT).keys()).hasSize(1);
 
@@ -216,7 +216,7 @@ public class FillMeasuresWithVariationsStepTest {
     addRawMeasure(PROJECT, FILE_COMPLEXITY_METRIC, Measure.newMeasureBuilder().create(3d, null));
     addRawMeasure(PROJECT, BUILD_BREAKER_METRIC, Measure.newMeasureBuilder().create(false, null));
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(measureRepository.getRawMeasures(PROJECT).keys()).hasSize(4);
 

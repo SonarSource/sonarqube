@@ -122,11 +122,11 @@ public class IssueCounterTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  IssueCounter sut;
+  IssueCounter underTest;
 
   @Before
   public void setUp() {
-    sut = new IssueCounter(periodsHolder, metricRepository, measureRepository);
+    underTest = new IssueCounter(periodsHolder, metricRepository, measureRepository);
   }
 
   @Test
@@ -134,22 +134,22 @@ public class IssueCounterTest {
     periodsHolder.setPeriods();
 
     // bottom-up traversal -> from files to project
-    sut.beforeComponent(FILE1);
-    sut.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER));
-    sut.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR));
-    sut.onIssue(FILE1, createIssue(RESOLUTION_FALSE_POSITIVE, STATUS_RESOLVED, MAJOR));
-    sut.afterComponent(FILE1);
+    underTest.beforeComponent(FILE1);
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_FALSE_POSITIVE, STATUS_RESOLVED, MAJOR));
+    underTest.afterComponent(FILE1);
 
-    sut.beforeComponent(FILE2);
-    sut.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, BLOCKER));
-    sut.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, MAJOR));
-    sut.afterComponent(FILE2);
+    underTest.beforeComponent(FILE2);
+    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, BLOCKER));
+    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, MAJOR));
+    underTest.afterComponent(FILE2);
 
-    sut.beforeComponent(FILE3);
-    sut.afterComponent(FILE3);
+    underTest.beforeComponent(FILE3);
+    underTest.afterComponent(FILE3);
 
-    sut.beforeComponent(PROJECT);
-    sut.afterComponent(PROJECT);
+    underTest.beforeComponent(PROJECT);
+    underTest.afterComponent(PROJECT);
 
     // count by status
     assertThat(measureRepository.getRawMeasure(FILE1, ISSUES_METRIC).get().getIntValue()).isEqualTo(1);
@@ -175,19 +175,19 @@ public class IssueCounterTest {
     periodsHolder.setPeriods();
 
     // bottom-up traversal -> from files to project
-    sut.beforeComponent(FILE1);
-    sut.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER));
+    underTest.beforeComponent(FILE1);
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER));
     // this resolved issue is ignored
-    sut.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR));
-    sut.afterComponent(FILE1);
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR));
+    underTest.afterComponent(FILE1);
 
-    sut.beforeComponent(FILE2);
-    sut.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, BLOCKER));
-    sut.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, MAJOR));
-    sut.afterComponent(FILE2);
+    underTest.beforeComponent(FILE2);
+    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, BLOCKER));
+    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, MAJOR));
+    underTest.afterComponent(FILE2);
 
-    sut.beforeComponent(PROJECT);
-    sut.afterComponent(PROJECT);
+    underTest.beforeComponent(PROJECT);
+    underTest.afterComponent(PROJECT);
 
     assertThat(measureRepository.getRawMeasure(FILE1, BLOCKER_ISSUES_METRIC).get().getIntValue()).isEqualTo(1);
     assertThat(measureRepository.getRawMeasure(FILE1, CRITICAL_ISSUES_METRIC).get().getIntValue()).isEqualTo(0);
@@ -207,21 +207,21 @@ public class IssueCounterTest {
     Period period = newPeriod(3, 1500000000000L);
     periodsHolder.setPeriods(period);
 
-    sut.beforeComponent(FILE1);
+    underTest.beforeComponent(FILE1);
     // created before -> existing issues
-    sut.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate() - 1000000L));
+    underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate() - 1000000L));
     // created during the first analysis starting the period -> existing issues
-    sut.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate()));
+    underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate()));
     // created after -> new issues
-    sut.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, CRITICAL, period.getSnapshotDate() + 100000L));
-    sut.onIssue(FILE1, createIssueAt(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR, period.getSnapshotDate() + 200000L));
-    sut.afterComponent(FILE1);
+    underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, CRITICAL, period.getSnapshotDate() + 100000L));
+    underTest.onIssue(FILE1, createIssueAt(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR, period.getSnapshotDate() + 200000L));
+    underTest.afterComponent(FILE1);
 
-    sut.beforeComponent(FILE2);
-    sut.afterComponent(FILE2);
+    underTest.beforeComponent(FILE2);
+    underTest.afterComponent(FILE2);
 
-    sut.beforeComponent(PROJECT);
-    sut.afterComponent(PROJECT);
+    underTest.beforeComponent(PROJECT);
+    underTest.afterComponent(PROJECT);
 
     assertVariation(FILE1, NEW_ISSUES_METRIC, period.getIndex(), 1);
     assertVariation(FILE1, NEW_CRITICAL_ISSUES_METRIC, period.getIndex(), 1);

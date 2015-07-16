@@ -66,7 +66,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
 
   DbClient dbClient;
 
-  PersistDuplicationsStep sut;
+  PersistDuplicationsStep underTest;
 
   @Before
   public void setup() {
@@ -74,12 +74,12 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     session = dbTester.myBatis().openSession(false);
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new MeasureDao(), new MetricDao());
 
-    sut = new PersistDuplicationsStep(dbClient, dbIdsRepository, treeRootHolder, reportReader);
+    underTest = new PersistDuplicationsStep(dbClient, dbIdsRepository, treeRootHolder, reportReader);
   }
 
   @Override
   protected ComputationStep step() {
-    return sut;
+    return underTest;
   }
 
   @After
@@ -92,7 +92,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
     saveDuplicationMetric();
     initReportWithProjectAndFile();
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(0);
   }
@@ -118,7 +118,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
       .build();
     reportReader.putDuplications(2, newArrayList(duplication));
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 
@@ -159,7 +159,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
       .build();
     reportReader.putDuplications(3, newArrayList(duplication));
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 
@@ -199,7 +199,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
       .build();
     reportReader.putDuplications(3, newArrayList(duplication));
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 
@@ -242,7 +242,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
       .build();
     reportReader.putDuplications(10, newArrayList(duplication));
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 
@@ -281,7 +281,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
       .build();
     reportReader.putDuplications(2, newArrayList(duplication));
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 
@@ -310,7 +310,7 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
       .build();
     reportReader.putDuplications(2, newArrayList(duplication));
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
 

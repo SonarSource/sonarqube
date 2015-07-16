@@ -47,12 +47,12 @@ public class TestResultSetIteratorTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  TestResultSetIterator sut;
+  TestResultSetIterator underTest;
 
   @After
   public void after() {
-    if (sut != null) {
-      sut.close();
+    if (underTest != null) {
+      underTest.close();
     }
   }
 
@@ -60,9 +60,9 @@ public class TestResultSetIteratorTest {
   public void traverse_db() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     TestTesting.updateDataColumn(dbTester.getSession(), "F1", newFakeTests(3));
-    sut = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
+    underTest = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
 
-    FileSourcesUpdaterHelper.Row row = sut.next();
+    FileSourcesUpdaterHelper.Row row = underTest.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
     assertThat(row.getFileUuid()).isEqualTo("F1");
     assertThat(row.getUpdatedAt()).isEqualTo(1416239042000L);
@@ -95,9 +95,9 @@ public class TestResultSetIteratorTest {
         .build()
       );
     TestTesting.updateDataColumn(dbTester.getSession(), "F1", tests);
-    sut = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
+    underTest = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
 
-    FileSourcesUpdaterHelper.Row row = sut.next();
+    FileSourcesUpdaterHelper.Row row = underTest.next();
 
     assertThat(row.getProjectUuid()).isEqualTo("P1");
     assertThat(row.getFileUuid()).isEqualTo("F1");
@@ -124,9 +124,9 @@ public class TestResultSetIteratorTest {
   @Test
   public void filter_by_date() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    sut = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 2000000000000L, null);
+    underTest = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 2000000000000L, null);
 
-    assertThat(sut.hasNext()).isFalse();
+    assertThat(underTest.hasNext()).isFalse();
   }
 
   @Test
@@ -134,14 +134,14 @@ public class TestResultSetIteratorTest {
     dbTester.prepareDbUnit(getClass(), "filter_by_project.xml");
     TestTesting.updateDataColumn(dbTester.getSession(), "F1", newFakeTests(1));
 
-    sut = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, "P1");
+    underTest = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, "P1");
 
-    FileSourcesUpdaterHelper.Row row = sut.next();
+    FileSourcesUpdaterHelper.Row row = underTest.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
     assertThat(row.getFileUuid()).isEqualTo("F1");
 
     // File from other project P2 is not returned
-    assertThat(sut.hasNext()).isFalse();
+    assertThat(underTest.hasNext()).isFalse();
   }
 
   @Test
@@ -149,14 +149,14 @@ public class TestResultSetIteratorTest {
     dbTester.prepareDbUnit(getClass(), "filter_by_project_and_date.xml");
     TestTesting.updateDataColumn(dbTester.getSession(), "F1", newFakeTests(1));
 
-    sut = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 1400000000000L, "P1");
+    underTest = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 1400000000000L, "P1");
 
-    FileSourcesUpdaterHelper.Row row = sut.next();
+    FileSourcesUpdaterHelper.Row row = underTest.next();
     assertThat(row.getProjectUuid()).isEqualTo("P1");
     assertThat(row.getFileUuid()).isEqualTo("F1");
 
     // File F2 is not returned
-    assertThat(sut.hasNext()).isFalse();
+    assertThat(underTest.hasNext()).isFalse();
   }
 
   @Test
@@ -165,10 +165,10 @@ public class TestResultSetIteratorTest {
 
     TestTesting.updateDataColumn(dbTester.getSession(), "F1", "THIS_IS_NOT_PROTOBUF".getBytes());
 
-    sut = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
+    underTest = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
     try {
-      assertThat(sut.hasNext()).isTrue();
-      sut.next();
+      assertThat(underTest.hasNext()).isTrue();
+      underTest.next();
       fail("it should not be possible to go through not compliant data");
     } catch (IllegalStateException e) {
       // ok

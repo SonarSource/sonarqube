@@ -41,7 +41,7 @@ public class TempFolderProviderTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  TempFolderProvider sut = new TempFolderProvider();
+  TempFolderProvider underTest = new TempFolderProvider();
 
   @Test
   public void existing_temp_dir() throws Exception {
@@ -49,7 +49,7 @@ public class TempFolderProviderTest {
     File tmpDir = temp.newFolder();
     when(fs.getTempDir()).thenReturn(tmpDir);
 
-    TempFolder folder = sut.provide(fs);
+    TempFolder folder = underTest.provide(fs);
     assertThat(folder).isNotNull();
     File newDir = folder.newDir();
     assertThat(newDir).exists().isDirectory();
@@ -63,7 +63,7 @@ public class TempFolderProviderTest {
     when(fs.getTempDir()).thenReturn(tmpDir);
     FileUtils.forceDelete(tmpDir);
 
-    TempFolder folder = sut.provide(fs);
+    TempFolder folder = underTest.provide(fs);
     assertThat(folder).isNotNull();
     File newDir = folder.newDir();
     assertThat(newDir).exists().isDirectory();

@@ -73,7 +73,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   DbClient dbClient = dbTester.getDbClient();
-  PersistFileSourcesStep sut;
+  PersistFileSourcesStep underTest;
 
   long now = 123456789L;
 
@@ -81,19 +81,19 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void setup() {
     dbTester.truncateTables();
     when(system2.now()).thenReturn(now);
-    sut = new PersistFileSourcesStep(dbClient, system2, treeRootHolder, reportReader);
+    underTest = new PersistFileSourcesStep(dbClient, system2, treeRootHolder, reportReader);
   }
 
   @Override
   protected ComputationStep step() {
-    return sut;
+    return underTest;
   }
 
   @Test
   public void persist_sources() {
     initBasicReport(2);
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -132,7 +132,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .build());
     reportReader.putFileSourceLines(FILE_REF, "line1", "line2");
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -146,7 +146,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void persist_source_hashes() {
     initBasicReport(2);
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource("FILE");
@@ -168,7 +168,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setOverallCoveredConditions(4)
       .build()));
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -201,7 +201,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .addChangesetIndexByLine(0)
       .build());
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -227,7 +227,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
         .build()
     ));
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -253,7 +253,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
         ).build()
     ));
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -285,7 +285,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
         .build()
     ));
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -323,7 +323,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     // Sources from the report
     initBasicReport(1);
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -357,7 +357,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     initBasicReport(1);
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -388,7 +388,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     initBasicReport(1);
 
-    sut.execute();
+    underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
@@ -413,7 +413,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     ));
 
     try {
-      sut.execute();
+      underTest.execute();
       failBecauseExceptionWasNotThrown(IllegalStateException.class);
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Cannot persist sources of MODULE_KEY:src/Foo.java").hasCauseInstanceOf(IllegalArgumentException.class);

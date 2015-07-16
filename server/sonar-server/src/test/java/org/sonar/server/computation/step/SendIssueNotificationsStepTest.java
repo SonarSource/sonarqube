@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.step;
 
-import java.io.IOException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -65,13 +64,13 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   NotificationService notifService = mock(NotificationService.class);
   IssueCache issueCache;
-  SendIssueNotificationsStep sut;
+  SendIssueNotificationsStep underTest;
 
   @Before
   public void setUp() throws Exception {
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     NewIssuesNotificationFactory newIssuesNotificationFactory = mock(NewIssuesNotificationFactory.class, Mockito.RETURNS_DEEP_STUBS);
-    sut = new SendIssueNotificationsStep(issueCache, mock(RuleRepository.class), treeRootHolder, notifService, reportReader, newIssuesNotificationFactory);
+    underTest = new SendIssueNotificationsStep(issueCache, mock(RuleRepository.class), treeRootHolder, notifService, reportReader, newIssuesNotificationFactory);
 
     treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build());
 
@@ -90,7 +89,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   public void do_not_send_notifications_if_no_subscribers() {
     when(notifService.hasProjectSubscribersForTypes(PROJECT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(false);
 
-    sut.execute();
+    underTest.execute();
 
     verify(notifService, never()).deliver(any(Notification.class));
   }
@@ -102,7 +101,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
     when(notifService.hasProjectSubscribersForTypes(PROJECT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
 
-    sut.execute();
+    underTest.execute();
 
     verify(notifService).deliver(any(NewIssuesNotification.class));
     verify(notifService, atLeastOnce()).deliver(any(IssueChangeNotification.class));
@@ -110,6 +109,6 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   @Override
   protected ComputationStep step() {
-    return sut;
+    return underTest;
   }
 }

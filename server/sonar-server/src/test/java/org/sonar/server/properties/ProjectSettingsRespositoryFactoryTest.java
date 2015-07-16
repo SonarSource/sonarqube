@@ -35,26 +35,26 @@ import static org.mockito.Mockito.mock;
 
 public class ProjectSettingsRespositoryFactoryTest {
 
-  private ProjectSettingsFactory sut;
+  private ProjectSettingsFactory underTest;
 
   @Before
   public void before() {
     Settings settings = mock(Settings.class);
     PropertiesDao dao = mock(PropertiesDao.class);
 
-    this.sut = new ProjectSettingsFactory(settings, dao);
+    this.underTest = new ProjectSettingsFactory(settings, dao);
   }
 
   @Test
   public void newProjectSettings_returns_a_ProjectSettings() {
-    Settings projectSettings = sut.newProjectSettings("PROJECT_KEY");
+    Settings projectSettings = underTest.newProjectSettings("PROJECT_KEY");
 
     assertThat(projectSettings).isInstanceOf(ProjectSettings.class);
   }
 
   @Test
   public void transform_empty_list_into_empty_map() {
-    Map<String, String> propertyMap = sut.getPropertyMap(Lists.<PropertyDto>newArrayList());
+    Map<String, String> propertyMap = underTest.getPropertyMap(Lists.<PropertyDto>newArrayList());
 
     assertThat(propertyMap).isEmpty();
   }
@@ -65,7 +65,7 @@ public class ProjectSettingsRespositoryFactoryTest {
     PropertyDto property2 = new PropertyDto().setKey("2").setValue("val2");
     PropertyDto property3 = new PropertyDto().setKey("3").setValue("val3");
 
-    Map<String, String> propertyMap = sut.getPropertyMap(newArrayList(property1, property2, property3));
+    Map<String, String> propertyMap = underTest.getPropertyMap(newArrayList(property1, property2, property3));
 
     assertThat(propertyMap.get("1")).isEqualTo("val1");
     assertThat(propertyMap.get("2")).isEqualTo("val2");

@@ -58,7 +58,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
 
   DbIdsRepository dbIdsRepository = new DbIdsRepository();
 
-  PersistNumberOfDaysSinceLastCommitStep sut;
+  PersistNumberOfDaysSinceLastCommitStep underTest;
 
   DbClient dbClient = db.getDbClient();
   SourceLineIndex sourceLineIndex;
@@ -75,12 +75,12 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
     languageRepository = mock(LanguageRepository.class);
     when(metricRepository.getByKey(anyString())).thenReturn(new MetricImpl(10, "key", "name", Metric.MetricType.STRING));
 
-    sut = new PersistNumberOfDaysSinceLastCommitStep(System2.INSTANCE, dbClient, sourceLineIndex, metricRepository, treeRootHolder, reportReader, dbIdsRepository);
+    underTest = new PersistNumberOfDaysSinceLastCommitStep(System2.INSTANCE, dbClient, sourceLineIndex, metricRepository, treeRootHolder, reportReader, dbIdsRepository);
   }
 
   @Override
   protected ComputationStep step() {
-    return sut;
+    return underTest;
   }
 
   @Test
@@ -97,7 +97,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
         .build()
     );
 
-    sut.execute();
+    underTest.execute();
 
     db.assertDbUnit(getClass(), "insert-from-report-result.xml", new String[]{"id"}, "project_measures");
   }
@@ -108,7 +108,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
     when(sourceLineIndex.lastCommitDateOnProject("project-uuid")).thenReturn(sixDaysAgo);
     initProject();
 
-    sut.execute();
+    underTest.execute();
 
     db.assertDbUnit(getClass(), "insert-from-index-result.xml", new String[]{"id"}, "project_measures");
   }
@@ -117,7 +117,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   public void no_scm_information_in_report_and_index() {
     initProject();
 
-    sut.execute();
+    underTest.execute();
 
     db.assertDbUnit(getClass(), "empty.xml");
   }

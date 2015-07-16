@@ -63,12 +63,12 @@ public class CustomMeasuresCopyStepTest {
   MetricRepository metricRepository = mock(MetricRepository.class);
   MeasureRepository measureRepository = mock(MeasureRepository.class);
 
-  CustomMeasuresCopyStep sut;
+  CustomMeasuresCopyStep underTest;
 
   @Before
   public void setUp() {
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new CustomMeasureDao());
-    sut = new CustomMeasuresCopyStep(treeRootHolder, dbClient, metricRepository, measureRepository);
+    underTest = new CustomMeasuresCopyStep(treeRootHolder, dbClient, metricRepository, measureRepository);
   }
 
   @Test
@@ -87,7 +87,7 @@ public class CustomMeasuresCopyStepTest {
     Component project = DumbComponent.builder(Component.Type.PROJECT, 3).setUuid("PROJECT1").addChildren(file1, file2).build();
     treeRootHolder.setRoot(project);
 
-    sut.execute();
+    underTest.execute();
 
     ArgumentCaptor<Measure> measureCaptor = ArgumentCaptor.forClass(Measure.class);
     verify(measureRepository).add(eq(file1), eq(floatMetric), measureCaptor.capture());

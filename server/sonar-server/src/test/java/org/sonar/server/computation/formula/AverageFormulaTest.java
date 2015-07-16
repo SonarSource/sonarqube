@@ -210,20 +210,20 @@ public class AverageFormulaTest {
 
   @Test
   public void create_measure_from_fall_back_measure() {
-    AverageFormula sut = Builder.newBuilder()
+    AverageFormula underTest = Builder.newBuilder()
       .setOutputMetricKey(FUNCTION_COMPLEXITY_KEY)
       .setMainMetricKey(COMPLEXITY_IN_FUNCTIONS_KEY)
       .setByMetricKey(FUNCTIONS_KEY)
       .setFallbackMetricKey(CoreMetrics.COMPLEXITY_KEY)
       .build();
 
-    AverageFormula.AverageCounter counter = sut.createNewCounter();
+    AverageFormula.AverageCounter counter = underTest.createNewCounter();
     when(fileAggregateContext.getMeasure(COMPLEXITY_IN_FUNCTIONS_KEY)).thenReturn(Optional.<Measure>absent());
     addMeasure(COMPLEXITY_KEY, 10d);
     addMeasure(FUNCTIONS_KEY, 2d);
     counter.aggregate(fileAggregateContext);
 
-    assertThat(sut.createMeasure(counter, createMeasureContext).get().getDoubleValue()).isEqualTo(5d);
+    assertThat(underTest.createMeasure(counter, createMeasureContext).get().getDoubleValue()).isEqualTo(5d);
   }
 
   @Test

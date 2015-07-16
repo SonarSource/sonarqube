@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SearchLoggingTest {
 
-  SearchLogging sut = new SearchLogging();
+  SearchLogging underTest = new SearchLogging();
 
   @AfterClass
   public static void resetLogback() throws Exception {
@@ -40,7 +40,7 @@ public class SearchLoggingTest {
 
   @Test
   public void log_to_console() {
-    LoggerContext ctx = sut.configure();
+    LoggerContext ctx = underTest.configure();
 
     Logger root = ctx.getLogger(Logger.ROOT_LOGGER_NAME);
     Appender appender = root.getAppender("CONSOLE");

@@ -32,15 +32,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class NewIssuesStatisticsTest {
 
-  NewIssuesStatistics sut = new NewIssuesStatistics();
+  NewIssuesStatistics underTest = new NewIssuesStatistics();
 
   @Test
   public void add_issues_with_correct_global_statistics() {
     DefaultIssue issue = defaultIssue();
 
-    sut.add(issue);
-    sut.add(issue.setAssignee("james"));
-    sut.add(issue.setAssignee("keenan"));
+    underTest.add(issue);
+    underTest.add(issue.setAssignee("james"));
+    underTest.add(issue.setAssignee("keenan"));
 
     assertThat(countDistribution(Metric.ASSIGNEE, "maynard")).isEqualTo(1);
     assertThat(countDistribution(Metric.ASSIGNEE, "james")).isEqualTo(1);
@@ -54,19 +54,19 @@ public class NewIssuesStatisticsTest {
     assertThat(countDistribution(Metric.TAG, "wrong-tag")).isEqualTo(0);
     assertThat(countDistribution(Metric.RULE, "SonarQube:rule-the-world")).isEqualTo(3);
     assertThat(countDistribution(Metric.RULE, "SonarQube:has-a-fake-rule")).isEqualTo(0);
-    assertThat(sut.globalStatistics().debt().toMinutes()).isEqualTo(15L);
-    assertThat(sut.globalStatistics().hasIssues()).isTrue();
-    assertThat(sut.hasIssues()).isTrue();
-    assertThat(sut.assigneesStatistics().get("maynard").hasIssues()).isTrue();
+    assertThat(underTest.globalStatistics().debt().toMinutes()).isEqualTo(15L);
+    assertThat(underTest.globalStatistics().hasIssues()).isTrue();
+    assertThat(underTest.hasIssues()).isTrue();
+    assertThat(underTest.assigneesStatistics().get("maynard").hasIssues()).isTrue();
   }
 
   @Test
   public void do_not_have_issues_when_no_issue_added() {
-    assertThat(sut.globalStatistics().hasIssues()).isFalse();
+    assertThat(underTest.globalStatistics().hasIssues()).isFalse();
   }
 
   private int countDistribution(Metric metric, String label) {
-    return sut.globalStatistics().countForMetric(metric, label);
+    return underTest.globalStatistics().countForMetric(metric, label);
   }
 
   private DefaultIssue defaultIssue() {
