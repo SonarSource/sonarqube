@@ -36,10 +36,11 @@ import org.sonar.xoo.rule.DeprecatedResourceApiSensor;
 import org.sonar.xoo.rule.OneIssueOnDirPerFileSensor;
 import org.sonar.xoo.rule.OneIssuePerLineSensor;
 import org.sonar.xoo.rule.RandomAccessSensor;
+import org.sonar.xoo.rule.XooEmptyProfile;
 import org.sonar.xoo.rule.XooFakeExporter;
 import org.sonar.xoo.rule.XooFakeImporter;
 import org.sonar.xoo.rule.XooFakeImporterWithMessages;
-import org.sonar.xoo.rule.XooQualityProfile;
+import org.sonar.xoo.rule.XooBasicProfile;
 import org.sonar.xoo.rule.XooRulesDefinition;
 import org.sonar.xoo.scm.XooBlameCommand;
 import org.sonar.xoo.scm.XooScmProvider;
@@ -62,7 +63,8 @@ public class XooPlugin extends SonarPlugin {
     return Arrays.asList(
       Xoo.class,
       XooRulesDefinition.class,
-      XooQualityProfile.class,
+      XooBasicProfile.class,
+      XooEmptyProfile.class,
 
       XooFakeExporter.class,
       XooFakeImporter.class,
