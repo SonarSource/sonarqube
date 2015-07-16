@@ -20,11 +20,8 @@
 package org.sonar.batch.cpd;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.batch.cpd.decorators.DuplicationDensityDecorator;
-import org.sonar.batch.cpd.decorators.SumDuplicationsDecorator;
-import org.sonar.batch.cpd.index.IndexFactory;
-
 import java.util.List;
+import org.sonar.batch.cpd.index.IndexFactory;
 
 public final class CpdComponents {
 
@@ -35,8 +32,6 @@ public final class CpdComponents {
     return ImmutableList.of(
       CpdSensor.class,
       CpdMappings.class,
-      SumDuplicationsDecorator.class,
-      DuplicationDensityDecorator.class,
       IndexFactory.class,
       JavaCpdEngine.class,
       DefaultCpdEngine.class);

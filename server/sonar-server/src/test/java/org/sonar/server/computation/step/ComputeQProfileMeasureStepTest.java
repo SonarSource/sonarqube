@@ -26,7 +26,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.measure.Measure;
@@ -37,11 +36,11 @@ import org.sonar.server.computation.qualityprofile.QualityProfile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES;
+import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
-import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
-import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 
 public class ComputeQProfileMeasureStepTest {
 
@@ -54,7 +53,7 @@ public class ComputeQProfileMeasureStepTest {
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
   @Rule
-  public MetricRepositoryRule metricRepository = new MetricRepositoryRule().add(CoreMetrics.QUALITY_PROFILES);
+  public MetricRepositoryRule metricRepository = new MetricRepositoryRule().add(QUALITY_PROFILES);
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
@@ -84,7 +83,7 @@ public class ComputeQProfileMeasureStepTest {
 
     underTest.execute();
 
-    assertThat(toEntries(measureRepository.getNewRawMeasures(1))).containsOnly(entryOf(CoreMetrics.QUALITY_PROFILES_KEY, newMeasureBuilder().create(toJson(qp))));
+    assertThat(measureRepository.getNewRawMeasures(1).get(QUALITY_PROFILES_KEY)).extracting("data").containsOnly(toJson(qp));
   }
 
   @Test
@@ -108,7 +107,7 @@ public class ComputeQProfileMeasureStepTest {
 
     underTest.execute();
 
-    assertThat(toEntries(measureRepository.getNewRawMeasures(1))).containsOnly(entryOf(CoreMetrics.QUALITY_PROFILES_KEY, newMeasureBuilder().create(toJson(qp1, qp2))));
+    assertThat(measureRepository.getNewRawMeasures(1).get(QUALITY_PROFILES_KEY)).extracting("data").containsOnly(toJson(qp1, qp2));
   }
 
   @Test
@@ -149,7 +148,7 @@ public class ComputeQProfileMeasureStepTest {
 
   private void addMeasure(int componentRef, QualityProfile... qps) {
     Measure qualityProfileMeasure = newMeasureBuilder().create(toJson(qps));
-    measureRepository.addRawMeasure(componentRef, CoreMetrics.QUALITY_PROFILES_KEY, qualityProfileMeasure);
+    measureRepository.addRawMeasure(componentRef, QUALITY_PROFILES_KEY, qualityProfileMeasure);
   }
 
   private static String toJson(QualityProfile... qps) {
