@@ -17,17 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.component;
+package org.sonar.server.rule;
 
-public interface MutableTreeRootHolder extends TreeRootHolder {
+import org.junit.Test;
+import org.sonar.test.TestUtils;
 
-  /**
-   * Sets the root of the component tree in the TreeRootHolder. Settings a root more than once is allowed but it can
-   * never be set to {@code null}.
-   *
-   * @param newRoot a {@link Component}, can not be {@code null}
-   *                
-   * @throws NullPointerException if {@code newRoot} is {@code null}
-   */
-  MutableTreeRootHolder setRoot(Component newRoot);
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class CommonRuleKeysTest {
+
+  @Test
+  public void wonderful_test_for_commonRepositoryForLang() throws Exception {
+    assertThat(CommonRuleKeys.commonRepositoryForLang("java")).isEqualTo("common-java");
+  }
+
+  @Test
+  public void wonderful_test_to_verify_that_this_class_is_an_helper_class() throws Exception {
+    assertThat(TestUtils.hasOnlyPrivateConstructors(CommonRuleKeys.class));
+
+  }
 }

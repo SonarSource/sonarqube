@@ -20,6 +20,7 @@
 package org.sonar.server.computation.formula.coverage;
 
 import com.google.common.base.Optional;
+import org.sonar.server.computation.formula.Counter;
 import org.sonar.server.computation.formula.CreateMeasureContext;
 import org.sonar.server.computation.formula.Formula;
 import org.sonar.server.computation.measure.Measure;
@@ -28,8 +29,8 @@ import static org.sonar.server.computation.formula.coverage.CoverageUtils.calcul
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
 /**
- * An abstract Formula which implements the aggregation of a Counter of type ElementsAndCoveredElementsCounter with
- * another counter.
+ * An abstract {@link Formula} which implements the aggregation of a {@link Counter} of 
+ * type {@link ElementsAndCoveredElementsCounter} with another counter.
  */
 public abstract class CoverageFormula<T extends ElementsAndCoveredElementsCounter> implements Formula<T> {
 

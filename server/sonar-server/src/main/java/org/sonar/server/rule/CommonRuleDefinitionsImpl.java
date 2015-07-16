@@ -25,12 +25,14 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
 
+import static org.sonar.server.rule.CommonRuleKeys.commonRepositoryForLang;
+
 /**
  * Declare the few rules that are automatically created by core for all languages. These rules
  * check measure values against thresholds defined in Quality profiles.
  */
 // this class must not be mixed with other RulesDefinition so it does implement the interface RulesDefinitions.
-// It can replace the common-rules that are still embedded within plugins.
+// It replaces the common-rules that are still embedded within plugins.
 public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
 
   private final Languages languages;
@@ -42,7 +44,7 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
   @Override
   public void define(RulesDefinition.Context context) {
     for (Language language : languages.all()) {
-      RulesDefinition.NewRepository repo = context.createRepository("common-" + language.getKey(), language.getKey());
+      RulesDefinition.NewRepository repo = context.createRepository(commonRepositoryForLang(language.getKey()), language.getKey());
       repo.setName("Common " + language.getName());
       defineBranchCoverageRule(repo);
       defineLineCoverageRule(repo);
@@ -54,8 +56,8 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
     }
   }
 
-  private void defineBranchCoverageRule(RulesDefinition.NewRepository repo) {
-    RulesDefinition.NewRule rule = repo.createRule("InsufficientBranchCoverage");
+  private static void defineBranchCoverageRule(RulesDefinition.NewRepository repo) {
+    RulesDefinition.NewRule rule = repo.createRule(CommonRuleKeys.INSUFFICIENT_BRANCH_COVERAGE);
     rule.setName("Branches should have sufficient coverage by unit tests")
       .addTags("bad-practice")
       .setHtmlDescription("An issue is created on a file as soon as the branch coverage on this file is less than the required threshold."
@@ -70,8 +72,8 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .setType(RuleParamType.FLOAT);
   }
 
-  private void defineLineCoverageRule(RulesDefinition.NewRepository repo) {
-    RulesDefinition.NewRule rule = repo.createRule("InsufficientLineCoverage");
+  private static void defineLineCoverageRule(RulesDefinition.NewRepository repo) {
+    RulesDefinition.NewRule rule = repo.createRule(CommonRuleKeys.INSUFFICIENT_LINE_COVERAGE);
     rule.setName("Lines should have sufficient coverage by unit tests")
       .addTags("bad-practice")
       .setHtmlDescription("An issue is created on a file as soon as the line coverage on this file is less than the required threshold. " +
@@ -86,8 +88,8 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .setType(RuleParamType.FLOAT);
   }
 
-  private void defineCommentDensityRule(RulesDefinition.NewRepository repo) {
-    RulesDefinition.NewRule rule = repo.createRule("InsufficientCommentDensity");
+  private static void defineCommentDensityRule(RulesDefinition.NewRepository repo) {
+    RulesDefinition.NewRule rule = repo.createRule(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY);
     rule.setName("Source files should have a sufficient density of comment lines")
       .addTags("convention")
       .setHtmlDescription("An issue is created on a file as soon as the density of comment lines on this file is less than the required threshold. " +
@@ -102,8 +104,8 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .setType(RuleParamType.FLOAT);
   }
 
-  private void defineDuplicatedBlocksRule(RulesDefinition.NewRepository repo) {
-    RulesDefinition.NewRule rule = repo.createRule("DuplicatedBlocks");
+  private static void defineDuplicatedBlocksRule(RulesDefinition.NewRepository repo) {
+    RulesDefinition.NewRule rule = repo.createRule(CommonRuleKeys.DUPLICATED_BLOCKS);
     rule.setName("Source files should not have any duplicated blocks")
       .addTags("pitfall")
       .setHtmlDescription("An issue is created on a file as soon as there is at least one block of duplicated code on this file")
@@ -113,8 +115,8 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .setSeverity(Severity.MAJOR);
   }
 
-  private void defineFailedUnitTestRule(RulesDefinition.NewRepository repo) {
-    RulesDefinition.NewRule rule = repo.createRule("FailedUnitTests");
+  private static void defineFailedUnitTestRule(RulesDefinition.NewRepository repo) {
+    RulesDefinition.NewRule rule = repo.createRule(CommonRuleKeys.FAILED_UNIT_TESTS);
     rule
       .setName("Failed unit tests should be fixed")
       .addTags("bug")
@@ -126,8 +128,8 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .setSeverity(Severity.MAJOR);
   }
 
-  private void defineSkippedUnitTestRule(RulesDefinition.NewRepository repo) {
-    RulesDefinition.NewRule rule = repo.createRule("SkippedUnitTests");
+  private static void defineSkippedUnitTestRule(RulesDefinition.NewRepository repo) {
+    RulesDefinition.NewRule rule = repo.createRule(CommonRuleKeys.SKIPPED_UNIT_TESTS);
     rule.setName("Skipped unit tests should be either removed or fixed")
       .addTags("pitfall")
       .setHtmlDescription("Skipped unit tests are considered as dead code. Either they should be activated again (and updated) or they should be removed.")

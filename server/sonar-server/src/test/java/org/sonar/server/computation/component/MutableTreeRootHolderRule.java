@@ -23,7 +23,7 @@ import org.sonar.server.computation.batch.TreeRootHolderRule;
 
 public class MutableTreeRootHolderRule extends TreeRootHolderRule implements MutableTreeRootHolder {
   @Override
-  public void setRoot(Component newRoot) {
-    super.setRoot(newRoot);
+  public MutableTreeRootHolderRule setRoot(Component newRoot) {
+    return (MutableTreeRootHolderRule)super.setRoot(newRoot);
   }
 }

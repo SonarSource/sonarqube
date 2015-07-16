@@ -17,17 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.component;
+package org.sonar.server.computation.qualityprofile;
 
-public interface MutableTreeRootHolder extends TreeRootHolder {
+import com.google.common.base.Optional;
+import org.sonar.api.rule.RuleKey;
 
-  /**
-   * Sets the root of the component tree in the TreeRootHolder. Settings a root more than once is allowed but it can
-   * never be set to {@code null}.
-   *
-   * @param newRoot a {@link Component}, can not be {@code null}
-   *                
-   * @throws NullPointerException if {@code newRoot} is {@code null}
-   */
-  MutableTreeRootHolder setRoot(Component newRoot);
+public interface ActiveRulesHolder {
+
+  Optional<ActiveRule> get(RuleKey ruleKey);
+
 }

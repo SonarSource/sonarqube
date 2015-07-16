@@ -27,6 +27,7 @@ import java.util.List;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
@@ -35,15 +36,20 @@ import org.sonar.core.issue.tracking.LineHashSequence;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.issue.commonrule.CommonRuleEngine;
+import org.sonar.server.rule.CommonRuleKeys;
 
 public class TrackerRawInputFactory {
 
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
+  private final CommonRuleEngine commonRuleEngine;
 
-  public TrackerRawInputFactory(TreeRootHolder treeRootHolder, BatchReportReader reportReader) {
+  public TrackerRawInputFactory(TreeRootHolder treeRootHolder, BatchReportReader reportReader,
+    CommonRuleEngine commonRuleEngine) {
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
+    this.commonRuleEngine = commonRuleEngine;
   }
 
   public Input<DefaultIssue> create(Component component) {
@@ -71,28 +77,36 @@ public class TrackerRawInputFactory {
     @Override
     protected List<DefaultIssue> loadIssues() {
       List<BatchReport.Issue> reportIssues = reportReader.readComponentIssues(component.getRef());
-      List<DefaultIssue> issues = new ArrayList<>();
+      List<DefaultIssue> result = new ArrayList<>();
+
+      for (DefaultIssue commonRuleIssue : commonRuleEngine.process(component)) {
+        result.add(init(commonRuleIssue));
+      }
       if (!reportIssues.isEmpty()) {
         // optimization - do not load line hashes if there are no issues
         LineHashSequence lineHashSeq = getLineHashSequence();
         for (BatchReport.Issue reportIssue : reportIssues) {
-          DefaultIssue issue = toIssue(lineHashSeq, reportIssue);
-          issues.add(issue);
+          if (isIssueOnUnsupportedCommonRule(reportIssue)) {
+            DefaultIssue issue = toIssue(lineHashSeq, reportIssue);
+            result.add(issue);
+          } else {
+            Loggers.get(getClass()).debug("Ignored issue from analysis report on rule {}:{}", reportIssue.getRuleRepository(), reportIssue.getRuleKey());
+          }
         }
       }
-      return issues;
+      return result;
+    }
+
+    private boolean isIssueOnUnsupportedCommonRule(BatchReport.Issue issue) {
+      // issues on batch common rules are ignored. This feature
+      // is natively supported by compute engine since 5.2.
+      return !issue.getRuleRepository().startsWith(CommonRuleKeys.REPOSITORY_PREFIX);
     }
 
     private DefaultIssue toIssue(LineHashSequence lineHashSeq, BatchReport.Issue reportIssue) {
       DefaultIssue issue = new DefaultIssue();
+      init(issue);
       issue.setRuleKey(RuleKey.of(reportIssue.getRuleRepository(), reportIssue.getRuleKey()));
-      issue.setResolution(null);
-      issue.setStatus(Issue.STATUS_OPEN);
-      issue.setComponentUuid(component.getUuid());
-      issue.setComponentKey(component.getKey());
-      issue.setProjectUuid(treeRootHolder.getRoot().getUuid());
-      issue.setProjectKey(treeRootHolder.getRoot().getKey());
-
       if (reportIssue.hasLine()) {
         issue.setLine(reportIssue.getLine());
         issue.setChecksum(lineHashSeq.getHashForLine(reportIssue.getLine()));
@@ -112,6 +126,16 @@ public class TrackerRawInputFactory {
       if (reportIssue.hasAttributes()) {
         issue.setAttributes(KeyValueFormat.parse(reportIssue.getAttributes()));
       }
+      return issue;
+    }
+
+    private DefaultIssue init(DefaultIssue issue) {
+      issue.setResolution(null);
+      issue.setStatus(Issue.STATUS_OPEN);
+      issue.setComponentUuid(component.getUuid());
+      issue.setComponentKey(component.getKey());
+      issue.setProjectUuid(treeRootHolder.getRoot().getUuid());
+      issue.setProjectKey(treeRootHolder.getRoot().getKey());
       return issue;
     }
   }
