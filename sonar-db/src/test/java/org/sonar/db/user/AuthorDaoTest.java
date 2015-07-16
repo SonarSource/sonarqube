@@ -56,7 +56,7 @@ public class AuthorDaoTest {
 
     dao.insertAuthor("godin", 13L);
 
-    dbTester.assertDbUnit(getClass(), "shouldInsertAuthor-result.xml", new String[]{"created_at", "updated_at"}, "authors");
+    dbTester.assertDbUnit(getClass(), "shouldInsertAuthor-result.xml", new String[] {"created_at", "updated_at"}, "authors");
   }
 
   @Test
@@ -76,7 +76,7 @@ public class AuthorDaoTest {
     dao.insertAuthorAndDeveloper(login, resourceDto);
 
     dbTester.assertDbUnit(getClass(), "shouldInsertAuthorAndDeveloper-result.xml",
-      new String[]{"created_at", "updated_at", "copy_resource_id", "description", "enabled", "kee", "deprecated_kee", "path", "language", "long_name", "person_id", "root_id",
+      new String[] {"created_at", "updated_at", "copy_resource_id", "description", "enabled", "kee", "deprecated_kee", "path", "language", "long_name", "person_id", "root_id",
         "scope", "authorization_updated_at"},
       "authors", "projects");
   }
@@ -85,12 +85,14 @@ public class AuthorDaoTest {
   public void add_missing_module_uuid_path() {
     dbTester.prepareDbUnit(getClass(), "add_missing_module_uuid_path.xml");
 
-    dao.insertAuthorAndDeveloper("developer@company.net", new ResourceDto().setName("developer@company.net").setQualifier("DEV").setUuid("ABCD").setProjectUuid("ABCD")
+    dao.insertAuthorAndDeveloper("developer@company.net", new ResourceDto().setKey("developer").setName("developer@company.net").setQualifier("DEV").setUuid("ABCD")
+      .setProjectUuid("ABCD")
       .setModuleUuidPath(""));
-    dao.insertAuthorAndDeveloper("developer2@company.net", new ResourceDto().setName("developer2@company.net").setQualifier("DEV").setUuid("BCDE").setProjectUuid("BCDE"));
+    dao.insertAuthorAndDeveloper("developer2@company.net", new ResourceDto().setKey("developer2").setName("developer2@company.net").setQualifier("DEV").setUuid("BCDE")
+      .setProjectUuid("BCDE"));
 
     dbTester.assertDbUnit(getClass(), "add_missing_module_uuid_path-result.xml",
-      new String[]{"created_at", "updated_at", "copy_resource_id", "description", "enabled", "kee", "deprecated_kee", "path", "language", "long_name", "person_id", "root_id",
+      new String[] {"created_at", "updated_at", "copy_resource_id", "description", "enabled", "kee", "deprecated_kee", "path", "language", "long_name", "person_id", "root_id",
         "scope", "authorization_updated_at"},
       "authors", "projects");
   }
@@ -105,7 +107,7 @@ public class AuthorDaoTest {
     } catch (RuntimeException ex) {
     }
 
-    dbTester.assertDbUnit(getClass(), "shouldPreventAuthorsDuplication-result.xml", new String[]{"created_at", "updated_at"}, "authors");
+    dbTester.assertDbUnit(getClass(), "shouldPreventAuthorsDuplication-result.xml", new String[] {"created_at", "updated_at"}, "authors");
   }
 
   @Test
@@ -122,7 +124,7 @@ public class AuthorDaoTest {
     }
 
     dbTester.assertDbUnit(getClass(), "shouldPreventAuthorsAndDevelopersDuplication-result.xml",
-      new String[]{"created_at", "updated_at", "copy_resource_id", "description", "enabled", "kee", "deprecated_kee", "path", "language", "long_name", "person_id", "root_id",
+      new String[] {"created_at", "updated_at", "copy_resource_id", "description", "enabled", "kee", "deprecated_kee", "path", "language", "long_name", "person_id", "root_id",
         "scope", "authorization_updated_at"},
       "authors", "projects");
   }
