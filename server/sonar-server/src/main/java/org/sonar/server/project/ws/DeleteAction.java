@@ -31,6 +31,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
@@ -40,13 +41,13 @@ public class DeleteAction implements ProjectsWsAction {
   public static final String PARAM_ID = "id";
   public static final String PARAM_KEY = "key";
 
-  private final ProjectCleanerService projectCleanerService;
+  private final ComponentCleanerService componentCleanerService;
   private final ComponentFinder componentFinder;
   private final DbClient dbClient;
   private final UserSession userSession;
 
-  public DeleteAction(ProjectCleanerService projectCleanerService, ComponentFinder componentFinder, DbClient dbClient, UserSession userSession) {
-    this.projectCleanerService = projectCleanerService;
+  public DeleteAction(ComponentCleanerService componentCleanerService, ComponentFinder componentFinder, DbClient dbClient, UserSession userSession) {
+    this.componentCleanerService = componentCleanerService;
     this.componentFinder = componentFinder;
     this.dbClient = dbClient;
     this.userSession = userSession;
@@ -81,7 +82,7 @@ public class DeleteAction implements ProjectsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       ComponentDto project = componentFinder.getByUuidOrKey(dbSession, uuid, key);
-      projectCleanerService.delete(dbSession, Arrays.asList(project));
+      componentCleanerService.delete(dbSession, Arrays.asList(project));
     } finally {
       MyBatis.closeQuietly(dbSession);
     }

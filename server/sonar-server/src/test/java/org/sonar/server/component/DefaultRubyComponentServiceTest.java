@@ -165,6 +165,35 @@ public class DefaultRubyComponentServiceTest {
   }
 
   @Test
+  public void should_find_ghosts_projects() {
+    List<String> qualifiers = newArrayList("TRK");
+
+    Map<String, Object> map = newHashMap();
+    map.put("keys", newArrayList("org.codehaus.sonar"));
+    map.put("names", newArrayList("Sonar"));
+    map.put("qualifiers", qualifiers);
+    map.put("pageSize", 10l);
+    map.put("pageIndex", 50);
+    map.put("sort", "NAME");
+    map.put("asc", true);
+
+    service.findGhostsProjects(map);
+    verify(resourceDao).selectGhostsProjects(anyListOf(String.class));
+    verify(finder).find(any(ComponentQuery.class), anyListOf(Component.class));
+  }
+
+  @Test
+  public void should_find_provisioned_projects() {
+    List<String> qualifiers = newArrayList("TRK");
+
+    Map<String, Object> map = newHashMap();
+    map.put("qualifiers", qualifiers);
+
+    service.findProvisionedProjects(map);
+    verify(resourceDao).selectProvisionedProjects(anyListOf(String.class));
+  }
+
+  @Test
   public void should_create_query_from_parameters() {
     Map<String, Object> map = newHashMap();
     map.put("keys", newArrayList("org.codehaus.sonar"));

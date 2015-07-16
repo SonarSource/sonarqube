@@ -49,6 +49,7 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
@@ -112,7 +113,7 @@ public class BulkDeleteActionTest {
     when(mockResourceTypes.get(anyString())).thenReturn(resourceType);
     ws = new WsTester(new ProjectsWs(
       new BulkDeleteAction(
-        new ProjectCleanerService(dbClient,
+        new ComponentCleanerService(dbClient,
           new IssueAuthorizationIndexer(dbClient, es.client()),
           new IssueIndexer(dbClient, es.client()),
           new SourceLineIndexer(dbClient, es.client()),

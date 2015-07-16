@@ -1,0 +1,132 @@
+<div class="page">
+  <header class="page-header">
+    <h1 class="page-title"><%= message('bulk_deletion.page') -%></h1>
+    <p class="page-description"><%= message('bulk_deletion.page.description') -%></p>
+  </header>
+
+  <ul class="tabs">
+  <% @tabs.each do |tab| %>
+    <li>
+      <a href="<%= url_for :action => 'index', :qualifiers => tab %>" <%= "class='selected'" if @selected_tab==tab -%> id="tab-<%= u tab -%>"><%= message('qualifiers.' + tab) -%></a>
+    </li>
+  <% end %>
+    <li>
+      <a href="<%= url_for :action => 'ghosts' %>" id="tab-ghosts"><%= message('bulk_deletion.ghosts') -%></a>
+    </li>
+  </ul>
+
+  <div class="tabs-panel marginbottom10">
+
+  <%
+    found_resources_count = @query_result.paging.total
+    found_resources_ids =  @query_result.components.map {|r| r.id.to_s}.join(',')
+  %>
+
+    <% form_tag( {:action => 'index'}, :method => :get ) do %>
+      <%= message('bulk_deletion.resource_name_filter_by_name') -%> <input type="text" id="resource_filter" name="names" size="40px" value="<%= h params[:names] -%>"/>
+      <input type="hidden" name="qualifiers" value="<%= @selected_tab -%>"/>
+      <%= submit_tag message('bulk_deletion.filter'), :id => 'filter_resources' %>
+    <% end %>
+
+    <% if  @query_result.components.empty? %>
+      <br/>
+      <%= message('no_results') -%>
+    <% else %>
+
+        <form action="<%= ApplicationController.root_context -%>/bulk_deletion/delete_resources" method="POST">
+          <input type="hidden" name="qualifiers" value="<%= @selected_tab -%>"/>
+          <input type="hidden" name="names" value="<%= params[:names] -%>"/>
+          <input type="hidden" name="select_all" value="false" id="select_all"/>
+        <table class="data" id="resources-to-delete">
+          <thead>
+            <tr>
+              <th><input id="r-all" type="checkbox" onclick="selectOrDeselect()"></th>
+              <th>
+                <span>&laquo; <%= message('bulk_deletion.select_all') -%></span>
+                <% if found_resources_count - @query_result.components.size > 0 %>
+                  <a id="select_all_action" style="padding-left: 10px; font-weight: normal; display: none"
+                     href="#" onclick="handleSelectAllAction(); return false;"><%= message('bulk_deletion.select_all_x_resources', :params => found_resources_count) -%></a>
+                <% end %>
+              </th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+          <% @query_result.components.each_with_index do |resource, index| %>
+            <tr class="<%= cycle 'even', 'odd' -%>">
+              <td class="thin">
+                <input id="r-<%= index -%>" type="checkbox" value="<%= resource.id -%>" name="resources[]">
+              </td>
+              <td>
+                <%= h resource.name -%>
+              </td>
+              <td>
+                <span class="small gray"><%= h resource.key -%></span></td>
+              </td>
+            </tr>
+          <% end %>
+          <tr>
+            <td colspan="3">
+              <input id="delete_resources" class="action red-button" type="submit" value="<%= message('delete') -%>" onclick="return checkBeforeDeleting();" name="commit">
+            </td>
+          </tr>
+          </tbody>
+          <%= paginate_java(@query_result.paging, :colspan => 3, :id => 'projects-bulk-deletion-foot', :include_loading_icon => true) { |label, page_id|
+                link_to(label, params.merge({:pageIndex => page_id}))
+              }
+          %>
+        </table>
+      </form>
+
+      <script>
+        function checkBeforeDeleting() {
+          var resource_selected = false;
+          $j("#resources-to-delete input[type='checkbox']").each(function(index,input) {
+            if (input.checked) resource_selected =  true;
+          });
+          if (!resource_selected) {
+            alert("<%= message('bulk_deletion.please_select_at_least_one_resource') -%>");
+            return false;
+          }
+          return confirm("<%= message('bulk_deletion.sure_to_delete_the_resources') -%>");
+        }
+
+        function selectOrDeselect() {
+          var status = $j('#r-all').prop('checked');
+          $j('tbody input').each(function(index,input) {
+            input.checked = status;
+          });
+          <% if found_resources_count - @query_result.components.size > 0 %>
+          selectNotAllResources();
+          if (status) {
+            $j('#select_all_action').show();
+          } else {
+            $j('#select_all_action').hide();
+          }
+          <% end %>
+        }
+
+        function handleSelectAllAction() {
+          if ($j('#select_all').val()=='false') {
+            selectAllResources();
+          } else {
+            $j('#r-all').checked = false;
+            selectOrDeselect();
+          }
+        }
+
+        function selectAllResources() {
+          $j('#select_all').val('true');
+          $j('#select_all_action').html('<%= message('bulk_deletion.clear_selection', :params => found_resources_count) -%>');
+        }
+
+        function selectNotAllResources() {
+          $j('#select_all').val('false');
+          $j('#select_all_action').html('<%= message('bulk_deletion.select_all_x_resources', :params => found_resources_count) -%>');
+        }
+      </script>
+
+    <% end %>
+
+  </div>
+</div>

@@ -20,6 +20,8 @@
 
 package org.sonar.server.project.ws;
 
+import com.google.common.io.Resources;
+import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
 public class ProjectsWs implements WebService {
@@ -37,10 +39,82 @@ public class ProjectsWs implements WebService {
       .setSince("2.10")
       .setDescription("Projects management");
 
+    defineIndexAction(controller);
+    defineCreateAction(controller);
+
     for (ProjectsWsAction action : actions) {
       action.define(controller);
     }
 
     controller.done();
+  }
+
+  private void defineIndexAction(NewController controller) {
+    WebService.NewAction action = controller.createAction("index")
+      .setDescription("Search for projects")
+      .setSince("2.10")
+      .setHandler(RailsHandler.INSTANCE)
+      .setResponseExample(Resources.getResource(this.getClass(), "projects-example-index.json"));
+
+    action.createParam("key")
+      .setDescription("id or key of the project")
+      .setExampleValue("org.codehaus.sonar:sonar");
+
+    action.createParam("search")
+      .setDescription("Substring of project name, case insensitive")
+      .setExampleValue("Sonar");
+
+    action.createParam("desc")
+      .setDescription("Load project description")
+      .setDefaultValue("true")
+      .setBooleanPossibleValues();
+
+    action.createParam("subprojects")
+      .setDescription("Load sub-projects. Ignored if the parameter key is set")
+      .setDefaultValue("false")
+      .setBooleanPossibleValues();
+
+    action.createParam("views")
+      .setDescription("Load views and sub-views. Ignored if the parameter key is set")
+      .setDefaultValue("false")
+      .setBooleanPossibleValues();
+
+    action.createParam("libs")
+      .setDescription("Load libraries. Ignored if the parameter key is set")
+      .setDefaultValue("false")
+      .setBooleanPossibleValues();
+
+    action.createParam("versions")
+      .setDescription("Load version")
+      .setDefaultValue("false")
+      .setPossibleValues("true", "false", "last");
+
+    RailsHandler.addFormatParam(action);
+  }
+
+  private void defineCreateAction(NewController controller) {
+    WebService.NewAction action = controller.createAction("create")
+      .setDescription("Provision a project. Requires Provision Projects permission")
+      .setSince("4.0")
+      .setPost(true)
+      .setHandler(RailsHandler.INSTANCE)
+      .setResponseExample(Resources.getResource(this.getClass(), "projects-example-create.json"));
+
+    action.createParam("key")
+      .setDescription("Key of the project")
+      .setRequired(true)
+      .setExampleValue("org.codehaus.sonar:sonar");
+
+    action.createParam("name")
+      .setDescription("Name of the project")
+      .setRequired(true)
+      .setExampleValue("SonarQube");
+
+    action.createParam("branch")
+      .setDescription("SCM Branch of the project. The key of the project will become key:branch, for instance 'SonarQube:branch-5.0'")
+      .setRequired(false)
+      .setExampleValue("branch-5.0");
+
+    RailsHandler.addFormatParam(action);
   }
 }

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.project.ws;
+package org.sonar.server.component;
 
 import java.util.List;
 import org.sonar.api.resources.ResourceType;
@@ -31,14 +31,13 @@ import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.purge.IdUuidPair;
 import org.sonar.db.purge.PurgeProfiler;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.source.index.SourceLineIndexer;
 import org.sonar.server.test.index.TestIndexer;
 
 @ServerSide
-public class ProjectCleanerService {
+public class ComponentCleanerService {
 
   private final DbClient dbClient;
   private final IssueAuthorizationIndexer issueAuthorizationIndexer;
@@ -48,8 +47,8 @@ public class ProjectCleanerService {
   private final ResourceTypes resourceTypes;
   private final ComponentFinder componentFinder;
 
-  public ProjectCleanerService(DbClient dbClient, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
-                               SourceLineIndexer sourceLineIndexer, TestIndexer testIndexer, ResourceTypes resourceTypes, ComponentFinder componentFinder) {
+  public ComponentCleanerService(DbClient dbClient, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
+                                 SourceLineIndexer sourceLineIndexer, TestIndexer testIndexer, ResourceTypes resourceTypes, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.issueAuthorizationIndexer = issueAuthorizationIndexer;
     this.issueIndexer = issueIndexer;

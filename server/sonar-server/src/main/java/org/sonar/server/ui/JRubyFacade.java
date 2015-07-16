@@ -49,7 +49,7 @@ import org.sonar.core.platform.PluginRepository;
 import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.process.ProcessProperties;
-import org.sonar.server.project.ws.ProjectCleanerService;
+import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.measure.MeasureFilterEngine;
@@ -316,7 +316,7 @@ public final class JRubyFacade {
    */
   public void deleteResourceTree(String projectKey) {
     try {
-      get(ProjectCleanerService.class).delete(projectKey);
+      get(ComponentCleanerService.class).delete(projectKey);
     } catch (RuntimeException e) {
       Loggers.get(JRubyFacade.class).error("Fail to delete resource with key: " + projectKey, e);
       throw e;
