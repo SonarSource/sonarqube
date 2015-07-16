@@ -19,7 +19,9 @@
  */
 package org.sonar.server.platform;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
 import org.sonar.db.version.DatabaseVersion;
 
@@ -28,24 +30,42 @@ import static org.mockito.Mockito.when;
 
 public class DatabaseServerCompatibilityTest {
 
-  @Test(expected = MessageException.class)
-  public void shouldFailIfRequiresDowngrade() {
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  @Test
+  public void fail_if_requires_downgrade() {
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("Database was upgraded to a more recent of SonarQube. Backup must probably be restored or db settings are incorrect.");
+
     DatabaseVersion version = mock(DatabaseVersion.class);
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_DOWNGRADE);
     new DatabaseServerCompatibility(version).start();
   }
 
   @Test
-  public void shouldLogWarningIfRequiresUpgrade() {
+  public void fail_if_requires_firstly_to_upgrade_to_lts() {
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("Current version is too old. Please upgrade to Long Term Support version firstly.");
+
     DatabaseVersion version = mock(DatabaseVersion.class);
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_UPGRADE);
+    when(version.getVersion()).thenReturn(12);
+    new DatabaseServerCompatibility(version).start();
+  }
+
+  @Test
+  public void log_warning_if_requires_upgrade() {
+    DatabaseVersion version = mock(DatabaseVersion.class);
+    when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_UPGRADE);
+    when(version.getVersion()).thenReturn(DatabaseVersion.MIN_UPGRADE_VERSION);
     new DatabaseServerCompatibility(version).start();
     // oh well... how to simply test logging ?
     // Let's assume that this test verifies that no error is raised.
   }
 
   @Test
-  public void shouldDoNothingIfUpToDate() {
+  public void do_nothing_if_up_to_date() {
     DatabaseVersion version = mock(DatabaseVersion.class);
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.UP_TO_DATE);
     new DatabaseServerCompatibility(version).start();

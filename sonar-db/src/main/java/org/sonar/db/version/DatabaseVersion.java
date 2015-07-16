@@ -32,6 +32,13 @@ public class DatabaseVersion {
   public static final int LAST_VERSION = 926;
 
   /**
+   * The minimum supported version which can be upgraded. Lower
+   * versions must be previously upgraded to LTS version.
+   * Note that the value can't be less than current LTS version.
+   */
+  public static final int MIN_UPGRADE_VERSION = 440;
+
+  /**
    * List of all the tables.
    * This list is hardcoded because we didn't succeed in using java.sql.DatabaseMetaData#getTables() in the same way
    * for all the supported databases, particularly due to Oracle results.
