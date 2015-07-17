@@ -26,7 +26,6 @@ import org.sonar.server.qualitygate.RegisterQualityGates;
 import org.sonar.server.qualityprofile.RegisterQualityProfiles;
 import org.sonar.server.rule.RegisterRules;
 import org.sonar.server.search.IndexSynchronizer;
-import org.sonar.server.startup.CopyRequirementsFromCharacteristicsToRules;
 import org.sonar.server.startup.GeneratePluginIndex;
 import org.sonar.server.startup.JdbcDriverDeployer;
 import org.sonar.server.startup.LogServerId;
@@ -63,7 +62,6 @@ public class PlatformLevelStartup extends PlatformLevel {
       RenameDeprecatedPropertyKeys.class,
       LogServerId.class,
       RegisterServletFilters.class,
-      CopyRequirementsFromCharacteristicsToRules.class,
       ReportQueueCleaner.class,
       RegisterIssueFilters.class,
       RenameIssueWidgets.class,
