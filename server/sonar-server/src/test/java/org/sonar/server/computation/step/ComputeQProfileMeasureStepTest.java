@@ -83,7 +83,7 @@ public class ComputeQProfileMeasureStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasures(1).get(QUALITY_PROFILES_KEY)).extracting("data").containsOnly(toJson(qp));
+    assertThat(measureRepository.getAddedRawMeasures(1).get(QUALITY_PROFILES_KEY)).extracting("data").containsOnly(toJson(qp));
   }
 
   @Test
@@ -107,7 +107,7 @@ public class ComputeQProfileMeasureStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasures(1).get(QUALITY_PROFILES_KEY)).extracting("data").containsOnly(toJson(qp1, qp2));
+    assertThat(measureRepository.getAddedRawMeasures(1).get(QUALITY_PROFILES_KEY)).extracting("data").containsOnly(toJson(qp1, qp2));
   }
 
   @Test
@@ -125,7 +125,7 @@ public class ComputeQProfileMeasureStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasures(1)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(1)).isEmpty();
   }
 
   @Test
@@ -139,7 +139,7 @@ public class ComputeQProfileMeasureStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasures(1)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(1)).isEmpty();
   }
 
   private static QualityProfile createQProfile(String qpName, String languageKey) {

@@ -96,14 +96,14 @@ public class FormulaExecutorComponentVisitorTest {
 
     underTest.visit(BALANCED_COMPONENT_TREE);
 
-    assertThat(measureRepository.getNewRawMeasure(1, NCLOC_KEY).get().getIntValue()).isEqualTo(20);
-    assertThat(measureRepository.getNewRawMeasure(11, NCLOC_KEY).get().getIntValue()).isEqualTo(18);
-    assertThat(measureRepository.getNewRawMeasure(111, NCLOC_KEY).get().getIntValue()).isEqualTo(18);
-    assertThat(measureRepository.getNewRawMeasure(1111, NCLOC_KEY).get().getIntValue()).isEqualTo(10);
-    assertThat(measureRepository.getNewRawMeasure(1112, NCLOC_KEY).get().getIntValue()).isEqualTo(8);
-    assertThat(measureRepository.getNewRawMeasure(12, NCLOC_KEY).get().getIntValue()).isEqualTo(2);
-    assertThat(measureRepository.getNewRawMeasure(121, NCLOC_KEY).get().getIntValue()).isEqualTo(2);
-    assertThat(measureRepository.getNewRawMeasure(1211, NCLOC_KEY).get().getIntValue()).isEqualTo(2);
+    assertThat(measureRepository.getAddedRawMeasure(1, NCLOC_KEY).get().getIntValue()).isEqualTo(20);
+    assertThat(measureRepository.getAddedRawMeasure(11, NCLOC_KEY).get().getIntValue()).isEqualTo(18);
+    assertThat(measureRepository.getAddedRawMeasure(111, NCLOC_KEY).get().getIntValue()).isEqualTo(18);
+    assertThat(measureRepository.getAddedRawMeasure(1111, NCLOC_KEY).get().getIntValue()).isEqualTo(10);
+    assertThat(measureRepository.getAddedRawMeasure(1112, NCLOC_KEY).get().getIntValue()).isEqualTo(8);
+    assertThat(measureRepository.getAddedRawMeasure(12, NCLOC_KEY).get().getIntValue()).isEqualTo(2);
+    assertThat(measureRepository.getAddedRawMeasure(121, NCLOC_KEY).get().getIntValue()).isEqualTo(2);
+    assertThat(measureRepository.getAddedRawMeasure(1211, NCLOC_KEY).get().getIntValue()).isEqualTo(2);
   }
 
   @Test
@@ -119,22 +119,22 @@ public class FormulaExecutorComponentVisitorTest {
       .buildFor(ImmutableList.<Formula>of(new FakeMultiMetricFormula()));
     underTest.visit(BALANCED_COMPONENT_TREE);
 
-    assertThat(measureRepository.getNewRawMeasure(1, NEW_LINES_TO_COVER_KEY).get().getIntValue()).isEqualTo(30);
-    assertThat(measureRepository.getNewRawMeasure(1, NEW_IT_COVERAGE_KEY).get().getIntValue()).isEqualTo(120);
-    assertThat(measureRepository.getNewRawMeasure(11, NEW_LINES_TO_COVER_KEY).get().getIntValue()).isEqualTo(28);
-    assertThat(measureRepository.getNewRawMeasure(11, NEW_IT_COVERAGE_KEY).get().getIntValue()).isEqualTo(118);
-    assertThat(measureRepository.getNewRawMeasure(111, NEW_LINES_TO_COVER_KEY).get().getIntValue()).isEqualTo(28);
-    assertThat(measureRepository.getNewRawMeasure(111, NEW_IT_COVERAGE_KEY).get().getIntValue()).isEqualTo(118);
-    assertThat(measureRepository.getNewRawMeasure(1111, NEW_LINES_TO_COVER_KEY).get().getIntValue()).isEqualTo(20);
-    assertThat(measureRepository.getNewRawMeasure(1111, NEW_IT_COVERAGE_KEY).get().getIntValue()).isEqualTo(110);
-    assertThat(measureRepository.getNewRawMeasure(1112, NEW_LINES_TO_COVER_KEY).get().getIntValue()).isEqualTo(18);
-    assertThat(measureRepository.getNewRawMeasure(1112, NEW_IT_COVERAGE_KEY).get().getIntValue()).isEqualTo(108);
-    assertThat(measureRepository.getNewRawMeasure(12, NEW_LINES_TO_COVER_KEY).get().getIntValue()).isEqualTo(12);
-    assertThat(measureRepository.getNewRawMeasure(12, NEW_IT_COVERAGE_KEY).get().getIntValue()).isEqualTo(102);
-    assertThat(measureRepository.getNewRawMeasure(121, NEW_LINES_TO_COVER_KEY).get().getIntValue()).isEqualTo(12);
-    assertThat(measureRepository.getNewRawMeasure(121, NEW_IT_COVERAGE_KEY).get().getIntValue()).isEqualTo(102);
-    assertThat(measureRepository.getNewRawMeasure(1211, NEW_LINES_TO_COVER_KEY).get().getIntValue()).isEqualTo(12);
-    assertThat(measureRepository.getNewRawMeasure(1211, NEW_IT_COVERAGE_KEY).get().getIntValue()).isEqualTo(102);
+    assertThat(measureRepository.getAddedRawMeasure(1, NEW_LINES_TO_COVER_KEY).get().getIntValue()).isEqualTo(30);
+    assertThat(measureRepository.getAddedRawMeasure(1, NEW_IT_COVERAGE_KEY).get().getIntValue()).isEqualTo(120);
+    assertThat(measureRepository.getAddedRawMeasure(11, NEW_LINES_TO_COVER_KEY).get().getIntValue()).isEqualTo(28);
+    assertThat(measureRepository.getAddedRawMeasure(11, NEW_IT_COVERAGE_KEY).get().getIntValue()).isEqualTo(118);
+    assertThat(measureRepository.getAddedRawMeasure(111, NEW_LINES_TO_COVER_KEY).get().getIntValue()).isEqualTo(28);
+    assertThat(measureRepository.getAddedRawMeasure(111, NEW_IT_COVERAGE_KEY).get().getIntValue()).isEqualTo(118);
+    assertThat(measureRepository.getAddedRawMeasure(1111, NEW_LINES_TO_COVER_KEY).get().getIntValue()).isEqualTo(20);
+    assertThat(measureRepository.getAddedRawMeasure(1111, NEW_IT_COVERAGE_KEY).get().getIntValue()).isEqualTo(110);
+    assertThat(measureRepository.getAddedRawMeasure(1112, NEW_LINES_TO_COVER_KEY).get().getIntValue()).isEqualTo(18);
+    assertThat(measureRepository.getAddedRawMeasure(1112, NEW_IT_COVERAGE_KEY).get().getIntValue()).isEqualTo(108);
+    assertThat(measureRepository.getAddedRawMeasure(12, NEW_LINES_TO_COVER_KEY).get().getIntValue()).isEqualTo(12);
+    assertThat(measureRepository.getAddedRawMeasure(12, NEW_IT_COVERAGE_KEY).get().getIntValue()).isEqualTo(102);
+    assertThat(measureRepository.getAddedRawMeasure(121, NEW_LINES_TO_COVER_KEY).get().getIntValue()).isEqualTo(12);
+    assertThat(measureRepository.getAddedRawMeasure(121, NEW_IT_COVERAGE_KEY).get().getIntValue()).isEqualTo(102);
+    assertThat(measureRepository.getAddedRawMeasure(1211, NEW_LINES_TO_COVER_KEY).get().getIntValue()).isEqualTo(12);
+    assertThat(measureRepository.getAddedRawMeasure(1211, NEW_IT_COVERAGE_KEY).get().getIntValue()).isEqualTo(102);
   }
 
   @Test
@@ -147,22 +147,22 @@ public class FormulaExecutorComponentVisitorTest {
 
     underTest.visit(BALANCED_COMPONENT_TREE);
 
-    assertThat(measureRepository.getNewRawMeasure(1, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation2()).isEqualTo(20);
-    assertThat(measureRepository.getNewRawMeasure(1, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation5()).isEqualTo(40);
-    assertThat(measureRepository.getNewRawMeasure(11, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation2()).isEqualTo(18);
-    assertThat(measureRepository.getNewRawMeasure(11, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation5()).isEqualTo(36);
-    assertThat(measureRepository.getNewRawMeasure(111, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation2()).isEqualTo(18);
-    assertThat(measureRepository.getNewRawMeasure(111, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation5()).isEqualTo(36);
-    assertThat(measureRepository.getNewRawMeasure(1111, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation2()).isEqualTo(10);
-    assertThat(measureRepository.getNewRawMeasure(1111, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation5()).isEqualTo(20);
-    assertThat(measureRepository.getNewRawMeasure(1112, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation2()).isEqualTo(8);
-    assertThat(measureRepository.getNewRawMeasure(1112, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation5()).isEqualTo(16);
-    assertThat(measureRepository.getNewRawMeasure(12, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation2()).isEqualTo(2);
-    assertThat(measureRepository.getNewRawMeasure(12, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation5()).isEqualTo(4);
-    assertThat(measureRepository.getNewRawMeasure(121, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation2()).isEqualTo(2);
-    assertThat(measureRepository.getNewRawMeasure(121, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation5()).isEqualTo(4);
-    assertThat(measureRepository.getNewRawMeasure(1211, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation2()).isEqualTo(2);
-    assertThat(measureRepository.getNewRawMeasure(1211, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation5()).isEqualTo(4);
+    assertThat(measureRepository.getAddedRawMeasure(1, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation2()).isEqualTo(20);
+    assertThat(measureRepository.getAddedRawMeasure(1, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation5()).isEqualTo(40);
+    assertThat(measureRepository.getAddedRawMeasure(11, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation2()).isEqualTo(18);
+    assertThat(measureRepository.getAddedRawMeasure(11, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation5()).isEqualTo(36);
+    assertThat(measureRepository.getAddedRawMeasure(111, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation2()).isEqualTo(18);
+    assertThat(measureRepository.getAddedRawMeasure(111, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation5()).isEqualTo(36);
+    assertThat(measureRepository.getAddedRawMeasure(1111, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation2()).isEqualTo(10);
+    assertThat(measureRepository.getAddedRawMeasure(1111, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation5()).isEqualTo(20);
+    assertThat(measureRepository.getAddedRawMeasure(1112, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation2()).isEqualTo(8);
+    assertThat(measureRepository.getAddedRawMeasure(1112, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation5()).isEqualTo(16);
+    assertThat(measureRepository.getAddedRawMeasure(12, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation2()).isEqualTo(2);
+    assertThat(measureRepository.getAddedRawMeasure(12, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation5()).isEqualTo(4);
+    assertThat(measureRepository.getAddedRawMeasure(121, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation2()).isEqualTo(2);
+    assertThat(measureRepository.getAddedRawMeasure(121, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation5()).isEqualTo(4);
+    assertThat(measureRepository.getAddedRawMeasure(1211, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation2()).isEqualTo(2);
+    assertThat(measureRepository.getAddedRawMeasure(1211, NEW_IT_COVERAGE_KEY).get().getVariations().getVariation5()).isEqualTo(4);
   }
 
   private static Measure createMeasureWithVariation(double variation2Value, double variation5Value) {
@@ -185,10 +185,10 @@ public class FormulaExecutorComponentVisitorTest {
 
     underTest.visit(project);
 
-    assertThat(measureRepository.getNewRawMeasures(1)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(11)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(111)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(1111)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(1)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(11)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(111)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(1111)).isEmpty();
   }
 
   @Test
@@ -204,9 +204,9 @@ public class FormulaExecutorComponentVisitorTest {
 
     underTest.visit(project);
 
-    assertThat(measureRepository.getNewRawMeasures(1)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(11)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(111)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(1)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(11)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(111)).isEmpty();
   }
 
   private class FakeFormula implements Formula<FakeCounter> {

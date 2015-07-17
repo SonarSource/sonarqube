@@ -86,14 +86,14 @@ public class DistributionFormulaExecutionTest {
 
     underTest.visit(project);
 
-    assertThat(measureRepository.getNewRawMeasure(1, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY).get().getStringValue()).isEqualTo("0.5=4;3.5=10;6.5=12");
-    assertThat(measureRepository.getNewRawMeasure(11, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY).get().getStringValue()).isEqualTo("0.5=3;3.5=7;6.5=10");
-    assertThat(measureRepository.getNewRawMeasure(111, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY).get().getStringValue()).isEqualTo("0.5=3;3.5=7;6.5=10");
-    assertThat(measureRepository.getNewRawMeasures(1111)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(1112)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasure(12, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY).get().getStringValue()).isEqualTo("0.5=1;3.5=3;6.5=2");
-    assertThat(measureRepository.getNewRawMeasure(121, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY).get().getStringValue()).isEqualTo("0.5=1;3.5=3;6.5=2");
-    assertThat(measureRepository.getNewRawMeasures(1211)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasure(1, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY).get().getStringValue()).isEqualTo("0.5=4;3.5=10;6.5=12");
+    assertThat(measureRepository.getAddedRawMeasure(11, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY).get().getStringValue()).isEqualTo("0.5=3;3.5=7;6.5=10");
+    assertThat(measureRepository.getAddedRawMeasure(111, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY).get().getStringValue()).isEqualTo("0.5=3;3.5=7;6.5=10");
+    assertThat(measureRepository.getAddedRawMeasures(1111)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(1112)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasure(12, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY).get().getStringValue()).isEqualTo("0.5=1;3.5=3;6.5=2");
+    assertThat(measureRepository.getAddedRawMeasure(121, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY).get().getStringValue()).isEqualTo("0.5=1;3.5=3;6.5=2");
+    assertThat(measureRepository.getAddedRawMeasures(1211)).isEmpty();
   }
 
   @Test
@@ -113,10 +113,10 @@ public class DistributionFormulaExecutionTest {
 
     underTest.visit(project);
 
-    assertThat(measureRepository.getNewRawMeasures(1)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(11)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(111)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(1111)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(1)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(11)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(111)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(1111)).isEmpty();
   }
 
 }

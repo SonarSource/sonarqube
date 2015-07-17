@@ -60,7 +60,7 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
   private final Map<InternalKey, Measure> baseMeasures = new HashMap<>();
   private final Map<InternalKey, Measure> rawMeasures = new HashMap<>();
   private final Map<InternalKey, Measure> initialRawMeasures = new HashMap<>();
-  private final Predicate<Map.Entry<InternalKey, Measure>> isNewMeasure = new Predicate<Map.Entry<InternalKey, Measure>>() {
+  private final Predicate<Map.Entry<InternalKey, Measure>> isAddedMeasure = new Predicate<Map.Entry<InternalKey, Measure>>() {
     @Override
     public boolean apply(@Nonnull Map.Entry<InternalKey, Measure> input) {
       return !initialRawMeasures.containsKey(input.getKey())
@@ -128,16 +128,24 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
     return getRawMeasures(componentProvider.getByRef(componentRef));
   }
 
-  public SetMultimap<String, Measure> getNewRawMeasures(int componentRef) {
+  /**
+   * Return measures that were added by the step (using {@link #add(Component, Metric, Measure)}).
+   * It does not contain the one added in the test by {@link #addRawMeasure(int, String, Measure)}
+   */
+  public SetMultimap<String, Measure> getAddedRawMeasures(int componentRef) {
     checkAndInitProvidersState();
 
-    return getNewRawMeasures(componentProvider.getByRef(componentRef));
+    return getAddedRawMeasures(componentProvider.getByRef(componentRef));
   }
 
-  public Optional<Measure> getNewRawMeasure(int componentRef, String metricKey) {
+  /**
+   * Return a measure that were added by the step (using {@link #add(Component, Metric, Measure)}).
+   * It does not contain the one added in the test by {@link #addRawMeasure(int, String, Measure)}
+   */
+  public Optional<Measure> getAddedRawMeasure(int componentRef, String metricKey) {
     checkAndInitProvidersState();
 
-    Set<Measure> measures = getNewRawMeasures(componentProvider.getByRef(componentRef)).get(metricKey);
+    Set<Measure> measures = getAddedRawMeasures(componentProvider.getByRef(componentRef)).get(metricKey);
     if (measures.isEmpty()) {
       return Optional.absent();
     } else if (measures.size() != 1) {
@@ -146,11 +154,15 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
     return Optional.of(measures.iterator().next());
   }
 
-  public SetMultimap<String, Measure> getNewRawMeasures(Component component) {
+  /**
+   * Return measures that were added by the step (using {@link #add(Component, Metric, Measure)}).
+   * It does not contain the one added in the test by {@link #addRawMeasure(int, String, Measure)}
+   */
+  public SetMultimap<String, Measure> getAddedRawMeasures(Component component) {
     checkAndInitProvidersState();
 
     ImmutableSetMultimap.Builder<String, Measure> builder = ImmutableSetMultimap.builder();
-    for (Map.Entry<InternalKey, Measure> entry : from(filterKeys(rawMeasures, hasComponentRef(component)).entrySet()).filter(isNewMeasure)) {
+    for (Map.Entry<InternalKey, Measure> entry : from(filterKeys(rawMeasures, hasComponentRef(component)).entrySet()).filter(isAddedMeasure)) {
       builder.put(entry.getKey().getMetricKey(), entry.getValue());
     }
     return builder.build();

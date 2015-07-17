@@ -103,12 +103,12 @@ public class DuplicationMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, DUPLICATED_BLOCKS_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, DUPLICATED_BLOCKS_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(50);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(50);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(50);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(50);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATED_BLOCKS_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATED_BLOCKS_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(50);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(50);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(50);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(50);
   }
 
   @Test
@@ -118,24 +118,24 @@ public class DuplicationMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, DUPLICATED_BLOCKS_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, DUPLICATED_BLOCKS_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATED_BLOCKS_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATED_BLOCKS_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(0);
   }
 
   @Test
   public void aggregate_zero_duplicated_blocks_when_no_data() {
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, DUPLICATED_BLOCKS_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, DUPLICATED_BLOCKS_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATED_BLOCKS_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATED_BLOCKS_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, DUPLICATED_BLOCKS_KEY).get().getIntValue()).isEqualTo(0);
   }
 
   @Test
@@ -145,12 +145,12 @@ public class DuplicationMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, DUPLICATED_FILES_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, DUPLICATED_FILES_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(50);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(50);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(50);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(50);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATED_FILES_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATED_FILES_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(50);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(50);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(50);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(50);
   }
 
   @Test
@@ -160,24 +160,24 @@ public class DuplicationMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, DUPLICATED_FILES_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, DUPLICATED_FILES_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATED_FILES_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATED_FILES_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(0);
   }
 
   @Test
   public void aggregate_zero_duplicated_files_when_no_data() {
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, DUPLICATED_FILES_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, DUPLICATED_FILES_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATED_FILES_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATED_FILES_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, DUPLICATED_FILES_KEY).get().getIntValue()).isEqualTo(0);
   }
 
   @Test
@@ -187,12 +187,12 @@ public class DuplicationMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, DUPLICATED_LINES_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, DUPLICATED_LINES_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(50);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(50);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(50);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(50);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATED_LINES_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATED_LINES_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(50);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(50);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(50);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(50);
   }
 
   @Test
@@ -202,24 +202,24 @@ public class DuplicationMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, DUPLICATED_LINES_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, DUPLICATED_LINES_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATED_LINES_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATED_LINES_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(0);
   }
 
   @Test
   public void aggregate_zero_duplicated_line_when_no_data() {
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, DUPLICATED_LINES_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, DUPLICATED_LINES_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(0);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATED_LINES_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATED_LINES_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, DUPLICATED_LINES_KEY).get().getIntValue()).isEqualTo(0);
   }
 
   @Test
@@ -236,12 +236,12 @@ public class DuplicationMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(20d);
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(7.5d);
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(20d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(7.5d);
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
   }
 
   @Test
@@ -265,12 +265,12 @@ public class DuplicationMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(20d);
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(7.5d);
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(20d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(7.5d);
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
   }
 
   @Test
@@ -287,12 +287,12 @@ public class DuplicationMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(20d);
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(7.5d);
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(20d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(7.5d);
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(10d);
   }
 
   @Test
@@ -316,12 +316,12 @@ public class DuplicationMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
   }
 
   @Test
@@ -373,21 +373,21 @@ public class DuplicationMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, DUPLICATED_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
   }
 
   private void assertNoNewMeasures(String metricKey){
-    assertThat(measureRepository.getNewRawMeasures(FILE_1_REF).get(metricKey)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(FILE_2_REF).get(metricKey)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(DIRECTORY_REF).get(metricKey)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(SUB_MODULE_REF).get(metricKey)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(MODULE_REF).get(metricKey)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(ROOT_REF).get(metricKey)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(FILE_1_REF).get(metricKey)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(FILE_2_REF).get(metricKey)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(DIRECTORY_REF).get(metricKey)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(SUB_MODULE_REF).get(metricKey)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(MODULE_REF).get(metricKey)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(ROOT_REF).get(metricKey)).isEmpty();
   }
 
 }

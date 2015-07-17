@@ -104,14 +104,14 @@ public class AverageFormulaExecutionTest {
 
     underTest.visit(project);
 
-    assertThat(measureRepository.getNewRawMeasure(1, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(3d);
-    assertThat(measureRepository.getNewRawMeasure(11, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(2d);
-    assertThat(measureRepository.getNewRawMeasure(111, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(2d);
-    assertThat(measureRepository.getNewRawMeasure(1111, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(2.5d);
-    assertThat(measureRepository.getNewRawMeasure(1112, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(1d);
-    assertThat(measureRepository.getNewRawMeasure(12, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(4.5d);
-    assertThat(measureRepository.getNewRawMeasure(121, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(4.5d);
-    assertThat(measureRepository.getNewRawMeasure(1211, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(4.5d);
+    assertThat(measureRepository.getAddedRawMeasure(1, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(3d);
+    assertThat(measureRepository.getAddedRawMeasure(11, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(2d);
+    assertThat(measureRepository.getAddedRawMeasure(111, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(2d);
+    assertThat(measureRepository.getAddedRawMeasure(1111, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(2.5d);
+    assertThat(measureRepository.getAddedRawMeasure(1112, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(1d);
+    assertThat(measureRepository.getAddedRawMeasure(12, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(4.5d);
+    assertThat(measureRepository.getAddedRawMeasure(121, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(4.5d);
+    assertThat(measureRepository.getAddedRawMeasure(1211, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(4.5d);
   }
 
   @Test
@@ -131,10 +131,10 @@ public class AverageFormulaExecutionTest {
 
     underTest.visit(project);
 
-    assertThat(measureRepository.getNewRawMeasures(1)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(11)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(111)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(1111)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(1)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(11)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(111)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(1111)).isEmpty();
   }
 
 }

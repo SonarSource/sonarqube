@@ -192,31 +192,31 @@ public class CoverageMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, codeCoverageKey).get().getDoubleValue()).isEqualTo(98.8d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, lineCoverageKey).get().getDoubleValue()).isEqualTo(99d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, branchCoverageKey).get().getDoubleValue()).isEqualTo(97d, DEFAULT_OFFSET);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, codeCoverageKey).get().getDoubleValue()).isEqualTo(98.8d, DEFAULT_OFFSET);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, lineCoverageKey).get().getDoubleValue()).isEqualTo(99d, DEFAULT_OFFSET);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, branchCoverageKey).get().getDoubleValue()).isEqualTo(97d, DEFAULT_OFFSET);
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, codeCoverageKey).get().getDoubleValue()).isEqualTo(91d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, lineCoverageKey).get().getDoubleValue()).isEqualTo(90d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, branchCoverageKey).get().getDoubleValue()).isEqualTo(96d, DEFAULT_OFFSET);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, codeCoverageKey).get().getDoubleValue()).isEqualTo(91d, DEFAULT_OFFSET);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, lineCoverageKey).get().getDoubleValue()).isEqualTo(90d, DEFAULT_OFFSET);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, branchCoverageKey).get().getDoubleValue()).isEqualTo(96d, DEFAULT_OFFSET);
 
-    assertThat(measureRepository.getNewRawMeasures(UNIT_TEST_FILE_REF)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(UNIT_TEST_FILE_REF)).isEmpty();
 
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, codeCoverageKey).get().getDoubleValue()).isEqualTo(95.5d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, lineCoverageKey).get().getDoubleValue()).isEqualTo(95.4d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, branchCoverageKey).get().getDoubleValue()).isEqualTo(96.4d, DEFAULT_OFFSET);
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, codeCoverageKey).get().getDoubleValue()).isEqualTo(95.5d, DEFAULT_OFFSET);
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, lineCoverageKey).get().getDoubleValue()).isEqualTo(95.4d, DEFAULT_OFFSET);
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, branchCoverageKey).get().getDoubleValue()).isEqualTo(96.4d, DEFAULT_OFFSET);
 
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, codeCoverageKey).get().getDoubleValue()).isEqualTo(95.5d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, lineCoverageKey).get().getDoubleValue()).isEqualTo(95.4d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, branchCoverageKey).get().getDoubleValue()).isEqualTo(96.4d, DEFAULT_OFFSET);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, codeCoverageKey).get().getDoubleValue()).isEqualTo(95.5d, DEFAULT_OFFSET);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, lineCoverageKey).get().getDoubleValue()).isEqualTo(95.4d, DEFAULT_OFFSET);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, branchCoverageKey).get().getDoubleValue()).isEqualTo(96.4d, DEFAULT_OFFSET);
 
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, codeCoverageKey).get().getDoubleValue()).isEqualTo(95.5d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, lineCoverageKey).get().getDoubleValue()).isEqualTo(95.4d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, branchCoverageKey).get().getDoubleValue()).isEqualTo(96.4d, DEFAULT_OFFSET);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, codeCoverageKey).get().getDoubleValue()).isEqualTo(95.5d, DEFAULT_OFFSET);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, lineCoverageKey).get().getDoubleValue()).isEqualTo(95.4d, DEFAULT_OFFSET);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, branchCoverageKey).get().getDoubleValue()).isEqualTo(96.4d, DEFAULT_OFFSET);
 
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, codeCoverageKey).get().getDoubleValue()).isEqualTo(95.5d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, lineCoverageKey).get().getDoubleValue()).isEqualTo(95.4d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, branchCoverageKey).get().getDoubleValue()).isEqualTo(96.4d, DEFAULT_OFFSET);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, codeCoverageKey).get().getDoubleValue()).isEqualTo(95.5d, DEFAULT_OFFSET);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, lineCoverageKey).get().getDoubleValue()).isEqualTo(95.4d, DEFAULT_OFFSET);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, branchCoverageKey).get().getDoubleValue()).isEqualTo(96.4d, DEFAULT_OFFSET);
   }
 
   @Test
@@ -285,7 +285,7 @@ public class CoverageMeasuresStepTest {
     checkMeasureVariations(FILE_2_REF, lineCoverageKey, null, 90d, null, null, 99d);
     checkMeasureVariations(FILE_2_REF, branchCoverageKey, null, 96d, null, null, 97d);
 
-    assertThat(measureRepository.getNewRawMeasures(UNIT_TEST_FILE_REF)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(UNIT_TEST_FILE_REF)).isEmpty();
 
     checkMeasureVariations(DIRECTORY_REF, codeCoverageKey, null, 95.5d, null, null, 95.5d);
     checkMeasureVariations(DIRECTORY_REF, lineCoverageKey, null, 95.4d, null, null, 95.4d);
@@ -309,7 +309,7 @@ public class CoverageMeasuresStepTest {
   }
 
   private void checkMeasureVariations(int fileRef, String metricKey, Double... expectedVariations) {
-    Optional<Measure> measure = measureRepository.getNewRawMeasure(fileRef, metricKey);
+    Optional<Measure> measure = measureRepository.getAddedRawMeasure(fileRef, metricKey);
     if (measure.isPresent()) {
       MeasureVariations measureVariations = measure.get().getVariations();
       for (int i = 0; i < expectedVariations.length - 1; i++) {

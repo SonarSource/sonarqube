@@ -227,10 +227,10 @@ public class SqaleMeasuresStepTest {
   }
 
   private void verifyComponentMeasures(int componentRef, long expectedDevCost, double expectedDebtRatio, SqaleRatingGrid.SqaleRating expectedRating) {
-    assertThat(measureRepository.getNewRawMeasure(componentRef, DEVELOPMENT_COST_KEY).get().getStringValue()).isEqualTo(Long.toString(expectedDevCost));
-    assertThat(measureRepository.getNewRawMeasure(componentRef, SQALE_DEBT_RATIO_KEY).get().getDoubleValue()).isEqualTo(expectedDebtRatio * 100d, Offset.offset(0.1d));
-    assertThat(measureRepository.getNewRawMeasure(componentRef, SQALE_RATING_KEY).get().getIntValue()).isEqualTo(expectedRating.getIndex());
-    assertThat(measureRepository.getNewRawMeasure(componentRef, SQALE_RATING_KEY).get().getData()).isEqualTo(expectedRating.name());
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, DEVELOPMENT_COST_KEY).get().getStringValue()).isEqualTo(Long.toString(expectedDevCost));
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, SQALE_DEBT_RATIO_KEY).get().getDoubleValue()).isEqualTo(expectedDebtRatio * 100d, Offset.offset(0.1d));
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, SQALE_RATING_KEY).get().getIntValue()).isEqualTo(expectedRating.getIndex());
+    assertThat(measureRepository.getAddedRawMeasure(componentRef, SQALE_RATING_KEY).get().getData()).isEqualTo(expectedRating.name());
   }
 
 }

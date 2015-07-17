@@ -102,13 +102,13 @@ public class CommentMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, COMMENT_LINES_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, COMMENT_LINES_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, COMMENT_LINES_KEY).get().getIntValue()).isEqualTo(500);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, COMMENT_LINES_KEY).get().getIntValue()).isEqualTo(500);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, COMMENT_LINES_KEY).get().getIntValue()).isEqualTo(500);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, COMMENT_LINES_KEY).get().getIntValue()).isEqualTo(500);
-    assertThat(measureRepository.getNewRawMeasures(ROOT_REF).get(COMMENT_LINES_KEY)).containsOnly(newMeasureBuilder().create(500));
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, COMMENT_LINES_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, COMMENT_LINES_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, COMMENT_LINES_KEY).get().getIntValue()).isEqualTo(500);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, COMMENT_LINES_KEY).get().getIntValue()).isEqualTo(500);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, COMMENT_LINES_KEY).get().getIntValue()).isEqualTo(500);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, COMMENT_LINES_KEY).get().getIntValue()).isEqualTo(500);
+    assertThat(measureRepository.getAddedRawMeasures(ROOT_REF).get(COMMENT_LINES_KEY)).containsOnly(newMeasureBuilder().create(500));
   }
 
   @Test
@@ -128,12 +128,12 @@ public class CommentMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(60d);
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(20d);
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(40d);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(40d);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(40d);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(40d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(60d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(20d);
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(40d);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(40d);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(40d);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(40d);
   }
 
   @Test
@@ -153,12 +153,12 @@ public class CommentMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, COMMENT_LINES_DENSITY_KEY).get().getDoubleValue()).isEqualTo(0d);
   }
 
   @Test
@@ -216,12 +216,12 @@ public class CommentMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, PUBLIC_API_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, PUBLIC_API_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, PUBLIC_API_KEY).get().getIntValue()).isEqualTo(500);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, PUBLIC_API_KEY).get().getIntValue()).isEqualTo(500);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, PUBLIC_API_KEY).get().getIntValue()).isEqualTo(500);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, PUBLIC_API_KEY).get().getIntValue()).isEqualTo(500);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, PUBLIC_API_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, PUBLIC_API_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, PUBLIC_API_KEY).get().getIntValue()).isEqualTo(500);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, PUBLIC_API_KEY).get().getIntValue()).isEqualTo(500);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, PUBLIC_API_KEY).get().getIntValue()).isEqualTo(500);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, PUBLIC_API_KEY).get().getIntValue()).isEqualTo(500);
   }
 
   @Test
@@ -231,12 +231,12 @@ public class CommentMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, PUBLIC_UNDOCUMENTED_API_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, PUBLIC_UNDOCUMENTED_API_KEY)).isAbsent();
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, PUBLIC_UNDOCUMENTED_API_KEY).get().getIntValue()).isEqualTo(500);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, PUBLIC_UNDOCUMENTED_API_KEY).get().getIntValue()).isEqualTo(500);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, PUBLIC_UNDOCUMENTED_API_KEY).get().getIntValue()).isEqualTo(500);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, PUBLIC_UNDOCUMENTED_API_KEY).get().getIntValue()).isEqualTo(500);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, PUBLIC_UNDOCUMENTED_API_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, PUBLIC_UNDOCUMENTED_API_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, PUBLIC_UNDOCUMENTED_API_KEY).get().getIntValue()).isEqualTo(500);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, PUBLIC_UNDOCUMENTED_API_KEY).get().getIntValue()).isEqualTo(500);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, PUBLIC_UNDOCUMENTED_API_KEY).get().getIntValue()).isEqualTo(500);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, PUBLIC_UNDOCUMENTED_API_KEY).get().getIntValue()).isEqualTo(500);
 
   }
 
@@ -250,12 +250,12 @@ public class CommentMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(50d);
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(75d);
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(70d);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(70d);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(70d);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(70d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(50d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(75d);
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(70d);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(70d);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(70d);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(70d);
   }
 
   @Test
@@ -301,32 +301,32 @@ public class CommentMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_1_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
-    assertThat(measureRepository.getNewRawMeasure(FILE_2_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
-    assertThat(measureRepository.getNewRawMeasure(DIRECTORY_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
-    assertThat(measureRepository.getNewRawMeasure(SUB_MODULE_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
-    assertThat(measureRepository.getNewRawMeasure(MODULE_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
-    assertThat(measureRepository.getNewRawMeasure(ROOT_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, PUBLIC_DOCUMENTED_API_DENSITY_KEY).get().getDoubleValue()).isEqualTo(100d);
   }
 
   @Test
   public void compute_nothing_when_no_data() {
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasures(FILE_1_REF)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(FILE_2_REF)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(DIRECTORY_REF)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(SUB_MODULE_REF)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(MODULE_REF)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(ROOT_REF)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(FILE_1_REF)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(FILE_2_REF)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(DIRECTORY_REF)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(SUB_MODULE_REF)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(MODULE_REF)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(ROOT_REF)).isEmpty();
   }
 
   private void assertNoNewMeasures(String metric) {
-    assertThat(measureRepository.getNewRawMeasures(FILE_1_REF).get(metric)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(FILE_2_REF).get(metric)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(DIRECTORY_REF).get(metric)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(SUB_MODULE_REF).get(metric)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(MODULE_REF).get(metric)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(ROOT_REF).get(metric)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(FILE_1_REF).get(metric)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(FILE_2_REF).get(metric)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(DIRECTORY_REF).get(metric)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(SUB_MODULE_REF).get(metric)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(MODULE_REF).get(metric)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(ROOT_REF).get(metric)).isEmpty();
   }
 }

@@ -86,14 +86,14 @@ public class SumFormulaExecutionTest {
 
     underTest.visit(project);
 
-    assertThat(measureRepository.getNewRawMeasure(1, LINES_KEY).get().getIntValue()).isEqualTo(20);
-    assertThat(measureRepository.getNewRawMeasure(11, LINES_KEY).get().getIntValue()).isEqualTo(18);
-    assertThat(measureRepository.getNewRawMeasure(111, LINES_KEY).get().getIntValue()).isEqualTo(18);
-    assertThat(measureRepository.getNewRawMeasures(1111)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(1112)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasure(12, LINES_KEY).get().getIntValue()).isEqualTo(2);
-    assertThat(measureRepository.getNewRawMeasure(121, LINES_KEY).get().getIntValue()).isEqualTo(2);
-    assertThat(measureRepository.getNewRawMeasures(1211)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasure(1, LINES_KEY).get().getIntValue()).isEqualTo(20);
+    assertThat(measureRepository.getAddedRawMeasure(11, LINES_KEY).get().getIntValue()).isEqualTo(18);
+    assertThat(measureRepository.getAddedRawMeasure(111, LINES_KEY).get().getIntValue()).isEqualTo(18);
+    assertThat(measureRepository.getAddedRawMeasures(1111)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(1112)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasure(12, LINES_KEY).get().getIntValue()).isEqualTo(2);
+    assertThat(measureRepository.getAddedRawMeasure(121, LINES_KEY).get().getIntValue()).isEqualTo(2);
+    assertThat(measureRepository.getAddedRawMeasures(1211)).isEmpty();
   }
 
   @Test
@@ -113,10 +113,10 @@ public class SumFormulaExecutionTest {
 
     underTest.visit(project);
 
-    assertThat(measureRepository.getNewRawMeasures(1)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(11)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(111)).isEmpty();
-    assertThat(measureRepository.getNewRawMeasures(1111)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(1)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(11)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(111)).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(1111)).isEmpty();
   }
 
 }

@@ -216,7 +216,7 @@ public class NewCoverageMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasures(FILE_COMPONENT.getRef())).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(FILE_COMPONENT.getRef())).isEmpty();
   }
 
   @Test
@@ -294,17 +294,17 @@ public class NewCoverageMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_COMPONENT.getRef(), newLinesToCover).get().getVariations().getVariation2()).isEqualTo(2d);
-    assertThat(measureRepository.getNewRawMeasure(FILE_COMPONENT.getRef(), newLinesToCover).get().getVariations().hasVariation5()).isFalse();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_COMPONENT.getRef(), newLinesToCover).get().getVariations().getVariation2()).isEqualTo(2d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_COMPONENT.getRef(), newLinesToCover).get().getVariations().hasVariation5()).isFalse();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_COMPONENT.getRef(), newUncoveredLines).get().getVariations().getVariation2()).isEqualTo(1d);
-    assertThat(measureRepository.getNewRawMeasure(FILE_COMPONENT.getRef(), newUncoveredLines).get().getVariations().hasVariation5()).isFalse();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_COMPONENT.getRef(), newUncoveredLines).get().getVariations().getVariation2()).isEqualTo(1d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_COMPONENT.getRef(), newUncoveredLines).get().getVariations().hasVariation5()).isFalse();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_COMPONENT.getRef(), newConditionsToCover).get().getVariations().getVariation2()).isEqualTo(0d);
-    assertThat(measureRepository.getNewRawMeasure(FILE_COMPONENT.getRef(), newConditionsToCover).get().getVariations().hasVariation5()).isFalse();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_COMPONENT.getRef(), newConditionsToCover).get().getVariations().getVariation2()).isEqualTo(0d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_COMPONENT.getRef(), newConditionsToCover).get().getVariations().hasVariation5()).isFalse();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_COMPONENT.getRef(), newUncoveredConditions).get().getVariations().getVariation2()).isEqualTo(0d);
-    assertThat(measureRepository.getNewRawMeasure(FILE_COMPONENT.getRef(), newUncoveredConditions).get().getVariations().hasVariation5()).isFalse();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_COMPONENT.getRef(), newUncoveredConditions).get().getVariations().getVariation2()).isEqualTo(0d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_COMPONENT.getRef(), newUncoveredConditions).get().getVariations().hasVariation5()).isFalse();
   }
 
   @Test
@@ -481,17 +481,17 @@ public class NewCoverageMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_COMPONENT.getRef(), metricKeys.newLinesToCover).get().getVariations().getVariation2()).isEqualTo(5d);
-    assertThat(measureRepository.getNewRawMeasure(FILE_COMPONENT.getRef(), metricKeys.newLinesToCover).get().getVariations().getVariation5()).isEqualTo(3d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_COMPONENT.getRef(), metricKeys.newLinesToCover).get().getVariations().getVariation2()).isEqualTo(5d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_COMPONENT.getRef(), metricKeys.newLinesToCover).get().getVariations().getVariation5()).isEqualTo(3d);
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_COMPONENT.getRef(), metricKeys.newUncoveredLines).get().getVariations().getVariation2()).isEqualTo(3d);
-    assertThat(measureRepository.getNewRawMeasure(FILE_COMPONENT.getRef(), metricKeys.newUncoveredLines).get().getVariations().getVariation5()).isEqualTo(2d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_COMPONENT.getRef(), metricKeys.newUncoveredLines).get().getVariations().getVariation2()).isEqualTo(3d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_COMPONENT.getRef(), metricKeys.newUncoveredLines).get().getVariations().getVariation5()).isEqualTo(2d);
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_COMPONENT.getRef(), metricKeys.newConditionsToCover).get().getVariations().getVariation2()).isEqualTo(7d);
-    assertThat(measureRepository.getNewRawMeasure(FILE_COMPONENT.getRef(), metricKeys.newConditionsToCover).get().getVariations().getVariation5()).isEqualTo(3d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_COMPONENT.getRef(), metricKeys.newConditionsToCover).get().getVariations().getVariation2()).isEqualTo(7d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_COMPONENT.getRef(), metricKeys.newConditionsToCover).get().getVariations().getVariation5()).isEqualTo(3d);
 
-    assertThat(measureRepository.getNewRawMeasure(FILE_COMPONENT.getRef(), metricKeys.newUncoveredConditions).get().getVariations().getVariation2()).isEqualTo(4d);
-    assertThat(measureRepository.getNewRawMeasure(FILE_COMPONENT.getRef(), metricKeys.newUncoveredConditions).get().getVariations().getVariation5()).isEqualTo(1d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_COMPONENT.getRef(), metricKeys.newUncoveredConditions).get().getVariations().getVariation2()).isEqualTo(4d);
+    assertThat(measureRepository.getAddedRawMeasure(FILE_COMPONENT.getRef(), metricKeys.newUncoveredConditions).get().getVariations().getVariation5()).isEqualTo(1d);
   }
 
   private static Measure createMeasure(@Nullable Double variationPeriod2, @Nullable Double variationPeriod5) {
@@ -508,7 +508,7 @@ public class NewCoverageMeasuresStepTest {
   }
 
   private void checkMeasureVariations(int fileRef, String metricKey, Double... expectedVariations) {
-    Optional<Measure> measure = measureRepository.getNewRawMeasure(fileRef, metricKey);
+    Optional<Measure> measure = measureRepository.getAddedRawMeasure(fileRef, metricKey);
     if (measure.isPresent()) {
       MeasureVariations measureVariations = measure.get().getVariations();
       for (int i = 0; i < expectedVariations.length - 1; i++) {

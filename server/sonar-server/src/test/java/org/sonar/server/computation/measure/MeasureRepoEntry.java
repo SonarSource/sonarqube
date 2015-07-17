@@ -33,7 +33,7 @@ import org.sonar.server.computation.component.Component;
 /**
  * This class represents a metric key and an associated measure.
  * It can be used to easily compare the content of the SetMultimap returned by {@link MeasureRepository#getRawMeasures(Component)}
- * or {@link MeasureRepositoryRule#getNewRawMeasures(int)}.
+ * or {@link MeasureRepositoryRule#getAddedRawMeasures(int)}.
  * <p>
  * This class is also highly useful to accurately make sure of the SetMultimap content since this
  * object implements a deep equals of Measure objects (see {@link #deepEquals(Measure, Measure)}), when
@@ -43,7 +43,7 @@ import org.sonar.server.computation.component.Component;
  * In order to explore the content of the SetMultimap, use {@link #toEntries(SetMultimap)} to convert it
  * to an Iterable of {@link MeasureRepoEntry} and then take benefit of AssertJ API, eg.:
  * <pre>
- * assertThat(MeasureRepoEntry.toEntries(measureRepository.getNewRawMeasures(componentRef))).containsOnly(
+ * assertThat(MeasureRepoEntry.toEntries(measureRepository.getAddedRawMeasures(componentRef))).containsOnly(
  *   MeasureRepoEntry.entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create(Long.toString(expectedDevCost))),
  *   MeasureRepoEntry.entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(expectedDebtRatio))
  * );
