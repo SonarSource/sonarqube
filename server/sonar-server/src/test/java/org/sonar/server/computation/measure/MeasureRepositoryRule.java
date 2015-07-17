@@ -26,6 +26,7 @@ import com.google.common.collect.SetMultimap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -131,6 +132,18 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
     checkAndInitProvidersState();
 
     return getNewRawMeasures(componentProvider.getByRef(componentRef));
+  }
+
+  public Optional<Measure> getNewRawMeasure(int componentRef, String metricKey) {
+    checkAndInitProvidersState();
+
+    Set<Measure> measures = getNewRawMeasures(componentProvider.getByRef(componentRef)).get(metricKey);
+    if (measures.isEmpty()) {
+      return Optional.absent();
+    } else if (measures.size() != 1) {
+      throw new IllegalArgumentException(String.format("There is more than one measure on metric '%s' for component '%s'", metricKey, componentRef));
+    }
+    return Optional.of(measures.iterator().next());
   }
 
   public SetMultimap<String, Measure> getNewRawMeasures(Component component) {
