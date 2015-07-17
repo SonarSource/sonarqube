@@ -98,7 +98,7 @@ public class SumFormulaTest {
   }
 
   @Test
-  public void not_create_measure_when_value_is_zero() {
+  public void do_not_create_measures_when_no_values() {
     SumCounter counter = BASIC_SUM_FORMULA.createNewCounter();
     when(fileAggregateContext.getMeasure(LINES_KEY)).thenReturn(Optional.<Measure>absent());
     counter.aggregate(fileAggregateContext);

@@ -46,7 +46,6 @@ public class SumFormula implements Formula<SumCounter> {
       return Optional.of(Measure.newMeasureBuilder().create(valueOptional.get()));
     }
     return Optional.absent();
-
   }
 
   @Override
