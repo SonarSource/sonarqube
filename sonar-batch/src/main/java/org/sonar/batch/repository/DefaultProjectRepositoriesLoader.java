@@ -19,11 +19,13 @@
  */
 package org.sonar.batch.repository;
 
+import org.sonar.batch.scan.ProjectAnalysisMode;
+
+import org.sonar.batch.util.BatchUtils;
+import org.sonar.batch.bootstrap.WSLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.bootstrap.DefaultAnalysisMode;
-import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.rule.ModuleQProfiles;
@@ -34,25 +36,25 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
 
   private static final String BATCH_PROJECT_URL = "/batch/project";
 
-  private final ServerClient serverClient;
-  private final DefaultAnalysisMode analysisMode;
+  private final WSLoader wsLoader;
+  private final ProjectAnalysisMode analysisMode;
 
-  public DefaultProjectRepositoriesLoader(ServerClient serverClient, DefaultAnalysisMode analysisMode) {
-    this.serverClient = serverClient;
+  public DefaultProjectRepositoriesLoader(WSLoader wsLoader, ProjectAnalysisMode analysisMode) {
+    this.wsLoader = wsLoader;
     this.analysisMode = analysisMode;
   }
 
   @Override
   public ProjectRepositories load(ProjectReactor reactor, AnalysisProperties taskProperties) {
     String projectKey = reactor.getRoot().getKeyWithBranch();
-    String url = BATCH_PROJECT_URL + "?key=" + ServerClient.encodeForUrl(projectKey);
+    String url = BATCH_PROJECT_URL + "?key=" + BatchUtils.encodeForUrl(projectKey);
     if (taskProperties.properties().containsKey(ModuleQProfiles.SONAR_PROFILE_PROP)) {
       LOG.warn("Ability to set quality profile from command line using '" + ModuleQProfiles.SONAR_PROFILE_PROP
         + "' is deprecated and will be dropped in a future SonarQube version. Please configure quality profile used by your project on SonarQube server.");
-      url += "&profile=" + ServerClient.encodeForUrl(taskProperties.properties().get(ModuleQProfiles.SONAR_PROFILE_PROP));
+      url += "&profile=" + BatchUtils.encodeForUrl(taskProperties.properties().get(ModuleQProfiles.SONAR_PROFILE_PROP));
     }
     url += "&preview=" + analysisMode.isPreview();
-    return ProjectRepositories.fromJson(serverClient.request(url));
+    return ProjectRepositories.fromJson(wsLoader.loadString(url));
   }
 
 }

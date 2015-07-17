@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.report;
 
+import org.sonar.batch.scan.ProjectAnalysisMode;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -27,23 +29,21 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.TempFolder;
-import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.scan.ImmutableProjectReactor;
-
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ReportPublisherTest {
 
-  private DefaultAnalysisMode mode;
+  private ProjectAnalysisMode mode;
 
   private ImmutableProjectReactor reactor;
 
   @Before
   public void setUp() {
-    mode = mock(DefaultAnalysisMode.class);
+    mode = mock(ProjectAnalysisMode.class);
     reactor = mock(ImmutableProjectReactor.class);
     when(reactor.getRoot()).thenReturn(ProjectDefinition.create().setKey("struts"));
   }

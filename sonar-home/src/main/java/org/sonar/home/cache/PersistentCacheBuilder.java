@@ -28,7 +28,6 @@ public class PersistentCacheBuilder {
   private static final long DEFAULT_EXPIRE_DURATION = TimeUnit.MILLISECONDS.convert(1L, TimeUnit.DAYS);
   private static final String DIR_NAME = "ws_cache";
 
-  private boolean forceUpdate = false;
   private Path cachePath;
   private final Logger logger;
 
@@ -41,18 +40,13 @@ public class PersistentCacheBuilder {
       setSonarHome(findHome());
     }
 
-    return new PersistentCache(cachePath, DEFAULT_EXPIRE_DURATION, forceUpdate, logger);
+    return new PersistentCache(cachePath, DEFAULT_EXPIRE_DURATION, logger);
   }
 
   public PersistentCacheBuilder setSonarHome(@Nullable Path p) {
     if (p != null) {
       this.cachePath = p.resolve(DIR_NAME);
     }
-    return this;
-  }
-
-  public PersistentCacheBuilder forceUpdate(boolean update) {
-    this.forceUpdate = update;
     return this;
   }
 

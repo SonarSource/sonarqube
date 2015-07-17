@@ -34,7 +34,6 @@ import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.bootstrap.AnalysisProperties;
-import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
@@ -83,7 +82,6 @@ public class ProjectScanContainer extends ComponentContainer {
 
   private static final Logger LOG = Loggers.get(ProjectScanContainer.class);
 
-  private final DefaultAnalysisMode analysisMode;
   private final Object[] components;
   private final AnalysisProperties props;
 
@@ -91,7 +89,6 @@ public class ProjectScanContainer extends ComponentContainer {
     super(globalContainer);
     this.props = props;
     this.components = components;
-    analysisMode = globalContainer.getComponentByType(DefaultAnalysisMode.class);
   }
 
   @Override
@@ -123,6 +120,7 @@ public class ProjectScanContainer extends ComponentContainer {
   private void addBatchComponents() {
     add(
       props,
+      ProjectAnalysisMode.class,
       projectReactorBuilder(),
       new MutableProjectReactorProvider(getComponentByType(ProjectBootstrapper.class)),
       new ImmutableProjectReactorProvider(),
@@ -134,6 +132,7 @@ public class ProjectScanContainer extends ComponentContainer {
       ProjectExclusions.class,
       ProjectReactorValidator.class,
       new ProjectRepositoriesProvider(),
+      new WSLoaderProjectProvider(),
       DefaultResourceCreationLock.class,
       CodeColorizers.class,
       MetricProvider.class,
@@ -206,7 +205,7 @@ public class ProjectScanContainer extends ComponentContainer {
     LOG.debug("Start recursive analysis of project modules");
     DefaultProjectTree tree = getComponentByType(DefaultProjectTree.class);
     scanRecursively(tree.getRootProject());
-    if (analysisMode.isMediumTest()) {
+    if (getComponentByType(ProjectAnalysisMode.class).isMediumTest()) {
       getComponentByType(ScanTaskObservers.class).notifyEndOfScanTask();
     }
   }

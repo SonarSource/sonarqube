@@ -19,12 +19,13 @@
  */
 package org.sonar.batch.repository.user;
 
+import org.sonar.batch.util.BatchUtils;
+
+import org.sonar.batch.bootstrap.WSLoader;
+import com.google.common.io.ByteSource;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import com.google.common.io.InputSupplier;
-import org.sonar.api.utils.HttpDownloader;
-import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.protocol.input.BatchInput;
 
 import java.io.IOException;
@@ -36,10 +37,10 @@ import java.util.List;
 
 public class UserRepository {
 
-  private ServerClient serverClient;
+  private WSLoader wsLoader;
 
-  public UserRepository(ServerClient serverClient) {
-    this.serverClient = serverClient;
+  public UserRepository(WSLoader wsLoader) {
+    this.wsLoader = wsLoader;
   }
 
   public Collection<BatchInput.User> loadFromWs(List<String> userLogins) {
@@ -47,25 +48,20 @@ public class UserRepository {
       return Collections.emptyList();
     }
 
-    try {
-      InputSupplier<InputStream> request = serverClient.doRequest("/batch/users?logins=" + Joiner.on(',').join(Lists.transform(userLogins, new Function<String, String>() {
-        @Override
-        public String apply(String input) {
-          return ServerClient.encodeForUrl(input);
-        }
-      })), "GET", null);
+    ByteSource source = wsLoader.loadSource("/batch/users?logins=" + Joiner.on(',').join(Lists.transform(userLogins, new Function<String, String>() {
+      @Override
+      public String apply(String input) {
+        return BatchUtils.encodeForUrl(input);
+      }
+    })));
 
-      return parseUsers(request);
-
-    } catch (HttpDownloader.HttpException e) {
-      throw serverClient.handleHttpException(e);
-    }
+    return parseUsers(source);
   }
 
-  private static Collection<BatchInput.User> parseUsers(InputSupplier<InputStream> input) {
+  private static Collection<BatchInput.User> parseUsers(ByteSource input) {
     List<BatchInput.User> users = new ArrayList<>();
 
-    try (InputStream is = input.getInput()) {
+    try (InputStream is = input.openStream()) {
       BatchInput.User user = BatchInput.User.parseDelimitedFrom(is);
       while (user != null) {
         users.add(user);

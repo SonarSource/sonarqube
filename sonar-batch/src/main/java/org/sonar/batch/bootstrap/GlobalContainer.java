@@ -21,6 +21,7 @@ package org.sonar.batch.bootstrap;
 
 import java.util.List;
 import java.util.Map;
+
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
 import org.sonar.api.utils.Durations;
@@ -52,7 +53,6 @@ import org.sonar.core.util.DefaultHttpDownloader;
 public class GlobalContainer extends ComponentContainer {
 
   private final Map<String, String> bootstrapProperties;
-  private PersistentCacheProvider persistentCacheProvider;
 
   private GlobalContainer(Map<String, String> bootstrapProperties) {
     super();
@@ -68,14 +68,11 @@ public class GlobalContainer extends ComponentContainer {
   @Override
   protected void doBeforeStart() {
     BootstrapProperties bootstrapProps = new BootstrapProperties(bootstrapProperties);
-    DefaultAnalysisMode analysisMode = new DefaultAnalysisMode(bootstrapProps.properties());
-    add(bootstrapProps, analysisMode);
+    add(bootstrapProps);
     addBootstrapComponents();
   }
 
   private void addBootstrapComponents() {
-    persistentCacheProvider = new PersistentCacheProvider();
-
     add(
       // plugins
       BatchPluginRepository.class,
@@ -86,6 +83,7 @@ public class GlobalContainer extends ComponentContainer {
       ExtensionInstaller.class,
 
       CachesManager.class,
+      GlobalMode.class,
       GlobalSettings.class,
       ServerClient.class,
       Logback.class,
@@ -94,7 +92,8 @@ public class GlobalContainer extends ComponentContainer {
       DefaultHttpDownloader.class,
       UriReader.class,
       new FileCacheProvider(),
-      persistentCacheProvider,
+      new PersistentCacheProvider(),
+      new WSLoaderGlobalProvider(),
       System2.INSTANCE,
       DefaultI18n.class,
       Durations.class,
@@ -129,7 +128,6 @@ public class GlobalContainer extends ComponentContainer {
 
   public void executeAnalysis(Map<String, String> analysisProperties, Object... components) {
     AnalysisProperties props = new AnalysisProperties(analysisProperties, this.getComponentByType(BootstrapProperties.class).property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
-    persistentCacheProvider.reconfigure(props);
     new ProjectScanContainer(this, props, components).execute();
   }
 }

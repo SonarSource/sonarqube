@@ -19,23 +19,26 @@
  */
 package org.sonar.batch.cpd.index;
 
+import org.sonar.batch.scan.ProjectAnalysisMode;
+
 import com.google.common.annotations.VisibleForTesting;
+
 import javax.annotation.Nullable;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 
 @BatchSide
 public class IndexFactory {
 
   private final Settings settings;
-  private final DefaultAnalysisMode mode;
+  private final ProjectAnalysisMode mode;
 
-  public IndexFactory(DefaultAnalysisMode mode, Settings settings) {
+  public IndexFactory(ProjectAnalysisMode mode, Settings settings) {
     this.mode = mode;
     this.settings = settings;
   }

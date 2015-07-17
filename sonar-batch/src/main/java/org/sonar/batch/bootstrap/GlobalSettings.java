@@ -20,7 +20,9 @@
 package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.ImmutableMap;
+
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -39,17 +41,17 @@ public class GlobalSettings extends Settings {
    * (what will happen, what should the user do, ...) as a value
    */
   private static final Map<String, String> DROPPED_PROPERTIES = ImmutableMap.of(
-      "sonar.jdbc.url", JDBC_SPECIFIC_MESSAGE,
-      "sonar.jdbc.username", JDBC_SPECIFIC_MESSAGE,
-      "sonar.jdbc.password", JDBC_SPECIFIC_MESSAGE
-  );
+    "sonar.jdbc.url", JDBC_SPECIFIC_MESSAGE,
+    "sonar.jdbc.username", JDBC_SPECIFIC_MESSAGE,
+    "sonar.jdbc.password", JDBC_SPECIFIC_MESSAGE
+    );
 
   private final BootstrapProperties bootstrapProps;
   private final GlobalRepositories globalReferentials;
-  private final DefaultAnalysisMode mode;
+  private final GlobalMode mode;
 
   public GlobalSettings(BootstrapProperties bootstrapProps, PropertyDefinitions propertyDefinitions,
-    GlobalRepositories globalReferentials, DefaultAnalysisMode mode) {
+    GlobalRepositories globalReferentials, GlobalMode mode) {
 
     super(propertyDefinitions);
     this.mode = mode;
@@ -63,6 +65,12 @@ public class GlobalSettings extends Settings {
   private void init() {
     addProperties(globalReferentials.globalSettings());
     addProperties(bootstrapProps.properties());
+
+    // To stay compatible with plugins that use the old property to check mode
+    if (mode.isPreview()) {
+      setProperty(CoreProperties.DRY_RUN, "true");
+    }
+
     LOG.info("Server id: " + getString(CoreProperties.SERVER_ID));
   }
 

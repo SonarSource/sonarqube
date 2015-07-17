@@ -19,16 +19,16 @@
  */
 package org.sonar.batch.repository;
 
+import org.sonar.batch.scan.ProjectAnalysisMode;
+
+import org.sonar.batch.bootstrap.WSLoader;
 import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.AnalysisProperties;
-import org.sonar.batch.bootstrap.DefaultAnalysisMode;
-import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.rule.ModuleQProfiles;
-
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -38,18 +38,18 @@ import static org.mockito.Mockito.when;
 public class DefaultProjectRepositoriesLoaderTest {
 
   private DefaultProjectRepositoriesLoader loader;
-  private ServerClient serverClient;
-  private DefaultAnalysisMode analysisMode;
+  private WSLoader wsLoader;
+  private ProjectAnalysisMode analysisMode;
   private ProjectReactor reactor;
   private AnalysisProperties taskProperties;
 
   @Before
   public void prepare() {
-    serverClient = mock(ServerClient.class);
-    analysisMode = mock(DefaultAnalysisMode.class);
-    loader = new DefaultProjectRepositoriesLoader(serverClient, analysisMode);
+    wsLoader = mock(WSLoader.class);
+    analysisMode = mock(ProjectAnalysisMode.class);
+    loader = new DefaultProjectRepositoriesLoader(wsLoader, analysisMode);
     loader = spy(loader);
-    when(serverClient.request(anyString())).thenReturn("{}");
+    when(wsLoader.loadString(anyString())).thenReturn("{}");
     taskProperties = new AnalysisProperties(Maps.<String, String>newHashMap(), "");
   }
 
@@ -58,18 +58,18 @@ public class DefaultProjectRepositoriesLoaderTest {
     reactor = new ProjectReactor(ProjectDefinition.create().setKey("foo"));
     when(analysisMode.isPreview()).thenReturn(false);
     loader.load(reactor, taskProperties);
-    verify(serverClient).request("/batch/project?key=foo&preview=false");
+    verify(wsLoader).loadString("/batch/project?key=foo&preview=false");
 
     when(analysisMode.isPreview()).thenReturn(true);
     loader.load(reactor, taskProperties);
-    verify(serverClient).request("/batch/project?key=foo&preview=true");
+    verify(wsLoader).loadString("/batch/project?key=foo&preview=true");
   }
 
   @Test
   public void passAndEncodeProjectKeyParameter() {
     reactor = new ProjectReactor(ProjectDefinition.create().setKey("foo bàr"));
     loader.load(reactor, taskProperties);
-    verify(serverClient).request("/batch/project?key=foo+b%C3%A0r&preview=false");
+    verify(wsLoader).loadString("/batch/project?key=foo+b%C3%A0r&preview=false");
   }
 
   @Test
@@ -77,7 +77,7 @@ public class DefaultProjectRepositoriesLoaderTest {
     reactor = new ProjectReactor(ProjectDefinition.create().setKey("foo"));
     taskProperties.properties().put(ModuleQProfiles.SONAR_PROFILE_PROP, "my-profile#2");
     loader.load(reactor, taskProperties);
-    verify(serverClient).request("/batch/project?key=foo&profile=my-profile%232&preview=false");
+    verify(wsLoader).loadString("/batch/project?key=foo&profile=my-profile%232&preview=false");
   }
 
 }

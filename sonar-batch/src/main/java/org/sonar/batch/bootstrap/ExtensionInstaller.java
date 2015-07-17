@@ -20,7 +20,9 @@
 package org.sonar.batch.bootstrap;
 
 import java.util.List;
+
 import javax.annotation.Nullable;
+
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
@@ -32,18 +34,18 @@ public class ExtensionInstaller {
 
   private final PluginRepository pluginRepository;
   private final EnvironmentInformation env;
-  private final DefaultAnalysisMode analysisMode;
+  private final GlobalMode globalMode;
 
-  public ExtensionInstaller(PluginRepository pluginRepository, EnvironmentInformation env, DefaultAnalysisMode analysisMode) {
+  public ExtensionInstaller(PluginRepository pluginRepository, EnvironmentInformation env, GlobalMode globalMode) {
     this.pluginRepository = pluginRepository;
     this.env = env;
-    this.analysisMode = analysisMode;
+    this.globalMode = globalMode;
   }
 
   public ExtensionInstaller install(ComponentContainer container, ExtensionMatcher matcher) {
 
     // core components
-    for (Object o : BatchComponents.all(analysisMode)) {
+    for (Object o : BatchComponents.all(globalMode)) {
       doInstall(container, matcher, null, o);
     }
 

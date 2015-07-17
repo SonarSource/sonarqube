@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.util;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 import org.apache.commons.lang.StringUtils;
 
 public class BatchUtils {
@@ -33,5 +36,14 @@ public class BatchUtils {
   public static String cleanKeyForFilename(String projectKey) {
     String cleanKey = StringUtils.deleteWhitespace(projectKey);
     return StringUtils.replace(cleanKey, ":", "_");
+  }
+  
+  public static String encodeForUrl(String url) {
+    try {
+      return URLEncoder.encode(url, "UTF-8");
+
+    } catch (UnsupportedEncodingException e) {
+      throw new IllegalStateException("Encoding not supported", e);
+    }
   }
 }

@@ -20,7 +20,6 @@
 package org.sonar.home.cache;
 
 import java.io.File;
-import java.util.concurrent.Callable;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -42,7 +41,7 @@ public class PersistentCacheTest {
 
   @Before
   public void setUp() {
-    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, false, mock(Logger.class));
+    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, mock(Logger.class));
   }
 
   @Test
@@ -59,9 +58,9 @@ public class PersistentCacheTest {
   @Test
   public void testNullValue() throws Exception {
     // mocks have their methods returning null by default
-    Callable<byte[]> c = mock(Callable.class);
+    PersistentCacheLoader<byte[]> c = mock(PersistentCacheLoader.class);
     assertThat(cache.get(URI, c)).isNull();
-    verify(c).call();
+    verify(c).get();
     assertCacheHit(false);
   }
 
@@ -79,29 +78,16 @@ public class PersistentCacheTest {
   }
 
   @Test
-  public void testForceUpdate() throws Exception {
-    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, true, mock(Logger.class));
-
-    assertCacheHit(false);
-    assertCacheHit(false);
-    assertCacheHit(false);
-
-    // with forceUpdate, it should still have cached the last call
-    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, false, mock(Logger.class));
-    assertCacheHit(true);
-  }
-
-  @Test
   public void testReconfigure() throws Exception {
-    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, true, mock(Logger.class));
+    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, mock(Logger.class));
     assertCacheHit(false);
-    assertCacheHit(false);
+    assertCacheHit(true);
 
     File root = tmp.getRoot();
     FileUtils.deleteQuietly(root);
 
     // should re-create cache directory and start using the cache
-    cache.reconfigure(false);
+    cache.reconfigure();
     assertThat(root).exists();
 
     assertCacheHit(false);
@@ -111,7 +97,7 @@ public class PersistentCacheTest {
   @Test
   public void testExpiration() throws Exception {
     // negative time to make sure it is expired on the second call
-    cache = new PersistentCache(tmp.getRoot().toPath(), -100, false, mock(Logger.class));
+    cache = new PersistentCache(tmp.getRoot().toPath(), -100, mock(Logger.class));
     assertCacheHit(false);
     assertCacheHit(false);
   }
@@ -122,11 +108,11 @@ public class PersistentCacheTest {
     assertThat(c.wasCalled).isEqualTo(!hit);
   }
 
-  private class CacheFillerString implements Callable<String> {
+  private class CacheFillerString implements PersistentCacheLoader<String> {
     public boolean wasCalled = false;
 
     @Override
-    public String call() throws Exception {
+    public String get() {
       wasCalled = true;
       return VALUE;
     }
@@ -139,8 +125,8 @@ public class PersistentCacheTest {
    */
   @Test(expected = ArithmeticException.class)
   public void testExceptions() throws Exception {
-    Callable<byte[]> c = mock(Callable.class);
-    when(c.call()).thenThrow(ArithmeticException.class);
+    PersistentCacheLoader<byte[]> c = mock(PersistentCacheLoader.class);
+    when(c.get()).thenThrow(ArithmeticException.class);
     cache.get(URI, c);
   }
 

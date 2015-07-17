@@ -45,19 +45,4 @@ public class PersistentCacheProviderTest {
   public void test_cache_dir() {
     assertThat(provider.provide(props).getBaseDirectory().toFile()).exists().isDirectory();
   }
-
-  @Test
-  public void test_enableCache() {
-    // normally force update (cache disabled)
-    assertThat(provider.provide(props).isForceUpdate()).isTrue();
-
-    props.properties().put("sonar.enableHttpCache", "true");
-    provider = new PersistentCacheProvider();
-    assertThat(provider.provide(props).isForceUpdate()).isFalse();
-  }
-  
-  @Test
-  public void test_reconfigure() {
-    
-  }
 }

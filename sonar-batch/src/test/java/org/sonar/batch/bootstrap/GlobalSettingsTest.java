@@ -19,7 +19,11 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.api.CoreProperties;
+
 import java.util.Collections;
+
+import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,7 +32,6 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.batch.protocol.input.GlobalRepositories;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -43,13 +46,13 @@ public class GlobalSettingsTest {
   GlobalRepositories globalRef;
   BootstrapProperties bootstrapProps;
 
-  private DefaultAnalysisMode mode;
+  private GlobalMode mode;
 
   @Before
   public void prepare() {
     globalRef = new GlobalRepositories();
     bootstrapProps = new BootstrapProperties(Collections.<String, String>emptyMap());
-    mode = mock(DefaultAnalysisMode.class);
+    mode = mock(GlobalMode.class);
   }
 
   @Test
@@ -59,6 +62,13 @@ public class GlobalSettingsTest {
     GlobalSettings batchSettings = new GlobalSettings(bootstrapProps, new PropertyDefinitions(), globalRef, mode);
 
     assertThat(batchSettings.getBoolean("sonar.cpd.cross")).isTrue();
+  }
+  
+  @Test
+  public void support_deprecated_dry_run() {
+    when(mode.isPreview()).thenReturn(true);
+    GlobalSettings batchSettings = new GlobalSettings(bootstrapProps, new PropertyDefinitions(), globalRef, mode);
+    assertThat(batchSettings.getString(CoreProperties.DRY_RUN)).isEqualTo("true");
   }
 
   @Test

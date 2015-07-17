@@ -190,7 +190,7 @@ public class BatchMediumTester {
     }
     TaskBuilder builder = new TaskBuilder(this);
     builder.property("sonar.projectBaseDir", sonarProps.getParentFile().getAbsolutePath());
-    for (Map.Entry entry : prop.entrySet()) {
+    for (Map.Entry<Object, Object> entry : prop.entrySet()) {
       builder.property(entry.getKey().toString(), entry.getValue().toString());
     }
     return builder;
@@ -238,7 +238,7 @@ public class BatchMediumTester {
       return ref.globalSettings();
     }
 
-    public FakeGlobalRepositoriesLoader add(Metric metric) {
+    public FakeGlobalRepositoriesLoader add(Metric<?> metric) {
       Boolean optimizedBestValue = metric.isOptimizedBestValue();
       ref.metrics().add(new org.sonar.batch.protocol.input.Metric(metricId,
         metric.key(),

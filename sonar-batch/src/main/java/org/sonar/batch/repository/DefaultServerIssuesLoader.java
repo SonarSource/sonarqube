@@ -19,35 +19,32 @@
  */
 package org.sonar.batch.repository;
 
+import org.sonar.batch.util.BatchUtils;
+
+import com.google.common.io.ByteSource;
+import org.sonar.batch.bootstrap.WSLoader;
 import com.google.common.base.Function;
-import com.google.common.io.InputSupplier;
-import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
-import org.sonar.api.utils.HttpDownloader;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 public class DefaultServerIssuesLoader implements ServerIssuesLoader {
 
-  private final ServerClient serverClient;
+  private final WSLoader wsLoader;
 
-  public DefaultServerIssuesLoader(ServerClient serverClient) {
-    this.serverClient = serverClient;
+  public DefaultServerIssuesLoader(WSLoader wsLoader) {
+    this.wsLoader = wsLoader;
   }
 
   @Override
   public void load(String componentKey, Function<ServerIssue, Void> consumer, boolean incremental) {
-    try {
-      InputSupplier<InputStream> request = serverClient.doRequest("/batch/issues?key=" + ServerClient.encodeForUrl(componentKey), "GET", null);
-      parseIssues(request, consumer);
-    } catch (HttpDownloader.HttpException e) {
-      throw serverClient.handleHttpException(e);
-    }
+    ByteSource request = wsLoader.loadSource("/batch/issues?key=" + BatchUtils.encodeForUrl(componentKey));
+    parseIssues(request, consumer);
   }
 
-  private static void parseIssues(InputSupplier<InputStream> input, Function<ServerIssue, Void> consumer) {
-    try (InputStream is = input.getInput()) {
+  private static void parseIssues(ByteSource input, Function<ServerIssue, Void> consumer) {
+    try (InputStream is = input.openStream()) {
       ServerIssue previousIssue = ServerIssue.parseDelimitedFrom(is);
       while (previousIssue != null) {
         consumer.apply(previousIssue);

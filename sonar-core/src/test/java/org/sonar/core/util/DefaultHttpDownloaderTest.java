@@ -33,6 +33,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
+
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.AfterClass;
@@ -51,7 +52,6 @@ import org.simpleframework.transport.connect.SocketConnection;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.SonarException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -121,6 +121,25 @@ public class DefaultHttpDownloaderTest {
     if (null != socketConnection) {
       socketConnection.close();
     }
+  }
+
+  @Test(timeout = 10000)
+  public void readStringConnectTimeout() throws IOException, URISyntaxException {
+    // non routable address
+    String url = "http://10.255.255.1";
+
+    thrown.expect(new BaseMatcher<Exception>() {
+      @Override
+      public boolean matches(Object ex) {
+        return ex instanceof SonarException && ((SonarException) ex).getCause() instanceof SocketTimeoutException;
+      }
+
+      @Override
+      public void describeTo(Description arg0) {
+      }
+    });
+    DefaultHttpDownloader downloader = new DefaultHttpDownloader(new Settings(), 10, 50000);
+    downloader.openStream(new URI(url));
   }
 
   @Test
