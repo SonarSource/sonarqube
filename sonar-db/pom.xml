@@ -25,6 +25,10 @@
       <artifactId>commons-codec</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-csv</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-batch-protocol</artifactId>
     </dependency>

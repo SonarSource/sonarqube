@@ -25,7 +25,7 @@
 class FeedProjectLinksComponentUuid < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.server.db.migrations.v52.FeedProjectLinksComponentUuid')
+    execute_java_migration('org.sonar.db.version.v52.FeedProjectLinksComponentUuid')
   end
 
 end

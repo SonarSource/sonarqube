@@ -22,13 +22,12 @@ package org.sonar.server.db.migrations;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.db.version.DatabaseMigration;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.ruby.RubyBridge;
 

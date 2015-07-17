@@ -22,6 +22,7 @@ package org.sonar.server.db.migrations;
 import java.util.Date;
 import org.junit.Test;
 import org.mockito.InOrder;
+import org.sonar.db.version.DatabaseMigration;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.ruby.RubyDatabaseMigration;

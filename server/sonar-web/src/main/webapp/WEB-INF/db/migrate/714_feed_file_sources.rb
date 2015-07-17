@@ -24,7 +24,7 @@
 class FeedFileSources < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.server.db.migrations.v50.FeedFileSources')
+    execute_java_migration('org.sonar.db.version.v50.FeedFileSources')
   end
 
 end

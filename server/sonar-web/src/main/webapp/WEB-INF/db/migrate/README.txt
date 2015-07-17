@@ -2,16 +2,16 @@ HOW TO ADD A MIGRATION
 
 * Jump some versions when adding the first Ruby on Rails migration of a new sonar version. For example if sonar 2.10 is 193, then sonar 2.11 should start at 200.
 * Complete the DDL files for H2 :
-  + sonar-core/src/main/resources/org/sonar/db/version/schema-h2.ddl
-  + sonar-core/src/main/resources/org/sonar/db/version/rows-h2.sql :
+  + sonar-db/src/main/resources/org/sonar/db/version/schema-h2.ddl
+  + sonar-db/src/main/resources/org/sonar/db/version/rows-h2.sql :
     - add "INSERT INTO SCHEMA_MIGRATIONS(VERSION) VALUES ('<THE MIGRATION ID>')"
-* Update the migration id defined in sonar-core/src/main/java/org/sonar/core/persistence/DatabaseVersion.java
-* If a table is added or removed, then edit sonar-core/src/main/java/org/sonar/core/persistence/DatabaseVersion.java
-* Changes in bulk must be handled using Java migrations based on org.sonar.server.db.migrations.MassUpdate :
-  + Create the class for the Java migration in package package org.sonar.server.db.migrations.vXYZ, where XYZ is the version of SQ without dots
-  + Add the class to org.sonar.server.db.migrations.MigrationStepModule
-  + Create a Ruby migration which calls execute_java_migration('org.sonar.server.db.migrations.vXYZ.MyMigration')
-  + Simple, "one to one" migrations that only need to be split by 1000 can rely on class org.sonar.server.db.migrations.BaseDataChange
+* Update the migration id defined in org.sonar.db.version.DatabaseVersion
+* If a table is added or removed, then edit org.sonar.db.version.DatabaseVersion#TABLES
+* Changes in bulk must be handled using Java migrations based on org.sonar.db.version.MassUpdate :
+  + Create the class for the Java migration in package org.sonar.db.version.vXYZ, where XYZ is the version of SQ without dots
+  + Add the class to org.sonar.db.version.MigrationStepModule
+  + Create a Ruby migration which calls execute_java_migration('org.sonar.db.version.vXYZ.MyMigration')
+  + Simple, "one to one" migrations that only need to be split by 1000 can rely on class org.sonar.db.version.BaseDataChange
 
 
 RECOMMENDATIONS

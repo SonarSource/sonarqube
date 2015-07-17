@@ -29,6 +29,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DdlUtils;
+import org.sonar.db.version.MigrationStep;
 import org.sonar.server.plugins.ServerPluginRepository;
 
 /**
@@ -48,7 +49,7 @@ public class DatabaseMigrator implements Startable {
    * ServerPluginRepository is used to ensure H2 schema creation is done only after copy of bundle plugins have been done
    */
   public DatabaseMigrator(DbClient dbClient, MigrationStep[] migrations, ServerUpgradeStatus serverUpgradeStatus,
-                          ServerPluginRepository unused) {
+    ServerPluginRepository unused) {
     this.dbClient = dbClient;
     this.migrations = migrations;
     this.serverUpgradeStatus = serverUpgradeStatus;

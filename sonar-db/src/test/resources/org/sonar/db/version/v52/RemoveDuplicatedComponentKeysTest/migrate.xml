@@ -1,0 +1,35 @@
+<dataset>
+
+  <!-- root project -->
+  <projects id="1" uuid="PROJECT" project_uuid="PROJECT" kee="org.struts:struts" enabled="[true]"/>
+  <issues id="1" component_uuid="PROJECT" project_uuid="PROJECT"/>
+
+  <!-- module -->
+  <projects id="10" uuid="MODULE" project_uuid="PROJECT" kee="org.struts:struts-core" enabled="[true]"/>
+
+  <!-- disabled sub module -> should be removed and its issues should be attached to the enabled one -->
+  <projects id="20" uuid="SUB_MODULE_1" project_uuid="PROJECT" kee="org.struts:struts-data" enabled="[false]"/>
+  <issues id="20" component_uuid="SUB_MODULE_1" project_uuid="PROJECT"/>
+  <issues id="21" component_uuid="SUB_MODULE_1" project_uuid="PROJECT"/>
+
+  <!-- enabled sub module -> issues from disabled should be attached to it -->
+  <projects id="21" uuid="SUB_MODULE_2" project_uuid="PROJECT" kee="org.struts:struts-data" enabled="[true]"/>
+  <issues id="22" component_uuid="SUB_MODULE_2" project_uuid="PROJECT"/>
+
+  <!-- disabled directories, only one should be kept -->
+  <projects id="30" uuid="DIRECTORY_1" project_uuid="PROJECT" kee="org.struts:struts-core:src/org/struts"
+            enabled="[false]"/>
+  <projects id="31" uuid="DIRECTORY_2" project_uuid="PROJECT" kee="org.struts:struts-core:src/org/struts"
+            enabled="[false]"/>
+
+  <!-- disabled files -> only one should be kept and issue from removed one should be attached to the remaining one -->
+  <projects id="40" uuid="FILE_1" project_uuid="PROJECT" kee="org.struts:struts-core:src/org/struts/RequestContext.java"
+            enabled="[false]"/>
+  <projects id="41" uuid="FILE_2" project_uuid="PROJECT" kee="org.struts:struts-core:src/org/struts/RequestContext.java"
+            enabled="[false]"/>
+  <projects id="42" uuid="FILE_3" project_uuid="PROJECT" kee="org.struts:struts-core:src/org/struts/RequestContext.java"
+            enabled="[false]"/>
+  <issues id="40" component_uuid="FILE_1" project_uuid="PROJECT"/>
+  <issues id="41" component_uuid="FILE_3" project_uuid="PROJECT"/>
+
+</dataset>

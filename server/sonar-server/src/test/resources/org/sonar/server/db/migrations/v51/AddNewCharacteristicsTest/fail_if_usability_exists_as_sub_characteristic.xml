@@ -1,9 +1,0 @@
-<dataset>
-
-  <characteristics id="1" kee="REUSABILITY" name="Reusability" parent_id="[null]" rule_id="[null]" characteristic_order="1" enabled="[true]" created_at="2013-11-20"
-                   updated_at="2013-11-22"/>
-
-  <characteristics id="2" kee="USABILITY" name="Usability" parent_id="1" rule_id="[null]" characteristic_order="[null]" enabled="[true]" created_at="2013-11-20"
-                   updated_at="2013-11-22"/>
-
-</dataset>

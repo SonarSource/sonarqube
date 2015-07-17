@@ -25,6 +25,6 @@
 class DeleteUnescapedActivities < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration 'org.sonar.server.db.migrations.v451.DeleteUnescapedActivities'
+    execute_java_migration 'org.sonar.db.version.v451.DeleteUnescapedActivities'
   end
 end
