@@ -36,7 +36,7 @@ public class DatabaseVersion {
    * versions must be previously upgraded to LTS version.
    * Note that the value can't be less than current LTS version.
    */
-  public static final int MIN_UPGRADE_VERSION = 440;
+  public static final int MIN_UPGRADE_VERSION = 600;
 
   /**
    * List of all the tables.

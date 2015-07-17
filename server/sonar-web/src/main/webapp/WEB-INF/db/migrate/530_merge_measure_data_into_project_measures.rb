@@ -34,18 +34,7 @@ class MergeMeasureDataIntoProjectMeasures < ActiveRecord::Migration
       ActiveRecord::Base.connection.commit_db_transaction
     end
     ProjectMeasure.reset_column_information
-    execute_java_migration('org.sonar.server.db.migrations.v44.MeasureDataMigrationStep')
     drop_table(:measure_data)
   end
-  
-  def self.execute_ddl(message, ddl)
-    begin
-      say_with_time(message) do
-        ActiveRecord::Base.connection.execute(ddl)
-      end
-    rescue
-      # already executed
-    end
-  end
-  
+
 end

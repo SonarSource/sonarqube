@@ -20,22 +20,6 @@
 package org.sonar.server.db.migrations;
 
 import org.sonar.core.platform.Module;
-import org.sonar.server.db.migrations.v42.CompleteIssueMessageMigrationStep;
-import org.sonar.server.db.migrations.v42.PackageKeysMigrationStep;
-import org.sonar.server.db.migrations.v43.ConvertIssueDebtToMinutesMigrationStep;
-import org.sonar.server.db.migrations.v43.DevelopmentCostMeasuresMigrationStep;
-import org.sonar.server.db.migrations.v43.IssueChangelogMigrationStep;
-import org.sonar.server.db.migrations.v43.NotResolvedIssuesOnRemovedComponentsMigrationStep;
-import org.sonar.server.db.migrations.v43.RequirementMeasuresMigrationStep;
-import org.sonar.server.db.migrations.v43.TechnicalDebtMeasuresMigrationStep;
-import org.sonar.server.db.migrations.v44.ChangeLogMigrationStep;
-import org.sonar.server.db.migrations.v44.ConvertProfileMeasuresMigrationStep;
-import org.sonar.server.db.migrations.v44.FeedQProfileDatesMigrationStep;
-import org.sonar.server.db.migrations.v44.FeedQProfileKeysMigrationStep;
-import org.sonar.server.db.migrations.v44.IssueActionPlanKeyMigrationStep;
-import org.sonar.server.db.migrations.v44.MeasureDataMigrationStep;
-import org.sonar.server.db.migrations.v45.AddMissingRuleParameterDefaultValuesMigrationStep;
-import org.sonar.server.db.migrations.v45.DeleteMeasuresOnDeletedProfilesMigrationStep;
 import org.sonar.server.db.migrations.v451.AddMissingCustomRuleParametersMigrationStep;
 import org.sonar.server.db.migrations.v451.DeleteUnescapedActivities;
 import org.sonar.server.db.migrations.v50.FeedFileSources;
@@ -77,29 +61,6 @@ public class MigrationStepModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      // 4.2
-      PackageKeysMigrationStep.class, CompleteIssueMessageMigrationStep.class,
-
-      // 4.3
-      ConvertIssueDebtToMinutesMigrationStep.class,
-      IssueChangelogMigrationStep.class,
-      TechnicalDebtMeasuresMigrationStep.class,
-      DevelopmentCostMeasuresMigrationStep.class,
-      RequirementMeasuresMigrationStep.class,
-      NotResolvedIssuesOnRemovedComponentsMigrationStep.class,
-
-      // 4.4
-      IssueActionPlanKeyMigrationStep.class,
-      MeasureDataMigrationStep.class,
-      FeedQProfileKeysMigrationStep.class,
-      FeedQProfileDatesMigrationStep.class,
-      ChangeLogMigrationStep.class,
-      ConvertProfileMeasuresMigrationStep.class,
-
-      // 4.5
-      AddMissingRuleParameterDefaultValuesMigrationStep.class,
-      DeleteMeasuresOnDeletedProfilesMigrationStep.class,
-
       // 4.5.1
       AddMissingCustomRuleParametersMigrationStep.class,
       DeleteUnescapedActivities.class,
@@ -142,7 +103,6 @@ public class MigrationStepModule extends Module {
       FeedManualMeasuresComponentUuid.class,
       RemoveSnapshotLibraries.class,
       RemoveComponentLibraries.class,
-      RemoveDuplicatedComponentKeys.class
-    );
+      RemoveDuplicatedComponentKeys.class);
   }
 }

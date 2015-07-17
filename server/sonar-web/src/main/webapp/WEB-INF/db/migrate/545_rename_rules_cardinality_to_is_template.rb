@@ -30,10 +30,6 @@ class RenameRulesCardinalityToIsTemplate < ActiveRecord::Migration
   def self.up
     add_column 'rules', 'is_template', :boolean, :null => false, :default => false
     Rule.reset_column_information
-    Rule.all.each do |r|
-      r.is_template = r.cardinality == 'MULTIPLE'
-      r.save!
-    end
     remove_column 'rules', 'cardinality'
   end
 

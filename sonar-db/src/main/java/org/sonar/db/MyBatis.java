@@ -137,7 +137,6 @@ import org.sonar.db.user.UserMapper;
 import org.sonar.db.user.UserRoleDto;
 import org.sonar.db.version.SchemaMigrationDto;
 import org.sonar.db.version.SchemaMigrationMapper;
-import org.sonar.db.version.v44.Migration44Mapper;
 import org.sonar.db.version.v45.Migration45Mapper;
 import org.sonar.db.version.v50.Migration50Mapper;
 
@@ -245,7 +244,7 @@ public class MyBatis {
       DuplicationMapper.class,
       IssueMapper.class, IssueChangeMapper.class, IssueFilterMapper.class, IssueFilterFavouriteMapper.class,
       IsAliveMapper.class,
-      LoadedTemplateMapper.class, MeasureFilterMapper.class, Migration44Mapper.class, PermissionTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,
+      LoadedTemplateMapper.class, MeasureFilterMapper.class, PermissionTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,
       ResourceKeyUpdaterMapper.class, ResourceIndexMapper.class, RoleMapper.class, RuleMapper.class,
       SchemaMigrationMapper.class, UserMapper.class, GroupMapper.class, UserGroupMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
       FileSourceMapper.class, ActionPlanMapper.class,
