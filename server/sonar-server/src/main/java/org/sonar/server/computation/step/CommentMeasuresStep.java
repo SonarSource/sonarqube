@@ -41,6 +41,7 @@ import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_API_KEY;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_DOCUMENTED_API_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_UNDOCUMENTED_API_KEY;
+import static org.sonar.server.computation.component.Component.Type.FILE;
 
 /**
  * Computes comments measures on files and then aggregates them on higher components.
@@ -58,9 +59,6 @@ public class CommentMeasuresStep implements ComputationStep {
     this.measureRepository = measureRepository;
     this.formulas = ImmutableList.<Formula>of(
       new DocumentationFormula(),
-
-      // TODO replace EmptyCounter by a SumCounter fo compute comment_lines when {@link DUPLICATED_LINES_DENSITY} will be computed in CE
-      // new SumFormula(CoreMetrics.COMMENT_LINES_KEY),
       new CommentDensityFormula()
       );
   }
@@ -72,32 +70,45 @@ public class CommentMeasuresStep implements ComputationStep {
       .visit(treeRootHolder.getRoot());
   }
 
-  private class CommentDensityFormula implements Formula<EmptyCounter> {
+  private class CommentDensityFormula implements Formula<SumCounter> {
 
     private final Metric nclocMetric;
-    private final Metric commentMetric;
 
     public CommentDensityFormula() {
       this.nclocMetric = metricRepository.getByKey(NCLOC_KEY);
-      this.commentMetric = metricRepository.getByKey(COMMENT_LINES_KEY);
     }
 
     @Override
-    public EmptyCounter createNewCounter() {
-      return new EmptyCounter();
+    public SumCounter createNewCounter() {
+      return new SumCounter(COMMENT_LINES_KEY);
     }
 
     @Override
-    public Optional<Measure> createMeasure(EmptyCounter counter, CreateMeasureContext context) {
-      Optional<Measure> nclocsOpt = measureRepository.getRawMeasure(context.getComponent(), nclocMetric);
-      Optional<Measure> commentsOpt = measureRepository.getRawMeasure(context.getComponent(), commentMetric);
-      if (nclocsOpt.isPresent() && commentsOpt.isPresent()) {
-        double nclocs = nclocsOpt.get().getIntValue();
-        double comments = commentsOpt.get().getIntValue();
-        double divisor = nclocs + comments;
-        if (divisor > 0d) {
-          double value = 100d * (comments / divisor);
-          return Optional.of(Measure.newMeasureBuilder().create(value));
+    public Optional<Measure> createMeasure(SumCounter counter, CreateMeasureContext context) {
+      return createCommentLinesMeasure(counter, context)
+        .or(createCommentLinesDensityMeasure(counter, context));
+    }
+
+    private Optional<Measure> createCommentLinesMeasure(SumCounter counter, CreateMeasureContext context) {
+      Optional<Integer> commentLines = counter.getValue();
+      if (context.getMetric().getKey().equals(COMMENT_LINES_KEY) && context.getComponent().getType().isHigherThan(FILE) && commentLines.isPresent()) {
+        return Optional.of(Measure.newMeasureBuilder().create(commentLines.get()));
+      }
+      return Optional.absent();
+    }
+
+    private Optional<Measure> createCommentLinesDensityMeasure(SumCounter counter, CreateMeasureContext context) {
+      if (context.getMetric().getKey().equals(COMMENT_LINES_DENSITY_KEY)) {
+        Optional<Measure> nclocsOpt = measureRepository.getRawMeasure(context.getComponent(), nclocMetric);
+        Optional<Integer> commentsOpt = counter.getValue();
+        if (nclocsOpt.isPresent() && commentsOpt.isPresent()) {
+          double nclocs = nclocsOpt.get().getIntValue();
+          double comments = commentsOpt.get();
+          double divisor = nclocs + comments;
+          if (divisor > 0d) {
+            double value = 100d * (comments / divisor);
+            return Optional.of(Measure.newMeasureBuilder().create(value));
+          }
         }
       }
       return Optional.absent();
@@ -105,20 +116,7 @@ public class CommentMeasuresStep implements ComputationStep {
 
     @Override
     public String[] getOutputMetricKeys() {
-      return new String[] {COMMENT_LINES_DENSITY_KEY};
-    }
-  }
-
-  private static class EmptyCounter implements Counter<EmptyCounter> {
-
-    @Override
-    public void aggregate(EmptyCounter counter) {
-      // nothing to do
-    }
-
-    @Override
-    public void aggregate(FileAggregateContext context) {
-      // nothing to do
+      return new String[] {COMMENT_LINES_KEY, COMMENT_LINES_DENSITY_KEY};
     }
   }
 

@@ -21,7 +21,6 @@
 package org.sonar.server.computation.step;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
@@ -95,7 +94,6 @@ public class CommentMeasuresStepTest {
   }
 
   @Test
-  @Ignore("Could be reactivated when formula will be added")
   public void aggregate_comment_lines() {
     measureRepository.addRawMeasure(FILE_1_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(100));
     measureRepository.addRawMeasure(FILE_2_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(400));
@@ -117,14 +115,11 @@ public class CommentMeasuresStepTest {
     measureRepository.addRawMeasure(FILE_1_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(150));
     measureRepository.addRawMeasure(FILE_2_REF, NCLOC_KEY, newMeasureBuilder().create(200));
     measureRepository.addRawMeasure(FILE_2_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(50));
+
     measureRepository.addRawMeasure(DIRECTORY_REF, NCLOC_KEY, newMeasureBuilder().create(300));
-    measureRepository.addRawMeasure(DIRECTORY_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(200));
     measureRepository.addRawMeasure(SUB_MODULE_REF, NCLOC_KEY, newMeasureBuilder().create(300));
-    measureRepository.addRawMeasure(SUB_MODULE_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(200));
     measureRepository.addRawMeasure(MODULE_REF, NCLOC_KEY, newMeasureBuilder().create(300));
-    measureRepository.addRawMeasure(MODULE_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(200));
     measureRepository.addRawMeasure(ROOT_REF, NCLOC_KEY, newMeasureBuilder().create(300));
-    measureRepository.addRawMeasure(ROOT_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(200));
 
     underTest.execute();
 
@@ -142,14 +137,11 @@ public class CommentMeasuresStepTest {
     measureRepository.addRawMeasure(FILE_1_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(0));
     measureRepository.addRawMeasure(FILE_2_REF, NCLOC_KEY, newMeasureBuilder().create(200));
     measureRepository.addRawMeasure(FILE_2_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(0));
+
     measureRepository.addRawMeasure(DIRECTORY_REF, NCLOC_KEY, newMeasureBuilder().create(300));
-    measureRepository.addRawMeasure(DIRECTORY_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(0));
     measureRepository.addRawMeasure(SUB_MODULE_REF, NCLOC_KEY, newMeasureBuilder().create(300));
-    measureRepository.addRawMeasure(SUB_MODULE_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(0));
     measureRepository.addRawMeasure(MODULE_REF, NCLOC_KEY, newMeasureBuilder().create(300));
-    measureRepository.addRawMeasure(MODULE_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(0));
     measureRepository.addRawMeasure(ROOT_REF, NCLOC_KEY, newMeasureBuilder().create(300));
-    measureRepository.addRawMeasure(ROOT_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(0));
 
     underTest.execute();
 
@@ -167,14 +159,11 @@ public class CommentMeasuresStepTest {
     measureRepository.addRawMeasure(FILE_1_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(0));
     measureRepository.addRawMeasure(FILE_2_REF, NCLOC_KEY, newMeasureBuilder().create(0));
     measureRepository.addRawMeasure(FILE_2_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(0));
+
     measureRepository.addRawMeasure(DIRECTORY_REF, NCLOC_KEY, newMeasureBuilder().create(0));
-    measureRepository.addRawMeasure(DIRECTORY_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(0));
     measureRepository.addRawMeasure(SUB_MODULE_REF, NCLOC_KEY, newMeasureBuilder().create(0));
-    measureRepository.addRawMeasure(SUB_MODULE_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(0));
     measureRepository.addRawMeasure(MODULE_REF, NCLOC_KEY, newMeasureBuilder().create(0));
-    measureRepository.addRawMeasure(MODULE_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(0));
     measureRepository.addRawMeasure(ROOT_REF, NCLOC_KEY, newMeasureBuilder().create(0));
-    measureRepository.addRawMeasure(ROOT_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(0));
 
     underTest.execute();
 
@@ -185,10 +174,6 @@ public class CommentMeasuresStepTest {
   public void not_compute_comment_density_when_no_ncloc() {
     measureRepository.addRawMeasure(FILE_1_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(150));
     measureRepository.addRawMeasure(FILE_2_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(50));
-    measureRepository.addRawMeasure(DIRECTORY_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(200));
-    measureRepository.addRawMeasure(SUB_MODULE_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(200));
-    measureRepository.addRawMeasure(MODULE_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(200));
-    measureRepository.addRawMeasure(ROOT_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(200));
 
     underTest.execute();
 

@@ -225,7 +225,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(false)
     .setDomain(DOMAIN_DOCUMENTATION)
-    .setFormula(new SumChildValuesFormula(false))
     .create();
 
   public static final String COMMENT_LINES_DENSITY_KEY = "comment_lines_density";
