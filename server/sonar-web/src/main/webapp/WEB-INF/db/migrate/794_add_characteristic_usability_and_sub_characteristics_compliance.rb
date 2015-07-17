@@ -25,7 +25,7 @@
 class AddCharacteristicUsabilityAndSubCharacteristicsCompliance < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration 'org.sonar.server.db.migrations.v51.AddNewCharacteristics'
+    execute_java_migration 'org.sonar.db.version.v51.AddNewCharacteristics'
   end
 
 end

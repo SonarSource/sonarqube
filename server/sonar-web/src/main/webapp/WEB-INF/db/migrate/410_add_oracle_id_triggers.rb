@@ -32,7 +32,6 @@ class AddOracleIdTriggers < ActiveRecord::Migration
       create_id_trigger('active_rule_param_changes')
       create_id_trigger('active_rule_parameters')
       create_id_trigger('active_rules')
-      create_id_trigger('alerts')
       create_id_trigger('authors')
       create_id_trigger('characteristic_properties')
       create_id_trigger('characteristics')

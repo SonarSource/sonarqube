@@ -1,0 +1,28 @@
+<dataset>
+
+  <!-- root project -->
+  <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
+            deprecated_kee="org.struts:struts"
+            uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=""
+            description="the description" long_name="Apache Struts"
+            enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]"
+            created_at="2008-12-02 13:58:00.00" authorization_updated_at="[null]"/>
+
+  <!-- Links already contains component uuid-->
+  <project_links id="1" project_id="1" component_uuid="ABCD" link_type="homepage" name="Home"
+                 href="http://www.struts.org"/>
+  <project_links id="2" project_id="1" component_uuid="ABCD" link_type="scm" name="Sources"
+                 href="https://github.com/Struts"/>
+
+  <!-- module -->
+  <projects id="2" root_id="1" kee="org.struts:struts-core" name="Struts Core" deprecated_kee="org.struts:struts-core"
+            uuid="EFGH" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="ABCD"
+            scope="PRJ" qualifier="BRC" long_name="Struts Core"
+            description="[null]" enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]"
+            created_at="2008-12-02 13:58:00.00" authorization_updated_at="[null]"/>
+
+  <!-- Link already contains component uuid-->
+  <project_links id="3" project_id="2" component_uuid="EFGH" link_type="scm" name="Sources"
+                 href="https://github.com/Struts/struts-core"/>
+
+</dataset>

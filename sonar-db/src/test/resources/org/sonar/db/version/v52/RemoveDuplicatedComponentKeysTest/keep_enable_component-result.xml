@@ -1,0 +1,20 @@
+<dataset>
+
+  <!-- root project -->
+  <projects id="1" uuid="PROJECT" project_uuid="PROJECT" kee="org.struts:struts" enabled="[true]"/>
+
+  <!-- module -->
+  <projects id="10" uuid="MODULE" project_uuid="PROJECT" kee="org.struts:struts-core" enabled="[true]"/>
+
+  <!-- sub modules -->
+  <projects id="21" uuid="SUB_MODULE_2" project_uuid="PROJECT" kee="org.struts:struts-data" enabled="[true]"/>
+
+  <!-- directories -->
+  <projects id="31" uuid="DIRECTORY_2" project_uuid="PROJECT" kee="org.struts:struts-core:src/org/struts"
+            enabled="[true]"/>
+
+  <!-- files -->
+  <projects id="40" uuid="FILE_1" project_uuid="PROJECT" kee="org.struts:struts-core:src/org/struts/RequestContext.java"
+            enabled="[true]"/>
+
+</dataset>

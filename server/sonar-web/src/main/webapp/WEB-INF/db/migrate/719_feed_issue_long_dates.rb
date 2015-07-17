@@ -24,7 +24,7 @@
 class FeedIssueLongDates < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.server.db.migrations.v50.FeedIssueLongDates')
+    execute_java_migration('org.sonar.db.version.v50.FeedIssueLongDates')
   end
 
 end

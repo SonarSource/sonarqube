@@ -1,0 +1,31 @@
+<dataset>
+
+  <!-- root project -->
+  <projects id="1" uuid="PROJECT" project_uuid="PROJECT" kee="org.struts:struts" enabled="[true]"/>
+
+  <!-- module -->
+  <projects id="10" uuid="MODULE" project_uuid="PROJECT" kee="org.struts:struts-core" enabled="[true]"/>
+
+  <!-- sub modules -->
+  <projects id="20" uuid="SUB_MODULE_1" project_uuid="PROJECT" kee="org.struts:struts-data" enabled="[false]"/>
+  <!-- Only this component must be kept, as it's enabled -->
+  <projects id="21" uuid="SUB_MODULE_2" project_uuid="PROJECT" kee="org.struts:struts-data" enabled="[true]"/>
+  <projects id="22" uuid="SUB_MODULE_3" project_uuid="PROJECT" kee="org.struts:struts-data" enabled="[false]"/>
+
+  <!-- directories -->
+  <projects id="30" uuid="DIRECTORY_1" project_uuid="PROJECT" kee="org.struts:struts-core:src/org/struts"
+            enabled="[false]"/>
+  <!-- Only this component must be kept, as it's enabled -->
+  <projects id="31" uuid="DIRECTORY_2" project_uuid="PROJECT" kee="org.struts:struts-core:src/org/struts"
+            enabled="[true]"/>
+
+  <!-- files -->
+  <!-- Only this component must be kept, as it's enabled -->
+  <projects id="40" uuid="FILE_1" project_uuid="PROJECT" kee="org.struts:struts-core:src/org/struts/RequestContext.java"
+            enabled="[true]"/>
+  <projects id="41" uuid="FILE_2" project_uuid="PROJECT" kee="org.struts:struts-core:src/org/struts/RequestContext.java"
+            enabled="[false]"/>
+  <projects id="42" uuid="FILE_3" project_uuid="PROJECT" kee="org.struts:struts-core:src/org/struts/RequestContext.java"
+            enabled="[false]"/>
+
+</dataset>

@@ -30,7 +30,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.IsAliveMapper;
-import org.sonar.server.db.migrations.DatabaseMigration;
+import org.sonar.db.version.DatabaseMigration;
 import org.sonar.server.platform.Platform;
 
 /**

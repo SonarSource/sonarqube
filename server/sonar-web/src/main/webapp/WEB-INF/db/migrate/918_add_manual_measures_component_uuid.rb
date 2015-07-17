@@ -25,7 +25,7 @@
 class AddManualMeasuresComponentUuid < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.server.db.migrations.v52.AddManualMeasuresComponentUuidColumn')
+    execute_java_migration('org.sonar.db.version.v52.AddManualMeasuresComponentUuidColumn')
     add_index 'manual_measures', 'component_uuid', :name => 'manual_measures_component_uuid'
   end
 

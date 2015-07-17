@@ -25,7 +25,7 @@
 class AddIssuesColumns < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.server.db.migrations.v51.AddIssuesColumns')
+    execute_java_migration('org.sonar.db.version.v51.AddIssuesColumns')
   end
 
 end

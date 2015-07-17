@@ -1,0 +1,41 @@
+<dataset>
+
+  <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
+            deprecated_kee="org.struts:struts"
+            uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=""
+            description="the description" long_name="Apache Struts"
+            enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]"
+            created_at="2008-12-02 13:58:00.00" authorization_updated_at="[null]"/>
+
+  <!-- Default Java profile, will be set as default -->
+  <rules_profiles id="1" name="Java One" language="java" parent_kee="[null]" kee="java-one" is_default="[false]"
+                  created_at="[null]" updated_at="[null]" rules_updated_at="[null]"/>
+
+  <rules_profiles id="2" name="Java Two" language="java" parent_kee="[null]" kee="java-two" is_default="[false]"
+                  created_at="[null]" updated_at="[null]" rules_updated_at="[null]"/>
+
+  <rules_profiles id="3" name="Php One" language="php" parent_kee="[null]" kee="php-one" is_default="[false]"
+                  created_at="[null]" updated_at="[null]" rules_updated_at="[null]"/>
+
+  <rules_profiles id="4" name="Cobol One" language="cbl" parent_kee="[null]" kee="cobol-one" is_default="[false]"
+                  created_at="[null]" updated_at="[null]" rules_updated_at="[null]"/>
+
+  <!-- Unmodified property -->
+  <properties id="1" prop_key="polop.palap" text_value="Untouched" resource_id="[null]" user_id="[null]"/>
+
+  <!-- Default Java profile, will be set as default -->
+  <properties id="2" prop_key="sonar.profile.java" text_value="Java One" resource_id="[null]" user_id="[null]"/>
+
+  <!-- Project 'Struts' uses profile 'Java Two', will be moved to association table -->
+  <properties id="3" prop_key="sonar.profile.java" text_value="Java Two" resource_id="1" user_id="[null]"/>
+
+  <!-- Property on unknown language, will be ignored -->
+  <properties id="4" prop_key="sonar.profile.xoo" text_value="Xoo One" resource_id="[null]" user_id="[null]"/>
+
+  <!-- Property on unknown profile, will be ignored -->
+  <properties id="5" prop_key="sonar.profile.php" text_value="Php Two" resource_id="[null]" user_id="[null]"/>
+
+  <!-- Property on unknown project, will be ignored -->
+  <properties id="6" prop_key="sonar.profile.php" text_value="Php One" resource_id="2" user_id="[null]"/>
+
+</dataset>

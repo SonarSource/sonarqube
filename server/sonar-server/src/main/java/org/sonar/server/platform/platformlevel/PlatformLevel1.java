@@ -29,14 +29,14 @@ import org.sonar.db.DaoUtils;
 import org.sonar.db.DatabaseChecker;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.MyBatis;
+import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.semaphore.SemaphoresImpl;
 import org.sonar.db.version.DatabaseVersion;
+import org.sonar.db.version.MigrationStepModule;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
-import org.sonar.server.db.migrations.MigrationStepModule;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.server.metric.persistence.MetricDao;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerFileSystem;
@@ -123,8 +123,7 @@ public class PlatformLevel1 extends PlatformLevel {
 
       // Classes kept for backward compatibility of plugins/libs (like sonar-license) that are directly calling classes from the core
       org.sonar.core.properties.PropertiesDao.class,
-      org.sonar.core.persistence.MyBatis.class
-    );
+      org.sonar.core.persistence.MyBatis.class);
     addAll(CorePropertyDefinitions.all());
     add(MigrationStepModule.class);
     addAll(DaoUtils.getDaoClasses());

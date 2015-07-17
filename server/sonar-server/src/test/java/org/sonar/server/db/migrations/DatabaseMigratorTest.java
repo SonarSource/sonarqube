@@ -31,6 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MySql;
+import org.sonar.db.version.MigrationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyBoolean;
@@ -45,7 +46,7 @@ public class DatabaseMigratorTest {
   public ExpectedException thrown = ExpectedException.none();
 
   DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
-  MigrationStep[] migrations = new MigrationStep[]{new FakeMigrationStep()};
+  MigrationStep[] migrations = new MigrationStep[] {new FakeMigrationStep()};
   ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
   DatabaseMigrator migrator;
 

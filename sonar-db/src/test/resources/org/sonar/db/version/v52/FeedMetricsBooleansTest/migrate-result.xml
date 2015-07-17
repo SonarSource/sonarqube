@@ -1,0 +1,9 @@
+<dataset>
+
+  <metrics id="1" user_managed="[true]" optimized_best_value="[false]" hidden="[false]"
+           delete_historical_data="[false]"/>
+  <metrics id="2" user_managed="[false]" optimized_best_value="[true]" hidden="[true]" delete_historical_data="[true]"/>
+  <metrics id="3" user_managed="[false]" optimized_best_value="[false]" hidden="[false]"
+           delete_historical_data="[false]"/>
+
+</dataset>

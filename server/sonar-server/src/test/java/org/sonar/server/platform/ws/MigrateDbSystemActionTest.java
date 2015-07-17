@@ -28,10 +28,10 @@ import org.junit.Test;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.Database;
-import org.sonar.db.version.DatabaseVersion;
 import org.sonar.db.dialect.Dialect;
-import org.sonar.server.db.migrations.DatabaseMigration;
-import org.sonar.server.db.migrations.DatabaseMigration.Status;
+import org.sonar.db.version.DatabaseMigration;
+import org.sonar.db.version.DatabaseMigration.Status;
+import org.sonar.db.version.DatabaseVersion;
 import org.sonar.server.ws.WsTester;
 
 import static com.google.common.base.Predicates.in;
@@ -40,10 +40,10 @@ import static com.google.common.collect.Iterables.filter;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.db.migrations.DatabaseMigration.Status.FAILED;
-import static org.sonar.server.db.migrations.DatabaseMigration.Status.NONE;
-import static org.sonar.server.db.migrations.DatabaseMigration.Status.RUNNING;
-import static org.sonar.server.db.migrations.DatabaseMigration.Status.SUCCEEDED;
+import static org.sonar.db.version.DatabaseMigration.Status.FAILED;
+import static org.sonar.db.version.DatabaseMigration.Status.NONE;
+import static org.sonar.db.version.DatabaseMigration.Status.RUNNING;
+import static org.sonar.db.version.DatabaseMigration.Status.SUCCEEDED;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class MigrateDbSystemActionTest {

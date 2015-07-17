@@ -25,7 +25,7 @@
 class FeedMetricsBooleans < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.server.db.migrations.v52.FeedMetricsBooleans')
+    execute_java_migration('org.sonar.db.version.v52.FeedMetricsBooleans')
   end
 
 end

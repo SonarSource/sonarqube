@@ -25,7 +25,7 @@
 class RemoveComponentLibraries < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.server.db.migrations.v52.RemoveComponentLibraries')
+    execute_java_migration('org.sonar.db.version.v52.RemoveComponentLibraries')
   end
 
 end
