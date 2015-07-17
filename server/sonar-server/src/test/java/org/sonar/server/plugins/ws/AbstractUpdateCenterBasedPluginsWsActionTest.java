@@ -19,6 +19,7 @@
  */
 package org.sonar.server.plugins.ws;
 
+import com.google.common.base.Optional;
 import org.junit.Before;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.utils.DateUtils;
@@ -74,7 +75,7 @@ public abstract class AbstractUpdateCenterBasedPluginsWsActionTest {
 
   @Before
   public void wireMocksTogether() {
-    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(updateCenter);
+    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.of(updateCenter));
     when(updateCenter.getDate()).thenReturn(DateUtils.parseDateTime("2015-04-24T16:08:36+0200"));
   }
 }

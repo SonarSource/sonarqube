@@ -21,11 +21,19 @@ package org.sonar.server.plugins.ws;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.updatecenter.common.Artifact;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
@@ -33,9 +41,12 @@ import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
+import static com.google.common.collect.ImmutableSortedSet.copyOf;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.transform;
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
+import static org.sonar.core.platform.PluginInfoFunctions.toKey;
+import static org.sonar.core.platform.PluginInfoFunctions.toName;
 
 public class PluginWSCommons {
   static final String PROPERTY_KEY = "key";
@@ -61,54 +72,48 @@ public class PluginWSCommons {
   static final String PROPERTY_CHANGE_LOG_URL = "changeLogUrl";
 
   public static final Ordering<PluginInfo> NAME_KEY_PLUGIN_METADATA_COMPARATOR = Ordering.natural()
-    .onResultOf(PluginMetadataToName.INSTANCE)
-    .compound(Ordering.natural().onResultOf(PluginMetadataToKey.INSTANCE));
+    .onResultOf(toName())
+    .compound(Ordering.natural().onResultOf(toKey()));
   public static final Comparator<Plugin> NAME_KEY_PLUGIN_ORDERING = Ordering.from(CASE_INSENSITIVE_ORDER)
     .onResultOf(PluginToName.INSTANCE)
     .compound(
-      Ordering.from(CASE_INSENSITIVE_ORDER).onResultOf(PluginToKey.INSTANCE)
+      Ordering.from(CASE_INSENSITIVE_ORDER).onResultOf(PluginToKeyFunction.INSTANCE)
     );
   public static final Comparator<PluginUpdate> NAME_KEY_PLUGIN_UPDATE_ORDERING = Ordering.from(NAME_KEY_PLUGIN_ORDERING)
     .onResultOf(PluginUpdateToPlugin.INSTANCE);
 
-  public void writePluginMetadata(JsonWriter jsonWriter, PluginInfo info) {
-    jsonWriter.beginObject();
+  void writePluginInfo(JsonWriter json, PluginInfo pluginInfo, @Nullable String category) {
+    json.beginObject();
 
-    writeMetadata(jsonWriter, info);
-
-    jsonWriter.endObject();
-  }
-
-  public void writeMetadata(JsonWriter jsonWriter, PluginInfo pluginMetadata) {
-    jsonWriter.prop(PROPERTY_KEY, pluginMetadata.getKey());
-    jsonWriter.prop(PROPERTY_NAME, pluginMetadata.getName());
-    jsonWriter.prop(PROPERTY_DESCRIPTION, pluginMetadata.getDescription());
-    Version version = pluginMetadata.getVersion();
+    json.prop(PROPERTY_KEY, pluginInfo.getKey());
+    json.prop(PROPERTY_NAME, pluginInfo.getName());
+    json.prop(PROPERTY_DESCRIPTION, pluginInfo.getDescription());
+    Version version = pluginInfo.getVersion();
     if (version != null) {
-      jsonWriter.prop(PROPERTY_VERSION, version.getName());
+      json.prop(PROPERTY_VERSION, version.getName());
     }
-    jsonWriter.prop(PROPERTY_LICENSE, pluginMetadata.getLicense());
-    jsonWriter.prop(PROPERTY_ORGANIZATION_NAME, pluginMetadata.getOrganizationName());
-    jsonWriter.prop(PROPERTY_ORGANIZATION_URL, pluginMetadata.getOrganizationUrl());
-    jsonWriter.prop(PROPERTY_HOMEPAGE_URL, pluginMetadata.getHomepageUrl());
-    jsonWriter.prop(PROPERTY_ISSUE_TRACKER_URL, pluginMetadata.getIssueTrackerUrl());
-    jsonWriter.prop(PROPERTY_IMPLEMENTATION_BUILD, pluginMetadata.getImplementationBuild());
+    json.prop(PROPERTY_CATEGORY, category);
+    json.prop(PROPERTY_LICENSE, pluginInfo.getLicense());
+    json.prop(PROPERTY_ORGANIZATION_NAME, pluginInfo.getOrganizationName());
+    json.prop(PROPERTY_ORGANIZATION_URL, pluginInfo.getOrganizationUrl());
+    json.prop(PROPERTY_HOMEPAGE_URL, pluginInfo.getHomepageUrl());
+    json.prop(PROPERTY_ISSUE_TRACKER_URL, pluginInfo.getIssueTrackerUrl());
+    json.prop(PROPERTY_IMPLEMENTATION_BUILD, pluginInfo.getImplementationBuild());
+
+    json.endObject();
   }
 
-  public void writePluginUpdate(JsonWriter jsonWriter, PluginUpdate pluginUpdate) {
-    jsonWriter.beginObject();
-    Plugin plugin = pluginUpdate.getPlugin();
-
-    writeMetadata(jsonWriter, plugin);
-
-    writeRelease(jsonWriter, pluginUpdate.getRelease());
-
-    writeUpdate(jsonWriter, pluginUpdate);
-
-    jsonWriter.endObject();
+  public void writePluginInfoList(JsonWriter json, Iterable<PluginInfo> plugins, Map<String, Plugin> compatiblePluginsByKey, String propertyName) {
+    json.name(propertyName);
+    json.beginArray();
+    for (PluginInfo pluginInfo : copyOf(NAME_KEY_PLUGIN_METADATA_COMPARATOR, plugins)) {
+      Plugin plugin = compatiblePluginsByKey.get(pluginInfo.getKey());
+      writePluginInfo(json, pluginInfo, categoryOrNull(plugin));
+    }
+    json.endArray();
   }
 
-  public void writeMetadata(JsonWriter jsonWriter, Plugin plugin) {
+  public void writePlugin(JsonWriter jsonWriter, Plugin plugin) {
     jsonWriter.prop(PROPERTY_KEY, plugin.getKey());
     jsonWriter.prop(PROPERTY_NAME, plugin.getName());
     jsonWriter.prop(PROPERTY_CATEGORY, plugin.getCategory());
@@ -119,6 +124,16 @@ public class PluginWSCommons {
     jsonWriter.prop(PROPERTY_ORGANIZATION_URL, plugin.getOrganizationUrl());
     jsonWriter.prop(PROPERTY_HOMEPAGE_URL, plugin.getHomepageUrl());
     jsonWriter.prop(PROPERTY_ISSUE_TRACKER_URL, plugin.getIssueTrackerUrl());
+  }
+
+  public void writePluginUpdate(JsonWriter json, PluginUpdate pluginUpdate) {
+    Plugin plugin = pluginUpdate.getPlugin();
+
+    json.beginObject();
+    writePlugin(json, plugin);
+    writeRelease(json, pluginUpdate.getRelease());
+    writeUpdate(json, pluginUpdate);
+    json.endObject();
   }
 
   public void writeRelease(JsonWriter jsonWriter, Release release) {
@@ -214,61 +229,57 @@ public class PluginWSCommons {
    * "updateCenterRefresh": "2015-04-24T16:08:36+0200"
    * </pre>
    */
-  public void writeUpdateCenterProperties(JsonWriter jsonWriter, UpdateCenter updateCenter) {
-    jsonWriter.propDateTime(PROPERTY_UPDATE_CENTER_REFRESH, updateCenter.getDate());
-  }
-
-  private enum ReleaseToArtifact implements Function<Release, Artifact> {
-    INSTANCE;
-
-    @Override
-    public Artifact apply(@Nonnull Release input) {
-      return input.getArtifact();
+  public void writeUpdateCenterProperties(JsonWriter json, Optional<UpdateCenter> updateCenter) {
+    if (updateCenter.isPresent()) {
+      json.propDateTime(PROPERTY_UPDATE_CENTER_REFRESH, updateCenter.get().getDate());
     }
   }
 
-  private enum PluginMetadataToName implements Function<PluginInfo, String> {
+  enum PluginToKeyFunction implements Function<Plugin, String> {
     INSTANCE;
 
     @Override
-    public String apply(@Nonnull PluginInfo input) {
-      return input.getName();
-    }
-  }
-
-  private enum PluginMetadataToKey implements Function<PluginInfo, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull PluginInfo input) {
+    public String apply(@Nonnull Plugin input) {
       return input.getKey();
     }
   }
 
+  private enum ReleaseToArtifact implements Function<Release, Artifact> {
+    INSTANCE;
+    @Override
+    public Artifact apply(@Nonnull Release input) {
+      return input.getArtifact();
+    }
+
+  }
+
   private enum PluginUpdateToPlugin implements Function<PluginUpdate, Plugin> {
     INSTANCE;
-
     @Override
     public Plugin apply(@Nonnull PluginUpdate input) {
       return input.getPlugin();
     }
   }
 
-  private enum PluginToKey implements Function<Plugin, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull Plugin input) {
-      return input.getKey();
-    }
-  }
-
   private enum PluginToName implements Function<Plugin, String> {
     INSTANCE;
-
     @Override
     public String apply(@Nonnull Plugin input) {
       return input.getName();
     }
+  }
+
+  static String categoryOrNull(Plugin plugin) {
+    return plugin != null ? plugin.getCategory() : null;
+  }
+
+  private static List<Plugin> compatiblePlugins(UpdateCenterMatrixFactory updateCenterMatrixFactory) {
+    Optional<UpdateCenter> updateCenter = updateCenterMatrixFactory.getUpdateCenter(false);
+    return updateCenter.isPresent() ? updateCenter.get().findAllCompatiblePlugins() : Collections.<Plugin>emptyList();
+  }
+
+  static ImmutableMap<String, Plugin> compatiblePluginsByKey(UpdateCenterMatrixFactory updateCenterMatrixFactory) {
+    List<Plugin> compatiblePlugins = compatiblePlugins(updateCenterMatrixFactory);
+    return Maps.uniqueIndex(compatiblePlugins, PluginToKeyFunction.INSTANCE);
   }
 }

@@ -19,6 +19,9 @@
  */
 package org.sonar.server.plugins;
 
+import com.google.common.base.Optional;
+import java.io.File;
+import java.net.URI;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -35,9 +38,6 @@ import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
-
-import java.io.File;
-import java.net.URI;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.apache.commons.io.FileUtils.copyFileToDirectory;
@@ -70,7 +70,7 @@ public class PluginDownloaderTest {
   public void before() throws Exception {
     updateCenterMatrixFactory = mock(UpdateCenterMatrixFactory.class);
     updateCenter = mock(UpdateCenter.class);
-    when(updateCenterMatrixFactory.getUpdateCenter(anyBoolean())).thenReturn(updateCenter);
+    when(updateCenterMatrixFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.of(updateCenter));
 
     httpDownloader = mock(HttpDownloader.class);
     doAnswer(new Answer() {
@@ -122,6 +122,18 @@ public class PluginDownloaderTest {
     verify(httpDownloader).download(any(URI.class), argThat(new HasFileName("test-1.0.jar.tmp")));
     assertThat(new File(downloadDir, "test-1.0.jar")).exists();
     assertThat(new File(downloadDir, "test-1.0.jar.tmp")).doesNotExist();
+  }
+
+  @Test
+  public void download_when_update_center_is_unavailable_with_no_exception_thrown() {
+    when(updateCenterMatrixFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.<UpdateCenter>absent());
+
+    Plugin test = new Plugin("test");
+    Release test10 = new Release(test, "1.0").setDownloadUrl("http://server/test-1.0.jar");
+    test.addRelease(test10);
+
+    pluginDownloader.start();
+    pluginDownloader.download("foo", create("1.0"));
   }
 
   /**

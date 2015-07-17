@@ -45,7 +45,7 @@ public class PluginWSCommonsTest {
 
   @Test
   public void verify_properties_written_by_writePluginMetadata() {
-    underTest.writePluginMetadata(jsonWriter, gitPluginInfo());
+    underTest.writePluginInfo(jsonWriter, gitPluginInfo(), null);
 
     jsonWriter.close();
     assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo("{" +
@@ -63,9 +63,7 @@ public class PluginWSCommonsTest {
 
   @Test
   public void verify_properties_written_by_writeMetadata() {
-    jsonWriter.beginObject();
-    underTest.writeMetadata(jsonWriter, gitPluginInfo());
-    jsonWriter.endObject();
+    underTest.writePluginInfo(jsonWriter, gitPluginInfo(), "cat_1");
 
     jsonWriter.close();
     assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo("{" +
@@ -74,6 +72,7 @@ public class PluginWSCommonsTest {
       "  \"description\": \"Git SCM Provider.\"," +
       "  \"version\": \"1.0\"," +
       "  \"license\": \"GNU LGPL 3\"," +
+      "  \"category\":\"cat_1\"" +
       "  \"organizationName\": \"SonarSource\"," +
       "  \"organizationUrl\": \"http://www.sonarsource.com\"," +
       "  \"homepageUrl\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +
@@ -105,7 +104,7 @@ public class PluginWSCommonsTest {
   @Test
   public void verify_properties_written_by_writeMetadata_from_plugin() {
     jsonWriter.beginObject();
-    underTest.writeMetadata(jsonWriter, newPlugin());
+    underTest.writePlugin(jsonWriter, newPlugin());
     jsonWriter.endObject();
 
     jsonWriter.close();

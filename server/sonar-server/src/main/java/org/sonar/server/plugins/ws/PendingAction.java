@@ -19,6 +19,9 @@
  */
 package org.sonar.server.plugins.ws;
 
+import com.google.common.collect.ImmutableMap;
+import java.util.Collection;
+import java.util.Map;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -26,12 +29,11 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.updatecenter.common.Plugin;
 
-import java.util.Collection;
-
-import static com.google.common.collect.ImmutableSortedSet.copyOf;
 import static com.google.common.io.Resources.getResource;
-import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_PLUGIN_METADATA_COMPARATOR;
+import static org.sonar.server.plugins.ws.PluginWSCommons.compatiblePluginsByKey;
 
 /**
  * Implementation of the {@code pending} action for the Plugins WebService.
@@ -44,13 +46,15 @@ public class PendingAction implements PluginsWsAction {
   private final PluginDownloader pluginDownloader;
   private final ServerPluginRepository installer;
   private final PluginWSCommons pluginWSCommons;
+  private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
 
   public PendingAction(PluginDownloader pluginDownloader,
-                       ServerPluginRepository installer,
-                       PluginWSCommons pluginWSCommons) {
+    ServerPluginRepository installer,
+    PluginWSCommons pluginWSCommons, UpdateCenterMatrixFactory updateCenterMatrixFactory) {
     this.pluginDownloader = pluginDownloader;
     this.installer = installer;
     this.pluginWSCommons = pluginWSCommons;
+    this.updateCenterMatrixFactory = updateCenterMatrixFactory;
   }
 
   @Override
@@ -64,36 +68,24 @@ public class PendingAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    ImmutableMap<String, Plugin> compatiblePluginsByKey = compatiblePluginsByKey(updateCenterMatrixFactory);
+
     JsonWriter jsonWriter = response.newJsonWriter();
 
     jsonWriter.beginObject();
-
-    writeInstalling(jsonWriter);
-
-    writeRemoving(jsonWriter);
-
+    writeInstalling(jsonWriter, compatiblePluginsByKey);
+    writeRemoving(jsonWriter, compatiblePluginsByKey);
     jsonWriter.endObject();
     jsonWriter.close();
   }
 
-  private void writeInstalling(JsonWriter jsonWriter) {
-    jsonWriter.name(ARRAY_INSTALLING);
-    jsonWriter.beginArray();
+  private void writeInstalling(JsonWriter json, Map<String, Plugin> compatiblePluginsByKey) {
     Collection<PluginInfo> plugins = pluginDownloader.getDownloadedPlugins();
-    for (PluginInfo pluginMetadata : copyOf(NAME_KEY_PLUGIN_METADATA_COMPARATOR, plugins)) {
-      pluginWSCommons.writePluginMetadata(jsonWriter, pluginMetadata);
-    }
-    jsonWriter.endArray();
+    pluginWSCommons.writePluginInfoList(json, plugins, compatiblePluginsByKey, ARRAY_INSTALLING);
   }
 
-  private void writeRemoving(JsonWriter jsonWriter) {
-    jsonWriter.name(ARRAY_REMOVING);
-    jsonWriter.beginArray();
+  private void writeRemoving(JsonWriter json, Map<String, Plugin> compatiblePluginsByKey) {
     Collection<PluginInfo> plugins = installer.getUninstalledPlugins();
-    for (PluginInfo pluginMetadata : copyOf(NAME_KEY_PLUGIN_METADATA_COMPARATOR, plugins)) {
-      pluginWSCommons.writePluginMetadata(jsonWriter, pluginMetadata);
-    }
-    jsonWriter.endArray();
+    pluginWSCommons.writePluginInfoList(json, plugins, compatiblePluginsByKey, ARRAY_REMOVING);
   }
-
 }

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.plugins;
 
+import com.google.common.base.Optional;
 import org.sonar.api.platform.Server;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
@@ -33,20 +34,19 @@ public class UpdateCenterMatrixFactory {
   private final InstalledPluginReferentialFactory installedPluginReferentialFactory;
 
   public UpdateCenterMatrixFactory(UpdateCenterClient centerClient, Server server,
-                                   InstalledPluginReferentialFactory installedPluginReferentialFactory) {
+    InstalledPluginReferentialFactory installedPluginReferentialFactory) {
     this.centerClient = centerClient;
     this.installedPluginReferentialFactory = installedPluginReferentialFactory;
     this.sonarVersion = Version.create(server.getVersion());
   }
 
-  public UpdateCenter getUpdateCenter(boolean refreshUpdateCenter) {
-    UpdateCenter updatePluginCenter = centerClient.getUpdateCenter(refreshUpdateCenter);
-    if (updatePluginCenter != null) {
-      return updatePluginCenter.setInstalledSonarVersion(sonarVersion).registerInstalledPlugins(
+  public Optional<UpdateCenter> getUpdateCenter(boolean refreshUpdateCenter) {
+    Optional<UpdateCenter> updatePluginCenter = centerClient.getUpdateCenter(refreshUpdateCenter);
+    if (updatePluginCenter.isPresent()) {
+      return Optional.of(updatePluginCenter.get().setInstalledSonarVersion(sonarVersion).registerInstalledPlugins(
         installedPluginReferentialFactory.getInstalledPluginReferential())
-        .setDate(centerClient.getLastRefreshDate());
+        .setDate(centerClient.getLastRefreshDate()));
     }
-    return null;
+    return Optional.absent();
   }
 }
-

@@ -162,7 +162,7 @@ public final class JRubyFacade {
   }
 
   public UpdateCenter getUpdatePluginCenter(boolean forceReload) {
-    return get(UpdateCenterMatrixFactory.class).getUpdateCenter(forceReload);
+    return get(UpdateCenterMatrixFactory.class).getUpdateCenter(forceReload).orNull();
   }
 
   public PluginReferential getInstalledPluginReferential() {

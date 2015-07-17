@@ -19,17 +19,23 @@
  */
 package org.sonar.server.plugins.ws;
 
+import com.google.common.base.Optional;
+import java.util.Arrays;
 import org.junit.Test;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.ws.WsTester;
+import org.sonar.updatecenter.common.Plugin;
+import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -40,7 +46,8 @@ public class PendingActionTest {
 
   PluginDownloader pluginDownloader = mock(PluginDownloader.class);
   ServerPluginRepository serverPluginRepository = mock(ServerPluginRepository.class);
-  PendingAction underTest = new PendingAction(pluginDownloader, serverPluginRepository, new PluginWSCommons());
+  UpdateCenterMatrixFactory updateCenterMatrixFactory = mock(UpdateCenterMatrixFactory.class, RETURNS_DEEP_STUBS);
+  PendingAction underTest = new PendingAction(pluginDownloader, serverPluginRepository, new PluginWSCommons(), updateCenterMatrixFactory);
   Request request = mock(Request.class);
   WsTester.TestResponse response = new WsTester.TestResponse();
 
@@ -74,8 +81,30 @@ public class PendingActionTest {
   }
 
   @Test
+  public void empty_arrays_are_returned_when_update_center_is_unavailable() throws Exception {
+    when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.<UpdateCenter>absent());
+
+    underTest.handle(request, response);
+
+    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(
+      "{" +
+        "  \"installing\": []," +
+        "  \"removing\": []" +
+        "}"
+      );
+  }
+
+  @Test
   public void verify_properties_displayed_in_json_per_installing_plugin() throws Exception {
     when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(gitPluginInfo()));
+    UpdateCenter updateCenter = mock(UpdateCenter.class);
+    when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.of(updateCenter));
+    when(updateCenter.findAllCompatiblePlugins()).thenReturn(
+      Arrays.asList(
+        new Plugin("scmgit")
+          .setCategory("cat_1")
+        )
+      );
 
     underTest.handle(request, response);
 
@@ -89,6 +118,7 @@ public class PendingActionTest {
         "      \"description\": \"Git SCM Provider.\"," +
         "      \"version\": \"1.0\"," +
         "      \"license\": \"GNU LGPL 3\"," +
+        "      \"category\":\"cat_1\"," +
         "      \"organizationName\": \"SonarSource\"," +
         "      \"organizationUrl\": \"http://www.sonarsource.com\"," +
         "      \"homepageUrl\": \"http://redirect.sonarsource.com/plugins/scmgit.html\"," +

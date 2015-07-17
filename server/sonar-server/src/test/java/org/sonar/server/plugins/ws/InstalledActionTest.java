@@ -19,7 +19,9 @@
  */
 package org.sonar.server.plugins.ws;
 
+import com.google.common.base.Optional;
 import java.io.File;
+import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -27,11 +29,15 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.ws.WsTester;
+import org.sonar.updatecenter.common.Plugin;
+import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -46,11 +52,13 @@ public class InstalledActionTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
-  private InstalledAction underTest = new InstalledAction(pluginRepository, new PluginWSCommons());
+  ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
+  UpdateCenterMatrixFactory updateCenterMatrixFactory = mock(UpdateCenterMatrixFactory.class, RETURNS_DEEP_STUBS);
 
-  private Request request = mock(Request.class);
-  private WsTester.TestResponse response = new WsTester.TestResponse();
+  InstalledAction underTest = new InstalledAction(pluginRepository, new PluginWSCommons(), updateCenterMatrixFactory);
+
+  Request request = mock(Request.class);
+  WsTester.TestResponse response = new WsTester.TestResponse();
 
   @Test
   public void action_installed_is_defined() {
@@ -71,6 +79,15 @@ public class InstalledActionTest {
 
   @Test
   public void empty_array_is_returned_when_there_is_not_plugin_installed() throws Exception {
+    underTest.handle(request, response);
+
+    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
+  }
+
+  @Test
+  public void empty_array_when_update_center_is_unavailable() throws Exception {
+    when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.<UpdateCenter>absent());
+
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
@@ -106,6 +123,14 @@ public class InstalledActionTest {
         .setJarFile(new File(getClass().getResource(jarFilename).toURI()))
       )
       );
+    UpdateCenter updateCenter = mock(UpdateCenter.class);
+    when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.of(updateCenter));
+    when(updateCenter.findAllCompatiblePlugins()).thenReturn(
+      Arrays.asList(
+        new Plugin("plugKey")
+          .setCategory("cat_1")
+        )
+      );
 
     underTest.handle(request, response);
 
@@ -118,6 +143,7 @@ public class InstalledActionTest {
         "      \"name\": \"plugName\"," +
         "      \"description\": \"desc_it\"," +
         "      \"version\": \"1.0\"," +
+        "      \"category\":\"cat_1\"," +
         "      \"license\": \"license_hey\"," +
         "      \"organizationName\": \"org_name\"," +
         "      \"organizationUrl\": \"org_url\"," +

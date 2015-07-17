@@ -19,6 +19,7 @@
  */
 package org.sonar.server.plugins.ws;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import java.util.Collection;
 import java.util.SortedSet;
@@ -28,9 +29,12 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.updatecenter.common.Plugin;
 
 import static com.google.common.collect.ImmutableSortedSet.copyOf;
 import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_PLUGIN_METADATA_COMPARATOR;
+import static org.sonar.server.plugins.ws.PluginWSCommons.compatiblePluginsByKey;
 
 /**
  * Implementation of the {@code installed} action for the Plugins WebService.
@@ -40,10 +44,12 @@ public class InstalledAction implements PluginsWsAction {
 
   private final ServerPluginRepository pluginRepository;
   private final PluginWSCommons pluginWSCommons;
+  private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
 
-  public InstalledAction(ServerPluginRepository pluginRepository, PluginWSCommons pluginWSCommons) {
+  public InstalledAction(ServerPluginRepository pluginRepository, PluginWSCommons pluginWSCommons, UpdateCenterMatrixFactory updateCenterMatrixFactory) {
     this.pluginRepository = pluginRepository;
     this.pluginWSCommons = pluginWSCommons;
+    this.updateCenterMatrixFactory = updateCenterMatrixFactory;
   }
 
   @Override
@@ -57,28 +63,24 @@ public class InstalledAction implements PluginsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    Collection<PluginInfo> infos = retrieveAndSortPluginMetadata();
+    Collection<PluginInfo> pluginInfoList = searchPluginInfoList();
 
     JsonWriter jsonWriter = response.newJsonWriter();
     jsonWriter.setSerializeEmptys(false);
     jsonWriter.beginObject();
 
-    writeMetadataList(jsonWriter, infos);
+    writePluginInfoList(jsonWriter, pluginInfoList);
 
     jsonWriter.endObject();
     jsonWriter.close();
   }
 
-  private SortedSet<PluginInfo> retrieveAndSortPluginMetadata() {
+  private SortedSet<PluginInfo> searchPluginInfoList() {
     return copyOf(NAME_KEY_PLUGIN_METADATA_COMPARATOR, pluginRepository.getPluginInfos());
   }
 
-  private void writeMetadataList(JsonWriter jsonWriter, Collection<PluginInfo> pluginMetadatas) {
-    jsonWriter.name(ARRAY_PLUGINS);
-    jsonWriter.beginArray();
-    for (PluginInfo pluginMetadata : pluginMetadatas) {
-      pluginWSCommons.writePluginMetadata(jsonWriter, pluginMetadata);
-    }
-    jsonWriter.endArray();
+  private void writePluginInfoList(JsonWriter jsonWriter, Collection<PluginInfo> pluginInfoList) {
+    ImmutableMap<String, Plugin> compatiblesPluginsByKeys = compatiblePluginsByKey(updateCenterMatrixFactory);
+    pluginWSCommons.writePluginInfoList(jsonWriter, pluginInfoList, compatiblesPluginsByKeys, ARRAY_PLUGINS);
   }
 }

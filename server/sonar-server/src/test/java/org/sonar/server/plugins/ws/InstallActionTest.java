@@ -19,6 +19,7 @@
  */
 package org.sonar.server.plugins.ws;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Rule;
@@ -49,7 +50,7 @@ public class InstallActionTest {
   private static final String ACTION_KEY = "install";
   private static final String KEY_PARAM = "key";
   private static final String PLUGIN_KEY = "pluginKey";
-  
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -68,7 +69,7 @@ public class InstallActionTest {
 
   @Before
   public void wireMocks() {
-    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(updateCenter);
+    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.of(updateCenter));
 
     userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
@@ -117,6 +118,16 @@ public class InstallActionTest {
 
   @Test
   public void IAE_is_raised_when_there_is_no_available_plugin_for_the_key() throws Exception {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("No plugin with key 'pluginKey'");
+
+    validRequest.execute();
+  }
+
+  @Test
+  public void IAE_is_raised_when_update_center_is_unavailable() throws Exception {
+    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.<UpdateCenter>absent());
+
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("No plugin with key 'pluginKey'");
 

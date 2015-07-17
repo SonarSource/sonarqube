@@ -19,6 +19,9 @@
  */
 package org.sonar.server.plugins;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -27,11 +30,8 @@ import org.sonar.api.utils.UriReader;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -41,43 +41,47 @@ import static org.mockito.Mockito.when;
 
 public class UpdateCenterClientTest {
 
-  private static final String BASE_URL = "http://update.sonarsource.org";
-  private UpdateCenterClient client;
-  private UriReader reader;
+  static final String BASE_URL = "http://update.sonarsource.org";
+  UriReader reader;
+  Settings settings;
+
+  UpdateCenterClient underTest;
 
   @Before
   public void startServer() throws Exception {
     reader = mock(UriReader.class);
-    Settings settings = new Settings().setProperty(UpdateCenterClient.URL_PROPERTY, BASE_URL);
-    client = new UpdateCenterClient(reader, settings);
+    settings = new Settings()
+      .setProperty(UpdateCenterClient.URL_PROPERTY, BASE_URL)
+      .setProperty(UpdateCenterClient.ACTIVATION_PROPERTY, true);
+    underTest = new UpdateCenterClient(reader, settings);
   }
 
   @Test
   public void downloadUpdateCenter() throws URISyntaxException {
     when(reader.readString(new URI(BASE_URL), StandardCharsets.UTF_8)).thenReturn("publicVersions=2.2,2.3");
-    UpdateCenter plugins = client.getUpdateCenter();
+    UpdateCenter plugins = underTest.getUpdateCenter().get();
     verify(reader, times(1)).readString(new URI(BASE_URL), StandardCharsets.UTF_8);
     assertThat(plugins.getSonar().getVersions()).containsOnly(Version.create("2.2"), Version.create("2.3"));
-    assertThat(client.getLastRefreshDate()).isNotNull();
+    assertThat(underTest.getLastRefreshDate()).isNotNull();
   }
 
   @Test
   public void not_available_before_initialization() {
-    assertThat(client.getLastRefreshDate()).isNull();
+    assertThat(underTest.getLastRefreshDate()).isNull();
   }
 
   @Test
   public void ignore_connection_errors() {
     when(reader.readString(any(URI.class), eq(StandardCharsets.UTF_8))).thenThrow(new SonarException());
-    assertThat(client.getUpdateCenter()).isNull();
+    assertThat(underTest.getUpdateCenter()).isAbsent();
   }
 
   @Test
   public void cache_data() throws Exception {
     when(reader.readString(new URI(BASE_URL), StandardCharsets.UTF_8)).thenReturn("sonar.versions=2.2,2.3");
 
-    client.getUpdateCenter();
-    client.getUpdateCenter();
+    underTest.getUpdateCenter();
+    underTest.getUpdateCenter();
 
     verify(reader, times(1)).readString(new URI(BASE_URL), StandardCharsets.UTF_8);
   }
@@ -86,9 +90,16 @@ public class UpdateCenterClientTest {
   public void forceRefresh() throws Exception {
     when(reader.readString(new URI(BASE_URL), StandardCharsets.UTF_8)).thenReturn("sonar.versions=2.2,2.3");
 
-    client.getUpdateCenter();
-    client.getUpdateCenter(true);
+    underTest.getUpdateCenter();
+    underTest.getUpdateCenter(true);
 
     verify(reader, times(2)).readString(new URI(BASE_URL), StandardCharsets.UTF_8);
+  }
+
+  @Test
+  public void update_center_is_null_when_property_is_false() {
+    settings.setProperty(UpdateCenterClient.ACTIVATION_PROPERTY, false);
+
+    assertThat(underTest.getUpdateCenter()).isAbsent();
   }
 }

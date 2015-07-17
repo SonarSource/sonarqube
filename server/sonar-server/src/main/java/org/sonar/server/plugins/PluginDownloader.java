@@ -19,6 +19,14 @@
  */
 package org.sonar.server.plugins;
 
+import com.google.common.base.Optional;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.HttpDownloader;
@@ -28,15 +36,8 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.updatecenter.common.Release;
+import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
@@ -120,15 +121,17 @@ public class PluginDownloader implements Startable {
   }
 
   public void download(String pluginKey, Version version) {
-    for (Release release : updateCenterMatrixFactory.getUpdateCenter(true).findInstallablePlugins(pluginKey, version)) {
-      try {
-        downloadRelease(release);
-
-      } catch (Exception e) {
-        String message = String.format("Fail to download the plugin (%s, version %s) from %s (error is : %s)",
-          release.getArtifact().getKey(), release.getVersion().getName(), release.getDownloadUrl(), e.getMessage());
-        LOG.debug(message, e);
-        throw new SonarException(message, e);
+    Optional<UpdateCenter> updateCenter = updateCenterMatrixFactory.getUpdateCenter(true);
+    if (updateCenter.isPresent()) {
+      for (Release release : updateCenter.get().findInstallablePlugins(pluginKey, version)) {
+        try {
+          downloadRelease(release);
+        } catch (Exception e) {
+          String message = String.format("Fail to download the plugin (%s, version %s) from %s (error is : %s)",
+            release.getArtifact().getKey(), release.getVersion().getName(), release.getDownloadUrl(), e.getMessage());
+          LOG.debug(message, e);
+          throw new SonarException(message, e);
+        }
       }
     }
   }

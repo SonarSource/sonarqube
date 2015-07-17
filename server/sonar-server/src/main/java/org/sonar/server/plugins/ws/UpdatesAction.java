@@ -20,9 +20,13 @@
 package org.sonar.server.plugins.ws;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Ordering;
 import com.google.common.io.Resources;
+import java.util.Collection;
+import java.util.List;
+import javax.annotation.Nonnull;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -32,10 +36,6 @@ import org.sonar.server.plugins.ws.PluginUpdateAggregator.PluginUpdateAggregate;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.UpdateCenter;
-
-import javax.annotation.Nonnull;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Implementation of the {@code updates} action for the Plugins WebService.
@@ -60,8 +60,8 @@ public class UpdatesAction implements PluginsWsAction {
   private final PluginUpdateAggregator aggregator;
 
   public UpdatesAction(UpdateCenterMatrixFactory updateCenterMatrixFactory,
-                       PluginWSCommons pluginWSCommons,
-                       PluginUpdateAggregator aggregator) {
+    PluginWSCommons pluginWSCommons,
+    PluginUpdateAggregator aggregator) {
     this.updateCenterMatrixFactory = updateCenterMatrixFactory;
     this.pluginWSCommons = pluginWSCommons;
     this.aggregator = aggregator;
@@ -87,7 +87,7 @@ public class UpdatesAction implements PluginsWsAction {
     JsonWriter jsonWriter = response.newJsonWriter();
     jsonWriter.beginObject();
 
-    UpdateCenter updateCenter = updateCenterMatrixFactory.getUpdateCenter(DO_NOT_FORCE_REFRESH);
+    Optional<UpdateCenter> updateCenter = updateCenterMatrixFactory.getUpdateCenter(DO_NOT_FORCE_REFRESH);
 
     writePlugins(jsonWriter, updateCenter);
 
@@ -97,11 +97,13 @@ public class UpdatesAction implements PluginsWsAction {
     jsonWriter.close();
   }
 
-  private void writePlugins(JsonWriter jsonWriter, UpdateCenter updateCenter) {
+  private void writePlugins(JsonWriter jsonWriter, Optional<UpdateCenter> updateCenter) {
     jsonWriter.name(ARRAY_PLUGINS);
     jsonWriter.beginArray();
-    for (PluginUpdateAggregate aggregate : retrieveUpdatablePlugins(updateCenter)) {
-      writePluginUpdateAggregate(jsonWriter, aggregate);
+    if (updateCenter.isPresent()) {
+      for (PluginUpdateAggregate aggregate : retrieveUpdatablePlugins(updateCenter.get())) {
+        writePluginUpdateAggregate(jsonWriter, aggregate);
+      }
     }
     jsonWriter.endArray();
   }
@@ -110,7 +112,7 @@ public class UpdatesAction implements PluginsWsAction {
     jsonWriter.beginObject();
     Plugin plugin = aggregate.getPlugin();
 
-    pluginWSCommons.writeMetadata(jsonWriter, plugin);
+    pluginWSCommons.writePlugin(jsonWriter, plugin);
 
     writeUpdates(jsonWriter, aggregate.getUpdates());
 

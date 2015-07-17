@@ -19,6 +19,7 @@
  */
 package org.sonar.server.plugins.ws;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Rule;
@@ -70,7 +71,7 @@ public class UpdateActionTest {
 
   @Before
   public void setUp() {
-    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(updateCenter);
+    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.of(updateCenter));
 
     userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
@@ -126,11 +127,21 @@ public class UpdateActionTest {
   }
 
   @Test
+  public void IAE_is_raised_when_update_center_is_unavailable() throws Exception {
+    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.<UpdateCenter>absent());
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("No plugin with key 'pluginKey'");
+
+    underTest.handle(validRequest, response);
+  }
+
+  @Test
   public void if_plugin_has_an_update_download_is_triggered_with_latest_version_from_updatecenter() throws Exception {
     Version version = Version.create("1.0");
     when(updateCenter.findPluginUpdates()).thenReturn(ImmutableList.of(
       PluginUpdate.createWithStatus(new Release(new Plugin(PLUGIN_KEY), version), Status.COMPATIBLE)
-      ));
+    ));
 
     underTest.handle(validRequest, response);
 

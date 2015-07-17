@@ -19,6 +19,7 @@
  */
 package org.sonar.server.plugins.ws;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.io.Resources;
 import java.util.Collection;
@@ -69,20 +70,21 @@ public class AvailableAction implements PluginsWsAction {
     JsonWriter jsonWriter = response.newJsonWriter();
     jsonWriter.beginObject();
 
-    UpdateCenter updateCenter = updateCenterFactory.getUpdateCenter(DO_NOT_FORCE_REFRESH);
+    Optional<UpdateCenter> updateCenter = updateCenterFactory.getUpdateCenter(DO_NOT_FORCE_REFRESH);
 
     writePlugins(jsonWriter, updateCenter);
-
     pluginWSCommons.writeUpdateCenterProperties(jsonWriter, updateCenter);
 
     jsonWriter.endObject();
     jsonWriter.close();
   }
 
-  private void writePlugins(JsonWriter jsonWriter, UpdateCenter updateCenter) {
+  private void writePlugins(JsonWriter jsonWriter, Optional<UpdateCenter> updateCenter) {
     jsonWriter.name(ARRAY_PLUGINS).beginArray();
-    for (PluginUpdate pluginUpdate : retrieveAvailablePlugins(updateCenter)) {
-      pluginWSCommons.writePluginUpdate(jsonWriter, pluginUpdate);
+    if (updateCenter.isPresent()) {
+      for (PluginUpdate pluginUpdate : retrieveAvailablePlugins(updateCenter.get())) {
+        pluginWSCommons.writePluginUpdate(jsonWriter, pluginUpdate);
+      }
     }
     jsonWriter.endArray();
   }

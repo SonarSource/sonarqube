@@ -19,6 +19,12 @@
  */
 package org.sonar.server.plugins;
 
+import com.google.common.base.Optional;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
@@ -29,12 +35,6 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.UpdateCenterDeserializer;
 import org.sonar.updatecenter.common.UpdateCenterDeserializer.Mode;
-
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
 
 /**
  * HTTP client to load data from the remote update center hosted at http://update.sonarsource.org.
@@ -68,25 +68,31 @@ public class UpdateCenterClient {
 
   private final URI uri;
   private final UriReader uriReader;
+  private final boolean isActivated;
   private UpdateCenter pluginCenter = null;
   private long lastRefreshDate = 0;
 
   public UpdateCenterClient(UriReader uriReader, Settings settings) throws URISyntaxException {
     this.uriReader = uriReader;
     this.uri = new URI(settings.getString(URL_PROPERTY));
+    this.isActivated = settings.getBoolean(ACTIVATION_PROPERTY);
     Loggers.get(getClass()).info("Update center: " + uriReader.description(uri));
   }
 
-  public UpdateCenter getUpdateCenter() {
+  public Optional<UpdateCenter> getUpdateCenter() {
     return getUpdateCenter(false);
   }
 
-  public UpdateCenter getUpdateCenter(boolean forceRefresh) {
+  public Optional<UpdateCenter> getUpdateCenter(boolean forceRefresh) {
+    if (!isActivated) {
+      return Optional.absent();
+    }
+
     if (pluginCenter == null || forceRefresh || needsRefresh()) {
       pluginCenter = init();
       lastRefreshDate = System.currentTimeMillis();
     }
-    return pluginCenter;
+    return Optional.fromNullable(pluginCenter);
   }
 
   public Date getLastRefreshDate() {

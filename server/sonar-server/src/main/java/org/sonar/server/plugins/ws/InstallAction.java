@@ -19,6 +19,7 @@
  */
 package org.sonar.server.plugins.ws;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import javax.annotation.Nullable;
@@ -30,6 +31,7 @@ import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.user.UserSession;
 import org.sonar.updatecenter.common.PluginUpdate;
+import org.sonar.updatecenter.common.UpdateCenter;
 
 import static java.lang.String.format;
 
@@ -77,15 +79,21 @@ public class InstallAction implements PluginsWsAction {
   }
 
   private PluginUpdate findAvailablePluginByKey(String key) {
-    PluginUpdate pluginUpdate = Iterables.find(
-      updateCenterFactory.getUpdateCenter(false).findAvailablePlugins(),
-      hasKey(key),
-      MISSING_PLUGIN
-      );
+    PluginUpdate pluginUpdate = MISSING_PLUGIN;
+
+    Optional<UpdateCenter> updateCenter = updateCenterFactory.getUpdateCenter(false);
+    if (updateCenter.isPresent()) {
+      pluginUpdate= Iterables.find(
+        updateCenter.get().findAvailablePlugins(),
+        hasKey(key),
+        MISSING_PLUGIN);
+    }
+
     if (pluginUpdate == MISSING_PLUGIN) {
       throw new IllegalArgumentException(
         format("No plugin with key '%s' or plugin '%s' is already installed in latest version", key, key));
     }
+
     return pluginUpdate;
   }
 

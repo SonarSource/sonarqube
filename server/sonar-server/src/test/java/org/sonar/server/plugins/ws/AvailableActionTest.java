@@ -19,6 +19,7 @@
  */
 package org.sonar.server.plugins.ws;
 
+import com.google.common.base.Optional;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
@@ -26,9 +27,11 @@ import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
 import org.sonar.updatecenter.common.Release;
+import org.sonar.updatecenter.common.UpdateCenter;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonar.updatecenter.common.PluginUpdate.Status.COMPATIBLE;
@@ -81,10 +84,19 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
   }
 
   @Test
+  public void empty_array_is_returned_when_update_center_is_not_accessible() throws Exception {
+    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.<UpdateCenter>absent());
+
+    underTest.handle(request, response);
+
+    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
+  }
+
+  @Test
   public void verify_properties_displayed_in_json_per_plugin() throws Exception {
     when(updateCenter.findAvailablePlugins()).thenReturn(of(
       pluginUpdate(FULL_PROPERTIES_PLUGIN_RELEASE, COMPATIBLE)
-    ));
+      ));
 
     underTest.handle(request, response);
 
@@ -114,7 +126,7 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
   private void checkStatusDisplayedInJson(PluginUpdate.Status status, String expectedValue) throws Exception {
     when(updateCenter.findAvailablePlugins()).thenReturn(of(
       pluginUpdate(release(PLUGIN_1, "1.0.0"), status)
-    ));
+      ));
 
     underTest.handle(request, response);
 
@@ -128,7 +140,7 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
         "    }" +
         "  ]" +
         "}"
-    );
+      );
   }
 
   @Test
@@ -139,6 +151,6 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
       pluginUpdate("key2", "name2"),
       pluginUpdate("key0", "name0"),
       pluginUpdate("key1", "name1")
-    ));
+      ));
   }
 }

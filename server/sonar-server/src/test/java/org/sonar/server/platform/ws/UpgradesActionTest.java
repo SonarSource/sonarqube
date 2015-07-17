@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.ws;
 
+import com.google.common.base.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.Request;
@@ -57,7 +58,7 @@ public class UpgradesActionTest {
 
   @Before
   public void wireMocks() {
-    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(updateCenter);
+    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.of(updateCenter));
     when(updateCenter.getDate()).thenReturn(DateUtils.parseDateTime("2015-04-24T16:08:36+0200"));
   }
 
@@ -82,6 +83,15 @@ public class UpgradesActionTest {
 
   @Test
   public void empty_array_is_returned_when_there_is_no_upgrade_available() throws Exception {
+    underTest.handle(request, response);
+
+    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(JSON_EMPTY_UPGRADE_LIST);
+  }
+
+  @Test
+  public void empty_array_is_returned_when_update_center_is_unavailable() throws Exception {
+    when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.<UpdateCenter>absent());
+
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(JSON_EMPTY_UPGRADE_LIST);
@@ -126,7 +136,7 @@ public class UpgradesActionTest {
         .setDescription("New overall layout, merge Issues Drilldown [...]")
         .setDownloadUrl("http://dist.sonar.codehaus.org/sonarqube-5.1.zip")
         .setChangelogUrl("http://jira.sonarsource.com/secure/ReleaseNote.jspa?projectId=11694&version=20666")
-      );
+    );
 
     sonarUpdate.addIncompatiblePlugin(brandingPlugin);
     sonarUpdate.addPluginToUpgrade(new Release(viewsPlugin, Version.create("2.8")));
