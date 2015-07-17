@@ -61,6 +61,7 @@ public class CachesManager implements Startable {
       props.setProperty("journalpath", "${datapath}/journal");
       props.setProperty("tmpvoldir", "${datapath}");
       props.setProperty("volume.1", "${datapath}/persistit,create,pageSize:8192,initialPages:10,extensionPages:100,maximumPages:25000");
+      props.setProperty("jmx", "false");
       persistit.setProperties(props);
       persistit.initialize();
 
