@@ -19,18 +19,20 @@
  */
 package org.sonar.batch.issue.tracking;
 
+import org.sonar.batch.util.BatchUtils;
+
+import org.sonar.batch.bootstrap.WSLoader;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterators;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.batch.bootstrap.ServerClient;
 
 public class DefaultServerLineHashesLoader implements ServerLineHashesLoader {
 
-  private final ServerClient server;
+  private final WSLoader wsLoader;
 
-  public DefaultServerLineHashesLoader(ServerClient server) {
-    this.server = server;
+  public DefaultServerLineHashesLoader(WSLoader wsLoader) {
+    this.wsLoader = wsLoader;
   }
 
   @Override
@@ -44,7 +46,7 @@ public class DefaultServerLineHashesLoader implements ServerLineHashesLoader {
       .addContext("file", fileKey)
       .startDebug("Load line hashes");
     try {
-      return server.request("/api/sources/hash?key=" + ServerClient.encodeForUrl(fileKey));
+      return wsLoader.loadString("/api/sources/hash?key=" + BatchUtils.encodeForUrl(fileKey));
     } finally {
       profiler.stopDebug();
     }

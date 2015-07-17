@@ -19,26 +19,28 @@
  */
 package org.sonar.batch.bootstrap;
 
-import java.nio.file.Paths;
 import org.picocontainer.injectors.ProviderAdapter;
+
+import org.sonar.batch.bootstrap.WSLoader.LoadStrategy;
+
+import java.util.Map;
+
 import org.sonar.home.cache.PersistentCache;
-import org.sonar.home.cache.PersistentCacheBuilder;
 
-public class PersistentCacheProvider extends ProviderAdapter {
-  private PersistentCache cache;
+public class WSLoaderGlobalProvider extends ProviderAdapter {
+  private static final LoadStrategy DEFAULT_STRATEGY = LoadStrategy.SERVER_FIRST;
+  private WSLoader wsLoader;
 
-  public PersistentCache provide(UserProperties props) {
-    if (cache == null) {
-      PersistentCacheBuilder builder = new PersistentCacheBuilder(new Slf4jLogger());
+  public WSLoader provide(BootstrapProperties props, GlobalMode mode, PersistentCache cache, ServerClient client) {
+    if (wsLoader == null) {
+      wsLoader = new WSLoader(isCacheEnabled(props.properties(), mode.isPreview()), cache, client);
+      wsLoader.setStrategy(DEFAULT_STRATEGY);
+    }
+    return wsLoader;
+  }
 
-      String home = props.property("sonar.userHome");
-      if (home != null) {
-        builder.setSonarHome(Paths.get(home));
-      }
-
-      cache = builder.build();
-    } 
-    
-    return cache;
+  private static boolean isCacheEnabled(Map<String, String> props, boolean isPreview) {
+    String enableOffline = props.get("sonar.enableOffline");
+    return isPreview && "true".equals(enableOffline);
   }
 }

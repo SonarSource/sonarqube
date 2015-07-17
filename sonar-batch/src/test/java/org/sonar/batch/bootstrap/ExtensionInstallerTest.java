@@ -40,7 +40,7 @@ import static org.mockito.Mockito.when;
 
 public class ExtensionInstallerTest {
 
-  DefaultAnalysisMode mode;
+  GlobalMode mode;
   BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
 
   private static Plugin newPluginInstance(final Object... extensions) {
@@ -53,7 +53,7 @@ public class ExtensionInstallerTest {
 
   @Before
   public void setUp() {
-    mode = mock(DefaultAnalysisMode.class);
+    mode = mock(GlobalMode.class);
   }
 
   @Test

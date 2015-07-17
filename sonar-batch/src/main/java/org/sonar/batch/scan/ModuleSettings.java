@@ -20,12 +20,13 @@
 package org.sonar.batch.scan;
 
 import com.google.common.collect.Lists;
+
 import java.util.List;
+
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 
@@ -35,10 +36,10 @@ import org.sonar.batch.protocol.input.ProjectRepositories;
 public class ModuleSettings extends Settings {
 
   private final ProjectRepositories projectReferentials;
-  private DefaultAnalysisMode analysisMode;
+  private ProjectAnalysisMode analysisMode;
 
   public ModuleSettings(GlobalSettings batchSettings, ProjectDefinition moduleDefinition, ProjectRepositories projectReferentials,
-    DefaultAnalysisMode analysisMode) {
+    ProjectAnalysisMode analysisMode) {
     super(batchSettings.getDefinitions());
     this.projectReferentials = projectReferentials;
     this.analysisMode = analysisMode;

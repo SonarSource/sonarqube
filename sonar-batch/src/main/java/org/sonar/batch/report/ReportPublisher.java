@@ -19,8 +19,12 @@
  */
 package org.sonar.batch.report;
 
+import org.sonar.batch.scan.ProjectAnalysisMode;
+
+import org.sonar.batch.util.BatchUtils;
 import com.github.kevinsawicki.http.HttpRequest;
 import com.google.common.annotations.VisibleForTesting;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -28,6 +32,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
+
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
@@ -39,11 +44,9 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
-import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.scan.ImmutableProjectReactor;
-
 import static java.lang.String.format;
 
 @BatchSide
@@ -57,7 +60,7 @@ public class ReportPublisher implements Startable {
   private final Server server;
   private final Settings settings;
   private final ImmutableProjectReactor projectReactor;
-  private final DefaultAnalysisMode analysisMode;
+  private final ProjectAnalysisMode analysisMode;
   private final TempFolder temp;
 
   private ReportPublisherStep[] publishers;
@@ -66,7 +69,7 @@ public class ReportPublisher implements Startable {
   private BatchReportWriter writer;
 
   public ReportPublisher(Settings settings, ServerClient serverClient, Server server,
-    ImmutableProjectReactor projectReactor, DefaultAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers) {
+    ImmutableProjectReactor projectReactor, ProjectAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers) {
     this.serverClient = serverClient;
     this.server = server;
     this.projectReactor = projectReactor;
@@ -134,7 +137,7 @@ public class ReportPublisher implements Startable {
   void sendOrDumpReport(File report) {
     ProjectDefinition projectDefinition = projectReactor.getRoot();
     String effectiveKey = projectDefinition.getKeyWithBranch();
-    String relativeUrl = "/api/computation/submit_report?projectKey=" + effectiveKey + "&projectName=" + ServerClient.encodeForUrl(projectDefinition.getName());
+    String relativeUrl = "/api/computation/submit_report?projectKey=" + effectiveKey + "&projectName=" + BatchUtils.encodeForUrl(projectDefinition.getName());
 
     String dumpDirLocation = settings.getString(DUMP_REPORT_PROP_KEY);
     if (dumpDirLocation == null) {

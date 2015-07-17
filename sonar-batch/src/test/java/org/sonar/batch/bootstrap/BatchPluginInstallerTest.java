@@ -50,9 +50,10 @@ public class BatchPluginInstallerTest {
   @Test
   public void listRemotePlugins() {
 
-    ServerClient server = mock(ServerClient.class);
-    when(server.request("/deploy/plugins/index.txt")).thenReturn("checkstyle\nsqale");
-    BatchPluginInstaller installer = new BatchPluginInstaller(server, fileCache, pluginPredicate);
+    WSLoader wsLoader = mock(WSLoader.class);
+    when(wsLoader.load("/deploy/plugins/index.txt")).thenReturn("checkstyle\nsqale".getBytes());
+    when(wsLoader.loadString("/deploy/plugins/index.txt")).thenReturn("checkstyle\nsqale");
+    BatchPluginInstaller installer = new BatchPluginInstaller(wsLoader, fileCache, pluginPredicate);
 
     List<RemotePlugin> remotePlugins = installer.listRemotePlugins();
     assertThat(remotePlugins).extracting("key").containsOnly("checkstyle", "sqale");
@@ -63,8 +64,8 @@ public class BatchPluginInstallerTest {
     File pluginJar = temp.newFile();
     when(fileCache.get(eq("checkstyle-plugin.jar"), eq("fakemd5_1"), any(FileCache.Downloader.class))).thenReturn(pluginJar);
 
-    ServerClient server = mock(ServerClient.class);
-    BatchPluginInstaller installer = new BatchPluginInstaller(server, fileCache, pluginPredicate);
+    WSLoader wsLoader = mock(WSLoader.class);
+    BatchPluginInstaller installer = new BatchPluginInstaller(wsLoader, fileCache, pluginPredicate);
 
     RemotePlugin remote = new RemotePlugin("checkstyle").setFile("checkstyle-plugin.jar", "fakemd5_1");
     File file = installer.download(remote);
@@ -76,9 +77,9 @@ public class BatchPluginInstallerTest {
   public void should_fail_to_get_plugin_index() {
     thrown.expect(IllegalStateException.class);
 
-    ServerClient server = mock(ServerClient.class);
-    doThrow(new IllegalStateException()).when(server).request("/deploy/plugins/index.txt");
+    WSLoader wsLoader = mock(WSLoader.class);
+    doThrow(new IllegalStateException()).when(wsLoader).load("/deploy/plugins/index.txt");
 
-    new BatchPluginInstaller(server, fileCache, pluginPredicate).installRemotes();
+    new BatchPluginInstaller(wsLoader, fileCache, pluginPredicate).installRemotes();
   }
 }

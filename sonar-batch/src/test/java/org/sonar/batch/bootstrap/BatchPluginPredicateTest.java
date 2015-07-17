@@ -22,7 +22,6 @@ package org.sonar.batch.bootstrap;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -30,7 +29,7 @@ import static org.mockito.Mockito.when;
 public class BatchPluginPredicateTest {
 
   Settings settings = new Settings();
-  DefaultAnalysisMode mode = mock(DefaultAnalysisMode.class);
+  GlobalMode mode = mock(GlobalMode.class);
 
   @Test
   public void accept_if_no_inclusions_nor_exclusions() {

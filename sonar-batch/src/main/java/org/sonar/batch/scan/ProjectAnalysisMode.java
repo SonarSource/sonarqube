@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.scan;
+
+import org.sonar.batch.bootstrap.AnalysisProperties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,21 +33,27 @@ import java.util.Map;
 /**
  * @since 4.0
  */
-public class DefaultAnalysisMode implements AnalysisMode {
+public class ProjectAnalysisMode implements AnalysisMode {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultAnalysisMode.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ProjectAnalysisMode.class);
 
   private boolean preview;
   private boolean incremental;
+  private boolean quick;
   private boolean mediumTestMode;
 
-  public DefaultAnalysisMode(Map<String, String> props) {
-    init(props);
+  public ProjectAnalysisMode(AnalysisProperties props) {
+    init(props.properties());
   }
 
   @Override
   public boolean isPreview() {
-    return preview || incremental;
+    return preview || incremental || quick;
+  }
+
+  @Override
+  public boolean isQuick() {
+    return quick;
   }
 
   @Override
@@ -66,19 +74,18 @@ public class DefaultAnalysisMode implements AnalysisMode {
       String mode = props.get(CoreProperties.ANALYSIS_MODE);
       preview = CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
       incremental = CoreProperties.ANALYSIS_MODE_INCREMENTAL.equals(mode);
+      quick = CoreProperties.ANALYSIS_MODE_QUICK.equals(mode);
     }
     mediumTestMode = "true".equals(props.get(BatchMediumTester.MEDIUM_TEST_ENABLED));
     if (incremental) {
       LOG.info("Incremental mode");
     } else if (preview) {
       LOG.info("Preview mode");
+    } else if (quick) {
+      LOG.info("Quick mode");
     }
     if (mediumTestMode) {
       LOG.info("Medium test mode");
-    }
-    // To stay compatible with plugins that use the old property to check mode
-    if (incremental || preview) {
-      props.put(CoreProperties.DRY_RUN, "true");
     }
   }
 

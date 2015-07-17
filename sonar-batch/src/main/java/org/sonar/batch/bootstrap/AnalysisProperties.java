@@ -28,7 +28,10 @@ import java.util.Map;
  * coming from sonar-project.properties).
  */
 public class AnalysisProperties extends UserProperties {
-
+  public AnalysisProperties(Map<String, String> properties) {
+    this(properties, null);
+  }
+  
   public AnalysisProperties(Map<String, String> properties, @Nullable String pathToSecretKey) {
     super(properties, pathToSecretKey);
   }

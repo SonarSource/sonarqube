@@ -17,28 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.home.cache;
 
-import java.nio.file.Paths;
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.home.cache.PersistentCache;
-import org.sonar.home.cache.PersistentCacheBuilder;
+import java.io.IOException;
 
-public class PersistentCacheProvider extends ProviderAdapter {
-  private PersistentCache cache;
-
-  public PersistentCache provide(UserProperties props) {
-    if (cache == null) {
-      PersistentCacheBuilder builder = new PersistentCacheBuilder(new Slf4jLogger());
-
-      String home = props.property("sonar.userHome");
-      if (home != null) {
-        builder.setSonarHome(Paths.get(home));
-      }
-
-      cache = builder.build();
-    } 
-    
-    return cache;
-  }
+public interface PersistentCacheLoader<T> {
+  T get() throws IOException;
 }

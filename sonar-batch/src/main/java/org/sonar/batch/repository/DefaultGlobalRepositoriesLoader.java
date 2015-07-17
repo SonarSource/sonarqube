@@ -19,22 +19,23 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.bootstrap.ServerClient;
+import org.sonar.batch.bootstrap.WSLoader;
+
 import org.sonar.batch.protocol.input.GlobalRepositories;
 
 public class DefaultGlobalRepositoriesLoader implements GlobalRepositoriesLoader {
 
   private static final String BATCH_GLOBAL_URL = "/batch/global";
 
-  private final ServerClient serverClient;
+  private final WSLoader wsLoader;
 
-  public DefaultGlobalRepositoriesLoader(ServerClient serverClient) {
-    this.serverClient = serverClient;
+  public DefaultGlobalRepositoriesLoader(WSLoader wsLoader) {
+    this.wsLoader = wsLoader;
   }
 
   @Override
   public GlobalRepositories load() {
-    return GlobalRepositories.fromJson(serverClient.request(BATCH_GLOBAL_URL));
+    return GlobalRepositories.fromJson(wsLoader.loadString(BATCH_GLOBAL_URL));
   }
 
 }

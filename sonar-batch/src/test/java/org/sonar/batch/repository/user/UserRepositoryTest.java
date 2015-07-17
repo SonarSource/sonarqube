@@ -19,15 +19,15 @@
  */
 package org.sonar.batch.repository.user;
 
-import com.google.common.io.InputSupplier;
+import com.google.common.io.ByteSource;
+
+import org.sonar.batch.bootstrap.WSLoader;
 import org.junit.Test;
-import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.protocol.input.BatchInput;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,18 +39,17 @@ public class UserRepositoryTest {
 
   @Test
   public void testLoad() throws IOException {
-    ServerClient serverClient = mock(ServerClient.class);
-    UserRepository userRepo = new UserRepository(serverClient);
+    WSLoader wsLoader = mock(WSLoader.class);
+    UserRepository userRepo = new UserRepository(wsLoader);
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     BatchInput.User.Builder builder = BatchInput.User.newBuilder();
     builder.setLogin("fmallet").setName("Freddy Mallet").build().writeDelimitedTo(out);
     builder.setLogin("sbrandhof").setName("Simon").build().writeDelimitedTo(out);
 
-    InputSupplier<InputStream> is = mock(InputSupplier.class);
-    when(serverClient.doRequest("/batch/users?logins=fmallet,sbrandhof", "GET", null))
-      .thenReturn(is);
-    when(is.getInput()).thenReturn(new ByteArrayInputStream(out.toByteArray()));
+    ByteSource source = mock(ByteSource.class);
+    when(wsLoader.loadSource("/batch/users?logins=fmallet,sbrandhof")).thenReturn(source);
+    when(source.openStream()).thenReturn(new ByteArrayInputStream(out.toByteArray()));
 
     assertThat(userRepo.loadFromWs(Arrays.asList("fmallet", "sbrandhof"))).extracting("login", "name").containsOnly(tuple("fmallet", "Freddy Mallet"), tuple("sbrandhof", "Simon"));
   }

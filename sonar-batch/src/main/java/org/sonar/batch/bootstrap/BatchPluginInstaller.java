@@ -19,14 +19,18 @@
  */
 package org.sonar.batch.bootstrap;
 
+import com.google.common.io.Files;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.Plugin;
@@ -47,12 +51,12 @@ public class BatchPluginInstaller implements PluginInstaller {
   private static final Logger LOG = Loggers.get(BatchPluginInstaller.class);
   private static final String PLUGINS_INDEX_URL = "/deploy/plugins/index.txt";
 
-  private final ServerClient server;
+  private final WSLoader wsLoader;
   private final FileCache fileCache;
   private final BatchPluginPredicate pluginPredicate;
 
-  public BatchPluginInstaller(ServerClient server, FileCache fileCache, BatchPluginPredicate pluginPredicate) {
-    this.server = server;
+  public BatchPluginInstaller(WSLoader wsLoader, FileCache fileCache, BatchPluginPredicate pluginPredicate) {
+    this.wsLoader = wsLoader;
     this.fileCache = fileCache;
     this.pluginPredicate = pluginPredicate;
   }
@@ -95,7 +99,8 @@ public class BatchPluginInstaller implements PluginInstaller {
           } else {
             LOG.info("Download {}", file.getFilename());
           }
-          server.download(url, toFile);
+
+          Files.write(wsLoader.load(url), toFile);
         }
       });
 
@@ -111,7 +116,7 @@ public class BatchPluginInstaller implements PluginInstaller {
   List<RemotePlugin> listRemotePlugins() {
     try {
       Profiler profiler = Profiler.create(LOG).startInfo("Load plugins index");
-      String indexContent = server.request(PLUGINS_INDEX_URL);
+      String indexContent = wsLoader.loadString(PLUGINS_INDEX_URL);
       profiler.stopInfo();
       String[] rows = StringUtils.split(indexContent, CharUtils.LF);
       List<RemotePlugin> result = Lists.newArrayList();

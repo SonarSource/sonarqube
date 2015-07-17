@@ -19,30 +19,18 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.batch.util.BatchUtils;
+
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.io.IOUtils;
-import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.home.cache.PersistentCache;
-import org.sonar.home.cache.PersistentCacheBuilder;
-
-import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static org.apache.commons.io.IOUtils.write;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -53,19 +41,10 @@ public class ServerClientTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   @Rule
-  public TemporaryFolder cacheTmp = new TemporaryFolder();
-  @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   private MockHttpServer server = null;
   private BootstrapProperties bootstrapProps = mock(BootstrapProperties.class);
-  private DefaultAnalysisMode mode = null;
-
-  @Before
-  public void setUp() {
-    mode = mock(DefaultAnalysisMode.class);
-    when(mode.isPreview()).thenReturn(true);
-  }
 
   @After
   public void stopServer() {
@@ -75,77 +54,29 @@ public class ServerClientTest {
   }
 
   @Test
-  public void dont_cache_post_request() throws Exception {
-    server = new MockHttpServer();
-    server.start();
-    server.setMockResponseData("this is the content");
-
-    assertThat(newServerClient().request("/foo", "POST")).isEqualTo("this is the content");
-
-    // cache never accessed, so not even the .lock should be there
-    assertThat(getNumFilesInCache()).isEqualTo(0);
-  }
-
-  @Test
-  public void dont_cache_non_preview_mode() throws Exception {
-    server = new MockHttpServer();
-    server.start();
-    server.setMockResponseData("this is the content");
-
-    when(mode.isPreview()).thenReturn(false);
-    assertThat(newServerClient().request("/foo")).isEqualTo("this is the content");
-
-    // cache never accessed, so not even the .lock should be there
-    assertThat(getNumFilesInCache()).isEqualTo(0);
-  }
-
-  @Test
-  public void cache_preview_mode() throws Exception {
-    server = new MockHttpServer();
-    server.start();
-    server.setMockResponseData("this is the content");
-
-    assertThat(newServerClient().request("/foo")).isEqualTo("this is the content");
-
-    // should have the .lock and one request cached
-    assertThat(getNumFilesInCache()).isEqualTo(2);
-  }
-
-  @Test
   public void should_remove_url_ending_slash() {
     BootstrapProperties settings = mock(BootstrapProperties.class);
     when(settings.property("sonar.host.url")).thenReturn("http://localhost:8080/sonar/");
-
-    PersistentCache ps = new PersistentCacheBuilder(new Slf4jLogger()).setSonarHome(cacheTmp.getRoot().toPath()).build();
-    ServerClient client = new ServerClient(settings, new EnvironmentInformation("Junit", "4"), ps, mode);
+    ServerClient client = new ServerClient(settings, new EnvironmentInformation("Junit", "4"));
 
     assertThat(client.getURL()).isEqualTo("http://localhost:8080/sonar");
   }
 
   @Test
   public void should_request_url() throws Exception {
-    server = new MockHttpServer();
-    server.start();
-    server.setMockResponseData("this is the content");
-
-    assertThat(newServerClient().request("/foo")).isEqualTo("this is the content");
+    startServer(null, "this is the content");
+    assertThat(newServerClient().downloadString("/foo")).isEqualTo("this is the content");
   }
 
   @Test
   public void should_escape_html_from_url() throws Exception {
-    server = new MockHttpServer();
-    server.start();
-    server.setMockResponseData("this is the content");
-
-    assertThat(newServerClient().request("/<foo>")).isEqualTo("this is the content");
+    startServer(null, "this is the content");
+    assertThat(newServerClient().downloadString("/<foo>")).isEqualTo("this is the content");
   }
 
   @Test
   public void should_download_file() throws Exception {
-    server = new MockHttpServer();
-    server.start();
-    server.setMockResponseData("this is the content");
-
+    startServer(null, "this is the content");
     File file = temp.newFile();
     newServerClient().download("/foo", file);
     assertThat(new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8)).isEqualTo("this is the content");
@@ -153,138 +84,55 @@ public class ServerClientTest {
 
   @Test
   public void should_fail_if_unauthorized_with_no_login_password() throws Exception {
-    server = new MockHttpServer();
-    server.start();
-    server.setMockResponseStatus(401);
-
+    startServer(401, null);
     thrown.expectMessage("Not authorized. Analyzing this project requires to be authenticated. Please provide the values of the properties sonar.login and sonar.password.");
-    newServerClient().request("/foo");
+    newServerClient().downloadString("/foo");
   }
 
   @Test
   public void should_fail_if_unauthorized_with_login_password_provided() throws Exception {
-    server = new MockHttpServer();
-    server.start();
-    server.setMockResponseStatus(401);
+    startServer(401, null);
 
     when(bootstrapProps.property(eq("sonar.login"))).thenReturn("login");
     when(bootstrapProps.property(eq("sonar.password"))).thenReturn("password");
 
     thrown.expectMessage("Not authorized. Please check the properties sonar.login and sonar.password");
-    newServerClient().request("/foo");
+    newServerClient().downloadString("/foo");
   }
 
   @Test
   public void should_display_json_error_when_403() throws Exception {
-    server = new MockHttpServer();
-    server.start();
-    server.setMockResponseStatus(403);
-    server.setMockResponseData("{\"errors\":[{\"msg\":\"Insufficient privileges\"}]}");
-
+    startServer(403, "{\"errors\":[{\"msg\":\"Insufficient privileges\"}]}");
     thrown.expectMessage("Insufficient privileges");
-    newServerClient().request("/foo");
+    newServerClient().downloadString("/foo");
   }
 
   @Test
   public void should_fail_if_error() throws Exception {
-    server = new MockHttpServer();
-    server.start();
-    server.setMockResponseStatus(500);
-
+    startServer(500, null);
     thrown.expectMessage("Fail to execute request [code=500, url=http://localhost:" + server.getPort() + "/foo]");
-    newServerClient().request("/foo");
+    newServerClient().downloadString("/foo");
   }
 
   @Test
-  public void testEncode() {
-    assertThat(ServerClient.encodeForUrl("my value")).isEqualTo("my+value");
+  public void string_encode() {
+    assertThat(BatchUtils.encodeForUrl("my value")).isEqualTo("my+value");
   }
 
   private ServerClient newServerClient() {
     when(bootstrapProps.property("sonar.host.url")).thenReturn("http://localhost:" + server.getPort());
-    PersistentCache ps = new PersistentCacheBuilder(new Slf4jLogger()).setSonarHome(cacheTmp.getRoot().toPath()).build();
-    return new ServerClient(bootstrapProps, new EnvironmentInformation("Junit", "4"), ps, mode);
+    return new ServerClient(bootstrapProps, new EnvironmentInformation("Junit", "4"));
   }
 
-  private int getNumFilesInCache() {
-    return new File(cacheTmp.getRoot(), "ws_cache").listFiles().length;
+  private void startServer(Integer responseStatus, String responseData) throws Exception {
+    server = new MockHttpServer();
+    server.start();
+    
+    if (responseStatus != null) {
+      server.setMockResponseStatus(responseStatus);
+    }
+    if (responseData != null) {
+      server.setMockResponseData(responseData);
+    }
   }
-
-  static class MockHttpServer {
-    private Server server;
-    private String responseBody;
-    private String requestBody;
-    private String mockResponseData;
-    private int mockResponseStatus = SC_OK;
-
-    public void start() throws Exception {
-      server = new Server(0);
-      server.setHandler(getMockHandler());
-      server.start();
-    }
-
-    /**
-     * Creates an {@link org.mortbay.jetty.handler.AbstractHandler handler} returning an arbitrary String as a response.
-     *
-     * @return never <code>null</code>.
-     */
-    public Handler getMockHandler() {
-      Handler handler = new AbstractHandler() {
-
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-          setResponseBody(getMockResponseData());
-          setRequestBody(IOUtils.toString(baseRequest.getInputStream()));
-          response.setStatus(mockResponseStatus);
-          response.setContentType("text/xml;charset=utf-8");
-          write(getResponseBody(), response.getOutputStream());
-          baseRequest.setHandled(true);
-        }
-      };
-      return handler;
-    }
-
-    public void stop() {
-      try {
-        if (server != null) {
-          server.stop();
-        }
-      } catch (Exception e) {
-        throw new IllegalStateException("Fail to stop HTTP server", e);
-      }
-    }
-
-    public String getResponseBody() {
-      return responseBody;
-    }
-
-    public void setResponseBody(String responseBody) {
-      this.responseBody = responseBody;
-    }
-
-    public String getRequestBody() {
-      return requestBody;
-    }
-
-    public void setRequestBody(String requestBody) {
-      this.requestBody = requestBody;
-    }
-
-    public void setMockResponseStatus(int status) {
-      this.mockResponseStatus = status;
-    }
-
-    public String getMockResponseData() {
-      return mockResponseData;
-    }
-
-    public void setMockResponseData(String mockResponseData) {
-      this.mockResponseData = mockResponseData;
-    }
-
-    public int getPort() {
-      return server.getConnectors()[0].getLocalPort();
-    }
-
-  }
-
 }

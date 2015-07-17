@@ -19,14 +19,14 @@
  */
 package org.sonar.batch.cpd.index;
 
+import org.sonar.batch.scan.ProjectAnalysisMode;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.bootstrap.DefaultAnalysisMode;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -38,13 +38,13 @@ public class IndexFactoryTest {
   Settings settings;
   IndexFactory factory;
   Logger logger;
-  private DefaultAnalysisMode analysisMode;
+  private ProjectAnalysisMode analysisMode;
 
   @Before
   public void setUp() {
     project = new Project("foo");
     settings = new Settings();
-    analysisMode = mock(DefaultAnalysisMode.class);
+    analysisMode = mock(ProjectAnalysisMode.class);
     factory = new IndexFactory(analysisMode, settings);
     logger = mock(Logger.class);
   }

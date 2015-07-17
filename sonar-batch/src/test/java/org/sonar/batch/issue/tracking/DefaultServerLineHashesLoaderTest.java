@@ -19,12 +19,13 @@
  */
 package org.sonar.batch.issue.tracking;
 
+import org.sonar.batch.bootstrap.WSLoader;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.HttpDownloader;
-import org.sonar.batch.bootstrap.ServerClient;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -46,32 +47,32 @@ public class DefaultServerLineHashesLoaderTest {
 
   @Test
   public void should_download_source_from_ws_if_preview_mode() {
-    ServerClient server = mock(ServerClient.class);
-    when(server.request(anyString())).thenReturn("ae12\n\n43fb");
+    WSLoader wsLoader = mock(WSLoader.class);
+    when(wsLoader.loadString(anyString())).thenReturn("ae12\n\n43fb");
 
-    ServerLineHashesLoader lastSnapshots = new DefaultServerLineHashesLoader(server);
+    ServerLineHashesLoader lastSnapshots = new DefaultServerLineHashesLoader(wsLoader);
 
     String[] hashes = lastSnapshots.getLineHashes("myproject:org/foo/Bar.c");
     assertThat(hashes).containsOnly("ae12", "", "43fb");
-    verify(server).request("/api/sources/hash?key=myproject%3Aorg%2Ffoo%2FBar.c");
+    verify(wsLoader).loadString("/api/sources/hash?key=myproject%3Aorg%2Ffoo%2FBar.c");
   }
 
   @Test
   public void should_download_source_with_space_from_ws_if_preview_mode() {
-    ServerClient server = mock(ServerClient.class);
-    when(server.request(anyString())).thenReturn("ae12\n\n43fb");
+    WSLoader server = mock(WSLoader.class);
+    when(server.loadString(anyString())).thenReturn("ae12\n\n43fb");
 
     ServerLineHashesLoader lastSnapshots = new DefaultServerLineHashesLoader(server);
 
     String[] hashes = lastSnapshots.getLineHashes("myproject:org/foo/Foo Bar.c");
     assertThat(hashes).containsOnly("ae12", "", "43fb");
-    verify(server).request("/api/sources/hash?key=myproject%3Aorg%2Ffoo%2FFoo+Bar.c");
+    verify(server).loadString("/api/sources/hash?key=myproject%3Aorg%2Ffoo%2FFoo+Bar.c");
   }
 
   @Test
   public void should_fail_to_download_source_from_ws() throws URISyntaxException {
-    ServerClient server = mock(ServerClient.class);
-    when(server.request(anyString())).thenThrow(new HttpDownloader.HttpException(new URI(""), 500));
+    WSLoader server = mock(WSLoader.class);
+    when(server.loadString(anyString())).thenThrow(new HttpDownloader.HttpException(new URI(""), 500));
 
     ServerLineHashesLoader lastSnapshots = new DefaultServerLineHashesLoader(server);
 

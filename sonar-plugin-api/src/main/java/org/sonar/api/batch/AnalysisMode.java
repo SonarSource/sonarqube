@@ -29,5 +29,7 @@ public interface AnalysisMode {
   boolean isPreview();
 
   boolean isIncremental();
+  
+  boolean isQuick();
 
 }

@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.sonar.batch.scan.ProjectAnalysisMode;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,7 +31,6 @@ import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.PathUtils;
-import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -47,7 +48,7 @@ public class InputFileBuilderTest {
   LanguageDetection langDetection = mock(LanguageDetection.class);
   StatusDetection statusDetection = mock(StatusDetection.class);
   DefaultModuleFileSystem fs = mock(DefaultModuleFileSystem.class);
-  DefaultAnalysisMode analysisMode = mock(DefaultAnalysisMode.class);
+  ProjectAnalysisMode analysisMode = mock(ProjectAnalysisMode.class);
 
   @Test
   public void complete_input_file() throws Exception {

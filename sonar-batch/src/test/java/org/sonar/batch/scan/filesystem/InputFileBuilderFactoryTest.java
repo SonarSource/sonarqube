@@ -19,14 +19,14 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.sonar.batch.scan.ProjectAnalysisMode;
+
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.config.Settings;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.batch.bootstrap.DefaultAnalysisMode;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -37,7 +37,7 @@ public class InputFileBuilderFactoryTest {
     LanguageDetectionFactory langDetectionFactory = mock(LanguageDetectionFactory.class, Mockito.RETURNS_MOCKS);
     StatusDetectionFactory statusDetectionFactory = mock(StatusDetectionFactory.class, Mockito.RETURNS_MOCKS);
     DefaultModuleFileSystem fs = mock(DefaultModuleFileSystem.class);
-    DefaultAnalysisMode analysisMode = mock(DefaultAnalysisMode.class);
+    ProjectAnalysisMode analysisMode = mock(ProjectAnalysisMode.class);
 
     InputFileBuilderFactory factory = new InputFileBuilderFactory(ProjectDefinition.create().setKey("struts"), pathResolver, langDetectionFactory,
       statusDetectionFactory, analysisMode, new Settings(), new FileMetadata());

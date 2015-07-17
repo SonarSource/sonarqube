@@ -19,17 +19,17 @@
  */
 package org.sonar.batch.repository;
 
+import com.google.common.io.ByteSource;
+
+import org.sonar.batch.bootstrap.WSLoader;
 import com.google.common.base.Function;
-import com.google.common.io.InputSupplier;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.protocol.input.BatchInput;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,18 +39,18 @@ import static org.mockito.Mockito.when;
 
 public class DefaultServerIssuesLoaderTest {
   private DefaultServerIssuesLoader loader;
-  private ServerClient serverClient;
+  private WSLoader wsLoader;
 
   @Before
   public void prepare() {
-    serverClient = mock(ServerClient.class);
-    loader = new DefaultServerIssuesLoader(serverClient);
+    wsLoader = mock(WSLoader.class);
+    loader = new DefaultServerIssuesLoader(wsLoader);
   }
 
   @Test
   public void loadFromWs() throws Exception {
-    InputSupplier<InputStream> is = mock(InputSupplier.class);
-    when(serverClient.doRequest("/batch/issues?key=foo", "GET", null)).thenReturn(is);
+    ByteSource bs = mock(ByteSource.class);
+    when(wsLoader.loadSource("/batch/issues?key=foo")).thenReturn(bs);
 
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
@@ -59,7 +59,7 @@ public class DefaultServerIssuesLoaderTest {
     ServerIssue.newBuilder().setKey("ab2").build()
       .writeDelimitedTo(bos);
 
-    when(is.getInput()).thenReturn(new ByteArrayInputStream(bos.toByteArray()));
+    when(bs.openStream()).thenReturn(new ByteArrayInputStream(bos.toByteArray()));
 
     final List<ServerIssue> result = new ArrayList<>();
     loader.load("foo", new Function<BatchInput.ServerIssue, Void>() {

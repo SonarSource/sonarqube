@@ -23,17 +23,19 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Set;
+
 import javax.annotation.Nonnull;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-
 import static com.google.common.collect.Sets.newHashSet;
 
 /**
@@ -50,9 +52,9 @@ public class BatchPluginPredicate implements Predicate<String> {
 
   private final Set<String> whites = newHashSet();
   private final Set<String> blacks = newHashSet();
-  private final DefaultAnalysisMode mode;
+  private final GlobalMode mode;
 
-  public BatchPluginPredicate(Settings settings, DefaultAnalysisMode mode) {
+  public BatchPluginPredicate(Settings settings, GlobalMode mode) {
     this.mode = mode;
     if (mode.isPreview()) {
       // These default values are not supported by Settings because the class CorePlugin

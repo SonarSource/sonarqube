@@ -17,14 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.scan;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
+import org.sonar.batch.bootstrap.AnalysisProperties;
+import org.sonar.batch.scan.ProjectAnalysisMode;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,12 +34,12 @@ public class DefaultAnalysisModeTest {
 
   @Test
   public void regular_analysis_by_default() {
-    DefaultAnalysisMode mode = new DefaultAnalysisMode(Collections.<String, String>emptyMap());
+    ProjectAnalysisMode mode = new ProjectAnalysisMode(new AnalysisProperties(Collections.<String, String>emptyMap()));
 
     assertThat(mode.isPreview()).isFalse();
     assertThat(mode.isIncremental()).isFalse();
 
-    mode = new DefaultAnalysisMode(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, "pouet"));
+    mode = createMode(CoreProperties.ANALYSIS_MODE, "pouet");
 
     assertThat(mode.isPreview()).isFalse();
     assertThat(mode.isIncremental()).isFalse();
@@ -46,7 +47,7 @@ public class DefaultAnalysisModeTest {
 
   @Test
   public void support_analysis_mode() {
-    DefaultAnalysisMode mode = new DefaultAnalysisMode(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ANALYSIS));
+    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ANALYSIS);
 
     assertThat(mode.isPreview()).isFalse();
     assertThat(mode.isIncremental()).isFalse();
@@ -54,31 +55,41 @@ public class DefaultAnalysisModeTest {
 
   @Test
   public void support_preview_mode() {
-    Map<String, String> props = Maps.newHashMap(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW));
-    DefaultAnalysisMode mode = new DefaultAnalysisMode(props);
+    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW);
 
     assertThat(mode.isPreview()).isTrue();
     assertThat(mode.isIncremental()).isFalse();
+  }
 
-    assertThat(props.get(CoreProperties.DRY_RUN)).isEqualTo("true");
+  @Test
+  public void support_quick_mode() {
+    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_QUICK);
+
+    assertThat(mode.isPreview()).isTrue();
+    assertThat(mode.isIncremental()).isFalse();
+    assertThat(mode.isQuick()).isTrue();
   }
 
   @Test
   public void support_incremental_mode() {
-    Map<String, String> props = Maps.newHashMap(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_INCREMENTAL));
-    DefaultAnalysisMode mode = new DefaultAnalysisMode(props);
+    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_INCREMENTAL);
 
     assertThat(mode.isPreview()).isTrue();
     assertThat(mode.isIncremental()).isTrue();
-
-    assertThat(props.get(CoreProperties.DRY_RUN)).isEqualTo("true");
   }
 
   @Test
   public void support_deprecated_dryrun_property() {
-    DefaultAnalysisMode mode = new DefaultAnalysisMode(Maps.newHashMap(ImmutableMap.of(CoreProperties.DRY_RUN, "true")));
+    ProjectAnalysisMode mode = createMode(CoreProperties.DRY_RUN, "true");
 
     assertThat(mode.isPreview()).isTrue();
     assertThat(mode.isIncremental()).isFalse();
+  }
+
+  private ProjectAnalysisMode createMode(String key, String value) {
+    Map<String, String> map = new HashMap<>();
+    map.put(key, value);
+
+    return new ProjectAnalysisMode(new AnalysisProperties(map));
   }
 }

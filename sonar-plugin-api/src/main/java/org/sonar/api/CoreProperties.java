@@ -446,6 +446,11 @@ public interface CoreProperties {
    * @since 4.0
    */
   String ANALYSIS_MODE_PREVIEW = "preview";
+  
+  /**
+   * @since 5.2
+   */
+  String ANALYSIS_MODE_QUICK = "quick";
 
   /**
    * @since 4.0

@@ -19,26 +19,27 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.api.utils.HttpDownloader.HttpException;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.io.Files;
-import com.google.common.io.InputSupplier;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import java.io.ByteArrayInputStream;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
+
 import javax.annotation.Nullable;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -47,7 +48,6 @@ import org.sonar.api.batch.BatchSide;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.core.util.DefaultHttpDownloader;
-import org.sonar.home.cache.PersistentCache;
 
 /**
  * Replace the deprecated org.sonar.batch.ServerMetadata
@@ -60,29 +60,31 @@ public class ServerClient {
 
   private static final String GET = "GET";
   private BootstrapProperties props;
-  private PersistentCache cache;
   private DefaultHttpDownloader.BaseHttpDownloader downloader;
-  private DefaultAnalysisMode mode;
 
-  public ServerClient(BootstrapProperties settings, EnvironmentInformation env, PersistentCache cache, DefaultAnalysisMode mode) {
+  public ServerClient(BootstrapProperties settings, EnvironmentInformation env) {
     this.props = settings;
     this.downloader = new DefaultHttpDownloader.BaseHttpDownloader(settings.properties(), env.toString());
-    this.cache = cache;
-    this.mode = mode;
   }
 
   public String getURL() {
     return StringUtils.removeEnd(StringUtils.defaultIfBlank(props.property("sonar.host.url"), "http://localhost:9000"), "/");
   }
 
-  public void download(String pathStartingWithSlash, File toFile) {
-    download(pathStartingWithSlash, toFile, null);
+  public URI getURI(String pathStartingWithSlash) {
+    Preconditions.checkArgument(pathStartingWithSlash.startsWith("/"), "Path must start with slash /");
+    String path = StringEscapeUtils.escapeHtml(pathStartingWithSlash);
+    return URI.create(getURL() + path);
   }
 
-  public void download(String pathStartingWithSlash, File toFile, @Nullable Integer readTimeoutMillis) {
+  public void download(String pathStartingWithSlash, File toFile) {
+    download(pathStartingWithSlash, toFile, null, null);
+  }
+
+  public void download(String pathStartingWithSlash, File toFile, @Nullable Integer connectTimeoutMillis, @Nullable Integer readTimeoutMillis) {
     try {
-      InputSupplier<InputStream> inputSupplier = doRequest(pathStartingWithSlash, GET, readTimeoutMillis);
-      Files.copy(inputSupplier, toFile);
+      InputStream is = load(pathStartingWithSlash, GET, false, connectTimeoutMillis, readTimeoutMillis);
+      Files.copy(is, toFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     } catch (HttpDownloader.HttpException he) {
       throw handleHttpException(he);
     } catch (IOException e) {
@@ -90,80 +92,41 @@ public class ServerClient {
     }
   }
 
-  public String request(String pathStartingWithSlash) {
-    return request(pathStartingWithSlash, GET, true);
+  public String downloadString(String pathStartingWithSlash) {
+    return downloadString(pathStartingWithSlash, GET, true, null);
   }
 
-  public String request(String pathStartingWithSlash, String requestMethod) {
-    return request(pathStartingWithSlash, requestMethod, true);
-  }
-
-  public String request(String pathStartingWithSlash, boolean wrapHttpException) {
-    return request(pathStartingWithSlash, GET, wrapHttpException, null);
-  }
-
-  public String request(String pathStartingWithSlash, String requestMethod, boolean wrapHttpException) {
-    return request(pathStartingWithSlash, requestMethod, wrapHttpException, null);
-  }
-
-  public String request(String pathStartingWithSlash, String requestMethod, boolean wrapHttpException, @Nullable Integer timeoutMillis) {
-    final byte[] buf = load(pathStartingWithSlash, requestMethod, wrapHttpException, timeoutMillis);
+  public String downloadString(String pathStartingWithSlash, String requestMethod, boolean wrapHttpException, @Nullable Integer timeoutMillis) {
+    InputStream is = load(pathStartingWithSlash, requestMethod, wrapHttpException, null, timeoutMillis);
     try {
-      return new String(buf, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
+      return new String(IOUtils.toByteArray(is), "UTF-8");
+    } catch (IOException e) {
       throw new IllegalStateException(String.format("Unable to request: %s", pathStartingWithSlash), e);
     }
   }
 
-  public InputSupplier<InputStream> doRequest(String pathStartingWithSlash, String requestMethod, @Nullable Integer timeoutMillis) {
-    final byte[] buf = load(pathStartingWithSlash, requestMethod, false, timeoutMillis);
-
-    return new InputSupplier<InputStream>() {
-      @Override
-      public InputStream getInput() throws IOException {
-        return new ByteArrayInputStream(buf);
-      }
-    };
-  }
-
-  private byte[] load(String pathStartingWithSlash, String requestMethod, boolean wrapHttpException, @Nullable Integer timeoutMillis) {
-    Preconditions.checkArgument(pathStartingWithSlash.startsWith("/"), "Path must start with slash /");
-    String path = StringEscapeUtils.escapeHtml(pathStartingWithSlash);
-    URI uri = URI.create(getURL() + path);
+  /**
+   * @throws IllegalStateException on I/O error, not limited to the network connection and if HTTP response code > 400 and wrapHttpException is true
+   * @throws HttpException if HTTP response code > 400 and wrapHttpException is false
+   */
+  public InputStream load(String pathStartingWithSlash, String requestMethod, boolean wrapHttpException, @Nullable Integer connectTimeoutMs,
+    @Nullable Integer readTimeoutMs) {
+    URI uri = getURI(pathStartingWithSlash);
 
     try {
-      if (GET.equals(requestMethod) && mode.isPreview()) {
-        return cache.get(uri.toString(), new HttpValueLoader(uri, requestMethod, timeoutMillis));
+      if (Strings.isNullOrEmpty(getLogin())) {
+        return downloader.newInputSupplier(uri, requestMethod, connectTimeoutMs, readTimeoutMs).getInput();
       } else {
-        return new HttpValueLoader(uri, requestMethod, timeoutMillis).call();
+        return downloader.newInputSupplier(uri, requestMethod, getLogin(), getPassword(), connectTimeoutMs, readTimeoutMs).getInput();
       }
     } catch (HttpDownloader.HttpException e) {
-      throw wrapHttpException ? handleHttpException(e) : e;
-    } catch (Exception e) {
-      throw new IllegalStateException(String.format("Unable to request: %s", uri), e);
-    }
-  }
-
-  private class HttpValueLoader implements Callable<byte[]> {
-    private URI uri;
-    private String requestMethod;
-    private Integer timeoutMillis;
-
-    public HttpValueLoader(URI uri, String requestMethod, Integer timeoutMillis) {
-      this.uri = uri;
-      this.requestMethod = requestMethod;
-      this.timeoutMillis = timeoutMillis;
-    }
-
-    @Override
-    public byte[] call() throws Exception {
-      InputSupplier<InputStream> inputSupplier;
-      if (Strings.isNullOrEmpty(getLogin())) {
-        inputSupplier = downloader.newInputSupplier(uri, requestMethod, timeoutMillis);
+      if (wrapHttpException) {
+        throw handleHttpException(e);
       } else {
-        inputSupplier = downloader.newInputSupplier(uri, requestMethod, getLogin(), getPassword(), timeoutMillis);
+        throw e;
       }
-      return IOUtils.toByteArray(inputSupplier.getInput());
+    } catch (IOException e) {
+      throw new IllegalStateException(String.format("Unable to request: %s", uri), e);
     }
   }
 
@@ -207,14 +170,4 @@ public class ServerClient {
   public String getPassword() {
     return props.property(CoreProperties.PASSWORD);
   }
-
-  public static String encodeForUrl(String url) {
-    try {
-      return URLEncoder.encode(url, "UTF-8");
-
-    } catch (UnsupportedEncodingException e) {
-      throw new IllegalStateException("Encoding not supported", e);
-    }
-  }
-
 }

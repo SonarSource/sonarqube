@@ -32,7 +32,6 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.concurrent.Callable;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -51,25 +50,18 @@ public class PersistentCache {
 
   // eviction strategy is to expire entries after modification once a time duration has elapsed
   private final long defaultDurationToExpireMs;
-  private boolean forceUpdate;
   private final Logger logger;
 
-  public PersistentCache(Path baseDir, long defaultDurationToExpireMs, boolean forceUpdate, Logger logger) {
+  public PersistentCache(Path baseDir, long defaultDurationToExpireMs, Logger logger) {
     this.baseDir = baseDir;
     this.defaultDurationToExpireMs = defaultDurationToExpireMs;
     this.logger = logger;
 
-    reconfigure(forceUpdate);
+    reconfigure();
     logger.debug("cache: " + baseDir + ", default expiration time (ms): " + defaultDurationToExpireMs);
   }
 
-  public void reconfigure(boolean forceUpdate) {
-    this.forceUpdate = forceUpdate;
-
-    if (forceUpdate) {
-      logger.debug("cache: forcing update");
-    }
-
+  public void reconfigure() {
     try {
       Files.createDirectories(baseDir);
     } catch (IOException e) {
@@ -81,16 +73,12 @@ public class PersistentCache {
     return baseDir;
   }
 
-  public boolean isForceUpdate() {
-    return forceUpdate;
-  }
-
   @CheckForNull
-  public synchronized String getString(@Nonnull String obj, @Nullable final Callable<String> valueLoader) throws Exception {
-    byte[] cached = get(obj, new Callable<byte[]>() {
+  public synchronized String getString(@Nonnull String obj, @Nullable final PersistentCacheLoader<String> valueLoader) throws IOException {
+    byte[] cached = get(obj, new PersistentCacheLoader<byte[]>() {
       @Override
-      public byte[] call() throws Exception {
-        String s = valueLoader.call();
+      public byte[] get() throws IOException {
+        String s = valueLoader.get();
         if (s != null) {
           return s.getBytes(ENCODING);
         }
@@ -106,26 +94,23 @@ public class PersistentCache {
   }
 
   @CheckForNull
-  public synchronized byte[] get(@Nonnull String obj, @Nullable Callable<byte[]> valueLoader) throws Exception {
+  public synchronized byte[] get(@Nonnull String obj, @Nullable PersistentCacheLoader<byte[]> valueLoader) throws IOException {
     String key = getKey(obj);
 
     try {
       lock();
-      if (!forceUpdate) {
-        byte[] cached = getCache(key);
 
-        if (cached != null) {
-          logger.debug("cache hit for " + obj + " -> " + key);
-          return cached;
-        }
+      byte[] cached = getCache(key);
 
-        logger.debug("cache miss for " + obj + " -> " + key);
-      } else {
-        logger.debug("cache force update for " + obj + " -> " + key);
+      if (cached != null) {
+        logger.debug("cache hit for " + obj + " -> " + key);
+        return cached;
       }
 
+      logger.debug("cache miss for " + obj + " -> " + key);
+
       if (valueLoader != null) {
-        byte[] value = valueLoader.call();
+        byte[] value = valueLoader.get();
         if (value != null) {
           putCache(key, value);
         }
@@ -136,6 +121,16 @@ public class PersistentCache {
     }
 
     return null;
+  }
+
+  public synchronized void put(@Nonnull String obj, @Nonnull byte[] value) throws IOException {
+    String key = getKey(obj);
+    try {
+      lock();
+      putCache(key, value);
+    } finally {
+      unlock();
+    }
   }
 
   /**

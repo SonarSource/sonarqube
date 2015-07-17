@@ -19,6 +19,7 @@
  */
 package org.sonar.core.util;
 
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
@@ -28,6 +29,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,7 +44,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
+
 import javax.annotation.Nullable;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -60,13 +64,19 @@ import org.sonar.api.utils.log.Loggers;
 public class DefaultHttpDownloader extends HttpDownloader {
   private final BaseHttpDownloader downloader;
   private final Integer readTimeout;
+  private final Integer connectTimeout;
 
   public DefaultHttpDownloader(Server server, Settings settings) {
     this(server, settings, null);
   }
 
   public DefaultHttpDownloader(Server server, Settings settings, @Nullable Integer readTimeout) {
+    this(server, settings, null, readTimeout);
+  }
+
+  public DefaultHttpDownloader(Server server, Settings settings, @Nullable Integer connectTimeout, @Nullable Integer readTimeout) {
     this.readTimeout = readTimeout;
+    this.connectTimeout = connectTimeout;
     downloader = new BaseHttpDownloader(settings.getProperties(), server.getVersion());
   }
 
@@ -75,7 +85,12 @@ public class DefaultHttpDownloader extends HttpDownloader {
   }
 
   public DefaultHttpDownloader(Settings settings, @Nullable Integer readTimeout) {
+    this(settings, null, readTimeout);
+  }
+
+  public DefaultHttpDownloader(Settings settings, @Nullable Integer connectTimeout, @Nullable Integer readTimeout) {
     this.readTimeout = readTimeout;
+    this.connectTimeout = connectTimeout;
     downloader = new BaseHttpDownloader(settings.getProperties(), null);
   }
 
@@ -97,7 +112,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
   @Override
   protected String readString(URI uri, Charset charset) {
     try {
-      return CharStreams.toString(CharStreams.newReaderSupplier(downloader.newInputSupplier(uri, this.readTimeout), charset));
+      return CharStreams.toString(CharStreams.newReaderSupplier(downloader.newInputSupplier(uri, this.connectTimeout, this.readTimeout), charset));
     } catch (IOException e) {
       throw failToDownload(uri, e);
     }
@@ -111,7 +126,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
   @Override
   public byte[] download(URI uri) {
     try {
-      return ByteStreams.toByteArray(downloader.newInputSupplier(uri, this.readTimeout));
+      return ByteStreams.toByteArray(downloader.newInputSupplier(uri, this.connectTimeout, this.readTimeout));
     } catch (IOException e) {
       throw failToDownload(uri, e);
     }
@@ -124,7 +139,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
   @Override
   public InputStream openStream(URI uri) {
     try {
-      return downloader.newInputSupplier(uri, this.readTimeout).getInput();
+      return downloader.newInputSupplier(uri, this.connectTimeout, this.readTimeout).getInput();
     } catch (IOException e) {
       throw failToDownload(uri, e);
     }
@@ -133,7 +148,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
   @Override
   public void download(URI uri, File toFile) {
     try {
-      Files.copy(downloader.newInputSupplier(uri, this.readTimeout), toFile);
+      Files.copy(downloader.newInputSupplier(uri, this.connectTimeout, this.readTimeout), toFile);
     } catch (IOException e) {
       FileUtils.deleteQuietly(toFile);
       throw failToDownload(uri, e);
@@ -213,18 +228,29 @@ public class DefaultHttpDownloader extends HttpDownloader {
     }
 
     public InputSupplier<InputStream> newInputSupplier(URI uri) {
-      return new HttpInputSupplier(uri, GET, userAgent, null, null, TIMEOUT_MILLISECONDS);
+      return newInputSupplier(uri, GET, null, null, null, null);
     }
 
     public InputSupplier<InputStream> newInputSupplier(URI uri, @Nullable Integer readTimeoutMillis) {
       return newInputSupplier(uri, GET, readTimeoutMillis);
     }
 
+    /**
+     * @since 5.2
+     */
+    public InputSupplier<InputStream> newInputSupplier(URI uri, @Nullable Integer connectTimeoutMillis, @Nullable Integer readTimeoutMillis) {
+      return newInputSupplier(uri, GET, connectTimeoutMillis, readTimeoutMillis);
+    }
+
+    /**
+     * @since 5.2
+     */
+    public InputSupplier<InputStream> newInputSupplier(URI uri, String requestMethod, @Nullable Integer connectTimeoutMillis, @Nullable Integer readTimeoutMillis) {
+      return newInputSupplier(uri, requestMethod, null, null, connectTimeoutMillis, readTimeoutMillis);
+    }
+
     public InputSupplier<InputStream> newInputSupplier(URI uri, String requestMethod, @Nullable Integer readTimeoutMillis) {
-      if (readTimeoutMillis != null) {
-        return new HttpInputSupplier(uri, requestMethod, userAgent, null, null, readTimeoutMillis);
-      }
-      return new HttpInputSupplier(uri, requestMethod, userAgent, null, null, TIMEOUT_MILLISECONDS);
+      return newInputSupplier(uri, requestMethod, null, null, null, readTimeoutMillis);
     }
 
     public InputSupplier<InputStream> newInputSupplier(URI uri, String login, String password) {
@@ -235,7 +261,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
      * @since 5.0
      */
     public InputSupplier<InputStream> newInputSupplier(URI uri, String requestMethod, String login, String password) {
-      return new HttpInputSupplier(uri, requestMethod, userAgent, login, password, TIMEOUT_MILLISECONDS);
+      return newInputSupplier(uri, requestMethod, login, password, null, null);
     }
 
     public InputSupplier<InputStream> newInputSupplier(URI uri, String login, String password, @Nullable Integer readTimeoutMillis) {
@@ -246,10 +272,17 @@ public class DefaultHttpDownloader extends HttpDownloader {
      * @since 5.0
      */
     public InputSupplier<InputStream> newInputSupplier(URI uri, String requestMethod, String login, String password, @Nullable Integer readTimeoutMillis) {
-      if (readTimeoutMillis != null) {
-        return new HttpInputSupplier(uri, requestMethod, userAgent, login, password, readTimeoutMillis);
-      }
-      return new HttpInputSupplier(uri, requestMethod, userAgent, login, password, TIMEOUT_MILLISECONDS);
+      return newInputSupplier(uri, requestMethod, login, password, null, readTimeoutMillis);
+    }
+
+    /**
+     * @since 5.2
+     */
+    public InputSupplier<InputStream> newInputSupplier(URI uri, String requestMethod, String login, String password, @Nullable Integer connectTimeoutMillis,
+      @Nullable Integer readTimeoutMillis) {
+      int read = readTimeoutMillis != null ? readTimeoutMillis : TIMEOUT_MILLISECONDS;
+      int connect = connectTimeoutMillis != null ? connectTimeoutMillis : TIMEOUT_MILLISECONDS;
+      return new HttpInputSupplier(uri, requestMethod, userAgent, login, password, connect, read);
     }
 
     private static class HttpInputSupplier implements InputSupplier<InputStream> {
@@ -257,22 +290,27 @@ public class DefaultHttpDownloader extends HttpDownloader {
       private final String password;
       private final URI uri;
       private final String userAgent;
+      private final int connectTimeoutMillis;
       private final int readTimeoutMillis;
       private final String requestMethod;
 
-      HttpInputSupplier(URI uri, String requestMethod, String userAgent, String login, String password, int readTimeoutMillis) {
+      HttpInputSupplier(URI uri, String requestMethod, String userAgent, String login, String password, int connectTimeoutMillis, int readTimeoutMillis) {
         this.uri = uri;
         this.requestMethod = requestMethod;
         this.userAgent = userAgent;
         this.login = login;
         this.password = password;
         this.readTimeoutMillis = readTimeoutMillis;
+        this.connectTimeoutMillis = connectTimeoutMillis;
       }
 
+      /**
+       * @throws IOException any I/O error, not limited to the network connection
+       * @throws HttpException if HTTP response code > 400
+       */
       @Override
       public InputStream getInput() throws IOException {
         Loggers.get(getClass()).debug("Download: " + uri + " (" + getProxySynthesis(uri, ProxySelector.getDefault()) + ")");
-
         HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
         connection.setRequestMethod(requestMethod);
         HttpsTrust.INSTANCE.trust(connection);
@@ -283,7 +321,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
           String encoded = Base64.encodeBase64String((login + ":" + password).getBytes(StandardCharsets.UTF_8));
           connection.setRequestProperty("Authorization", "Basic " + encoded);
         }
-        connection.setConnectTimeout(TIMEOUT_MILLISECONDS);
+        connection.setConnectTimeout(connectTimeoutMillis);
         connection.setReadTimeout(readTimeoutMillis);
         connection.setUseCaches(true);
         connection.setInstanceFollowRedirects(true);

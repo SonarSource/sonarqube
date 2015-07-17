@@ -19,9 +19,10 @@
  */
 package org.sonar.batch.phases;
 
+import org.sonar.batch.scan.ProjectAnalysisMode;
+
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.bootstrap.DefaultAnalysisMode;
 import org.sonar.batch.events.BatchStepEvent;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
@@ -48,7 +49,7 @@ public final class PhaseExecutor {
   private final QProfileVerifier profileVerifier;
   private final IssueExclusionsLoader issueExclusionsLoader;
   private final IssuesReports issuesReport;
-  private final DefaultAnalysisMode analysisMode;
+  private final ProjectAnalysisMode analysisMode;
   private final LocalIssueTracking localIssueTracking;
 
   public PhaseExecutor(InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
