@@ -19,7 +19,9 @@
  */
 package org.sonar.server.computation.step;
 
+import com.google.common.base.Optional;
 import javax.annotation.Nullable;
+import org.assertj.core.data.Offset;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,7 +33,6 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.component.FileAttributes;
 import org.sonar.server.computation.measure.Measure;
-import org.sonar.server.computation.measure.MeasureRepoEntry;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.measure.MeasureVariations;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
@@ -39,6 +40,7 @@ import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.CONDITIONS_BY_LINE_KEY;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY;
@@ -55,11 +57,12 @@ import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.component.DumbComponent.builder;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
-import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
-import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 import static org.sonar.server.computation.measure.MeasureVariations.newMeasureVariationsBuilder;
 
 public class NewCoverageMeasuresStepTest {
+
+  private static final Offset<Double> DEFAULT_OFFSET = Offset.offset(0.1d);
+
   private static final DumbComponent MULTIPLE_FILES_TREE = builder(PROJECT, 1)
     .addChildren(
       builder(MODULE, 11)
@@ -122,8 +125,8 @@ public class NewCoverageMeasuresStepTest {
   @Before
   public void setUp() {
     periodsHolder.setPeriods(
-        new Period(2, "mode_p_1", null, parseDate("2009-12-25").getTime(), 1),
-        new Period(5, "mode_p_5", null, parseDate("2011-02-18").getTime(), 2));
+      new Period(2, "mode_p_1", null, parseDate("2009-12-25").getTime(), 1),
+      new Period(5, "mode_p_5", null, parseDate("2011-02-18").getTime(), 2));
   }
 
   @Test
@@ -175,19 +178,19 @@ public class NewCoverageMeasuresStepTest {
   public void verify_measure_of_condition_not_computed_if_there_is_none() {
     treeRootHolder.setRoot(FILE_COMPONENT);
     reportReader.putChangesets(Changesets.newBuilder()
-            .setComponentRef(FILE_COMPONENT.getRef())
-            .addChangeset(Changesets.Changeset.newBuilder().build())
-            .addChangeset(Changesets.Changeset.newBuilder()
-                .setDate(parseDate("2007-01-15").getTime())
-                .build())
-            .addChangeset(Changesets.Changeset.newBuilder()
-                .setDate(parseDate("2011-01-01").getTime())
-                .build())
-            .addChangesetIndexByLine(0)
-            .addChangesetIndexByLine(1)
-            .addChangesetIndexByLine(2)
-            .build()
-    );
+      .setComponentRef(FILE_COMPONENT.getRef())
+      .addChangeset(Changesets.Changeset.newBuilder().build())
+      .addChangeset(Changesets.Changeset.newBuilder()
+        .setDate(parseDate("2007-01-15").getTime())
+        .build())
+      .addChangeset(Changesets.Changeset.newBuilder()
+        .setDate(parseDate("2011-01-01").getTime())
+        .build())
+      .addChangesetIndexByLine(0)
+      .addChangesetIndexByLine(1)
+      .addChangesetIndexByLine(2)
+      .build()
+      );
 
     underTest.execute();
 
@@ -200,8 +203,8 @@ public class NewCoverageMeasuresStepTest {
     reportReader.putChangesets(BatchReport.Changesets.newBuilder()
       .setComponentRef(FILE_COMPONENT.getRef())
       .addChangeset(Changesets.Changeset.newBuilder()
-          .setDate(parseDate("2008-08-02").getTime())
-          .build())
+        .setDate(parseDate("2008-08-02").getTime())
+        .build())
       .addChangesetIndexByLine(0)
       .addChangesetIndexByLine(0)
       .addChangesetIndexByLine(0)
@@ -267,7 +270,7 @@ public class NewCoverageMeasuresStepTest {
     String newUncoveredConditions = CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS_KEY;
 
     verify_computation_of_measures_for_new_lines(coverageLineHitsData,
-        newLinesToCover, newUncoveredLines, newConditionsToCover, newUncoveredConditions);
+      newLinesToCover, newUncoveredLines, newConditionsToCover, newUncoveredConditions);
   }
 
   private void verify_computation_of_measures_for_new_lines(String coverageLineHitsData,
@@ -362,47 +365,49 @@ public class NewCoverageMeasuresStepTest {
     underTest.execute();
 
     // files
-    assertThat(toEntries(measureRepository.getNewRawMeasures(11111))).containsOnly(
-      entryOf(metricKeys.newLinesToCover, createMeasure(5d, 3d)),
-      entryOf(metricKeys.newUncoveredLines, createMeasure(3d, 2d)),
-      entryOf(metricKeys.newConditionsToCover, createMeasure(7d, 3d)),
-      entryOf(metricKeys.newUncoveredConditions, createMeasure(4d, 1d))
-      );
-    assertThat(toEntries(measureRepository.getNewRawMeasures(11121))).containsOnly(
-      entryOf(metricKeys.newLinesToCover, createMeasure(5d, 3d)),
-      entryOf(metricKeys.newUncoveredLines, createMeasure(4d, 2d)),
-      entryOf(metricKeys.newConditionsToCover, createMeasure(27d, 13d)),
-      entryOf(metricKeys.newUncoveredConditions, createMeasure(14d, 6d))
-      );
-    assertThat(toEntries(measureRepository.getNewRawMeasures(11122))).containsOnly(
-      entryOf(metricKeys.newLinesToCover, createMeasure(5d, 3d)),
-      entryOf(metricKeys.newUncoveredLines, createMeasure(2d, 1d)),
-      entryOf(metricKeys.newConditionsToCover, createMeasure(17d, 13d)),
-      entryOf(metricKeys.newUncoveredConditions, createMeasure(9d, 6d))
-      );
+    checkMeasureVariations(11111, metricKeys.newLinesToCover, null, 5d, null, null, 3d);
+    checkMeasureVariations(11111, metricKeys.newUncoveredLines, null, 3d, null, null, 2d);
+    checkMeasureVariations(11111, metricKeys.newConditionsToCover, null, 7d, null, null, 3d);
+    checkMeasureVariations(11111, metricKeys.newUncoveredConditions, null, 4d, null, null, 1d);
+
+    checkMeasureVariations(11121, metricKeys.newLinesToCover, null, 5d, null, null, 3d);
+    checkMeasureVariations(11121, metricKeys.newUncoveredLines, null, 4d, null, null, 2d);
+    checkMeasureVariations(11121, metricKeys.newConditionsToCover, null, 27d, null, null, 13d);
+    checkMeasureVariations(11121, metricKeys.newUncoveredConditions, null, 14d, null, null, 6d);
+
+    checkMeasureVariations(11122, metricKeys.newLinesToCover, null, 5d, null, null, 3d);
+    checkMeasureVariations(11122, metricKeys.newUncoveredLines, null, 2d, null, null, 1d);
+    checkMeasureVariations(11122, metricKeys.newConditionsToCover, null, 17d, null, null, 13d);
+    checkMeasureVariations(11122, metricKeys.newUncoveredConditions, null, 9d, null, null, 6d);
+
     // directories
-    assertThat(toEntries(measureRepository.getNewRawMeasures(1111))).containsOnly(
-      entryOf(metricKeys.newLinesToCover, createMeasure(5d, 3d)),
-      entryOf(metricKeys.newUncoveredLines, createMeasure(3d, 2d)),
-      entryOf(metricKeys.newConditionsToCover, createMeasure(7d, 3d)),
-      entryOf(metricKeys.newUncoveredConditions, createMeasure(4d, 1d))
-      );
-    assertThat(toEntries(measureRepository.getNewRawMeasures(1112))).containsOnly(
-      entryOf(metricKeys.newLinesToCover, createMeasure(10d, 6d)),
-      entryOf(metricKeys.newUncoveredLines, createMeasure(6d, 3d)),
-      entryOf(metricKeys.newConditionsToCover, createMeasure(44d, 26d)),
-      entryOf(metricKeys.newUncoveredConditions, createMeasure(23d, 12d))
-      );
+    checkMeasureVariations(1111, metricKeys.newLinesToCover, null, 5d, null, null, 3d);
+    checkMeasureVariations(1111, metricKeys.newUncoveredLines, null, 3d, null, null, 2d);
+    checkMeasureVariations(1111, metricKeys.newConditionsToCover, null, 7d, null, null, 3d);
+    checkMeasureVariations(1111, metricKeys.newUncoveredConditions, null, 4d, null, null, 1d);
+
+    checkMeasureVariations(1112, metricKeys.newLinesToCover, null, 10d, null, null, 6d);
+    checkMeasureVariations(1112, metricKeys.newUncoveredLines, null, 6d, null, null, 3d);
+    checkMeasureVariations(1112, metricKeys.newConditionsToCover, null, 44d, null, null, 26d);
+    checkMeasureVariations(1112, metricKeys.newUncoveredConditions, null, 23d, null, null, 12d);
+
     // submodule
-    MeasureRepoEntry[] repoEntriesFromSubModuleUp = {entryOf(metricKeys.newLinesToCover, createMeasure(15d, 9d)),
-        entryOf(metricKeys.newUncoveredLines, createMeasure(9d, 5d)),
-        entryOf(metricKeys.newConditionsToCover, createMeasure(51d, 29d)),
-        entryOf(metricKeys.newUncoveredConditions, createMeasure(27d, 13d))};
-    assertThat(toEntries(measureRepository.getNewRawMeasures(111))).containsOnly(repoEntriesFromSubModuleUp);
+    checkMeasureVariations(111, metricKeys.newLinesToCover, null, 15d, null, null, 9d);
+    checkMeasureVariations(111, metricKeys.newUncoveredLines, null, 9d, null, null, 5d);
+    checkMeasureVariations(111, metricKeys.newConditionsToCover, null, 51d, null, null, 29d);
+    checkMeasureVariations(111, metricKeys.newUncoveredConditions, null, 27d, null, null, 13d);
+
     // module
-    assertThat(toEntries(measureRepository.getNewRawMeasures(11))).containsOnly(repoEntriesFromSubModuleUp);
+    checkMeasureVariations(11, metricKeys.newLinesToCover, null, 15d, null, null, 9d);
+    checkMeasureVariations(11, metricKeys.newUncoveredLines, null, 9d, null, null, 5d);
+    checkMeasureVariations(11, metricKeys.newConditionsToCover, null, 51d, null, null, 29d);
+    checkMeasureVariations(11, metricKeys.newUncoveredConditions, null, 27d, null, null, 13d);
+
     // project
-    assertThat(toEntries(measureRepository.getNewRawMeasures(11))).containsOnly(repoEntriesFromSubModuleUp);
+    checkMeasureVariations(1, metricKeys.newLinesToCover, null, 15d, null, null, 9d);
+    checkMeasureVariations(1, metricKeys.newUncoveredLines, null, 9d, null, null, 29d);
+    checkMeasureVariations(1, metricKeys.newConditionsToCover, null, 51d, null, null, 29d);
+    checkMeasureVariations(1, metricKeys.newUncoveredConditions, null, 27d, null, null, 13d);
   }
 
   private void defineChangeSetsAndMeasures(int componentRef, MetricKeys metricKeys, MeasureValues line4, MeasureValues line6) {
@@ -490,6 +495,25 @@ public class NewCoverageMeasuresStepTest {
     return newMeasureBuilder()
       .setVariations(variationBuilder.build())
       .createNoValue();
+  }
+
+  private void checkMeasureVariations(int fileRef, String metricKey, Double... expectedVariations) {
+    Optional<Measure> measure = measureRepository.getNewRawMeasure(fileRef, metricKey);
+    if (measure.isPresent()) {
+      MeasureVariations measureVariations = measure.get().getVariations();
+      for (int i = 0; i < expectedVariations.length - 1; i++) {
+        Double expectedVariation = expectedVariations[i];
+        int period = i + 1;
+        if (expectedVariation != null) {
+          assertThat(measureVariations.hasVariation(period)).isTrue();
+          assertThat(measureVariations.getVariation(period)).isEqualTo(expectedVariation, DEFAULT_OFFSET);
+        } else {
+          assertThat(measureVariations.hasVariation(period)).isFalse();
+        }
+      }
+    } else {
+      fail(String.format("No measure on metric '%s' for component '%s'", metricKey, fileRef));
+    }
   }
 
 }
