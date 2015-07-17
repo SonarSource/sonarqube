@@ -20,7 +20,6 @@
 package org.sonar.batch.bootstrap;
 
 import org.sonar.api.utils.System2;
-
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.apache.commons.io.FileUtils;
@@ -36,22 +35,20 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class TempFolderProvider extends LifecycleProviderAdapter {
   private static final Logger LOG = Loggers.get(TempFolderProvider.class);
   private static final long CLEAN_MAX_AGE = TimeUnit.DAYS.toMillis(21);
-  private static final AtomicLong nextId = new AtomicLong();
 
   static final String TMP_NAME_PREFIX = ".sonartmp_";
 
   private System2 system;
   private DefaultTempFolder tempFolder;
-  
+
   public TempFolderProvider() {
     this(new System2());
   }
-  
+
   TempFolderProvider(System2 system) {
     this.system = system;
   }
@@ -72,17 +69,25 @@ public class TempFolderProvider extends LifecycleProviderAdapter {
       } catch (IOException e) {
         LOG.error(String.format("failed to clean global working directory: %s", workingPath), e);
       }
-
-      Path tempDir = workingPath.resolve(TMP_NAME_PREFIX + System.currentTimeMillis() + nextId.incrementAndGet());
-      try {
-        Files.createDirectories(tempDir);
-      } catch (IOException e) {
-        throw new IllegalStateException("Unable to create root temp directory " + tempDir, e);
-      }
+      Path tempDir = createTempFolder(workingPath);
       tempFolder = new DefaultTempFolder(tempDir.toFile(), true);
       this.instance = tempFolder;
     }
     return tempFolder;
+  }
+
+  private Path createTempFolder(Path workingPath) {
+    try {
+      Files.createDirectories(workingPath);
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to create working path: " + workingPath);
+    }
+
+    try {
+      return Files.createTempDirectory(workingPath, TMP_NAME_PREFIX);
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to create temporary folder in " + workingPath);
+    }
   }
 
   private Path findHome(BootstrapProperties props) {

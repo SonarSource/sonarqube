@@ -60,9 +60,11 @@ public class MeasuresMediumTest {
   @Test
   public void computeMeasuresOnSampleProject() throws Exception {
     File projectDir = new File(MeasuresMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
-
+    File tmpDir = temp.newFolder();
+    FileUtils.copyDirectory(projectDir, tmpDir);
+    
     TaskResult result = tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .newScanTask(new File(tmpDir, "sonar-project.properties"))
       .start();
 
     assertThat(result.allMeasures()).hasSize(63);

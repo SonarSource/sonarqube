@@ -20,19 +20,16 @@
 package org.sonar.api.utils.internal;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.TempFolder;
 
 import javax.annotation.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class DefaultTempFolder implements TempFolder {
-
-  /** Maximum loop count when creating temp directories. */
-  private static final int TEMP_DIR_ATTEMPTS = 10000;
 
   private final File tempDir;
   private final boolean deleteOnExit;
@@ -48,23 +45,15 @@ public class DefaultTempFolder implements TempFolder {
 
   @Override
   public File newDir() {
-    return createTempDir(tempDir, "");
+    return createTempDir(tempDir.toPath()).toFile();
   }
 
-  /**
-   * Copied from guava waiting for JDK 7 Files#createTempDirectory
-   */
-  private static File createTempDir(File baseDir, String prefix) {
-    String baseName = prefix + System.currentTimeMillis() + "-";
-
-    for (int counter = 0; counter < TEMP_DIR_ATTEMPTS; counter++) {
-      File tempDir = new File(baseDir, baseName + counter);
-      if (tempDir.mkdir()) {
-        return tempDir;
-      }
+  private static Path createTempDir(Path baseDir) {
+    try {
+      return Files.createTempDirectory(baseDir, null);
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to create temp directory");
     }
-    throw new IllegalStateException(MessageFormat.format("Failed to create directory within {0} attempts (tried {1} to {2})", TEMP_DIR_ATTEMPTS, baseName + 0, baseName
-      + (TEMP_DIR_ATTEMPTS - 1)));
   }
 
   @Override
@@ -73,7 +62,7 @@ public class DefaultTempFolder implements TempFolder {
     try {
       FileUtils.forceMkdir(dir);
     } catch (IOException e) {
-      throw new IllegalStateException("Failed to create temp directory in " + dir, e);
+      throw new IllegalStateException("Failed to create temp directory - " + dir, e);
     }
     return dir;
   }
@@ -85,27 +74,16 @@ public class DefaultTempFolder implements TempFolder {
 
   @Override
   public File newFile(@Nullable String prefix, @Nullable String suffix) {
-    return createTempFile(tempDir, prefix, suffix);
+    return createTempFile(tempDir.toPath(), prefix, suffix).toFile();
   }
 
-  /**
-   * Inspired by guava waiting for JDK 7 Files#createTempFile
-   */
-  private static File createTempFile(File baseDir, String prefix, String suffix) {
-    String baseName = StringUtils.defaultIfEmpty(prefix, "") + System.currentTimeMillis() + "-";
-
+  private static Path createTempFile(Path baseDir, String prefix, String suffix) {
     try {
-      for (int counter = 0; counter < TEMP_DIR_ATTEMPTS; counter++) {
-        File tempFile = new File(baseDir, baseName + counter + suffix);
-        if (tempFile.createNewFile()) {
-          return tempFile;
-        }
-      }
+      Path p = Files.createTempFile(baseDir, prefix, suffix);
+      return p;
     } catch (IOException e) {
       throw new IllegalStateException("Failed to create temp file", e);
     }
-    throw new IllegalStateException(MessageFormat.format("Failed to create temp file within {0} attempts (tried {1} to {2})", TEMP_DIR_ATTEMPTS, baseName + 0 + suffix, baseName
-      + (TEMP_DIR_ATTEMPTS - 1) + suffix));
   }
 
   public void clean() {

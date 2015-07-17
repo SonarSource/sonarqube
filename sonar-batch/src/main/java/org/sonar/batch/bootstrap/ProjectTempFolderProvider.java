@@ -37,12 +37,12 @@ public class ProjectTempFolderProvider extends LifecycleProviderAdapter {
     if (projectTempFolder == null) {
       String workingDirPath = StringUtils.defaultIfBlank(props.property(CoreProperties.WORKING_DIRECTORY), CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
       Path workingDir = Paths.get(workingDirPath).normalize();
-      
-      if(!workingDir.isAbsolute()) {
+
+      if (!workingDir.isAbsolute()) {
         Path base = getBasePath(props);
         workingDir = base.resolve(workingDir);
       }
-      
+
       Path tempDir = workingDir.resolve(TMP_NAME);
       try {
         Files.createDirectories(tempDir);
@@ -54,10 +54,10 @@ public class ProjectTempFolderProvider extends LifecycleProviderAdapter {
     }
     return projectTempFolder;
   }
-  
+
   private Path getBasePath(AnalysisProperties props) {
     String baseDir = props.property("sonar.projectBaseDir");
-    if(baseDir == null) {
+    if (baseDir == null) {
       throw new IllegalStateException("sonar.projectBaseDir needs to be specified");
     }
     return Paths.get(baseDir);

@@ -60,9 +60,11 @@ public class IssuesMediumTest {
   @Test
   public void testOneIssuePerLine() throws Exception {
     File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File tmpDir = temp.newFolder();
+    FileUtils.copyDirectory(projectDir, tmpDir);
 
     TaskResult result = tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .newScanTask(new File(tmpDir, "sonar-project.properties"))
       .start();
 
     assertThat(result.issues()).hasSize(14);
@@ -71,9 +73,11 @@ public class IssuesMediumTest {
   @Test
   public void findActiveRuleByInternalKey() throws Exception {
     File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File tmpDir = temp.newFolder();
+    FileUtils.copyDirectory(projectDir, tmpDir);
 
     TaskResult result = tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .newScanTask(new File(tmpDir, "sonar-project.properties"))
       .property("sonar.xoo.internalKey", "OneIssuePerLine.internal")
       .start();
 
@@ -83,9 +87,11 @@ public class IssuesMediumTest {
   @Test
   public void testOverrideQProfileSeverity() throws Exception {
     File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File tmpDir = temp.newFolder();
+    FileUtils.copyDirectory(projectDir, tmpDir);
 
     TaskResult result = tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .newScanTask(new File(tmpDir, "sonar-project.properties"))
       .property("sonar.oneIssuePerLine.forceSeverity", "CRITICAL")
       .start();
 
@@ -95,9 +101,11 @@ public class IssuesMediumTest {
   @Test
   public void testIssueExclusion() throws Exception {
     File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File tmpDir = temp.newFolder();
+    FileUtils.copyDirectory(projectDir, tmpDir);
 
     TaskResult result = tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .newScanTask(new File(tmpDir, "sonar-project.properties"))
       .property("sonar.issue.ignore.allfile", "1")
       .property("sonar.issue.ignore.allfile.1.fileRegexp", "object")
       .start();
