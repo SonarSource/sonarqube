@@ -52,23 +52,37 @@ public class CommentDensityRule extends CommonRule {
     Optional<Measure> commentDensityMeasure = measureRepository.getRawMeasure(file, commentDensityMetric);
     Optional<Measure> commentLinesMeasure = measureRepository.getRawMeasure(file, commentLinesMetric);
     Optional<Measure> nclocMeasure = measureRepository.getRawMeasure(file, nclocMetric);
-    // FIXME
-    double minCommentDensity = 25.0;
-    if (commentDensityMeasure.isPresent() && nclocMeasure.isPresent() && nclocMeasure.get().getIntValue() > 0 && commentDensityMeasure.get().getDoubleValue() < minCommentDensity) {
-      int commentLines = commentLinesMeasure.isPresent() ? commentLinesMeasure.get().getIntValue() : 0;
-      int ncloc = nclocMeasure.get().getIntValue();
-      int minExpectedCommentLines = (int) Math.ceil(minCommentDensity * ncloc / (100 - minCommentDensity));
-      int missingCommentLines = minExpectedCommentLines - commentLines;
-      if (missingCommentLines <= 0) {
-        throw new IllegalStateException(format("Bug in measures of comment lines - density=%s, comment_lines= %d, ncloc=%d, threshold=%s%%", commentDensityMeasure.get()
-          .getDoubleValue(), commentLines, nclocMeasure.get().getIntValue(), minCommentDensity));
-      }
 
-      // TODO declare min threshold as int but not float ?
-      String message = format("%d more comment lines need to be written to reach the minimum threshold of %s%% comment density.", missingCommentLines, minCommentDensity);
-      return new CommonRuleIssue(missingCommentLines, message);
+    if (commentDensityMeasure.isPresent() && nclocMeasure.isPresent() && nclocMeasure.get().getIntValue() > 0) {
+      // this is a small optimization to not load the minimum value when the measures are not present
+      double minCommentDensity = getMinDensity(activeRule);
+      if (commentDensityMeasure.get().getDoubleValue() < minCommentDensity) {
+        return generateIssue(commentDensityMeasure, commentLinesMeasure, nclocMeasure, minCommentDensity);
+      }
+    }
+    return null;
+  }
+
+  private double getMinDensity(ActiveRule activeRule) {
+    double min = getMinDensityParam(activeRule, CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY);
+    if (min >= 100.0) {
+      throw new IllegalStateException("Minimum density of rule [" + activeRule.getRuleKey() + "] is incorrect. Got [100] but must be strictly less than 100.");
+    }
+    return min;
+  }
+
+  private CommonRuleIssue generateIssue(Optional<Measure> commentDensityMeasure, Optional<Measure> commentLinesMeasure, Optional<Measure> nclocMeasure, double minCommentDensity) {
+    int commentLines = commentLinesMeasure.isPresent() ? commentLinesMeasure.get().getIntValue() : 0;
+    int ncloc = nclocMeasure.get().getIntValue();
+    int minExpectedCommentLines = (int) Math.ceil(minCommentDensity * ncloc / (100 - minCommentDensity));
+    int missingCommentLines = minExpectedCommentLines - commentLines;
+    if (missingCommentLines <= 0) {
+      throw new IllegalStateException(format("Bug in measures of comment lines - density=%s, comment_lines= %d, ncloc=%d, threshold=%s%%", commentDensityMeasure.get()
+        .getDoubleValue(), commentLines, nclocMeasure.get().getIntValue(), minCommentDensity));
     }
 
-    return null;
+    // TODO declare min threshold as int but not float ?
+    String message = format("%d more comment lines need to be written to reach the minimum threshold of %s%% comment density.", missingCommentLines, minCommentDensity);
+    return new CommonRuleIssue(missingCommentLines, message);
   }
 }

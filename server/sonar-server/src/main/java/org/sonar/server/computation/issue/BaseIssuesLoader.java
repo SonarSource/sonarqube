@@ -29,16 +29,13 @@ import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.db.issue.IssueDto;
-import org.sonar.db.issue.IssueMapper;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-import org.sonar.server.computation.batch.BatchReportReader;
+import org.sonar.db.issue.IssueDto;
+import org.sonar.db.issue.IssueMapper;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.db.DbClient;
-
-import static com.google.common.collect.FluentIterable.from;
-import static org.sonar.core.rule.RuleKeyFunctions.stringToRuleKey;
+import org.sonar.server.computation.qualityprofile.ActiveRulesHolder;
 
 /**
  * Loads all the project open issues from database, including manual issues.
@@ -46,14 +43,14 @@ import static org.sonar.core.rule.RuleKeyFunctions.stringToRuleKey;
  */
 public class BaseIssuesLoader {
 
-  private final Set<RuleKey> activeRuleKeys;
   private final TreeRootHolder treeRootHolder;
   private final DbClient dbClient;
   private final RuleRepository ruleRepository;
+  private final ActiveRulesHolder activeRulesHolder;
 
-  public BaseIssuesLoader(BatchReportReader reportReader, TreeRootHolder treeRootHolder,
-    DbClient dbClient, RuleRepository ruleRepository) {
-    this.activeRuleKeys = from(reportReader.readMetadata().getActiveRuleKeyList()).transform(stringToRuleKey()).toSet();
+  public BaseIssuesLoader(TreeRootHolder treeRootHolder,
+    DbClient dbClient, RuleRepository ruleRepository, ActiveRulesHolder activeRulesHolder) {
+    this.activeRulesHolder = activeRulesHolder;
     this.treeRootHolder = treeRootHolder;
     this.dbClient = dbClient;
     this.ruleRepository = ruleRepository;
@@ -87,7 +84,7 @@ public class BaseIssuesLoader {
   }
 
   private boolean isActive(RuleKey ruleKey) {
-    return ruleKey.isManual() || activeRuleKeys.contains(ruleKey);
+    return ruleKey.isManual() || activeRulesHolder.get(ruleKey).isPresent();
   }
 
   /**

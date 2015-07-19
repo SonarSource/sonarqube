@@ -20,8 +20,8 @@
 package org.sonar.server.computation.batch;
 
 import com.google.common.base.Preconditions;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,16 +31,17 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.server.util.CloseableIterator;
+import org.sonar.core.util.CloseableIterator;
 
 public class BatchReportReaderRule implements TestRule, BatchReportReader {
   private BatchReport.Metadata metadata;
+  private List<BatchReport.ActiveRule> activeRules = new ArrayList<>();
   private Map<Integer, List<BatchReport.Measure>> measures = new HashMap<>();
   private Map<Integer, BatchReport.Changesets> changesets = new HashMap<>();
   private Map<Integer, BatchReport.Component> components = new HashMap<>();
   private Map<Integer, List<BatchReport.Issue>> issues = new HashMap<>();
   private Map<Integer, List<BatchReport.Duplication>> duplications = new HashMap<>();
-  private Map<Integer, List<BatchReport.Symbols.Symbol>> symbols = new HashMap<>();
+  private Map<Integer, List<BatchReport.Symbol>> symbols = new HashMap<>();
   private Map<Integer, List<BatchReport.SyntaxHighlighting>> syntaxHighlightings = new HashMap<>();
   private Map<Integer, List<BatchReport.Coverage>> coverages = new HashMap<>();
   private Map<Integer, List<String>> fileSources = new HashMap<>();
@@ -89,12 +90,24 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   }
 
   @Override
-  public List<BatchReport.Measure> readComponentMeasures(int componentRef) {
+  public CloseableIterator<BatchReport.ActiveRule> readActiveRules() {
+    if (activeRules == null) {
+      throw new IllegalStateException("Active rules are not set");
+    }
+    return CloseableIterator.from(activeRules.iterator());
+  }
+
+  public void putActiveRules(List<BatchReport.ActiveRule> activeRules) {
+    this.activeRules = activeRules;
+  }
+
+  @Override
+  public CloseableIterator<BatchReport.Measure> readComponentMeasures(int componentRef) {
     List<BatchReport.Measure> res = this.measures.get(componentRef);
     if (res == null) {
-      return Collections.emptyList();
+      return CloseableIterator.emptyCloseableIterator();
     }
-    return res;
+    return CloseableIterator.from(res.iterator());
   }
 
   public void putMeasures(int componentRef, List<BatchReport.Measure> measures) {
@@ -121,8 +134,8 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   }
 
   @Override
-  public List<BatchReport.Issue> readComponentIssues(int componentRef) {
-    return nonNull(issues.get(componentRef));
+  public CloseableIterator<BatchReport.Issue> readComponentIssues(int componentRef) {
+    return closeableIterator(issues.get(componentRef));
   }
 
   public void putIssues(int componentRef, List<BatchReport.Issue> issue) {
@@ -130,8 +143,8 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   }
 
   @Override
-  public List<BatchReport.Duplication> readComponentDuplications(int componentRef) {
-    return nonNull(this.duplications.get(componentRef));
+  public CloseableIterator<BatchReport.Duplication> readComponentDuplications(int componentRef) {
+    return closeableIterator(this.duplications.get(componentRef));
   }
 
   public void putDuplications(int componentRef, List<BatchReport.Duplication> duplications) {
@@ -139,15 +152,15 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   }
 
   @Override
-  public List<BatchReport.Symbols.Symbol> readComponentSymbols(int componentRef) {
-    return nonNull(this.symbols.get(componentRef));
+  public CloseableIterator<BatchReport.Symbol> readComponentSymbols(int componentRef) {
+    return closeableIterator(this.symbols.get(componentRef));
   }
 
-  private static <T> List<T> nonNull(@Nullable List<T> symbols) {
-    return symbols == null ? Collections.<T>emptyList() : symbols;
+  private static <T> CloseableIterator<T> closeableIterator(@Nullable List<T> list) {
+    return list == null ? CloseableIterator.<T>emptyCloseableIterator() : CloseableIterator.from(list.iterator());
   }
 
-  public void putSymbols(int componentRef, List<BatchReport.Symbols.Symbol> symbols) {
+  public void putSymbols(int componentRef, List<BatchReport.Symbol> symbols) {
     this.symbols.put(componentRef, symbols);
   }
 

@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.protocol.output;
 
+import com.google.common.collect.Iterators;
+import java.io.File;
+import java.util.Arrays;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,9 +30,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.ProtobufUtil;
 import org.sonar.batch.protocol.output.BatchReport.Range;
-
-import java.io.File;
-import java.util.Arrays;
+import org.sonar.core.util.CloseableIterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -110,9 +111,9 @@ public class BatchReportWriterTest {
     assertThat(underTest.hasComponentData(FileStructure.Domain.ISSUES, 1)).isTrue();
     File file = underTest.getFileStructure().fileFor(FileStructure.Domain.ISSUES, 1);
     assertThat(file).exists().isFile();
-    BatchReport.Issues read = ProtobufUtil.readFile(file, BatchReport.Issues.PARSER);
-    assertThat(read.getComponentRef()).isEqualTo(1);
-    assertThat(read.getIssueCount()).isEqualTo(1);
+    try (CloseableIterator<BatchReport.Issue> read = ProtobufUtil.readStreamFromFile(file, BatchReport.Issue.PARSER)) {
+      assertThat(Iterators.size(read)).isEqualTo(1);
+    }
   }
 
   @Test
@@ -131,13 +132,9 @@ public class BatchReportWriterTest {
     assertThat(underTest.hasComponentData(FileStructure.Domain.MEASURES, 1)).isTrue();
     File file = underTest.getFileStructure().fileFor(FileStructure.Domain.MEASURES, 1);
     assertThat(file).exists().isFile();
-    BatchReport.Measures measures = ProtobufUtil.readFile(file, BatchReport.Measures.PARSER);
-    assertThat(measures.getComponentRef()).isEqualTo(1);
-    assertThat(measures.getMeasureCount()).isEqualTo(1);
-    assertThat(measures.getMeasure(0).getStringValue()).isEqualTo("text-value");
-    assertThat(measures.getMeasure(0).getDoubleValue()).isEqualTo(2.5d);
-    assertThat(measures.getMeasure(0).getValueType()).isEqualTo(Constants.MeasureValueType.DOUBLE);
-    assertThat(measures.getMeasure(0).getDescription()).isEqualTo("description");
+    try (CloseableIterator<BatchReport.Measure> read = ProtobufUtil.readStreamFromFile(file, BatchReport.Measure.PARSER)) {
+      assertThat(Iterators.size(read)).isEqualTo(1);
+    }
   }
 
   @Test
@@ -188,11 +185,11 @@ public class BatchReportWriterTest {
     assertThat(underTest.hasComponentData(FileStructure.Domain.DUPLICATIONS, 1)).isTrue();
     File file = underTest.getFileStructure().fileFor(FileStructure.Domain.DUPLICATIONS, 1);
     assertThat(file).exists().isFile();
-    BatchReport.Duplications duplications = ProtobufUtil.readFile(file, BatchReport.Duplications.PARSER);
-    assertThat(duplications.getComponentRef()).isEqualTo(1);
-    assertThat(duplications.getDuplicationList()).hasSize(1);
-    assertThat(duplications.getDuplication(0).getOriginPosition()).isNotNull();
-    assertThat(duplications.getDuplication(0).getDuplicateList()).hasSize(1);
+    try (CloseableIterator<BatchReport.Duplication> duplications = ProtobufUtil.readStreamFromFile(file, BatchReport.Duplication.PARSER)) {
+      BatchReport.Duplication dup = duplications.next();
+      assertThat(dup.getOriginPosition()).isNotNull();
+      assertThat(dup.getDuplicateList()).hasSize(1);
+    }
   }
 
   @Test
@@ -201,7 +198,7 @@ public class BatchReportWriterTest {
     assertThat(underTest.hasComponentData(FileStructure.Domain.SYMBOLS, 1)).isFalse();
 
     // write data
-    BatchReport.Symbols.Symbol symbol = BatchReport.Symbols.Symbol.newBuilder()
+    BatchReport.Symbol symbol = BatchReport.Symbol.newBuilder()
       .setDeclaration(BatchReport.Range.newBuilder()
         .setStartLine(1)
         .setStartOffset(3)
@@ -222,11 +219,9 @@ public class BatchReportWriterTest {
 
     File file = underTest.getFileStructure().fileFor(FileStructure.Domain.SYMBOLS, 1);
     assertThat(file).exists().isFile();
-    BatchReport.Symbols read = ProtobufUtil.readFile(file, BatchReport.Symbols.PARSER);
-    assertThat(read.getFileRef()).isEqualTo(1);
-    assertThat(read.getSymbolList()).hasSize(1);
-    assertThat(read.getSymbol(0).getDeclaration().getStartLine()).isEqualTo(1);
-    assertThat(read.getSymbol(0).getReference(0).getStartLine()).isEqualTo(10);
+    try (CloseableIterator<BatchReport.Symbol> read = ProtobufUtil.readStreamFromFile(file, BatchReport.Symbol.PARSER)) {
+      assertThat(read).hasSize(1);
+    }
   }
 
   @Test

@@ -20,7 +20,6 @@
 package org.sonar.batch.report;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,9 +27,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.rule.internal.DefaultActiveRules;
-import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -45,7 +41,6 @@ public class MetadataPublisherTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  ActiveRules activeRules = new DefaultActiveRules(Collections.<NewActiveRule>emptyList());
   ProjectDefinition projectDef;
   Project project;
 
@@ -59,12 +54,11 @@ public class MetadataPublisherTest {
     org.sonar.api.resources.Resource sampleFile = org.sonar.api.resources.File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");
     componentCache.add(project, null);
     componentCache.add(sampleFile, project);
-    underTest = new MetadataPublisher(componentCache, new ImmutableProjectReactor(projectDef), activeRules);
+    underTest = new MetadataPublisher(componentCache, new ImmutableProjectReactor(projectDef));
   }
 
   @Test
   public void write_metadata() throws Exception {
-
     File outputDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(outputDir);
 
@@ -74,7 +68,6 @@ public class MetadataPublisherTest {
     BatchReport.Metadata metadata = reader.readMetadata();
     assertThat(metadata.getAnalysisDate()).isEqualTo(1234567L);
     assertThat(metadata.getProjectKey()).isEqualTo("foo");
-
   }
 
   @Test

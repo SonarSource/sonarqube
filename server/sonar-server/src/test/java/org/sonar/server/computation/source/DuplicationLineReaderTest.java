@@ -20,8 +20,10 @@
 
 package org.sonar.server.computation.source;
 
+import com.google.common.collect.Iterators;
 import org.junit.Test;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.core.util.CloseableIterator;
 import org.sonar.server.source.db.FileSourceDb;
 
 import java.util.Collections;
@@ -39,7 +41,7 @@ public class DuplicationLineReaderTest {
 
   @Test
   public void read_nothing() {
-    DuplicationLineReader reader = new DuplicationLineReader(Collections.<BatchReport.Duplication>emptyList());
+    DuplicationLineReader reader = new DuplicationLineReader(CloseableIterator.<BatchReport.Duplication>emptyCloseableIterator());
 
     reader.read(line1);
 
@@ -48,7 +50,7 @@ public class DuplicationLineReaderTest {
 
   @Test
   public void read_duplication_with_duplicates_on_same_file() {
-    DuplicationLineReader reader = new DuplicationLineReader(newArrayList(
+    DuplicationLineReader reader = new DuplicationLineReader(Iterators.forArray(
       BatchReport.Duplication.newBuilder()
         .setOriginPosition(BatchReport.Range.newBuilder()
           .setStartLine(1)
@@ -61,7 +63,7 @@ public class DuplicationLineReaderTest {
             .build())
           .build())
         .build()
-      ));
+    ));
 
     reader.read(line1);
     reader.read(line2);
@@ -76,7 +78,7 @@ public class DuplicationLineReaderTest {
 
   @Test
   public void read_duplication_with_duplicates_on_other_file() {
-    DuplicationLineReader reader = new DuplicationLineReader(newArrayList(
+    DuplicationLineReader reader = new DuplicationLineReader(Iterators.forArray(
       BatchReport.Duplication.newBuilder()
         .setOriginPosition(BatchReport.Range.newBuilder()
           .setStartLine(1)
@@ -105,7 +107,7 @@ public class DuplicationLineReaderTest {
 
   @Test
   public void read_duplication_with_duplicates_on_other_file_from_other_project() {
-    DuplicationLineReader reader = new DuplicationLineReader(newArrayList(
+    DuplicationLineReader reader = new DuplicationLineReader(Iterators.forArray(
       BatchReport.Duplication.newBuilder()
         .setOriginPosition(BatchReport.Range.newBuilder()
           .setStartLine(1)
@@ -134,7 +136,7 @@ public class DuplicationLineReaderTest {
 
   @Test
   public void read_many_duplications() {
-    DuplicationLineReader reader = new DuplicationLineReader(newArrayList(
+    DuplicationLineReader reader = new DuplicationLineReader(Iterators.forArray(
       BatchReport.Duplication.newBuilder()
         .setOriginPosition(BatchReport.Range.newBuilder()
           .setStartLine(1)
@@ -174,7 +176,7 @@ public class DuplicationLineReaderTest {
 
   @Test
   public void should_be_sorted_by_line_block() {
-    DuplicationLineReader reader = new DuplicationLineReader(newArrayList(
+    DuplicationLineReader reader = new DuplicationLineReader(Iterators.forArray(
       BatchReport.Duplication.newBuilder()
         .setOriginPosition(BatchReport.Range.newBuilder()
           .setStartLine(2)
@@ -214,7 +216,7 @@ public class DuplicationLineReaderTest {
 
   @Test
   public void should_be_sorted_by_line_length() {
-    DuplicationLineReader reader = new DuplicationLineReader(newArrayList(
+    DuplicationLineReader reader = new DuplicationLineReader(Iterators.forArray(
       BatchReport.Duplication.newBuilder()
         .setOriginPosition(BatchReport.Range.newBuilder()
           .setStartLine(1)

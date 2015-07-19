@@ -39,12 +39,11 @@ public class RuleImpl implements Rule {
   private final RuleKey key;
   private final String name;
   private final RuleStatus status;
-  private final boolean isActivated;
   private final Integer subCharacteristicId;
   private final Set<String> tags;
   private final DebtRemediationFunction remediationFunction;
 
-  public RuleImpl(RuleDto dto, boolean isActivated) {
+  public RuleImpl(RuleDto dto) {
     this.id = dto.getId();
     this.key = dto.getKey();
     this.name = dto.getName();
@@ -52,7 +51,6 @@ public class RuleImpl implements Rule {
     this.subCharacteristicId = effectiveCharacteristicId(dto);
     this.tags = union(dto.getSystemTags(), dto.getTags());
     this.remediationFunction = effectiveRemediationFunction(dto);
-    this.isActivated = isActivated;
   }
 
   @Override
@@ -73,11 +71,6 @@ public class RuleImpl implements Rule {
   @Override
   public RuleStatus getStatus() {
     return status;
-  }
-
-  @Override
-  public boolean isActivated() {
-    return isActivated;
   }
 
   @Override
@@ -119,7 +112,6 @@ public class RuleImpl implements Rule {
       .add("key", key)
       .add("name", name)
       .add("status", status)
-      .add("isActivated", isActivated)
       .add("subCharacteristicId", subCharacteristicId)
       .add("tags", tags)
       .toString();

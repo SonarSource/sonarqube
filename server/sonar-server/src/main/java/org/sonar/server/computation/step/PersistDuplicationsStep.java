@@ -20,15 +20,16 @@
 
 package org.sonar.server.computation.step;
 
-import java.util.List;
+import java.util.Iterator;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Range;
-import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.metric.MetricDto;
+import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
@@ -84,13 +85,14 @@ public class PersistDuplicationsStep implements ComputationStep {
     }
 
     private void visitComponent(Component component) {
-      List<BatchReport.Duplication> duplications = reportReader.readComponentDuplications(component.getRef());
-      if (!duplications.isEmpty()) {
-        saveDuplications( component, duplications);
+      try (CloseableIterator<BatchReport.Duplication> duplications = reportReader.readComponentDuplications(component.getRef())) {
+        if (duplications.hasNext()) {
+          saveDuplications(component, duplications);
+        }
       }
     }
 
-    private void saveDuplications(Component component, List<BatchReport.Duplication> duplications) {
+    private void saveDuplications(Component component, Iterator<BatchReport.Duplication> duplications) {
       String duplicationXml = createXmlDuplications(component.getKey(), duplications);
       MeasureDto measureDto = new MeasureDto()
         .setMetricId(duplicationMetric.getId())
@@ -100,10 +102,11 @@ public class PersistDuplicationsStep implements ComputationStep {
       dbClient.measureDao().insert(session, measureDto);
     }
 
-    private String createXmlDuplications(String componentKey, Iterable<BatchReport.Duplication> duplications) {
+    private String createXmlDuplications(String componentKey, Iterator<BatchReport.Duplication> duplications) {
       StringBuilder xml = new StringBuilder();
       xml.append("<duplications>");
-      for (BatchReport.Duplication duplication : duplications) {
+      while (duplications.hasNext()) {
+        BatchReport.Duplication duplication = duplications.next();
         xml.append("<g>");
         appendDuplication(xml, componentKey, duplication.getOriginPosition());
         for (BatchReport.Duplicate duplicationBlock : duplication.getDuplicateList()) {

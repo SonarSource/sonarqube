@@ -33,6 +33,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.LazyInput;
 import org.sonar.core.issue.tracking.LineHashSequence;
+import org.sonar.core.util.CloseableIterator;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.TreeRootHolder;
@@ -76,24 +77,25 @@ public class TrackerRawInputFactory {
 
     @Override
     protected List<DefaultIssue> loadIssues() {
-      List<BatchReport.Issue> reportIssues = reportReader.readComponentIssues(component.getRef());
       List<DefaultIssue> result = new ArrayList<>();
 
       for (DefaultIssue commonRuleIssue : commonRuleEngine.process(component)) {
         result.add(init(commonRuleIssue));
       }
-      if (!reportIssues.isEmpty()) {
-        // optimization - do not load line hashes if there are no issues
-        LineHashSequence lineHashSeq = getLineHashSequence();
-        for (BatchReport.Issue reportIssue : reportIssues) {
+      try (CloseableIterator<BatchReport.Issue> reportIssues = reportReader.readComponentIssues(component.getRef())) {
+        // optimization - do not load line hashes if there are no issues -> getLineHashSequence() is executed
+        // as late as possible
+        while (reportIssues.hasNext()) {
+          BatchReport.Issue reportIssue = reportIssues.next();
           if (isIssueOnUnsupportedCommonRule(reportIssue)) {
-            DefaultIssue issue = toIssue(lineHashSeq, reportIssue);
+            DefaultIssue issue = toIssue(getLineHashSequence(), reportIssue);
             result.add(issue);
           } else {
             Loggers.get(getClass()).debug("Ignored issue from analysis report on rule {}:{}", reportIssue.getRuleRepository(), reportIssue.getRuleKey());
           }
         }
       }
+
       return result;
     }
 

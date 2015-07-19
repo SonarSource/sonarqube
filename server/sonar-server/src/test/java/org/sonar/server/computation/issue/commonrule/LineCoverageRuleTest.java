@@ -36,6 +36,11 @@ public class LineCoverageRuleTest extends CoverageRuleTest {
   }
 
   @Override
+  protected String getMinPropertyKey() {
+    return CommonRuleKeys.INSUFFICIENT_LINE_COVERAGE_PROPERTY;
+  }
+
+  @Override
   protected String getCoverageMetricKey() {
     return CoreMetrics.LINE_COVERAGE_KEY;
   }

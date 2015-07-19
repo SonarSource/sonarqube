@@ -30,7 +30,8 @@ import static java.lang.String.format;
 public class LineCoverageRule extends AbstractCoverageRule {
 
   public LineCoverageRule(ActiveRulesHolder activeRulesHolder, MetricRepository metricRepository, MeasureRepository measureRepository) {
-    super(activeRulesHolder, CommonRuleKeys.INSUFFICIENT_LINE_COVERAGE, measureRepository,
+    super(activeRulesHolder, CommonRuleKeys.INSUFFICIENT_LINE_COVERAGE, CommonRuleKeys.INSUFFICIENT_LINE_COVERAGE_PROPERTY,
+      measureRepository,
       metricRepository.getByKey(CoreMetrics.LINE_COVERAGE_KEY),
       metricRepository.getByKey(CoreMetrics.UNCOVERED_LINES_KEY),
       metricRepository.getByKey(CoreMetrics.LINES_TO_COVER_KEY));

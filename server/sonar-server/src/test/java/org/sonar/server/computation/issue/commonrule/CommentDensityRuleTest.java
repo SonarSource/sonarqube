@@ -19,8 +19,10 @@
  */
 package org.sonar.server.computation.issue.commonrule;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -48,6 +50,9 @@ public class CommentDensityRuleTest {
     .build();
 
   @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  @Rule
   public ActiveRulesHolderRule activeRuleHolder = new ActiveRulesHolderRule();
 
   @Rule
@@ -66,7 +71,7 @@ public class CommentDensityRuleTest {
 
   @Test
   public void no_issues_if_enough_comments() {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, ImmutableMap.of(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY, "25")));
     measureRepository.addRawMeasure(FILE.getRef(), CoreMetrics.COMMENT_LINES_DENSITY_KEY, Measure.newMeasureBuilder().create(90.0));
 
     DefaultIssue issue = underTest.processFile(FILE, "java");
@@ -76,7 +81,7 @@ public class CommentDensityRuleTest {
 
   @Test
   public void issue_if_not_enough_comments() {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, ImmutableMap.of(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY, "25")));
     measureRepository.addRawMeasure(FILE.getRef(), CoreMetrics.COMMENT_LINES_DENSITY_KEY, Measure.newMeasureBuilder().create(10.0));
     measureRepository.addRawMeasure(FILE.getRef(), CoreMetrics.COMMENT_LINES_KEY, Measure.newMeasureBuilder().create(40));
     measureRepository.addRawMeasure(FILE.getRef(), CoreMetrics.NCLOC_KEY, Measure.newMeasureBuilder().create(360));
@@ -93,7 +98,7 @@ public class CommentDensityRuleTest {
 
   @Test
   public void issue_if_not_enough_comments__test_ceil() {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, ImmutableMap.of(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY, "25")));
     measureRepository.addRawMeasure(FILE.getRef(), CoreMetrics.COMMENT_LINES_DENSITY_KEY, Measure.newMeasureBuilder().create(0.0));
     measureRepository.addRawMeasure(FILE.getRef(), CoreMetrics.COMMENT_LINES_KEY, Measure.newMeasureBuilder().create(0));
     measureRepository.addRawMeasure(FILE.getRef(), CoreMetrics.NCLOC_KEY, Measure.newMeasureBuilder().create(1));
@@ -107,33 +112,19 @@ public class CommentDensityRuleTest {
     assertThat(issue.message()).isEqualTo("1 more comment lines need to be written to reach the minimum threshold of 25.0% comment density.");
   }
 
-  // /**
-  // * SQALE-110
-  // */
-  // @Test
-  // public void shouldFailIfMinimumCommentDensitySetTo100() {
-  // check.setMinimumCommentDensity(100);
-  //
-  // thrown.expect(IllegalArgumentException.class);
-  // thrown.expectMessage("100.0 is not a valid value for minimum required comment density for rule 'CommentDensityCheck' (must be >= 0 and < 100).");
-  //
-  // check.checkResource(resource, context, null, perspectives);
-  //
-  // verify(perspectives, times(0)).as(Issuable.class, resource);
-  // }
-  //
-  // /**
-  // * SQALE-110
-  // */
-  // @Test
-  // public void shouldFailIfMinimumCommentDensitySetToNegative() {
-  // check.setMinimumCommentDensity(-5);
-  //
-  // thrown.expect(IllegalArgumentException.class);
-  // thrown.expectMessage("-5.0 is not a valid value for minimum required comment density for rule 'CommentDensityCheck' (must be >= 0 and < 100).");
-  //
-  // check.checkResource(resource, context, null, mock(ResourcePerspectives.class));
-  //
-  // verify(perspectives, times(0)).as(Issuable.class, resource);
-  // }
+  /**
+  * SQALE-110
+  */
+  @Test
+  public void fail_if_min_density_is_100() {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Minimum density of rule [common-java:InsufficientCommentDensity] is incorrect. Got [100] but must be strictly less than 100.");
+
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, ImmutableMap.of(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY, "100")));
+    measureRepository.addRawMeasure(FILE.getRef(), CoreMetrics.COMMENT_LINES_DENSITY_KEY, Measure.newMeasureBuilder().create(0.0));
+    measureRepository.addRawMeasure(FILE.getRef(), CoreMetrics.COMMENT_LINES_KEY, Measure.newMeasureBuilder().create(0));
+    measureRepository.addRawMeasure(FILE.getRef(), CoreMetrics.NCLOC_KEY, Measure.newMeasureBuilder().create(1));
+
+    underTest.processFile(FILE, "java");
+  }
 }

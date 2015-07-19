@@ -34,7 +34,7 @@ import org.sonar.db.MyBatis;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.RuleRepository;
 import org.sonar.db.DbClient;
-import org.sonar.server.util.CloseableIterator;
+import org.sonar.core.util.CloseableIterator;
 
 public class PersistIssuesStep implements ComputationStep {
 

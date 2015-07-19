@@ -66,7 +66,7 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .setDebtRemediationFunction(rule.debtRemediationFunctions().linear("5min"))
       .setEffortToFixDescription("number of uncovered conditions")
       .setSeverity(Severity.MAJOR);
-    rule.createParam("minimumBranchCoverageRatio")
+    rule.createParam(CommonRuleKeys.INSUFFICIENT_BRANCH_COVERAGE_PROPERTY)
       .setName("The minimum required branch coverage ratio")
       .setDefaultValue("65")
       .setType(RuleParamType.FLOAT);
@@ -82,7 +82,7 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .setDebtRemediationFunction(rule.debtRemediationFunctions().linear("2min"))
       .setEffortToFixDescription("number of lines under the coverage threshold")
       .setSeverity(Severity.MAJOR);
-    rule.createParam("minimumLineCoverageRatio")
+    rule.createParam(CommonRuleKeys.INSUFFICIENT_LINE_COVERAGE_PROPERTY)
       .setName("The minimum required line coverage ratio")
       .setDefaultValue("65")
       .setType(RuleParamType.FLOAT);
@@ -98,7 +98,7 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .setDebtRemediationFunction(rule.debtRemediationFunctions().linear("2min"))
       .setEffortToFixDescription("number of lines required to meet minimum density")
       .setSeverity(Severity.MAJOR);
-    rule.createParam("minimumCommentDensity")
+    rule.createParam(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY)
       .setName("The minimum required comment density")
       .setDefaultValue("25")
       .setType(RuleParamType.FLOAT);

@@ -30,7 +30,7 @@ import org.sonar.api.utils.internal.JUnitTempFolder;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.protocol.output.FileStructure;
-import org.sonar.server.util.CloseableIterator;
+import org.sonar.core.util.CloseableIterator;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,9 +42,8 @@ public class BatchReportReaderImplTest {
   private static final BatchReport.Measure MEASURE = BatchReport.Measure.newBuilder().build();
   private static final BatchReport.Component COMPONENT = BatchReport.Component.newBuilder().setRef(COMPONENT_REF).build();
   private static final BatchReport.Issue ISSUE = BatchReport.Issue.newBuilder().build();
-  private static final BatchReport.Issues ISSUES = BatchReport.Issues.newBuilder().setComponentRef(COMPONENT_REF).addIssue(ISSUE).build();
   private static final BatchReport.Duplication DUPLICATION = BatchReport.Duplication.newBuilder().build();
-  private static final BatchReport.Symbols.Symbol SYMBOL = BatchReport.Symbols.Symbol.newBuilder().build();
+  private static final BatchReport.Symbol SYMBOL = BatchReport.Symbol.newBuilder().build();
   private static final BatchReport.SyntaxHighlighting SYNTAX_HIGHLIGHTING_1 = BatchReport.SyntaxHighlighting.newBuilder().build();
   private static final BatchReport.SyntaxHighlighting SYNTAX_HIGHLIGHTING_2 = BatchReport.SyntaxHighlighting.newBuilder().build();
   private static final BatchReport.Coverage COVERAGE_1 = BatchReport.Coverage.newBuilder().build();
@@ -94,9 +93,10 @@ public class BatchReportReaderImplTest {
   public void verify_readComponentMeasures_returns_measures() {
     writer.writeComponentMeasures(COMPONENT_REF, of(MEASURE));
 
-    List<BatchReport.Measure> measures = underTest.readComponentMeasures(COMPONENT_REF);
-    assertThat(measures).hasSize(1);
-    assertThat(measures.get(0)).isEqualTo(MEASURE);
+    try (CloseableIterator<BatchReport.Measure> measures = underTest.readComponentMeasures(COMPONENT_REF)) {
+      assertThat(measures.next()).isEqualTo(MEASURE);
+      assertThat(measures.hasNext()).isFalse();
+    }
   }
 
   @Test
@@ -154,9 +154,10 @@ public class BatchReportReaderImplTest {
   public void verify_readComponentIssues_returns_Issues() {
     writer.writeComponentIssues(COMPONENT_REF, of(ISSUE));
 
-    List<BatchReport.Issue> res = underTest.readComponentIssues(COMPONENT_REF);
-    assertThat(res).hasSize(1);
-    assertThat(res.get(0)).isEqualTo(ISSUE);
+    try (CloseableIterator<BatchReport.Issue> res = underTest.readComponentIssues(COMPONENT_REF)) {
+      assertThat(res.next()).isEqualTo(ISSUE);
+      assertThat(res.hasNext()).isFalse();
+    }
   }
 
   @Test
@@ -175,9 +176,10 @@ public class BatchReportReaderImplTest {
   public void verify_readComponentDuplications_returns_Issues() {
     writer.writeComponentDuplications(COMPONENT_REF, of(DUPLICATION));
 
-    List<BatchReport.Duplication> res = underTest.readComponentDuplications(COMPONENT_REF);
-    assertThat(res).hasSize(1);
-    assertThat(res.get(0)).isEqualTo(DUPLICATION);
+    try (CloseableIterator<BatchReport.Duplication> res = underTest.readComponentDuplications(COMPONENT_REF)) {
+      assertThat(res.next()).isEqualTo(DUPLICATION);
+      assertThat(res.hasNext()).isFalse();
+    }
   }
 
   @Test
@@ -196,9 +198,10 @@ public class BatchReportReaderImplTest {
   public void verify_readComponentSymbols_returns_Issues() {
     writer.writeComponentSymbols(COMPONENT_REF, of(SYMBOL));
 
-    List<BatchReport.Symbols.Symbol> res = underTest.readComponentSymbols(COMPONENT_REF);
-    assertThat(res).hasSize(1);
-    assertThat(res.get(0)).isEqualTo(SYMBOL);
+    try (CloseableIterator<BatchReport.Symbol> res = underTest.readComponentSymbols(COMPONENT_REF)) {
+      assertThat(res.next()).isEqualTo(SYMBOL);
+      assertThat(res.hasNext()).isFalse();
+    }
   }
 
   @Test

@@ -25,7 +25,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Parser;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.sonar.server.util.CloseableIterator;
+import org.sonar.core.util.CloseableIterator;
 
 import java.io.File;
 import java.io.IOException;

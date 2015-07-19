@@ -33,7 +33,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.server.util.CloseableIterator;
+import org.sonar.core.util.CloseableIterator;
 
 public class BatchReportReaderImpl implements BatchReportReader {
   private final org.sonar.batch.protocol.output.BatchReportReader delegate;
@@ -53,7 +53,12 @@ public class BatchReportReaderImpl implements BatchReportReader {
   }
 
   @Override
-  public List<BatchReport.Measure> readComponentMeasures(int componentRef) {
+  public CloseableIterator<BatchReport.ActiveRule> readActiveRules() {
+    return delegate.readActiveRules();
+  }
+
+  @Override
+  public CloseableIterator<BatchReport.Measure> readComponentMeasures(int componentRef) {
     return delegate.readComponentMeasures(componentRef);
   }
 
@@ -69,17 +74,17 @@ public class BatchReportReaderImpl implements BatchReportReader {
   }
 
   @Override
-  public List<BatchReport.Issue> readComponentIssues(int componentRef) {
+  public CloseableIterator<BatchReport.Issue> readComponentIssues(int componentRef) {
     return delegate.readComponentIssues(componentRef);
   }
 
   @Override
-  public List<BatchReport.Duplication> readComponentDuplications(int componentRef) {
+  public CloseableIterator<BatchReport.Duplication> readComponentDuplications(int componentRef) {
     return delegate.readComponentDuplications(componentRef);
   }
 
   @Override
-  public List<BatchReport.Symbols.Symbol> readComponentSymbols(int componentRef) {
+  public CloseableIterator<BatchReport.Symbol> readComponentSymbols(int componentRef) {
     return delegate.readComponentSymbols(componentRef);
   }
 

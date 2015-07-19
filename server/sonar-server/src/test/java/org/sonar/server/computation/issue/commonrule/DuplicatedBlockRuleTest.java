@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.issue.commonrule;
 
+import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
@@ -64,7 +65,7 @@ public class DuplicatedBlockRuleTest {
 
   @Test
   public void no_issue_if_no_duplicated_blocks() throws Exception {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.<String, String>emptyMap()));
     measureRepository.addRawMeasure(FILE.getRef(), CoreMetrics.DUPLICATED_BLOCKS_KEY, Measure.newMeasureBuilder().create(0));
 
     DefaultIssue issue = underTest.processFile(FILE, "java");
@@ -74,7 +75,7 @@ public class DuplicatedBlockRuleTest {
 
   @Test
   public void issue_if_duplicated_blocks() throws Exception {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.<String, String>emptyMap()));
     measureRepository.addRawMeasure(FILE.getRef(), CoreMetrics.DUPLICATED_BLOCKS_KEY, Measure.newMeasureBuilder().create(3));
 
     DefaultIssue issue = underTest.processFile(FILE, "java");

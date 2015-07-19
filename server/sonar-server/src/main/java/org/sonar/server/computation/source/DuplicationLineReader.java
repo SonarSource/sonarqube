@@ -20,14 +20,14 @@
 
 package org.sonar.server.computation.source;
 
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.server.source.db.FileSourceDb;
-
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.server.source.db.FileSourceDb;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -37,7 +37,7 @@ public class DuplicationLineReader implements LineReader {
   private final List<BatchReport.Duplication> duplications;
   private final Map<BatchReport.Range, Integer> duplicationIdsByRange;
 
-  public DuplicationLineReader(List<BatchReport.Duplication> duplications) {
+  public DuplicationLineReader(Iterator<BatchReport.Duplication> duplications) {
     this.duplications = newArrayList(duplications);
     // Sort duplication to have deterministic results and avoid false variation that would lead to an unnecessary update of the source files
     // data

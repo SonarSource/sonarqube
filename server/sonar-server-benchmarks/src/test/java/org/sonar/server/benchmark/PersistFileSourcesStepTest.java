@@ -147,7 +147,7 @@ public class PersistFileSourcesStepTest {
     BatchReport.Changesets.Builder changesetsBuilder = BatchReport.Changesets.newBuilder();
     List<BatchReport.Coverage> coverages = new ArrayList<>();
     List<BatchReport.SyntaxHighlighting> highlightings = new ArrayList<>();
-    List<BatchReport.Symbols.Symbol> symbols = new ArrayList<>();
+    List<BatchReport.Symbol> symbols = new ArrayList<>();
     List<BatchReport.Duplication> duplications = new ArrayList<>();
 
     void generateLineData(int line) {
@@ -178,7 +178,7 @@ public class PersistFileSourcesStepTest {
         .setType(Constants.HighlightingType.ANNOTATION)
         .build());
 
-      symbols.add(BatchReport.Symbols.Symbol.newBuilder()
+      symbols.add(BatchReport.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
           .setStartLine(line).setEndLine(line).setStartOffset(2).setEndOffset(4)
           .build())

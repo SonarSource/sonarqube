@@ -19,12 +19,8 @@
  */
 package org.sonar.batch.report;
 
-import com.google.common.base.Function;
-import javax.annotation.Nonnull;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.rule.ActiveRule;
-import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
@@ -32,18 +28,14 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.scan.ImmutableProjectReactor;
 
-import static com.google.common.collect.FluentIterable.from;
-
 public class MetadataPublisher implements ReportPublisherStep {
 
   private final BatchComponentCache componentCache;
   private final ImmutableProjectReactor reactor;
-  private final ActiveRules activeRules;
 
-  public MetadataPublisher(BatchComponentCache componentCache, ImmutableProjectReactor reactor, ActiveRules activeRules) {
+  public MetadataPublisher(BatchComponentCache componentCache, ImmutableProjectReactor reactor) {
     this.componentCache = componentCache;
     this.reactor = reactor;
-    this.activeRules = activeRules;
   }
 
   @Override
@@ -59,16 +51,6 @@ public class MetadataPublisher implements ReportPublisherStep {
     if (branch != null) {
       builder.setBranch(branch);
     }
-    builder.addAllActiveRuleKey(from(activeRules.findAll()).transform(ToRuleKey.INSTANCE));
     writer.writeMetadata(builder.build());
-  }
-
-  private enum ToRuleKey implements Function<ActiveRule, String> {
-    INSTANCE;
-    @Nonnull
-    @Override
-    public String apply(@Nonnull ActiveRule input) {
-      return input.ruleKey().toString();
-    }
   }
 }

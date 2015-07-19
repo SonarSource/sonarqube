@@ -243,7 +243,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     initBasicReport(3);
 
     reportReader.putSymbols(FILE_REF, newArrayList(
-      BatchReport.Symbols.Symbol.newBuilder()
+      BatchReport.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(4)
           .build())

@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.MeasureDto;
@@ -184,18 +185,21 @@ public class MeasureRepositoryImpl implements MeasureRepository {
       return;
     }
 
-    for (BatchReport.Measure batchMeasure : reportReader.readComponentMeasures(component.getRef())) {
-      String metricKey = batchMeasure.getMetricKey();
-      if (reportMetricValidator.validate(metricKey)) {
-        Metric metric = metricRepository.getByKey(metricKey);
-        addLocal(component, metric, batchMeasureToMeasure.toMeasure(batchMeasure, metric).get(), OverridePolicy.DO_NOT_OVERRIDE);
+    try (CloseableIterator<BatchReport.Measure> readIt = reportReader.readComponentMeasures(component.getRef())) {
+      while (readIt.hasNext()) {
+        BatchReport.Measure batchMeasure = readIt.next();
+        String metricKey = batchMeasure.getMetricKey();
+        if (reportMetricValidator.validate(metricKey)) {
+          Metric metric = metricRepository.getByKey(metricKey);
+          addLocal(component, metric, batchMeasureToMeasure.toMeasure(batchMeasure, metric).get(), OverridePolicy.DO_NOT_OVERRIDE);
+        }
       }
     }
     loadedComponents.add(component.getRef());
   }
 
   private Optional<Measure> findLocal(Component component, Metric metric,
-    @Nullable RuleDto rule, @Nullable Characteristic characteristic) {
+                                      @Nullable RuleDto rule, @Nullable Characteristic characteristic) {
     Map<MeasureKey, Measure> measuresPerMetric = measures.get(component.getRef());
     if (measuresPerMetric == null) {
       return Optional.absent();

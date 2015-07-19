@@ -19,6 +19,8 @@
  */
 package org.sonar.server.computation.qualityprofile;
 
+import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.rule.RuleKey;
 
@@ -26,10 +28,12 @@ import org.sonar.api.rule.RuleKey;
 public class ActiveRule {
   private final RuleKey ruleKey;
   private final String severity;
+  private final Map<String, String> params;
 
-  public ActiveRule(RuleKey ruleKey, String severity) {
+  public ActiveRule(RuleKey ruleKey, String severity, Map<String, String> params) {
     this.ruleKey = ruleKey;
     this.severity = severity;
+    this.params = ImmutableMap.copyOf(params);
   }
 
   public RuleKey getRuleKey() {
@@ -38,5 +42,9 @@ public class ActiveRule {
 
   public String getSeverity() {
     return severity;
+  }
+
+  public Map<String, String> getParams() {
+    return params;
   }
 }

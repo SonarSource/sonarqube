@@ -51,7 +51,7 @@ import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.db.DbClient;
 import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.server.source.db.FileSourceDb.Test.TestStatus;
-import org.sonar.server.util.CloseableIterator;
+import org.sonar.core.util.CloseableIterator;
 
 public class PersistTestsStep implements ComputationStep {
 

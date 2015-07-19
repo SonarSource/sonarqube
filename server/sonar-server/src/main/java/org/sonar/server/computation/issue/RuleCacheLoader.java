@@ -21,26 +21,19 @@ package org.sonar.server.computation.issue;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.util.cache.CacheLoader;
-
-import static com.google.common.collect.FluentIterable.from;
-import static org.sonar.core.rule.RuleKeyFunctions.stringToRuleKey;
 
 public class RuleCacheLoader implements CacheLoader<RuleKey, Rule> {
 
   private final DbClient dbClient;
-  private final Set<RuleKey> activatedKeys;
 
-  public RuleCacheLoader(DbClient dbClient, BatchReportReader batchReportReader) {
+  public RuleCacheLoader(DbClient dbClient) {
     this.dbClient = dbClient;
-    this.activatedKeys = from(batchReportReader.readMetadata().getActiveRuleKeyList()).transform(stringToRuleKey()).toSet();
   }
 
   @Override
@@ -49,7 +42,7 @@ public class RuleCacheLoader implements CacheLoader<RuleKey, Rule> {
     try {
       RuleDto dto = dbClient.ruleDao().getNullableByKey(session, key);
       if (dto != null) {
-        return new RuleImpl(dto, activatedKeys.contains(key));
+        return new RuleImpl(dto);
       }
       return null;
     } finally {

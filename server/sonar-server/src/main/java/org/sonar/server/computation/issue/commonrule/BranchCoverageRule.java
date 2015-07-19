@@ -30,7 +30,8 @@ import static java.lang.String.format;
 public class BranchCoverageRule extends AbstractCoverageRule {
 
   public BranchCoverageRule(ActiveRulesHolder activeRulesHolder, MetricRepository metricRepository, MeasureRepository measureRepository) {
-    super(activeRulesHolder, CommonRuleKeys.INSUFFICIENT_BRANCH_COVERAGE, measureRepository,
+    super(activeRulesHolder, CommonRuleKeys.INSUFFICIENT_BRANCH_COVERAGE, CommonRuleKeys.INSUFFICIENT_BRANCH_COVERAGE_PROPERTY,
+      measureRepository,
       metricRepository.getByKey(CoreMetrics.BRANCH_COVERAGE_KEY),
       metricRepository.getByKey(CoreMetrics.UNCOVERED_CONDITIONS_KEY),
       metricRepository.getByKey(CoreMetrics.CONDITIONS_TO_COVER_KEY));

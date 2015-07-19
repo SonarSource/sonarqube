@@ -20,10 +20,9 @@
 package org.sonar.batch.protocol.output;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.batch.protocol.ProtobufUtil;
+import org.sonar.core.util.CloseableIterator;
 
 public class BatchReportReader {
 
@@ -35,26 +34,32 @@ public class BatchReportReader {
 
   public BatchReport.Metadata readMetadata() {
     File file = fileStructure.metadataFile();
-    if (!doesFileExists(file)) {
+    if (!fileExists(file)) {
       throw new IllegalStateException("Metadata file is missing in analysis report: " + file);
     }
     return ProtobufUtil.readFile(file, BatchReport.Metadata.PARSER);
   }
 
-  public List<BatchReport.Measure> readComponentMeasures(int componentRef) {
-    File file = fileStructure.fileFor(FileStructure.Domain.MEASURES, componentRef);
-    if (doesFileExists(file)) {
-      // all the measures are loaded in memory
-      BatchReport.Measures measures = ProtobufUtil.readFile(file, BatchReport.Measures.PARSER);
-      return measures.getMeasureList();
+  public CloseableIterator<BatchReport.ActiveRule> readActiveRules() {
+    File file = fileStructure.activeRules();
+    if (!fileExists(file)) {
+      return CloseableIterator.emptyCloseableIterator();
     }
-    return Collections.emptyList();
+    return ProtobufUtil.readStreamFromFile(file, BatchReport.ActiveRule.PARSER);
+  }
+
+  public CloseableIterator<BatchReport.Measure> readComponentMeasures(int componentRef) {
+    File file = fileStructure.fileFor(FileStructure.Domain.MEASURES, componentRef);
+    if (fileExists(file)) {
+      return ProtobufUtil.readStreamFromFile(file, BatchReport.Measure.PARSER);
+    }
+    return CloseableIterator.emptyCloseableIterator();
   }
 
   @CheckForNull
   public BatchReport.Changesets readChangesets(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.CHANGESETS, componentRef);
-    if (doesFileExists(file)) {
+    if (fileExists(file)) {
       return ProtobufUtil.readFile(file, BatchReport.Changesets.PARSER);
     }
     return null;
@@ -62,40 +67,34 @@ public class BatchReportReader {
 
   public BatchReport.Component readComponent(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.COMPONENT, componentRef);
-    if (!doesFileExists(file)) {
+    if (!fileExists(file)) {
       throw new IllegalStateException("Unable to find report for component #" + componentRef + ". File does not exist: " + file);
     }
     return ProtobufUtil.readFile(file, BatchReport.Component.PARSER);
   }
 
-  public List<BatchReport.Issue> readComponentIssues(int componentRef) {
+  public CloseableIterator<BatchReport.Issue> readComponentIssues(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.ISSUES, componentRef);
-    if (doesFileExists(file)) {
-      // all the issues are loaded in memory
-      BatchReport.Issues issues = ProtobufUtil.readFile(file, BatchReport.Issues.PARSER);
-      return issues.getIssueList();
+    if (fileExists(file)) {
+      return ProtobufUtil.readStreamFromFile(file, BatchReport.Issue.PARSER);
     }
-    return Collections.emptyList();
+    return CloseableIterator.emptyCloseableIterator();
   }
 
-  public List<BatchReport.Duplication> readComponentDuplications(int componentRef) {
+  public CloseableIterator<BatchReport.Duplication> readComponentDuplications(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.DUPLICATIONS, componentRef);
-    if (doesFileExists(file)) {
-      // all the duplications are loaded in memory
-      BatchReport.Duplications duplications = ProtobufUtil.readFile(file, BatchReport.Duplications.PARSER);
-      return duplications.getDuplicationList();
+    if (fileExists(file)) {
+      return ProtobufUtil.readStreamFromFile(file, BatchReport.Duplication.PARSER);
     }
-    return Collections.emptyList();
+    return CloseableIterator.emptyCloseableIterator();
   }
 
-  public List<BatchReport.Symbols.Symbol> readComponentSymbols(int componentRef) {
+  public CloseableIterator<BatchReport.Symbol> readComponentSymbols(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.SYMBOLS, componentRef);
-    if (doesFileExists(file)) {
-      // all the symbols are loaded in memory
-      BatchReport.Symbols symbols = ProtobufUtil.readFile(file, BatchReport.Symbols.PARSER);
-      return symbols.getSymbolList();
+    if (fileExists(file)) {
+      return ProtobufUtil.readStreamFromFile(file, BatchReport.Symbol.PARSER);
     }
-    return Collections.emptyList();
+    return CloseableIterator.emptyCloseableIterator();
   }
 
   public boolean hasSyntaxHighlighting(int componentRef) {
@@ -106,7 +105,7 @@ public class BatchReportReader {
   @CheckForNull
   public File readComponentSyntaxHighlighting(int fileRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, fileRef);
-    if (doesFileExists(file)) {
+    if (fileExists(file)) {
       return file;
     }
     return null;
@@ -115,7 +114,7 @@ public class BatchReportReader {
   @CheckForNull
   public File readComponentCoverage(int fileRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.COVERAGES, fileRef);
-    if (doesFileExists(file)) {
+    if (fileExists(file)) {
       return file;
     }
     return null;
@@ -123,7 +122,7 @@ public class BatchReportReader {
 
   public File readFileSource(int fileRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.SOURCE, fileRef);
-    if (!doesFileExists(file)) {
+    if (!fileExists(file)) {
       throw new IllegalStateException("Unable to find source for file #" + fileRef + ". File does not exist: " + file);
     }
     return file;
@@ -132,7 +131,7 @@ public class BatchReportReader {
   @CheckForNull
   public File readTests(int testFileRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.TESTS, testFileRef);
-    if (doesFileExists(file)) {
+    if (fileExists(file)) {
       return file;
     }
 
@@ -142,14 +141,14 @@ public class BatchReportReader {
   @CheckForNull
   public File readCoverageDetails(int testFileRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.COVERAGE_DETAILS, testFileRef);
-    if (doesFileExists(file)) {
+    if (fileExists(file)) {
       return file;
     }
 
     return null;
   }
 
-  private static boolean doesFileExists(File file) {
+  private static boolean fileExists(File file) {
     return file.exists() && file.isFile();
   }
 }

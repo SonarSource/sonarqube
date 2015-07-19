@@ -22,7 +22,6 @@ package org.sonar.batch.report;
 import java.io.File;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,9 +34,11 @@ import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.BatchComponentCache;
+import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.scan.measure.MeasureCache;
+import org.sonar.core.util.CloseableIterator;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -112,10 +113,9 @@ public class MeasuresPublisherTest {
     BatchReportReader reader = new BatchReportReader(outputDir);
 
     assertThat(reader.readComponentMeasures(1)).hasSize(0);
-    List<org.sonar.batch.protocol.output.BatchReport.Measure> componentMeasures = reader.readComponentMeasures(2);
-    assertThat(componentMeasures).hasSize(6);
-    assertThat(componentMeasures.get(0).getDoubleValue()).isEqualTo(2.0);
-    assertThat(componentMeasures.get(0).getPersonId()).isEqualTo(2);
+    try (CloseableIterator<BatchReport.Measure> componentMeasures = reader.readComponentMeasures(2)) {
+      assertThat(componentMeasures).hasSize(6);
+    }
 
   }
 

@@ -28,6 +28,7 @@ import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.BatchComponentCache;
+import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 
@@ -35,6 +36,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.sonar.core.util.CloseableIterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -85,31 +87,33 @@ public class DuplicationsPublisherTest {
     BatchReportReader reader = new BatchReportReader(outputDir);
 
     assertThat(reader.readComponentDuplications(1)).hasSize(0);
-    List<org.sonar.batch.protocol.output.BatchReport.Duplication> componentDuplications = reader.readComponentDuplications(2);
-    assertThat(componentDuplications).hasSize(3);
-    org.sonar.batch.protocol.output.BatchReport.Duplication savedDup1 = componentDuplications.get(0);
-    assertThat(savedDup1.getOriginPosition().getStartLine()).isEqualTo(1);
-    assertThat(savedDup1.getOriginPosition().getEndLine()).isEqualTo(10);
-    assertThat(savedDup1.getDuplicate(0).hasOtherFileKey()).isFalse();
-    assertThat(savedDup1.getDuplicate(0).hasOtherFileRef()).isFalse();
-    assertThat(savedDup1.getDuplicate(0).getRange().getStartLine()).isEqualTo(20);
-    assertThat(savedDup1.getDuplicate(0).getRange().getEndLine()).isEqualTo(50);
+    try (CloseableIterator<BatchReport.Duplication> componentDuplications = reader.readComponentDuplications(2)) {
+      org.sonar.batch.protocol.output.BatchReport.Duplication savedDup1 = componentDuplications.next();
+      assertThat(savedDup1.getOriginPosition().getStartLine()).isEqualTo(1);
+      assertThat(savedDup1.getOriginPosition().getEndLine()).isEqualTo(10);
+      assertThat(savedDup1.getDuplicate(0).hasOtherFileKey()).isFalse();
+      assertThat(savedDup1.getDuplicate(0).hasOtherFileRef()).isFalse();
+      assertThat(savedDup1.getDuplicate(0).getRange().getStartLine()).isEqualTo(20);
+      assertThat(savedDup1.getDuplicate(0).getRange().getEndLine()).isEqualTo(50);
 
-    org.sonar.batch.protocol.output.BatchReport.Duplication savedDup2 = componentDuplications.get(1);
-    assertThat(savedDup2.getOriginPosition().getStartLine()).isEqualTo(11);
-    assertThat(savedDup2.getOriginPosition().getEndLine()).isEqualTo(20);
-    assertThat(savedDup2.getDuplicate(0).getOtherFileKey()).isEqualTo("another");
-    assertThat(savedDup2.getDuplicate(0).hasOtherFileRef()).isFalse();
-    assertThat(savedDup2.getDuplicate(0).getRange().getStartLine()).isEqualTo(20);
-    assertThat(savedDup2.getDuplicate(0).getRange().getEndLine()).isEqualTo(50);
+      org.sonar.batch.protocol.output.BatchReport.Duplication savedDup2 = componentDuplications.next();
+      assertThat(savedDup2.getOriginPosition().getStartLine()).isEqualTo(11);
+      assertThat(savedDup2.getOriginPosition().getEndLine()).isEqualTo(20);
+      assertThat(savedDup2.getDuplicate(0).getOtherFileKey()).isEqualTo("another");
+      assertThat(savedDup2.getDuplicate(0).hasOtherFileRef()).isFalse();
+      assertThat(savedDup2.getDuplicate(0).getRange().getStartLine()).isEqualTo(20);
+      assertThat(savedDup2.getDuplicate(0).getRange().getEndLine()).isEqualTo(50);
 
-    org.sonar.batch.protocol.output.BatchReport.Duplication savedDup3 = componentDuplications.get(2);
-    assertThat(savedDup3.getOriginPosition().getStartLine()).isEqualTo(11);
-    assertThat(savedDup3.getOriginPosition().getEndLine()).isEqualTo(20);
-    assertThat(savedDup3.getDuplicate(0).hasOtherFileKey()).isFalse();
-    assertThat(savedDup3.getDuplicate(0).getOtherFileRef()).isEqualTo(3);
-    assertThat(savedDup3.getDuplicate(0).getRange().getStartLine()).isEqualTo(20);
-    assertThat(savedDup3.getDuplicate(0).getRange().getEndLine()).isEqualTo(50);
+      org.sonar.batch.protocol.output.BatchReport.Duplication savedDup3 = componentDuplications.next();
+      assertThat(savedDup3.getOriginPosition().getStartLine()).isEqualTo(11);
+      assertThat(savedDup3.getOriginPosition().getEndLine()).isEqualTo(20);
+      assertThat(savedDup3.getDuplicate(0).hasOtherFileKey()).isFalse();
+      assertThat(savedDup3.getDuplicate(0).getOtherFileRef()).isEqualTo(3);
+      assertThat(savedDup3.getDuplicate(0).getRange().getStartLine()).isEqualTo(20);
+      assertThat(savedDup3.getDuplicate(0).getRange().getEndLine()).isEqualTo(50);
+
+      assertThat(componentDuplications.hasNext()).isFalse();
+    }
 
   }
 

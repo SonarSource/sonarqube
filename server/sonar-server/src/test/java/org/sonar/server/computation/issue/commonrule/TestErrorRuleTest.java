@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.issue.commonrule;
 
+import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
@@ -66,7 +67,7 @@ public class TestErrorRuleTest {
 
   @Test
   public void issue_if_errors_or_failures() throws Exception {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.<String, String>emptyMap()));
     measureRepository.addRawMeasure(FILE.getRef(), CoreMetrics.TEST_ERRORS_KEY, Measure.newMeasureBuilder().create(2));
     measureRepository.addRawMeasure(FILE.getRef(), CoreMetrics.TEST_FAILURES_KEY, Measure.newMeasureBuilder().create(1));
 
@@ -80,7 +81,7 @@ public class TestErrorRuleTest {
 
   @Test
   public void no_issues_if_zero_errors_and_failures() throws Exception {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.<String, String>emptyMap()));
     measureRepository.addRawMeasure(FILE.getRef(), CoreMetrics.TEST_ERRORS_KEY, Measure.newMeasureBuilder().create(0));
     measureRepository.addRawMeasure(FILE.getRef(), CoreMetrics.TEST_FAILURES_KEY, Measure.newMeasureBuilder().create(0));
 
@@ -91,7 +92,7 @@ public class TestErrorRuleTest {
 
   @Test
   public void no_issues_if_test_measures_are_absent() throws Exception {
-    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL));
+    activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.<String, String>emptyMap()));
 
     DefaultIssue issue = underTest.processFile(FILE, "java");
 

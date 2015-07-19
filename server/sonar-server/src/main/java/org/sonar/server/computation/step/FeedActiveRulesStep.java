@@ -19,17 +19,16 @@
  */
 package org.sonar.server.computation.step;
 
-import com.google.common.base.Function;
-import java.util.Collection;
-import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.core.util.CloseableIterator;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.qualityprofile.ActiveRule;
 import org.sonar.server.computation.qualityprofile.ActiveRulesHolderImpl;
-
-import static com.google.common.collect.FluentIterable.from;
-import static org.sonar.core.rule.RuleKeyFunctions.stringToRuleKey;
 
 public class FeedActiveRulesStep implements ComputationStep {
 
@@ -43,8 +42,14 @@ public class FeedActiveRulesStep implements ComputationStep {
 
   @Override
   public void execute() {
-    Collection<String> keys = batchReportReader.readMetadata().getActiveRuleKeyList();
-    activeRulesHolder.set(from(keys).transform(stringToRuleKey()).transform(ToActiveRule.INSTANCE).toList());
+    List<ActiveRule> activeRules = new ArrayList<>();
+    try (CloseableIterator<BatchReport.ActiveRule> batchActiveRules = batchReportReader.readActiveRules()) {
+      while (batchActiveRules.hasNext()) {
+        BatchReport.ActiveRule batchActiveRule = batchActiveRules.next();
+        activeRules.add(convert(batchActiveRule));
+      }
+    }
+    activeRulesHolder.set(activeRules);
   }
 
   @Override
@@ -52,12 +57,12 @@ public class FeedActiveRulesStep implements ComputationStep {
     return getClass().getSimpleName();
   }
 
-  private enum ToActiveRule implements Function<RuleKey, ActiveRule> {
-    INSTANCE;
-    @Override
-    public ActiveRule apply(@Nonnull RuleKey ruleKey) {
-      // FIXME load severity
-      return new ActiveRule(ruleKey, Severity.MAJOR);
+  private ActiveRule convert(BatchReport.ActiveRule input) {
+    RuleKey key = RuleKey.of(input.getRuleRepository(), input.getRuleKey());
+    Map<String, String> params = new HashMap<>();
+    for (BatchReport.ActiveRule.ActiveRuleParam inputParam : input.getParamList()) {
+      params.put(inputParam.getKey(), inputParam.getValue());
     }
+    return new ActiveRule(key, input.getSeverity().name(), params);
   }
 }

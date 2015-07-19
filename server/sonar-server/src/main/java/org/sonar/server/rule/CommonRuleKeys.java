@@ -24,8 +24,14 @@ public class CommonRuleKeys {
   public static final String REPOSITORY_PREFIX = "common-";
 
   public static final String INSUFFICIENT_BRANCH_COVERAGE = "InsufficientBranchCoverage";
+  public static final String INSUFFICIENT_BRANCH_COVERAGE_PROPERTY = "minimumBranchCoverageRatio";
+
   public static final String INSUFFICIENT_LINE_COVERAGE = "InsufficientLineCoverage";
+  public static final String INSUFFICIENT_LINE_COVERAGE_PROPERTY = "minimumLineCoverageRatio";
+
   public static final String INSUFFICIENT_COMMENT_DENSITY = "InsufficientCommentDensity";
+  public static final String INSUFFICIENT_COMMENT_DENSITY_PROPERTY = "minimumCommentDensity";
+
   public static final String DUPLICATED_BLOCKS = "DuplicatedBlocks";
   public static final String FAILED_UNIT_TESTS = "FailedUnitTests";
   public static final String SKIPPED_UNIT_TESTS = "SkippedUnitTests";
