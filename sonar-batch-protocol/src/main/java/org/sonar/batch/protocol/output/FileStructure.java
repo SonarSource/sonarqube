@@ -28,7 +28,6 @@ public class FileStructure {
 
   public enum Domain {
     ISSUES("issues-", Domain.PB),
-    ISSUES_ON_DELETED("issues-deleted-", Domain.PB),
     COMPONENT("component-", Domain.PB),
     MEASURES("measures-", Domain.PB),
     DUPLICATIONS("duplications-", Domain.PB),
@@ -38,8 +37,6 @@ public class FileStructure {
     COVERAGES("coverages-", Domain.PB),
     TESTS("tests-", Domain.PB),
     COVERAGE_DETAILS("coverage-details-", Domain.PB),
-    FILE_DEPENDENCIES("file-dependencies-", Domain.PB),
-    MODULE_DEPENDENCIES("module-dependencies-", Domain.PB),
     SOURCE("source-", ".txt");
 
     private static final String PB = ".pb";
