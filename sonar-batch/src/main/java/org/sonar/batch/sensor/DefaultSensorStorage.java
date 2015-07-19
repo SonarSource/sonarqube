@@ -200,12 +200,12 @@ public class DefaultSensorStorage implements SensorStorage {
   public void store(DefaultInputFile inputFile, Map<Symbol, Set<TextRange>> referencesBySymbol) {
     BatchReportWriter writer = reportPublisher.getWriter();
     writer.writeComponentSymbols(resourceCache.get(inputFile).batchId(),
-      Iterables.transform(referencesBySymbol.entrySet(), new Function<Map.Entry<Symbol, Set<TextRange>>, BatchReport.Symbols.Symbol>() {
-        private BatchReport.Symbols.Symbol.Builder builder = BatchReport.Symbols.Symbol.newBuilder();
+      Iterables.transform(referencesBySymbol.entrySet(), new Function<Map.Entry<Symbol, Set<TextRange>>, BatchReport.Symbol>() {
+        private BatchReport.Symbol.Builder builder = BatchReport.Symbol.newBuilder();
         private Range.Builder rangeBuilder = Range.newBuilder();
 
         @Override
-        public BatchReport.Symbols.Symbol apply(Map.Entry<Symbol, Set<TextRange>> input) {
+        public BatchReport.Symbol apply(Map.Entry<Symbol, Set<TextRange>> input) {
           builder.clear();
           rangeBuilder.clear();
           DefaultSymbol symbol = (DefaultSymbol) input.getKey();

@@ -85,7 +85,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
     when(system2.now()).thenReturn(NOW);
     reportReader.setMetadata(BatchReport.Metadata.getDefaultInstance());
 
-    step = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleRepositoryImpl(new RuleCacheLoader(dbClient, reportReader)), issueCache);
+    step = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleRepositoryImpl(new RuleCacheLoader(dbClient)), issueCache);
   }
 
   @After

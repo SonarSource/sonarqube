@@ -33,7 +33,6 @@ public class DumbRule implements Rule {
   private RuleKey key;
   private String name;
   private RuleStatus status = RuleStatus.READY;
-  private boolean isActivated = false;
   private Set<String> tags = new HashSet<>();
   private Integer subCharacteristicId;
   private DebtRemediationFunction function;
@@ -63,11 +62,6 @@ public class DumbRule implements Rule {
   }
 
   @Override
-  public boolean isActivated() {
-    return isActivated;
-  }
-
-  @Override
   public Set<String> getTags() {
     return requireNonNull(tags);
   }
@@ -94,11 +88,6 @@ public class DumbRule implements Rule {
 
   public DumbRule setStatus(RuleStatus status) {
     this.status = status;
-    return this;
-  }
-
-  public DumbRule setIsActivated(boolean isActivated) {
-    this.isActivated = isActivated;
     return this;
   }
 

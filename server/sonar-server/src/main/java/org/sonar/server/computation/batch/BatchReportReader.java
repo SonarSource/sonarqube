@@ -19,26 +19,27 @@
  */
 package org.sonar.server.computation.batch;
 
-import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.server.util.CloseableIterator;
+import org.sonar.core.util.CloseableIterator;
 
 public interface BatchReportReader {
   BatchReport.Metadata readMetadata();
 
-  List<BatchReport.Measure> readComponentMeasures(int componentRef);
+  CloseableIterator<BatchReport.ActiveRule> readActiveRules();
+
+  CloseableIterator<BatchReport.Measure> readComponentMeasures(int componentRef);
 
   @CheckForNull
   BatchReport.Changesets readChangesets(int componentRef);
 
   BatchReport.Component readComponent(int componentRef);
 
-  List<BatchReport.Issue> readComponentIssues(int componentRef);
+  CloseableIterator<BatchReport.Issue> readComponentIssues(int componentRef);
 
-  List<BatchReport.Duplication> readComponentDuplications(int componentRef);
+  CloseableIterator<BatchReport.Duplication> readComponentDuplications(int componentRef);
 
-  List<BatchReport.Symbols.Symbol> readComponentSymbols(int componentRef);
+  CloseableIterator<BatchReport.Symbol> readComponentSymbols(int componentRef);
 
   CloseableIterator<BatchReport.SyntaxHighlighting> readComponentSyntaxHighlighting(int fileRef);
 

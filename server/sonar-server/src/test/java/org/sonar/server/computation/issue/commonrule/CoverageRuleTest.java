@@ -19,6 +19,8 @@
  */
 package org.sonar.server.computation.issue.commonrule;
 
+import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -74,6 +76,8 @@ public abstract class CoverageRuleTest {
 
   protected abstract RuleKey getRuleKey();
 
+  protected abstract String getMinPropertyKey();
+
   protected abstract String getCoverageMetricKey();
 
   protected abstract String getToCoverMetricKey();
@@ -82,7 +86,7 @@ public abstract class CoverageRuleTest {
 
   @Test
   public void no_issue_if_enough_coverage() {
-    activeRuleHolder.put(new ActiveRule(getRuleKey(), Severity.CRITICAL));
+    activeRuleHolder.put(new ActiveRule(getRuleKey(), Severity.CRITICAL, ImmutableMap.of(getMinPropertyKey(), "65")));
     measureRepository.addRawMeasure(FILE.getRef(), getCoverageMetricKey(), Measure.newMeasureBuilder().create(90.0));
 
     DefaultIssue issue = underTest.processFile(FILE, "java");
@@ -92,7 +96,7 @@ public abstract class CoverageRuleTest {
 
   @Test
   public void issue_if_coverage_is_too_low() {
-    activeRuleHolder.put(new ActiveRule(getRuleKey(), Severity.CRITICAL));
+    activeRuleHolder.put(new ActiveRule(getRuleKey(), Severity.CRITICAL, ImmutableMap.of(getMinPropertyKey(), "65")));
     measureRepository.addRawMeasure(FILE.getRef(), getCoverageMetricKey(), Measure.newMeasureBuilder().create(20.0));
     measureRepository.addRawMeasure(FILE.getRef(), getUncoveredMetricKey(), Measure.newMeasureBuilder().create(40.0));
     measureRepository.addRawMeasure(FILE.getRef(), getToCoverMetricKey(), Measure.newMeasureBuilder().create(50.0));
@@ -110,7 +114,7 @@ public abstract class CoverageRuleTest {
 
   @Test
   public void no_issue_if_coverage_is_not_set() {
-    activeRuleHolder.put(new ActiveRule(getRuleKey(), Severity.CRITICAL));
+    activeRuleHolder.put(new ActiveRule(getRuleKey(), Severity.CRITICAL, ImmutableMap.of(getMinPropertyKey(), "65")));
 
     DefaultIssue issue = underTest.processFile(FILE, "java");
 

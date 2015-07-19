@@ -50,6 +50,11 @@ public class BatchReportWriter {
     return fileStructure.metadataFile();
   }
 
+  public File writeActiveRules(Iterable<BatchReport.ActiveRule> activeRules) {
+    ProtobufUtil.writeStreamToFile(activeRules, fileStructure.activeRules(), false);
+    return fileStructure.metadataFile();
+  }
+
   public File writeComponent(BatchReport.Component component) {
     File file = fileStructure.fileFor(FileStructure.Domain.COMPONENT, component.getRef());
     ProtobufUtil.writeToFile(component, file);
@@ -57,20 +62,14 @@ public class BatchReportWriter {
   }
 
   public File writeComponentIssues(int componentRef, Iterable<BatchReport.Issue> issues) {
-    BatchReport.Issues.Builder issuesBuilder = BatchReport.Issues.newBuilder();
-    issuesBuilder.setComponentRef(componentRef);
-    issuesBuilder.addAllIssue(issues);
     File file = fileStructure.fileFor(FileStructure.Domain.ISSUES, componentRef);
-    ProtobufUtil.writeToFile(issuesBuilder.build(), file);
+    ProtobufUtil.writeStreamToFile(issues, file, false);
     return file;
   }
 
   public File writeComponentMeasures(int componentRef, Iterable<BatchReport.Measure> measures) {
-    BatchReport.Measures.Builder measuresBuilder = BatchReport.Measures.newBuilder();
-    measuresBuilder.setComponentRef(componentRef);
-    measuresBuilder.addAllMeasure(measures);
     File file = fileStructure.fileFor(FileStructure.Domain.MEASURES, componentRef);
-    ProtobufUtil.writeToFile(measuresBuilder.build(), file);
+    ProtobufUtil.writeStreamToFile(measures, file, false);
     return file;
   }
 
@@ -81,44 +80,38 @@ public class BatchReportWriter {
   }
 
   public File writeComponentDuplications(int componentRef, Iterable<BatchReport.Duplication> duplications) {
-    BatchReport.Duplications.Builder builder = BatchReport.Duplications.newBuilder();
-    builder.setComponentRef(componentRef);
-    builder.addAllDuplication(duplications);
     File file = fileStructure.fileFor(FileStructure.Domain.DUPLICATIONS, componentRef);
-    ProtobufUtil.writeToFile(builder.build(), file);
+    ProtobufUtil.writeStreamToFile(duplications, file, false);
     return file;
   }
 
-  public File writeComponentSymbols(int componentRef, Iterable<BatchReport.Symbols.Symbol> symbols) {
-    BatchReport.Symbols.Builder builder = BatchReport.Symbols.newBuilder();
-    builder.setFileRef(componentRef);
-    builder.addAllSymbol(symbols);
+  public File writeComponentSymbols(int componentRef, Iterable<BatchReport.Symbol> symbols) {
     File file = fileStructure.fileFor(FileStructure.Domain.SYMBOLS, componentRef);
-    ProtobufUtil.writeToFile(builder.build(), file);
+    ProtobufUtil.writeStreamToFile(symbols, file, false);
     return file;
   }
 
   public File writeComponentSyntaxHighlighting(int componentRef, Iterable<BatchReport.SyntaxHighlighting> syntaxHighlightingRules) {
     File file = fileStructure.fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, componentRef);
-    ProtobufUtil.writeMessagesToFile(syntaxHighlightingRules, file);
+    ProtobufUtil.writeStreamToFile(syntaxHighlightingRules, file, false);
     return file;
   }
 
   public File writeComponentCoverage(int componentRef, Iterable<BatchReport.Coverage> coverageList) {
     File file = fileStructure.fileFor(FileStructure.Domain.COVERAGES, componentRef);
-    ProtobufUtil.writeMessagesToFile(coverageList, file);
+    ProtobufUtil.writeStreamToFile(coverageList, file, false);
     return file;
   }
 
   public File writeTests(int componentRef, Iterable<BatchReport.Test> tests) {
     File file = fileStructure.fileFor(FileStructure.Domain.TESTS, componentRef);
-    ProtobufUtil.writeMessagesToFile(tests, file);
+    ProtobufUtil.writeStreamToFile(tests, file, false);
     return file;
   }
 
   public File writeCoverageDetails(int componentRef, Iterable<BatchReport.CoverageDetail> tests) {
     File file = fileStructure.fileFor(FileStructure.Domain.COVERAGE_DETAILS, componentRef);
-    ProtobufUtil.writeMessagesToFile(tests, file);
+    ProtobufUtil.writeStreamToFile(tests, file, false);
     return file;
   }
 

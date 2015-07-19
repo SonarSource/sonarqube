@@ -47,19 +47,17 @@ message Metadata {
   optional int32 root_component_ref = 4;
 }
 
-message ActiveRuleParameter {
-  optional string key = 1;
-  optional string value = 2;
-}
-
-/*
-  The rules that are enabled in the Quality profiles associated with the project
-*/
 message ActiveRule {
   optional string rule_repository = 1;
   optional string rule_key = 2;
   optional Severity severity = 3;
-  repeated ActiveRuleParameter parameter = 4;
+  repeated ActiveRuleParam param = 4;
+
+  // TODO replace by map
+  message ActiveRuleParam {
+    optional string key = 1;
+    optional string value = 2;
+  }
 }
 
 message ComponentLink {
@@ -107,12 +105,6 @@ message Measure {
   optional int32 person_id = 20;
 }
 
-/* TODO to be removed. It prevents streaming */
-message Measures {
-  optional int32 component_ref = 1;
-  repeated Measure measure = 2;
-}
-
 message Issue {
   optional string rule_repository = 1;
   optional string rule_key = 2;
@@ -122,12 +114,6 @@ message Issue {
   repeated string tag = 6;
   optional double effort_to_fix = 7;
   optional string attributes = 8;
-}
-
-/* TODO to be removed. It prevents streaming */
-message Issues {
-  optional int32 component_ref = 1;
-  repeated Issue issue = 2;
 }
 
 message Changesets {
@@ -158,11 +144,6 @@ message Duplication {
   repeated Duplicate duplicate = 2;
 }
 
-message Duplications {
-  optional int32 component_ref = 1;
-  repeated Duplication duplication = 2;
-}
-
 // Lines start at 1 and line offsets start at 0
 message Range {
   // Should never be null
@@ -175,14 +156,9 @@ message Range {
   optional int32 end_offset = 4;
 }
 
-message Symbols {
-  optional int32 file_ref = 1;
-  repeated Symbol symbol = 2;
-
-  message Symbol {
-    optional Range declaration = 1;
-    repeated Range reference = 2;
-  }
+message Symbol {
+  optional Range declaration = 1;
+  repeated Range reference = 2;
 }
 
 // Only FILE component has coverage information, and only executable lines should contains this information.

@@ -20,12 +20,12 @@
 
 package org.sonar.server.computation.source;
 
-import org.junit.Test;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.server.source.db.FileSourceDb;
-
 import java.util.Collections;
 import java.util.List;
+import org.junit.Test;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.core.util.CloseableIterator;
+import org.sonar.server.source.db.FileSourceDb;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +40,7 @@ public class SymbolsLineReaderTest {
 
   @Test
   public void read_nothing() {
-    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(Collections.<BatchReport.Symbols.Symbol>emptyList());
+    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(CloseableIterator.<BatchReport.Symbol>emptyCloseableIterator());
 
     symbolsLineReader.read(line1);
 
@@ -49,8 +49,8 @@ public class SymbolsLineReaderTest {
 
   @Test
   public void read_symbols() {
-    List<BatchReport.Symbols.Symbol> symbols = newArrayList(
-      BatchReport.Symbols.Symbol.newBuilder()
+    List<BatchReport.Symbol> symbols = newArrayList(
+      BatchReport.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(4)
           .build())
@@ -60,7 +60,7 @@ public class SymbolsLineReaderTest {
         .build()
       );
 
-    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols);
+    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
     symbolsLineReader.read(line2);
     symbolsLineReader.read(line3);
@@ -72,8 +72,8 @@ public class SymbolsLineReaderTest {
 
   @Test
   public void read_symbols_with_reference_on_same_line() {
-    List<BatchReport.Symbols.Symbol> symbols = newArrayList(
-      BatchReport.Symbols.Symbol.newBuilder()
+    List<BatchReport.Symbol> symbols = newArrayList(
+      BatchReport.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(0).setEndOffset(1)
           .build())
@@ -83,7 +83,7 @@ public class SymbolsLineReaderTest {
         .build()
       );
 
-    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols);
+    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
 
     assertThat(line1.getSymbols()).isEqualTo("0,1,1;2,3,1");
@@ -91,8 +91,8 @@ public class SymbolsLineReaderTest {
 
   @Test
   public void read_symbols_with_two_references() {
-    List<BatchReport.Symbols.Symbol> symbols = newArrayList(
-      BatchReport.Symbols.Symbol.newBuilder()
+    List<BatchReport.Symbol> symbols = newArrayList(
+      BatchReport.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(4)
           .build())
@@ -105,7 +105,7 @@ public class SymbolsLineReaderTest {
         .build()
       );
 
-    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols);
+    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
     symbolsLineReader.read(line2);
     symbolsLineReader.read(line3);
@@ -117,8 +117,8 @@ public class SymbolsLineReaderTest {
 
   @Test
   public void read_symbols_with_two_references_on_the_same_line() {
-    List<BatchReport.Symbols.Symbol> symbols = newArrayList(
-      BatchReport.Symbols.Symbol.newBuilder()
+    List<BatchReport.Symbol> symbols = newArrayList(
+      BatchReport.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(3)
           .build())
@@ -129,9 +129,9 @@ public class SymbolsLineReaderTest {
           .setStartLine(2).setEndLine(2).setStartOffset(2).setEndOffset(3)
           .build())
         .build()
-    );
+      );
 
-    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols);
+    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
     symbolsLineReader.read(line2);
 
@@ -141,8 +141,8 @@ public class SymbolsLineReaderTest {
 
   @Test
   public void read_symbols_when_reference_line_is_before_declaration_line() {
-    List<BatchReport.Symbols.Symbol> symbols = newArrayList(
-      BatchReport.Symbols.Symbol.newBuilder()
+    List<BatchReport.Symbol> symbols = newArrayList(
+      BatchReport.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
           .setStartLine(2).setEndLine(2).setStartOffset(3).setEndOffset(4)
           .build())
@@ -152,7 +152,7 @@ public class SymbolsLineReaderTest {
         .build()
       );
 
-    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols);
+    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
     symbolsLineReader.read(line2);
 
@@ -162,8 +162,8 @@ public class SymbolsLineReaderTest {
 
   @Test
   public void read_many_symbols_on_lines() {
-    List<BatchReport.Symbols.Symbol> symbols = newArrayList(
-      BatchReport.Symbols.Symbol.newBuilder()
+    List<BatchReport.Symbol> symbols = newArrayList(
+      BatchReport.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(1).setEndOffset(2)
           .build())
@@ -171,7 +171,7 @@ public class SymbolsLineReaderTest {
           .setStartLine(3).setEndLine(3).setStartOffset(2).setEndOffset(3)
           .build())
         .build(),
-      BatchReport.Symbols.Symbol.newBuilder()
+      BatchReport.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(3).setEndOffset(4)
           .build())
@@ -181,7 +181,7 @@ public class SymbolsLineReaderTest {
         .build()
       );
 
-    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols);
+    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
     symbolsLineReader.read(line2);
     symbolsLineReader.read(line3);
@@ -193,8 +193,8 @@ public class SymbolsLineReaderTest {
 
   @Test
   public void symbol_declaration_should_be_sorted_by_offset() {
-    List<BatchReport.Symbols.Symbol> symbols = newArrayList(
-      BatchReport.Symbols.Symbol.newBuilder()
+    List<BatchReport.Symbol> symbols = newArrayList(
+      BatchReport.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
           // This symbol begins after the second symbol, it should appear in second place
           .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(3)
@@ -203,7 +203,7 @@ public class SymbolsLineReaderTest {
           .setStartLine(3).setEndLine(3).setStartOffset(2).setEndOffset(3)
           .build())
         .build(),
-      BatchReport.Symbols.Symbol.newBuilder()
+      BatchReport.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(0).setEndOffset(1)
           .build())
@@ -212,7 +212,7 @@ public class SymbolsLineReaderTest {
           .build())
         .build());
 
-    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols);
+    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
     symbolsLineReader.read(line2);
     symbolsLineReader.read(line3);
@@ -224,8 +224,8 @@ public class SymbolsLineReaderTest {
 
   @Test
   public void symbol_declaration_should_be_sorted_by_line() {
-    List<BatchReport.Symbols.Symbol> symbols = newArrayList(
-      BatchReport.Symbols.Symbol.newBuilder()
+    List<BatchReport.Symbol> symbols = newArrayList(
+      BatchReport.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
           // This symbol begins after the second symbol, it should appear in second place
           .setStartLine(2).setEndLine(2).setStartOffset(0).setEndOffset(1)
@@ -234,7 +234,7 @@ public class SymbolsLineReaderTest {
           .setStartLine(3).setEndLine(3).setStartOffset(2).setEndOffset(3)
           .build())
         .build(),
-      BatchReport.Symbols.Symbol.newBuilder()
+      BatchReport.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(0).setEndOffset(1)
           .build())
@@ -243,7 +243,7 @@ public class SymbolsLineReaderTest {
           .build())
         .build());
 
-    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols);
+    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
     symbolsLineReader.read(line2);
     symbolsLineReader.read(line3);
@@ -255,8 +255,8 @@ public class SymbolsLineReaderTest {
 
   @Test
   public void read_symbols_defined_on_many_lines() {
-    List<BatchReport.Symbols.Symbol> symbols = newArrayList(
-      BatchReport.Symbols.Symbol.newBuilder()
+    List<BatchReport.Symbol> symbols = newArrayList(
+      BatchReport.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
           .setStartLine(1).setEndLine(2).setStartOffset(1).setEndOffset(3)
           .build())
@@ -265,7 +265,7 @@ public class SymbolsLineReaderTest {
           .build())
         .build());
 
-    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols);
+    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
     symbolsLineReader.read(line2);
     symbolsLineReader.read(line3);
@@ -279,8 +279,8 @@ public class SymbolsLineReaderTest {
 
   @Test
   public void read_symbols_declared_on_a_whole_line() {
-    List<BatchReport.Symbols.Symbol> symbols = newArrayList(
-      BatchReport.Symbols.Symbol.newBuilder()
+    List<BatchReport.Symbol> symbols = newArrayList(
+      BatchReport.Symbol.newBuilder()
         .setDeclaration(BatchReport.Range.newBuilder()
           .setStartLine(1).setEndLine(2).setStartOffset(0).setEndOffset(0)
           .build())
@@ -288,9 +288,9 @@ public class SymbolsLineReaderTest {
           .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
           .build())
         .build()
-    );
+      );
 
-    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols);
+    SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
     symbolsLineReader.read(line2);
     symbolsLineReader.read(line3);

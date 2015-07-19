@@ -39,6 +39,11 @@ public class ActiveRulesHolderImpl implements ActiveRulesHolder {
     return Optional.fromNullable(activeRulesByKey.get(ruleKey));
   }
 
+  public Collection<ActiveRule> getAll() {
+    checkState(activeRulesByKey != null, "Active rules have not been initialized yet");
+    return activeRulesByKey.values();
+  }
+
   public void set(Collection<ActiveRule> activeRules) {
     requireNonNull(activeRules, "Active rules cannot be null");
     checkState(activeRulesByKey == null, "Active rules have already been initialized");

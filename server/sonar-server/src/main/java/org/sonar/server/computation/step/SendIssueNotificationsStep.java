@@ -35,7 +35,7 @@ import org.sonar.server.issue.notification.NewIssuesNotification;
 import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
 import org.sonar.server.issue.notification.NewIssuesStatistics;
 import org.sonar.server.notification.NotificationService;
-import org.sonar.server.util.CloseableIterator;
+import org.sonar.core.util.CloseableIterator;
 
 /**
  * Reads issues from disk cache and send related notifications. For performance reasons,

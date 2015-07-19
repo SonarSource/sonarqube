@@ -36,6 +36,11 @@ public class BranchCoverageRuleTest extends CoverageRuleTest {
   }
 
   @Override
+  protected String getMinPropertyKey() {
+    return CommonRuleKeys.INSUFFICIENT_BRANCH_COVERAGE_PROPERTY;
+  }
+
+  @Override
   protected String getCoverageMetricKey() {
     return CoreMetrics.BRANCH_COVERAGE_KEY;
   }

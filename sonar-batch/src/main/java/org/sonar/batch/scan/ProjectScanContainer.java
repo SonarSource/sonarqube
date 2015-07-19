@@ -54,6 +54,7 @@ import org.sonar.batch.issue.tracking.ServerIssueRepository;
 import org.sonar.batch.mediumtest.ScanTaskObservers;
 import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
+import org.sonar.batch.report.ActiveRulesPublisher;
 import org.sonar.batch.report.ComponentsPublisher;
 import org.sonar.batch.report.CoveragePublisher;
 import org.sonar.batch.report.DuplicationsPublisher;
@@ -184,6 +185,7 @@ public class ProjectScanContainer extends ComponentContainer {
       // Report
       ReportPublisher.class,
       MetadataPublisher.class,
+      ActiveRulesPublisher.class,
       ComponentsPublisher.class,
       IssuesPublisher.class,
       MeasuresPublisher.class,

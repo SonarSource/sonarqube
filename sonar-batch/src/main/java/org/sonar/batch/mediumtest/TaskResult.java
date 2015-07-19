@@ -22,6 +22,17 @@ package org.sonar.batch.mediumtest;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import java.io.File;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -37,36 +48,24 @@ import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.issue.Issue;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.measures.Measure;
 import org.sonar.batch.duplication.DuplicationCache;
-import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.index.BatchComponentCache;
+import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Component;
 import org.sonar.batch.protocol.output.BatchReport.Metadata;
 import org.sonar.batch.protocol.output.BatchReport.Range;
-import org.sonar.batch.protocol.output.BatchReport.Symbols.Symbol;
+import org.sonar.batch.protocol.output.BatchReport.Symbol;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.report.BatchReportUtils;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.scan.ProjectScanContainer;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.batch.scan.measure.MeasureCache;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.io.File;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.util.CloseableIterator;
 
 public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
 
@@ -237,13 +236,12 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
   @CheckForNull
   public List<Range> symbolReferencesFor(InputFile file, int symbolStartLine, int symbolStartLineOffset) {
     int ref = reportComponents.get(((DefaultInputFile) file).key()).getRef();
-    List<Symbol> symbols = getReportReader().readComponentSymbols(ref);
-    if (symbols.isEmpty()) {
-      return Collections.emptyList();
-    }
-    for (Symbol symbol : symbols) {
-      if (symbol.getDeclaration().getStartLine() == symbolStartLine && symbol.getDeclaration().getStartOffset() == symbolStartLineOffset) {
-        return symbol.getReferenceList();
+    try (CloseableIterator<Symbol> symbols = getReportReader().readComponentSymbols(ref)) {
+      while (symbols.hasNext()) {
+        Symbol symbol = symbols.next();
+        if (symbol.getDeclaration().getStartLine() == symbolStartLine && symbol.getDeclaration().getStartOffset() == symbolStartLineOffset) {
+          return symbol.getReferenceList();
+        }
       }
     }
     return Collections.emptyList();

@@ -33,11 +33,13 @@ public abstract class AbstractCoverageRule extends CommonRule {
   private final Metric coverageMetric;
   private final Metric uncoveredMetric;
   private final Metric toCoverMetric;
+  private final String minPropertyKey;
 
-  public AbstractCoverageRule(ActiveRulesHolder activeRulesHolder, String ruleKey,
+  public AbstractCoverageRule(ActiveRulesHolder activeRulesHolder, String ruleKey, String minPropertyKey,
     MeasureRepository measureRepository,
     Metric coverageMetric, Metric uncoveredMetric, Metric toCoverMetric) {
     super(activeRulesHolder, ruleKey);
+    this.minPropertyKey = minPropertyKey;
     this.measureRepository = measureRepository;
     this.coverageMetric = coverageMetric;
     this.uncoveredMetric = uncoveredMetric;
@@ -49,21 +51,24 @@ public abstract class AbstractCoverageRule extends CommonRule {
     Optional<Measure> coverageMeasure = measureRepository.getRawMeasure(file, coverageMetric);
     if (!file.getFileAttributes().isUnitTest() && coverageMeasure.isPresent()) {
       double coverage = coverageMeasure.get().getDoubleValue();
-      // FIXME load threshold from activeRule
-      double minimumCoverage = 65.0;
+      double minimumCoverage = getMinDensityParam(activeRule, minPropertyKey);
       if (coverage < minimumCoverage) {
-        Optional<Measure> uncoveredMeasure = measureRepository.getRawMeasure(file, uncoveredMetric);
-        Optional<Measure> toCoverMeasure = measureRepository.getRawMeasure(file, toCoverMetric);
-        double uncovered = uncoveredMeasure.isPresent() ? uncoveredMeasure.get().getDoubleValue() : 0.0;
-        double toCover = toCoverMeasure.isPresent() ? toCoverMeasure.get().getDoubleValue() : 0.0;
-
-        // effort to fix is the number of lines/conditions to cover for reaching threshold
-        int effortToFix = (int) Math.ceil((toCover * minimumCoverage / 100) - (toCover - uncovered));
-
-        return new CommonRuleIssue(effortToFix, formatMessage(effortToFix, minimumCoverage));
+        return generateIssue(file, minimumCoverage);
       }
     }
     return null;
+  }
+
+  private CommonRuleIssue generateIssue(Component file, double minimumCoverage) {
+    Optional<Measure> uncoveredMeasure = measureRepository.getRawMeasure(file, uncoveredMetric);
+    Optional<Measure> toCoverMeasure = measureRepository.getRawMeasure(file, toCoverMetric);
+    double uncovered = uncoveredMeasure.isPresent() ? uncoveredMeasure.get().getDoubleValue() : 0.0;
+    double toCover = toCoverMeasure.isPresent() ? toCoverMeasure.get().getDoubleValue() : 0.0;
+
+    // effort to fix is the number of lines/conditions to cover for reaching threshold
+    int effortToFix = (int) Math.ceil((toCover * minimumCoverage / 100) - (toCover - uncovered));
+
+    return new CommonRuleIssue(effortToFix, formatMessage(effortToFix, minimumCoverage));
   }
 
   protected abstract String formatMessage(int effortToFix, double minCoverage);

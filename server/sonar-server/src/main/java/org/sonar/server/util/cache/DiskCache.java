@@ -28,7 +28,7 @@ import java.io.Serializable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.server.util.CloseableIterator;
+import org.sonar.core.util.CloseableIterator;
 import org.sonar.server.util.ObjectInputStreamIterator;
 
 /**

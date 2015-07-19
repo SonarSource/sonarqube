@@ -25,14 +25,11 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbTester;
-import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.test.DbTests;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -43,9 +40,6 @@ public class RuleCacheLoaderTest {
   @org.junit.Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @org.junit.Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
-
   @Before
   public void setUp() {
     dbTester.truncateTables();
@@ -53,31 +47,23 @@ public class RuleCacheLoaderTest {
 
   @Test
   public void load_by_key() {
-    BatchReport.Metadata metadata = BatchReport.Metadata.newBuilder()
-      .addAllActiveRuleKey(asList("java:JAV01")).build();
-    reportReader.setMetadata(metadata);
-
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new RuleDao(mock(System2.class)));
-    RuleCacheLoader loader = new RuleCacheLoader(dbClient, reportReader);
+    RuleCacheLoader loader = new RuleCacheLoader(dbClient);
 
     Rule javaRule = loader.load(RuleKey.of("java", "JAV01"));
     assertThat(javaRule.getName()).isEqualTo("Java One");
-    assertThat(javaRule.isActivated()).isTrue();
 
     Rule jsRule = loader.load(RuleKey.of("js", "JS01"));
     assertThat(jsRule.getName()).isEqualTo("JS One");
-    assertThat(jsRule.isActivated()).isFalse();
 
     assertThat(loader.load(RuleKey.of("java", "MISSING"))).isNull();
   }
 
   @Test
   public void load_by_keys_is_not_supported() {
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
-
     DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new RuleDao(mock(System2.class)));
-    RuleCacheLoader loader = new RuleCacheLoader(dbClient, reportReader);
+    RuleCacheLoader loader = new RuleCacheLoader(dbClient);
     try {
       loader.loadAll(Collections.<RuleKey>emptyList());
       fail();

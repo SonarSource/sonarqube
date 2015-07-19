@@ -54,11 +54,9 @@ public class ComputationSteps {
       // data computation
       CoverageMeasuresStep.class,
       CommentMeasuresStep.class,
-
-      // must be executed after the measures required for common rules (coverage, comment density, duplications)
       CustomMeasuresCopyStep.class,
-      CommentMeasuresStep.class,
       DuplicationMeasuresStep.class,
+      // must be executed after the measures required for common rules (coverage, comment density, duplications)
       IntegrateIssuesStep.class,
       CoreMetricFormulaExecutorStep.class,
 

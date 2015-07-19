@@ -36,11 +36,6 @@ public interface Rule {
   RuleStatus getStatus();
 
   /**
-   * Is activated in a Quality Profile associated to the project
-   */
-  boolean isActivated();
-
-  /**
    * Get all tags, whatever system or user tags.
    */
   Set<String> getTags();
