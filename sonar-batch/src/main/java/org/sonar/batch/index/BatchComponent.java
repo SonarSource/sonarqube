@@ -25,7 +25,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputPath;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
@@ -34,7 +33,6 @@ public class BatchComponent {
 
   private final int batchId;
   private final Resource r;
-  private Snapshot s;
   private final BatchComponent parent;
   private final Collection<BatchComponent> children = new ArrayList<>();
   private InputPath inputPath;
@@ -58,23 +56,6 @@ public class BatchComponent {
 
   public Resource resource() {
     return r;
-  }
-
-  public BatchComponent setSnapshot(Snapshot snapshot) {
-    this.s = snapshot;
-    return this;
-  }
-
-  /**
-   * @return null in database less mode
-   */
-  @CheckForNull
-  public Integer snapshotId() {
-    return s != null ? s.getId() : null;
-  }
-
-  public Snapshot snapshot() {
-    return s;
   }
 
   @CheckForNull

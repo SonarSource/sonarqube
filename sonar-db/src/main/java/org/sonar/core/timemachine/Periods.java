@@ -28,10 +28,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.i18n.I18n;
-
-import static org.sonar.api.utils.DateUtils.longToDate;
 
 public class Periods {
 
@@ -41,16 +38,6 @@ public class Periods {
   public Periods(Settings settings, I18n i18n) {
     this.settings = settings;
     this.i18n = i18n;
-  }
-
-  @CheckForNull
-  public String label(Snapshot snapshot, int periodIndex) {
-    return label(snapshot.getPeriodMode(periodIndex), snapshot.getPeriodModeParameter(periodIndex), longToDate(snapshot.getPeriodDateMs(periodIndex)));
-  }
-
-  @CheckForNull
-  public String abbreviation(Snapshot snapshot, int periodIndex) {
-    return abbreviation(snapshot.getPeriodMode(periodIndex), snapshot.getPeriodModeParameter(periodIndex), longToDate(snapshot.getPeriodDateMs(periodIndex)));
   }
 
   @CheckForNull

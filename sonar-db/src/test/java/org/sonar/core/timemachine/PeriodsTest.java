@@ -20,13 +20,10 @@
 package org.sonar.core.timemachine;
 
 import java.util.Locale;
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.i18n.I18n;
-import org.sonar.api.utils.System2;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
@@ -34,155 +31,12 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class PeriodsTest {
 
-  private Periods periods;
-
-  private Snapshot snapshot;
-
-  private Settings settings;
-  private I18n i18n;
-
-  private int periodIndex;
-  private String param;
-
-  @Before
-  public void before() {
-    periodIndex = 1;
-    param = "10";
-
-    snapshot = mock(Snapshot.class);
-    when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
-
-    settings = new Settings();
-    i18n = mock(I18n.class);
-    periods = new Periods(settings, i18n);
-  }
-
-  @Test
-  public void label_of_duration_in_days() {
-    when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_DAYS);
-    when(snapshot.getPeriodDateMs(periodIndex)).thenReturn(System2.INSTANCE.now());
-    when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
-
-    periods.label(snapshot, periodIndex);
-    verify(i18n).message(any(Locale.class), eq("over_x_days_detailed"), isNull(String.class), eq(param), anyString());
-  }
-
-  @Test
-  public void abbreviation_of_duration_in_days() {
-    when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_DAYS);
-    when(snapshot.getPeriodDateMs(periodIndex)).thenReturn(System.currentTimeMillis());
-    when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
-
-    periods.abbreviation(snapshot, periodIndex);
-    verify(i18n).message(any(Locale.class), eq("over_x_days_detailed.short"), isNull(String.class), eq(param), anyString());
-  }
-
-  @Test
-  public void label_of_snapshot_version() {
-    when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_VERSION);
-    when(snapshot.getPeriodDateMs(periodIndex)).thenReturn(System.currentTimeMillis());
-    when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
-
-    periods.label(snapshot, periodIndex);
-    verify(i18n).message(any(Locale.class), eq("since_version_detailed"), isNull(String.class), eq(param), anyString());
-  }
-
-  @Test
-  public void abbreviation_of_snapshot_version() {
-    when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_VERSION);
-    when(snapshot.getPeriodDateMs(periodIndex)).thenReturn(System.currentTimeMillis());
-    when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
-
-    periods.abbreviation(snapshot, periodIndex);
-    verify(i18n).message(any(Locale.class), eq("since_version_detailed.short"), isNull(String.class), eq(param), anyString());
-  }
-
-  @Test
-  public void label_of_previous_analysis_with_date() {
-    when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
-    when(snapshot.getPeriodDateMs(periodIndex)).thenReturn(System.currentTimeMillis());
-
-    periods.label(snapshot, periodIndex);
-    verify(i18n).message(any(Locale.class), eq("since_previous_analysis_detailed"), isNull(String.class), anyString());
-  }
-
-  @Test
-  public void label_of_previous_analysis_without_date() {
-    when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
-    when(snapshot.getPeriodDateMs(periodIndex)).thenReturn(null);
-    when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
-
-    periods.label(snapshot, periodIndex);
-    verify(i18n).message(any(Locale.class), eq("since_previous_analysis"), isNull(String.class));
-  }
-
-  @Test
-  public void abbreviation_of_previous_analysis_with_date() {
-    when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
-    when(snapshot.getPeriodDateMs(periodIndex)).thenReturn(System.currentTimeMillis());
-
-    periods.abbreviation(snapshot, periodIndex);
-    verify(i18n).message(any(Locale.class), eq("since_previous_analysis_detailed.short"), isNull(String.class), anyString());
-  }
-
-  @Test
-  public void abbreviation_of_previous_analysis_without_date() {
-    when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
-    when(snapshot.getPeriodDateMs(periodIndex)).thenReturn(null);
-    when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
-
-    periods.abbreviation(snapshot, periodIndex);
-    verify(i18n).message(any(Locale.class), eq("since_previous_analysis.short"), isNull(String.class));
-  }
-
-  @Test
-  public void shouldReturnSnapshotLabelInModePreviousVersionWithParamNotNull() {
-    when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
-    when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
-
-    periods.label(snapshot, periodIndex);
-    verify(i18n).message(any(Locale.class), eq("since_previous_version_detailed"), isNull(String.class), eq(param));
-  }
-
-  @Test
-  public void label_of_previous_version_with_param_and_date() {
-    when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
-    when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(param);
-    when(snapshot.getPeriodDateMs(periodIndex)).thenReturn(System.currentTimeMillis());
-
-    periods.label(snapshot, periodIndex);
-    verify(i18n).message(any(Locale.class), eq("since_previous_version_detailed"), isNull(String.class), eq(param), anyString());
-  }
-
-  @Test
-  public void shouldReturnSnapshotLabelInModePreviousVersionWithParamNull() {
-    when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
-    when(snapshot.getPeriodModeParameter(periodIndex)).thenReturn(null);
-
-    periods.label(snapshot, periodIndex);
-    verify(i18n).message(any(Locale.class), eq("since_previous_version"), isNull(String.class));
-  }
-
-  @Test
-  public void shouldReturnSnapshotLabelInModeDate() {
-    when(snapshot.getPeriodMode(periodIndex)).thenReturn(CoreProperties.TIMEMACHINE_MODE_DATE);
-    when(snapshot.getPeriodDateMs(periodIndex)).thenReturn(System.currentTimeMillis());
-
-    periods.label(snapshot, periodIndex);
-
-    verify(i18n).message(any(Locale.class), eq("since_x"), isNull(String.class), anyString());
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void shouldNotSupportUnknownModeForSnapshotLabel() {
-    when(snapshot.getPeriodMode(periodIndex)).thenReturn("Unknown mode");
-
-    periods.label(snapshot, periodIndex);
-  }
+  Settings settings = new Settings();
+  I18n i18n = mock(I18n.class);
+  Periods periods = new Periods(settings, i18n);
 
   @Test
   public void shouldReturnLabelInModeDays() {

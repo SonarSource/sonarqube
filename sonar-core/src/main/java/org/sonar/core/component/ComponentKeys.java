@@ -22,12 +22,13 @@ package org.sonar.core.component;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputPath;
-import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 
 public final class ComponentKeys {
+
+  public static final int COMPONENT_KEY_SIZE = 400;
 
   /*
    * Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit
@@ -51,7 +52,7 @@ public final class ComponentKeys {
     String key = resource.getKey();
     if (!StringUtils.equals(Scopes.PROJECT, resource.getScope())) {
       // not a project nor a library
-      key = new StringBuilder(ResourceModel.KEY_SIZE)
+      key = new StringBuilder(COMPONENT_KEY_SIZE)
         .append(project.getKey())
         .append(':')
         .append(resource.getKey())
@@ -65,7 +66,7 @@ public final class ComponentKeys {
   }
 
   public static String createEffectiveKey(String moduleKey, @Nullable String path) {
-    StringBuilder sb = new StringBuilder(ResourceModel.KEY_SIZE);
+    StringBuilder sb = new StringBuilder(COMPONENT_KEY_SIZE);
     sb.append(moduleKey);
     if (path != null) {
       sb.append(':').append(path);
