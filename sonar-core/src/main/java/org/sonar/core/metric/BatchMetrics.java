@@ -167,7 +167,7 @@ public class BatchMetrics {
 
   private final Set<Metric> metrics;
 
-  public SensorMetrics(Metrics[] metricsRepositories) {
+  public BatchMetrics(Metrics[] metricsRepositories) {
     this.metrics = ImmutableSet.copyOf(Iterables.concat(getPluginMetrics(metricsRepositories), ALLOWED_CORE_METRICS));
   }
 

@@ -60,6 +60,7 @@ public class ComputationSteps {
       // must be executed after the measures required for common rules (coverage, comment density, duplications)
       IntegrateIssuesStep.class,
       CoreMetricFormulaExecutorStep.class,
+      LanguageDistributionMeasuresStep.class,
 
       // SQALE measures depend on issues
       SqaleMeasuresStep.class,
