@@ -62,8 +62,8 @@ public abstract class AbstractCoverageRule extends CommonRule {
   private CommonRuleIssue generateIssue(Component file, double minimumCoverage) {
     Optional<Measure> uncoveredMeasure = measureRepository.getRawMeasure(file, uncoveredMetric);
     Optional<Measure> toCoverMeasure = measureRepository.getRawMeasure(file, toCoverMetric);
-    double uncovered = uncoveredMeasure.isPresent() ? uncoveredMeasure.get().getDoubleValue() : 0.0;
-    double toCover = toCoverMeasure.isPresent() ? toCoverMeasure.get().getDoubleValue() : 0.0;
+    double uncovered = uncoveredMeasure.isPresent() ? uncoveredMeasure.get().getIntValue() : 0.0;
+    double toCover = toCoverMeasure.isPresent() ? toCoverMeasure.get().getIntValue() : 0.0;
 
     // effort to fix is the number of lines/conditions to cover for reaching threshold
     int effortToFix = (int) Math.ceil((toCover * minimumCoverage / 100) - (toCover - uncovered));
