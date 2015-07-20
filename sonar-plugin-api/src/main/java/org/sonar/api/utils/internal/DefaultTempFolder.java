@@ -34,7 +34,7 @@ public class DefaultTempFolder implements TempFolder {
   /** Maximum loop count when creating temp directories. */
   private static final int TEMP_DIR_ATTEMPTS = 10000;
 
-  private final File tempDir;
+  protected final File tempDir;
 
   public DefaultTempFolder(File tempDir) {
     this.tempDir = tempDir;
@@ -53,7 +53,7 @@ public class DefaultTempFolder implements TempFolder {
 
     for (int counter = 0; counter < TEMP_DIR_ATTEMPTS; counter++) {
       File tempDir = new File(baseDir, baseName + counter);
-      if (tempDir.mkdir()) {
+      if (tempDir.mkdirs()) {
         return tempDir;
       }
     }

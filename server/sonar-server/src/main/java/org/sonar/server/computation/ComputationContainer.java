@@ -59,6 +59,9 @@ public class ComputationContainer {
    */
   static List componentClasses() {
     return Arrays.asList(
+      // temp directory
+      new ComputationTempFolderProvider(),
+
       ComputationService.class,
       ComputationSteps.class,
 
