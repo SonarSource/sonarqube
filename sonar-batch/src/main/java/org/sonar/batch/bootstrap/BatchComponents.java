@@ -27,7 +27,6 @@ import org.sonar.batch.compute.FilesDecorator;
 import org.sonar.batch.compute.UnitTestDecorator;
 import org.sonar.batch.cpd.CpdComponents;
 import org.sonar.batch.issue.tracking.IssueTracking;
-import org.sonar.batch.language.LanguageDistributionDecorator;
 import org.sonar.batch.scan.report.ConsoleReport;
 import org.sonar.batch.scan.report.HtmlReport;
 import org.sonar.batch.scan.report.IssuesReportBuilder;
@@ -67,14 +66,11 @@ public class BatchComponents {
       SourceProvider.class,
       RuleNameProvider.class,
 
-      // language
-      LanguageDistributionDecorator.class,
-
       // to be moved to compute engine
       UnitTestDecorator.class,
       DirectoriesDecorator.class,
       FilesDecorator.class
-    );
+      );
     components.addAll(CorePropertyDefinitions.all());
     // CPD
     components.addAll(CpdComponents.all());
