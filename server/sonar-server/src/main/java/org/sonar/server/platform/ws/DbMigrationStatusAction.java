@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.platform.ws;
 
 import com.google.common.io.Resources;
@@ -31,19 +32,19 @@ import org.sonar.db.version.DatabaseVersion;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.UNSUPPORTED_DATABASE_MIGRATION_STATUS;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.statusDescription;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.write;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.writeJustStartedResponse;
+import static org.sonar.server.platform.ws.DbMigrationJsonWriter.writeMigrationNeededResponse;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.writeNotSupportedResponse;
 
 /**
- * Implementation of the {@code migrate_db} action for the System WebService.
+ * Implementation of the {@code db_migration_status} action for the System WebService.
  */
-public class MigrateDbAction implements SystemWsAction {
+public class DbMigrationStatusAction implements SystemWsAction {
 
   private final DatabaseVersion databaseVersion;
   private final DatabaseMigration databaseMigration;
   private final Database database;
 
-  public MigrateDbAction(DatabaseVersion databaseVersion, Database database, DatabaseMigration databaseMigration) {
+  public DbMigrationStatusAction(DatabaseVersion databaseVersion, Database database, DatabaseMigration databaseMigration) {
     this.databaseVersion = databaseVersion;
     this.database = database;
     this.databaseMigration = databaseMigration;
@@ -51,15 +52,11 @@ public class MigrateDbAction implements SystemWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    controller.createAction("migrate_db")
-      .setDescription("Migrate the database to match the current version of SonarQube." +
-        "<br/>" +
-        "Sending a POST request to this URL starts the DB migration. " +
-        "It is strongly advised to <strong>make a database backup</strong> before invoking this WS." +
+    controller.createAction("db_migration_status")
+      .setDescription("Display the database migration status of SonarQube." +
         "<br/>" +
         statusDescription())
       .setSince("5.2")
-      .setPost(true)
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "example-migrate_db.json"));
   }
@@ -67,9 +64,6 @@ public class MigrateDbAction implements SystemWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     Integer currentVersion = databaseVersion.getVersion();
-    if (currentVersion == null) {
-      throw new IllegalStateException("Version can not be retrieved from Database. Database is either blank or corrupted");
-    }
 
     JsonWriter json = response.newJsonWriter();
     try {
@@ -85,8 +79,7 @@ public class MigrateDbAction implements SystemWsAction {
             write(json, databaseMigration);
             break;
           case NONE:
-            databaseMigration.startIt();
-            writeJustStartedResponse(json, databaseMigration);
+            writeMigrationNeededResponse(json);
             break;
           default:
             throw new IllegalArgumentException(UNSUPPORTED_DATABASE_MIGRATION_STATUS);

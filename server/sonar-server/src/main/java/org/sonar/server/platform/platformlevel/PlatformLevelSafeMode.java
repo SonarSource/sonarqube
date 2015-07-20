@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.platformlevel;
 
+import org.sonar.server.platform.ws.DbMigrationStatusAction;
 import org.sonar.server.platform.ws.MigrateDbAction;
 import org.sonar.server.platform.ws.StatusAction;
 import org.sonar.server.platform.ws.SystemWs;
@@ -36,6 +37,7 @@ public class PlatformLevelSafeMode extends PlatformLevel {
       // Server WS
       StatusAction.class,
       MigrateDbAction.class,
+      DbMigrationStatusAction.class,
       SystemWs.class,
 
       // Listing WS

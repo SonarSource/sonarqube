@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.platform.ws;
 
 import com.google.common.collect.ImmutableList;
@@ -38,15 +39,24 @@ import static com.google.common.base.Predicates.in;
 import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.Iterables.filter;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.version.DatabaseMigration.Status.FAILED;
 import static org.sonar.db.version.DatabaseMigration.Status.NONE;
 import static org.sonar.db.version.DatabaseMigration.Status.RUNNING;
 import static org.sonar.db.version.DatabaseMigration.Status.SUCCEEDED;
+import static org.sonar.server.platform.ws.DbMigrationJsonWriter.MESSAGE_MIGRATION_NEEDED;
+import static org.sonar.server.platform.ws.DbMigrationJsonWriter.MESSAGE_NO_MIGRATION_ON_EMBEDDED_DATABASE;
+import static org.sonar.server.platform.ws.DbMigrationJsonWriter.MESSAGE_STATUS_NONE;
+import static org.sonar.server.platform.ws.DbMigrationJsonWriter.MESSAGE_STATUS_RUNNING;
+import static org.sonar.server.platform.ws.DbMigrationJsonWriter.MESSAGE_STATUS_SUCCEEDED;
+import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_MIGRATION_FAILED;
+import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_MIGRATION_RUNNING;
+import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_MIGRATION_SUCCEEDED;
+import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_NOT_SUPPORTED;
+import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_NO_MIGRATION;
 import static org.sonar.test.JsonAssert.assertJson;
 
-public class MigrateDbActionTest {
+public class DbMigrationStatusActionTest {
 
   private static final Date SOME_DATE = new Date();
   private static final String SOME_THROWABLE_MSG = "blablabla pop !";
@@ -55,22 +65,11 @@ public class MigrateDbActionTest {
   private static final int OLD_VERSION = CURRENT_VERSION - 1;
   private static final int NEWER_VERSION = CURRENT_VERSION + 1;
 
-  static final String STATUS_NO_MIGRATION = "NO_MIGRATION";
-  static final String STATUS_NOT_SUPPORTED = "NOT_SUPPORTED";
-  static final String STATUS_MIGRATION_RUNNING = "MIGRATION_RUNNING";
-  static final String STATUS_MIGRATION_FAILED = "MIGRATION_FAILED";
-  static final String STATUS_MIGRATION_SUCCEEDED = "MIGRATION_SUCCEEDED";
-
-  static final String MESSAGE_NO_MIGRATION_ON_EMBEDDED_DATABASE = "Upgrade is not supported on embedded database.";
-  static final String MESSAGE_STATUS_NONE = "Database is up-to-date, no migration needed.";
-  static final String MESSAGE_STATUS_RUNNING = "Database migration is running.";
-  static final String MESSAGE_STATUS_SUCCEEDED = "Migration succeeded.";
-
   DatabaseVersion databaseVersion = mock(DatabaseVersion.class);
   Database database = mock(Database.class);
   Dialect dialect = mock(Dialect.class);
   DatabaseMigration databaseMigration = mock(DatabaseMigration.class);
-  MigrateDbAction underTest = new MigrateDbAction(databaseVersion, database, databaseMigration);
+  DbMigrationStatusAction underTest = new DbMigrationStatusAction(databaseVersion, database, databaseMigration);
 
   Request request = mock(Request.class);
   WsTester.TestResponse response = new WsTester.TestResponse();
@@ -78,13 +77,6 @@ public class MigrateDbActionTest {
   @Before
   public void wireMocksTogether() {
     when(database.getDialect()).thenReturn(dialect);
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void ISE_is_thrown_when_version_can_not_be_retrieved_from_database() throws Exception {
-    when(databaseVersion.getVersion()).thenReturn(null);
-
-    underTest.handle(request, response);
   }
 
   @Test
@@ -99,7 +91,7 @@ public class MigrateDbActionTest {
   }
 
   @Test
-  public void msg_is_operational_and_state_from_database_migration_when_database_version_is_equal_to_current_version() throws Exception {
+  public void msg_is_operational_and_state_from_databasemigration_when_databaseversion_is_equal_to_currentversion() throws Exception {
     when(databaseVersion.getVersion()).thenReturn(CURRENT_VERSION);
     when(databaseMigration.status()).thenReturn(NONE);
 
@@ -120,7 +112,7 @@ public class MigrateDbActionTest {
   }
 
   @Test
-  public void state_from_database_migration_when_databaseversion_greater_than_currentversion() throws Exception {
+  public void state_from_databasemigration_when_databaseversion_greater_than_currentversion() throws Exception {
     when(databaseVersion.getVersion()).thenReturn(NEWER_VERSION);
     when(databaseMigration.status()).thenReturn(NONE);
 
@@ -140,7 +132,7 @@ public class MigrateDbActionTest {
   }
 
   @Test
-  public void state_from_database_migration_when_dbmigration_status_is_RUNNING() throws Exception {
+  public void state_from_databasemigration_when_dbmigration_status_is_RUNNING() throws Exception {
     when(databaseVersion.getVersion()).thenReturn(OLD_VERSION);
     when(dialect.supportsMigration()).thenReturn(true);
     when(databaseMigration.status()).thenReturn(RUNNING);
@@ -152,7 +144,7 @@ public class MigrateDbActionTest {
   }
 
   @Test
-  public void state_from_database_migration_and_msg_includes_error_when_dbmigration_status_is_FAILED() throws Exception {
+  public void state_from_databasemigration_and_msg_includes_error_when_dbmigration_status_is_FAILED() throws Exception {
     when(databaseVersion.getVersion()).thenReturn(OLD_VERSION);
     when(dialect.supportsMigration()).thenReturn(true);
     when(databaseMigration.status()).thenReturn(FAILED);
@@ -165,7 +157,7 @@ public class MigrateDbActionTest {
   }
 
   @Test
-  public void state_from_database_migration_and_msg_has_default_msg_when_dbmigration_status_is_FAILED() throws Exception {
+  public void state_from_databasemigration_and_msg_has_default_msg_when_dbmigration_status_is_FAILED() throws Exception {
     when(databaseVersion.getVersion()).thenReturn(OLD_VERSION);
     when(dialect.supportsMigration()).thenReturn(true);
     when(databaseMigration.status()).thenReturn(FAILED);
@@ -178,7 +170,7 @@ public class MigrateDbActionTest {
   }
 
   @Test
-  public void state_from_database_migration_and_msg_has_default_msg_when_dbmigration_status_is_SUCCEEDED() throws Exception {
+  public void state_from_databasemigration_and_msg_has_default_msg_when_dbmigration_status_is_SUCCEEDED() throws Exception {
     when(databaseVersion.getVersion()).thenReturn(OLD_VERSION);
     when(dialect.supportsMigration()).thenReturn(true);
     when(databaseMigration.status()).thenReturn(SUCCEEDED);
@@ -190,7 +182,7 @@ public class MigrateDbActionTest {
   }
 
   @Test
-  public void start_migration_and_return_state_from_database_migration_when_dbmigration_status_is_NONE() throws Exception {
+  public void start_migration_and_return_state_from_databasemigration_when_dbmigration_status_is_NONE() throws Exception {
     when(databaseVersion.getVersion()).thenReturn(OLD_VERSION);
     when(dialect.supportsMigration()).thenReturn(true);
     when(databaseMigration.status()).thenReturn(NONE);
@@ -198,8 +190,7 @@ public class MigrateDbActionTest {
 
     underTest.handle(request, response);
 
-    verify(databaseMigration).startIt();
-    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(STATUS_MIGRATION_RUNNING, MESSAGE_STATUS_RUNNING, SOME_DATE));
+    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(STATUS_NO_MIGRATION, MESSAGE_MIGRATION_NEEDED));
   }
 
   private static String failedMsg(@Nullable String t) {
