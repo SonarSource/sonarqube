@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.List;
 import org.sonar.batch.compute.DirectoriesDecorator;
 import org.sonar.batch.compute.FilesDecorator;
-import org.sonar.batch.compute.UnitTestDecorator;
 import org.sonar.batch.cpd.CpdComponents;
 import org.sonar.batch.issue.tracking.IssueTracking;
 import org.sonar.batch.scan.report.ConsoleReport;
@@ -67,7 +66,6 @@ public class BatchComponents {
       RuleNameProvider.class,
 
       // to be moved to compute engine
-      UnitTestDecorator.class,
       DirectoriesDecorator.class,
       FilesDecorator.class
       );
