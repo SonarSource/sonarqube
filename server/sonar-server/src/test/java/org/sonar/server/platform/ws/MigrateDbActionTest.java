@@ -46,7 +46,7 @@ import static org.sonar.db.version.DatabaseMigration.Status.RUNNING;
 import static org.sonar.db.version.DatabaseMigration.Status.SUCCEEDED;
 import static org.sonar.test.JsonAssert.assertJson;
 
-public class MigrateDbSystemActionTest {
+public class MigrateDbActionTest {
 
   private static final String UPTODATE_MSG = "Database is up-to-date, no migration needed.";
   private static final String MIG_NOT_SUPPORTED_MSG = "Upgrade is not supported on embedded database.";
@@ -68,7 +68,7 @@ public class MigrateDbSystemActionTest {
   Database database = mock(Database.class);
   Dialect dialect = mock(Dialect.class);
   DatabaseMigration databaseMigration = mock(DatabaseMigration.class);
-  MigrateDbSystemAction underTest = new MigrateDbSystemAction(databaseVersion, database, databaseMigration);
+  MigrateDbAction underTest = new MigrateDbAction(databaseVersion, database, databaseMigration);
 
   Request request = mock(Request.class);
   WsTester.TestResponse response = new WsTester.TestResponse();

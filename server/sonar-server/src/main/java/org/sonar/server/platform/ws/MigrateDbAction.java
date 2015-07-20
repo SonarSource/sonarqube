@@ -33,7 +33,7 @@ import static org.sonar.db.version.DatabaseMigration.Status.RUNNING;
 /**
  * Implementation of the {@code migrate_db} action for the System WebService.
  */
-public class MigrateDbSystemAction implements SystemWsAction {
+public class MigrateDbAction implements SystemWsAction {
 
   private static final String UNSUPPORTED_DATABASE_MIGRATION_STATUS = "Unsupported DatabaseMigration status";
   private static final String MESSAGE_STATUS_NONE = "Database is up-to-date, no migration needed.";
@@ -55,7 +55,7 @@ public class MigrateDbSystemAction implements SystemWsAction {
   private final DatabaseMigration databaseMigration;
   private final Database database;
 
-  public MigrateDbSystemAction(DatabaseVersion databaseVersion, Database database, DatabaseMigration databaseMigration) {
+  public MigrateDbAction(DatabaseVersion databaseVersion, Database database, DatabaseMigration databaseMigration) {
     this.databaseVersion = databaseVersion;
     this.database = database;
     this.databaseMigration = databaseMigration;

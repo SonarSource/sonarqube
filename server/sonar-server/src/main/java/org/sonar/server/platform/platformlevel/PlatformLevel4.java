@@ -187,7 +187,7 @@ import org.sonar.server.platform.monitoring.SonarQubeMonitor;
 import org.sonar.server.platform.monitoring.SystemMonitor;
 import org.sonar.server.platform.ws.InfoAction;
 import org.sonar.server.platform.ws.L10nWs;
-import org.sonar.server.platform.ws.MigrateDbSystemAction;
+import org.sonar.server.platform.ws.MigrateDbAction;
 import org.sonar.server.platform.ws.RestartAction;
 import org.sonar.server.platform.ws.ServerWs;
 import org.sonar.server.platform.ws.StatusAction;
@@ -694,7 +694,7 @@ public class PlatformLevel4 extends PlatformLevel {
       RestartAction.class,
       InfoAction.class,
       UpgradesAction.class,
-      MigrateDbSystemAction.class,
+      MigrateDbAction.class,
       StatusAction.class,
       SystemWs.class,
       SystemMonitor.class,
