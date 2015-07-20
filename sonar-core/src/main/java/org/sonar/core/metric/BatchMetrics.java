@@ -85,7 +85,6 @@ import static org.sonar.api.measures.CoreMetrics.TESTS;
 import static org.sonar.api.measures.CoreMetrics.TEST_ERRORS;
 import static org.sonar.api.measures.CoreMetrics.TEST_EXECUTION_TIME;
 import static org.sonar.api.measures.CoreMetrics.TEST_FAILURES;
-import static org.sonar.api.measures.CoreMetrics.TEST_SUCCESS_DENSITY;
 import static org.sonar.api.measures.CoreMetrics.UNCOVERED_CONDITIONS;
 import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES;
 
@@ -136,7 +135,6 @@ public class BatchMetrics {
     TEST_ERRORS,
     TEST_FAILURES,
     TEST_EXECUTION_TIME,
-    TEST_SUCCESS_DENSITY,
 
     LINES_TO_COVER,
     UNCOVERED_LINES,

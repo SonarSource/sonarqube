@@ -106,7 +106,6 @@ public class CommentMeasuresStepTest {
     assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, COMMENT_LINES_KEY).get().getIntValue()).isEqualTo(500);
     assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, COMMENT_LINES_KEY).get().getIntValue()).isEqualTo(500);
     assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, COMMENT_LINES_KEY).get().getIntValue()).isEqualTo(500);
-    assertThat(measureRepository.getAddedRawMeasures(ROOT_REF).get(COMMENT_LINES_KEY)).containsOnly(newMeasureBuilder().create(500));
   }
 
   @Test
