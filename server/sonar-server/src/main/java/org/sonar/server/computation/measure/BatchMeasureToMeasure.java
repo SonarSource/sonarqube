@@ -61,35 +61,35 @@ public class BatchMeasureToMeasure {
     if (!batchMeasure.hasIntValue()) {
       return toNoValueMeasure(builder, batchMeasure);
     }
-    return of(setCommonProperties(builder, batchMeasure).create(batchMeasure.getIntValue(), data));
+    return of(builder.create(batchMeasure.getIntValue(), data));
   }
 
   private static Optional<Measure> toLongMeasure(Measure.NewMeasureBuilder builder, BatchReport.Measure batchMeasure, @Nullable String data) {
     if (!batchMeasure.hasLongValue()) {
       return toNoValueMeasure(builder, batchMeasure);
     }
-    return of(setCommonProperties(builder, batchMeasure).create(batchMeasure.getLongValue(), data));
+    return of(builder.create(batchMeasure.getLongValue(), data));
   }
 
   private static Optional<Measure> toDoubleMeasure(Measure.NewMeasureBuilder builder, BatchReport.Measure batchMeasure, @Nullable String data) {
     if (!batchMeasure.hasDoubleValue()) {
       return toNoValueMeasure(builder, batchMeasure);
     }
-    return of(setCommonProperties(builder, batchMeasure).create(batchMeasure.getDoubleValue(), data));
+    return of(builder.create(batchMeasure.getDoubleValue(), data));
   }
 
   private static Optional<Measure> toBooleanMeasure(Measure.NewMeasureBuilder builder, BatchReport.Measure batchMeasure, @Nullable String data) {
     if (!batchMeasure.hasBooleanValue()) {
       return toNoValueMeasure(builder, batchMeasure);
     }
-    return of(setCommonProperties(builder, batchMeasure).create(batchMeasure.getBooleanValue(), data));
+    return of(builder.create(batchMeasure.getBooleanValue(), data));
   }
 
   private static Optional<Measure> toStringMeasure(Measure.NewMeasureBuilder builder, BatchReport.Measure batchMeasure) {
     if (!batchMeasure.hasStringValue()) {
       return toNoValueMeasure(builder, batchMeasure);
     }
-    return of(setCommonProperties(builder, batchMeasure).create(batchMeasure.getStringValue()));
+    return of(builder.create(batchMeasure.getStringValue()));
   }
 
   private static Optional<Measure> toLevelMeasure(Measure.NewMeasureBuilder builder, BatchReport.Measure batchMeasure) {
@@ -100,35 +100,10 @@ public class BatchMeasureToMeasure {
     if (!level.isPresent()) {
       return toNoValueMeasure(builder, batchMeasure);
     }
-    return of(setCommonProperties(builder, batchMeasure).create(level.get()));
+    return of(builder.create(level.get()));
   }
 
   private static Optional<Measure> toNoValueMeasure(Measure.NewMeasureBuilder builder, BatchReport.Measure batchMeasure) {
-    return of(setCommonProperties(builder, batchMeasure).createNoValue());
+    return of(builder.createNoValue());
   }
-
-  private static Measure.NewMeasureBuilder setCommonProperties(Measure.NewMeasureBuilder builder, BatchReport.Measure batchMeasure) {
-    if (hasAnyVariation(batchMeasure)) {
-      builder.setVariations(createVariations(batchMeasure));
-    }
-    return builder;
-  }
-
-  private static boolean hasAnyVariation(BatchReport.Measure batchMeasure) {
-    return batchMeasure.hasVariationValue1()
-      || batchMeasure.hasVariationValue2()
-      || batchMeasure.hasVariationValue3()
-      || batchMeasure.hasVariationValue4()
-      || batchMeasure.hasVariationValue5();
-  }
-
-  private static MeasureVariations createVariations(BatchReport.Measure batchMeasure) {
-    return new MeasureVariations(
-      batchMeasure.hasVariationValue1() ? batchMeasure.getVariationValue1() : null,
-      batchMeasure.hasVariationValue2() ? batchMeasure.getVariationValue2() : null,
-      batchMeasure.hasVariationValue3() ? batchMeasure.getVariationValue3() : null,
-      batchMeasure.hasVariationValue4() ? batchMeasure.getVariationValue4() : null,
-      batchMeasure.hasVariationValue5() ? batchMeasure.getVariationValue5() : null);
-  }
-
 }

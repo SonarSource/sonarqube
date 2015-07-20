@@ -22,7 +22,6 @@ package org.sonar.server.computation.measure;
 import com.google.common.base.Optional;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -276,36 +275,4 @@ public class BatchMeasureToMeasureTest {
       {BatchReport.Measure.newBuilder().setStringValue(Measure.Level.OK.name()), SOME_LEVEL_METRIC}
     };
   }
-
-  @Test
-  @UseDataProvider("all_types_batch_measure_builders")
-  public void toMeasure_creates_no_MeasureVariation_if_dto_has_none_whichever_the_ValueType(BatchReport.Measure.Builder builder, Metric metric) {
-    assertThat(underTest.toMeasure(builder.build(), metric).get().hasVariations()).isFalse();
-  }
-
-  @Test
-  @UseDataProvider("all_types_batch_measure_builders")
-  public void toMeasure_creates_MeasureVariation_and_maps_the_right_one(BatchReport.Measure.Builder builder, Metric metric) {
-    assertThat(underTest.toMeasure(builder.setVariationValue1(1).build(), metric).get().getVariations().getVariation1()).isEqualTo(1);
-    assertThat(underTest.toMeasure(builder.setVariationValue2(2).build(), metric).get().getVariations().getVariation2()).isEqualTo(2);
-    assertThat(underTest.toMeasure(builder.setVariationValue3(3).build(), metric).get().getVariations().getVariation3()).isEqualTo(3);
-    assertThat(underTest.toMeasure(builder.setVariationValue4(4).build(), metric).get().getVariations().getVariation4()).isEqualTo(4);
-    assertThat(underTest.toMeasure(builder.setVariationValue5(5).build(), metric).get().getVariations().getVariation5()).isEqualTo(5);
-  }
-
-  @Test
-  public void toMeasure_creates_MeasureVariation_and_maps_the_right_one() {
-    BatchReport.Measure batchMeasure = BatchReport.Measure.newBuilder()
-      .setStringValue("1").setVariationValue2(2).setVariationValue3(3).setVariationValue5(5)
-      .build();
-
-    Optional<Measure> measure = underTest.toMeasure(batchMeasure, SOME_STRING_METRIC);
-
-    assertThat(measure.get().getVariations().hasVariation1()).isFalse();
-    assertThat(measure.get().getVariations().getVariation2()).isEqualTo(2);
-    assertThat(measure.get().getVariations().getVariation3()).isEqualTo(3);
-    assertThat(measure.get().getVariations().hasVariation4()).isFalse();
-    assertThat(measure.get().getVariations().getVariation5()).isEqualTo(5);
-  }
-
 }
