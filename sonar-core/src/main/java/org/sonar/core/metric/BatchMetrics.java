@@ -90,13 +90,13 @@ import static org.sonar.api.measures.CoreMetrics.UNCOVERED_CONDITIONS;
 import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES;
 
 /**
- * This class is used to know the list of metrics that can be send by sensor.
+ * This class is used to know the list of metrics that can be send in the batch report.
  * <p/>
- * The batch should not send other metrics, and the Compute Engine should not allow other metrics from the batch report.
+ * The batch should not send other metrics, and the Compute Engine should not allow other metrics.
  */
 @ServerSide
 @BatchSide
-public class SensorMetrics {
+public class BatchMetrics {
 
   private static final Set<Metric> ALLOWED_CORE_METRICS = ImmutableSet.<Metric>of(
     LINES,
@@ -104,11 +104,10 @@ public class SensorMetrics {
     NCLOC,
     NCLOC_DATA,
     GENERATED_NCLOC,
-    NCLOC_LANGUAGE_DISTRIBUTION,
-    COMMENTED_OUT_CODE_LINES,
-
     COMMENT_LINES,
     COMMENT_LINES_DATA,
+    NCLOC_LANGUAGE_DISTRIBUTION,
+    COMMENTED_OUT_CODE_LINES,
 
     PUBLIC_API,
     PUBLIC_UNDOCUMENTED_API,

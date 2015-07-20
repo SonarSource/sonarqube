@@ -26,7 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.core.metric.SensorMetrics;
+import org.sonar.core.metric.BatchMetrics;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -41,12 +41,12 @@ public class ReportMetricValidatorImplTest {
 
   static final String METRIC_KEY = "metric_key";
 
-  SensorMetrics sensorMetrics = mock(SensorMetrics.class);
+  BatchMetrics batchMetrics = mock(BatchMetrics.class);
 
   @Test
   public void validate_metric() throws Exception {
-    when(sensorMetrics.getMetrics()).thenReturn(ImmutableSet.<Metric>of(new Builder(METRIC_KEY, "name", ValueType.INT).create()));
-    ReportMetricValidator validator = new ReportMetricValidatorImpl(sensorMetrics);
+    when(batchMetrics.getMetrics()).thenReturn(ImmutableSet.<Metric>of(new Builder(METRIC_KEY, "name", ValueType.INT).create()));
+    ReportMetricValidator validator = new ReportMetricValidatorImpl(batchMetrics);
 
     assertThat(validator.validate(METRIC_KEY)).isTrue();
     assertThat(logTester.logs()).isEmpty();
@@ -54,8 +54,8 @@ public class ReportMetricValidatorImplTest {
 
   @Test
   public void not_validate_metric() throws Exception {
-    when(sensorMetrics.getMetrics()).thenReturn(Collections.<Metric>emptySet());
-    ReportMetricValidator validator = new ReportMetricValidatorImpl(sensorMetrics);
+    when(batchMetrics.getMetrics()).thenReturn(Collections.<Metric>emptySet());
+    ReportMetricValidator validator = new ReportMetricValidatorImpl(batchMetrics);
 
     assertThat(validator.validate(METRIC_KEY)).isFalse();
     assertThat(logTester.logs()).containsOnly("The metric 'metric_key' is ignored and should not be send in the batch report");
@@ -63,8 +63,8 @@ public class ReportMetricValidatorImplTest {
 
   @Test
   public void not_generate_new_log_when_validating_twice_the_same_metric() throws Exception {
-    when(sensorMetrics.getMetrics()).thenReturn(Collections.<Metric>emptySet());
-    ReportMetricValidator validator = new ReportMetricValidatorImpl(sensorMetrics);
+    when(batchMetrics.getMetrics()).thenReturn(Collections.<Metric>emptySet());
+    ReportMetricValidator validator = new ReportMetricValidatorImpl(batchMetrics);
 
     assertThat(validator.validate(METRIC_KEY)).isFalse();
     assertThat(logTester.logs()).hasSize(1);

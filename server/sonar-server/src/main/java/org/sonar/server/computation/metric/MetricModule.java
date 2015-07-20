@@ -20,14 +20,14 @@
 
 package org.sonar.server.computation.metric;
 
-import org.sonar.core.metric.SensorMetrics;
+import org.sonar.core.metric.BatchMetrics;
 import org.sonar.core.platform.Module;
 
 public class MetricModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      SensorMetrics.class,
+      BatchMetrics.class,
       ReportMetricValidatorImpl.class,
       MetricRepositoryImpl.class);
   }

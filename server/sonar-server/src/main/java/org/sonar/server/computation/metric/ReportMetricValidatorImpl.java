@@ -29,7 +29,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.core.metric.SensorMetrics;
+import org.sonar.core.metric.BatchMetrics;
 
 public class ReportMetricValidatorImpl implements ReportMetricValidator {
 
@@ -38,8 +38,8 @@ public class ReportMetricValidatorImpl implements ReportMetricValidator {
   private Map<String, org.sonar.api.measures.Metric> metricByKey;
   private Set<String> alreadyLoggedMetricKeys = new HashSet<>();
 
-  public ReportMetricValidatorImpl(SensorMetrics sensorMetrics) {
-    this.metricByKey = FluentIterable.from(sensorMetrics.getMetrics()).uniqueIndex(MetricToKey.INSTANCE);
+  public ReportMetricValidatorImpl(BatchMetrics batchMetrics) {
+    this.metricByKey = FluentIterable.from(batchMetrics.getMetrics()).uniqueIndex(MetricToKey.INSTANCE);
   }
 
   @Override

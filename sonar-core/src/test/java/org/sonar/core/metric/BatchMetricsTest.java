@@ -30,10 +30,10 @@ import org.sonar.api.measures.Metrics;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SensorMetricsTest {
+public class BatchMetricsTest {
 
-  static final SensorMetrics SENSOR_METRICS_WITHOUT_METRIC_PLUGIN = new SensorMetrics(new Metrics[]{});
-  static final SensorMetrics SENSOR_METRICS_WITH_PLUGIN = new SensorMetrics(new Metrics[]{new FakeMetrics()});
+  static final BatchMetrics SENSOR_METRICS_WITHOUT_METRIC_PLUGIN = new BatchMetrics(new Metrics[]{});
+  static final BatchMetrics SENSOR_METRICS_WITH_PLUGIN = new BatchMetrics(new Metrics[]{new FakeMetrics()});
 
   @Test
   public void check_number_of_allowed_core_metrics() throws Exception {
