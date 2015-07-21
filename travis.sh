@@ -58,12 +58,21 @@ PRANALYSIS)
   ;;
 
 ITS_QUALITYGATE)
-	installTravisTools
+  installTravisTools
 
   export DISPLAY=:99.0
   travis_start_xvfb
 
   mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="qualitygate"
+  ;;
+
+ITS_ISSUE)
+  installTravisTools
+
+  export DISPLAY=:99.0
+  travis_start_xvfb
+
+  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="issue"
   ;;
 
 ITS_UPDATECENTER)

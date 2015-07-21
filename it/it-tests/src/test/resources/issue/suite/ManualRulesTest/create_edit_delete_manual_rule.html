@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>create_edit_delete_manual_rule</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+    <tbody>
+    <tr>
+	<td>open</td>
+	<td>/sonar/sessions/new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>login</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>password</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sonar/coding_rules</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=.js-create-manual-rule</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=.js-create-manual-rule</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>coding-rules-manual-rule-creation-create</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=name</td>
+	<td>New rule</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=key</td>
+	<td>New_rule</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=markdown_description</td>
+	<td>This is a new rule</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>coding-rules-manual-rule-creation-create</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=.coding-rules-detail-header</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=.coding-rule-details</td>
+	<td>glob:*New rule*This is a new rule*</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>coding-rules-detail-manual-rule-change</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>coding-rules-manual-rule-creation-create</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=markdown_description</td>
+	<td>Description updated</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>coding-rules-manual-rule-creation-create</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>css=.coding-rule-details</td>
+	<td>glob:*New rule*Description updated*</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>coding-rules-detail-rule-delete</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>css=[data-confirm=&quot;yes&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=[data-confirm=&quot;yes&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForNotText</td>
+	<td>css=.search-navigator-workspace-list</td>
+	<td>glob:*New rule*</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>
