@@ -19,17 +19,11 @@
  */
 package org.sonar.batch.report;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import java.io.Serializable;
-import javax.annotation.Nullable;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric.ValueType;
-import org.sonar.api.measures.MetricFinder;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.Constants.MeasureValueType;
@@ -41,27 +35,16 @@ public class MeasuresPublisher implements ReportPublisherStep {
 
   private final BatchComponentCache resourceCache;
   private final MeasureCache measureCache;
-  private final MetricFinder metricFinder;
 
-  public MeasuresPublisher(BatchComponentCache resourceCache, MeasureCache measureCache, MetricFinder metricFinder) {
+  public MeasuresPublisher(BatchComponentCache resourceCache, MeasureCache measureCache) {
     this.resourceCache = resourceCache;
     this.measureCache = measureCache;
-    this.metricFinder = metricFinder;
   }
 
   @Override
   public void publish(BatchReportWriter writer) {
     for (final BatchComponent resource : resourceCache.all()) {
       Iterable<Measure> batchMeasures = measureCache.byResource(resource.resource());
-      batchMeasures = Iterables.filter(batchMeasures, new Predicate<Measure>() {
-        @Override
-        public boolean apply(Measure input) {
-          // Reload Metric to have all fields populated
-          input.setMetric(metricFinder.findByKey(input.getMetricKey()));
-          return shouldPersistMeasure(resource.resource(), input);
-        }
-
-      });
       Iterable<org.sonar.batch.protocol.output.BatchReport.Measure> reportMeasures = Iterables.transform(batchMeasures, new Function<Measure, BatchReport.Measure>() {
         private final BatchReport.Measure.Builder builder = BatchReport.Measure.newBuilder();
 
@@ -72,22 +55,6 @@ public class MeasuresPublisher implements ReportPublisherStep {
       });
       writer.writeComponentMeasures(resource.batchId(), reportMeasures);
     }
-  }
-
-  @VisibleForTesting
-  static boolean shouldPersistMeasure(@Nullable Resource resource, @Nullable Measure measure) {
-    if (resource == null || measure == null) {
-      return false;
-    }
-    return !(ResourceUtils.isEntity(resource) && measure.isBestValue()) && isMeasureNotEmpty(measure);
-  }
-
-  private static boolean isMeasureNotEmpty(Measure measure) {
-    boolean isNotEmpty = false;
-    for (int i = 1; i <= 5; i++) {
-      isNotEmpty = isNotEmpty || measure.getVariation(i) != null;
-    }
-    return measure.getValue() != null || measure.getData() != null || isNotEmpty;
   }
 
   private BatchReport.Measure toReportMeasure(BatchReport.Measure.Builder builder, Measure measure) {

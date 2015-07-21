@@ -25,12 +25,12 @@ import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
-import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.BatchComponentCache;
@@ -49,11 +49,13 @@ import static org.mockito.Mockito.when;
 public class MeasuresPublisherTest {
 
   @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   private MeasureCache measureCache;
   private MeasuresPublisher publisher;
-  private org.sonar.api.resources.File aFile = org.sonar.api.resources.File.create("org/foo/Bar.java");
 
   private org.sonar.api.resources.Resource sampleFile;
 
@@ -66,15 +68,7 @@ public class MeasuresPublisherTest {
     resourceCache.add(sampleFile, null);
     measureCache = mock(MeasureCache.class);
     when(measureCache.byResource(any(Resource.class))).thenReturn(Collections.<Measure>emptyList());
-    MetricFinder metricFinder = mock(MetricFinder.class);
-    when(metricFinder.findByKey(CoreMetrics.COVERAGE_KEY)).thenReturn(CoreMetrics.COVERAGE);
-    when(metricFinder.findByKey(CoreMetrics.NEW_BLOCKER_VIOLATIONS_KEY)).thenReturn(CoreMetrics.NEW_BLOCKER_VIOLATIONS);
-    when(metricFinder.findByKey("manual_metric")).thenReturn(new Metric<>("manual_metric", ValueType.BOOL));
-    when(metricFinder.findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
-    when(metricFinder.findByKey(CoreMetrics.SQALE_RATING_KEY)).thenReturn(CoreMetrics.SQALE_RATING);
-    when(metricFinder.findByKey(CoreMetrics.TECHNICAL_DEBT_KEY)).thenReturn(CoreMetrics.TECHNICAL_DEBT);
-    when(metricFinder.findByKey(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION);
-    publisher = new MeasuresPublisher(resourceCache, measureCache, metricFinder);
+    publisher = new MeasuresPublisher(resourceCache, measureCache);
   }
 
   @Test
@@ -116,30 +110,6 @@ public class MeasuresPublisherTest {
     try (CloseableIterator<BatchReport.Measure> componentMeasures = reader.readComponentMeasures(2)) {
       assertThat(componentMeasures).hasSize(6);
     }
-
-  }
-
-  @Test
-  public void should_not_save_some_file_measures_with_best_value() {
-    assertThat(MeasuresPublisher.shouldPersistMeasure(aFile, new Measure(CoreMetrics.LINES, 200.0))).isTrue();
-    assertThat(MeasuresPublisher.shouldPersistMeasure(aFile, new Measure(CoreMetrics.DUPLICATED_LINES_DENSITY, 3.0))).isTrue();
-
-    Measure duplicatedLines = new Measure(CoreMetrics.DUPLICATED_LINES_DENSITY, 0.0);
-    assertThat(MeasuresPublisher.shouldPersistMeasure(aFile, duplicatedLines)).isFalse();
-
-    duplicatedLines.setVariation1(0.0);
-    assertThat(MeasuresPublisher.shouldPersistMeasure(aFile, duplicatedLines)).isFalse();
-
-    duplicatedLines.setVariation1(-3.0);
-    assertThat(MeasuresPublisher.shouldPersistMeasure(aFile, duplicatedLines)).isTrue();
-  }
-
-  @Test
-  public void should_not_save_measures_without_data() {
-    assertThat(MeasuresPublisher.shouldPersistMeasure(aFile, new Measure(CoreMetrics.LINES))).isFalse();
-
-    Measure duplicatedLines = new Measure(CoreMetrics.DUPLICATED_LINES_DENSITY);
-    assertThat(MeasuresPublisher.shouldPersistMeasure(aFile, duplicatedLines)).isFalse();
   }
 
 }
