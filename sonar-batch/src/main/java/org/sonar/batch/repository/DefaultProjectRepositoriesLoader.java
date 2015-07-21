@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.scan.ProjectAnalysisMode;
+import org.sonar.batch.bootstrap.GlobalMode;
 
 import org.sonar.batch.util.BatchUtils;
 import org.sonar.batch.bootstrap.WSLoader;
@@ -37,11 +37,11 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
   private static final String BATCH_PROJECT_URL = "/batch/project";
 
   private final WSLoader wsLoader;
-  private final ProjectAnalysisMode analysisMode;
+  private final GlobalMode globalMode;
 
-  public DefaultProjectRepositoriesLoader(WSLoader wsLoader, ProjectAnalysisMode analysisMode) {
+  public DefaultProjectRepositoriesLoader(WSLoader wsLoader, GlobalMode globalMode) {
     this.wsLoader = wsLoader;
-    this.analysisMode = analysisMode;
+    this.globalMode = globalMode;
   }
 
   @Override
@@ -53,7 +53,7 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
         + "' is deprecated and will be dropped in a future SonarQube version. Please configure quality profile used by your project on SonarQube server.");
       url += "&profile=" + BatchUtils.encodeForUrl(taskProperties.properties().get(ModuleQProfiles.SONAR_PROFILE_PROP));
     }
-    url += "&preview=" + analysisMode.isPreview();
+    url += "&preview=" + globalMode.isPreview();
     return ProjectRepositories.fromJson(wsLoader.loadString(url));
   }
 

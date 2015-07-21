@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.bootstrap.AnalysisProperties;
+import org.sonar.batch.bootstrap.BootstrapProperties;
 
+import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -42,8 +43,8 @@ public class ProjectAnalysisMode implements AnalysisMode {
   private boolean quick;
   private boolean mediumTestMode;
 
-  public ProjectAnalysisMode(AnalysisProperties props) {
-    init(props.properties());
+  public ProjectAnalysisMode(BootstrapProperties globalProps, AnalysisProperties props) {
+    init(globalProps.properties(), props.properties());
   }
 
   @Override
@@ -65,18 +66,31 @@ public class ProjectAnalysisMode implements AnalysisMode {
     return mediumTestMode;
   }
 
-  private void init(Map<String, String> props) {
-    if (props.containsKey(CoreProperties.DRY_RUN)) {
+  private void init(Map<String, String> globalProps, Map<String, String> analysisProps) {
+    // make sure analysis is consistent with global properties
+    boolean globalPreview = isPreview(globalProps);
+    boolean analysisPreview = isPreview(analysisProps);
+
+    if (!globalPreview && analysisPreview) {
+      throw new IllegalStateException("Inconsistent properties:  global properties doesn't enable preview mode while analysis properties enables it");
+    }
+
+    load(globalProps, analysisProps);
+  }
+
+  private void load(Map<String, String> globalProps, Map<String, String> analysisProps) {
+    if (getPropertyWithFallback(analysisProps, globalProps, CoreProperties.DRY_RUN) != null) {
       LOG.warn(MessageFormat.format("Property {0} is deprecated. Please use {1} instead.", CoreProperties.DRY_RUN, CoreProperties.ANALYSIS_MODE));
-      preview = "true".equals(props.get(CoreProperties.DRY_RUN));
+      preview = "true".equals(getPropertyWithFallback(analysisProps, globalProps, CoreProperties.DRY_RUN));
       incremental = false;
     } else {
-      String mode = props.get(CoreProperties.ANALYSIS_MODE);
+      String mode = getPropertyWithFallback(analysisProps, globalProps, CoreProperties.ANALYSIS_MODE);
       preview = CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
       incremental = CoreProperties.ANALYSIS_MODE_INCREMENTAL.equals(mode);
       quick = CoreProperties.ANALYSIS_MODE_QUICK.equals(mode);
     }
-    mediumTestMode = "true".equals(props.get(BatchMediumTester.MEDIUM_TEST_ENABLED));
+    mediumTestMode = "true".equals(getPropertyWithFallback(analysisProps, globalProps, BatchMediumTester.MEDIUM_TEST_ENABLED));
+
     if (incremental) {
       LOG.info("Incremental mode");
     } else if (preview) {
@@ -89,4 +103,18 @@ public class ProjectAnalysisMode implements AnalysisMode {
     }
   }
 
+  private static String getPropertyWithFallback(Map<String, String> props1, Map<String, String> props2, String key) {
+    if (props1.containsKey(key)) {
+      return props1.get(key);
+    }
+
+    return props2.get(key);
+  }
+
+  private static boolean isPreview(Map<String, String> props) {
+    String mode = props.get(CoreProperties.ANALYSIS_MODE);
+
+    return "true".equals(props.get(CoreProperties.DRY_RUN)) || CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode) ||
+      CoreProperties.ANALYSIS_MODE_INCREMENTAL.equals(mode) || CoreProperties.ANALYSIS_MODE_QUICK.equals(mode);
+  }
 }
