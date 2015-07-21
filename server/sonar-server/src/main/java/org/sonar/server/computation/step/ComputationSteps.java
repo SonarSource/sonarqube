@@ -52,6 +52,7 @@ public class ComputationSteps {
       FeedPeriodsStep.class,
 
       // data computation
+      FileAndDirectoryMeasuresStep.class,
       NewCoverageMeasuresStep.class,
       CoverageMeasuresStep.class,
       CommentMeasuresStep.class,
