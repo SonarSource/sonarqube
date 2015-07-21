@@ -164,44 +164,44 @@ public class PersistentCache {
   }
 
   private void lock() throws IOException {
-    lock_raf = new RandomAccessFile(getLockPath().toFile(), "rw");
-    lock_fc = lock_raf.getChannel();
-    lock = lock_fc.lock();
+    lockRandomAccessFile = new RandomAccessFile(getLockPath().toFile(), "rw");
+    lockChannel = lockRandomAccessFile.getChannel();
+    lockFile = lockChannel.lock();
   }
 
-  private RandomAccessFile lock_raf;
-  private FileChannel lock_fc;
-  private FileLock lock;
+  private RandomAccessFile lockRandomAccessFile;
+  private FileChannel lockChannel;
+  private FileLock lockFile;
 
   private void unlock() {
-    if (lock != null) {
+    if (lockFile != null) {
       try {
-        lock.release();
+        lockFile.release();
       } catch (IOException e) {
         logger.error("Error releasing lock", e);
       }
     }
-    if (lock_fc != null) {
+    if (lockChannel != null) {
       try {
-        lock_fc.close();
+        lockChannel.close();
       } catch (IOException e) {
         logger.error("Error closing file channel", e);
       }
     }
-    if (lock_raf != null) {
+    if (lockRandomAccessFile != null) {
       try {
-        lock_raf.close();
+        lockRandomAccessFile.close();
       } catch (IOException e) {
         logger.error("Error closing file", e);
       }
     }
 
-    lock = null;
-    lock_raf = null;
-    lock_fc = null;
+    lockFile = null;
+    lockRandomAccessFile = null;
+    lockChannel = null;
   }
 
-  private String getKey(String uri) {
+  private static String getKey(String uri) {
     try {
       MessageDigest digest = MessageDigest.getInstance(DIGEST_ALGO);
       digest.update(uri.getBytes(StandardCharsets.UTF_8));
@@ -245,7 +245,7 @@ public class PersistentCache {
     };
   }
 
-  private void putCache(String key, byte[] value) throws UnsupportedEncodingException, IOException {
+  private void putCache(String key, byte[] value) throws IOException {
     Path cachePath = getCacheEntryPath(key);
     Files.write(cachePath, value, CREATE, WRITE, TRUNCATE_EXISTING);
   }

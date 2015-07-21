@@ -55,7 +55,7 @@ public class ProjectTempFolderProvider extends LifecycleProviderAdapter {
     return projectTempFolder;
   }
 
-  private Path getBasePath(AnalysisProperties props) {
+  private static Path getBasePath(AnalysisProperties props) {
     String baseDir = props.property("sonar.projectBaseDir");
     if (baseDir == null) {
       throw new IllegalStateException("sonar.projectBaseDir needs to be specified");
