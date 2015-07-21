@@ -19,22 +19,24 @@
  */
 package org.sonar.batch.scan;
 
+import javax.annotation.Nullable;
+
+import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.batch.scan.ProjectAnalysisMode;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DefaultAnalysisModeTest {
+public class ProjectAnalysisModeTest {
 
   @Test
   public void regular_analysis_by_default() {
-    ProjectAnalysisMode mode = new ProjectAnalysisMode(new AnalysisProperties(Collections.<String, String>emptyMap()));
+    ProjectAnalysisMode mode = createMode(null);
 
     assertThat(mode.isPreview()).isFalse();
     assertThat(mode.isIncremental()).isFalse();
@@ -45,9 +47,14 @@ public class DefaultAnalysisModeTest {
     assertThat(mode.isIncremental()).isFalse();
   }
 
+  @Test(expected = IllegalStateException.class)
+  public void fail_if_inconsistent() {
+    createMode(null, CoreProperties.ANALYSIS_MODE_PREVIEW);
+  }
+
   @Test
   public void support_analysis_mode() {
-    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ANALYSIS);
+    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_ANALYSIS);
 
     assertThat(mode.isPreview()).isFalse();
     assertThat(mode.isIncremental()).isFalse();
@@ -55,7 +62,7 @@ public class DefaultAnalysisModeTest {
 
   @Test
   public void support_preview_mode() {
-    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW);
+    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_PREVIEW);
 
     assertThat(mode.isPreview()).isTrue();
     assertThat(mode.isIncremental()).isFalse();
@@ -63,7 +70,7 @@ public class DefaultAnalysisModeTest {
 
   @Test
   public void support_quick_mode() {
-    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_QUICK);
+    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_QUICK);
 
     assertThat(mode.isPreview()).isTrue();
     assertThat(mode.isIncremental()).isFalse();
@@ -72,7 +79,7 @@ public class DefaultAnalysisModeTest {
 
   @Test
   public void support_incremental_mode() {
-    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_INCREMENTAL);
+    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_INCREMENTAL);
 
     assertThat(mode.isPreview()).isTrue();
     assertThat(mode.isIncremental()).isTrue();
@@ -80,16 +87,33 @@ public class DefaultAnalysisModeTest {
 
   @Test
   public void support_deprecated_dryrun_property() {
-    ProjectAnalysisMode mode = createMode(CoreProperties.DRY_RUN, "true");
+    Map<String, String> bootstrapMap = new HashMap<>();
+    Map<String, String> analysisMap = new HashMap<>();
+
+    analysisMap.put(CoreProperties.DRY_RUN, "true");
+    bootstrapMap.put(CoreProperties.DRY_RUN, "true");
+
+    ProjectAnalysisMode mode = new ProjectAnalysisMode(new BootstrapProperties(bootstrapMap), new AnalysisProperties(analysisMap));
 
     assertThat(mode.isPreview()).isTrue();
     assertThat(mode.isIncremental()).isFalse();
   }
 
-  private ProjectAnalysisMode createMode(String key, String value) {
-    Map<String, String> map = new HashMap<>();
-    map.put(key, value);
-
-    return new ProjectAnalysisMode(new AnalysisProperties(map));
+  private static ProjectAnalysisMode createMode(@Nullable String mode) {
+    return createMode(mode, mode);
   }
+
+  private static ProjectAnalysisMode createMode(@Nullable String bootstrapMode, @Nullable String analysisMode) {
+    Map<String, String> bootstrapMap = new HashMap<>();
+    Map<String, String> analysisMap = new HashMap<>();
+
+    if (bootstrapMode != null) {
+      bootstrapMap.put(CoreProperties.ANALYSIS_MODE, bootstrapMode);
+    }
+    if (analysisMode != null) {
+      analysisMap.put(CoreProperties.ANALYSIS_MODE, analysisMode);
+    }
+    return new ProjectAnalysisMode(new BootstrapProperties(bootstrapMap), new AnalysisProperties(analysisMap));
+  }
+
 }

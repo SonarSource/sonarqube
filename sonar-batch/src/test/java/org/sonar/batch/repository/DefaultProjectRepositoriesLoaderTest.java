@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.scan.ProjectAnalysisMode;
+import org.sonar.batch.bootstrap.GlobalMode;
 
 import org.sonar.batch.bootstrap.WSLoader;
 import com.google.common.collect.Maps;
@@ -39,15 +39,15 @@ public class DefaultProjectRepositoriesLoaderTest {
 
   private DefaultProjectRepositoriesLoader loader;
   private WSLoader wsLoader;
-  private ProjectAnalysisMode analysisMode;
+  private GlobalMode globalMode;
   private ProjectReactor reactor;
   private AnalysisProperties taskProperties;
 
   @Before
   public void prepare() {
     wsLoader = mock(WSLoader.class);
-    analysisMode = mock(ProjectAnalysisMode.class);
-    loader = new DefaultProjectRepositoriesLoader(wsLoader, analysisMode);
+    globalMode = mock(GlobalMode.class);
+    loader = new DefaultProjectRepositoriesLoader(wsLoader, globalMode);
     loader = spy(loader);
     when(wsLoader.loadString(anyString())).thenReturn("{}");
     taskProperties = new AnalysisProperties(Maps.<String, String>newHashMap(), "");
@@ -56,11 +56,11 @@ public class DefaultProjectRepositoriesLoaderTest {
   @Test
   public void passPreviewParameter() {
     reactor = new ProjectReactor(ProjectDefinition.create().setKey("foo"));
-    when(analysisMode.isPreview()).thenReturn(false);
+    when(globalMode.isPreview()).thenReturn(false);
     loader.load(reactor, taskProperties);
     verify(wsLoader).loadString("/batch/project?key=foo&preview=false");
 
-    when(analysisMode.isPreview()).thenReturn(true);
+    when(globalMode.isPreview()).thenReturn(true);
     loader.load(reactor, taskProperties);
     verify(wsLoader).loadString("/batch/project?key=foo&preview=true");
   }
