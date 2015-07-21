@@ -22,8 +22,6 @@ package org.sonar.batch.bootstrap;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
-import org.sonar.batch.compute.DirectoriesDecorator;
-import org.sonar.batch.compute.FilesDecorator;
 import org.sonar.batch.cpd.CpdComponents;
 import org.sonar.batch.issue.tracking.IssueTracking;
 import org.sonar.batch.scan.report.ConsoleReport;
@@ -63,11 +61,7 @@ public class BatchComponents {
       HtmlReport.class,
       IssuesReportBuilder.class,
       SourceProvider.class,
-      RuleNameProvider.class,
-
-      // to be moved to compute engine
-      DirectoriesDecorator.class,
-      FilesDecorator.class
+      RuleNameProvider.class
       );
     components.addAll(CorePropertyDefinitions.all());
     // CPD
