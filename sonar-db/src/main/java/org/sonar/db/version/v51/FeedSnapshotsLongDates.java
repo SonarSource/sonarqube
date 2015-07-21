@@ -43,9 +43,12 @@ public class FeedSnapshotsLongDates extends BaseDataChange {
     final long now = system2.now();
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate
-      .select("SELECT s.created_at, s.build_date, s.period1_date, s.period2_date, s.period3_date, s.period4_date, s.period5_date, s.id FROM snapshots s WHERE created_at_ms IS NULL");
+      .select("SELECT s.created_at, s.build_date, s.period1_date, s.period2_date, s.period3_date, s.period4_date, s.period5_date, s.id FROM snapshots s " +
+        "WHERE created_at_ms IS NULL");
     massUpdate
-      .update("UPDATE snapshots SET created_at_ms=?, build_date_ms=?, period1_date_ms=?, period2_date_ms=?, period3_date_ms=?, period4_date_ms=?, period5_date_ms=? WHERE id=?");
+      .update("UPDATE snapshots " +
+        "SET created_at_ms=?, build_date_ms=?, period1_date_ms=?, period2_date_ms=?, period3_date_ms=?, period4_date_ms=?, period5_date_ms=? " +
+        "WHERE id=?");
     massUpdate.rowPluralName("snapshots");
     massUpdate.execute(new MassUpdate.Handler() {
       @Override

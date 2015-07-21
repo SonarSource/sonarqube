@@ -103,7 +103,6 @@ public class TestIndexer extends BaseIndexer {
   }
 
   public void deleteByFile(String fileUuid) {
-    // TODO would be great to have the projectUuid for routing
     SearchRequestBuilder searchRequest = esClient.prepareSearch(INDEX)
       .setTypes(TYPE)
       .setQuery(QueryBuilders.filteredQuery(

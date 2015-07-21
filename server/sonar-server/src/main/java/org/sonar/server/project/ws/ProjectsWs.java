@@ -26,6 +26,8 @@ import org.sonar.api.server.ws.WebService;
 
 public class ProjectsWs implements WebService {
   public static final String ENDPOINT = "api/projects";
+  private static final String FALSE = "false";
+  private static final String TRUE = "true";
 
   private final ProjectsWsAction[] actions;
 
@@ -66,28 +68,28 @@ public class ProjectsWs implements WebService {
 
     action.createParam("desc")
       .setDescription("Load project description")
-      .setDefaultValue("true")
+      .setDefaultValue(TRUE)
       .setBooleanPossibleValues();
 
     action.createParam("subprojects")
       .setDescription("Load sub-projects. Ignored if the parameter key is set")
-      .setDefaultValue("false")
+      .setDefaultValue(FALSE)
       .setBooleanPossibleValues();
 
     action.createParam("views")
       .setDescription("Load views and sub-views. Ignored if the parameter key is set")
-      .setDefaultValue("false")
+      .setDefaultValue(FALSE)
       .setBooleanPossibleValues();
 
     action.createParam("libs")
       .setDescription("Load libraries. Ignored if the parameter key is set")
-      .setDefaultValue("false")
+      .setDefaultValue(FALSE)
       .setBooleanPossibleValues();
 
     action.createParam("versions")
       .setDescription("Load version")
-      .setDefaultValue("false")
-      .setPossibleValues("true", "false", "last");
+      .setDefaultValue(FALSE)
+      .setPossibleValues(TRUE, FALSE, "last");
 
     RailsHandler.addFormatParam(action);
   }

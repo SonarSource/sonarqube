@@ -28,13 +28,23 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.db.metric.MetricDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_CUSTOM;
+import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_DESCRIPTION;
+import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_DIRECTION;
+import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_DOMAIN;
+import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_HIDDEN;
+import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_ID;
+import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_KEY;
+import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_NAME;
+import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_QUALITATIVE;
+import static org.sonar.server.metric.ws.MetricJsonWriter.FIELD_TYPE;
 
 public class SearchAction implements MetricsWsAction {
 
@@ -42,16 +52,6 @@ public class SearchAction implements MetricsWsAction {
 
   public static final String PARAM_IS_CUSTOM = "isCustom";
 
-  public static final String FIELD_ID = "id";
-  public static final String FIELD_KEY = "key";
-  public static final String FIELD_NAME = "name";
-  public static final String FIELD_DESCRIPTION = "description";
-  public static final String FIELD_DOMAIN = "domain";
-  public static final String FIELD_TYPE = "type";
-  public static final String FIELD_DIRECTION = "direction";
-  public static final String FIELD_QUALITATIVE = "qualitative";
-  public static final String FIELD_HIDDEN = "hidden";
-  public static final String FIELD_CUSTOM = "custom";
   private static final Set<String> OPTIONAL_FIELDS = newHashSet(FIELD_NAME, FIELD_DESCRIPTION, FIELD_DOMAIN, FIELD_TYPE, FIELD_DIRECTION, FIELD_QUALITATIVE, FIELD_HIDDEN,
     FIELD_CUSTOM);
   private final Set<String> allPossibleFields;
