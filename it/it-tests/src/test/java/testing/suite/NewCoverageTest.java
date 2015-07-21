@@ -21,13 +21,10 @@ package testing.suite;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
-import java.util.List;
 import org.assertj.core.data.Offset;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 
@@ -54,9 +51,9 @@ public class NewCoverageTest {
     orchestrator.resetData();
 
     orchestrator.executeBuilds(SonarRunner.create(projectDir("testing/xoo-sample-new-coverage-v1"))
-        .setProperty("sonar.projectDate", "2015-02-01")
-        .setProperty("sonar.scm.disabled", "false")
-    );
+      .setProperty("sonar.projectDate", "2015-02-01")
+      .setProperty("sonar.scm.disabled", "false")
+      );
     orchestrator.executeBuilds(SonarRunner.create(projectDir("testing/xoo-sample-new-coverage-v2"))
       .setProperty("sonar.scm.disabled", "false"));
   }

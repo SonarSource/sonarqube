@@ -15,6 +15,7 @@ import util.ItUtils;
 @Suite.SuiteClasses({
   CoverageTrackingTest.class,
   CoverageTest.class,
+  NewCoverageTest.class,
   TestExecutionTest.class
 })
 public class TestingTestSuite {
