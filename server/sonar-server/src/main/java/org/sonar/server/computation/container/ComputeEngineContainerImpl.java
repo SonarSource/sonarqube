@@ -33,6 +33,7 @@ import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.Module;
 import org.sonar.server.computation.ComputationService;
+import org.sonar.server.computation.ComputationTempFolderProvider;
 import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.computation.activity.ActivityManager;
 import org.sonar.server.computation.batch.BatchReportDirectoryHolderImpl;
@@ -149,6 +150,8 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
    */
   private static List componentClasses() {
     return Arrays.asList(
+      new ComputationTempFolderProvider(),
+
       ActivityManager.class,
 
       MetricModule.class,
