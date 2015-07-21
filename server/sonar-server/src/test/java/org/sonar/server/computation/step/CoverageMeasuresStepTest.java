@@ -19,8 +19,6 @@
  */
 package org.sonar.server.computation.step;
 
-import com.google.common.base.Optional;
-import org.assertj.core.data.Offset;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,6 +27,7 @@ import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.FileAttributes;
 import org.sonar.server.computation.formula.coverage.LinesAndConditionsWithUncoveredMetricKeys;
 import org.sonar.server.computation.measure.Measure;
+import org.sonar.server.computation.measure.MeasureRepoEntry;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.measure.MeasureVariations;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
@@ -36,19 +35,16 @@ import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.component.DumbComponent.builder;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
+import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
+import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 
 public class CoverageMeasuresStepTest {
-
-  private static final Offset<Double> DEFAULT_OFFSET = Offset.offset(0.1d);
-
   private static final int ROOT_REF = 1;
   private static final int MODULE_REF = 12;
   private static final int SUB_MODULE_REF = 123;
@@ -139,7 +135,7 @@ public class CoverageMeasuresStepTest {
     LinesAndConditionsWithUncoveredMetricKeys metricKeys = new LinesAndConditionsWithUncoveredMetricKeys(
       CoreMetrics.LINES_TO_COVER_KEY, CoreMetrics.CONDITIONS_TO_COVER_KEY,
       CoreMetrics.UNCOVERED_LINES_KEY, CoreMetrics.UNCOVERED_CONDITIONS_KEY
-      );
+    );
     String codeCoverageKey = CoreMetrics.COVERAGE_KEY;
     String lineCoverageKey = CoreMetrics.LINE_COVERAGE_KEY;
     String branchCoverageKey = CoreMetrics.BRANCH_COVERAGE_KEY;
@@ -152,7 +148,7 @@ public class CoverageMeasuresStepTest {
     LinesAndConditionsWithUncoveredMetricKeys metricKeys = new LinesAndConditionsWithUncoveredMetricKeys(
       CoreMetrics.IT_LINES_TO_COVER_KEY, CoreMetrics.IT_CONDITIONS_TO_COVER_KEY,
       CoreMetrics.IT_UNCOVERED_LINES_KEY, CoreMetrics.IT_UNCOVERED_CONDITIONS_KEY
-      );
+    );
     String codeCoverageKey = CoreMetrics.IT_COVERAGE_KEY;
     String lineCoverageKey = CoreMetrics.IT_LINE_COVERAGE_KEY;
     String branchCoverageKey = CoreMetrics.IT_BRANCH_COVERAGE_KEY;
@@ -165,7 +161,7 @@ public class CoverageMeasuresStepTest {
     LinesAndConditionsWithUncoveredMetricKeys metricKeys = new LinesAndConditionsWithUncoveredMetricKeys(
       CoreMetrics.OVERALL_LINES_TO_COVER_KEY, CoreMetrics.OVERALL_CONDITIONS_TO_COVER_KEY,
       CoreMetrics.OVERALL_UNCOVERED_LINES_KEY, CoreMetrics.OVERALL_UNCOVERED_CONDITIONS_KEY
-      );
+    );
     String codeCoverageKey = CoreMetrics.OVERALL_COVERAGE_KEY;
     String lineCoverageKey = CoreMetrics.OVERALL_LINE_COVERAGE_KEY;
     String branchCoverageKey = CoreMetrics.OVERALL_BRANCH_COVERAGE_KEY;
@@ -192,31 +188,28 @@ public class CoverageMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, codeCoverageKey).get().getDoubleValue()).isEqualTo(98.8d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, lineCoverageKey).get().getDoubleValue()).isEqualTo(99d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, branchCoverageKey).get().getDoubleValue()).isEqualTo(97d, DEFAULT_OFFSET);
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).containsOnly(
+      entryOf(codeCoverageKey, newMeasureBuilder().create(98.8d)),
+      entryOf(lineCoverageKey, newMeasureBuilder().create(99d)),
+      entryOf(branchCoverageKey, newMeasureBuilder().create(97d))
+    );
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_2_REF))).containsOnly(
+      entryOf(codeCoverageKey, newMeasureBuilder().create(91d)),
+      entryOf(lineCoverageKey, newMeasureBuilder().create(90d)),
+      entryOf(branchCoverageKey, newMeasureBuilder().create(96d))
+    );
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(UNIT_TEST_FILE_REF))).isEmpty();
 
-    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, codeCoverageKey).get().getDoubleValue()).isEqualTo(91d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, lineCoverageKey).get().getDoubleValue()).isEqualTo(90d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, branchCoverageKey).get().getDoubleValue()).isEqualTo(96d, DEFAULT_OFFSET);
+    MeasureRepoEntry[] nonFileRepoEntries = {
+      entryOf(codeCoverageKey, newMeasureBuilder().create(95.5d)),
+      entryOf(lineCoverageKey, newMeasureBuilder().create(95.4d)),
+      entryOf(branchCoverageKey, newMeasureBuilder().create(96.4d))
+    };
 
-    assertThat(measureRepository.getAddedRawMeasures(UNIT_TEST_FILE_REF)).isEmpty();
-
-    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, codeCoverageKey).get().getDoubleValue()).isEqualTo(95.5d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, lineCoverageKey).get().getDoubleValue()).isEqualTo(95.4d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, branchCoverageKey).get().getDoubleValue()).isEqualTo(96.4d, DEFAULT_OFFSET);
-
-    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, codeCoverageKey).get().getDoubleValue()).isEqualTo(95.5d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, lineCoverageKey).get().getDoubleValue()).isEqualTo(95.4d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, branchCoverageKey).get().getDoubleValue()).isEqualTo(96.4d, DEFAULT_OFFSET);
-
-    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, codeCoverageKey).get().getDoubleValue()).isEqualTo(95.5d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, lineCoverageKey).get().getDoubleValue()).isEqualTo(95.4d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, branchCoverageKey).get().getDoubleValue()).isEqualTo(96.4d, DEFAULT_OFFSET);
-
-    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, codeCoverageKey).get().getDoubleValue()).isEqualTo(95.5d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, lineCoverageKey).get().getDoubleValue()).isEqualTo(95.4d, DEFAULT_OFFSET);
-    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, branchCoverageKey).get().getDoubleValue()).isEqualTo(96.4d, DEFAULT_OFFSET);
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_REF))).containsOnly(nonFileRepoEntries);
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_MODULE_REF))).containsOnly(nonFileRepoEntries);
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_REF))).containsOnly(nonFileRepoEntries);
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).containsOnly(nonFileRepoEntries);
   }
 
   @Test
@@ -224,7 +217,7 @@ public class CoverageMeasuresStepTest {
     LinesAndConditionsWithUncoveredMetricKeys metricKeys = new LinesAndConditionsWithUncoveredMetricKeys(
       CoreMetrics.NEW_LINES_TO_COVER_KEY, CoreMetrics.NEW_CONDITIONS_TO_COVER_KEY,
       CoreMetrics.NEW_UNCOVERED_LINES_KEY, CoreMetrics.NEW_UNCOVERED_CONDITIONS_KEY
-      );
+    );
     String codeCoverageKey = CoreMetrics.NEW_COVERAGE_KEY;
     String lineCoverageKey = CoreMetrics.NEW_LINE_COVERAGE_KEY;
     String branchCoverageKey = CoreMetrics.NEW_BRANCH_COVERAGE_KEY;
@@ -237,7 +230,7 @@ public class CoverageMeasuresStepTest {
     LinesAndConditionsWithUncoveredMetricKeys metricKeys = new LinesAndConditionsWithUncoveredMetricKeys(
       CoreMetrics.NEW_IT_LINES_TO_COVER_KEY, CoreMetrics.NEW_IT_CONDITIONS_TO_COVER_KEY,
       CoreMetrics.NEW_IT_UNCOVERED_LINES_KEY, CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS_KEY
-      );
+    );
     String codeCoverageKey = CoreMetrics.NEW_IT_COVERAGE_KEY;
     String lineCoverageKey = CoreMetrics.NEW_IT_LINE_COVERAGE_KEY;
     String branchCoverageKey = CoreMetrics.NEW_IT_BRANCH_COVERAGE_KEY;
@@ -250,7 +243,7 @@ public class CoverageMeasuresStepTest {
     LinesAndConditionsWithUncoveredMetricKeys metricKeys = new LinesAndConditionsWithUncoveredMetricKeys(
       CoreMetrics.NEW_OVERALL_LINES_TO_COVER_KEY, CoreMetrics.NEW_OVERALL_CONDITIONS_TO_COVER_KEY,
       CoreMetrics.NEW_OVERALL_UNCOVERED_LINES_KEY, CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS_KEY
-      );
+    );
     String codeCoverageKey = CoreMetrics.NEW_OVERALL_COVERAGE_KEY;
     String lineCoverageKey = CoreMetrics.NEW_OVERALL_LINE_COVERAGE_KEY;
     String branchCoverageKey = CoreMetrics.NEW_OVERALL_BRANCH_COVERAGE_KEY;
@@ -277,53 +270,31 @@ public class CoverageMeasuresStepTest {
 
     underTest.execute();
 
-    checkMeasureVariations(FILE_1_REF, codeCoverageKey, null, 98.8, null, null, 91d);
-    checkMeasureVariations(FILE_1_REF, lineCoverageKey, null, 99d, null, null, 90d);
-    checkMeasureVariations(FILE_1_REF, branchCoverageKey, null, 97d, null, null, 96d);
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).containsOnly(
+      entryOf(codeCoverageKey, measureWithVariation(98.8d, 91d)),
+      entryOf(lineCoverageKey, measureWithVariation(99d, 90d)),
+      entryOf(branchCoverageKey, measureWithVariation(97d, 96d))
+    );
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_2_REF))).containsOnly(
+      entryOf(codeCoverageKey, measureWithVariation(91d, 98.8d)),
+      entryOf(lineCoverageKey, measureWithVariation(90d, 99d)),
+      entryOf(branchCoverageKey, measureWithVariation(96d, 97d))
+    );
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(UNIT_TEST_FILE_REF))).isEmpty();
 
-    checkMeasureVariations(FILE_2_REF, codeCoverageKey, null, 91d, null, null, 98.8d);
-    checkMeasureVariations(FILE_2_REF, lineCoverageKey, null, 90d, null, null, 99d);
-    checkMeasureVariations(FILE_2_REF, branchCoverageKey, null, 96d, null, null, 97d);
+    MeasureRepoEntry[] nonFileRepoEntries = {
+      entryOf(codeCoverageKey, measureWithVariation(95.5d, 95.5d)),
+      entryOf(lineCoverageKey, measureWithVariation(95.4d, 95.4d)),
+      entryOf(branchCoverageKey, measureWithVariation(96.4d, 96.4d))
+    };
 
-    assertThat(measureRepository.getAddedRawMeasures(UNIT_TEST_FILE_REF)).isEmpty();
-
-    checkMeasureVariations(DIRECTORY_REF, codeCoverageKey, null, 95.5d, null, null, 95.5d);
-    checkMeasureVariations(DIRECTORY_REF, lineCoverageKey, null, 95.4d, null, null, 95.4d);
-    checkMeasureVariations(DIRECTORY_REF, branchCoverageKey, null, 96.4d, null, null, 96.4d);
-
-    checkMeasureVariations(SUB_MODULE_REF, codeCoverageKey, null, 95.5d, null, null, 95.5d);
-    checkMeasureVariations(SUB_MODULE_REF, lineCoverageKey, null, 95.4d, null, null, 95.4d);
-    checkMeasureVariations(SUB_MODULE_REF, branchCoverageKey, null, 96.4d, null, null, 96.4d);
-
-    checkMeasureVariations(MODULE_REF, codeCoverageKey, null, 95.5d, null, null, 95.5d);
-    checkMeasureVariations(MODULE_REF, lineCoverageKey, null, 95.4d, null, null, 95.4d);
-    checkMeasureVariations(MODULE_REF, branchCoverageKey, null, 96.4d, null, null, 96.4d);
-
-    checkMeasureVariations(ROOT_REF, codeCoverageKey, null, 95.5d, null, null, 95.5d);
-    checkMeasureVariations(ROOT_REF, lineCoverageKey, null, 95.4d, null, null, 95.4d);
-    checkMeasureVariations(ROOT_REF, branchCoverageKey, null, 96.4d, null, null, 96.4d);
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_REF))).containsOnly(nonFileRepoEntries);
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_MODULE_REF))).containsOnly(nonFileRepoEntries);
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_REF))).containsOnly(nonFileRepoEntries);
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).containsOnly(nonFileRepoEntries);
   }
 
   private static Measure measureWithVariation(double variation2, double variation5) {
     return newMeasureBuilder().setVariations(new MeasureVariations(null, variation2, null, null, variation5)).createNoValue();
-  }
-
-  private void checkMeasureVariations(int fileRef, String metricKey, Double... expectedVariations) {
-    Optional<Measure> measure = measureRepository.getAddedRawMeasure(fileRef, metricKey);
-    if (measure.isPresent()) {
-      MeasureVariations measureVariations = measure.get().getVariations();
-      for (int i = 0; i < expectedVariations.length - 1; i++) {
-        Double expectedVariation = expectedVariations[i];
-        int period = i + 1;
-        if (expectedVariation != null) {
-          assertThat(measureVariations.hasVariation(period)).isTrue();
-          assertThat(measureVariations.getVariation(period)).isEqualTo(expectedVariation, DEFAULT_OFFSET);
-        } else {
-          assertThat(measureVariations.hasVariation(period)).isFalse();
-        }
-      }
-    } else {
-      fail(String.format("No measure on metric '%s' for component '%s'", metricKey, fileRef));
-    }
   }
 }

@@ -42,6 +42,8 @@ import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.component.DumbComponent.builder;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
+import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
+import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 
 public class AverageFormulaExecutionTest {
 
@@ -104,14 +106,14 @@ public class AverageFormulaExecutionTest {
 
     underTest.visit(project);
 
-    assertThat(measureRepository.getAddedRawMeasure(1, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(3d);
-    assertThat(measureRepository.getAddedRawMeasure(11, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(2d);
-    assertThat(measureRepository.getAddedRawMeasure(111, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(2d);
-    assertThat(measureRepository.getAddedRawMeasure(1111, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(2.5d);
-    assertThat(measureRepository.getAddedRawMeasure(1112, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(1d);
-    assertThat(measureRepository.getAddedRawMeasure(12, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(4.5d);
-    assertThat(measureRepository.getAddedRawMeasure(121, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(4.5d);
-    assertThat(measureRepository.getAddedRawMeasure(1211, FUNCTION_COMPLEXITY_KEY).get().getDoubleValue()).isEqualTo(4.5d);
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(1))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(3d)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(11))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(2d)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(111))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(2d)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(1111))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(2.5d)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(1112))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(1d)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(12))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(4.5d)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(121))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(4.5d)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(1211))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(4.5d)));
   }
 
   @Test

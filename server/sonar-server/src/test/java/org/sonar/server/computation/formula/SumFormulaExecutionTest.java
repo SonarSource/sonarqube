@@ -39,6 +39,8 @@ import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.component.DumbComponent.builder;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
+import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
+import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 
 public class SumFormulaExecutionTest {
 
@@ -86,13 +88,13 @@ public class SumFormulaExecutionTest {
 
     underTest.visit(project);
 
-    assertThat(measureRepository.getAddedRawMeasure(1, LINES_KEY).get().getIntValue()).isEqualTo(20);
-    assertThat(measureRepository.getAddedRawMeasure(11, LINES_KEY).get().getIntValue()).isEqualTo(18);
-    assertThat(measureRepository.getAddedRawMeasure(111, LINES_KEY).get().getIntValue()).isEqualTo(18);
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(1))).containsOnly(entryOf(LINES_KEY, newMeasureBuilder().create(20)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(11))).containsOnly(entryOf(LINES_KEY, newMeasureBuilder().create(18)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(111))).containsOnly(entryOf(LINES_KEY, newMeasureBuilder().create(18)));
     assertThat(measureRepository.getAddedRawMeasures(1111)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(1112)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasure(12, LINES_KEY).get().getIntValue()).isEqualTo(2);
-    assertThat(measureRepository.getAddedRawMeasure(121, LINES_KEY).get().getIntValue()).isEqualTo(2);
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(12))).containsOnly(entryOf(LINES_KEY, newMeasureBuilder().create(2)));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(121))).containsOnly(entryOf(LINES_KEY, newMeasureBuilder().create(2)));
     assertThat(measureRepository.getAddedRawMeasures(1211)).isEmpty();
   }
 

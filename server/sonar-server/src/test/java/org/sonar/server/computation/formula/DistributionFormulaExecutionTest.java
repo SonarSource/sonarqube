@@ -39,6 +39,8 @@ import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.component.DumbComponent.builder;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
+import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
+import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 
 public class DistributionFormulaExecutionTest {
 
@@ -86,13 +88,13 @@ public class DistributionFormulaExecutionTest {
 
     underTest.visit(project);
 
-    assertThat(measureRepository.getAddedRawMeasure(1, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY).get().getStringValue()).isEqualTo("0.5=4;3.5=10;6.5=12");
-    assertThat(measureRepository.getAddedRawMeasure(11, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY).get().getStringValue()).isEqualTo("0.5=3;3.5=7;6.5=10");
-    assertThat(measureRepository.getAddedRawMeasure(111, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY).get().getStringValue()).isEqualTo("0.5=3;3.5=7;6.5=10");
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(1))).containsOnly(entryOf(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, newMeasureBuilder().create("0.5=4;3.5=10;6.5=12")));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(11))).containsOnly(entryOf(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, newMeasureBuilder().create("0.5=3;3.5=7;6.5=10")));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(111))).containsOnly(entryOf(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, newMeasureBuilder().create("0.5=3;3.5=7;6.5=10")));
     assertThat(measureRepository.getAddedRawMeasures(1111)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(1112)).isEmpty();
-    assertThat(measureRepository.getAddedRawMeasure(12, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY).get().getStringValue()).isEqualTo("0.5=1;3.5=3;6.5=2");
-    assertThat(measureRepository.getAddedRawMeasure(121, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY).get().getStringValue()).isEqualTo("0.5=1;3.5=3;6.5=2");
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(12))).containsOnly(entryOf(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, newMeasureBuilder().create("0.5=1;3.5=3;6.5=2")));
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(121))).containsOnly(entryOf(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, newMeasureBuilder().create("0.5=1;3.5=3;6.5=2")));
     assertThat(measureRepository.getAddedRawMeasures(1211)).isEmpty();
   }
 
