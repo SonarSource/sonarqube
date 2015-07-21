@@ -35,6 +35,7 @@ public class WSLoaderProjectProvider extends ProviderAdapter {
 
   public WSLoader provide(AnalysisProperties props, AnalysisMode mode, PersistentCache cache, ServerClient client) {
     if (wsLoader == null) {
+      // recreate cache directory if needed for this analysis
       cache.reconfigure();
       wsLoader = new WSLoader(isCacheEnabled(props.properties(), mode.isPreview()), cache, client);
       wsLoader.setStrategy(getStrategy(mode));
