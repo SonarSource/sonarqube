@@ -73,20 +73,12 @@ public class MeasuresPublisherTest {
 
   @Test
   public void publishMeasures() throws Exception {
-    Measure measure1 = new Measure<>(CoreMetrics.COVERAGE)
+    Measure measure = new Measure<>(CoreMetrics.COVERAGE)
       .setValue(2.0)
       .setPersonId(2);
-    // No value on new_xxx
-    Measure measure2 = new Measure<>(CoreMetrics.NEW_BLOCKER_VIOLATIONS)
-      .setVariation1(1.0)
-      .setVariation2(2.0)
-      .setVariation3(3.0)
-      .setVariation4(4.0)
-      .setVariation5(5.0);
     // Manual measure
     Measure manual = new Measure<>(new Metric<>("manual_metric", ValueType.BOOL))
-      .setValue(1.0)
-      .setDescription("Manual");
+      .setValue(1.0);
     // Sqale rating have both a value and a data
     Measure rating = new Measure<>(CoreMetrics.SQALE_RATING)
       .setValue(2.0)
@@ -97,7 +89,7 @@ public class MeasuresPublisherTest {
     // String value
     Measure stringMeasure = new Measure<>(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION)
       .setData("foo bar");
-    when(measureCache.byResource(sampleFile)).thenReturn(asList(measure1, measure2, manual, rating, longMeasure, stringMeasure));
+    when(measureCache.byResource(sampleFile)).thenReturn(asList(measure, manual, rating, longMeasure, stringMeasure));
 
     File outputDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(outputDir);
@@ -108,8 +100,22 @@ public class MeasuresPublisherTest {
 
     assertThat(reader.readComponentMeasures(1)).hasSize(0);
     try (CloseableIterator<BatchReport.Measure> componentMeasures = reader.readComponentMeasures(2)) {
-      assertThat(componentMeasures).hasSize(6);
+      assertThat(componentMeasures).hasSize(5);
     }
+  }
+
+  @Test
+  public void fail_with_IAE_when_measure_has_no_value() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Measure on metric 'coverage' and component 'foo:src/Foo.php' has no value, but it's not allowed");
+
+    Measure measure = new Measure<>(CoreMetrics.COVERAGE);
+    when(measureCache.byResource(sampleFile)).thenReturn(Collections.singletonList(measure));
+
+    File outputDir = temp.newFolder();
+    BatchReportWriter writer = new BatchReportWriter(outputDir);
+
+    publisher.publish(writer);
   }
 
 }

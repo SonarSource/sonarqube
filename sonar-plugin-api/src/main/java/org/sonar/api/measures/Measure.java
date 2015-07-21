@@ -20,18 +20,16 @@
 package org.sonar.api.measures;
 
 import com.google.common.annotations.Beta;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.math.NumberUtils;
-import org.sonar.api.technicaldebt.batch.Characteristic;
-import org.sonar.api.technicaldebt.batch.Requirement;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.math.NumberUtils;
+import org.sonar.api.technicaldebt.batch.Characteristic;
+import org.sonar.api.technicaldebt.batch.Requirement;
 
 /**
  * A class to handle measures.
@@ -241,6 +239,7 @@ public class Measure<G extends Serializable> implements Serializable {
   /**
    * @return the value of the measure as a double
    */
+  @CheckForNull
   public Double getValue() {
     return value;
   }

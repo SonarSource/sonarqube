@@ -22,6 +22,7 @@ package org.sonar.batch.report;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import java.io.Serializable;
+import javax.annotation.Nonnull;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.batch.index.BatchComponent;
@@ -49,11 +50,18 @@ public class MeasuresPublisher implements ReportPublisherStep {
         private final BatchReport.Measure.Builder builder = BatchReport.Measure.newBuilder();
 
         @Override
-        public BatchReport.Measure apply(Measure input) {
+        public BatchReport.Measure apply(@Nonnull Measure input) {
+          validateMeasure(input, resource.key());
           return toReportMeasure(builder, input);
         }
       });
       writer.writeComponentMeasures(resource.batchId(), reportMeasures);
+    }
+  }
+
+  private static void validateMeasure(Measure measure, String componentKey) {
+    if (measure.getValue() == null && measure.getData() == null) {
+      throw new IllegalArgumentException(String.format("Measure on metric '%s' and component '%s' has no value, but it's not allowed", measure.getMetricKey(), componentKey));
     }
   }
 
@@ -68,62 +76,29 @@ public class MeasuresPublisher implements ReportPublisherStep {
       builder.setStringValue(data);
     }
     builder.setMetricKey(measure.getMetricKey());
-
-    // temporary fields during development of computation stack
-    String description = measure.getDescription();
-    if (description != null) {
-      builder.setDescription(description);
-    }
-    Double variation1 = measure.getVariation1();
-    if (variation1 != null) {
-      builder.setVariationValue1(variation1);
-    }
-    Double variation2 = measure.getVariation2();
-    if (variation2 != null) {
-      builder.setVariationValue2(variation2);
-    }
-    Double variation3 = measure.getVariation3();
-    if (variation3 != null) {
-      builder.setVariationValue3(variation3);
-    }
-    Double variation4 = measure.getVariation4();
-    if (variation4 != null) {
-      builder.setVariationValue4(variation4);
-    }
-    Double variation5 = measure.getVariation5();
-    if (variation5 != null) {
-      builder.setVariationValue5(variation5);
-    }
-    Integer personId = measure.getPersonId();
-    if (personId != null) {
-      builder.setPersonId(personId);
-    }
     return builder.build();
   }
 
   private void setValueAccordingToType(BatchReport.Measure.Builder builder, Measure measure) {
     Serializable value = measure.value();
-    // Value is null for new_xxx measures where only variations are populated
-    if (value != null) {
-      switch (builder.getValueType()) {
-        case BOOLEAN:
-          builder.setBooleanValue((Boolean) value);
-          break;
-        case DOUBLE:
-          builder.setDoubleValue((Double) value);
-          break;
-        case INT:
-          builder.setIntValue((Integer) value);
-          break;
-        case LONG:
-          builder.setLongValue((Long) value);
-          break;
-        case STRING:
-          builder.setStringValue((String) value);
-          break;
-        default:
-          throw new IllegalStateException("Unknown value type: " + builder.getValueType());
-      }
+    switch (builder.getValueType()) {
+      case BOOLEAN:
+        builder.setBooleanValue((Boolean) value);
+        break;
+      case DOUBLE:
+        builder.setDoubleValue((Double) value);
+        break;
+      case INT:
+        builder.setIntValue((Integer) value);
+        break;
+      case LONG:
+        builder.setLongValue((Long) value);
+        break;
+      case STRING:
+        builder.setStringValue((String) value);
+        break;
+      default:
+        throw new IllegalStateException("Unknown value type: " + builder.getValueType());
     }
   }
 

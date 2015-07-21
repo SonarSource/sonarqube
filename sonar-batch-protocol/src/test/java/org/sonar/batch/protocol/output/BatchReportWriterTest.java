@@ -124,7 +124,6 @@ public class BatchReportWriterTest {
       .setStringValue("text-value")
       .setDoubleValue(2.5d)
       .setValueType(Constants.MeasureValueType.DOUBLE)
-      .setDescription("description")
       .build();
 
     underTest.writeComponentMeasures(1, Arrays.asList(measure));
