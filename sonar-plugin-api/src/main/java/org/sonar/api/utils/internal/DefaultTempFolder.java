@@ -52,7 +52,7 @@ public class DefaultTempFolder implements TempFolder {
     try {
       return Files.createTempDirectory(baseDir, null);
     } catch (IOException e) {
-      throw new IllegalStateException("Failed to create temp directory");
+      throw new IllegalStateException("Failed to create temp directory", e);
     }
   }
 

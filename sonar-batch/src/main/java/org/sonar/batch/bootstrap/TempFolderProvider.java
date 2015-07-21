@@ -80,13 +80,13 @@ public class TempFolderProvider extends LifecycleProviderAdapter {
     try {
       Files.createDirectories(workingPath);
     } catch (IOException e) {
-      throw new IllegalStateException("Failed to create working path: " + workingPath);
+      throw new IllegalStateException("Failed to create working path: " + workingPath, e);
     }
 
     try {
       return Files.createTempDirectory(workingPath, TMP_NAME_PREFIX);
     } catch (IOException e) {
-      throw new IllegalStateException("Failed to create temporary folder in " + workingPath);
+      throw new IllegalStateException("Failed to create temporary folder in " + workingPath, e);
     }
   }
 
