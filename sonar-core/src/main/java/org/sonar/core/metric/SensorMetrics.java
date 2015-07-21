@@ -35,6 +35,7 @@ import org.sonar.api.server.ServerSide;
 
 import static org.sonar.api.measures.CoreMetrics.ACCESSORS;
 import static org.sonar.api.measures.CoreMetrics.CLASSES;
+import static org.sonar.api.measures.CoreMetrics.COMMENTED_OUT_CODE_LINES;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_DATA;
 import static org.sonar.api.measures.CoreMetrics.COMPLEXITY;
@@ -74,6 +75,7 @@ import static org.sonar.api.measures.CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_L
 import static org.sonar.api.measures.CoreMetrics.OVERALL_LINES_TO_COVER;
 import static org.sonar.api.measures.CoreMetrics.OVERALL_UNCOVERED_CONDITIONS;
 import static org.sonar.api.measures.CoreMetrics.OVERALL_UNCOVERED_LINES;
+import static org.sonar.api.measures.CoreMetrics.PACKAGES;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_API;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_UNDOCUMENTED_API;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES;
@@ -103,6 +105,7 @@ public class SensorMetrics {
     NCLOC_DATA,
     GENERATED_NCLOC,
     NCLOC_LANGUAGE_DISTRIBUTION,
+    COMMENTED_OUT_CODE_LINES,
 
     COMMENT_LINES,
     COMMENT_LINES_DATA,
@@ -111,6 +114,7 @@ public class SensorMetrics {
     PUBLIC_UNDOCUMENTED_API,
 
     FILES,
+    PACKAGES,
     DIRECTORIES,
     CLASSES,
     FUNCTIONS,
