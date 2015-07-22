@@ -91,7 +91,7 @@ public class IssueWorkflow implements Startable {
         .functions(new SetResolution(null), new SetCloseDate(false))
         .build())
 
-      // resolve as false-positive
+    // resolve as false-positive
       .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_RESOLVED)
         .functions(new SetResolution(Issue.RESOLUTION_FALSE_POSITIVE), UnsetAssignee.INSTANCE)
@@ -108,7 +108,7 @@ public class IssueWorkflow implements Startable {
         .requiredProjectPermission(UserRole.ISSUE_ADMIN)
         .build())
 
-      // resolve as won't fix
+    // resolve as won't fix
       .transition(Transition.builder(DefaultTransitions.WONT_FIX)
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_RESOLVED)
         .functions(new SetResolution(Issue.RESOLUTION_WONT_FIX), UnsetAssignee.INSTANCE)
@@ -123,8 +123,7 @@ public class IssueWorkflow implements Startable {
         .from(Issue.STATUS_CONFIRMED).to(Issue.STATUS_RESOLVED)
         .functions(new SetResolution(Issue.RESOLUTION_WONT_FIX), UnsetAssignee.INSTANCE)
         .requiredProjectPermission(UserRole.ISSUE_ADMIN)
-        .build()
-      );
+        .build());
 
   }
 
@@ -151,26 +150,19 @@ public class IssueWorkflow implements Startable {
         .build())
       .transition(Transition.builder("automaticclose")
         .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_CLOSED)
-        .conditions(IsBeingClosed.INSTANCE)
-        .functions(SetClosed.INSTANCE, new SetCloseDate(true))
-        .automatic()
-        .build())
-      .transition(Transition.builder("automaticclosemanual")
-        .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_CLOSED)
-        .conditions(IsManual.INSTANCE)
+        .conditions(new OrCondition(IsBeingClosed.INSTANCE, IsManual.INSTANCE))
         .functions(SetClosed.INSTANCE, new SetCloseDate(true))
         .automatic()
         .build())
 
-      // Reopen issues that are marked as resolved but that are still alive.
-      // Manual issues are kept resolved.
+    // Reopen issues that are marked as resolved but that are still alive.
+    // Manual issues are kept resolved.
       .transition(Transition.builder("automaticreopen")
         .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_REOPENED)
         .conditions(new NotCondition(IsBeingClosed.INSTANCE), new HasResolution(Issue.RESOLUTION_FIXED), new NotCondition(IsManual.INSTANCE))
         .functions(new SetResolution(null), new SetCloseDate(false))
         .automatic()
-        .build()
-      );
+        .build());
   }
 
   @Override

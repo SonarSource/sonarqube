@@ -139,7 +139,7 @@ public class IssueWorkflowTest {
   }
 
   @Test
-  public void do_automatic_transition() {
+  public void automatically_close_resolved_issue() {
     workflow.start();
 
     DefaultIssue issue = new DefaultIssue()
@@ -151,10 +151,10 @@ public class IssueWorkflowTest {
       .setBeingClosed(true);
     Date now = new Date();
     workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
-    Assertions.assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
-    Assertions.assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
-    Assertions.assertThat(issue.closeDate()).isNotNull();
-    Assertions.assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
+    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
+    assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
+    assertThat(issue.closeDate()).isNotNull();
+    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
   }
 
   @Test
@@ -278,16 +278,14 @@ public class IssueWorkflowTest {
       Transition.create("confirm", "OPEN", "CONFIRMED"),
       Transition.create("resolve", "OPEN", "RESOLVED"),
       Transition.create("falsepositive", "OPEN", "RESOLVED"),
-      Transition.create("wontfix", "OPEN", "RESOLVED")
-      );
+      Transition.create("wontfix", "OPEN", "RESOLVED"));
 
     workflow.doTransition(issue, "resolve", mock(IssueChangeContext.class));
     Assertions.assertThat(issue.resolution()).isEqualTo("FIXED");
     Assertions.assertThat(issue.status()).isEqualTo("RESOLVED");
 
     assertThat(workflow.outTransitions(issue)).containsOnly(
-      Transition.create("reopen", "RESOLVED", "REOPENED")
-      );
+      Transition.create("reopen", "RESOLVED", "REOPENED"));
 
     workflow.doAutomaticTransition(issue, mock(IssueChangeContext.class));
     Assertions.assertThat(issue.resolution()).isEqualTo("FIXED");
@@ -309,8 +307,7 @@ public class IssueWorkflowTest {
       Transition.create("confirm", "OPEN", "CONFIRMED"),
       Transition.create("resolve", "OPEN", "RESOLVED"),
       Transition.create("falsepositive", "OPEN", "RESOLVED"),
-      Transition.create("wontfix", "OPEN", "RESOLVED")
-      );
+      Transition.create("wontfix", "OPEN", "RESOLVED"));
 
     workflow.doTransition(issue, "confirm", mock(IssueChangeContext.class));
     Assertions.assertThat(issue.resolution()).isNull();
@@ -320,8 +317,7 @@ public class IssueWorkflowTest {
       Transition.create("unconfirm", "CONFIRMED", "REOPENED"),
       Transition.create("resolve", "CONFIRMED", "RESOLVED"),
       Transition.create("falsepositive", "CONFIRMED", "RESOLVED"),
-      Transition.create("wontfix", "CONFIRMED", "RESOLVED")
-      );
+      Transition.create("wontfix", "CONFIRMED", "RESOLVED"));
 
     // keep confirmed and unresolved
     workflow.doAutomaticTransition(issue, mock(IssueChangeContext.class));
