@@ -38,7 +38,6 @@ import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTIO
 import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.GENERATED_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.GENERATED_NCLOC_KEY;
-import static org.sonar.api.measures.CoreMetrics.PACKAGES_KEY;
 import static org.sonar.api.measures.CoreMetrics.STATEMENTS_KEY;
 
 public class CoreFormulaRepositoryImpl implements CoreFormulaRepository {
@@ -55,7 +54,6 @@ public class CoreFormulaRepositoryImpl implements CoreFormulaRepository {
     new SumFormula(CLASSES_KEY),
     new SumFormula(FUNCTIONS_KEY),
     new SumFormula(STATEMENTS_KEY),
-    new SumFormula(PACKAGES_KEY),
     new SumFormula(COMMENTED_OUT_CODE_LINES_KEY),
     new SumFormula(COMPLEXITY_KEY),
     new SumFormula(COMPLEXITY_IN_CLASSES_KEY),
