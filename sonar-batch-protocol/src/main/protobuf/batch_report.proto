@@ -94,15 +94,6 @@ message Measure {
   optional double double_value = 5;
   optional string string_value = 6;
   optional string metric_key = 7;
-
-  // temporary fields during development of computation stack
-  optional string description = 9;
-  optional double variation_value_1 = 14;
-  optional double variation_value_2 = 15;
-  optional double variation_value_3 = 16;
-  optional double variation_value_4 = 17;
-  optional double variation_value_5 = 18;
-  optional int32 person_id = 20;
 }
 
 message Issue {
