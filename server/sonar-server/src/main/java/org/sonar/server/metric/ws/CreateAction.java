@@ -20,7 +20,6 @@
 
 package org.sonar.server.metric.ws;
 
-import java.net.HttpURLConnection;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric;
@@ -34,7 +33,7 @@ import org.sonar.db.MyBatis;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.user.UserSession;
 
@@ -183,15 +182,15 @@ public class CreateAction implements MetricsWsAction {
       return;
     }
     if (isMetricEnabled(metricInDb)) {
-      throw new ServerException(HttpURLConnection.HTTP_CONFLICT, "An active metric already exist with key: " + metricInDb.getKey());
+      throw new BadRequestException("An active metric already exist with key: " + metricInDb.getKey());
     }
     if (isMetricNonCustom(metricInDb)) {
-      throw new ServerException(HttpURLConnection.HTTP_CONFLICT, "An non custom metric already exist with key: " + metricInDb.getKey());
+      throw new BadRequestException("An non custom metric already exist with key: " + metricInDb.getKey());
     }
     if (hasMetricTypeChanged(metricInDb, template)) {
       List<CustomMeasureDto> customMeasures = dbClient.customMeasureDao().selectByMetricId(dbSession, metricInDb.getId());
       if (hasAssociatedCustomMeasures(customMeasures)) {
-        throw new ServerException(HttpURLConnection.HTTP_CONFLICT, String.format("You're trying to change the type '%s' while there are associated measures.",
+        throw new BadRequestException(String.format("You're trying to change the type '%s' while there are associated measures.",
           metricInDb.getValueType()));
       }
     }

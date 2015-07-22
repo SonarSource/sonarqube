@@ -20,14 +20,13 @@
 package org.sonar.server.usergroups.ws;
 
 import com.google.common.base.Preconditions;
-import java.net.HttpURLConnection;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.exceptions.BadRequestException;
 
 @ServerSide
 public class GroupUpdater {
@@ -67,7 +66,7 @@ public class GroupUpdater {
     // because MySQL cannot create a unique index
     // on a UTF-8 VARCHAR larger than 255 characters on InnoDB
     if (dbClient.groupDao().selectNullableByKey(session, name) != null) {
-      throw new ServerException(HttpURLConnection.HTTP_CONFLICT, String.format("Name '%s' is already taken", name));
+      throw new BadRequestException(String.format("Name '%s' is already taken", name));
     }
   }
 

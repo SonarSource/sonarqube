@@ -20,7 +20,6 @@
 
 package org.sonar.server.metric.ws;
 
-import java.net.HttpURLConnection;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric;
@@ -28,13 +27,13 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.db.measure.custom.CustomMeasureDto;
-import org.sonar.db.metric.MetricDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.measure.custom.CustomMeasureDto;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.MetricKeyValidator;
@@ -178,13 +177,13 @@ public class UpdateAction implements MetricsWsAction {
 
   private void checkMetricInDbAndTemplate(DbSession dbSession, @Nullable MetricDto metricInDb, MetricDto template) {
     if (!isMetricFoundInDb(metricInDb) || isMetricDisabled(metricInDb) || !isMetricCustom(metricInDb)) {
-      throw new ServerException(HttpURLConnection.HTTP_CONFLICT, String.format("No active custom metric has been found for id '%d'.", template.getId()));
+      throw new BadRequestException(String.format("No active custom metric has been found for id '%d'.", template.getId()));
     }
     checkNoOtherMetricWithTargetKey(dbSession, metricInDb, template);
     if (haveMetricTypeChanged(metricInDb, template)) {
       List<CustomMeasureDto> customMeasures = dbClient.customMeasureDao().selectByMetricId(dbSession, metricInDb.getId());
       if (haveAssociatedCustomMeasures(customMeasures)) {
-        throw new ServerException(HttpURLConnection.HTTP_CONFLICT, String.format("You're trying to change the type '%s' while there are associated custom measures.",
+        throw new BadRequestException(String.format("You're trying to change the type '%s' while there are associated custom measures.",
           metricInDb.getValueType()));
       }
     }
@@ -194,7 +193,7 @@ public class UpdateAction implements MetricsWsAction {
     String targetKey = template.getKey();
     MetricDto metricWithTargetKey = dbClient.metricDao().selectNullableByKey(dbSession, targetKey);
     if (isMetricFoundInDb(metricWithTargetKey) && !metricInDb.getId().equals(metricWithTargetKey.getId())) {
-      throw new ServerException(HttpURLConnection.HTTP_CONFLICT, String.format("The key '%s' is already used by an existing metric.", targetKey));
+      throw new BadRequestException(String.format("The key '%s' is already used by an existing metric.", targetKey));
     }
   }
 

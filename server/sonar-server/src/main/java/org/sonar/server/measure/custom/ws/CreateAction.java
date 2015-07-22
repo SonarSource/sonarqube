@@ -20,7 +20,6 @@
 
 package org.sonar.server.measure.custom.ws;
 
-import java.net.HttpURLConnection;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -34,7 +33,7 @@ import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
@@ -142,14 +141,14 @@ public class CreateAction implements CustomMeasuresWsAction {
 
   private static void checkIsProjectOrModule(ComponentDto component) {
     if (!Qualifiers.PROJECT.equals(component.qualifier()) && !Qualifiers.MODULE.equals(component.qualifier())) {
-      throw new ServerException(HttpURLConnection.HTTP_CONFLICT, String.format("Component '%s' (id: %s) must be a project or a module.", component.key(), component.uuid()));
+      throw new BadRequestException(String.format("Component '%s' (id: %s) must be a project or a module.", component.key(), component.uuid()));
     }
   }
 
   private void checkMeasureDoesNotExistAlready(DbSession dbSession, ComponentDto component, MetricDto metric) {
     int nbMeasuresOnSameMetricAndMeasure = dbClient.customMeasureDao().countByComponentIdAndMetricId(dbSession, component.uuid(), metric.getId());
     if (nbMeasuresOnSameMetricAndMeasure > 0) {
-      throw new ServerException(HttpURLConnection.HTTP_CONFLICT, String.format("A measure already exists for project '%s' (id: %s) and metric '%s' (id: '%d')",
+      throw new BadRequestException(String.format("A measure already exists for project '%s' (id: %s) and metric '%s' (id: '%d')",
         component.key(), component.uuid(), metric.getKey(), metric.getId()));
     }
   }
