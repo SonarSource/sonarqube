@@ -39,62 +39,37 @@ import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_KEY;
 public class CoreFormulaRepositoryImpl implements CoreFormulaRepository {
 
   private static final List<Formula> FORMULAS = ImmutableList.<Formula>of(
-      // TODO When all decorators will be moved to CE, uncomment commented lines to activate all formulas and remove formulas declaration in
-      // {@link org.sonar.api.measures.CoreMetrics}
+    // TODO When all decorators will be moved to CE, uncomment commented lines to activate all formulas and remove formulas declaration in
+    // {@link org.sonar.api.measures.CoreMetrics}
 
-      // Sum formulas
-      new SumFormula(COMMENTED_OUT_CODE_LINES_KEY),
-      new SumFormula(COMPLEXITY_KEY),
-      new SumFormula(COMPLEXITY_IN_CLASSES_KEY),
-      // TODO this formula seems to be useless as this measure seems only required on files
-      new SumFormula(COMPLEXITY_IN_FUNCTIONS_KEY),
+    // Sum formulas
+    new SumFormula(COMMENTED_OUT_CODE_LINES_KEY),
+    new SumFormula(COMPLEXITY_KEY),
+    new SumFormula(COMPLEXITY_IN_CLASSES_KEY),
+    // TODO this formula seems to be useless as this measure seems only required on files
+    new SumFormula(COMPLEXITY_IN_FUNCTIONS_KEY),
 
     // new SumFormula(CoreMetrics.COMMENT_LINES_KEY),
 
-      // new SumFormula(LINES_TO_COVER_KEY),
-      // new SumFormula(NEW_LINES_TO_COVER_KEY),
-      // new SumFormula(UNCOVERED_LINES_KEY),
-      // new SumFormula(NEW_UNCOVERED_LINES_KEY),
-      // new SumFormula(CONDITIONS_TO_COVER_KEY),
-      // new SumFormula(NEW_CONDITIONS_TO_COVER_KEY),
-      // new SumFormula(UNCOVERED_CONDITIONS_KEY),
-      // new SumFormula(NEW_UNCOVERED_CONDITIONS_KEY),
-      // new SumFormula(IT_LINES_TO_COVER_KEY),
-      // new SumFormula(NEW_IT_LINES_TO_COVER_KEY),
-      // new SumFormula(IT_UNCOVERED_LINES_KEY),
-      // new SumFormula(NEW_IT_UNCOVERED_LINES_KEY),
-      // new SumFormula(IT_CONDITIONS_TO_COVER_KEY),
-      // new SumFormula(NEW_IT_CONDITIONS_TO_COVER_KEY),
-      // new SumFormula(IT_UNCOVERED_CONDITIONS_KEY),
-      // new SumFormula(NEW_IT_UNCOVERED_CONDITIONS_KEY),
-      // new SumFormula(OVERALL_LINES_TO_COVER_KEY),
-      // new SumFormula(NEW_OVERALL_LINES_TO_COVER_KEY),
-      // new SumFormula(OVERALL_UNCOVERED_LINES_KEY),
-      // new SumFormula(NEW_OVERALL_UNCOVERED_LINES_KEY),
-      // new SumFormula(OVERALL_CONDITIONS_TO_COVER_KEY),
-      // new SumFormula(NEW_OVERALL_CONDITIONS_TO_COVER_KEY),
-      // new SumFormula(OVERALL_UNCOVERED_CONDITIONS_KEY),
-      // new SumFormula(NEW_OVERALL_UNCOVERED_CONDITIONS_KEY),
+    // Distribution formulas
+    new DistributionFormula(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY),
+    new DistributionFormula(FILE_COMPLEXITY_DISTRIBUTION_KEY),
 
-      // Distribution formulas
-      new DistributionFormula(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY),
-      new DistributionFormula(FILE_COMPLEXITY_DISTRIBUTION_KEY),
-
-      // Average formulas, must be executed after all sum formulas as they depend on their measures
-      AverageFormula.Builder.newBuilder().setOutputMetricKey(FILE_COMPLEXITY_KEY)
-          .setMainMetricKey(COMPLEXITY_KEY)
-          .setByMetricKey(FILES_KEY)
-          .build(),
-      AverageFormula.Builder.newBuilder().setOutputMetricKey(CLASS_COMPLEXITY_KEY)
-          .setMainMetricKey(COMPLEXITY_IN_CLASSES_KEY)
-          .setByMetricKey(CLASSES_KEY)
-          .setFallbackMetricKey(COMPLEXITY_KEY)
-          .build(),
-      AverageFormula.Builder.newBuilder().setOutputMetricKey(FUNCTION_COMPLEXITY_KEY)
-          .setMainMetricKey(COMPLEXITY_IN_FUNCTIONS_KEY)
-          .setByMetricKey(FUNCTIONS_KEY)
-          .setFallbackMetricKey(COMPLEXITY_KEY)
-          .build()
+    // Average formulas, must be executed after all sum formulas as they depend on their measures
+    AverageFormula.Builder.newBuilder().setOutputMetricKey(FILE_COMPLEXITY_KEY)
+      .setMainMetricKey(COMPLEXITY_KEY)
+      .setByMetricKey(FILES_KEY)
+      .build(),
+    AverageFormula.Builder.newBuilder().setOutputMetricKey(CLASS_COMPLEXITY_KEY)
+      .setMainMetricKey(COMPLEXITY_IN_CLASSES_KEY)
+      .setByMetricKey(CLASSES_KEY)
+      .setFallbackMetricKey(COMPLEXITY_KEY)
+      .build(),
+    AverageFormula.Builder.newBuilder().setOutputMetricKey(FUNCTION_COMPLEXITY_KEY)
+      .setMainMetricKey(COMPLEXITY_IN_FUNCTIONS_KEY)
+      .setByMetricKey(FUNCTIONS_KEY)
+      .setFallbackMetricKey(COMPLEXITY_KEY)
+      .build()
   );
 
   /**
