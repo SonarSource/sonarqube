@@ -375,7 +375,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(true)
     .setDomain(DOMAIN_COMPLEXITY)
-    .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY))
     .setHidden(true)
     .create();
 

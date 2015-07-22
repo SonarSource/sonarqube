@@ -62,6 +62,7 @@ public class ComputationSteps {
       CoreMetricFormulaExecutorStep.class,
       LanguageDistributionMeasuresStep.class,
       UnitTestMeasuresStep.class,
+      ComplexityMeasuresStep.class,
 
       // SQALE measures depend on issues
       SqaleMeasuresStep.class,

@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.MeasureDto;
@@ -44,6 +43,9 @@ import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 
 import static com.google.common.collect.FluentIterable.from;
+import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION_KEY;
+import static org.sonar.api.measures.CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION_KEY;
+import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 public class PersistMeasuresStep implements ComputationStep {
@@ -52,8 +54,9 @@ public class PersistMeasuresStep implements ComputationStep {
    * List of metrics that should not be persisted on file measure (Waiting for SONAR-6688 to be implemented)
    */
   private static final List<String> NOT_TO_PERSIST_ON_FILE_METRIC_KEYS = ImmutableList.of(
-    CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION_KEY,
-    CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY
+    FILE_COMPLEXITY_DISTRIBUTION_KEY,
+    FUNCTION_COMPLEXITY_DISTRIBUTION_KEY,
+    CLASS_COMPLEXITY_DISTRIBUTION_KEY
     );
 
   private final DbClient dbClient;
