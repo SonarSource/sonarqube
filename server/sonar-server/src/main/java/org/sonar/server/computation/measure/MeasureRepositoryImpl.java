@@ -151,7 +151,7 @@ public class MeasureRepositoryImpl implements MeasureRepository {
     checkArgument(
       measure.getValueType() == Measure.ValueType.NO_VALUE || measure.getValueType() == metric.getType().getValueType(),
       format(
-        "Measure's ValueType (%s) is not consistent with the Measure's ValueType (%s)",
+        "Measure's ValueType (%s) is not consistent with the Metric's ValueType (%s)",
         measure.getValueType(), metric.getType().getValueType()));
   }
 

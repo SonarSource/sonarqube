@@ -255,7 +255,7 @@ public class MeasureRepositoryImplTest {
         fail("An IllegalArgumentException should have been raised");
       } catch (IllegalArgumentException e) {
         assertThat(e).hasMessage(format(
-          "Measure's ValueType (%s) is not consistent with the Measure's ValueType (%s)",
+          "Measure's ValueType (%s) is not consistent with the Metric's ValueType (%s)",
           measure.getValueType(), metricType.getValueType()));
       }
     }
