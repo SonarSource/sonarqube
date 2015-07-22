@@ -22,7 +22,6 @@ package org.sonar.batch.mediumtest;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import java.io.File;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -34,7 +33,6 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.AnalysisMode;
@@ -197,29 +195,21 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
    */
   public List<TypeOfText> highlightingTypeFor(InputFile file, int line, int lineOffset) {
     int ref = reportComponents.get(((DefaultInputFile) file).key()).getRef();
-    File highlightingFile = reader.readComponentSyntaxHighlighting(ref);
-    if (highlightingFile == null) {
+    if (!reader.hasSyntaxHighlighting(ref)) {
       return Collections.emptyList();
     }
     TextPointer pointer = file.newPointer(line, lineOffset);
     List<TypeOfText> result = new ArrayList<>();
-    InputStream inputStream = null;
-    try {
-      inputStream = FileUtils.openInputStream(highlightingFile);
-      BatchReport.SyntaxHighlighting rule = BatchReport.SyntaxHighlighting.PARSER.parseDelimitedFrom(inputStream);
-      while (rule != null) {
+    try (CloseableIterator<BatchReport.SyntaxHighlighting> it = reader.readComponentSyntaxHighlighting(ref)) {
+      while (it.hasNext()) {
+        BatchReport.SyntaxHighlighting rule = it.next();
         TextRange ruleRange = toRange(file, rule.getRange());
         if (ruleRange.start().compareTo(pointer) <= 0 && ruleRange.end().compareTo(pointer) > 0) {
           result.add(BatchReportUtils.toBatchType(rule.getType()));
         }
-        // Get next element
-        rule = BatchReport.SyntaxHighlighting.PARSER.parseDelimitedFrom(inputStream);
       }
-
     } catch (Exception e) {
       throw new IllegalStateException("Can't read syntax highlighting for " + file.absolutePath(), e);
-    } finally {
-      IOUtils.closeQuietly(inputStream);
     }
     return result;
   }
@@ -250,13 +240,12 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
   @CheckForNull
   public BatchReport.Coverage coverageFor(InputFile file, int line) {
     int ref = reportComponents.get(((DefaultInputFile) file).key()).getRef();
-    try (InputStream inputStream = FileUtils.openInputStream(getReportReader().readComponentCoverage(ref))) {
-      BatchReport.Coverage coverage = BatchReport.Coverage.PARSER.parseDelimitedFrom(inputStream);
-      while (coverage != null) {
+    try (CloseableIterator<BatchReport.Coverage> it = getReportReader().readComponentCoverage(ref)) {
+      while (it.hasNext()) {
+        BatchReport.Coverage coverage = it.next();
         if (coverage.getLine() == line) {
           return coverage;
         }
-        coverage = BatchReport.Coverage.PARSER.parseDelimitedFrom(inputStream);
       }
     } catch (Exception e) {
       throw new IllegalStateException(e);

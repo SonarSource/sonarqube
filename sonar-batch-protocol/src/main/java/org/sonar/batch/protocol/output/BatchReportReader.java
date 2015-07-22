@@ -102,22 +102,20 @@ public class BatchReportReader {
     return file.exists();
   }
 
-  @CheckForNull
-  public File readComponentSyntaxHighlighting(int fileRef) {
+  public CloseableIterator<BatchReport.SyntaxHighlighting> readComponentSyntaxHighlighting(int fileRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, fileRef);
     if (fileExists(file)) {
-      return file;
+      return Protobuf.readStream(file, BatchReport.SyntaxHighlighting.PARSER);
     }
-    return null;
+    return CloseableIterator.emptyCloseableIterator();
   }
 
-  @CheckForNull
-  public File readComponentCoverage(int fileRef) {
+  public CloseableIterator<BatchReport.Coverage> readComponentCoverage(int fileRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.COVERAGES, fileRef);
     if (fileExists(file)) {
-      return file;
+      return Protobuf.readStream(file, BatchReport.Coverage.PARSER);
     }
-    return null;
+    return CloseableIterator.emptyCloseableIterator();
   }
 
   public File readFileSource(int fileRef) {
