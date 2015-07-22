@@ -25,7 +25,6 @@ import java.util.List;
 
 import static org.sonar.api.measures.CoreMetrics.ACCESSORS_KEY;
 import static org.sonar.api.measures.CoreMetrics.CLASSES_KEY;
-import static org.sonar.api.measures.CoreMetrics.COMMENTED_OUT_CODE_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.FUNCTIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.GENERATED_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.GENERATED_NCLOC_KEY;
@@ -47,11 +46,9 @@ public class CoreFormulaRepositoryImpl implements CoreFormulaRepository {
     new SumFormula(FUNCTIONS_KEY),
     new SumFormula(STATEMENTS_KEY),
     new SumFormula(PACKAGES_KEY),
-    new SumFormula(COMMENTED_OUT_CODE_LINES_KEY),
 
     new SumFormula(ACCESSORS_KEY)
-//    new SumFormula(CoreMetrics.COMMENT_LINES_KEY),
- );
+    );
 
   /**
    * Return list of formulas that was previously provided by CoreMetrics

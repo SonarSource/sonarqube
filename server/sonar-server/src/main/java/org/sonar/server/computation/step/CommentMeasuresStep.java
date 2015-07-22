@@ -30,11 +30,13 @@ import org.sonar.server.computation.formula.FileAggregateContext;
 import org.sonar.server.computation.formula.Formula;
 import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
 import org.sonar.server.computation.formula.SumCounter;
+import org.sonar.server.computation.formula.SumFormula;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 
+import static org.sonar.api.measures.CoreMetrics.COMMENTED_OUT_CODE_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
@@ -58,6 +60,7 @@ public class CommentMeasuresStep implements ComputationStep {
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.formulas = ImmutableList.<Formula>of(
+      new SumFormula(COMMENTED_OUT_CODE_LINES_KEY),
       new DocumentationFormula(),
       new CommentDensityFormula()
       );
