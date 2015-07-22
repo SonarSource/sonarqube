@@ -3,7 +3,7 @@
 set -euo pipefail
 
 function installTravisTools {
-  curl -sSL https://raw.githubusercontent.com/sonarsource/travis-utils/v11/install.sh | bash
+  curl -sSL https://raw.githubusercontent.com/sonarsource/travis-utils/v13/install.sh | bash
   source /tmp/travis-utils/env.sh
 }
 
