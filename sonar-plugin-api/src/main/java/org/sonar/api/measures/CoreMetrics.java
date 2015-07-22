@@ -191,7 +191,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_SIZE)
-    .setFormula(new SumChildValuesFormula(false))
     .create();
 
   /**
@@ -251,7 +250,6 @@ public final class CoreMetrics {
     .setBestValue(0.0)
     .setDirection(Metric.DIRECTION_WORST)
     .setOptimizedBestValue(true)
-    .setFormula(new SumChildValuesFormula(false))
     .create();
 
   /**
