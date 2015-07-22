@@ -41,9 +41,9 @@ public class UpdateCenterMatrixFactory {
   }
 
   public Optional<UpdateCenter> getUpdateCenter(boolean refreshUpdateCenter) {
-    Optional<UpdateCenter> updatePluginCenter = centerClient.getUpdateCenter(refreshUpdateCenter);
-    if (updatePluginCenter.isPresent()) {
-      return Optional.of(updatePluginCenter.get().setInstalledSonarVersion(sonarVersion).registerInstalledPlugins(
+    Optional<UpdateCenter> updateCenter = centerClient.getUpdateCenter(refreshUpdateCenter);
+    if (updateCenter.isPresent()) {
+      return Optional.of(updateCenter.get().setInstalledSonarVersion(sonarVersion).registerInstalledPlugins(
         installedPluginReferentialFactory.getInstalledPluginReferential())
         .setDate(centerClient.getLastRefreshDate()));
     }
