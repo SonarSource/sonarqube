@@ -33,6 +33,7 @@ import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.FileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
@@ -40,7 +41,6 @@ import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.language.LanguageRepository;
-import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -105,7 +105,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(now);
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now);
 
-    FileSourceDb.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
+    FileSources.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
     assertThat(data.getLinesCount()).isEqualTo(2);
     assertThat(data.getLines(0).getLine()).isEqualTo(1);
     assertThat(data.getLines(0).getSource()).isEqualTo("line1");
@@ -127,7 +127,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(FILE_REF)
       .setType(Constants.ComponentType.FILE)
-        // Lines is set to 3 but only 2 lines are read from the file -> the last lines should be added
+      // Lines is set to 3 but only 2 lines are read from the file -> the last lines should be added
       .setLines(3)
       .build());
     reportReader.putFileSourceLines(FILE_REF, "line1", "line2");
@@ -136,7 +136,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
-    FileSourceDb.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
+    FileSources.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
     assertThat(data.getLinesCount()).isEqualTo(3);
     assertThat(data.getLines(2).getLine()).isEqualTo(3);
     assertThat(data.getLines(2).getSource()).isEmpty();
@@ -172,7 +172,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
-    FileSourceDb.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
+    FileSources.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
 
     assertThat(data.getLinesList()).hasSize(1);
 
@@ -205,7 +205,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
-    FileSourceDb.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
+    FileSources.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
 
     assertThat(data.getLinesList()).hasSize(1);
 
@@ -219,19 +219,18 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     initBasicReport(1);
 
     reportReader.putSyntaxHighlighting(FILE_REF, newArrayList(BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
-          .setStartLine(1).setEndLine(1)
-          .setStartOffset(2).setEndOffset(4)
-          .build())
-        .setType(Constants.HighlightingType.ANNOTATION)
-        .build()
-    ));
+      .setRange(BatchReport.Range.newBuilder()
+        .setStartLine(1).setEndLine(1)
+        .setStartOffset(2).setEndOffset(4)
+        .build())
+      .setType(Constants.HighlightingType.ANNOTATION)
+      .build()));
 
     underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
-    FileSourceDb.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
+    FileSources.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
 
     assertThat(data.getLinesList()).hasSize(1);
 
@@ -248,16 +247,15 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
           .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(4)
           .build())
         .addReference(BatchReport.Range.newBuilder()
-            .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
-            .build()
-        ).build()
-    ));
+          .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
+          .build())
+        .build()));
 
     underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
-    FileSourceDb.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
+    FileSources.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
 
     assertThat(data.getLinesList()).hasSize(3);
 
@@ -282,14 +280,13 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
             .setEndLine(4)
             .build())
           .build())
-        .build()
-    ));
+        .build()));
 
     underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSource(FILE_UUID);
-    FileSourceDb.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
+    FileSources.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
 
     assertThat(data.getLinesList()).hasSize(1);
 
@@ -310,8 +307,8 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setSrcHash(srcHash)
       .setLineHashes(lineHashes)
       .setDataHash(dataHash)
-      .setSourceData(FileSourceDb.Data.newBuilder()
-        .addLines(FileSourceDb.Line.newBuilder()
+      .setSourceData(FileSources.Data.newBuilder()
+        .addLines(FileSources.Line.newBuilder()
           .setLine(1)
           .setSource("line1")
           .build())
@@ -345,8 +342,8 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setSrcHash("5b4bd9815cdb17b8ceae19eb1810c34c")
       .setLineHashes("6438c669e0d0de98e6929c2cc0fac474\n")
       .setDataHash("6cad150e3d065976c230cddc5a09efaa")
-      .setSourceData(FileSourceDb.Data.newBuilder()
-        .addLines(FileSourceDb.Line.newBuilder()
+      .setSourceData(FileSources.Data.newBuilder()
+        .addLines(FileSources.Line.newBuilder()
           .setLine(1)
           .setSource("old line")
           .build())
@@ -373,11 +370,11 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
       .setDataType(Type.SOURCE)
-        // Source hash is missing, update will be made
+      // Source hash is missing, update will be made
       .setLineHashes("137f72c3708c6bd0de00a0e5a69c699b")
       .setDataHash("29f25900140c94db38035128cb6de6a2")
-      .setSourceData(FileSourceDb.Data.newBuilder()
-        .addLines(FileSourceDb.Line.newBuilder()
+      .setSourceData(FileSources.Data.newBuilder()
+        .addLines(FileSources.Line.newBuilder()
           .setLine(1)
           .setSource("line")
           .build())
@@ -403,14 +400,13 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     initBasicReport(1);
 
     reportReader.putSyntaxHighlighting(FILE_REF, newArrayList(BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
-          .setStartLine(1).setEndLine(1)
-            // Wrong offset -> fail
-          .setStartOffset(4).setEndOffset(2)
-          .build())
-        .setType(Constants.HighlightingType.ANNOTATION)
-        .build()
-    ));
+      .setRange(BatchReport.Range.newBuilder()
+        .setStartLine(1).setEndLine(1)
+        // Wrong offset -> fail
+        .setStartOffset(4).setEndOffset(2)
+        .build())
+      .setType(Constants.HighlightingType.ANNOTATION)
+      .build()));
 
     try {
       underTest.execute();

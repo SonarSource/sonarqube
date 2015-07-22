@@ -20,23 +20,22 @@
 
 package org.sonar.server.computation.source;
 
-import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.util.CloseableIterator;
-import org.sonar.server.source.db.FileSourceDb;
+import org.sonar.db.FileSources;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SymbolsLineReaderTest {
 
-  FileSourceDb.Data.Builder sourceData = FileSourceDb.Data.newBuilder();
-  FileSourceDb.Line.Builder line1 = sourceData.addLinesBuilder().setSource("line1").setLine(1);
-  FileSourceDb.Line.Builder line2 = sourceData.addLinesBuilder().setSource("line2").setLine(2);
-  FileSourceDb.Line.Builder line3 = sourceData.addLinesBuilder().setSource("line3").setLine(3);
-  FileSourceDb.Line.Builder line4 = sourceData.addLinesBuilder().setSource("line4").setLine(4);
+  FileSources.Data.Builder sourceData = FileSources.Data.newBuilder();
+  FileSources.Line.Builder line1 = sourceData.addLinesBuilder().setSource("line1").setLine(1);
+  FileSources.Line.Builder line2 = sourceData.addLinesBuilder().setSource("line2").setLine(2);
+  FileSources.Line.Builder line3 = sourceData.addLinesBuilder().setSource("line3").setLine(3);
+  FileSources.Line.Builder line4 = sourceData.addLinesBuilder().setSource("line4").setLine(4);
 
   @Test
   public void read_nothing() {
@@ -57,8 +56,7 @@ public class SymbolsLineReaderTest {
         .addReference(BatchReport.Range.newBuilder()
           .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
           .build())
-        .build()
-      );
+        .build());
 
     SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
@@ -80,8 +78,7 @@ public class SymbolsLineReaderTest {
         .addReference(BatchReport.Range.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(3)
           .build())
-        .build()
-      );
+        .build());
 
     SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
@@ -102,8 +99,7 @@ public class SymbolsLineReaderTest {
         .addReference(BatchReport.Range.newBuilder()
           .setStartLine(2).setEndLine(2).setStartOffset(0).setEndOffset(2)
           .build())
-        .build()
-      );
+        .build());
 
     SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
@@ -128,8 +124,7 @@ public class SymbolsLineReaderTest {
         .addReference(BatchReport.Range.newBuilder()
           .setStartLine(2).setEndLine(2).setStartOffset(2).setEndOffset(3)
           .build())
-        .build()
-      );
+        .build());
 
     SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
@@ -149,8 +144,7 @@ public class SymbolsLineReaderTest {
         .addReference(BatchReport.Range.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(1).setEndOffset(2)
           .build())
-        .build()
-      );
+        .build());
 
     SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
@@ -178,8 +172,7 @@ public class SymbolsLineReaderTest {
         .addReference(BatchReport.Range.newBuilder()
           .setStartLine(3).setEndLine(3).setStartOffset(0).setEndOffset(1)
           .build())
-        .build()
-      );
+        .build());
 
     SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);
@@ -287,8 +280,7 @@ public class SymbolsLineReaderTest {
         .addReference(BatchReport.Range.newBuilder()
           .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
           .build())
-        .build()
-      );
+        .build());
 
     SymbolsLineReader symbolsLineReader = new SymbolsLineReader(symbols.iterator());
     symbolsLineReader.read(line1);

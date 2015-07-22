@@ -33,13 +33,13 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.CoverageDetail;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.FileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.component.FileAttributes;
-import org.sonar.server.source.db.FileSourceDb;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -91,9 +91,8 @@ public class PersistTestsStepTest extends BaseStepTest {
         DumbComponent.builder(Component.Type.FILE, 3).setUuid(TEST_FILE_UUID_1).setKey("TEST_FILE1_KEY").setFileAttributes(new FileAttributes(true, null)).build(),
         DumbComponent.builder(Component.Type.FILE, 4).setUuid(TEST_FILE_UUID_2).setKey("TEST_FILE2_KEY").setFileAttributes(new FileAttributes(true, null)).build(),
         DumbComponent.builder(Component.Type.FILE, 5).setUuid(MAIN_FILE_UUID_1).setKey("MAIN_FILE1_KEY").build(),
-        DumbComponent.builder(Component.Type.FILE, 6).setUuid(MAIN_FILE_UUID_2).setKey("MAIN_FILE2_KEY").build()
-      ).build()
-    ).build();
+        DumbComponent.builder(Component.Type.FILE, 6).setUuid(MAIN_FILE_UUID_2).setKey("MAIN_FILE2_KEY").build()).build())
+      .build();
     treeRootHolder.setRoot(root);
   }
 
@@ -113,12 +112,10 @@ public class PersistTestsStepTest extends BaseStepTest {
   @Test
   public void insert_several_tests_in_a_report() {
     List<BatchReport.Test> batchTests = Arrays.asList(
-      newTest(1), newTest(2)
-    );
+      newTest(1), newTest(2));
     reportReader.putTests(TEST_FILE_REF_1, batchTests);
     List<CoverageDetail> coverageDetails = Arrays.asList(
-      newCoverageDetail(1, MAIN_FILE_REF_1)
-    );
+      newCoverageDetail(1, MAIN_FILE_REF_1));
     reportReader.putCoverageDetails(TEST_FILE_REF_1, coverageDetails);
 
     underTest.execute();
@@ -153,12 +150,12 @@ public class PersistTestsStepTest extends BaseStepTest {
     assertThat(dto.getFileUuid()).isEqualTo(TEST_FILE_UUID_1);
     assertThat(dto.getTestData()).hasSize(1);
 
-    FileSourceDb.Test test1 = dto.getTestData().get(0);
+    FileSources.Test test1 = dto.getTestData().get(0);
     assertThat(test1.getUuid()).isNotEmpty();
     assertThat(test1.getName()).isEqualTo("name#1");
     assertThat(test1.getMsg()).isEqualTo("message#1");
     assertThat(test1.getStacktrace()).isEqualTo("stacktrace#1");
-    assertThat(test1.getStatus()).isEqualTo(FileSourceDb.Test.TestStatus.FAILURE);
+    assertThat(test1.getStatus()).isEqualTo(FileSources.Test.TestStatus.FAILURE);
     assertThat(test1.getExecutionTimeMs()).isEqualTo(1_000);
     assertThat(test1.getCoveredFileCount()).isEqualTo(1);
     assertThat(test1.getCoveredFile(0).getCoveredLineList()).containsOnly(1, 2, 3);
@@ -174,7 +171,7 @@ public class PersistTestsStepTest extends BaseStepTest {
 
     FileSourceDto dto = dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1);
     assertThat(dto.getFileUuid()).isEqualTo(TEST_FILE_UUID_1);
-    List<FileSourceDb.Test> tests = dto.getTestData();
+    List<FileSources.Test> tests = dto.getTestData();
     assertThat(tests).hasSize(1);
     assertThat(tests.get(0).getCoveredFileList()).isEmpty();
     assertThat(tests.get(0).getMsg()).isEqualTo("message#1");
@@ -218,10 +215,10 @@ public class PersistTestsStepTest extends BaseStepTest {
     dbClient.fileSourceDao().insert(db.getSession(), new FileSourceDto()
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(TEST_FILE_UUID_1)
-      .setTestData(Arrays.asList(FileSourceDb.Test.newBuilder()
+      .setTestData(Arrays.asList(FileSources.Test.newBuilder()
         .setUuid("test-uuid-1")
         .setName("name#1")
-        .setStatus(FileSourceDb.Test.TestStatus.ERROR)
+        .setStatus(FileSources.Test.TestStatus.ERROR)
         .setStacktrace("old-stacktrace#1")
         .setMsg("old-message#1")
         .setExecutionTimeMs(987_654_321L)
@@ -246,10 +243,10 @@ public class PersistTestsStepTest extends BaseStepTest {
     assertThat(dto.getUpdatedAt()).isEqualTo(now);
     assertThat(dto.getTestData()).hasSize(1);
 
-    FileSourceDb.Test test = dto.getTestData().get(0);
+    FileSources.Test test = dto.getTestData().get(0);
     assertThat(test.getUuid()).isNotEqualTo("test-uuid-1");
     assertThat(test.getName()).isEqualTo("name#1");
-    assertThat(test.getStatus()).isEqualTo(FileSourceDb.Test.TestStatus.valueOf(newBatchTest.getStatus().name()));
+    assertThat(test.getStatus()).isEqualTo(FileSources.Test.TestStatus.valueOf(newBatchTest.getStatus().name()));
     assertThat(test.getMsg()).isEqualTo(newBatchTest.getMsg());
     assertThat(test.getStacktrace()).isEqualTo(newBatchTest.getStacktrace());
     assertThat(test.getExecutionTimeMs()).isEqualTo(newBatchTest.getDurationInMs());
@@ -276,10 +273,9 @@ public class PersistTestsStepTest extends BaseStepTest {
     return CoverageDetail.newBuilder()
       .setTestName("name#" + id)
       .addCoveredFile(CoverageDetail.CoveredFile.newBuilder()
-          .addAllCoveredLine(Arrays.asList(lines))
-          .setFileRef(covered_file_ref)
-          .build()
-      )
+        .addAllCoveredLine(Arrays.asList(lines))
+        .setFileRef(covered_file_ref)
+        .build())
       .build();
   }
 }

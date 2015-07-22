@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Timer;
 import java.util.concurrent.atomic.AtomicLong;
-
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,9 +31,9 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.db.DbTester;
+import org.sonar.db.FileSources;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.source.FileSourceDto;
-import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.source.index.SourceLineResultSetIterator;
 
@@ -111,8 +110,8 @@ public class SourceDbBenchmarkTest {
   }
 
   private byte[] generateData() {
-    FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
-    FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Line.newBuilder();
+    FileSources.Data.Builder dataBuilder = FileSources.Data.newBuilder();
+    FileSources.Line.Builder lineBuilder = FileSources.Line.newBuilder();
     for (int i = 1; i <= NUMBER_OF_LINES; i++) {
       lineBuilder.clear();
       dataBuilder.addLines(lineBuilder

@@ -38,7 +38,7 @@ import org.sonar.db.version.BaseDataChange;
 import org.sonar.db.version.MassUpdate;
 import org.sonar.db.version.Select;
 import org.sonar.db.version.SqlStatement;
-import org.sonar.server.source.db.FileSourceDb;
+import org.sonar.db.FileSources;
 
 public class FeedFileSourcesBinaryData extends BaseDataChange {
 
@@ -63,7 +63,7 @@ public class FeedFileSourcesBinaryData extends BaseDataChange {
   }
 
   private byte[] toBinary(Long fileSourceId, @Nullable String data) {
-    FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
+    FileSources.Data.Builder dataBuilder = FileSources.Data.newBuilder();
     CSVParser parser = null;
     try {
       if (data != null) {
@@ -74,7 +74,7 @@ public class FeedFileSourcesBinaryData extends BaseDataChange {
           CSVRecord row = rows.next();
           if (row.size() == 16) {
 
-            FileSourceDb.Line.Builder lineBuilder = dataBuilder.addLinesBuilder();
+            FileSources.Line.Builder lineBuilder = dataBuilder.addLinesBuilder();
             lineBuilder.setLine(line);
             String s = row.get(0);
             if (StringUtils.isNotEmpty(s)) {

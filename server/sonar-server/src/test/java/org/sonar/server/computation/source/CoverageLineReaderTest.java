@@ -20,11 +20,10 @@
 
 package org.sonar.server.computation.source;
 
+import java.util.Collections;
 import org.junit.Test;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.server.source.db.FileSourceDb;
-
-import java.util.Collections;
+import org.sonar.db.FileSources;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +42,7 @@ public class CoverageLineReaderTest {
       .setOverallCoveredConditions(4)
       .build()).iterator());
 
-    FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Data.newBuilder().addLinesBuilder().setLine(1);
+    FileSources.Line.Builder lineBuilder = FileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     computeCoverageLine.read(lineBuilder);
 
     assertThat(lineBuilder.getUtLineHits()).isEqualTo(1);
@@ -63,7 +62,7 @@ public class CoverageLineReaderTest {
       .setItHits(false)
       .build()).iterator());
 
-    FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Data.newBuilder().addLinesBuilder().setLine(1);
+    FileSources.Line.Builder lineBuilder = FileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     computeCoverageLine.read(lineBuilder);
 
     assertThat(lineBuilder.hasUtLineHits()).isTrue();
@@ -80,7 +79,7 @@ public class CoverageLineReaderTest {
       .setLine(1)
       .build()).iterator());
 
-    FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Data.newBuilder().addLinesBuilder().setLine(1);
+    FileSources.Line.Builder lineBuilder = FileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     computeCoverageLine.read(lineBuilder);
 
     assertThat(lineBuilder.hasUtLineHits()).isFalse();
@@ -91,12 +90,12 @@ public class CoverageLineReaderTest {
   @Test
   public void set_overall_line_hits_with_only_ut() {
     CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(BatchReport.Coverage.newBuilder()
-        .setLine(1)
-        .setUtHits(true)
-        .setItHits(false)
-        .build()).iterator());
+      .setLine(1)
+      .setUtHits(true)
+      .setItHits(false)
+      .build()).iterator());
 
-    FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Data.newBuilder().addLinesBuilder().setLine(1);
+    FileSources.Line.Builder lineBuilder = FileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     computeCoverageLine.read(lineBuilder);
 
     assertThat(lineBuilder.getOverallLineHits()).isEqualTo(1);
@@ -110,7 +109,7 @@ public class CoverageLineReaderTest {
       .setItHits(true)
       .build()).iterator());
 
-    FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Data.newBuilder().addLinesBuilder().setLine(1);
+    FileSources.Line.Builder lineBuilder = FileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     computeCoverageLine.read(lineBuilder);
 
     assertThat(lineBuilder.getOverallLineHits()).isEqualTo(1);
@@ -124,7 +123,7 @@ public class CoverageLineReaderTest {
       .setItHits(true)
       .build()).iterator());
 
-    FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Data.newBuilder().addLinesBuilder().setLine(1);
+    FileSources.Line.Builder lineBuilder = FileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     computeCoverageLine.read(lineBuilder);
 
     assertThat(lineBuilder.getOverallLineHits()).isEqualTo(1);
@@ -134,7 +133,7 @@ public class CoverageLineReaderTest {
   public void nothing_to_do_when_no_coverage_info() {
     CoverageLineReader computeCoverageLine = new CoverageLineReader(Collections.<BatchReport.Coverage>emptyList().iterator());
 
-    FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Data.newBuilder().addLinesBuilder().setLine(1);
+    FileSources.Line.Builder lineBuilder = FileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     computeCoverageLine.read(lineBuilder);
 
     assertThat(lineBuilder.hasUtLineHits()).isFalse();
@@ -158,10 +157,10 @@ public class CoverageLineReaderTest {
         .setItCoveredConditions(3)
         .setOverallCoveredConditions(4)
         .build()
-      // No coverage info on line 2
-      ).iterator());
+    // No coverage info on line 2
+    ).iterator());
 
-    FileSourceDb.Line.Builder line2Builder = FileSourceDb.Data.newBuilder().addLinesBuilder().setLine(2);
+    FileSources.Line.Builder line2Builder = FileSources.Data.newBuilder().addLinesBuilder().setLine(2);
     computeCoverageLine.read(line2Builder);
 
     assertThat(line2Builder.hasUtLineHits()).isFalse();
@@ -185,12 +184,12 @@ public class CoverageLineReaderTest {
         .setItCoveredConditions(3)
         .setOverallCoveredConditions(4)
         .build()
-      // No coverage info on line 2
-      ).iterator());
+    // No coverage info on line 2
+    ).iterator());
 
-    FileSourceDb.Data.Builder fileSourceBuilder = FileSourceDb.Data.newBuilder();
-    FileSourceDb.Line.Builder line1Builder = fileSourceBuilder.addLinesBuilder().setLine(1);
-    FileSourceDb.Line.Builder line2Builder = fileSourceBuilder.addLinesBuilder().setLine(2);
+    FileSources.Data.Builder fileSourceBuilder = FileSources.Data.newBuilder();
+    FileSources.Line.Builder line1Builder = fileSourceBuilder.addLinesBuilder().setLine(1);
+    FileSources.Line.Builder line2Builder = fileSourceBuilder.addLinesBuilder().setLine(2);
     computeCoverageLine.read(line1Builder);
     computeCoverageLine.read(line2Builder);
 

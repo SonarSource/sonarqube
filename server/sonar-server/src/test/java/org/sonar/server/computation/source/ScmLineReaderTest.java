@@ -22,7 +22,7 @@ package org.sonar.server.computation.source;
 
 import org.junit.Test;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.server.source.db.FileSourceDb;
+import org.sonar.db.FileSources;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
@@ -42,7 +42,7 @@ public class ScmLineReaderTest {
 
     ScmLineReader lineScm = new ScmLineReader(scmReport);
 
-    FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Data.newBuilder().addLinesBuilder().setLine(1);
+    FileSources.Line.Builder lineBuilder = FileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     lineScm.read(lineBuilder);
 
     assertThat(lineBuilder.getScmAuthor()).isEqualTo("john");
@@ -61,7 +61,7 @@ public class ScmLineReaderTest {
 
     ScmLineReader lineScm = new ScmLineReader(scmReport);
 
-    FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Data.newBuilder().addLinesBuilder().setLine(1);
+    FileSources.Line.Builder lineBuilder = FileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     lineScm.read(lineBuilder);
 
     assertThat(lineBuilder.getScmAuthor()).isEqualTo("john");
@@ -80,7 +80,7 @@ public class ScmLineReaderTest {
 
     ScmLineReader lineScm = new ScmLineReader(scmReport);
 
-    FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Data.newBuilder().addLinesBuilder().setLine(1);
+    FileSources.Line.Builder lineBuilder = FileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     lineScm.read(lineBuilder);
 
     assertThat(lineBuilder.hasScmAuthor()).isFalse();
@@ -99,7 +99,7 @@ public class ScmLineReaderTest {
 
     ScmLineReader lineScm = new ScmLineReader(scmReport);
 
-    FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Data.newBuilder().addLinesBuilder().setLine(1);
+    FileSources.Line.Builder lineBuilder = FileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     lineScm.read(lineBuilder);
 
     assertThat(lineBuilder.hasScmAuthor()).isFalse();
@@ -117,7 +117,7 @@ public class ScmLineReaderTest {
 
     ScmLineReader lineScm = new ScmLineReader(scmReport);
 
-    FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Data.newBuilder().addLinesBuilder().setLine(1);
+    FileSources.Line.Builder lineBuilder = FileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     try {
       lineScm.read(lineBuilder);
       failBecauseExceptionWasNotThrown(IllegalArgumentException.class);

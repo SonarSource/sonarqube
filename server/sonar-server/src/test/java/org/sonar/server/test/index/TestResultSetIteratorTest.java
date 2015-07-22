@@ -32,8 +32,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.server.source.db.FileSourceDb;
-import org.sonar.server.source.db.FileSourceDb.Test.TestStatus;
+import org.sonar.db.FileSources;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.test.db.TestTesting;
 import org.sonar.test.DbTests;
@@ -78,8 +77,7 @@ public class TestResultSetIteratorTest {
       MapEntry.entry(TestIndexDefinition.FIELD_MESSAGE, "MESSAGE_1"),
       MapEntry.entry(TestIndexDefinition.FIELD_DURATION_IN_MS, 1),
       MapEntry.entry(TestIndexDefinition.FIELD_STACKTRACE, "STACKTRACE_1"),
-      MapEntry.entry(TestIndexDefinition.FIELD_NAME, "NAME_1")
-      );
+      MapEntry.entry(TestIndexDefinition.FIELD_NAME, "NAME_1"));
   }
 
   /**
@@ -88,12 +86,11 @@ public class TestResultSetIteratorTest {
   @Test
   public void minimal_data() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    List<FileSourceDb.Test> tests = Arrays.asList(
-      FileSourceDb.Test.newBuilder()
+    List<FileSources.Test> tests = Arrays.asList(
+      FileSources.Test.newBuilder()
         .setUuid("U1")
         .setName("N1")
-        .build()
-      );
+        .build());
     TestTesting.updateDataColumn(dbTester.getSession(), "F1", tests);
     underTest = TestResultSetIterator.create(dbTester.getDbClient(), dbTester.getSession(), 0L, null);
 
@@ -109,16 +106,14 @@ public class TestResultSetIteratorTest {
       MapEntry.entry(TestIndexDefinition.FIELD_PROJECT_UUID, "P1"),
       MapEntry.entry(TestIndexDefinition.FIELD_FILE_UUID, "F1"),
       MapEntry.entry(TestIndexDefinition.FIELD_TEST_UUID, "U1"),
-      MapEntry.entry(TestIndexDefinition.FIELD_NAME, "N1")
-      );
+      MapEntry.entry(TestIndexDefinition.FIELD_NAME, "N1"));
     // null values
     assertThat(doc).containsKeys(
       TestIndexDefinition.FIELD_DURATION_IN_MS,
       TestIndexDefinition.FIELD_STACKTRACE,
       TestIndexDefinition.FIELD_MESSAGE,
       TestIndexDefinition.FIELD_STATUS,
-      TestIndexDefinition.FIELD_COVERED_FILES
-      );
+      TestIndexDefinition.FIELD_COVERED_FILES);
   }
 
   @Test
@@ -175,22 +170,21 @@ public class TestResultSetIteratorTest {
     }
   }
 
-  private static List<FileSourceDb.Test> newFakeTests(int numberOfTests) {
-    List<FileSourceDb.Test> tests = new ArrayList<>();
+  private static List<FileSources.Test> newFakeTests(int numberOfTests) {
+    List<FileSources.Test> tests = new ArrayList<>();
     for (int i = 1; i <= numberOfTests; i++) {
-      FileSourceDb.Test.Builder test = FileSourceDb.Test.newBuilder()
+      FileSources.Test.Builder test = FileSources.Test.newBuilder()
         .setUuid("TEST_FILE_UUID_" + i)
         .setName("NAME_" + i)
-        .setStatus(TestStatus.FAILURE)
+        .setStatus(FileSources.Test.TestStatus.FAILURE)
         .setStacktrace("STACKTRACE_" + i)
         .setMsg("MESSAGE_" + i)
         .setExecutionTimeMs(i);
       for (int j = 1; j <= numberOfTests; j++) {
         test.addCoveredFile(
-          FileSourceDb.Test.CoveredFile.newBuilder()
+          FileSources.Test.CoveredFile.newBuilder()
             .setFileUuid("MAIN_FILE_UUID_" + j)
-            .addCoveredLine(j)
-          );
+            .addCoveredLine(j));
       }
       tests.add(test.build());
     }
