@@ -20,10 +20,10 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.Formula;
 import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
+import org.sonar.server.computation.formula.SumFormula;
 import org.sonar.server.computation.formula.coverage.LinesAndConditionsWithUncoveredFormula;
 import org.sonar.server.computation.formula.coverage.LinesAndConditionsWithUncoveredMetricKeys;
 import org.sonar.server.computation.formula.coverage.SingleWithUncoveredFormula;
@@ -31,22 +31,58 @@ import org.sonar.server.computation.formula.coverage.SingleWithUncoveredMetricKe
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.MetricRepository;
 
+import static org.sonar.api.measures.CoreMetrics.BRANCH_COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.CONDITIONS_TO_COVER_KEY;
+import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.IT_BRANCH_COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.IT_CONDITIONS_TO_COVER_KEY;
+import static org.sonar.api.measures.CoreMetrics.IT_COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.IT_LINES_TO_COVER_KEY;
+import static org.sonar.api.measures.CoreMetrics.IT_LINE_COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.IT_UNCOVERED_CONDITIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.IT_UNCOVERED_LINES_KEY;
+import static org.sonar.api.measures.CoreMetrics.LINES_TO_COVER_KEY;
+import static org.sonar.api.measures.CoreMetrics.LINE_COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.OVERALL_BRANCH_COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.OVERALL_CONDITIONS_TO_COVER_KEY;
+import static org.sonar.api.measures.CoreMetrics.OVERALL_COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.OVERALL_LINES_TO_COVER_KEY;
+import static org.sonar.api.measures.CoreMetrics.OVERALL_LINE_COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.OVERALL_UNCOVERED_CONDITIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.OVERALL_UNCOVERED_LINES_KEY;
+import static org.sonar.api.measures.CoreMetrics.UNCOVERED_CONDITIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES_KEY;
+
 /**
  * Computes coverage measures on files and then aggregates them on higher components.
  */
 public class CoverageMeasuresStep implements ComputationStep {
   private static final ImmutableList<Formula> COVERAGE_FORMULAS = ImmutableList.<Formula>of(
-    // code
+    // unit test
+    new SumFormula(LINES_TO_COVER_KEY),
+    new SumFormula(UNCOVERED_LINES_KEY),
+    new SumFormula(CONDITIONS_TO_COVER_KEY),
+    new SumFormula(UNCOVERED_CONDITIONS_KEY),
     new CodeCoverageFormula(),
-    new ItCoverageFormula(),
-    new OverallCodeCoverageFormula(),
-    // branch
     new BranchCoverageFormula(),
-    new ItBranchCoverageFormula(),
-    new OverallBranchCoverageFormula(),
-    // line
     new LineCoverageFormula(),
+
+    // integration test
+    new SumFormula(IT_LINES_TO_COVER_KEY),
+    new SumFormula(IT_UNCOVERED_LINES_KEY),
+    new SumFormula(IT_CONDITIONS_TO_COVER_KEY),
+    new SumFormula(IT_UNCOVERED_CONDITIONS_KEY),
+    new ItCoverageFormula(),
+    new ItBranchCoverageFormula(),
     new ItLineCoverageFormula(),
+
+    // overall test
+    new SumFormula(OVERALL_LINES_TO_COVER_KEY),
+    new SumFormula(OVERALL_UNCOVERED_LINES_KEY),
+    new SumFormula(OVERALL_CONDITIONS_TO_COVER_KEY),
+    new SumFormula(OVERALL_UNCOVERED_CONDITIONS_KEY),
+    new OverallCodeCoverageFormula(),
+    new OverallBranchCoverageFormula(),
     new OverallLineCoverageFormula()
     );
 
@@ -71,10 +107,10 @@ public class CoverageMeasuresStep implements ComputationStep {
     public CodeCoverageFormula() {
       super(
         new LinesAndConditionsWithUncoveredMetricKeys(
-          CoreMetrics.LINES_TO_COVER_KEY, CoreMetrics.CONDITIONS_TO_COVER_KEY,
-          CoreMetrics.UNCOVERED_LINES_KEY, CoreMetrics.UNCOVERED_CONDITIONS_KEY
+          LINES_TO_COVER_KEY, CONDITIONS_TO_COVER_KEY,
+          UNCOVERED_LINES_KEY, UNCOVERED_CONDITIONS_KEY
         ),
-        CoreMetrics.COVERAGE_KEY);
+        COVERAGE_KEY);
     }
   }
 
@@ -82,10 +118,10 @@ public class CoverageMeasuresStep implements ComputationStep {
     private ItCoverageFormula() {
       super(
         new LinesAndConditionsWithUncoveredMetricKeys(
-          CoreMetrics.IT_LINES_TO_COVER_KEY, CoreMetrics.IT_CONDITIONS_TO_COVER_KEY,
-          CoreMetrics.IT_UNCOVERED_LINES_KEY, CoreMetrics.IT_UNCOVERED_CONDITIONS_KEY
+          IT_LINES_TO_COVER_KEY, IT_CONDITIONS_TO_COVER_KEY,
+          IT_UNCOVERED_LINES_KEY, IT_UNCOVERED_CONDITIONS_KEY
         ),
-        CoreMetrics.IT_COVERAGE_KEY);
+        IT_COVERAGE_KEY);
     }
   }
 
@@ -93,10 +129,10 @@ public class CoverageMeasuresStep implements ComputationStep {
     public OverallCodeCoverageFormula() {
       super(
         new LinesAndConditionsWithUncoveredMetricKeys(
-          CoreMetrics.OVERALL_LINES_TO_COVER_KEY, CoreMetrics.OVERALL_CONDITIONS_TO_COVER_KEY,
-          CoreMetrics.OVERALL_UNCOVERED_LINES_KEY, CoreMetrics.OVERALL_UNCOVERED_CONDITIONS_KEY
+          OVERALL_LINES_TO_COVER_KEY, OVERALL_CONDITIONS_TO_COVER_KEY,
+          OVERALL_UNCOVERED_LINES_KEY, OVERALL_UNCOVERED_CONDITIONS_KEY
         ),
-        CoreMetrics.OVERALL_COVERAGE_KEY);
+        OVERALL_COVERAGE_KEY);
     }
   }
 
@@ -104,9 +140,9 @@ public class CoverageMeasuresStep implements ComputationStep {
     public BranchCoverageFormula() {
       super(
         new SingleWithUncoveredMetricKeys(
-          CoreMetrics.CONDITIONS_TO_COVER_KEY, CoreMetrics.UNCOVERED_CONDITIONS_KEY
+          CONDITIONS_TO_COVER_KEY, UNCOVERED_CONDITIONS_KEY
         ),
-        CoreMetrics.BRANCH_COVERAGE_KEY);
+        BRANCH_COVERAGE_KEY);
     }
   }
 
@@ -114,33 +150,33 @@ public class CoverageMeasuresStep implements ComputationStep {
     public ItBranchCoverageFormula() {
       super(
         new SingleWithUncoveredMetricKeys(
-          CoreMetrics.IT_CONDITIONS_TO_COVER_KEY, CoreMetrics.IT_UNCOVERED_CONDITIONS_KEY
+          IT_CONDITIONS_TO_COVER_KEY, IT_UNCOVERED_CONDITIONS_KEY
         ),
-        CoreMetrics.IT_BRANCH_COVERAGE_KEY);
+        IT_BRANCH_COVERAGE_KEY);
     }
   }
 
   private static class OverallBranchCoverageFormula extends SingleWithUncoveredFormula {
     public OverallBranchCoverageFormula() {
       super(
-        new SingleWithUncoveredMetricKeys(CoreMetrics.OVERALL_CONDITIONS_TO_COVER_KEY, CoreMetrics.OVERALL_UNCOVERED_CONDITIONS_KEY),
-        CoreMetrics.OVERALL_BRANCH_COVERAGE_KEY);
+        new SingleWithUncoveredMetricKeys(OVERALL_CONDITIONS_TO_COVER_KEY, OVERALL_UNCOVERED_CONDITIONS_KEY),
+        OVERALL_BRANCH_COVERAGE_KEY);
     }
   }
 
   private static class LineCoverageFormula extends SingleWithUncoveredFormula {
     public LineCoverageFormula() {
       super(
-        new SingleWithUncoveredMetricKeys(CoreMetrics.LINES_TO_COVER_KEY, CoreMetrics.UNCOVERED_LINES_KEY),
-        CoreMetrics.LINE_COVERAGE_KEY);
+        new SingleWithUncoveredMetricKeys(LINES_TO_COVER_KEY, UNCOVERED_LINES_KEY),
+        LINE_COVERAGE_KEY);
     }
   }
 
   private static class ItLineCoverageFormula extends SingleWithUncoveredFormula {
     public ItLineCoverageFormula() {
       super(
-        new SingleWithUncoveredMetricKeys(CoreMetrics.IT_LINES_TO_COVER_KEY, CoreMetrics.IT_UNCOVERED_LINES_KEY),
-        CoreMetrics.IT_LINE_COVERAGE_KEY);
+        new SingleWithUncoveredMetricKeys(IT_LINES_TO_COVER_KEY, IT_UNCOVERED_LINES_KEY),
+        IT_LINE_COVERAGE_KEY);
     }
   }
 
@@ -148,9 +184,9 @@ public class CoverageMeasuresStep implements ComputationStep {
     public OverallLineCoverageFormula() {
       super(
         new SingleWithUncoveredMetricKeys(
-          CoreMetrics.OVERALL_LINES_TO_COVER_KEY, CoreMetrics.OVERALL_UNCOVERED_LINES_KEY
+          OVERALL_LINES_TO_COVER_KEY, OVERALL_UNCOVERED_LINES_KEY
         ),
-        CoreMetrics.OVERALL_LINE_COVERAGE_KEY);
+        OVERALL_LINE_COVERAGE_KEY);
     }
   }
 
