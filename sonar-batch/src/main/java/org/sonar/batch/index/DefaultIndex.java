@@ -37,11 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.fs.InputDir;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.MetricFinder;
-import org.sonar.api.batch.sensor.issue.NewIssueLocation;
-import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
@@ -52,9 +48,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.Violation;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.scan.measure.MeasureCache;
@@ -188,55 +181,6 @@ public class DefaultIndex extends SonarIndex {
   @Override
   public Set<Resource> getResources() {
     return buckets.keySet();
-  }
-
-  //
-  //
-  //
-  // VIOLATIONS
-  //
-  //
-  //
-
-  @Override
-  public void addViolation(Violation violation, boolean force) {
-    // Reload
-    Resource resource = getResource(violation.getResource());
-    if (resource == null) {
-      LOG.warn("Resource is not indexed. Ignoring violation {}", violation);
-      return;
-    }
-    BatchComponent component = componentCache.get(resource);
-
-    Rule rule = violation.getRule();
-    if (rule == null) {
-      LOG.warn("Rule is null. Ignoring violation {}", violation);
-      return;
-    }
-
-    // keep a limitation (bug?) of deprecated violations api : severity is always
-    // set by sonar. The severity set by plugins is overridden.
-    // This is not the case with issue api.
-
-    DefaultIssue newIssue = new DefaultIssue(sensorStorage);
-    NewIssueLocation newLocation = newIssue.newLocation();
-    if (component.isProjectOrModule()) {
-      newLocation.onProject();
-    } else if (component.isDir()) {
-      newLocation.onDir((InputDir) component.inputPath());
-    } else if (component.isFile()) {
-      InputFile inputFile = (InputFile) component.inputPath();
-      newLocation.onFile(inputFile);
-      if (violation.hasLineId()) {
-        newLocation.at(inputFile.selectLine(violation.getLineId()));
-      }
-    }
-    newLocation.message(violation.getMessage());
-
-    newIssue.addLocation(newLocation)
-      .forRule(RuleKey.of(violation.getRule().getRepositoryKey(), violation.getRule().getKey()))
-      .effortToFix(violation.getCost())
-      .save();
   }
 
   @Override

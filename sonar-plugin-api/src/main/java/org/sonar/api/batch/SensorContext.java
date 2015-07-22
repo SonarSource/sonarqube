@@ -19,6 +19,9 @@
  */
 package org.sonar.api.batch;
 
+import java.io.Serializable;
+import java.util.Collection;
+import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.design.Dependency;
@@ -26,12 +29,6 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.rules.Violation;
-
-import javax.annotation.CheckForNull;
-
-import java.io.Serializable;
-import java.util.Collection;
 
 /**
  * @since 1.10
@@ -161,32 +158,6 @@ public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext 
    * </p>
    */
   Measure saveMeasure(Resource resource, Measure measure);
-
-  // ----------- RULE VIOLATIONS --------------
-
-  /**
-   * Save a coding rule violation.
-   *
-   * @param force allows to force creation of violation even if it was supressed by {@link org.sonar.api.rules.ViolationFilter}
-   * @since 2.5
-   * @deprecated in 3.6, replaced by {@link org.sonar.api.issue.Issuable}
-   */
-  @Deprecated
-  void saveViolation(Violation violation, boolean force);
-
-  /**
-   * Save a coding rule violation.
-   * @deprecated in 3.6, replaced by {@link org.sonar.api.issue.Issuable}
-   */
-  @Deprecated
-  void saveViolation(Violation violation);
-
-  /**
-   * Saves a list of violations.
-   * @deprecated in 3.6, replaced by {@link org.sonar.api.issue.Issuable}
-   */
-  @Deprecated
-  void saveViolations(Collection<Violation> violations);
 
   // ----------- DEPENDENCIES BETWEEN RESOURCES --------------
 

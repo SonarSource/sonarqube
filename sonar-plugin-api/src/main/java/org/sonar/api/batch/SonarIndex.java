@@ -19,17 +19,14 @@
  */
 package org.sonar.api.batch;
 
+import java.util.Collection;
+import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.rules.Violation;
-
-import javax.annotation.CheckForNull;
-
-import java.util.Collection;
 
 /**
  * @deprecated since 4.5.2 should not be used by plugins. Everything should be accessed using {@link SensorContext}.
@@ -114,21 +111,6 @@ public abstract class SonarIndex {
 
   @CheckForNull
   public abstract <M> M getMeasures(Resource resource, MeasuresFilter<M> filter);
-
-  /**
-   * @since 2.5
-   * @deprecated in 3.6
-   */
-  @Deprecated
-  public abstract void addViolation(Violation violation, boolean force);
-
-  /**
-   * @deprecated in 3.6
-   */
-  @Deprecated
-  public final void addViolation(Violation violation) {
-    addViolation(violation, false);
-  }
 
   /**
    * Warning: the resource is automatically indexed for backward-compatibility, but it should be explictly
