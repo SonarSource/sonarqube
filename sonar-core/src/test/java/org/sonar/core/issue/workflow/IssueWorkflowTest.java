@@ -27,7 +27,6 @@ import java.util.Date;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.time.DateUtils;
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
@@ -39,6 +38,9 @@ import org.sonar.core.issue.IssueUpdater;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
+import static org.sonar.api.issue.Issue.STATUS_CLOSED;
+import static org.sonar.api.rule.RuleKey.MANUAL_REPOSITORY_KEY;
 
 public class IssueWorkflowTest {
 
@@ -52,7 +54,7 @@ public class IssueWorkflowTest {
     assertThat(workflow.machine()).isNotNull();
     assertThat(workflow.machine().state(Issue.STATUS_OPEN)).isNotNull();
     assertThat(workflow.machine().state(Issue.STATUS_CONFIRMED)).isNotNull();
-    assertThat(workflow.machine().state(Issue.STATUS_CLOSED)).isNotNull();
+    assertThat(workflow.machine().state(STATUS_CLOSED)).isNotNull();
     assertThat(workflow.machine().state(Issue.STATUS_REOPENED)).isNotNull();
     assertThat(workflow.machine().state(Issue.STATUS_RESOLVED)).isNotNull();
     workflow.stop();
@@ -62,7 +64,7 @@ public class IssueWorkflowTest {
   public void list_statuses() {
     workflow.start();
     // order is important for UI
-    assertThat(workflow.statusKeys()).containsSequence(Issue.STATUS_OPEN, Issue.STATUS_CONFIRMED, Issue.STATUS_REOPENED, Issue.STATUS_RESOLVED, Issue.STATUS_CLOSED);
+    assertThat(workflow.statusKeys()).containsSequence(Issue.STATUS_OPEN, Issue.STATUS_CONFIRMED, Issue.STATUS_REOPENED, Issue.STATUS_RESOLVED, STATUS_CLOSED);
   }
 
   @Test
@@ -105,7 +107,7 @@ public class IssueWorkflowTest {
   public void list_no_out_transition_from_status_closed() {
     workflow.start();
 
-    DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_CLOSED).setRuleKey(RuleKey.of("java", "R1  "));
+    DefaultIssue issue = new DefaultIssue().setStatus(STATUS_CLOSED).setRuleKey(RuleKey.of("java", "R1  "));
     List<Transition> transitions = workflow.outTransitions(issue);
     assertThat(transitions).isEmpty();
   }
@@ -117,7 +119,7 @@ public class IssueWorkflowTest {
     // Manual issue because of reporter
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
-      .setStatus(Issue.STATUS_CLOSED)
+      .setStatus(STATUS_CLOSED)
       .setRuleKey(RuleKey.of("manual", "Performance"))
       .setReporter("simon");
 
@@ -145,14 +147,14 @@ public class IssueWorkflowTest {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setRuleKey(RuleKey.of("js", "S001"))
-      .setResolution(Issue.RESOLUTION_FIXED)
+      .setResolution(RESOLUTION_FIXED)
       .setStatus(Issue.STATUS_RESOLVED)
       .setNew(false)
       .setBeingClosed(true);
     Date now = new Date();
     workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
-    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
-    assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
+    assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
+    assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
     assertThat(issue.closeDate()).isNotNull();
     assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
   }
@@ -169,10 +171,10 @@ public class IssueWorkflowTest {
       .setBeingClosed(true);
     Date now = new Date();
     workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
-    Assertions.assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
-    Assertions.assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
-    Assertions.assertThat(issue.closeDate()).isNotNull();
-    Assertions.assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
+    assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
+    assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
+    assertThat(issue.closeDate()).isNotNull();
+    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
   }
 
   @Test
@@ -187,10 +189,10 @@ public class IssueWorkflowTest {
       .setBeingClosed(true);
     Date now = new Date();
     workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
-    Assertions.assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
-    Assertions.assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
-    Assertions.assertThat(issue.closeDate()).isNotNull();
-    Assertions.assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
+    assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
+    assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
+    assertThat(issue.closeDate()).isNotNull();
+    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
   }
 
   @Test
@@ -205,10 +207,10 @@ public class IssueWorkflowTest {
       .setBeingClosed(true);
     Date now = new Date();
     workflow.doAutomaticTransition(issue, IssueChangeContext.createScan(now));
-    Assertions.assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
-    Assertions.assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
-    Assertions.assertThat(issue.closeDate()).isNotNull();
-    Assertions.assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
+    assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
+    assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
+    assertThat(issue.closeDate()).isNotNull();
+    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(now, Calendar.SECOND));
   }
 
   @Test
@@ -217,7 +219,7 @@ public class IssueWorkflowTest {
 
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
-      .setResolution(Issue.RESOLUTION_FIXED)
+      .setResolution(RESOLUTION_FIXED)
       .setStatus("xxx")
       .setNew(false)
       .setBeingClosed(true);
@@ -240,11 +242,11 @@ public class IssueWorkflowTest {
     workflow.start();
     workflow.doTransition(issue, DefaultTransitions.FALSE_POSITIVE, IssueChangeContext.createScan(new Date()));
 
-    Assertions.assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
-    Assertions.assertThat(issue.status()).isEqualTo(Issue.STATUS_RESOLVED);
+    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
+    assertThat(issue.status()).isEqualTo(Issue.STATUS_RESOLVED);
 
     // should remove assignee
-    Assertions.assertThat(issue.assignee()).isNull();
+    assertThat(issue.assignee()).isNull();
   }
 
   @Test
@@ -258,19 +260,23 @@ public class IssueWorkflowTest {
     workflow.start();
     workflow.doTransition(issue, DefaultTransitions.WONT_FIX, IssueChangeContext.createScan(new Date()));
 
-    Assertions.assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_WONT_FIX);
-    Assertions.assertThat(issue.status()).isEqualTo(Issue.STATUS_RESOLVED);
+    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_WONT_FIX);
+    assertThat(issue.status()).isEqualTo(Issue.STATUS_RESOLVED);
 
     // should remove assignee
-    Assertions.assertThat(issue.assignee()).isNull();
+    assertThat(issue.assignee()).isNull();
   }
 
+  /**
+   * User marks the manual issue as resolved -> issue is automatically
+   * closed.
+   */
   @Test
-  public void manual_issues_be_resolved_then_closed() {
+  public void automatically_close_resolved_manual_issue() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setStatus(Issue.STATUS_OPEN)
-      .setRuleKey(RuleKey.of(RuleKey.MANUAL_REPOSITORY_KEY, "Performance"));
+      .setRuleKey(RuleKey.of(MANUAL_REPOSITORY_KEY, "Performance"));
 
     workflow.start();
 
@@ -281,15 +287,59 @@ public class IssueWorkflowTest {
       Transition.create("wontfix", "OPEN", "RESOLVED"));
 
     workflow.doTransition(issue, "resolve", mock(IssueChangeContext.class));
-    Assertions.assertThat(issue.resolution()).isEqualTo("FIXED");
-    Assertions.assertThat(issue.status()).isEqualTo("RESOLVED");
+    assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
+    assertThat(issue.status()).isEqualTo("RESOLVED");
 
     assertThat(workflow.outTransitions(issue)).containsOnly(
       Transition.create("reopen", "RESOLVED", "REOPENED"));
 
     workflow.doAutomaticTransition(issue, mock(IssueChangeContext.class));
-    Assertions.assertThat(issue.resolution()).isEqualTo("FIXED");
-    Assertions.assertThat(issue.status()).isEqualTo("CLOSED");
+    assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
+    assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
+  }
+
+  /**
+   * Manual issue is fixed because the file does not exist anymore
+   * or the tracking engine did not find the associated code
+   * -> the issue is closed
+   */
+  @Test
+  public void automatically_close_manual_issue_on_deleted_code() {
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setStatus(Issue.STATUS_OPEN)
+      .setRuleKey(RuleKey.of(MANUAL_REPOSITORY_KEY, "Performance"))
+      .setBeingClosed(true);
+
+    workflow.start();
+
+    workflow.doAutomaticTransition(issue, mock(IssueChangeContext.class));
+    assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
+    assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
+  }
+
+  /**
+   * Corner-case : the manual issue was marked as resolved by user but at the same 
+   * time the file or the associated line was deleted.
+   */
+  @Test
+  public void automatically_close_resolved_manual_issue_on_deleted_code() {
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setRuleKey(RuleKey.of(MANUAL_REPOSITORY_KEY, "Performance"))
+
+    // resolved by user
+      .setResolution(RESOLUTION_FIXED)
+      .setStatus(Issue.STATUS_RESOLVED)
+
+    // but unmatched by tracking engine
+      .setBeingClosed(true);
+
+    workflow.start();
+
+    workflow.doAutomaticTransition(issue, mock(IssueChangeContext.class));
+    assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
+    assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
   }
 
   @Test
@@ -310,8 +360,8 @@ public class IssueWorkflowTest {
       Transition.create("wontfix", "OPEN", "RESOLVED"));
 
     workflow.doTransition(issue, "confirm", mock(IssueChangeContext.class));
-    Assertions.assertThat(issue.resolution()).isNull();
-    Assertions.assertThat(issue.status()).isEqualTo("CONFIRMED");
+    assertThat(issue.resolution()).isNull();
+    assertThat(issue.status()).isEqualTo("CONFIRMED");
 
     assertThat(workflow.outTransitions(issue)).containsOnly(
       Transition.create("unconfirm", "CONFIRMED", "REOPENED"),
@@ -321,13 +371,13 @@ public class IssueWorkflowTest {
 
     // keep confirmed and unresolved
     workflow.doAutomaticTransition(issue, mock(IssueChangeContext.class));
-    Assertions.assertThat(issue.resolution()).isNull();
-    Assertions.assertThat(issue.status()).isEqualTo("CONFIRMED");
+    assertThat(issue.resolution()).isNull();
+    assertThat(issue.status()).isEqualTo("CONFIRMED");
 
     // unconfirm
     workflow.doTransition(issue, "unconfirm", mock(IssueChangeContext.class));
-    Assertions.assertThat(issue.resolution()).isNull();
-    Assertions.assertThat(issue.status()).isEqualTo("REOPENED");
+    assertThat(issue.resolution()).isNull();
+    assertThat(issue.status()).isEqualTo("REOPENED");
   }
 
   @Test
@@ -344,8 +394,8 @@ public class IssueWorkflowTest {
     workflow.start();
 
     workflow.doAutomaticTransition(issue, mock(IssueChangeContext.class));
-    Assertions.assertThat(issue.resolution()).isEqualTo("REMOVED");
-    Assertions.assertThat(issue.status()).isEqualTo("CLOSED");
+    assertThat(issue.resolution()).isEqualTo("REMOVED");
+    assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
   }
 
   @Test
@@ -362,8 +412,8 @@ public class IssueWorkflowTest {
     workflow.start();
 
     workflow.doAutomaticTransition(issue, mock(IssueChangeContext.class));
-    Assertions.assertThat(issue.resolution()).isEqualTo("FIXED");
-    Assertions.assertThat(issue.status()).isEqualTo("CLOSED");
+    assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
+    assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
   }
 
   private Collection<String> keys(List<Transition> transitions) {
