@@ -19,26 +19,51 @@
  */
 package org.sonar.server.computation.step;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.PathAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.formula.Formula;
+import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
+import org.sonar.server.computation.formula.SumFormula;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 
+import static org.sonar.api.measures.CoreMetrics.ACCESSORS_KEY;
+import static org.sonar.api.measures.CoreMetrics.CLASSES_KEY;
+import static org.sonar.api.measures.CoreMetrics.FUNCTIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.GENERATED_LINES_KEY;
+import static org.sonar.api.measures.CoreMetrics.GENERATED_NCLOC_KEY;
+import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
+import static org.sonar.api.measures.CoreMetrics.STATEMENTS_KEY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
-public class FileAndDirectoryMeasuresStep implements ComputationStep {
+/**
+ * Compute size measures
+ */
+public class SizeMeasuresStep implements ComputationStep {
   private static final CounterStackElementFactory COUNTER_STACK_ELEMENT_FACTORY = new CounterStackElementFactory();
+  private static final ImmutableList<Formula> AGGREGATED_SIZE_MEASURE_FORMULAS = ImmutableList.<Formula>of(
+    new SumFormula(LINES_KEY),
+    new SumFormula(GENERATED_LINES_KEY),
+    new SumFormula(NCLOC_KEY),
+    new SumFormula(GENERATED_NCLOC_KEY),
+    new SumFormula(FUNCTIONS_KEY),
+    new SumFormula(STATEMENTS_KEY),
+    new SumFormula(CLASSES_KEY),
+    new SumFormula(ACCESSORS_KEY)
+    );
 
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
 
-  public FileAndDirectoryMeasuresStep(TreeRootHolder treeRootHolder, MetricRepository metricRepository, MeasureRepository measureRepository) {
+  public SizeMeasuresStep(TreeRootHolder treeRootHolder, MetricRepository metricRepository, MeasureRepository measureRepository) {
     this.treeRootHolder = treeRootHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
@@ -49,7 +74,11 @@ public class FileAndDirectoryMeasuresStep implements ComputationStep {
     Metric fileMetric = metricRepository.getByKey(CoreMetrics.FILES_KEY);
     Metric directoryMetric = metricRepository.getByKey(CoreMetrics.DIRECTORIES_KEY);
 
-    new FileAndDirectoryMeasureVisitor(directoryMetric, fileMetric).visit(treeRootHolder.getRoot());
+    new FileAndDirectoryMeasureVisitor(directoryMetric, fileMetric)
+      .visit(treeRootHolder.getRoot());
+    FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
+      .buildFor(AGGREGATED_SIZE_MEASURE_FORMULAS)
+      .visit(treeRootHolder.getRoot());
   }
 
   @Override
