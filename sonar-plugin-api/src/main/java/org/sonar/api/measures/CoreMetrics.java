@@ -1724,7 +1724,6 @@ public final class CoreMetrics {
     .setQualitative(true)
     .setDomain(DOMAIN_DESIGN)
     .setBestValue(0.0)
-    .setFormula(new SumChildValuesFormula(false))
     .create();
 
   /**
@@ -1780,7 +1779,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_DESIGN)
-    .setFormula(new SumChildValuesFormula(false))
     .create();
 
   /**
@@ -1808,7 +1806,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_DESIGN)
-    .setFormula(new SumChildValuesFormula(false))
     .setBestValue(0.0)
     .create();
 
@@ -1837,7 +1834,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(false)
     .setDomain(DOMAIN_DESIGN)
-    .setFormula(new SumChildValuesFormula(false))
     .setHidden(true)
     .setDeleteHistoricalData(true)
     .create();
