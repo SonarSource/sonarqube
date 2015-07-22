@@ -19,6 +19,11 @@
  */
 package org.sonar.batch.rule;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.DefaultActiveRule;
 import org.sonar.api.rule.RuleKey;
@@ -26,8 +31,19 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 
-import java.util.Collection;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+
+/**
+ * FIXME Waiting for the list of all server rules on batch side this is implemented by redirecting on ActiveRules. This is not correct
+ * since there is a difference between a rule that doesn't exists and a rule that is not activated in project quality profile.
+ *
+ */
 public class RuleFinderCompatibility implements RuleFinder {
 
   private final ActiveRules activeRules;
@@ -48,18 +64,60 @@ public class RuleFinderCompatibility implements RuleFinder {
 
   @Override
   public Rule findByKey(RuleKey key) {
-    DefaultActiveRule ar = (DefaultActiveRule) activeRules.find(key);
-    return ar == null ? null : Rule.create(key.repository(), key.rule()).setName(ar.name());
+    return toRule(activeRules.find(key));
   }
 
   @Override
   public Rule find(RuleQuery query) {
-    throw new UnsupportedOperationException("Unable to find rule by query");
+    Collection<Rule> all = findAll(query);
+    if (all.size() > 1) {
+      throw new IllegalArgumentException("Non unique result for rule query: " + ReflectionToStringBuilder.toString(query, ToStringStyle.SHORT_PREFIX_STYLE));
+    } else if (all.isEmpty()) {
+      return null;
+    } else {
+      return all.iterator().next();
+    }
   }
 
   @Override
   public Collection<Rule> findAll(RuleQuery query) {
+    if (query.getConfigKey() != null) {
+      if (query.getRepositoryKey() != null && query.getKey() == null) {
+        return byInternalKey(query);
+      }
+    } else if (query.getRepositoryKey() != null) {
+      if (query.getKey() != null) {
+        return byKey(query);
+      } else {
+        return byRepository(query);
+      }
+    }
     throw new UnsupportedOperationException("Unable to find rule by query");
+  }
+
+  private Collection<Rule> byRepository(RuleQuery query) {
+    return Collections2.transform(activeRules.findByRepository(query.getRepositoryKey()), new Function<ActiveRule, Rule>() {
+      @Override
+      public Rule apply(@Nonnull ActiveRule input) {
+        return toRule(input);
+      }
+    });
+  }
+
+  private Collection<Rule> byKey(RuleQuery query) {
+    Rule rule = toRule(activeRules.find(RuleKey.of(query.getRepositoryKey(), query.getKey())));
+    return rule != null ? Arrays.asList(rule) : Collections.<Rule>emptyList();
+  }
+
+  private Collection<Rule> byInternalKey(RuleQuery query) {
+    Rule rule = toRule(activeRules.findByInternalKey(query.getRepositoryKey(), query.getConfigKey()));
+    return rule != null ? Arrays.asList(rule) : Collections.<Rule>emptyList();
+  }
+
+  @CheckForNull
+  private Rule toRule(@Nullable ActiveRule rule) {
+    DefaultActiveRule ar = (DefaultActiveRule) rule;
+    return ar == null ? null : Rule.create(ar.ruleKey().repository(), ar.ruleKey().rule()).setName(ar.name()).setConfigKey(ar.internalKey()).setLanguage(ar.language());
   }
 
 }
