@@ -1,0 +1,53 @@
+123456789012     C* Expressions in Extended Factor 2 syntax 
+123456789012     C                   IF        A=X OR A=Y AND A=Z 
+123456789012     C                             AND B=Y
+123456789012     C                   READ      Y
+123456789012     C                   ENDIF
+123456789012     C                   IF        A=X OR A=Y AND A=Z 
+123456789012     C                             AND B=Y OR B=Z
+123456789012     C                   READ      Y
+123456789012     C                   ENDIF
+123456789012     C* Expressions composed over several operations in IF
+123456789012     C     A             IFEQ      X
+123456789012     C     A             OREQ      Y
+123456789012     C     A             ANDEQ     Z
+123456789012     C     B             ANDEQ     Y
+123456789012     C                   READ      Y
+123456789012     C                   ENDIF
+123456789012     C     A             IFEQ      X
+123456789012     C     A             OREQ      Y
+123456789012     C     A             ANDEQ     Z
+123456789012     C     B             ANDEQ     Y
+123456789012     C     B             OREQ      Z
+123456789012     C                   READ      Y
+123456789012     C                   ENDIF
+123456789012     C* Expressions composed over several operations in DO
+123456789012     C     A             DOUEQ     X
+123456789012     C     A             OREQ      Y
+123456789012     C     A             ANDEQ     Z
+123456789012     C     B             ANDEQ     Y
+123456789012     C                   READ      Y
+123456789012     C                   END
+123456789012     C     A             DOUEQ     X
+123456789012     C     A             OREQ      Y
+123456789012     C     A             ANDEQ     Z
+123456789012     C     B             ANDEQ     Y
+123456789012     C     B             OREQ      Z
+123456789012     C                   READ      Y
+123456789012     C                   END
+123456789012     C* Expressions composed over several operations in WHEN
+123456789012     C                   SELECT
+123456789012     C     A             WHENEQ    X
+123456789012     C     A             OREQ      Y
+123456789012     C     A             ANDEQ     Z
+123456789012     C     B             ANDEQ     Y
+123456789012     C                   READ      Y
+123456789012     C                   END
+123456789012     C                   SELECT
+123456789012     C     A             WHENEQ    X
+123456789012     C     A             OREQ      Y
+123456789012     C     A             ANDEQ     Z
+123456789012     C     B             ANDEQ     Y
+123456789012     C     B             OREQ      Z
+123456789012     C                   READ      Y
+123456789012     C                   END

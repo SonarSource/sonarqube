@@ -3,8 +3,14 @@
 set -euo pipefail
 
 function installTravisTools {
-  curl -sSL https://raw.githubusercontent.com/sonarsource/travis-utils/v10/install.sh | bash
+  curl -sSL https://raw.githubusercontent.com/sonarsource/travis-utils/v11/install.sh | bash
   source /tmp/travis-utils/env.sh
+}
+
+function prepareIts {
+  installTravisTools
+  travis_build "SonarSource/sonar-orchestrator" "0fe60edd0978300334ecc9101e4c10bcb05516d0"
+  travis_start_xvfb
 }
 
 case "$JOB" in
@@ -42,8 +48,7 @@ WEB)
   ;;
 
 PRANALYSIS)
-  if [ -n "$SONAR_GITHUB_OAUTH" ] && [ "${TRAVIS_PULL_REQUEST}" != "false" ]
-  then
+  if [ -n "$SONAR_GITHUB_OAUTH" ] && [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then
     echo "Start pullrequest analysis"
     mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent verify sonar:sonar -B -e -V -Dmaven.test.failure.ignore=true -Dclirr=true \
      -Dsonar.analysis.mode=incremental \
@@ -58,39 +63,30 @@ PRANALYSIS)
   ;;
 
 ITS_QUALITYGATE)
-  installTravisTools
-
-  export DISPLAY=:99.0
-  travis_start_xvfb
-
-  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="qualitygate"
+  prepareIts
+  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="qualitygate" -Dmaven.test.redirectTestOutputToFile=false
   ;;
 
 ITS_ISSUE)
-  installTravisTools
-
-  export DISPLAY=:99.0
-  travis_start_xvfb
-
-  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="issue"
+  prepareIts
+  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="issue" -Dmaven.test.redirectTestOutputToFile=false
   ;;
 
 ITS_UPDATECENTER)
-	installTravisTools
-
-  export DISPLAY=:99.0
-  travis_start_xvfb
-
-  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="updatecenter"
+  prepareIts
+  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="updatecenter" -Dmaven.test.redirectTestOutputToFile=false
   ;;
 
 ITS_TESTING)
-	installTravisTools
+  prepareIts
+  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="testing" -Dmaven.test.redirectTestOutputToFile=false
+  ;;
 
-  export DISPLAY=:99.0
-  travis_start_xvfb
-
-  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="testing"
+ITS_PLUGINS)
+  if [ -n "$GITHUB_TOKEN" ]; then
+    prepareIts
+    mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="plugins" -Dmaven.test.redirectTestOutputToFile=false
+  fi
   ;;
 
 *)

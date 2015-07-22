@@ -1,0 +1,760 @@
+ /* This is a chess program written in PL/I.                              */
+ /* The original was written in Fortran 90 by Dean Menezes.               */
+ /* This translation by R. A. Vowels, 30 May 2008.                        */
+ /* Moves are input in this form:                                         */
+ /* E2-E4 (start square, hyphen, end square).                             */
+
+ /* Sources:                                                              */
+
+ /* http://ai-depot.com/articles/minimax-explained/                       */
+ /* http://www.aihorizon.com/essays/chessai/index.htm                     */
+ /* http://www.ascotti.org/programming/chess/Shannon%20-%20Programming
+ %20a%20computer%20for%20playing%20chess.pdf */
+
+ (SUBRG, SIZE, FOFL, STRINGRANGE, STRINGSIZE):
+ CHESS: PROCEDURE OPTIONS (MAIN, REORDER);
+   /* Global variables: */
+   /* level = current recursion level for calculation */
+   /* maxlevel = maximum recursion level */
+   /* score = current score (evaluation) */
+   /* besta, bestb, bestx, besty = holds best moves for each recursion level */
+   /* wcksflag, wcqsflag = flags to detemine castling abilities */
+   /* board = the 8x8 array to hold chessboard */
+    DECLARE ( MAXLEVEL  VALUE ( 5) ) FIXED BINARY;
+    DECLARE ( LEVEL, SCORE, BESTA(0:7) ) FIXED BINARY (31);
+    DECLARE ( BESTB(1:MAXLEVEL), BESTX(1:MAXLEVEL), BESTY(1:MAXLEVEL) ) FIXED 
+       BINARY (31);
+    DECLARE ( WCKSFLAG, WCQSFLAG ) BIT(1) ALIGNED;
+    DECLARE ( A, B, X, Y, RES ) FIXED BINARY (31);
+
+
+   /* initialize board to starting position */
+    DECLARE BOARD(0:7, 0:7) FIXED BINARY (31) STATIC INITIAL (
+    -500, -270, -300, -900, -7500, -300, -270,  -500,
+    -100, -100, -100, -100, -100, -100, -100, -100,
+       0,    0,    0,    0,    0,    0,    0,    0,
+       0,    0,    0,    0,    0,    0,    0,    0,
+       0,    0,    0,    0,    0,    0,    0,    0,
+       0,    0,    0,    0,    0,    0,    0,    0,
+     100,  100,  100,  100,  100,  100,  100,  100,
+     500,  270,  300,  900, 5000,  300,  270,  500 );
+
+    LEVEL=0; A=-1; RES=0;
+    WCKSFLAG =  '0'B  ; WCQSFLAG =  '0'B;
+   /* main loop: get white move from user, calculate black move */
+    DO FOREVER;
+       SCORE=0;
+       CALL IO(A, B, X, Y, RES);
+       RES=EVALUATE(-1, 10000);
+       A=BESTA(1); B=BESTB(1); X=BESTX(1); Y=BESTY(1);
+    END;
+
+ /* figure out if white is in check                                       */
+ INCHECK: PROCEDURE () RETURNS( FIXED BINARY (31)) OPTIONS (REORDER);
+    DECLARE (XX(0:26), YY(0:26), CC(0:26)) FIXED BINARY (31);
+    DECLARE (I, A, B, X, Y, NDX) FIXED BINARY (31);
+
+    DO B = 0 TO  7;
+       DO A = 0 TO  7;
+          IF  BOARD(B, A)>=0 THEN
+             ITERATE;
+          CALL MOVELIST(A, B, XX, YY, CC, NDX);
+         /* iterate through move list and see if */
+         /* piece can get to king */
+          DO I = 0 TO  NDX BY  1;
+             X = XX(I);
+             Y = YY(I);
+             IF  BOARD(Y, X)  = 5000  THEN
+                   RETURN (1);
+          END;
+       END;
+    END;
+    RETURN (0);
+    END INCHECK;
+
+ EVALUATE: PROCEDURE (ID, PRUNE) RETURNS ( FIXED BINARY (31) ) RECURSIVE;
+    DECLARE ( ID, PRUNE ) FIXED BINARY (31);
+    /* local variables. */
+    DECLARE ( XX(0:26), YY(0:26), CC(0:26) ) FIXED BINARY (31);
+    DECLARE ( A, B, X, Y, C, OLDSCORE, BESTSCORE, MOVER, TARG, NDX,
+       I ) FIXED BINARY (31);
+
+    LEVEL=LEVEL+1;
+    BESTSCORE=10000*ID;
+    DO B=7 TO 0 BY  -1;
+       DO A=7 TO 0 BY  -1;
+         /* generate the moves for all the pieces */
+         /* and iterate through them */
+          IF  SIGN(BOARD(B,A))^=ID THEN
+             ITERATE;
+          CALL MOVELIST (A, B, XX, YY, CC, NDX);
+          DO I=0 TO NDX BY 1;
+             X=XX(I); Y=YY(I); C=CC(I);
+             OLDSCORE=SCORE; MOVER=BOARD(B,A); TARG=BOARD(Y,X);
+            /* make the move and evaluate the new position */
+            /* recursively. Targ holds the relative value of the piece */
+            /* allowing use to calculate material gain/loss */
+             CALL MAKEMOVE (A, B, X, Y, C);
+             IF  LEVEL<MAXLEVEL  THEN
+                DO;
+                   SCORE=SCORE+EVALUATE(-ID,
+                      BESTSCORE-TARG+ID*(8-ABS(4-X)-ABS(4-Y)));
+                END;
+             SCORE=SCORE+TARG-ID*(8-ABS(4-X)-ABS(4-Y));
+            /* we want to minimize the maximum possible loss */
+            /* for black */
+             IF  (ID<0   &   SCORE>BESTSCORE)  | (ID>0 & SCORE<BESTSCORE) THEN
+                DO;
+                   BESTA(LEVEL)=A; BESTB(LEVEL)=B;
+                   BESTX(LEVEL)=X; BESTY(LEVEL)=Y;
+                   BESTSCORE=SCORE;
+                   IF  (ID<0   &   BESTSCORE>=PRUNE)  | (ID>0 & BESTSCORE<=PRUNE)  THEN
+                      DO;
+                         BOARD(B,A)=MOVER; BOARD(Y,X)=TARG; SCORE=OLDSCORE;
+                         LEVEL=LEVEL-1;
+                         RETURN (BESTSCORE);
+                      END;
+                END;
+             BOARD(B,A)=MOVER; BOARD(Y,X)=TARG; SCORE=OLDSCORE;
+          END;
+       END;
+    END;
+    LEVEL=LEVEL-1;
+    RETURN (BESTSCORE);
+    END EVALUATE;
+
+ /* make a move given the start square and end square                     */
+ /* currently always promotes to queen                                    */
+ /* Moves from position (A, B) to position (X,Y).                         */
+
+ MAKEMOVE: PROCEDURE  (A, B, X, Y, C) OPTIONS (REORDER);                                             
+    DECLARE (A, B, X, Y, C) FIXED BINARY (31);
+    DECLARE (XX(0:26), YY(0:26)) FIXED BINARY (31);
+
+    BOARD(Y, X)=BOARD(B, A); BOARD(B, A)=0;
+    IF  Y  = 0   &   BOARD(Y, X)  =  100 THEN
+       BOARD(Y, X)=  C;
+    IF  Y  = 7   &   BOARD(Y, X)  = -100 THEN
+       BOARD(Y, X)=  C;
+    RETURN;
+    END MAKEMOVE;
+
+ /* select appropriate subprogram to populate xx and yy arrays            */
+ /* with piece moves                                                      */
+ /* xx = x coordinates                                                    */
+ /* yy = y coordinates                                                    */
+ /* cc = pawn promotion if applicable                                     */
+ /* ndx = index into xx, yy, cc arrays showing the number of              */
+ /*       elements that the arrays have been populated with               */
+ MOVELIST: PROCEDURE  (A, B, XX, YY, CC, NDX) OPTIONS (REORDER);                                     
+    DECLARE (A, B) FIXED BINARY (31);
+    DECLARE (XX(0:26), YY(0:26), CC(0:26)) FIXED BINARY (31);
+    DECLARE (NDX) FIXED BINARY (31);
+    DECLARE (PIECE) FIXED BINARY (31);
+
+    PIECE=ABS(BOARD(B, A)); NDX=-1;
+    SELECT (PIECE);
+       WHEN (100) CALL PAWN(A, B, XX, YY, CC, NDX);
+       WHEN (270) CALL KNIGHT(A, B, XX, YY, NDX);
+       WHEN (300) CALL BISHOP(A, B, XX, YY, NDX);
+       WHEN (500) CALL ROOK(A, B, XX, YY, NDX);
+       WHEN (900) CALL QUEEN(A, B, XX, YY, NDX);
+       OTHERWISE  CALL KING(A, B, XX, YY, NDX);
+    END;
+    RETURN;
+    END MOVELIST;
+
+ /* queen is a combination of rook and bishop                             */
+ QUEEN: PROCEDURE  (A, B, XX, YY, NDX) OPTIONS (REORDER);                                            
+    DECLARE (A, B) FIXED BINARY (31);
+    DECLARE (XX(0:26), YY(0:26)) FIXED BINARY (31);
+    DECLARE NDX FIXED BINARY (31);
+
+    CALL ROOK(A, B, XX, YY, NDX);
+    CALL BISHOP(A, B, XX, YY, NDX);
+    RETURN;
+    END QUEEN;
+
+
+ KING: PROCEDURE  (A, B, XX, YY, NDX) OPTIONS (REORDER);                                             
+    DECLARE (A, B) FIXED BINARY (31);
+    DECLARE (XX(0:26), YY(0:26)) FIXED BINARY (31);
+    DECLARE NDX FIXED BINARY (31);
+    DECLARE (ID, DX, DY) FIXED BINARY (31);
+
+    ID=SIGN(BOARD(B, A));
+   /* negative = left or up */
+   /* positive = right or down */
+   /* zero = no change */
+    DO DY=-1 TO  1;
+       IF  B+DY<0  |   B+DY>7 THEN
+          ITERATE;
+       DO DX=-1 TO  1;
+          IF  A+DX<0  |   A+DX>7 THEN
+             ITERATE;
+          IF  ID^=SIGN(BOARD(B+DY,A+DX))  THEN
+             DO;
+                NDX=NDX+1; XX(NDX)=A+DX; YY(NDX)=B+DY;
+             END;
+       END;
+    END;
+    RETURN;
+    END KING;
+
+
+ PAWN: PROCEDURE  (A, B, XX, YY, CC, NDX) OPTIONS (REORDER);                                         
+    DECLARE (A, B) FIXED BINARY (31);
+    DECLARE (XX(0:26), YY(0:26), CC(0:26)) FIXED BINARY (31);
+    DECLARE NDX FIXED BINARY (31);
+    DECLARE (I, ID) FIXED BINARY (31);
+
+    ID = SIGN(BOARD(B, A));
+    IF  ((A - 1) >= 0)   &   ((A - 1) <= 7)   & ((B - ID) >= 0) & ((B - 
+       ID) <= 7)  THEN
+       DO;
+          IF  SIGN(BOARD((B - ID), (A - 1)))  = -ID  THEN
+             DO;
+                IF  ((ID<0)   &   (B  = 6))  |   ((ID>0)   & (B = 1))  THEN
+                   DO;
+                      CC(NDX+1) = 270*ID;
+                      CC(NDX+2) = 300*ID;
+                      CC(NDX+3) = 500*ID;
+                      CC(NDX+4) = 900*ID;
+                      DO I=1 TO  4;
+                         NDX = NDX + 1;
+                         XX(NDX) = A - 1;
+                         YY(NDX) = B - ID;
+                      END;
+                   END;
+                ELSE
+                   DO;
+                      NDX = NDX + 1;
+                      XX(NDX) = A - 1;
+                      YY(NDX) = B - ID;
+                   END;
+             END;
+       END;
+    IF  ((A + 1) >= 0)   &   ((A + 1) <= 7)   &   ((B - ID) >= 0) & ((B 
+       - ID) <= 7)  THEN
+       DO;
+          IF  SIGN(BOARD((B - ID), (A + 1)))  = -ID  THEN
+             DO;
+                IF  ((ID<0)   &   (B  = 6))  |   ((ID>0)   & (B = 1))  THEN
+                   DO;
+                      CC(NDX+1) = 270*ID;
+                      CC(NDX+2) = 300*ID;
+                      CC(NDX+3) = 500*ID;
+                      CC(NDX+4) = 900*ID;
+                      DO I=1 TO  4;
+                         NDX = NDX + 1;
+                         XX(NDX) = A + 1;
+                         YY(NDX) = B - ID;
+                      END;
+                   END;
+                ELSE
+                   DO;
+                      NDX = NDX + 1;
+                      XX(NDX) = A + 1;
+                      YY(NDX) = B - ID;
+                   END;
+             END;
+       END;
+    IF  (A >= 0)   &   (A <= 7)   &   ((B - ID) >= 0)   & ((B - ID) <= 7)  THEN
+       DO;
+          IF  BOARD((B - ID), A)  = 0  THEN
+             DO;
+                IF  ((ID<0)   &   (B  = 6))  |   ((ID>0)   & (B = 1))  THEN
+                   DO;
+                      CC(NDX+1) = 270*ID;
+                      CC(NDX+2) = 300*ID;
+                      CC(NDX+3) = 500*ID;
+                      CC(NDX+4) = 900*ID;
+                      DO I=1 TO  4;
+                         NDX = NDX + 1;
+                         XX(NDX) = A;
+                         YY(NDX) = B - ID;
+                      END;
+                   END;
+                ELSE
+                   DO;
+                      NDX = NDX + 1;
+                      XX(NDX) = A;
+                      YY(NDX) = B - ID;
+                   END;
+                IF  ((ID < 0)   &   (B  = 1))  |   ((ID > 0)   & (B = 6))  THEN
+                   DO;
+                      IF  BOARD((B - ID - ID), A)  = 0  THEN
+                         DO;
+                            NDX = NDX + 1;
+                            XX(NDX) = A;
+                            YY(NDX) = B - ID - ID;
+                         END;
+                   END;
+             END;
+       END;
+    END PAWN;
+
+
+ BISHOP: PROCEDURE  (A, B, XX, YY, NDX) OPTIONS (REORDER);                                           
+    DECLARE (A, B) FIXED BINARY (31);
+    DECLARE (XX(0:26), YY(0:26)) FIXED BINARY (31);
+    DECLARE NDX FIXED BINARY (31);
+    DECLARE (ID, DXY, X, Y) FIXED BINARY;
+
+    ID=SIGN(BOARD(B, A));
+ /* four diagonal directions                                              */
+    DO DXY=1 TO  7;
+       X=A-DXY; IF (X<0) THEN LEAVE;
+       Y=B+DXY; IF (Y>7) THEN LEAVE;
+       IF  ID^=SIGN(BOARD(Y, X))  THEN /*  cannot capture piece of same color */
+          DO;
+             NDX=NDX+1; XX(NDX)=X; YY(NDX)=Y;
+          END;
+       IF  BOARD(Y, X)^=0 THEN
+          LEAVE   /*  cannot jump over pieces */;
+    END;
+    DO DXY=1 TO  7;
+       X=A+DXY; IF (X>7) THEN LEAVE;
+       Y=B+DXY; IF (Y>7) THEN LEAVE;
+       IF  ID^=SIGN(BOARD(Y, X))  THEN
+          DO;
+             NDX=NDX+1; XX(NDX)=X; YY(NDX)=Y;
+          END;
+       IF  BOARD(Y, X)^=0 THEN
+          LEAVE;
+    END;
+    DO DXY=1 TO  7;
+       X=A-DXY; IF (X<0) THEN LEAVE;
+       Y=B-DXY; IF (Y<0) THEN LEAVE;
+       IF  ID^=SIGN(BOARD(Y, X))  THEN
+          DO;
+             NDX=NDX+1; XX(NDX)=X; YY(NDX)=Y;
+          END;
+       IF  BOARD(Y, X)^=0 THEN
+          LEAVE;
+    END;
+    DO DXY=1 TO  7;
+       X=A+DXY; IF (X>7) THEN LEAVE;
+       Y=B-DXY; IF (Y<0) THEN LEAVE;
+       IF  ID^=SIGN(BOARD(Y, X))  THEN
+          DO;
+             NDX=NDX+1; XX(NDX)=X; YY(NDX)=Y;
+          END;
+       IF  BOARD(Y, X)^=0 THEN
+          LEAVE;
+    END;
+    END BISHOP;
+
+ ROOK: PROCEDURE  (A, B, XX, YY, NDX) OPTIONS (REORDER);                                             
+    DECLARE (A, B) FIXED BINARY (31);
+    DECLARE (XX(0:26), YY(0:26)) FIXED BINARY (31);
+    DECLARE NDX FIXED BINARY (31);
+    DECLARE (ID, X, Y) FIXED BINARY (31);
+
+    ID=SIGN(BOARD(B, A));
+ /* four different orthagonal directions                                  */
+    DO X = A-1 TO  0 BY  -1;
+       IF  ID^=SIGN(BOARD(B, X))  THEN
+          DO;
+             NDX=NDX+1; XX(NDX)=X; YY(NDX)=B;
+          END;
+       IF  BOARD(B, X)^=0 THEN
+          LEAVE;
+    END;
+    DO X = A+1 TO  7 BY  1;
+       IF  ID^=SIGN(BOARD(B, X))  THEN
+          DO;
+             NDX=NDX+1; XX(NDX)=X; YY(NDX)=B;
+          END;
+       IF  BOARD(B, X)^=0 THEN
+          LEAVE;
+    END;
+    DO Y = B-1 TO  0 BY  -1;
+       IF  ID^=SIGN(BOARD(Y, A))  THEN
+          DO;
+             NDX=NDX+1; XX(NDX)=A; YY(NDX)=Y;
+          END;
+       IF  BOARD(Y, A)^=0 THEN
+          LEAVE;
+    END;
+    DO Y = B+1 TO  7 BY  1;
+       IF  ID^=SIGN(BOARD(Y, A))  THEN
+          DO;
+             NDX=NDX+1; XX(NDX)=A; YY(NDX)=Y;
+          END;
+       IF  BOARD(Y, A)^=0 THEN
+          LEAVE;
+    END;
+    RETURN;
+    END ROOK;
+
+
+ KNIGHT: PROCEDURE  (A, B, XX, YY, NDX) OPTIONS (REORDER);                                           
+    DECLARE (A, B) FIXED BINARY (31);
+    DECLARE (XX(0:26), YY(0:26)) FIXED BINARY (31);
+    DECLARE NDX FIXED BINARY (31);
+    DECLARE (ID, X, Y) FIXED BINARY (31);
+
+    ID=SIGN(BOARD(B, A));
+ /* 2 vertical, 1 horizontal                                              */
+ /* or 2 horizontal, 1 vertical                                           */
+    X=A-1; Y=B-2;
+    IF  X>=0   &   Y>=0  THEN
+       DO;
+          IF  ID^=SIGN(BOARD(Y, X))  THEN
+             DO;
+                NDX=NDX+1; XX(NDX)=X; YY(NDX)=Y;
+             END;
+       END;
+    X=A-2; Y=B-1;
+    IF  X>=0   &   Y>=0  THEN
+       DO;
+          IF  ID^=SIGN(BOARD(Y, X))  THEN
+             DO;
+                NDX=NDX+1; XX(NDX)=X; YY(NDX)=Y;
+             END;
+       END;
+    X=A+1; Y=B-2;
+    IF  X<=7   &   Y>=0  THEN
+       DO;
+          IF  ID^=SIGN(BOARD(Y, X))  THEN
+             DO;
+                NDX=NDX+1; XX(NDX)=X; YY(NDX)=Y;
+             END;
+       END;
+    X=A+2; Y=B-1;
+    IF  X<=7   &   Y>=0  THEN
+       DO;
+          IF  ID^=SIGN(BOARD(Y, X))  THEN
+             DO;
+                NDX=NDX+1; XX(NDX)=X; YY(NDX)=Y;
+             END;
+       END;
+    X=A-1; Y=B+2;
+    IF  X>=0   &   Y<=7  THEN
+       DO;
+          IF  ID^=SIGN(BOARD(Y, X))  THEN
+             DO;
+                NDX=NDX+1; XX(NDX)=X; YY(NDX)=Y;
+             END;
+       END;
+    X=A-2; Y=B+1;
+    IF  X>=0   &   Y<=7  THEN
+       DO;
+          IF  ID^=SIGN(BOARD(Y, X))  THEN
+             DO;
+                NDX=NDX+1; XX(NDX)=X; YY(NDX)=Y;
+             END;
+       END;
+    X=A+1; Y=B+2;
+    IF  X<=7   &   Y<=7  THEN
+       DO;
+          IF  ID^=SIGN(BOARD(Y, X))  THEN
+             DO;
+                NDX=NDX+1; XX(NDX)=X; YY(NDX)=Y;
+             END;
+       END;
+    X=A+2; Y=B+1;
+    IF  X<=7   &   Y<=7  THEN
+       DO;
+          IF  ID^=SIGN(BOARD(Y, X))  THEN
+             DO;
+                NDX=NDX+1; XX(NDX)=X; YY(NDX)=Y;
+             END;
+       END;
+    RETURN;
+    END KNIGHT;
+
+ /* display chessboard                                                    */
+ SHOW: PROCEDURE OPTIONS (REORDER);                                                                  
+    DECLARE (A, B) FIXED BINARY (31);
+
+    DO B=0 TO  7;
+       PUT SKIP EDIT ( '   +---+---+---+---+---+---+---+---+' )(COL(20), A);
+       PUT SKIP EDIT ( 8-B, '  |' )(COL(20), F(1), A);
+       DO A=0 TO  7;
+          SELECT (BOARD(B, A));
+             WHEN (-7500) PUT EDIT ( ' *k|' )(A);
+             WHEN (-900)  PUT EDIT ( ' *q|' )(A);
+             WHEN (-500)  PUT EDIT ( ' *r|' )(A);
+             WHEN (-300)  PUT EDIT ( ' *b|' )(A);
+             WHEN (-270)  PUT EDIT ( ' *n|' )(A);
+             WHEN (-100)  PUT EDIT ( ' *p|' )(A);
+             WHEN (0)     PUT EDIT ( '   |' )(A);
+             WHEN (100)   PUT EDIT ( ' P |' )(A);
+             WHEN (270)   PUT EDIT ( ' N |' )(A);
+             WHEN (300)   PUT EDIT ( ' B |' )(A);
+             WHEN (500)   PUT EDIT ( ' R |' )(A);
+             WHEN (900)   PUT EDIT ( ' Q |' )(A);
+             WHEN (5000)  PUT EDIT ( ' K |' )(A);
+          END;
+       END;
+    END;
+    PUT SKIP EDIT ( '   +---+---+---+---+---+---+---+---+' )(COL(20), A);
+    PUT SKIP EDIT ( '     A   B   C   D   E   F   G   H'   )(COL(20), A);
+    RETURN;
+    END SHOW;
+
+ /* io -- input/output:                                                   */
+ /* display black move and get white move                                 */
+ IO: PROCEDURE  (A, B, X, Y, RES) OPTIONS (REORDER);                                                 
+    DECLARE (A, B, X, Y, RES) FIXED BINARY (31);
+    DECLARE ( INPUT ) CHARACTER (10);
+    DECLARE (XX(0:26), YY(0:26), CC(0:26)) FIXED BINARY (31);
+    DECLARE (I, K, NDX, PIECE, TARG, MOVER, C) FIXED BINARY (31);
+    DECLARE NULL FIXED BINARY; /* This variable is assigned but never used. */
+    DECLARE LETTER (0:7) CHAR (1) STATIC INITIAL
+             ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H');
+
+    DECLARE SL FIXED BINARY;
+
+ /* >>>>>>>>> CAUTION - WATCH FOR UNINITIALIZED XX, YY <<<<<<<<<<< */
+    DECLARE ( WCKSOLD, WCQSOLD ) BIT(1) ALIGNED;
+
+    ON ERROR SNAP BEGIN;
+       PUT SKIP LIST ('at line ' || TRIM(SL) );
+    END;
+
+    SL = SOURCELINE();
+
+    IF  A>=0  THEN
+       DO;
+          IF  RES<-2500  THEN
+             DO;
+                PUT SKIP LIST ( 'I RESIGN');
+                CALL SHOW;
+                PUT SKIP;
+                STOP;
+             END;
+          PIECE=BOARD(Y, X);
+          CALL MAKEMOVE(A, B, X, Y, C);
+          PUT SKIP EDIT ( 'MY MOVE:  ' )(A);
+          PUT      EDIT ( LETTER(A), 8-B, '-', LETTER(X), 8-Y)
+             (A, F(1), A, A, F(1));
+
+          SELECT (PIECE);
+             WHEN (100)  PUT SKIP LIST ( 'I TOOK YOUR PAWN');
+             WHEN (270)  PUT SKIP LIST ( 'I TOOK YOUR KNIGHT');
+             WHEN (300)  PUT SKIP LIST ( 'I TOOK YOUR BISHOP');
+             WHEN (500)  PUT SKIP LIST ( 'I TOOK YOUR ROOK');
+             WHEN (900)  PUT SKIP LIST ( 'I TOOK YOUR QUEEN');
+             WHEN (5000) PUT SKIP LIST ( 'I TOOK YOUR KING');
+             OTHERWISE ;
+          END;
+       END;
+ DO_FOREVER1:
+    DO FOREVER;
+       CALL SHOW;
+       PUT SKIP EDIT ( 'YOUR MOVE:  ' )(A);
+ RETRY_MOVE:
+       GET EDIT (INPUT) (L);
+       CALL UPCASE(INPUT);
+       IF  (INPUT  = 'QUIT')  |   (INPUT  = 'BYE')  |   (INPUT  = 'EXIT')  THEN
+          STOP;
+       /* castling                                                        */
+       IF  (INPUT = 'O-O')  |   (INPUT = '0-0')  THEN
+          DO;
+             IF  INCHECK() ^= 0 THEN
+                ITERATE DO_FOREVER1; /*  cannot castle out of check */
+             IF  WCKSFLAG THEN
+                ITERATE DO_FOREVER1;
+             IF  BOARD(7, 7) ^= 500 THEN
+                ITERATE DO_FOREVER1;
+             IF  (BOARD (7,6) ^= 0)  |   (BOARD(7,5) ^=0) THEN
+                ITERATE DO_FOREVER1;
+             BOARD(7, 4) = 0;
+             BOARD(7, 5) = 5000;
+             IF  INCHECK() ^= 0  THEN /*  cannot castle through check */
+                DO;
+                   BOARD(7, 4) = 5000;
+                   BOARD(7, 5) = 0;
+                   ITERATE DO_FOREVER1;
+                END;
+             ELSE
+                DO;
+                   BOARD(7, 4) = 5000;
+                   BOARD(7, 5) = 0;
+                END;
+             BOARD(7, 6) = 5000;
+             BOARD(7, 4) = 0;
+             BOARD(7, 5) = 500;
+             BOARD(7, 7) = 0;
+             IF  INCHECK() ^= 0  THEN /*  cannot castle into check */
+                DO;
+                   BOARD(7, 6) = 0;
+                   BOARD(7, 4) = 5000;
+                   BOARD(7, 5) = 0;
+                   BOARD(7, 7) = 500;
+                   ITERATE DO_FOREVER1;
+                END;
+             ELSE
+                DO;
+                   WCKSFLAG =  '1'B;
+                   WCQSFLAG =  '1'B;
+                   RETURN;
+                END;
+          END;
+       IF  (INPUT  = 'O-O-O')  |   (INPUT  = '0-0-0')  THEN
+          DO;
+             IF  INCHECK() ^= 0 THEN
+                ITERATE DO_FOREVER1; /*  cannot castle out of check */
+             IF  WCQSFLAG THEN
+                ITERATE DO_FOREVER1;
+             IF  BOARD(7,0) ^= 500 THEN
+                ITERATE DO_FOREVER1;
+             IF  (BOARD(7,1) ^= 0)  |   (BOARD(7,2) ^= 0)  | (BOARD(7,3) ^= 0) THEN
+                ITERATE DO_FOREVER1;
+             BOARD(7, 4) = 0;
+             BOARD(7, 3) = 5000;
+             IF  INCHECK() ^= 0  THEN /*  cannot castle through check */
+                DO;
+                   BOARD(7, 4) = 5000;
+                   BOARD(7, 3) = 0;
+                   ITERATE DO_FOREVER1;
+                END;
+             ELSE
+                DO;
+                   BOARD(7, 4) = 5000;
+                   BOARD(7, 3) = 0;
+                END;
+             BOARD(7, 2) = 5000;
+             BOARD(7, 4) = 0;
+             BOARD(7, 3) = 500;
+             BOARD(7, 0) = 0;
+             IF  INCHECK() ^= 0  THEN /*  cannot castle into check */
+                DO;
+                   BOARD(7, 2) = 0;
+                   BOARD(7, 4) = 5000;
+                   BOARD(7, 3) = 0;
+                   BOARD(7, 0) = 500;
+                   ITERATE DO_FOREVER1;
+                END;
+             ELSE
+                DO;
+                   WCKSFLAG =  '1'B;
+                   WCQSFLAG =  '1'B;
+                   RETURN;
+                END;
+          END;
+
+       /* Check that only the proper letters A-H etc are used. */
+       /* (this does not check that the letters are in their correct columns.) */
+       I = VERIFY (TRIM(INPUT), 'ABCDEFGHO0-12345678');
+       IF I > 0 THEN
+          DO;
+             PUT SKIP LIST ('That move was invalid. Please try again:');
+             GO TO RETRY_MOVE;
+          END;
+
+       SL = SOURCELINE();
+
+       /* (A,B) are co-ordinates of the from position.        */
+       /* (X,Y) are co-ordinates of the destination position. */
+
+       /* Translate algebraic notation to co-ordinates. */
+
+       B = 8 - INDEX ('12345678', SUBSTR(INPUT, 2, 1) );
+       A = INDEX ('ABCDEFGH', SUBSTR(INPUT, 1, 1) ) - 1;
+       X = INDEX ('ABCDEFGH', SUBSTR(INPUT, 4, 1) ) - 1;
+       Y = 8 - INDEX ('12345678', SUBSTR(INPUT, 5, 1) );
+
+       PUT SKIP DATA (A, B);
+       PUT SKIP DATA (X, Y);
+       STOP;
+       IF  B>7 | B<0 | A>7 | A<0 | X>7 | X<0 | Y>7 | Y<0 THEN
+          DO;
+             PUT SKIP LIST ('Illegal move. Please try again');
+             ITERATE DO_FOREVER1;
+          END;
+       IF  BOARD(B,A)<=0 THEN
+          ITERATE DO_FOREVER1;
+       /* en passant capture                                              */
+       IF  (Y  = 2)   &   (B  = 3)   &   ((X  = A-1)  |   (X  = A+1))  THEN
+          DO;
+             IF (BOARD(B,A) = 100) & (BOARD(Y,X) = 0) & (BOARD(Y+1,X) =-100) THEN
+                DO;
+                   IF  (BESTB(1)  = 1)   &   (BESTA(1)  = X)  THEN
+                      DO;
+                         MOVER = BOARD(B,A);
+                         TARG = BOARD(Y,X);
+                         CALL MAKEMOVE(A,B,X,Y,C);
+                         BOARD(Y+1,X)=0;
+                         IF  (INCHECK())  = 0 THEN
+                            RETURN;
+                         BOARD(B,A) = MOVER;
+                         BOARD(Y, X) = TARG;
+                         BOARD(Y+1,X) = -100;
+                         ITERATE DO_FOREVER1;
+                      END;
+                END;
+          END;
+      /* check if selected white move is on list of moves */
+       CALL MOVELIST(A, B, XX, YY, CC, NDX);
+ DOK_LOOP:
+       DO K = 0 TO  NDX BY  1;
+          IF  (X  = XX(K))   &   (Y  = YY(K))  THEN
+             DO;
+                MOVER = BOARD(B, A);
+                TARG = BOARD(Y, X);
+                IF  Y  = 0  THEN
+ FOREVER_LOOP:
+                   DO FOREVER;
+                      PUT SKIP EDIT ( 'PROMOTION PIECE: ' )(A);
+                      GET EDIT (INPUT) (L);
+                      CALL UPCASE(INPUT);
+                      SELECT (INPUT);
+                         WHEN ('N', 'KT', 'KNIGHT', 'HORSE') C = 270;
+                         WHEN ('B', 'BISHOP')                C = 300;
+                         WHEN ('R', 'ROOK')                  C = 500;
+                         WHEN ('Q', 'QUEEN')                 C = 900;
+                         OTHERWISE ITERATE;
+                      END;
+                      LEAVE FOREVER_LOOP;
+                   END;
+                CALL MAKEMOVE(A, B, X, Y, C);
+                IF  MOVER  = 5000  THEN
+                   DO;
+                      WCQSOLD = WCQSFLAG;
+                      WCKSOLD = WCKSFLAG;
+                      WCKSFLAG =  '1'B;
+                      WCQSFLAG =  '1'B;
+                   END;
+                IF  (A  = 0)   &   (B  = 7)   &   (MOVER  = 500)  THEN
+                   DO;
+                      WCQSOLD = WCQSFLAG;
+                      WCQSFLAG =  '1'B;
+                   END;
+                IF  (A  = 7)   &   (B  = 7)   &   (MOVER  = 500)  THEN
+                   DO;
+                      WCKSOLD = WCKSFLAG;
+                      WCKSFLAG =  '1'B;
+                   END;
+                IF  INCHECK()  = 0 THEN
+                   RETURN;
+                BOARD(B, A) = MOVER;
+                BOARD(Y, X) = TARG;
+                IF  MOVER  = 5000  THEN
+                   DO;
+                      WCQSFLAG = WCQSOLD;
+                      WCKSFLAG = WCKSOLD;
+                   END;
+                IF  (A  = 0)   &   (B  = 7)   &   (MOVER  = 500)  THEN
+                   WCQSFLAG = WCQSOLD;
+                IF  (A  = 7)   &   (B  = 7)   &   (MOVER  = 500)  THEN
+                   WCKSFLAG = WCKSOLD;
+                LEAVE DOK_LOOP;
+             END;
+       END;
+    END;
+ END IO;
+
+ /* convert string to uppercase                                           */
+ UPCASE: PROCEDURE  (STRING) OPTIONS (REORDER);                                                      
+    DECLARE ( STRING ) CHARACTER (*);
+
+    STRING = TRANSLATE (STRING, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+                                'abcdefghijklmnopqrstuvwxyz' );
+
+ END UPCASE;
+
+ END CHESS;

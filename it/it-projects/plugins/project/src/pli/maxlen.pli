@@ -1,0 +1,67 @@
+  /* Copyright (c) 1995 by R. A. Vowels, from "Introduction to PL/I, Algorithms, and               */
+  /* Structured Programming".  Permission is given to reproduce and to use these procedures        */
+  /* as part of a program, and to include them as part of a larger work to be sold for profit.     */
+  /* However, the user is not permitted to sell the procedures separately.  Provided always        */
+  /* that these procedures and this copyright notice are reproduced in full.                       */
+
+    DECLARE MAXLENGTH               GENERIC
+       (MAXLEN_graphic              WHEN (GRAPHIC),
+        MAXLEN_bit                  WHEN (BIT),
+        MAXLEN_char                 WHEN (*) );
+
+  /* This procedure is provided for those who must have the                                        */
+  /* built-in function MAXLENGTH.  Do not call it often, as                                        */
+  /* run-time is relatively high.                                                                  */
+  /* This procedure returns the maximum length that a VARYING character string may take.           */
+ MAXLEN_char:
+    PROCEDURE (STRING)              RETURNS (FIXED BINARY);
+       DECLARE STRING               CHARACTER (*) VARYING;
+
+       DECLARE LENGTH               BUILTIN;
+       DECLARE TEMP                 CHARACTER (32767) VARYING;
+       DECLARE STR                  CHARACTER (32767) STATIC INITIAL ( ' ' );
+       DECLARE K                    FIXED BINARY;
+
+       TEMP = STRING;                              /* Preserve a copy of the string.               */
+ (NOSTRINGSIZE):
+       STRING = STR;                               /* Assign something very long to it.            */
+       K = LENGTH (STRING);                        /* Find out how long the variable is.           */
+       STRING = TEMP;                              /* Restore the string.                          */
+       RETURN (K);                                 /* The declared length of the string.           */
+    END  MAXLEN_char;
+
+  /* This procedure returns the maximum length that a VARYING graphic string may take.             */
+ MAXLEN_graphic:
+    PROCEDURE (STRING)              RETURNS (FIXED BINARY);
+       DECLARE STRING               GRAPHIC (*) VARYING;
+
+       DECLARE LENGTH               BUILTIN;
+       DECLARE TEMP                 GRAPHIC (16383) VARYING;
+       DECLARE STR                  GRAPHIC (16383) STATIC INITIAL ( ' ' );
+       DECLARE K                    FIXED BINARY;
+
+       TEMP = STRING;                              /* Preserve a copy of the string.               */
+ (NOSTRINGSIZE):
+       STRING = STR;                               /* Assign something very long to it.            */
+       K = LENGTH (STRING);                        /* Find out how long the variable is.           */
+       STRING = TEMP;                              /* Restore the string.                          */
+       RETURN (K);                                 /* The declared length of the string.           */
+    END  MAXLEN_graphic;
+
+  /* This procedure returns the maximum length that a VARYING bit string may take.                 */
+ MAXLEN_bit:
+    PROCEDURE (STRING)              RETURNS (FIXED BINARY);
+       DECLARE STRING               BIT (*) VARYING;
+
+       DECLARE LENGTH               BUILTIN;
+       DECLARE TEMP                 BIT (32767) VARYING;
+       DECLARE STR                  BIT (32767) STATIC INITIAL ( '0'B);
+       DECLARE K                    FIXED BINARY;
+
+       TEMP = STRING;                              /* Preserve a copy of the string.               */
+ (NOSTRINGSIZE):
+       STRING = STR;                               /* Assign something very long to it.            */
+       K = LENGTH (STRING);                        /* Find out how long the variable is.           */
+       STRING = TEMP;                              /* Restore the string.                          */
+       RETURN (K);                                 /* The declared length of the string.           */
+    END  MAXLEN_bit;

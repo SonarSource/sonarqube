@@ -14,6 +14,7 @@ env:
   - JOB=ITS_QUALITYGATE
   - JOB=ITS_UPDATECENTER
   - JOB=ITS_TESTING
+  - JOB=ITS_PLUGINS
 
 matrix:
   fast_finish: true

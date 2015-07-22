@@ -1,0 +1,246 @@
+ /* Copyright (c) 1995 by R. A. Vowels, from "Introduction to PL/I, Algorithms, and               */
+ /* Structured Programming".  Permission is given to reproduce and to use these procedures        */
+ /* as part of a program, and to include them as part of a larger work to be sold for profit.     */
+ /* However, the user is not permitted to sell the procedures separately.  Provided always        */
+ /* that these procedures and this copyright notice are reproduced in full.                       */
+
+   DECLARE SEARCH                  GENERIC
+      (SEARCH_all_graphic          WHEN (  GRAPHIC, GRAPHIC),
+       SEARCH_all_graphic          WHEN (  GRAPHIC, *),
+       SEARCH_all_graphic          WHEN (*, GRAPHIC),
+       SEARCH_all_bit              WHEN (  BIT, BIT),
+       SEARCH_all                  WHEN (*,*),
+       SEARCH_sub_graphic          WHEN (  GRAPHIC, GRAPHIC, *),
+       SEARCH_sub_graphic          WHEN (  GRAPHIC, *, *),
+       SEARCH_sub_graphic          WHEN (*, GRAPHIC, *),
+       SEARCH_sub_bit              WHEN (  BIT, BIT, *),
+       SEARCH_sub                  WHEN (*,*,*) );
+
+ /* This function procedure searches the first string STRING for any characters given in the      */
+ /* second string SUB.  If there are any such characters, the function returns the position       */
+ /* of the left-most.                                                                             */
+ SEARCH_all:
+   PROCEDURE (STRING, SUB) OPTIONS (REORDER)
+                           RETURNS (FIXED BINARY (31));
+      /* INCOMING: STRING   = the string to be searched;                                          */
+      /*           SUB      = contains characters to look for.                                    */
+      DECLARE (STRING, SUB)        CHARACTER (*);
+
+      DECLARE (LENGTH, SUBSTR,
+               UNSPEC,  INDEX)     BUILTIN;
+      DECLARE Table (0:255)        BIT (1) STATIC ALIGNED;
+      DECLARE (J, K)               FIXED BINARY (31);
+
+      IF LENGTH (SUB) = 0 THEN                    /* Nothing with which to search.                */
+         RETURN (0);
+      IF LENGTH (STRING) = 0 THEN                 /* There's nothing to search.                   */
+         RETURN (0);
+      IF LENGTH (SUB) = 1 THEN                    /* Looking for one character is fast.           */
+         RETURN (INDEX (STRING, SUB));
+
+      /* SETS UP A LOOK-UP TABLE (which is independent of the character set).                     */
+      Table = '0'B;                               /* All entries are FALSE.                       */
+      DO J = 1 TO LENGTH (Sub);
+         K = UNSPEC (SUBSTR (Sub, J, 1));
+         Table (K) = '1'B;                        /* Table(k) is TRUE for each character in SUB.  */
+      END;
+
+      /* CONDUCT THE SEARCH.                                                                      */
+      DO J = 1 TO LENGTH (STRING);
+         K = UNSPEC (SUBSTR (STRING, J, 1));
+         IF Table(K) THEN                         /* TRUE when a SUB character matches one in     */
+            RETURN (J);                           /* STRING.                                      */
+      END;
+      RETURN (0);                                 /* Unsuccessful search.                         */
+   END  SEARCH_all;
+
+ /* This function procedure searches the first string STRING for any characters given in the      */
+ /* second string SUB.  If there are any such characters, the function returns the position       */
+ /* of the left-most.                                                                             */
+ /* The search is performed from left to right, commencing from character position                */
+ /* POSITION.                                                                                     */
+ SEARCH_sub:
+   PROCEDURE (STRING, SUB, POSITION)   RETURNS (FIXED BINARY (31));
+      /* INCOMING: STRING   = the string to be searched;                                          */
+      /*           SUB      = contains characters to look for;                                    */
+      /*           POSITION = where to start the search (measured from the left-hand end of       */
+      /*                      STRING).                                                            */
+      DECLARE (STRING, SUB)         CHARACTER (*);
+      DECLARE POSITION             FIXED BINARY (31);
+
+      DECLARE (LENGTH, INDEX)      BUILTIN;
+      DECLARE K                    FIXED BINARY (31);
+
+      IF (Position > LENGTH (String)+1) | (Position <= 0) THEN
+         DO;
+            SIGNAL  STRINGRANGE;
+            RETURN (0);
+         END;
+      IF LENGTH (STRING) = 0 THEN RETURN (0);
+      K = SEARCH_all ( SUBSTR (STRING, POSITION), SUB);
+      IF K = 0 THEN RETURN (0);
+      RETURN (POSITION+K-1);
+   END  SEARCH_sub;
+
+ /* This function procedure searches the first string STRING for any characters given in the      */
+ /* second string SUB.  If there are any such characters, the function returns the position       */
+ /* of the left-most.                                                                             */
+ SEARCH_all_graphic:
+   PROCEDURE (STRING, SUB) OPTIONS (REORDER)
+                           RETURNS ( FIXED BINARY (31));
+      /* INCOMING: STRING   = the string to be searched;                                          */
+      /*           SUB      = contains characters to look for.                                    */
+      DECLARE (STRING, SUB)        GRAPHIC (*);
+
+      DECLARE (LENGTH,
+             SUBSTR,
+             INDEX)                BUILTIN;
+      DECLARE (J, K)               FIXED BINARY (31);
+      DECLARE Ch                   GRAPHIC (1);
+
+      IF LENGTH (SUB) = 0 THEN                    /* Nothing with which to search.                */
+         RETURN (0);
+      IF LENGTH (STRING) = 0 THEN                 /* There's nothing to search.                   */
+         RETURN (0);
+      IF LENGTH (SUB) = 1 THEN                    /* Looking for one character is fast.           */
+         RETURN (INDEX (STRING, SUB));
+
+      DO J = 1 TO LENGTH(String);
+         Ch = SUBSTR(String, J, 1);             /* Select one graphic character from the string to*/
+                                                                                /* be searched.   */
+         K = INDEX (Sub, Ch);              /* Check whether it is one of those on our search list.*/
+         IF K ^= 0 THEN                           /* If it is, we are done.                       */
+            RETURN (J);
+      END;
+
+      RETURN (0);                                 /* The search was unsuccessful.                 */
+   END  SEARCH_all_graphic;
+
+ /* This function procedure searches the first string STRING for any graphic characters           */
+ /* given in the second string SUB.  If there are any such graphic characters, the function       */
+ /* returns the position of the left-most.                                                        */
+ /* The search is performed from left to right, commencing from graphic character position        */
+ /* POSITION.                                                                                     */
+ SEARCH_sub_graphic:
+   PROCEDURE (STRING, SUB, POSITION)   RETURNS (FIXED BINARY (31));
+      /* INCOMING: STRING   = the string to be searched;                                          */
+      /*           SUB      = contains characters to look for;                                    */
+      /*           POSITION = where to start the search (measured from the left-hand end of       */
+      /*                      STRING).                                                            */
+      DECLARE (STRING, SUB)         GRAPHIC (*);
+      DECLARE POSITION             FIXED BINARY (31);
+
+      DECLARE (LENGTH, SUBSTR,
+             INDEX)                BUILTIN;
+      DECLARE (J, K)               FIXED BINARY (31);
+      DECLARE Ch                   GRAPHIC (1);
+
+      IF (Position > LENGTH (String)+1) | (Position <= 0) THEN
+         DO;
+            SIGNAL  STRINGRANGE;
+            RETURN (0);
+         END;
+      IF LENGTH (SUB) = 0 THEN                    /* Nothing with which to search.                */
+         RETURN (0);
+      IF LENGTH (STRING) = 0 THEN                 /* There's nothing to search.                   */
+         RETURN (0);
+      IF LENGTH (SUB) = 1 THEN                    /* Looking for one character is fast.           */
+         RETURN (INDEX (SUBSTR (STRING, Position), SUB)+Position-1);
+
+      DO J = Position TO LENGTH(String);
+         Ch = SUBSTR(String, J, 1);            /* Select one graphic character from the string to */
+                                                                                /* be searched.   */
+         K = INDEX (Sub, Ch);              /* Check whether it is one of those on our search list.*/
+         IF K ^= 0 THEN                           /* If it is, we are done.                       */
+            RETURN (J);
+      END;
+
+      RETURN (0);                                 /* The search was unsuccessful.                 */
+
+   END  SEARCH_sub_graphic;
+
+ /* This function procedure searches the first string STRING for any bits given in the            */
+ /* second string SUB.  If there are any such bits, the function returns the position             */
+ /* of the left-most.                                                                             */
+ SEARCH_all_bit:
+   PROCEDURE (STRING, SUB) OPTIONS (REORDER)
+                     RETURNS (     FIXED BINARY (31));
+      /* INCOMING: STRING   = the string to be searched;                                          */
+      /*           SUB      = contains bits to look for.                                          */
+      DECLARE (STRING, SUB)        BIT (*);
+
+      DECLARE (LENGTH, SUBSTR,
+             INDEX)                BUILTIN;
+      DECLARE (J, K)               FIXED BINARY (31);
+
+      IF LENGTH (SUB) = 0 THEN                    /* Nothing with which to search.                */
+         RETURN (0);
+      IF LENGTH (STRING) = 0 THEN                 /* There's nothing to search.                   */
+         RETURN (0);
+      IF LENGTH (SUB) = 1 THEN                    /* Looking for one bit is fast.                 */
+         RETURN (INDEX (STRING, SUB));
+
+      /* When we come here, SUB has 2 or more bits.                                               */
+
+      K = INDEX (SUB, ^SUBSTR(SUB, 1, 1));        /* Look for a bit of the opposite kind.         */
+
+      IF K > 0 THEN                               /* No need for a search -- the key SUB consists */
+                                                  /* of both 0 and 1.                             */
+         RETURN (1);                              /* Always get a match at position 1.            */
+
+      /* The pattern SUB contains either all ones or all zeros.                                   */
+
+      /* CONDUCT THE SEARCH.                                                                      */
+      IF SUBSTR(SUB, 1, 1) THEN
+         RETURN (INDEX(STRING, '1'B));
+      ELSE
+         RETURN (INDEX(STRING, '0'B));
+
+   END  SEARCH_all_bit;
+
+ /* This function procedure searches the first string STRING for any bits given in the            */
+ /* second string SUB.  If there are any such bits, the function returns the position             */
+ /* of the left-most.                                                                             */
+ SEARCH_sub_bit:
+   PROCEDURE (String, Sub, Position)   OPTIONS (REORDER)
+                                       RETURNS ( FIXED BINARY (31));
+      /* INCOMING: STRING   = the string to be searched;                                          */
+      /*           SUB      = contains bits to look for.                                          */
+      DECLARE (String, Sub)        BIT (*);
+
+      DECLARE (LENGTH, SUBSTR,
+             INDEX)                BUILTIN;
+      DECLARE (J, K)               FIXED BINARY (31);
+
+      IF (Position > LENGTH (String)+1) | (Position <= 0) THEN
+         DO;
+            SIGNAL  STRINGRANGE;
+            RETURN (0);
+         END;
+      IF LENGTH (SUB) = 0 THEN                    /* Nothing with which to search.                */
+         RETURN (0);
+      IF LENGTH (STRING) = 0 THEN                 /* There's nothing to search.                   */
+         RETURN (0);
+      IF Position = LENGTH(String)+1 THEN
+         RETURN (0);
+      IF LENGTH (SUB) = 1 THEN                    /* Looking for one bit is fast.                 */
+         RETURN (INDEX(SUBSTR(STRING, Position),  SUB)+Position-1);
+
+      /* When we come here, SUB has 2 or more bits.                                               */
+
+      K = INDEX (SUBSTR(String, Position), ^SUBSTR(SUB, 1, 1));
+                                                  /* Look for a bit of the opposite kind.         */
+
+      IF K > 0 THEN                               /* No need for a search -- the key SUB consists */
+                                                  /* of both 0 and 1.                             */
+         RETURN (Position);                       /* Always get a match at position "Position".   */
+
+      /* The pattern SUB contains either all ones or all zeros.                                   */
+
+      /* CONDUCT THE SEARCH.                                                                      */
+      IF SUBSTR(SUB, 1, 1) THEN
+         RETURN (INDEX(SUBSTR(STRING, Position), '1'B)+Position-1);
+      ELSE
+         RETURN (INDEX(SUBSTR(STRING, Position), '0'B)+Position-1);
+
+   END  SEARCH_sub_bit;

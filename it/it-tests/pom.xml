@@ -18,6 +18,13 @@
   </properties>
 
   <dependencies>
+    <!-- must be declared first -->
+    <dependency>
+      <groupId>com.sonarsource.orchestrator</groupId>
+      <artifactId>sonar-orchestrator</artifactId>
+      <version>3.3-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-xoo-plugin</artifactId>
@@ -40,17 +47,12 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>15.0</version>
+      <version>18.0</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-ws-client</artifactId>
       <version>5.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.sonarsource.orchestrator</groupId>
-      <artifactId>sonar-orchestrator</artifactId>
-      <version>3.2</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
