@@ -20,7 +20,7 @@
 package org.sonar.batch.protocol.output;
 
 import java.io.File;
-import org.sonar.batch.protocol.ProtobufUtil;
+import org.sonar.core.util.Protobuf;
 
 public class BatchReportWriter {
 
@@ -46,72 +46,72 @@ public class BatchReportWriter {
    * Metadata is mandatory
    */
   public File writeMetadata(BatchReport.Metadata metadata) {
-    ProtobufUtil.writeToFile(metadata, fileStructure.metadataFile());
+    Protobuf.write(metadata, fileStructure.metadataFile());
     return fileStructure.metadataFile();
   }
 
   public File writeActiveRules(Iterable<BatchReport.ActiveRule> activeRules) {
-    ProtobufUtil.writeStreamToFile(activeRules, fileStructure.activeRules(), false);
+    Protobuf.writeStream(activeRules, fileStructure.activeRules(), false);
     return fileStructure.metadataFile();
   }
 
   public File writeComponent(BatchReport.Component component) {
     File file = fileStructure.fileFor(FileStructure.Domain.COMPONENT, component.getRef());
-    ProtobufUtil.writeToFile(component, file);
+    Protobuf.write(component, file);
     return file;
   }
 
   public File writeComponentIssues(int componentRef, Iterable<BatchReport.Issue> issues) {
     File file = fileStructure.fileFor(FileStructure.Domain.ISSUES, componentRef);
-    ProtobufUtil.writeStreamToFile(issues, file, false);
+    Protobuf.writeStream(issues, file, false);
     return file;
   }
 
   public File writeComponentMeasures(int componentRef, Iterable<BatchReport.Measure> measures) {
     File file = fileStructure.fileFor(FileStructure.Domain.MEASURES, componentRef);
-    ProtobufUtil.writeStreamToFile(measures, file, false);
+    Protobuf.writeStream(measures, file, false);
     return file;
   }
 
   public File writeComponentChangesets(BatchReport.Changesets changesets) {
     File file = fileStructure.fileFor(FileStructure.Domain.CHANGESETS, changesets.getComponentRef());
-    ProtobufUtil.writeToFile(changesets, file);
+    Protobuf.write(changesets, file);
     return file;
   }
 
   public File writeComponentDuplications(int componentRef, Iterable<BatchReport.Duplication> duplications) {
     File file = fileStructure.fileFor(FileStructure.Domain.DUPLICATIONS, componentRef);
-    ProtobufUtil.writeStreamToFile(duplications, file, false);
+    Protobuf.writeStream(duplications, file, false);
     return file;
   }
 
   public File writeComponentSymbols(int componentRef, Iterable<BatchReport.Symbol> symbols) {
     File file = fileStructure.fileFor(FileStructure.Domain.SYMBOLS, componentRef);
-    ProtobufUtil.writeStreamToFile(symbols, file, false);
+    Protobuf.writeStream(symbols, file, false);
     return file;
   }
 
   public File writeComponentSyntaxHighlighting(int componentRef, Iterable<BatchReport.SyntaxHighlighting> syntaxHighlightingRules) {
     File file = fileStructure.fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, componentRef);
-    ProtobufUtil.writeStreamToFile(syntaxHighlightingRules, file, false);
+    Protobuf.writeStream(syntaxHighlightingRules, file, false);
     return file;
   }
 
   public File writeComponentCoverage(int componentRef, Iterable<BatchReport.Coverage> coverageList) {
     File file = fileStructure.fileFor(FileStructure.Domain.COVERAGES, componentRef);
-    ProtobufUtil.writeStreamToFile(coverageList, file, false);
+    Protobuf.writeStream(coverageList, file, false);
     return file;
   }
 
   public File writeTests(int componentRef, Iterable<BatchReport.Test> tests) {
     File file = fileStructure.fileFor(FileStructure.Domain.TESTS, componentRef);
-    ProtobufUtil.writeStreamToFile(tests, file, false);
+    Protobuf.writeStream(tests, file, false);
     return file;
   }
 
   public File writeCoverageDetails(int componentRef, Iterable<BatchReport.CoverageDetail> tests) {
     File file = fileStructure.fileFor(FileStructure.Domain.COVERAGE_DETAILS, componentRef);
-    ProtobufUtil.writeStreamToFile(tests, file, false);
+    Protobuf.writeStream(tests, file, false);
     return file;
   }
 

@@ -21,8 +21,8 @@ package org.sonar.batch.protocol.output;
 
 import java.io.File;
 import javax.annotation.CheckForNull;
-import org.sonar.batch.protocol.ProtobufUtil;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.core.util.Protobuf;
 
 public class BatchReportReader {
 
@@ -37,7 +37,7 @@ public class BatchReportReader {
     if (!fileExists(file)) {
       throw new IllegalStateException("Metadata file is missing in analysis report: " + file);
     }
-    return ProtobufUtil.readFile(file, BatchReport.Metadata.PARSER);
+    return Protobuf.read(file, BatchReport.Metadata.PARSER);
   }
 
   public CloseableIterator<BatchReport.ActiveRule> readActiveRules() {
@@ -45,13 +45,13 @@ public class BatchReportReader {
     if (!fileExists(file)) {
       return CloseableIterator.emptyCloseableIterator();
     }
-    return ProtobufUtil.readStreamFromFile(file, BatchReport.ActiveRule.PARSER);
+    return Protobuf.readStream(file, BatchReport.ActiveRule.PARSER);
   }
 
   public CloseableIterator<BatchReport.Measure> readComponentMeasures(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.MEASURES, componentRef);
     if (fileExists(file)) {
-      return ProtobufUtil.readStreamFromFile(file, BatchReport.Measure.PARSER);
+      return Protobuf.readStream(file, BatchReport.Measure.PARSER);
     }
     return CloseableIterator.emptyCloseableIterator();
   }
@@ -60,7 +60,7 @@ public class BatchReportReader {
   public BatchReport.Changesets readChangesets(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.CHANGESETS, componentRef);
     if (fileExists(file)) {
-      return ProtobufUtil.readFile(file, BatchReport.Changesets.PARSER);
+      return Protobuf.read(file, BatchReport.Changesets.PARSER);
     }
     return null;
   }
@@ -70,13 +70,13 @@ public class BatchReportReader {
     if (!fileExists(file)) {
       throw new IllegalStateException("Unable to find report for component #" + componentRef + ". File does not exist: " + file);
     }
-    return ProtobufUtil.readFile(file, BatchReport.Component.PARSER);
+    return Protobuf.read(file, BatchReport.Component.PARSER);
   }
 
   public CloseableIterator<BatchReport.Issue> readComponentIssues(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.ISSUES, componentRef);
     if (fileExists(file)) {
-      return ProtobufUtil.readStreamFromFile(file, BatchReport.Issue.PARSER);
+      return Protobuf.readStream(file, BatchReport.Issue.PARSER);
     }
     return CloseableIterator.emptyCloseableIterator();
   }
@@ -84,7 +84,7 @@ public class BatchReportReader {
   public CloseableIterator<BatchReport.Duplication> readComponentDuplications(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.DUPLICATIONS, componentRef);
     if (fileExists(file)) {
-      return ProtobufUtil.readStreamFromFile(file, BatchReport.Duplication.PARSER);
+      return Protobuf.readStream(file, BatchReport.Duplication.PARSER);
     }
     return CloseableIterator.emptyCloseableIterator();
   }
@@ -92,7 +92,7 @@ public class BatchReportReader {
   public CloseableIterator<BatchReport.Symbol> readComponentSymbols(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.SYMBOLS, componentRef);
     if (fileExists(file)) {
-      return ProtobufUtil.readStreamFromFile(file, BatchReport.Symbol.PARSER);
+      return Protobuf.readStream(file, BatchReport.Symbol.PARSER);
     }
     return CloseableIterator.emptyCloseableIterator();
   }

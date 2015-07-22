@@ -28,9 +28,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.ProtobufUtil;
 import org.sonar.batch.protocol.output.BatchReport.Range;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.core.util.Protobuf;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -63,7 +63,7 @@ public class BatchReportWriterTest {
       .setRootComponentRef(1);
     underTest.writeMetadata(metadata.build());
 
-    BatchReport.Metadata read = ProtobufUtil.readFile(underTest.getFileStructure().metadataFile(), BatchReport.Metadata.PARSER);
+    BatchReport.Metadata read = Protobuf.read(underTest.getFileStructure().metadataFile(), BatchReport.Metadata.PARSER);
     assertThat(read.getAnalysisDate()).isEqualTo(15000000L);
     assertThat(read.getProjectKey()).isEqualTo("PROJECT_A");
     assertThat(read.getRootComponentRef()).isEqualTo(1);
@@ -88,7 +88,7 @@ public class BatchReportWriterTest {
     assertThat(underTest.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isTrue();
     File file = underTest.getFileStructure().fileFor(FileStructure.Domain.COMPONENT, 1);
     assertThat(file).exists().isFile();
-    BatchReport.Component read = ProtobufUtil.readFile(file, BatchReport.Component.PARSER);
+    BatchReport.Component read = Protobuf.read(file, BatchReport.Component.PARSER);
     assertThat(read.getRef()).isEqualTo(1);
     assertThat(read.getChildRefList()).containsOnly(5, 42);
     assertThat(read.hasName()).isFalse();
@@ -111,7 +111,7 @@ public class BatchReportWriterTest {
     assertThat(underTest.hasComponentData(FileStructure.Domain.ISSUES, 1)).isTrue();
     File file = underTest.getFileStructure().fileFor(FileStructure.Domain.ISSUES, 1);
     assertThat(file).exists().isFile();
-    try (CloseableIterator<BatchReport.Issue> read = ProtobufUtil.readStreamFromFile(file, BatchReport.Issue.PARSER)) {
+    try (CloseableIterator<BatchReport.Issue> read = Protobuf.readStream(file, BatchReport.Issue.PARSER)) {
       assertThat(Iterators.size(read)).isEqualTo(1);
     }
   }
@@ -131,7 +131,7 @@ public class BatchReportWriterTest {
     assertThat(underTest.hasComponentData(FileStructure.Domain.MEASURES, 1)).isTrue();
     File file = underTest.getFileStructure().fileFor(FileStructure.Domain.MEASURES, 1);
     assertThat(file).exists().isFile();
-    try (CloseableIterator<BatchReport.Measure> read = ProtobufUtil.readStreamFromFile(file, BatchReport.Measure.PARSER)) {
+    try (CloseableIterator<BatchReport.Measure> read = Protobuf.readStream(file, BatchReport.Measure.PARSER)) {
       assertThat(Iterators.size(read)).isEqualTo(1);
     }
   }
@@ -154,7 +154,7 @@ public class BatchReportWriterTest {
     assertThat(underTest.hasComponentData(FileStructure.Domain.CHANGESETS, 1)).isTrue();
     File file = underTest.getFileStructure().fileFor(FileStructure.Domain.CHANGESETS, 1);
     assertThat(file).exists().isFile();
-    BatchReport.Changesets read = ProtobufUtil.readFile(file, BatchReport.Changesets.PARSER);
+    BatchReport.Changesets read = Protobuf.read(file, BatchReport.Changesets.PARSER);
     assertThat(read.getComponentRef()).isEqualTo(1);
     assertThat(read.getChangesetCount()).isEqualTo(1);
     assertThat(read.getChangesetList()).hasSize(1);
@@ -184,7 +184,7 @@ public class BatchReportWriterTest {
     assertThat(underTest.hasComponentData(FileStructure.Domain.DUPLICATIONS, 1)).isTrue();
     File file = underTest.getFileStructure().fileFor(FileStructure.Domain.DUPLICATIONS, 1);
     assertThat(file).exists().isFile();
-    try (CloseableIterator<BatchReport.Duplication> duplications = ProtobufUtil.readStreamFromFile(file, BatchReport.Duplication.PARSER)) {
+    try (CloseableIterator<BatchReport.Duplication> duplications = Protobuf.readStream(file, BatchReport.Duplication.PARSER)) {
       BatchReport.Duplication dup = duplications.next();
       assertThat(dup.getOriginPosition()).isNotNull();
       assertThat(dup.getDuplicateList()).hasSize(1);
@@ -218,7 +218,7 @@ public class BatchReportWriterTest {
 
     File file = underTest.getFileStructure().fileFor(FileStructure.Domain.SYMBOLS, 1);
     assertThat(file).exists().isFile();
-    try (CloseableIterator<BatchReport.Symbol> read = ProtobufUtil.readStreamFromFile(file, BatchReport.Symbol.PARSER)) {
+    try (CloseableIterator<BatchReport.Symbol> read = Protobuf.readStream(file, BatchReport.Symbol.PARSER)) {
       assertThat(read).hasSize(1);
     }
   }
@@ -235,8 +235,7 @@ public class BatchReportWriterTest {
           .setEndLine(1)
           .build())
         .setType(Constants.HighlightingType.ANNOTATION)
-        .build()
-    ));
+        .build()));
 
     assertThat(underTest.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, 1)).isTrue();
   }
@@ -255,8 +254,7 @@ public class BatchReportWriterTest {
         .setUtCoveredConditions(1)
         .setItCoveredConditions(1)
         .setOverallCoveredConditions(1)
-        .build()
-    ));
+        .build()));
 
     assertThat(underTest.hasComponentData(FileStructure.Domain.COVERAGES, 1)).isTrue();
   }
@@ -266,8 +264,7 @@ public class BatchReportWriterTest {
     assertThat(underTest.hasComponentData(FileStructure.Domain.TESTS, 1)).isFalse();
 
     underTest.writeTests(1, Arrays.asList(
-      BatchReport.Test.getDefaultInstance()
-    ));
+      BatchReport.Test.getDefaultInstance()));
 
     assertThat(underTest.hasComponentData(FileStructure.Domain.TESTS, 1)).isTrue();
 
@@ -278,8 +275,7 @@ public class BatchReportWriterTest {
     assertThat(underTest.hasComponentData(FileStructure.Domain.COVERAGE_DETAILS, 1)).isFalse();
 
     underTest.writeCoverageDetails(1, Arrays.asList(
-      BatchReport.CoverageDetail.getDefaultInstance()
-    ));
+      BatchReport.CoverageDetail.getDefaultInstance()));
 
     assertThat(underTest.hasComponentData(FileStructure.Domain.COVERAGE_DETAILS, 1)).isTrue();
   }

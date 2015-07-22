@@ -22,6 +22,7 @@ package org.sonar.batch.report;
 import java.io.File;
 import java.util.Collections;
 import java.util.Date;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,6 +43,7 @@ import org.sonar.core.util.CloseableIterator;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -106,16 +108,18 @@ public class MeasuresPublisherTest {
 
   @Test
   public void fail_with_IAE_when_measure_has_no_value() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Measure on metric 'coverage' and component 'foo:src/Foo.php' has no value, but it's not allowed");
-
     Measure measure = new Measure<>(CoreMetrics.COVERAGE);
     when(measureCache.byResource(sampleFile)).thenReturn(Collections.singletonList(measure));
 
     File outputDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(outputDir);
 
-    publisher.publish(writer);
+    try {
+      publisher.publish(writer);
+      fail();
+    } catch (RuntimeException e) {
+      assertThat(ExceptionUtils.getFullStackTrace(e)).contains("Measure on metric 'coverage' and component 'foo:src/Foo.php' has no value, but it's not allowed");
+    }
   }
 
 }
