@@ -20,14 +20,13 @@
 
 package org.sonar.server.computation.source;
 
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.server.source.db.FileSourceDb;
-
 import java.security.MessageDigest;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.db.FileSources;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -69,7 +68,7 @@ public class ComputeFileSourceData {
       data.srcMd5Digest.update(source.getBytes(UTF_8));
     }
 
-    FileSourceDb.Line.Builder lineBuilder = data.fileSourceBuilder.addLinesBuilder()
+    FileSources.Line.Builder lineBuilder = data.fileSourceBuilder.addLinesBuilder()
       .setSource(source)
       .setLine(currentLine);
     for (LineReader lineReader : lineReaders) {
@@ -85,17 +84,17 @@ public class ComputeFileSourceData {
     return DigestUtils.md5Hex(reducedLine);
   }
 
-  private boolean hasNextLine(){
+  private boolean hasNextLine() {
     return linesIterator.hasNext() || currentLine < numberOfLines;
   }
 
   public static class Data {
     private final StringBuilder lineHashes;
     private final MessageDigest srcMd5Digest;
-    private final FileSourceDb.Data.Builder fileSourceBuilder;
+    private final FileSources.Data.Builder fileSourceBuilder;
 
     public Data() {
-      this.fileSourceBuilder = FileSourceDb.Data.newBuilder();
+      this.fileSourceBuilder = FileSources.Data.newBuilder();
       this.lineHashes = new StringBuilder();
       this.srcMd5Digest = DigestUtils.getMd5Digest();
     }
@@ -108,7 +107,7 @@ public class ComputeFileSourceData {
       return lineHashes.toString();
     }
 
-    public FileSourceDb.Data getFileSourceData() {
+    public FileSources.Data getFileSourceData() {
       return fileSourceBuilder.build();
     }
   }

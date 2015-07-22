@@ -20,18 +20,6 @@
 
 package org.sonar.server.test.index;
 
-import org.elasticsearch.action.update.UpdateRequest;
-import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.db.DbSession;
-import org.sonar.db.source.FileSourceDto;
-import org.sonar.db.DbClient;
-import org.sonar.db.ResultSetIterator;
-import org.sonar.server.source.db.FileSourceDb;
-import org.sonar.server.source.index.FileSourcesUpdaterHelper;
-import org.sonar.server.source.index.FileSourcesUpdaterHelper.Row;
-
-import javax.annotation.Nullable;
-
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
@@ -40,6 +28,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
+import javax.annotation.Nullable;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.FileSources;
+import org.sonar.db.ResultSetIterator;
+import org.sonar.db.source.FileSourceDto;
+import org.sonar.server.source.index.FileSourcesUpdaterHelper;
+import org.sonar.server.source.index.FileSourcesUpdaterHelper.Row;
 
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILES;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILE_LINES;
@@ -78,16 +76,16 @@ public class TestResultSetIterator extends ResultSetIterator<Row> {
     String projectUuid = rs.getString(1);
     String fileUuid = rs.getString(2);
     Date updatedAt = new Date(rs.getLong(3));
-    List<FileSourceDb.Test> data = FileSourceDto.decodeTestData(rs.getBinaryStream(4));
+    List<FileSources.Test> data = FileSourceDto.decodeTestData(rs.getBinaryStream(4));
     return toRow(projectUuid, fileUuid, updatedAt, data);
   }
 
   /**
    * Convert protobuf message to tests required for Elasticsearch indexing
    */
-  public static Row toRow(String projectUuid, String fileUuid, Date updatedAt, List<FileSourceDb.Test> tests) {
+  public static Row toRow(String projectUuid, String fileUuid, Date updatedAt, List<FileSources.Test> tests) {
     Row result = new Row(projectUuid, fileUuid, updatedAt.getTime());
-    for (FileSourceDb.Test test : tests) {
+    for (FileSources.Test test : tests) {
       ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
       // all the fields must be present, even if value is null
@@ -103,7 +101,7 @@ public class TestResultSetIterator extends ResultSetIterator<Row> {
       writer.prop(FIELD_STACKTRACE, test.hasStacktrace() ? test.getStacktrace() : null);
       writer.name(FIELD_COVERED_FILES);
       writer.beginArray();
-      for (FileSourceDb.Test.CoveredFile coveredFile : test.getCoveredFileList()) {
+      for (FileSources.Test.CoveredFile coveredFile : test.getCoveredFileList()) {
         writer.beginObject();
         writer.prop(FIELD_COVERED_FILE_UUID, coveredFile.getFileUuid());
         writer.name(FIELD_COVERED_FILE_LINES).valueObject(coveredFile.getCoveredLineList());

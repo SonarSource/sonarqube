@@ -21,7 +21,7 @@
 package org.sonar.server.computation.source;
 
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.server.source.db.FileSourceDb;
+import org.sonar.db.FileSources;
 
 public class ScmLineReader implements LineReader {
 
@@ -30,8 +30,9 @@ public class ScmLineReader implements LineReader {
   public ScmLineReader(BatchReport.Changesets scmReport) {
     this.scmReport = scmReport;
   }
+
   @Override
-  public void read(FileSourceDb.Line.Builder lineBuilder) {
+  public void read(FileSources.Line.Builder lineBuilder) {
     int changeSetIndex = scmReport.getChangesetIndexByLine(lineBuilder.getLine() - 1);
     BatchReport.Changesets.Changeset changeset = scmReport.getChangeset(changeSetIndex);
     boolean hasAuthor = changeset.hasAuthor();

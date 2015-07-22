@@ -24,20 +24,17 @@ import com.google.common.collect.Iterators;
 import org.junit.Test;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.util.CloseableIterator;
-import org.sonar.server.source.db.FileSourceDb;
+import org.sonar.db.FileSources;
 
-import java.util.Collections;
-
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DuplicationLineReaderTest {
 
-  FileSourceDb.Data.Builder sourceData = FileSourceDb.Data.newBuilder();
-  FileSourceDb.Line.Builder line1 = sourceData.addLinesBuilder().setSource("line1").setLine(1);
-  FileSourceDb.Line.Builder line2 = sourceData.addLinesBuilder().setSource("line2").setLine(2);
-  FileSourceDb.Line.Builder line3 = sourceData.addLinesBuilder().setSource("line3").setLine(3);
-  FileSourceDb.Line.Builder line4 = sourceData.addLinesBuilder().setSource("line4").setLine(4);
+  FileSources.Data.Builder sourceData = FileSources.Data.newBuilder();
+  FileSources.Line.Builder line1 = sourceData.addLinesBuilder().setSource("line1").setLine(1);
+  FileSources.Line.Builder line2 = sourceData.addLinesBuilder().setSource("line2").setLine(2);
+  FileSources.Line.Builder line3 = sourceData.addLinesBuilder().setSource("line3").setLine(3);
+  FileSources.Line.Builder line4 = sourceData.addLinesBuilder().setSource("line4").setLine(4);
 
   @Test
   public void read_nothing() {
@@ -62,8 +59,7 @@ public class DuplicationLineReaderTest {
             .setEndLine(4)
             .build())
           .build())
-        .build()
-    ));
+        .build()));
 
     reader.read(line1);
     reader.read(line2);
@@ -91,8 +87,7 @@ public class DuplicationLineReaderTest {
             .setEndLine(4)
             .build())
           .build())
-        .build()
-      ));
+        .build()));
 
     reader.read(line1);
     reader.read(line2);
@@ -120,8 +115,7 @@ public class DuplicationLineReaderTest {
             .setEndLine(4)
             .build())
           .build())
-        .build()
-      ));
+        .build()));
 
     reader.read(line1);
     reader.read(line2);
@@ -160,8 +154,7 @@ public class DuplicationLineReaderTest {
             .setEndLine(4)
             .build())
           .build())
-        .build()
-      ));
+        .build()));
 
     reader.read(line1);
     reader.read(line2);
@@ -200,8 +193,7 @@ public class DuplicationLineReaderTest {
             .setEndLine(3)
             .build())
           .build())
-        .build()
-      ));
+        .build()));
 
     reader.read(line1);
     reader.read(line2);
@@ -240,8 +232,7 @@ public class DuplicationLineReaderTest {
             .setEndLine(4)
             .build())
           .build())
-        .build()
-      ));
+        .build()));
 
     reader.read(line1);
     reader.read(line2);

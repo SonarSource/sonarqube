@@ -40,7 +40,10 @@ import org.sonar.api.utils.internal.Uuids;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.core.util.CloseableIterator;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.FileSources;
 import org.sonar.db.MyBatis;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
@@ -48,10 +51,6 @@ import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.db.DbClient;
-import org.sonar.server.source.db.FileSourceDb;
-import org.sonar.server.source.db.FileSourceDb.Test.TestStatus;
-import org.sonar.core.util.CloseableIterator;
 
 public class PersistTestsStep implements ComputationStep {
 
@@ -121,9 +120,9 @@ public class PersistTestsStep implements ComputationStep {
     }
 
     private void persistTestResults(Component component) {
-      Multimap<String, FileSourceDb.Test.Builder> testsByName = buildDbTests(component.getRef());
-      Table<String, String, FileSourceDb.Test.CoveredFile.Builder> coveredFilesByName = loadCoverageDetails(component.getRef());
-      List<FileSourceDb.Test> tests = addCoveredFilesToTests(testsByName, coveredFilesByName);
+      Multimap<String, FileSources.Test.Builder> testsByName = buildDbTests(component.getRef());
+      Table<String, String, FileSources.Test.CoveredFile.Builder> coveredFilesByName = loadCoverageDetails(component.getRef());
+      List<FileSources.Test> tests = addCoveredFilesToTests(testsByName, coveredFilesByName);
       if (checkIfThereAreUnprocessedCoverageDetails(testsByName, coveredFilesByName, component.getKey())) {
         hasUnprocessedCoverageDetails = true;
       }
@@ -154,8 +153,8 @@ public class PersistTestsStep implements ComputationStep {
       }
     }
 
-    private boolean checkIfThereAreUnprocessedCoverageDetails(Multimap<String, FileSourceDb.Test.Builder> testsByName,
-      Table<String, String, FileSourceDb.Test.CoveredFile.Builder> coveredFilesByName, String componentKey) {
+    private boolean checkIfThereAreUnprocessedCoverageDetails(Multimap<String, FileSources.Test.Builder> testsByName,
+      Table<String, String, FileSources.Test.CoveredFile.Builder> coveredFilesByName, String componentKey) {
       Set<String> unprocessedCoverageDetailNames = new HashSet<>(coveredFilesByName.rowKeySet());
       unprocessedCoverageDetailNames.removeAll(testsByName.keySet());
       boolean hasUnprocessedCoverage = !unprocessedCoverageDetailNames.isEmpty();
@@ -165,13 +164,13 @@ public class PersistTestsStep implements ComputationStep {
       return hasUnprocessedCoverage;
     }
 
-    private List<FileSourceDb.Test> addCoveredFilesToTests(Multimap<String, FileSourceDb.Test.Builder> testsByName,
-      Table<String, String, FileSourceDb.Test.CoveredFile.Builder> coveredFilesByName) {
-      List<FileSourceDb.Test> tests = new ArrayList<>();
-      for (FileSourceDb.Test.Builder test : testsByName.values()) {
-        Collection<FileSourceDb.Test.CoveredFile.Builder> coveredFiles = coveredFilesByName.row(test.getName()).values();
+    private List<FileSources.Test> addCoveredFilesToTests(Multimap<String, FileSources.Test.Builder> testsByName,
+      Table<String, String, FileSources.Test.CoveredFile.Builder> coveredFilesByName) {
+      List<FileSources.Test> tests = new ArrayList<>();
+      for (FileSources.Test.Builder test : testsByName.values()) {
+        Collection<FileSources.Test.CoveredFile.Builder> coveredFiles = coveredFilesByName.row(test.getName()).values();
         if (!coveredFiles.isEmpty()) {
-          for (FileSourceDb.Test.CoveredFile.Builder coveredFile : coveredFiles) {
+          for (FileSources.Test.CoveredFile.Builder coveredFile : coveredFiles) {
             test.addCoveredFile(coveredFile);
           }
         }
@@ -181,20 +180,20 @@ public class PersistTestsStep implements ComputationStep {
       return tests;
     }
 
-    private Multimap<String, FileSourceDb.Test.Builder> buildDbTests(int componentRed) {
-      Multimap<String, FileSourceDb.Test.Builder> tests = ArrayListMultimap.create();
+    private Multimap<String, FileSources.Test.Builder> buildDbTests(int componentRed) {
+      Multimap<String, FileSources.Test.Builder> tests = ArrayListMultimap.create();
 
       try (CloseableIterator<BatchReport.Test> testIterator = reportReader.readTests(componentRed)) {
         while (testIterator.hasNext()) {
           BatchReport.Test batchTest = testIterator.next();
-          FileSourceDb.Test.Builder dbTest = FileSourceDb.Test.newBuilder();
+          FileSources.Test.Builder dbTest = FileSources.Test.newBuilder();
           dbTest.setUuid(Uuids.create());
           dbTest.setName(batchTest.getName());
           if (batchTest.hasStacktrace()) {
             dbTest.setStacktrace(batchTest.getStacktrace());
           }
           if (batchTest.hasStatus()) {
-            dbTest.setStatus(TestStatus.valueOf(batchTest.getStatus().name()));
+            dbTest.setStatus(FileSources.Test.TestStatus.valueOf(batchTest.getStatus().name()));
           }
           if (batchTest.hasMsg()) {
             dbTest.setMsg(batchTest.getMsg());
@@ -213,8 +212,8 @@ public class PersistTestsStep implements ComputationStep {
     /**
      * returns a Table of (test name, main file uuid, covered file)
      */
-    private Table<String, String, FileSourceDb.Test.CoveredFile.Builder> loadCoverageDetails(int testFileRef) {
-      Table<String, String, FileSourceDb.Test.CoveredFile.Builder> nameToCoveredFiles = HashBasedTable.create();
+    private Table<String, String, FileSources.Test.CoveredFile.Builder> loadCoverageDetails(int testFileRef) {
+      Table<String, String, FileSources.Test.CoveredFile.Builder> nameToCoveredFiles = HashBasedTable.create();
 
       try (CloseableIterator<BatchReport.CoverageDetail> coverageIterator = reportReader.readCoverageDetails(testFileRef)) {
         while (coverageIterator.hasNext()) {
@@ -222,10 +221,10 @@ public class PersistTestsStep implements ComputationStep {
           for (BatchReport.CoverageDetail.CoveredFile batchCoveredFile : batchCoverageDetail.getCoveredFileList()) {
             String testName = batchCoverageDetail.getTestName();
             String mainFileUuid = getUuid(batchCoveredFile.getFileRef());
-            FileSourceDb.Test.CoveredFile.Builder existingDbCoveredFile = nameToCoveredFiles.get(testName, mainFileUuid);
+            FileSources.Test.CoveredFile.Builder existingDbCoveredFile = nameToCoveredFiles.get(testName, mainFileUuid);
             List<Integer> batchCoveredLines = batchCoveredFile.getCoveredLineList();
             if (existingDbCoveredFile == null) {
-              FileSourceDb.Test.CoveredFile.Builder dbCoveredFile = FileSourceDb.Test.CoveredFile.newBuilder()
+              FileSources.Test.CoveredFile.Builder dbCoveredFile = FileSources.Test.CoveredFile.newBuilder()
                 .setFileUuid(getUuid(batchCoveredFile.getFileRef()))
                 .addAllCoveredLine(batchCoveredLines);
               nameToCoveredFiles.put(testName, mainFileUuid, dbCoveredFile);

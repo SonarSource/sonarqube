@@ -30,8 +30,7 @@ import javax.annotation.Nullable;
 import net.jpountz.lz4.LZ4BlockInputStream;
 import net.jpountz.lz4.LZ4BlockOutputStream;
 import org.apache.commons.io.IOUtils;
-import org.sonar.server.source.db.FileSourceDb;
-import org.sonar.server.source.db.FileSourceDb.Test;
+import org.sonar.db.FileSources;
 
 public class FileSourceDto {
 
@@ -86,7 +85,7 @@ public class FileSourceDto {
     return this;
   }
 
-  public static FileSourceDb.Data decodeSourceData(byte[] binaryData) {
+  public static FileSources.Data decodeSourceData(byte[] binaryData) {
     // stream is always closed
     return decodeSourceData(new ByteArrayInputStream(binaryData));
   }
@@ -95,11 +94,11 @@ public class FileSourceDto {
    * Decompress and deserialize content of column FILE_SOURCES.BINARY_DATA.
    * The parameter "input" is always closed by this method.
    */
-  public static FileSourceDb.Data decodeSourceData(InputStream binaryInput) {
+  public static FileSources.Data decodeSourceData(InputStream binaryInput) {
     LZ4BlockInputStream lz4Input = null;
     try {
       lz4Input = new LZ4BlockInputStream(binaryInput);
-      return FileSourceDb.Data.parseFrom(lz4Input);
+      return FileSources.Data.parseFrom(lz4Input);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to decompress and deserialize source data", e);
     } finally {
@@ -108,10 +107,10 @@ public class FileSourceDto {
   }
 
   /**
-   * Serialize and compress protobuf message {@link org.sonar.server.source.db.FileSourceDb.Data}
+   * Serialize and compress protobuf message {@link org.sonar.db.FileSources.Data}
    * in the column BINARY_DATA.
    */
-  public static byte[] encodeSourceData(FileSourceDb.Data data) {
+  public static byte[] encodeSourceData(FileSources.Data data) {
     ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
     LZ4BlockOutputStream compressedOutput = new LZ4BlockOutputStream(byteOutput);
     try {
@@ -125,7 +124,7 @@ public class FileSourceDto {
     }
   }
 
-  public static List<Test> decodeTestData(byte[] binaryData) {
+  public static List<FileSources.Test> decodeTestData(byte[] binaryData) {
     // stream is always closed
     return decodeTestData(new ByteArrayInputStream(binaryData));
   }
@@ -134,15 +133,15 @@ public class FileSourceDto {
    * Decompress and deserialize content of column FILE_SOURCES.BINARY_DATA.
    * The parameter "input" is always closed by this method.
    */
-  public static List<Test> decodeTestData(InputStream binaryInput) {
+  public static List<FileSources.Test> decodeTestData(InputStream binaryInput) {
     LZ4BlockInputStream lz4Input = null;
-    List<Test> tests = new ArrayList<>();
+    List<FileSources.Test> tests = new ArrayList<>();
     try {
       lz4Input = new LZ4BlockInputStream(binaryInput);
 
-      Test currentTest;
+      FileSources.Test currentTest;
       do {
-        currentTest = Test.parseDelimitedFrom(lz4Input);
+        currentTest = FileSources.Test.parseDelimitedFrom(lz4Input);
         if (currentTest != null) {
           tests.add(currentTest);
         }
@@ -156,14 +155,14 @@ public class FileSourceDto {
   }
 
   /**
-   * Serialize and compress protobuf message {@link org.sonar.server.source.db.FileSourceDb.Data}
+   * Serialize and compress protobuf message {@link org.sonar.db.FileSources.Data}
    * in the column BINARY_DATA.
    */
-  public static byte[] encodeTestData(List<Test> tests) {
+  public static byte[] encodeTestData(List<FileSources.Test> tests) {
     ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
     LZ4BlockOutputStream compressedOutput = new LZ4BlockOutputStream(byteOutput);
     try {
-      for (Test test : tests) {
+      for (FileSources.Test test : tests) {
         test.writeDelimitedTo(compressedOutput);
       }
       compressedOutput.close();
@@ -176,14 +175,14 @@ public class FileSourceDto {
   }
 
   /**
-   * Compressed value of serialized protobuf message {@link org.sonar.server.source.db.FileSourceDb.Data}
+   * Compressed value of serialized protobuf message {@link org.sonar.db.FileSources.Data}
    */
   public byte[] getBinaryData() {
     return binaryData;
   }
 
   /**
-   * Set compressed value of the protobuf message {@link org.sonar.server.source.db.FileSourceDb.Data}
+   * Set compressed value of the protobuf message {@link org.sonar.db.FileSources.Data}
    */
   public FileSourceDto setBinaryData(byte[] data) {
     this.binaryData = data;
@@ -191,26 +190,26 @@ public class FileSourceDto {
   }
 
   /**
-   * Compressed value of serialized protobuf message {@link org.sonar.server.source.db.FileSourceDb.Data}
+   * Compressed value of serialized protobuf message {@link org.sonar.db.FileSources.Data}
    */
-  public FileSourceDb.Data getSourceData() {
+  public FileSources.Data getSourceData() {
     return decodeSourceData(binaryData);
   }
 
-  public FileSourceDto setSourceData(FileSourceDb.Data data) {
+  public FileSourceDto setSourceData(FileSources.Data data) {
     this.dataType = Type.SOURCE;
     this.binaryData = encodeSourceData(data);
     return this;
   }
 
   /**
-   * Compressed value of serialized protobuf message {@link org.sonar.server.source.db.FileSourceDb.Data}
+   * Compressed value of serialized protobuf message {@link org.sonar.db.FileSources.Data}
    */
-  public List<Test> getTestData() {
+  public List<FileSources.Test> getTestData() {
     return decodeTestData(binaryData);
   }
 
-  public FileSourceDto setTestData(List<Test> data) {
+  public FileSourceDto setTestData(List<FileSources.Test> data) {
     this.dataType = Type.TEST;
     this.binaryData = encodeTestData(data);
     return this;

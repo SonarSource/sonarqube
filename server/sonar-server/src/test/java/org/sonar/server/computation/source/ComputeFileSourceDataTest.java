@@ -22,7 +22,7 @@ package org.sonar.server.computation.source;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
-import org.sonar.server.source.db.FileSourceDb;
+import org.sonar.db.FileSources;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,11 +31,10 @@ public class ComputeFileSourceDataTest {
 
   @Test
   public void compute_one_line() {
-      ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(
-        newArrayList("line1").iterator(),
-        Lists.<LineReader>newArrayList(new MockLineReader()),
-        1
-      );
+    ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(
+      newArrayList("line1").iterator(),
+      Lists.<LineReader>newArrayList(new MockLineReader()),
+      1);
 
     ComputeFileSourceData.Data data = computeFileSourceData.compute();
     assertThat(data.getLineHashes()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b");
@@ -49,8 +48,7 @@ public class ComputeFileSourceDataTest {
     ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(
       newArrayList("line1", "line2").iterator(),
       Lists.<LineReader>newArrayList(new MockLineReader()),
-      2
-    );
+      2);
 
     ComputeFileSourceData.Data data = computeFileSourceData.compute();
     assertThat(data.getLineHashes()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b\ne6251bcf1a7dc3ba5e7933e325bbe605");
@@ -66,8 +64,7 @@ public class ComputeFileSourceDataTest {
       newArrayList("line1").iterator(),
       Lists.<LineReader>newArrayList(new MockLineReader()),
       // There's only one line in the line iterator but the file has 2 lines
-      2
-    );
+      2);
 
     ComputeFileSourceData.Data data = computeFileSourceData.compute();
     assertThat(data.getLineHashes()).isEqualTo("137f72c3708c6bd0de00a0e5a69c699b\n");
@@ -82,14 +79,12 @@ public class ComputeFileSourceDataTest {
     String refLineHashes = new ComputeFileSourceData(
       newArrayList("line1").iterator(),
       Lists.<LineReader>newArrayList(new MockLineReader()),
-      1
-    ).compute().getLineHashes();
+      1).compute().getLineHashes();
 
     assertThat(new ComputeFileSourceData(
       newArrayList(" line\t \t 1  ").iterator(),
       Lists.<LineReader>newArrayList(new MockLineReader()),
-      1
-    ).compute().getLineHashes()).isEqualTo(refLineHashes);
+      1).compute().getLineHashes()).isEqualTo(refLineHashes);
   }
 
   @Test
@@ -97,13 +92,12 @@ public class ComputeFileSourceDataTest {
     assertThat(new ComputeFileSourceData(
       newArrayList("   ").iterator(),
       Lists.<LineReader>newArrayList(new MockLineReader()),
-      1
-    ).compute().getLineHashes()).isEqualTo("");
+      1).compute().getLineHashes()).isEqualTo("");
   }
 
   private static class MockLineReader implements LineReader {
     @Override
-    public void read(FileSourceDb.Line.Builder lineBuilder) {
+    public void read(FileSources.Line.Builder lineBuilder) {
       lineBuilder.setHighlighting("h-" + lineBuilder.getLine());
     }
   }

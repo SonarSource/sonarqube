@@ -39,10 +39,9 @@ import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.FileSources;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.source.db.FileSourceDb;
-import org.sonar.server.source.db.FileSourceDb.Test.TestStatus;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.test.db.TestTesting;
 import org.sonar.test.DbTests;
@@ -121,16 +120,15 @@ public class TestIndexerTest {
     indexTest("P1", "F2", "T1", "U121");
 
     FileSourcesUpdaterHelper.Row dbRow = TestResultSetIterator.toRow("P1", "F1", new Date(), Arrays.asList(
-      FileSourceDb.Test.newBuilder()
+      FileSources.Test.newBuilder()
         .setUuid("U111")
         .setName("NAME_1")
-        .setStatus(TestStatus.FAILURE)
+        .setStatus(FileSources.Test.TestStatus.FAILURE)
         .setMsg("NEW_MESSAGE_1")
         .setStacktrace("NEW_STACKTRACE_1")
         .setExecutionTimeMs(123_456L)
-        .addCoveredFile(FileSourceDb.Test.CoveredFile.newBuilder().setFileUuid("MAIN_UUID_1").addCoveredLine(42))
-        .build()
-      ));
+        .addCoveredFile(FileSources.Test.CoveredFile.newBuilder().setFileUuid("MAIN_UUID_1").addCoveredLine(42))
+        .build()));
     underTest.index(Iterators.singletonIterator(dbRow));
 
     assertThat(countDocuments()).isEqualTo(2L);
@@ -148,8 +146,7 @@ public class TestIndexerTest {
       entry(FIELD_STATUS, "FAILURE"),
       entry(FIELD_MESSAGE, "NEW_MESSAGE_1"),
       entry(FIELD_STACKTRACE, "NEW_STACKTRACE_1"),
-      entry(FIELD_DURATION_IN_MS, 123_456)
-      );
+      entry(FIELD_DURATION_IN_MS, 123_456));
   }
 
   @Test

@@ -1,14 +1,25 @@
 #!/bin/bash
 
-# Usage: compile_protobuf <inputDir> <outputDir>
+# Compiles all the Protocol Buffers files (*.proto) to Java source code.
+# IMPORTANT - protobuf 2.6.1 must be installed. Other versions are not supported.
+
+# Usage: compile_protobuf <module> <type: main or test>
 function compile_protobuf {
-  echo "Compiling [$1] to [$2]..."
-  mkdir -p $2
-  protoc --proto_path=$1 --java_out=$2 $1/*.proto
+  INPUT="$1/src/$2/protobuf"
+  OUTPUT="$1/src/$2/gen-java"
+
+  if [ -d $INPUT ]
+  then
+    echo "Compiling [$INPUT] to [$OUTPUT]..."
+    rm -rf $OUTPUT
+    mkdir -p $OUTPUT
+    protoc --proto_path=$INPUT --java_out=$OUTPUT $INPUT/*.proto
+  fi
 }
 
-compile_protobuf "sonar-core/src/test/protobuf" "sonar-core/src/test/gen-java"
-compile_protobuf "sonar-batch-protocol/src/main/protobuf" "sonar-batch-protocol/src/main/gen-java"
+compile_protobuf "sonar-batch-protocol" "main"
+compile_protobuf "sonar-core" "test"
+compile_protobuf "sonar-db" "main"
 
 
 

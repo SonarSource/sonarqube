@@ -42,6 +42,7 @@ import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.FileSources;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.ActionPlanDto;
@@ -62,7 +63,6 @@ import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.source.index.SourceLineIndexer;
 import org.sonar.server.source.index.SourceLineResultSetIterator;
@@ -608,7 +608,7 @@ public class IssueServiceMediumTest {
   }
 
   private void newSourceLine(ComponentDto file, int line, String scmAuthor) {
-    FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
+    FileSources.Data.Builder dataBuilder = FileSources.Data.newBuilder();
     dataBuilder.addLinesBuilder()
       .setLine(line)
       .setScmAuthor(scmAuthor)
