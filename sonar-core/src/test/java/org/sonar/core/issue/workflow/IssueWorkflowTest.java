@@ -29,7 +29,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
 import org.sonar.api.issue.DefaultTransitions;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
@@ -38,8 +37,14 @@ import org.sonar.core.issue.IssueUpdater;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
+import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
+import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
+import static org.sonar.api.issue.Issue.STATUS_OPEN;
+import static org.sonar.api.issue.Issue.STATUS_REOPENED;
+import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
 import static org.sonar.api.rule.RuleKey.MANUAL_REPOSITORY_KEY;
 
 public class IssueWorkflowTest {
@@ -52,11 +57,11 @@ public class IssueWorkflowTest {
     assertThat(workflow.machine()).isNull();
     workflow.start();
     assertThat(workflow.machine()).isNotNull();
-    assertThat(workflow.machine().state(Issue.STATUS_OPEN)).isNotNull();
-    assertThat(workflow.machine().state(Issue.STATUS_CONFIRMED)).isNotNull();
+    assertThat(workflow.machine().state(STATUS_OPEN)).isNotNull();
+    assertThat(workflow.machine().state(STATUS_CONFIRMED)).isNotNull();
     assertThat(workflow.machine().state(STATUS_CLOSED)).isNotNull();
-    assertThat(workflow.machine().state(Issue.STATUS_REOPENED)).isNotNull();
-    assertThat(workflow.machine().state(Issue.STATUS_RESOLVED)).isNotNull();
+    assertThat(workflow.machine().state(STATUS_REOPENED)).isNotNull();
+    assertThat(workflow.machine().state(STATUS_RESOLVED)).isNotNull();
     workflow.stop();
   }
 
@@ -64,14 +69,14 @@ public class IssueWorkflowTest {
   public void list_statuses() {
     workflow.start();
     // order is important for UI
-    assertThat(workflow.statusKeys()).containsSequence(Issue.STATUS_OPEN, Issue.STATUS_CONFIRMED, Issue.STATUS_REOPENED, Issue.STATUS_RESOLVED, STATUS_CLOSED);
+    assertThat(workflow.statusKeys()).containsSequence(STATUS_OPEN, STATUS_CONFIRMED, STATUS_REOPENED, STATUS_RESOLVED, STATUS_CLOSED);
   }
 
   @Test
   public void list_out_transitions_from_status_open() {
     workflow.start();
 
-    DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_OPEN);
+    DefaultIssue issue = new DefaultIssue().setStatus(STATUS_OPEN);
     List<Transition> transitions = workflow.outTransitions(issue);
     assertThat(keys(transitions)).containsOnly("confirm", "falsepositive", "resolve", "wontfix");
   }
@@ -80,7 +85,7 @@ public class IssueWorkflowTest {
   public void list_out_transitions_from_status_confirmed() {
     workflow.start();
 
-    DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_CONFIRMED);
+    DefaultIssue issue = new DefaultIssue().setStatus(STATUS_CONFIRMED);
     List<Transition> transitions = workflow.outTransitions(issue);
     assertThat(keys(transitions)).containsOnly("unconfirm", "falsepositive", "resolve", "wontfix");
   }
@@ -89,7 +94,7 @@ public class IssueWorkflowTest {
   public void list_out_transitions_from_status_resolved() {
     workflow.start();
 
-    DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_RESOLVED);
+    DefaultIssue issue = new DefaultIssue().setStatus(STATUS_RESOLVED);
     List<Transition> transitions = workflow.outTransitions(issue);
     assertThat(keys(transitions)).containsOnly("reopen");
   }
@@ -98,7 +103,7 @@ public class IssueWorkflowTest {
   public void list_out_transitions_from_status_reopen() {
     workflow.start();
 
-    DefaultIssue issue = new DefaultIssue().setStatus(Issue.STATUS_REOPENED);
+    DefaultIssue issue = new DefaultIssue().setStatus(STATUS_REOPENED);
     List<Transition> transitions = workflow.outTransitions(issue);
     assertThat(keys(transitions)).containsOnly("confirm", "resolve", "falsepositive", "wontfix");
   }
@@ -148,7 +153,7 @@ public class IssueWorkflowTest {
       .setKey("ABCDE")
       .setRuleKey(RuleKey.of("js", "S001"))
       .setResolution(RESOLUTION_FIXED)
-      .setStatus(Issue.STATUS_RESOLVED)
+      .setStatus(STATUS_RESOLVED)
       .setNew(false)
       .setBeingClosed(true);
     Date now = new Date();
@@ -166,7 +171,7 @@ public class IssueWorkflowTest {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setResolution(null)
-      .setStatus(Issue.STATUS_OPEN)
+      .setStatus(STATUS_OPEN)
       .setNew(false)
       .setBeingClosed(true);
     Date now = new Date();
@@ -184,7 +189,7 @@ public class IssueWorkflowTest {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setResolution(null)
-      .setStatus(Issue.STATUS_REOPENED)
+      .setStatus(STATUS_REOPENED)
       .setNew(false)
       .setBeingClosed(true);
     Date now = new Date();
@@ -202,7 +207,7 @@ public class IssueWorkflowTest {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setResolution(null)
-      .setStatus(Issue.STATUS_CONFIRMED)
+      .setStatus(STATUS_CONFIRMED)
       .setNew(false)
       .setBeingClosed(true);
     Date now = new Date();
@@ -235,15 +240,15 @@ public class IssueWorkflowTest {
   public void flag_as_false_positive() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
-      .setStatus(Issue.STATUS_OPEN)
+      .setStatus(STATUS_OPEN)
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setAssignee("morgan");
 
     workflow.start();
     workflow.doTransition(issue, DefaultTransitions.FALSE_POSITIVE, IssueChangeContext.createScan(new Date()));
 
-    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
-    assertThat(issue.status()).isEqualTo(Issue.STATUS_RESOLVED);
+    assertThat(issue.resolution()).isEqualTo(RESOLUTION_FALSE_POSITIVE);
+    assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);
 
     // should remove assignee
     assertThat(issue.assignee()).isNull();
@@ -253,15 +258,15 @@ public class IssueWorkflowTest {
   public void wont_fix() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
-      .setStatus(Issue.STATUS_OPEN)
+      .setStatus(STATUS_OPEN)
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setAssignee("morgan");
 
     workflow.start();
     workflow.doTransition(issue, DefaultTransitions.WONT_FIX, IssueChangeContext.createScan(new Date()));
 
-    assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_WONT_FIX);
-    assertThat(issue.status()).isEqualTo(Issue.STATUS_RESOLVED);
+    assertThat(issue.resolution()).isEqualTo(RESOLUTION_WONT_FIX);
+    assertThat(issue.status()).isEqualTo(STATUS_RESOLVED);
 
     // should remove assignee
     assertThat(issue.assignee()).isNull();
@@ -275,7 +280,7 @@ public class IssueWorkflowTest {
   public void automatically_close_resolved_manual_issue() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
-      .setStatus(Issue.STATUS_OPEN)
+      .setStatus(STATUS_OPEN)
       .setRuleKey(RuleKey.of(MANUAL_REPOSITORY_KEY, "Performance"));
 
     workflow.start();
@@ -307,7 +312,7 @@ public class IssueWorkflowTest {
   public void automatically_close_manual_issue_on_deleted_code() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
-      .setStatus(Issue.STATUS_OPEN)
+      .setStatus(STATUS_OPEN)
       .setRuleKey(RuleKey.of(MANUAL_REPOSITORY_KEY, "Performance"))
       .setBeingClosed(true);
 
@@ -330,7 +335,7 @@ public class IssueWorkflowTest {
 
     // resolved by user
       .setResolution(RESOLUTION_FIXED)
-      .setStatus(Issue.STATUS_RESOLVED)
+      .setStatus(STATUS_RESOLVED)
 
     // but unmatched by tracking engine
       .setBeingClosed(true);
@@ -347,7 +352,7 @@ public class IssueWorkflowTest {
     // Manual issue because of reporter
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
-      .setStatus(Issue.STATUS_OPEN)
+      .setStatus(STATUS_OPEN)
       .setRuleKey(RuleKey.of("manual", "Performance"))
       .setReporter("simon");
 
@@ -385,7 +390,7 @@ public class IssueWorkflowTest {
     // Manual issue because of reporter
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
-      .setStatus(Issue.STATUS_OPEN)
+      .setStatus(STATUS_OPEN)
       .setRuleKey(RuleKey.of("manual", "Performance"))
       .setReporter("simon")
       .setBeingClosed(true)
@@ -403,7 +408,7 @@ public class IssueWorkflowTest {
     // Manual issue because of reporter
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
-      .setStatus(Issue.STATUS_OPEN)
+      .setStatus(STATUS_OPEN)
       .setRuleKey(RuleKey.of("manual", "Performance"))
       .setReporter("simon")
       .setBeingClosed(true)
