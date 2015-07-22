@@ -10,6 +10,15 @@ import com.google.common.collect.Sets;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.SonarRunner;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ErrorCollector;
+import org.sonar.updatecenter.common.Plugin;
+import org.sonar.updatecenter.common.Release;
 import plugins.checks.AbapCheck;
 import plugins.checks.CCheck;
 import plugins.checks.Check;
@@ -26,15 +35,6 @@ import plugins.checks.RpgCheck;
 import plugins.checks.SwiftCheck;
 import plugins.checks.Validation;
 import plugins.checks.WebCheck;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ErrorCollector;
-import org.sonar.updatecenter.common.Plugin;
-import org.sonar.updatecenter.common.Release;
 
 /**
  * Verify that the plugins available in update center
@@ -56,15 +56,14 @@ public class PluginsTest {
 
   static final Set<String> DISABLED_PLUGINS_FOR_PREVIEW_MODE = Sets.newHashSet("mantis",
 
-    // Caused by: Access to the secured property 'sonar.scm.user.secured' is not possible in preview mode. The SonarQube plugin which requires
-    // this property must be deactivated in preview mode.
+  // Caused by: Access to the secured property 'sonar.scm.user.secured' is not possible in preview mode. The SonarQube plugin which requires
+  // this property must be deactivated in preview mode.
     "scmstats");
 
   // TODO new PliCheck() is temporarily disabled as PLI plugin does not support multi-language feature. See sonar-project.properties
   static final List<Check> CHECKS = Arrays.asList((Check) new AbapCheck(), new CobolCheck(), new CCheck(), new CppCheck(), new CssCheck(),
     new FlexCheck(), new GroovyCheck(), new JavaCheck(), new JavascriptCheck(), new PhpCheck(), new RpgCheck(),
-    new PythonCheck(), new SwiftCheck(), /* FIXME new VbCheck(),*/ new WebCheck()
-    );
+    new PythonCheck(), new SwiftCheck(), /* FIXME new VbCheck(), */ new WebCheck());
 
   static Orchestrator orchestrator;
 
@@ -106,22 +105,11 @@ public class PluginsTest {
   public void preview_analysis_of_project_with_all_supported_languages() {
     SonarRunner analysis = newAnalysis();
     analysis.setProperty("sonar.analysis.mode", "preview");
-    String excludedPlugins = Joiner.on(",").join(DISABLED_PLUGINS_FOR_PREVIEW_MODE);
-    if (orchestrator.getServer().version().toString().startsWith("5.1.1")) {
-      // This bug was fixed in SQ 5.2:
-      // Caused by: java.lang.UnsupportedOperationException: Unable to find rule by query
-      // at org.sonar.batch.rule.RuleFinderCompatibility.find(RuleFinderCompatibility.java:57)
-      // at org.sonar.plugins.groovy.codenarc.CodeNarcSensor.parse(CodeNarcSensor.java:118)
-      excludedPlugins += ",groovy";
-
-      // http://jira.sonarsource.com/browse/SONAR-6673 fixed in 5.1.2
-      excludedPlugins += ",issueassign";
-    }
-    analysis.setProperty("sonar.preview.excludePlugins", excludedPlugins);
+    analysis.setProperty("sonar.preview.excludePlugins", Joiner.on(",").join(DISABLED_PLUGINS_FOR_PREVIEW_MODE));
     orchestrator.executeBuild(analysis);
   }
 
-  private SonarRunner newAnalysis() {
+  private static SonarRunner newAnalysis() {
     SonarRunner analysis = SonarRunner.create(Project.basedir());
     analysis.setEnvironmentVariable("SONAR_RUNNER_OPTS", "-XX:MaxPermSize=128m");
     return analysis;
