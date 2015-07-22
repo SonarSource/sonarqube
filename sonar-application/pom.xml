@@ -91,7 +91,7 @@
 
     <!-- default plugins -->
     <dependency>
-      <groupId>org.codehaus.sonar-plugins.java</groupId>
+      <groupId>org.sonarsource.java</groupId>
       <artifactId>sonar-java-plugin</artifactId>
       <type>sonar-plugin</type>
       <scope>provided</scope>
