@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.NoSuchElementException;
 import javax.annotation.CheckForNull;
 import org.apache.commons.io.FileUtils;
@@ -89,36 +88,13 @@ public class BatchReportReaderImpl implements BatchReportReader {
   }
 
   @Override
-  @CheckForNull
   public CloseableIterator<BatchReport.SyntaxHighlighting> readComponentSyntaxHighlighting(int fileRef) {
-    File file = delegate.readComponentSyntaxHighlighting(fileRef);
-    if (file == null) {
-      return CloseableIterator.emptyCloseableIterator();
-    }
-
-    try {
-      return new ParserCloseableIterator<>(BatchReport.SyntaxHighlighting.PARSER, FileUtils.openInputStream(file));
-    } catch (IOException e) {
-      Throwables.propagate(e);
-      // actually never reached
-      return CloseableIterator.emptyCloseableIterator();
-    }
+    return delegate.readComponentSyntaxHighlighting(fileRef);
   }
 
   @Override
   public CloseableIterator<BatchReport.Coverage> readComponentCoverage(int fileRef) {
-    File file = delegate.readComponentCoverage(fileRef);
-    if (file == null) {
-      return CloseableIterator.emptyCloseableIterator();
-    }
-
-    try {
-      return new ParserCloseableIterator<>(BatchReport.Coverage.PARSER, FileUtils.openInputStream(file));
-    } catch (IOException e) {
-      Throwables.propagate(e);
-      // actually never reached
-      return CloseableIterator.emptyCloseableIterator();
-    }
+    return delegate.readComponentCoverage(fileRef);
   }
 
   @Override

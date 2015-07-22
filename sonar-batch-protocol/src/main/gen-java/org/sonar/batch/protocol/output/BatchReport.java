@@ -5508,86 +5508,6 @@ public final class BatchReport {
      */
     com.google.protobuf.ByteString
         getMetricKeyBytes();
-
-    /**
-     * <code>optional string description = 9;</code>
-     *
-     * <pre>
-     * temporary fields during development of computation stack
-     * </pre>
-     */
-    boolean hasDescription();
-    /**
-     * <code>optional string description = 9;</code>
-     *
-     * <pre>
-     * temporary fields during development of computation stack
-     * </pre>
-     */
-    java.lang.String getDescription();
-    /**
-     * <code>optional string description = 9;</code>
-     *
-     * <pre>
-     * temporary fields during development of computation stack
-     * </pre>
-     */
-    com.google.protobuf.ByteString
-        getDescriptionBytes();
-
-    /**
-     * <code>optional double variation_value_1 = 14;</code>
-     */
-    boolean hasVariationValue1();
-    /**
-     * <code>optional double variation_value_1 = 14;</code>
-     */
-    double getVariationValue1();
-
-    /**
-     * <code>optional double variation_value_2 = 15;</code>
-     */
-    boolean hasVariationValue2();
-    /**
-     * <code>optional double variation_value_2 = 15;</code>
-     */
-    double getVariationValue2();
-
-    /**
-     * <code>optional double variation_value_3 = 16;</code>
-     */
-    boolean hasVariationValue3();
-    /**
-     * <code>optional double variation_value_3 = 16;</code>
-     */
-    double getVariationValue3();
-
-    /**
-     * <code>optional double variation_value_4 = 17;</code>
-     */
-    boolean hasVariationValue4();
-    /**
-     * <code>optional double variation_value_4 = 17;</code>
-     */
-    double getVariationValue4();
-
-    /**
-     * <code>optional double variation_value_5 = 18;</code>
-     */
-    boolean hasVariationValue5();
-    /**
-     * <code>optional double variation_value_5 = 18;</code>
-     */
-    double getVariationValue5();
-
-    /**
-     * <code>optional int32 person_id = 20;</code>
-     */
-    boolean hasPersonId();
-    /**
-     * <code>optional int32 person_id = 20;</code>
-     */
-    int getPersonId();
   }
   /**
    * Protobuf type {@code Measure}
@@ -5682,42 +5602,6 @@ public final class BatchReport {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000040;
               metricKey_ = bs;
-              break;
-            }
-            case 74: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000080;
-              description_ = bs;
-              break;
-            }
-            case 113: {
-              bitField0_ |= 0x00000100;
-              variationValue1_ = input.readDouble();
-              break;
-            }
-            case 121: {
-              bitField0_ |= 0x00000200;
-              variationValue2_ = input.readDouble();
-              break;
-            }
-            case 129: {
-              bitField0_ |= 0x00000400;
-              variationValue3_ = input.readDouble();
-              break;
-            }
-            case 137: {
-              bitField0_ |= 0x00000800;
-              variationValue4_ = input.readDouble();
-              break;
-            }
-            case 145: {
-              bitField0_ |= 0x00001000;
-              variationValue5_ = input.readDouble();
-              break;
-            }
-            case 160: {
-              bitField0_ |= 0x00002000;
-              personId_ = input.readInt32();
               break;
             }
           }
@@ -5927,150 +5811,6 @@ public final class BatchReport {
       }
     }
 
-    public static final int DESCRIPTION_FIELD_NUMBER = 9;
-    private java.lang.Object description_;
-    /**
-     * <code>optional string description = 9;</code>
-     *
-     * <pre>
-     * temporary fields during development of computation stack
-     * </pre>
-     */
-    public boolean hasDescription() {
-      return ((bitField0_ & 0x00000080) == 0x00000080);
-    }
-    /**
-     * <code>optional string description = 9;</code>
-     *
-     * <pre>
-     * temporary fields during development of computation stack
-     * </pre>
-     */
-    public java.lang.String getDescription() {
-      java.lang.Object ref = description_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          description_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string description = 9;</code>
-     *
-     * <pre>
-     * temporary fields during development of computation stack
-     * </pre>
-     */
-    public com.google.protobuf.ByteString
-        getDescriptionBytes() {
-      java.lang.Object ref = description_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        description_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int VARIATION_VALUE_1_FIELD_NUMBER = 14;
-    private double variationValue1_;
-    /**
-     * <code>optional double variation_value_1 = 14;</code>
-     */
-    public boolean hasVariationValue1() {
-      return ((bitField0_ & 0x00000100) == 0x00000100);
-    }
-    /**
-     * <code>optional double variation_value_1 = 14;</code>
-     */
-    public double getVariationValue1() {
-      return variationValue1_;
-    }
-
-    public static final int VARIATION_VALUE_2_FIELD_NUMBER = 15;
-    private double variationValue2_;
-    /**
-     * <code>optional double variation_value_2 = 15;</code>
-     */
-    public boolean hasVariationValue2() {
-      return ((bitField0_ & 0x00000200) == 0x00000200);
-    }
-    /**
-     * <code>optional double variation_value_2 = 15;</code>
-     */
-    public double getVariationValue2() {
-      return variationValue2_;
-    }
-
-    public static final int VARIATION_VALUE_3_FIELD_NUMBER = 16;
-    private double variationValue3_;
-    /**
-     * <code>optional double variation_value_3 = 16;</code>
-     */
-    public boolean hasVariationValue3() {
-      return ((bitField0_ & 0x00000400) == 0x00000400);
-    }
-    /**
-     * <code>optional double variation_value_3 = 16;</code>
-     */
-    public double getVariationValue3() {
-      return variationValue3_;
-    }
-
-    public static final int VARIATION_VALUE_4_FIELD_NUMBER = 17;
-    private double variationValue4_;
-    /**
-     * <code>optional double variation_value_4 = 17;</code>
-     */
-    public boolean hasVariationValue4() {
-      return ((bitField0_ & 0x00000800) == 0x00000800);
-    }
-    /**
-     * <code>optional double variation_value_4 = 17;</code>
-     */
-    public double getVariationValue4() {
-      return variationValue4_;
-    }
-
-    public static final int VARIATION_VALUE_5_FIELD_NUMBER = 18;
-    private double variationValue5_;
-    /**
-     * <code>optional double variation_value_5 = 18;</code>
-     */
-    public boolean hasVariationValue5() {
-      return ((bitField0_ & 0x00001000) == 0x00001000);
-    }
-    /**
-     * <code>optional double variation_value_5 = 18;</code>
-     */
-    public double getVariationValue5() {
-      return variationValue5_;
-    }
-
-    public static final int PERSON_ID_FIELD_NUMBER = 20;
-    private int personId_;
-    /**
-     * <code>optional int32 person_id = 20;</code>
-     */
-    public boolean hasPersonId() {
-      return ((bitField0_ & 0x00002000) == 0x00002000);
-    }
-    /**
-     * <code>optional int32 person_id = 20;</code>
-     */
-    public int getPersonId() {
-      return personId_;
-    }
-
     private void initFields() {
       valueType_ = org.sonar.batch.protocol.Constants.MeasureValueType.INT;
       booleanValue_ = false;
@@ -6079,13 +5819,6 @@ public final class BatchReport {
       doubleValue_ = 0D;
       stringValue_ = "";
       metricKey_ = "";
-      description_ = "";
-      variationValue1_ = 0D;
-      variationValue2_ = 0D;
-      variationValue3_ = 0D;
-      variationValue4_ = 0D;
-      variationValue5_ = 0D;
-      personId_ = 0;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -6120,27 +5853,6 @@ public final class BatchReport {
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         output.writeBytes(7, getMetricKeyBytes());
-      }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
-        output.writeBytes(9, getDescriptionBytes());
-      }
-      if (((bitField0_ & 0x00000100) == 0x00000100)) {
-        output.writeDouble(14, variationValue1_);
-      }
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        output.writeDouble(15, variationValue2_);
-      }
-      if (((bitField0_ & 0x00000400) == 0x00000400)) {
-        output.writeDouble(16, variationValue3_);
-      }
-      if (((bitField0_ & 0x00000800) == 0x00000800)) {
-        output.writeDouble(17, variationValue4_);
-      }
-      if (((bitField0_ & 0x00001000) == 0x00001000)) {
-        output.writeDouble(18, variationValue5_);
-      }
-      if (((bitField0_ & 0x00002000) == 0x00002000)) {
-        output.writeInt32(20, personId_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -6178,34 +5890,6 @@ public final class BatchReport {
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(7, getMetricKeyBytes());
-      }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(9, getDescriptionBytes());
-      }
-      if (((bitField0_ & 0x00000100) == 0x00000100)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(14, variationValue1_);
-      }
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(15, variationValue2_);
-      }
-      if (((bitField0_ & 0x00000400) == 0x00000400)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(16, variationValue3_);
-      }
-      if (((bitField0_ & 0x00000800) == 0x00000800)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(17, variationValue4_);
-      }
-      if (((bitField0_ & 0x00001000) == 0x00001000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(18, variationValue5_);
-      }
-      if (((bitField0_ & 0x00002000) == 0x00002000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(20, personId_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -6338,20 +6022,6 @@ public final class BatchReport {
         bitField0_ = (bitField0_ & ~0x00000020);
         metricKey_ = "";
         bitField0_ = (bitField0_ & ~0x00000040);
-        description_ = "";
-        bitField0_ = (bitField0_ & ~0x00000080);
-        variationValue1_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00000100);
-        variationValue2_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00000200);
-        variationValue3_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00000400);
-        variationValue4_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00000800);
-        variationValue5_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00001000);
-        personId_ = 0;
-        bitField0_ = (bitField0_ & ~0x00002000);
         return this;
       }
 
@@ -6408,34 +6078,6 @@ public final class BatchReport {
           to_bitField0_ |= 0x00000040;
         }
         result.metricKey_ = metricKey_;
-        if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
-          to_bitField0_ |= 0x00000080;
-        }
-        result.description_ = description_;
-        if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
-          to_bitField0_ |= 0x00000100;
-        }
-        result.variationValue1_ = variationValue1_;
-        if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
-          to_bitField0_ |= 0x00000200;
-        }
-        result.variationValue2_ = variationValue2_;
-        if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
-          to_bitField0_ |= 0x00000400;
-        }
-        result.variationValue3_ = variationValue3_;
-        if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
-          to_bitField0_ |= 0x00000800;
-        }
-        result.variationValue4_ = variationValue4_;
-        if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
-          to_bitField0_ |= 0x00001000;
-        }
-        result.variationValue5_ = variationValue5_;
-        if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
-          to_bitField0_ |= 0x00002000;
-        }
-        result.personId_ = personId_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -6476,29 +6118,6 @@ public final class BatchReport {
           bitField0_ |= 0x00000040;
           metricKey_ = other.metricKey_;
           onChanged();
-        }
-        if (other.hasDescription()) {
-          bitField0_ |= 0x00000080;
-          description_ = other.description_;
-          onChanged();
-        }
-        if (other.hasVariationValue1()) {
-          setVariationValue1(other.getVariationValue1());
-        }
-        if (other.hasVariationValue2()) {
-          setVariationValue2(other.getVariationValue2());
-        }
-        if (other.hasVariationValue3()) {
-          setVariationValue3(other.getVariationValue3());
-        }
-        if (other.hasVariationValue4()) {
-          setVariationValue4(other.getVariationValue4());
-        }
-        if (other.hasVariationValue5()) {
-          setVariationValue5(other.getVariationValue5());
-        }
-        if (other.hasPersonId()) {
-          setPersonId(other.getPersonId());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -6854,298 +6473,6 @@ public final class BatchReport {
   }
   bitField0_ |= 0x00000040;
         metricKey_ = value;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object description_ = "";
-      /**
-       * <code>optional string description = 9;</code>
-       *
-       * <pre>
-       * temporary fields during development of computation stack
-       * </pre>
-       */
-      public boolean hasDescription() {
-        return ((bitField0_ & 0x00000080) == 0x00000080);
-      }
-      /**
-       * <code>optional string description = 9;</code>
-       *
-       * <pre>
-       * temporary fields during development of computation stack
-       * </pre>
-       */
-      public java.lang.String getDescription() {
-        java.lang.Object ref = description_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            description_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>optional string description = 9;</code>
-       *
-       * <pre>
-       * temporary fields during development of computation stack
-       * </pre>
-       */
-      public com.google.protobuf.ByteString
-          getDescriptionBytes() {
-        java.lang.Object ref = description_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          description_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string description = 9;</code>
-       *
-       * <pre>
-       * temporary fields during development of computation stack
-       * </pre>
-       */
-      public Builder setDescription(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000080;
-        description_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string description = 9;</code>
-       *
-       * <pre>
-       * temporary fields during development of computation stack
-       * </pre>
-       */
-      public Builder clearDescription() {
-        bitField0_ = (bitField0_ & ~0x00000080);
-        description_ = getDefaultInstance().getDescription();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string description = 9;</code>
-       *
-       * <pre>
-       * temporary fields during development of computation stack
-       * </pre>
-       */
-      public Builder setDescriptionBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000080;
-        description_ = value;
-        onChanged();
-        return this;
-      }
-
-      private double variationValue1_ ;
-      /**
-       * <code>optional double variation_value_1 = 14;</code>
-       */
-      public boolean hasVariationValue1() {
-        return ((bitField0_ & 0x00000100) == 0x00000100);
-      }
-      /**
-       * <code>optional double variation_value_1 = 14;</code>
-       */
-      public double getVariationValue1() {
-        return variationValue1_;
-      }
-      /**
-       * <code>optional double variation_value_1 = 14;</code>
-       */
-      public Builder setVariationValue1(double value) {
-        bitField0_ |= 0x00000100;
-        variationValue1_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional double variation_value_1 = 14;</code>
-       */
-      public Builder clearVariationValue1() {
-        bitField0_ = (bitField0_ & ~0x00000100);
-        variationValue1_ = 0D;
-        onChanged();
-        return this;
-      }
-
-      private double variationValue2_ ;
-      /**
-       * <code>optional double variation_value_2 = 15;</code>
-       */
-      public boolean hasVariationValue2() {
-        return ((bitField0_ & 0x00000200) == 0x00000200);
-      }
-      /**
-       * <code>optional double variation_value_2 = 15;</code>
-       */
-      public double getVariationValue2() {
-        return variationValue2_;
-      }
-      /**
-       * <code>optional double variation_value_2 = 15;</code>
-       */
-      public Builder setVariationValue2(double value) {
-        bitField0_ |= 0x00000200;
-        variationValue2_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional double variation_value_2 = 15;</code>
-       */
-      public Builder clearVariationValue2() {
-        bitField0_ = (bitField0_ & ~0x00000200);
-        variationValue2_ = 0D;
-        onChanged();
-        return this;
-      }
-
-      private double variationValue3_ ;
-      /**
-       * <code>optional double variation_value_3 = 16;</code>
-       */
-      public boolean hasVariationValue3() {
-        return ((bitField0_ & 0x00000400) == 0x00000400);
-      }
-      /**
-       * <code>optional double variation_value_3 = 16;</code>
-       */
-      public double getVariationValue3() {
-        return variationValue3_;
-      }
-      /**
-       * <code>optional double variation_value_3 = 16;</code>
-       */
-      public Builder setVariationValue3(double value) {
-        bitField0_ |= 0x00000400;
-        variationValue3_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional double variation_value_3 = 16;</code>
-       */
-      public Builder clearVariationValue3() {
-        bitField0_ = (bitField0_ & ~0x00000400);
-        variationValue3_ = 0D;
-        onChanged();
-        return this;
-      }
-
-      private double variationValue4_ ;
-      /**
-       * <code>optional double variation_value_4 = 17;</code>
-       */
-      public boolean hasVariationValue4() {
-        return ((bitField0_ & 0x00000800) == 0x00000800);
-      }
-      /**
-       * <code>optional double variation_value_4 = 17;</code>
-       */
-      public double getVariationValue4() {
-        return variationValue4_;
-      }
-      /**
-       * <code>optional double variation_value_4 = 17;</code>
-       */
-      public Builder setVariationValue4(double value) {
-        bitField0_ |= 0x00000800;
-        variationValue4_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional double variation_value_4 = 17;</code>
-       */
-      public Builder clearVariationValue4() {
-        bitField0_ = (bitField0_ & ~0x00000800);
-        variationValue4_ = 0D;
-        onChanged();
-        return this;
-      }
-
-      private double variationValue5_ ;
-      /**
-       * <code>optional double variation_value_5 = 18;</code>
-       */
-      public boolean hasVariationValue5() {
-        return ((bitField0_ & 0x00001000) == 0x00001000);
-      }
-      /**
-       * <code>optional double variation_value_5 = 18;</code>
-       */
-      public double getVariationValue5() {
-        return variationValue5_;
-      }
-      /**
-       * <code>optional double variation_value_5 = 18;</code>
-       */
-      public Builder setVariationValue5(double value) {
-        bitField0_ |= 0x00001000;
-        variationValue5_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional double variation_value_5 = 18;</code>
-       */
-      public Builder clearVariationValue5() {
-        bitField0_ = (bitField0_ & ~0x00001000);
-        variationValue5_ = 0D;
-        onChanged();
-        return this;
-      }
-
-      private int personId_ ;
-      /**
-       * <code>optional int32 person_id = 20;</code>
-       */
-      public boolean hasPersonId() {
-        return ((bitField0_ & 0x00002000) == 0x00002000);
-      }
-      /**
-       * <code>optional int32 person_id = 20;</code>
-       */
-      public int getPersonId() {
-        return personId_;
-      }
-      /**
-       * <code>optional int32 person_id = 20;</code>
-       */
-      public Builder setPersonId(int value) {
-        bitField0_ |= 0x00002000;
-        personId_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional int32 person_id = 20;</code>
-       */
-      public Builder clearPersonId() {
-        bitField0_ = (bitField0_ & ~0x00002000);
-        personId_ = 0;
         onChanged();
         return this;
       }
@@ -17744,46 +17071,42 @@ public final class BatchReport {
       "(\010\022\020\n\010language\030\006 \001(\t\022\025\n\tchild_ref\030\007 \003(\005B" +
       "\002\020\001\022\034\n\004link\030\010 \003(\0132\016.ComponentLink\022\017\n\007ver" +
       "sion\030\t \001(\t\022\013\n\003key\030\n \001(\t\022\r\n\005lines\030\013 \001(\005\022\023" +
-      "\n\013description\030\014 \001(\t\"\335\002\n\007Measure\022%\n\nvalue" +
+      "\n\013description\030\014 \001(\t\"\256\001\n\007Measure\022%\n\nvalue" +
       "_type\030\001 \001(\0162\021.MeasureValueType\022\025\n\rboolea" +
       "n_value\030\002 \001(\010\022\021\n\tint_value\030\003 \001(\005\022\022\n\nlong" +
       "_value\030\004 \001(\003\022\024\n\014double_value\030\005 \001(\001\022\024\n\014st" +
-      "ring_value\030\006 \001(\t\022\022\n\nmetric_key\030\007 \001(\t\022\023\n\013",
-      "description\030\t \001(\t\022\031\n\021variation_value_1\030\016" +
-      " \001(\001\022\031\n\021variation_value_2\030\017 \001(\001\022\031\n\021varia" +
-      "tion_value_3\030\020 \001(\001\022\031\n\021variation_value_4\030" +
-      "\021 \001(\001\022\031\n\021variation_value_5\030\022 \001(\001\022\021\n\tpers" +
-      "on_id\030\024 \001(\005\"\242\001\n\005Issue\022\027\n\017rule_repository" +
-      "\030\001 \001(\t\022\020\n\010rule_key\030\002 \001(\t\022\014\n\004line\030\003 \001(\005\022\013" +
-      "\n\003msg\030\004 \001(\t\022\033\n\010severity\030\005 \001(\0162\t.Severity" +
-      "\022\013\n\003tag\030\006 \003(\t\022\025\n\reffort_to_fix\030\007 \001(\001\022\022\n\n" +
-      "attributes\030\010 \001(\t\"\254\001\n\nChangesets\022\025\n\rcompo" +
-      "nent_ref\030\001 \001(\005\022(\n\tchangeset\030\002 \003(\0132\025.Chan",
-      "gesets.Changeset\022 \n\024changesetIndexByLine" +
-      "\030\003 \003(\005B\002\020\001\032;\n\tChangeset\022\020\n\010revision\030\001 \001(" +
-      "\t\022\016\n\006author\030\002 \001(\t\022\014\n\004date\030\003 \001(\003\"R\n\tDupli" +
-      "cate\022\026\n\016other_file_ref\030\001 \001(\005\022\025\n\005range\030\002 " +
-      "\001(\0132\006.Range\022\026\n\016other_file_key\030\003 \001(\t\"M\n\013D" +
-      "uplication\022\037\n\017origin_position\030\001 \001(\0132\006.Ra" +
-      "nge\022\035\n\tduplicate\030\002 \003(\0132\n.Duplicate\"W\n\005Ra" +
-      "nge\022\022\n\nstart_line\030\001 \001(\005\022\020\n\010end_line\030\002 \001(" +
-      "\005\022\024\n\014start_offset\030\003 \001(\005\022\022\n\nend_offset\030\004 " +
-      "\001(\005\"@\n\006Symbol\022\033\n\013declaration\030\001 \001(\0132\006.Ran",
-      "ge\022\031\n\treference\030\002 \003(\0132\006.Range\"\260\001\n\010Covera" +
-      "ge\022\014\n\004line\030\001 \001(\005\022\022\n\nconditions\030\002 \001(\005\022\017\n\007" +
-      "ut_hits\030\003 \001(\010\022\017\n\007it_hits\030\004 \001(\010\022\035\n\025ut_cov" +
-      "ered_conditions\030\005 \001(\005\022\035\n\025it_covered_cond" +
-      "itions\030\006 \001(\005\022\"\n\032overall_covered_conditio" +
-      "ns\030\007 \001(\005\"L\n\022SyntaxHighlighting\022\025\n\005range\030" +
-      "\001 \001(\0132\006.Range\022\037\n\004type\030\002 \001(\0162\021.Highlighti" +
-      "ngType\"j\n\004Test\022\014\n\004name\030\001 \001(\t\022\033\n\006status\030\002" +
-      " \001(\0162\013.TestStatus\022\026\n\016duration_in_ms\030\003 \001(" +
-      "\003\022\022\n\nstacktrace\030\004 \001(\t\022\013\n\003msg\030\005 \001(\t\"\221\001\n\016C",
-      "overageDetail\022\021\n\ttest_name\030\001 \001(\t\0221\n\014cove" +
-      "red_file\030\002 \003(\0132\033.CoverageDetail.CoveredF" +
-      "ile\0329\n\013CoveredFile\022\020\n\010file_ref\030\001 \001(\005\022\030\n\014" +
-      "covered_line\030\002 \003(\005B\002\020\001B#\n\037org.sonar.batc" +
-      "h.protocol.outputH\001"
+      "ring_value\030\006 \001(\t\022\022\n\nmetric_key\030\007 \001(\t\"\242\001\n",
+      "\005Issue\022\027\n\017rule_repository\030\001 \001(\t\022\020\n\010rule_" +
+      "key\030\002 \001(\t\022\014\n\004line\030\003 \001(\005\022\013\n\003msg\030\004 \001(\t\022\033\n\010" +
+      "severity\030\005 \001(\0162\t.Severity\022\013\n\003tag\030\006 \003(\t\022\025" +
+      "\n\reffort_to_fix\030\007 \001(\001\022\022\n\nattributes\030\010 \001(" +
+      "\t\"\254\001\n\nChangesets\022\025\n\rcomponent_ref\030\001 \001(\005\022" +
+      "(\n\tchangeset\030\002 \003(\0132\025.Changesets.Changese" +
+      "t\022 \n\024changesetIndexByLine\030\003 \003(\005B\002\020\001\032;\n\tC" +
+      "hangeset\022\020\n\010revision\030\001 \001(\t\022\016\n\006author\030\002 \001" +
+      "(\t\022\014\n\004date\030\003 \001(\003\"R\n\tDuplicate\022\026\n\016other_f" +
+      "ile_ref\030\001 \001(\005\022\025\n\005range\030\002 \001(\0132\006.Range\022\026\n\016",
+      "other_file_key\030\003 \001(\t\"M\n\013Duplication\022\037\n\017o" +
+      "rigin_position\030\001 \001(\0132\006.Range\022\035\n\tduplicat" +
+      "e\030\002 \003(\0132\n.Duplicate\"W\n\005Range\022\022\n\nstart_li" +
+      "ne\030\001 \001(\005\022\020\n\010end_line\030\002 \001(\005\022\024\n\014start_offs" +
+      "et\030\003 \001(\005\022\022\n\nend_offset\030\004 \001(\005\"@\n\006Symbol\022\033" +
+      "\n\013declaration\030\001 \001(\0132\006.Range\022\031\n\treference" +
+      "\030\002 \003(\0132\006.Range\"\260\001\n\010Coverage\022\014\n\004line\030\001 \001(" +
+      "\005\022\022\n\nconditions\030\002 \001(\005\022\017\n\007ut_hits\030\003 \001(\010\022\017" +
+      "\n\007it_hits\030\004 \001(\010\022\035\n\025ut_covered_conditions" +
+      "\030\005 \001(\005\022\035\n\025it_covered_conditions\030\006 \001(\005\022\"\n",
+      "\032overall_covered_conditions\030\007 \001(\005\"L\n\022Syn" +
+      "taxHighlighting\022\025\n\005range\030\001 \001(\0132\006.Range\022\037" +
+      "\n\004type\030\002 \001(\0162\021.HighlightingType\"j\n\004Test\022" +
+      "\014\n\004name\030\001 \001(\t\022\033\n\006status\030\002 \001(\0162\013.TestStat" +
+      "us\022\026\n\016duration_in_ms\030\003 \001(\003\022\022\n\nstacktrace" +
+      "\030\004 \001(\t\022\013\n\003msg\030\005 \001(\t\"\221\001\n\016CoverageDetail\022\021" +
+      "\n\ttest_name\030\001 \001(\t\0221\n\014covered_file\030\002 \003(\0132" +
+      "\033.CoverageDetail.CoveredFile\0329\n\013CoveredF" +
+      "ile\022\020\n\010file_ref\030\001 \001(\005\022\030\n\014covered_line\030\002 " +
+      "\003(\005B\002\020\001B#\n\037org.sonar.batch.protocol.outp",
+      "utH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -17833,7 +17156,7 @@ public final class BatchReport {
     internal_static_Measure_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Measure_descriptor,
-        new java.lang.String[] { "ValueType", "BooleanValue", "IntValue", "LongValue", "DoubleValue", "StringValue", "MetricKey", "Description", "VariationValue1", "VariationValue2", "VariationValue3", "VariationValue4", "VariationValue5", "PersonId", });
+        new java.lang.String[] { "ValueType", "BooleanValue", "IntValue", "LongValue", "DoubleValue", "StringValue", "MetricKey", });
     internal_static_Issue_descriptor =
       getDescriptor().getMessageTypes().get(5);
     internal_static_Issue_fieldAccessorTable = new

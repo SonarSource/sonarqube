@@ -24,6 +24,8 @@ import javax.annotation.CheckForNull;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.Protobuf;
 
+import static org.sonar.core.util.CloseableIterator.emptyCloseableIterator;
+
 public class BatchReportReader {
 
   private final FileStructure fileStructure;
@@ -43,7 +45,7 @@ public class BatchReportReader {
   public CloseableIterator<BatchReport.ActiveRule> readActiveRules() {
     File file = fileStructure.activeRules();
     if (!fileExists(file)) {
-      return CloseableIterator.emptyCloseableIterator();
+      return emptyCloseableIterator();
     }
     return Protobuf.readStream(file, BatchReport.ActiveRule.PARSER);
   }
@@ -53,7 +55,7 @@ public class BatchReportReader {
     if (fileExists(file)) {
       return Protobuf.readStream(file, BatchReport.Measure.PARSER);
     }
-    return CloseableIterator.emptyCloseableIterator();
+    return emptyCloseableIterator();
   }
 
   @CheckForNull
@@ -78,7 +80,7 @@ public class BatchReportReader {
     if (fileExists(file)) {
       return Protobuf.readStream(file, BatchReport.Issue.PARSER);
     }
-    return CloseableIterator.emptyCloseableIterator();
+    return emptyCloseableIterator();
   }
 
   public CloseableIterator<BatchReport.Duplication> readComponentDuplications(int componentRef) {
@@ -86,7 +88,7 @@ public class BatchReportReader {
     if (fileExists(file)) {
       return Protobuf.readStream(file, BatchReport.Duplication.PARSER);
     }
-    return CloseableIterator.emptyCloseableIterator();
+    return emptyCloseableIterator();
   }
 
   public CloseableIterator<BatchReport.Symbol> readComponentSymbols(int componentRef) {
@@ -94,7 +96,7 @@ public class BatchReportReader {
     if (fileExists(file)) {
       return Protobuf.readStream(file, BatchReport.Symbol.PARSER);
     }
-    return CloseableIterator.emptyCloseableIterator();
+    return emptyCloseableIterator();
   }
 
   public boolean hasSyntaxHighlighting(int componentRef) {
@@ -102,22 +104,20 @@ public class BatchReportReader {
     return file.exists();
   }
 
-  @CheckForNull
-  public File readComponentSyntaxHighlighting(int fileRef) {
+  public CloseableIterator<BatchReport.SyntaxHighlighting> readComponentSyntaxHighlighting(int fileRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, fileRef);
     if (fileExists(file)) {
-      return file;
+      return Protobuf.readStream(file, BatchReport.SyntaxHighlighting.PARSER);
     }
-    return null;
+    return emptyCloseableIterator();
   }
 
-  @CheckForNull
-  public File readComponentCoverage(int fileRef) {
+  public CloseableIterator<BatchReport.Coverage> readComponentCoverage(int fileRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.COVERAGES, fileRef);
     if (fileExists(file)) {
-      return file;
+      return Protobuf.readStream(file, BatchReport.Coverage.PARSER);
     }
-    return null;
+    return emptyCloseableIterator();
   }
 
   public File readFileSource(int fileRef) {
