@@ -45,7 +45,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.metric.persistence.MetricDao;
+import org.sonar.db.metric.MetricDao;
 import org.sonar.server.metric.ws.MetricTesting;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserDoc;

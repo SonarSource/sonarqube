@@ -32,7 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.metric.persistence.MetricDao;
+import org.sonar.db.metric.MetricDao;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 

@@ -55,7 +55,7 @@ import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.computation.metric.ReportMetricValidator;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.metric.persistence.MetricDao;
+import org.sonar.db.metric.MetricDao;
 
 import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;

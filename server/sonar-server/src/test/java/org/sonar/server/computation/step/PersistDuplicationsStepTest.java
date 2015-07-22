@@ -40,7 +40,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.metric.persistence.MetricDao;
+import org.sonar.db.metric.MetricDao;
 import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;

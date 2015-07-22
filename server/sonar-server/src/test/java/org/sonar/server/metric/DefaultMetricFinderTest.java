@@ -27,7 +27,7 @@ import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.metric.persistence.MetricDao;
+import org.sonar.db.metric.MetricDao;
 import org.sonar.test.DbTests;
 
 import static org.hamcrest.core.Is.is;

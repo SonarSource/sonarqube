@@ -92,7 +92,7 @@ public class SearchAction implements MetricsWsAction {
     Boolean isCustom = request.paramAsBoolean(PARAM_IS_CUSTOM);
     DbSession dbSession = dbClient.openSession(false);
     try {
-      List<MetricDto> metrics = dbClient.metricDao().selectEnabled(dbSession, isCustom, searchOptions);
+      List<MetricDto> metrics = dbClient.metricDao().selectEnabled(dbSession, isCustom, searchOptions.getOffset(), searchOptions.getLimit());
       int nbMetrics = dbClient.metricDao().countEnabled(dbSession, isCustom);
       JsonWriter json = response.newJsonWriter();
       json.beginObject();

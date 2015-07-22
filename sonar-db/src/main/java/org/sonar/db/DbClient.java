@@ -47,6 +47,7 @@ import org.sonar.db.loadedtemplate.LoadedTemplateDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.MeasureFilterDao;
 import org.sonar.db.measure.custom.CustomMeasureDao;
+import org.sonar.db.metric.MetricDao;
 import org.sonar.db.notification.NotificationQueueDao;
 import org.sonar.db.permission.PermissionDao;
 import org.sonar.db.permission.PermissionTemplateDao;
@@ -109,8 +110,9 @@ public class DbClient {
   private final DuplicationDao duplicationDao;
   private final NotificationQueueDao notificationQueueDao;
   private final CustomMeasureDao customMeasureDao;
+  private final MetricDao metricDao;
 
-  public DbClient(Database database, MyBatis myBatis, Dao ... daos) {
+  public DbClient(Database database, MyBatis myBatis, Dao... daos) {
     this.database = database;
     this.myBatis = myBatis;
 
@@ -159,6 +161,7 @@ public class DbClient {
     duplicationDao = getDao(map, DuplicationDao.class);
     notificationQueueDao = getDao(map, NotificationQueueDao.class);
     customMeasureDao = getDao(map, CustomMeasureDao.class);
+    metricDao = getDao(map, MetricDao.class);
     doOnLoad(map);
   }
 
@@ -341,6 +344,10 @@ public class DbClient {
 
   public CustomMeasureDao customMeasureDao() {
     return customMeasureDao;
+  }
+
+  public MetricDao metricDao() {
+    return metricDao;
   }
 
   protected <K extends Dao> K getDao(Map<Class, Dao> map, Class<K> clazz) {

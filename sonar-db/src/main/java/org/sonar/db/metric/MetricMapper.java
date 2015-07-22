@@ -53,6 +53,4 @@ public interface MetricMapper {
   void update(MetricDto metric);
 
   List<MetricDto> selectAvailableCustomMetricsByComponentUuid(String projectUuid);
-
-  List<MetricDto> selectAvailableCustomMetricsByComponentKey(String projectKey);
 }

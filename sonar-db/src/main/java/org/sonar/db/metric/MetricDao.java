@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.metric.persistence;
+package org.sonar.db.metric;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -37,10 +37,6 @@ import org.apache.ibatis.session.RowBounds;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
-import org.sonar.db.metric.MetricDto;
-import org.sonar.db.metric.MetricMapper;
-import org.sonar.server.es.SearchOptions;
-import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -63,7 +59,7 @@ public class MetricDao implements Dao {
   public MetricDto selectByKey(DbSession session, String key) {
     MetricDto metric = selectNullableByKey(session, key);
     if (metric == null) {
-      throw new NotFoundException(String.format("Metric key '%s' not found", key));
+      throw new IllegalStateException(String.format("Metric key '%s' not found", key));
     }
     return metric;
   }
@@ -72,13 +68,13 @@ public class MetricDao implements Dao {
     return mapper(session).selectAllEnabled();
   }
 
-  public List<MetricDto> selectEnabled(DbSession session, @Nullable Boolean isCustom, SearchOptions searchOptions) {
+  public List<MetricDto> selectEnabled(DbSession session, @Nullable Boolean isCustom, int offset, int limit) {
     Map<String, Object> properties = Maps.newHashMapWithExpectedSize(1);
     if (isCustom != null) {
       properties.put("isCustom", isCustom);
     }
 
-    return mapper(session).selectAllEnabled(properties, new RowBounds(searchOptions.getOffset(), searchOptions.getLimit()));
+    return mapper(session).selectAllEnabled(properties, new RowBounds(offset, limit));
   }
 
   public int countEnabled(DbSession session, @Nullable Boolean isCustom) {
@@ -105,10 +101,6 @@ public class MetricDao implements Dao {
 
   public List<MetricDto> selectAvailableCustomMetricsByComponentUuid(DbSession session, String projectUuid) {
     return mapper(session).selectAvailableCustomMetricsByComponentUuid(projectUuid);
-  }
-
-  public List<MetricDto> selectAvailableCustomMetricsByComponentKey(DbSession session, String projectKey) {
-    return mapper(session).selectAvailableCustomMetricsByComponentUuid(projectKey);
   }
 
   public List<MetricDto> selectByIds(final DbSession session, Set<Integer> idsSet) {
@@ -158,7 +150,7 @@ public class MetricDao implements Dao {
   public MetricDto selectById(DbSession session, int id) {
     MetricDto metric = mapper(session).selectById(id);
     if (metric == null) {
-      throw new NotFoundException(String.format("Metric id '%d' not found", id));
+      throw new IllegalStateException(String.format("Metric id '%d' not found", id));
     }
     return metric;
   }

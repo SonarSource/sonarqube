@@ -51,7 +51,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.db.measure.custom.CustomMeasureDao;
-import org.sonar.server.metric.persistence.MetricDao;
+import org.sonar.db.metric.MetricDao;
 import org.sonar.server.metric.ws.MetricTesting;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserDoc;
@@ -361,7 +361,7 @@ public class CreateActionTest {
     dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto(DEFAULT_PROJECT_UUID));
     dbSession.commit();
 
-    expectedException.expect(ServerException.class);
+    expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Metric id '42' not found");
 
     newRequest()

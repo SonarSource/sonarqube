@@ -38,7 +38,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.measure.custom.CustomMeasureTesting;
-import org.sonar.server.metric.persistence.MetricDao;
+import org.sonar.db.metric.MetricDao;
 import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.metric.persistence;
+package org.sonar.db.metric;
 
 import org.junit.After;
 import org.junit.Before;
@@ -28,8 +28,6 @@ import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.metric.MetricDto;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,7 +81,7 @@ public class MetricDaoTest {
     assertThat(result.isEnabled()).isFalse();
   }
 
-  @Test(expected = NotFoundException.class)
+  @Test(expected = IllegalStateException.class)
   public void get_nullable_by_key() {
     dao.selectByKey(session, "unknown");
   }
