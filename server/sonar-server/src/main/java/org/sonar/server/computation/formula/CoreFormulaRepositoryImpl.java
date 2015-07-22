@@ -23,7 +23,6 @@ package org.sonar.server.computation.formula;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 
-import static org.sonar.api.measures.CoreMetrics.COMMENTED_OUT_CODE_LINES_KEY;
 
 public class CoreFormulaRepositoryImpl implements CoreFormulaRepository {
 
@@ -31,8 +30,6 @@ public class CoreFormulaRepositoryImpl implements CoreFormulaRepository {
     // TODO When all decorators will be moved to CE, uncomment commented lines to activate all formulas and remove formulas declaration in
     // {@link org.sonar.api.measures.CoreMetrics}
 
-    // Sum formulas
-    new SumFormula(COMMENTED_OUT_CODE_LINES_KEY)
   );
 
   /**
