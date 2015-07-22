@@ -26,6 +26,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentMatcher;
 import org.mockito.invocation.InvocationOnMock;
@@ -33,6 +34,7 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
@@ -60,6 +62,8 @@ public class PluginDownloaderTest {
 
   @Rule
   public TemporaryFolder testFolder = new TemporaryFolder();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
   File downloadDir;
   UpdateCenterMatrixFactory updateCenterMatrixFactory;
   UpdateCenter updateCenter;
@@ -171,6 +175,13 @@ public class PluginDownloaderTest {
     } catch (IllegalStateException e) {
       // ok
     }
+  }
+
+  @Test
+  public void fail_if_no_compatible_plugin_found() {
+    expectedException.expect(BadRequestException.class);
+
+    pluginDownloader.download("foo", create("1.0"));
   }
 
   @Test

@@ -34,6 +34,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.UpdateCenter;
@@ -123,7 +124,12 @@ public class PluginDownloader implements Startable {
   public void download(String pluginKey, Version version) {
     Optional<UpdateCenter> updateCenter = updateCenterMatrixFactory.getUpdateCenter(true);
     if (updateCenter.isPresent()) {
-      for (Release release : updateCenter.get().findInstallablePlugins(pluginKey, version)) {
+      List<Release> installablePlugins = updateCenter.get().findInstallablePlugins(pluginKey, version);
+      if (installablePlugins.isEmpty()) {
+        throw new BadRequestException(String.format("Error while downloading plugin '%s' with version '%s'. No compatible plugin found.", pluginKey,
+          version.getName()));
+      }
+      for (Release release : installablePlugins) {
         try {
           downloadRelease(release);
         } catch (Exception e) {
