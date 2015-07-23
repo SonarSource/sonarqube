@@ -231,7 +231,10 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
 
   /**
    * @return the metric formula
+   * @deprecated since 5.2 there's no more decorator on batch side
+   * TODO add link to new API
    */
+  @Deprecated
   public Formula getFormula() {
     return formula;
   }
@@ -241,7 +244,10 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
    *
    * @param formula the formula
    * @return this
+   * @deprecated since 5.2 there's no more decorator on batch side
+   * TODO add link to new API
    */
+  @Deprecated
   public Metric<G> setFormula(Formula formula) {
     this.formula = formula;
     return this;

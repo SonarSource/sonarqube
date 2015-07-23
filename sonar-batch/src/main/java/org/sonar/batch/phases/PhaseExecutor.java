@@ -36,7 +36,6 @@ import org.sonar.batch.scan.report.IssuesReports;
 public final class PhaseExecutor {
 
   private final EventBus eventBus;
-  private final DecoratorsExecutor decoratorsExecutor;
   private final PostJobsExecutor postJobsExecutor;
   private final InitializersExecutor initializersExecutor;
   private final SensorsExecutor sensorsExecutor;
@@ -52,13 +51,11 @@ public final class PhaseExecutor {
   private final DefaultAnalysisMode analysisMode;
   private final LocalIssueTracking localIssueTracking;
 
-  public PhaseExecutor(DecoratorsExecutor decoratorsExecutor,
-    InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
+  public PhaseExecutor(InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
     SensorContext sensorContext, DefaultIndex index,
     EventBus eventBus, ReportPublisher reportPublisher, ProjectInitializer pi,
     FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
     IssueExclusionsLoader issueExclusionsLoader, DefaultAnalysisMode analysisMode, LocalIssueTracking localIssueTracking) {
-    this.decoratorsExecutor = decoratorsExecutor;
     this.postJobsExecutor = postJobsExecutor;
     this.initializersExecutor = initializersExecutor;
     this.sensorsExecutor = sensorsExecutor;
@@ -96,8 +93,6 @@ public final class PhaseExecutor {
     initIssueExclusions();
 
     sensorsExecutor.execute(sensorContext);
-
-    decoratorsExecutor.execute();
 
     if (module.isRoot()) {
       if (analysisMode.isPreview()) {

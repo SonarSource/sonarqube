@@ -24,9 +24,12 @@ import org.sonar.api.resources.Resource;
 
 /**
  * @since 1.10
+ * @deprecated since 5.2 there's no more decorator on batch side
+ * TODO add link to new API
  */
 @BatchSide
 @ExtensionPoint
+@Deprecated
 public interface Decorator extends CheckProject {
 
   /**

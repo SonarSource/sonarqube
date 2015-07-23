@@ -48,14 +48,10 @@ import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Formula;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.PersistenceMode;
-import org.sonar.api.measures.SumChildDistributionFormula;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.utils.KeyValueFormat;
@@ -139,11 +135,6 @@ public class DefaultSensorStorage implements SensorStorage {
     measureToSave.setFromCore(measure.isFromCore());
     InputFile inputFile = newMeasure.inputFile();
     if (inputFile != null) {
-      Formula formula = newMeasure.metric() instanceof org.sonar.api.measures.Metric ? ((org.sonar.api.measures.Metric) newMeasure.metric()).getFormula() : null;
-      if (formula instanceof SumChildDistributionFormula
-        && !Scopes.isHigherThanOrEquals(Scopes.FILE, ((SumChildDistributionFormula) formula).getMinimumScopeToPersist())) {
-        measureToSave.setPersistenceMode(PersistenceMode.MEMORY);
-      }
       File sonarFile = getFile(inputFile);
       if (coverageExclusions.accept(sonarFile, measureToSave)) {
         saveMeasure(sonarFile, measureToSave);
