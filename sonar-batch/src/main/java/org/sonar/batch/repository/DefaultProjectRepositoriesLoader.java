@@ -19,16 +19,16 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.bootstrap.GlobalMode;
-
-import org.sonar.batch.util.BatchUtils;
-import org.sonar.batch.bootstrap.WSLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrap.AnalysisProperties;
+import org.sonar.batch.bootstrap.GlobalMode;
+import org.sonar.batch.bootstrap.WSLoader;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.rule.ModuleQProfiles;
+import org.sonar.batch.util.BatchUtils;
 
 public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoader {
 
@@ -54,7 +54,15 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
       url += "&profile=" + BatchUtils.encodeForUrl(taskProperties.properties().get(ModuleQProfiles.SONAR_PROFILE_PROP));
     }
     url += "&preview=" + globalMode.isPreview();
-    return ProjectRepositories.fromJson(wsLoader.loadString(url));
+    ProjectRepositories projectRepositories = ProjectRepositories.fromJson(wsLoader.loadString(url));
+    validateProjectRepositories(projectRepositories, reactor.getRoot().getKey());
+    return projectRepositories;
+  }
+
+  private static void validateProjectRepositories(ProjectRepositories projectRepositories, String projectKey) {
+    if (projectRepositories.qProfiles().isEmpty()) {
+      throw MessageException.of("No quality profiles has been found this project, you probably don't have any language plugin suitable for this analysis.");
+    }
   }
 
 }
