@@ -27,7 +27,6 @@ import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.utils.SonarException;
 
@@ -1598,7 +1597,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_DESIGN)
-    .setFormula(new WeightedMeanAggregationFormula(CoreMetrics.FILES, false))
     .setHidden(true)
     .create();
 
@@ -1617,7 +1615,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(true)
     .setDomain(DOMAIN_DESIGN)
-    .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY))
     .setHidden(true)
     .create();
 
@@ -1674,7 +1671,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(true)
     .setDomain(DOMAIN_DESIGN)
-    .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY))
     .setHidden(true)
     .create();
 
