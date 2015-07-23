@@ -150,8 +150,8 @@ public class DeleteActionTest {
     assertThat(dbClient.componentDao().selectOrFailByUuid(dbSession, "project-uuid-2")).isNotNull();
     assertThat(dbClient.snapshotDao().selectById(dbSession, snapshotId1)).isNull();
     assertThat(dbClient.snapshotDao().selectById(dbSession, snapshotId2)).isNotNull();
-    assertThat(dbClient.issueDao().selectNullableByKey(dbSession, "issue-key-1")).isNull();
-    assertThat(dbClient.issueDao().selectByKey(dbSession, "issue-key-2")).isNotNull();
+    assertThat(dbClient.issueDao().selectByKey(dbSession, "issue-key-1").isPresent()).isFalse();
+    assertThat(dbClient.issueDao().selectByKeyOrFail(dbSession, "issue-key-2")).isNotNull();
   }
 
   @Test

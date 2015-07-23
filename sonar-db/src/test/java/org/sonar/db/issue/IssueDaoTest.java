@@ -20,18 +20,18 @@
 
 package org.sonar.db.issue;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.executor.result.DefaultResultHandler;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.db.RowNotFoundException;
 import org.sonar.test.DbTests;
 
 import static java.util.Arrays.asList;
@@ -39,6 +39,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Category(DbTests.class)
 public class IssueDaoTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -92,10 +95,10 @@ public class IssueDaoTest {
   }
 
   @Test
-  public void selectByKey() {
+  public void selectByKeyOrFail() {
     dbTester.prepareDbUnit(getClass(), "shared.xml", "get_by_key.xml");
 
-    IssueDto issue = dao.selectByKey(dbTester.getSession(), "I1");
+    IssueDto issue = dao.selectByKeyOrFail(dbTester.getSession(), "I1");
     assertThat(issue.getKee()).isEqualTo("I1");
     assertThat(issue.getId()).isEqualTo(1L);
     assertThat(issue.getComponentUuid()).isEqualTo("CDEF");
@@ -126,6 +129,16 @@ public class IssueDaoTest {
   }
 
   @Test
+  public void selectByKeyOrFail_fails_if_key_not_found() {
+    thrown.expect(RowNotFoundException.class);
+    thrown.expectMessage("Issue with key 'DOES_NOT_EXIST' does not exist");
+
+    dbTester.prepareDbUnit(getClass(), "shared.xml", "get_by_key.xml");
+
+    dao.selectByKeyOrFail(dbTester.getSession(), "DOES_NOT_EXIST");
+  }
+
+  @Test
   public void selectByKeys() {
     dbTester.prepareDbUnit(getClass(), "shared.xml", "get_by_key.xml");
 
@@ -146,10 +159,10 @@ public class IssueDaoTest {
   }
 
   @Test
-  public void find_by_action_plan() {
+  public void selectByActionPlan() {
     dbTester.prepareDbUnit(getClass(), "shared.xml", "find_by_action_plan.xml");
 
-    List<IssueDto> issues = dao.findByActionPlan(dbTester.getSession(), "AP-1");
+    List<IssueDto> issues = dao.selectByActionPlan(dbTester.getSession(), "AP-1");
     assertThat(issues).hasSize(1);
 
     IssueDto issue = issues.get(0);

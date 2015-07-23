@@ -21,6 +21,7 @@
 package org.sonar.db.issue;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import java.util.Collection;
@@ -28,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
@@ -36,6 +36,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.RowNotFoundException;
 
 public class IssueDao implements Dao {
 
@@ -55,20 +56,19 @@ public class IssueDao implements Dao {
     }
   }
 
-  @CheckForNull
-  public IssueDto selectNullableByKey(DbSession session, String key) {
-    return mapper(session).selectByKey(key);
+  public Optional<IssueDto> selectByKey(DbSession session, String key) {
+    return Optional.fromNullable(mapper(session).selectByKey(key));
   }
 
-  public IssueDto selectByKey(DbSession session, String key) {
-    IssueDto issue = selectNullableByKey(session, key);
-    if (issue == null) {
-      throw new IllegalArgumentException(String.format("Issue key '%s' does not exist", key));
+  public IssueDto selectByKeyOrFail(DbSession session, String key) {
+    Optional<IssueDto> issue = selectByKey(session, key);
+    if (!issue.isPresent()) {
+      throw new RowNotFoundException(String.format("Issue with key '%s' does not exist", key));
     }
-    return issue;
+    return issue.get();
   }
 
-  public List<IssueDto> findByActionPlan(DbSession session, String actionPlan) {
+  public List<IssueDto> selectByActionPlan(DbSession session, String actionPlan) {
     return mapper(session).selectByActionPlan(actionPlan);
   }
 
