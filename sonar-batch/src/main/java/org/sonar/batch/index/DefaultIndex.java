@@ -200,11 +200,13 @@ public class DefaultIndex extends SonarIndex {
 
   @Override
   public void addViolation(Violation violation, boolean force) {
-    BatchComponent component = componentCache.get(violation.getResource());
-    if (component == null) {
+    // Reload
+    Resource resource = getResource(violation.getResource());
+    if (resource == null) {
       LOG.warn("Resource is not indexed. Ignoring violation {}", violation);
       return;
     }
+    BatchComponent component = componentCache.get(resource);
 
     Rule rule = violation.getRule();
     if (rule == null) {
