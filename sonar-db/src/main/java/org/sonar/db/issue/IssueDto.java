@@ -44,9 +44,6 @@ import org.sonar.db.rule.RuleDto;
 import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.longToDate;
 
-/**
- * @since 3.6
- */
 public final class IssueDto implements Serializable {
 
   private static final char TAGS_SEPARATOR = ',';
@@ -131,7 +128,7 @@ public final class IssueDto implements Serializable {
       .setIssueUpdateDate(issue.updateDate())
       .setSelectedAt(issue.selectedAt())
 
-      // technical dates
+    // technical dates
       .setCreatedAt(now)
       .setUpdatedAt(now);
   }
@@ -176,7 +173,7 @@ public final class IssueDto implements Serializable {
       .setIssueUpdateDate(issue.updateDate())
       .setSelectedAt(issue.selectedAt())
 
-      // technical date
+    // technical date
       .setUpdatedAt(now);
   }
 
