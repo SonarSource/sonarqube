@@ -71,8 +71,8 @@ public class QProfileBackuperMediumTest {
     // create pre-defined rules
     RuleDto xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR").setLanguage("xoo");
     RuleDto xooRule2 = RuleTesting.newXooX2().setSeverity("MAJOR").setLanguage("xoo");
-    db.ruleDao().insert(dbSession, xooRule1, xooRule2);
-    db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
+    db.deprecatedRuleDao().insert(dbSession, xooRule1, xooRule2);
+    db.deprecatedRuleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
     dbSession.commit();
     dbSession.clearCache();
@@ -87,7 +87,7 @@ public class QProfileBackuperMediumTest {
   public void backup() throws Exception {
     RuleKey blahRuleKey = RuleKey.of("blah", "my-rule");
     RuleDto blahRule = RuleTesting.newDto(blahRuleKey).setSeverity("INFO").setLanguage("xoo");
-    db.ruleDao().insert(dbSession, blahRule);
+    db.deprecatedRuleDao().insert(dbSession, blahRule);
     dbSession.commit();
     dbSession.clearCache();
 

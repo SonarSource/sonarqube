@@ -71,6 +71,16 @@
     FROM rules r WHERE r.plugin_name=#{repository} AND r.plugin_rule_key=#{rule}
   </select>
 
+  <select id="selectByKeys" parameterType="map" resultType="Rule">
+    SELECT
+    <include refid="selectColumns"/>
+    FROM rules r
+    WHERE
+    <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
+      (r.plugin_name=#{ruleKey.repository} and r.plugin_rule_key=#{ruleKey.rule})
+    </foreach>
+  </select>
+
   <select id="selectByName" parameterType="String" resultType="Rule">
     select
     <include refid="selectColumns"/>

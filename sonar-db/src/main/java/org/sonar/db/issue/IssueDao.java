@@ -36,7 +36,7 @@ import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-import org.sonar.db.util.RowNotFoundException;
+import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.collect.FluentIterable.from;
 
@@ -62,7 +62,7 @@ public class IssueDao implements Dao {
     return Optional.fromNullable(mapper(session).selectByKey(key));
   }
 
-  public IssueDto selectByKeyOrFail(DbSession session, String key) {
+  public IssueDto selectOrFailByKey(DbSession session, String key) {
     Optional<IssueDto> issue = selectByKey(session, key);
     if (!issue.isPresent()) {
       throw new RowNotFoundException(String.format("Issue with key '%s' does not exist", key));
@@ -103,9 +103,9 @@ public class IssueDao implements Dao {
    * if input keys contain multiple occurrences of a key.
    * <p>Contrary to {@link #selectByKeys(DbSession, List)}, results are in the same order as input keys.</p>
    */
-  public Iterable<IssueDto> selectByOrderedKeys(DbSession session, List<String> keys) {
+  public List<IssueDto> selectByOrderedKeys(DbSession session, List<String> keys) {
     List<IssueDto> unordered = selectByKeys(session, keys);
-    return from(keys).transform(new KeyToIssue(unordered)).filter(Predicates.notNull());
+    return from(keys).transform(new KeyToIssue(unordered)).filter(Predicates.notNull()).toList();
   }
 
   private static class KeyToIssue implements Function<String, IssueDto> {

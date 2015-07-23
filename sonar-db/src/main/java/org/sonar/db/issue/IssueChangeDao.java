@@ -20,19 +20,20 @@
 
 package org.sonar.db.issue;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 
 @ServerSide
@@ -46,7 +47,7 @@ public class IssueChangeDao implements Dao {
 
   public List<DefaultIssueComment> selectCommentsByIssues(DbSession session, Collection<String> issueKeys) {
     List<DefaultIssueComment> comments = Lists.newArrayList();
-    for (IssueChangeDto dto : selectByIssuesAndType(session, issueKeys, IssueChangeDto.TYPE_COMMENT)) {
+    for (IssueChangeDto dto : selectByTypeAndIssueKeys(session, issueKeys, IssueChangeDto.TYPE_COMMENT)) {
       comments.add(dto.toComment());
     }
     return comments;
@@ -56,7 +57,7 @@ public class IssueChangeDao implements Dao {
     DbSession session = mybatis.openSession(false);
     try {
       List<FieldDiffs> result = Lists.newArrayList();
-      for (IssueChangeDto dto : selectByIssuesAndType(session, asList(issueKey), IssueChangeDto.TYPE_FIELD_CHANGE)) {
+      for (IssueChangeDto dto : selectByTypeAndIssueKeys(session, asList(issueKey), IssueChangeDto.TYPE_FIELD_CHANGE)) {
         result.add(dto.toFieldDiffs());
       }
       return result;
@@ -89,18 +90,23 @@ public class IssueChangeDao implements Dao {
     }
   }
 
-  List<IssueChangeDto> selectByIssuesAndType(DbSession session, Collection<String> issueKeys, String changeType) {
-    if (issueKeys.isEmpty()) {
-      return Collections.emptyList();
+  public List<IssueChangeDto> selectByTypeAndIssueKeys(DbSession session, Collection<String> issueKeys, String changeType) {
+    return DatabaseUtils.executeLargeInputs(issueKeys, new SelectByIssueKeys(session.getMapper(IssueChangeMapper.class), changeType));
+  }
+
+  private static class SelectByIssueKeys implements Function<List<String>, List<IssueChangeDto>> {
+    private final IssueChangeMapper mapper;
+    private final String changeType;
+
+    private SelectByIssueKeys(IssueChangeMapper mapper, String changeType) {
+      this.mapper = mapper;
+      this.changeType = changeType;
     }
-    IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
-    List<IssueChangeDto> dtosList = newArrayList();
-    List<List<String>> keysPartition = Lists.partition(newArrayList(issueKeys), 1000);
-    for (List<String> partition : keysPartition) {
-      List<IssueChangeDto> dtos = mapper.selectByIssuesAndType(partition, changeType);
-      dtosList.addAll(dtos);
+
+    @Override
+    public List<IssueChangeDto> apply(@Nonnull List<String> issueKeys) {
+      return mapper.selectByIssuesAndType(issueKeys, changeType);
     }
-    return dtosList;
   }
 
   public void insert(DbSession session, IssueChangeDto change) {

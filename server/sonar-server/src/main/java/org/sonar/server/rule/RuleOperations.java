@@ -55,7 +55,7 @@ public class RuleOperations {
     checkPermission(userSession);
     DbSession session = dbClient.openSession(false);
     try {
-      RuleDto ruleDto = dbClient.ruleDao().getNullableByKey(session, ruleChange.ruleKey());
+      RuleDto ruleDto = dbClient.deprecatedRuleDao().getNullableByKey(session, ruleChange.ruleKey());
       if (ruleDto == null) {
         throw new NotFoundException(String.format("Unknown rule '%s'", ruleChange.ruleKey()));
       }
@@ -123,7 +123,7 @@ public class RuleOperations {
     }
 
     if (needUpdate) {
-      dbClient.ruleDao().update(session, ruleDto);
+      dbClient.deprecatedRuleDao().update(session, ruleDto);
     }
     return needUpdate;
   }

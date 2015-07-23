@@ -22,6 +22,10 @@ package org.sonar.server.qualityprofile;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -37,20 +41,15 @@ import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.tester.ServerTester;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -94,7 +93,7 @@ public class ActiveRuleBackendMediumTest {
     db.qualityProfileDao().insert(dbSession, profile1);
 
     RuleDto rule1 = RuleDto.createFor(RuleTesting.XOO_X1).setSeverity(Severity.MAJOR);
-    db.ruleDao().insert(dbSession, rule1);
+    db.deprecatedRuleDao().insert(dbSession, rule1);
 
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile1, rule1).setSeverity("BLOCKER");
     db.activeRuleDao().insert(dbSession, activeRule);
@@ -128,7 +127,7 @@ public class ActiveRuleBackendMediumTest {
     db.qualityProfileDao().insert(dbSession, profileDto);
     RuleKey ruleKey = RuleTesting.XOO_X1;
     RuleDto ruleDto = newRuleDto(ruleKey);
-    db.ruleDao().insert(dbSession, ruleDto);
+    db.deprecatedRuleDao().insert(dbSession, ruleDto);
 
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, ruleDto)
       .setInheritance(ActiveRule.Inheritance.INHERITED.name())
@@ -157,17 +156,17 @@ public class ActiveRuleBackendMediumTest {
     db.qualityProfileDao().insert(dbSession, profileDto);
     RuleKey ruleKey = RuleTesting.XOO_X1;
     RuleDto ruleDto = newRuleDto(ruleKey);
-    db.ruleDao().insert(dbSession, ruleDto);
+    db.deprecatedRuleDao().insert(dbSession, ruleDto);
 
     RuleParamDto minParam = new RuleParamDto()
       .setName("min")
       .setType("STRING");
-    db.ruleDao().insertRuleParam(dbSession, ruleDto, minParam);
+    db.deprecatedRuleDao().insertRuleParam(dbSession, ruleDto, minParam);
 
     RuleParamDto maxParam = new RuleParamDto()
       .setName("max")
       .setType("STRING");
-    db.ruleDao().insertRuleParam(dbSession, ruleDto, maxParam);
+    db.deprecatedRuleDao().insertRuleParam(dbSession, ruleDto, maxParam);
 
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, ruleDto)
       .setInheritance(ActiveRule.Inheritance.INHERITED.name())
@@ -185,8 +184,7 @@ public class ActiveRuleBackendMediumTest {
     dbSession.commit();
 
     // verify db
-    List<ActiveRuleParamDto> persistedDtos =
-      db.activeRuleDao().selectParamsByActiveRuleKey(dbSession, activeRule.getKey());
+    List<ActiveRuleParamDto> persistedDtos = db.activeRuleDao().selectParamsByActiveRuleKey(dbSession, activeRule.getKey());
     assertThat(persistedDtos).hasSize(2);
 
     // verify es
@@ -207,7 +205,7 @@ public class ActiveRuleBackendMediumTest {
     RuleDto rule1 = RuleTesting.newXooX1().setSeverity(Severity.MAJOR);
     RuleDto rule2 = RuleTesting.newXooX2().setSeverity(Severity.MAJOR);
     RuleDto removedRule = RuleTesting.newDto(RuleKey.of("xoo", "removed")).setSeverity(Severity.MAJOR).setStatus(RuleStatus.REMOVED);
-    db.ruleDao().insert(dbSession, rule1, rule2, removedRule);
+    db.deprecatedRuleDao().insert(dbSession, rule1, rule2, removedRule);
 
     db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile1, rule1).setSeverity(Severity.MINOR));
     db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile1, rule2).setSeverity(Severity.BLOCKER));
@@ -259,7 +257,7 @@ public class ActiveRuleBackendMediumTest {
     int nb = 100;
     for (int i = 0; i < nb; i++) {
       RuleDto rule = newRuleDto(RuleKey.of("xoo", "S00" + i));
-      db.ruleDao().insert(dbSession, rule);
+      db.deprecatedRuleDao().insert(dbSession, rule);
 
       ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, rule).setSeverity(Severity.MAJOR);
       db.activeRuleDao().insert(dbSession, activeRule);
@@ -280,7 +278,7 @@ public class ActiveRuleBackendMediumTest {
 
     RuleKey ruleKey = RuleTesting.XOO_X1;
     RuleDto ruleDto = newRuleDto(ruleKey);
-    db.ruleDao().insert(dbSession, ruleDto);
+    db.deprecatedRuleDao().insert(dbSession, ruleDto);
 
     ActiveRuleDto activeRule1 = ActiveRuleDto.createFor(profileDto1, ruleDto).setSeverity(Severity.MAJOR);
     ActiveRuleDto activeRule2 = ActiveRuleDto.createFor(profileDto2, ruleDto).setSeverity(Severity.MAJOR);
@@ -308,7 +306,7 @@ public class ActiveRuleBackendMediumTest {
 
     RuleKey ruleKey = RuleTesting.XOO_X1;
     RuleDto ruleDto = newRuleDto(ruleKey);
-    db.ruleDao().insert(dbSession, ruleDto);
+    db.deprecatedRuleDao().insert(dbSession, ruleDto);
 
     ActiveRuleDto activeRule1 = ActiveRuleDto.createFor(profileDto1, ruleDto).setSeverity(Severity.MAJOR);
     ActiveRuleDto activeRule2 = ActiveRuleDto.createFor(profileDto2, ruleDto).setSeverity(Severity.MAJOR);
@@ -333,7 +331,7 @@ public class ActiveRuleBackendMediumTest {
 
     RuleDto ruleDto1 = newRuleDto(RuleTesting.XOO_X1);
     RuleDto ruleDto2 = newRuleDto(RuleTesting.XOO_X2);
-    db.ruleDao().insert(dbSession, ruleDto1, ruleDto2);
+    db.deprecatedRuleDao().insert(dbSession, ruleDto1, ruleDto2);
 
     db.activeRuleDao().insert(dbSession,
       ActiveRuleDto.createFor(profileDto1, ruleDto1)
@@ -347,8 +345,7 @@ public class ActiveRuleBackendMediumTest {
         .setSeverity(Severity.MAJOR),
       ActiveRuleDto.createFor(profileDto2, ruleDto2)
         .setInheritance(ActiveRule.Inheritance.INHERITED.name())
-        .setSeverity(Severity.BLOCKER)
-      );
+        .setSeverity(Severity.BLOCKER));
     dbSession.commit();
     dbSession.clearCache();
 
@@ -370,7 +367,7 @@ public class ActiveRuleBackendMediumTest {
   public void stats_for_all_with_lof_of_profiles() {
     RuleDto ruleDto1 = newRuleDto(RuleTesting.XOO_X1);
     RuleDto ruleDto2 = newRuleDto(RuleTesting.XOO_X2);
-    db.ruleDao().insert(dbSession, ruleDto1, ruleDto2);
+    db.deprecatedRuleDao().insert(dbSession, ruleDto1, ruleDto2);
 
     List<String> profileKeys = newArrayList();
     for (int i = 0; i < 30; i++) {
@@ -382,8 +379,7 @@ public class ActiveRuleBackendMediumTest {
         ActiveRuleDto.createFor(profileDto, ruleDto1)
           .setSeverity(Severity.BLOCKER),
         ActiveRuleDto.createFor(profileDto, ruleDto2)
-          .setSeverity(Severity.MAJOR)
-        );
+          .setSeverity(Severity.MAJOR));
     }
     dbSession.commit();
     dbSession.clearCache();

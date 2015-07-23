@@ -21,6 +21,8 @@ package org.sonar.server.rule;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import java.util.Collection;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -28,9 +30,9 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.db.DbSession;
+import org.sonar.db.debt.CharacteristicDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.db.debt.CharacteristicDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtTesting;
@@ -41,9 +43,6 @@ import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.tester.ServerTester;
-
-import java.util.Collection;
-import java.util.List;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -168,7 +167,7 @@ public class RuleBackendMediumTest {
     dao.insertRuleParam(dbSession, ruleDto, maxParamDto);
     dbSession.commit();
 
-    //Verify that RuleDto has date from insertion
+    // Verify that RuleDto has date from insertion
     RuleDto theRule = dao.getNullableByKey(dbSession, RuleTesting.XOO_X1);
     assertThat(theRule.getCreatedAt()).isNotNull();
     assertThat(theRule.getUpdatedAt()).isNotNull();
@@ -224,7 +223,6 @@ public class RuleBackendMediumTest {
     assertThat(index.getByKey(RuleTesting.XOO_X1).params()).hasSize(1);
   }
 
-
   @Test
   public void insert_and_update_rule() {
     // insert db
@@ -240,7 +238,7 @@ public class RuleBackendMediumTest {
     assertThat(hit.tags()).containsExactly("hello");
     assertThat(hit.name()).isEqualTo("first name");
 
-    //Update in DB
+    // Update in DB
     ruleDto.setTags(ImmutableSet.of("world"))
       .setName("second name");
     dao.update(dbSession, ruleDto);
@@ -286,8 +284,7 @@ public class RuleBackendMediumTest {
     assertThat(param.defaultValue()).isEqualTo("2");
     assertThat(param.description()).isEqualTo("Minimum");
 
-
-    //Update in DB
+    // Update in DB
     minParamDto
       .setDefaultValue("0.5")
       .setDescription("new description");
@@ -322,7 +319,6 @@ public class RuleBackendMediumTest {
     assertThat(((RuleDoc) index.getByKey(RuleTesting.XOO_X1)).id()).isEqualTo(ruleDto.getId());
   }
 
-
   @Test
   public void insert_update_characteristics() {
 
@@ -342,7 +338,6 @@ public class RuleBackendMediumTest {
         .setRemediationOffset(null));
     dbSession.commit();
 
-
     // 0. assert chars in DB
     assertThat(db.debtCharacteristicDao().selectByKey("c1", dbSession)).isNotNull();
     assertThat(db.debtCharacteristicDao().selectByKey("c1", dbSession).getParentId()).isNull();
@@ -355,9 +350,8 @@ public class RuleBackendMediumTest {
     assertThat(rule.debtSubCharacteristicKey()).isEqualTo(char11.getKey());
     assertThat(rule.debtOverloaded()).isFalse();
 
-
     // 3. set Non-default characteristics
-    RuleDto ruleDto = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
+    RuleDto ruleDto = db.deprecatedRuleDao().getByKey(dbSession, RuleTesting.XOO_X1);
     CharacteristicDto char2 = DebtTesting.newCharacteristicDto("c2");
     db.debtCharacteristicDao().insert(dbSession, char2);
 
@@ -378,7 +372,7 @@ public class RuleBackendMediumTest {
     assertThat(rule.debtCharacteristicKey()).isEqualTo(char2.getKey());
     assertThat(rule.debtSubCharacteristicKey()).isEqualTo(char21.getKey());
 
-    //  5 Assert still get the default one
+    // 5 Assert still get the default one
     assertThat(rule.debtOverloaded()).isTrue();
     assertThat(rule.defaultDebtCharacteristicKey()).isEqualTo(char1.getKey());
     assertThat(rule.defaultDebtSubCharacteristicKey()).isEqualTo(char11.getKey());

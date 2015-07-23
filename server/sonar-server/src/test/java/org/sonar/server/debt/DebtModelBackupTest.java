@@ -135,7 +135,7 @@ public class DebtModelBackupTest {
     }).when(dao).insert(any(DbSession.class), any(CharacteristicDto.class));
 
     when(dbClient.openSession(false)).thenReturn(session);
-    when(dbClient.ruleDao()).thenReturn(ruleDao);
+    when(dbClient.deprecatedRuleDao()).thenReturn(ruleDao);
     when(dbClient.debtCharacteristicDao()).thenReturn(dao);
 
     Reader defaultModelReader = mock(Reader.class);

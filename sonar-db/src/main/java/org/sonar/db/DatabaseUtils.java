@@ -26,6 +26,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -84,7 +85,7 @@ public class DatabaseUtils {
     if (input.isEmpty()) {
       return Collections.emptyList();
     }
-    List<OUTPUT> results = newArrayList();
+    List<OUTPUT> results = new ArrayList<>();
     List<List<INPUT>> partitionList = Lists.partition(newArrayList(input), PARTITION_SIZE_FOR_ORACLE);
     for (List<INPUT> partition : partitionList) {
       List<OUTPUT> subResults = function.apply(partition);

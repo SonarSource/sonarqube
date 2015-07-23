@@ -588,8 +588,8 @@ public class ProjectRepositoryLoaderMediumTest {
 
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
     RuleDto rule = RuleTesting.newDto(ruleKey).setName("Avoid Cycle").setConfigKey("squid-1").setLanguage(ServerTester.Xoo.KEY);
-    tester.get(DbClient.class).ruleDao().insert(dbSession, rule);
-    tester.get(DbClient.class).ruleDao().insertRuleParam(dbSession, rule, RuleParamDto.createFor(rule)
+    tester.get(DbClient.class).deprecatedRuleDao().insert(dbSession, rule);
+    tester.get(DbClient.class).deprecatedRuleDao().insertRuleParam(dbSession, rule, RuleParamDto.createFor(rule)
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
 
     RuleActivation activation = new RuleActivation(ruleKey);
@@ -619,7 +619,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     RuleKey ruleKey1 = RuleKey.of("squid", "AvoidCycle");
     RuleKey ruleKey2 = RuleKey.of("squid", "AvoidNPE");
-    tester.get(DbClient.class).ruleDao().insert(dbSession,
+    tester.get(DbClient.class).deprecatedRuleDao().insert(dbSession,
       RuleTesting.newDto(ruleKey1).setName("Avoid Cycle").setLanguage(ServerTester.Xoo.KEY),
       RuleTesting.newDto(ruleKey2).setName("Avoid NPE").setLanguage(ServerTester.Xoo.KEY)
     );
@@ -661,7 +661,7 @@ public class ProjectRepositoryLoaderMediumTest {
 
     for (int i = 0; i < 20; i++) {
       RuleKey ruleKey = RuleKey.of("squid", "Rule" + i);
-      tester.get(DbClient.class).ruleDao().insert(dbSession, RuleTesting.newDto(ruleKey).setName("Rule" + i).setLanguage(ServerTester.Xoo.KEY));
+      tester.get(DbClient.class).deprecatedRuleDao().insert(dbSession, RuleTesting.newDto(ruleKey).setName("Rule" + i).setLanguage(ServerTester.Xoo.KEY));
       tester.get(RuleActivator.class).activate(dbSession, new RuleActivation(ruleKey).setSeverity(Severity.MINOR), profileDto.getKey());
     }
 
@@ -685,10 +685,10 @@ public class ProjectRepositoryLoaderMediumTest {
 
     RuleKey ruleKey = RuleKey.of("squid", "ArchitecturalConstraint");
     RuleDto templateRule = RuleTesting.newTemplateRule(ruleKey).setName("Architectural Constraint").setLanguage(ServerTester.Xoo.KEY);
-    tester.get(DbClient.class).ruleDao().insert(dbSession, templateRule);
+    tester.get(DbClient.class).deprecatedRuleDao().insert(dbSession, templateRule);
 
     RuleDto customRule = RuleTesting.newCustomRule(templateRule);
-    tester.get(DbClient.class).ruleDao().insert(dbSession, customRule);
+    tester.get(DbClient.class).deprecatedRuleDao().insert(dbSession, customRule);
     tester.get(RuleActivator.class).activate(dbSession, new RuleActivation(customRule.getKey()).setSeverity(Severity.MINOR), profileDto.getKey());
 
     dbSession.commit();
@@ -711,7 +711,7 @@ public class ProjectRepositoryLoaderMediumTest {
     addDefaultProfile();
 
     RuleDto rule = RuleTesting.newManualRule("manualRuleKey").setName("Name manualRuleKey");
-    tester.get(DbClient.class).ruleDao().insert(dbSession, rule);
+    tester.get(DbClient.class).deprecatedRuleDao().insert(dbSession, rule);
 
     dbSession.commit();
 

@@ -48,7 +48,7 @@ public class DefaultUserFinderTest {
   public void findByLogins() {
     UserDto david = new UserDto().setLogin("david").setName("David").setEmail("dav@id.com");
     UserDto john = new UserDto().setLogin("john").setName("John").setEmail("jo@hn.com");
-    when(dao.selectUsersByLogins(Arrays.asList("david", "john"))).thenReturn(Arrays.asList(david, john));
+    when(dao.selectByLogins(Arrays.asList("david", "john"))).thenReturn(Arrays.asList(david, john));
 
     Collection<User> users = finder.findByLogins(Arrays.asList("david", "john"));
     assertThat(users).hasSize(2);

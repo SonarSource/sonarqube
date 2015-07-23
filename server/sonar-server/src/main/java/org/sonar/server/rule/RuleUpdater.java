@@ -69,7 +69,7 @@ public class RuleUpdater {
       Context context = newContext(update);
       // validate only the changes, not all the rule fields
       apply(update, context, userSession);
-      dbClient.ruleDao().update(dbSession, context.rule);
+      dbClient.deprecatedRuleDao().update(dbSession, context.rule);
       updateParameters(dbSession, update, context);
       dbSession.commit();
       return true;
@@ -86,7 +86,7 @@ public class RuleUpdater {
     DbSession dbSession = dbClient.openSession(false);
     try {
       Context context = new Context();
-      context.rule = dbClient.ruleDao().getByKey(dbSession, change.getRuleKey());
+      context.rule = dbClient.deprecatedRuleDao().getByKey(dbSession, change.getRuleKey());
       if (RuleStatus.REMOVED == context.rule.getStatus()) {
         throw new IllegalArgumentException("Rule with REMOVED status cannot be updated: " + change.getRuleKey());
       }
@@ -266,7 +266,7 @@ public class RuleUpdater {
   private void updateParameters(DbSession dbSession, RuleUpdate update, Context context) {
     if (update.isChangeParameters() && update.isCustomRule()) {
       RuleDto customRule = context.rule;
-      RuleDto templateRule = dbClient.ruleDao().selectTemplate(customRule, dbSession);
+      RuleDto templateRule = dbClient.deprecatedRuleDao().selectTemplate(customRule, dbSession);
       if (templateRule == null) {
         throw new IllegalStateException(String.format("Template %s of rule %s does not exist",
           customRule.getTemplateId(), customRule.getKey()));
@@ -290,13 +290,13 @@ public class RuleUpdater {
 
   private void deleteOrUpdateParameters(DbSession dbSession, RuleUpdate update, RuleDto customRule, List<String> paramKeys,
     Multimap<RuleDto, ActiveRuleDto> activeRules, Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParams) {
-    for (RuleParamDto ruleParamDto : dbClient.ruleDao().selectRuleParamsByRuleKey(dbSession, update.getRuleKey())) {
+    for (RuleParamDto ruleParamDto : dbClient.deprecatedRuleDao().selectRuleParamsByRuleKey(dbSession, update.getRuleKey())) {
       String key = ruleParamDto.getName();
       String value = Strings.emptyToNull(update.parameter(key));
 
       // Update rule param
       ruleParamDto.setDefaultValue(value);
-      dbClient.ruleDao().updateRuleParam(dbSession, customRule, ruleParamDto);
+      dbClient.deprecatedRuleDao().updateRuleParam(dbSession, customRule, ruleParamDto);
 
       if (value != null) {
         // Update linked active rule params or create new one

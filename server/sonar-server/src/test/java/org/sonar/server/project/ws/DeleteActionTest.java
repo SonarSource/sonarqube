@@ -151,7 +151,7 @@ public class DeleteActionTest {
     assertThat(dbClient.snapshotDao().selectById(dbSession, snapshotId1)).isNull();
     assertThat(dbClient.snapshotDao().selectById(dbSession, snapshotId2)).isNotNull();
     assertThat(dbClient.issueDao().selectByKey(dbSession, "issue-key-1").isPresent()).isFalse();
-    assertThat(dbClient.issueDao().selectByKeyOrFail(dbSession, "issue-key-2")).isNotNull();
+    assertThat(dbClient.issueDao().selectOrFailByKey(dbSession, "issue-key-2")).isNotNull();
   }
 
   @Test
@@ -251,7 +251,7 @@ public class DeleteActionTest {
       .newProjectDto("project-uuid-" + suffix)
       .setKey("project-key-" + suffix);
     RuleDto rule = RuleTesting.newDto(RuleKey.of("sonarqube", "rule-" + suffix));
-    dbClient.ruleDao().insert(dbSession, rule);
+    dbClient.deprecatedRuleDao().insert(dbSession, rule);
     IssueDto issue = IssueTesting.newDto(rule, project, project).setKee("issue-key-" + suffix);
     dbClient.componentDao().insert(dbSession, project);
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, SnapshotTesting.createForProject(project));
