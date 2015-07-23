@@ -25,7 +25,6 @@ import org.sonar.db.Database;
 import org.sonar.db.MyBatis;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.db.UserDao;
 
 /**
@@ -35,7 +34,6 @@ import org.sonar.server.user.db.UserDao;
 public class DbClient extends org.sonar.db.DbClient {
 
   private ActiveRuleDao activeRuleDao;
-  private GroupDao groupDao;
   private RuleDao ruleDao;
   private UserDao userDao;
 
@@ -46,17 +44,12 @@ public class DbClient extends org.sonar.db.DbClient {
   @Override
   protected void doOnLoad(Map<Class, Dao> daoByClass) {
     this.activeRuleDao = (ActiveRuleDao) daoByClass.get(ActiveRuleDao.class);
-    this.groupDao = (GroupDao) daoByClass.get(GroupDao.class);
     this.ruleDao = (RuleDao) daoByClass.get(RuleDao.class);
     this.userDao = (UserDao) daoByClass.get(UserDao.class);
   }
 
   public ActiveRuleDao activeRuleDao() {
     return activeRuleDao;
-  }
-
-  public GroupDao groupDao() {
-    return groupDao;
   }
 
   public RuleDao ruleDao() {

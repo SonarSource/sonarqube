@@ -54,7 +54,7 @@ import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.search.EsSearchModule;
 import org.sonar.server.search.IndexQueue;
 import org.sonar.server.user.ThreadLocalUserSession;
-import org.sonar.server.user.db.GroupDao;
+import org.sonar.db.user.GroupDao;
 import org.sonar.server.user.db.UserDao;
 
 public class PlatformLevel1 extends PlatformLevel {

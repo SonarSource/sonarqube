@@ -46,7 +46,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.user.db.GroupDao;
+import org.sonar.db.user.GroupDao;
 import org.sonar.server.user.db.UserDao;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;

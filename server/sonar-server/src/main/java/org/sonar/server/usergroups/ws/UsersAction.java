@@ -31,10 +31,12 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.db.user.UserMembershipDto;
 import org.sonar.db.user.UserMembershipQuery;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 public class UsersAction implements UserGroupsWsAction {
@@ -93,7 +95,10 @@ public class UsersAction implements UserGroupsWsAction {
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      dbClient.groupDao().selectById(dbSession, groupId);
+      GroupDto group = dbClient.groupDao().selectNullableById(dbSession, groupId);
+      if (group == null) {
+        throw new NotFoundException(String.format("Could not find user group with id '%s'", groupId));
+      }
       int total = dbClient.groupMembershipDao().countMembers(dbSession, query);
       Paging paging = Paging.create(pageSize, page, total);
       List<UserMembershipDto> users = dbClient.groupMembershipDao().selectMembers(dbSession, query, paging.offset(), paging.pageSize());

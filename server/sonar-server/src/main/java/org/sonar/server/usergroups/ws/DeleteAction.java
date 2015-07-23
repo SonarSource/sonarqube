@@ -68,7 +68,7 @@ public class DeleteAction implements UserGroupsWsAction {
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      if (dbClient.groupDao().selectById(dbSession, groupId) == null) {
+      if (dbClient.groupDao().selectNullableById(dbSession, groupId) == null) {
         throw new NotFoundException(String.format("Could not find a group with id=%d", groupId));
       }
 

@@ -41,7 +41,7 @@ import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.db.GroupDao;
+import org.sonar.db.user.GroupDao;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 
@@ -56,7 +56,7 @@ public class DeleteActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
-  private WsTester tester;
+  private WsTester ws;
 
   private GroupDao groupDao;
 
@@ -89,7 +89,7 @@ public class DeleteActionTest {
     defaultGroupId = defaultGroup.getId();
     session.commit();
 
-    tester = new WsTester(new UserGroupsWs(new DeleteAction(dbClient, userSession, settings)));
+    ws = new WsTester(new UserGroupsWs(new DeleteAction(dbClient, userSession, settings)));
   }
 
   @After
@@ -103,7 +103,7 @@ public class DeleteActionTest {
     session.commit();
 
     loginAsAdmin();
-    tester.newPostRequest("api/usergroups", "delete")
+    ws.newPostRequest("api/usergroups", "delete")
       .setParam("id", group.getId().toString())
       .execute().assertNoContent();
   }
@@ -115,7 +115,7 @@ public class DeleteActionTest {
     session.commit();
 
     loginAsAdmin();
-    tester.newPostRequest("api/usergroups", "delete")
+    ws.newPostRequest("api/usergroups", "delete")
       .setParam("id", group.getId().toString())
       .execute().assertNoContent();
 
@@ -129,7 +129,7 @@ public class DeleteActionTest {
     session.commit();
 
     loginAsAdmin();
-    tester.newPostRequest("api/usergroups", "delete")
+    ws.newPostRequest("api/usergroups", "delete")
       .setParam("id", group.getId().toString())
       .execute().assertNoContent();
 
@@ -143,7 +143,7 @@ public class DeleteActionTest {
     session.commit();
 
     loginAsAdmin();
-    tester.newPostRequest("api/usergroups", "delete")
+    ws.newPostRequest("api/usergroups", "delete")
       .setParam("id", group.getId().toString())
       .execute().assertNoContent();
 
@@ -153,7 +153,7 @@ public class DeleteActionTest {
   @Test(expected = NotFoundException.class)
   public void not_found() throws Exception {
     loginAsAdmin();
-    tester.newPostRequest("api/usergroups", "delete")
+    ws.newPostRequest("api/usergroups", "delete")
       .setParam("id", "42")
       .execute();
   }
@@ -161,7 +161,7 @@ public class DeleteActionTest {
   @Test(expected = IllegalArgumentException.class)
   public void cannot_delete_default_group() throws Exception {
     loginAsAdmin();
-    tester.newPostRequest("api/usergroups", "delete")
+    ws.newPostRequest("api/usergroups", "delete")
       .setParam("id", defaultGroupId.toString())
       .execute();
   }

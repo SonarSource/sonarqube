@@ -70,7 +70,7 @@ import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.server.user.db.GroupDao;
+import org.sonar.db.user.GroupDao;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;

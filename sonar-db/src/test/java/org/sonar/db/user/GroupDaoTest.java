@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.user.db;
+package org.sonar.db.user;
 
 import org.junit.After;
 import org.junit.Before;
@@ -29,7 +29,6 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.GroupDto;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;

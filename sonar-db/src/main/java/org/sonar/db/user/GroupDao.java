@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.user.db;
+package org.sonar.db.user;
 
 import java.util.Date;
 import java.util.List;
@@ -29,9 +29,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.GroupMapper;
-import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.db.util.RowNotFoundException;
 
 public class GroupDao implements Dao {
 
@@ -45,7 +43,7 @@ public class GroupDao implements Dao {
   public GroupDto selectByKey(DbSession session, String key) {
     GroupDto group = selectNullableByKey(session, key);
     if (group == null) {
-      throw new NotFoundException(String.format("Could not find a group with name '%s'", key));
+      throw new RowNotFoundException(String.format("Could not find a group with name '%s'", key));
     }
     return group;
   }
@@ -58,7 +56,7 @@ public class GroupDao implements Dao {
   public GroupDto selectById(DbSession dbSession, long groupId) {
     GroupDto group = selectNullableById(dbSession, groupId);
     if (group == null) {
-      throw new NotFoundException(String.format("Could not find a group with id '%d'", groupId));
+      throw new RowNotFoundException(String.format("Could not find a group with id '%d'", groupId));
     }
     return group;
   }
