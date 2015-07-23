@@ -88,7 +88,6 @@ public class TrackerRawInputFactoryTest {
       .setRuleKey("S001")
       .setSeverity(Constants.Severity.BLOCKER)
       .setEffortToFix(3.14)
-      .addTag("bug").addTag("performance")
       .build();
     reportReader.putIssues(FILE.getRef(), asList(reportIssue));
     Input<DefaultIssue> input = underTest.create(FILE);
@@ -103,10 +102,10 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.line()).isEqualTo(2);
     assertThat(issue.effortToFix()).isEqualTo(3.14);
     assertThat(issue.message()).isEqualTo("the message");
-    assertThat(issue.tags()).containsOnly("bug", "performance");
 
     // fields set by compute engine
     assertThat(issue.checksum()).isEqualTo(input.getLineHashSequence().getHashForLine(2));
+    assertThat(issue.tags()).isEmpty();
     assertInitializedIssue(issue);
   }
 

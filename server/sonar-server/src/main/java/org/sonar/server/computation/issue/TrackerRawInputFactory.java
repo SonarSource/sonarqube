@@ -124,7 +124,6 @@ public class TrackerRawInputFactory {
       if (reportIssue.hasEffortToFix()) {
         issue.setEffortToFix(reportIssue.getEffortToFix());
       }
-      issue.setTags(Sets.newHashSet(reportIssue.getTagList()));
       if (reportIssue.hasAttributes()) {
         issue.setAttributes(KeyValueFormat.parse(reportIssue.getAttributes()));
       }

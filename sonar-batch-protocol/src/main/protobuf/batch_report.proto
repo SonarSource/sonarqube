@@ -102,9 +102,8 @@ message Issue {
   optional int32 line = 3;
   optional string msg = 4;
   optional Severity severity = 5;
-  repeated string tag = 6;
-  optional double effort_to_fix = 7;
-  optional string attributes = 8;
+  optional double effort_to_fix = 6;
+  optional string attributes = 7;
 }
 
 message Changesets {
