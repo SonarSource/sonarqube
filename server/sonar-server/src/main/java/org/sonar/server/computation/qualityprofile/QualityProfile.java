@@ -21,6 +21,7 @@ package org.sonar.server.computation.qualityprofile;
 
 import com.google.common.base.Objects;
 import java.util.Date;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import static java.util.Objects.requireNonNull;
@@ -60,7 +61,7 @@ public class QualityProfile {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }
@@ -83,7 +84,7 @@ public class QualityProfile {
       .add("key", qpKey)
       .add("name", qpName)
       .add("language", languageKey)
-      .add("rulesUpdatedAt", rulesUpdatedAt)
+      .add("rulesUpdatedAt", rulesUpdatedAt.getTime())
       .toString();
   }
 }

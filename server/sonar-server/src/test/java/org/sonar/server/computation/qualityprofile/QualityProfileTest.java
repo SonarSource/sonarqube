@@ -21,6 +21,7 @@ package org.sonar.server.computation.qualityprofile;
 
 import java.util.Date;
 import org.junit.Test;
+import org.sonar.api.utils.DateUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,7 +30,7 @@ public class QualityProfileTest {
   private static final String SOME_QP_KEY = "qpKey";
   private static final String SOME_QP_NAME = "qpName";
   private static final String SOME_LANGUAGE_KEY = "languageKey";
-  private static final Date SOME_DATE = new Date();
+  private static final Date SOME_DATE = DateUtils.parseDateTimeQuietly("2010-05-18T15:50:45+0100");
   private static final QualityProfile QUALITY_PROFILE = new QualityProfile(SOME_QP_KEY, SOME_QP_NAME, SOME_LANGUAGE_KEY, SOME_DATE);
 
   @Test(expected = NullPointerException.class)
@@ -68,5 +69,11 @@ public class QualityProfileTest {
   @Test
   public void verify_equals() {
     assertThat(QUALITY_PROFILE).isEqualTo(new QualityProfile(SOME_QP_KEY, SOME_QP_NAME, SOME_LANGUAGE_KEY, SOME_DATE));
+  }
+
+  @Test
+  public void verify_toString() {
+    assertThat(QUALITY_PROFILE.toString()).isEqualTo("QualityProfile{key=qpKey, name=qpName, language=languageKey, rulesUpdatedAt=1274194245000}");
+
   }
 }
