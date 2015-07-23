@@ -148,10 +148,6 @@ public class InternalRubyIssueService {
     this.userWriter = userWriter;
   }
 
-  public Issue getIssueByKey(String issueKey) {
-    return issueService.getByKey(issueKey);
-  }
-
   public List<Transition> listTransitions(String issueKey) {
     return issueService.listTransitions(issueKey);
   }
