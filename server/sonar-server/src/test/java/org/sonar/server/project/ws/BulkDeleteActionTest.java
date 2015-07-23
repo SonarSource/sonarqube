@@ -150,7 +150,7 @@ public class BulkDeleteActionTest {
     assertThat(dbClient.snapshotDao().selectById(dbSession, snapshotId4)).isNull();
     assertThat(dbClient.snapshotDao().selectById(dbSession, snapshotId2)).isNotNull();
     assertThat(dbClient.issueDao().selectByKeys(dbSession, Arrays.asList("issue-key-1", "issue-key-3", "issue-key-4"))).isEmpty();
-    assertThat(dbClient.issueDao().selectByKey(dbSession, "issue-key-2")).isNotNull();
+    assertThat(dbClient.issueDao().selectByKeyOrFail(dbSession, "issue-key-2")).isNotNull();
   }
 
   @Test

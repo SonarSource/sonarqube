@@ -113,7 +113,7 @@ public class ActionPlanService {
   private List<IssueDto> findIssuesByActionPlan(String actionPlanKey) {
     DbSession session = dbClient.openSession(false);
     try {
-      return dbClient.issueDao().findByActionPlan(session, actionPlanKey);
+      return dbClient.issueDao().selectByActionPlan(session, actionPlanKey);
     } finally {
       session.close();
     }
