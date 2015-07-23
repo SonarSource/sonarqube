@@ -299,13 +299,13 @@ public class IssueService {
     }
     issueStorage.save(session, issue);
     Rule rule = getNullableRuleByKey(issue.ruleKey());
-    ComponentDto project = dbClient.componentDao().selectNonNullByKey(session, projectKey);
+    ComponentDto project = dbClient.componentDao().selectOrFailByKey(session, projectKey);
     notificationService.scheduleForSending(new IssueChangeNotification()
       .setIssue(issue)
       .setChangeAuthorLogin(context.login())
       .setRuleName(rule != null ? rule.getName() : null)
       .setProject(project.getKey(), project.name())
-      .setComponent(dbClient.componentDao().selectNonNullByKey(session, issue.componentKey()))
+      .setComponent(dbClient.componentDao().selectOrFailByKey(session, issue.componentKey()))
       .setComment(comment));
   }
 

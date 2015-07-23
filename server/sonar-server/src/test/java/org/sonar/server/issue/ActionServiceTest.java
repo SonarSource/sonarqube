@@ -98,7 +98,7 @@ public class ActionServiceTest {
     Function function1 = mock(Function.class);
     Function function2 = mock(Function.class);
 
-    when(componentDao.selectNonNullByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
+    when(componentDao.selectOrFailByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
     when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue);
 
     actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function1, function2);
@@ -117,7 +117,7 @@ public class ActionServiceTest {
     UserSession userSession = mock(ThreadLocalUserSession.class);
     when(userSession.getLogin()).thenReturn("arthur");
 
-    when(componentDao.selectNonNullByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
+    when(componentDao.selectOrFailByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
     when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue);
 
     actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function);
@@ -134,7 +134,7 @@ public class ActionServiceTest {
     UserSession userSession = mock(ThreadLocalUserSession.class);
     when(userSession.getLogin()).thenReturn("arthur");
 
-    when(componentDao.selectNonNullByKey(session, "struts")).thenReturn(new ComponentDto().setKey("struts"));
+    when(componentDao.selectOrFailByKey(session, "struts")).thenReturn(new ComponentDto().setKey("struts"));
     when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue.setProjectKey("struts"));
 
     actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function);
@@ -147,7 +147,7 @@ public class ActionServiceTest {
   public void not_execute_function_if_action_not_found() {
     Function function = mock(Function.class);
 
-    when(componentDao.selectNonNullByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
+    when(componentDao.selectOrFailByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
     when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue);
 
     actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function);
@@ -164,7 +164,7 @@ public class ActionServiceTest {
   public void not_execute_function_if_action_is_not_supported() {
     Function function = mock(Function.class);
 
-    when(componentDao.selectNonNullByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
+    when(componentDao.selectOrFailByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
     when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue);
 
     actions.add("link-to-jira").setConditions(new NeverMatch()).setFunctions(function);
@@ -179,7 +179,7 @@ public class ActionServiceTest {
 
   @Test
   public void list_available_supported_actions() {
-    when(componentDao.selectNonNullByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
+    when(componentDao.selectOrFailByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
     when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue);
 
     actions.add("link-to-jira").setConditions(new AlwaysMatch());
@@ -189,7 +189,7 @@ public class ActionServiceTest {
 
   @Test
   public void return_no_action() {
-    when(componentDao.selectNonNullByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
+    when(componentDao.selectOrFailByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
     when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue);
 
     assertThat(actionService.listAvailableActions("ABCD")).isEmpty();

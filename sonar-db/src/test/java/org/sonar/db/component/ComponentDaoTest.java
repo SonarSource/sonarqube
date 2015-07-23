@@ -135,14 +135,14 @@ public class ComponentDaoTest {
 
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    underTest.selectNonNullByKey(db.getSession(), "unknown");
+    underTest.selectOrFailByKey(db.getSession(), "unknown");
   }
 
   @Test
   public void get_by_key_on_disabled_component() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    ComponentDto result = underTest.selectNonNullByKey(db.getSession(), "org.disabled.project");
+    ComponentDto result = underTest.selectOrFailByKey(db.getSession(), "org.disabled.project");
     assertThat(result.isEnabled()).isFalse();
   }
 
@@ -150,7 +150,7 @@ public class ComponentDaoTest {
   public void get_by_key_on_a_root_project() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    ComponentDto result = underTest.selectNonNullByKey(db.getSession(), "org.struts:struts");
+    ComponentDto result = underTest.selectOrFailByKey(db.getSession(), "org.struts:struts");
     assertThat(result.key()).isEqualTo("org.struts:struts");
     assertThat(result.deprecatedKey()).isEqualTo("org.struts:struts");
     assertThat(result.path()).isNull();

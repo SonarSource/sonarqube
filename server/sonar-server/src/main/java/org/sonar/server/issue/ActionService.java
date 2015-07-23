@@ -104,7 +104,7 @@ public class ActionService {
       }
 
       IssueChangeContext changeContext = IssueChangeContext.createUser(new Date(), userSession.getLogin());
-      Component project = dbClient.componentDao().selectNonNullByKey(session, issue.projectKey());
+      Component project = dbClient.componentDao().selectOrFailByKey(session, issue.projectKey());
       FunctionContext functionContext = new FunctionContext(issue, updater, changeContext, getProjectSettings(project));
       for (Function function : action.functions()) {
         function.execute(functionContext);

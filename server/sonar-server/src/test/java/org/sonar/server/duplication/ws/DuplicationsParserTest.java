@@ -73,17 +73,17 @@ public class DuplicationsParserTest {
     // Current file
     String key1 = "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/utils/command/CommandExecutor.java";
     currentFile = ComponentTesting.newFileDto(project1).setId(10L).setKey(key1).setLongName("CommandExecutor");
-    when(componentDao.selectNonNullByKey(session, key1)).thenReturn(currentFile);
+    when(componentDao.selectOrFailByKey(session, key1)).thenReturn(currentFile);
 
     // File on same project
     String key2 = "org.codehaus.sonar:sonar-plugin-api:src/main/java/com/sonar/orchestrator/util/CommandExecutor.java";
     fileOnSameProject = ComponentTesting.newFileDto(project1).setId(11L).setKey(key2).setLongName("CommandExecutor");
-    when(componentDao.selectNonNullByKey(session, key2)).thenReturn(fileOnSameProject);
+    when(componentDao.selectOrFailByKey(session, key2)).thenReturn(fileOnSameProject);
 
     // File on different project
     String key3 = "com.sonarsource.orchestrator:sonar-orchestrator:src/main/java/com/sonar/orchestrator/util/CommandExecutor.java";
     fileOnDifferentProject = ComponentTesting.newFileDto(project2).setId(12L).setKey(key3).setLongName("CommandExecutor");
-    when(componentDao.selectNonNullByKey(session, key3)).thenReturn(fileOnDifferentProject);
+    when(componentDao.selectOrFailByKey(session, key3)).thenReturn(fileOnDifferentProject);
 
     parser = new DuplicationsParser(componentDao);
   }

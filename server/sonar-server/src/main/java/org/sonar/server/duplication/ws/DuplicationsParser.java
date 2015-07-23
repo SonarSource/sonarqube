@@ -86,7 +86,7 @@ public class DuplicationsParser {
   private Duplication createDuplication(Map<String, ComponentDto> componentsByKey, String from, String size, String componentKey, DbSession session) {
     ComponentDto component = componentsByKey.get(componentKey);
     if (component == null) {
-      component = componentDao.selectNonNullByKey(session, componentKey);
+      component = componentDao.selectOrFailByKey(session, componentKey);
       componentsByKey.put(componentKey, component);
     }
     return new Duplication(component, Integer.valueOf(from), Integer.valueOf(size));
