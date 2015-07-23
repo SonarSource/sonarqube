@@ -35,7 +35,7 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
-import org.sonar.db.util.RowNotFoundException;
+import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
 

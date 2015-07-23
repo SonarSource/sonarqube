@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.db.util;
+package org.sonar.db;
 
 /**
  * The RuntimeException thrown by default when a element is not found at the DAO layer.

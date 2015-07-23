@@ -33,7 +33,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.util.RowNotFoundException;
+import org.sonar.db.RowNotFoundException;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;

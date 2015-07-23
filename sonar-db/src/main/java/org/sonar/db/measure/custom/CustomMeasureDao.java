@@ -29,7 +29,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
-import org.sonar.db.util.RowNotFoundException;
+import org.sonar.db.RowNotFoundException;
 
 @ServerSide
 public class CustomMeasureDao implements Dao {

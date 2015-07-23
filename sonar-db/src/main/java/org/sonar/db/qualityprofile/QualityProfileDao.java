@@ -34,7 +34,7 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.util.RowNotFoundException;
+import org.sonar.db.RowNotFoundException;
 
 @ServerSide
 public class QualityProfileDao implements Dao {
