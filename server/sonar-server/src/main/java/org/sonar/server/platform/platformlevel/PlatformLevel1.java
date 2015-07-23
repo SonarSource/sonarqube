@@ -25,7 +25,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.config.Logback;
-import org.sonar.db.DaoUtils;
+import org.sonar.db.DaoModule;
 import org.sonar.db.DatabaseChecker;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.MyBatis;
@@ -96,6 +96,7 @@ public class PlatformLevel1 extends PlatformLevel {
 
       // DB
       DbClient.class,
+      DaoModule.class,
 
       // Elasticsearch
       EsSearchModule.class,
@@ -118,7 +119,6 @@ public class PlatformLevel1 extends PlatformLevel {
       org.sonar.core.persistence.MyBatis.class);
     addAll(CorePropertyDefinitions.all());
     add(MigrationStepModule.class);
-    addAll(DaoUtils.getDaoClasses());
   }
 
   private void addExtraRootComponents() {

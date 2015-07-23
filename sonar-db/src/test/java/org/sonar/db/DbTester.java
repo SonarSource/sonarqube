@@ -118,7 +118,7 @@ public class DbTester extends ExternalResource {
       TransientPicoContainer ioc = new TransientPicoContainer();
       ioc.addComponent(db.getMyBatis());
       ioc.addComponent(system2);
-      for (Class daoClass : DaoUtils.getDaoClasses()) {
+      for (Class daoClass : DaoModule.classes()) {
         ioc.addComponent(daoClass);
       }
       List<Dao> daos = ioc.getComponents(Dao.class);

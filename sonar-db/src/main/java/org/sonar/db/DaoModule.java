@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.db;
 
-import java.util.Arrays;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
+import org.sonar.core.platform.Module;
 import org.sonar.db.activity.ActivityDao;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentLinkDao;
@@ -65,57 +67,58 @@ import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserGroupDao;
 
-public final class DaoUtils {
+public class DaoModule extends Module {
+  private static final List<Class<? extends Dao>> classes = ImmutableList.<Class<? extends Dao>>builder().add(
+    ActionPlanDao.class,
+    ActionPlanStatsDao.class,
+    ActiveDashboardDao.class,
+    ActivityDao.class,
+    AnalysisReportDao.class,
+    AuthorDao.class,
+    AuthorizationDao.class,
+    ComponentDao.class,
+    ComponentLinkDao.class,
+    CustomMeasureDao.class,
+    DashboardDao.class,
+    DuplicationDao.class,
+    EventDao.class,
+    FileSourceDao.class,
+    GroupDao.class,
+    GroupMembershipDao.class,
+    IssueDao.class,
+    IssueChangeDao.class,
+    IssueFilterDao.class,
+    IssueFilterFavouriteDao.class,
+    LoadedTemplateDao.class,
+    MeasureDao.class,
+    MeasureFilterDao.class,
+    MetricDao.class,
+    NotificationQueueDao.class,
+    PermissionDao.class,
+    PermissionTemplateDao.class,
+    PropertiesDao.class,
+    QualityGateDao.class,
+    QualityGateConditionDao.class,
+    ProjectQgateAssociationDao.class,
+    QualityProfileDao.class,
+    PurgeDao.class,
+    CharacteristicDao.class,
+    ResourceIndexDao.class,
+    ResourceDao.class,
+    ResourceKeyUpdaterDao.class,
+    RoleDao.class,
+    SnapshotDao.class,
+    UserDao.class,
+    UserGroupDao.class,
+    WidgetDao.class,
+    WidgetPropertyDao.class).build();
 
-  private DaoUtils() {
-    // only static stuff
+  @Override
+  protected void configureModule() {
+    add(classes.toArray());
   }
 
-  public static List<Class<? extends Dao>> getDaoClasses() {
-    return Arrays.asList(
-      ActionPlanDao.class,
-      ActionPlanStatsDao.class,
-      ActiveDashboardDao.class,
-      ActivityDao.class,
-      AnalysisReportDao.class,
-      AuthorDao.class,
-      AuthorizationDao.class,
-      ComponentDao.class,
-      ComponentLinkDao.class,
-      CustomMeasureDao.class,
-      DashboardDao.class,
-      DuplicationDao.class,
-      EventDao.class,
-      FileSourceDao.class,
-      GroupDao.class,
-      GroupMembershipDao.class,
-      IssueDao.class,
-      IssueChangeDao.class,
-      IssueFilterDao.class,
-      IssueFilterFavouriteDao.class,
-      LoadedTemplateDao.class,
-      MeasureDao.class,
-      MeasureFilterDao.class,
-      MetricDao.class,
-      NotificationQueueDao.class,
-      PermissionDao.class,
-      PermissionTemplateDao.class,
-      PropertiesDao.class,
-      QualityGateDao.class,
-      QualityGateConditionDao.class,
-      ProjectQgateAssociationDao.class,
-      QualityProfileDao.class,
-      PurgeDao.class,
-      CharacteristicDao.class,
-      ResourceIndexDao.class,
-      ResourceDao.class,
-      ResourceKeyUpdaterDao.class,
-      RoleDao.class,
-      SnapshotDao.class,
-      UserDao.class,
-      UserGroupDao.class,
-      WidgetDao.class,
-      WidgetPropertyDao.class
-    );
+  public static List<Class<? extends Dao>> classes() {
+    return classes;
   }
 }

@@ -29,7 +29,9 @@ import org.sonar.server.rule.db.RuleDao;
 /**
  * Should be replaced by {@link org.sonar.db.DbClient}, but some DAOs
  * still depend on other sonar-server classes.
+ * @deprecated since 5.2 - should be removed as soon as the remaining daos are moved to sonar-db
  */
+@Deprecated
 public class DbClient extends org.sonar.db.DbClient {
 
   private ActiveRuleDao activeRuleDao;
