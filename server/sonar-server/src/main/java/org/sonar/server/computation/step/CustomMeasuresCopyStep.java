@@ -22,9 +22,9 @@ package org.sonar.server.computation.step;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import org.apache.commons.lang.math.NumberUtils;
-import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
@@ -91,10 +91,11 @@ public class CustomMeasuresCopyStep implements ComputationStep {
         return Measure.newMeasureBuilder().create(dto.getValue());
       case BOOL:
         return Measure.newMeasureBuilder().create(NumberUtils.compare(dto.getValue(), 1.0) == 0);
+      case LEVEL:
+        return Measure.newMeasureBuilder().create(Measure.Level.valueOf(dto.getTextValue()));
       case STRING:
       case DISTRIB:
       case DATA:
-      case LEVEL:
         return Measure.newMeasureBuilder().create(dto.getTextValue());
       default:
         throw new IllegalArgumentException(String.format("Custom measures do not support the metric type [%s]", metric.getType()));

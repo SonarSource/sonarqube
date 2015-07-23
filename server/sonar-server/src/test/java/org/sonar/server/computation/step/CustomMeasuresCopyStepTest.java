@@ -137,6 +137,13 @@ public class CustomMeasuresCopyStepTest {
   }
 
   @Test
+  public void test_LEVEL_value_type() throws Exception {
+    CustomMeasureDto dto = new CustomMeasureDto();
+    dto.setTextValue("OK");
+    assertThat(dtoToMeasure(dto, new MetricImpl(1, "m", "M", Metric.MetricType.LEVEL)).getLevelValue()).isEqualTo(Measure.Level.OK);
+  }
+
+  @Test
   public void test_boolean_value_type() throws Exception {
     MetricImpl booleanMetric = new MetricImpl(1, "m", "M", Metric.MetricType.BOOL);
     CustomMeasureDto dto = new CustomMeasureDto();
