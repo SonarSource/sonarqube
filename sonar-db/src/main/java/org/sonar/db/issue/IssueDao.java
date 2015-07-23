@@ -23,7 +23,6 @@ package org.sonar.db.issue;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
-import com.google.common.collect.FluentIterable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -34,9 +33,12 @@ import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.RowNotFoundException;
+
+import static com.google.common.collect.FluentIterable.from;
 
 public class IssueDao implements Dao {
 
@@ -78,8 +80,21 @@ public class IssueDao implements Dao {
    * if input keys contain multiple occurrences of a key.
    * <p>Results may be in a different order as input keys (see {@link #selectByOrderedKeys(DbSession, List)}).</p>
    */
-  public List<IssueDto> selectByKeys(DbSession session, List<String> keys) {
-    return mapper(session).selectByKeys(keys);
+  public List<IssueDto> selectByKeys(final DbSession session, List<String> keys) {
+    return DatabaseUtils.executeLargeInputs(keys, new SelectByKeys(mapper(session)));
+  }
+
+  private static class SelectByKeys implements Function<List<String>, List<IssueDto>> {
+    private final IssueMapper mapper;
+
+    private SelectByKeys(IssueMapper mapper) {
+      this.mapper = mapper;
+    }
+
+    @Override
+    public List<IssueDto> apply(@Nonnull List<String> partitionOfKeys) {
+      return mapper.selectByKeys(partitionOfKeys);
+    }
   }
 
   /**
@@ -90,7 +105,7 @@ public class IssueDao implements Dao {
    */
   public Iterable<IssueDto> selectByOrderedKeys(DbSession session, List<String> keys) {
     List<IssueDto> unordered = selectByKeys(session, keys);
-    return FluentIterable.from(keys).transform(new KeyToIssue(unordered)).filter(Predicates.notNull());
+    return from(keys).transform(new KeyToIssue(unordered)).filter(Predicates.notNull());
   }
 
   private static class KeyToIssue implements Function<String, IssueDto> {
