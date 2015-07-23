@@ -30,6 +30,7 @@ import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.component.FileAttributes;
+import org.sonar.server.computation.formula.coverage.LinesAndConditionsWithUncoveredMetricKeys;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepoEntry;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
@@ -60,20 +61,30 @@ import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 import static org.sonar.server.computation.measure.MeasureVariations.newMeasureVariationsBuilder;
 
 public class NewCoverageMeasuresStepTest {
-  private static final DumbComponent MULTIPLE_FILES_TREE = builder(PROJECT, 1)
+
+  private static final int ROOT_REF = 1;
+  private static final int MODULE_REF = 11;
+  private static final int SUB_MODULE_REF = 111;
+  private static final int DIRECTORY_1_REF = 1111;
+  private static final int FILE_1_REF = 11111;
+  private static final int DIRECTORY_2_REF = 1112;
+  private static final int FILE_2_REF = 11121;
+  private static final int FILE_3_REF = 11122;
+
+  private static final DumbComponent MULTIPLE_FILES_TREE = builder(PROJECT, ROOT_REF)
     .addChildren(
-      builder(MODULE, 11)
+      builder(MODULE, MODULE_REF)
         .addChildren(
-          builder(MODULE, 111)
+          builder(MODULE, SUB_MODULE_REF)
             .addChildren(
-              builder(DIRECTORY, 1111)
+              builder(DIRECTORY, DIRECTORY_1_REF)
                 .addChildren(
-                  builder(FILE, 11111).build()
+                  builder(FILE, FILE_1_REF).build()
                 ).build(),
-              builder(DIRECTORY, 1112)
+              builder(DIRECTORY, DIRECTORY_2_REF)
                 .addChildren(
-                  builder(FILE, 11121).build(),
-                  builder(FILE, 11122).build()
+                  builder(FILE, FILE_2_REF).build(),
+                  builder(FILE, FILE_3_REF).build()
                 ).build()
             )
             .build()
@@ -95,6 +106,9 @@ public class NewCoverageMeasuresStepTest {
     .add(CoreMetrics.NEW_UNCOVERED_LINES)
     .add(CoreMetrics.NEW_CONDITIONS_TO_COVER)
     .add(CoreMetrics.NEW_UNCOVERED_CONDITIONS)
+    .add(CoreMetrics.NEW_COVERAGE)
+    .add(CoreMetrics.NEW_BRANCH_COVERAGE)
+    .add(CoreMetrics.NEW_LINE_COVERAGE)
 
     .add(CoreMetrics.IT_COVERAGE_LINE_HITS_DATA)
     .add(CoreMetrics.IT_CONDITIONS_BY_LINE)
@@ -103,6 +117,9 @@ public class NewCoverageMeasuresStepTest {
     .add(CoreMetrics.NEW_IT_UNCOVERED_LINES)
     .add(CoreMetrics.NEW_IT_CONDITIONS_TO_COVER)
     .add(CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS)
+    .add(CoreMetrics.NEW_IT_COVERAGE)
+    .add(CoreMetrics.NEW_IT_BRANCH_COVERAGE)
+    .add(CoreMetrics.NEW_IT_LINE_COVERAGE)
 
     .add(CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA)
     .add(CoreMetrics.OVERALL_CONDITIONS_BY_LINE)
@@ -110,13 +127,17 @@ public class NewCoverageMeasuresStepTest {
     .add(CoreMetrics.NEW_OVERALL_LINES_TO_COVER)
     .add(CoreMetrics.NEW_OVERALL_UNCOVERED_LINES)
     .add(CoreMetrics.NEW_OVERALL_CONDITIONS_TO_COVER)
-    .add(CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS);
+    .add(CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS)
+    .add(CoreMetrics.NEW_OVERALL_COVERAGE)
+    .add(CoreMetrics.NEW_OVERALL_BRANCH_COVERAGE)
+    .add(CoreMetrics.NEW_OVERALL_LINE_COVERAGE)
+    ;
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
   private NewCoverageMeasuresStep underTest = new NewCoverageMeasuresStep(treeRootHolder, periodsHolder, reportReader,
     measureRepository, metricRepository);
-  public static final DumbComponent FILE_COMPONENT = DumbComponent.builder(Component.Type.FILE, 1)
+  public static final DumbComponent FILE_COMPONENT = DumbComponent.builder(Component.Type.FILE, FILE_1_REF)
     .setFileAttributes(new FileAttributes(false, null)).build();
 
   @Before
@@ -128,7 +149,7 @@ public class NewCoverageMeasuresStepTest {
 
   @Test
   public void no_measure_for_PROJECT_component() {
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).build());
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, ROOT_REF).build());
 
     underTest.execute();
 
@@ -137,7 +158,7 @@ public class NewCoverageMeasuresStepTest {
 
   @Test
   public void no_measure_for_MODULE_component() {
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.MODULE, 1).build());
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.MODULE, MODULE_REF).build());
 
     underTest.execute();
 
@@ -146,7 +167,7 @@ public class NewCoverageMeasuresStepTest {
 
   @Test
   public void no_measure_for_DIRECTORY_component() {
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.DIRECTORY, 1).build());
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.DIRECTORY, DIRECTORY_1_REF).build());
 
     underTest.execute();
 
@@ -155,7 +176,7 @@ public class NewCoverageMeasuresStepTest {
 
   @Test
   public void no_measure_for_unit_test_FILE_component() {
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.FILE, 1).setFileAttributes(new FileAttributes(true, null)).build());
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.FILE, FILE_1_REF).setFileAttributes(new FileAttributes(true, null)).build());
 
     underTest.execute();
 
@@ -164,7 +185,7 @@ public class NewCoverageMeasuresStepTest {
 
   @Test
   public void no_measures_for_FILE_component_without_code() {
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.FILE, 1).setFileAttributes(new FileAttributes(false, null)).build());
+    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, null)).build());
 
     underTest.execute();
 
@@ -218,7 +239,7 @@ public class NewCoverageMeasuresStepTest {
 
   @Test
   public void no_measures_for_FILE_component_without_CoverageData() {
-    DumbComponent fileComponent = DumbComponent.builder(Component.Type.FILE, 1).setFileAttributes(new FileAttributes(false, null)).build();
+    DumbComponent fileComponent = DumbComponent.builder(Component.Type.FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, null)).build();
 
     treeRootHolder.setRoot(fileComponent);
     reportReader.putChangesets(Changesets.newBuilder()
@@ -291,7 +312,7 @@ public class NewCoverageMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_COMPONENT.getRef()))).containsOnly(
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_COMPONENT.getRef()))).contains(
       entryOf(newLinesToCover, createMeasure(2d, null)),
       entryOf(newUncoveredLines, createMeasure(1d, null)),
       entryOf(newConditionsToCover, createMeasure(0d, null)),
@@ -355,39 +376,39 @@ public class NewCoverageMeasuresStepTest {
       newLinesToCover, newUncoveredLines, newConditionsToCover, newUncoveredConditions);
 
     treeRootHolder.setRoot(MULTIPLE_FILES_TREE);
-    defineChangeSetsAndMeasures(11111, metricKeys, new MeasureValues(3, 4, 1), new MeasureValues(0, 3, 2));
-    defineChangeSetsAndMeasures(11121, metricKeys, new MeasureValues(0, 14, 6), new MeasureValues(0, 13, 7));
-    defineChangeSetsAndMeasures(11122, metricKeys, new MeasureValues(3, 4, 1), new MeasureValues(1, 13, 7));
+    defineChangeSetsAndMeasures(FILE_1_REF, metricKeys, new MeasureValues(3, 4, 1), new MeasureValues(0, 3, 2));
+    defineChangeSetsAndMeasures(FILE_2_REF, metricKeys, new MeasureValues(0, 14, 6), new MeasureValues(0, 13, 7));
+    defineChangeSetsAndMeasures(FILE_3_REF, metricKeys, new MeasureValues(3, 4, 1), new MeasureValues(1, 13, 7));
 
     underTest.execute();
 
     // files
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(11111))).containsOnly(
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).contains(
       entryOf(metricKeys.newLinesToCover, createMeasure(5d, 3d)),
       entryOf(metricKeys.newUncoveredLines, createMeasure(3d, 2d)),
       entryOf(metricKeys.newConditionsToCover, createMeasure(7d, 3d)),
       entryOf(metricKeys.newUncoveredConditions, createMeasure(4d, 1d))
     );
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(11121))).containsOnly(
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_2_REF))).contains(
       entryOf(metricKeys.newLinesToCover, createMeasure(5d, 3d)),
       entryOf(metricKeys.newUncoveredLines, createMeasure(4d, 2d)),
       entryOf(metricKeys.newConditionsToCover, createMeasure(27d, 13d)),
       entryOf(metricKeys.newUncoveredConditions, createMeasure(14d, 6d))
     );
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(11122))).containsOnly(
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_3_REF))).contains(
       entryOf(metricKeys.newLinesToCover, createMeasure(5d, 3d)),
       entryOf(metricKeys.newUncoveredLines, createMeasure(2d, 1d)),
       entryOf(metricKeys.newConditionsToCover, createMeasure(17d, 13d)),
       entryOf(metricKeys.newUncoveredConditions, createMeasure(9d, 6d))
     );
     // directories
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(1111))).containsOnly(
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_1_REF))).contains(
       entryOf(metricKeys.newLinesToCover, createMeasure(5d, 3d)),
       entryOf(metricKeys.newUncoveredLines, createMeasure(3d, 2d)),
       entryOf(metricKeys.newConditionsToCover, createMeasure(7d, 3d)),
       entryOf(metricKeys.newUncoveredConditions, createMeasure(4d, 1d))
     );
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(1112))).containsOnly(
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_2_REF))).contains(
       entryOf(metricKeys.newLinesToCover, createMeasure(10d, 6d)),
       entryOf(metricKeys.newUncoveredLines, createMeasure(6d, 3d)),
       entryOf(metricKeys.newConditionsToCover, createMeasure(44d, 26d)),
@@ -398,11 +419,100 @@ public class NewCoverageMeasuresStepTest {
       entryOf(metricKeys.newUncoveredLines, createMeasure(9d, 5d)),
       entryOf(metricKeys.newConditionsToCover, createMeasure(51d, 29d)),
       entryOf(metricKeys.newUncoveredConditions, createMeasure(27d, 13d))};
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(111))).containsOnly(repoEntriesFromSubModuleUp);
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_MODULE_REF))).contains(repoEntriesFromSubModuleUp);
     // module
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(11))).containsOnly(repoEntriesFromSubModuleUp);
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_REF))).contains(repoEntriesFromSubModuleUp);
     // project
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(11))).containsOnly(repoEntriesFromSubModuleUp);
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).contains(repoEntriesFromSubModuleUp);
+  }
+
+  @Test
+  public void verify_aggregates_variations_for_new_code_line_and_branch_Coverage() {
+    LinesAndConditionsWithUncoveredMetricKeys metricKeys = new LinesAndConditionsWithUncoveredMetricKeys(
+      CoreMetrics.NEW_LINES_TO_COVER_KEY, CoreMetrics.NEW_CONDITIONS_TO_COVER_KEY,
+      CoreMetrics.NEW_UNCOVERED_LINES_KEY, CoreMetrics.NEW_UNCOVERED_CONDITIONS_KEY
+    );
+    String codeCoverageKey = CoreMetrics.NEW_COVERAGE_KEY;
+    String lineCoverageKey = CoreMetrics.NEW_LINE_COVERAGE_KEY;
+    String branchCoverageKey = CoreMetrics.NEW_BRANCH_COVERAGE_KEY;
+
+    verify_aggregates_variations(metricKeys, codeCoverageKey, lineCoverageKey, branchCoverageKey);
+  }
+
+  @Test
+  public void verify_aggregates_variations_for_new_IT_code_line_and_branch_Coverage() {
+    LinesAndConditionsWithUncoveredMetricKeys metricKeys = new LinesAndConditionsWithUncoveredMetricKeys(
+      CoreMetrics.NEW_IT_LINES_TO_COVER_KEY, CoreMetrics.NEW_IT_CONDITIONS_TO_COVER_KEY,
+      CoreMetrics.NEW_IT_UNCOVERED_LINES_KEY, CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS_KEY
+    );
+    String codeCoverageKey = CoreMetrics.NEW_IT_COVERAGE_KEY;
+    String lineCoverageKey = CoreMetrics.NEW_IT_LINE_COVERAGE_KEY;
+    String branchCoverageKey = CoreMetrics.NEW_IT_BRANCH_COVERAGE_KEY;
+
+    verify_aggregates_variations(metricKeys, codeCoverageKey, lineCoverageKey, branchCoverageKey);
+  }
+
+  @Test
+  public void verify_aggregates_variations_for_new_Overall_code_line_and_branch_Coverage() {
+    LinesAndConditionsWithUncoveredMetricKeys metricKeys = new LinesAndConditionsWithUncoveredMetricKeys(
+      CoreMetrics.NEW_OVERALL_LINES_TO_COVER_KEY, CoreMetrics.NEW_OVERALL_CONDITIONS_TO_COVER_KEY,
+      CoreMetrics.NEW_OVERALL_UNCOVERED_LINES_KEY, CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS_KEY
+    );
+    String codeCoverageKey = CoreMetrics.NEW_OVERALL_COVERAGE_KEY;
+    String lineCoverageKey = CoreMetrics.NEW_OVERALL_LINE_COVERAGE_KEY;
+    String branchCoverageKey = CoreMetrics.NEW_OVERALL_BRANCH_COVERAGE_KEY;
+
+    verify_aggregates_variations(metricKeys, codeCoverageKey, lineCoverageKey, branchCoverageKey);
+  }
+
+  private void verify_aggregates_variations(LinesAndConditionsWithUncoveredMetricKeys metricKeys, String codeCoverageKey, String lineCoverageKey, String branchCoverageKey) {
+    treeRootHolder.setRoot(MULTIPLE_FILES_TREE);
+    measureRepository
+      .addRawMeasure(FILE_1_REF, metricKeys.getLines(), createMeasure(3000d, 2000d))
+      .addRawMeasure(FILE_1_REF, metricKeys.getConditions(), createMeasure(300d, 400d))
+      .addRawMeasure(FILE_1_REF, metricKeys.getUncoveredLines(), createMeasure(30d, 200d))
+      .addRawMeasure(FILE_1_REF, metricKeys.getUncoveredConditions(), createMeasure(9d, 16d))
+
+      .addRawMeasure(FILE_2_REF, metricKeys.getLines(), createMeasure(2000d, 3000d))
+      .addRawMeasure(FILE_2_REF, metricKeys.getConditions(), createMeasure(400d, 300d))
+      .addRawMeasure(FILE_2_REF, metricKeys.getUncoveredLines(), createMeasure(200d, 30d))
+      .addRawMeasure(FILE_2_REF, metricKeys.getUncoveredConditions(), createMeasure(16d, 9d));
+
+    underTest.execute();
+
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).containsOnly(
+      entryOf(codeCoverageKey, createMeasure(98.8d, 91d)),
+      entryOf(lineCoverageKey, createMeasure(99d, 90d)),
+      entryOf(branchCoverageKey, createMeasure(97d, 96d))
+    );
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_2_REF))).containsOnly(
+      entryOf(codeCoverageKey, createMeasure(91d, 98.8d)),
+      entryOf(lineCoverageKey, createMeasure(90d, 99d)),
+      entryOf(branchCoverageKey, createMeasure(96d, 97d))
+    );
+    assertThat(measureRepository.getAddedRawMeasures(FILE_3_REF)).isEmpty();
+
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_1_REF))).containsOnly(
+      entryOf(codeCoverageKey, createMeasure(98.8d, 91d)),
+      entryOf(lineCoverageKey, createMeasure(99d, 90d)),
+      entryOf(branchCoverageKey, createMeasure(97d, 96d))
+    );
+
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(DIRECTORY_2_REF))).containsOnly(
+      entryOf(codeCoverageKey, createMeasure(91d, 98.8d)),
+      entryOf(lineCoverageKey, createMeasure(90d, 99d)),
+      entryOf(branchCoverageKey, createMeasure(96d, 97d))
+    );
+
+    MeasureRepoEntry[] modulesAndProjectEntries = {
+      entryOf(codeCoverageKey, createMeasure(95.5d, 95.5d)),
+      entryOf(lineCoverageKey, createMeasure(95.4d, 95.4d)),
+      entryOf(branchCoverageKey, createMeasure(96.4d, 96.4d))
+    };
+
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(SUB_MODULE_REF))).containsOnly(modulesAndProjectEntries);
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(MODULE_REF))).containsOnly(modulesAndProjectEntries);
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(ROOT_REF))).containsOnly(modulesAndProjectEntries);
   }
 
   private void defineChangeSetsAndMeasures(int componentRef, MetricKeys metricKeys, MeasureValues line4, MeasureValues line6) {
@@ -471,7 +581,7 @@ public class NewCoverageMeasuresStepTest {
 
     underTest.execute();
 
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_COMPONENT.getRef()))).containsOnly(
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_COMPONENT.getRef()))).contains(
       entryOf(metricKeys.newLinesToCover, createMeasure(5d, 3d)),
       entryOf(metricKeys.newUncoveredLines, createMeasure(3d, 2d)),
       entryOf(metricKeys.newConditionsToCover, createMeasure(7d, 3d)),

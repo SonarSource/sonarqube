@@ -29,6 +29,8 @@ import org.sonar.server.computation.metric.MetricRepositoryRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.sonar.api.measures.CoreMetrics.COMMENTED_OUT_CODE_LINES;
+import static org.sonar.api.measures.CoreMetrics.COMMENTED_OUT_CODE_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_DENSITY;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_DENSITY_KEY;
@@ -65,6 +67,7 @@ public class CommentMeasuresStepTest {
     .add(NCLOC)
     .add(COMMENT_LINES)
     .add(COMMENT_LINES_DENSITY)
+    .add(COMMENTED_OUT_CODE_LINES)
     .add(PUBLIC_API)
     .add(PUBLIC_UNDOCUMENTED_API)
     .add(PUBLIC_DOCUMENTED_API_DENSITY);
@@ -91,6 +94,21 @@ public class CommentMeasuresStepTest {
                 ).build()
             ).build()
         ).build());
+  }
+
+  @Test
+  public void aggregate_commented_out_code_lines() {
+    measureRepository.addRawMeasure(FILE_1_REF, COMMENTED_OUT_CODE_LINES_KEY, newMeasureBuilder().create(100));
+    measureRepository.addRawMeasure(FILE_2_REF, COMMENTED_OUT_CODE_LINES_KEY, newMeasureBuilder().create(400));
+
+    underTest.execute();
+
+    assertThat(measureRepository.getAddedRawMeasure(FILE_1_REF, COMMENTED_OUT_CODE_LINES_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(FILE_2_REF, COMMENTED_OUT_CODE_LINES_KEY)).isAbsent();
+    assertThat(measureRepository.getAddedRawMeasure(DIRECTORY_REF, COMMENTED_OUT_CODE_LINES_KEY).get().getIntValue()).isEqualTo(500);
+    assertThat(measureRepository.getAddedRawMeasure(SUB_MODULE_REF, COMMENTED_OUT_CODE_LINES_KEY).get().getIntValue()).isEqualTo(500);
+    assertThat(measureRepository.getAddedRawMeasure(MODULE_REF, COMMENTED_OUT_CODE_LINES_KEY).get().getIntValue()).isEqualTo(500);
+    assertThat(measureRepository.getAddedRawMeasure(ROOT_REF, COMMENTED_OUT_CODE_LINES_KEY).get().getIntValue()).isEqualTo(500);
   }
 
   @Test

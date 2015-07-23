@@ -25,17 +25,7 @@ import java.util.List;
 
 import static org.sonar.api.measures.CoreMetrics.ACCESSORS_KEY;
 import static org.sonar.api.measures.CoreMetrics.CLASSES_KEY;
-import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY_KEY;
-import static org.sonar.api.measures.CoreMetrics.COMMENTED_OUT_CODE_LINES_KEY;
-import static org.sonar.api.measures.CoreMetrics.COMPLEXITY_IN_CLASSES_KEY;
-import static org.sonar.api.measures.CoreMetrics.COMPLEXITY_IN_FUNCTIONS_KEY;
-import static org.sonar.api.measures.CoreMetrics.COMPLEXITY_KEY;
-import static org.sonar.api.measures.CoreMetrics.FILES_KEY;
-import static org.sonar.api.measures.CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION_KEY;
-import static org.sonar.api.measures.CoreMetrics.FILE_COMPLEXITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.FUNCTIONS_KEY;
-import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY;
-import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.GENERATED_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.GENERATED_NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.PACKAGES_KEY;
@@ -56,60 +46,9 @@ public class CoreFormulaRepositoryImpl implements CoreFormulaRepository {
     new SumFormula(FUNCTIONS_KEY),
     new SumFormula(STATEMENTS_KEY),
     new SumFormula(PACKAGES_KEY),
-    new SumFormula(COMMENTED_OUT_CODE_LINES_KEY),
-    new SumFormula(COMPLEXITY_KEY),
-    new SumFormula(COMPLEXITY_IN_CLASSES_KEY),
-    // TODO this formula seems to be useless as this measure seems only required on files
-    new SumFormula(COMPLEXITY_IN_FUNCTIONS_KEY),
 
-    new SumFormula(ACCESSORS_KEY),
-//    new SumFormula(CoreMetrics.COMMENT_LINES_KEY),
-
-    // new SumFormula(LINES_TO_COVER_KEY),
-    // new SumFormula(NEW_LINES_TO_COVER_KEY),
-    // new SumFormula(UNCOVERED_LINES_KEY),
-    // new SumFormula(NEW_UNCOVERED_LINES_KEY),
-    // new SumFormula(CONDITIONS_TO_COVER_KEY),
-    // new SumFormula(NEW_CONDITIONS_TO_COVER_KEY),
-    // new SumFormula(UNCOVERED_CONDITIONS_KEY),
-    // new SumFormula(NEW_UNCOVERED_CONDITIONS_KEY),
-    // new SumFormula(IT_LINES_TO_COVER_KEY),
-    // new SumFormula(NEW_IT_LINES_TO_COVER_KEY),
-    // new SumFormula(IT_UNCOVERED_LINES_KEY),
-    // new SumFormula(NEW_IT_UNCOVERED_LINES_KEY),
-    // new SumFormula(IT_CONDITIONS_TO_COVER_KEY),
-    // new SumFormula(NEW_IT_CONDITIONS_TO_COVER_KEY),
-    // new SumFormula(IT_UNCOVERED_CONDITIONS_KEY),
-    // new SumFormula(NEW_IT_UNCOVERED_CONDITIONS_KEY),
-    // new SumFormula(OVERALL_LINES_TO_COVER_KEY),
-    // new SumFormula(NEW_OVERALL_LINES_TO_COVER_KEY),
-    // new SumFormula(OVERALL_UNCOVERED_LINES_KEY),
-    // new SumFormula(NEW_OVERALL_UNCOVERED_LINES_KEY),
-    // new SumFormula(OVERALL_CONDITIONS_TO_COVER_KEY),
-    // new SumFormula(NEW_OVERALL_CONDITIONS_TO_COVER_KEY),
-    // new SumFormula(OVERALL_UNCOVERED_CONDITIONS_KEY),
-    // new SumFormula(NEW_OVERALL_UNCOVERED_CONDITIONS_KEY),
-
-    // Distribution formulas
-    new DistributionFormula(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY),
-    new DistributionFormula(FILE_COMPLEXITY_DISTRIBUTION_KEY),
-
-    // Average formulas, must be executed after all sum formulas as they depend on their measures
-    AverageFormula.Builder.newBuilder().setOutputMetricKey(FILE_COMPLEXITY_KEY)
-      .setMainMetricKey(COMPLEXITY_KEY)
-      .setByMetricKey(FILES_KEY)
-      .build(),
-    AverageFormula.Builder.newBuilder().setOutputMetricKey(CLASS_COMPLEXITY_KEY)
-      .setMainMetricKey(COMPLEXITY_IN_CLASSES_KEY)
-      .setByMetricKey(CLASSES_KEY)
-      .setFallbackMetricKey(COMPLEXITY_KEY)
-      .build(),
-    AverageFormula.Builder.newBuilder().setOutputMetricKey(FUNCTION_COMPLEXITY_KEY)
-      .setMainMetricKey(COMPLEXITY_IN_FUNCTIONS_KEY)
-      .setByMetricKey(FUNCTIONS_KEY)
-      .setFallbackMetricKey(COMPLEXITY_KEY)
-      .build()
-  );
+    new SumFormula(ACCESSORS_KEY)
+    );
 
   /**
    * Return list of formulas that was previously provided by CoreMetrics

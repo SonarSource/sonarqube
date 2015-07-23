@@ -27,7 +27,6 @@ import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.utils.SonarException;
 
@@ -194,7 +193,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_SIZE)
-    .setFormula(new SumChildValuesFormula(false))
     .create();
 
   /**
@@ -254,7 +252,6 @@ public final class CoreMetrics {
     .setBestValue(0.0)
     .setDirection(Metric.DIRECTION_WORST)
     .setOptimizedBestValue(true)
-    .setFormula(new SumChildValuesFormula(false))
     .create();
 
   /**
@@ -375,7 +372,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(true)
     .setDomain(DOMAIN_COMPLEXITY)
-    .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY))
     .setHidden(true)
     .create();
 
@@ -513,7 +509,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(false)
     .setDomain(DOMAIN_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
     .create();
 
   public static final String NEW_LINES_TO_COVER_KEY = "new_lines_to_cover";
@@ -522,7 +517,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
     .setDeleteHistoricalData(true)
     .create();
 
@@ -535,7 +529,6 @@ public final class CoreMetrics {
     .setDescription("Uncovered lines")
     .setDirection(Metric.DIRECTION_WORST)
     .setDomain(DOMAIN_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
     .setBestValue(0.0)
     .create();
 
@@ -544,7 +537,6 @@ public final class CoreMetrics {
     .setDescription("Uncovered lines on new code")
     .setDirection(Metric.DIRECTION_WORST)
     .setDomain(DOMAIN_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
     .setBestValue(0.0)
     .setDeleteHistoricalData(true)
     .create();
@@ -571,7 +563,7 @@ public final class CoreMetrics {
     .create();
 
   /**
-   * 
+   *
    * @deprecated since 5.2 soon to be removed
    */
   @Deprecated
@@ -596,7 +588,6 @@ public final class CoreMetrics {
   public static final Metric<Integer> CONDITIONS_TO_COVER = new Metric.Builder(CONDITIONS_TO_COVER_KEY, "Branches to cover", Metric.ValueType.INT)
     .setDescription("Branches to cover")
     .setDomain(DOMAIN_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
     .setHidden(true)
     .create();
 
@@ -604,7 +595,6 @@ public final class CoreMetrics {
   public static final Metric<Integer> NEW_CONDITIONS_TO_COVER = new Metric.Builder(NEW_CONDITIONS_TO_COVER_KEY, "Branches to cover on new code", Metric.ValueType.INT)
     .setDescription("Branches to cover on new code")
     .setDomain(DOMAIN_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
     .setDeleteHistoricalData(true)
     .setHidden(true)
     .create();
@@ -618,7 +608,6 @@ public final class CoreMetrics {
     .setDescription("Uncovered branches")
     .setDirection(Metric.DIRECTION_WORST)
     .setDomain(DOMAIN_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
     .setBestValue(0.0)
     .create();
 
@@ -627,7 +616,6 @@ public final class CoreMetrics {
     .setDescription("Uncovered branches on new code")
     .setDirection(Metric.DIRECTION_WORST)
     .setDomain(DOMAIN_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
     .setBestValue(0.0)
     .setDeleteHistoricalData(true)
     .create();
@@ -743,7 +731,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_BETTER)
     .setDomain(DOMAIN_INTEGRATION_TESTS)
     .setQualitative(false)
-    .setFormula(new SumChildValuesFormula(false))
     .setHidden(true)
     .create();
 
@@ -760,7 +747,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_INTEGRATION_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
     .setDeleteHistoricalData(true)
     .create();
 
@@ -777,7 +763,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_INTEGRATION_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
     .create();
 
   /**
@@ -792,7 +777,6 @@ public final class CoreMetrics {
     .setDescription("Uncovered lines by IT on new code")
     .setDirection(Metric.DIRECTION_WORST)
     .setDomain(DOMAIN_INTEGRATION_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
     .setBestValue(0.0)
     .setDeleteHistoricalData(true)
     .create();
@@ -863,7 +847,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(false)
     .setDomain(DOMAIN_INTEGRATION_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
     .setHidden(true)
     .create();
 
@@ -878,7 +861,6 @@ public final class CoreMetrics {
   public static final Metric<Integer> NEW_IT_CONDITIONS_TO_COVER = new Metric.Builder(NEW_IT_CONDITIONS_TO_COVER_KEY, "Branches to cover by IT on new code", Metric.ValueType.INT)
     .setDescription("Branches to cover by Integration Tests on new code")
     .setDomain(DOMAIN_INTEGRATION_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
     .setDeleteHistoricalData(true)
     .setHidden(true)
     .create();
@@ -895,7 +877,6 @@ public final class CoreMetrics {
     .setDescription("Integration Tests uncovered conditions")
     .setDirection(Metric.DIRECTION_WORST)
     .setDomain(DOMAIN_INTEGRATION_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
     .create();
 
   /**
@@ -911,7 +892,6 @@ public final class CoreMetrics {
     .setDescription("Uncovered branches by Integration Tests on new code")
     .setDirection(Metric.DIRECTION_WORST)
     .setDomain(DOMAIN_INTEGRATION_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
     .setBestValue(0.0)
     .setDeleteHistoricalData(true)
     .create();
@@ -1039,7 +1019,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_BETTER)
     .setDomain(DOMAIN_OVERALL_TESTS)
     .setQualitative(false)
-    .setFormula(new SumChildValuesFormula(false))
     .setHidden(true)
     .create();
 
@@ -1056,7 +1035,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_OVERALL_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
     .setDeleteHistoricalData(true)
     .create();
 
@@ -1073,7 +1051,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_OVERALL_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
     .create();
 
   /**
@@ -1088,7 +1065,6 @@ public final class CoreMetrics {
     .setDescription("New lines that are not covered by any tests")
     .setDirection(Metric.DIRECTION_WORST)
     .setDomain(DOMAIN_OVERALL_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
     .setBestValue(0.0)
     .setDeleteHistoricalData(true)
     .create();
@@ -1160,7 +1136,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(false)
     .setDomain(DOMAIN_OVERALL_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
     .setHidden(true)
     .create();
 
@@ -1176,7 +1151,6 @@ public final class CoreMetrics {
     Metric.ValueType.INT)
     .setDescription("New branches to cover by all tests")
     .setDomain(DOMAIN_OVERALL_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
     .setDeleteHistoricalData(true)
     .setHidden(true)
     .create();
@@ -1193,7 +1167,6 @@ public final class CoreMetrics {
     .setDescription("Uncovered branches by all tests")
     .setDirection(Metric.DIRECTION_WORST)
     .setDomain(DOMAIN_OVERALL_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
     .create();
 
   /**
@@ -1209,7 +1182,6 @@ public final class CoreMetrics {
     .setDescription("New branches that are not covered by any test")
     .setDirection(Metric.DIRECTION_WORST)
     .setDomain(DOMAIN_OVERALL_TESTS)
-    .setFormula(new SumChildValuesFormula(false))
     .setBestValue(0.0)
     .setDeleteHistoricalData(true)
     .create();
@@ -1625,7 +1597,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_DESIGN)
-    .setFormula(new WeightedMeanAggregationFormula(CoreMetrics.FILES, false))
     .setHidden(true)
     .create();
 
@@ -1644,7 +1615,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(true)
     .setDomain(DOMAIN_DESIGN)
-    .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY))
     .setHidden(true)
     .create();
 
@@ -1701,7 +1671,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(true)
     .setDomain(DOMAIN_DESIGN)
-    .setFormula(new SumChildDistributionFormula().setMinimumScopeToPersist(Scopes.DIRECTORY))
     .setHidden(true)
     .create();
 
@@ -1755,7 +1724,6 @@ public final class CoreMetrics {
     .setQualitative(true)
     .setDomain(DOMAIN_DESIGN)
     .setBestValue(0.0)
-    .setFormula(new SumChildValuesFormula(false))
     .create();
 
   /**
@@ -1811,7 +1779,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_DESIGN)
-    .setFormula(new SumChildValuesFormula(false))
     .create();
 
   /**
@@ -1839,7 +1806,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_DESIGN)
-    .setFormula(new SumChildValuesFormula(false))
     .setBestValue(0.0)
     .create();
 
@@ -1868,7 +1834,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(false)
     .setDomain(DOMAIN_DESIGN)
-    .setFormula(new SumChildValuesFormula(false))
     .setHidden(true)
     .setDeleteHistoricalData(true)
     .create();

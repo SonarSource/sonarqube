@@ -44,6 +44,8 @@ import org.sonar.server.computation.period.Period;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION;
+import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION;
 import static org.sonar.api.measures.CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION;
@@ -206,6 +208,25 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
     measureRepository.addRawMeasure(PROJECT_REF, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, Measure.newMeasureBuilder().create("0=1;2=10"));
     measureRepository.addRawMeasure(FILE_REF, FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, Measure.newMeasureBuilder().create("0=1;2=10"));
+
+    underTest.execute();
+
+    assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
+
+    List<Map<String, Object>> dtos = selectSnapshots();
+
+    Map<String, Object> dto = dtos.get(0);
+    assertThat(dto.get("snapshotId")).isEqualTo(3L);
+    assertThat(dto.get("componentId")).isEqualTo(projectDto.getId());
+    assertThat(dto.get("textValue")).isEqualTo("0=1;2=10");
+  }
+
+  @Test
+  public void do_not_insert_class_complexity_distribution_metric_on_files() {
+    metricRepository.add(1, CLASS_COMPLEXITY_DISTRIBUTION);
+
+    measureRepository.addRawMeasure(PROJECT_REF, CLASS_COMPLEXITY_DISTRIBUTION_KEY, Measure.newMeasureBuilder().create("0=1;2=10"));
+    measureRepository.addRawMeasure(FILE_REF, CLASS_COMPLEXITY_DISTRIBUTION_KEY, Measure.newMeasureBuilder().create("0=1;2=10"));
 
     underTest.execute();
 
