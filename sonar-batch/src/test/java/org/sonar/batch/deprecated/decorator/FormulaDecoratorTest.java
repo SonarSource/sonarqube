@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.deprecated.decorator;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.CoreMetrics;
@@ -29,13 +32,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.test.IsMeasure;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -44,11 +41,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class FormulaDecoratorTest {
-
-  @Test
-  public void doAlwaysExecute() {
-    assertThat(new FormulaDecorator(CoreMetrics.LINES).shouldExecuteOnProject(null), is(true));
-  }
 
   @Test
   public void declareDependencies() {
