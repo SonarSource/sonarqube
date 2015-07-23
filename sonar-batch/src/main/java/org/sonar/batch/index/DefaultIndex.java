@@ -21,6 +21,15 @@ package org.sonar.batch.index;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -28,10 +37,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.measure.Metric;
+import org.sonar.api.batch.fs.InputDir;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.MetricFinder;
+import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.design.Dependency;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.MeasuresFilters;
@@ -41,69 +52,30 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
-import org.sonar.api.resources.Scopes;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.api.utils.SonarException;
 import org.sonar.batch.DefaultProjectTree;
-import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.scan.measure.MeasureCache;
+import org.sonar.batch.sensor.DefaultSensorStorage;
 import org.sonar.core.component.ComponentKeys;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class DefaultIndex extends SonarIndex {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultIndex.class);
 
-  private static final List<Metric> INTERNAL_METRICS = Arrays.<Metric>asList(
-    // Computed by CpdSensor
-    CoreMetrics.DUPLICATED_FILES,
-    CoreMetrics.DUPLICATED_LINES,
-    CoreMetrics.DUPLICATED_BLOCKS,
-    // Computed by LinesSensor
-    CoreMetrics.LINES
-    );
-
-  private static final List<String> DEPRECATED_METRICS_KEYS = Arrays.<String>asList(
-    CoreMetrics.DEPENDENCY_MATRIX_KEY,
-    CoreMetrics.DIRECTORY_CYCLES_KEY,
-    CoreMetrics.DIRECTORY_EDGES_WEIGHT_KEY,
-    CoreMetrics.DIRECTORY_FEEDBACK_EDGES_KEY,
-    CoreMetrics.DIRECTORY_TANGLE_INDEX_KEY,
-    CoreMetrics.DIRECTORY_TANGLES_KEY,
-    CoreMetrics.FILE_CYCLES_KEY,
-    CoreMetrics.FILE_EDGES_WEIGHT_KEY,
-    CoreMetrics.FILE_FEEDBACK_EDGES_KEY,
-    CoreMetrics.FILE_TANGLE_INDEX_KEY,
-    CoreMetrics.FILE_TANGLES_KEY,
-    CoreMetrics.DUPLICATIONS_DATA_KEY
-    );
-
-  private final BatchComponentCache resourceCache;
-  private final MetricFinder metricFinder;
+  private final BatchComponentCache componentCache;
   private final MeasureCache measureCache;
+  private DefaultSensorStorage sensorStorage;
   // caches
   private Project currentProject;
   private Map<Resource, Bucket> buckets = Maps.newLinkedHashMap();
   private DefaultProjectTree projectTree;
-  private ModuleIssues moduleIssues;
 
-  public DefaultIndex(BatchComponentCache resourceCache, DefaultProjectTree projectTree, MetricFinder metricFinder, MeasureCache measureCache) {
-    this.resourceCache = resourceCache;
+  public DefaultIndex(BatchComponentCache componentCache, DefaultProjectTree projectTree, MetricFinder metricFinder, MeasureCache measureCache) {
+    this.componentCache = componentCache;
     this.projectTree = projectTree;
-    this.metricFinder = metricFinder;
     this.measureCache = measureCache;
   }
 
@@ -117,7 +89,7 @@ public class DefaultIndex extends SonarIndex {
   void doStart(Project rootProject) {
     Bucket bucket = new Bucket(rootProject);
     addBucket(rootProject, bucket);
-    resourceCache.add(rootProject, null);
+    componentCache.add(rootProject, null);
     currentProject = rootProject;
 
     for (Project module : rootProject.getModules()) {
@@ -146,11 +118,11 @@ public class DefaultIndex extends SonarIndex {
     return currentProject;
   }
 
-  public void setCurrentProject(Project project, ModuleIssues moduleIssues) {
+  public void setCurrentProject(Project project, DefaultSensorStorage sensorStorage) {
     this.currentProject = project;
 
     // the following components depend on the current module, so they need to be reloaded.
-    this.moduleIssues = moduleIssues;
+    this.sensorStorage = sensorStorage;
   }
 
   /**
@@ -203,22 +175,7 @@ public class DefaultIndex extends SonarIndex {
   public Measure addMeasure(Resource resource, Measure measure) {
     Bucket bucket = getBucket(resource);
     if (bucket != null) {
-      if (DEPRECATED_METRICS_KEYS.contains(measure.getMetricKey())) {
-        // Ignore deprecated metrics
-        return null;
-      }
-      org.sonar.api.batch.measure.Metric metric = metricFinder.findByKey(measure.getMetricKey());
-      if (metric == null) {
-        throw new SonarException("Unknown metric: " + measure.getMetricKey());
-      }
-      if (!measure.isFromCore() && INTERNAL_METRICS.contains(metric)) {
-        LOG.debug("Metric " + metric.key() + " is an internal metric computed by SonarQube. Provided value is ignored.");
-        return measure;
-      }
-      if (measureCache.contains(resource, measure)) {
-        throw new SonarException("Can not add the same measure twice on " + resource + ": " + measure);
-      }
-      measureCache.put(resource, measure);
+      return sensorStorage.saveMeasure(resource, measure);
     }
     return measure;
   }
@@ -243,11 +200,10 @@ public class DefaultIndex extends SonarIndex {
 
   @Override
   public void addViolation(Violation violation, boolean force) {
-    Resource resource = violation.getResource();
-    if (resource == null) {
-      violation.setResource(currentProject);
-    } else if (!Scopes.isHigherThanOrEquals(resource, Scopes.FILE)) {
-      throw new IllegalArgumentException("Violations are only supported on files, directories and project");
+    BatchComponent component = componentCache.get(violation.getResource());
+    if (component == null) {
+      LOG.warn("Resource is not indexed. Ignoring violation {}", violation);
+      return;
     }
 
     Rule rule = violation.getRule();
@@ -256,19 +212,29 @@ public class DefaultIndex extends SonarIndex {
       return;
     }
 
-    Bucket bucket = getBucket(resource);
-    if (bucket == null) {
-      LOG.warn("Resource is not indexed. Ignoring violation {}", violation);
-      return;
-    }
-
     // keep a limitation (bug?) of deprecated violations api : severity is always
     // set by sonar. The severity set by plugins is overridden.
     // This is not the case with issue api.
-    violation.setSeverity(null);
 
-    violation.setResource(bucket.getResource());
-    moduleIssues.initAndAddViolation(violation);
+    DefaultIssue newIssue = new DefaultIssue(sensorStorage);
+    NewIssueLocation newLocation = newIssue.newLocation();
+    if (component.isProjectOrModule()) {
+      newLocation.onProject();
+    } else if (component.isDir()) {
+      newLocation.onDir((InputDir) component.inputPath());
+    } else if (component.isFile()) {
+      InputFile inputFile = (InputFile) component.inputPath();
+      newLocation.onFile(inputFile);
+      if (violation.hasLineId()) {
+        newLocation.at(inputFile.selectLine(violation.getLineId()));
+      }
+    }
+    newLocation.message(violation.getMessage());
+
+    newIssue.addLocation(newLocation)
+      .forRule(RuleKey.of(violation.getRule().getRepositoryKey(), violation.getRule().getKey()))
+      .effortToFix(violation.getCost())
+      .save();
   }
 
   @Override
@@ -378,7 +344,7 @@ public class DefaultIndex extends SonarIndex {
     addBucket(resource, bucket);
 
     Resource parentResource = parentBucket != null ? parentBucket.getResource() : null;
-    resourceCache.add(resource, parentResource);
+    componentCache.add(resource, parentResource);
 
     return bucket;
   }

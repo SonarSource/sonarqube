@@ -19,6 +19,7 @@
  */
 package org.sonar.xoo.rule;
 
+import java.io.File;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.component.ResourcePerspectives;
@@ -30,8 +31,6 @@ import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.xoo.Xoo;
-
-import java.io.File;
 
 public class DeprecatedResourceApiSensor implements Sensor {
 

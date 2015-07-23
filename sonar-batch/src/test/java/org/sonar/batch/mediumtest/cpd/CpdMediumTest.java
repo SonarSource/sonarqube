@@ -20,7 +20,12 @@
 package org.sonar.batch.mediumtest.cpd;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
+import org.assertj.core.groups.Tuple;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,14 +35,11 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.duplication.Duplication;
-import org.sonar.api.batch.sensor.measure.Measure;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
+import org.sonar.batch.protocol.output.BatchReport.Measure;
 import org.sonar.xoo.XooPlugin;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -102,8 +104,11 @@ public class CpdMediumTest {
 
     assertThat(result.inputFiles()).hasSize(2);
 
-    assertThat(result.measures("com.foo.project:src/sample1.xoo")).extracting("metric.key", "value").contains(tuple("duplicated_blocks", 1), tuple("duplicated_files", 1),
-      tuple("duplicated_lines", 17));
+    Map<String, List<org.sonar.batch.protocol.output.BatchReport.Measure>> allMeasures = result.allMeasures();
+    assertThat(allMeasures.get("com.foo.project:src/sample1.xoo")).extracting("metricKey", "intValue")
+      .contains(tuple("duplicated_blocks", 1),
+        tuple("duplicated_files", 1),
+        tuple("duplicated_lines", 17));
 
     InputFile inputFile1 = result.inputFile("src/sample1.xoo");
     InputFile inputFile2 = result.inputFile("src/sample2.xoo");
@@ -154,13 +159,18 @@ public class CpdMediumTest {
         .build())
       .start();
 
-    Measure duplicatedBlocks = null;
-    for (Measure m : result.allMeasures()) {
-      if (m.metric().key().equals("duplicated_blocks")) {
-        duplicatedBlocks = m;
-      }
-    }
-    assertThat(duplicatedBlocks.value()).isEqualTo(blockCount);
+    Map<String, List<Measure>> allMeasures = result.allMeasures();
+
+    assertThat(allMeasures.get("com.foo.project")).extracting("metricKey", "intValue", "doubleValue", "stringValue").containsOnly(
+      Tuple.tuple(CoreMetrics.LINES_KEY, blockCount * 2 + 1, 0.0, ""),
+      Tuple.tuple(CoreMetrics.QUALITY_PROFILES_KEY, 0, 0.0,
+        "[{\"key\":\"Sonar Way\",\"language\":\"xoo\",\"name\":\"Sonar Way\",\"rulesUpdatedAt\":\"2009-02-13T23:31:31+0000\"}]"));
+
+    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue").containsOnly(
+      Tuple.tuple(CoreMetrics.LINES_KEY, blockCount * 2 + 1),
+      Tuple.tuple(CoreMetrics.DUPLICATED_FILES_KEY, 1),
+      Tuple.tuple(CoreMetrics.DUPLICATED_BLOCKS_KEY, blockCount),
+      Tuple.tuple(CoreMetrics.DUPLICATED_LINES_KEY, blockCount));
 
     List<Duplication> duplicationGroups = result.duplicationsFor(result.inputFile("src/sample.xoo"));
     assertThat(duplicationGroups).hasSize(1);
@@ -188,8 +198,11 @@ public class CpdMediumTest {
         .build())
       .start();
 
-    assertThat(result.measures("com.foo.project:src/sample.xoo")).extracting("metric.key", "value").contains(tuple("duplicated_blocks", 2), tuple("duplicated_files", 1),
-      tuple("duplicated_lines", 4));
+    Map<String, List<org.sonar.batch.protocol.output.BatchReport.Measure>> allMeasures = result.allMeasures();
+    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue")
+      .contains(tuple("duplicated_blocks", 2),
+        tuple("duplicated_files", 1),
+        tuple("duplicated_lines", 4));
 
     InputFile inputFile = result.inputFile("src/sample.xoo");
     // One clone group

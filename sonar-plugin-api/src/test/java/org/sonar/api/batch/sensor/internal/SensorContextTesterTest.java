@@ -19,24 +19,23 @@
  */
 package org.sonar.api.batch.sensor.internal;
 
+import java.io.File;
+import java.io.StringReader;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
-
-import java.io.File;
-import java.io.StringReader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -87,32 +86,18 @@ public class SensorContextTesterTest {
 
   @Test
   public void testIssues() {
-    assertThat(tester.issues("foo:src/Foo.java")).isEmpty();
     assertThat(tester.allIssues()).isEmpty();
-    tester.newIssue()
-      .onFile(new DefaultInputFile("foo", "src/Foo.java").setLines(10))
+    NewIssue newIssue = tester.newIssue();
+    newIssue
+      .addLocation(newIssue.newLocation().onFile(new DefaultInputFile("foo", "src/Foo.java")))
       .forRule(RuleKey.of("repo", "rule"))
-      .atLine(1)
       .save();
-    tester.newIssue()
-      .onFile(new DefaultInputFile("foo", "src/Foo.java").setLines(10))
+    newIssue = tester.newIssue();
+    newIssue
+      .addLocation(newIssue.newLocation().onFile(new DefaultInputFile("foo", "src/Foo.java")))
       .forRule(RuleKey.of("repo", "rule"))
-      .atLine(3)
       .save();
-    assertThat(tester.issues("foo:src/Foo.java")).hasSize(2);
     assertThat(tester.allIssues()).hasSize(2);
-    tester.newIssue()
-      .onDir(new DefaultInputDir("foo", "src"))
-      .forRule(RuleKey.of("repo", "rule"))
-      .save();
-    assertThat(tester.issues("foo:src")).hasSize(1);
-    assertThat(tester.allIssues()).hasSize(3);
-    tester.newIssue()
-      .onProject()
-      .forRule(RuleKey.of("repo", "rule"))
-      .save();
-    assertThat(tester.issues(null)).hasSize(1);
-    assertThat(tester.allIssues()).hasSize(4);
   }
 
   @Test

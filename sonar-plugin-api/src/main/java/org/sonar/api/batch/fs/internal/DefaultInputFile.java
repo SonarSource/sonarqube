@@ -232,8 +232,25 @@ public class DefaultInputFile implements InputFile, org.sonar.api.resources.Inpu
     return newRangeValidPointers(start, end);
   }
 
+  @Override
+  public TextRange newRange(int startLine, int startLineOffset, int endLine, int endLineOffset) {
+    return newRangeValidPointers(newPointer(startLine, startLineOffset), newPointer(endLine, endLineOffset));
+  }
+
+  @Override
+  public TextRange selectLine(int line) {
+    TextPointer startPointer = newPointer(line, 0);
+    TextPointer endPointer = newPointer(line, lineLength(line));
+    return newRangeValidPointers(startPointer, endPointer);
+  }
+
+  public void validate(TextRange range) {
+    checkValid(range.start(), "start pointer");
+    checkValid(range.end(), "end pointer");
+  }
+
   private static TextRange newRangeValidPointers(TextPointer start, TextPointer end) {
-    Preconditions.checkArgument(start.compareTo(end) < 0, "Start pointer %s should be before end pointer %s", start, end);
+    Preconditions.checkArgument(start.compareTo(end) <= 0, "Start pointer %s should be before end pointer %s", start, end);
     return new DefaultTextRange(start, end);
   }
 

@@ -20,54 +20,35 @@
 package org.sonar.api.batch.sensor.issue;
 
 import com.google.common.annotations.Beta;
-import java.util.List;
 import javax.annotation.CheckForNull;
-import org.sonar.api.batch.rule.Severity;
-import org.sonar.api.batch.sensor.Sensor;
-import org.sonar.api.rule.RuleKey;
+import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.fs.TextRange;
 
 /**
- * Represents an issue detected by a {@link Sensor}.
+ * Represents an issue location.
  *
- * @since 5.1
+ * @since 5.2
  */
 @Beta
-public interface Issue {
-
-  interface ExecutionFlow {
-    /**
-     * @return Ordered list of locations for the execution flow
-     */
-    List<IssueLocation> locations();
-  }
+public interface IssueLocation {
 
   /**
-   * The {@link RuleKey} of this issue.
-   */
-  RuleKey ruleKey();
-
-  /**
-   * Effort to fix the issue. Used by technical debt model.
+   * The {@link InputPath} this location belongs to. Returns null if location is global to the project.
    */
   @CheckForNull
-  Double effortToFix();
+  InputPath inputPath();
 
   /**
-   * Overridden severity.
+   * Range of the issue. Null for global issues and issues on directories. Can also be null
+   * for files (issue global to the file).
    */
   @CheckForNull
-  Severity overriddenSeverity();
+  TextRange textRange();
 
   /**
-   * List of locations for this issue. Returns at least one location.
-   * @since 5.2
+   * Message of the issue.
    */
-  List<IssueLocation> locations();
-
-  /**
-   * List of execution flows for this issue. Can be empty.
-   * @since 5.2
-   */
-  List<ExecutionFlow> executionFlows();
+  @CheckForNull
+  String message();
 
 }

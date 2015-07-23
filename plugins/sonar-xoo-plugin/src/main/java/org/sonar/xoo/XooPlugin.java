@@ -33,6 +33,7 @@ import org.sonar.xoo.lang.XooTokenizer;
 import org.sonar.xoo.rule.ChecksSensor;
 import org.sonar.xoo.rule.CreateIssueByInternalKeySensor;
 import org.sonar.xoo.rule.DeprecatedResourceApiSensor;
+import org.sonar.xoo.rule.MultilineIssuesSensor;
 import org.sonar.xoo.rule.OneIssueOnDirPerFileSensor;
 import org.sonar.xoo.rule.OneIssuePerLineSensor;
 import org.sonar.xoo.rule.RandomAccessSensor;
@@ -89,6 +90,7 @@ public class XooPlugin extends SonarPlugin {
       OneIssuePerLineSensor.class,
       OneIssueOnDirPerFileSensor.class,
       CreateIssueByInternalKeySensor.class,
+      MultilineIssuesSensor.class,
 
       // Coverage
       UtCoverageSensor.class,

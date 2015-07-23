@@ -171,7 +171,7 @@ public class PersistFileSourcesStepTest {
         .build());
 
       highlightings.add(BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(line).setEndLine(line)
           .setStartOffset(1).setEndOffset(3)
           .build())
@@ -179,21 +179,21 @@ public class PersistFileSourcesStepTest {
         .build());
 
       symbols.add(BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.Range.newBuilder()
+        .setDeclaration(BatchReport.TextRange.newBuilder()
           .setStartLine(line).setEndLine(line).setStartOffset(2).setEndOffset(4)
           .build())
-        .addReference(BatchReport.Range.newBuilder()
+        .addReference(BatchReport.TextRange.newBuilder()
           .setStartLine(line + 1).setEndLine(line + 1).setStartOffset(1).setEndOffset(3)
-          .build()
-        ).build());
+          .build())
+        .build());
 
       duplications.add(BatchReport.Duplication.newBuilder()
-        .setOriginPosition(BatchReport.Range.newBuilder()
+        .setOriginPosition(BatchReport.TextRange.newBuilder()
           .setStartLine(line)
           .setEndLine(line)
           .build())
         .addDuplicate(BatchReport.Duplicate.newBuilder()
-          .setRange(BatchReport.Range.newBuilder()
+          .setRange(BatchReport.TextRange.newBuilder()
             .setStartLine(line + 1)
             .setEndLine(line + 1)
             .build())

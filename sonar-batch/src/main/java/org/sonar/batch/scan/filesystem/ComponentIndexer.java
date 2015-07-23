@@ -21,11 +21,13 @@ package org.sonar.batch.scan.filesystem;
 
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 
 /**
@@ -39,13 +41,13 @@ public class ComponentIndexer {
   private final Languages languages;
   private final SonarIndex sonarIndex;
   private final Project module;
-  private final BatchComponentCache resourceCache;
+  private final BatchComponentCache componentCache;
 
-  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, BatchComponentCache resourceCache) {
+  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, BatchComponentCache componentCache) {
     this.module = module;
     this.languages = languages;
     this.sonarIndex = sonarIndex;
-    this.resourceCache = resourceCache;
+    this.componentCache = componentCache;
   }
 
   public void execute(DefaultModuleFileSystem fs) {
@@ -56,7 +58,11 @@ public class ComponentIndexer {
       boolean unitTest = InputFile.Type.TEST == inputFile.type();
       Resource sonarFile = File.create(inputFile.relativePath(), languages.get(languageKey), unitTest);
       sonarIndex.index(sonarFile);
-      resourceCache.get(sonarFile).setInputPath(inputFile);
+      BatchComponent file = componentCache.get(sonarFile);
+      file.setInputPath(inputFile);
+      Resource sonarDir = file.parent().resource();
+      InputDir inputDir = fs.inputDir(inputFile.file().getParentFile());
+      componentCache.get(sonarDir).setInputPath(inputDir);
     }
   }
 }

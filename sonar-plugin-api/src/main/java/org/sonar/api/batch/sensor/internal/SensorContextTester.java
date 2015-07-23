@@ -154,24 +154,7 @@ public class SensorContextTester implements SensorContext {
   }
 
   public Collection<Issue> allIssues() {
-    List<Issue> result = new ArrayList<>();
-    result.addAll(sensorStorage.projectIssues);
-    for (String key : sensorStorage.issuesByComponent.keySet()) {
-      result.addAll(sensorStorage.issuesByComponent.get(key));
-    }
-    return result;
-  }
-
-  /**
-   * @param componentKey null for project issues
-   */
-  public Collection<Issue> issues(@Nullable String componentKey) {
-    if (componentKey != null) {
-      List<Issue> list = sensorStorage.issuesByComponent.get(componentKey);
-      return list != null ? list : Collections.<Issue>emptyList();
-    } else {
-      return sensorStorage.projectIssues;
-    }
+    return sensorStorage.allIssues;
   }
 
   @CheckForNull
@@ -272,8 +255,7 @@ public class SensorContextTester implements SensorContext {
     private Map<String, Measure> projectMeasuresByMetric = new HashMap<>();
     private Map<String, Map<String, Measure>> measuresByComponentAndMetric = new HashMap<>();
 
-    private Collection<Issue> projectIssues = new ArrayList<>();
-    private Map<String, List<Issue>> issuesByComponent = new HashMap<>();
+    private Collection<Issue> allIssues = new ArrayList<>();
 
     private Map<String, DefaultHighlighting> highlightingByComponent = new HashMap<>();
     private Map<String, Map<CoverageType, DefaultCoverage>> coverageByComponent = new HashMap<>();
@@ -295,15 +277,7 @@ public class SensorContextTester implements SensorContext {
 
     @Override
     public void store(Issue issue) {
-      String key = getKey(issue.inputPath());
-      if (key == null) {
-        projectIssues.add(issue);
-      } else {
-        if (!issuesByComponent.containsKey(key)) {
-          issuesByComponent.put(key, new ArrayList<Issue>());
-        }
-        issuesByComponent.get(key).add(issue);
-      }
+      allIssues.add(issue);
     }
 
     @Override

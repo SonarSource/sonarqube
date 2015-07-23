@@ -28,10 +28,8 @@ import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.batch.rule.internal.DefaultActiveRule;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.DefaultIssueBuilder;
 
 /**
  * Initialize the issues raised during scan.
@@ -54,24 +52,6 @@ public class ModuleIssues {
 
   public ModuleIssues(ActiveRules activeRules, IssueCache cache, Project project, IssueFilters filters) {
     this(activeRules, null, cache, project, filters);
-  }
-
-  public boolean initAndAddViolation(Violation violation) {
-    DefaultIssue issue = newIssue(violation);
-    return initAndAddIssue(issue);
-  }
-
-  private DefaultIssue newIssue(Violation violation) {
-    return new DefaultIssueBuilder()
-      .componentKey(violation.getResource().getEffectiveKey())
-      // Project can be null but Violation not used by scan2
-      .projectKey(project.getRoot().getEffectiveKey())
-      .ruleKey(RuleKey.of(violation.getRule().getRepositoryKey(), violation.getRule().getKey()))
-      .effortToFix(violation.getCost())
-      .line(violation.getLineId())
-      .message(violation.getMessage())
-      .severity(violation.getSeverity() != null ? violation.getSeverity().name() : null)
-      .build();
   }
 
   public boolean initAndAddIssue(DefaultIssue issue) {

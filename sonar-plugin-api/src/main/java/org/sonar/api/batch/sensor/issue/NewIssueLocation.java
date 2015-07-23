@@ -1,0 +1,68 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.api.batch.sensor.issue;
+
+import com.google.common.annotations.Beta;
+import org.sonar.api.batch.fs.InputDir;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextRange;
+
+/**
+ * Represents one issue location. See {@link NewIssue#newLocation()}.
+ *
+ * @since 5.2
+ */
+@Beta
+public interface NewIssueLocation {
+
+  /**
+   * Maximum number of characters in the message.
+   */
+  int MESSAGE_MAX_SIZE = 4000;
+
+  /**
+   * The {@link InputFile} the issue location belongs to. For global issues call {@link #onProject()}.
+   */
+  NewIssueLocation onFile(InputFile file);
+
+  /**
+   * The {@link InputDir} the issue location belongs to. For global issues call {@link #onProject()}.
+   */
+  NewIssueLocation onDir(InputDir inputDir);
+
+  /**
+   * Tell that the issue location is global to the project.
+   */
+  NewIssueLocation onProject();
+
+  /**
+   * Position in the file. Only valid when {@link #onFile(InputFile)} has been called. 
+   * See {@link InputFile#newRange(org.sonar.api.batch.fs.TextPointer, org.sonar.api.batch.fs.TextPointer)}
+   */
+  NewIssueLocation at(TextRange location);
+
+  /**
+   * Optional, but recommended, plain-text message for this location.
+   * <p/>
+   * Formats like Markdown or HTML are not supported. Size must not be greater than {@link #MESSAGE_MAX_SIZE} characters.
+   */
+  NewIssueLocation message(String message);
+
+}

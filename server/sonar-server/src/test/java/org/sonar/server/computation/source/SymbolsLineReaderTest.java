@@ -50,10 +50,10 @@ public class SymbolsLineReaderTest {
   public void read_symbols() {
     List<BatchReport.Symbol> symbols = newArrayList(
       BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.Range.newBuilder()
+        .setDeclaration(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(4)
           .build())
-        .addReference(BatchReport.Range.newBuilder()
+        .addReference(BatchReport.TextRange.newBuilder()
           .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
           .build())
         .build());
@@ -72,10 +72,10 @@ public class SymbolsLineReaderTest {
   public void read_symbols_with_reference_on_same_line() {
     List<BatchReport.Symbol> symbols = newArrayList(
       BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.Range.newBuilder()
+        .setDeclaration(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(0).setEndOffset(1)
           .build())
-        .addReference(BatchReport.Range.newBuilder()
+        .addReference(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(3)
           .build())
         .build());
@@ -90,13 +90,13 @@ public class SymbolsLineReaderTest {
   public void read_symbols_with_two_references() {
     List<BatchReport.Symbol> symbols = newArrayList(
       BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.Range.newBuilder()
+        .setDeclaration(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(4)
           .build())
-        .addReference(BatchReport.Range.newBuilder()
+        .addReference(BatchReport.TextRange.newBuilder()
           .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
           .build())
-        .addReference(BatchReport.Range.newBuilder()
+        .addReference(BatchReport.TextRange.newBuilder()
           .setStartLine(2).setEndLine(2).setStartOffset(0).setEndOffset(2)
           .build())
         .build());
@@ -115,13 +115,13 @@ public class SymbolsLineReaderTest {
   public void read_symbols_with_two_references_on_the_same_line() {
     List<BatchReport.Symbol> symbols = newArrayList(
       BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.Range.newBuilder()
+        .setDeclaration(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(3)
           .build())
-        .addReference(BatchReport.Range.newBuilder()
+        .addReference(BatchReport.TextRange.newBuilder()
           .setStartLine(2).setEndLine(2).setStartOffset(0).setEndOffset(1)
           .build())
-        .addReference(BatchReport.Range.newBuilder()
+        .addReference(BatchReport.TextRange.newBuilder()
           .setStartLine(2).setEndLine(2).setStartOffset(2).setEndOffset(3)
           .build())
         .build());
@@ -138,10 +138,10 @@ public class SymbolsLineReaderTest {
   public void read_symbols_when_reference_line_is_before_declaration_line() {
     List<BatchReport.Symbol> symbols = newArrayList(
       BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.Range.newBuilder()
+        .setDeclaration(BatchReport.TextRange.newBuilder()
           .setStartLine(2).setEndLine(2).setStartOffset(3).setEndOffset(4)
           .build())
-        .addReference(BatchReport.Range.newBuilder()
+        .addReference(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(1).setEndOffset(2)
           .build())
         .build());
@@ -158,18 +158,18 @@ public class SymbolsLineReaderTest {
   public void read_many_symbols_on_lines() {
     List<BatchReport.Symbol> symbols = newArrayList(
       BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.Range.newBuilder()
+        .setDeclaration(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(1).setEndOffset(2)
           .build())
-        .addReference(BatchReport.Range.newBuilder()
+        .addReference(BatchReport.TextRange.newBuilder()
           .setStartLine(3).setEndLine(3).setStartOffset(2).setEndOffset(3)
           .build())
         .build(),
       BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.Range.newBuilder()
+        .setDeclaration(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(3).setEndOffset(4)
           .build())
-        .addReference(BatchReport.Range.newBuilder()
+        .addReference(BatchReport.TextRange.newBuilder()
           .setStartLine(3).setEndLine(3).setStartOffset(0).setEndOffset(1)
           .build())
         .build());
@@ -188,19 +188,19 @@ public class SymbolsLineReaderTest {
   public void symbol_declaration_should_be_sorted_by_offset() {
     List<BatchReport.Symbol> symbols = newArrayList(
       BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.Range.newBuilder()
+        .setDeclaration(BatchReport.TextRange.newBuilder()
           // This symbol begins after the second symbol, it should appear in second place
           .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(3)
           .build())
-        .addReference(BatchReport.Range.newBuilder()
+        .addReference(BatchReport.TextRange.newBuilder()
           .setStartLine(3).setEndLine(3).setStartOffset(2).setEndOffset(3)
           .build())
         .build(),
       BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.Range.newBuilder()
+        .setDeclaration(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(0).setEndOffset(1)
           .build())
-        .addReference(BatchReport.Range.newBuilder()
+        .addReference(BatchReport.TextRange.newBuilder()
           .setStartLine(3).setEndLine(3).setStartOffset(0).setEndOffset(1)
           .build())
         .build());
@@ -219,19 +219,19 @@ public class SymbolsLineReaderTest {
   public void symbol_declaration_should_be_sorted_by_line() {
     List<BatchReport.Symbol> symbols = newArrayList(
       BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.Range.newBuilder()
+        .setDeclaration(BatchReport.TextRange.newBuilder()
           // This symbol begins after the second symbol, it should appear in second place
           .setStartLine(2).setEndLine(2).setStartOffset(0).setEndOffset(1)
           .build())
-        .addReference(BatchReport.Range.newBuilder()
+        .addReference(BatchReport.TextRange.newBuilder()
           .setStartLine(3).setEndLine(3).setStartOffset(2).setEndOffset(3)
           .build())
         .build(),
       BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.Range.newBuilder()
+        .setDeclaration(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(0).setEndOffset(1)
           .build())
-        .addReference(BatchReport.Range.newBuilder()
+        .addReference(BatchReport.TextRange.newBuilder()
           .setStartLine(3).setEndLine(3).setStartOffset(0).setEndOffset(1)
           .build())
         .build());
@@ -250,10 +250,10 @@ public class SymbolsLineReaderTest {
   public void read_symbols_defined_on_many_lines() {
     List<BatchReport.Symbol> symbols = newArrayList(
       BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.Range.newBuilder()
+        .setDeclaration(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(2).setStartOffset(1).setEndOffset(3)
           .build())
-        .addReference(BatchReport.Range.newBuilder()
+        .addReference(BatchReport.TextRange.newBuilder()
           .setStartLine(3).setEndLine(4).setStartOffset(1).setEndOffset(3)
           .build())
         .build());
@@ -274,10 +274,10 @@ public class SymbolsLineReaderTest {
   public void read_symbols_declared_on_a_whole_line() {
     List<BatchReport.Symbol> symbols = newArrayList(
       BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.Range.newBuilder()
+        .setDeclaration(BatchReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(2).setStartOffset(0).setEndOffset(0)
           .build())
-        .addReference(BatchReport.Range.newBuilder()
+        .addReference(BatchReport.TextRange.newBuilder()
           .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
           .build())
         .build());

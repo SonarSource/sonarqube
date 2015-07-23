@@ -144,14 +144,14 @@ public class BatchReportReaderTest {
       .setRef(1).build());
 
     BatchReport.Duplication duplication = BatchReport.Duplication.newBuilder()
-      .setOriginPosition(BatchReport.Range.newBuilder()
+      .setOriginPosition(BatchReport.TextRange.newBuilder()
         .setStartLine(1)
         .setEndLine(5)
         .build())
       .addDuplicate(BatchReport.Duplicate.newBuilder()
         .setOtherFileKey("COMPONENT_A")
         .setOtherFileRef(2)
-        .setRange(BatchReport.Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(6)
           .setEndLine(10)
           .build())
@@ -179,7 +179,7 @@ public class BatchReportReaderTest {
 
     writer.writeComponentSyntaxHighlighting(1, Arrays.asList(
       BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.Range.newBuilder()
+        .setRange(BatchReport.TextRange.newBuilder()
           .setStartLine(1)
           .setEndLine(10)
           .build())
@@ -210,13 +210,13 @@ public class BatchReportReaderTest {
       .setRef(1).build());
 
     writer.writeComponentSymbols(1, Arrays.asList(BatchReport.Symbol.newBuilder()
-      .setDeclaration(BatchReport.Range.newBuilder()
+      .setDeclaration(BatchReport.TextRange.newBuilder()
         .setStartLine(1)
         .setStartOffset(3)
         .setEndLine(1)
         .setEndOffset(5)
         .build())
-      .addReference(BatchReport.Range.newBuilder()
+      .addReference(BatchReport.TextRange.newBuilder()
         .setStartLine(10)
         .setStartOffset(15)
         .setEndLine(11)

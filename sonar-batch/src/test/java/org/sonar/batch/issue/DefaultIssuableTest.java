@@ -22,10 +22,10 @@ package org.sonar.batch.issue;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.issue.Issue;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.api.resources.Project;
 import org.sonar.batch.index.BatchComponent;
+import org.sonar.core.issue.DefaultIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -33,9 +33,7 @@ import static org.mockito.Mockito.when;
 
 public class DefaultIssuableTest {
 
-  ModuleIssues moduleIssues = mock(ModuleIssues.class);
   IssueCache cache = mock(IssueCache.class);
-  Project project = mock(Project.class);
   BatchComponent component = mock(BatchComponent.class);
 
   @Test
@@ -45,7 +43,7 @@ public class DefaultIssuableTest {
     DefaultIssue unresolved = new DefaultIssue();
     when(cache.byComponent("struts:org.apache.Action")).thenReturn(Arrays.asList(resolved, unresolved));
 
-    DefaultIssuable perspective = new DefaultIssuable(component, project, moduleIssues, cache);
+    DefaultIssuable perspective = new DefaultIssuable(component, cache, mock(SensorContext.class));
 
     List<Issue> issues = perspective.issues();
     assertThat(issues).containsOnly(unresolved);
@@ -58,7 +56,7 @@ public class DefaultIssuableTest {
     DefaultIssue unresolved = new DefaultIssue();
     when(cache.byComponent("struts:org.apache.Action")).thenReturn(Arrays.asList(resolved, unresolved));
 
-    DefaultIssuable perspective = new DefaultIssuable(component, project, moduleIssues, cache);
+    DefaultIssuable perspective = new DefaultIssuable(component, cache, mock(SensorContext.class));
 
     List<Issue> issues = perspective.resolvedIssues();
     assertThat(issues).containsOnly(resolved);
