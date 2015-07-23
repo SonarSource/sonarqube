@@ -143,11 +143,12 @@ public class MetricDao implements Dao {
     mapper(session).update(metric);
   }
 
-  public MetricDto selectNullableById(DbSession session, long id) {
+  @CheckForNull
+  public MetricDto selectById(DbSession session, long id) {
     return mapper(session).selectById(id);
   }
 
-  public MetricDto selectById(DbSession session, int id) {
+  public MetricDto selectOrFailById(DbSession session, int id) {
     MetricDto metric = mapper(session).selectById(id);
     if (metric == null) {
       throw new IllegalStateException(String.format("Metric id '%d' not found", id));

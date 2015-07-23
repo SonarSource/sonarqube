@@ -159,7 +159,7 @@ public class CreateAction implements CustomMeasuresWsAction {
     checkArgument(metricId != null ^ metricKey != null, "The metric id or the metric key must be provided, not both.");
 
     if (metricId != null) {
-      return dbClient.metricDao().selectById(dbSession, metricId);
+      return dbClient.metricDao().selectOrFailById(dbSession, metricId);
     }
 
     return dbClient.metricDao().selectOrFailByKey(dbSession, metricKey);

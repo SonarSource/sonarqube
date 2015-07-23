@@ -101,7 +101,7 @@ public class UpdateActionTest {
       .execute();
     dbSession.commit();
 
-    MetricDto result = dbClient.metricDao().selectNullableById(dbSession, id);
+    MetricDto result = dbClient.metricDao().selectById(dbSession, id);
     assertThat(result.getKey()).isEqualTo("another-key");
     assertThat(result.getShortName()).isEqualTo("another-name");
     assertThat(result.getValueType()).isEqualTo(ValueType.BOOL.name());
@@ -121,7 +121,7 @@ public class UpdateActionTest {
       .execute();
     dbSession.commit();
 
-    MetricDto result = dbClient.metricDao().selectNullableById(dbSession, id);
+    MetricDto result = dbClient.metricDao().selectById(dbSession, id);
     assertThat(result.getKey()).isEqualTo(DEFAULT_KEY);
     assertThat(result.getShortName()).isEqualTo(DEFAULT_NAME);
     assertThat(result.getValueType()).isEqualTo(DEFAULT_TYPE);

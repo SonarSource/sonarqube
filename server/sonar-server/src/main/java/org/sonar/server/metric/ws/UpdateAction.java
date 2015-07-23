@@ -107,7 +107,7 @@ public class UpdateAction implements MetricsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       MetricDto metricTemplate = newMetricTemplate(request);
-      MetricDto metricInDb = dbClient.metricDao().selectNullableById(dbSession, id);
+      MetricDto metricInDb = dbClient.metricDao().selectById(dbSession, id);
       checkMetricInDbAndTemplate(dbSession, metricInDb, metricTemplate);
 
       updateMetricInDb(dbSession, metricInDb, metricTemplate);

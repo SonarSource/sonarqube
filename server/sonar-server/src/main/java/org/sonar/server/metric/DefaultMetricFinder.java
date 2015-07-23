@@ -46,7 +46,7 @@ public class DefaultMetricFinder implements MetricFinder {
   public Metric findById(int id) {
     DbSession session = dbClient.openSession(false);
     try {
-      MetricDto dto = dbClient.metricDao().selectNullableById(session, id);
+      MetricDto dto = dbClient.metricDao().selectById(session, id);
       if (dto != null && dto.isEnabled()) {
         return ToMetric.INSTANCE.apply(dto);
       }
