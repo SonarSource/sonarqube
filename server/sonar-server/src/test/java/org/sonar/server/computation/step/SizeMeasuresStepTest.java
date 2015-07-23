@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.step;
 
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
@@ -28,6 +29,7 @@ import org.sonar.server.computation.measure.MeasureRepoEntry;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
 
+import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.concat;
 import static java.util.Arrays.asList;
@@ -57,10 +59,13 @@ public class SizeMeasuresStepTest {
   private static final int SUB_MODULE_REF = 123;
   private static final int DIRECTORY_1_REF = 1234;
   private static final int DIRECTORY_2_REF = 1235;
+  private static final int DIRECTORY_3_REF = 1236;
   private static final int FILE_1_REF = 12341;
   private static final int FILE_2_REF = 12343;
   private static final int FILE_3_REF = 12351;
-  private static final int UNIT_TEST_REF = 12352;
+  private static final int UNIT_TEST_1_REF = 12352;
+  private static final int UNIT_TEST_2_REF = 12361;
+  private static final Integer NO_FILE_METRIC = null;
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(
@@ -78,7 +83,11 @@ public class SizeMeasuresStepTest {
                 builder(DIRECTORY, DIRECTORY_2_REF)
                   .addChildren(
                     builder(FILE, FILE_3_REF).build(),
-                    builder(FILE, UNIT_TEST_REF).setFileAttributes(new FileAttributes(true, LANGUAGE_DOES_NOT_MATTER_HERE)).build())
+                    builder(FILE, UNIT_TEST_1_REF).setFileAttributes(new FileAttributes(true, LANGUAGE_DOES_NOT_MATTER_HERE)).build())
+                  .build(),
+                builder(DIRECTORY, DIRECTORY_3_REF)
+                  .addChildren(
+                    builder(FILE, UNIT_TEST_2_REF).setFileAttributes(new FileAttributes(true, LANGUAGE_DOES_NOT_MATTER_HERE)).build())
                   .build())
               .build())
           .build())
@@ -107,12 +116,14 @@ public class SizeMeasuresStepTest {
     verifyMeasuresOnFile(FILE_1_REF, 1);
     verifyMeasuresOnFile(FILE_2_REF, 1);
     verifyMeasuresOnFile(FILE_3_REF, 1);
-    verifyNoMeasure(UNIT_TEST_REF);
+    verifyNoMeasure(UNIT_TEST_1_REF);
+    verifyNoMeasure(UNIT_TEST_2_REF);
     verifyMeasuresOnOtherComponent(DIRECTORY_1_REF, 2, 1);
     verifyMeasuresOnOtherComponent(DIRECTORY_2_REF, 1, 1);
-    verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 3, 2);
-    verifyMeasuresOnOtherComponent(MODULE_REF, 3, 2);
-    verifyMeasuresOnOtherComponent(ROOT_REF, 3, 2);
+    verifyMeasuresOnOtherComponent(DIRECTORY_3_REF, NO_FILE_METRIC, 1);
+    verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 3, 3);
+    verifyMeasuresOnOtherComponent(MODULE_REF, 3, 3);
+    verifyMeasuresOnOtherComponent(ROOT_REF, 3, 3);
   }
 
   @Test
@@ -126,15 +137,16 @@ public class SizeMeasuresStepTest {
     // FILE_2_REF has no metric2 measure
     measureRepository.addRawMeasure(FILE_2_REF, metric1Key, newMeasureBuilder().create(6));
     // FILE_3_REF has no measure at all
-    // UNIT_TEST_REF has no metric1
-    measureRepository.addRawMeasure(UNIT_TEST_REF, metric2Key, newMeasureBuilder().create(90));
+    // UNIT_TEST_1_REF has no metric1
+    measureRepository.addRawMeasure(UNIT_TEST_1_REF, metric2Key, newMeasureBuilder().create(90));
 
     underTest.execute();
 
     verifyMeasuresOnFile(FILE_1_REF, 1);
     verifyMeasuresOnFile(FILE_2_REF, 1);
     verifyMeasuresOnFile(FILE_3_REF, 1);
-    verifyNoMeasure(UNIT_TEST_REF);
+    verifyNoMeasure(UNIT_TEST_1_REF);
+    verifyNoMeasure(UNIT_TEST_2_REF);
     verifyMeasuresOnOtherComponent(DIRECTORY_1_REF, 2, 1,
       entryOf(metric1Key, newMeasureBuilder().create(7)), entryOf(metric2Key, newMeasureBuilder().create(10)));
     verifyMeasuresOnOtherComponent(DIRECTORY_2_REF, 1, 1,
@@ -143,9 +155,10 @@ public class SizeMeasuresStepTest {
       entryOf(metric1Key, newMeasureBuilder().create(7)),
       entryOf(metric2Key, newMeasureBuilder().create(100))
     };
-    verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 3, 2, subModuleAndAboveEntries);
-    verifyMeasuresOnOtherComponent(MODULE_REF, 3, 2, subModuleAndAboveEntries);
-    verifyMeasuresOnOtherComponent(ROOT_REF, 3, 2, subModuleAndAboveEntries);
+    verifyMeasuresOnOtherComponent(DIRECTORY_3_REF, NO_FILE_METRIC, 1);
+    verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 3, 3, subModuleAndAboveEntries);
+    verifyMeasuresOnOtherComponent(MODULE_REF, 3, 3, subModuleAndAboveEntries);
+    verifyMeasuresOnOtherComponent(ROOT_REF, 3, 3, subModuleAndAboveEntries);
   }
 
   @Test
@@ -156,19 +169,21 @@ public class SizeMeasuresStepTest {
   private void verifyMetricAggregation(String metricKey) {
     measureRepository.addRawMeasure(FILE_1_REF, metricKey, newMeasureBuilder().create(10));
     measureRepository.addRawMeasure(FILE_2_REF, metricKey, newMeasureBuilder().create(6));
-    measureRepository.addRawMeasure(UNIT_TEST_REF, metricKey, newMeasureBuilder().create(3));
+    measureRepository.addRawMeasure(UNIT_TEST_1_REF, metricKey, newMeasureBuilder().create(3));
 
     underTest.execute();
 
     verifyMeasuresOnFile(FILE_1_REF, 1);
     verifyMeasuresOnFile(FILE_2_REF, 1);
     verifyMeasuresOnFile(FILE_3_REF, 1);
-    verifyNoMeasure(UNIT_TEST_REF);
+    verifyNoMeasure(UNIT_TEST_1_REF);
+    verifyNoMeasure(UNIT_TEST_2_REF);
     verifyMeasuresOnOtherComponent(DIRECTORY_1_REF, 2, 1, entryOf(metricKey, newMeasureBuilder().create(16)));
     verifyMeasuresOnOtherComponent(DIRECTORY_2_REF, 1, 1, entryOf(metricKey, newMeasureBuilder().create(3)));
-    verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 3, 2, entryOf(metricKey, newMeasureBuilder().create(19)));
-    verifyMeasuresOnOtherComponent(MODULE_REF, 3, 2, entryOf(metricKey, newMeasureBuilder().create(19)));
-    verifyMeasuresOnOtherComponent(ROOT_REF, 3, 2, entryOf(metricKey, newMeasureBuilder().create(19)));
+    verifyMeasuresOnOtherComponent(DIRECTORY_3_REF, NO_FILE_METRIC, 1);
+    verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 3, 3, entryOf(metricKey, newMeasureBuilder().create(19)));
+    verifyMeasuresOnOtherComponent(MODULE_REF, 3, 3, entryOf(metricKey, newMeasureBuilder().create(19)));
+    verifyMeasuresOnOtherComponent(ROOT_REF, 3, 3, entryOf(metricKey, newMeasureBuilder().create(19)));
   }
 
   @Test
@@ -186,20 +201,19 @@ public class SizeMeasuresStepTest {
       .containsOnly(entryOf(FILES_KEY, newMeasureBuilder().create(fileCount)));
   }
 
-  private void verifyMeasuresOnOtherComponent(int componentRef, int fileCount, int directoryCount, MeasureRepoEntry... otherMeasures) {
+  private void verifyMeasuresOnOtherComponent(int componentRef, @Nullable Integer fileCount, int directoryCount, MeasureRepoEntry... otherMeasures) {
     MeasureRepoEntry[] measureRepoEntries = concatIntoArray(
       otherMeasures,
-      entryOf(FILES_KEY, newMeasureBuilder().create(fileCount)), entryOf(DIRECTORIES_KEY, newMeasureBuilder().create(directoryCount)));
+      fileCount == null ? null : entryOf(FILES_KEY, newMeasureBuilder().create(fileCount)), entryOf(DIRECTORIES_KEY, newMeasureBuilder().create(directoryCount)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef)))
-      .containsOnly(
-        measureRepoEntries);
+      .containsOnly(measureRepoEntries);
   }
 
   private static MeasureRepoEntry[] concatIntoArray(MeasureRepoEntry[] otherMeasures, MeasureRepoEntry... measureRepoEntries) {
-    return from(
-      concat(
-        asList(otherMeasures),
-        asList(measureRepoEntries))).toArray(MeasureRepoEntry.class);
+    return from(concat(
+      asList(otherMeasures),
+      from(asList(measureRepoEntries)).filter(notNull())))
+        .toArray(MeasureRepoEntry.class);
   }
 
   private void verifyNoMeasure(int componentRef) {

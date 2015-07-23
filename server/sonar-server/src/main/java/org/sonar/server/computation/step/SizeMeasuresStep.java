@@ -98,14 +98,12 @@ public class SizeMeasuresStep implements ComputationStep {
 
     @Override
     protected void visitProject(Component project, Path<Counter> path) {
-      measureRepository.add(project, directoryMetric, newMeasureBuilder().create(path.current().directories));
-      measureRepository.add(project, fileMetric, newMeasureBuilder().create(path.current().files));
+      createMeasures(project, path.current().directories, path.current().files);
     }
 
     @Override
     protected void visitModule(Component module, Path<Counter> path) {
-      measureRepository.add(module, directoryMetric, newMeasureBuilder().create(path.current().directories));
-      measureRepository.add(module, fileMetric, newMeasureBuilder().create(path.current().files));
+      createMeasures(module, path.current().directories, path.current().files);
 
       path.parent().directories += path.current().directories;
       path.parent().files += path.current().files;
@@ -113,11 +111,17 @@ public class SizeMeasuresStep implements ComputationStep {
 
     @Override
     protected void visitDirectory(Component directory, Path<Counter> path) {
-      measureRepository.add(directory, directoryMetric, newMeasureBuilder().create(1));
-      measureRepository.add(directory, fileMetric, newMeasureBuilder().create(path.current().files));
+      createMeasures(directory, 1, path.current().files);
 
       path.parent().directories += 1;
       path.parent().files += path.current().files;
+    }
+
+    private void createMeasures(Component directory, int dirCount, int fileCount) {
+      measureRepository.add(directory, directoryMetric, newMeasureBuilder().create(dirCount));
+      if (fileCount > 0) {
+        measureRepository.add(directory, fileMetric, newMeasureBuilder().create(fileCount));
+      }
     }
 
     @Override
