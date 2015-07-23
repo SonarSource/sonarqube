@@ -65,6 +65,13 @@ public class DeprecatedResourceApiSensor implements Sensor {
         .line(1)
         .build());
 
+      // Message and line are nullable
+      issuable.addIssue(issuable.newIssueBuilder()
+        .ruleKey(RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY))
+        .message(null)
+        .line(null)
+        .build());
+
       sonarFile = context.getResource(sonarFile);
       Directory parent = sonarFile.getParent();
       createIssueOnDir(parent);

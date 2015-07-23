@@ -20,6 +20,8 @@
 package org.sonar.batch.mediumtest.deprecated;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -30,10 +32,8 @@ import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.xoo.XooPlugin;
 
-import java.io.File;
-import java.io.IOException;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 
 public class DeprecatedApiMediumTest {
 
@@ -81,8 +81,14 @@ public class DeprecatedApiMediumTest {
         .build())
       .start();
 
-    // 1 issue on root dir + 1 issue on each file + 1 issue on each file parent dir
-    assertThat(result.issues()).hasSize(5);
+    assertThat(result.issues()).extracting("componentKey", "message", "line").containsOnly(
+      tuple("com.foo.project:src/sample.xoo", "One issue per line", null),
+      tuple("com.foo.project:src/sample.xoo", "Issue created using deprecated API", 1),
+      tuple("com.foo.project:src/package/sample.xoo", "One issue per line", null),
+      tuple("com.foo.project:src/package/sample.xoo", "Issue created using deprecated API", 1),
+      tuple("com.foo.project:src", "Issue created using deprecated API", null),
+      tuple("com.foo.project:src/package", "Issue created using deprecated API", null));
+
   }
 
 }

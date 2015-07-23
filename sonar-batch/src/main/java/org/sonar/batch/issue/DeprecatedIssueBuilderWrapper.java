@@ -21,6 +21,7 @@ package org.sonar.batch.issue;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
@@ -54,9 +55,11 @@ public class DeprecatedIssueBuilderWrapper implements Issuable.IssueBuilder {
   }
 
   @Override
-  public IssueBuilder line(Integer line) {
+  public IssueBuilder line(@Nullable Integer line) {
     if (primaryComponent.isFile()) {
-      this.primaryRange = ((InputFile) primaryComponent.inputPath()).selectLine(line);
+      if (line != null) {
+        this.primaryRange = ((InputFile) primaryComponent.inputPath()).selectLine(line.intValue());
+      }
       return this;
     } else {
       throw new IllegalArgumentException("Unable to set line for issues on project or directory");
@@ -111,7 +114,10 @@ public class DeprecatedIssueBuilderWrapper implements Issuable.IssueBuilder {
   @Override
   public Issue build() {
     if (primaryMessage != null || primaryRange != null || locations.isEmpty()) {
-      NewIssueLocation newLocation = newIssue.newLocation().message(primaryMessage);
+      NewIssueLocation newLocation = newIssue.newLocation();
+      if (primaryMessage != null) {
+        newLocation.message(primaryMessage);
+      }
       if (primaryComponent.isProjectOrModule()) {
         newLocation.onProject();
       } else if (primaryComponent.isFile()) {
