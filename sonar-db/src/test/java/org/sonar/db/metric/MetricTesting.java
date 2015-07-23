@@ -18,12 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.metric.ws;
+package org.sonar.db.metric;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.measures.Metric;
-import org.sonar.db.metric.MetricDto;
 
 public class MetricTesting {
   private MetricTesting() {

@@ -35,7 +35,7 @@ import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
 import org.sonar.test.JsonAssert;
 
-import static org.sonar.server.metric.ws.MetricTesting.newMetricDto;
+import static org.sonar.db.metric.MetricTesting.newMetricDto;
 
 @Category(DbTests.class)
 public class DomainsActionTest {

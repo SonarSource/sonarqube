@@ -82,8 +82,10 @@ public class MetricDao implements Dao {
     return mapper(session).countEnabled(isCustom);
   }
 
-  public void insert(DbSession session, MetricDto dto) {
+  public MetricDto insert(DbSession session, MetricDto dto) {
     mapper(session).insert(dto);
+
+    return dto;
   }
 
   public void insert(DbSession session, Collection<MetricDto> items) {
@@ -96,7 +98,7 @@ public class MetricDao implements Dao {
     insert(session, Lists.asList(item, others));
   }
 
-  public List<String> selectDomains(DbSession session) {
+  public List<String> selectEnabledDomains(DbSession session) {
     return newArrayList(Collections2.filter(mapper(session).selectDomains(), new NotEmptyPredicate()));
   }
 
@@ -126,7 +128,7 @@ public class MetricDao implements Dao {
     return session.getMapper(MetricMapper.class);
   }
 
-  public void disableByIds(final DbSession session, List<Integer> ids) {
+  public void disableCustomByIds(final DbSession session, List<Integer> ids) {
     DatabaseUtils.executeLargeInputsWithoutOutput(ids, new Function<List<Integer>, Void>() {
       @Override
       public Void apply(@Nonnull List<Integer> input) {
@@ -136,7 +138,7 @@ public class MetricDao implements Dao {
     });
   }
 
-  public void disableByKey(final DbSession session, String key) {
+  public void disableCustomByKey(final DbSession session, String key) {
     mapper(session).disableByKey(key);
   }
 
@@ -149,7 +151,7 @@ public class MetricDao implements Dao {
     return mapper(session).selectById(id);
   }
 
-  public MetricDto selectOrFailById(DbSession session, int id) {
+  public MetricDto selectOrFailById(DbSession session, long id) {
     MetricDto metric = mapper(session).selectById(id);
     if (metric == null) {
       throw new RowNotFoundException(String.format("Metric id '%d' not found", id));

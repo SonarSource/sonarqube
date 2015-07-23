@@ -47,7 +47,7 @@ import org.sonar.test.DbTests;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
-import static org.sonar.server.metric.ws.MetricTesting.newMetricDto;
+import static org.sonar.db.metric.MetricTesting.newMetricDto;
 
 @Category(DbTests.class)
 public class DeleteActionTest {

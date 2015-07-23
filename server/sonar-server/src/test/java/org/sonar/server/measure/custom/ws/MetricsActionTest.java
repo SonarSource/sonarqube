@@ -56,7 +56,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
 import static org.sonar.server.measure.custom.ws.CustomMeasuresWs.ENDPOINT;
 import static org.sonar.server.measure.custom.ws.MetricsAction.ACTION;
-import static org.sonar.server.metric.ws.MetricTesting.newMetricDto;
+import static org.sonar.db.metric.MetricTesting.newMetricDto;
 
 @Category(DbTests.class)
 public class MetricsActionTest {

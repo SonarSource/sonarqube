@@ -51,7 +51,7 @@ public class DomainsAction implements MetricsWsAction {
   public void handle(Request request, Response response) throws Exception {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      List<String> domains = dbClient.metricDao().selectDomains(dbSession);
+      List<String> domains = dbClient.metricDao().selectEnabledDomains(dbSession);
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
       writeDomains(json, domains);

@@ -36,7 +36,7 @@ import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.LEVEL;
 import static org.sonar.api.measures.Metric.ValueType.STRING;
 import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
-import static org.sonar.server.metric.ws.MetricTesting.newMetricDto;
+import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.server.util.TypeValidationsTesting.newFullTypeValidations;
 
 public class CustomMeasureValidatorTest {

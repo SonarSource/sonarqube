@@ -61,7 +61,7 @@ import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
-import static org.sonar.server.metric.ws.MetricTesting.newMetricDto;
+import static org.sonar.db.metric.MetricTesting.newMetricDto;
 
 public class SearchActionTest {
 
