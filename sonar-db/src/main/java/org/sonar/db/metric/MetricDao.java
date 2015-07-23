@@ -43,11 +43,11 @@ import static com.google.common.collect.Lists.newArrayList;
 public class MetricDao implements Dao {
 
   @CheckForNull
-  public MetricDto selectNullableByKey(DbSession session, String key) {
+  public MetricDto selectByKey(DbSession session, String key) {
     return mapper(session).selectByKey(key);
   }
 
-  public List<MetricDto> selectNullableByKeys(final DbSession session, List<String> keys) {
+  public List<MetricDto> selectByKeys(final DbSession session, List<String> keys) {
     return DatabaseUtils.executeLargeInputs(keys, new Function<List<String>, List<MetricDto>>() {
       @Override
       public List<MetricDto> apply(@Nonnull List<String> input) {
@@ -56,8 +56,8 @@ public class MetricDao implements Dao {
     });
   }
 
-  public MetricDto selectByKey(DbSession session, String key) {
-    MetricDto metric = selectNullableByKey(session, key);
+  public MetricDto selectOrFailByKey(DbSession session, String key) {
+    MetricDto metric = selectByKey(session, key);
     if (metric == null) {
       throw new IllegalStateException(String.format("Metric key '%s' not found", key));
     }

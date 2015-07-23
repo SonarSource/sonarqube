@@ -52,7 +52,7 @@ public class DefaultRubyComponentService implements RubyComponentService {
   @Override
   @CheckForNull
   public Component findByKey(String key) {
-    return resourceDao.findByKey(key);
+    return resourceDao.selectByKey(key);
   }
 
   @CheckForNull
@@ -74,7 +74,7 @@ public class DefaultRubyComponentService implements RubyComponentService {
     // Sub view should not be created with provisioning. Will be fixed by http://jira.sonarsource.com/browse/VIEWS-296
     if (!Qualifiers.SUBVIEW.equals(qualifier)) {
       String createdKey = componentService.create(NewComponent.create(key, name).setQualifier(qualifier).setBranch(branch));
-      ComponentDto component = (ComponentDto) resourceDao.findByKey(createdKey);
+      ComponentDto component = (ComponentDto) resourceDao.selectByKey(createdKey);
       if (component == null) {
         throw new BadRequestException(String.format("Component not created: %s", createdKey));
       }

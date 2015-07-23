@@ -129,10 +129,10 @@ public class RegisterRulesMediumTest {
     });
 
     // verify db : rule x1 + 6 common rules
-    List<RuleDto> rules = db.ruleDao().findAll(dbSession);
+    List<RuleDto> rules = db.ruleDao().selectAll(dbSession);
     assertThat(rules).hasSize(7);
     assertThat(rules).extracting("key").contains(X1_KEY);
-    List<RuleParamDto> ruleParams = db.ruleDao().findRuleParamsByRuleKey(dbSession, X1_KEY);
+    List<RuleParamDto> ruleParams = db.ruleDao().selectRuleParamsByRuleKey(dbSession, X1_KEY);
     assertThat(ruleParams).hasSize(2);
 
     // verify es : rule x1 + 6 common rules

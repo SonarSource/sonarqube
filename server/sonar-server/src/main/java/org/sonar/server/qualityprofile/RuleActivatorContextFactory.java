@@ -43,7 +43,7 @@ public class RuleActivatorContextFactory {
 
   RuleActivatorContext create(String profileKey, RuleKey ruleKey, DbSession session) {
     RuleActivatorContext context = new RuleActivatorContext();
-    QualityProfileDto profile = db.qualityProfileDao().getByKey(session, profileKey);
+    QualityProfileDto profile = db.qualityProfileDao().selectByKey(session, profileKey);
     if (profile == null) {
       throw new BadRequestException("Quality profile not found: " + profileKey);
     }
@@ -53,7 +53,7 @@ public class RuleActivatorContextFactory {
 
   RuleActivatorContext create(QProfileName profileName, RuleKey ruleKey, DbSession session) {
     RuleActivatorContext context = new RuleActivatorContext();
-    QualityProfileDto profile = db.qualityProfileDao().getByNameAndLanguage(profileName.getName(), profileName.getLanguage(), session);
+    QualityProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(profileName.getName(), profileName.getLanguage(), session);
     if (profile == null) {
       throw new BadRequestException("Quality profile not found: " + profileName);
     }
@@ -81,7 +81,7 @@ public class RuleActivatorContextFactory {
       throw new BadRequestException("Rule not found: " + ruleKey);
     }
     context.setRule(rule);
-    context.setRuleParams(db.ruleDao().findRuleParamsByRuleKey(dbSession, rule.getKey()));
+    context.setRuleParams(db.ruleDao().selectRuleParamsByRuleKey(dbSession, rule.getKey()));
     return rule;
   }
 
@@ -90,7 +90,7 @@ public class RuleActivatorContextFactory {
     ActiveRuleDto activeRule = db.activeRuleDao().getNullableByKey(session, key);
     Collection<ActiveRuleParamDto> activeRuleParams = null;
     if (activeRule != null) {
-      activeRuleParams = db.activeRuleDao().findParamsByActiveRuleKey(session, key);
+      activeRuleParams = db.activeRuleDao().selectParamsByActiveRuleKey(session, key);
     }
     if (parent) {
       context.setParentActiveRule(activeRule);

@@ -53,10 +53,10 @@ public class GlobalDefaultDashboardTest {
 
   @Test
   public void should_create_global_dashboard_with_four_widgets() {
-    when(dao.findSystemFilterByName(MyFavouritesFilter.NAME)).thenReturn(
+    when(dao.selectSystemFilterByName(MyFavouritesFilter.NAME)).thenReturn(
       new MeasureFilterDto().setId(100L)
       );
-    when(dao.findSystemFilterByName(ProjectFilter.NAME)).thenReturn(
+    when(dao.selectSystemFilterByName(ProjectFilter.NAME)).thenReturn(
       new MeasureFilterDto().setId(101L)
       );
     Dashboard dashboard = template.createDashboard();
@@ -76,8 +76,8 @@ public class GlobalDefaultDashboardTest {
 
   @Test
   public void should_not_fail_if_filter_widgets_not_found() {
-    when(dao.findSystemFilterByName(MyFavouritesFilter.NAME)).thenReturn(null);
-    when(dao.findSystemFilterByName(ProjectFilter.NAME)).thenReturn(null);
+    when(dao.selectSystemFilterByName(MyFavouritesFilter.NAME)).thenReturn(null);
+    when(dao.selectSystemFilterByName(ProjectFilter.NAME)).thenReturn(null);
 
     Dashboard dashboard = template.createDashboard();
     List<Widget> firstColumn = dashboard.getWidgetsOfColumn(1);

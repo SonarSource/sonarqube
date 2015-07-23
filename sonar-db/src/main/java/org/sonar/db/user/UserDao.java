@@ -40,16 +40,16 @@ public class UserDao implements Dao {
     this.system2 = system2;
   }
 
-  public UserDto getUser(long userId) {
+  public UserDto selectUserById(long userId) {
     SqlSession session = mybatis.openSession(false);
     try {
-      return getUser(userId, session);
+      return selectUserById(session, userId);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public UserDto getUser(long userId, SqlSession session) {
+  public UserDto selectUserById(SqlSession session, long userId) {
     return session.getMapper(UserMapper.class).selectUser(userId);
   }
 
@@ -175,19 +175,19 @@ public class UserDao implements Dao {
   }
 
   @CheckForNull
-  public UserDto selectNullableByLogin(DbSession session, String login) {
+  public UserDto selectByLogin(DbSession session, String login) {
     return mapper(session).selectByLogin(login);
   }
 
-  public UserDto selectByLogin(DbSession session, String login) {
-    UserDto user = selectNullableByLogin(session, login);
+  public UserDto selectOrFailByLogin(DbSession session, String login) {
+    UserDto user = selectByLogin(session, login);
     if (user == null) {
       throw new RowNotFoundException(String.format("User with login '%s' has not been found", login));
     }
     return user;
   }
 
-  public List<UserDto> selectNullableByScmAccountOrLoginOrEmail(DbSession session, String scmAccountOrLoginOrEmail) {
+  public List<UserDto> selectByScmAccountOrLoginOrEmail(DbSession session, String scmAccountOrLoginOrEmail) {
     String like = new StringBuilder().append("%")
       .append(UserDto.SCM_ACCOUNTS_SEPARATOR).append(scmAccountOrLoginOrEmail)
       .append(UserDto.SCM_ACCOUNTS_SEPARATOR).append("%").toString();

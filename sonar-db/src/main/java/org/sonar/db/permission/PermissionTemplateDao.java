@@ -142,7 +142,7 @@ public class PermissionTemplateDao implements Dao {
     }
   }
 
-  public PermissionTemplateDto createPermissionTemplate(String templateName, @Nullable String description, @Nullable String keyPattern) {
+  public PermissionTemplateDto insertPermissionTemplate(String templateName, @Nullable String description, @Nullable String keyPattern) {
     Date creationDate = now();
     PermissionTemplateDto permissionTemplate = new PermissionTemplateDto()
       .setName(templateName)
@@ -190,7 +190,7 @@ public class PermissionTemplateDao implements Dao {
     }
   }
 
-  public void addUserPermission(Long templateId, Long userId, String permission) {
+  public void insertUserPermission(Long templateId, Long userId, String permission) {
     PermissionTemplateUserDto permissionTemplateUser = new PermissionTemplateUserDto()
       .setTemplateId(templateId)
       .setUserId(userId)
@@ -206,7 +206,7 @@ public class PermissionTemplateDao implements Dao {
     }
   }
 
-  public void removeUserPermission(Long templateId, Long userId, String permission) {
+  public void deleteUserPermission(Long templateId, Long userId, String permission) {
     PermissionTemplateUserDto permissionTemplateUser = new PermissionTemplateUserDto()
       .setTemplateId(templateId)
       .setPermission(permission)
@@ -220,7 +220,7 @@ public class PermissionTemplateDao implements Dao {
     }
   }
 
-  public void addGroupPermission(Long templateId, @Nullable Long groupId, String permission) {
+  public void insertGroupPermission(Long templateId, @Nullable Long groupId, String permission) {
     PermissionTemplateGroupDto permissionTemplateGroup = new PermissionTemplateGroupDto()
       .setTemplateId(templateId)
       .setPermission(permission)
@@ -236,7 +236,7 @@ public class PermissionTemplateDao implements Dao {
     }
   }
 
-  public void removeGroupPermission(Long templateId, @Nullable Long groupId, String permission) {
+  public void deleteGroupPermission(Long templateId, @Nullable Long groupId, String permission) {
     PermissionTemplateGroupDto permissionTemplateGroup = new PermissionTemplateGroupDto()
       .setTemplateId(templateId)
       .setPermission(permission)
@@ -253,7 +253,7 @@ public class PermissionTemplateDao implements Dao {
   /**
    * Remove a group from all templates (used when removing a group)
    */
-  public void removeByGroup(Long groupId, SqlSession session) {
+  public void deleteByGroup(SqlSession session, Long groupId) {
     session.getMapper(PermissionTemplateMapper.class).deleteByGroupId(groupId);
   }
 

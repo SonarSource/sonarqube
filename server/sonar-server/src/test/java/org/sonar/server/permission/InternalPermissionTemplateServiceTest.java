@@ -118,7 +118,7 @@ public class InternalPermissionTemplateServiceTest {
 
   @Test
   public void should_create_permission_template() {
-    when(permissionTemplateDao.createPermissionTemplate(DEFAULT_KEY, DEFAULT_DESC, DEFAULT_PATTERN)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.insertPermissionTemplate(DEFAULT_KEY, DEFAULT_DESC, DEFAULT_PATTERN)).thenReturn(DEFAULT_TEMPLATE);
 
     PermissionTemplate permissionTemplate = service.createPermissionTemplate(DEFAULT_KEY, DEFAULT_DESC, DEFAULT_PATTERN);
 
@@ -286,7 +286,7 @@ public class InternalPermissionTemplateServiceTest {
 
     service.addUserPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "user");
 
-    verify(permissionTemplateDao, times(1)).addUserPermission(1L, 1L, DEFAULT_PERMISSION);
+    verify(permissionTemplateDao, times(1)).insertUserPermission(1L, 1L, DEFAULT_PERMISSION);
   }
 
   @Test
@@ -308,7 +308,7 @@ public class InternalPermissionTemplateServiceTest {
 
     service.removeUserPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "user");
 
-    verify(permissionTemplateDao, times(1)).removeUserPermission(1L, 1L, DEFAULT_PERMISSION);
+    verify(permissionTemplateDao, times(1)).deleteUserPermission(1L, 1L, DEFAULT_PERMISSION);
   }
 
   @Test
@@ -319,7 +319,7 @@ public class InternalPermissionTemplateServiceTest {
 
     service.addGroupPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "group");
 
-    verify(permissionTemplateDao, times(1)).addGroupPermission(1L, 1L, DEFAULT_PERMISSION);
+    verify(permissionTemplateDao, times(1)).insertGroupPermission(1L, 1L, DEFAULT_PERMISSION);
   }
 
   @Test
@@ -341,7 +341,7 @@ public class InternalPermissionTemplateServiceTest {
 
     service.removeGroupPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "group");
 
-    verify(permissionTemplateDao, times(1)).removeGroupPermission(1L, 1L, DEFAULT_PERMISSION);
+    verify(permissionTemplateDao, times(1)).deleteGroupPermission(1L, 1L, DEFAULT_PERMISSION);
   }
 
   @Test
@@ -350,7 +350,7 @@ public class InternalPermissionTemplateServiceTest {
 
     service.addGroupPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "Anyone");
 
-    verify(permissionTemplateDao).addGroupPermission(1L, null, DEFAULT_PERMISSION);
+    verify(permissionTemplateDao).insertGroupPermission(1L, null, DEFAULT_PERMISSION);
     verifyZeroInteractions(userDao);
   }
 
@@ -360,7 +360,7 @@ public class InternalPermissionTemplateServiceTest {
 
     service.removeGroupPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "Anyone");
 
-    verify(permissionTemplateDao).removeGroupPermission(1L, null, DEFAULT_PERMISSION);
+    verify(permissionTemplateDao).deleteGroupPermission(1L, null, DEFAULT_PERMISSION);
     verifyZeroInteractions(userDao);
   }
 
@@ -371,7 +371,7 @@ public class InternalPermissionTemplateServiceTest {
 
     service.removeGroupFromTemplates("group");
 
-    verify(permissionTemplateDao).removeByGroup(eq(1L), eq(session));
+    verify(permissionTemplateDao).deleteByGroup(eq(session), eq(1L));
   }
 
   private PermissionTemplateUserDto buildUserPermission(String userName, String permission) {

@@ -102,15 +102,6 @@ public class AuthorDao implements Dao {
     authorMapper.insert(authorDto);
   }
 
-  public List<String> selectScmAccountsByDeveloperUuids(Collection<String> developerUuid) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      return selectScmAccountsByDeveloperUuids(session, developerUuid);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   public List<String> selectScmAccountsByDeveloperUuids(final SqlSession session, Collection<String> developerUuids) {
     return DatabaseUtils.executeLargeInputs(developerUuids, new Function<List<String>, List<String>>() {
       @Override

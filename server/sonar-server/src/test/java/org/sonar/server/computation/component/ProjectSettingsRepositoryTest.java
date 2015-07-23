@@ -82,7 +82,7 @@ public class ProjectSettingsRepositoryTest {
   public void get_project_settings_from_db() {
     ComponentDto project = ComponentTesting.newProjectDto().setKey(PROJECT_KEY);
     dbClient.componentDao().insert(session, project);
-    dbClient.propertiesDao().setProperty(new PropertyDto().setResourceId(project.getId()).setKey("key").setValue("value"), session);
+    dbClient.propertiesDao().insertProperty(session, new PropertyDto().setResourceId(project.getId()).setKey("key").setValue("value"));
     session.commit();
 
     Settings settings = underTest.getProjectSettings(PROJECT_KEY);

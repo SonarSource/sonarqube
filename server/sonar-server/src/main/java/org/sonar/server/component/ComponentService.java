@@ -91,7 +91,7 @@ public class ComponentService {
   public ComponentDto getNonNullByUuid(String uuid) {
     DbSession session = dbClient.openSession(false);
     try {
-      return dbClient.componentDao().selectNonNullByUuid(session, uuid);
+      return dbClient.componentDao().selectOrFailByUuid(session, uuid);
     } finally {
       session.close();
     }

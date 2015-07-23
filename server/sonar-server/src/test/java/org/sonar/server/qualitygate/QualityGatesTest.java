@@ -111,7 +111,7 @@ public class QualityGatesTest {
   public void initialize() {
     settings.clear();
 
-    when(componentDao.selectNonNullById(eq(session), anyLong())).thenReturn(new ComponentDto().setId(1L).setKey(PROJECT_KEY));
+    when(componentDao.selectOrFailById(eq(session), anyLong())).thenReturn(new ComponentDto().setId(1L).setKey(PROJECT_KEY));
 
     when(myBatis.openSession(false)).thenReturn(session);
     qGates = new QualityGates(dao, conditionDao, metricFinder, propertiesDao, componentDao, myBatis, userSessionRule, settings);
@@ -236,7 +236,7 @@ public class QualityGatesTest {
 
     verify(dao).selectById(defaultId);
     ArgumentCaptor<PropertyDto> propertyCaptor = ArgumentCaptor.forClass(PropertyDto.class);
-    verify(propertiesDao).setProperty(propertyCaptor.capture());
+    verify(propertiesDao).insertProperty(propertyCaptor.capture());
 
     assertThat(propertyCaptor.getValue().getKey()).isEqualTo("sonar.qualitygate");
     assertThat(propertyCaptor.getValue().getValue()).isEqualTo("42");
@@ -536,7 +536,7 @@ public class QualityGatesTest {
     qGates.associateProject(qGateId, projectId);
     verify(dao).selectById(qGateId);
     ArgumentCaptor<PropertyDto> propertyCaptor = ArgumentCaptor.forClass(PropertyDto.class);
-    verify(propertiesDao).setProperty(propertyCaptor.capture());
+    verify(propertiesDao).insertProperty(propertyCaptor.capture());
     PropertyDto property = propertyCaptor.getValue();
     assertThat(property.getKey()).isEqualTo("sonar.qualitygate");
     assertThat(property.getResourceId()).isEqualTo(projectId);
@@ -553,7 +553,7 @@ public class QualityGatesTest {
     qGates.associateProject(qGateId, projectId);
     verify(dao).selectById(qGateId);
     ArgumentCaptor<PropertyDto> propertyCaptor = ArgumentCaptor.forClass(PropertyDto.class);
-    verify(propertiesDao).setProperty(propertyCaptor.capture());
+    verify(propertiesDao).insertProperty(propertyCaptor.capture());
     PropertyDto property = propertyCaptor.getValue();
     assertThat(property.getKey()).isEqualTo("sonar.qualitygate");
     assertThat(property.getResourceId()).isEqualTo(projectId);

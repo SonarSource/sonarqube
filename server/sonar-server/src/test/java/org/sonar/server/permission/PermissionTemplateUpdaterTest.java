@@ -72,12 +72,12 @@ public class PermissionTemplateUpdaterTest {
       new PermissionTemplateUpdater("my_template", UserRole.USER, "user", permissionTemplateDao, userDao, userSessionRule) {
       @Override
       void doExecute(Long templateId, String permission) {
-        permissionTemplateDao.addUserPermission(1L, 1L, UserRole.USER);
+        permissionTemplateDao.insertUserPermission(1L, 1L, UserRole.USER);
       }
     };
     updater.executeUpdate();
 
-    verify(permissionTemplateDao, times(1)).addUserPermission(1L, 1L, UserRole.USER);
+    verify(permissionTemplateDao, times(1)).insertUserPermission(1L, 1L, UserRole.USER);
   }
 
   @Test

@@ -82,7 +82,7 @@ public final class RegisterNewMeasureFilters {
   @VisibleForTesting
   MeasureFilterDto register(String name, Filter filter) {
     MeasureFilterDto dto = null;
-    if (filterDao.findSystemFilterByName(name) == null) {
+    if (filterDao.selectSystemFilterByName(name) == null) {
       LOG.info("Register measure filter: " + name);
       dto = createDtoFromExtension(name, filter);
       filterDao.insert(dto);

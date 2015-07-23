@@ -94,7 +94,7 @@ public class CreateActionTest {
       .setParam(PARAM_TYPE, DEFAULT_TYPE)
       .execute();
 
-    MetricDto metric = dbClient.metricDao().selectNullableByKey(dbSession, DEFAULT_KEY);
+    MetricDto metric = dbClient.metricDao().selectByKey(dbSession, DEFAULT_KEY);
 
     assertThat(metric.getKey()).isEqualTo(DEFAULT_KEY);
     assertThat(metric.getShortName()).isEqualTo(DEFAULT_NAME);
@@ -117,7 +117,7 @@ public class CreateActionTest {
       .setParam(PARAM_DESCRIPTION, DEFAULT_DESCRIPTION)
       .execute();
 
-    MetricDto metric = dbClient.metricDao().selectNullableByKey(dbSession, DEFAULT_KEY);
+    MetricDto metric = dbClient.metricDao().selectByKey(dbSession, DEFAULT_KEY);
 
     assertThat(metric.getKey()).isEqualTo(DEFAULT_KEY);
     assertThat(metric.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
@@ -158,7 +158,7 @@ public class CreateActionTest {
 
     result.assertJson(getClass(), "metric.json");
     result.outputAsString().matches("\"id\"\\s*:\\s*\"" + metricInDb.getId() + "\"");
-    MetricDto metricAfterWs = dbClient.metricDao().selectNullableByKey(dbSession, DEFAULT_KEY);
+    MetricDto metricAfterWs = dbClient.metricDao().selectByKey(dbSession, DEFAULT_KEY);
     assertThat(metricAfterWs.getId()).isEqualTo(metricInDb.getId());
     assertThat(metricAfterWs.getDomain()).isEqualTo(DEFAULT_DOMAIN);
     assertThat(metricAfterWs.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);

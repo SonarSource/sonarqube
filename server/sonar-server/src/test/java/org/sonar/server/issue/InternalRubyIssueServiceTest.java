@@ -128,7 +128,7 @@ public class InternalRubyIssueServiceTest {
     userWriter = mock(UserJsonWriter.class);
 
     ResourceDto project = new ResourceDto().setKey("org.sonar.Sample");
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(project);
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(project);
 
     service = new InternalRubyIssueService(issueService, issueQueryService, commentService, changelogService, actionPlanService, resourceDao, actionService,
       issueFilterService, issueBulkChangeService, issueWriter, issueComponentHelper, componentWriter, userIndex, dbClient, userSessionRule, userWriter);
@@ -402,7 +402,7 @@ public class InternalRubyIssueServiceTest {
     parameters.put("description", "Long term issues");
     parameters.put("project", "org.sonar.Sample");
 
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(null);
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(null);
 
     Result result = service.createActionPlanResult(parameters);
     assertThat(result.ok()).isFalse();

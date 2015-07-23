@@ -68,7 +68,7 @@ public class UserDaoTest {
   public void selectUserByLogin_ignore_inactive() {
     db.prepareDbUnit(getClass(), "selectActiveUserByLogin.xml");
 
-    UserDto user = underTest.getUser(50);
+    UserDto user = underTest.selectUserById(50);
     assertThat(user.getLogin()).isEqualTo("inactive_user");
 
     user = underTest.selectActiveUserByLogin("inactive_user");
@@ -233,7 +233,7 @@ public class UserDaoTest {
     underTest.update(db.getSession(), userDto);
     db.getSession().commit();
 
-    UserDto user = underTest.getUser(1);
+    UserDto user = underTest.selectUserById(1);
     assertThat(user).isNotNull();
     assertThat(user.getId()).isEqualTo(1L);
     assertThat(user.getLogin()).isEqualTo("john");
@@ -259,7 +259,7 @@ public class UserDaoTest {
 
     assertThat(underTest.selectActiveUserByLogin(login)).isNull();
 
-    UserDto userDto = underTest.getUser(100);
+    UserDto userDto = underTest.selectUserById(100);
     assertThat(userDto.isActive()).isFalse();
     assertThat(userDto.getUpdatedAt()).isEqualTo(1500000000000L);
 
@@ -283,7 +283,7 @@ public class UserDaoTest {
   public void select_by_login() {
     db.prepareDbUnit(getClass(), "select_by_login.xml");
 
-    UserDto dto = underTest.selectByLogin(session, "marius");
+    UserDto dto = underTest.selectOrFailByLogin(session, "marius");
     assertThat(dto.getId()).isEqualTo(101);
     assertThat(dto.getLogin()).isEqualTo("marius");
     assertThat(dto.getName()).isEqualTo("Marius");
@@ -300,26 +300,26 @@ public class UserDaoTest {
   public void select_nullable_by_scm_account() {
     db.prepareDbUnit(getClass(), "select_nullable_by_scm_account.xml");
 
-    List<UserDto> results = underTest.selectNullableByScmAccountOrLoginOrEmail(session, "ma");
+    List<UserDto> results = underTest.selectByScmAccountOrLoginOrEmail(session, "ma");
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getLogin()).isEqualTo("marius");
 
-    results = underTest.selectNullableByScmAccountOrLoginOrEmail(session, "marius");
+    results = underTest.selectByScmAccountOrLoginOrEmail(session, "marius");
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getLogin()).isEqualTo("marius");
 
-    results = underTest.selectNullableByScmAccountOrLoginOrEmail(session, "marius@lesbronzes.fr");
+    results = underTest.selectByScmAccountOrLoginOrEmail(session, "marius@lesbronzes.fr");
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getLogin()).isEqualTo("marius");
 
-    results = underTest.selectNullableByScmAccountOrLoginOrEmail(session, "marius@lesbronzes.fr");
+    results = underTest.selectByScmAccountOrLoginOrEmail(session, "marius@lesbronzes.fr");
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getLogin()).isEqualTo("marius");
 
-    results = underTest.selectNullableByScmAccountOrLoginOrEmail(session, "m");
+    results = underTest.selectByScmAccountOrLoginOrEmail(session, "m");
     assertThat(results).isEmpty();
 
-    results = underTest.selectNullableByScmAccountOrLoginOrEmail(session, "unknown");
+    results = underTest.selectByScmAccountOrLoginOrEmail(session, "unknown");
     assertThat(results).isEmpty();
   }
 
@@ -327,14 +327,14 @@ public class UserDaoTest {
   public void select_nullable_by_scm_account_return_many_results_when_same_email_is_used_by_many_users() {
     db.prepareDbUnit(getClass(), "select_nullable_by_scm_account_return_many_results_when_same_email_is_used_by_many_users.xml");
 
-    List<UserDto> results = underTest.selectNullableByScmAccountOrLoginOrEmail(session, "marius@lesbronzes.fr");
+    List<UserDto> results = underTest.selectByScmAccountOrLoginOrEmail(session, "marius@lesbronzes.fr");
     assertThat(results).hasSize(2);
   }
 
   @Test
   public void select_by_login_with_unknown_login() {
     try {
-      underTest.selectByLogin(session, "unknown");
+      underTest.selectOrFailByLogin(session, "unknown");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(RowNotFoundException.class).hasMessage("User with login 'unknown' has not been found");
@@ -345,8 +345,8 @@ public class UserDaoTest {
   public void select_nullable_by_login() {
     db.prepareDbUnit(getClass(), "select_by_login.xml");
 
-    assertThat(underTest.selectNullableByLogin(session, "marius")).isNotNull();
+    assertThat(underTest.selectByLogin(session, "marius")).isNotNull();
 
-    assertThat(underTest.selectNullableByLogin(session, "unknown")).isNull();
+    assertThat(underTest.selectByLogin(session, "unknown")).isNull();
   }
 }

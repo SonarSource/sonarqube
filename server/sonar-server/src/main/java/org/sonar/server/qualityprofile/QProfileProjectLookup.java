@@ -52,7 +52,7 @@ public class QProfileProjectLookup {
   public List<Component> projects(int profileId) {
     DbSession session = db.openSession(false);
     try {
-      QualityProfileDto qualityProfile = db.qualityProfileDao().getById(profileId, session);
+      QualityProfileDto qualityProfile = db.qualityProfileDao().selectById(session, profileId);
       QProfileValidations.checkProfileIsNotNull(qualityProfile);
       Map<String, Component> componentsByKeys = Maps.newHashMap();
       for (Component component : db.qualityProfileDao().selectProjects(qualityProfile.getName(), qualityProfile.getLanguage(), session)) {
@@ -79,7 +79,7 @@ public class QProfileProjectLookup {
 
   @CheckForNull
   public QProfile findProfileByProjectAndLanguage(long projectId, String language) {
-    QualityProfileDto dto = db.qualityProfileDao().getByProjectAndLanguage(projectId, language);
+    QualityProfileDto dto = db.qualityProfileDao().selectByProjectAndLanguage(projectId, language);
     if (dto != null) {
       return QProfile.from(dto);
     }

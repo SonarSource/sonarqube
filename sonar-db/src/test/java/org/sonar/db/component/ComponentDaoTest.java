@@ -106,7 +106,7 @@ public class ComponentDaoTest {
 
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    underTest.selectNonNullByUuid(db.getSession(), "unknown");
+    underTest.selectOrFailByUuid(db.getSession(), "unknown");
   }
 
   @Test
@@ -258,7 +258,7 @@ public class ComponentDaoTest {
   public void get_by_id() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    assertThat(underTest.selectNonNullById(db.getSession(), 4L)).isNotNull();
+    assertThat(underTest.selectOrFailById(db.getSession(), 4L)).isNotNull();
   }
 
   @Test
@@ -274,7 +274,7 @@ public class ComponentDaoTest {
   public void fail_to_get_by_id_when_project_not_found() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    underTest.selectNonNullById(db.getSession(), 111L);
+    underTest.selectOrFailById(db.getSession(), 111L);
   }
 
   @Test

@@ -39,7 +39,7 @@ public class IssueFilterDao implements Dao {
     SqlSession session = mybatis.openSession(false);
     try {
       session.getMapper(IssueFilterMapper.class);
-      return getMapper(session).selectById(id);
+      return mapper(session).selectById(id);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -48,7 +48,7 @@ public class IssueFilterDao implements Dao {
   public List<IssueFilterDto> selectByUser(String user) {
     SqlSession session = mybatis.openSession(false);
     try {
-      return getMapper(session).selectByUser(user);
+      return mapper(session).selectByUser(user);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -57,7 +57,7 @@ public class IssueFilterDao implements Dao {
   public List<IssueFilterDto> selectFavoriteFiltersByUser(String user) {
     SqlSession session = mybatis.openSession(false);
     try {
-      return getMapper(session).selectFavoriteFiltersByUser(user);
+      return mapper(session).selectFavoriteFiltersByUser(user);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -66,7 +66,7 @@ public class IssueFilterDao implements Dao {
   public IssueFilterDto selectProvidedFilterByName(String name) {
     SqlSession session = mybatis.openSession(false);
     try {
-      return getMapper(session).selectProvidedFilterByName(name);
+      return mapper(session).selectProvidedFilterByName(name);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -75,7 +75,7 @@ public class IssueFilterDao implements Dao {
   public List<IssueFilterDto> selectSharedFilters() {
     SqlSession session = mybatis.openSession(false);
     try {
-      return getMapper(session).selectSharedFilters();
+      return mapper(session).selectSharedFilters();
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -84,7 +84,7 @@ public class IssueFilterDao implements Dao {
   public void insert(IssueFilterDto filter) {
     SqlSession session = mybatis.openSession(false);
     try {
-      getMapper(session).insert(filter);
+      mapper(session).insert(filter);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -94,7 +94,7 @@ public class IssueFilterDao implements Dao {
   public void update(IssueFilterDto filter) {
     SqlSession session = mybatis.openSession(false);
     try {
-      getMapper(session).update(filter);
+      mapper(session).update(filter);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -104,14 +104,14 @@ public class IssueFilterDao implements Dao {
   public void delete(long id) {
     SqlSession session = mybatis.openSession(false);
     try {
-      getMapper(session).delete(id);
+      mapper(session).delete(id);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private IssueFilterMapper getMapper(SqlSession session) {
+  private IssueFilterMapper mapper(SqlSession session) {
     return session.getMapper(IssueFilterMapper.class);
   }
 }

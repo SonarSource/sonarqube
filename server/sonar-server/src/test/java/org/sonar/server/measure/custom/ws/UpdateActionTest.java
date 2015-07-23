@@ -123,7 +123,7 @@ public class UpdateActionTest {
       .setParam(PARAM_VALUE, "new-text-measure-value")
       .execute();
 
-    CustomMeasureDto updatedCustomMeasure = dbClient.customMeasureDao().selectById(dbSession, customMeasure.getId());
+    CustomMeasureDto updatedCustomMeasure = dbClient.customMeasureDao().selectOrFail(dbSession, customMeasure.getId());
     assertThat(updatedCustomMeasure.getTextValue()).isEqualTo("new-text-measure-value");
     assertThat(updatedCustomMeasure.getDescription()).isEqualTo("new-custom-measure-description");
     assertThat(updatedCustomMeasure.getUpdatedAt()).isEqualTo(123_456_789L);
@@ -146,7 +146,7 @@ public class UpdateActionTest {
       .setParam(PARAM_VALUE, "1984")
       .execute();
 
-    CustomMeasureDto updatedCustomMeasure = dbClient.customMeasureDao().selectById(dbSession, customMeasure.getId());
+    CustomMeasureDto updatedCustomMeasure = dbClient.customMeasureDao().selectOrFail(dbSession, customMeasure.getId());
     assertThat(updatedCustomMeasure.getValue()).isCloseTo(1984d, offset(0.01d));
     assertThat(updatedCustomMeasure.getDescription()).isEqualTo("new-custom-measure-description");
     assertThat(customMeasure.getCreatedAt()).isEqualTo(updatedCustomMeasure.getCreatedAt());
@@ -197,7 +197,7 @@ public class UpdateActionTest {
       .setParam(PARAM_DESCRIPTION, "new-custom-measure-description")
       .execute();
 
-    CustomMeasureDto updatedCustomMeasure = dbClient.customMeasureDao().selectById(dbSession, customMeasure.getId());
+    CustomMeasureDto updatedCustomMeasure = dbClient.customMeasureDao().selectOrFail(dbSession, customMeasure.getId());
     assertThat(updatedCustomMeasure.getTextValue()).isEqualTo("text-measure-value");
     assertThat(updatedCustomMeasure.getDescription()).isEqualTo("new-custom-measure-description");
     assertThat(updatedCustomMeasure.getUpdatedAt()).isEqualTo(123_456_789L);
@@ -223,7 +223,7 @@ public class UpdateActionTest {
       .setParam(PARAM_VALUE, "new-text-measure-value")
       .execute();
 
-    CustomMeasureDto updatedCustomMeasure = dbClient.customMeasureDao().selectById(dbSession, customMeasure.getId());
+    CustomMeasureDto updatedCustomMeasure = dbClient.customMeasureDao().selectOrFail(dbSession, customMeasure.getId());
     assertThat(updatedCustomMeasure.getTextValue()).isEqualTo("new-text-measure-value");
     assertThat(updatedCustomMeasure.getDescription()).isEqualTo("custom-measure-description");
     assertThat(updatedCustomMeasure.getUpdatedAt()).isEqualTo(123_456_789L);

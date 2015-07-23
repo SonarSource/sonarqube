@@ -68,7 +68,7 @@ public class ActionPlanDao implements Dao {
     }
   }
 
-  public ActionPlanDto findByKey(String key) {
+  public ActionPlanDto selectByKey(String key) {
     SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ActionPlanMapper.class).findByKey(key);
@@ -77,7 +77,7 @@ public class ActionPlanDao implements Dao {
     }
   }
 
-  public List<ActionPlanDto> findByKeys(Collection<String> keys) {
+  public List<ActionPlanDto> selectByKeys(Collection<String> keys) {
     if (keys.isEmpty()) {
       return Collections.emptyList();
     }
@@ -95,7 +95,7 @@ public class ActionPlanDao implements Dao {
     }
   }
 
-  public List<ActionPlanDto> findOpenByProjectId(Long projectId) {
+  public List<ActionPlanDto> selectOpenByProjectId(Long projectId) {
     SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ActionPlanMapper.class).findOpenByProjectId(projectId);
@@ -104,7 +104,7 @@ public class ActionPlanDao implements Dao {
     }
   }
 
-  public List<ActionPlanDto> findByNameAndProjectId(String name, Long projectId) {
+  public List<ActionPlanDto> selectByNameAndProjectId(String name, Long projectId) {
     SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ActionPlanMapper.class).findByNameAndProjectId(name, projectId);

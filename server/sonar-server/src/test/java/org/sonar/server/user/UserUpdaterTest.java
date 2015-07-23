@@ -124,7 +124,7 @@ public class UserUpdaterTest {
       .setPasswordConfirmation("password")
       .setScmAccounts(newArrayList("u1", "u_1", "User 1")));
 
-    UserDto dto = userDao.selectNullableByLogin(session, "user");
+    UserDto dto = userDao.selectByLogin(session, "user");
     assertThat(dto.getId()).isNotNull();
     assertThat(dto.getLogin()).isEqualTo("user");
     assertThat(dto.getName()).isEqualTo("User");
@@ -158,7 +158,7 @@ public class UserUpdaterTest {
       .setPassword("password")
       .setPasswordConfirmation("password"));
 
-    UserDto dto = userDao.selectNullableByLogin(session, "user");
+    UserDto dto = userDao.selectByLogin(session, "user");
     assertThat(dto.getId()).isNotNull();
     assertThat(dto.getLogin()).isEqualTo("user");
     assertThat(dto.getName()).isEqualTo("User");
@@ -179,7 +179,7 @@ public class UserUpdaterTest {
       .setPasswordConfirmation("password")
       .setScmAccounts(newArrayList("u1", "", null)));
 
-    assertThat(userDao.selectNullableByLogin(session, "user").getScmAccountsAsList()).containsOnly("u1");
+    assertThat(userDao.selectByLogin(session, "user").getScmAccountsAsList()).containsOnly("u1");
   }
 
   @Test
@@ -194,7 +194,7 @@ public class UserUpdaterTest {
       .setPasswordConfirmation("password")
       .setScmAccounts(newArrayList("")));
 
-    assertThat(userDao.selectNullableByLogin(session, "user").getScmAccounts()).isNull();
+    assertThat(userDao.selectByLogin(session, "user").getScmAccounts()).isNull();
   }
 
   @Test
@@ -209,7 +209,7 @@ public class UserUpdaterTest {
       .setPasswordConfirmation("password")
       .setScmAccounts(newArrayList("u1", "u1")));
 
-    assertThat(userDao.selectNullableByLogin(session, "user").getScmAccountsAsList()).containsOnly("u1");
+    assertThat(userDao.selectByLogin(session, "user").getScmAccountsAsList()).containsOnly("u1");
   }
 
   @Test
@@ -530,7 +530,7 @@ public class UserUpdaterTest {
       .setPasswordConfirmation("password2"));
     session.commit();
 
-    UserDto dto = userDao.selectNullableByLogin(session, "marius");
+    UserDto dto = userDao.selectByLogin(session, "marius");
     assertThat(dto.isActive()).isTrue();
     assertThat(dto.getName()).isEqualTo("Marius2");
     assertThat(dto.getEmail()).isEqualTo("marius2@mail.com");
@@ -596,7 +596,7 @@ public class UserUpdaterTest {
     session.commit();
     session.clearCache();
 
-    UserDto dto = userDao.selectNullableByLogin(session, "marius");
+    UserDto dto = userDao.selectByLogin(session, "marius");
     assertThat(dto.isActive()).isTrue();
     assertThat(dto.getName()).isEqualTo("Marius2");
     assertThat(dto.getEmail()).isEqualTo("marius2@mail.com");
@@ -631,7 +631,7 @@ public class UserUpdaterTest {
     session.commit();
     session.clearCache();
 
-    UserDto dto = userDao.selectNullableByLogin(session, "marius");
+    UserDto dto = userDao.selectByLogin(session, "marius");
     assertThat(dto.isActive()).isTrue();
     assertThat(dto.getName()).isEqualTo("Marius2");
     assertThat(dto.getEmail()).isEqualTo("marius2@mail.com");
@@ -665,7 +665,7 @@ public class UserUpdaterTest {
     session.commit();
     session.clearCache();
 
-    UserDto dto = userDao.selectNullableByLogin(session, "marius");
+    UserDto dto = userDao.selectByLogin(session, "marius");
     assertThat(dto.getScmAccountsAsList()).containsOnly("ma2");
   }
 
@@ -679,7 +679,7 @@ public class UserUpdaterTest {
     session.commit();
     session.clearCache();
 
-    UserDto dto = userDao.selectNullableByLogin(session, "marius");
+    UserDto dto = userDao.selectByLogin(session, "marius");
     assertThat(dto.getName()).isEqualTo("Marius2");
 
     // Following fields has not changed
@@ -699,7 +699,7 @@ public class UserUpdaterTest {
     session.commit();
     session.clearCache();
 
-    UserDto dto = userDao.selectNullableByLogin(session, "marius");
+    UserDto dto = userDao.selectByLogin(session, "marius");
     assertThat(dto.getEmail()).isEqualTo("marius2@mail.com");
 
     // Following fields has not changed
@@ -719,7 +719,7 @@ public class UserUpdaterTest {
     session.commit();
     session.clearCache();
 
-    UserDto dto = userDao.selectNullableByLogin(session, "marius");
+    UserDto dto = userDao.selectByLogin(session, "marius");
     assertThat(dto.getScmAccountsAsList()).containsOnly("ma2");
 
     // Following fields has not changed
@@ -739,7 +739,7 @@ public class UserUpdaterTest {
     session.commit();
     session.clearCache();
 
-    UserDto dto = userDao.selectNullableByLogin(session, "marius");
+    UserDto dto = userDao.selectByLogin(session, "marius");
     assertThat(dto.getScmAccountsAsList()).containsOnly("ma", "marius33");
   }
 
@@ -753,7 +753,7 @@ public class UserUpdaterTest {
     session.commit();
     session.clearCache();
 
-    UserDto dto = userDao.selectNullableByLogin(session, "marius");
+    UserDto dto = userDao.selectByLogin(session, "marius");
     assertThat(dto.getScmAccounts()).isNull();
   }
 
@@ -768,7 +768,7 @@ public class UserUpdaterTest {
     session.commit();
     session.clearCache();
 
-    UserDto dto = userDao.selectNullableByLogin(session, "marius");
+    UserDto dto = userDao.selectByLogin(session, "marius");
     assertThat(dto.getSalt()).isNotEqualTo("79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365");
     assertThat(dto.getCryptedPassword()).isNotEqualTo("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg");
 

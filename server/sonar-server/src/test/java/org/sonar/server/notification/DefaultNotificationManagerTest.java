@@ -97,12 +97,12 @@ public class DefaultNotificationManagerTest {
     Notification notification = new Notification("test");
     NotificationQueueDto dto = NotificationQueueDto.toNotificationQueueDto(notification);
     List<NotificationQueueDto> dtos = Arrays.asList(dto);
-    when(notificationQueueDao.findOldest(1)).thenReturn(dtos);
+    when(notificationQueueDao.selectOldest(1)).thenReturn(dtos);
 
     assertThat(manager.getFromQueue()).isNotNull();
 
     InOrder inOrder = inOrder(notificationQueueDao);
-    inOrder.verify(notificationQueueDao).findOldest(1);
+    inOrder.verify(notificationQueueDao).selectOldest(1);
     inOrder.verify(notificationQueueDao).delete(dtos);
   }
 
@@ -112,7 +112,7 @@ public class DefaultNotificationManagerTest {
     NotificationQueueDto dto1 = mock(NotificationQueueDto.class);
     when(dto1.toNotification()).thenThrow(new InvalidClassException("Pouet"));
     List<NotificationQueueDto> dtos = Arrays.asList(dto1);
-    when(notificationQueueDao.findOldest(1)).thenReturn(dtos);
+    when(notificationQueueDao.selectOldest(1)).thenReturn(dtos);
 
     manager = spy(manager);
     assertThat(manager.getFromQueue()).isNull();
@@ -128,11 +128,11 @@ public class DefaultNotificationManagerTest {
 
   @Test
   public void shouldFindSubscribedRecipientForGivenResource() {
-    when(propertiesDao.findUsersForNotification("NewViolations", "Email", "uuid_45")).thenReturn(Lists.newArrayList("user1", "user2"));
-    when(propertiesDao.findUsersForNotification("NewViolations", "Email", null)).thenReturn(Lists.newArrayList("user1", "user3"));
-    when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", "uuid_56")).thenReturn(Lists.newArrayList("user2"));
-    when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", null)).thenReturn(Lists.newArrayList("user3"));
-    when(propertiesDao.findUsersForNotification("NewAlerts", "Twitter", null)).thenReturn(Lists.newArrayList("user4"));
+    when(propertiesDao.selectUsersForNotification("NewViolations", "Email", "uuid_45")).thenReturn(Lists.newArrayList("user1", "user2"));
+    when(propertiesDao.selectUsersForNotification("NewViolations", "Email", null)).thenReturn(Lists.newArrayList("user1", "user3"));
+    when(propertiesDao.selectUsersForNotification("NewViolations", "Twitter", "uuid_56")).thenReturn(Lists.newArrayList("user2"));
+    when(propertiesDao.selectUsersForNotification("NewViolations", "Twitter", null)).thenReturn(Lists.newArrayList("user3"));
+    when(propertiesDao.selectUsersForNotification("NewAlerts", "Twitter", null)).thenReturn(Lists.newArrayList("user4"));
 
     Multimap<String, NotificationChannel> multiMap = manager.findSubscribedRecipientsForDispatcher(dispatcher, "uuid_45");
     assertThat(multiMap.entries()).hasSize(4);
@@ -146,11 +146,11 @@ public class DefaultNotificationManagerTest {
 
   @Test
   public void shouldFindSubscribedRecipientForNoResource() {
-    when(propertiesDao.findUsersForNotification("NewViolations", "Email", "uuid_45")).thenReturn(Lists.newArrayList("user1", "user2"));
-    when(propertiesDao.findUsersForNotification("NewViolations", "Email", null)).thenReturn(Lists.newArrayList("user1", "user3"));
-    when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", "uuid_56")).thenReturn(Lists.newArrayList("user2"));
-    when(propertiesDao.findUsersForNotification("NewViolations", "Twitter", null)).thenReturn(Lists.newArrayList("user3"));
-    when(propertiesDao.findUsersForNotification("NewAlerts", "Twitter", null)).thenReturn(Lists.newArrayList("user4"));
+    when(propertiesDao.selectUsersForNotification("NewViolations", "Email", "uuid_45")).thenReturn(Lists.newArrayList("user1", "user2"));
+    when(propertiesDao.selectUsersForNotification("NewViolations", "Email", null)).thenReturn(Lists.newArrayList("user1", "user3"));
+    when(propertiesDao.selectUsersForNotification("NewViolations", "Twitter", "uuid_56")).thenReturn(Lists.newArrayList("user2"));
+    when(propertiesDao.selectUsersForNotification("NewViolations", "Twitter", null)).thenReturn(Lists.newArrayList("user3"));
+    when(propertiesDao.selectUsersForNotification("NewAlerts", "Twitter", null)).thenReturn(Lists.newArrayList("user4"));
 
     Multimap<String, NotificationChannel> multiMap = manager.findSubscribedRecipientsForDispatcher(dispatcher, null);
     assertThat(multiMap.entries()).hasSize(3);
@@ -164,8 +164,8 @@ public class DefaultNotificationManagerTest {
 
   @Test
   public void findNotificationSubscribers() {
-    when(propertiesDao.findNotificationSubscribers("NewViolations", "Email", "struts")).thenReturn(Lists.newArrayList("user1", "user2"));
-    when(propertiesDao.findNotificationSubscribers("NewViolations", "Twitter", "struts")).thenReturn(Lists.newArrayList("user2"));
+    when(propertiesDao.selectNotificationSubscribers("NewViolations", "Email", "struts")).thenReturn(Lists.newArrayList("user1", "user2"));
+    when(propertiesDao.selectNotificationSubscribers("NewViolations", "Twitter", "struts")).thenReturn(Lists.newArrayList("user2"));
 
     Multimap<String, NotificationChannel> multiMap = manager.findNotificationSubscribers(dispatcher, "struts");
     assertThat(multiMap.entries()).hasSize(3);

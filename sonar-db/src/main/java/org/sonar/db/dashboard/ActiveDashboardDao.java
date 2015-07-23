@@ -36,7 +36,7 @@ public class ActiveDashboardDao implements Dao {
   public void insert(ActiveDashboardDto activeDashboardDto) {
     SqlSession session = mybatis.openSession(false);
     try {
-      getMapper(session).insert(activeDashboardDto);
+      mapper(session).insert(activeDashboardDto);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -46,7 +46,7 @@ public class ActiveDashboardDao implements Dao {
   public int selectMaxOrderIndexForNullUser() {
     SqlSession session = mybatis.openSession(false);
     try {
-      Integer max = getMapper(session).selectMaxOrderIndexForNullUser();
+      Integer max = mapper(session).selectMaxOrderIndexForNullUser();
       return max != null ? max.intValue() : 0;
     } finally {
       session.close();
@@ -57,7 +57,7 @@ public class ActiveDashboardDao implements Dao {
   public List<DashboardDto> selectGlobalDashboardsForUserLogin(@Nullable String login) {
     SqlSession session = mybatis.openSession(false);
     try {
-      return getMapper(session).selectGlobalDashboardsForUserLogin(login);
+      return mapper(session).selectGlobalDashboardsForUserLogin(login);
     } finally {
       session.close();
     }
@@ -73,10 +73,10 @@ public class ActiveDashboardDao implements Dao {
   }
 
   public List<DashboardDto> selectProjectDashboardsForUserLogin(SqlSession session, @Nullable String login) {
-    return getMapper(session).selectProjectDashboardsForUserLogin(login);
+    return mapper(session).selectProjectDashboardsForUserLogin(login);
   }
 
-  private ActiveDashboardMapper getMapper(SqlSession session) {
+  private ActiveDashboardMapper mapper(SqlSession session) {
     return session.getMapper(ActiveDashboardMapper.class);
   }
 }

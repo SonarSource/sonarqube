@@ -69,7 +69,7 @@ public class PersistentSettingsTest {
 
     // kept in memory cache and persisted in db
     assertThat(settings.getString("foo")).isEqualTo("bar");
-    verify(dao).setProperty(argThat(new ArgumentMatcher<PropertyDto>() {
+    verify(dao).insertProperty(argThat(new ArgumentMatcher<PropertyDto>() {
       @Override
       public boolean matches(Object o) {
         PropertyDto dto = (PropertyDto) o;
@@ -121,7 +121,7 @@ public class PersistentSettingsTest {
     persistentSettings.saveProperties(props);
 
     assertThat(settings.getString("foo")).isEqualTo("bar");
-    verify(dao).saveGlobalProperties(props);
+    verify(dao).insertGlobalProperties(props);
   }
 
 }

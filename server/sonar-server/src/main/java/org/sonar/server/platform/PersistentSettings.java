@@ -57,7 +57,7 @@ public class PersistentSettings implements Startable {
 
   public PersistentSettings saveProperty(String key, @Nullable String value) {
     settings.setProperty(key, value);
-    propertiesDao.setProperty(new PropertyDto().setKey(key).setValue(value));
+    propertiesDao.insertProperty(new PropertyDto().setKey(key).setValue(value));
     return this;
   }
 
@@ -75,7 +75,7 @@ public class PersistentSettings implements Startable {
 
   public PersistentSettings saveProperties(Map<String, String> properties) {
     settings.addProperties(properties);
-    propertiesDao.saveGlobalProperties(properties);
+    propertiesDao.insertGlobalProperties(properties);
     return this;
   }
 

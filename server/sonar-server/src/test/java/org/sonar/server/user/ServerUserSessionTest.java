@@ -170,7 +170,7 @@ public class ServerUserSessionTest {
 
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project, "file-uuid");
-    when(resourceDao.getResource("file-uuid")).thenReturn(new ResourceDto().setProjectUuid(project.uuid()));
+    when(resourceDao.selectResource("file-uuid")).thenReturn(new ResourceDto().setProjectUuid(project.uuid()));
     when(authorizationDao.selectAuthorizedRootProjectsUuids(1, UserRole.USER)).thenReturn(newArrayList(project.uuid()));
 
     session.checkComponentUuidPermission(UserRole.USER, file.uuid());
@@ -182,7 +182,7 @@ public class ServerUserSessionTest {
 
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project, "file-uuid");
-    when(resourceDao.getResource("file-uuid")).thenReturn(new ResourceDto().setProjectUuid(project.uuid()));
+    when(resourceDao.selectResource("file-uuid")).thenReturn(new ResourceDto().setProjectUuid(project.uuid()));
     when(authorizationDao.selectAuthorizedRootProjectsUuids(1, UserRole.USER)).thenReturn(newArrayList(project.uuid()));
 
     session.checkComponentUuidPermission(UserRole.USER, "another-uuid");

@@ -197,7 +197,7 @@ public class PermissionFacade {
   }
 
   public void grantDefaultRoles(DbSession session, Long componentId, String qualifier) {
-    ResourceDto resource = resourceDao.getResource(componentId, session);
+    ResourceDto resource = resourceDao.selectResource(componentId, session);
     String applicablePermissionTemplateKey = getApplicablePermissionTemplateKey(session, resource.getKey(), qualifier);
     applyPermissionTemplate(session, applicablePermissionTemplateKey, componentId);
   }

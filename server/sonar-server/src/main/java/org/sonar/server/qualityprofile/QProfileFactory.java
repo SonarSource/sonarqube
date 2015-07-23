@@ -46,7 +46,7 @@ public class QProfileFactory {
   // ------------- CREATION
 
   QualityProfileDto getOrCreate(DbSession dbSession, QProfileName name) {
-    QualityProfileDto profile = db.qualityProfileDao().getByNameAndLanguage(name.getName(), name.getLanguage(), dbSession);
+    QualityProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(name.getName(), name.getLanguage(), dbSession);
     if (profile == null) {
       profile = doCreate(dbSession, name);
     }
@@ -54,7 +54,7 @@ public class QProfileFactory {
   }
 
   public QualityProfileDto create(DbSession dbSession, QProfileName name) {
-    QualityProfileDto dto = db.qualityProfileDao().getByNameAndLanguage(name.getName(), name.getLanguage(), dbSession);
+    QualityProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(name.getName(), name.getLanguage(), dbSession);
     if (dto != null) {
       throw new BadRequestException("Quality profile already exists: " + name);
     }
@@ -72,7 +72,7 @@ public class QProfileFactory {
         .setName(name.getName())
         .setLanguage(name.getLanguage())
         .setRulesUpdatedAtAsDate(now);
-      if (db.qualityProfileDao().getByKey(dbSession, dto.getKey()) == null) {
+      if (db.qualityProfileDao().selectByKey(dbSession, dto.getKey()) == null) {
         db.qualityProfileDao().insert(dbSession, dto);
         return dto;
       }
@@ -98,8 +98,8 @@ public class QProfileFactory {
    * except if the parameter <code>force</code> is true.
    */
   public void delete(DbSession session, String key, boolean force) {
-    QualityProfileDto profile = db.qualityProfileDao().getNonNullByKey(session, key);
-    List<QualityProfileDto> descendants = db.qualityProfileDao().findDescendants(session, key);
+    QualityProfileDto profile = db.qualityProfileDao().selectOrFailByKey(session, key);
+    List<QualityProfileDto> descendants = db.qualityProfileDao().selectDescendants(session, key);
     if (!force) {
       checkNotDefault(profile);
       for (QualityProfileDto descendant : descendants) {
@@ -133,7 +133,7 @@ public class QProfileFactory {
 
   @CheckForNull
   public QualityProfileDto getDefault(DbSession session, String language) {
-    return db.qualityProfileDao().getDefaultProfile(language, session);
+    return db.qualityProfileDao().selectDefaultProfile(session, language);
   }
 
   public void setDefault(String profileKey) {
@@ -147,13 +147,13 @@ public class QProfileFactory {
 
   void setDefault(DbSession dbSession, String profileKey) {
     Verifications.check(StringUtils.isNotBlank(profileKey), "Profile key must be set");
-    QualityProfileDto profile = db.qualityProfileDao().getNonNullByKey(dbSession, profileKey);
+    QualityProfileDto profile = db.qualityProfileDao().selectOrFailByKey(dbSession, profileKey);
     setDefault(dbSession, profile);
     dbSession.commit();
   }
 
   private void setDefault(DbSession session, QualityProfileDto profile) {
-    QualityProfileDto previousDefault = db.qualityProfileDao().getDefaultProfile(profile.getLanguage(), session);
+    QualityProfileDto previousDefault = db.qualityProfileDao().selectDefaultProfile(session, profile.getLanguage());
     if (previousDefault != null) {
       db.qualityProfileDao().update(session, previousDefault.setDefault(false));
     }
@@ -171,7 +171,7 @@ public class QProfileFactory {
 
   @CheckForNull
   public QualityProfileDto getByProjectAndLanguage(DbSession session, String projectKey, String language) {
-    return db.qualityProfileDao().getByProjectAndLanguage(projectKey, language, session);
+    return db.qualityProfileDao().selectByProjectAndLanguage(session, projectKey, language);
   }
 
   QualityProfileDto getByNameAndLanguage(String name, String language) {
@@ -185,7 +185,7 @@ public class QProfileFactory {
 
   @CheckForNull
   public QualityProfileDto getByNameAndLanguage(DbSession session, String name, String language) {
-    return db.qualityProfileDao().getByNameAndLanguage(name, language, session);
+    return db.qualityProfileDao().selectByNameAndLanguage(name, language, session);
   }
 
   private void checkNotDefault(QualityProfileDto p) {
@@ -201,9 +201,9 @@ public class QProfileFactory {
     Verifications.check(newName.length() < 100, String.format("Name is too long (>%d characters)", 100));
     DbSession dbSession = db.openSession(false);
     try {
-      QualityProfileDto profile = db.qualityProfileDao().getNonNullByKey(dbSession, key);
+      QualityProfileDto profile = db.qualityProfileDao().selectOrFailByKey(dbSession, key);
       if (!StringUtils.equals(newName, profile.getName())) {
-        if (db.qualityProfileDao().getByNameAndLanguage(newName, profile.getLanguage(), dbSession) != null) {
+        if (db.qualityProfileDao().selectByNameAndLanguage(newName, profile.getLanguage(), dbSession) != null) {
           throw new BadRequestException("Quality profile already exists: " + newName);
         }
         profile.setName(newName);

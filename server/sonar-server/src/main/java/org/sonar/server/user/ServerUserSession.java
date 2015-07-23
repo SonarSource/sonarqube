@@ -123,7 +123,7 @@ public class ServerUserSession extends AbstractUserSession<ServerUserSession>
   public boolean hasComponentUuidPermission(String permission, String componentUuid) {
     String projectUuid = projectUuidByComponentUuid.get(componentUuid);
     if (projectUuid == null) {
-      ResourceDto project = resourceDao.getResource(componentUuid);
+      ResourceDto project = resourceDao.selectResource(componentUuid);
       if (project == null) {
         return false;
       }

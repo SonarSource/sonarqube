@@ -33,12 +33,12 @@ import org.sonar.db.DbSession;
 public class SnapshotDao implements Dao {
 
   @CheckForNull
-  public SnapshotDto selectNullableById(DbSession session, long id) {
+  public SnapshotDto selectById(DbSession session, long id) {
     return mapper(session).selectByKey(id);
   }
 
-  public SnapshotDto selectById(DbSession session, long id) {
-    SnapshotDto value = selectNullableById(session, id);
+  public SnapshotDto selectOrFailById(DbSession session, long id) {
+    SnapshotDto value = selectById(session, id);
     if (value == null) {
       throw new IllegalArgumentException(String.format("Snapshot id does not exist: %d", id));
     }

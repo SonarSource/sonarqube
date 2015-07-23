@@ -53,7 +53,7 @@ public class ResourceDaoTest {
   public void get_resource_by_uuid() {
     dbTester.prepareDbUnit(getClass(), "fixture.xml");
 
-    ResourceDto resource = underTest.getResource("ABCD");
+    ResourceDto resource = underTest.selectResource("ABCD");
 
     assertThat(resource.getUuid()).isEqualTo("ABCD");
     assertThat(resource.getProjectUuid()).isEqualTo("ABCD");
@@ -74,7 +74,7 @@ public class ResourceDaoTest {
 
     ResourceQuery query = ResourceQuery.create().setKey("org.struts:struts-core");
 
-    assertThat(underTest.getResource(query).getKey()).isEqualTo("org.struts:struts-core");
+    assertThat(underTest.selectResource(query).getKey()).isEqualTo("org.struts:struts-core");
   }
 
   @Test
@@ -114,11 +114,11 @@ public class ResourceDaoTest {
   public void should_find_component_by_key() {
     dbTester.prepareDbUnit(getClass(), "fixture.xml");
 
-    assertThat(underTest.findByKey("org.struts:struts")).isNotNull();
-    Component component = underTest.findByKey("org.struts:struts-core:src/org/struts/RequestContext.java");
+    assertThat(underTest.selectByKey("org.struts:struts")).isNotNull();
+    Component component = underTest.selectByKey("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(component).isNotNull();
     assertThat(component.path()).isEqualTo("src/org/struts/RequestContext.java");
-    assertThat(underTest.findByKey("unknown")).isNull();
+    assertThat(underTest.selectByKey("unknown")).isNull();
   }
 
   @Test

@@ -106,7 +106,7 @@ public class AppActionTest {
     when(dbClient.propertiesDao()).thenReturn(propertiesDao);
     when(dbClient.measureDao()).thenReturn(measureDao);
 
-    when(measureDao.findByComponentKeyAndMetricKeys(eq(session), anyString(), anyListOf(String.class))).thenReturn(measures);
+    when(measureDao.selectByComponentKeyAndMetricKeys(eq(session), anyString(), anyListOf(String.class))).thenReturn(measures);
 
     tester = new WsTester(new ComponentsWs(new AppAction(dbClient, durations, i18n, userSessionRule, new ComponentFinder(dbClient)), mock(SearchAction.class)));
   }
@@ -126,8 +126,8 @@ public class AppActionTest {
       .setPath("src/main/java/org/sonar/api/Plugin.java")
       .setParentProjectId(5L);
     when(componentDao.selectByUuid(session, COMPONENT_UUID)).thenReturn(Optional.of(file));
-    when(componentDao.selectNonNullById(session, 5L)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
-    when(componentDao.selectNonNullByUuid(session, project.uuid())).thenReturn(project);
+    when(componentDao.selectOrFailById(session, 5L)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
+    when(componentDao.selectOrFailByUuid(session, project.uuid())).thenReturn(project);
     when(propertiesDao.selectByQuery(any(PropertyQuery.class), eq(session))).thenReturn(newArrayList(new PropertyDto()));
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("uuid", COMPONENT_UUID);
@@ -152,7 +152,7 @@ public class AppActionTest {
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("uuid", COMPONENT_UUID);
     request.execute().assertJson(getClass(), "app_with_measures.json");
 
-    verify(measureDao).findByComponentKeyAndMetricKeys(eq(session), eq(COMPONENT_KEY), measureKeysCaptor.capture());
+    verify(measureDao).selectByComponentKeyAndMetricKeys(eq(session), eq(COMPONENT_KEY), measureKeysCaptor.capture());
     assertThat(measureKeysCaptor.getValue()).contains(CoreMetrics.LINES_KEY, CoreMetrics.COVERAGE_KEY, CoreMetrics.DUPLICATED_LINES_DENSITY_KEY,
       CoreMetrics.TECHNICAL_DEBT_KEY);
   }
@@ -230,8 +230,8 @@ public class AppActionTest {
       .setPath("src/main/java/org/sonar/api/Plugin.java")
       .setParentProjectId(5L);
     when(componentDao.selectByUuid(session, COMPONENT_UUID)).thenReturn(Optional.of(file));
-    when(componentDao.selectNonNullById(session, 5L)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
-    when(componentDao.selectNonNullByUuid(session, project.uuid())).thenReturn(project);
+    when(componentDao.selectOrFailById(session, 5L)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
+    when(componentDao.selectOrFailByUuid(session, project.uuid())).thenReturn(project);
     return file;
   }
 

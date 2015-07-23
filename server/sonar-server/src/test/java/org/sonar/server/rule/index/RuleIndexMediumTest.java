@@ -309,14 +309,14 @@ public class RuleIndexMediumTest {
     CharacteristicDto char1 = DebtTesting.newCharacteristicDto("c1")
       .setEnabled(true)
       .setName("char1");
-    db.debtCharacteristicDao().insert(char1, dbSession);
+    db.debtCharacteristicDao().insert(dbSession, char1);
     dbSession.commit();
 
     CharacteristicDto char11 = DebtTesting.newCharacteristicDto("c11")
       .setEnabled(true)
       .setName("char11")
       .setParentId(char1.getId());
-    db.debtCharacteristicDao().insert(char11, dbSession);
+    db.debtCharacteristicDao().insert(dbSession, char11);
 
     // Rule with default characteristic
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("findbugs", "S001"))
@@ -354,14 +354,14 @@ public class RuleIndexMediumTest {
     CharacteristicDto char1 = DebtTesting.newCharacteristicDto("c1")
       .setEnabled(true)
       .setName("char1");
-    db.debtCharacteristicDao().insert(char1, dbSession);
+    db.debtCharacteristicDao().insert(dbSession, char1);
     dbSession.commit();
 
     CharacteristicDto char11 = DebtTesting.newCharacteristicDto("c11")
       .setEnabled(true)
       .setName("char11")
       .setParentId(char1.getId());
-    db.debtCharacteristicDao().insert(char11, dbSession);
+    db.debtCharacteristicDao().insert(dbSession, char11);
 
     // Rule with default characteristic
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("findbugs", "S001"))
@@ -489,11 +489,11 @@ public class RuleIndexMediumTest {
   @Test
   public void search_by_characteristics() {
     CharacteristicDto char1 = DebtTesting.newCharacteristicDto("RELIABILITY");
-    db.debtCharacteristicDao().insert(char1, dbSession);
+    db.debtCharacteristicDao().insert(dbSession, char1);
 
     CharacteristicDto char11 = DebtTesting.newCharacteristicDto("SOFT_RELIABILITY")
       .setParentId(char1.getId());
-    db.debtCharacteristicDao().insert(char11, dbSession);
+    db.debtCharacteristicDao().insert(dbSession, char11);
     dbSession.commit();
 
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001"))
@@ -543,19 +543,19 @@ public class RuleIndexMediumTest {
   @Test
   public void search_by_characteristics_with_default_and_overridden_char() {
     CharacteristicDto char1 = DebtTesting.newCharacteristicDto("RELIABILITY");
-    db.debtCharacteristicDao().insert(char1, dbSession);
+    db.debtCharacteristicDao().insert(dbSession, char1);
 
     CharacteristicDto char11 = DebtTesting.newCharacteristicDto("SOFT_RELIABILITY")
       .setParentId(char1.getId());
-    db.debtCharacteristicDao().insert(char11, dbSession);
+    db.debtCharacteristicDao().insert(dbSession, char11);
     dbSession.commit();
 
     CharacteristicDto char2 = DebtTesting.newCharacteristicDto("TESTABILITY");
-    db.debtCharacteristicDao().insert(char2, dbSession);
+    db.debtCharacteristicDao().insert(dbSession, char2);
 
     CharacteristicDto char21 = DebtTesting.newCharacteristicDto("UNIT_TESTABILITY")
       .setParentId(char2.getId());
-    db.debtCharacteristicDao().insert(char21, dbSession);
+    db.debtCharacteristicDao().insert(dbSession, char21);
     dbSession.commit();
 
     // Rule with only default sub characteristic -> should be find by char11 and char1
@@ -888,7 +888,7 @@ public class RuleIndexMediumTest {
       .setName("testing")
       .setType("STRING")
       .setDefaultValue(value);
-    dao.addRuleParam(dbSession, rule, param);
+    dao.insertRuleParam(dbSession, rule, param);
 
     dbSession.commit();
 
@@ -997,12 +997,12 @@ public class RuleIndexMediumTest {
     RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S001")).setIsTemplate(true);
     RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
     dao.insert(dbSession, templateRule);
-    dao.addRuleParam(dbSession, templateRule, ruleParamDto);
+    dao.insertRuleParam(dbSession, templateRule, ruleParamDto);
 
     RuleDto customRule = RuleTesting.newDto(RuleKey.of("java", "S001_MY_CUSTOM")).setTemplateId(templateRule.getId());
     RuleParamDto customRuleParam = RuleParamDto.createFor(customRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue("a.*");
     dao.insert(dbSession, customRule);
-    dao.addRuleParam(dbSession, customRule, customRuleParam);
+    dao.insertRuleParam(dbSession, customRule, customRuleParam);
     dbSession.commit();
 
     // find all

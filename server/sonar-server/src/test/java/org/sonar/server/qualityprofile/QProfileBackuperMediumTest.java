@@ -68,7 +68,7 @@ public class QProfileBackuperMediumTest {
     RuleDto xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR").setLanguage("xoo");
     RuleDto xooRule2 = RuleTesting.newXooX2().setSeverity("MAJOR").setLanguage("xoo");
     db.ruleDao().insert(dbSession, xooRule1, xooRule2);
-    db.ruleDao().addRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
+    db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
     dbSession.commit();
     dbSession.clearCache();
@@ -128,7 +128,7 @@ public class QProfileBackuperMediumTest {
       Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), StandardCharsets.UTF_8)),
       null);
 
-    QualityProfileDto profile = db.qualityProfileDao().getByNameAndLanguage("P1", "xoo", dbSession);
+    QualityProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage("P1", "xoo", dbSession);
     assertThat(profile).isNotNull();
 
     List<ActiveRule> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(profile.getKey()));
@@ -303,7 +303,7 @@ public class QProfileBackuperMediumTest {
     List<ActiveRule> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(QProfileTesting.XOO_P1_KEY));
     assertThat(activeRules).hasSize(0);
 
-    QualityProfileDto target = db.qualityProfileDao().getByNameAndLanguage("P3", "xoo", dbSession);
+    QualityProfileDto target = db.qualityProfileDao().selectByNameAndLanguage("P3", "xoo", dbSession);
     assertThat(target).isNotNull();
     activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(target.getKey()));
     assertThat(activeRules).hasSize(1);
@@ -316,8 +316,8 @@ public class QProfileBackuperMediumTest {
       null);
 
     dbSession.clearCache();
-    assertThat(db.activeRuleDao().findAll(dbSession)).hasSize(0);
-    List<QualityProfileDto> profiles = db.qualityProfileDao().findAll(dbSession);
+    assertThat(db.activeRuleDao().selectAll(dbSession)).hasSize(0);
+    List<QualityProfileDto> profiles = db.qualityProfileDao().selectAll(dbSession);
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).getName()).isEqualTo("P1");
   }

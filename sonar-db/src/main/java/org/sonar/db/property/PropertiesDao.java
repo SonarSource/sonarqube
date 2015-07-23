@@ -54,8 +54,8 @@ public class PropertiesDao implements Dao {
    *
    * @return the list of logins (maybe be empty - obviously)
    */
-  public List<String> findUsersForNotification(String notificationDispatcherKey, String notificationChannelKey,
-    @Nullable String projectUuid) {
+  public List<String> selectUsersForNotification(String notificationDispatcherKey, String notificationChannelKey,
+                                                 @Nullable String projectUuid) {
     SqlSession session = mybatis.openSession(false);
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {
@@ -65,7 +65,7 @@ public class PropertiesDao implements Dao {
     }
   }
 
-  public List<String> findNotificationSubscribers(String notificationDispatcherKey, String notificationChannelKey, @Nullable String componentKey) {
+  public List<String> selectNotificationSubscribers(String notificationDispatcherKey, String notificationChannelKey, @Nullable String componentKey) {
     SqlSession session = mybatis.openSession(false);
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {
@@ -156,7 +156,7 @@ public class PropertiesDao implements Dao {
     return session.getMapper(PropertiesMapper.class).selectByQuery(query);
   }
 
-  public void setProperty(PropertyDto property, SqlSession session) {
+  public void insertProperty(SqlSession session, PropertyDto property) {
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     PropertyDto persistedProperty = mapper.selectByKey(property);
     if (persistedProperty != null && !StringUtils.equals(persistedProperty.getValue(), property.getValue())) {
@@ -167,10 +167,10 @@ public class PropertiesDao implements Dao {
     }
   }
 
-  public void setProperty(PropertyDto property) {
+  public void insertProperty(PropertyDto property) {
     SqlSession session = mybatis.openSession(false);
     try {
-      setProperty(property, session);
+      insertProperty(session, property);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -246,7 +246,7 @@ public class PropertiesDao implements Dao {
     }
   }
 
-  public void saveGlobalProperties(Map<String, String> properties) {
+  public void insertGlobalProperties(Map<String, String> properties) {
     DbSession session = mybatis.openSession(true);
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {

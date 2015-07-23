@@ -78,7 +78,7 @@ public class ActionPlanDaoTest {
   public void should_find_by_key() {
     dbTester.prepareDbUnit(getClass(), "shared.xml", "should_find_by_key.xml");
 
-    ActionPlanDto result = dao.findByKey("ABC");
+    ActionPlanDto result = dao.selectByKey("ABC");
     assertThat(result).isNotNull();
     assertThat(result.getKey()).isEqualTo("ABC");
     assertThat(result.getProjectKey()).isEqualTo("org.sonar.Sample");
@@ -88,7 +88,7 @@ public class ActionPlanDaoTest {
   public void should_find_by_keys() {
     dbTester.prepareDbUnit(getClass(), "shared.xml", "should_find_by_keys.xml");
 
-    Collection<ActionPlanDto> result = dao.findByKeys(newArrayList("ABC", "ABD", "ABE"));
+    Collection<ActionPlanDto> result = dao.selectByKeys(newArrayList("ABC", "ABD", "ABE"));
     assertThat(result).hasSize(3);
   }
 
@@ -100,7 +100,7 @@ public class ActionPlanDaoTest {
     for (int i = 0; i < 4500; i++) {
       hugeNbOKeys.add("ABCD" + i);
     }
-    List<ActionPlanDto> result = dao.findByKeys(hugeNbOKeys);
+    List<ActionPlanDto> result = dao.selectByKeys(hugeNbOKeys);
 
     // The goal of this test is only to check that the query do no fail, not to check the number of results
     assertThat(result).isEmpty();
@@ -110,7 +110,7 @@ public class ActionPlanDaoTest {
   public void should_find_open_by_project_id() {
     dbTester.prepareDbUnit(getClass(), "shared.xml", "should_find_open_by_project_id.xml");
 
-    Collection<ActionPlanDto> result = dao.findOpenByProjectId(1l);
+    Collection<ActionPlanDto> result = dao.selectOpenByProjectId(1l);
     assertThat(result).hasSize(2);
   }
 
@@ -118,7 +118,7 @@ public class ActionPlanDaoTest {
   public void should_find_by_name_and_project_id() {
     dbTester.prepareDbUnit(getClass(), "shared.xml", "should_find_by_name_and_project_id.xml");
 
-    Collection<ActionPlanDto> result = dao.findByNameAndProjectId("SHORT_TERM", 1l);
+    Collection<ActionPlanDto> result = dao.selectByNameAndProjectId("SHORT_TERM", 1l);
     assertThat(result).hasSize(2);
   }
 }

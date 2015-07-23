@@ -63,7 +63,7 @@ public class QProfileLoader {
   public List<QualityProfileDto> findAll() {
     DbSession dbSession = db.openSession(false);
     try {
-      return db.qualityProfileDao().findAll(dbSession);
+      return db.qualityProfileDao().selectAll(dbSession);
     } finally {
       dbSession.close();
     }
@@ -73,7 +73,7 @@ public class QProfileLoader {
   public QualityProfileDto getByKey(String key) {
     DbSession dbSession = db.openSession(false);
     try {
-      return db.qualityProfileDao().getByKey(dbSession, key);
+      return db.qualityProfileDao().selectByKey(dbSession, key);
     } finally {
       dbSession.close();
     }
@@ -83,7 +83,7 @@ public class QProfileLoader {
   public QualityProfileDto getByLangAndName(String lang, String name) {
     DbSession dbSession = db.openSession(false);
     try {
-      return db.qualityProfileDao().getByNameAndLanguage(name, lang, dbSession);
+      return db.qualityProfileDao().selectByNameAndLanguage(name, lang, dbSession);
     } finally {
       dbSession.close();
     }

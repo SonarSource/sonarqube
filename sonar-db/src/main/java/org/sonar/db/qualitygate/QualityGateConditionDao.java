@@ -47,7 +47,7 @@ public class QualityGateConditionDao implements Dao {
   }
 
   public void insert(QualityGateConditionDto newQualityGate, SqlSession session) {
-    getMapper(session).insert(newQualityGate.setCreatedAt(new Date()));
+    mapper(session).insert(newQualityGate.setCreatedAt(new Date()));
   }
 
   public Collection<QualityGateConditionDto> selectForQualityGate(long qGateId) {
@@ -60,7 +60,7 @@ public class QualityGateConditionDao implements Dao {
   }
 
   public Collection<QualityGateConditionDto> selectForQualityGate(long qGateId, SqlSession session) {
-    return getMapper(session).selectForQualityGate(qGateId);
+    return mapper(session).selectForQualityGate(qGateId);
   }
 
   public QualityGateConditionDto selectById(long id) {
@@ -73,7 +73,7 @@ public class QualityGateConditionDao implements Dao {
   }
 
   public QualityGateConditionDto selectById(long id, SqlSession session) {
-    return getMapper(session).selectById(id);
+    return mapper(session).selectById(id);
   }
 
   public void delete(QualityGateConditionDto qGate) {
@@ -87,7 +87,7 @@ public class QualityGateConditionDao implements Dao {
   }
 
   public void delete(QualityGateConditionDto qGate, SqlSession session) {
-    getMapper(session).delete(qGate.getId());
+    mapper(session).delete(qGate.getId());
   }
 
   public void update(QualityGateConditionDto qGate) {
@@ -101,7 +101,7 @@ public class QualityGateConditionDao implements Dao {
   }
 
   public void update(QualityGateConditionDto qGate, SqlSession session) {
-    getMapper(session).update(qGate.setUpdatedAt(new Date()));
+    mapper(session).update(qGate.setUpdatedAt(new Date()));
   }
 
   public void deleteConditionsWithInvalidMetrics() {
@@ -115,10 +115,10 @@ public class QualityGateConditionDao implements Dao {
   }
 
   public void deleteConditionsWithInvalidMetrics(SqlSession session) {
-    getMapper(session).deleteConditionsWithInvalidMetrics();
+    mapper(session).deleteConditionsWithInvalidMetrics();
   }
 
-  private QualityGateConditionMapper getMapper(SqlSession session) {
+  private QualityGateConditionMapper mapper(SqlSession session) {
     return session.getMapper(QualityGateConditionMapper.class);
   }
 }

@@ -59,7 +59,7 @@ public class CustomMeasureDaoTest {
 
     underTest.insert(session, measure);
 
-    CustomMeasureDto result = underTest.selectById(session, measure.getId());
+    CustomMeasureDto result = underTest.selectOrFail(session, measure.getId());
     assertThat(result.getId()).isEqualTo(measure.getId());
     assertThat(result.getMetricId()).isEqualTo(measure.getMetricId());
     assertThat(result.getComponentUuid()).isEqualTo(measure.getComponentUuid());
@@ -75,11 +75,11 @@ public class CustomMeasureDaoTest {
   public void delete_by_metric_id() {
     CustomMeasureDto measure = newCustomMeasureDto();
     underTest.insert(session, measure);
-    assertThat(underTest.selectNullableById(session, measure.getId())).isNotNull();
+    assertThat(underTest.selectById(session, measure.getId())).isNotNull();
 
     underTest.deleteByMetricIds(session, Arrays.asList(measure.getMetricId()));
 
-    assertThat(underTest.selectNullableById(session, measure.getId())).isNull();
+    assertThat(underTest.selectById(session, measure.getId())).isNull();
   }
 
   @Test
@@ -90,7 +90,7 @@ public class CustomMeasureDaoTest {
 
     underTest.update(session, measure);
 
-    assertThat(underTest.selectNullableById(session, measure.getId()).getDescription()).isEqualTo("new-description");
+    assertThat(underTest.selectById(session, measure.getId()).getDescription()).isEqualTo("new-description");
   }
 
   @Test
@@ -99,7 +99,7 @@ public class CustomMeasureDaoTest {
     underTest.insert(session, measure);
 
     underTest.delete(session, measure.getId());
-    assertThat(underTest.selectNullableById(session, measure.getId())).isNull();
+    assertThat(underTest.selectById(session, measure.getId())).isNull();
   }
 
   @Test
@@ -153,7 +153,7 @@ public class CustomMeasureDaoTest {
   public void select_by_id_fail_if_no_measure_found() {
     expectedException.expect(IllegalArgumentException.class);
 
-    underTest.selectById(session, 42L);
+    underTest.selectOrFail(session, 42L);
   }
 
 }

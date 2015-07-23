@@ -407,7 +407,7 @@ public class InternalRubyIssueService {
     if (Strings.isNullOrEmpty(projectParam)) {
       result.addError(Result.Message.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, PROJECT_PARAM));
     } else {
-      ResourceDto project = resourceDao.getResource(ResourceQuery.create().setKey(projectParam));
+      ResourceDto project = resourceDao.selectResource(ResourceQuery.create().setKey(projectParam));
       if (project == null) {
         result.addError(Result.Message.ofL10n("action_plans.errors.project_does_not_exist", projectParam));
       }

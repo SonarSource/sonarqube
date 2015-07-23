@@ -97,7 +97,7 @@ public class InternalPermissionTemplateService {
     PermissionTemplateUpdater.checkSystemAdminUser(userSession);
     validateTemplateName(null, name);
     validateKeyPattern(keyPattern);
-    PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.createPermissionTemplate(name, description, keyPattern);
+    PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.insertPermissionTemplate(name, description, keyPattern);
     return PermissionTemplate.create(permissionTemplateDto);
   }
 
@@ -118,7 +118,7 @@ public class InternalPermissionTemplateService {
       @Override
       protected void doExecute(Long templateId, String permission) {
         Long userId = getUserId();
-        permissionTemplateDao.addUserPermission(templateId, userId, permission);
+        permissionTemplateDao.insertUserPermission(templateId, userId, permission);
       }
     };
     updater.executeUpdate();
@@ -129,7 +129,7 @@ public class InternalPermissionTemplateService {
       @Override
       protected void doExecute(Long templateId, String permission) {
         Long userId = getUserId();
-        permissionTemplateDao.removeUserPermission(templateId, userId, permission);
+        permissionTemplateDao.deleteUserPermission(templateId, userId, permission);
       }
     };
     updater.executeUpdate();
@@ -140,7 +140,7 @@ public class InternalPermissionTemplateService {
       @Override
       protected void doExecute(Long templateId, String permission) {
         Long groupId = getGroupId();
-        permissionTemplateDao.addGroupPermission(templateId, groupId, permission);
+        permissionTemplateDao.insertGroupPermission(templateId, groupId, permission);
       }
     };
     updater.executeUpdate();
@@ -151,7 +151,7 @@ public class InternalPermissionTemplateService {
       @Override
       protected void doExecute(Long templateId, String permission) {
         Long groupId = getGroupId();
-        permissionTemplateDao.removeGroupPermission(templateId, groupId, permission);
+        permissionTemplateDao.deleteGroupPermission(templateId, groupId, permission);
       }
     };
     updater.executeUpdate();
@@ -165,7 +165,7 @@ public class InternalPermissionTemplateService {
       if (group == null) {
         throw new NotFoundException("Group does not exists : " + groupName);
       }
-      permissionTemplateDao.removeByGroup(group.getId(), session);
+      permissionTemplateDao.deleteByGroup(session, group.getId());
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

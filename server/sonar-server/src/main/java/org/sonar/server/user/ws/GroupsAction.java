@@ -94,7 +94,7 @@ public class GroupsAction implements UsersWsAction {
 
     DbSession session = dbClient.openSession(false);
     try {
-      UserDto user = dbClient.userDao().selectNullableByLogin(session, login);
+      UserDto user = dbClient.userDao().selectByLogin(session, login);
       if (user == null) {
         throw new NotFoundException(String.format("User with login '%s' has not been found", login));
       }

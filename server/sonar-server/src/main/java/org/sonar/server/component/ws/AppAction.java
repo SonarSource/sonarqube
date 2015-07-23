@@ -134,7 +134,7 @@ public class AppAction implements RequestHandler {
     json.prop("q", component.qualifier());
 
     ComponentDto parentProject = nullableComponentById(component.parentProjectId(), session);
-    ComponentDto project = dbClient.componentDao().selectNonNullByUuid(session, component.projectUuid());
+    ComponentDto project = dbClient.componentDao().selectOrFailByUuid(session, component.projectUuid());
 
     // Do not display parent project if parent project and project are the same
     boolean displayParentProject = parentProject != null && !parentProject.getId().equals(project.getId());
@@ -181,7 +181,7 @@ public class AppAction implements RequestHandler {
   private Map<String, MeasureDto> measuresByMetricKey(ComponentDto component, DbSession session) {
     Map<String, MeasureDto> measuresByMetricKey = newHashMap();
     String fileKey = component.getKey();
-    for (MeasureDto measureDto : dbClient.measureDao().findByComponentKeyAndMetricKeys(session, fileKey, METRIC_KEYS)) {
+    for (MeasureDto measureDto : dbClient.measureDao().selectByComponentKeyAndMetricKeys(session, fileKey, METRIC_KEYS)) {
       measuresByMetricKey.put(measureDto.getMetricKey(), measureDto);
     }
     return measuresByMetricKey;
@@ -190,7 +190,7 @@ public class AppAction implements RequestHandler {
   @CheckForNull
   private ComponentDto nullableComponentById(@Nullable Long componentId, DbSession session) {
     if (componentId != null) {
-      return dbClient.componentDao().selectNonNullById(session, componentId);
+      return dbClient.componentDao().selectOrFailById(session, componentId);
     }
     return null;
   }

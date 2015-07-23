@@ -91,7 +91,7 @@ public class ShowActionTest {
     when(componentDao.selectByKey(session, componentKey)).thenReturn(Optional.of(componentDto));
 
     String data = "{duplications}";
-    when(measureDao.findByComponentKeyAndMetricKey(session, componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(
+    when(measureDao.selectByComponentKeyAndMetricKey(session, componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(
       new MeasureDto().setComponentKey(componentKey).setMetricKey(CoreMetrics.DUPLICATIONS_DATA_KEY).setData("{duplications}")
     );
 
@@ -114,7 +114,7 @@ public class ShowActionTest {
     when(componentDao.selectByUuid(session, uuid)).thenReturn(Optional.of(componentDto));
 
     String data = "{duplications}";
-    when(measureDao.findByComponentKeyAndMetricKey(session, componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(
+    when(measureDao.selectByComponentKeyAndMetricKey(session, componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(
       new MeasureDto().setComponentKey(componentKey).setMetricKey(CoreMetrics.DUPLICATIONS_DATA_KEY).setData("{duplications}")
     );
 
@@ -135,7 +135,7 @@ public class ShowActionTest {
     ComponentDto componentDto = new ComponentDto().setId(10L).setKey(componentKey);
     when(componentDao.selectByKey(session, componentKey)).thenReturn(Optional.of(componentDto));
 
-    when(measureDao.findByComponentKeyAndMetricKey(session, componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(null);
+    when(measureDao.selectByComponentKeyAndMetricKey(session, componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY)).thenReturn(null);
 
     WsTester.TestRequest request = tester.newGetRequest("api/duplications", "show").setParam("key", componentKey);
     request.execute();

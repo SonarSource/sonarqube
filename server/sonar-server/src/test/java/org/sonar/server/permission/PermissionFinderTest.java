@@ -64,7 +64,7 @@ public class PermissionFinderTest {
 
   @Before
   public void setUp() {
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setId(100L).setName("org.sample.Sample"));
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setId(100L).setName("org.sample.Sample"));
     finder = new PermissionFinder(permissionDao, resourceDao, permissionTemplateDao);
   }
 
@@ -81,7 +81,7 @@ public class PermissionFinderTest {
 
   @Test
   public void fail_to_find_users_when_component_not_found() {
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(null);
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(null);
 
     try {
       finder.findUsersWithPermission(PermissionQuery.builder().permission("user").component("Unknown").build());

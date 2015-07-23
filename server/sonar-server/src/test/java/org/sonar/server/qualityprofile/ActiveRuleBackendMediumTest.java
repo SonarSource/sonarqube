@@ -138,7 +138,7 @@ public class ActiveRuleBackendMediumTest {
 
     // verify db
     assertThat(db.activeRuleDao().getByKey(dbSession, activeRule.getKey())).isNotNull();
-    List<ActiveRuleDto> persistedDtos = db.activeRuleDao().findByRule(dbSession, ruleDto);
+    List<ActiveRuleDto> persistedDtos = db.activeRuleDao().selectByRule(dbSession, ruleDto);
     assertThat(persistedDtos).hasSize(1);
 
     // verify es
@@ -162,12 +162,12 @@ public class ActiveRuleBackendMediumTest {
     RuleParamDto minParam = new RuleParamDto()
       .setName("min")
       .setType("STRING");
-    db.ruleDao().addRuleParam(dbSession, ruleDto, minParam);
+    db.ruleDao().insertRuleParam(dbSession, ruleDto, minParam);
 
     RuleParamDto maxParam = new RuleParamDto()
       .setName("max")
       .setType("STRING");
-    db.ruleDao().addRuleParam(dbSession, ruleDto, maxParam);
+    db.ruleDao().insertRuleParam(dbSession, ruleDto, maxParam);
 
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, ruleDto)
       .setInheritance(ActiveRule.Inheritance.INHERITED.name())
@@ -176,17 +176,17 @@ public class ActiveRuleBackendMediumTest {
 
     ActiveRuleParamDto activeRuleMinParam = ActiveRuleParamDto.createFor(minParam)
       .setValue("minimum");
-    db.activeRuleDao().addParam(dbSession, activeRule, activeRuleMinParam);
+    db.activeRuleDao().insertParam(dbSession, activeRule, activeRuleMinParam);
 
     ActiveRuleParamDto activeRuleMaxParam = ActiveRuleParamDto.createFor(maxParam)
       .setValue("maximum");
-    db.activeRuleDao().addParam(dbSession, activeRule, activeRuleMaxParam);
+    db.activeRuleDao().insertParam(dbSession, activeRule, activeRuleMaxParam);
 
     dbSession.commit();
 
     // verify db
     List<ActiveRuleParamDto> persistedDtos =
-      db.activeRuleDao().findParamsByActiveRuleKey(dbSession, activeRule.getKey());
+      db.activeRuleDao().selectParamsByActiveRuleKey(dbSession, activeRule.getKey());
     assertThat(persistedDtos).hasSize(2);
 
     // verify es
@@ -222,8 +222,8 @@ public class ActiveRuleBackendMediumTest {
 
     // in db
     dbSession.clearCache();
-    assertThat(db.activeRuleDao().findByRule(dbSession, rule1)).hasSize(1);
-    assertThat(db.activeRuleDao().findByRule(dbSession, rule2)).hasSize(2);
+    assertThat(db.activeRuleDao().selectByRule(dbSession, rule1)).hasSize(1);
+    assertThat(db.activeRuleDao().selectByRule(dbSession, rule2)).hasSize(2);
 
     // in es
     List<ActiveRule> activeRules = index.get(ActiveRuleIndex.class).findByRule(RuleTesting.XOO_X1);

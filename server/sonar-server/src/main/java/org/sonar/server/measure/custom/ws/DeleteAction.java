@@ -65,7 +65,7 @@ public class DeleteAction implements CustomMeasuresWsAction {
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectById(dbSession, id);
+      CustomMeasureDto customMeasure = dbClient.customMeasureDao().selectOrFail(dbSession, id);
       checkPermissions(dbSession, customMeasure);
       dbClient.customMeasureDao().delete(dbSession, id);
       dbSession.commit();
@@ -81,7 +81,7 @@ public class DeleteAction implements CustomMeasuresWsAction {
       return;
     }
 
-    ComponentDto component = dbClient.componentDao().selectNonNullByUuid(dbSession, customMeasure.getComponentUuid());
+    ComponentDto component = dbClient.componentDao().selectOrFailByUuid(dbSession, customMeasure.getComponentUuid());
     userSession.checkLoggedIn().checkProjectUuidPermission(UserRole.ADMIN, component.projectUuid());
   }
 }

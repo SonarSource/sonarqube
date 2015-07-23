@@ -107,7 +107,7 @@ public class RuleCreatorMediumTest {
     assertThat(rule.getTags()).containsOnly("usertag1", "usertag2");
     assertThat(rule.getSystemTags()).containsOnly("tag1", "tag4");
 
-    List<RuleParamDto> params = db.ruleDao().findRuleParamsByRuleKey(dbSession, customRuleKey);
+    List<RuleParamDto> params = db.ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);
 
     RuleParamDto param = params.get(0);
@@ -134,7 +134,7 @@ public class RuleCreatorMediumTest {
     RuleKey customRuleKey = creator.create(newRule);
     dbSession.clearCache();
 
-    List<RuleParamDto> params = db.ruleDao().findRuleParamsByRuleKey(dbSession, customRuleKey);
+    List<RuleParamDto> params = db.ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);
 
     RuleParamDto param = params.get(0);
@@ -158,7 +158,7 @@ public class RuleCreatorMediumTest {
     RuleKey customRuleKey = creator.create(newRule);
     dbSession.clearCache();
 
-    List<RuleParamDto> params = db.ruleDao().findRuleParamsByRuleKey(dbSession, customRuleKey);
+    List<RuleParamDto> params = db.ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);
 
     RuleParamDto param = params.get(0);
@@ -183,7 +183,7 @@ public class RuleCreatorMediumTest {
     RuleKey customRuleKey = creator.create(newRule);
     dbSession.clearCache();
 
-    List<RuleParamDto> params = db.ruleDao().findRuleParamsByRuleKey(dbSession, customRuleKey);
+    List<RuleParamDto> params = db.ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);
 
     RuleParamDto param = params.get(0);
@@ -253,7 +253,7 @@ public class RuleCreatorMediumTest {
       .setDescription("Old description")
       .setDescriptionFormat(Format.MARKDOWN)
       .setSeverity(Severity.INFO));
-    dao.addRuleParam(dbSession, rule, dao.findRuleParamsByRuleKey(dbSession, templateRule.getKey()).get(0).setDefaultValue("a.*"));
+    dao.insertRuleParam(dbSession, rule, dao.selectRuleParamsByRuleKey(dbSession, templateRule.getKey()).get(0).setDefaultValue("a.*"));
     dbSession.commit();
     dbSession.clearCache();
 
@@ -296,7 +296,7 @@ public class RuleCreatorMediumTest {
       .setName("Old name")
       .setDescription("Old description")
       .setSeverity(Severity.INFO));
-    dao.addRuleParam(dbSession, rule, dao.findRuleParamsByRuleKey(dbSession, templateRule.getKey()).get(0).setDefaultValue("a.*"));
+    dao.insertRuleParam(dbSession, rule, dao.selectRuleParamsByRuleKey(dbSession, templateRule.getKey()).get(0).setDefaultValue("a.*"));
     dbSession.commit();
     dbSession.clearCache();
 
@@ -684,7 +684,7 @@ public class RuleCreatorMediumTest {
         .setSystemTags(Sets.newHashSet("tag1", "tag4"))
       );
     RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
-    dao.addRuleParam(dbSession, templateRule, ruleParamDto);
+    dao.insertRuleParam(dbSession, templateRule, ruleParamDto);
     dbSession.commit();
     return templateRule;
   }
@@ -703,7 +703,7 @@ public class RuleCreatorMediumTest {
       );
     RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule)
       .setName("myIntegers").setType("INTEGER,multiple=true,values=1;2;3").setDescription("My Integers").setDefaultValue("1");
-    dao.addRuleParam(dbSession, templateRule, ruleParamDto);
+    dao.insertRuleParam(dbSession, templateRule, ruleParamDto);
     dbSession.commit();
     return templateRule;
   }
@@ -722,10 +722,10 @@ public class RuleCreatorMediumTest {
       );
     RuleParamDto ruleParam1Dto = RuleParamDto.createFor(templateRule)
       .setName("first").setType("INTEGER").setDescription("First integer").setDefaultValue("0");
-    dao.addRuleParam(dbSession, templateRule, ruleParam1Dto);
+    dao.insertRuleParam(dbSession, templateRule, ruleParam1Dto);
     RuleParamDto ruleParam2Dto = RuleParamDto.createFor(templateRule)
       .setName("second").setType("INTEGER").setDescription("Second integer").setDefaultValue("0");
-    dao.addRuleParam(dbSession, templateRule, ruleParam2Dto);
+    dao.insertRuleParam(dbSession, templateRule, ruleParam2Dto);
     dbSession.commit();
     return templateRule;
   }

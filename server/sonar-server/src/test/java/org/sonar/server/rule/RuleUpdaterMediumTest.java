@@ -405,8 +405,8 @@ public class RuleUpdaterMediumTest {
     ruleDao.insert(dbSession, templateRule);
     RuleParamDto templateRuleParam1 = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
     RuleParamDto templateRuleParam2 = RuleParamDto.createFor(templateRule).setName("format").setType("STRING").setDescription("Format");
-    ruleDao.addRuleParam(dbSession, templateRule, templateRuleParam1);
-    ruleDao.addRuleParam(dbSession, templateRule, templateRuleParam2);
+    ruleDao.insertRuleParam(dbSession, templateRule, templateRuleParam1);
+    ruleDao.insertRuleParam(dbSession, templateRule, templateRuleParam2);
 
     // Create custom rule
     RuleDto customRule = RuleTesting.newCustomRule(templateRule)
@@ -415,8 +415,8 @@ public class RuleUpdaterMediumTest {
       .setSeverity(Severity.MINOR)
       .setStatus(RuleStatus.BETA);
     ruleDao.insert(dbSession, customRule);
-    ruleDao.addRuleParam(dbSession, customRule, templateRuleParam1.setDefaultValue("a.*"));
-    ruleDao.addRuleParam(dbSession, customRule, templateRuleParam2.setDefaultValue(null));
+    ruleDao.insertRuleParam(dbSession, customRule, templateRuleParam1.setDefaultValue("a.*"));
+    ruleDao.insertRuleParam(dbSession, customRule, templateRuleParam2.setDefaultValue(null));
 
     dbSession.commit();
 
@@ -450,7 +450,7 @@ public class RuleUpdaterMediumTest {
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
     ruleDao.insert(dbSession, templateRule);
     RuleParamDto templateRuleParam = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex");
-    ruleDao.addRuleParam(dbSession, templateRule, templateRuleParam);
+    ruleDao.insertRuleParam(dbSession, templateRule, templateRuleParam);
 
     // Create custom rule
     RuleDto customRule = RuleTesting.newCustomRule(templateRule)
@@ -459,7 +459,7 @@ public class RuleUpdaterMediumTest {
       .setSeverity(Severity.MINOR)
       .setStatus(RuleStatus.BETA);
     ruleDao.insert(dbSession, customRule);
-    ruleDao.addRuleParam(dbSession, customRule, templateRuleParam);
+    ruleDao.insertRuleParam(dbSession, customRule, templateRuleParam);
 
     dbSession.commit();
 
@@ -485,18 +485,18 @@ public class RuleUpdaterMediumTest {
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001")).setLanguage("xoo");
     ruleDao.insert(dbSession, templateRule);
     RuleParamDto templateRuleParam1 = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
-    ruleDao.addRuleParam(dbSession, templateRule, templateRuleParam1);
+    ruleDao.insertRuleParam(dbSession, templateRule, templateRuleParam1);
     RuleParamDto templateRuleParam2 = RuleParamDto.createFor(templateRule).setName("format").setType("STRING").setDescription("format").setDefaultValue("csv");
-    ruleDao.addRuleParam(dbSession, templateRule, templateRuleParam2);
+    ruleDao.insertRuleParam(dbSession, templateRule, templateRuleParam2);
     RuleParamDto templateRuleParam3 = RuleParamDto.createFor(templateRule).setName("message").setType("STRING").setDescription("message");
-    ruleDao.addRuleParam(dbSession, templateRule, templateRuleParam3);
+    ruleDao.insertRuleParam(dbSession, templateRule, templateRuleParam3);
 
     // Create custom rule
     RuleDto customRule = RuleTesting.newCustomRule(templateRule).setSeverity(Severity.MAJOR).setLanguage("xoo");
     ruleDao.insert(dbSession, customRule);
-    ruleDao.addRuleParam(dbSession, customRule, templateRuleParam1.setDefaultValue("a.*"));
-    ruleDao.addRuleParam(dbSession, customRule, templateRuleParam2.setDefaultValue("txt"));
-    ruleDao.addRuleParam(dbSession, customRule, templateRuleParam3);
+    ruleDao.insertRuleParam(dbSession, customRule, templateRuleParam1.setDefaultValue("a.*"));
+    ruleDao.insertRuleParam(dbSession, customRule, templateRuleParam2.setDefaultValue("txt"));
+    ruleDao.insertRuleParam(dbSession, customRule, templateRuleParam3);
 
     // Create a quality profile
     QualityProfileDto profileDto = QProfileTesting.newXooP1();
@@ -709,16 +709,16 @@ public class RuleUpdaterMediumTest {
 
   private void insertDebtCharacteristics(DbSession dbSession) {
     CharacteristicDto reliability = DebtTesting.newCharacteristicDto("RELIABILITY");
-    db.debtCharacteristicDao().insert(reliability, dbSession);
+    db.debtCharacteristicDao().insert(dbSession, reliability);
 
     CharacteristicDto softReliability = DebtTesting.newCharacteristicDto("SOFT_RELIABILITY")
       .setParentId(reliability.getId());
-    db.debtCharacteristicDao().insert(softReliability, dbSession);
+    db.debtCharacteristicDao().insert(dbSession, softReliability);
     softReliabilityId = softReliability.getId();
 
     CharacteristicDto hardReliability = DebtTesting.newCharacteristicDto("HARD_RELIABILITY")
       .setParentId(reliability.getId());
-    db.debtCharacteristicDao().insert(hardReliability, dbSession);
+    db.debtCharacteristicDao().insert(dbSession, hardReliability);
     hardReliabilityId = hardReliability.getId();
   }
 }

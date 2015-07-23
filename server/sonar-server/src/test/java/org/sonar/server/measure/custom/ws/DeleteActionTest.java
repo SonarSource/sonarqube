@@ -37,7 +37,6 @@ import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -83,8 +82,8 @@ public class DeleteActionTest {
 
     WsTester.Result response = newRequest().setParam(PARAM_ID, String.valueOf(id)).execute();
 
-    assertThat(dbClient.customMeasureDao().selectNullableById(dbSession, id)).isNull();
-    assertThat(dbClient.customMeasureDao().selectNullableById(dbSession, anotherId)).isNotNull();
+    assertThat(dbClient.customMeasureDao().selectById(dbSession, id)).isNull();
+    assertThat(dbClient.customMeasureDao().selectById(dbSession, anotherId)).isNotNull();
     response.assertNoContent();
   }
 
@@ -97,7 +96,7 @@ public class DeleteActionTest {
 
     newRequest().setParam(PARAM_ID, String.valueOf(id)).execute();
 
-    assertThat(dbClient.customMeasureDao().selectNullableById(dbSession, id)).isNull();
+    assertThat(dbClient.customMeasureDao().selectById(dbSession, id)).isNull();
   }
 
   @Test

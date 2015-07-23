@@ -63,7 +63,7 @@ public class ShowAction implements DashboardsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       Integer userId = userSession.getUserId();
-      DashboardDto dashboard = dbClient.dashboardDao().getAllowedByKey(dbSession, request.mandatoryParamAsLong(PARAM_KEY),
+      DashboardDto dashboard = dbClient.dashboardDao().selectAllowedByKey(dbSession, request.mandatoryParamAsLong(PARAM_KEY),
         userId != null ? userId.longValue() : null);
       if (dashboard == null) {
         throw new NotFoundException();
@@ -78,7 +78,7 @@ public class ShowAction implements DashboardsWsAction {
       json.prop("global", dashboard.getGlobal());
       json.prop("shared", dashboard.getShared());
       if (dashboard.getUserId() != null) {
-        UserDto user = dbClient.userDao().getUser(dashboard.getUserId());
+        UserDto user = dbClient.userDao().selectUserById(dashboard.getUserId());
         if (user != null) {
           json.name("owner").beginObject();
           // TODO to be shared and extracted from here
@@ -91,7 +91,7 @@ public class ShowAction implements DashboardsWsAction {
       json.name("widgets").beginArray();
       Collection<WidgetDto> widgets = dbClient.widgetDao().findByDashboard(dbSession, dashboard.getKey());
       ListMultimap<Long, WidgetPropertyDto> propertiesByWidget = WidgetPropertyDto.groupByWidgetId(
-        dbClient.widgetPropertyDao().findByDashboard(dbSession, dashboard.getKey()));
+        dbClient.widgetPropertyDao().selectByDashboard(dbSession, dashboard.getKey()));
       for (WidgetDto widget : widgets) {
         json.beginObject();
         json.prop("id", widget.getId());

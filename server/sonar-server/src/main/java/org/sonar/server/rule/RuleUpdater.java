@@ -266,7 +266,7 @@ public class RuleUpdater {
   private void updateParameters(DbSession dbSession, RuleUpdate update, Context context) {
     if (update.isChangeParameters() && update.isCustomRule()) {
       RuleDto customRule = context.rule;
-      RuleDto templateRule = dbClient.ruleDao().getTemplate(customRule, dbSession);
+      RuleDto templateRule = dbClient.ruleDao().selectTemplate(customRule, dbSession);
       if (templateRule == null) {
         throw new IllegalStateException(String.format("Template %s of rule %s does not exist",
           customRule.getTemplateId(), customRule.getKey()));
@@ -276,9 +276,9 @@ public class RuleUpdater {
       // Load active rules and its parameters in cache
       Multimap<RuleDto, ActiveRuleDto> activeRules = ArrayListMultimap.create();
       Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParams = ArrayListMultimap.create();
-      for (ActiveRuleDto activeRuleDto : dbClient.activeRuleDao().findByRule(dbSession, customRule)) {
+      for (ActiveRuleDto activeRuleDto : dbClient.activeRuleDao().selectByRule(dbSession, customRule)) {
         activeRules.put(customRule, activeRuleDto);
-        for (ActiveRuleParamDto activeRuleParamDto : dbClient.activeRuleDao().findParamsByActiveRuleKey(dbSession, activeRuleDto.getKey())) {
+        for (ActiveRuleParamDto activeRuleParamDto : dbClient.activeRuleDao().selectParamsByActiveRuleKey(dbSession, activeRuleDto.getKey())) {
           activeRuleParams.put(activeRuleDto, activeRuleParamDto);
         }
       }
@@ -290,7 +290,7 @@ public class RuleUpdater {
 
   private void deleteOrUpdateParameters(DbSession dbSession, RuleUpdate update, RuleDto customRule, List<String> paramKeys,
     Multimap<RuleDto, ActiveRuleDto> activeRules, Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParams) {
-    for (RuleParamDto ruleParamDto : dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, update.getRuleKey())) {
+    for (RuleParamDto ruleParamDto : dbClient.ruleDao().selectRuleParamsByRuleKey(dbSession, update.getRuleKey())) {
       String key = ruleParamDto.getName();
       String value = Strings.emptyToNull(update.parameter(key));
 
@@ -305,7 +305,7 @@ public class RuleUpdater {
             if (activeRuleParamDto.getKey().equals(key)) {
               dbClient.activeRuleDao().updateParam(dbSession, activeRuleDto, activeRuleParamDto.setValue(value));
             } else {
-              dbClient.activeRuleDao().addParam(dbSession, activeRuleDto, ActiveRuleParamDto.createFor(ruleParamDto).setValue(value));
+              dbClient.activeRuleDao().insertParam(dbSession, activeRuleDto, ActiveRuleParamDto.createFor(ruleParamDto).setValue(value));
             }
           }
         }

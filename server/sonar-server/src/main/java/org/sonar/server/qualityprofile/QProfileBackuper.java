@@ -68,7 +68,7 @@ public class QProfileBackuper {
     QualityProfileDto profile;
     DbSession dbSession = db.openSession(false);
     try {
-      profile = db.qualityProfileDao().getNonNullByKey(dbSession, key);
+      profile = db.qualityProfileDao().selectOrFailByKey(dbSession, key);
     } finally {
       dbSession.close();
     }

@@ -139,7 +139,7 @@ public class ProjectsAction implements QProfileWsAction {
   }
 
   private void checkProfileExists(String profileKey, DbSession session) {
-    if (dbClient.qualityProfileDao().getByKey(session, profileKey) == null) {
+    if (dbClient.qualityProfileDao().selectByKey(session, profileKey) == null) {
       throw new NotFoundException(String.format("Could not find a quality profile with key '%s'", profileKey));
     }
   }

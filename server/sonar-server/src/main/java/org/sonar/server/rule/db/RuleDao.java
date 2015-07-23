@@ -70,12 +70,12 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
    */
   @CheckForNull
   @Deprecated
-  public RuleDto getById(DbSession session, int id) {
+  public RuleDto selectById(DbSession session, int id) {
     return mapper(session).selectById(id);
   }
 
   @CheckForNull
-  public RuleDto getTemplate(RuleDto rule, DbSession session) {
+  public RuleDto selectTemplate(RuleDto rule, DbSession session) {
     Preconditions.checkNotNull(rule.getTemplateId(), "Rule has no persisted template!");
     return mapper(session).selectById(rule.getTemplateId());
   }
@@ -84,15 +84,15 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
    * Finder methods for Rules
    */
 
-  public List<RuleDto> findByNonManual(DbSession session) {
+  public List<RuleDto> selectByNonManual(DbSession session) {
     return mapper(session).selectNonManual();
   }
 
-  public List<RuleDto> findAll(DbSession session) {
+  public List<RuleDto> selectAll(DbSession session) {
     return mapper(session).selectAll();
   }
 
-  public List<RuleDto> findByEnabledAndNotManual(DbSession session) {
+  public List<RuleDto> selectByEnabledAndNotManual(DbSession session) {
     return mapper(session).selectEnablesAndNonManual();
   }
 
@@ -100,7 +100,7 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
    * Nested DTO RuleParams
    */
 
-  public void addRuleParam(DbSession session, RuleDto rule, RuleParamDto param) {
+  public void insertRuleParam(DbSession session, RuleDto rule, RuleParamDto param) {
     Preconditions.checkNotNull(rule.getId(), "Rule id must be set");
     param.setRuleId(rule.getId());
     mapper(session).insertParameter(param);
@@ -116,7 +116,7 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
     return param;
   }
 
-  public void removeRuleParam(DbSession session, RuleDto rule, RuleParamDto param) {
+  public void deleteRuleParam(DbSession session, RuleDto rule, RuleParamDto param) {
     Preconditions.checkNotNull(param.getId(), "Param is not persisted");
     mapper(session).deleteParameter(param.getId());
     this.enqueueDelete(param, rule.getKey(), session);
@@ -126,15 +126,15 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
    * Finder methods for RuleParams
    */
 
-  public List<RuleParamDto> findAllRuleParams(DbSession session) {
+  public List<RuleParamDto> selectAllRuleParams(DbSession session) {
     return mapper(session).selectAllParams();
   }
 
-  public List<RuleParamDto> findRuleParamsByRuleKey(DbSession session, RuleKey key) {
+  public List<RuleParamDto> selectRuleParamsByRuleKey(DbSession session, RuleKey key) {
     return mapper(session).selectParamsByRuleKey(key);
   }
 
-  public List<RuleDto> findRulesByDebtSubCharacteristicId(DbSession session, int id) {
+  public List<RuleDto> selectRulesByDebtSubCharacteristicId(DbSession session, int id) {
     return mapper(session).selectBySubCharacteristicId(id);
   }
 

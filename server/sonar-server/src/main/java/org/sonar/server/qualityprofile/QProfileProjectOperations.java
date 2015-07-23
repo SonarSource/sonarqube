@@ -55,11 +55,11 @@ public class QProfileProjectOperations {
   }
 
   void addProject(String profileKey, String projectUuid, UserSession userSession, DbSession session) {
-    ComponentDto project = db.componentDao().selectNonNullByUuid(session, projectUuid);
+    ComponentDto project = db.componentDao().selectOrFailByUuid(session, projectUuid);
     checkPermission(userSession, project.key());
     QualityProfileDto qualityProfile = findNotNull(profileKey, session);
 
-    QualityProfileDto currentProfile = db.qualityProfileDao().getByProjectAndLanguage(project.key(), qualityProfile.getLanguage(), session);
+    QualityProfileDto currentProfile = db.qualityProfileDao().selectByProjectAndLanguage(session, project.key(), qualityProfile.getLanguage());
 
     boolean updated = false;
     if (currentProfile == null) {
@@ -77,7 +77,7 @@ public class QProfileProjectOperations {
   public void removeProject(String profileKey, String projectUuid, UserSession userSession) {
     DbSession session = db.openSession(false);
     try {
-      ComponentDto project = db.componentDao().selectNonNullByUuid(session, projectUuid);
+      ComponentDto project = db.componentDao().selectOrFailByUuid(session, projectUuid);
       checkPermission(userSession, project.key());
       QualityProfileDto qualityProfile = findNotNull(profileKey, session);
 
@@ -91,10 +91,10 @@ public class QProfileProjectOperations {
   public void removeProject(String language, long projectId, UserSession userSession) {
     DbSession session = db.openSession(false);
     try {
-      ComponentDto project = db.componentDao().selectNonNullById(session, projectId);
+      ComponentDto project = db.componentDao().selectOrFailById(session, projectId);
       checkPermission(userSession, project.key());
 
-      QualityProfileDto associatedProfile = db.qualityProfileDao().getByProjectAndLanguage(project.getKey(), language, session);
+      QualityProfileDto associatedProfile = db.qualityProfileDao().selectByProjectAndLanguage(session, project.getKey(), language);
       if (associatedProfile != null) {
         db.qualityProfileDao().deleteProjectProfileAssociation(project.uuid(), associatedProfile.getKey(), session);
         session.commit();
@@ -117,7 +117,7 @@ public class QProfileProjectOperations {
   }
 
   private QualityProfileDto findNotNull(String key, DbSession session) {
-    QualityProfileDto qualityProfile = db.qualityProfileDao().getByKey(session, key);
+    QualityProfileDto qualityProfile = db.qualityProfileDao().selectByKey(session, key);
     QProfileValidations.checkProfileIsNotNull(qualityProfile);
     return qualityProfile;
   }

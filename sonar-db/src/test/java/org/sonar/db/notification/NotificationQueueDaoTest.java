@@ -46,7 +46,7 @@ public class NotificationQueueDaoTest {
     dao.insert(Arrays.asList(notificationQueueDto));
 
     assertThat(dao.count()).isEqualTo(1);
-    assertThat(dao.findOldest(1).get(0).toNotification().getType()).isEqualTo("email");
+    assertThat(dao.selectOldest(1).get(0).toNotification().getType()).isEqualTo("email");
   }
 
   @Test
@@ -78,11 +78,11 @@ public class NotificationQueueDaoTest {
   public void should_findOldest() {
     db.prepareDbUnit(getClass(), "should_findOldest.xml");
 
-    Collection<NotificationQueueDto> result = dao.findOldest(3);
+    Collection<NotificationQueueDto> result = dao.selectOldest(3);
     assertThat(result).hasSize(3);
     assertThat(result).extracting("id").containsOnly(1L, 2L, 3L);
 
-    result = dao.findOldest(6);
+    result = dao.selectOldest(6);
     assertThat(result).hasSize(4);
   }
 }

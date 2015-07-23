@@ -79,13 +79,13 @@ public class InheritanceAction implements QProfileWsAction {
     DbSession session = dbClient.openSession(false);
     try {
       String profileKey = QProfileIdentificationParamUtils.getProfileKeyFromParameters(request, profileFactory, session);
-      QualityProfileDto profile = dbClient.qualityProfileDao().getByKey(session, profileKey);
+      QualityProfileDto profile = dbClient.qualityProfileDao().selectByKey(session, profileKey);
       if (profile == null) {
         throw new NotFoundException(String.format("Could not find a quality profile with key %s", profileKey));
       }
 
       List<QProfile> ancestors = profileLookup.ancestors(profile, session);
-      List<QualityProfileDto> children = dbClient.qualityProfileDao().findChildren(session, profileKey);
+      List<QualityProfileDto> children = dbClient.qualityProfileDao().selectChildren(session, profileKey);
       Map<String, Multimap<String, FacetValue>> profileStats = profileLoader.getAllProfileStats();
 
       writeResponse(response.newJsonWriter(), profile, ancestors, children, profileStats);

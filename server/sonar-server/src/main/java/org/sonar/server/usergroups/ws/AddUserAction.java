@@ -76,7 +76,7 @@ public class AddUserAction implements UserGroupsWsAction {
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      GroupDto group = dbClient.groupDao().selectNullableById(dbSession, groupId);
+      GroupDto group = dbClient.groupDao().selectById(dbSession, groupId);
       UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
       if (group == null) {
         throw new NotFoundException(String.format("Could not find a user group with group id '%s'", groupId));

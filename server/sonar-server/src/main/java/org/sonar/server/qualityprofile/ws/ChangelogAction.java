@@ -89,7 +89,7 @@ public class ChangelogAction implements QProfileWsAction {
     DbSession session = dbClient.openSession(false);
     try {
       String profileKey = QProfileIdentificationParamUtils.getProfileKeyFromParameters(request, profileFactory, session);
-      if (dbClient.qualityProfileDao().getByKey(session, profileKey) == null) {
+      if (dbClient.qualityProfileDao().selectByKey(session, profileKey) == null) {
         throw new NotFoundException(String.format("Could not find a profile with key '%s'", profileKey));
       }
 

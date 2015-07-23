@@ -132,7 +132,7 @@ public class ChangePasswordActionTest {
   public void update_password() throws Exception {
     createUser();
     session.clearCache();
-    String originalPassword = dbClient.userDao().selectByLogin(session, "john").getCryptedPassword();
+    String originalPassword = dbClient.userDao().selectOrFailByLogin(session, "john").getCryptedPassword();
 
     tester.newPostRequest("api/users", "change_password")
       .setParam("login", "john")
@@ -141,7 +141,7 @@ public class ChangePasswordActionTest {
       .assertNoContent();
 
     session.clearCache();
-    String newPassword = dbClient.userDao().selectByLogin(session, "john").getCryptedPassword();
+    String newPassword = dbClient.userDao().selectOrFailByLogin(session, "john").getCryptedPassword();
     assertThat(newPassword).isNotEqualTo(originalPassword);
   }
 
@@ -149,7 +149,7 @@ public class ChangePasswordActionTest {
   public void update_password_on_self() throws Exception {
     createUser();
     session.clearCache();
-    String originalPassword = dbClient.userDao().selectByLogin(session, "john").getCryptedPassword();
+    String originalPassword = dbClient.userDao().selectOrFailByLogin(session, "john").getCryptedPassword();
 
     userSessionRule.login("john");
     tester.newPostRequest("api/users", "change_password")
@@ -160,7 +160,7 @@ public class ChangePasswordActionTest {
       .assertNoContent();
 
     session.clearCache();
-    String newPassword = dbClient.userDao().selectByLogin(session, "john").getCryptedPassword();
+    String newPassword = dbClient.userDao().selectOrFailByLogin(session, "john").getCryptedPassword();
     assertThat(newPassword).isNotEqualTo(originalPassword);
   }
 

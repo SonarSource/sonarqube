@@ -137,7 +137,7 @@ public class DebtModelBackup {
     DbSession session = dbClient.openSession(false);
     try {
       // Restore characteristics
-      List<CharacteristicDto> allCharacteristicDtos = restoreCharacteristics(loadModelFromPlugin(DebtModelPluginRepository.DEFAULT_MODEL), updateDate, session);
+      List<CharacteristicDto> allCharacteristicDtos = restoreCharacteristics(session, loadModelFromPlugin(DebtModelPluginRepository.DEFAULT_MODEL), updateDate);
 
       // Restore rules
       List<RuleDto> ruleDtos = dbClient.ruleDao().selectEnabledAndNonManual(session);
@@ -215,7 +215,7 @@ public class DebtModelBackup {
     Date updateDate = new Date(system2.now());
     DbSession session = dbClient.openSession(false);
     try {
-      List<CharacteristicDto> allCharacteristicDtos = restoreCharacteristics(characteristicsXMLImporter.importXML(xml), updateDate, session);
+      List<CharacteristicDto> allCharacteristicDtos = restoreCharacteristics(session, characteristicsXMLImporter.importXML(xml), updateDate);
       restoreRules(allCharacteristicDtos, rules(languageKey, session), rulesXMLImporter.importXML(xml, validationMessages), validationMessages, updateDate, session);
 
       session.commit();
@@ -248,7 +248,7 @@ public class DebtModelBackup {
   }
 
   @VisibleForTesting
-  List<CharacteristicDto> restoreCharacteristics(DebtModel targetModel, Date updateDate, DbSession session) {
+  List<CharacteristicDto> restoreCharacteristics(DbSession session, DebtModel targetModel, Date updateDate) {
     List<CharacteristicDto> sourceCharacteristics = dbClient.debtCharacteristicDao().selectEnabledCharacteristics(session);
 
     List<CharacteristicDto> result = newArrayList();
@@ -275,7 +275,7 @@ public class DebtModelBackup {
     CharacteristicDto sourceCharacteristic = characteristicByKey(targetCharacteristic.key(), sourceCharacteristics, false);
     if (sourceCharacteristic == null) {
       CharacteristicDto newCharacteristic = toDto(targetCharacteristic, parentId).setCreatedAt(updateDate);
-      dbClient.debtCharacteristicDao().insert(newCharacteristic, session);
+      dbClient.debtCharacteristicDao().insert(session, newCharacteristic);
       return newCharacteristic;
     } else {
       // Update only if modifications

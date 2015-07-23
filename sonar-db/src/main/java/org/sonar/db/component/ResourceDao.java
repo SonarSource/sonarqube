@@ -46,17 +46,17 @@ public class ResourceDao extends AbstractDao {
    * the first row is returned.
    */
   @CheckForNull
-  public ResourceDto getResource(ResourceQuery query) {
+  public ResourceDto selectResource(ResourceQuery query) {
     DbSession session = myBatis().openSession(false);
     try {
-      return getResource(query, session);
+      return selectResource(query, session);
     } finally {
       myBatis().closeQuietly(session);
     }
   }
 
   @CheckForNull
-  private ResourceDto getResource(ResourceQuery query, DbSession session) {
+  private ResourceDto selectResource(ResourceQuery query, DbSession session) {
     List<ResourceDto> resources = getResources(query, session);
     if (!resources.isEmpty()) {
       return resources.get(0);
@@ -69,7 +69,7 @@ public class ResourceDao extends AbstractDao {
   }
 
   @CheckForNull
-  public ResourceDto getResource(String componentUuid) {
+  public ResourceDto selectResource(String componentUuid) {
     SqlSession session = myBatis().openSession(false);
     try {
       return session.getMapper(ResourceMapper.class).selectResourceByUuid(componentUuid);
@@ -78,7 +78,7 @@ public class ResourceDao extends AbstractDao {
     }
   }
 
-  public ResourceDto getResource(long projectId, SqlSession session) {
+  public ResourceDto selectResource(long projectId, SqlSession session) {
     return session.getMapper(ResourceMapper.class).selectResource(projectId);
   }
 
@@ -107,8 +107,8 @@ public class ResourceDao extends AbstractDao {
   }
 
   @CheckForNull
-  public Component findByKey(String key) {
-    ResourceDto resourceDto = getResource(ResourceQuery.create().setKey(key));
+  public Component selectByKey(String key) {
+    ResourceDto resourceDto = selectResource(ResourceQuery.create().setKey(key));
     return resourceDto != null ? toComponent(resourceDto) : null;
   }
 
@@ -121,7 +121,7 @@ public class ResourceDao extends AbstractDao {
    */
   @CheckForNull
   private ResourceDto getRootProjectByComponentKey(DbSession session, String componentKey) {
-    ResourceDto component = getResource(ResourceQuery.create().setKey(componentKey), session);
+    ResourceDto component = selectResource(ResourceQuery.create().setKey(componentKey), session);
     if (component != null) {
       Long rootId = component.getRootId();
       if (rootId != null) {
@@ -145,7 +145,7 @@ public class ResourceDao extends AbstractDao {
 
   @CheckForNull
   private ResourceDto getParentModuleByComponentId(Long componentId, DbSession session) {
-    ResourceDto component = getResource(componentId, session);
+    ResourceDto component = selectResource(componentId, session);
     if (component != null) {
       Long rootId = component.getRootId();
       if (rootId != null) {

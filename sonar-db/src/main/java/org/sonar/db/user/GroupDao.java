@@ -40,8 +40,8 @@ public class GroupDao implements Dao {
     this.system = system;
   }
 
-  public GroupDto selectByKey(DbSession session, String key) {
-    GroupDto group = selectNullableByKey(session, key);
+  public GroupDto selectOrFailByKey(DbSession session, String key) {
+    GroupDto group = selectByKey(session, key);
     if (group == null) {
       throw new RowNotFoundException(String.format("Could not find a group with name '%s'", key));
     }
@@ -49,12 +49,12 @@ public class GroupDao implements Dao {
   }
 
   @CheckForNull
-  public GroupDto selectNullableByKey(DbSession session, String key) {
+  public GroupDto selectByKey(DbSession session, String key) {
     return mapper(session).selectByKey(key);
   }
 
-  public GroupDto selectById(DbSession dbSession, long groupId) {
-    GroupDto group = selectNullableById(dbSession, groupId);
+  public GroupDto selectOrFailById(DbSession dbSession, long groupId) {
+    GroupDto group = selectById(dbSession, groupId);
     if (group == null) {
       throw new RowNotFoundException(String.format("Could not find a group with id '%d'", groupId));
     }
@@ -62,7 +62,7 @@ public class GroupDao implements Dao {
   }
 
   @CheckForNull
-  public GroupDto selectNullableById(DbSession dbSession, long groupId) {
+  public GroupDto selectById(DbSession dbSession, long groupId) {
     return mapper(dbSession).selectById(groupId);
   }
 
@@ -92,12 +92,8 @@ public class GroupDao implements Dao {
     return item;
   }
 
-  public List<GroupDto> findByUserLogin(DbSession session, String login){
+  public List<GroupDto> selectByUserLogin(DbSession session, String login){
     return mapper(session).selectByUserLogin(login);
-  }
-
-  private GroupMapper mapper(DbSession session) {
-    return session.getMapper(GroupMapper.class);
   }
 
   private String groupSearchToSql(@Nullable String query) {
@@ -108,5 +104,9 @@ public class GroupDao implements Dao {
       sql = SQL_WILDCARD + sql + SQL_WILDCARD;
     }
     return sql;
+  }
+
+  private GroupMapper mapper(DbSession session) {
+    return session.getMapper(GroupMapper.class);
   }
 }

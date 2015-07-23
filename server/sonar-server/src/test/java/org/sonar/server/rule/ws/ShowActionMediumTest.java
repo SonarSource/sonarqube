@@ -89,7 +89,7 @@ public class ShowActionMediumTest {
         .setSystemTags(newHashSet("systag1", "systag2"))
     );
     RuleParamDto param = RuleParamDto.createFor(ruleDto).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
-    ruleDao.addRuleParam(session, ruleDto, param);
+    ruleDao.insertRuleParam(session, ruleDto, param);
     session.commit();
     session.clearCache();
 
@@ -101,9 +101,9 @@ public class ShowActionMediumTest {
   @Test
   public void show_rule_with_default_debt_infos() throws Exception {
     CharacteristicDto characteristicDto = new CharacteristicDto().setKey("API").setName("Api").setEnabled(true);
-    tester.get(CharacteristicDao.class).insert(characteristicDto, session);
+    tester.get(CharacteristicDao.class).insert(session, characteristicDto);
     CharacteristicDto subCharacteristicDto = new CharacteristicDto().setKey("API_ABUSE").setName("API Abuse").setEnabled(true).setParentId(characteristicDto.getId());
-    tester.get(CharacteristicDao.class).insert(subCharacteristicDto, session);
+    tester.get(CharacteristicDao.class).insert(session, subCharacteristicDto);
 
     RuleDto ruleDto = ruleDao.insert(session,
       RuleTesting.newDto(RuleKey.of("java", "S001"))
@@ -135,9 +135,9 @@ public class ShowActionMediumTest {
   @Test
   public void show_rule_with_overridden_debt() throws Exception {
     CharacteristicDto characteristicDto = new CharacteristicDto().setKey("API").setName("Api").setEnabled(true);
-    tester.get(CharacteristicDao.class).insert(characteristicDto, session);
+    tester.get(CharacteristicDao.class).insert(session, characteristicDto);
     CharacteristicDto subCharacteristicDto = new CharacteristicDto().setKey("API_ABUSE").setName("API Abuse").setEnabled(true).setParentId(characteristicDto.getId());
-    tester.get(CharacteristicDao.class).insert(subCharacteristicDto, session);
+    tester.get(CharacteristicDao.class).insert(session, subCharacteristicDto);
 
     RuleDto ruleDto = ruleDao.insert(session,
       RuleTesting.newDto(RuleKey.of("java", "S001"))
@@ -167,14 +167,14 @@ public class ShowActionMediumTest {
   @Test
   public void show_rule_with_default_and_overridden_debt_infos() throws Exception {
     CharacteristicDto defaultCharacteristic = new CharacteristicDto().setKey("API").setName("Api").setEnabled(true);
-    tester.get(CharacteristicDao.class).insert(defaultCharacteristic, session);
+    tester.get(CharacteristicDao.class).insert(session, defaultCharacteristic);
     CharacteristicDto defaultSubCharacteristic = new CharacteristicDto().setKey("API_ABUSE").setName("API Abuse").setEnabled(true).setParentId(defaultCharacteristic.getId());
-    tester.get(CharacteristicDao.class).insert(defaultSubCharacteristic, session);
+    tester.get(CharacteristicDao.class).insert(session, defaultSubCharacteristic);
 
     CharacteristicDto characteristic = new CharacteristicDto().setKey("OS").setName("Os").setEnabled(true);
-    tester.get(CharacteristicDao.class).insert(characteristic, session);
+    tester.get(CharacteristicDao.class).insert(session, characteristic);
     CharacteristicDto subCharacteristic = new CharacteristicDto().setKey("OS_RELATED_PORTABILITY").setName("Portability").setEnabled(true).setParentId(characteristic.getId());
-    tester.get(CharacteristicDao.class).insert(subCharacteristic, session);
+    tester.get(CharacteristicDao.class).insert(session, subCharacteristic);
 
     RuleDto ruleDto = ruleDao.insert(session,
       RuleTesting.newDto(RuleKey.of("java", "S001"))

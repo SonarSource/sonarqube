@@ -96,7 +96,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
     DbSession session = db.openSession(false);
     try {
       // TODO because DTO uses legacy ID pattern
-      QualityProfileDto profile = db.qualityProfileDao().getById(activeRuleDto.getProfileId(), session);
+      QualityProfileDto profile = db.qualityProfileDao().selectById(session, activeRuleDto.getProfileId());
       if (profile == null) {
         throw new IllegalStateException("Profile is null : " + activeRuleDto.getProfileId());
       }
@@ -106,7 +106,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
       String parentKey = null;
       Integer parentId = activeRuleDto.getParentId();
       if (parentId != null) {
-        ActiveRuleDto parentDto = db.activeRuleDao().getById(session, parentId);
+        ActiveRuleDto parentDto = db.activeRuleDao().selectById(session, parentId);
         if (parentDto != null) {
           parentKey = parentDto.getKey().toString();
         }
@@ -122,7 +122,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
         .upsert(getUpsertFor(ActiveRuleField.ALL_FIELDS, newRule)));
 
       // Get the RuleParameters
-      for (ActiveRuleParamDto param : db.activeRuleDao().findParamsByActiveRuleKey(session, key)) {
+      for (ActiveRuleParamDto param : db.activeRuleDao().selectParamsByActiveRuleKey(session, key)) {
         requests.addAll(normalizeNested(param, key));
       }
 

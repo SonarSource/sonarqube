@@ -90,7 +90,7 @@ public class QProfileReset {
                 activation.setParameter(param.getParamKey(), param.getValue());
               }
             } else {
-              for (RuleParamDto param : db.ruleDao().findRuleParamsByRuleKey(dbSession, activeRule.getRule().ruleKey())) {
+              for (RuleParamDto param : db.ruleDao().selectRuleParamsByRuleKey(dbSession, activeRule.getRule().ruleKey())) {
                 activation.setParameter(param.getName(), param.getDefaultValue());
               }
             }
@@ -129,7 +129,7 @@ public class QProfileReset {
     BulkChangeResult result = new BulkChangeResult(profile);
     Set<RuleKey> ruleToBeDeactivated = Sets.newHashSet();
     // Keep reference to all the activated rules before backup restore
-    for (ActiveRuleDto activeRuleDto : db.activeRuleDao().findByProfileKey(dbSession, profile.getKee())) {
+    for (ActiveRuleDto activeRuleDto : db.activeRuleDao().selectByProfileKey(dbSession, profile.getKee())) {
       if (activeRuleDto.getInheritance() == null) {
         // inherited rules can't be deactivated
         ruleToBeDeactivated.add(activeRuleDto.getKey().ruleKey());

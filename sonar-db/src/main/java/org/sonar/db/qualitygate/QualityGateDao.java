@@ -21,6 +21,7 @@ package org.sonar.db.qualitygate;
 
 import java.util.Collection;
 import java.util.Date;
+import javax.annotation.CheckForNull;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
 import org.sonar.db.MyBatis;
@@ -44,7 +45,7 @@ public class QualityGateDao implements Dao{
   }
 
   public void insert(QualityGateDto newQualityGate, SqlSession session) {
-    getMapper(session).insert(newQualityGate.setCreatedAt(new Date()));
+    mapper(session).insert(newQualityGate.setCreatedAt(new Date()));
   }
 
   public Collection<QualityGateDto> selectAll() {
@@ -57,33 +58,37 @@ public class QualityGateDao implements Dao{
   }
 
   public Collection<QualityGateDto> selectAll(SqlSession session) {
-    return getMapper(session).selectAll();
+    return mapper(session).selectAll();
   }
 
+  @CheckForNull
   public QualityGateDto selectByName(String name) {
     SqlSession session = myBatis.openSession(false);
     try {
-      return selectByName(name, session);
+      return selectByName(session, name);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public QualityGateDto selectByName(String name, SqlSession session) {
-    return getMapper(session).selectByName(name);
+  @CheckForNull
+  public QualityGateDto selectByName(SqlSession session, String name) {
+    return mapper(session).selectByName(name);
   }
 
+  @CheckForNull
   public QualityGateDto selectById(long id) {
     SqlSession session = myBatis.openSession(false);
     try {
-      return selectById(id, session);
+      return selectById(session, id);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public QualityGateDto selectById(long id, SqlSession session) {
-    return getMapper(session).selectById(id);
+  @CheckForNull
+  public QualityGateDto selectById(SqlSession session, long id) {
+    return mapper(session).selectById(id);
   }
 
   public void delete(QualityGateDto qGate) {
@@ -97,7 +102,7 @@ public class QualityGateDao implements Dao{
   }
 
   public void delete(QualityGateDto qGate, SqlSession session) {
-    getMapper(session).delete(qGate.getId());
+    mapper(session).delete(qGate.getId());
   }
 
   public void update(QualityGateDto qGate) {
@@ -111,10 +116,10 @@ public class QualityGateDao implements Dao{
   }
 
   public void update(QualityGateDto qGate, SqlSession session) {
-    getMapper(session).update(qGate.setUpdatedAt(new Date()));
+    mapper(session).update(qGate.setUpdatedAt(new Date()));
   }
 
-  private QualityGateMapper getMapper(SqlSession session) {
+  private QualityGateMapper mapper(SqlSession session) {
     return session.getMapper(QualityGateMapper.class);
   }
 }

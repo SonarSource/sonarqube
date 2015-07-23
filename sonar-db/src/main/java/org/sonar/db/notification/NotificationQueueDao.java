@@ -61,7 +61,7 @@ public class NotificationQueueDao implements Dao {
     }
   }
 
-  public List<NotificationQueueDto> findOldest(int count) {
+  public List<NotificationQueueDto> selectOldest(int count) {
     if (count < 1) {
       return Collections.emptyList();
     }

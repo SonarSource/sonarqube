@@ -83,14 +83,14 @@ public class QProfileFactoryMediumTest {
     assertThat(dto.getId()).isNotNull();
 
     // reload the dto
-    dto = db.qualityProfileDao().getByNameAndLanguage("P1", "xoo", dbSession);
+    dto = db.qualityProfileDao().selectByNameAndLanguage("P1", "xoo", dbSession);
     assertThat(dto.getLanguage()).isEqualTo("xoo");
     assertThat(dto.getName()).isEqualTo("P1");
     assertThat(dto.getKey()).startsWith("xoo-p1");
     assertThat(dto.getId()).isNotNull();
     assertThat(dto.getParentKee()).isNull();
 
-    assertThat(db.qualityProfileDao().findAll(dbSession)).hasSize(1);
+    assertThat(db.qualityProfileDao().selectAll(dbSession)).hasSize(1);
   }
 
   @Test
@@ -138,7 +138,7 @@ public class QProfileFactoryMediumTest {
     assertThat(factory.rename(key, "the new name")).isTrue();
     dbSession.clearCache();
 
-    QualityProfileDto reloaded = db.qualityProfileDao().getByKey(dbSession, dto.getKee());
+    QualityProfileDto reloaded = db.qualityProfileDao().selectByKey(dbSession, dto.getKee());
     assertThat(reloaded.getKey()).isEqualTo(key);
     assertThat(reloaded.getName()).isEqualTo("the new name");
   }
@@ -153,7 +153,7 @@ public class QProfileFactoryMediumTest {
     assertThat(factory.rename(key, "P1")).isFalse();
     dbSession.clearCache();
 
-    QualityProfileDto reloaded = db.qualityProfileDao().getByKey(dbSession, dto.getKee());
+    QualityProfileDto reloaded = db.qualityProfileDao().selectByKey(dbSession, dto.getKee());
     assertThat(reloaded.getKey()).isEqualTo(key);
     assertThat(reloaded.getName()).isEqualTo("P1");
   }
@@ -209,9 +209,9 @@ public class QProfileFactoryMediumTest {
     factory.delete(XOO_P1_KEY);
 
     dbSession.clearCache();
-    assertThat(db.qualityProfileDao().findAll(dbSession)).isEmpty();
-    assertThat(db.activeRuleDao().findAll(dbSession)).isEmpty();
-    assertThat(db.activeRuleDao().findAllParams(dbSession)).isEmpty();
+    assertThat(db.qualityProfileDao().selectAll(dbSession)).isEmpty();
+    assertThat(db.activeRuleDao().selectAll(dbSession)).isEmpty();
+    assertThat(db.activeRuleDao().selectAllParams(dbSession)).isEmpty();
     assertThat(index.get(ActiveRuleIndex.class).findByProfile(XOO_P1_KEY)).isEmpty();
   }
 
@@ -226,15 +226,15 @@ public class QProfileFactoryMediumTest {
     tester.get(RuleActivator.class).activate(dbSession, new RuleActivation(RuleTesting.XOO_X1), XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
-    assertThat(db.qualityProfileDao().findAll(dbSession)).hasSize(3);
-    assertThat(db.activeRuleDao().findAll(dbSession)).hasSize(3);
+    assertThat(db.qualityProfileDao().selectAll(dbSession)).hasSize(3);
+    assertThat(db.activeRuleDao().selectAll(dbSession)).hasSize(3);
 
     factory.delete(XOO_P1_KEY);
 
     dbSession.clearCache();
-    assertThat(db.qualityProfileDao().findAll(dbSession)).isEmpty();
-    assertThat(db.activeRuleDao().findAll(dbSession)).isEmpty();
-    assertThat(db.activeRuleDao().findAllParams(dbSession)).isEmpty();
+    assertThat(db.qualityProfileDao().selectAll(dbSession)).isEmpty();
+    assertThat(db.activeRuleDao().selectAll(dbSession)).isEmpty();
+    assertThat(db.activeRuleDao().selectAllParams(dbSession)).isEmpty();
     assertThat(index.get(ActiveRuleIndex.class).findByProfile(XOO_P1_KEY)).isEmpty();
     assertThat(index.get(ActiveRuleIndex.class).findByProfile(XOO_P2_KEY)).isEmpty();
     assertThat(index.get(ActiveRuleIndex.class).findByProfile(XOO_P3_KEY)).isEmpty();
@@ -252,7 +252,7 @@ public class QProfileFactoryMediumTest {
       fail();
     } catch (BadRequestException e) {
       assertThat(e).hasMessage("The profile marked as default can not be deleted: XOO_P1");
-      assertThat(db.qualityProfileDao().findAll(dbSession)).hasSize(1);
+      assertThat(db.qualityProfileDao().selectAll(dbSession)).hasSize(1);
     }
   }
 
@@ -270,7 +270,7 @@ public class QProfileFactoryMediumTest {
       fail();
     } catch (BadRequestException e) {
       assertThat(e).hasMessage("The profile marked as default can not be deleted: XOO_P3");
-      assertThat(db.qualityProfileDao().findAll(dbSession)).hasSize(3);
+      assertThat(db.qualityProfileDao().selectAll(dbSession)).hasSize(3);
     }
   }
 
@@ -290,12 +290,12 @@ public class QProfileFactoryMediumTest {
     dbSession.commit();
     dbSession.clearCache();
 
-    assertThat(db.qualityProfileDao().getByKey(dbSession, XOO_P1_KEY).isDefault()).isFalse();
+    assertThat(db.qualityProfileDao().selectByKey(dbSession, XOO_P1_KEY).isDefault()).isFalse();
 
     factory.setDefault(XOO_P1_KEY);
     dbSession.clearCache();
 
-    assertThat(db.qualityProfileDao().getByKey(dbSession, XOO_P1_KEY).isDefault()).isTrue();
+    assertThat(db.qualityProfileDao().selectByKey(dbSession, XOO_P1_KEY).isDefault()).isTrue();
   }
 
   @Test
@@ -352,7 +352,7 @@ public class QProfileFactoryMediumTest {
     RuleDto xooRule1 = RuleTesting.newXooX1();
     RuleDto xooRule2 = RuleTesting.newXooX2();
     db.ruleDao().insert(dbSession, xooRule1, xooRule2);
-    db.ruleDao().addRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
+    db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
     dbSession.commit();
     dbSession.clearCache();

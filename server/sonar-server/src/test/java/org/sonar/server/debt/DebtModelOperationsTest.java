@@ -122,11 +122,11 @@ public class DebtModelOperationsTest {
     doAnswer(new Answer() {
       public Object answer(InvocationOnMock invocation) {
         Object[] args = invocation.getArguments();
-        CharacteristicDto dto = (CharacteristicDto) args[0];
+        CharacteristicDto dto = (CharacteristicDto) args[1];
         dto.setId(++currentId);
         return null;
       }
-    }).when(dao).insert(any(CharacteristicDto.class), any(SqlSession.class));
+    }).when(dao).insert(any(SqlSession.class), any(CharacteristicDto.class));
 
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.ruleDao()).thenReturn(ruleDao);
@@ -136,7 +136,7 @@ public class DebtModelOperationsTest {
 
   @Test
   public void create_sub_characteristic() {
-    when(dao.selectById(1, session)).thenReturn(characteristicDto);
+    when(dao.selectById(session, 1)).thenReturn(characteristicDto);
 
     DefaultDebtCharacteristic result = (DefaultDebtCharacteristic) service.create("Compilation name", 1);
 
@@ -149,7 +149,7 @@ public class DebtModelOperationsTest {
 
   @Test
   public void fail_to_create_sub_characteristic_when_parent_id_is_not_a_root_characteristic() {
-    when(dao.selectById(1, session)).thenReturn(subCharacteristicDto);
+    when(dao.selectById(session, 1)).thenReturn(subCharacteristicDto);
 
     try {
       service.create("Compilation", 1);
@@ -161,7 +161,7 @@ public class DebtModelOperationsTest {
 
   @Test
   public void fail_to_create_sub_characteristic_when_parent_does_not_exists() {
-    when(dao.selectById(1, session)).thenReturn(null);
+    when(dao.selectById(session, 1)).thenReturn(null);
 
     try {
       service.create("Compilation", 1);
@@ -173,8 +173,8 @@ public class DebtModelOperationsTest {
 
   @Test
   public void fail_to_create_sub_characteristic_when_name_already_used() {
-    when(dao.selectByName("Compilation", session)).thenReturn(new CharacteristicDto());
-    when(dao.selectById(1, session)).thenReturn(characteristicDto);
+    when(dao.selectByName(session, "Compilation")).thenReturn(new CharacteristicDto());
+    when(dao.selectById(session, 1)).thenReturn(characteristicDto);
 
     try {
       service.create("Compilation", 1);
@@ -225,7 +225,7 @@ public class DebtModelOperationsTest {
 
   @Test
   public void rename_characteristic() {
-    when(dao.selectById(10, session)).thenReturn(subCharacteristicDto);
+    when(dao.selectById(session, 10)).thenReturn(subCharacteristicDto);
 
     DefaultDebtCharacteristic result = (DefaultDebtCharacteristic) service.rename(10, "New Efficiency");
 
@@ -236,7 +236,7 @@ public class DebtModelOperationsTest {
 
   @Test
   public void not_rename_characteristic_when_renaming_with_same_name() {
-    when(dao.selectById(10, session)).thenReturn(subCharacteristicDto);
+    when(dao.selectById(session, 10)).thenReturn(subCharacteristicDto);
 
     service.rename(10, "Efficiency");
 
@@ -245,7 +245,7 @@ public class DebtModelOperationsTest {
 
   @Test
   public void fail_to_rename_unknown_characteristic() {
-    when(dao.selectById(10, session)).thenReturn(null);
+    when(dao.selectById(session, 10)).thenReturn(null);
 
     try {
       service.rename(10, "New Efficiency");
@@ -257,7 +257,7 @@ public class DebtModelOperationsTest {
 
   @Test
   public void move_up() {
-    when(dao.selectById(10, session)).thenReturn(new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(2));
+    when(dao.selectById(session, 10)).thenReturn(new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(2));
     when(dao.selectEnabledRootCharacteristics(session)).thenReturn(newArrayList(
       new CharacteristicDto().setId(2).setKey("PORTABILITY").setOrder(1),
       new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(2)
@@ -276,7 +276,7 @@ public class DebtModelOperationsTest {
 
   @Test
   public void do_nothing_when_move_up_and_already_on_top() {
-    when(dao.selectById(10, session)).thenReturn(new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(1));
+    when(dao.selectById(session, 10)).thenReturn(new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(1));
     when(dao.selectEnabledRootCharacteristics(session)).thenReturn(newArrayList(
       new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(1),
       new CharacteristicDto().setId(2).setKey("PORTABILITY").setOrder(2)
@@ -289,7 +289,7 @@ public class DebtModelOperationsTest {
 
   @Test
   public void move_down() {
-    when(dao.selectById(10, session)).thenReturn(new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(2));
+    when(dao.selectById(session, 10)).thenReturn(new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(2));
     when(dao.selectEnabledRootCharacteristics(session)).thenReturn(newArrayList(
       new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(2),
       new CharacteristicDto().setId(2).setKey("PORTABILITY").setOrder(3)
@@ -308,7 +308,7 @@ public class DebtModelOperationsTest {
 
   @Test
   public void do_nothing_when_move_down_and_already_on_bottom() {
-    when(dao.selectById(10, session)).thenReturn(new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(2));
+    when(dao.selectById(session, 10)).thenReturn(new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(2));
     when(dao.selectEnabledRootCharacteristics(session)).thenReturn(newArrayList(
       new CharacteristicDto().setId(2).setKey("PORTABILITY").setOrder(1),
       new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(2)
@@ -321,7 +321,7 @@ public class DebtModelOperationsTest {
 
   @Test
   public void fail_to_move_sub_characteristic() {
-    when(dao.selectById(10, session)).thenReturn(new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setParentId(1));
+    when(dao.selectById(session, 10)).thenReturn(new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setParentId(1));
     when(dao.selectEnabledRootCharacteristics(session)).thenReturn(newArrayList(
       new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(2),
       new CharacteristicDto().setId(2).setKey("PORTABILITY").setOrder(3)
@@ -338,7 +338,7 @@ public class DebtModelOperationsTest {
 
   @Test
   public void fail_to_move_characteristic_with_no_order() {
-    when(dao.selectById(10, session)).thenReturn(new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(null));
+    when(dao.selectById(session, 10)).thenReturn(new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(null));
     when(dao.selectEnabledRootCharacteristics(session)).thenReturn(newArrayList(
       new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(2),
       new CharacteristicDto().setId(2).setKey("PORTABILITY").setOrder(3)
@@ -359,7 +359,7 @@ public class DebtModelOperationsTest {
     DbSession batchSession = mock(DbSession.class);
     when(dbClient.openSession(true)).thenReturn(batchSession);
 
-    when(ruleDao.findRulesByDebtSubCharacteristicId(batchSession, 2)).thenReturn(newArrayList(
+    when(ruleDao.selectRulesByDebtSubCharacteristicId(batchSession, 2)).thenReturn(newArrayList(
       new RuleDto()
         .setSubCharacteristicId(2)
         .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
@@ -369,7 +369,7 @@ public class DebtModelOperationsTest {
         .setDefaultRemediationCoefficient("4h")
         .setDefaultRemediationOffset("15min")
     ));
-    when(dao.selectById(2, batchSession)).thenReturn(subCharacteristicDto);
+    when(dao.selectById(batchSession, 2)).thenReturn(subCharacteristicDto);
 
     service.delete(2);
 
@@ -404,12 +404,12 @@ public class DebtModelOperationsTest {
     DbSession batchSession = mock(DbSession.class);
     when(dbClient.openSession(true)).thenReturn(batchSession);
 
-    when(ruleDao.findRulesByDebtSubCharacteristicId(batchSession, 2)).thenReturn(newArrayList(
+    when(ruleDao.selectRulesByDebtSubCharacteristicId(batchSession, 2)).thenReturn(newArrayList(
       new RuleDto()
         .setSubCharacteristicId(10).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("5min")
         .setDefaultSubCharacteristicId(2).setDefaultRemediationFunction("LINEAR_OFFSET").setDefaultRemediationCoefficient("4h").setDefaultRemediationOffset("15min")
     ));
-    when(dao.selectById(2, batchSession)).thenReturn(subCharacteristicDto);
+    when(dao.selectById(batchSession, 2)).thenReturn(subCharacteristicDto);
 
     service.delete(2);
 
@@ -442,7 +442,7 @@ public class DebtModelOperationsTest {
     DbSession batchSession = mock(DbSession.class);
     when(dbClient.openSession(true)).thenReturn(batchSession);
 
-    when(ruleDao.findRulesByDebtSubCharacteristicId(batchSession, subCharacteristicDto.getId())).thenReturn(newArrayList(
+    when(ruleDao.selectRulesByDebtSubCharacteristicId(batchSession, subCharacteristicDto.getId())).thenReturn(newArrayList(
       new RuleDto().setSubCharacteristicId(subCharacteristicDto.getId())
         .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
         .setRemediationCoefficient("2h")
@@ -451,7 +451,7 @@ public class DebtModelOperationsTest {
     when(dao.selectCharacteristicsByParentId(1, batchSession)).thenReturn(newArrayList(
       subCharacteristicDto
     ));
-    when(dao.selectById(1, batchSession)).thenReturn(characteristicDto);
+    when(dao.selectById(batchSession, 1)).thenReturn(characteristicDto);
 
     service.delete(1);
 
@@ -477,7 +477,7 @@ public class DebtModelOperationsTest {
     DbSession batchSession = mock(DbSession.class);
     when(dbClient.openSession(true)).thenReturn(batchSession);
 
-    when(dao.selectById(1, batchSession)).thenReturn(new CharacteristicDto()
+    when(dao.selectById(batchSession, 1)).thenReturn(new CharacteristicDto()
       .setId(1)
       .setKey("MEMORY_EFFICIENCY")
       .setName("Memory use")

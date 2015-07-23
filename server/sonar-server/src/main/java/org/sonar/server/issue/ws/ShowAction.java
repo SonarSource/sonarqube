@@ -169,10 +169,10 @@ public class ShowAction implements IssuesWsAction {
   }
 
   private void addComponents(DbSession session, Issue issue, JsonWriter json) {
-    ComponentDto component = dbClient.componentDao().selectNonNullByUuid(session, issue.componentUuid());
+    ComponentDto component = dbClient.componentDao().selectOrFailByUuid(session, issue.componentUuid());
     Long parentProjectId = component.parentProjectId();
     Optional<ComponentDto> parentProject = parentProjectId != null ? dbClient.componentDao().selectById(session, parentProjectId) : Optional.<ComponentDto>absent();
-    ComponentDto project = dbClient.componentDao().selectNonNullByUuid(session, component.projectUuid());
+    ComponentDto project = dbClient.componentDao().selectOrFailByUuid(session, component.projectUuid());
 
     String projectName = project.longName() != null ? project.longName() : project.name();
     // Do not display sub project long name if sub project and project are the same

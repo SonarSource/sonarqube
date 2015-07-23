@@ -129,7 +129,7 @@ public class RuleCreator {
       errors.add(Message.of("coding_rules.validation.missing_status"));
     }
 
-    for (RuleParamDto ruleParam : dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, templateKey)) {
+    for (RuleParamDto ruleParam : dbClient.ruleDao().selectRuleParamsByRuleKey(dbSession, templateKey)) {
       try {
         validateParam(ruleParam, newRule.parameter(ruleParam.getName()));
       } catch (BadRequestException validationError) {
@@ -212,7 +212,7 @@ public class RuleCreator {
       .setSystemTags(templateRuleDto.getSystemTags());
     dbClient.ruleDao().insert(dbSession, ruleDto);
 
-    for (RuleParamDto templateRuleParamDto : dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, templateRuleDto.getKey())) {
+    for (RuleParamDto templateRuleParamDto : dbClient.ruleDao().selectRuleParamsByRuleKey(dbSession, templateRuleDto.getKey())) {
       String customRuleParamValue = Strings.emptyToNull(newRule.parameter(templateRuleParamDto.getName()));
       createCustomRuleParams(customRuleParamValue, ruleDto, templateRuleParamDto, dbSession);
     }
@@ -225,7 +225,7 @@ public class RuleCreator {
       .setType(templateRuleParam.getType())
       .setDescription(templateRuleParam.getDescription())
       .setDefaultValue(paramValue);
-    dbClient.ruleDao().addRuleParam(dbSession, ruleDto, ruleParamDto);
+    dbClient.ruleDao().insertRuleParam(dbSession, ruleDto, ruleParamDto);
   }
 
   private RuleKey createManualRule(RuleKey ruleKey, NewRule newRule, DbSession dbSession) {

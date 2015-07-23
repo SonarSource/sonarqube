@@ -66,10 +66,10 @@ public class QProfileCopier {
   private QualityProfileDto prepareTarget(String fromProfileKey, String toName) {
     DbSession dbSession = db.openSession(false);
     try {
-      QualityProfileDto fromProfile = db.qualityProfileDao().getNonNullByKey(dbSession, fromProfileKey);
+      QualityProfileDto fromProfile = db.qualityProfileDao().selectOrFailByKey(dbSession, fromProfileKey);
       QProfileName toProfileName = new QProfileName(fromProfile.getLanguage(), toName);
       verify(fromProfile, toProfileName);
-      QualityProfileDto toProfile = db.qualityProfileDao().getByNameAndLanguage(toProfileName.getName(), toProfileName.getLanguage(), dbSession);
+      QualityProfileDto toProfile = db.qualityProfileDao().selectByNameAndLanguage(toProfileName.getName(), toProfileName.getLanguage(), dbSession);
       if (toProfile == null) {
         // Do not delegate creation to QProfileBackuper because we need to keep
         // the parent-child association, if exists.

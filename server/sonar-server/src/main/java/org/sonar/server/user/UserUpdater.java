@@ -90,7 +90,7 @@ public class UserUpdater {
     try {
       UserDto userDto = createNewUserDto(dbSession, newUser);
       String login = userDto.getLogin();
-      UserDto existingUser = dbClient.userDao().selectNullableByLogin(dbSession, login);
+      UserDto existingUser = dbClient.userDao().selectByLogin(dbSession, login);
       if (existingUser == null) {
         saveUser(dbSession, userDto);
       } else {
@@ -119,7 +119,7 @@ public class UserUpdater {
   public void update(UpdateUser updateUser) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      UserDto user = dbClient.userDao().selectNullableByLogin(dbSession, updateUser.login());
+      UserDto user = dbClient.userDao().selectByLogin(dbSession, updateUser.login());
       if (user == null) {
         throw new NotFoundException(String.format("User with login '%s' has not been found", updateUser.login()));
       }
@@ -141,7 +141,7 @@ public class UserUpdater {
   public void checkCurrentPassword(String login, String password) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
+      UserDto user = dbClient.userDao().selectOrFailByLogin(dbSession, login);
       String cryptedPassword = encryptPassword(password, user.getSalt());
       if (!cryptedPassword.equals(user.getCryptedPassword())) {
         throw new IllegalArgumentException("Incorrect password");
@@ -276,7 +276,7 @@ public class UserUpdater {
       if (scmAccount.equals(login) || scmAccount.equals(email)) {
         messages.add(Message.of("user.login_or_email_used_as_scm_account"));
       } else {
-        List<UserDto> matchingUsers = dbClient.userDao().selectNullableByScmAccountOrLoginOrEmail(dbSession, scmAccount);
+        List<UserDto> matchingUsers = dbClient.userDao().selectByScmAccountOrLoginOrEmail(dbSession, scmAccount);
         List<String> matchingUsersWithoutExistingUser = newArrayList();
         for (UserDto matchingUser : matchingUsers) {
           if (existingUser == null || !matchingUser.getId().equals(existingUser.getId())) {
@@ -338,9 +338,9 @@ public class UserUpdater {
     if (defaultGroup == null) {
       throw new ServerException(HttpURLConnection.HTTP_INTERNAL_ERROR, String.format("The default group property '%s' is null", CoreProperties.CORE_DEFAULT_GROUP));
     }
-    List<GroupDto> userGroups = dbClient.groupDao().findByUserLogin(dbSession, userDto.getLogin());
+    List<GroupDto> userGroups = dbClient.groupDao().selectByUserLogin(dbSession, userDto.getLogin());
     if (!Iterables.any(userGroups, new GroupDtoMatchKey(defaultGroup))) {
-      GroupDto groupDto = dbClient.groupDao().selectNullableByKey(dbSession, defaultGroup);
+      GroupDto groupDto = dbClient.groupDao().selectByKey(dbSession, defaultGroup);
       if (groupDto == null) {
         throw new ServerException(HttpURLConnection.HTTP_INTERNAL_ERROR,
           String.format("The default group '%s' for new users does not exist. Please update the general security settings to fix this issue.",

@@ -70,7 +70,7 @@ public class MeasureRepositoryImpl implements MeasureRepository {
     requireNonNull(metric);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      MeasureDto measureDto = dbClient.measureDao().findByComponentKeyAndMetricKey(dbSession, component.getKey(), metric.getKey());
+      MeasureDto measureDto = dbClient.measureDao().selectByComponentKeyAndMetricKey(dbSession, component.getKey(), metric.getKey());
       return measureDtoToMeasure.toMeasure(measureDto, metric);
     }
   }

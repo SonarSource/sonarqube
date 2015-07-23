@@ -79,7 +79,7 @@ public class DebtModelOperations {
         // New root characteristic
         newCharacteristic.setOrder(dbClient.debtCharacteristicDao().selectMaxCharacteristicOrder(session) + 1);
       }
-      dbClient.debtCharacteristicDao().insert(newCharacteristic, session);
+      dbClient.debtCharacteristicDao().insert(session, newCharacteristic);
       session.commit();
       return toCharacteristic(newCharacteristic);
     } finally {
@@ -207,7 +207,7 @@ public class DebtModelOperations {
 
   private void disableSubCharacteristic(CharacteristicDto subCharacteristic, Date updateDate, DbSession session) {
     // Disable debt on all rules (even REMOVED ones, in order to have no issue if they are reactivated) linked to the sub characteristic
-    disableRulesDebt(dbClient.ruleDao().findRulesByDebtSubCharacteristicId(session, subCharacteristic.getId()), subCharacteristic.getId(), updateDate, session);
+    disableRulesDebt(dbClient.ruleDao().selectRulesByDebtSubCharacteristicId(session, subCharacteristic.getId()), subCharacteristic.getId(), updateDate, session);
     disableCharacteristic(subCharacteristic, updateDate, session);
   }
 
@@ -237,7 +237,7 @@ public class DebtModelOperations {
   }
 
   private CharacteristicDto findCharacteristic(Integer id, SqlSession session) {
-    CharacteristicDto dto = dbClient.debtCharacteristicDao().selectById(id, session);
+    CharacteristicDto dto = dbClient.debtCharacteristicDao().selectById(session, id);
     if (dto == null) {
       throw new NotFoundException(String.format("Characteristic with id %s does not exists.", id));
     }
@@ -245,7 +245,7 @@ public class DebtModelOperations {
   }
 
   private void checkNotAlreadyExists(String name, SqlSession session) {
-    if (dbClient.debtCharacteristicDao().selectByName(name, session) != null) {
+    if (dbClient.debtCharacteristicDao().selectByName(session, name) != null) {
       throw new BadRequestException(Validation.IS_ALREADY_USED_MESSAGE, name);
     }
   }

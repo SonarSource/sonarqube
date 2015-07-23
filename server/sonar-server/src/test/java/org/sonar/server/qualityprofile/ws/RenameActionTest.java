@@ -88,7 +88,7 @@ public class RenameActionTest {
       .setParam("name", "Other Sonar Way")
       .execute().assertNoContent();
 
-    assertThat(qualityProfileDao.getNonNullByKey(session, "sonar-way-xoo2-23456").getName()).isEqualTo("Other Sonar Way");
+    assertThat(qualityProfileDao.selectOrFailByKey(session, "sonar-way-xoo2-23456").getName()).isEqualTo("Other Sonar Way");
   }
 
   @Test(expected = BadRequestException.class)

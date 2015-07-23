@@ -91,7 +91,7 @@ public class CoverageService {
   private Map<Integer, Integer> findDataFromComponent(String fileKey, String metricKey) {
     DbSession session = myBatis.openSession(false);
     try {
-      MeasureDto data = measureDao.findByComponentKeyAndMetricKey(session, fileKey, metricKey);
+      MeasureDto data = measureDao.selectByComponentKeyAndMetricKey(session, fileKey, metricKey);
       String dataValue = data != null ? data.getData() : null;
       if (dataValue != null) {
         return KeyValueFormat.parseIntInt(dataValue);

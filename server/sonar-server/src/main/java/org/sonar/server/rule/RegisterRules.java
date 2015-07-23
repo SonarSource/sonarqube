@@ -148,7 +148,7 @@ public class RegisterRules implements Startable {
 
   private Map<RuleKey, RuleDto> loadRules(DbSession session) {
     Map<RuleKey, RuleDto> rules = new HashMap<>();
-    for (RuleDto rule : dbClient.ruleDao().findByNonManual(session)) {
+    for (RuleDto rule : dbClient.ruleDao().selectByNonManual(session)) {
       rules.put(rule.getKey(), rule);
     }
     return rules;
@@ -316,14 +316,14 @@ public class RegisterRules implements Startable {
   }
 
   private void mergeParams(RulesDefinition.Rule ruleDef, RuleDto rule, DbSession session) {
-    List<RuleParamDto> paramDtos = dbClient.ruleDao().findRuleParamsByRuleKey(session, rule.getKey());
+    List<RuleParamDto> paramDtos = dbClient.ruleDao().selectRuleParamsByRuleKey(session, rule.getKey());
     Map<String, RuleParamDto> existingParamsByName = Maps.newHashMap();
 
     for (RuleParamDto paramDto : paramDtos) {
       RulesDefinition.Param paramDef = ruleDef.param(paramDto.getName());
       if (paramDef == null) {
         dbClient.activeRuleDao().deleteParamsByRuleParam(session, rule, paramDto.getName());
-        dbClient.ruleDao().removeRuleParam(session, rule, paramDto);
+        dbClient.ruleDao().deleteRuleParam(session, rule, paramDto);
       } else {
         if (mergeParam(paramDto, paramDef)) {
           dbClient.ruleDao().updateRuleParam(session, rule, paramDto);
@@ -341,12 +341,12 @@ public class RegisterRules implements Startable {
           .setDescription(param.description())
           .setDefaultValue(param.defaultValue())
           .setType(param.type().toString());
-        dbClient.ruleDao().addRuleParam(session, rule, paramDto);
+        dbClient.ruleDao().insertRuleParam(session, rule, paramDto);
         if (!StringUtils.isEmpty(param.defaultValue())) {
           // Propagate the default value to existing active rules
-          for (ActiveRuleDto activeRule : dbClient.activeRuleDao().findByRule(session, rule)) {
+          for (ActiveRuleDto activeRule : dbClient.activeRuleDao().selectByRule(session, rule)) {
             ActiveRuleParamDto activeParam = ActiveRuleParamDto.createFor(paramDto).setValue(param.defaultValue());
-            dbClient.activeRuleDao().addParam(session, activeRule, activeParam);
+            dbClient.activeRuleDao().insertParam(session, activeRule, activeParam);
           }
         }
       }
@@ -400,7 +400,7 @@ public class RegisterRules implements Startable {
     }
 
     for (RuleDto customRule : customRules) {
-      RuleDto template = dbClient.ruleDao().getTemplate(customRule, session);
+      RuleDto template = dbClient.ruleDao().selectTemplate(customRule, session);
       if (template != null && template.getStatus() != RuleStatus.REMOVED) {
         if (updateCustomRuleFromTemplateRule(customRule, template)) {
           dbClient.ruleDao().update(session, customRule);

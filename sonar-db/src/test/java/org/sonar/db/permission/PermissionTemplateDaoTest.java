@@ -52,7 +52,7 @@ public class PermissionTemplateDaoTest {
     Date now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2013-01-02 01:04:05");
     when(system.now()).thenReturn(now.getTime());
 
-    PermissionTemplateDto permissionTemplate = permissionTemplateDao.createPermissionTemplate("my template", "my description", "myregexp");
+    PermissionTemplateDto permissionTemplate = permissionTemplateDao.insertPermissionTemplate("my template", "my description", "myregexp");
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getId()).isEqualTo(1L);
 
@@ -66,7 +66,7 @@ public class PermissionTemplateDaoTest {
     Date now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2013-01-02 01:04:05");
     when(system.now()).thenReturn(now.getTime());
 
-    PermissionTemplateDto permissionTemplate = permissionTemplateDao.createPermissionTemplate("Môü Gnô Gnèçàß", "my description", null);
+    PermissionTemplateDto permissionTemplate = permissionTemplateDao.insertPermissionTemplate("Môü Gnô Gnèçàß", "my description", null);
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getId()).isEqualTo(1L);
 
@@ -86,7 +86,7 @@ public class PermissionTemplateDaoTest {
     when(myBatis.openSession(false)).thenReturn(session);
 
     permissionTemplateDao = new PermissionTemplateDao(myBatis, system);
-    PermissionTemplateDto permissionTemplate = permissionTemplateDao.createPermissionTemplate(PermissionTemplateDto.DEFAULT.getName(), null, null);
+    PermissionTemplateDto permissionTemplate = permissionTemplateDao.insertPermissionTemplate(PermissionTemplateDto.DEFAULT.getName(), null, null);
 
     verify(mapper).insert(permissionTemplate);
     verify(session).commit();
@@ -176,7 +176,7 @@ public class PermissionTemplateDaoTest {
   public void should_add_user_permission_to_template() {
     db.prepareDbUnit(getClass(), "addUserPermissionToTemplate.xml");
 
-    permissionTemplateDao.addUserPermission(1L, 1L, "new_permission");
+    permissionTemplateDao.insertUserPermission(1L, 1L, "new_permission");
 
     checkTemplateTables("addUserPermissionToTemplate-result.xml");
   }
@@ -185,7 +185,7 @@ public class PermissionTemplateDaoTest {
   public void should_remove_user_permission_from_template() {
     db.prepareDbUnit(getClass(), "removeUserPermissionFromTemplate.xml");
 
-    permissionTemplateDao.removeUserPermission(1L, 2L, "permission_to_remove");
+    permissionTemplateDao.deleteUserPermission(1L, 2L, "permission_to_remove");
 
     checkTemplateTables("removeUserPermissionFromTemplate-result.xml");
   }
@@ -194,7 +194,7 @@ public class PermissionTemplateDaoTest {
   public void should_add_group_permission_to_template() {
     db.prepareDbUnit(getClass(), "addGroupPermissionToTemplate.xml");
 
-    permissionTemplateDao.addGroupPermission(1L, 1L, "new_permission");
+    permissionTemplateDao.insertGroupPermission(1L, 1L, "new_permission");
 
     checkTemplateTables("addGroupPermissionToTemplate-result.xml");
   }
@@ -203,7 +203,7 @@ public class PermissionTemplateDaoTest {
   public void should_remove_group_permission_from_template() {
     db.prepareDbUnit(getClass(), "removeGroupPermissionFromTemplate.xml");
 
-    permissionTemplateDao.removeGroupPermission(1L, 2L, "permission_to_remove");
+    permissionTemplateDao.deleteGroupPermission(1L, 2L, "permission_to_remove");
 
     checkTemplateTables("removeGroupPermissionFromTemplate-result.xml");
   }
@@ -212,7 +212,7 @@ public class PermissionTemplateDaoTest {
   public void remove_by_group() {
     db.prepareDbUnit(getClass(), "remove_by_group.xml");
 
-    permissionTemplateDao.removeByGroup(2L, db.getSession());
+    permissionTemplateDao.deleteByGroup(db.getSession(), 2L);
     db.getSession().commit();
 
     db.assertDbUnitTable(getClass(), "remove_by_group-result.xml", "permission_templates", "id", "name", "kee", "description");
@@ -222,7 +222,7 @@ public class PermissionTemplateDaoTest {
   public void should_add_group_permission_with_null_name() {
     db.prepareDbUnit(getClass(), "addNullGroupPermissionToTemplate.xml");
 
-    permissionTemplateDao.addGroupPermission(1L, null, "new_permission");
+    permissionTemplateDao.insertGroupPermission(1L, null, "new_permission");
 
     checkTemplateTables("addNullGroupPermissionToTemplate-result.xml");
   }
@@ -231,7 +231,7 @@ public class PermissionTemplateDaoTest {
   public void should_remove_group_permission_with_null_name() {
     db.prepareDbUnit(getClass(), "removeNullGroupPermissionFromTemplate.xml");
 
-    permissionTemplateDao.removeGroupPermission(1L, null, "permission_to_remove");
+    permissionTemplateDao.deleteGroupPermission(1L, null, "permission_to_remove");
 
     checkTemplateTables("removeNullGroupPermissionFromTemplate-result.xml");
   }

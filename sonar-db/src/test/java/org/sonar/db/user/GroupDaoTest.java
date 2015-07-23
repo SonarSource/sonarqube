@@ -62,7 +62,7 @@ public class GroupDaoTest {
   public void select_by_key() {
     dbTester.prepareDbUnit(getClass(), "select_by_key.xml");
 
-    GroupDto group = new GroupDao(system2).selectByKey(session, "sonar-users");
+    GroupDto group = new GroupDao(system2).selectOrFailByKey(session, "sonar-users");
     assertThat(group).isNotNull();
     assertThat(group.getId()).isEqualTo(1L);
     assertThat(group.getName()).isEqualTo("sonar-users");
@@ -75,7 +75,7 @@ public class GroupDaoTest {
   public void select_by_id() {
     dbTester.prepareDbUnit(getClass(), "select_by_key.xml");
 
-    GroupDto group = new GroupDao(system2).selectById(session, 1L);
+    GroupDto group = new GroupDao(system2).selectOrFailById(session, 1L);
     assertThat(group).isNotNull();
     assertThat(group.getId()).isEqualTo(1L);
     assertThat(group.getName()).isEqualTo("sonar-users");
@@ -88,8 +88,8 @@ public class GroupDaoTest {
   public void find_by_user_login() {
     dbTester.prepareDbUnit(getClass(), "find_by_user_login.xml");
 
-    assertThat(dao.findByUserLogin(session, "john")).hasSize(2);
-    assertThat(dao.findByUserLogin(session, "max")).isEmpty();
+    assertThat(dao.selectByUserLogin(session, "john")).hasSize(2);
+    assertThat(dao.selectByUserLogin(session, "max")).isEmpty();
   }
 
   @Test

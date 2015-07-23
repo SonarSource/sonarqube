@@ -61,9 +61,9 @@ public class QProfileComparison {
   }
 
   private void compare(String leftKey, String rightKey, DbSession session, QProfileComparisonResult result) {
-    result.left = dbClient.qualityProfileDao().getByKey(session, leftKey);
+    result.left = dbClient.qualityProfileDao().selectByKey(session, leftKey);
     Preconditions.checkArgument(result.left != null, String.format("Could not find left profile '%s'", leftKey));
-    result.right = dbClient.qualityProfileDao().getByKey(session, rightKey);
+    result.right = dbClient.qualityProfileDao().selectByKey(session, rightKey);
     Preconditions.checkArgument(result.right != null, String.format("Could not find right profile '%s'", leftKey));
 
     Map<RuleKey, ActiveRule> leftActiveRulesByRuleKey = loadActiveRules(leftKey);

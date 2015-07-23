@@ -60,7 +60,7 @@ public class DefaultMetricFinder implements MetricFinder {
   public Metric findByKey(String key) {
     DbSession session = dbClient.openSession(false);
     try {
-      MetricDto dto = dbClient.metricDao().selectNullableByKey(session, key);
+      MetricDto dto = dbClient.metricDao().selectByKey(session, key);
       if (dto != null && dto.isEnabled()) {
         return ToMetric.INSTANCE.apply(dto);
       }
@@ -74,7 +74,7 @@ public class DefaultMetricFinder implements MetricFinder {
   public Collection<Metric> findAll(List<String> metricKeys) {
     DbSession session = dbClient.openSession(false);
     try {
-      List<MetricDto> dtos = dbClient.metricDao().selectNullableByKeys(session, metricKeys);
+      List<MetricDto> dtos = dbClient.metricDao().selectByKeys(session, metricKeys);
       return from(dtos).filter(IsEnabled.INSTANCE).transform(ToMetric.INSTANCE).toList();
     } finally {
       MyBatis.closeQuietly(session);

@@ -42,7 +42,7 @@ public class ActionPlanStatsDaoTest {
   public void should_find_by_project() {
     dbTester.prepareDbUnit(getClass(), "shared.xml", "should_find_by_project.xml");
 
-    Collection<ActionPlanStatsDto> result = dao.findByProjectId(1l);
+    Collection<ActionPlanStatsDto> result = dao.selectByProjectId(1l);
     assertThat(result).isNotEmpty();
 
     ActionPlanStatsDto actionPlanStatsDto = result.iterator().next();

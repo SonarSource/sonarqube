@@ -147,7 +147,7 @@ public class IssuesAction implements BatchWsAction {
       if (moduleUuid == null) {
         throw new IllegalArgumentException(String.format("The component '%s' has no module uuid", component.uuid()));
       }
-      ComponentDto module = dbClient.componentDao().selectNonNullByUuid(session, moduleUuid);
+      ComponentDto module = dbClient.componentDao().selectOrFailByUuid(session, moduleUuid);
       keysByUUid.put(module.uuid(), module.key());
     }
     return keysByUUid;

@@ -149,7 +149,7 @@ public class RenameIssueWidgets implements Startable {
   }
 
   private String getReplacementWidgetKey(DbSession session, WidgetDto widget) {
-    DashboardDto dashboard = dbClient.dashboardDao().getNullableByKey(session, widget.getDashboardId());
+    DashboardDto dashboard = dbClient.dashboardDao().selectByKey(session, widget.getDashboardId());
     if (dashboard == null) {
       LOGGER.warn(String.format("Widget with ID=%d is not displayed on any dashboard, updating nevertheless", widget.getId()));
     }

@@ -30,7 +30,7 @@ public class MeasureFilterDao implements Dao {
     this.mybatis = mybatis;
   }
 
-  public MeasureFilterDto findSystemFilterByName(String name) {
+  public MeasureFilterDto selectSystemFilterByName(String name) {
     SqlSession session = mybatis.openSession(false);
     try {
       MeasureFilterMapper mapper = session.getMapper(MeasureFilterMapper.class);

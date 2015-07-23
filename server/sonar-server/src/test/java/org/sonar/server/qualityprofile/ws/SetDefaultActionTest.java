@@ -94,8 +94,8 @@ public class SetDefaultActionTest {
 
     checkDefaultProfile(xoo1Key, "sonar-way-xoo1-12345");
     checkDefaultProfile(xoo2Key, "sonar-way-xoo2-23456");
-    assertThat(dbClient.qualityProfileDao().getByKey(session, "sonar-way-xoo2-23456").isDefault()).isTrue();
-    assertThat(dbClient.qualityProfileDao().getByKey(session, "my-sonar-way-xoo2-34567").isDefault()).isFalse();
+    assertThat(dbClient.qualityProfileDao().selectByKey(session, "sonar-way-xoo2-23456").isDefault()).isTrue();
+    assertThat(dbClient.qualityProfileDao().selectByKey(session, "my-sonar-way-xoo2-34567").isDefault()).isFalse();
 
     // One more time!
     tester.newPostRequest("api/qualityprofiles", "set_default").setParam("profileKey", "sonar-way-xoo2-23456").execute().assertNoContent();
@@ -165,6 +165,6 @@ public class SetDefaultActionTest {
   }
 
   private void checkDefaultProfile(String language, String key) {
-    assertThat(dbClient.qualityProfileDao().getDefaultProfile(language).getKey()).isEqualTo(key);
+    assertThat(dbClient.qualityProfileDao().selectDefaultProfile(language).getKey()).isEqualTo(key);
   }
 }

@@ -91,7 +91,7 @@ public class DefaultNotificationManager implements NotificationManager {
    */
   public Notification getFromQueue() {
     int batchSize = 1;
-    List<NotificationQueueDto> notificationDtos = notificationQueueDao.findOldest(batchSize);
+    List<NotificationQueueDto> notificationDtos = notificationQueueDao.selectOldest(batchSize);
     if (notificationDtos.isEmpty()) {
       return null;
     }
@@ -141,11 +141,11 @@ public class DefaultNotificationManager implements NotificationManager {
       String channelKey = channel.getKey();
 
       // Find users subscribed globally to the dispatcher (i.e. not on a specific project)
-      addUsersToRecipientListForChannel(propertiesDao.findUsersForNotification(dispatcherKey, channelKey, null), recipients, channel);
+      addUsersToRecipientListForChannel(propertiesDao.selectUsersForNotification(dispatcherKey, channelKey, null), recipients, channel);
 
       if (projectUuid != null) {
         // Find users subscribed to the dispatcher specifically for the project
-        addUsersToRecipientListForChannel(propertiesDao.findUsersForNotification(dispatcherKey, channelKey, projectUuid), recipients, channel);
+        addUsersToRecipientListForChannel(propertiesDao.selectUsersForNotification(dispatcherKey, channelKey, projectUuid), recipients, channel);
       }
     }
 
@@ -158,7 +158,7 @@ public class DefaultNotificationManager implements NotificationManager {
 
     SetMultimap<String, NotificationChannel> recipients = HashMultimap.create();
     for (NotificationChannel channel : notificationChannels) {
-      addUsersToRecipientListForChannel(propertiesDao.findNotificationSubscribers(dispatcherKey, channel.getKey(), componentKey), recipients, channel);
+      addUsersToRecipientListForChannel(propertiesDao.selectNotificationSubscribers(dispatcherKey, channel.getKey(), componentKey), recipients, channel);
     }
 
     return recipients;

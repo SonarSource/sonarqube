@@ -48,7 +48,7 @@ public class MeasureDaoTest {
   public void get_value_by_key() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    MeasureDto result = underTest.findByComponentKeyAndMetricKey(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc");
+    MeasureDto result = underTest.selectByComponentKeyAndMetricKey(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc");
     assertThat(result.getId()).isEqualTo(22);
     assertThat(result.getValue()).isEqualTo(10d);
     assertThat(result.getData()).isNull();
@@ -66,7 +66,7 @@ public class MeasureDaoTest {
   public void get_data_by_key() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    MeasureDto result = underTest.findByComponentKeyAndMetricKey(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java", "authors_by_line");
+    MeasureDto result = underTest.selectByComponentKeyAndMetricKey(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java", "authors_by_line");
     assertThat(result.getId()).isEqualTo(20);
     assertThat(result.getData()).isEqualTo("0123456789012345678901234567890123456789");
   }
@@ -75,7 +75,7 @@ public class MeasureDaoTest {
   public void get_text_value_by_key() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    MeasureDto result = underTest.findByComponentKeyAndMetricKey(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java", "coverage_line_hits_data");
+    MeasureDto result = underTest.selectByComponentKeyAndMetricKey(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java", "coverage_line_hits_data");
     assertThat(result.getId()).isEqualTo(21);
     assertThat(result.getData()).isEqualTo("36=1;37=1;38=1;39=1;43=1;48=1;53=1");
   }
@@ -84,11 +84,11 @@ public class MeasureDaoTest {
   public void find_by_component_key_and_metrics() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    List<MeasureDto> results = underTest.findByComponentKeyAndMetricKeys(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java",
+    List<MeasureDto> results = underTest.selectByComponentKeyAndMetricKeys(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java",
       newArrayList("ncloc", "authors_by_line"));
     assertThat(results).hasSize(2);
 
-    results = underTest.findByComponentKeyAndMetricKeys(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java", newArrayList("ncloc"));
+    results = underTest.selectByComponentKeyAndMetricKeys(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java", newArrayList("ncloc"));
     assertThat(results).hasSize(1);
 
     MeasureDto result = results.get(0);
@@ -107,7 +107,7 @@ public class MeasureDaoTest {
   public void find_by_component_key_and_metric() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    MeasureDto result = underTest.findByComponentKeyAndMetricKey(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc");
+    MeasureDto result = underTest.selectByComponentKeyAndMetricKey(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc");
     assertThat(result.getId()).isEqualTo(22);
     assertThat(result.getValue()).isEqualTo(10d);
     assertThat(result.getMetricKey()).isEqualTo("ncloc");
@@ -118,7 +118,7 @@ public class MeasureDaoTest {
     assertThat(result.getVariation(4)).isEqualTo(4d);
     assertThat(result.getVariation(5)).isEqualTo(-5d);
 
-    assertThat(underTest.findByComponentKeyAndMetricKey(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java", "unknown")).isNull();
+    assertThat(underTest.selectByComponentKeyAndMetricKey(db.getSession(), "org.struts:struts-core:src/org/struts/RequestContext.java", "unknown")).isNull();
   }
 
   @Test

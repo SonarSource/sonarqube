@@ -79,7 +79,7 @@ public class RegisterRulesTest {
     execute(new FakeRepositoryV1());
 
     // verify db
-    assertThat(dbClient.ruleDao().findAll(dbTester.getSession())).hasSize(2);
+    assertThat(dbClient.ruleDao().selectAll(dbTester.getSession())).hasSize(2);
     RuleKey ruleKey1 = RuleKey.of("fake", "rule1");
     RuleDto rule1 = dbClient.ruleDao().getNullableByKey(dbTester.getSession(), ruleKey1);
     assertThat(rule1.getName()).isEqualTo("One");
@@ -93,7 +93,7 @@ public class RegisterRulesTest {
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE1);
     // TODO check characteristic and remediation function
 
-    List<RuleParamDto> params = dbClient.ruleDao().findRuleParamsByRuleKey(dbTester.getSession(), ruleKey1);
+    List<RuleParamDto> params = dbClient.ruleDao().selectRuleParamsByRuleKey(dbTester.getSession(), ruleKey1);
     assertThat(params).hasSize(2);
     RuleParamDto param = getParam(params, "param1");
     assertThat(param.getDescription()).isEqualTo("parameter one");
@@ -103,7 +103,7 @@ public class RegisterRulesTest {
   @Test
   public void do_not_update_rules_when_no_changes() {
     execute(new FakeRepositoryV1());
-    assertThat(dbClient.ruleDao().findAll(dbTester.getSession())).hasSize(2);
+    assertThat(dbClient.ruleDao().selectAll(dbTester.getSession())).hasSize(2);
 
     when(system.now()).thenReturn(DATE2.getTime());
     execute(new FakeRepositoryV1());
@@ -117,7 +117,7 @@ public class RegisterRulesTest {
   @Test
   public void update_and_remove_rules_on_changes() {
     execute(new FakeRepositoryV1());
-    assertThat(dbClient.ruleDao().findAll(dbTester.getSession())).hasSize(2);
+    assertThat(dbClient.ruleDao().selectAll(dbTester.getSession())).hasSize(2);
 
     // user adds tags and sets markdown note
     RuleKey ruleKey1 = RuleKey.of("fake", "rule1");
@@ -146,7 +146,7 @@ public class RegisterRulesTest {
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE2);
 
     // TODO check characteristic and remediation function
-    List<RuleParamDto> params = dbClient.ruleDao().findRuleParamsByRuleKey(dbTester.getSession(), ruleKey1);
+    List<RuleParamDto> params = dbClient.ruleDao().selectRuleParamsByRuleKey(dbTester.getSession(), ruleKey1);
     assertThat(params).hasSize(2);
     RuleParamDto param = getParam(params, "param1");
     assertThat(param.getDescription()).isEqualTo("parameter one v2");
@@ -166,7 +166,7 @@ public class RegisterRulesTest {
   @Test
   public void do_not_update_already_removed_rules() {
     execute(new FakeRepositoryV1());
-    assertThat(dbClient.ruleDao().findAll(dbTester.getSession())).hasSize(2);
+    assertThat(dbClient.ruleDao().selectAll(dbTester.getSession())).hasSize(2);
 
     RuleDto rule2 = dbClient.ruleDao().getByKey(dbTester.getSession(), RuleKey.of("fake", "rule2"));
     assertThat(rule2.getStatus()).isEqualTo(RuleStatus.READY);
@@ -195,14 +195,14 @@ public class RegisterRulesTest {
   @Test
   public void mass_insert() {
     execute(new BigRepository());
-    assertThat(dbClient.ruleDao().findAll(dbTester.getSession())).hasSize(BigRepository.SIZE);
-    assertThat(dbClient.ruleDao().findAllRuleParams(dbTester.getSession())).hasSize(BigRepository.SIZE * 20);
+    assertThat(dbClient.ruleDao().selectAll(dbTester.getSession())).hasSize(BigRepository.SIZE);
+    assertThat(dbClient.ruleDao().selectAllRuleParams(dbTester.getSession())).hasSize(BigRepository.SIZE * 20);
   }
 
   @Test
   public void manage_repository_extensions() {
     execute(new FindbugsRepository(), new FbContribRepository());
-    List<RuleDto> rules = dbClient.ruleDao().findAll(dbTester.getSession());
+    List<RuleDto> rules = dbClient.ruleDao().selectAll(dbTester.getSession());
     assertThat(rules).hasSize(2);
     for (RuleDto rule : rules) {
       assertThat(rule.getRepositoryKey()).isEqualTo("findbugs");

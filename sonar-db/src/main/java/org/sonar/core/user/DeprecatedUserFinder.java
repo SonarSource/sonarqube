@@ -38,7 +38,7 @@ public class DeprecatedUserFinder implements UserFinder {
 
   @Override
   public User findById(int id) {
-    return copy(userDao.getUser(id));
+    return copy(userDao.selectUserById(id));
   }
 
   @Override

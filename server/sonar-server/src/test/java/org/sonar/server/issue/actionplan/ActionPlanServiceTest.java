@@ -106,7 +106,7 @@ public class ActionPlanServiceTest {
 
   @Test
   public void create() {
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
     ActionPlan actionPlan = DefaultActionPlan.create("Long term");
 
     actionPlanService.create(actionPlan, projectAdministratorUserSession);
@@ -115,7 +115,7 @@ public class ActionPlanServiceTest {
 
   @Test
   public void create_required_admin_role() {
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
     ActionPlan actionPlan = DefaultActionPlan.create("Long term");
 
     try {
@@ -129,8 +129,8 @@ public class ActionPlanServiceTest {
 
   @Test
   public void set_status() {
-    when(actionPlanDao.findByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD").setProjectKey_unit_test_only(projectKey));
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
+    when(actionPlanDao.selectByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD").setProjectKey_unit_test_only(projectKey));
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
 
     ActionPlan result = actionPlanService.setStatus("ABCD", "CLOSED", projectAdministratorUserSession);
     verify(actionPlanDao).update(any(ActionPlanDto.class));
@@ -141,7 +141,7 @@ public class ActionPlanServiceTest {
 
   @Test
   public void update() {
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
     ActionPlan actionPlan = DefaultActionPlan.create("Long term");
 
     actionPlanService.update(actionPlan, projectAdministratorUserSession);
@@ -150,16 +150,16 @@ public class ActionPlanServiceTest {
 
   @Test
   public void delete() {
-    when(actionPlanDao.findByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD").setProjectKey_unit_test_only(projectKey));
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
+    when(actionPlanDao.selectByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD").setProjectKey_unit_test_only(projectKey));
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
     actionPlanService.delete("ABCD", projectAdministratorUserSession);
     verify(actionPlanDao).delete("ABCD");
   }
 
   @Test
   public void unplan_all_linked_issues_when_deleting_an_action_plan() {
-    when(actionPlanDao.findByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD").setProjectKey_unit_test_only(projectKey));
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
+    when(actionPlanDao.selectByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD").setProjectKey_unit_test_only(projectKey));
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
 
     IssueDto issueDto = new IssueDto().setId(100L).setStatus(Issue.STATUS_OPEN).setRuleKey("squid", "s100").setIssueCreationDate(new Date());
     when(issueDao.findByActionPlan(session, "ABCD")).thenReturn(newArrayList(issueDto));
@@ -174,8 +174,8 @@ public class ActionPlanServiceTest {
 
   @Test
   public void find_by_key() {
-    when(actionPlanDao.findByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD").setProjectKey_unit_test_only(projectKey));
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
+    when(actionPlanDao.selectByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD").setProjectKey_unit_test_only(projectKey));
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
 
     ActionPlan result = actionPlanService.findByKey("ABCD", projectUserSession);
     assertThat(result).isNotNull();
@@ -184,13 +184,13 @@ public class ActionPlanServiceTest {
 
   @Test
   public void return_null_if_no_action_plan_when_find_by_key() {
-    when(actionPlanDao.findByKey("ABCD")).thenReturn(null);
+    when(actionPlanDao.selectByKey("ABCD")).thenReturn(null);
     assertThat(actionPlanService.findByKey("ABCD", projectUserSession)).isNull();
   }
 
   @Test
   public void find_by_keys() {
-    when(actionPlanDao.findByKeys(newArrayList("ABCD"))).thenReturn(newArrayList(new ActionPlanDto().setKey("ABCD")));
+    when(actionPlanDao.selectByKeys(newArrayList("ABCD"))).thenReturn(newArrayList(new ActionPlanDto().setKey("ABCD")));
     Collection<ActionPlan> results = actionPlanService.findByKeys(newArrayList("ABCD"));
     assertThat(results).hasSize(1);
     assertThat(results.iterator().next().key()).isEqualTo("ABCD");
@@ -198,8 +198,8 @@ public class ActionPlanServiceTest {
 
   @Test
   public void find_open_by_project_key() {
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
-    when(actionPlanDao.findOpenByProjectId(1l)).thenReturn(newArrayList(new ActionPlanDto().setKey("ABCD")));
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
+    when(actionPlanDao.selectOpenByProjectId(1l)).thenReturn(newArrayList(new ActionPlanDto().setKey("ABCD")));
     Collection<ActionPlan> results = actionPlanService.findOpenByProjectKey(projectKey, projectUserSession);
     assertThat(results).hasSize(1);
     assertThat(results.iterator().next().key()).isEqualTo("ABCD");
@@ -207,8 +207,8 @@ public class ActionPlanServiceTest {
 
   @Test
   public void find_open_by_project_key_required_user_role() {
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
-    when(actionPlanDao.findOpenByProjectId(1l)).thenReturn(newArrayList(new ActionPlanDto().setKey("ABCD")));
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
+    when(actionPlanDao.selectOpenByProjectId(1l)).thenReturn(newArrayList(new ActionPlanDto().setKey("ABCD")));
 
     try {
       actionPlanService.findOpenByProjectKey(projectKey, unauthorizedUserSession);
@@ -221,14 +221,14 @@ public class ActionPlanServiceTest {
 
   @Test(expected = NotFoundException.class)
   public void throw_exception_if_project_not_found_when_find_open_by_project_key() {
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(null);
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(null);
     actionPlanService.findOpenByProjectKey("<Unkown>", projectUserSession);
   }
 
   @Test
   public void find_action_plan_stats() {
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setId(1L).setKey(projectKey));
-    when(actionPlanStatsDao.findByProjectId(1L)).thenReturn(newArrayList(new ActionPlanStatsDto()));
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setId(1L).setKey(projectKey));
+    when(actionPlanStatsDao.selectByProjectId(1L)).thenReturn(newArrayList(new ActionPlanStatsDto()));
 
     Collection<ActionPlanStats> results = actionPlanService.findActionPlanStats(projectKey, projectUserSession);
     assertThat(results).hasSize(1);
@@ -236,7 +236,7 @@ public class ActionPlanServiceTest {
 
   @Test(expected = NotFoundException.class)
   public void throw_exception_if_project_not_found_when_find_open_action_plan_stats() {
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(null);
+    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(null);
 
     actionPlanService.findActionPlanStats(projectKey, projectUserSession);
   }

@@ -75,7 +75,7 @@ public class SwitchSnapshotStep implements ComputationStep {
 
   private void enableCurrentSnapshot(DbSession session, long reportSnapshotId) {
     SnapshotDao dao = dbClient.snapshotDao();
-    SnapshotDto snapshot = dao.selectById(session, reportSnapshotId);
+    SnapshotDto snapshot = dao.selectOrFailById(session, reportSnapshotId);
     SnapshotDto previousLastSnapshot = dao.selectLastSnapshotByComponentId(session, snapshot.getComponentId());
 
     boolean isLast = isLast(snapshot, previousLastSnapshot);

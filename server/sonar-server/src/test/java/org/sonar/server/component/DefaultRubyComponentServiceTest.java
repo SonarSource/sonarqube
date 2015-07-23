@@ -61,7 +61,7 @@ public class DefaultRubyComponentServiceTest {
   @Test
   public void find_by_key() {
     Component component = mock(Component.class);
-    when(resourceDao.findByKey("struts")).thenReturn(component);
+    when(resourceDao.selectByKey("struts")).thenReturn(component);
 
     assertThat(service.findByKey("struts")).isEqualTo(component);
   }
@@ -86,7 +86,7 @@ public class DefaultRubyComponentServiceTest {
     String componentKey = "new-project";
     String componentName = "New Project";
     String qualifier = Qualifiers.PROJECT;
-    when(resourceDao.findByKey(componentKey)).thenReturn(ComponentTesting.newProjectDto());
+    when(resourceDao.selectByKey(componentKey)).thenReturn(ComponentTesting.newProjectDto());
     when(componentService.create(any(NewComponent.class))).thenReturn(componentKey);
 
     service.createComponent(componentKey, componentName, qualifier);
@@ -105,7 +105,7 @@ public class DefaultRubyComponentServiceTest {
 
   @Test
   public void not_create_component_on_sub_views() {
-    when(resourceDao.findByKey(anyString())).thenReturn(ComponentTesting.newProjectDto());
+    when(resourceDao.selectByKey(anyString())).thenReturn(ComponentTesting.newProjectDto());
 
     service.createComponent("new-project", "New Project", Qualifiers.SUBVIEW);
 
@@ -118,7 +118,7 @@ public class DefaultRubyComponentServiceTest {
     String componentKey = "new-project";
     String componentName = "New Project";
     String qualifier = Qualifiers.PROJECT;
-    when(resourceDao.findByKey(componentKey)).thenReturn(null);
+    when(resourceDao.selectByKey(componentKey)).thenReturn(null);
 
     service.createComponent(componentKey, componentName, qualifier);
   }

@@ -86,9 +86,9 @@ public class DeleteActionTest {
     newRequest().setParam("keys", "key-1, key-3").execute();
     dbSession.commit();
 
-    List<MetricDto> disabledMetrics = metricDao.selectNullableByKeys(dbSession, Arrays.asList("key-1", "key-3"));
+    List<MetricDto> disabledMetrics = metricDao.selectByKeys(dbSession, Arrays.asList("key-1", "key-3"));
     assertThat(disabledMetrics).extracting("enabled").containsOnly(false);
-    assertThat(metricDao.selectNullableByKey(dbSession, "key-2").isEnabled()).isTrue();
+    assertThat(metricDao.selectByKey(dbSession, "key-2").isEnabled()).isTrue();
   }
 
   @Test
@@ -112,7 +112,7 @@ public class DeleteActionTest {
     newRequest().setParam("keys", "key-1").execute();
     dbSession.commit();
 
-    MetricDto metric = metricDao.selectNullableByKey(dbSession, "key-1");
+    MetricDto metric = metricDao.selectByKey(dbSession, "key-1");
     assertThat(metric.isEnabled()).isTrue();
   }
 
@@ -128,8 +128,8 @@ public class DeleteActionTest {
 
     newRequest().setParam("keys", "key-1").execute();
 
-    assertThat(dbClient.customMeasureDao().selectNullableById(dbSession, customMeasure.getId())).isNull();
-    assertThat(dbClient.customMeasureDao().selectNullableById(dbSession, undeletedCustomMeasure.getId())).isNotNull();
+    assertThat(dbClient.customMeasureDao().selectById(dbSession, customMeasure.getId())).isNull();
+    assertThat(dbClient.customMeasureDao().selectById(dbSession, undeletedCustomMeasure.getId())).isNotNull();
   }
 
   @Test

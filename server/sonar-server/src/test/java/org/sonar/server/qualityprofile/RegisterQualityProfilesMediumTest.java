@@ -72,13 +72,13 @@ public class RegisterQualityProfilesMediumTest {
 
     // Check Profile in DB
     QualityProfileDao qualityProfileDao = dbClient().qualityProfileDao();
-    assertThat(qualityProfileDao.findAll(dbSession)).hasSize(1);
-    QualityProfileDto profile = qualityProfileDao.getByNameAndLanguage("Basic", "xoo", dbSession);
+    assertThat(qualityProfileDao.selectAll(dbSession)).hasSize(1);
+    QualityProfileDto profile = qualityProfileDao.selectByNameAndLanguage("Basic", "xoo", dbSession);
     assertThat(profile).isNotNull();
 
     // Check ActiveRules in DB
     ActiveRuleDao activeRuleDao = dbClient().activeRuleDao();
-    assertThat(activeRuleDao.findByProfileKey(dbSession, profile.getKey())).hasSize(2);
+    assertThat(activeRuleDao.selectByProfileKey(dbSession, profile.getKey())).hasSize(2);
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), ruleKey);
 
@@ -98,7 +98,7 @@ public class RegisterQualityProfilesMediumTest {
     // TODO
     // Check ActiveRuleParameters in DB
     Map<String, ActiveRuleParamDto> params =
-      ActiveRuleParamDto.groupByKey(activeRuleDao.findParamsByActiveRuleKey(dbSession, activeRule.key()));
+      ActiveRuleParamDto.groupByKey(activeRuleDao.selectParamsByActiveRuleKey(dbSession, activeRule.key()));
     assertThat(params).hasSize(2);
     // set by profile
     assertThat(params.get("acceptWhitespace").getValue()).isEqualTo("true");
@@ -115,8 +115,8 @@ public class RegisterQualityProfilesMediumTest {
 
     // Check Profile in DB
     QualityProfileDao qualityProfileDao = dbClient().qualityProfileDao();
-    assertThat(qualityProfileDao.findAll(dbSession)).hasSize(1);
-    QualityProfileDto profile = qualityProfileDao.getByNameAndLanguage("Basic", "xoo", dbSession);
+    assertThat(qualityProfileDao.selectAll(dbSession)).hasSize(1);
+    QualityProfileDto profile = qualityProfileDao.selectByNameAndLanguage("Basic", "xoo", dbSession);
     assertThat(profile).isNotNull();
 
     // Check Default Profile
@@ -124,7 +124,7 @@ public class RegisterQualityProfilesMediumTest {
 
     // Check ActiveRules in DB
     ActiveRuleDao activeRuleDao = dbClient().activeRuleDao();
-    assertThat(activeRuleDao.findByProfileKey(dbSession, profile.getKey())).hasSize(2);
+    assertThat(activeRuleDao.selectByProfileKey(dbSession, profile.getKey())).hasSize(2);
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
 
     ActiveRuleDto activeRule = activeRuleDao.getNullableByKey(dbSession, ActiveRuleKey.of(profile.getKey(), ruleKey));
@@ -134,7 +134,7 @@ public class RegisterQualityProfilesMediumTest {
 
     // Check ActiveRuleParameters in DB
     Map<String, ActiveRuleParamDto> params =
-      ActiveRuleParamDto.groupByKey(activeRuleDao.findParamsByActiveRuleKey(dbSession, activeRule.getKey()));
+      ActiveRuleParamDto.groupByKey(activeRuleDao.selectParamsByActiveRuleKey(dbSession, activeRule.getKey()));
     assertThat(params).hasSize(2);
     // set by profile
     assertThat(params.get("acceptWhitespace").getValue()).isEqualTo("true");
@@ -151,7 +151,7 @@ public class RegisterQualityProfilesMediumTest {
 
     // Check Profile in DB
     QualityProfileDao qualityProfileDao = dbClient().qualityProfileDao();
-    assertThat(qualityProfileDao.findAll(dbSession)).hasSize(0);
+    assertThat(qualityProfileDao.selectAll(dbSession)).hasSize(0);
   }
 
   @Test
@@ -188,7 +188,7 @@ public class RegisterQualityProfilesMediumTest {
 
     QualityProfileDao profileDao = dbClient().qualityProfileDao();
     DbSession session = dbClient().openSession(false);
-    QualityProfileDto profileTwo = profileDao.getByNameAndLanguage("two", "xoo", session);
+    QualityProfileDto profileTwo = profileDao.selectByNameAndLanguage("two", "xoo", session);
     tester.get(QProfileFactory.class).setDefault(session, profileTwo.getKee());
     session.commit();
 
@@ -220,7 +220,7 @@ public class RegisterQualityProfilesMediumTest {
   }
 
   private void verifyDefaultProfile(String language, String name) {
-    QualityProfileDto defaultProfile = dbClient().qualityProfileDao().getDefaultProfile(language);
+    QualityProfileDto defaultProfile = dbClient().qualityProfileDao().selectDefaultProfile(language);
     assertThat(defaultProfile).isNotNull();
     assertThat(defaultProfile.getName()).isEqualTo(name);
   }

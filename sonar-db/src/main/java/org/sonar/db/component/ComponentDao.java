@@ -40,7 +40,7 @@ import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
 
 public class ComponentDao implements Dao {
 
-  public ComponentDto selectNonNullById(DbSession session, long id) {
+  public ComponentDto selectOrFailById(DbSession session, long id) {
     Optional<ComponentDto> componentDto = selectById(session, id);
     if (!componentDto.isPresent()) {
       throw new IllegalArgumentException(String.format("Component id does not exist: %d", id));
@@ -56,7 +56,7 @@ public class ComponentDao implements Dao {
     return Optional.fromNullable(mapper(session).selectByUuid(uuid));
   }
 
-  public ComponentDto selectNonNullByUuid(DbSession session, String uuid) {
+  public ComponentDto selectOrFailByUuid(DbSession session, String uuid) {
     Optional<ComponentDto> componentDto = selectByUuid(session, uuid);
     if (!componentDto.isPresent()) {
       throw new IllegalArgumentException(String.format("Component with uuid '%s' not found", uuid));

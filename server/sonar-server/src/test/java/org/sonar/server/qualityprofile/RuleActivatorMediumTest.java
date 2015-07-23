@@ -94,17 +94,17 @@ public class RuleActivatorMediumTest {
       .setSeverity("MINOR").setLanguage("xoo");
     RuleDto manualRule = RuleTesting.newDto(MANUAL_RULE_KEY);
     db.ruleDao().insert(dbSession, javaRule, xooRule1, xooRule2, xooTemplateRule1, manualRule);
-    db.ruleDao().addRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
+    db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
-    db.ruleDao().addRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
+    db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("min").setType(RuleParamType.INTEGER.type()));
-    db.ruleDao().addRuleParam(dbSession, xooTemplateRule1, RuleParamDto.createFor(xooTemplateRule1)
+    db.ruleDao().insertRuleParam(dbSession, xooTemplateRule1, RuleParamDto.createFor(xooTemplateRule1)
       .setName("format").setType(RuleParamType.STRING.type()));
 
     RuleDto xooCustomRule1 = RuleTesting.newCustomRule(xooTemplateRule1).setRuleKey(CUSTOM_RULE_KEY.rule())
       .setSeverity("MINOR").setLanguage("xoo");
     db.ruleDao().insert(dbSession, xooCustomRule1);
-    db.ruleDao().addRuleParam(dbSession, xooCustomRule1, RuleParamDto.createFor(xooTemplateRule1)
+    db.ruleDao().insertRuleParam(dbSession, xooCustomRule1, RuleParamDto.createFor(xooTemplateRule1)
       .setName("format").setDefaultValue("txt").setType(RuleParamType.STRING.type()));
 
     // create pre-defined profile P1
@@ -264,10 +264,10 @@ public class RuleActivatorMediumTest {
     activation.setSeverity(Severity.BLOCKER);
     activate(activation, XOO_P1_KEY);
 
-    assertThat(db.activeRuleDao().getParamByKeyAndName(activeRuleKey, "max", dbSession)).isNotNull();
-    db.activeRuleDao().removeParamByKeyAndName(dbSession, activeRuleKey, "max");
+    assertThat(db.activeRuleDao().selectParamByKeyAndName(activeRuleKey, "max", dbSession)).isNotNull();
+    db.activeRuleDao().deleteParamByKeyAndName(dbSession, activeRuleKey, "max");
     dbSession.commit();
-    assertThat(db.activeRuleDao().getParamByKeyAndName(activeRuleKey, "max", dbSession)).isNull();
+    assertThat(db.activeRuleDao().selectParamByKeyAndName(activeRuleKey, "max", dbSession)).isNull();
     dbSession.clearCache();
 
     // update
@@ -853,7 +853,7 @@ public class RuleActivatorMediumTest {
 
     // 2. assert that all activation has been commit to DB and ES
     dbSession.clearCache();
-    assertThat(db.activeRuleDao().findByProfileKey(dbSession, XOO_P1_KEY)).hasSize(bulkSize);
+    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY)).hasSize(bulkSize);
     assertThat(index.findByProfile(XOO_P1_KEY)).hasSize(bulkSize);
     assertThat(result.countSucceeded()).isEqualTo(bulkSize);
     assertThat(result.countFailed()).isEqualTo(0);
@@ -867,7 +867,7 @@ public class RuleActivatorMediumTest {
     // 2. assert that all activations have been commit to DB and ES
     // -> xoo rules x1, x2 and custom1
     dbSession.clearCache();
-    assertThat(db.activeRuleDao().findByProfileKey(dbSession, XOO_P1_KEY)).hasSize(3);
+    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY)).hasSize(3);
     assertThat(index.findByProfile(XOO_P1_KEY)).hasSize(3);
     assertThat(result.countSucceeded()).isEqualTo(3);
     assertThat(result.countFailed()).isGreaterThan(0);
@@ -891,7 +891,7 @@ public class RuleActivatorMediumTest {
     // set parent -> child profile inherits rule x1 and still has x2
     ruleActivator.setParent(XOO_P2_KEY, XOO_P1_KEY);
     dbSession.clearCache();
-    assertThat(db.qualityProfileDao().getByKey(dbSession, XOO_P2_KEY).getParentKee()).isEqualTo(XOO_P1_KEY);
+    assertThat(db.qualityProfileDao().selectByKey(dbSession, XOO_P2_KEY).getParentKee()).isEqualTo(XOO_P1_KEY);
     verifyHasActiveRule(ActiveRuleKey.of(XOO_P2_KEY, RuleTesting.XOO_X1), Severity.MAJOR, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "10"));
     verifyHasActiveRule(ActiveRuleKey.of(XOO_P2_KEY, RuleTesting.XOO_X2), Severity.MAJOR, null, Collections.<String, String>emptyMap());
 
@@ -899,7 +899,7 @@ public class RuleActivatorMediumTest {
     dbSession.clearCache();
     ruleActivator.setParent(XOO_P2_KEY, null);
     assertThat(countActiveRules(XOO_P2_KEY)).isEqualTo(1);
-    assertThat(db.qualityProfileDao().getByKey(dbSession, XOO_P2_KEY).getParentKee()).isNull();
+    assertThat(db.qualityProfileDao().selectByKey(dbSession, XOO_P2_KEY).getParentKee()).isNull();
     verifyHasActiveRule(ActiveRuleKey.of(XOO_P2_KEY, RuleTesting.XOO_X2), Severity.MAJOR, null, Collections.<String, String>emptyMap());
   }
 
@@ -907,7 +907,7 @@ public class RuleActivatorMediumTest {
   public void unset_no_parent_does_not_fail() {
     // P1 has no parent !
     ruleActivator.setParent(XOO_P1_KEY, null);
-    assertThat(db.qualityProfileDao().getByKey(dbSession, XOO_P1_KEY).getParentKee()).isNull();
+    assertThat(db.qualityProfileDao().selectByKey(dbSession, XOO_P1_KEY).getParentKee()).isNull();
   }
 
   @Test
@@ -948,7 +948,7 @@ public class RuleActivatorMediumTest {
     // unset parent -> keep x1
     ruleActivator.setParent(XOO_P2_KEY, null);
     dbSession.clearCache();
-    assertThat(db.qualityProfileDao().getByKey(dbSession, XOO_P2_KEY).getParentKee()).isNull();
+    assertThat(db.qualityProfileDao().selectByKey(dbSession, XOO_P2_KEY).getParentKee()).isNull();
     verifyOneActiveRule(XOO_P2_KEY, RuleTesting.XOO_X1, Severity.BLOCKER, null, ImmutableMap.of("max", "333"));
   }
 
@@ -974,7 +974,7 @@ public class RuleActivatorMediumTest {
     ruleActivator.setParent(XOO_P2_KEY, XOO_P1_KEY);
     dbSession.clearCache();
 
-    assertThat(db.qualityProfileDao().getByKey(dbSession, XOO_P2_KEY).getParentKee()).isEqualTo(XOO_P1_KEY);
+    assertThat(db.qualityProfileDao().selectByKey(dbSession, XOO_P2_KEY).getParentKee()).isEqualTo(XOO_P1_KEY);
     assertThat(countActiveRules(XOO_P2_KEY)).isEqualTo(1);
     verifyHasActiveRule(ActiveRuleKey.of(XOO_P2_KEY, RuleTesting.XOO_X2), Severity.MAJOR, ActiveRuleDto.INHERITED, Collections.<String, String>emptyMap());
   }
@@ -1035,7 +1035,7 @@ public class RuleActivatorMediumTest {
   }
 
   private int countActiveRules(String profileKey) {
-    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(dbSession, profileKey);
+    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().selectByProfileKey(dbSession, profileKey);
     List<ActiveRule> activeRules = Lists.newArrayList(index.findByProfile(profileKey));
     assertThat(activeRuleDtos.size()).as("Not same active rules between db and index").isEqualTo(activeRules.size());
     return activeRuleDtos.size();
@@ -1056,7 +1056,7 @@ public class RuleActivatorMediumTest {
     @Nullable String expectedInheritance, Map<String, String> expectedParams) {
     // verify db
     boolean found = false;
-    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(dbSession, activeRuleKey.qProfile());
+    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().selectByProfileKey(dbSession, activeRuleKey.qProfile());
     for (ActiveRuleDto activeRuleDto : activeRuleDtos) {
       if (activeRuleDto.getKey().equals(activeRuleKey)) {
         found = true;
@@ -1066,10 +1066,10 @@ public class RuleActivatorMediumTest {
         assertThat(activeRuleDto.getCreatedAt()).isNotNull();
         assertThat(activeRuleDto.getUpdatedAt()).isNotNull();
 
-        List<ActiveRuleParamDto> paramDtos = db.activeRuleDao().findParamsByActiveRuleKey(dbSession, activeRuleDto.getKey());
+        List<ActiveRuleParamDto> paramDtos = db.activeRuleDao().selectParamsByActiveRuleKey(dbSession, activeRuleDto.getKey());
         assertThat(paramDtos).hasSize(expectedParams.size());
         for (Map.Entry<String, String> entry : expectedParams.entrySet()) {
-          ActiveRuleParamDto paramDto = db.activeRuleDao().getParamByKeyAndName(activeRuleDto.getKey(), entry.getKey(), dbSession);
+          ActiveRuleParamDto paramDto = db.activeRuleDao().selectParamByKeyAndName(activeRuleDto.getKey(), entry.getKey(), dbSession);
           assertThat(paramDto).isNotNull();
           assertThat(paramDto.getValue()).isEqualTo(entry.getValue());
         }
@@ -1117,7 +1117,7 @@ public class RuleActivatorMediumTest {
   private void verifyZeroActiveRules(String key) {
     // verify db
     dbSession.clearCache();
-    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(dbSession, key);
+    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().selectByProfileKey(dbSession, key);
     assertThat(activeRuleDtos).isEmpty();
 
     // verify es

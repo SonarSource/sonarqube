@@ -105,7 +105,7 @@ public class CreateAction implements MetricsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       MetricDto metricTemplate = newMetricTemplate(request);
-      MetricDto metricInDb = dbClient.metricDao().selectNullableByKey(dbSession, key);
+      MetricDto metricInDb = dbClient.metricDao().selectByKey(dbSession, key);
       checkMetricInDbAndTemplate(dbSession, metricInDb, metricTemplate);
 
       if (metricIsNotInDb(metricInDb)) {

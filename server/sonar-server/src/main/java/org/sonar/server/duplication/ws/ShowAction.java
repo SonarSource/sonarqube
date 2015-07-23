@@ -100,7 +100,7 @@ public class ShowAction implements RequestHandler {
 
   @CheckForNull
   private String findDataFromComponent(String fileKey, String metricKey, DbSession session) {
-    MeasureDto measure = measureDao.findByComponentKeyAndMetricKey(session, fileKey, metricKey);
+    MeasureDto measure = measureDao.selectByComponentKeyAndMetricKey(session, fileKey, metricKey);
     if (measure != null) {
       return measure.getData();
     }

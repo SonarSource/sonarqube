@@ -52,7 +52,7 @@ public class RuleDaoTest {
   @Test
   public void select_all() {
     dbTester.prepareDbUnit(getClass(), "selectAll.xml");
-    List<RuleDto> ruleDtos = dao.findAll(dbTester.getSession());
+    List<RuleDto> ruleDtos = dao.selectAll(dbTester.getSession());
 
     assertThat(ruleDtos).hasSize(1);
 
@@ -78,7 +78,7 @@ public class RuleDaoTest {
   @Test
   public void select_enables_and_non_manual() {
     dbTester.prepareDbUnit(getClass(), "select_enables_and_non_manual.xml");
-    List<RuleDto> ruleDtos = dao.findByEnabledAndNotManual(dbTester.getSession());
+    List<RuleDto> ruleDtos = dao.selectByEnabledAndNotManual(dbTester.getSession());
 
     assertThat(ruleDtos.size()).isEqualTo(1);
     RuleDto ruleDto = ruleDtos.get(0);
@@ -103,7 +103,7 @@ public class RuleDaoTest {
   @Test
   public void select_by_id() {
     dbTester.prepareDbUnit(getClass(), "selectById.xml");
-    RuleDto ruleDto = dao.getById(dbTester.getSession(), 2);
+    RuleDto ruleDto = dao.selectById(dbTester.getSession(), 2);
 
     assertThat(ruleDto.getId()).isEqualTo(2);
     assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
@@ -138,7 +138,7 @@ public class RuleDaoTest {
   @Test
   public void select_non_manual() {
     dbTester.prepareDbUnit(getClass(), "selectNonManual.xml");
-    List<RuleDto> ruleDtos = dao.findByNonManual(dbTester.getSession());
+    List<RuleDto> ruleDtos = dao.selectByNonManual(dbTester.getSession());
     dbTester.getSession().commit();
     dbTester.getSession().close();
 
@@ -287,7 +287,7 @@ public class RuleDaoTest {
   @Test
   public void select_parameters() {
     dbTester.prepareDbUnit(getClass(), "selectParameters.xml");
-    List<RuleParamDto> ruleDtos = dao.findAllRuleParams(dbTester.getSession());
+    List<RuleParamDto> ruleDtos = dao.selectAllRuleParams(dbTester.getSession());
 
     assertThat(ruleDtos.size()).isEqualTo(1);
     RuleParamDto ruleDto = ruleDtos.get(0);
@@ -301,8 +301,8 @@ public class RuleDaoTest {
   @Test
   public void select_parameters_by_rule_id() {
     dbTester.prepareDbUnit(getClass(), "select_parameters_by_rule_id.xml");
-    RuleDto rule = dao.getById(dbTester.getSession(), 1);
-    List<RuleParamDto> ruleDtos = dao.findRuleParamsByRuleKey(dbTester.getSession(), rule.getKey());
+    RuleDto rule = dao.selectById(dbTester.getSession(), 1);
+    List<RuleParamDto> ruleDtos = dao.selectRuleParamsByRuleKey(dbTester.getSession(), rule.getKey());
 
     assertThat(ruleDtos.size()).isEqualTo(1);
     RuleParamDto ruleDto = ruleDtos.get(0);
@@ -317,7 +317,7 @@ public class RuleDaoTest {
   public void insert_parameter() {
     dbTester.prepareDbUnit(getClass(), "insert_parameter.xml");
 
-    RuleDto rule1 = dao.getById(dbTester.getSession(), 1);
+    RuleDto rule1 = dao.selectById(dbTester.getSession(), 1);
 
     RuleParamDto param = RuleParamDto.createFor(rule1)
       .setName("max")
@@ -325,7 +325,7 @@ public class RuleDaoTest {
       .setDefaultValue("30")
       .setDescription("My Parameter");
 
-    dao.addRuleParam(dbTester.getSession(), rule1, param);
+    dao.insertRuleParam(dbTester.getSession(), rule1, param);
     dbTester.getSession().commit();
 
     dbTester.assertDbUnit(getClass(), "insert_parameter-result.xml", "rules_parameters");
@@ -335,9 +335,9 @@ public class RuleDaoTest {
   public void update_parameter() {
     dbTester.prepareDbUnit(getClass(), "update_parameter.xml");
 
-    RuleDto rule1 = dao.getById(dbTester.getSession(), 1);
+    RuleDto rule1 = dao.selectById(dbTester.getSession(), 1);
 
-    List<RuleParamDto> params = dao.findRuleParamsByRuleKey(dbTester.getSession(), rule1.getKey());
+    List<RuleParamDto> params = dao.selectRuleParamsByRuleKey(dbTester.getSession(), rule1.getKey());
     assertThat(params).hasSize(1);
 
     RuleParamDto param = Iterables.getFirst(params, null);

@@ -191,7 +191,7 @@ public class UpdateAction implements MetricsWsAction {
 
   private void checkNoOtherMetricWithTargetKey(DbSession dbSession, MetricDto metricInDb, MetricDto template) {
     String targetKey = template.getKey();
-    MetricDto metricWithTargetKey = dbClient.metricDao().selectNullableByKey(dbSession, targetKey);
+    MetricDto metricWithTargetKey = dbClient.metricDao().selectByKey(dbSession, targetKey);
     if (isMetricFoundInDb(metricWithTargetKey) && !metricInDb.getId().equals(metricWithTargetKey.getId())) {
       throw new BadRequestException(String.format("The key '%s' is already used by an existing metric.", targetKey));
     }

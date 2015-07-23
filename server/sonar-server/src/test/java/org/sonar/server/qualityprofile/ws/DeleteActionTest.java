@@ -107,7 +107,7 @@ public class DeleteActionTest {
 
     tester.newPostRequest("api/qualityprofiles", "delete").setParam("profileKey", "sonar-way-xoo1-12345").execute().assertNoContent();
 
-    assertThat(qualityProfileDao.getByKey(session, "sonar-way-xoo1-12345")).isNull();
+    assertThat(qualityProfileDao.selectByKey(session, "sonar-way-xoo1-12345")).isNull();
     assertThat(qualityProfileDao.selectProjects("Sonar way", xoo1.getName())).isEmpty();
   }
 
@@ -125,7 +125,7 @@ public class DeleteActionTest {
 
     tester.newPostRequest("api/qualityprofiles", "delete").setParam("profileName", "Sonar way").setParam("language", xoo1.getKey()).execute().assertNoContent();
 
-    assertThat(qualityProfileDao.getByKey(session, "sonar-way-xoo1-12345")).isNull();
+    assertThat(qualityProfileDao.selectByKey(session, "sonar-way-xoo1-12345")).isNull();
     assertThat(qualityProfileDao.selectProjects("Sonar way", xoo1.getName())).isEmpty();
   }
 

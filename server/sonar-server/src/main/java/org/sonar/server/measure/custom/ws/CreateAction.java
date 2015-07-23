@@ -162,6 +162,6 @@ public class CreateAction implements CustomMeasuresWsAction {
       return dbClient.metricDao().selectById(dbSession, metricId);
     }
 
-    return dbClient.metricDao().selectByKey(dbSession, metricKey);
+    return dbClient.metricDao().selectOrFailByKey(dbSession, metricKey);
   }
 }

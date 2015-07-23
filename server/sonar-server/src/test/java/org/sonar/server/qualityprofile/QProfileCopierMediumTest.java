@@ -71,7 +71,7 @@ public class QProfileCopierMediumTest {
     RuleDto xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR");
     RuleDto xooRule2 = RuleTesting.newXooX2().setSeverity("MAJOR");
     db.ruleDao().insert(dbSession, xooRule1, xooRule2);
-    db.ruleDao().addRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
+    db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
 
     // create pre-defined profile
@@ -146,7 +146,7 @@ public class QProfileCopierMediumTest {
     copier.copyToName(QProfileTesting.XOO_P1_KEY, QProfileTesting.XOO_P2_NAME.getName());
 
     verifyOneActiveRule(QProfileTesting.XOO_P2_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
-    QualityProfileDto profile2Dto = db.qualityProfileDao().getByKey(dbSession, QProfileTesting.XOO_P2_KEY);
+    QualityProfileDto profile2Dto = db.qualityProfileDao().selectByKey(dbSession, QProfileTesting.XOO_P2_KEY);
     assertThat(profile2Dto.getParentKee()).isEqualTo(QProfileTesting.XOO_P1_KEY);
   }
 
@@ -169,7 +169,7 @@ public class QProfileCopierMediumTest {
 
   private void verifyOneActiveRule(QProfileName profileName, String expectedSeverity,
     @Nullable String expectedInheritance, Map<String, String> expectedParams) {
-    QualityProfileDto dto = db.qualityProfileDao().getByNameAndLanguage(profileName.getName(), profileName.getLanguage(), dbSession);
+    QualityProfileDto dto = db.qualityProfileDao().selectByNameAndLanguage(profileName.getName(), profileName.getLanguage(), dbSession);
     verifyOneActiveRule(dto.getKey(), expectedSeverity, expectedInheritance, expectedParams);
   }
 

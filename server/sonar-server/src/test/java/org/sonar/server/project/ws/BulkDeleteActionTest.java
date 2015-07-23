@@ -144,11 +144,11 @@ public class BulkDeleteActionTest {
     dbSession.commit();
 
     assertThat(dbClient.componentDao().selectByUuids(dbSession, Arrays.asList("project-uuid-1", "project-uuid-3", "project-uuid-4"))).isEmpty();
-    assertThat(dbClient.componentDao().selectNonNullByUuid(dbSession, "project-uuid-2")).isNotNull();
-    assertThat(dbClient.snapshotDao().selectNullableById(dbSession, snapshotId1)).isNull();
-    assertThat(dbClient.snapshotDao().selectNullableById(dbSession, snapshotId3)).isNull();
-    assertThat(dbClient.snapshotDao().selectNullableById(dbSession, snapshotId4)).isNull();
-    assertThat(dbClient.snapshotDao().selectNullableById(dbSession, snapshotId2)).isNotNull();
+    assertThat(dbClient.componentDao().selectOrFailByUuid(dbSession, "project-uuid-2")).isNotNull();
+    assertThat(dbClient.snapshotDao().selectById(dbSession, snapshotId1)).isNull();
+    assertThat(dbClient.snapshotDao().selectById(dbSession, snapshotId3)).isNull();
+    assertThat(dbClient.snapshotDao().selectById(dbSession, snapshotId4)).isNull();
+    assertThat(dbClient.snapshotDao().selectById(dbSession, snapshotId2)).isNotNull();
     assertThat(dbClient.issueDao().selectByKeys(dbSession, Arrays.asList("issue-key-1", "issue-key-3", "issue-key-4"))).isEmpty();
     assertThat(dbClient.issueDao().selectByKey(dbSession, "issue-key-2")).isNotNull();
   }
@@ -165,7 +165,7 @@ public class BulkDeleteActionTest {
     dbSession.commit();
 
     assertThat(dbClient.componentDao().selectByUuids(dbSession, Arrays.asList("project-uuid-1", "project-uuid-3", "project-uuid-4"))).isEmpty();
-    assertThat(dbClient.componentDao().selectNonNullByUuid(dbSession, "project-uuid-2")).isNotNull();
+    assertThat(dbClient.componentDao().selectOrFailByUuid(dbSession, "project-uuid-2")).isNotNull();
   }
 
   @Test

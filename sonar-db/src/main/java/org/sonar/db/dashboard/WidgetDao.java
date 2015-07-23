@@ -32,16 +32,16 @@ public class WidgetDao implements Dao {
     this.myBatis = myBatis;
   }
 
-  public WidgetDto getNullableByKey(Long widgetId) {
+  public WidgetDto selectByKey(Long widgetId) {
     DbSession session = myBatis.openSession(false);
     try {
-      return getNullableByKey(session, widgetId);
+      return selectByKey(session, widgetId);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public WidgetDto getNullableByKey(DbSession session, Long widgetId) {
+  public WidgetDto selectByKey(DbSession session, Long widgetId) {
     return mapper(session).selectById(widgetId);
   }
 

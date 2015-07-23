@@ -202,14 +202,14 @@ public class CompareActionMediumTest {
       .setStatus(RuleStatus.READY);
     db.ruleDao().insert(session, rule);
     RuleParamDto param = RuleParamDto.createFor(rule).setName("param_" + id).setType(RuleParamType.STRING.toString());
-    db.ruleDao().addRuleParam(session, rule, param);
+    db.ruleDao().insertRuleParam(session, rule, param);
     return rule;
   }
 
   private RuleDto createRuleWithParam(String lang, String id) {
     RuleDto rule = createRule(lang, id);
     RuleParamDto param = RuleParamDto.createFor(rule).setName("param_" + id).setType(RuleParamType.STRING.toString());
-    db.ruleDao().addRuleParam(session, rule, param);
+    db.ruleDao().insertRuleParam(session, rule, param);
     return rule;
   }
 
@@ -222,9 +222,9 @@ public class CompareActionMediumTest {
 
   private ActiveRuleDto createActiveRuleWithParam(RuleDto rule, QualityProfileDto profile, String value) {
     ActiveRuleDto activeRule = createActiveRule(rule, profile);
-    RuleParamDto paramDto = db.ruleDao().findRuleParamsByRuleKey(session, rule.getKey()).get(0);
+    RuleParamDto paramDto = db.ruleDao().selectRuleParamsByRuleKey(session, rule.getKey()).get(0);
     ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(paramDto).setValue(value);
-    db.activeRuleDao().addParam(session, activeRule, activeRuleParam);
+    db.activeRuleDao().insertParam(session, activeRule, activeRuleParam);
     return activeRule;
   }
 

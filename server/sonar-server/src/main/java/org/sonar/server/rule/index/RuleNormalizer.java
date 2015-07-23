@@ -182,7 +182,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       Integer templateId = rule.getTemplateId();
       String templateKeyFieldValue = null;
       if (templateId != null) {
-        RuleDto templateRule = db.ruleDao().getById(session, templateId);
+        RuleDto templateRule = db.ruleDao().selectById(session, templateId);
         if (templateRule != null) {
           RuleKey templateKey = templateRule.getKey();
           templateKeyFieldValue = templateKey != null ? templateKey.toString() : null;
@@ -204,7 +204,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
       Integer defaultSubCharacteristicId = rule.getDefaultSubCharacteristicId();
       if (defaultSubCharacteristicId != null) {
-        CharacteristicDto subCharacteristic = db.debtCharacteristicDao().selectById(defaultSubCharacteristicId, session);
+        CharacteristicDto subCharacteristic = db.debtCharacteristicDao().selectById(session, defaultSubCharacteristicId);
         if (subCharacteristic != null) {
           Integer characteristicId = subCharacteristic.getParentId();
           if (characteristicId != null) {
@@ -225,7 +225,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
           update.put(RuleField.CHARACTERISTIC.field(), DebtCharacteristic.NONE);
           update.put(RuleField.SUB_CHARACTERISTIC.field(), DebtCharacteristic.NONE);
         } else {
-          CharacteristicDto subCharacteristic = db.debtCharacteristicDao().selectById(subCharacteristicId, session);
+          CharacteristicDto subCharacteristic = db.debtCharacteristicDao().selectById(session, subCharacteristicId);
           if (subCharacteristic != null) {
             Integer characteristicId = subCharacteristic.getParentId();
             if (characteristicId != null) {
@@ -282,7 +282,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
         .doc(update)
         .upsert(upsert));
 
-      for (RuleParamDto param : db.ruleDao().findRuleParamsByRuleKey(session, rule.getKey())) {
+      for (RuleParamDto param : db.ruleDao().selectRuleParamsByRuleKey(session, rule.getKey())) {
         requests.addAll(normalizeNested(param, rule.getKey()));
       }
 

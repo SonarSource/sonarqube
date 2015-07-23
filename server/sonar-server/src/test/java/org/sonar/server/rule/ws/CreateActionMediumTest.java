@@ -76,7 +76,7 @@ public class CreateActionMediumTest {
     // Template rule
     RuleDto templateRule = ruleDao.insert(session, RuleTesting.newTemplateRule(RuleKey.of("java", "S001")));
     RuleParamDto param = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
-    ruleDao.addRuleParam(session, templateRule, param);
+    ruleDao.insertRuleParam(session, templateRule, param);
     session.commit();
 
     WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "create")

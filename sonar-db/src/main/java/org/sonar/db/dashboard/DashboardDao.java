@@ -66,7 +66,7 @@ public class DashboardDao implements Dao {
   }
 
   @CheckForNull
-  public DashboardDto getNullableByKey(DbSession session, Long key) {
+  public DashboardDto selectByKey(DbSession session, Long key) {
     return mapper(session).selectById(key);
   }
 
@@ -75,7 +75,7 @@ public class DashboardDao implements Dao {
    * @param userId id of logged-in user, null if anonymous
    */
   @CheckForNull
-  public DashboardDto getAllowedByKey(DbSession session, Long key, @Nullable Long userId) {
+  public DashboardDto selectAllowedByKey(DbSession session, Long key, @Nullable Long userId) {
     return mapper(session).selectAllowedById(key, userId != null ? userId : -1L);
   }
 

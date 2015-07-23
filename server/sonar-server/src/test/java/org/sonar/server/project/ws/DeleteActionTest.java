@@ -147,9 +147,9 @@ public class DeleteActionTest {
     dbSession.commit();
 
     assertThat(dbClient.componentDao().selectByUuid(dbSession, "project-uuid-1")).isAbsent();
-    assertThat(dbClient.componentDao().selectNonNullByUuid(dbSession, "project-uuid-2")).isNotNull();
-    assertThat(dbClient.snapshotDao().selectNullableById(dbSession, snapshotId1)).isNull();
-    assertThat(dbClient.snapshotDao().selectNullableById(dbSession, snapshotId2)).isNotNull();
+    assertThat(dbClient.componentDao().selectOrFailByUuid(dbSession, "project-uuid-2")).isNotNull();
+    assertThat(dbClient.snapshotDao().selectById(dbSession, snapshotId1)).isNull();
+    assertThat(dbClient.snapshotDao().selectById(dbSession, snapshotId2)).isNotNull();
     assertThat(dbClient.issueDao().selectNullableByKey(dbSession, "issue-key-1")).isNull();
     assertThat(dbClient.issueDao().selectByKey(dbSession, "issue-key-2")).isNotNull();
   }
@@ -164,7 +164,7 @@ public class DeleteActionTest {
     dbSession.commit();
 
     assertThat(dbClient.componentDao().selectByUuid(dbSession, "project-uuid-1")).isAbsent();
-    assertThat(dbClient.componentDao().selectNonNullByUuid(dbSession, "project-uuid-2")).isNotNull();
+    assertThat(dbClient.componentDao().selectOrFailByUuid(dbSession, "project-uuid-2")).isNotNull();
   }
 
   @Test

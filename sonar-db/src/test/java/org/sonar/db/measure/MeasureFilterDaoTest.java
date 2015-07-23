@@ -37,7 +37,7 @@ public class MeasureFilterDaoTest {
   public void should_find_filter() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    MeasureFilterDto filter = dao.findSystemFilterByName("Projects");
+    MeasureFilterDto filter = dao.selectSystemFilterByName("Projects");
 
     assertThat(filter.getId()).isEqualTo(1L);
     assertThat(filter.getName()).isEqualTo("Projects");
@@ -47,7 +47,7 @@ public class MeasureFilterDaoTest {
   public void should_not_find_filter() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    assertThat(dao.findSystemFilterByName("Unknown")).isNull();
+    assertThat(dao.selectSystemFilterByName("Unknown")).isNull();
   }
 
   @Test

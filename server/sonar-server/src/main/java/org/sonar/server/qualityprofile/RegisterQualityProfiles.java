@@ -135,7 +135,7 @@ public class RegisterQualityProfiles {
   private void register(QProfileName name, Collection<RulesProfile> profiles, DbSession session) {
     LOGGER.info("Register profile " + name);
 
-    QualityProfileDto profileDto = dbClient.qualityProfileDao().getByNameAndLanguage(name.getName(), name.getLanguage(), session);
+    QualityProfileDto profileDto = dbClient.qualityProfileDao().selectByNameAndLanguage(name.getName(), name.getLanguage(), session);
     if (profileDto != null) {
       profileFactory.delete(session, profileDto.getKey(), true);
     }
@@ -158,12 +158,12 @@ public class RegisterQualityProfiles {
   }
 
   private void setDefault(String language, List<RulesProfile> profileDefs, DbSession session) {
-    QualityProfileDto currentDefault = dbClient.qualityProfileDao().getDefaultProfile(language, session);
+    QualityProfileDto currentDefault = dbClient.qualityProfileDao().selectDefaultProfile(session, language);
 
     if (currentDefault == null) {
       String defaultProfileName = nameOfDefaultProfile(profileDefs);
       LOGGER.info("Set default " + language + " profile: " + defaultProfileName);
-      QualityProfileDto newDefaultProfile = dbClient.qualityProfileDao().getByNameAndLanguage(defaultProfileName, language, session);
+      QualityProfileDto newDefaultProfile = dbClient.qualityProfileDao().selectByNameAndLanguage(defaultProfileName, language, session);
       if (newDefaultProfile == null) {
         // Must not happen, we just registered it
         throw new IllegalStateException("Could not find declared default profile '%s' for language '%s'");

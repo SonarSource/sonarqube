@@ -74,7 +74,7 @@ public class PermissionFacadeTest {
 
     assertThat(permissionFacade.selectUserPermissions(dbTester.getSession(), "marius", 123L)).containsOnly("admin");
 
-    assertThat(dbTester.getDbClient().resourceDao().getResource(123L, dbTester.getSession()).getAuthorizationUpdatedAt()).isEqualTo(123456789L);
+    assertThat(dbTester.getDbClient().resourceDao().selectResource(123L, dbTester.getSession()).getAuthorizationUpdatedAt()).isEqualTo(123456789L);
   }
 
   @Test

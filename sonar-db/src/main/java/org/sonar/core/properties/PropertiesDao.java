@@ -35,6 +35,6 @@ public class PropertiesDao extends org.sonar.db.property.PropertiesDao {
   }
 
   public void setProperty(PropertyDto property) {
-    super.setProperty(property);
+    super.insertProperty(property);
   }
 }

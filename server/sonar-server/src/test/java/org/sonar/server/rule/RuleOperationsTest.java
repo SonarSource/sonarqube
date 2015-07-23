@@ -89,9 +89,9 @@ public class RuleOperationsTest {
     when(characteristicDao.selectByKey("COMPILER", session)).thenReturn(subCharacteristic);
 
     // Call when reindexing rule in E/S
-    when(characteristicDao.selectById(2, session)).thenReturn(subCharacteristic);
+    when(characteristicDao.selectById(session, 2)).thenReturn(subCharacteristic);
     CharacteristicDto characteristic = new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(2);
-    when(characteristicDao.selectById(1, session)).thenReturn(characteristic);
+    when(characteristicDao.selectById(session, 1)).thenReturn(characteristic);
 
     operations.updateRule(
       new RuleChange().setRuleKey(ruleKey).setDebtCharacteristicKey("COMPILER")
@@ -122,9 +122,9 @@ public class RuleOperationsTest {
 
     CharacteristicDto subCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1);
     when(characteristicDao.selectByKey("COMPILER", session)).thenReturn(subCharacteristic);
-    when(characteristicDao.selectById(2, session)).thenReturn(subCharacteristic);
+    when(characteristicDao.selectById(session, 2)).thenReturn(subCharacteristic);
     CharacteristicDto characteristic = new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(2);
-    when(characteristicDao.selectById(1, session)).thenReturn(characteristic);
+    when(characteristicDao.selectById(session, 1)).thenReturn(characteristic);
 
     operations.updateRule(
       // Same value as default values -> overridden values will be set to null
@@ -176,9 +176,9 @@ public class RuleOperationsTest {
 
     CharacteristicDto subCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1);
     when(characteristicDao.selectByKey("COMPILER", session)).thenReturn(subCharacteristic);
-    when(characteristicDao.selectById(2, session)).thenReturn(subCharacteristic);
+    when(characteristicDao.selectById(session, 2)).thenReturn(subCharacteristic);
     CharacteristicDto characteristic = new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(2);
-    when(characteristicDao.selectById(1, session)).thenReturn(characteristic);
+    when(characteristicDao.selectById(session, 1)).thenReturn(characteristic);
 
     operations.updateRule(
       // Remediation function is not the same as default one -> Overridden value should be set
@@ -209,9 +209,9 @@ public class RuleOperationsTest {
 
     CharacteristicDto subCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1);
     when(characteristicDao.selectByKey("COMPILER", session)).thenReturn(subCharacteristic);
-    when(characteristicDao.selectById(2, session)).thenReturn(subCharacteristic);
+    when(characteristicDao.selectById(session, 2)).thenReturn(subCharacteristic);
     CharacteristicDto characteristic = new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(2);
-    when(characteristicDao.selectById(1, session)).thenReturn(characteristic);
+    when(characteristicDao.selectById(session, 1)).thenReturn(characteristic);
 
     operations.updateRule(
       // Characteristic is the not same as the default one -> Overridden values should be set
@@ -267,9 +267,9 @@ public class RuleOperationsTest {
 
     CharacteristicDto subCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1);
     when(characteristicDao.selectByKey("COMPILER", session)).thenReturn(subCharacteristic);
-    when(characteristicDao.selectById(2, session)).thenReturn(subCharacteristic);
+    when(characteristicDao.selectById(session, 2)).thenReturn(subCharacteristic);
     CharacteristicDto characteristic = new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(2);
-    when(characteristicDao.selectById(1, session)).thenReturn(characteristic);
+    when(characteristicDao.selectById(session, 1)).thenReturn(characteristic);
 
     operations.updateRule(new RuleChange().setRuleKey(ruleKey).setDebtCharacteristicKey("COMPILER"), authorizedUserSession);
 

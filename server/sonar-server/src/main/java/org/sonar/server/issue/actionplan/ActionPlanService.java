@@ -131,7 +131,7 @@ public class ActionPlanService {
 
   @CheckForNull
   public ActionPlan findByKey(String key, UserSession userSession) {
-    ActionPlanDto actionPlanDto = actionPlanDao.findByKey(key);
+    ActionPlanDto actionPlanDto = actionPlanDao.selectByKey(key);
     if (actionPlanDto == null) {
       return null;
     }
@@ -140,7 +140,7 @@ public class ActionPlanService {
   }
 
   public List<ActionPlan> findByKeys(Collection<String> keys) {
-    List<ActionPlanDto> actionPlanDtos = actionPlanDao.findByKeys(keys);
+    List<ActionPlanDto> actionPlanDtos = actionPlanDao.selectByKeys(keys);
     return toActionPlans(actionPlanDtos);
   }
 
@@ -148,7 +148,7 @@ public class ActionPlanService {
     ResourceDto project = findProject(projectKey);
     checkUserCanAccessProject(project.getKey(), userSession);
 
-    List<ActionPlanDto> dtos = actionPlanDao.findOpenByProjectId(project.getId());
+    List<ActionPlanDto> dtos = actionPlanDao.selectOpenByProjectId(project.getId());
     List<ActionPlan> plans = toActionPlans(dtos);
     Collections.sort(plans, new ActionPlanDeadlineComparator());
     return plans;
@@ -158,14 +158,14 @@ public class ActionPlanService {
     ResourceDto project = findProject(projectKey);
     checkUserCanAccessProject(project.getKey(), userSession);
 
-    List<ActionPlanStatsDto> actionPlanStatsDtos = actionPlanStatsDao.findByProjectId(project.getId());
+    List<ActionPlanStatsDto> actionPlanStatsDtos = actionPlanStatsDao.selectByProjectId(project.getId());
     List<ActionPlanStats> actionPlanStats = newArrayList(Iterables.transform(actionPlanStatsDtos, ToActionPlanStats.INSTANCE));
     Collections.sort(actionPlanStats, new ActionPlanDeadlineComparator());
     return actionPlanStats;
   }
 
   public boolean isNameAlreadyUsedForProject(String name, String projectKey) {
-    return !actionPlanDao.findByNameAndProjectId(name, findProject(projectKey).getId()).isEmpty();
+    return !actionPlanDao.selectByNameAndProjectId(name, findProject(projectKey).getId()).isEmpty();
   }
 
   private List<ActionPlan> toActionPlans(List<ActionPlanDto> actionPlanDtos) {
@@ -173,7 +173,7 @@ public class ActionPlanService {
   }
 
   private ActionPlanDto findActionPlanDto(String actionPlanKey) {
-    ActionPlanDto actionPlanDto = actionPlanDao.findByKey(actionPlanKey);
+    ActionPlanDto actionPlanDto = actionPlanDao.selectByKey(actionPlanKey);
     if (actionPlanDto == null) {
       throw new NotFoundException("Action plan " + actionPlanKey + " has not been found.");
     }
@@ -181,7 +181,7 @@ public class ActionPlanService {
   }
 
   private ResourceDto findProject(String projectKey) {
-    ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(projectKey));
+    ResourceDto resourceDto = resourceDao.selectResource(ResourceQuery.create().setKey(projectKey));
     if (resourceDto == null) {
       throw new NotFoundException("Project " + projectKey + " does not exists.");
     }

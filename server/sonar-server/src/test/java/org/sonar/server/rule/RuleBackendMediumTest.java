@@ -159,13 +159,13 @@ public class RuleBackendMediumTest {
       .setType(RuleParamType.INTEGER.type())
       .setDefaultValue("2")
       .setDescription("Minimum");
-    dao.addRuleParam(dbSession, ruleDto, minParamDto);
+    dao.insertRuleParam(dbSession, ruleDto, minParamDto);
     RuleParamDto maxParamDto = new RuleParamDto()
       .setName("max")
       .setType(RuleParamType.INTEGER.type())
       .setDefaultValue("10")
       .setDescription("Maximum");
-    dao.addRuleParam(dbSession, ruleDto, maxParamDto);
+    dao.insertRuleParam(dbSession, ruleDto, maxParamDto);
     dbSession.commit();
 
     //Verify that RuleDto has date from insertion
@@ -174,7 +174,7 @@ public class RuleBackendMediumTest {
     assertThat(theRule.getUpdatedAt()).isNotNull();
 
     // verify that parameters are persisted in db
-    List<RuleParamDto> persistedDtos = dao.findRuleParamsByRuleKey(dbSession, theRule.getKey());
+    List<RuleParamDto> persistedDtos = dao.selectRuleParamsByRuleKey(dbSession, theRule.getKey());
     assertThat(persistedDtos).hasSize(2);
 
     // verify that parameters are indexed in es
@@ -202,25 +202,25 @@ public class RuleBackendMediumTest {
       .setType(RuleParamType.INTEGER.type())
       .setDefaultValue("2")
       .setDescription("Minimum");
-    dao.addRuleParam(dbSession, ruleDto, minParamDto);
+    dao.insertRuleParam(dbSession, ruleDto, minParamDto);
     RuleParamDto maxParamDto = new RuleParamDto()
       .setName("max")
       .setType(RuleParamType.INTEGER.type())
       .setDefaultValue("10")
       .setDescription("Maximum");
-    dao.addRuleParam(dbSession, ruleDto, maxParamDto);
+    dao.insertRuleParam(dbSession, ruleDto, maxParamDto);
     dbSession.commit();
 
     // 0. Verify that RuleDto has date from insertion
-    assertThat(dao.findRuleParamsByRuleKey(dbSession, RuleTesting.XOO_X1)).hasSize(2);
+    assertThat(dao.selectRuleParamsByRuleKey(dbSession, RuleTesting.XOO_X1)).hasSize(2);
     assertThat(index.getByKey(RuleTesting.XOO_X1).params()).hasSize(2);
 
     // 1. Delete parameter
-    dao.removeRuleParam(dbSession, ruleDto, maxParamDto);
+    dao.deleteRuleParam(dbSession, ruleDto, maxParamDto);
     dbSession.commit();
 
     // 2. assert only one param left
-    assertThat(dao.findRuleParamsByRuleKey(dbSession, RuleTesting.XOO_X1)).hasSize(1);
+    assertThat(dao.selectRuleParamsByRuleKey(dbSession, RuleTesting.XOO_X1)).hasSize(1);
     assertThat(index.getByKey(RuleTesting.XOO_X1).params()).hasSize(1);
   }
 
@@ -266,14 +266,14 @@ public class RuleBackendMediumTest {
       .setType(RuleParamType.INTEGER.type())
       .setDefaultValue("2")
       .setDescription("Minimum");
-    dao.addRuleParam(dbSession, ruleDto, minParamDto);
+    dao.insertRuleParam(dbSession, ruleDto, minParamDto);
 
     RuleParamDto maxParamDto = new RuleParamDto()
       .setName("max")
       .setType(RuleParamType.INTEGER.type())
       .setDefaultValue("10")
       .setDescription("Maximum");
-    dao.addRuleParam(dbSession, ruleDto, maxParamDto);
+    dao.insertRuleParam(dbSession, ruleDto, maxParamDto);
     dbSession.commit();
 
     // verify that parameters are indexed in es
@@ -327,12 +327,12 @@ public class RuleBackendMediumTest {
   public void insert_update_characteristics() {
 
     CharacteristicDto char1 = DebtTesting.newCharacteristicDto("c1");
-    db.debtCharacteristicDao().insert(char1, dbSession);
+    db.debtCharacteristicDao().insert(dbSession, char1);
     dbSession.commit();
 
     CharacteristicDto char11 = DebtTesting.newCharacteristicDto("c11")
       .setParentId(char1.getId());
-    db.debtCharacteristicDao().insert(char11, dbSession);
+    db.debtCharacteristicDao().insert(dbSession, char11);
 
     dao.insert(dbSession,
       RuleTesting.newXooX1()
@@ -359,11 +359,11 @@ public class RuleBackendMediumTest {
     // 3. set Non-default characteristics
     RuleDto ruleDto = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
     CharacteristicDto char2 = DebtTesting.newCharacteristicDto("c2");
-    db.debtCharacteristicDao().insert(char2, dbSession);
+    db.debtCharacteristicDao().insert(dbSession, char2);
 
     CharacteristicDto char21 = DebtTesting.newCharacteristicDto("c21")
       .setParentId(char2.getId());
-    db.debtCharacteristicDao().insert(char21, dbSession);
+    db.debtCharacteristicDao().insert(dbSession, char21);
 
     ruleDto.setSubCharacteristicId(char21.getId());
     dao.update(dbSession, ruleDto);
@@ -430,7 +430,7 @@ public class RuleBackendMediumTest {
     dbSession.commit();
 
     // 0. Assert rules are in DB
-    assertThat(dao.findAll(dbSession)).hasSize(2);
+    assertThat(dao.selectAll(dbSession)).hasSize(2);
 
     // 1. assert getBy for removed
     assertThat(index.getByKey(RuleTesting.XOO_X2)).isNotNull();
@@ -449,7 +449,7 @@ public class RuleBackendMediumTest {
     dbSession.commit();
 
     // 0. Assert rules are in DB
-    assertThat(dao.findAll(dbSession)).hasSize(1);
+    assertThat(dao.selectAll(dbSession)).hasSize(1);
     assertThat(index.countAll()).isEqualTo(1);
 
     tester.clearIndexes();
@@ -467,11 +467,11 @@ public class RuleBackendMediumTest {
     // insert db
     dao.insert(dbSession, rule);
 
-    dao.addRuleParam(dbSession, rule, RuleParamDto.createFor(rule).setName("MyParam").setType("STRING").setDefaultValue("test"));
+    dao.insertRuleParam(dbSession, rule, RuleParamDto.createFor(rule).setName("MyParam").setType("STRING").setDefaultValue("test"));
     dbSession.commit();
 
     // 0. Assert rules are in DB
-    assertThat(dao.findAll(dbSession)).hasSize(1);
+    assertThat(dao.selectAll(dbSession)).hasSize(1);
     assertThat(index.countAll()).isEqualTo(1);
 
     tester.clearIndexes();

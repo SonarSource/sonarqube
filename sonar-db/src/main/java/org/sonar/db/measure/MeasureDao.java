@@ -38,11 +38,11 @@ public class MeasureDao implements Dao {
   }
 
   @CheckForNull
-  public MeasureDto findByComponentKeyAndMetricKey(DbSession session, String componentKey, String metricKey) {
+  public MeasureDto selectByComponentKeyAndMetricKey(DbSession session, String componentKey, String metricKey) {
     return mapper(session).selectByComponentAndMetric(componentKey, metricKey);
   }
 
-  public List<MeasureDto> findByComponentKeyAndMetricKeys(final DbSession session, final String componentKey, List<String> metricKeys) {
+  public List<MeasureDto> selectByComponentKeyAndMetricKeys(final DbSession session, final String componentKey, List<String> metricKeys) {
     return DatabaseUtils.executeLargeInputs(metricKeys, new Function<List<String>, List<MeasureDto>>() {
       @Override
       public List<MeasureDto> apply(List<String> keys) {

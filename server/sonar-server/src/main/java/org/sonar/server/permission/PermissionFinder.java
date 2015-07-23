@@ -109,7 +109,7 @@ public class PermissionFinder {
     if (componentKey == null) {
       return null;
     } else {
-      ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(componentKey));
+      ResourceDto resourceDto = resourceDao.selectResource(ResourceQuery.create().setKey(componentKey));
       if (resourceDto == null) {
         throw new NotFoundException(String.format("Component '%s' does not exist", componentKey));
       }

@@ -55,12 +55,12 @@ public class CustomMeasureDao implements Dao {
   }
 
   @CheckForNull
-  public CustomMeasureDto selectNullableById(DbSession session, long id) {
+  public CustomMeasureDto selectById(DbSession session, long id) {
     return mapper(session).selectById(id);
   }
 
-  public CustomMeasureDto selectById(DbSession session, long id) {
-    CustomMeasureDto customMeasure = selectNullableById(session, id);
+  public CustomMeasureDto selectOrFail(DbSession session, long id) {
+    CustomMeasureDto customMeasure = selectById(session, id);
     if (customMeasure == null) {
       throw new IllegalArgumentException(String.format("Custom measure '%d' not found.", id));
     }

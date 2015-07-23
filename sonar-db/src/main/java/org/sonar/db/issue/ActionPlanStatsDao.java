@@ -32,7 +32,7 @@ public class ActionPlanStatsDao extends AbstractDao {
     super(myBatis, system2);
   }
 
-  public List<ActionPlanStatsDto> findByProjectId(Long projectId) {
+  public List<ActionPlanStatsDto> selectByProjectId(Long projectId) {
     SqlSession session = myBatis().openSession(false);
     try {
       return session.getMapper(ActionPlanStatsMapper.class).findByProjectId(projectId);

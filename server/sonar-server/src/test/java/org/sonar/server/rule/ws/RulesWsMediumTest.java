@@ -466,25 +466,25 @@ public class RulesWsMediumTest {
       .setType("string")
       .setDescription("My small description")
       .setName("my_var");
-    ruleDao.addRuleParam(session, rule, param);
+    ruleDao.insertRuleParam(session, rule, param);
 
     RuleParamDto param2 = RuleParamDto.createFor(rule)
       .setDefaultValue("other value")
       .setType("integer")
       .setDescription("My small description")
       .setName("the_var");
-    ruleDao.addRuleParam(session, rule, param2);
+    ruleDao.insertRuleParam(session, rule, param2);
 
     ActiveRuleDto activeRule = newActiveRule(profile, rule);
     tester.get(ActiveRuleDao.class).insert(session, activeRule);
 
     ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(param)
       .setValue("The VALUE");
-    tester.get(ActiveRuleDao.class).addParam(session, activeRule, activeRuleParam);
+    tester.get(ActiveRuleDao.class).insertParam(session, activeRule, activeRuleParam);
 
     ActiveRuleParamDto activeRuleParam2 = ActiveRuleParamDto.createFor(param2)
       .setValue("The Other Value");
-    tester.get(ActiveRuleDao.class).addParam(session, activeRule, activeRuleParam2);
+    tester.get(ActiveRuleDao.class).insertParam(session, activeRule, activeRuleParam2);
     session.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -642,16 +642,16 @@ public class RulesWsMediumTest {
 
   private void insertDebtCharacteristics(DbSession dbSession) {
     CharacteristicDto reliability = DebtTesting.newCharacteristicDto("RELIABILITY").setName("Reliability");
-    db.debtCharacteristicDao().insert(reliability, dbSession);
+    db.debtCharacteristicDao().insert(dbSession, reliability);
 
     CharacteristicDto softReliability = DebtTesting.newCharacteristicDto("SOFT_RELIABILITY").setName("Soft Reliability")
       .setParentId(reliability.getId());
-    db.debtCharacteristicDao().insert(softReliability, dbSession);
+    db.debtCharacteristicDao().insert(dbSession, softReliability);
     softReliabilityId = softReliability.getId();
 
     CharacteristicDto hardReliability = DebtTesting.newCharacteristicDto("HARD_RELIABILITY").setName("Hard Reliability")
       .setParentId(reliability.getId());
-    db.debtCharacteristicDao().insert(hardReliability, dbSession);
+    db.debtCharacteristicDao().insert(dbSession, hardReliability);
     hardReliabilityId = hardReliability.getId();
   }
 }

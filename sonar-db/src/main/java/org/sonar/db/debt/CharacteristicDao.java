@@ -140,14 +140,14 @@ public class CharacteristicDao implements Dao {
   public CharacteristicDto selectById(int id) {
     SqlSession session = mybatis.openSession(false);
     try {
-      return selectById(id, session);
+      return selectById(session, id);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   @CheckForNull
-  public CharacteristicDto selectById(int id, SqlSession session) {
+  public CharacteristicDto selectById(SqlSession session, int id) {
     return session.getMapper(CharacteristicMapper.class).selectById(id);
   }
 
@@ -155,14 +155,14 @@ public class CharacteristicDao implements Dao {
   public CharacteristicDto selectByName(String name) {
     SqlSession session = mybatis.openSession(false);
     try {
-      return selectByName(name, session);
+      return selectByName(session, name);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   @CheckForNull
-  public CharacteristicDto selectByName(String name, SqlSession session) {
+  public CharacteristicDto selectByName(SqlSession session, String name) {
     return session.getMapper(CharacteristicMapper.class).selectByName(name);
   }
 
@@ -180,14 +180,14 @@ public class CharacteristicDao implements Dao {
     return result != null ? result : 0;
   }
 
-  public void insert(CharacteristicDto dto, SqlSession session) {
+  public void insert(SqlSession session, CharacteristicDto dto) {
     session.getMapper(CharacteristicMapper.class).insert(dto);
   }
 
   public void insert(CharacteristicDto dto) {
     SqlSession session = mybatis.openSession(false);
     try {
-      insert(dto, session);
+      insert(session, dto);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -196,7 +196,7 @@ public class CharacteristicDao implements Dao {
 
   public void insert(DbSession session, Collection<CharacteristicDto> items) {
     for (CharacteristicDto item : items) {
-      insert(item, session);
+      insert(session, item);
     }
   }
 

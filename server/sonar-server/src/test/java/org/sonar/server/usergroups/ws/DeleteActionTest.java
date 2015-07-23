@@ -139,7 +139,7 @@ public class DeleteActionTest {
   @Test
   public void delete_with_permission_templates() throws Exception {
     GroupDto group = groupDao.insert(session, new GroupDto().setName("to-delete"));
-    permissionTemplateDao.addGroupPermission(42L, group.getId(), UserRole.ADMIN);
+    permissionTemplateDao.insertGroupPermission(42L, group.getId(), UserRole.ADMIN);
     session.commit();
 
     loginAsAdmin();

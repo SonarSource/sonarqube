@@ -221,7 +221,7 @@ public class RuleActivator {
     List<ActiveRuleChange> changes = Lists.newArrayList();
 
     // get all inherited profiles
-    List<QualityProfileDto> children = db.qualityProfileDao().findChildren(session, profileKey);
+    List<QualityProfileDto> children = db.qualityProfileDao().selectChildren(session, profileKey);
     for (QualityProfileDto child : children) {
       RuleActivation childActivation = new RuleActivation(activation).setCascade(true);
       changes.addAll(activate(session, childActivation, child.getKey()));
@@ -262,7 +262,7 @@ public class RuleActivator {
       if (param.getValue() != null) {
         ActiveRuleParamDto paramDto = ActiveRuleParamDto.createFor(context.ruleParamsByKeys().get(param.getKey()));
         paramDto.setValue(param.getValue());
-        dao.addParam(dbSession, activeRule, paramDto);
+        dao.insertParam(dbSession, activeRule, paramDto);
       }
     }
     return activeRule;
@@ -289,7 +289,7 @@ public class RuleActivator {
           if (param.getValue() != null) {
             activeRuleParamDto = ActiveRuleParamDto.createFor(context.ruleParamsByKeys().get(param.getKey()));
             activeRuleParamDto.setValue(param.getValue());
-            dao.addParam(dbSession, activeRule, activeRuleParamDto);
+            dao.insertParam(dbSession, activeRule, activeRuleParamDto);
           }
         } else {
           if (param.getValue() != null) {
@@ -331,7 +331,7 @@ public class RuleActivator {
    */
   public List<ActiveRuleChange> deactivate(DbSession dbSession, RuleDto ruleDto) {
     List<ActiveRuleChange> changes = Lists.newArrayList();
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().findByRule(dbSession, ruleDto);
+    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByRule(dbSession, ruleDto);
     for (ActiveRuleDto activeRule : activeRules) {
       changes.addAll(deactivate(dbSession, activeRule.getKey(), true));
     }
@@ -361,7 +361,7 @@ public class RuleActivator {
     persist(change, context, dbSession);
 
     // get all inherited profiles
-    List<QualityProfileDto> profiles = db.qualityProfileDao().findChildren(dbSession, key.qProfile());
+    List<QualityProfileDto> profiles = db.qualityProfileDao().selectChildren(dbSession, key.qProfile());
 
     for (QualityProfileDto profile : profiles) {
       ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), key.ruleKey());
@@ -463,13 +463,13 @@ public class RuleActivator {
   }
 
   void setParent(DbSession dbSession, String profileKey, @Nullable String parentKey) {
-    QualityProfileDto profile = db.qualityProfileDao().getNonNullByKey(dbSession, profileKey);
+    QualityProfileDto profile = db.qualityProfileDao().selectOrFailByKey(dbSession, profileKey);
     if (parentKey == null) {
       // unset if parent is defined, else nothing to do
       removeParent(dbSession, profile);
 
     } else if (profile.getParentKee() == null || !parentKey.equals(profile.getParentKee())) {
-      QualityProfileDto parentProfile = db.qualityProfileDao().getNonNullByKey(dbSession, parentKey);
+      QualityProfileDto parentProfile = db.qualityProfileDao().selectOrFailByKey(dbSession, parentKey);
       if (isDescendant(dbSession, profile, parentProfile)) {
         throw new BadRequestException(String.format("Descendant profile '%s' can not be selected as parent of '%s'", parentKey, profileKey));
       }
@@ -478,7 +478,7 @@ public class RuleActivator {
       // set new parent
       profile.setParentKee(parentKey);
       db.qualityProfileDao().update(dbSession, profile);
-      for (ActiveRuleDto parentActiveRule : db.activeRuleDao().findByProfileKey(dbSession, parentKey)) {
+      for (ActiveRuleDto parentActiveRule : db.activeRuleDao().selectByProfileKey(dbSession, parentKey)) {
         try {
           RuleActivation activation = new RuleActivation(parentActiveRule.getKey().ruleKey());
           activate(dbSession, activation, profileKey);
@@ -497,7 +497,7 @@ public class RuleActivator {
     if (profileDto.getParentKee() != null) {
       profileDto.setParentKee(null);
       db.qualityProfileDao().update(dbSession, profileDto);
-      for (ActiveRuleDto activeRule : db.activeRuleDao().findByProfileKey(dbSession, profileDto.getKey())) {
+      for (ActiveRuleDto activeRule : db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKey())) {
         if (ActiveRuleDto.INHERITED.equals(activeRule.getInheritance())) {
           deactivate(dbSession, activeRule.getKey(), true);
         } else if (ActiveRuleDto.OVERRIDES.equals(activeRule.getInheritance())) {
@@ -516,7 +516,7 @@ public class RuleActivator {
       }
       String parentKey = currentParent.getParentKee();
       if (parentKey != null) {
-        currentParent = db.qualityProfileDao().getByKey(dbSession, parentKey);
+        currentParent = db.qualityProfileDao().selectByKey(dbSession, parentKey);
       } else {
         currentParent = null;
       }

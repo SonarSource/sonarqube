@@ -47,7 +47,7 @@ public class SnapshotDaoTest {
   public void get_by_key() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    SnapshotDto result = underTest.selectNullableById(db.getSession(), 3L);
+    SnapshotDto result = underTest.selectById(db.getSession(), 3L);
     assertThat(result).isNotNull();
     assertThat(result.getId()).isEqualTo(3L);
     assertThat(result.getComponentId()).isEqualTo(3L);
@@ -82,7 +82,7 @@ public class SnapshotDaoTest {
     assertThat(result.getCreatedAt()).isEqualTo(1228172400000L);
     assertThat(result.getBuildDate()).isEqualTo(1317247200000L);
 
-    assertThat(underTest.selectNullableById(db.getSession(), 999L)).isNull();
+    assertThat(underTest.selectById(db.getSession(), 999L)).isNull();
   }
 
   @Test

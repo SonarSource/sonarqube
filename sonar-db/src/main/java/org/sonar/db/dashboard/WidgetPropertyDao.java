@@ -56,20 +56,20 @@ public class WidgetPropertyDao implements Dao {
     }
   }
 
-  public WidgetPropertyDto getNullableByKey(Long propertyId) {
+  public WidgetPropertyDto selectByKey(Long propertyId) {
     DbSession session = myBatis.openSession(false);
     try {
-      return getNullableByKey(session, propertyId);
+      return selectByKey(session, propertyId);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public WidgetPropertyDto getNullableByKey(DbSession session, Long propertyId) {
+  public WidgetPropertyDto selectByKey(DbSession session, Long propertyId) {
     return mapper(session).selectById(propertyId);
   }
 
-  public Collection<WidgetPropertyDto> findByDashboard(DbSession session, long dashboardKey) {
+  public Collection<WidgetPropertyDto> selectByDashboard(DbSession session, long dashboardKey) {
     return mapper(session).selectByDashboard(dashboardKey);
   }
 

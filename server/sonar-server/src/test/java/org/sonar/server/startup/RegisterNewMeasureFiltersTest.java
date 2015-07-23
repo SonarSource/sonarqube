@@ -82,7 +82,7 @@ public class RegisterNewMeasureFiltersTest {
 
   @Test
   public void should_not_recreate_filter() {
-    when(filterDao.findSystemFilterByName("Fake")).thenReturn(new MeasureFilterDto());
+    when(filterDao.selectSystemFilterByName("Fake")).thenReturn(new MeasureFilterDto());
 
     MeasureFilterDto filterDto = registration.register("Fake", null);
 

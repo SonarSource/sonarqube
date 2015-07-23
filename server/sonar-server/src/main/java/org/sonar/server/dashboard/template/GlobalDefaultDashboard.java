@@ -88,6 +88,6 @@ public final class GlobalDefaultDashboard extends DashboardTemplate {
   }
 
   private MeasureFilterDto findSystemFilter(String name) {
-    return filterDao.findSystemFilterByName(name);
+    return filterDao.selectSystemFilterByName(name);
   }
 }

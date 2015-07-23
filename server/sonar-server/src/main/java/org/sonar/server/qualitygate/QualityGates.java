@@ -156,7 +156,7 @@ public class QualityGates {
       settings.removeProperty(SONAR_QUALITYGATE_PROPERTY);
     } else {
       QualityGateDto newDefault = getNonNullQgate(idToUseAsDefault);
-      propertiesDao.setProperty(new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setValue(newDefault.getId().toString()));
+      propertiesDao.insertProperty(new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setValue(newDefault.getId().toString()));
       settings.setProperty(SONAR_QUALITYGATE_PROPERTY, idToUseAsDefault);
     }
   }
@@ -218,7 +218,7 @@ public class QualityGates {
     try {
       getNonNullQgate(qGateId);
       checkPermission(projectId, session);
-      propertiesDao.setProperty(new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setResourceId(projectId).setValue(qGateId.toString()));
+      propertiesDao.insertProperty(new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setResourceId(projectId).setValue(qGateId.toString()));
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -365,7 +365,7 @@ public class QualityGates {
   }
 
   private void checkPermission(Long projectId, DbSession session) {
-    ComponentDto project = componentDao.selectNonNullById(session, projectId);
+    ComponentDto project = componentDao.selectOrFailById(session, projectId);
     if (!userSession.hasGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN) && !userSession.hasProjectPermission(UserRole.ADMIN, project.key())) {
       throw new ForbiddenException("Insufficient privileges");
     }

@@ -249,7 +249,7 @@ public class IssueService {
         throw new NotFoundException(String.format("Component with key '%s' not found", componentKey));
       }
       ComponentDto component = componentOptional.get();
-      ComponentDto project = dbClient.componentDao().selectNonNullByUuid(session, component.projectUuid());
+      ComponentDto project = dbClient.componentDao().selectOrFailByUuid(session, component.projectUuid());
 
       userSession.checkProjectPermission(UserRole.USER, project.getKey());
       if (!ruleKey.isManual()) {

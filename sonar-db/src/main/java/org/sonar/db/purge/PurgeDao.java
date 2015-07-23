@@ -227,7 +227,7 @@ public class PurgeDao implements Dao {
    */
   private List<ResourceDto> getProjects(long rootProjectId, SqlSession session) {
     List<ResourceDto> projects = Lists.newArrayList();
-    projects.add(resourceDao.getResource(rootProjectId, session));
+    projects.add(resourceDao.selectResource(rootProjectId, session));
     projects.addAll(resourceDao.getDescendantProjects(rootProjectId, session));
     return projects;
   }

@@ -137,7 +137,7 @@ public class ValidateProjectStep implements ComputationStep {
     private void validateProjectKey(Optional<ComponentDto> baseProject, String rawProjectKey) {
       if (baseProject.isPresent() && !baseProject.get().projectUuid().equals(baseProject.get().uuid())) {
         // Project key is already used as a module of another project
-        ComponentDto anotherBaseProject = componentDao.selectNonNullByUuid(session, baseProject.get().projectUuid());
+        ComponentDto anotherBaseProject = componentDao.selectOrFailByUuid(session, baseProject.get().projectUuid());
         validationMessages.add(String.format("The project \"%s\" is already defined in SonarQube but as a module of project \"%s\". "
             + "If you really want to stop directly analysing project \"%s\", please first delete it from SonarQube and then relaunch the analysis of project \"%s\".",
           rawProjectKey, anotherBaseProject.key(), anotherBaseProject.key(), rawProjectKey));
@@ -182,7 +182,7 @@ public class ValidateProjectStep implements ComputationStep {
 
     private void validateModuleKeyIsNotAlreadyUsedInAnotherProject(ComponentDto baseModule, String rawModuleKey) {
       if (!baseModule.projectUuid().equals(baseModule.uuid()) && !baseModule.projectUuid().equals(rawProject.getUuid())) {
-        ComponentDto projectModule = componentDao.selectNonNullByUuid(session, baseModule.projectUuid());
+        ComponentDto projectModule = componentDao.selectOrFailByUuid(session, baseModule.projectUuid());
         validationMessages.add(String.format("Module \"%s\" is already part of project \"%s\"", rawModuleKey, projectModule.key()));
       }
     }

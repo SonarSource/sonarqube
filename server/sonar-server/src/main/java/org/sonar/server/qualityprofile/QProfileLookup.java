@@ -42,11 +42,11 @@ public class QProfileLookup {
   }
 
   public List<QProfile> allProfiles() {
-    return toQProfiles(db.qualityProfileDao().findAll());
+    return toQProfiles(db.qualityProfileDao().selectAll());
   }
 
   public List<QProfile> profiles(String language) {
-    return toQProfiles(db.qualityProfileDao().findByLanguage(language));
+    return toQProfiles(db.qualityProfileDao().selectByLanguage(language));
   }
 
   @CheckForNull
@@ -113,7 +113,7 @@ public class QProfileLookup {
   }
 
   public List<QProfile> children(QProfile profile, DbSession session) {
-    return toQProfiles(db.qualityProfileDao().findChildren(session, profile.key()));
+    return toQProfiles(db.qualityProfileDao().selectChildren(session, profile.key()));
   }
 
   public List<QProfile> ancestors(QualityProfileDto profile, DbSession session) {
@@ -135,7 +135,7 @@ public class QProfileLookup {
 
   private void incrementAncestors(QProfile profile, List<QProfile> ancestors, DbSession session) {
     if (profile.parent() != null) {
-      QualityProfileDto parentDto = db.qualityProfileDao().getParentById(profile.id(), session);
+      QualityProfileDto parentDto = db.qualityProfileDao().selectParentById(session, profile.id());
       if (parentDto == null) {
         throw new IllegalStateException("Cannot find parent of profile : " + profile.id());
       }
@@ -151,12 +151,12 @@ public class QProfileLookup {
 
   @CheckForNull
   private QualityProfileDto findQualityProfile(int id, DbSession session) {
-    return db.qualityProfileDao().getById(id, session);
+    return db.qualityProfileDao().selectById(session, id);
   }
 
   @CheckForNull
   private QualityProfileDto findQualityProfile(String name, String language, DbSession session) {
-    return db.qualityProfileDao().getByNameAndLanguage(name, language, session);
+    return db.qualityProfileDao().selectByNameAndLanguage(name, language, session);
   }
 
   private enum ToQProfile implements Function<QualityProfileDto, QProfile> {

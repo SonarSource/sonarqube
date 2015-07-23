@@ -116,7 +116,7 @@ public class QProfileResetMediumTest {
     );
 
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
-    QualityProfileDto profile = tester.get(QualityProfileDao.class).getByNameAndLanguage("Basic", ServerTester.Xoo.KEY, dbSession);
+    QualityProfileDto profile = tester.get(QualityProfileDao.class).selectByNameAndLanguage("Basic", ServerTester.Xoo.KEY, dbSession);
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), ruleKey);
 
     // Change the severity and the value of the parameter in the active rule
@@ -158,7 +158,7 @@ public class QProfileResetMediumTest {
           .setDescription("Accept whitespaces on the line");
       }}, defProfile);
 
-    QualityProfileDto profile = tester.get(QualityProfileDao.class).getByNameAndLanguage("Basic", ServerTester.Xoo.KEY, dbSession);
+    QualityProfileDto profile = tester.get(QualityProfileDao.class).selectByNameAndLanguage("Basic", ServerTester.Xoo.KEY, dbSession);
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), RuleKey.of("xoo", "x1"));
 
     // Change param in the rule def
