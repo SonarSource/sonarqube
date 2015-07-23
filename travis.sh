@@ -64,28 +64,28 @@ PRANALYSIS)
 
 ITS_QUALITYGATE)
   prepareIts
-  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="qualitygate" -e
+  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="qualitygate" -Dmaven.test.redirectTestOutputToFile=false
   ;;
 
 ITS_ISSUE)
   prepareIts
-  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="issue" -e
+  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="issue" -Dmaven.test.redirectTestOutputToFile=false
   ;;
 
 ITS_UPDATECENTER)
   prepareIts
-  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="updatecenter" -e
+  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="updatecenter" -Dmaven.test.redirectTestOutputToFile=false
   ;;
 
 ITS_TESTING)
   prepareIts
-  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="testing" -e
+  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="testing" -Dmaven.test.redirectTestOutputToFile=false
   ;;
 
 ITS_PLUGINS)
   if [ -n "$GITHUB_TOKEN" ]; then
     prepareIts
-    mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="plugins" -e
+    mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="plugins" -Dmaven.test.redirectTestOutputToFile=false
   fi
   ;;
 
