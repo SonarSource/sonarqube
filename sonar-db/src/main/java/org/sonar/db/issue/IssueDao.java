@@ -20,9 +20,17 @@
 
 package org.sonar.db.issue;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicates;
+import com.google.common.collect.FluentIterable;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
@@ -64,8 +72,41 @@ public class IssueDao implements Dao {
     return mapper(session).selectByActionPlan(actionPlan);
   }
 
+  /**
+   * Gets a list issues by their keys. The result does NOT contain {@code null} values for issues not found, so
+   * the size of result may be less than the number of keys. A single issue is returned
+   * if input keys contain multiple occurrences of a key.
+   * <p>Results may be in a different order as input keys (see {@link #selectByOrderedKeys(DbSession, List)}).</p>
+   */
   public List<IssueDto> selectByKeys(DbSession session, List<String> keys) {
     return mapper(session).selectByKeys(keys);
+  }
+
+  /**
+   * Gets a list issues by their keys. The result does NOT contain {@code null} values for issues not found, so
+   * the size of result may be less than the number of keys. A single issue is returned
+   * if input keys contain multiple occurrences of a key.
+   * <p>Contrary to {@link #selectByKeys(DbSession, List)}, results are in the same order as input keys.</p>
+   */
+  public Iterable<IssueDto> selectByOrderedKeys(DbSession session, List<String> keys) {
+    List<IssueDto> unordered = selectByKeys(session, keys);
+    return FluentIterable.from(keys).transform(new KeyToIssue(unordered)).filter(Predicates.notNull());
+  }
+
+  private static class KeyToIssue implements Function<String, IssueDto> {
+    private final Map<String, IssueDto> map = new HashMap<>();
+
+    private KeyToIssue(Collection<IssueDto> unordered) {
+      for (IssueDto dto : unordered) {
+        map.put(dto.getKey(), dto);
+      }
+    }
+
+    @Nullable
+    @Override
+    public IssueDto apply(@Nonnull String issueKey) {
+      return map.get(issueKey);
+    }
   }
 
   public Set<String> selectComponentUuidsOfOpenIssuesForProjectUuid(DbSession session, String projectUuid) {
