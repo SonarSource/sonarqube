@@ -20,12 +20,11 @@
 
 package org.sonar.server.computation.source;
 
+import java.util.Collections;
 import org.junit.Test;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.server.source.db.FileSourceDb;
-
-import java.util.Collections;
+import org.sonar.db.FileSources;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,17 +32,17 @@ import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
 public class HighlightingLineReaderTest {
 
-  FileSourceDb.Data.Builder sourceData = FileSourceDb.Data.newBuilder();
-  FileSourceDb.Line.Builder line1 = sourceData.addLinesBuilder().setSource("line1").setLine(1);
-  FileSourceDb.Line.Builder line2 = sourceData.addLinesBuilder().setSource("line2").setLine(2);
-  FileSourceDb.Line.Builder line3 = sourceData.addLinesBuilder().setSource("line3").setLine(3);
-  FileSourceDb.Line.Builder line4 = sourceData.addLinesBuilder().setSource("line4").setLine(4);
+  FileSources.Data.Builder sourceData = FileSources.Data.newBuilder();
+  FileSources.Line.Builder line1 = sourceData.addLinesBuilder().setSource("line1").setLine(1);
+  FileSources.Line.Builder line2 = sourceData.addLinesBuilder().setSource("line2").setLine(2);
+  FileSources.Line.Builder line3 = sourceData.addLinesBuilder().setSource("line3").setLine(3);
+  FileSources.Line.Builder line4 = sourceData.addLinesBuilder().setSource("line4").setLine(4);
 
   @Test
   public void nothing_to_read() {
     HighlightingLineReader highlightingLineReader = new HighlightingLineReader(Collections.<BatchReport.SyntaxHighlighting>emptyList().iterator());
 
-    FileSourceDb.Line.Builder lineBuilder = FileSourceDb.Data.newBuilder().addLinesBuilder().setLine(1);
+    FileSources.Line.Builder lineBuilder = FileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     highlightingLineReader.read(lineBuilder);
 
     assertThat(lineBuilder.hasHighlighting()).isFalse();
@@ -58,8 +57,7 @@ public class HighlightingLineReaderTest {
           .setStartOffset(2).setEndOffset(4)
           .build())
         .setType(Constants.HighlightingType.ANNOTATION)
-        .build()
-    ).iterator());
+        .build()).iterator());
 
     highlightingLineReader.read(line1);
 
@@ -89,8 +87,7 @@ public class HighlightingLineReaderTest {
           .setStartOffset(1).setEndOffset(2)
           .build())
         .setType(Constants.HighlightingType.CONSTANT)
-        .build()
-    ).iterator());
+        .build()).iterator());
 
     highlightingLineReader.read(line1);
     highlightingLineReader.read(line2);
@@ -118,8 +115,7 @@ public class HighlightingLineReaderTest {
           .setStartOffset(4).setEndOffset(5)
           .build())
         .setType(Constants.HighlightingType.COMMENT)
-        .build()
-    ).iterator());
+        .build()).iterator());
 
     highlightingLineReader.read(line1);
 
@@ -143,8 +139,7 @@ public class HighlightingLineReaderTest {
           .setStartOffset(2).setEndOffset(3)
           .build())
         .setType(Constants.HighlightingType.KEYWORD)
-        .build()
-    ).iterator());
+        .build()).iterator());
 
     highlightingLineReader.read(line1);
 
@@ -161,11 +156,10 @@ public class HighlightingLineReaderTest {
           .setStartOffset(3).setEndOffset(2)
           .build())
         .setType(Constants.HighlightingType.ANNOTATION)
-        .build()
-    ).iterator());
+        .build()).iterator());
 
     highlightingLineReader.read(line1);
-    FileSourceDb.Line.Builder line2 = sourceData.addLinesBuilder().setSource("line 2").setLine(2);
+    FileSources.Line.Builder line2 = sourceData.addLinesBuilder().setSource("line 2").setLine(2);
     highlightingLineReader.read(line2);
     highlightingLineReader.read(line3);
 
@@ -197,8 +191,7 @@ public class HighlightingLineReaderTest {
           .setStartOffset(1).setEndOffset(2)
           .build())
         .setType(Constants.HighlightingType.COMMENT)
-        .build()
-    ).iterator());
+        .build()).iterator());
 
     highlightingLineReader.read(line1);
     highlightingLineReader.read(line2);
@@ -220,8 +213,7 @@ public class HighlightingLineReaderTest {
           .setStartOffset(0).setEndOffset(0)
           .build())
         .setType(Constants.HighlightingType.ANNOTATION)
-        .build()
-    ).iterator());
+        .build()).iterator());
 
     highlightingLineReader.read(line1);
     highlightingLineReader.read(line2);
@@ -242,8 +234,7 @@ public class HighlightingLineReaderTest {
           .setStartOffset(4).setEndOffset(2)
           .build())
         .setType(Constants.HighlightingType.ANNOTATION)
-        .build()
-    ).iterator());
+        .build()).iterator());
 
     try {
       highlightingLineReader.read(line1);
@@ -262,8 +253,7 @@ public class HighlightingLineReaderTest {
           .setStartOffset(2).setEndOffset(10)
           .build())
         .setType(Constants.HighlightingType.ANNOTATION)
-        .build()
-    ).iterator());
+        .build()).iterator());
 
     try {
       highlightingLineReader.read(line1);
@@ -282,8 +272,7 @@ public class HighlightingLineReaderTest {
           .setStartOffset(10).setEndOffset(11)
           .build())
         .setType(Constants.HighlightingType.ANNOTATION)
-        .build()
-    ).iterator());
+        .build()).iterator());
 
     try {
       highlightingLineReader.read(line1);

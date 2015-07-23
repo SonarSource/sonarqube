@@ -40,9 +40,9 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.FileSources;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.source.db.FileSourceDb;
 import org.sonar.test.DbTests;
 import org.sonar.test.TestUtils;
 
@@ -131,7 +131,7 @@ public class SourceLineIndexerTest {
     indexLine("P1", "F2", 1);
 
     List<Integer> duplications = ImmutableList.of(1, 2, 3);
-    FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
+    FileSources.Data.Builder dataBuilder = FileSources.Data.newBuilder();
     dataBuilder.addLinesBuilder()
       .setLine(1)
       .setScmRevision("new_revision")
@@ -156,8 +156,7 @@ public class SourceLineIndexerTest {
       entry(FIELD_SCM_REVISION, "new_revision"),
       entry(FIELD_SCM_AUTHOR, "new_author"),
       entry(FIELD_SOURCE, "new source"),
-      entry(FIELD_DUPLICATIONS, duplications)
-      );
+      entry(FIELD_DUPLICATIONS, duplications));
   }
 
   @Test
@@ -195,7 +194,7 @@ public class SourceLineIndexerTest {
   public void index_source_lines_with_big_test_data() {
     Integer bigValue = Short.MAX_VALUE * 2;
 
-    FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
+    FileSources.Data.Builder dataBuilder = FileSources.Data.newBuilder();
     dataBuilder.addLinesBuilder()
       .setLine(1)
       .setScmRevision("cafebabe")

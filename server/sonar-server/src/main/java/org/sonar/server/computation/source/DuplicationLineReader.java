@@ -27,7 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.server.source.db.FileSourceDb;
+import org.sonar.db.FileSources;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -47,7 +47,7 @@ public class DuplicationLineReader implements LineReader {
   }
 
   @Override
-  public void read(FileSourceDb.Line.Builder lineBuilder) {
+  public void read(FileSources.Line.Builder lineBuilder) {
     int line = lineBuilder.getLine();
     List<BatchReport.Range> blocks = findDuplicationBlockMatchingLine(line);
     for (BatchReport.Range block : blocks) {

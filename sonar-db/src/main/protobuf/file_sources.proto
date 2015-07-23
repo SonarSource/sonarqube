@@ -18,25 +18,15 @@
     Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-/*
-Notes
+// Structure of db column FILE_SOURCES.BINARY_DATA
 
-  - "required" fields are not used as recommended by Google to keep forward-compatibility:
-    https://developers.google.com/protocol-buffers/docs/proto#simple
-
-  - the related Java files are not generated during build. Indeed the existing protoc maven
-    plugins require protobuf to be installed on boxes. That means that generated Java files
-    are updated and committed for each change (see src/main/gen-java).
-*/
-
-// structure of db column FILE_SOURCES.BINARY_DATA
-
-// Temporarily in sonar-batch-protocol as this db table
-// is still fed on batch-side. However generated sources
-// are already in correct package
-
+// Package must not be changed for backward-compatibility
+// with the DB rows inserted in DB before 5.2
 package org.sonar.server.source.db;
 
+// The java package can be changed without breaking compatibility.
+// it impacts only the generat
+option java_package = "org.sonar.db";
 option optimize_for = SPEED;
 
 message Line {
@@ -68,6 +58,7 @@ message Line {
   repeated int32 duplication = 17 [packed = true];
 }
 
+// TODO should be dropped as it prevents streaming
 message Data {
   repeated Line lines = 1;
 }

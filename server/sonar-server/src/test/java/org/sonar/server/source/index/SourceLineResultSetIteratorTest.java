@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.server.source.db.FileSourceDb;
+import org.sonar.db.FileSources;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -81,8 +81,7 @@ public class SourceLineResultSetIteratorTest {
       MapEntry.entry(SourceLineIndexDefinition.FIELD_IT_COVERED_CONDITIONS, 6),
       MapEntry.entry(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, 7),
       MapEntry.entry(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, 8),
-      MapEntry.entry(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, 9)
-      );
+      MapEntry.entry(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, 9));
   }
 
   /**
@@ -91,7 +90,7 @@ public class SourceLineResultSetIteratorTest {
   @Test
   public void minimal_data() throws Exception {
     db.prepareDbUnit(getClass(), "shared.xml");
-    FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
+    FileSources.Data.Builder dataBuilder = FileSources.Data.newBuilder();
     dataBuilder.addLinesBuilder().setLine(1).build();
     try (Connection connection = db.openConnection()) {
       FileSourceTesting.updateDataColumn(connection, "F1", dataBuilder.build());
@@ -108,8 +107,7 @@ public class SourceLineResultSetIteratorTest {
     assertThat(doc).contains(
       MapEntry.entry(SourceLineIndexDefinition.FIELD_PROJECT_UUID, "P1"),
       MapEntry.entry(SourceLineIndexDefinition.FIELD_FILE_UUID, "F1"),
-      MapEntry.entry(SourceLineIndexDefinition.FIELD_LINE, 1)
-      );
+      MapEntry.entry(SourceLineIndexDefinition.FIELD_LINE, 1));
     // null values
     assertThat(doc).containsKeys(
       SourceLineIndexDefinition.FIELD_SCM_REVISION,
@@ -124,8 +122,7 @@ public class SourceLineResultSetIteratorTest {
       SourceLineIndexDefinition.FIELD_IT_COVERED_CONDITIONS,
       SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS,
       SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS,
-      SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS
-      );
+      SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS);
   }
 
   @Test
@@ -139,7 +136,7 @@ public class SourceLineResultSetIteratorTest {
   @Test
   public void filter_by_project() throws Exception {
     db.prepareDbUnit(getClass(), "filter_by_project.xml");
-    FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
+    FileSources.Data.Builder dataBuilder = FileSources.Data.newBuilder();
     dataBuilder.addLinesBuilder().setLine(1).build();
     try (Connection connection = db.openConnection()) {
       FileSourceTesting.updateDataColumn(connection, "F1", dataBuilder.build());
@@ -158,7 +155,7 @@ public class SourceLineResultSetIteratorTest {
   @Test
   public void filter_by_project_and_date() throws Exception {
     db.prepareDbUnit(getClass(), "filter_by_project_and_date.xml");
-    FileSourceDb.Data.Builder dataBuilder = FileSourceDb.Data.newBuilder();
+    FileSources.Data.Builder dataBuilder = FileSources.Data.newBuilder();
     dataBuilder.addLinesBuilder().setLine(1).build();
     try (Connection connection = db.openConnection()) {
       FileSourceTesting.updateDataColumn(connection, "F1", dataBuilder.build());

@@ -21,15 +21,13 @@
 package org.sonar.server.computation.source;
 
 import com.google.common.collect.ImmutableMap;
-import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.server.source.db.FileSourceDb;
-
-import javax.annotation.CheckForNull;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import org.sonar.batch.protocol.Constants;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.db.FileSources;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -58,7 +56,7 @@ public class HighlightingLineReader implements LineReader {
   }
 
   @Override
-  public void read(FileSourceDb.Line.Builder lineBuilder) {
+  public void read(FileSources.Line.Builder lineBuilder) {
     int line = lineBuilder.getLine();
     StringBuilder highlighting = new StringBuilder();
 

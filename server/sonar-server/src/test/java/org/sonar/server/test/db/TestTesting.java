@@ -20,20 +20,18 @@
 
 package org.sonar.server.test.db;
 
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.math.RandomUtils;
-import org.sonar.api.utils.internal.Uuids;
-import org.sonar.db.DbSession;
-import org.sonar.db.source.FileSourceDto;
-import org.sonar.server.source.db.FileSourceDb;
-import org.sonar.server.source.db.FileSourceDb.Test.TestStatus;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.math.RandomUtils;
+import org.sonar.api.utils.internal.Uuids;
+import org.sonar.db.DbSession;
+import org.sonar.db.FileSources;
+import org.sonar.db.source.FileSourceDto;
 
 public class TestTesting {
 
@@ -41,7 +39,7 @@ public class TestTesting {
     // only static stuff
   }
 
-  public static void updateDataColumn(DbSession session, String fileUuid, List<FileSourceDb.Test> tests) throws SQLException {
+  public static void updateDataColumn(DbSession session, String fileUuid, List<FileSources.Test> tests) throws SQLException {
     updateDataColumn(session, fileUuid, FileSourceDto.encodeTestData(tests));
   }
 
@@ -58,22 +56,21 @@ public class TestTesting {
   /**
    * Generate random data.
    */
-  public static List<FileSourceDb.Test> newRandomTests(int numberOfTests) throws IOException {
-    List<FileSourceDb.Test> tests = new ArrayList<>();
+  public static List<FileSources.Test> newRandomTests(int numberOfTests) throws IOException {
+    List<FileSources.Test> tests = new ArrayList<>();
     for (int i = 1; i <= numberOfTests; i++) {
-      FileSourceDb.Test.Builder test = FileSourceDb.Test.newBuilder()
+      FileSources.Test.Builder test = FileSources.Test.newBuilder()
         .setUuid(Uuids.create())
         .setName(RandomStringUtils.randomAlphanumeric(20))
-        .setStatus(TestStatus.FAILURE)
+        .setStatus(FileSources.Test.TestStatus.FAILURE)
         .setStacktrace(RandomStringUtils.randomAlphanumeric(50))
         .setMsg(RandomStringUtils.randomAlphanumeric(30))
         .setExecutionTimeMs(RandomUtils.nextLong());
       for (int j = 0; j < numberOfTests; j++) {
         test.addCoveredFile(
-          FileSourceDb.Test.CoveredFile.newBuilder()
+          FileSources.Test.CoveredFile.newBuilder()
             .setFileUuid(Uuids.create())
-            .addCoveredLine(RandomUtils.nextInt(500))
-          );
+            .addCoveredLine(RandomUtils.nextInt(500)));
       }
       tests.add(test.build());
     }

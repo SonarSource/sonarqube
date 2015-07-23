@@ -20,10 +20,10 @@
 
 package org.sonar.server.computation.source;
 
-import org.sonar.server.source.db.FileSourceDb;
+import org.sonar.db.FileSources;
 
 public interface LineReader {
 
-  void read(FileSourceDb.Line.Builder lineBuilder);
+  void read(FileSources.Line.Builder lineBuilder);
 
 }
