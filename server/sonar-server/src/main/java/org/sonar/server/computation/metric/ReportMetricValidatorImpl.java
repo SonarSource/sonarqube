@@ -47,7 +47,7 @@ public class ReportMetricValidatorImpl implements ReportMetricValidator {
     org.sonar.api.measures.Metric metric = metricByKey.get(metricKey);
     if (metric == null) {
       if (!alreadyLoggedMetricKeys.contains(metricKey)) {
-        LOG.warn("The metric '{}' is ignored and should not be send in the batch report", metricKey);
+        LOG.debug("The metric '{}' is ignored and should not be send in the batch report", metricKey);
         alreadyLoggedMetricKeys.add(metricKey);
       }
       return false;

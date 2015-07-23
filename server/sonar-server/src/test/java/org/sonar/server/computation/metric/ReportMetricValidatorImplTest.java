@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.metric.BatchMetrics;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +38,7 @@ import static org.sonar.api.measures.Metric.ValueType;
 public class ReportMetricValidatorImplTest {
 
   @Rule
-  public LogTester logTester = new LogTester();
+  public LogTester logTester = new LogTester().setLevel(LoggerLevel.DEBUG);
 
   static final String METRIC_KEY = "metric_key";
 
