@@ -34,16 +34,16 @@ public class MetricKeyValidatorTest {
   @Test
   public void isMetricKeyValid() {
     assertThat(MetricKeyValidator.isMetricKeyValid("")).isFalse();
-    assertThat(MetricKeyValidator.isMetricKeyValid("1.2.3:ABC-1.2.3")).isTrue();
-    assertThat(MetricKeyValidator.isMetricKeyValid("123.321")).isTrue();
+    assertThat(MetricKeyValidator.isMetricKeyValid("1_2_3-ABC-1_2_3")).isTrue();
+    assertThat(MetricKeyValidator.isMetricKeyValid("123_321")).isTrue();
     assertThat(MetricKeyValidator.isMetricKeyValid("123456")).isFalse();
-    assertThat(MetricKeyValidator.isMetricKeyValid("(123.A.321)")).isFalse();
+    assertThat(MetricKeyValidator.isMetricKeyValid("1.2.3_A_3:2:1")).isFalse();
   }
 
   @Test
   public void checkMetricKeyFormat() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Malformed metric key '123456'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
+    expectedException.expectMessage("Malformed metric key '123456'. Allowed characters are alphanumeric, '-', '_', with at least one non-digit.");
 
     MetricKeyValidator.checkMetricKeyFormat("123456");
   }

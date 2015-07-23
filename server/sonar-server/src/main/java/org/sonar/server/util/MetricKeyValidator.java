@@ -27,9 +27,9 @@ public class MetricKeyValidator {
   }
 
   /*
-   * Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit
+   * Allowed characters are alphanumeric, '-', '_', with at least one non-digit
    */
-  private static final String VALID_MODULE_KEY_REGEXP = "[\\p{Alnum}\\-_.:]*[\\p{Alpha}\\-_.:]+[\\p{Alnum}\\-_.:]*";
+  private static final String VALID_METRIC_KEY_REGEXP = "[\\p{Alnum}\\-_]*[\\p{Alpha}\\-_]+[\\p{Alnum}\\-_]*";
 
   /**
    * <p>Test if given parameter is valid for a project/module. Valid format is:</p>
@@ -39,7 +39,7 @@ public class MetricKeyValidator {
    *      <li>Uppercase ASCII letters A-Z</li>
    *      <li>Lowercase ASCII letters a-z</li>
    *      <li>ASCII digits 0-9</li>
-   *      <li>Punctuation signs dash '-', underscore '_', period '.' and colon ':'</li>
+   *      <li>Punctuation signs dash '-', underscore '_'</li>
    *    </ul>
    *  </li>
    *  <li>At least one non-digit</li>
@@ -48,12 +48,12 @@ public class MetricKeyValidator {
    * @return <code>true</code> if <code>candidateKey</code> can be used for a metric
    */
   public static boolean isMetricKeyValid(String candidateKey) {
-    return candidateKey.matches(VALID_MODULE_KEY_REGEXP);
+    return candidateKey.matches(VALID_METRIC_KEY_REGEXP);
   }
 
   public static String checkMetricKeyFormat(String candidateKey) {
     if (!isMetricKeyValid(candidateKey)) {
-      throw new IllegalArgumentException(String.format("Malformed metric key '%s'. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.",
+      throw new IllegalArgumentException(String.format("Malformed metric key '%s'. Allowed characters are alphanumeric, '-', '_', with at least one non-digit.",
         candidateKey));
     }
 

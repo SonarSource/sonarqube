@@ -261,7 +261,7 @@ public class CreateActionTest {
     expectedException.expect(IllegalArgumentException.class);
 
     newRequest()
-      .setParam(PARAM_KEY, "(123:456)")
+      .setParam(PARAM_KEY, "123:456")
       .setParam(PARAM_NAME, DEFAULT_NAME)
       .setParam(PARAM_TYPE, DEFAULT_TYPE)
       .execute();
