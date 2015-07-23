@@ -7,7 +7,10 @@ package testing.suite;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
+import java.io.File;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -54,6 +57,8 @@ public class CoverageTest {
 
     String coverage = orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-ut-coverage:src/main/xoo/sample/Sample.xoo");
     JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("CoverageTest/unit_test_coverage-expected.json"), "UTF-8"), coverage, false);
+
+    verifyComputeEngineTempDirIsEmpty();
   }
 
   @Test
@@ -75,6 +80,8 @@ public class CoverageTest {
 
     String coverage = orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-ut-coverage:src/main/xoo/sample/Sample.xoo");
     JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("CoverageTest/unit_test_coverage_no_condition-expected.json"), "UTF-8"), coverage, false);
+
+    verifyComputeEngineTempDirIsEmpty();
   }
 
   @Test
@@ -96,6 +103,8 @@ public class CoverageTest {
 
     String coverage = orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-it-coverage:src/main/xoo/sample/Sample.xoo");
     JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("CoverageTest/it_coverage-expected.json"), "UTF-8"), coverage, false);
+
+    verifyComputeEngineTempDirIsEmpty();
   }
 
   @Test
@@ -129,6 +138,8 @@ public class CoverageTest {
 
     String coverage = orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-overall-coverage:src/main/xoo/sample/Sample.xoo");
     JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("CoverageTest/ut_and_it_coverage-expected.json"), "UTF-8"), coverage, false);
+
+    verifyComputeEngineTempDirIsEmpty();
   }
 
   /**
@@ -140,6 +151,8 @@ public class CoverageTest {
 
     Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("xoo-half-covered", ALL_COVERAGE_METRICS));
     assertThat(project.getMeasureValue("coverage")).isEqualTo(50.0);
+
+    verifyComputeEngineTempDirIsEmpty();
   }
 
   /**
@@ -152,6 +165,8 @@ public class CoverageTest {
 
     Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("xoo-half-covered", ALL_COVERAGE_METRICS));
     assertThat(project.getMeasureValue("coverage")).isEqualTo(100.0);
+
+    verifyComputeEngineTempDirIsEmpty();
   }
 
   /**
@@ -164,6 +179,8 @@ public class CoverageTest {
 
     Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("xoo-half-covered", ALL_COVERAGE_METRICS));
     assertThat(project.getMeasureValue("coverage")).isEqualTo(100.0);
+
+    verifyComputeEngineTempDirIsEmpty();
   }
 
   /**
@@ -176,6 +193,13 @@ public class CoverageTest {
 
     Resource project = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("xoo-half-covered", ALL_COVERAGE_METRICS));
     assertThat(project.getMeasureValue("coverage")).isNull();
+
+    verifyComputeEngineTempDirIsEmpty();
+  }
+
+  private void verifyComputeEngineTempDirIsEmpty() {
+    File ceTempDirectory = new File(new File(orchestrator.getServer().getHome(), "temp"), "ce");
+    assertThat(FileUtils.listFiles(ceTempDirectory, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)).isEmpty();
   }
 
 }
