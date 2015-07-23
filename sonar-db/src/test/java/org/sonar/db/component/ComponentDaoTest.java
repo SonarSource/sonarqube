@@ -30,6 +30,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.util.RowNotFoundException;
 import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -102,7 +103,7 @@ public class ComponentDaoTest {
 
   @Test
   public void fail_to_get_by_uuid_when_component_not_found() {
-    thrown.expect(IllegalArgumentException.class);
+    thrown.expect(RowNotFoundException.class);
 
     db.prepareDbUnit(getClass(), "shared.xml");
 
@@ -131,7 +132,7 @@ public class ComponentDaoTest {
 
   @Test
   public void fail_to_get_by_key_when_component_not_found() {
-    thrown.expect(IllegalArgumentException.class);
+    thrown.expect(RowNotFoundException.class);
 
     db.prepareDbUnit(getClass(), "shared.xml");
 
@@ -270,7 +271,7 @@ public class ComponentDaoTest {
     assertThat(result.get().isEnabled()).isFalse();
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = RowNotFoundException.class)
   public void fail_to_get_by_id_when_project_not_found() {
     db.prepareDbUnit(getClass(), "shared.xml");
 

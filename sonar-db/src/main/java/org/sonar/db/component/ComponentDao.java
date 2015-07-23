@@ -35,6 +35,7 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
+import org.sonar.db.util.RowNotFoundException;
 
 import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
 
@@ -43,7 +44,7 @@ public class ComponentDao implements Dao {
   public ComponentDto selectOrFailById(DbSession session, long id) {
     Optional<ComponentDto> componentDto = selectById(session, id);
     if (!componentDto.isPresent()) {
-      throw new IllegalArgumentException(String.format("Component id does not exist: %d", id));
+      throw new RowNotFoundException(String.format("Component id does not exist: %d", id));
     }
     return componentDto.get();
   }
@@ -59,7 +60,7 @@ public class ComponentDao implements Dao {
   public ComponentDto selectOrFailByUuid(DbSession session, String uuid) {
     Optional<ComponentDto> componentDto = selectByUuid(session, uuid);
     if (!componentDto.isPresent()) {
-      throw new IllegalArgumentException(String.format("Component with uuid '%s' not found", uuid));
+      throw new RowNotFoundException(String.format("Component with uuid '%s' not found", uuid));
     }
     return componentDto.get();
   }
@@ -133,10 +134,10 @@ public class ComponentDao implements Dao {
     return mapper(session).selectByKeys(keys);
   }
 
-  public ComponentDto selectNonNullByKey(DbSession session, String key) {
+  public ComponentDto selectOrFailByKey(DbSession session, String key) {
     Optional<ComponentDto> component = selectByKey(session, key);
     if (!component.isPresent()) {
-      throw new IllegalArgumentException(String.format("Component key '%s' not found", key));
+      throw new RowNotFoundException(String.format("Component key '%s' not found", key));
     }
     return component.get();
   }

@@ -37,6 +37,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
+import org.sonar.db.util.RowNotFoundException;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -59,7 +60,7 @@ public class MetricDao implements Dao {
   public MetricDto selectOrFailByKey(DbSession session, String key) {
     MetricDto metric = selectByKey(session, key);
     if (metric == null) {
-      throw new IllegalStateException(String.format("Metric key '%s' not found", key));
+      throw new RowNotFoundException(String.format("Metric key '%s' not found", key));
     }
     return metric;
   }
@@ -151,7 +152,7 @@ public class MetricDao implements Dao {
   public MetricDto selectOrFailById(DbSession session, int id) {
     MetricDto metric = mapper(session).selectById(id);
     if (metric == null) {
-      throw new IllegalStateException(String.format("Metric id '%d' not found", id));
+      throw new RowNotFoundException(String.format("Metric id '%d' not found", id));
     }
     return metric;
   }

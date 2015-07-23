@@ -34,6 +34,7 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.util.RowNotFoundException;
 
 @ServerSide
 public class QualityProfileDao implements Dao {
@@ -54,7 +55,7 @@ public class QualityProfileDao implements Dao {
   public QualityProfileDto selectOrFailByKey(DbSession session, String key) {
     QualityProfileDto dto = selectByKey(session, key);
     if (dto == null) {
-      throw new IllegalArgumentException("Quality profile not found: " + key);
+      throw new RowNotFoundException("Quality profile not found: " + key);
     }
     return dto;
   }

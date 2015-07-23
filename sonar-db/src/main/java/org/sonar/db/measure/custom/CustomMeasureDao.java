@@ -29,6 +29,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
+import org.sonar.db.util.RowNotFoundException;
 
 @ServerSide
 public class CustomMeasureDao implements Dao {
@@ -62,7 +63,7 @@ public class CustomMeasureDao implements Dao {
   public CustomMeasureDto selectOrFail(DbSession session, long id) {
     CustomMeasureDto customMeasure = selectById(session, id);
     if (customMeasure == null) {
-      throw new IllegalArgumentException(String.format("Custom measure '%d' not found.", id));
+      throw new RowNotFoundException(String.format("Custom measure '%d' not found.", id));
     }
     return customMeasure;
   }

@@ -30,6 +30,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.RowNotFoundException;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -151,7 +152,7 @@ public class CustomMeasureDaoTest {
 
   @Test
   public void select_by_id_fail_if_no_measure_found() {
-    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expect(RowNotFoundException.class);
 
     underTest.selectOrFail(session, 42L);
   }

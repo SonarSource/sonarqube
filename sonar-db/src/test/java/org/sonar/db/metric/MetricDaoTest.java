@@ -28,6 +28,7 @@ import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.util.RowNotFoundException;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -81,7 +82,7 @@ public class MetricDaoTest {
     assertThat(result.isEnabled()).isFalse();
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = RowNotFoundException.class)
   public void get_nullable_by_key() {
     dao.selectOrFailByKey(session, "unknown");
   }

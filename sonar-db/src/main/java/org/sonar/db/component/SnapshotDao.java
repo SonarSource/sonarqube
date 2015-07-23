@@ -29,6 +29,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Scopes;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.util.RowNotFoundException;
 
 public class SnapshotDao implements Dao {
 
@@ -40,7 +41,7 @@ public class SnapshotDao implements Dao {
   public SnapshotDto selectOrFailById(DbSession session, long id) {
     SnapshotDto value = selectById(session, id);
     if (value == null) {
-      throw new IllegalArgumentException(String.format("Snapshot id does not exist: %d", id));
+      throw new RowNotFoundException(String.format("Snapshot id does not exist: %d", id));
     }
     return value;
   }
