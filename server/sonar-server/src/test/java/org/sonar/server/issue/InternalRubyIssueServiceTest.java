@@ -135,12 +135,6 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void get_issue_by_key() {
-    service.getIssueByKey("ABCD");
-    verify(issueService).getByKey("ABCD");
-  }
-
-  @Test
   public void list_transitions_by_issue_key() {
     service.listTransitions("ABCD");
     verify(issueService).listTransitions(eq("ABCD"));
