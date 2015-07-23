@@ -12,10 +12,6 @@
   <name>SonarQube :: Duplications</name>
   <description>Detect duplicated code</description>
 
-  <properties>
-    <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
