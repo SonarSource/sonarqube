@@ -229,7 +229,7 @@ public class SearchAction implements RulesWsAction {
       .createParam(PARAM_QPROFILE)
       .setDescription("Key of Quality profile to filter on. Used only if the parameter '" +
         PARAM_ACTIVATION + "' is set.")
-      .setExampleValue("java:Sonar way");
+      .setExampleValue("sonar-way-cs-12345");
 
     action
       .createParam(PARAM_INHERITANCE)
