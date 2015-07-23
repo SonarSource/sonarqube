@@ -91,26 +91,27 @@ public class CoveragePublisherTest {
 
     publisher.publish(writer);
 
-    CloseableIterator<Coverage> it = new BatchReportReader(outputDir).readComponentCoverage(2);
-    assertThat(it.next()).isEqualTo(Coverage.newBuilder()
-      .setLine(2)
-      .setUtHits(true)
-      .setItHits(false)
-      .build());
-    assertThat(it.next()).isEqualTo(Coverage.newBuilder()
-      .setLine(3)
-      .setUtHits(true)
-      .setItHits(false)
-      .setConditions(4)
-      .setUtCoveredConditions(2)
-      .setItCoveredConditions(1)
-      .setOverallCoveredConditions(2)
-      .build());
-    assertThat(it.next()).isEqualTo(Coverage.newBuilder()
-      .setLine(5)
-      .setUtHits(false)
-      .setItHits(true)
-      .build());
+    try (CloseableIterator<Coverage> it = new BatchReportReader(outputDir).readComponentCoverage(2)) {
+      assertThat(it.next()).isEqualTo(Coverage.newBuilder()
+        .setLine(2)
+        .setUtHits(true)
+        .setItHits(false)
+        .build());
+      assertThat(it.next()).isEqualTo(Coverage.newBuilder()
+        .setLine(3)
+        .setUtHits(true)
+        .setItHits(false)
+        .setConditions(4)
+        .setUtCoveredConditions(2)
+        .setItCoveredConditions(1)
+        .setOverallCoveredConditions(2)
+        .build());
+      assertThat(it.next()).isEqualTo(Coverage.newBuilder()
+        .setLine(5)
+        .setUtHits(false)
+        .setItHits(true)
+        .build());
+    }
 
   }
 }

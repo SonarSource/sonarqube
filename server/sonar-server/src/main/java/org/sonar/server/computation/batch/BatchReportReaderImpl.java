@@ -88,7 +88,6 @@ public class BatchReportReaderImpl implements BatchReportReader {
   }
 
   @Override
-  @CheckForNull
   public CloseableIterator<BatchReport.SyntaxHighlighting> readComponentSyntaxHighlighting(int fileRef) {
     return delegate.readComponentSyntaxHighlighting(fileRef);
   }
