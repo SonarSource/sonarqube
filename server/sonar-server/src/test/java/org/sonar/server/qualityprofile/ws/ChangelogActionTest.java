@@ -54,7 +54,7 @@ import org.sonar.server.qualityprofile.ActiveRuleChange.Type;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.user.db.UserDao;
+import org.sonar.db.user.UserDao;
 import org.sonar.server.ws.WsTester;
 
 import static org.mockito.Mockito.mock;

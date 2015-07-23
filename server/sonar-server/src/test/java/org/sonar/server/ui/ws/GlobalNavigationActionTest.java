@@ -43,7 +43,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.Views;
-import org.sonar.server.user.db.UserDao;
+import org.sonar.db.user.UserDao;
 import org.sonar.server.ws.WsTester;
 
 import static org.mockito.Mockito.mock;

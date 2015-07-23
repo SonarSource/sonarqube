@@ -29,6 +29,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.db.MyBatis.closeQuietly;
@@ -85,7 +86,10 @@ public class UpdateAction implements UserGroupsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       groupUpdater.checkNameIsUnique(name, dbSession);
-      GroupDto group = dbClient.groupDao().selectById(dbSession, groupId);
+      GroupDto group = dbClient.groupDao().selectNullableById(dbSession, groupId);
+      if (group == null) {
+        throw new NotFoundException(String.format("Could not find a user group with id '%s'.", groupId));
+      }
       if (name != null) {
         groupUpdater.validateName(name);
         group.setName(name);

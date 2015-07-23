@@ -45,6 +45,8 @@ import org.sonar.db.issue.IssueFilterFavouriteDao;
 import org.sonar.db.loadedtemplate.LoadedTemplateDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.MeasureFilterDao;
+import org.sonar.db.measure.custom.CustomMeasureDao;
+import org.sonar.db.metric.MetricDao;
 import org.sonar.db.notification.NotificationQueueDao;
 import org.sonar.db.permission.PermissionDao;
 import org.sonar.db.permission.PermissionTemplateDao;
@@ -57,6 +59,7 @@ import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.user.AuthorDao;
 import org.sonar.db.user.AuthorizationDao;
+import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.UserDao;
@@ -79,10 +82,12 @@ public final class DaoUtils {
       AuthorizationDao.class,
       ComponentDao.class,
       ComponentLinkDao.class,
+      CustomMeasureDao.class,
       DashboardDao.class,
       DuplicationDao.class,
       EventDao.class,
       FileSourceDao.class,
+      GroupDao.class,
       GroupMembershipDao.class,
       IssueDao.class,
       IssueChangeDao.class,
@@ -91,6 +96,7 @@ public final class DaoUtils {
       LoadedTemplateDao.class,
       MeasureDao.class,
       MeasureFilterDao.class,
+      MetricDao.class,
       NotificationQueueDao.class,
       PermissionDao.class,
       PermissionTemplateDao.class,

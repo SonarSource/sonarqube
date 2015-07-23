@@ -45,7 +45,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.db.user.GroupDao;
-import org.sonar.server.user.db.UserDao;
+import org.sonar.db.user.UserDao;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;

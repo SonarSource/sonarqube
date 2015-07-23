@@ -41,7 +41,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.db.user.GroupDao;
-import org.sonar.server.user.db.UserDao;
+import org.sonar.db.user.UserDao;
 import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.TestRequest;
 import org.sonar.test.DbTests;

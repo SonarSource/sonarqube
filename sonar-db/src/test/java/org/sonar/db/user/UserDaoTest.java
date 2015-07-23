@@ -23,16 +23,21 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.user.UserQuery;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.util.RowNotFoundException;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,112 +47,125 @@ public class UserDaoTest {
   System2 system2 = mock(System2.class);
 
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2);
 
-  UserDao dao = dbTester.getDbClient().userDao();
+  UserDao underTest = db.getDbClient().userDao();
+  DbSession session;
+
+  @Before
+  public void before() {
+    db.truncateTables();
+
+    this.session = db.getSession();
+  }
+
+  @After
+  public void after() {
+    this.session.close();
+  }
 
   @Test
   public void selectUserByLogin_ignore_inactive() {
-    dbTester.prepareDbUnit(getClass(), "selectActiveUserByLogin.xml");
+    db.prepareDbUnit(getClass(), "selectActiveUserByLogin.xml");
 
-    UserDto user = dao.getUser(50);
+    UserDto user = underTest.getUser(50);
     assertThat(user.getLogin()).isEqualTo("inactive_user");
 
-    user = dao.selectActiveUserByLogin("inactive_user");
+    user = underTest.selectActiveUserByLogin("inactive_user");
     assertThat(user).isNull();
   }
 
   @Test
   public void selectUserByLogin_not_found() {
-    dbTester.prepareDbUnit(getClass(), "selectActiveUserByLogin.xml");
+    db.prepareDbUnit(getClass(), "selectActiveUserByLogin.xml");
 
-    UserDto user = dao.selectActiveUserByLogin("not_found");
+    UserDto user = underTest.selectActiveUserByLogin("not_found");
     assertThat(user).isNull();
   }
 
   @Test
   public void selectUsersByLogins() {
-    dbTester.prepareDbUnit(getClass(), "selectUsersByLogins.xml");
+    db.prepareDbUnit(getClass(), "selectUsersByLogins.xml");
 
-    Collection<UserDto> users = dao.selectUsersByLogins(Arrays.asList("marius", "inactive_user", "other"));
+    Collection<UserDto> users = underTest.selectUsersByLogins(Arrays.asList("marius", "inactive_user", "other"));
     assertThat(users).hasSize(2);
     assertThat(users).extracting("login").containsOnly("marius", "inactive_user");
   }
 
   @Test
   public void selectUsersByLogins_empty_logins() {
-    dbTester.truncateTables();
+    db.truncateTables();
 
     // no need to access db
-    Collection<UserDto> users = dao.selectUsersByLogins(Collections.<String>emptyList());
+    Collection<UserDto> users = underTest.selectUsersByLogins(Collections.<String>emptyList());
     assertThat(users).isEmpty();
   }
 
   @Test
   public void selectUsersByQuery_all() {
-    dbTester.prepareDbUnit(getClass(), "selectUsersByQuery.xml");
+    db.prepareDbUnit(getClass(), "selectUsersByQuery.xml");
 
     UserQuery query = UserQuery.builder().includeDeactivated().build();
-    List<UserDto> users = dao.selectUsers(query);
+    List<UserDto> users = underTest.selectUsers(query);
     assertThat(users).hasSize(2);
   }
 
   @Test
   public void selectUsersByQuery_only_actives() {
-    dbTester.prepareDbUnit(getClass(), "selectUsersByQuery.xml");
+    db.prepareDbUnit(getClass(), "selectUsersByQuery.xml");
 
     UserQuery query = UserQuery.ALL_ACTIVES;
-    List<UserDto> users = dao.selectUsers(query);
+    List<UserDto> users = underTest.selectUsers(query);
     assertThat(users).hasSize(1);
     assertThat(users.get(0).getName()).isEqualTo("Marius");
   }
 
   @Test
   public void selectUsersByQuery_filter_by_login() {
-    dbTester.prepareDbUnit(getClass(), "selectUsersByQuery.xml");
+    db.prepareDbUnit(getClass(), "selectUsersByQuery.xml");
 
     UserQuery query = UserQuery.builder().logins("marius", "john").build();
-    List<UserDto> users = dao.selectUsers(query);
+    List<UserDto> users = underTest.selectUsers(query);
     assertThat(users).hasSize(1);
     assertThat(users.get(0).getName()).isEqualTo("Marius");
   }
 
   @Test
   public void selectUsersByQuery_search_by_login_text() {
-    dbTester.prepareDbUnit(getClass(), "selectUsersByText.xml");
+    db.prepareDbUnit(getClass(), "selectUsersByText.xml");
 
     UserQuery query = UserQuery.builder().searchText("sbr").build();
-    List<UserDto> users = dao.selectUsers(query);
+    List<UserDto> users = underTest.selectUsers(query);
     assertThat(users).hasSize(1);
     assertThat(users.get(0).getLogin()).isEqualTo("sbrandhof");
   }
 
   @Test
   public void selectUsersByQuery_search_by_name_text() {
-    dbTester.prepareDbUnit(getClass(), "selectUsersByText.xml");
+    db.prepareDbUnit(getClass(), "selectUsersByText.xml");
 
     UserQuery query = UserQuery.builder().searchText("Simon").build();
-    List<UserDto> users = dao.selectUsers(query);
+    List<UserDto> users = underTest.selectUsers(query);
     assertThat(users).hasSize(1);
     assertThat(users.get(0).getLogin()).isEqualTo("sbrandhof");
   }
 
   @Test
   public void selectUsersByQuery_escape_special_characters_in_like() {
-    dbTester.prepareDbUnit(getClass(), "selectUsersByText.xml");
+    db.prepareDbUnit(getClass(), "selectUsersByText.xml");
 
     UserQuery query = UserQuery.builder().searchText("%s%").build();
     // we expect really a login or name containing the 3 characters "%s%"
 
-    List<UserDto> users = dao.selectUsers(query);
+    List<UserDto> users = underTest.selectUsers(query);
     assertThat(users).isEmpty();
   }
 
   @Test
   public void selectGroupByName() {
-    dbTester.prepareDbUnit(getClass(), "selectGroupByName.xml");
+    db.prepareDbUnit(getClass(), "selectGroupByName.xml");
 
-    GroupDto group = dao.selectGroupByName("sonar-users");
+    GroupDto group = underTest.selectGroupByName("sonar-users");
     assertThat(group).isNotNull();
     assertThat(group.getId()).isEqualTo(1L);
     assertThat(group.getName()).isEqualTo("sonar-users");
@@ -158,9 +176,9 @@ public class UserDaoTest {
 
   @Test
   public void selectGroupByName_not_found() {
-    dbTester.prepareDbUnit(getClass(), "selectGroupByName.xml");
+    db.prepareDbUnit(getClass(), "selectGroupByName.xml");
 
-    GroupDto group = dao.selectGroupByName("not-found");
+    GroupDto group = underTest.selectGroupByName("not-found");
     assertThat(group).isNull();
   }
 
@@ -179,10 +197,10 @@ public class UserDaoTest {
       .setCryptedPassword("abcd")
       .setCreatedAt(date)
       .setUpdatedAt(date);
-    dao.insert(dbTester.getSession(), userDto);
-    dbTester.getSession().commit();
+    underTest.insert(db.getSession(), userDto);
+    db.getSession().commit();
 
-    UserDto user = dao.selectActiveUserByLogin("john");
+    UserDto user = underTest.selectActiveUserByLogin("john");
     assertThat(user).isNotNull();
     assertThat(user.getId()).isNotNull();
     assertThat(user.getLogin()).isEqualTo("john");
@@ -198,7 +216,7 @@ public class UserDaoTest {
 
   @Test
   public void update_user() {
-    dbTester.prepareDbUnit(getClass(), "update_user.xml");
+    db.prepareDbUnit(getClass(), "update_user.xml");
 
     Long date = DateUtils.parseDate("2014-06-21").getTime();
 
@@ -212,10 +230,10 @@ public class UserDaoTest {
       .setSalt("12345")
       .setCryptedPassword("abcde")
       .setUpdatedAt(date);
-    dao.update(dbTester.getSession(), userDto);
-    dbTester.getSession().commit();
+    underTest.update(db.getSession(), userDto);
+    db.getSession().commit();
 
-    UserDto user = dao.getUser(1);
+    UserDto user = underTest.getUser(1);
     assertThat(user).isNotNull();
     assertThat(user.getId()).isEqualTo(1L);
     assertThat(user.getLogin()).isEqualTo("john");
@@ -231,21 +249,21 @@ public class UserDaoTest {
 
   @Test
   public void deactivate_user() {
-    dbTester.prepareDbUnit(getClass(), "deactivate_user.xml");
+    db.prepareDbUnit(getClass(), "deactivate_user.xml");
 
     when(system2.now()).thenReturn(1500000000000L);
 
     String login = "marius";
-    boolean deactivated = dao.deactivateUserByLogin(login);
+    boolean deactivated = underTest.deactivateUserByLogin(login);
     assertThat(deactivated).isTrue();
 
-    assertThat(dao.selectActiveUserByLogin(login)).isNull();
+    assertThat(underTest.selectActiveUserByLogin(login)).isNull();
 
-    UserDto userDto = dao.getUser(100);
+    UserDto userDto = underTest.getUser(100);
     assertThat(userDto.isActive()).isFalse();
     assertThat(userDto.getUpdatedAt()).isEqualTo(1500000000000L);
 
-    dbTester.assertDbUnit(getClass(), "deactivate_user-result.xml",
+    db.assertDbUnit(getClass(), "deactivate_user-result.xml",
       "dashboards", "active_dashboards", "groups_users", "issue_filters",
       "issue_filter_favourites", "measure_filters", "measure_filter_favourites",
       "properties", "user_roles");
@@ -253,11 +271,82 @@ public class UserDaoTest {
 
   @Test
   public void deactivate_missing_user() {
-    dbTester.prepareDbUnit(getClass(), "deactivate_user.xml");
+    db.prepareDbUnit(getClass(), "deactivate_user.xml");
 
     String login = "does_not_exist";
-    boolean deactivated = dao.deactivateUserByLogin(login);
+    boolean deactivated = underTest.deactivateUserByLogin(login);
     assertThat(deactivated).isFalse();
-    assertThat(dao.selectActiveUserByLogin(login)).isNull();
+    assertThat(underTest.selectActiveUserByLogin(login)).isNull();
+  }
+
+  @Test
+  public void select_by_login() {
+    db.prepareDbUnit(getClass(), "select_by_login.xml");
+
+    UserDto dto = underTest.selectByLogin(session, "marius");
+    assertThat(dto.getId()).isEqualTo(101);
+    assertThat(dto.getLogin()).isEqualTo("marius");
+    assertThat(dto.getName()).isEqualTo("Marius");
+    assertThat(dto.getEmail()).isEqualTo("marius@lesbronzes.fr");
+    assertThat(dto.isActive()).isTrue();
+    assertThat(dto.getScmAccountsAsList()).containsOnly("ma", "marius33");
+    assertThat(dto.getSalt()).isEqualTo("79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365");
+    assertThat(dto.getCryptedPassword()).isEqualTo("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg");
+    assertThat(dto.getCreatedAt()).isEqualTo(1418215735482L);
+    assertThat(dto.getUpdatedAt()).isEqualTo(1418215735485L);
+  }
+
+  @Test
+  public void select_nullable_by_scm_account() {
+    db.prepareDbUnit(getClass(), "select_nullable_by_scm_account.xml");
+
+    List<UserDto> results = underTest.selectNullableByScmAccountOrLoginOrEmail(session, "ma");
+    assertThat(results).hasSize(1);
+    assertThat(results.get(0).getLogin()).isEqualTo("marius");
+
+    results = underTest.selectNullableByScmAccountOrLoginOrEmail(session, "marius");
+    assertThat(results).hasSize(1);
+    assertThat(results.get(0).getLogin()).isEqualTo("marius");
+
+    results = underTest.selectNullableByScmAccountOrLoginOrEmail(session, "marius@lesbronzes.fr");
+    assertThat(results).hasSize(1);
+    assertThat(results.get(0).getLogin()).isEqualTo("marius");
+
+    results = underTest.selectNullableByScmAccountOrLoginOrEmail(session, "marius@lesbronzes.fr");
+    assertThat(results).hasSize(1);
+    assertThat(results.get(0).getLogin()).isEqualTo("marius");
+
+    results = underTest.selectNullableByScmAccountOrLoginOrEmail(session, "m");
+    assertThat(results).isEmpty();
+
+    results = underTest.selectNullableByScmAccountOrLoginOrEmail(session, "unknown");
+    assertThat(results).isEmpty();
+  }
+
+  @Test
+  public void select_nullable_by_scm_account_return_many_results_when_same_email_is_used_by_many_users() {
+    db.prepareDbUnit(getClass(), "select_nullable_by_scm_account_return_many_results_when_same_email_is_used_by_many_users.xml");
+
+    List<UserDto> results = underTest.selectNullableByScmAccountOrLoginOrEmail(session, "marius@lesbronzes.fr");
+    assertThat(results).hasSize(2);
+  }
+
+  @Test
+  public void select_by_login_with_unknown_login() {
+    try {
+      underTest.selectByLogin(session, "unknown");
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(RowNotFoundException.class).hasMessage("User with login 'unknown' has not been found");
+    }
+  }
+
+  @Test
+  public void select_nullable_by_login() {
+    db.prepareDbUnit(getClass(), "select_by_login.xml");
+
+    assertThat(underTest.selectNullableByLogin(session, "marius")).isNotNull();
+
+    assertThat(underTest.selectNullableByLogin(session, "unknown")).isNull();
   }
 }

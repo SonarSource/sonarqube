@@ -25,7 +25,6 @@ import org.sonar.db.Database;
 import org.sonar.db.MyBatis;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.user.db.UserDao;
 
 /**
  * Should be replaced by {@link org.sonar.db.DbClient}, but some DAOs
@@ -35,7 +34,6 @@ public class DbClient extends org.sonar.db.DbClient {
 
   private ActiveRuleDao activeRuleDao;
   private RuleDao ruleDao;
-  private UserDao userDao;
 
   public DbClient(Database database, MyBatis myBatis, Dao... daos) {
     super(database, myBatis, daos);
@@ -45,7 +43,6 @@ public class DbClient extends org.sonar.db.DbClient {
   protected void doOnLoad(Map<Class, Dao> daoByClass) {
     this.activeRuleDao = (ActiveRuleDao) daoByClass.get(ActiveRuleDao.class);
     this.ruleDao = (RuleDao) daoByClass.get(RuleDao.class);
-    this.userDao = (UserDao) daoByClass.get(UserDao.class);
   }
 
   public ActiveRuleDao activeRuleDao() {
@@ -54,9 +51,5 @@ public class DbClient extends org.sonar.db.DbClient {
 
   public RuleDao ruleDao() {
     return ruleDao;
-  }
-
-  public UserDao userDao() {
-    return userDao;
   }
 }

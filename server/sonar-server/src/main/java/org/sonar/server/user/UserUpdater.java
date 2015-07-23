@@ -45,6 +45,7 @@ import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.Validation;
@@ -118,7 +119,10 @@ public class UserUpdater {
   public void update(UpdateUser updateUser) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      UserDto user = dbClient.userDao().selectByLogin(dbSession, updateUser.login());
+      UserDto user = dbClient.userDao().selectNullableByLogin(dbSession, updateUser.login());
+      if (user == null) {
+        throw new NotFoundException(String.format("User with login '%s' has not been found", updateUser.login()));
+      }
       updateUserDto(dbSession, updateUser, user);
       updateUser(dbSession, user);
       dbSession.commit();
@@ -267,7 +271,7 @@ public class UserUpdater {
   }
 
   private void validateScmAccounts(DbSession dbSession, List<String> scmAccounts, @Nullable String login, @Nullable String email, @Nullable UserDto existingUser,
-                                   List<Message> messages) {
+    List<Message> messages) {
     for (String scmAccount : scmAccounts) {
       if (scmAccount.equals(login) || scmAccount.equals(email)) {
         messages.add(Message.of("user.login_or_email_used_as_scm_account"));

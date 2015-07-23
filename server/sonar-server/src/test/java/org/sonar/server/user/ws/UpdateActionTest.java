@@ -43,7 +43,7 @@ import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.SecurityRealmFactory;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.db.user.GroupDao;
-import org.sonar.server.user.db.UserDao;
+import org.sonar.db.user.UserDao;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;

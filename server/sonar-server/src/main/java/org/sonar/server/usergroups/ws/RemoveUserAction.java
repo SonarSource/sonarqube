@@ -75,7 +75,10 @@ public class RemoveUserAction implements UserGroupsWsAction {
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      GroupDto group = dbClient.groupDao().selectById(dbSession, groupId);
+      GroupDto group = dbClient.groupDao().selectNullableById(dbSession, groupId);
+      if (group == null) {
+        throw new NotFoundException(String.format("Could not find a user group with id '%s'", groupId));
+      }
       UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
       if (user == null) {
         throw new NotFoundException(String.format("Could not find a user with login '%s'", login));

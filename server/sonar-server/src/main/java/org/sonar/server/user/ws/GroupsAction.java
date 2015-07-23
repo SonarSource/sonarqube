@@ -34,6 +34,7 @@ import org.sonar.db.user.GroupMembershipDto;
 import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 public class GroupsAction implements UsersWsAction {
@@ -93,7 +94,10 @@ public class GroupsAction implements UsersWsAction {
 
     DbSession session = dbClient.openSession(false);
     try {
-      UserDto user = dbClient.userDao().selectByLogin(session, login);
+      UserDto user = dbClient.userDao().selectNullableByLogin(session, login);
+      if (user == null) {
+        throw new NotFoundException(String.format("User with login '%s' has not been found", login));
+      }
       int total = dbClient.groupMembershipDao().countGroups(session, query, user.getId());
       Paging paging = Paging.create(pageSize, page, total);
       List<GroupMembershipDto> groups = dbClient.groupMembershipDao().selectGroups(session, query, user.getId(), paging.offset(), pageSize);

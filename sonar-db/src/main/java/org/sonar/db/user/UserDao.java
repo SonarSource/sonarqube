@@ -28,6 +28,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.util.RowNotFoundException;
 
 public class UserDao implements Dao {
 
@@ -171,5 +172,29 @@ public class UserDao implements Dao {
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  @CheckForNull
+  public UserDto selectNullableByLogin(DbSession session, String login) {
+    return mapper(session).selectByLogin(login);
+  }
+
+  public UserDto selectByLogin(DbSession session, String login) {
+    UserDto user = selectNullableByLogin(session, login);
+    if (user == null) {
+      throw new RowNotFoundException(String.format("User with login '%s' has not been found", login));
+    }
+    return user;
+  }
+
+  public List<UserDto> selectNullableByScmAccountOrLoginOrEmail(DbSession session, String scmAccountOrLoginOrEmail) {
+    String like = new StringBuilder().append("%")
+      .append(UserDto.SCM_ACCOUNTS_SEPARATOR).append(scmAccountOrLoginOrEmail)
+      .append(UserDto.SCM_ACCOUNTS_SEPARATOR).append("%").toString();
+    return mapper(session).selectNullableByScmAccountOrLoginOrEmail(scmAccountOrLoginOrEmail, like);
+  }
+
+  protected UserMapper mapper(DbSession session) {
+    return session.getMapper(UserMapper.class);
   }
 }

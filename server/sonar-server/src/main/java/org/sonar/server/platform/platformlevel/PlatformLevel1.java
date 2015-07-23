@@ -29,7 +29,6 @@ import org.sonar.db.DaoUtils;
 import org.sonar.db.DatabaseChecker;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.MyBatis;
-import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.semaphore.SemaphoresImpl;
 import org.sonar.db.version.DatabaseVersion;
@@ -37,7 +36,6 @@ import org.sonar.db.version.MigrationStepModule;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.db.metric.MetricDao;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.server.platform.Platform;
@@ -54,8 +52,6 @@ import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.search.EsSearchModule;
 import org.sonar.server.search.IndexQueue;
 import org.sonar.server.user.ThreadLocalUserSession;
-import org.sonar.db.user.GroupDao;
-import org.sonar.server.user.db.UserDao;
 
 public class PlatformLevel1 extends PlatformLevel {
   private final Platform platform;
@@ -105,12 +101,8 @@ public class PlatformLevel1 extends PlatformLevel {
       EsSearchModule.class,
 
       // DAOs to be moved to sonar-db
-      GroupDao.class,
-      UserDao.class,
       RuleDao.class,
       ActiveRuleDao.class,
-      MetricDao.class,
-      CustomMeasureDao.class,
 
       // rules/qprofiles
       RuleNormalizer.class,
