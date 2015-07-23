@@ -43,7 +43,6 @@ import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.computation.component.TreeRootHolderImpl;
 import org.sonar.server.computation.debt.DebtModelHolderImpl;
 import org.sonar.server.computation.event.EventRepositoryImpl;
-import org.sonar.server.computation.formula.CoreFormulaRepositoryImpl;
 import org.sonar.server.computation.issue.BaseIssuesLoader;
 import org.sonar.server.computation.issue.DebtAggregator;
 import org.sonar.server.computation.issue.DebtCalculator;
@@ -173,7 +172,6 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       EventRepositoryImpl.class,
       ProjectSettingsRepository.class,
       DbIdsRepository.class,
-      CoreFormulaRepositoryImpl.class,
       QualityGateServiceImpl.class,
       EvaluationResultTextConverterImpl.class,
 

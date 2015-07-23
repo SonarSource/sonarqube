@@ -60,7 +60,6 @@ public class ComputationSteps {
       DuplicationMeasuresStep.class,
       // must be executed after the measures required for common rules (coverage, comment density, duplications)
       IntegrateIssuesStep.class,
-      CoreMetricFormulaExecutorStep.class,
       LanguageDistributionMeasuresStep.class,
       UnitTestMeasuresStep.class,
       ComplexityMeasuresStep.class,
