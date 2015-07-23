@@ -6553,43 +6553,24 @@ public final class BatchReport {
     org.sonar.batch.protocol.Constants.Severity getSeverity();
 
     /**
-     * <code>repeated string tag = 6;</code>
-     */
-    com.google.protobuf.ProtocolStringList
-        getTagList();
-    /**
-     * <code>repeated string tag = 6;</code>
-     */
-    int getTagCount();
-    /**
-     * <code>repeated string tag = 6;</code>
-     */
-    java.lang.String getTag(int index);
-    /**
-     * <code>repeated string tag = 6;</code>
-     */
-    com.google.protobuf.ByteString
-        getTagBytes(int index);
-
-    /**
-     * <code>optional double effort_to_fix = 7;</code>
+     * <code>optional double effort_to_fix = 6;</code>
      */
     boolean hasEffortToFix();
     /**
-     * <code>optional double effort_to_fix = 7;</code>
+     * <code>optional double effort_to_fix = 6;</code>
      */
     double getEffortToFix();
 
     /**
-     * <code>optional string attributes = 8;</code>
+     * <code>optional string attributes = 7;</code>
      */
     boolean hasAttributes();
     /**
-     * <code>optional string attributes = 8;</code>
+     * <code>optional string attributes = 7;</code>
      */
     java.lang.String getAttributes();
     /**
-     * <code>optional string attributes = 8;</code>
+     * <code>optional string attributes = 7;</code>
      */
     com.google.protobuf.ByteString
         getAttributesBytes();
@@ -6680,21 +6661,12 @@ public final class BatchReport {
               }
               break;
             }
-            case 50: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              if (!((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
-                tag_ = new com.google.protobuf.LazyStringArrayList();
-                mutable_bitField0_ |= 0x00000020;
-              }
-              tag_.add(bs);
-              break;
-            }
-            case 57: {
+            case 49: {
               bitField0_ |= 0x00000020;
               effortToFix_ = input.readDouble();
               break;
             }
-            case 66: {
+            case 58: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000040;
               attributes_ = bs;
@@ -6708,9 +6680,6 @@ public final class BatchReport {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
-          tag_ = tag_.getUnmodifiableView();
-        }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
@@ -6899,60 +6868,31 @@ public final class BatchReport {
       return severity_;
     }
 
-    public static final int TAG_FIELD_NUMBER = 6;
-    private com.google.protobuf.LazyStringList tag_;
-    /**
-     * <code>repeated string tag = 6;</code>
-     */
-    public com.google.protobuf.ProtocolStringList
-        getTagList() {
-      return tag_;
-    }
-    /**
-     * <code>repeated string tag = 6;</code>
-     */
-    public int getTagCount() {
-      return tag_.size();
-    }
-    /**
-     * <code>repeated string tag = 6;</code>
-     */
-    public java.lang.String getTag(int index) {
-      return tag_.get(index);
-    }
-    /**
-     * <code>repeated string tag = 6;</code>
-     */
-    public com.google.protobuf.ByteString
-        getTagBytes(int index) {
-      return tag_.getByteString(index);
-    }
-
-    public static final int EFFORT_TO_FIX_FIELD_NUMBER = 7;
+    public static final int EFFORT_TO_FIX_FIELD_NUMBER = 6;
     private double effortToFix_;
     /**
-     * <code>optional double effort_to_fix = 7;</code>
+     * <code>optional double effort_to_fix = 6;</code>
      */
     public boolean hasEffortToFix() {
       return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     /**
-     * <code>optional double effort_to_fix = 7;</code>
+     * <code>optional double effort_to_fix = 6;</code>
      */
     public double getEffortToFix() {
       return effortToFix_;
     }
 
-    public static final int ATTRIBUTES_FIELD_NUMBER = 8;
+    public static final int ATTRIBUTES_FIELD_NUMBER = 7;
     private java.lang.Object attributes_;
     /**
-     * <code>optional string attributes = 8;</code>
+     * <code>optional string attributes = 7;</code>
      */
     public boolean hasAttributes() {
       return ((bitField0_ & 0x00000040) == 0x00000040);
     }
     /**
-     * <code>optional string attributes = 8;</code>
+     * <code>optional string attributes = 7;</code>
      */
     public java.lang.String getAttributes() {
       java.lang.Object ref = attributes_;
@@ -6969,7 +6909,7 @@ public final class BatchReport {
       }
     }
     /**
-     * <code>optional string attributes = 8;</code>
+     * <code>optional string attributes = 7;</code>
      */
     public com.google.protobuf.ByteString
         getAttributesBytes() {
@@ -6991,7 +6931,6 @@ public final class BatchReport {
       line_ = 0;
       msg_ = "";
       severity_ = org.sonar.batch.protocol.Constants.Severity.INFO;
-      tag_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       effortToFix_ = 0D;
       attributes_ = "";
     }
@@ -7023,14 +6962,11 @@ public final class BatchReport {
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         output.writeEnum(5, severity_.getNumber());
       }
-      for (int i = 0; i < tag_.size(); i++) {
-        output.writeBytes(6, tag_.getByteString(i));
-      }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        output.writeDouble(7, effortToFix_);
+        output.writeDouble(6, effortToFix_);
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
-        output.writeBytes(8, getAttributesBytes());
+        output.writeBytes(7, getAttributesBytes());
       }
       getUnknownFields().writeTo(output);
     }
@@ -7061,22 +6997,13 @@ public final class BatchReport {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(5, severity_.getNumber());
       }
-      {
-        int dataSize = 0;
-        for (int i = 0; i < tag_.size(); i++) {
-          dataSize += com.google.protobuf.CodedOutputStream
-            .computeBytesSizeNoTag(tag_.getByteString(i));
-        }
-        size += dataSize;
-        size += 1 * getTagList().size();
-      }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(7, effortToFix_);
+          .computeDoubleSize(6, effortToFix_);
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(8, getAttributesBytes());
+          .computeBytesSize(7, getAttributesBytes());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -7205,12 +7132,10 @@ public final class BatchReport {
         bitField0_ = (bitField0_ & ~0x00000008);
         severity_ = org.sonar.batch.protocol.Constants.Severity.INFO;
         bitField0_ = (bitField0_ & ~0x00000010);
-        tag_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000020);
         effortToFix_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000020);
         attributes_ = "";
-        bitField0_ = (bitField0_ & ~0x00000080);
+        bitField0_ = (bitField0_ & ~0x00000040);
         return this;
       }
 
@@ -7259,16 +7184,11 @@ public final class BatchReport {
           to_bitField0_ |= 0x00000010;
         }
         result.severity_ = severity_;
-        if (((bitField0_ & 0x00000020) == 0x00000020)) {
-          tag_ = tag_.getUnmodifiableView();
-          bitField0_ = (bitField0_ & ~0x00000020);
-        }
-        result.tag_ = tag_;
-        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
           to_bitField0_ |= 0x00000020;
         }
         result.effortToFix_ = effortToFix_;
-        if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
+        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
           to_bitField0_ |= 0x00000040;
         }
         result.attributes_ = attributes_;
@@ -7309,21 +7229,11 @@ public final class BatchReport {
         if (other.hasSeverity()) {
           setSeverity(other.getSeverity());
         }
-        if (!other.tag_.isEmpty()) {
-          if (tag_.isEmpty()) {
-            tag_ = other.tag_;
-            bitField0_ = (bitField0_ & ~0x00000020);
-          } else {
-            ensureTagIsMutable();
-            tag_.addAll(other.tag_);
-          }
-          onChanged();
-        }
         if (other.hasEffortToFix()) {
           setEffortToFix(other.getEffortToFix());
         }
         if (other.hasAttributes()) {
-          bitField0_ |= 0x00000080;
+          bitField0_ |= 0x00000040;
           attributes_ = other.attributes_;
           onChanged();
         }
@@ -7649,126 +7559,33 @@ public final class BatchReport {
         return this;
       }
 
-      private com.google.protobuf.LazyStringList tag_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-      private void ensureTagIsMutable() {
-        if (!((bitField0_ & 0x00000020) == 0x00000020)) {
-          tag_ = new com.google.protobuf.LazyStringArrayList(tag_);
-          bitField0_ |= 0x00000020;
-         }
-      }
-      /**
-       * <code>repeated string tag = 6;</code>
-       */
-      public com.google.protobuf.ProtocolStringList
-          getTagList() {
-        return tag_.getUnmodifiableView();
-      }
-      /**
-       * <code>repeated string tag = 6;</code>
-       */
-      public int getTagCount() {
-        return tag_.size();
-      }
-      /**
-       * <code>repeated string tag = 6;</code>
-       */
-      public java.lang.String getTag(int index) {
-        return tag_.get(index);
-      }
-      /**
-       * <code>repeated string tag = 6;</code>
-       */
-      public com.google.protobuf.ByteString
-          getTagBytes(int index) {
-        return tag_.getByteString(index);
-      }
-      /**
-       * <code>repeated string tag = 6;</code>
-       */
-      public Builder setTag(
-          int index, java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureTagIsMutable();
-        tag_.set(index, value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated string tag = 6;</code>
-       */
-      public Builder addTag(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureTagIsMutable();
-        tag_.add(value);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated string tag = 6;</code>
-       */
-      public Builder addAllTag(
-          java.lang.Iterable<java.lang.String> values) {
-        ensureTagIsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(
-            values, tag_);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated string tag = 6;</code>
-       */
-      public Builder clearTag() {
-        tag_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000020);
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>repeated string tag = 6;</code>
-       */
-      public Builder addTagBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureTagIsMutable();
-        tag_.add(value);
-        onChanged();
-        return this;
-      }
-
       private double effortToFix_ ;
       /**
-       * <code>optional double effort_to_fix = 7;</code>
+       * <code>optional double effort_to_fix = 6;</code>
        */
       public boolean hasEffortToFix() {
-        return ((bitField0_ & 0x00000040) == 0x00000040);
+        return ((bitField0_ & 0x00000020) == 0x00000020);
       }
       /**
-       * <code>optional double effort_to_fix = 7;</code>
+       * <code>optional double effort_to_fix = 6;</code>
        */
       public double getEffortToFix() {
         return effortToFix_;
       }
       /**
-       * <code>optional double effort_to_fix = 7;</code>
+       * <code>optional double effort_to_fix = 6;</code>
        */
       public Builder setEffortToFix(double value) {
-        bitField0_ |= 0x00000040;
+        bitField0_ |= 0x00000020;
         effortToFix_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional double effort_to_fix = 7;</code>
+       * <code>optional double effort_to_fix = 6;</code>
        */
       public Builder clearEffortToFix() {
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000020);
         effortToFix_ = 0D;
         onChanged();
         return this;
@@ -7776,13 +7593,13 @@ public final class BatchReport {
 
       private java.lang.Object attributes_ = "";
       /**
-       * <code>optional string attributes = 8;</code>
+       * <code>optional string attributes = 7;</code>
        */
       public boolean hasAttributes() {
-        return ((bitField0_ & 0x00000080) == 0x00000080);
+        return ((bitField0_ & 0x00000040) == 0x00000040);
       }
       /**
-       * <code>optional string attributes = 8;</code>
+       * <code>optional string attributes = 7;</code>
        */
       public java.lang.String getAttributes() {
         java.lang.Object ref = attributes_;
@@ -7799,7 +7616,7 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>optional string attributes = 8;</code>
+       * <code>optional string attributes = 7;</code>
        */
       public com.google.protobuf.ByteString
           getAttributesBytes() {
@@ -7815,36 +7632,36 @@ public final class BatchReport {
         }
       }
       /**
-       * <code>optional string attributes = 8;</code>
+       * <code>optional string attributes = 7;</code>
        */
       public Builder setAttributes(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000080;
+  bitField0_ |= 0x00000040;
         attributes_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string attributes = 8;</code>
+       * <code>optional string attributes = 7;</code>
        */
       public Builder clearAttributes() {
-        bitField0_ = (bitField0_ & ~0x00000080);
+        bitField0_ = (bitField0_ & ~0x00000040);
         attributes_ = getDefaultInstance().getAttributes();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string attributes = 8;</code>
+       * <code>optional string attributes = 7;</code>
        */
       public Builder setAttributesBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000080;
+  bitField0_ |= 0x00000040;
         attributes_ = value;
         onChanged();
         return this;
@@ -17075,38 +16892,37 @@ public final class BatchReport {
       "_type\030\001 \001(\0162\021.MeasureValueType\022\025\n\rboolea" +
       "n_value\030\002 \001(\010\022\021\n\tint_value\030\003 \001(\005\022\022\n\nlong" +
       "_value\030\004 \001(\003\022\024\n\014double_value\030\005 \001(\001\022\024\n\014st" +
-      "ring_value\030\006 \001(\t\022\022\n\nmetric_key\030\007 \001(\t\"\242\001\n",
+      "ring_value\030\006 \001(\t\022\022\n\nmetric_key\030\007 \001(\t\"\225\001\n",
       "\005Issue\022\027\n\017rule_repository\030\001 \001(\t\022\020\n\010rule_" +
       "key\030\002 \001(\t\022\014\n\004line\030\003 \001(\005\022\013\n\003msg\030\004 \001(\t\022\033\n\010" +
-      "severity\030\005 \001(\0162\t.Severity\022\013\n\003tag\030\006 \003(\t\022\025" +
-      "\n\reffort_to_fix\030\007 \001(\001\022\022\n\nattributes\030\010 \001(" +
-      "\t\"\254\001\n\nChangesets\022\025\n\rcomponent_ref\030\001 \001(\005\022" +
-      "(\n\tchangeset\030\002 \003(\0132\025.Changesets.Changese" +
-      "t\022 \n\024changesetIndexByLine\030\003 \003(\005B\002\020\001\032;\n\tC" +
-      "hangeset\022\020\n\010revision\030\001 \001(\t\022\016\n\006author\030\002 \001" +
-      "(\t\022\014\n\004date\030\003 \001(\003\"R\n\tDuplicate\022\026\n\016other_f" +
-      "ile_ref\030\001 \001(\005\022\025\n\005range\030\002 \001(\0132\006.Range\022\026\n\016",
-      "other_file_key\030\003 \001(\t\"M\n\013Duplication\022\037\n\017o" +
-      "rigin_position\030\001 \001(\0132\006.Range\022\035\n\tduplicat" +
-      "e\030\002 \003(\0132\n.Duplicate\"W\n\005Range\022\022\n\nstart_li" +
-      "ne\030\001 \001(\005\022\020\n\010end_line\030\002 \001(\005\022\024\n\014start_offs" +
-      "et\030\003 \001(\005\022\022\n\nend_offset\030\004 \001(\005\"@\n\006Symbol\022\033" +
-      "\n\013declaration\030\001 \001(\0132\006.Range\022\031\n\treference" +
-      "\030\002 \003(\0132\006.Range\"\260\001\n\010Coverage\022\014\n\004line\030\001 \001(" +
-      "\005\022\022\n\nconditions\030\002 \001(\005\022\017\n\007ut_hits\030\003 \001(\010\022\017" +
-      "\n\007it_hits\030\004 \001(\010\022\035\n\025ut_covered_conditions" +
-      "\030\005 \001(\005\022\035\n\025it_covered_conditions\030\006 \001(\005\022\"\n",
-      "\032overall_covered_conditions\030\007 \001(\005\"L\n\022Syn" +
-      "taxHighlighting\022\025\n\005range\030\001 \001(\0132\006.Range\022\037" +
-      "\n\004type\030\002 \001(\0162\021.HighlightingType\"j\n\004Test\022" +
-      "\014\n\004name\030\001 \001(\t\022\033\n\006status\030\002 \001(\0162\013.TestStat" +
-      "us\022\026\n\016duration_in_ms\030\003 \001(\003\022\022\n\nstacktrace" +
-      "\030\004 \001(\t\022\013\n\003msg\030\005 \001(\t\"\221\001\n\016CoverageDetail\022\021" +
-      "\n\ttest_name\030\001 \001(\t\0221\n\014covered_file\030\002 \003(\0132" +
-      "\033.CoverageDetail.CoveredFile\0329\n\013CoveredF" +
-      "ile\022\020\n\010file_ref\030\001 \001(\005\022\030\n\014covered_line\030\002 " +
-      "\003(\005B\002\020\001B#\n\037org.sonar.batch.protocol.outp",
-      "utH\001"
+      "severity\030\005 \001(\0162\t.Severity\022\025\n\reffort_to_f" +
+      "ix\030\006 \001(\001\022\022\n\nattributes\030\007 \001(\t\"\254\001\n\nChanges" +
+      "ets\022\025\n\rcomponent_ref\030\001 \001(\005\022(\n\tchangeset\030" +
+      "\002 \003(\0132\025.Changesets.Changeset\022 \n\024changese" +
+      "tIndexByLine\030\003 \003(\005B\002\020\001\032;\n\tChangeset\022\020\n\010r" +
+      "evision\030\001 \001(\t\022\016\n\006author\030\002 \001(\t\022\014\n\004date\030\003 " +
+      "\001(\003\"R\n\tDuplicate\022\026\n\016other_file_ref\030\001 \001(\005" +
+      "\022\025\n\005range\030\002 \001(\0132\006.Range\022\026\n\016other_file_ke",
+      "y\030\003 \001(\t\"M\n\013Duplication\022\037\n\017origin_positio" +
+      "n\030\001 \001(\0132\006.Range\022\035\n\tduplicate\030\002 \003(\0132\n.Dup" +
+      "licate\"W\n\005Range\022\022\n\nstart_line\030\001 \001(\005\022\020\n\010e" +
+      "nd_line\030\002 \001(\005\022\024\n\014start_offset\030\003 \001(\005\022\022\n\ne" +
+      "nd_offset\030\004 \001(\005\"@\n\006Symbol\022\033\n\013declaration" +
+      "\030\001 \001(\0132\006.Range\022\031\n\treference\030\002 \003(\0132\006.Rang" +
+      "e\"\260\001\n\010Coverage\022\014\n\004line\030\001 \001(\005\022\022\n\nconditio" +
+      "ns\030\002 \001(\005\022\017\n\007ut_hits\030\003 \001(\010\022\017\n\007it_hits\030\004 \001" +
+      "(\010\022\035\n\025ut_covered_conditions\030\005 \001(\005\022\035\n\025it_" +
+      "covered_conditions\030\006 \001(\005\022\"\n\032overall_cove",
+      "red_conditions\030\007 \001(\005\"L\n\022SyntaxHighlighti" +
+      "ng\022\025\n\005range\030\001 \001(\0132\006.Range\022\037\n\004type\030\002 \001(\0162" +
+      "\021.HighlightingType\"j\n\004Test\022\014\n\004name\030\001 \001(\t" +
+      "\022\033\n\006status\030\002 \001(\0162\013.TestStatus\022\026\n\016duratio" +
+      "n_in_ms\030\003 \001(\003\022\022\n\nstacktrace\030\004 \001(\t\022\013\n\003msg" +
+      "\030\005 \001(\t\"\221\001\n\016CoverageDetail\022\021\n\ttest_name\030\001" +
+      " \001(\t\0221\n\014covered_file\030\002 \003(\0132\033.CoverageDet" +
+      "ail.CoveredFile\0329\n\013CoveredFile\022\020\n\010file_r" +
+      "ef\030\001 \001(\005\022\030\n\014covered_line\030\002 \003(\005B\002\020\001B#\n\037or" +
+      "g.sonar.batch.protocol.outputH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -17162,7 +16978,7 @@ public final class BatchReport {
     internal_static_Issue_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Issue_descriptor,
-        new java.lang.String[] { "RuleRepository", "RuleKey", "Line", "Msg", "Severity", "Tag", "EffortToFix", "Attributes", });
+        new java.lang.String[] { "RuleRepository", "RuleKey", "Line", "Msg", "Severity", "EffortToFix", "Attributes", });
     internal_static_Changesets_descriptor =
       getDescriptor().getMessageTypes().get(6);
     internal_static_Changesets_fieldAccessorTable = new

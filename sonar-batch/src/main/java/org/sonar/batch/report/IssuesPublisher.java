@@ -64,7 +64,6 @@ public class IssuesPublisher implements ReportPublisherStep {
     builder.setRuleRepository(issue.ruleKey().repository());
     builder.setRuleKey(issue.ruleKey().rule());
     builder.setAttributes(KeyValueFormat.format(issue.attributes()));
-    builder.addAllTag(issue.tags());
 
     // nullable fields
     Integer line = issue.line();
