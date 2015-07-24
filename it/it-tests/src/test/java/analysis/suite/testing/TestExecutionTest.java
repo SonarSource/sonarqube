@@ -3,7 +3,7 @@
  * All rights reserved
  * mailto:contact AT sonarsource DOT com
  */
-package testing.suite;
+package analysis.suite.testing;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
@@ -15,13 +15,14 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 
+import static analysis.suite.AnalysisTestSuite.ORCHESTRATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
 public class TestExecutionTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = TestingTestSuite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = ORCHESTRATOR;
 
   @Before
   public void delete_data() {
@@ -42,6 +43,6 @@ public class TestExecutionTest {
     assertThat(project.getMeasureIntValue("test_execution_time")).isEqualTo(8);
 
     String json = orchestrator.getServer().adminWsClient().get("api/tests/list", "testFileKey", "sample-with-tests:src/test/xoo/sample/SampleTest.xoo");
-    JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("TestExecutionTest/expected.json"), "UTF-8"), json, false);
+    JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/testing/suite/TestExecutionTest/expected.json"), "UTF-8"), json, false);
   }
 }

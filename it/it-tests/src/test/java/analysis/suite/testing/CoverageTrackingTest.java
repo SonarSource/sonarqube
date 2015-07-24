@@ -3,7 +3,7 @@
  * All rights reserved
  * mailto:contact AT sonarsource DOT com
  */
-package testing.suite;
+package analysis.suite.testing;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
@@ -15,12 +15,13 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import static analysis.suite.AnalysisTestSuite.ORCHESTRATOR;
 import static util.ItUtils.projectDir;
 
 public class CoverageTrackingTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = TestingTestSuite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = ORCHESTRATOR;
 
   @Before
   public void delete_data() {
@@ -32,11 +33,11 @@ public class CoverageTrackingTest {
     orchestrator.executeBuilds(SonarRunner.create(projectDir("testing/xoo-sample-with-coverage-per-test")));
 
     String tests = orchestrator.getServer().adminWsClient().get("api/tests/list", "testFileKey", "sample-with-tests:src/test/xoo/sample/SampleTest.xoo");
-    JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("CoverageTrackingTest/tests-expected.json"), "UTF-8"), tests, false);
+    JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/testing/suite/CoverageTrackingTest/tests-expected.json"), "UTF-8"), tests, false);
 
     String covered_files = orchestrator.getServer().adminWsClient()
       .get("api/tests/covered_files", "testUuid", extractSuccessfulTestUuid(tests));
-    JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("CoverageTrackingTest/covered_files-expected.json"), "UTF-8"), covered_files, false);
+    JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/testing/suite/CoverageTrackingTest/covered_files-expected.json"), "UTF-8"), covered_files, false);
   }
 
   private String extractSuccessfulTestUuid(String json) {

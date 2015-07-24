@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package testing.suite;
+package analysis.suite.testing;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
@@ -28,13 +28,14 @@ import org.junit.Test;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 
+import static analysis.suite.AnalysisTestSuite.ORCHESTRATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
 public class NewCoverageTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = TestingTestSuite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = ORCHESTRATOR;
 
   private static final String PROJECT_KEY = "sample-new-coverage";
 

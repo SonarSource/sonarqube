@@ -3,7 +3,7 @@
  * All rights reserved
  * mailto:contact AT sonarsource DOT com
  */
-package testing.suite;
+package analysis.suite.testing;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
@@ -18,13 +18,14 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 
+import static analysis.suite.AnalysisTestSuite.ORCHESTRATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
 public class CoverageTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = TestingTestSuite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = ORCHESTRATOR;
 
   private static final String[] ALL_COVERAGE_METRICS = new String[] {
     "line_coverage", "lines_to_cover", "uncovered_lines", "branch_coverage", "conditions_to_cover", "uncovered_conditions", "coverage",
@@ -56,7 +57,7 @@ public class CoverageTest {
     assertThat(project.getMeasureValue("overall_coverage")).isNull();
 
     String coverage = orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-ut-coverage:src/main/xoo/sample/Sample.xoo");
-    JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("CoverageTest/unit_test_coverage-expected.json"), "UTF-8"), coverage, false);
+    JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/testing/suite/CoverageTest/unit_test_coverage-expected.json"), "UTF-8"), coverage, false);
 
     verifyComputeEngineTempDirIsEmpty();
   }
@@ -79,7 +80,7 @@ public class CoverageTest {
     assertThat(project.getMeasureValue("overall_coverage")).isNull();
 
     String coverage = orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-ut-coverage:src/main/xoo/sample/Sample.xoo");
-    JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("CoverageTest/unit_test_coverage_no_condition-expected.json"), "UTF-8"), coverage, false);
+    JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/testing/suite/CoverageTest/unit_test_coverage_no_condition-expected.json"), "UTF-8"), coverage, false);
 
     verifyComputeEngineTempDirIsEmpty();
   }
@@ -102,7 +103,7 @@ public class CoverageTest {
     assertThat(project.getMeasureValue("overall_coverage")).isNull();
 
     String coverage = orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-it-coverage:src/main/xoo/sample/Sample.xoo");
-    JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("CoverageTest/it_coverage-expected.json"), "UTF-8"), coverage, false);
+    JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/testing/suite/CoverageTest/it_coverage-expected.json"), "UTF-8"), coverage, false);
 
     verifyComputeEngineTempDirIsEmpty();
   }
@@ -137,7 +138,7 @@ public class CoverageTest {
     assertThat(project.getMeasureValue("overall_coverage")).isEqualTo(62.5);
 
     String coverage = orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-overall-coverage:src/main/xoo/sample/Sample.xoo");
-    JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("CoverageTest/ut_and_it_coverage-expected.json"), "UTF-8"), coverage, false);
+    JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/testing/suite/CoverageTest/ut_and_it_coverage-expected.json"), "UTF-8"), coverage, false);
 
     verifyComputeEngineTempDirIsEmpty();
   }

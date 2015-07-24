@@ -17,8 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package measure.suite;
+package analysis.suite;
 
+import analysis.suite.measure.CustomMeasuresTest;
+import analysis.suite.measure.MeasureFiltersTest;
+import analysis.suite.measure.TimeMachineTest;
+import analysis.suite.testing.CoverageTest;
+import analysis.suite.testing.CoverageTrackingTest;
+import analysis.suite.testing.NewCoverageTest;
+import analysis.suite.testing.TestExecutionTest;
 import com.sonar.orchestrator.Orchestrator;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
@@ -26,8 +33,16 @@ import org.junit.runners.Suite;
 import util.ItUtils;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({CustomMeasuresTest.class, MeasureFiltersTest.class, TimeMachineTest.class})
-public class MeasuresTestSuite {
+@Suite.SuiteClasses({
+  CustomMeasuresTest.class,
+  MeasureFiltersTest.class,
+  TimeMachineTest.class,
+  CoverageTrackingTest.class,
+  CoverageTest.class,
+  NewCoverageTest.class,
+  TestExecutionTest.class
+})
+public class AnalysisTestSuite {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()

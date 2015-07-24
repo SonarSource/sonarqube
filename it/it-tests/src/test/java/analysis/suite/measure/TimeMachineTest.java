@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package measure.suite;
+package analysis.suite.measure;
 
+import analysis.suite.AnalysisTestSuite;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
@@ -41,7 +42,7 @@ public class TimeMachineTest {
   private static final String PROJECT = "sample";
 
   @ClassRule
-  public static Orchestrator orchestrator = MeasuresTestSuite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = AnalysisTestSuite.ORCHESTRATOR;
 
   @BeforeClass
   public static void initialize() {

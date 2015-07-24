@@ -11,10 +11,9 @@ env:
   - JOB=MYSQL
   - JOB=WEB
   - JOB=ITS IT_CATEGORY=issue
-  - JOB=ITS IT_CATEGORY=measure
+  - JOB=ITS IT_CATEGORY=analysis
   - JOB=ITS IT_CATEGORY=plugins
   - JOB=ITS IT_CATEGORY=qualitygate
-  - JOB=ITS IT_CATEGORY=testing
   - JOB=ITS IT_CATEGORY=ui
   - JOB=ITS IT_CATEGORY=updatecenter
 
