@@ -3,13 +3,12 @@
 set -euo pipefail
 
 function installTravisTools {
-  curl -sSL https://raw.githubusercontent.com/sonarsource/travis-utils/v13/install.sh | bash
+  curl -sSL https://raw.githubusercontent.com/sonarsource/travis-utils/v14/install.sh | bash
   source /tmp/travis-utils/env.sh
 }
 
 function prepareIts {
   installTravisTools
-  travis_build "SonarSource/sonar-orchestrator" "0fe60edd0978300334ecc9101e4c10bcb05516d0"
   travis_start_xvfb
 }
 
@@ -83,10 +82,8 @@ ITS_TESTING)
   ;;
 
 ITS_PLUGINS)
-  if [ -n "$GITHUB_TOKEN" ]; then
-    prepareIts
-    mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="plugins" -Dmaven.test.redirectTestOutputToFile=false
-  fi
+  prepareIts
+  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="plugins" -Dmaven.test.redirectTestOutputToFile=false
   ;;
 
 *)
