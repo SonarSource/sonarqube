@@ -84,7 +84,7 @@ public class CustomMeasuresTest {
   }
 
   private void analyzeProject() {
-    orchestrator.executeBuild(SonarRunner.create(projectDir("measure/xoo-sample")));
+    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
   }
 
   private void setTeamSize(int i) {

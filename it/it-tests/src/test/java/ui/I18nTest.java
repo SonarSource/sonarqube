@@ -49,7 +49,7 @@ public class I18nTest {
    */
   @Test
   public void test_localization() {
-    orchestrator.executeBuild(SonarRunner.create(projectDir("ui/xoo-sample")));
+    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("ui-i18n",
       "/ui/i18n/default-locale-is-english.html",

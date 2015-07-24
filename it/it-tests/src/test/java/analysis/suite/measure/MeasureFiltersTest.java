@@ -41,7 +41,7 @@ public class MeasureFiltersTest {
   @BeforeClass
   public static void scanStruts() {
     orchestrator.resetData();
-    orchestrator.executeBuild(SonarRunner.create(projectDir("measure/xoo-multi-modules-sample")));
+    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-multi-modules-sample")));
 
     createUser("user-measure-filters", "User Measure Filters");
   }
