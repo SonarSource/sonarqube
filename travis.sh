@@ -81,6 +81,16 @@ ITS_TESTING)
   mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="testing" -Dmaven.test.redirectTestOutputToFile=false
   ;;
 
+ITS_MEASURE)
+  prepareIts
+  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="measure" -Dmaven.test.redirectTestOutputToFile=false
+  ;;
+
+ITS_UI)
+  prepareIts
+  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="ui" -Dmaven.test.redirectTestOutputToFile=false
+  ;;
+
 ITS_PLUGINS)
   prepareIts
   mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="plugins" -Dmaven.test.redirectTestOutputToFile=false
