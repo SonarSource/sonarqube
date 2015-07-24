@@ -19,6 +19,7 @@
  */
 package org.sonar.db.rule;
 
+import com.google.common.base.Optional;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Rule;
@@ -28,6 +29,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.RowNotFoundException;
 import org.sonar.test.DbTests;
 
 import static java.util.Arrays.asList;
@@ -43,6 +45,35 @@ public class RuleDaoTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   RuleDao underTest = dbTester.getDbClient().ruleDao();
+
+  @Test
+  public void selectByKey() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    assertThat(underTest.selectByKey(dbTester.getSession(), RuleKey.of("NOT", "FOUND")).isPresent()).isFalse();
+
+    Optional<RuleDto> rule = underTest.selectByKey(dbTester.getSession(), RuleKey.of("java", "S001"));
+    assertThat(rule.isPresent()).isTrue();
+    assertThat(rule.get().getId()).isEqualTo(1);
+  }
+
+  @Test
+  public void selectOrFailByKey() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    RuleDto rule = underTest.selectOrFailByKey(dbTester.getSession(), RuleKey.of("java", "S001"));
+    assertThat(rule.getId()).isEqualTo(1);
+  }
+
+  @Test
+  public void selectOrFailByKey_fails_if_rule_not_found() {
+    thrown.expect(RowNotFoundException.class);
+    thrown.expectMessage("Rule with key 'NOT:FOUND' does not exist");
+
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    underTest.selectOrFailByKey(dbTester.getSession(), RuleKey.of("NOT", "FOUND"));
+  }
 
   @Test
   public void selectByKeys() {
