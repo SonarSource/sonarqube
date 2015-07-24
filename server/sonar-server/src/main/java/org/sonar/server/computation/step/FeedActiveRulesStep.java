@@ -19,25 +19,34 @@
  */
 package org.sonar.server.computation.step;
 
+import com.google.common.base.Predicate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.server.computation.batch.BatchReportReader;
+import org.sonar.server.computation.issue.Rule;
+import org.sonar.server.computation.issue.RuleRepository;
 import org.sonar.server.computation.qualityprofile.ActiveRule;
 import org.sonar.server.computation.qualityprofile.ActiveRulesHolderImpl;
+
+import static com.google.common.collect.FluentIterable.from;
 
 public class FeedActiveRulesStep implements ComputationStep {
 
   private final BatchReportReader batchReportReader;
   private final ActiveRulesHolderImpl activeRulesHolder;
+  private final RuleRepository ruleRepository;
 
-  public FeedActiveRulesStep(BatchReportReader batchReportReader, ActiveRulesHolderImpl activeRulesHolder) {
+  public FeedActiveRulesStep(BatchReportReader batchReportReader, ActiveRulesHolderImpl activeRulesHolder, RuleRepository ruleRepository) {
     this.batchReportReader = batchReportReader;
     this.activeRulesHolder = activeRulesHolder;
+    this.ruleRepository = ruleRepository;
   }
 
   @Override
@@ -49,7 +58,20 @@ public class FeedActiveRulesStep implements ComputationStep {
         activeRules.add(convert(batchActiveRule));
       }
     }
-    activeRulesHolder.set(activeRules);
+
+    List<ActiveRule> validActiveRules = from(activeRules).filter(new IsValid()).toList();
+    activeRulesHolder.set(validActiveRules);
+  }
+
+  private class IsValid implements Predicate<ActiveRule> {
+    @Override
+    public boolean apply(@Nonnull ActiveRule input) {
+      if (ruleRepository.hasKey(input.getRuleKey())) {
+        Rule rule = ruleRepository.getByKey(input.getRuleKey());
+        return rule.getStatus() != RuleStatus.REMOVED;
+      }
+      return false;
+    }
   }
 
   @Override

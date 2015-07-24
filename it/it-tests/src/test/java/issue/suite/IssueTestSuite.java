@@ -13,7 +13,7 @@ import util.ItUtils;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  ManualRulesTest.class, CommonRulesTest.class
+  CommonRulesTest.class, IssueWorkflowTest.class, ManualRulesTest.class,
 })
 public class IssueTestSuite {
 
