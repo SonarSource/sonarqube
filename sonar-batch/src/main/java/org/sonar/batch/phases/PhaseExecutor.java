@@ -56,7 +56,7 @@ public final class PhaseExecutor {
     SensorContext sensorContext, DefaultIndex index,
     EventBus eventBus, ReportPublisher reportPublisher, ProjectInitializer pi,
     FileSystemLogger fsLogger, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
-    IssueExclusionsLoader issueExclusionsLoader, DefaultAnalysisMode analysisMode, LocalIssueTracking localIssueTracking) {
+    IssueExclusionsLoader issueExclusionsLoader, ProjectAnalysisMode analysisMode, LocalIssueTracking localIssueTracking) {
     this.postJobsExecutor = postJobsExecutor;
     this.initializersExecutor = initializersExecutor;
     this.sensorsExecutor = sensorsExecutor;
