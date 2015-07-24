@@ -26,7 +26,7 @@ import org.junit.runners.Suite;
 import util.ItUtils;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({})
+@Suite.SuiteClasses({CustomMeasuresTest.class, MeasureFiltersTest.class, TimeMachineTest.class})
 public class MeasuresTestSuite {
 
   @ClassRule
