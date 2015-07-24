@@ -17,21 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package measure;
+package measure.suite;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
-import com.sonar.orchestrator.selenium.Selenese;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
-import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
