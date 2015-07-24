@@ -9,6 +9,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.OrchestratorBuilder;
+import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
 import java.util.Arrays;
 import java.util.List;
@@ -36,6 +37,8 @@ import plugins.checks.SwiftCheck;
 import plugins.checks.Validation;
 import plugins.checks.VbCheck;
 import plugins.checks.WebCheck;
+
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Verify that the plugins available in update center
@@ -92,7 +95,10 @@ public class PluginsTest {
   @Test
   public void analysis_of_project_with_all_supported_languages() {
     SonarRunner analysis = newAnalysis();
-    orchestrator.executeBuild(analysis);
+    BuildResult result = orchestrator.executeBuildQuietly(analysis);
+    if (result.getStatus() != 0) {
+      fail(result.getLogs());
+    }
     for (Check check : CHECKS) {
       System.out.println(check.getClass().getSimpleName() + "...");
       check.validate(new Validation(orchestrator, errorCollector));
@@ -104,7 +110,10 @@ public class PluginsTest {
     SonarRunner analysis = newAnalysis();
     analysis.setProperty("sonar.analysis.mode", "preview");
     analysis.setProperty("sonar.preview.excludePlugins", Joiner.on(",").join(DISABLED_PLUGINS_FOR_PREVIEW_MODE));
-    orchestrator.executeBuild(analysis);
+    BuildResult result = orchestrator.executeBuildQuietly(analysis);
+    if (result.getStatus() != 0) {
+      fail(result.getLogs());
+    }
   }
 
   private static SonarRunner newAnalysis() {
