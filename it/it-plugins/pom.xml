@@ -30,6 +30,7 @@
   </properties>
 
   <modules>
+    <module>l10n-fr-pack</module>
     <module>sonar-fake-plugin</module>
   </modules>
 </project>
