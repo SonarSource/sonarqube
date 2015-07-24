@@ -34,6 +34,7 @@ import plugins.checks.PythonCheck;
 import plugins.checks.RpgCheck;
 import plugins.checks.SwiftCheck;
 import plugins.checks.Validation;
+import plugins.checks.VbCheck;
 import plugins.checks.WebCheck;
 
 /**
@@ -45,11 +46,8 @@ public class PluginsTest {
   /**
    * Temporarily disabled plugins. To be re-enabled.
    */
-  static final Set<String> DISABLED_PLUGINS = Sets.newHashSet("devcockpit", "views", /* FIXME */"vb");
+  static final Set<String> DISABLED_PLUGINS = Sets.newHashSet("devcockpit", "views");
 
-  /**
-   * See http://license.internal.sonarsource.com/it/
-   */
   static final Set<String> LICENSED_PLUGINS = Sets.newHashSet(
     "abap", "cobol", "cpp", "devcockpit", "objc", "pli", "plsql", "report", "rpg",
     "sqale", "swift", "vb", "vbnet", "views");
@@ -63,7 +61,7 @@ public class PluginsTest {
   // TODO new PliCheck() is temporarily disabled as PLI plugin does not support multi-language feature. See sonar-project.properties
   static final List<Check> CHECKS = Arrays.asList((Check) new AbapCheck(), new CobolCheck(), new CCheck(), new CppCheck(), new CssCheck(),
     new FlexCheck(), new GroovyCheck(), new JavaCheck(), new JavascriptCheck(), new PhpCheck(), new RpgCheck(),
-    new PythonCheck(), new SwiftCheck(), /* FIXME new VbCheck(), */ new WebCheck());
+    new PythonCheck(), new SwiftCheck(), new VbCheck(), new WebCheck());
 
   static Orchestrator orchestrator;
 

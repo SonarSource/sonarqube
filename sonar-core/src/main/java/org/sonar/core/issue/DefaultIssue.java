@@ -49,6 +49,8 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.tracking.Trackable;
 
+import static java.lang.String.format;
+
 /**
  * PLUGINS MUST NOT BE USED THIS CLASS, EXCEPT FOR UNIT TESTING.
  *
@@ -253,7 +255,7 @@ public class DefaultIssue implements Issue, Trackable {
   }
 
   public DefaultIssue setLine(@Nullable Integer l) {
-    Preconditions.checkArgument(l == null || l > 0, "Line must be null or greater than zero (got " + l + ")");
+    Preconditions.checkArgument(l == null || l > 0, format("Line must be null or greater than zero (got %d)", l));
     this.line = l;
     return this;
   }
@@ -265,14 +267,8 @@ public class DefaultIssue implements Issue, Trackable {
   }
 
   public DefaultIssue setEffortToFix(@Nullable Double d) {
-    //Preconditions.checkArgument(d == null || d >= 0, "Effort to fix must be greater than or equal 0 (got " + d + ")");
-    if (d != null) {
-      // FIXME this is temp hack while Decorator are not dropped (Comment Density common-rule is buggy as
-      // the measure comment_line_density is compute by CE)
-      this.effortToFix = Math.max(d, 0.0);
-    } else {
-      this.effortToFix = null;
-    }
+    Preconditions.checkArgument(d == null || d >= 0, format("Effort to fix must be greater than or equal 0 (got %s)", d));
+    this.effortToFix = d;
     return this;
   }
 
