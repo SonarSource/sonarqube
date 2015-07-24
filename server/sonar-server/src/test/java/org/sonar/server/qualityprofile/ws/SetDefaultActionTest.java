@@ -60,7 +60,6 @@ public class SetDefaultActionTest {
 
   private DbSession session;
 
-
   @Before
   public void setUp() {
     dbTester.truncateTables();
@@ -85,7 +84,6 @@ public class SetDefaultActionTest {
   @Test
   public void set_default_profile_using_key() throws Exception {
     userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
 
     checkDefaultProfile(xoo1Key, "sonar-way-xoo1-12345");
     checkDefaultProfile(xoo2Key, "my-sonar-way-xoo2-34567");
@@ -120,13 +118,12 @@ public class SetDefaultActionTest {
     try {
       tester.newPostRequest("api/qualityprofiles", "set_default").setParam("profileKey", "unknown-profile-666").execute();
       Fail.failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
-    } catch(IllegalArgumentException nfe) {
+    } catch (NotFoundException nfe) {
       assertThat(nfe).hasMessage("Quality profile not found: unknown-profile-666");
       checkDefaultProfile(xoo1Key, "sonar-way-xoo1-12345");
       checkDefaultProfile(xoo2Key, "my-sonar-way-xoo2-34567");
     }
   }
-
 
   @Test
   public void fail_to_set_default_profile_using_language_and_name() throws Exception {
@@ -135,7 +132,7 @@ public class SetDefaultActionTest {
     try {
       tester.newPostRequest("api/qualityprofiles", "set_default").setParam("language", xoo2Key).setParam("profileName", "Unknown").execute();
       Fail.failBecauseExceptionWasNotThrown(NotFoundException.class);
-    } catch(NotFoundException nfe) {
+    } catch (NotFoundException nfe) {
       assertThat(nfe).hasMessage("Unable to find a profile for language 'xoo2' with name 'Unknown'");
       checkDefaultProfile(xoo1Key, "sonar-way-xoo1-12345");
       checkDefaultProfile(xoo2Key, "my-sonar-way-xoo2-34567");
@@ -149,7 +146,7 @@ public class SetDefaultActionTest {
     try {
       tester.newPostRequest("api/qualityprofiles", "set_default").setParam("profileKey", "sonar-way-xoo2-23456").execute().assertNoContent();
       Fail.failBecauseExceptionWasNotThrown(ForbiddenException.class);
-    } catch(ForbiddenException forbidden) {
+    } catch (ForbiddenException forbidden) {
       checkDefaultProfile(xoo1Key, "sonar-way-xoo1-12345");
       checkDefaultProfile(xoo2Key, "my-sonar-way-xoo2-34567");
     }

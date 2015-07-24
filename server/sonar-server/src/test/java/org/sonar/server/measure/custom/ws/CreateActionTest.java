@@ -38,10 +38,14 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.measure.custom.CustomMeasureDto;
+import org.sonar.db.metric.MetricDao;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.metric.MetricTesting;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
@@ -50,9 +54,6 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.db.measure.custom.CustomMeasureDao;
-import org.sonar.db.metric.MetricDao;
-import org.sonar.db.metric.MetricTesting;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
@@ -361,7 +362,7 @@ public class CreateActionTest {
     dbClient.componentDao().insert(dbSession, ComponentTesting.newProjectDto(DEFAULT_PROJECT_UUID));
     dbSession.commit();
 
-    expectedException.expect(IllegalStateException.class);
+    expectedException.expect(RowNotFoundException.class);
     expectedException.expectMessage("Metric id '42' not found");
 
     newRequest()

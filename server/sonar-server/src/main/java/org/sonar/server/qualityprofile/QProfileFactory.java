@@ -30,6 +30,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.Verifications;
 
 /**
@@ -147,7 +148,10 @@ public class QProfileFactory {
 
   void setDefault(DbSession dbSession, String profileKey) {
     Verifications.check(StringUtils.isNotBlank(profileKey), "Profile key must be set");
-    QualityProfileDto profile = db.qualityProfileDao().selectOrFailByKey(dbSession, profileKey);
+    QualityProfileDto profile = db.qualityProfileDao().selectByKey(dbSession, profileKey);
+    if (profile == null) {
+      throw new NotFoundException("Quality profile not found: " + profileKey);
+    }
     setDefault(dbSession, profile);
     dbSession.commit();
   }
@@ -201,7 +205,10 @@ public class QProfileFactory {
     Verifications.check(newName.length() < 100, String.format("Name is too long (>%d characters)", 100));
     DbSession dbSession = db.openSession(false);
     try {
-      QualityProfileDto profile = db.qualityProfileDao().selectOrFailByKey(dbSession, key);
+      QualityProfileDto profile = db.qualityProfileDao().selectByKey(dbSession, key);
+      if (profile == null) {
+        throw new NotFoundException("Quality profile not found: " + key);
+      }
       if (!StringUtils.equals(newName, profile.getName())) {
         if (db.qualityProfileDao().selectByNameAndLanguage(newName, profile.getLanguage(), dbSession) != null) {
           throw new BadRequestException("Quality profile already exists: " + newName);

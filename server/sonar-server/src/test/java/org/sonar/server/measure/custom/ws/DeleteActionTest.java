@@ -31,13 +31,14 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 import org.sonar.test.DbTests;
@@ -101,7 +102,7 @@ public class DeleteActionTest {
 
   @Test
   public void fail_when_not_found_in_db() throws Exception {
-    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expect(RowNotFoundException.class);
 
     newRequest().setParam(PARAM_ID, "42").execute();
   }

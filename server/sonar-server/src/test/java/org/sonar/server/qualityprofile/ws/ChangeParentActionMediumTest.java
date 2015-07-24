@@ -29,6 +29,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
+import org.sonar.db.RowNotFoundException;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
@@ -244,7 +245,7 @@ public class ChangeParentActionMediumTest {
       .execute();
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = RowNotFoundException.class)
   public void fail_if_profile_key_and_name_both_set() throws Exception {
     QualityProfileDto child = createProfile("xoo", "Child");
     session.commit();

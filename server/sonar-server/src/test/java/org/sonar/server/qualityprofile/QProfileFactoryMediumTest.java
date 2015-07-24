@@ -24,21 +24,24 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.server.rule.RuleParamType;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
+import org.sonar.db.RowNotFoundException;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.search.IndexClient;
+import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.tester.MockUserSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -50,6 +53,8 @@ public class QProfileFactoryMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
@@ -111,7 +116,6 @@ public class QProfileFactoryMediumTest {
       assertThat(e).hasMessage("quality_profiles.profile_name_cant_be_blank");
     }
   }
-
 
   @Test
   public void fail_to_create_if_already_exists() {
@@ -175,12 +179,10 @@ public class QProfileFactoryMediumTest {
 
   @Test
   public void fail_renaming_if_profile_not_found() {
-    try {
-      factory.rename("unknown", "the new name");
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Quality profile not found: unknown");
-    }
+    thrown.expect(NotFoundException.class);
+    thrown.expectMessage("Quality profile not found: unknown");
+
+    factory.rename("unknown", "the new name");
   }
 
   @Test
@@ -276,12 +278,10 @@ public class QProfileFactoryMediumTest {
 
   @Test
   public void fail_if_unknown_profile_to_be_deleted() {
-    try {
-      factory.delete(XOO_P1_KEY);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Quality profile not found: XOO_P1");
-    }
+    thrown.expect(RowNotFoundException.class);
+    thrown.expectMessage("Quality profile not found: XOO_P1");
+
+    factory.delete(XOO_P1_KEY);
   }
 
   @Test
@@ -300,13 +300,10 @@ public class QProfileFactoryMediumTest {
 
   @Test
   public void fail_if_unknown_profile_to_be_set_as_default() {
-    try {
-      // does not exist
-      factory.setDefault(XOO_P1_KEY);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Quality profile not found: " + XOO_P1_KEY);
-    }
+    thrown.expect(NotFoundException.class);
+    thrown.expectMessage("Quality profile not found: " + XOO_P1_KEY);
+
+    factory.setDefault(XOO_P1_KEY);
   }
 
   @Test

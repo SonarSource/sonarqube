@@ -33,10 +33,12 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.db.DbSession;
+import org.sonar.db.RowNotFoundException;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -52,6 +54,8 @@ public class QProfileBackuperMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
@@ -113,12 +117,10 @@ public class QProfileBackuperMediumTest {
 
   @Test
   public void fail_to_backup_unknown_profile() {
-    try {
-      tester.get(QProfileBackuper.class).backup("unknown", new StringWriter());
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Quality profile not found: unknown");
-    }
+    thrown.expect(RowNotFoundException.class);
+    thrown.expectMessage("Quality profile not found: unknown");
+
+    tester.get(QProfileBackuper.class).backup("unknown", new StringWriter());
   }
 
   @Test

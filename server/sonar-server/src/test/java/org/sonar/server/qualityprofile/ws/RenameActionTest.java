@@ -32,6 +32,7 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -129,7 +130,7 @@ public class RenameActionTest {
       .execute();
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NotFoundException.class)
   public void fail_on_unknown_profile() throws Exception {
     userSessionRule.login("obiwan").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
