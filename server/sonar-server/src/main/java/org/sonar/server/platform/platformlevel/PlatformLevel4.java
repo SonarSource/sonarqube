@@ -67,6 +67,8 @@ import org.sonar.server.component.ws.EventsWs;
 import org.sonar.server.component.ws.ResourcesWs;
 import org.sonar.server.computation.ComputationThreadLauncher;
 import org.sonar.server.computation.ReportQueue;
+import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
+import org.sonar.server.computation.monitoring.ComputeEngineQueueMonitor;
 import org.sonar.server.computation.ws.ComputationWs;
 import org.sonar.server.computation.ws.HistoryAction;
 import org.sonar.server.computation.ws.IsQueueEmptyWs;
@@ -721,6 +723,8 @@ public class PlatformLevel4 extends PlatformLevel {
       PluginsWs.class,
 
       // Compute engine
+      CEQueueStatusImpl.class,
+      ComputeEngineQueueMonitor.class,
       ReportQueue.class,
       ComputationThreadLauncher.class,
       ComputationWs.class,

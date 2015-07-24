@@ -26,6 +26,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.logs.Profiler;
 import org.sonar.server.computation.activity.ActivityManager;
+import org.sonar.server.computation.monitoring.CEQueueStatus;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
 
@@ -42,15 +43,19 @@ public class ComputationService {
   private final ComputationSteps steps;
   private final ActivityManager activityManager;
   private final System2 system;
+  private final CEQueueStatus queueStatus;
 
-  public ComputationService(ReportQueue.Item item, ComputationSteps steps, ActivityManager activityManager, System2 system) {
+  public ComputationService(ReportQueue.Item item, ComputationSteps steps, ActivityManager activityManager, System2 system,
+    CEQueueStatus queueStatus) {
     this.item = item;
     this.steps = steps;
     this.activityManager = activityManager;
     this.system = system;
+    this.queueStatus = queueStatus;
   }
 
   public void process() {
+    queueStatus.addInProgress();
     String projectKey = item.dto.getProjectKey();
     String message = format("Analysis of project %s (report %d)", projectKey, item.dto.getId());
     Profiler profiler = Profiler.create(LOG).startDebug(message);
@@ -64,8 +69,10 @@ public class ComputationService {
         timingSum += stepProfiler.stopInfo(step.getDescription());
       }
       item.dto.setStatus(SUCCESS);
+      queueStatus.addSuccess();
     } catch (Throwable e) {
       item.dto.setStatus(FAILED);
+      queueStatus.addError();
       throw Throwables.propagate(e);
     } finally {
       item.dto.setFinishedAt(system.now());

@@ -33,6 +33,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.compute.AnalysisReportDto;
 import org.sonar.db.compute.AnalysisReportDto.Status;
 import org.sonar.server.computation.activity.ActivityManager;
+import org.sonar.server.computation.monitoring.CEQueueStatus;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
 
@@ -41,6 +42,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class ComputationServiceTest {
@@ -53,12 +55,13 @@ public class ComputationServiceTest {
   ComputationSteps steps = mock(ComputationSteps.class);
   ActivityManager activityManager = mock(ActivityManager.class);
   System2 system = mock(System2.class);
+  CEQueueStatus queueStatus = mock(CEQueueStatus.class);
   AnalysisReportDto dto = AnalysisReportDto.newForTests(1L).setProjectKey("P1").setUuid("U1").setStatus(Status.PENDING);
   ComputationService underTest;
 
   @Before
   public void setUp() {
-    underTest = new ComputationService(new ReportQueue.Item(dto, new File("Do_not_care")), steps, activityManager, system);
+    underTest = new ComputationService(new ReportQueue.Item(dto, new File("Do_not_care")), steps, activityManager, system, queueStatus);
   }
 
   @Test
@@ -82,6 +85,10 @@ public class ComputationServiceTest {
     verify(projectStep1).execute();
     verify(projectStep2).execute();
     verify(activityManager).saveActivity(dto);
+
+    verify(queueStatus).addInProgress();
+    verify(queueStatus).addSuccess();
+    verifyNoMoreInteractions(queueStatus);
   }
 
   @Test
@@ -107,12 +114,16 @@ public class ComputationServiceTest {
       assertThat(e.getMessage()).isEqualTo(errorMessage);
       assertThat(dto.getStatus()).isEqualTo(Status.FAILED);
       assertThat(dto.getFinishedAt()).isNotNull();
+
+      verify(queueStatus).addInProgress();
+      verify(queueStatus).addError();
+      verifyNoMoreInteractions(queueStatus);
     }
   }
 
   @Test
   public void step_error() {
-    when(steps.instances()).thenReturn(Arrays.asList(projectStep1));
+    when(steps.instances()).thenReturn(Collections.singleton(projectStep1));
     doThrow(new IllegalStateException("pb")).when(projectStep1).execute();
 
     try {
@@ -122,6 +133,10 @@ public class ComputationServiceTest {
       assertThat(e.getMessage()).isEqualTo("pb");
       assertThat(dto.getStatus()).isEqualTo(Status.FAILED);
       assertThat(dto.getFinishedAt()).isNotNull();
+
+      verify(queueStatus).addInProgress();
+      verify(queueStatus).addError();
+      verifyNoMoreInteractions(queueStatus);
     }
   }
 

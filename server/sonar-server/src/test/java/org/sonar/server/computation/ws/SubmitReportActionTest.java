@@ -20,19 +20,19 @@
 
 package org.sonar.server.computation.ws;
 
+import java.io.InputStream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.compute.AnalysisReportDto;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.compute.AnalysisReportDto;
 import org.sonar.server.computation.ComputationThreadLauncher;
 import org.sonar.server.computation.ReportQueue;
+import org.sonar.server.computation.monitoring.CEQueueStatus;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import java.io.InputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
@@ -47,13 +47,14 @@ public class SubmitReportActionTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   ComputationThreadLauncher workerLauncher = mock(ComputationThreadLauncher.class);
+  CEQueueStatus queueStatus = mock(CEQueueStatus.class);
   ReportQueue queue = mock(ReportQueue.class);
   WsTester wsTester;
   SubmitReportAction underTest;
 
   @Before
   public void before() {
-    underTest = new SubmitReportAction(queue, workerLauncher, userSessionRule);
+    underTest = new SubmitReportAction(queue, workerLauncher, userSessionRule, queueStatus);
     wsTester = new WsTester(new ComputationWs(underTest));
   }
 
@@ -85,6 +86,7 @@ public class SubmitReportActionTest {
 
     verify(queue).add(eq("P1"), eq("Project 1"), any(InputStream.class));
     verify(workerLauncher).startAnalysisTaskNow();
+    verify(queueStatus).addReceived();
     assertThat(response.outputAsString()).isEqualTo("{\"key\":\"42\"}");
   }
 

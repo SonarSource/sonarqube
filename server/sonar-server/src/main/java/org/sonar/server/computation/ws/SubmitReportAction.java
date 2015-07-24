@@ -20,6 +20,7 @@
 
 package org.sonar.server.computation.ws;
 
+import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -27,9 +28,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.computation.ComputationThreadLauncher;
 import org.sonar.server.computation.ReportQueue;
+import org.sonar.server.computation.monitoring.CEQueueStatus;
 import org.sonar.server.user.UserSession;
-
-import java.io.InputStream;
 
 public class SubmitReportAction implements ComputationWsAction {
 
@@ -41,11 +41,13 @@ public class SubmitReportAction implements ComputationWsAction {
   private final ReportQueue queue;
   private final ComputationThreadLauncher workerLauncher;
   private final UserSession userSession;
+  private final CEQueueStatus queueStatus;
 
-  public SubmitReportAction(ReportQueue queue, ComputationThreadLauncher workerLauncher, UserSession userSession) {
+  public SubmitReportAction(ReportQueue queue, ComputationThreadLauncher workerLauncher, UserSession userSession, CEQueueStatus queueStatus) {
     this.queue = queue;
     this.workerLauncher = workerLauncher;
     this.userSession = userSession;
+    this.queueStatus = queueStatus;
   }
 
   @Override
@@ -82,6 +84,7 @@ public class SubmitReportAction implements ComputationWsAction {
     InputStream reportData = request.paramAsInputStream(PARAM_REPORT_DATA);
     try {
       ReportQueue.Item item = queue.add(projectKey, projectName, reportData);
+      queueStatus.addReceived();
       workerLauncher.startAnalysisTaskNow();
       response.newJsonWriter()
         .beginObject()

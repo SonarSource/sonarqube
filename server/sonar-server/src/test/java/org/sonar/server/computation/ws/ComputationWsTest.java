@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.computation.ComputationThreadLauncher;
 import org.sonar.server.computation.ReportQueue;
+import org.sonar.server.computation.monitoring.CEQueueStatus;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsTester;
 
@@ -35,7 +36,7 @@ public class ComputationWsTest {
 
   WsTester ws = new WsTester(new ComputationWs(
     new QueueAction(mock(ReportQueue.class)),
-    new SubmitReportAction(mock(ReportQueue.class), mock(ComputationThreadLauncher.class), mock(UserSession.class)),
+    new SubmitReportAction(mock(ReportQueue.class), mock(ComputationThreadLauncher.class), mock(UserSession.class), mock(CEQueueStatus.class)),
     new HistoryAction(mock(ActivityIndex.class), mock(UserSession.class))));
 
   @Test

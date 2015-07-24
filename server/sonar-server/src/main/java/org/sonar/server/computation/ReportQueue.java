@@ -30,12 +30,13 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.db.compute.AnalysisReportDto;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-import org.sonar.process.ProcessProperties;
 import org.sonar.db.compute.AnalysisReportDao;
-import org.sonar.db.DbClient;
+import org.sonar.db.compute.AnalysisReportDto;
+import org.sonar.process.ProcessProperties;
+import org.sonar.server.computation.monitoring.CEQueueStatus;
 
 import static org.sonar.db.compute.AnalysisReportDto.Status.PENDING;
 
@@ -43,10 +44,21 @@ import static org.sonar.db.compute.AnalysisReportDto.Status.PENDING;
 public class ReportQueue {
   private final DbClient dbClient;
   private final Settings settings;
+  private final CEQueueStatus queueStatus;
 
-  public ReportQueue(DbClient dbClient, Settings settings) {
+  public ReportQueue(DbClient dbClient, Settings settings, CEQueueStatus queueStatus) {
     this.dbClient = dbClient;
     this.settings = settings;
+    this.queueStatus = queueStatus;
+  }
+
+  public void start() {
+    DbSession session = dbClient.openSession(false);
+    try {
+      queueStatus.initPendingCount(dao().countPending(session));
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   public Item add(String projectKey, String projectName, InputStream reportData) {

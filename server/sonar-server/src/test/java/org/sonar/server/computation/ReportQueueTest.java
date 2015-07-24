@@ -36,10 +36,13 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.compute.AnalysisReportDto;
 import org.sonar.process.ProcessProperties;
+import org.sonar.server.computation.monitoring.CEQueueStatus;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.compute.AnalysisReportDto.Status.PENDING;
 import static org.sonar.db.compute.AnalysisReportDto.Status.WORKING;
@@ -54,12 +57,13 @@ public class ReportQueueTest {
   @Rule
   public DbTester db = DbTester.create(system);
 
-  DbClient dbClient = db.getDbClient();
-
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  DbClient dbClient = db.getDbClient();
+
   Settings settings = new Settings();
+  CEQueueStatus queueStatus = mock(CEQueueStatus.class);
   File dataDir;
   ReportQueue underTest;
 
@@ -69,7 +73,19 @@ public class ReportQueueTest {
     settings.setProperty(ProcessProperties.PATH_DATA, dataDir.getAbsolutePath());
     when(system.now()).thenReturn(NOW);
 
-    underTest = new ReportQueue(dbClient, settings);
+    underTest = new ReportQueue(dbClient, settings, queueStatus);
+  }
+
+  @Test
+  public void starts_initializes_count_of_pending_reports() {
+    underTest.add("P1", "Project 1", generateData());
+    underTest.add("P2", "Project 2", generateData());
+    underTest.add("P3", "Project 3", generateData());
+
+    underTest.start();
+
+    verify(queueStatus).initPendingCount(3);
+    verifyNoMoreInteractions(queueStatus);
   }
 
   @Test

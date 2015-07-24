@@ -69,6 +69,10 @@ public class AnalysisReportDao implements Dao {
     return tryToPop(session, reportId);
   }
 
+  public long countPending(DbSession session) {
+    return mapper(session).selectAvailables(PENDING, WORKING).size();
+  }
+
   @VisibleForTesting
   AnalysisReportDto tryToPop(DbSession session, long reportId) {
     AnalysisReportMapper mapper = mapper(session);

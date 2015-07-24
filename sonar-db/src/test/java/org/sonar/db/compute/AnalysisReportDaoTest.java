@@ -129,6 +129,13 @@ public class AnalysisReportDaoTest {
   }
 
   @Test
+  public void count_pending() {
+    db.prepareDbUnit(getClass(), "pop_oldest_pending.xml");
+
+    assertThat(underTest.countPending(db.getSession())).isEqualTo(2);
+  }
+
+  @Test
   public void pop_null_if_no_pending_reports() {
     db.prepareDbUnit(getClass(), "pop_null_if_no_pending_reports.xml");
 
