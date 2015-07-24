@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>delete</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+    <tbody>
+    <tr>
+	<td>open</td>
+	<td>/sonar/sessions/new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>login</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>password</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sonar/settings?category=DEV</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForValue</td>
+	<td>name=page_version</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=input_key</td>
+	<td>jira1</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=input_url</td>
+	<td>http://jira1</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=#block_sonar\.test\.jira\.servers .add_value</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>xpath=(//input[@id='input_key'])[2]</td>
+	<td>jira2</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>xpath=(//input[@id='input_url'])[2]</td>
+	<td>http://jira2</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=submit_settings</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForValue</td>
+	<td>name=page_version</td>
+	<td>2</td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>xpath=(//input[@id='input_key'])[1]</td>
+	<td>jira1</td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>xpath=(//input[@id='input_key'])[2]</td>
+	<td>jira2</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>xpath=(//a[contains(text(),'Delete')])[3]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=submit_settings</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForValue</td>
+	<td>name=page_version</td>
+	<td>3</td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>xpath=(//input[@id='input_key'])[1]</td>
+	<td>jira1</td>
+</tr>
+<tr>
+	<td>waitForNotText</td>
+	<td>xpath=(//input[@id='input_key'])</td>
+	<td>*jira2*</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

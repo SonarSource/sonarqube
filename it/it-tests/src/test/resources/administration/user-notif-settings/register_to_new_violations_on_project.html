@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>register_to_new_violations_on_project</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+    <tbody>
+    <tr>
+        <td>open</td>
+        <td>/sonar/sessions/new</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>login</td>
+        <td>tester</td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>password</td>
+        <td>tester</td>
+    </tr>
+    <tr>
+        <td>clickAndWait</td>
+        <td>commit</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>open</td>
+        <td>/sonar/account/index</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>waitForElementPresent</td>
+        <td>new_project</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>typeAndWait</td>
+        <td>new_project</td>
+        <td>com.sonarsource.it.projects.rule:notification-for-new-violations</td>
+    </tr>
+    <tr>
+        <td>clickAndWait</td>
+        <td>//input[@value='Save changes']</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>assertText</td>
+        <td>notif_form</td>
+        <td>*New violations*notification-for-new-violations*Email*</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

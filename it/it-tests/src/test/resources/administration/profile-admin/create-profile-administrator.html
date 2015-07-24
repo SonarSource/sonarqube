@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>create-user</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+    <tbody>
+    <tr>
+        <td>open</td>
+        <td>/sonar/sessions/logout</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>open</td>
+        <td>/sonar/users</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>id=login</td>
+        <td>admin</td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>id=password</td>
+        <td>admin</td>
+    </tr>
+    <tr>
+        <td>clickAndWait</td>
+        <td>name=commit</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>id=user_login</td>
+        <td>profileadm</td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>id=user_name</td>
+        <td>Profile Admin</td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>id=user_password</td>
+        <td>papwd</td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>id=user_password_confirmation</td>
+        <td>papwd</td>
+    </tr>
+    <tr>
+        <td>clickAndWait</td>
+        <td>name=commit</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>clickAndWait</td>
+        <td>link=Groups</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>id=group_name</td>
+        <td>profile-admins</td>
+    </tr>
+    <tr>
+        <td>clickAndWait</td>
+        <td>name=commit</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>clickAndWait</td>
+        <td>id=select-profile-admins</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>addSelection</td>
+        <td>id=from</td>
+        <td>label=Profile Admin</td>
+    </tr>
+    <tr>
+        <td>click</td>
+        <td>id=select_right</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>clickAndWait</td>
+        <td>id=save</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>clickAndWait</td>
+        <td>link=Administrators</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>clickAndWait</td>
+        <td>xpath=(//a[contains(text(),'select')])[4]</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>addSelection</td>
+        <td>id=from</td>
+        <td>label=profile-admins</td>
+    </tr>
+    <tr>
+        <td>click</td>
+        <td>id=select_right</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>clickAndWait</td>
+        <td>id=save</td>
+        <td></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

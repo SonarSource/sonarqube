@@ -31,6 +31,8 @@
 
   <modules>
     <module>l10n-fr-pack</module>
+    <module>property-sets-plugin</module>
     <module>sonar-fake-plugin</module>
+    <module>sonar-subcategories-plugin</module>
   </modules>
 </project>
