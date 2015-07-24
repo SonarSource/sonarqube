@@ -123,9 +123,8 @@ public class WSLoader {
       if (e.getCause() instanceof HttpDownloader.HttpException) {
         throw e;
       }
+      throw new IllegalStateException(FAIL_MSG, e);
     }
-
-    throw new IllegalStateException(FAIL_MSG);
   }
 
   @Nonnull
@@ -141,9 +140,8 @@ public class WSLoader {
       if (cached != null) {
         return cached;
       }
+      throw new IllegalStateException(FAIL_MSG, serverException);
     }
-    
-    throw new IllegalStateException(FAIL_MSG);
   }
 
   private byte[] loadFromCache(String id) {
