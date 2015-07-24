@@ -53,14 +53,14 @@ public class MeasureFiltersTest {
   @Test
   public void execute_measure_filters() {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("execution_of_measure_filters",
-      "/measure/measure_filters/link_from_main_header.html",
-      "/measure/measure_filters/initial_search_form.html",
-      "/measure/measure_filters/search_for_projects.html",
-      "/measure/measure_filters/search_for_files.html",
+      "/measure/suite/measure_filters/link_from_main_header.html",
+      "/measure/suite/measure_filters/initial_search_form.html",
+      "/measure/suite/measure_filters/search_for_projects.html",
+      "/measure/suite/measure_filters/search_for_files.html",
       // SONAR-4195
-      "/measure/measure_filters/search-by-key.html",
-      "/measure/measure_filters/search-by-name.html",
-      "/measure/measure_filters/empty_filter.html"
+      "/measure/suite/measure_filters/search-by-key.html",
+      "/measure/suite/measure_filters/search-by-name.html",
+      "/measure/suite/measure_filters/empty_filter.html"
       ).build();
     orchestrator.executeSelenese(selenese);
   }
@@ -68,11 +68,11 @@ public class MeasureFiltersTest {
   @Test
   public void display_measure_filter_as_list() {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("display_measure_filter_as_list",
-      "/measure/measure_filters/list_change_columns.html",
-      "/measure/measure_filters/list_delete_column.html",
-      "/measure/measure_filters/list_move_columns.html",
-      "/measure/measure_filters/list_sort_by_descending_name.html",
-      "/measure/measure_filters/list_sort_by_ncloc.html"
+      "/measure/suite/measure_filters/list_change_columns.html",
+      "/measure/suite/measure_filters/list_delete_column.html",
+      "/measure/suite/measure_filters/list_move_columns.html",
+      "/measure/suite/measure_filters/list_sort_by_descending_name.html",
+      "/measure/suite/measure_filters/list_sort_by_ncloc.html"
       ).build();
     orchestrator.executeSelenese(selenese);
   }
@@ -86,7 +86,7 @@ public class MeasureFiltersTest {
     try {
       Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("share_measure_filters",
         // SONAR-4469
-        "/measure/measure_filters/should-unshare-filter-remove-other-filters-favourite.html"
+        "/measure/suite/measure_filters/should-unshare-filter-remove-other-filters-favourite.html"
         ).build();
       orchestrator.executeSelenese(selenese);
 
@@ -105,7 +105,7 @@ public class MeasureFiltersTest {
 
     try {
       orchestrator.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("should_not_share_filter_when_user_have_no_sharing_permissions",
-        "/measure/measure_filters/should-not-share-filter-when-user-have-no-sharing-permissions.html"
+        "/measure/suite/measure_filters/should-not-share-filter-when-user-have-no-sharing-permissions.html"
         ).build());
     } finally {
       deactivateUser(user);
@@ -115,8 +115,8 @@ public class MeasureFiltersTest {
   @Test
   public void copy_measure_filters() {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("copy_measure_filters",
-      "/measure/measure_filters/copy_measure_filter.html",
-      "/measure/measure_filters/copy_uniqueness_of_name.html"
+      "/measure/suite/measure_filters/copy_measure_filter.html",
+      "/measure/suite/measure_filters/copy_uniqueness_of_name.html"
       ).build();
     orchestrator.executeSelenese(selenese);
   }
@@ -124,7 +124,7 @@ public class MeasureFiltersTest {
   @Test
   public void manage_measure_filters() {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("manage_measure_filters",
-      "/measure/measure_filters/save_with_special_characters.html"
+      "/measure/suite/measure_filters/save_with_special_characters.html"
       ).build();
     orchestrator.executeSelenese(selenese);
   }
@@ -132,9 +132,9 @@ public class MeasureFiltersTest {
   @Test
   public void measure_filter_list_widget() {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("measure_filter_list_widget",
-      "/measure/measure_filters/list_widget.html",
-      "/measure/measure_filters/list_widget_sort.html",
-      "/measure/measure_filters/list_widget_warning_if_missing_filter.html"
+      "/measure/suite/measure_filters/list_widget.html",
+      "/measure/suite/measure_filters/list_widget_sort.html",
+      "/measure/suite/measure_filters/list_widget_warning_if_missing_filter.html"
       ).build();
     orchestrator.executeSelenese(selenese);
   }

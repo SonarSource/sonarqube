@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>should_save_issue_filters</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<tbody>
+<tr>
+	<td>storeEval</td>
+	<td>'filter_'+(new Date()).getTime()</td>
+	<td>FILTER_NAME</td>
+</tr>
+<tr>
+    <td>open</td>
+    <td>/sonar/sessions/logout</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sonar/sessions/new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>login</td>
+	<td>user-measures-filter-with-sharing-perm</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>password</td>
+	<td>password</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sonar/measures</td>
+	<td></td>
+</tr>
+<tr>
+  <td>waitForElementPresent</td>
+  <td>name=qualifiers[]</td>
+  <td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>name=qualifiers[]</td>
+	<td>Projects</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>class=navigator-filter-submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=save-as</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>save-as-filter-form</td>
+	<td>*Save Filter*</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=name</td>
+	<td>user_${FILTER_NAME}</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=shared</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=save-as-submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>filter-title</td>
+	<td>*user_${FILTER_NAME}*Shared with all users*</td>
+</tr>
+<tr>
+    <td>open</td>
+    <td>/sonar/sessions/logout</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sonar/sessions/new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>login</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>password</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sonar/measures/manage</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>content</td>
+	<td>*My Measures Filters*</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>shared-filters</td>
+	<td>*user_${FILTER_NAME}*</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=star-user_${FILTER_NAME}</td>
+	<td></td>
+</tr>
+<tr>
+    <td>open</td>
+    <td>/sonar/sessions/logout</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sonar/sessions/new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>login</td>
+	<td>user-measures-filter-with-sharing-perm</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>password</td>
+	<td>password</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sonar/measures</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=manage-favorites</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=manage-favorites</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>my-filters</td>
+	<td>*user_${FILTER_NAME}*</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=edit_user_${FILTER_NAME}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>edit-filter-form</td>
+	<td>*Edit Filter*</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>shared</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=save-submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>filter-title</td>
+	<td>*user_${FILTER_NAME}*Private*</td>
+</tr>
+<tr>
+    <td>open</td>
+    <td>/sonar/sessions/logout</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sonar/sessions/new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>login</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>password</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sonar/measures/manage</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>content</td>
+	<td>*My Measures Filters*</td>
+</tr>
+<tr>
+	<td>assertNotText</td>
+	<td>shared-filters</td>
+	<td>*user_${FILTER_NAME}*</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>
