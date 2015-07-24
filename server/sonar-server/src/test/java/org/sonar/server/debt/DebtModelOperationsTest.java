@@ -129,7 +129,7 @@ public class DebtModelOperationsTest {
     }).when(dao).insert(any(SqlSession.class), any(CharacteristicDto.class));
 
     when(dbClient.openSession(false)).thenReturn(session);
-    when(dbClient.ruleDao()).thenReturn(ruleDao);
+    when(dbClient.deprecatedRuleDao()).thenReturn(ruleDao);
     when(dbClient.debtCharacteristicDao()).thenReturn(dao);
     service = new DebtModelOperations(dbClient, system2, userSessionRule);
   }

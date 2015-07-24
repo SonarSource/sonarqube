@@ -78,7 +78,7 @@ public class RuleCreator {
     if (templateKey == null) {
       throw new IllegalArgumentException("Rule template key should not be null");
     }
-    RuleDto templateRule = dbClient.ruleDao().getByKey(dbSession, templateKey);
+    RuleDto templateRule = dbClient.deprecatedRuleDao().getByKey(dbSession, templateKey);
     if (!templateRule.isTemplate()) {
       throw new IllegalArgumentException("This rule is not a template rule: " + templateKey.toString());
     }
@@ -129,7 +129,7 @@ public class RuleCreator {
       errors.add(Message.of("coding_rules.validation.missing_status"));
     }
 
-    for (RuleParamDto ruleParam : dbClient.ruleDao().selectRuleParamsByRuleKey(dbSession, templateKey)) {
+    for (RuleParamDto ruleParam : dbClient.deprecatedRuleDao().selectRuleParamsByRuleKey(dbSession, templateKey)) {
       try {
         validateParam(ruleParam, newRule.parameter(ruleParam.getName()));
       } catch (BadRequestException validationError) {
@@ -190,7 +190,7 @@ public class RuleCreator {
 
   @CheckForNull
   private RuleDto loadRule(RuleKey ruleKey, DbSession dbSession) {
-    return dbClient.ruleDao().getNullableByKey(dbSession, ruleKey);
+    return dbClient.deprecatedRuleDao().getNullableByKey(dbSession, ruleKey);
   }
 
   private RuleKey createCustomRule(RuleKey ruleKey, NewRule newRule, RuleDto templateRuleDto, DbSession dbSession) {
@@ -210,9 +210,9 @@ public class RuleCreator {
       .setEffortToFixDescription(templateRuleDto.getEffortToFixDescription())
       .setTags(templateRuleDto.getTags())
       .setSystemTags(templateRuleDto.getSystemTags());
-    dbClient.ruleDao().insert(dbSession, ruleDto);
+    dbClient.deprecatedRuleDao().insert(dbSession, ruleDto);
 
-    for (RuleParamDto templateRuleParamDto : dbClient.ruleDao().selectRuleParamsByRuleKey(dbSession, templateRuleDto.getKey())) {
+    for (RuleParamDto templateRuleParamDto : dbClient.deprecatedRuleDao().selectRuleParamsByRuleKey(dbSession, templateRuleDto.getKey())) {
       String customRuleParamValue = Strings.emptyToNull(newRule.parameter(templateRuleParamDto.getName()));
       createCustomRuleParams(customRuleParamValue, ruleDto, templateRuleParamDto, dbSession);
     }
@@ -225,7 +225,7 @@ public class RuleCreator {
       .setType(templateRuleParam.getType())
       .setDescription(templateRuleParam.getDescription())
       .setDefaultValue(paramValue);
-    dbClient.ruleDao().insertRuleParam(dbSession, ruleDto, ruleParamDto);
+    dbClient.deprecatedRuleDao().insertRuleParam(dbSession, ruleDto, ruleParamDto);
   }
 
   private RuleKey createManualRule(RuleKey ruleKey, NewRule newRule, DbSession dbSession) {
@@ -235,7 +235,7 @@ public class RuleCreator {
       .setDescriptionFormat(Format.MARKDOWN)
       .setSeverity(newRule.severity())
       .setStatus(RuleStatus.READY);
-    dbClient.ruleDao().insert(dbSession, ruleDto);
+    dbClient.deprecatedRuleDao().insert(dbSession, ruleDto);
     return ruleKey;
   }
 
@@ -245,7 +245,7 @@ public class RuleCreator {
         throw new ReactivationException(String.format("A removed rule with the key '%s' already exists", ruleDto.getKey().rule()), ruleDto.getKey());
       } else {
         ruleDto.setStatus(RuleStatus.READY);
-        dbClient.ruleDao().update(dbSession, ruleDto);
+        dbClient.deprecatedRuleDao().update(dbSession, ruleDto);
       }
     } else {
       throw new IllegalArgumentException(String.format("A rule with the key '%s' already exists", ruleDto.getKey().rule()));

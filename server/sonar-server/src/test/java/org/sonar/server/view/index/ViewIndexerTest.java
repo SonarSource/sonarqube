@@ -178,7 +178,7 @@ public class ViewIndexerTest {
     String viewUuid = "ABCD";
 
     RuleDto rule = RuleTesting.newXooX1();
-    dbClient.ruleDao().insert(dbSession, rule);
+    dbClient.deprecatedRuleDao().insert(dbSession, rule);
     ComponentDto project1 = addProjectWithIssue(rule);
     issueIndexer.indexAll();
     issueAuthorizationIndexer.index();

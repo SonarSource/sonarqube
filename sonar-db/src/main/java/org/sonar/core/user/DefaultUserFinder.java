@@ -49,7 +49,7 @@ public class DefaultUserFinder implements UserFinder {
 
   @Override
   public List<User> findByLogins(List<String> logins) {
-    List<UserDto> dtos = userDao.selectUsersByLogins(logins);
+    List<UserDto> dtos = userDao.selectByLogins(logins);
     return toUsers(dtos);
   }
 

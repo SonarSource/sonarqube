@@ -17,41 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.issue;
+package org.sonar.db.rule;
 
-import java.util.Collection;
-import java.util.Map;
+import com.google.common.base.Function;
+import java.util.List;
+import javax.annotation.Nonnull;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
-import org.sonar.db.rule.RuleDto;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.util.cache.CacheLoader;
 
-public class RuleCacheLoader implements CacheLoader<RuleKey, Rule> {
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
-  private final DbClient dbClient;
+public class RuleDao implements Dao {
 
-  public RuleCacheLoader(DbClient dbClient) {
-    this.dbClient = dbClient;
+  /**
+   * Select rules by keys, whatever their status. Returns an empty list
+   * if the list of {@code keys} is empty, without any db round trip.
+   */
+  public List<RuleDto> selectByKeys(final DbSession session, List<RuleKey> keys) {
+    return executeLargeInputs(keys, new SelectByKeys(session.getMapper(RuleMapper.class)));
   }
 
-  @Override
-  public Rule load(RuleKey key) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      RuleDto dto = dbClient.deprecatedRuleDao().getNullableByKey(session, key);
-      if (dto != null) {
-        return new RuleImpl(dto);
-      }
-      return null;
-    } finally {
-      MyBatis.closeQuietly(session);
+  private static class SelectByKeys implements Function<List<RuleKey>, List<RuleDto>> {
+    private final RuleMapper mapper;
+
+    private SelectByKeys(RuleMapper mapper) {
+      this.mapper = mapper;
+    }
+
+    @Override
+    public List<RuleDto> apply(@Nonnull List<RuleKey> partitionOfKeys) {
+      return mapper.selectByKeys(partitionOfKeys);
     }
   }
 
-  @Override
-  public Map<RuleKey, Rule> loadAll(Collection<? extends RuleKey> keys) {
-    throw new UnsupportedOperationException("Not implemented yet");
-  }
 }

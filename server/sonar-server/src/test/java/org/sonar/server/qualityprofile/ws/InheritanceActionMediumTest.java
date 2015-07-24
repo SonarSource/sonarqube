@@ -130,7 +130,7 @@ public class InheritanceActionMediumTest {
       .setLanguage(lang)
       .setSeverity(Severity.BLOCKER)
       .setStatus(RuleStatus.READY);
-    db.ruleDao().insert(session, rule);
+    db.deprecatedRuleDao().insert(session, rule);
     return rule;
   }
 

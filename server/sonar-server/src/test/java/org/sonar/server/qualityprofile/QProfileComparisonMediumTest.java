@@ -70,10 +70,10 @@ public class QProfileComparisonMediumTest {
 
     xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR");
     xooRule2 = RuleTesting.newXooX2().setSeverity("MAJOR");
-    db.ruleDao().insert(dbSession, xooRule1, xooRule2);
-    db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
+    db.deprecatedRuleDao().insert(dbSession, xooRule1, xooRule2);
+    db.deprecatedRuleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("max").setType(RuleParamType.INTEGER.type()));
-    db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
+    db.deprecatedRuleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("min").setType(RuleParamType.INTEGER.type()));
 
     left = QProfileTesting.newXooP1();

@@ -129,10 +129,10 @@ public class RegisterRulesMediumTest {
     });
 
     // verify db : rule x1 + 6 common rules
-    List<RuleDto> rules = db.ruleDao().selectAll(dbSession);
+    List<RuleDto> rules = db.deprecatedRuleDao().selectAll(dbSession);
     assertThat(rules).hasSize(7);
     assertThat(rules).extracting("key").contains(X1_KEY);
-    List<RuleParamDto> ruleParams = db.ruleDao().selectRuleParamsByRuleKey(dbSession, X1_KEY);
+    List<RuleParamDto> ruleParams = db.deprecatedRuleDao().selectRuleParamsByRuleKey(dbSession, X1_KEY);
     assertThat(ruleParams).hasSize(2);
 
     // verify es : rule x1 + 6 common rules
@@ -336,14 +336,14 @@ public class RegisterRulesMediumTest {
 
     // Uninstall plugin
     register(null);
-    RuleDto rule = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
+    RuleDto rule = db.deprecatedRuleDao().getByKey(dbSession, RuleTesting.XOO_X1);
     assertThat(rule.getStatus()).isEqualTo(RuleStatus.REMOVED);
     Rule indexedRule = ruleIndex.getByKey(RuleTesting.XOO_X1);
     assertThat(indexedRule.status()).isEqualTo(RuleStatus.REMOVED);
 
     // Re-install plugin
     register(rules);
-    rule = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
+    rule = db.deprecatedRuleDao().getByKey(dbSession, RuleTesting.XOO_X1);
     assertThat(rule.getStatus()).isEqualTo(RuleStatus.READY);
     indexedRule = ruleIndex.getByKey(RuleTesting.XOO_X1);
     assertThat(indexedRule.status()).isEqualTo(RuleStatus.READY);

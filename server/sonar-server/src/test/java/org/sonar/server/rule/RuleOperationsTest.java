@@ -72,7 +72,7 @@ public class RuleOperationsTest {
   @Before
   public void setUp() {
     when(dbClient.openSession(false)).thenReturn(session);
-    when(dbClient.ruleDao()).thenReturn(ruleDao);
+    when(dbClient.deprecatedRuleDao()).thenReturn(ruleDao);
     when(dbClient.debtCharacteristicDao()).thenReturn(characteristicDao);
     operations = new RuleOperations(dbClient);
   }

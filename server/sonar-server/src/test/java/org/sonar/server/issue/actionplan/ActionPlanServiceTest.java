@@ -162,7 +162,7 @@ public class ActionPlanServiceTest {
     when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
 
     IssueDto issueDto = new IssueDto().setId(100L).setStatus(Issue.STATUS_OPEN).setRuleKey("squid", "s100").setIssueCreationDate(new Date());
-    when(issueDao.findByActionPlan(session, "ABCD")).thenReturn(newArrayList(issueDto));
+    when(issueDao.selectByActionPlan(session, "ABCD")).thenReturn(newArrayList(issueDto));
     when(issueUpdater.plan(any(DefaultIssue.class), eq((ActionPlan) null), any(IssueChangeContext.class))).thenReturn(true);
 
     ArgumentCaptor<DefaultIssue> captor = ArgumentCaptor.forClass(DefaultIssue.class);

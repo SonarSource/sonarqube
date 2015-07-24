@@ -74,7 +74,7 @@ public class IndexSynchronizer {
   public void executeDeprecated() {
     DbSession session = db.openSession(false);
     try {
-      synchronize(session, db.ruleDao(), index.get(RuleIndex.class));
+      synchronize(session, db.deprecatedRuleDao(), index.get(RuleIndex.class));
       synchronize(session, db.activeRuleDao(), index.get(ActiveRuleIndex.class));
       session.commit();
     } finally {

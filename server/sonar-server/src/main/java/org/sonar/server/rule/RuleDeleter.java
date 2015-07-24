@@ -43,7 +43,7 @@ public class RuleDeleter {
   public void delete(RuleKey ruleKey) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      RuleDto rule = dbClient.ruleDao().getByKey(dbSession, ruleKey);
+      RuleDto rule = dbClient.deprecatedRuleDao().getByKey(dbSession, ruleKey);
       if (rule.getTemplateId() == null && !rule.getRepositoryKey().equals(RuleDoc.MANUAL_REPOSITORY)) {
         throw new IllegalStateException("Only custom rules and manual rules can be deleted");
       }
@@ -54,7 +54,7 @@ public class RuleDeleter {
       }
 
       rule.setStatus(RuleStatus.REMOVED);
-      dbClient.ruleDao().update(dbSession, rule);
+      dbClient.deprecatedRuleDao().update(dbSession, rule);
 
       dbSession.commit();
     } finally {

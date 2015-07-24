@@ -289,7 +289,7 @@ public class IssueService {
   IssueDto getByKeyForUpdate(DbSession session, String key) {
     // Load from index to check permission : if the user has no permission to see the issue an exception will be generated
     Issue authorizedIssueIndex = getByKey(key);
-    return dbClient.issueDao().selectByKey(session, authorizedIssueIndex.key());
+    return dbClient.issueDao().selectOrFailByKey(session, authorizedIssueIndex.key());
   }
 
   void saveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context, @Nullable String comment) {

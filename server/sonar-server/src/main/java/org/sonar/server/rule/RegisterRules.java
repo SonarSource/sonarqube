@@ -140,7 +140,7 @@ public class RegisterRules implements Startable {
     }
 
     if (executeUpdate) {
-      dbClient.ruleDao().update(session, rule);
+      dbClient.deprecatedRuleDao().update(session, rule);
     }
 
     mergeParams(ruleDef, rule, session);
@@ -148,7 +148,7 @@ public class RegisterRules implements Startable {
 
   private Map<RuleKey, RuleDto> loadRules(DbSession session) {
     Map<RuleKey, RuleDto> rules = new HashMap<>();
-    for (RuleDto rule : dbClient.ruleDao().selectByNonManual(session)) {
+    for (RuleDto rule : dbClient.deprecatedRuleDao().selectByNonManual(session)) {
       rules.put(rule.getKey(), rule);
     }
     return rules;
@@ -217,7 +217,7 @@ public class RegisterRules implements Startable {
       ruleDto.setDescriptionFormat(Format.MARKDOWN);
     }
 
-    dbClient.ruleDao().insert(session, ruleDto);
+    dbClient.deprecatedRuleDao().insert(session, ruleDto);
     return ruleDto;
   }
 
@@ -316,17 +316,17 @@ public class RegisterRules implements Startable {
   }
 
   private void mergeParams(RulesDefinition.Rule ruleDef, RuleDto rule, DbSession session) {
-    List<RuleParamDto> paramDtos = dbClient.ruleDao().selectRuleParamsByRuleKey(session, rule.getKey());
+    List<RuleParamDto> paramDtos = dbClient.deprecatedRuleDao().selectRuleParamsByRuleKey(session, rule.getKey());
     Map<String, RuleParamDto> existingParamsByName = Maps.newHashMap();
 
     for (RuleParamDto paramDto : paramDtos) {
       RulesDefinition.Param paramDef = ruleDef.param(paramDto.getName());
       if (paramDef == null) {
         dbClient.activeRuleDao().deleteParamsByRuleParam(session, rule, paramDto.getName());
-        dbClient.ruleDao().deleteRuleParam(session, rule, paramDto);
+        dbClient.deprecatedRuleDao().deleteRuleParam(session, rule, paramDto);
       } else {
         if (mergeParam(paramDto, paramDef)) {
-          dbClient.ruleDao().updateRuleParam(session, rule, paramDto);
+          dbClient.deprecatedRuleDao().updateRuleParam(session, rule, paramDto);
         }
         existingParamsByName.put(paramDto.getName(), paramDto);
       }
@@ -341,7 +341,7 @@ public class RegisterRules implements Startable {
           .setDescription(param.description())
           .setDefaultValue(param.defaultValue())
           .setType(param.type().toString());
-        dbClient.ruleDao().insertRuleParam(session, rule, paramDto);
+        dbClient.deprecatedRuleDao().insertRuleParam(session, rule, paramDto);
         if (!StringUtils.isEmpty(param.defaultValue())) {
           // Propagate the default value to existing active rules
           for (ActiveRuleDto activeRule : dbClient.activeRuleDao().selectByRule(session, rule)) {
@@ -400,10 +400,10 @@ public class RegisterRules implements Startable {
     }
 
     for (RuleDto customRule : customRules) {
-      RuleDto template = dbClient.ruleDao().selectTemplate(customRule, session);
+      RuleDto template = dbClient.deprecatedRuleDao().selectTemplate(customRule, session);
       if (template != null && template.getStatus() != RuleStatus.REMOVED) {
         if (updateCustomRuleFromTemplateRule(customRule, template)) {
-          dbClient.ruleDao().update(session, customRule);
+          dbClient.deprecatedRuleDao().update(session, customRule);
         }
       } else {
         removeRule(session, removedRules, customRule);
@@ -419,7 +419,7 @@ public class RegisterRules implements Startable {
     rule.setStatus(RuleStatus.REMOVED);
     rule.setSystemTags(Collections.<String>emptySet());
     rule.setTags(Collections.<String>emptySet());
-    dbClient.ruleDao().update(session, rule);
+    dbClient.deprecatedRuleDao().update(session, rule);
     removedRules.add(rule);
     if (removedRules.size() % 100 == 0) {
       session.commit();

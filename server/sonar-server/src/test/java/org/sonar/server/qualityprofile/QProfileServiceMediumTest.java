@@ -85,7 +85,7 @@ public class QProfileServiceMediumTest {
 
     // create pre-defined rules
     RuleDto xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR");
-    db.ruleDao().insert(dbSession, xooRule1);
+    db.deprecatedRuleDao().insert(dbSession, xooRule1);
 
     // create pre-defined profiles P1 and P2
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1(), QProfileTesting.newXooP2());
@@ -113,7 +113,7 @@ public class QProfileServiceMediumTest {
   public void create_profile_with_xml() {
     userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    db.ruleDao().insert(dbSession, RuleTesting.newDto(RuleKey.of("xoo", "R1")).setLanguage("xoo").setSeverity("MINOR"));
+    db.deprecatedRuleDao().insert(dbSession, RuleTesting.newDto(RuleKey.of("xoo", "R1")).setLanguage("xoo").setSeverity("MINOR"));
     dbSession.commit();
 
     QProfileResult result = service.create(QProfileName.createFor("xoo", "New Profile"), ImmutableMap.of("XooProfileImporter", "<xml/>"));
@@ -166,7 +166,7 @@ public class QProfileServiceMediumTest {
     // create deprecated rule
     RuleDto deprecatedXooRule = RuleTesting.newDto(RuleKey.of("xoo", "deprecated1"))
       .setSeverity("MINOR").setLanguage("xoo").setStatus(RuleStatus.DEPRECATED);
-    db.ruleDao().insert(dbSession, deprecatedXooRule);
+    db.deprecatedRuleDao().insert(dbSession, deprecatedXooRule);
     dbSession.commit();
 
     // active some rules
@@ -185,7 +185,7 @@ public class QProfileServiceMediumTest {
     db.userDao().insert(dbSession, user);
 
     // We need an actual rule in DB to test RuleName in Activity
-    RuleDto rule = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
+    RuleDto rule = db.deprecatedRuleDao().getByKey(dbSession, RuleTesting.XOO_X1);
 
     dbSession.commit();
 
@@ -234,7 +234,7 @@ public class QProfileServiceMediumTest {
     userSessionRule.login("david").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     // We need an actual rule in DB to test RuleName in Activity
-    db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
+    db.deprecatedRuleDao().getByKey(dbSession, RuleTesting.XOO_X1);
     dbSession.commit();
 
     tester.get(ActivityService.class).save(

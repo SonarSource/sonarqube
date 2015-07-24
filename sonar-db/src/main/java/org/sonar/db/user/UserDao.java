@@ -19,13 +19,16 @@
  */
 package org.sonar.db.user;
 
-import com.google.common.collect.Lists;
+import com.google.common.base.Function;
+import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.user.UserQuery;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.RowNotFoundException;
@@ -74,27 +77,34 @@ public class UserDao implements Dao {
     return mapper.selectUserByLogin(login);
   }
 
-  public List<UserDto> selectUsersByLogins(List<String> logins) {
-    List<UserDto> users = Lists.newArrayList();
+  /**
+   * Select users by logins, including disabled users. An empty list is returned
+   * if list of logins is empty, without any db round trips.
+   */
+  public List<UserDto> selectByLogins(DbSession session, Collection<String> logins) {
+    return DatabaseUtils.executeLargeInputs(logins, new SelectByLogins(mapper(session)));
+  }
+
+  public List<UserDto> selectByLogins(Collection<String> logins) {
     DbSession session = mybatis.openSession(false);
     try {
-      users.addAll(selectUsersByLogins(session, logins));
+      return selectByLogins(session, logins);
     } finally {
       MyBatis.closeQuietly(session);
     }
-    return users;
   }
 
-  public List<UserDto> selectUsersByLogins(DbSession session, List<String> logins) {
-    List<UserDto> users = Lists.newArrayList();
-    if (!logins.isEmpty()) {
-      UserMapper mapper = session.getMapper(UserMapper.class);
-      List<List<String>> partitions = Lists.partition(logins, 1000);
-      for (List<String> partition : partitions) {
-        users.addAll(mapper.selectUsersByLogins(partition));
-      }
+  private static class SelectByLogins implements Function<List<String>, List<UserDto>> {
+    private final UserMapper mapper;
+
+    private SelectByLogins(UserMapper mapper) {
+      this.mapper = mapper;
     }
-    return users;
+
+    @Override
+    public List<UserDto> apply(@Nonnull List<String> partitionOfLogins) {
+      return mapper.selectByLogins(partitionOfLogins);
+    }
   }
 
   public List<UserDto> selectUsers(UserQuery query) {
