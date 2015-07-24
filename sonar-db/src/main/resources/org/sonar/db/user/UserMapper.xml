@@ -47,6 +47,16 @@
     WHERE u.login=#{id} AND u.active=${_true}
   </select>
 
+  <select id="selectByLogins" parameterType="string" resultType="User">
+    SELECT
+    <include refid="userColumns"/>
+    FROM users u
+    WHERE u.login in
+    <foreach collection="list" open="(" close=")" item="login" separator=",">
+      #{login}
+    </foreach>
+  </select>
+
   <select id="selectUsersByLogins" parameterType="map" resultType="User">
     SELECT
     <include refid="userColumns"/>

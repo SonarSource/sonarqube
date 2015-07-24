@@ -24,12 +24,16 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.sonar.api.server.ServerSide;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -38,11 +42,6 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @ServerSide
 public class QProfileReset {
@@ -90,7 +89,7 @@ public class QProfileReset {
                 activation.setParameter(param.getParamKey(), param.getValue());
               }
             } else {
-              for (RuleParamDto param : db.ruleDao().selectRuleParamsByRuleKey(dbSession, activeRule.getRule().ruleKey())) {
+              for (RuleParamDto param : db.deprecatedRuleDao().selectRuleParamsByRuleKey(dbSession, activeRule.getRule().ruleKey())) {
                 activation.setParameter(param.getName(), param.getDefaultValue());
               }
             }

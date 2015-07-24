@@ -85,7 +85,7 @@ public class ChangelogActionTest {
 
     // create pre-defined rules
     RuleDto xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR");
-    db.ruleDao().insert(dbSession, xooRule1);
+    db.deprecatedRuleDao().insert(dbSession, xooRule1);
 
     // create pre-defined profiles P1 and P2
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1(), QProfileTesting.newXooP2());

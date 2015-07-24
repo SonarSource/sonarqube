@@ -93,18 +93,18 @@ public class RuleActivatorMediumTest {
     RuleDto xooTemplateRule1 = RuleTesting.newTemplateRule(TEMPLATE_RULE_KEY)
       .setSeverity("MINOR").setLanguage("xoo");
     RuleDto manualRule = RuleTesting.newDto(MANUAL_RULE_KEY);
-    db.ruleDao().insert(dbSession, javaRule, xooRule1, xooRule2, xooTemplateRule1, manualRule);
-    db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
+    db.deprecatedRuleDao().insert(dbSession, javaRule, xooRule1, xooRule2, xooTemplateRule1, manualRule);
+    db.deprecatedRuleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
-    db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
+    db.deprecatedRuleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("min").setType(RuleParamType.INTEGER.type()));
-    db.ruleDao().insertRuleParam(dbSession, xooTemplateRule1, RuleParamDto.createFor(xooTemplateRule1)
+    db.deprecatedRuleDao().insertRuleParam(dbSession, xooTemplateRule1, RuleParamDto.createFor(xooTemplateRule1)
       .setName("format").setType(RuleParamType.STRING.type()));
 
     RuleDto xooCustomRule1 = RuleTesting.newCustomRule(xooTemplateRule1).setRuleKey(CUSTOM_RULE_KEY.rule())
       .setSeverity("MINOR").setLanguage("xoo");
-    db.ruleDao().insert(dbSession, xooCustomRule1);
-    db.ruleDao().insertRuleParam(dbSession, xooCustomRule1, RuleParamDto.createFor(xooTemplateRule1)
+    db.deprecatedRuleDao().insert(dbSession, xooCustomRule1);
+    db.deprecatedRuleDao().insertRuleParam(dbSession, xooCustomRule1, RuleParamDto.createFor(xooTemplateRule1)
       .setName("format").setDefaultValue("txt").setType(RuleParamType.STRING.type()));
 
     // create pre-defined profile P1
@@ -390,9 +390,9 @@ public class RuleActivatorMediumTest {
 
   @Test
   public void fail_to_activate_if_rule_with_removed_status() {
-    RuleDto ruleDto = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
+    RuleDto ruleDto = db.deprecatedRuleDao().getByKey(dbSession, RuleTesting.XOO_X1);
     ruleDto.setStatus(RuleStatus.REMOVED);
-    db.ruleDao().update(dbSession, ruleDto);
+    db.deprecatedRuleDao().update(dbSession, ruleDto);
     dbSession.commit();
     dbSession.clearCache();
 
@@ -498,9 +498,9 @@ public class RuleActivatorMediumTest {
     activate(activation, XOO_P1_KEY);
 
     // set rule as removed
-    RuleDto rule = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
+    RuleDto rule = db.deprecatedRuleDao().getByKey(dbSession, RuleTesting.XOO_X1);
     rule.setStatus(RuleStatus.REMOVED);
-    db.ruleDao().update(dbSession, rule);
+    db.deprecatedRuleDao().update(dbSession, rule);
     dbSession.commit();
     dbSession.clearCache();
 
@@ -837,7 +837,7 @@ public class RuleActivatorMediumTest {
     // Generate more rules than the search's max limit
     int bulkSize = QueryContext.MAX_LIMIT + 10;
     for (int i = 0; i < bulkSize; i++) {
-      db.ruleDao().insert(dbSession, RuleTesting.newDto(RuleKey.of("bulk", "r_" + i)).setLanguage("xoo"));
+      db.deprecatedRuleDao().insert(dbSession, RuleTesting.newDto(RuleKey.of("bulk", "r_" + i)).setLanguage("xoo"));
     }
     dbSession.commit();
 
@@ -964,9 +964,9 @@ public class RuleActivatorMediumTest {
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP2());
 
     // mark rule x1 as REMOVED
-    RuleDto rule = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
+    RuleDto rule = db.deprecatedRuleDao().getByKey(dbSession, RuleTesting.XOO_X1);
     rule.setStatus(RuleStatus.REMOVED);
-    db.ruleDao().update(dbSession, rule);
+    db.deprecatedRuleDao().update(dbSession, rule);
     dbSession.commit();
     dbSession.clearCache();
 

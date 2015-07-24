@@ -76,12 +76,12 @@ public class RuleActivatorContextFactory {
   }
 
   private RuleDto initRule(RuleKey ruleKey, RuleActivatorContext context, DbSession dbSession) {
-    RuleDto rule = db.ruleDao().getNullableByKey(dbSession, ruleKey);
+    RuleDto rule = db.deprecatedRuleDao().getNullableByKey(dbSession, ruleKey);
     if (rule == null) {
       throw new BadRequestException("Rule not found: " + ruleKey);
     }
     context.setRule(rule);
-    context.setRuleParams(db.ruleDao().selectRuleParamsByRuleKey(dbSession, rule.getKey()));
+    context.setRuleParams(db.deprecatedRuleDao().selectRuleParamsByRuleKey(dbSession, rule.getKey()));
     return rule;
   }
 

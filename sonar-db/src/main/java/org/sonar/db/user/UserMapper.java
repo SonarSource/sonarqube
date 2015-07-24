@@ -49,6 +49,8 @@ public interface UserMapper {
 
   List<UserDto> selectUsers(UserQuery query);
 
+  List<UserDto> selectByLogins(List<String> logins);
+
   @CheckForNull
   GroupDto selectGroupByName(String name);
 
@@ -75,5 +77,6 @@ public interface UserMapper {
   void deleteUserRoles(long userId);
 
   void deactivateUser(@Param("id") long userId, @Param("now") long now);
+
 
 }

@@ -89,7 +89,7 @@ public class RuleCreatorMediumTest {
 
     dbSession.clearCache();
 
-    RuleDto rule = db.ruleDao().getNullableByKey(dbSession, customRuleKey);
+    RuleDto rule = db.deprecatedRuleDao().getNullableByKey(dbSession, customRuleKey);
     assertThat(rule).isNotNull();
     assertThat(rule.getKey()).isEqualTo(RuleKey.of("java", "CUSTOM_RULE"));
     assertThat(rule.getTemplateId()).isEqualTo(templateRule.getId());
@@ -107,7 +107,7 @@ public class RuleCreatorMediumTest {
     assertThat(rule.getTags()).containsOnly("usertag1", "usertag2");
     assertThat(rule.getSystemTags()).containsOnly("tag1", "tag4");
 
-    List<RuleParamDto> params = db.ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
+    List<RuleParamDto> params = db.deprecatedRuleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);
 
     RuleParamDto param = params.get(0);
@@ -134,7 +134,7 @@ public class RuleCreatorMediumTest {
     RuleKey customRuleKey = creator.create(newRule);
     dbSession.clearCache();
 
-    List<RuleParamDto> params = db.ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
+    List<RuleParamDto> params = db.deprecatedRuleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);
 
     RuleParamDto param = params.get(0);
@@ -158,7 +158,7 @@ public class RuleCreatorMediumTest {
     RuleKey customRuleKey = creator.create(newRule);
     dbSession.clearCache();
 
-    List<RuleParamDto> params = db.ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
+    List<RuleParamDto> params = db.deprecatedRuleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);
 
     RuleParamDto param = params.get(0);
@@ -183,7 +183,7 @@ public class RuleCreatorMediumTest {
     RuleKey customRuleKey = creator.create(newRule);
     dbSession.clearCache();
 
-    List<RuleParamDto> params = db.ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
+    List<RuleParamDto> params = db.deprecatedRuleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);
 
     RuleParamDto param = params.get(0);
@@ -279,7 +279,7 @@ public class RuleCreatorMediumTest {
     assertThat(result.param("regex").defaultValue()).isEqualTo("a.*");
 
     // Check that the id is the same
-    assertThat(db.ruleDao().getByKey(dbSession, result.key()).getId()).isEqualTo(rule.getId());
+    assertThat(db.deprecatedRuleDao().getByKey(dbSession, result.key()).getId()).isEqualTo(rule.getId());
   }
 
   @Test
@@ -569,7 +569,7 @@ public class RuleCreatorMediumTest {
     assertThat(result.severity()).isEqualTo(Severity.INFO);
 
     // Check that the id is the same
-    assertThat(db.ruleDao().getByKey(dbSession, result.key()).getId()).isEqualTo(rule.getId());
+    assertThat(db.deprecatedRuleDao().getByKey(dbSession, result.key()).getId()).isEqualTo(rule.getId());
   }
 
   @Test

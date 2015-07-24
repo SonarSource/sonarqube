@@ -51,7 +51,7 @@ public class DbClient extends org.sonar.db.DbClient {
     return activeRuleDao;
   }
 
-  public RuleDao ruleDao() {
+  public RuleDao deprecatedRuleDao() {
     return ruleDao;
   }
 }

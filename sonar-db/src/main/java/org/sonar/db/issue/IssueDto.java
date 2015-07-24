@@ -341,6 +341,7 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
+  @CheckForNull
   public String getAssignee() {
     return assignee;
   }
@@ -350,6 +351,7 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
+  @CheckForNull
   public String getAuthorLogin() {
     return authorLogin;
   }
@@ -359,6 +361,7 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
+  @CheckForNull
   public String getIssueAttributes() {
     return issueAttributes;
   }

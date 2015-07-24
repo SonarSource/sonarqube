@@ -113,7 +113,7 @@ public class DebtModelBackup {
       }
 
       List<RuleDebt> rules = newArrayList();
-      for (RuleDto rule : dbClient.ruleDao().selectEnabledAndNonManual(session)) {
+      for (RuleDto rule : dbClient.deprecatedRuleDao().selectEnabledAndNonManual(session)) {
         if (languageKey == null || languageKey.equals(rule.getLanguage())) {
           RuleDebt ruleDebt = toRuleDebt(rule, debtModel);
           if (ruleDebt != null) {
@@ -140,7 +140,7 @@ public class DebtModelBackup {
       List<CharacteristicDto> allCharacteristicDtos = restoreCharacteristics(session, loadModelFromPlugin(DebtModelPluginRepository.DEFAULT_MODEL), updateDate);
 
       // Restore rules
-      List<RuleDto> ruleDtos = dbClient.ruleDao().selectEnabledAndNonManual(session);
+      List<RuleDto> ruleDtos = dbClient.deprecatedRuleDao().selectEnabledAndNonManual(session);
       if (!ruleDtos.isEmpty()) {
 
         // Load default rule definitions
@@ -190,7 +190,7 @@ public class DebtModelBackup {
       rule.setRemediationCoefficient(null);
       rule.setRemediationOffset(null);
       rule.setUpdatedAt(updateDate);
-      dbClient.ruleDao().update(session, rule);
+      dbClient.deprecatedRuleDao().update(session, rule);
     }
   }
 
@@ -303,7 +303,7 @@ public class DebtModelBackup {
   }
 
   private List<RuleDto> rules(@Nullable String languageKey, DbSession session) {
-    List<RuleDto> rules = dbClient.ruleDao().selectEnabledAndNonManual(session);
+    List<RuleDto> rules = dbClient.deprecatedRuleDao().selectEnabledAndNonManual(session);
     if (languageKey == null) {
       return rules;
     } else {

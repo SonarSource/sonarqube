@@ -207,7 +207,7 @@ public class DebtModelOperations {
 
   private void disableSubCharacteristic(CharacteristicDto subCharacteristic, Date updateDate, DbSession session) {
     // Disable debt on all rules (even REMOVED ones, in order to have no issue if they are reactivated) linked to the sub characteristic
-    disableRulesDebt(dbClient.ruleDao().selectRulesByDebtSubCharacteristicId(session, subCharacteristic.getId()), subCharacteristic.getId(), updateDate, session);
+    disableRulesDebt(dbClient.deprecatedRuleDao().selectRulesByDebtSubCharacteristicId(session, subCharacteristic.getId()), subCharacteristic.getId(), updateDate, session);
     disableCharacteristic(subCharacteristic, updateDate, session);
   }
 
@@ -232,7 +232,7 @@ public class DebtModelOperations {
         ruleDto.setDefaultRemediationCoefficient(null);
         ruleDto.setDefaultRemediationOffset(null);
       }
-      dbClient.ruleDao().update(session, ruleDto);
+      dbClient.deprecatedRuleDao().update(session, ruleDto);
     }
   }
 

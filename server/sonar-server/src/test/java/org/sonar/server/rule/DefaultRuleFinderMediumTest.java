@@ -65,7 +65,7 @@ public class DefaultRuleFinderMediumTest {
   public static void setupClass() {
     tester.clearDbAndIndexes();
     DbSession session = tester.get(DbClient.class).openSession(false);
-    tester.get(DbClient.class).ruleDao().insert(session,
+    tester.get(DbClient.class).deprecatedRuleDao().insert(session,
       new RuleDto()
         .setName("Check Header")
         .setConfigKey("Checker/Treewalker/HeaderCheck")

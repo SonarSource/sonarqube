@@ -98,7 +98,7 @@ public class IssueDaoTest {
   public void selectByKeyOrFail() {
     dbTester.prepareDbUnit(getClass(), "shared.xml", "get_by_key.xml");
 
-    IssueDto issue = dao.selectByKeyOrFail(dbTester.getSession(), "I1");
+    IssueDto issue = dao.selectOrFailByKey(dbTester.getSession(), "I1");
     assertThat(issue.getKee()).isEqualTo("I1");
     assertThat(issue.getId()).isEqualTo(1L);
     assertThat(issue.getComponentUuid()).isEqualTo("CDEF");
@@ -135,7 +135,7 @@ public class IssueDaoTest {
 
     dbTester.prepareDbUnit(getClass(), "shared.xml", "get_by_key.xml");
 
-    dao.selectByKeyOrFail(dbTester.getSession(), "DOES_NOT_EXIST");
+    dao.selectOrFailByKey(dbTester.getSession(), "DOES_NOT_EXIST");
   }
 
   @Test

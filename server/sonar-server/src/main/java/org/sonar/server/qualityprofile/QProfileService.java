@@ -221,7 +221,7 @@ public class QProfileService {
       Result<QProfileActivity> result = new Result<>(response);
       for (SearchHit hit : response.getHits().getHits()) {
         QProfileActivity profileActivity = new QProfileActivity(hit.getSource());
-        RuleDto ruleDto = db.ruleDao().getNullableByKey(session, profileActivity.ruleKey());
+        RuleDto ruleDto = db.deprecatedRuleDao().getNullableByKey(session, profileActivity.ruleKey());
         profileActivity.ruleName(ruleDto != null ? ruleDto.getName() : null);
 
         String login = profileActivity.getLogin();

@@ -348,8 +348,8 @@ public class QProfileFactoryMediumTest {
     // create pre-defined rules
     RuleDto xooRule1 = RuleTesting.newXooX1();
     RuleDto xooRule2 = RuleTesting.newXooX2();
-    db.ruleDao().insert(dbSession, xooRule1, xooRule2);
-    db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
+    db.deprecatedRuleDao().insert(dbSession, xooRule1, xooRule2);
+    db.deprecatedRuleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
     dbSession.commit();
     dbSession.clearCache();

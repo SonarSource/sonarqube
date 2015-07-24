@@ -40,7 +40,7 @@ public class RuleCacheLoader implements CacheLoader<RuleKey, Rule> {
   public Rule load(RuleKey key) {
     DbSession session = dbClient.openSession(false);
     try {
-      RuleDto dto = dbClient.ruleDao().getNullableByKey(session, key);
+      RuleDto dto = dbClient.deprecatedRuleDao().getNullableByKey(session, key);
       if (dto != null) {
         return new RuleImpl(dto);
       }

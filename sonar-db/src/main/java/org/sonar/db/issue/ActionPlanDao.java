@@ -20,15 +20,15 @@
 
 package org.sonar.db.issue;
 
-import com.google.common.collect.Lists;
+import com.google.common.base.Function;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnull;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
+import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 public class ActionPlanDao implements Dao {
 
@@ -78,20 +78,28 @@ public class ActionPlanDao implements Dao {
   }
 
   public List<ActionPlanDto> selectByKeys(Collection<String> keys) {
-    if (keys.isEmpty()) {
-      return Collections.emptyList();
-    }
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
-      List<ActionPlanDto> dtosList = newArrayList();
-      List<List<String>> keysPartition = Lists.partition(newArrayList(keys), 1000);
-      for (List<String> partition : keysPartition) {
-        List<ActionPlanDto> dtos = session.getMapper(ActionPlanMapper.class).findByKeys(partition);
-        dtosList.addAll(dtos);
-      }
-      return dtosList;
+      return selectByKeys(session, keys);
     } finally {
       MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<ActionPlanDto> selectByKeys(DbSession dbSession, Collection<String> keys) {
+    return DatabaseUtils.executeLargeInputs(keys, new SelectByKeys(dbSession.getMapper(ActionPlanMapper.class)));
+  }
+
+  private static class SelectByKeys implements Function<List<String>, List<ActionPlanDto>> {
+    private final ActionPlanMapper mapper;
+
+    private SelectByKeys(ActionPlanMapper mapper) {
+      this.mapper = mapper;
+    }
+
+    @Override
+    public List<ActionPlanDto> apply(@Nonnull List<String> partitionOfKeys) {
+      return mapper.findByKeys(partitionOfKeys);
     }
   }
 

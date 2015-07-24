@@ -57,6 +57,6 @@ public class DbClientTest {
     // DAO
     assertThat(client.qualityProfileDao()).isSameAs(qualityProfileDao);
     assertThat(client.activeRuleDao()).isSameAs(activeRuleDao);
-    assertThat(client.ruleDao()).isSameAs(ruleDao);
+    assertThat(client.deprecatedRuleDao()).isSameAs(ruleDao);
   }
 }

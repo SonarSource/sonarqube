@@ -36,6 +36,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.test.DbTests;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -87,7 +88,7 @@ public class UserDaoTest {
   public void selectUsersByLogins() {
     db.prepareDbUnit(getClass(), "selectUsersByLogins.xml");
 
-    Collection<UserDto> users = underTest.selectUsersByLogins(Arrays.asList("marius", "inactive_user", "other"));
+    Collection<UserDto> users = underTest.selectByLogins(asList("marius", "inactive_user", "other"));
     assertThat(users).hasSize(2);
     assertThat(users).extracting("login").containsOnly("marius", "inactive_user");
   }
@@ -97,7 +98,7 @@ public class UserDaoTest {
     db.truncateTables();
 
     // no need to access db
-    Collection<UserDto> users = underTest.selectUsersByLogins(Collections.<String>emptyList());
+    Collection<UserDto> users = underTest.selectByLogins(Collections.<String>emptyList());
     assertThat(users).isEmpty();
   }
 

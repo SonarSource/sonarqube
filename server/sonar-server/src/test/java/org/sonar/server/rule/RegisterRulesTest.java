@@ -79,9 +79,9 @@ public class RegisterRulesTest {
     execute(new FakeRepositoryV1());
 
     // verify db
-    assertThat(dbClient.ruleDao().selectAll(dbTester.getSession())).hasSize(2);
+    assertThat(dbClient.deprecatedRuleDao().selectAll(dbTester.getSession())).hasSize(2);
     RuleKey ruleKey1 = RuleKey.of("fake", "rule1");
-    RuleDto rule1 = dbClient.ruleDao().getNullableByKey(dbTester.getSession(), ruleKey1);
+    RuleDto rule1 = dbClient.deprecatedRuleDao().getNullableByKey(dbTester.getSession(), ruleKey1);
     assertThat(rule1.getName()).isEqualTo("One");
     assertThat(rule1.getDescription()).isEqualTo("Description of One");
     assertThat(rule1.getSeverityString()).isEqualTo(Severity.BLOCKER);
@@ -93,7 +93,7 @@ public class RegisterRulesTest {
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE1);
     // TODO check characteristic and remediation function
 
-    List<RuleParamDto> params = dbClient.ruleDao().selectRuleParamsByRuleKey(dbTester.getSession(), ruleKey1);
+    List<RuleParamDto> params = dbClient.deprecatedRuleDao().selectRuleParamsByRuleKey(dbTester.getSession(), ruleKey1);
     assertThat(params).hasSize(2);
     RuleParamDto param = getParam(params, "param1");
     assertThat(param.getDescription()).isEqualTo("parameter one");
@@ -103,13 +103,13 @@ public class RegisterRulesTest {
   @Test
   public void do_not_update_rules_when_no_changes() {
     execute(new FakeRepositoryV1());
-    assertThat(dbClient.ruleDao().selectAll(dbTester.getSession())).hasSize(2);
+    assertThat(dbClient.deprecatedRuleDao().selectAll(dbTester.getSession())).hasSize(2);
 
     when(system.now()).thenReturn(DATE2.getTime());
     execute(new FakeRepositoryV1());
 
     RuleKey ruleKey1 = RuleKey.of("fake", "rule1");
-    RuleDto rule1 = dbClient.ruleDao().getNullableByKey(dbTester.getSession(), ruleKey1);
+    RuleDto rule1 = dbClient.deprecatedRuleDao().getNullableByKey(dbTester.getSession(), ruleKey1);
     assertThat(rule1.getCreatedAt()).isEqualTo(DATE1);
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE1);
   }
@@ -117,22 +117,22 @@ public class RegisterRulesTest {
   @Test
   public void update_and_remove_rules_on_changes() {
     execute(new FakeRepositoryV1());
-    assertThat(dbClient.ruleDao().selectAll(dbTester.getSession())).hasSize(2);
+    assertThat(dbClient.deprecatedRuleDao().selectAll(dbTester.getSession())).hasSize(2);
 
     // user adds tags and sets markdown note
     RuleKey ruleKey1 = RuleKey.of("fake", "rule1");
-    RuleDto rule1 = dbClient.ruleDao().getNullableByKey(dbTester.getSession(), ruleKey1);
+    RuleDto rule1 = dbClient.deprecatedRuleDao().getNullableByKey(dbTester.getSession(), ruleKey1);
     rule1.setTags(Sets.newHashSet("usertag1", "usertag2"));
     rule1.setNoteData("user *note*");
     rule1.setNoteUserLogin("marius");
-    dbClient.ruleDao().update(dbTester.getSession(), rule1);
+    dbClient.deprecatedRuleDao().update(dbTester.getSession(), rule1);
     dbTester.getSession().commit();
 
     when(system.now()).thenReturn(DATE2.getTime());
     execute(new FakeRepositoryV2());
 
     // rule1 has been updated
-    rule1 = dbClient.ruleDao().getNullableByKey(dbTester.getSession(), ruleKey1);
+    rule1 = dbClient.deprecatedRuleDao().getNullableByKey(dbTester.getSession(), ruleKey1);
     assertThat(rule1.getName()).isEqualTo("One v2");
     assertThat(rule1.getDescription()).isEqualTo("Description of One v2");
     assertThat(rule1.getSeverityString()).isEqualTo(Severity.INFO);
@@ -146,19 +146,19 @@ public class RegisterRulesTest {
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE2);
 
     // TODO check characteristic and remediation function
-    List<RuleParamDto> params = dbClient.ruleDao().selectRuleParamsByRuleKey(dbTester.getSession(), ruleKey1);
+    List<RuleParamDto> params = dbClient.deprecatedRuleDao().selectRuleParamsByRuleKey(dbTester.getSession(), ruleKey1);
     assertThat(params).hasSize(2);
     RuleParamDto param = getParam(params, "param1");
     assertThat(param.getDescription()).isEqualTo("parameter one v2");
     assertThat(param.getDefaultValue()).isEqualTo("default1 v2");
 
     // rule2 has been removed -> status set to REMOVED but db row is not deleted
-    RuleDto rule2 = dbClient.ruleDao().getNullableByKey(dbTester.getSession(), RuleKey.of("fake", "rule2"));
+    RuleDto rule2 = dbClient.deprecatedRuleDao().getNullableByKey(dbTester.getSession(), RuleKey.of("fake", "rule2"));
     assertThat(rule2.getStatus()).isEqualTo(RuleStatus.REMOVED);
     assertThat(rule2.getUpdatedAt()).isEqualTo(DATE2);
 
     // rule3 has been created
-    RuleDto rule3 = dbClient.ruleDao().getNullableByKey(dbTester.getSession(), RuleKey.of("fake", "rule3"));
+    RuleDto rule3 = dbClient.deprecatedRuleDao().getNullableByKey(dbTester.getSession(), RuleKey.of("fake", "rule3"));
     assertThat(rule3).isNotNull();
     assertThat(rule3.getStatus()).isEqualTo(RuleStatus.READY);
   }
@@ -166,20 +166,20 @@ public class RegisterRulesTest {
   @Test
   public void do_not_update_already_removed_rules() {
     execute(new FakeRepositoryV1());
-    assertThat(dbClient.ruleDao().selectAll(dbTester.getSession())).hasSize(2);
+    assertThat(dbClient.deprecatedRuleDao().selectAll(dbTester.getSession())).hasSize(2);
 
-    RuleDto rule2 = dbClient.ruleDao().getByKey(dbTester.getSession(), RuleKey.of("fake", "rule2"));
+    RuleDto rule2 = dbClient.deprecatedRuleDao().getByKey(dbTester.getSession(), RuleKey.of("fake", "rule2"));
     assertThat(rule2.getStatus()).isEqualTo(RuleStatus.READY);
 
     when(system.now()).thenReturn(DATE2.getTime());
     execute(new FakeRepositoryV2());
 
     // On MySQL, need to update a rule otherwise rule2 will be seen as READY, but why ???
-    dbClient.ruleDao().update(dbTester.getSession(), dbClient.ruleDao().getByKey(dbTester.getSession(), RuleKey.of("fake", "rule1")));
+    dbClient.deprecatedRuleDao().update(dbTester.getSession(), dbClient.deprecatedRuleDao().getByKey(dbTester.getSession(), RuleKey.of("fake", "rule1")));
     dbTester.getSession().commit();
 
     // rule2 is removed
-    rule2 = dbClient.ruleDao().getNullableByKey(dbTester.getSession(), RuleKey.of("fake", "rule2"));
+    rule2 = dbClient.deprecatedRuleDao().getNullableByKey(dbTester.getSession(), RuleKey.of("fake", "rule2"));
     assertThat(rule2.getStatus()).isEqualTo(RuleStatus.REMOVED);
 
     when(system.now()).thenReturn(DATE3.getTime());
@@ -187,7 +187,7 @@ public class RegisterRulesTest {
     dbTester.getSession().commit();
 
     // -> rule2 is still removed, but not update at DATE3
-    rule2 = dbClient.ruleDao().getNullableByKey(dbTester.getSession(), RuleKey.of("fake", "rule2"));
+    rule2 = dbClient.deprecatedRuleDao().getNullableByKey(dbTester.getSession(), RuleKey.of("fake", "rule2"));
     assertThat(rule2.getStatus()).isEqualTo(RuleStatus.REMOVED);
     assertThat(rule2.getUpdatedAt()).isEqualTo(DATE2);
   }
@@ -195,14 +195,14 @@ public class RegisterRulesTest {
   @Test
   public void mass_insert() {
     execute(new BigRepository());
-    assertThat(dbClient.ruleDao().selectAll(dbTester.getSession())).hasSize(BigRepository.SIZE);
-    assertThat(dbClient.ruleDao().selectAllRuleParams(dbTester.getSession())).hasSize(BigRepository.SIZE * 20);
+    assertThat(dbClient.deprecatedRuleDao().selectAll(dbTester.getSession())).hasSize(BigRepository.SIZE);
+    assertThat(dbClient.deprecatedRuleDao().selectAllRuleParams(dbTester.getSession())).hasSize(BigRepository.SIZE * 20);
   }
 
   @Test
   public void manage_repository_extensions() {
     execute(new FindbugsRepository(), new FbContribRepository());
-    List<RuleDto> rules = dbClient.ruleDao().selectAll(dbTester.getSession());
+    List<RuleDto> rules = dbClient.deprecatedRuleDao().selectAll(dbTester.getSession());
     assertThat(rules).hasSize(2);
     for (RuleDto rule : rules) {
       assertThat(rule.getRepositoryKey()).isEqualTo("findbugs");
