@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ SonarQube, open source software quality management tool.
+  ~ Copyright (C) 2008-2014 SonarSource
+  ~ mailto:contact AT sonarsource DOT com
+  ~
+  ~ SonarQube is free software; you can redistribute it and/or
+  ~ modify it under the terms of the GNU Lesser General Public
+  ~ License as published by the Free Software Foundation; either
+  ~ version 3 of the License, or (at your option) any later version.
+  ~
+  ~ SonarQube is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License
+  ~ along with this program; if not, write to the Free Software Foundation,
+  ~ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>list_widget_sort</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+    <tbody>
+    <tr>
+	<td>storeEval</td>
+	<td>'sort_widget_'+(new Date()).getTime()</td>
+	<td>FILTER_NAME</td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sonar/sessions/logout</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sonar/sessions/new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>login</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>password</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>name=commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sonar/measures</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>class=navigator-filters</td>
+	<td>*More Criteria*</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>name=qualifiers[]</td>
+	<td>Files</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>class=navigator-filter-submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=save-as</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>save-as-filter-form</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name</td>
+	<td>${FILTER_NAME}</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=save-as-submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>window.location.pathname.split('/').last()</td>
+	<td>FILTER_ID</td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sonar/widget?id=measure_filter_list&amp;filter=${FILTER_ID}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>block_1</td>
+	<td>*Name*LOC*</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>block_1</td>
+	<td>*a1/HelloA1.xoo*a2/HelloA2.xoo*b1/HelloB1.xoo*b2/HelloB2.xoo*</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=LOC</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>block_1</td>
+	<td>*a2/HelloA2.xoo*a1/HelloA1.xoo*b1/HelloB1.xoo*b2/HelloB2.xoo*</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=LOC</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>block_1</td>
+	<td>*HelloA1*HelloB1*HelloB2*HelloA2*</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

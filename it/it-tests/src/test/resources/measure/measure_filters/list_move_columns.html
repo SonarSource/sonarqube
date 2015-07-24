@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>move_columns</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+    <tbody>
+    <tr>
+        <td>open</td>
+        <td>/sonar/measures</td>
+        <td></td>
+    </tr>
+    <tr>
+      <td>waitForElementPresent</td>
+      <td>name=qualifiers[]</td>
+      <td></td>
+    </tr>
+    <tr>
+        <td>select</td>
+        <td>name=qualifiers[]</td>
+        <td>Files</td>
+    </tr>
+    <tr>
+        <td>clickAndWait</td>
+        <td>class=navigator-filter-submit</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>clickAndWait</td>
+        <td>id=change-display</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>assertText</td>
+        <td>measures-table</td>
+        <td>*Name*Last Analysis*LOC*</td>
+    </tr>
+    <tr>
+        <td>click</td>
+        <td>left-date</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>waitForText</td>
+        <td>measures-table</td>
+        <td>*Last Analysis*Name*LOC*</td>
+    </tr>
+    <tr>
+        <td>click</td>
+        <td>right-name</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>waitForText</td>
+        <td>measures-table</td>
+        <td>*Last Analysis*LOC*Name*</td>
+    </tr>
+    <tr>
+        <td>clickAndWait</td>
+        <td>id=exit-edit</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>assertText</td>
+        <td>measures-table</td>
+        <td>*Last Analysis*LOC*Name*</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
