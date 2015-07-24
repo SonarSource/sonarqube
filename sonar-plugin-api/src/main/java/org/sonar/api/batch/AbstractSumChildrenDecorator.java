@@ -19,19 +19,20 @@
  */
 package org.sonar.api.batch;
 
+import java.util.List;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasureUtils;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 
-import java.util.List;
-
 /**
  * Sum measures of child resources.
  *
  * @since 1.10
+ * @deprecated since 5.2 there's no more decorator on batch side
  */
+@Deprecated
 public abstract class AbstractSumChildrenDecorator implements Decorator {
 
 

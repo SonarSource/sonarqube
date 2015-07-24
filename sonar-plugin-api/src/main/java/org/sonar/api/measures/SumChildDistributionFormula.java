@@ -19,17 +19,18 @@
  */
 package org.sonar.api.measures;
 
-import org.sonar.api.resources.Scopes;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import org.sonar.api.resources.Scopes;
 
 /**
  * @since 2.0
  *
  * Used to consolidate a distribution measure throughout the resource tree
+ * @deprecated since 5.2 decorators are no more executed on batch side
  */
+@Deprecated
 public class SumChildDistributionFormula implements Formula {
 
   private String minimumScopeToPersist= Scopes.FILE;

@@ -24,7 +24,9 @@ import java.util.List;
 
 /**
  * @since 2.0
+ * @deprecated since 5.2 decorators are no more executed on batch side
  */
+@Deprecated
 public class WeightedMeanAggregationFormula implements Formula {
 
   private Metric weightingMetric;

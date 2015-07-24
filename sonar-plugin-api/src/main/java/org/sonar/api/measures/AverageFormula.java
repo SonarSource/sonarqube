@@ -31,7 +31,9 @@ import static com.google.common.collect.Lists.newArrayList;
  * For example: to compute the metric "complexity by file", the main metric (A) is "complexity" and the other metric (B) is "file".
  *
  * @since 3.0
+ * @deprecated since 5.2 decorators are no more executed on batch side
  */
+@Deprecated
 public class AverageFormula implements Formula {
 
   private Metric mainMetric;

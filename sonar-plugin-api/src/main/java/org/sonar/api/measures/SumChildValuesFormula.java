@@ -24,7 +24,9 @@ import java.util.List;
 
 /**
  * @since 1.11
+ * @deprecated since 5.2 decorators are no more executed on batch side
  */
+@Deprecated
 public class SumChildValuesFormula implements Formula {
 
   private boolean saveZeroIfNoChildValues;
