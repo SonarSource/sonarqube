@@ -43,6 +43,11 @@ public class RuleRepositoryRule extends ExternalResource implements RuleReposito
     return rule;
   }
 
+  @Override
+  public boolean hasKey(RuleKey key) {
+    return rulesByKey.containsKey(key);
+  }
+
   public DumbRule add(RuleKey key) {
     DumbRule rule = new DumbRule(key);
     rulesByKey.put(key, rule);

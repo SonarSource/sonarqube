@@ -25,4 +25,5 @@ public interface RuleRepository {
 
   Rule getByKey(RuleKey key);
 
+  boolean hasKey(RuleKey key);
 }

@@ -34,4 +34,9 @@ public class RuleRepositoryImpl implements RuleRepository {
   public Rule getByKey(RuleKey key) {
     return cache.get(key);
   }
+
+  @Override
+  public boolean hasKey(RuleKey key) {
+    return cache.getNullable(key) != null;
+  }
 }
