@@ -1,0 +1,81 @@
+// SonarQube, open source software quality management tool.
+// Copyright (C) 2008-2015 SonarSource
+// mailto:contact AT sonarsource DOT com
+//
+// SonarQube is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+//
+// SonarQube is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+syntax = "proto2";
+
+package sonarqube.ws;
+
+option java_package = "org.sonarqube.ws";
+option java_outer_classname = "Common";
+option optimize_for = SPEED;
+
+message Paging {
+  optional int32 page_index = 1;
+  optional int32 page_size = 2;
+  optional int32 total = 3;
+  optional int32 pages = 4;
+}
+
+message Facet {
+  // kind of key
+  optional string property = 1;
+  repeated FacetValue values = 2;
+}
+
+message FacetValue {
+  optional string val = 1;
+  optional int64 count = 2;
+}
+
+message Component {
+  optional string uuid = 1;
+  optional string key = 2;
+  optional int32 id = 3;
+  optional bool enabled = 4;
+  optional string qualifier = 5;
+  optional string name = 6;
+  optional string longName = 7;
+  optional string path = 8;
+  optional int32 projectId = 9;
+  optional int32 subProjectId = 10;
+}
+
+message Rule {
+  optional string key = 1;
+  optional string name = 2;
+  optional string lang = 3;
+  // TODO what's the format ?
+  optional string desc = 4;
+  optional RuleStatus status = 5;
+  // TODO missing 'lang'
+  optional string langName = 6;
+}
+
+enum RuleStatus {
+  BETA = 0;
+  DEPRECATED = 1;
+  READY = 2;
+  REMOVED = 3;
+}
+
+message User {
+  optional string login = 1;
+  optional string name = 2;
+  optional string email = 3;
+  optional bool active = 4;
+}
