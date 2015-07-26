@@ -20,7 +20,6 @@
 package org.sonar.core.util;
 
 import java.io.File;
-import java.util.Arrays;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -85,17 +84,17 @@ public class ProtobufTest {
   public void write_and_read_streams() throws Exception {
     File file = temp.newFile();
 
-    Fake item1 = Fake.newBuilder().setKey("one").setLine(1).build();
-    Fake item2 = Fake.newBuilder().setKey("two").build();
+    Fake item1 = Fake.newBuilder().setAString("one").setAnInt(1).build();
+    Fake item2 = Fake.newBuilder().setAString("two").build();
     Protobuf.writeStream(asList(item1, item2), file, false);
 
     CloseableIterator<Fake> it = Protobuf.readStream(file, Fake.PARSER);
     Fake read = it.next();
-    assertThat(read.getKey()).isEqualTo("one");
-    assertThat(read.getLine()).isEqualTo(1);
+    assertThat(read.getAString()).isEqualTo("one");
+    assertThat(read.getAnInt()).isEqualTo(1);
     read = it.next();
-    assertThat(read.getKey()).isEqualTo("two");
-    assertThat(read.hasLine()).isFalse();
+    assertThat(read.getAString()).isEqualTo("two");
+    assertThat(read.hasAnInt()).isFalse();
     assertThat(it.hasNext()).isFalse();
   }
 

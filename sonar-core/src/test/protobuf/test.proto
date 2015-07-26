@@ -23,6 +23,23 @@ option java_package = "org.sonar.core.test";
 option optimize_for = SPEED;
 
 message Fake {
-    optional string key = 1;
-    optional int32 line = 2;
+    optional string aString = 1;
+    optional int32 anInt = 2;
+    optional int64 aLong = 3;
+    optional double aDouble = 4;
+    optional bool aBoolean = 5;
+    optional FakeEnum anEnum = 6;
+    optional bytes someBytes = 7;
+    repeated string anArray = 8;
+    optional NestedFake aNestedMessage = 9;
+}
+
+enum FakeEnum {
+  BLUE = 0;
+  RED = 1;
+  GREEN = 2;
+}
+
+message NestedFake {
+  optional string label = 1;
 }

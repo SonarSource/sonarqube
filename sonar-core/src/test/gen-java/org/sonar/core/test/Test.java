@@ -8,32 +8,200 @@ public final class Test {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
+  /**
+   * Protobuf enum {@code FakeEnum}
+   */
+  public enum FakeEnum
+      implements com.google.protobuf.ProtocolMessageEnum {
+    /**
+     * <code>BLUE = 0;</code>
+     */
+    BLUE(0, 0),
+    /**
+     * <code>RED = 1;</code>
+     */
+    RED(1, 1),
+    /**
+     * <code>GREEN = 2;</code>
+     */
+    GREEN(2, 2),
+    ;
+
+    /**
+     * <code>BLUE = 0;</code>
+     */
+    public static final int BLUE_VALUE = 0;
+    /**
+     * <code>RED = 1;</code>
+     */
+    public static final int RED_VALUE = 1;
+    /**
+     * <code>GREEN = 2;</code>
+     */
+    public static final int GREEN_VALUE = 2;
+
+
+    public final int getNumber() { return value; }
+
+    public static FakeEnum valueOf(int value) {
+      switch (value) {
+        case 0: return BLUE;
+        case 1: return RED;
+        case 2: return GREEN;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<FakeEnum>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static com.google.protobuf.Internal.EnumLiteMap<FakeEnum>
+        internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<FakeEnum>() {
+            public FakeEnum findValueByNumber(int number) {
+              return FakeEnum.valueOf(number);
+            }
+          };
+
+    public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+      return getDescriptor().getValues().get(index);
+    }
+    public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+      return getDescriptor();
+    }
+    public static final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+      return org.sonar.core.test.Test.getDescriptor().getEnumTypes().get(0);
+    }
+
+    private static final FakeEnum[] VALUES = values();
+
+    public static FakeEnum valueOf(
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+      if (desc.getType() != getDescriptor()) {
+        throw new java.lang.IllegalArgumentException(
+          "EnumValueDescriptor is not for this type.");
+      }
+      return VALUES[desc.getIndex()];
+    }
+
+    private final int index;
+    private final int value;
+
+    private FakeEnum(int index, int value) {
+      this.index = index;
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:FakeEnum)
+  }
+
   public interface FakeOrBuilder extends
       // @@protoc_insertion_point(interface_extends:Fake)
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional string key = 1;</code>
+     * <code>optional string aString = 1;</code>
      */
-    boolean hasKey();
+    boolean hasAString();
     /**
-     * <code>optional string key = 1;</code>
+     * <code>optional string aString = 1;</code>
      */
-    java.lang.String getKey();
+    java.lang.String getAString();
     /**
-     * <code>optional string key = 1;</code>
+     * <code>optional string aString = 1;</code>
      */
     com.google.protobuf.ByteString
-        getKeyBytes();
+        getAStringBytes();
 
     /**
-     * <code>optional int32 line = 2;</code>
+     * <code>optional int32 anInt = 2;</code>
      */
-    boolean hasLine();
+    boolean hasAnInt();
     /**
-     * <code>optional int32 line = 2;</code>
+     * <code>optional int32 anInt = 2;</code>
      */
-    int getLine();
+    int getAnInt();
+
+    /**
+     * <code>optional int64 aLong = 3;</code>
+     */
+    boolean hasALong();
+    /**
+     * <code>optional int64 aLong = 3;</code>
+     */
+    long getALong();
+
+    /**
+     * <code>optional double aDouble = 4;</code>
+     */
+    boolean hasADouble();
+    /**
+     * <code>optional double aDouble = 4;</code>
+     */
+    double getADouble();
+
+    /**
+     * <code>optional bool aBoolean = 5;</code>
+     */
+    boolean hasABoolean();
+    /**
+     * <code>optional bool aBoolean = 5;</code>
+     */
+    boolean getABoolean();
+
+    /**
+     * <code>optional .FakeEnum anEnum = 6;</code>
+     */
+    boolean hasAnEnum();
+    /**
+     * <code>optional .FakeEnum anEnum = 6;</code>
+     */
+    org.sonar.core.test.Test.FakeEnum getAnEnum();
+
+    /**
+     * <code>optional bytes someBytes = 7;</code>
+     */
+    boolean hasSomeBytes();
+    /**
+     * <code>optional bytes someBytes = 7;</code>
+     */
+    com.google.protobuf.ByteString getSomeBytes();
+
+    /**
+     * <code>repeated string anArray = 8;</code>
+     */
+    com.google.protobuf.ProtocolStringList
+        getAnArrayList();
+    /**
+     * <code>repeated string anArray = 8;</code>
+     */
+    int getAnArrayCount();
+    /**
+     * <code>repeated string anArray = 8;</code>
+     */
+    java.lang.String getAnArray(int index);
+    /**
+     * <code>repeated string anArray = 8;</code>
+     */
+    com.google.protobuf.ByteString
+        getAnArrayBytes(int index);
+
+    /**
+     * <code>optional .NestedFake aNestedMessage = 9;</code>
+     */
+    boolean hasANestedMessage();
+    /**
+     * <code>optional .NestedFake aNestedMessage = 9;</code>
+     */
+    org.sonar.core.test.Test.NestedFake getANestedMessage();
+    /**
+     * <code>optional .NestedFake aNestedMessage = 9;</code>
+     */
+    org.sonar.core.test.Test.NestedFakeOrBuilder getANestedMessageOrBuilder();
   }
   /**
    * Protobuf type {@code Fake}
@@ -90,12 +258,65 @@ public final class Test {
             case 10: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000001;
-              key_ = bs;
+              aString_ = bs;
               break;
             }
             case 16: {
               bitField0_ |= 0x00000002;
-              line_ = input.readInt32();
+              anInt_ = input.readInt32();
+              break;
+            }
+            case 24: {
+              bitField0_ |= 0x00000004;
+              aLong_ = input.readInt64();
+              break;
+            }
+            case 33: {
+              bitField0_ |= 0x00000008;
+              aDouble_ = input.readDouble();
+              break;
+            }
+            case 40: {
+              bitField0_ |= 0x00000010;
+              aBoolean_ = input.readBool();
+              break;
+            }
+            case 48: {
+              int rawValue = input.readEnum();
+              org.sonar.core.test.Test.FakeEnum value = org.sonar.core.test.Test.FakeEnum.valueOf(rawValue);
+              if (value == null) {
+                unknownFields.mergeVarintField(6, rawValue);
+              } else {
+                bitField0_ |= 0x00000020;
+                anEnum_ = value;
+              }
+              break;
+            }
+            case 58: {
+              bitField0_ |= 0x00000040;
+              someBytes_ = input.readBytes();
+              break;
+            }
+            case 66: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              if (!((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
+                anArray_ = new com.google.protobuf.LazyStringArrayList();
+                mutable_bitField0_ |= 0x00000080;
+              }
+              anArray_.add(bs);
+              break;
+            }
+            case 74: {
+              org.sonar.core.test.Test.NestedFake.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000080) == 0x00000080)) {
+                subBuilder = aNestedMessage_.toBuilder();
+              }
+              aNestedMessage_ = input.readMessage(org.sonar.core.test.Test.NestedFake.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(aNestedMessage_);
+                aNestedMessage_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000080;
               break;
             }
           }
@@ -106,6 +327,9 @@ public final class Test {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
+        if (((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
+          anArray_ = anArray_.getUnmodifiableView();
+        }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
@@ -138,19 +362,19 @@ public final class Test {
     }
 
     private int bitField0_;
-    public static final int KEY_FIELD_NUMBER = 1;
-    private java.lang.Object key_;
+    public static final int ASTRING_FIELD_NUMBER = 1;
+    private java.lang.Object aString_;
     /**
-     * <code>optional string key = 1;</code>
+     * <code>optional string aString = 1;</code>
      */
-    public boolean hasKey() {
+    public boolean hasAString() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional string key = 1;</code>
+     * <code>optional string aString = 1;</code>
      */
-    public java.lang.String getKey() {
-      java.lang.Object ref = key_;
+    public java.lang.String getAString() {
+      java.lang.Object ref = aString_;
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
@@ -158,46 +382,178 @@ public final class Test {
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
-          key_ = s;
+          aString_ = s;
         }
         return s;
       }
     }
     /**
-     * <code>optional string key = 1;</code>
+     * <code>optional string aString = 1;</code>
      */
     public com.google.protobuf.ByteString
-        getKeyBytes() {
-      java.lang.Object ref = key_;
+        getAStringBytes() {
+      java.lang.Object ref = aString_;
       if (ref instanceof java.lang.String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        key_ = b;
+        aString_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
       }
     }
 
-    public static final int LINE_FIELD_NUMBER = 2;
-    private int line_;
+    public static final int ANINT_FIELD_NUMBER = 2;
+    private int anInt_;
     /**
-     * <code>optional int32 line = 2;</code>
+     * <code>optional int32 anInt = 2;</code>
      */
-    public boolean hasLine() {
+    public boolean hasAnInt() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>optional int32 line = 2;</code>
+     * <code>optional int32 anInt = 2;</code>
      */
-    public int getLine() {
-      return line_;
+    public int getAnInt() {
+      return anInt_;
+    }
+
+    public static final int ALONG_FIELD_NUMBER = 3;
+    private long aLong_;
+    /**
+     * <code>optional int64 aLong = 3;</code>
+     */
+    public boolean hasALong() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional int64 aLong = 3;</code>
+     */
+    public long getALong() {
+      return aLong_;
+    }
+
+    public static final int ADOUBLE_FIELD_NUMBER = 4;
+    private double aDouble_;
+    /**
+     * <code>optional double aDouble = 4;</code>
+     */
+    public boolean hasADouble() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    /**
+     * <code>optional double aDouble = 4;</code>
+     */
+    public double getADouble() {
+      return aDouble_;
+    }
+
+    public static final int ABOOLEAN_FIELD_NUMBER = 5;
+    private boolean aBoolean_;
+    /**
+     * <code>optional bool aBoolean = 5;</code>
+     */
+    public boolean hasABoolean() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>optional bool aBoolean = 5;</code>
+     */
+    public boolean getABoolean() {
+      return aBoolean_;
+    }
+
+    public static final int ANENUM_FIELD_NUMBER = 6;
+    private org.sonar.core.test.Test.FakeEnum anEnum_;
+    /**
+     * <code>optional .FakeEnum anEnum = 6;</code>
+     */
+    public boolean hasAnEnum() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    /**
+     * <code>optional .FakeEnum anEnum = 6;</code>
+     */
+    public org.sonar.core.test.Test.FakeEnum getAnEnum() {
+      return anEnum_;
+    }
+
+    public static final int SOMEBYTES_FIELD_NUMBER = 7;
+    private com.google.protobuf.ByteString someBytes_;
+    /**
+     * <code>optional bytes someBytes = 7;</code>
+     */
+    public boolean hasSomeBytes() {
+      return ((bitField0_ & 0x00000040) == 0x00000040);
+    }
+    /**
+     * <code>optional bytes someBytes = 7;</code>
+     */
+    public com.google.protobuf.ByteString getSomeBytes() {
+      return someBytes_;
+    }
+
+    public static final int ANARRAY_FIELD_NUMBER = 8;
+    private com.google.protobuf.LazyStringList anArray_;
+    /**
+     * <code>repeated string anArray = 8;</code>
+     */
+    public com.google.protobuf.ProtocolStringList
+        getAnArrayList() {
+      return anArray_;
+    }
+    /**
+     * <code>repeated string anArray = 8;</code>
+     */
+    public int getAnArrayCount() {
+      return anArray_.size();
+    }
+    /**
+     * <code>repeated string anArray = 8;</code>
+     */
+    public java.lang.String getAnArray(int index) {
+      return anArray_.get(index);
+    }
+    /**
+     * <code>repeated string anArray = 8;</code>
+     */
+    public com.google.protobuf.ByteString
+        getAnArrayBytes(int index) {
+      return anArray_.getByteString(index);
+    }
+
+    public static final int ANESTEDMESSAGE_FIELD_NUMBER = 9;
+    private org.sonar.core.test.Test.NestedFake aNestedMessage_;
+    /**
+     * <code>optional .NestedFake aNestedMessage = 9;</code>
+     */
+    public boolean hasANestedMessage() {
+      return ((bitField0_ & 0x00000080) == 0x00000080);
+    }
+    /**
+     * <code>optional .NestedFake aNestedMessage = 9;</code>
+     */
+    public org.sonar.core.test.Test.NestedFake getANestedMessage() {
+      return aNestedMessage_;
+    }
+    /**
+     * <code>optional .NestedFake aNestedMessage = 9;</code>
+     */
+    public org.sonar.core.test.Test.NestedFakeOrBuilder getANestedMessageOrBuilder() {
+      return aNestedMessage_;
     }
 
     private void initFields() {
-      key_ = "";
-      line_ = 0;
+      aString_ = "";
+      anInt_ = 0;
+      aLong_ = 0L;
+      aDouble_ = 0D;
+      aBoolean_ = false;
+      anEnum_ = org.sonar.core.test.Test.FakeEnum.BLUE;
+      someBytes_ = com.google.protobuf.ByteString.EMPTY;
+      anArray_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      aNestedMessage_ = org.sonar.core.test.Test.NestedFake.getDefaultInstance();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -213,10 +569,31 @@ public final class Test {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getKeyBytes());
+        output.writeBytes(1, getAStringBytes());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeInt32(2, line_);
+        output.writeInt32(2, anInt_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeInt64(3, aLong_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        output.writeDouble(4, aDouble_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeBool(5, aBoolean_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        output.writeEnum(6, anEnum_.getNumber());
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        output.writeBytes(7, someBytes_);
+      }
+      for (int i = 0; i < anArray_.size(); i++) {
+        output.writeBytes(8, anArray_.getByteString(i));
+      }
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+        output.writeMessage(9, aNestedMessage_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -229,11 +606,44 @@ public final class Test {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getKeyBytes());
+          .computeBytesSize(1, getAStringBytes());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(2, line_);
+          .computeInt32Size(2, anInt_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(3, aLong_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeDoubleSize(4, aDouble_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(5, aBoolean_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(6, anEnum_.getNumber());
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(7, someBytes_);
+      }
+      {
+        int dataSize = 0;
+        for (int i = 0; i < anArray_.size(); i++) {
+          dataSize += com.google.protobuf.CodedOutputStream
+            .computeBytesSizeNoTag(anArray_.getByteString(i));
+        }
+        size += dataSize;
+        size += 1 * getAnArrayList().size();
+      }
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(9, aNestedMessage_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -344,6 +754,7 @@ public final class Test {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getANestedMessageFieldBuilder();
         }
       }
       private static Builder create() {
@@ -352,10 +763,28 @@ public final class Test {
 
       public Builder clear() {
         super.clear();
-        key_ = "";
+        aString_ = "";
         bitField0_ = (bitField0_ & ~0x00000001);
-        line_ = 0;
+        anInt_ = 0;
         bitField0_ = (bitField0_ & ~0x00000002);
+        aLong_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000004);
+        aDouble_ = 0D;
+        bitField0_ = (bitField0_ & ~0x00000008);
+        aBoolean_ = false;
+        bitField0_ = (bitField0_ & ~0x00000010);
+        anEnum_ = org.sonar.core.test.Test.FakeEnum.BLUE;
+        bitField0_ = (bitField0_ & ~0x00000020);
+        someBytes_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000040);
+        anArray_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000080);
+        if (aNestedMessageBuilder_ == null) {
+          aNestedMessage_ = org.sonar.core.test.Test.NestedFake.getDefaultInstance();
+        } else {
+          aNestedMessageBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000100);
         return this;
       }
 
@@ -387,11 +816,44 @@ public final class Test {
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
           to_bitField0_ |= 0x00000001;
         }
-        result.key_ = key_;
+        result.aString_ = aString_;
         if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
           to_bitField0_ |= 0x00000002;
         }
-        result.line_ = line_;
+        result.anInt_ = anInt_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.aLong_ = aLong_;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000008;
+        }
+        result.aDouble_ = aDouble_;
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
+        }
+        result.aBoolean_ = aBoolean_;
+        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+          to_bitField0_ |= 0x00000020;
+        }
+        result.anEnum_ = anEnum_;
+        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+          to_bitField0_ |= 0x00000040;
+        }
+        result.someBytes_ = someBytes_;
+        if (((bitField0_ & 0x00000080) == 0x00000080)) {
+          anArray_ = anArray_.getUnmodifiableView();
+          bitField0_ = (bitField0_ & ~0x00000080);
+        }
+        result.anArray_ = anArray_;
+        if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
+          to_bitField0_ |= 0x00000080;
+        }
+        if (aNestedMessageBuilder_ == null) {
+          result.aNestedMessage_ = aNestedMessage_;
+        } else {
+          result.aNestedMessage_ = aNestedMessageBuilder_.build();
+        }
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -408,13 +870,41 @@ public final class Test {
 
       public Builder mergeFrom(org.sonar.core.test.Test.Fake other) {
         if (other == org.sonar.core.test.Test.Fake.getDefaultInstance()) return this;
-        if (other.hasKey()) {
+        if (other.hasAString()) {
           bitField0_ |= 0x00000001;
-          key_ = other.key_;
+          aString_ = other.aString_;
           onChanged();
         }
-        if (other.hasLine()) {
-          setLine(other.getLine());
+        if (other.hasAnInt()) {
+          setAnInt(other.getAnInt());
+        }
+        if (other.hasALong()) {
+          setALong(other.getALong());
+        }
+        if (other.hasADouble()) {
+          setADouble(other.getADouble());
+        }
+        if (other.hasABoolean()) {
+          setABoolean(other.getABoolean());
+        }
+        if (other.hasAnEnum()) {
+          setAnEnum(other.getAnEnum());
+        }
+        if (other.hasSomeBytes()) {
+          setSomeBytes(other.getSomeBytes());
+        }
+        if (!other.anArray_.isEmpty()) {
+          if (anArray_.isEmpty()) {
+            anArray_ = other.anArray_;
+            bitField0_ = (bitField0_ & ~0x00000080);
+          } else {
+            ensureAnArrayIsMutable();
+            anArray_.addAll(other.anArray_);
+          }
+          onChanged();
+        }
+        if (other.hasANestedMessage()) {
+          mergeANestedMessage(other.getANestedMessage());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -443,24 +933,24 @@ public final class Test {
       }
       private int bitField0_;
 
-      private java.lang.Object key_ = "";
+      private java.lang.Object aString_ = "";
       /**
-       * <code>optional string key = 1;</code>
+       * <code>optional string aString = 1;</code>
        */
-      public boolean hasKey() {
+      public boolean hasAString() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>optional string key = 1;</code>
+       * <code>optional string aString = 1;</code>
        */
-      public java.lang.String getKey() {
-        java.lang.Object ref = key_;
+      public java.lang.String getAString() {
+        java.lang.Object ref = aString_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
           if (bs.isValidUtf8()) {
-            key_ = s;
+            aString_ = s;
           }
           return s;
         } else {
@@ -468,87 +958,462 @@ public final class Test {
         }
       }
       /**
-       * <code>optional string key = 1;</code>
+       * <code>optional string aString = 1;</code>
        */
       public com.google.protobuf.ByteString
-          getKeyBytes() {
-        java.lang.Object ref = key_;
+          getAStringBytes() {
+        java.lang.Object ref = aString_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
-          key_ = b;
+          aString_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
       /**
-       * <code>optional string key = 1;</code>
+       * <code>optional string aString = 1;</code>
        */
-      public Builder setKey(
+      public Builder setAString(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
   bitField0_ |= 0x00000001;
-        key_ = value;
+        aString_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string key = 1;</code>
+       * <code>optional string aString = 1;</code>
        */
-      public Builder clearKey() {
+      public Builder clearAString() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        key_ = getDefaultInstance().getKey();
+        aString_ = getDefaultInstance().getAString();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string key = 1;</code>
+       * <code>optional string aString = 1;</code>
        */
-      public Builder setKeyBytes(
+      public Builder setAStringBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
   bitField0_ |= 0x00000001;
-        key_ = value;
+        aString_ = value;
         onChanged();
         return this;
       }
 
-      private int line_ ;
+      private int anInt_ ;
       /**
-       * <code>optional int32 line = 2;</code>
+       * <code>optional int32 anInt = 2;</code>
        */
-      public boolean hasLine() {
+      public boolean hasAnInt() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>optional int32 line = 2;</code>
+       * <code>optional int32 anInt = 2;</code>
        */
-      public int getLine() {
-        return line_;
+      public int getAnInt() {
+        return anInt_;
       }
       /**
-       * <code>optional int32 line = 2;</code>
+       * <code>optional int32 anInt = 2;</code>
        */
-      public Builder setLine(int value) {
+      public Builder setAnInt(int value) {
         bitField0_ |= 0x00000002;
-        line_ = value;
+        anInt_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional int32 line = 2;</code>
+       * <code>optional int32 anInt = 2;</code>
        */
-      public Builder clearLine() {
+      public Builder clearAnInt() {
         bitField0_ = (bitField0_ & ~0x00000002);
-        line_ = 0;
+        anInt_ = 0;
         onChanged();
         return this;
+      }
+
+      private long aLong_ ;
+      /**
+       * <code>optional int64 aLong = 3;</code>
+       */
+      public boolean hasALong() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional int64 aLong = 3;</code>
+       */
+      public long getALong() {
+        return aLong_;
+      }
+      /**
+       * <code>optional int64 aLong = 3;</code>
+       */
+      public Builder setALong(long value) {
+        bitField0_ |= 0x00000004;
+        aLong_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 aLong = 3;</code>
+       */
+      public Builder clearALong() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        aLong_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      private double aDouble_ ;
+      /**
+       * <code>optional double aDouble = 4;</code>
+       */
+      public boolean hasADouble() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>optional double aDouble = 4;</code>
+       */
+      public double getADouble() {
+        return aDouble_;
+      }
+      /**
+       * <code>optional double aDouble = 4;</code>
+       */
+      public Builder setADouble(double value) {
+        bitField0_ |= 0x00000008;
+        aDouble_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional double aDouble = 4;</code>
+       */
+      public Builder clearADouble() {
+        bitField0_ = (bitField0_ & ~0x00000008);
+        aDouble_ = 0D;
+        onChanged();
+        return this;
+      }
+
+      private boolean aBoolean_ ;
+      /**
+       * <code>optional bool aBoolean = 5;</code>
+       */
+      public boolean hasABoolean() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>optional bool aBoolean = 5;</code>
+       */
+      public boolean getABoolean() {
+        return aBoolean_;
+      }
+      /**
+       * <code>optional bool aBoolean = 5;</code>
+       */
+      public Builder setABoolean(boolean value) {
+        bitField0_ |= 0x00000010;
+        aBoolean_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool aBoolean = 5;</code>
+       */
+      public Builder clearABoolean() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        aBoolean_ = false;
+        onChanged();
+        return this;
+      }
+
+      private org.sonar.core.test.Test.FakeEnum anEnum_ = org.sonar.core.test.Test.FakeEnum.BLUE;
+      /**
+       * <code>optional .FakeEnum anEnum = 6;</code>
+       */
+      public boolean hasAnEnum() {
+        return ((bitField0_ & 0x00000020) == 0x00000020);
+      }
+      /**
+       * <code>optional .FakeEnum anEnum = 6;</code>
+       */
+      public org.sonar.core.test.Test.FakeEnum getAnEnum() {
+        return anEnum_;
+      }
+      /**
+       * <code>optional .FakeEnum anEnum = 6;</code>
+       */
+      public Builder setAnEnum(org.sonar.core.test.Test.FakeEnum value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        bitField0_ |= 0x00000020;
+        anEnum_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional .FakeEnum anEnum = 6;</code>
+       */
+      public Builder clearAnEnum() {
+        bitField0_ = (bitField0_ & ~0x00000020);
+        anEnum_ = org.sonar.core.test.Test.FakeEnum.BLUE;
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.ByteString someBytes_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>optional bytes someBytes = 7;</code>
+       */
+      public boolean hasSomeBytes() {
+        return ((bitField0_ & 0x00000040) == 0x00000040);
+      }
+      /**
+       * <code>optional bytes someBytes = 7;</code>
+       */
+      public com.google.protobuf.ByteString getSomeBytes() {
+        return someBytes_;
+      }
+      /**
+       * <code>optional bytes someBytes = 7;</code>
+       */
+      public Builder setSomeBytes(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000040;
+        someBytes_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bytes someBytes = 7;</code>
+       */
+      public Builder clearSomeBytes() {
+        bitField0_ = (bitField0_ & ~0x00000040);
+        someBytes_ = getDefaultInstance().getSomeBytes();
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.LazyStringList anArray_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      private void ensureAnArrayIsMutable() {
+        if (!((bitField0_ & 0x00000080) == 0x00000080)) {
+          anArray_ = new com.google.protobuf.LazyStringArrayList(anArray_);
+          bitField0_ |= 0x00000080;
+         }
+      }
+      /**
+       * <code>repeated string anArray = 8;</code>
+       */
+      public com.google.protobuf.ProtocolStringList
+          getAnArrayList() {
+        return anArray_.getUnmodifiableView();
+      }
+      /**
+       * <code>repeated string anArray = 8;</code>
+       */
+      public int getAnArrayCount() {
+        return anArray_.size();
+      }
+      /**
+       * <code>repeated string anArray = 8;</code>
+       */
+      public java.lang.String getAnArray(int index) {
+        return anArray_.get(index);
+      }
+      /**
+       * <code>repeated string anArray = 8;</code>
+       */
+      public com.google.protobuf.ByteString
+          getAnArrayBytes(int index) {
+        return anArray_.getByteString(index);
+      }
+      /**
+       * <code>repeated string anArray = 8;</code>
+       */
+      public Builder setAnArray(
+          int index, java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureAnArrayIsMutable();
+        anArray_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string anArray = 8;</code>
+       */
+      public Builder addAnArray(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureAnArrayIsMutable();
+        anArray_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string anArray = 8;</code>
+       */
+      public Builder addAllAnArray(
+          java.lang.Iterable<java.lang.String> values) {
+        ensureAnArrayIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, anArray_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string anArray = 8;</code>
+       */
+      public Builder clearAnArray() {
+        anArray_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000080);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated string anArray = 8;</code>
+       */
+      public Builder addAnArrayBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureAnArrayIsMutable();
+        anArray_.add(value);
+        onChanged();
+        return this;
+      }
+
+      private org.sonar.core.test.Test.NestedFake aNestedMessage_ = org.sonar.core.test.Test.NestedFake.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonar.core.test.Test.NestedFake, org.sonar.core.test.Test.NestedFake.Builder, org.sonar.core.test.Test.NestedFakeOrBuilder> aNestedMessageBuilder_;
+      /**
+       * <code>optional .NestedFake aNestedMessage = 9;</code>
+       */
+      public boolean hasANestedMessage() {
+        return ((bitField0_ & 0x00000100) == 0x00000100);
+      }
+      /**
+       * <code>optional .NestedFake aNestedMessage = 9;</code>
+       */
+      public org.sonar.core.test.Test.NestedFake getANestedMessage() {
+        if (aNestedMessageBuilder_ == null) {
+          return aNestedMessage_;
+        } else {
+          return aNestedMessageBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .NestedFake aNestedMessage = 9;</code>
+       */
+      public Builder setANestedMessage(org.sonar.core.test.Test.NestedFake value) {
+        if (aNestedMessageBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          aNestedMessage_ = value;
+          onChanged();
+        } else {
+          aNestedMessageBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000100;
+        return this;
+      }
+      /**
+       * <code>optional .NestedFake aNestedMessage = 9;</code>
+       */
+      public Builder setANestedMessage(
+          org.sonar.core.test.Test.NestedFake.Builder builderForValue) {
+        if (aNestedMessageBuilder_ == null) {
+          aNestedMessage_ = builderForValue.build();
+          onChanged();
+        } else {
+          aNestedMessageBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000100;
+        return this;
+      }
+      /**
+       * <code>optional .NestedFake aNestedMessage = 9;</code>
+       */
+      public Builder mergeANestedMessage(org.sonar.core.test.Test.NestedFake value) {
+        if (aNestedMessageBuilder_ == null) {
+          if (((bitField0_ & 0x00000100) == 0x00000100) &&
+              aNestedMessage_ != org.sonar.core.test.Test.NestedFake.getDefaultInstance()) {
+            aNestedMessage_ =
+              org.sonar.core.test.Test.NestedFake.newBuilder(aNestedMessage_).mergeFrom(value).buildPartial();
+          } else {
+            aNestedMessage_ = value;
+          }
+          onChanged();
+        } else {
+          aNestedMessageBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000100;
+        return this;
+      }
+      /**
+       * <code>optional .NestedFake aNestedMessage = 9;</code>
+       */
+      public Builder clearANestedMessage() {
+        if (aNestedMessageBuilder_ == null) {
+          aNestedMessage_ = org.sonar.core.test.Test.NestedFake.getDefaultInstance();
+          onChanged();
+        } else {
+          aNestedMessageBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000100);
+        return this;
+      }
+      /**
+       * <code>optional .NestedFake aNestedMessage = 9;</code>
+       */
+      public org.sonar.core.test.Test.NestedFake.Builder getANestedMessageBuilder() {
+        bitField0_ |= 0x00000100;
+        onChanged();
+        return getANestedMessageFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .NestedFake aNestedMessage = 9;</code>
+       */
+      public org.sonar.core.test.Test.NestedFakeOrBuilder getANestedMessageOrBuilder() {
+        if (aNestedMessageBuilder_ != null) {
+          return aNestedMessageBuilder_.getMessageOrBuilder();
+        } else {
+          return aNestedMessage_;
+        }
+      }
+      /**
+       * <code>optional .NestedFake aNestedMessage = 9;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonar.core.test.Test.NestedFake, org.sonar.core.test.Test.NestedFake.Builder, org.sonar.core.test.Test.NestedFakeOrBuilder> 
+          getANestedMessageFieldBuilder() {
+        if (aNestedMessageBuilder_ == null) {
+          aNestedMessageBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              org.sonar.core.test.Test.NestedFake, org.sonar.core.test.Test.NestedFake.Builder, org.sonar.core.test.Test.NestedFakeOrBuilder>(
+                  getANestedMessage(),
+                  getParentForChildren(),
+                  isClean());
+          aNestedMessage_ = null;
+        }
+        return aNestedMessageBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:Fake)
@@ -562,11 +1427,492 @@ public final class Test {
     // @@protoc_insertion_point(class_scope:Fake)
   }
 
+  public interface NestedFakeOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:NestedFake)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>optional string label = 1;</code>
+     */
+    boolean hasLabel();
+    /**
+     * <code>optional string label = 1;</code>
+     */
+    java.lang.String getLabel();
+    /**
+     * <code>optional string label = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getLabelBytes();
+  }
+  /**
+   * Protobuf type {@code NestedFake}
+   */
+  public static final class NestedFake extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:NestedFake)
+      NestedFakeOrBuilder {
+    // Use NestedFake.newBuilder() to construct.
+    private NestedFake(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private NestedFake(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final NestedFake defaultInstance;
+    public static NestedFake getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public NestedFake getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private NestedFake(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000001;
+              label_ = bs;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonar.core.test.Test.internal_static_NestedFake_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonar.core.test.Test.internal_static_NestedFake_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonar.core.test.Test.NestedFake.class, org.sonar.core.test.Test.NestedFake.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<NestedFake> PARSER =
+        new com.google.protobuf.AbstractParser<NestedFake>() {
+      public NestedFake parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new NestedFake(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<NestedFake> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    public static final int LABEL_FIELD_NUMBER = 1;
+    private java.lang.Object label_;
+    /**
+     * <code>optional string label = 1;</code>
+     */
+    public boolean hasLabel() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional string label = 1;</code>
+     */
+    public java.lang.String getLabel() {
+      java.lang.Object ref = label_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          label_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string label = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getLabelBytes() {
+      java.lang.Object ref = label_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        label_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private void initFields() {
+      label_ = "";
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeBytes(1, getLabelBytes());
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(1, getLabelBytes());
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static org.sonar.core.test.Test.NestedFake parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.core.test.Test.NestedFake parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.NestedFake parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonar.core.test.Test.NestedFake parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.NestedFake parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.core.test.Test.NestedFake parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.NestedFake parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonar.core.test.Test.NestedFake parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonar.core.test.Test.NestedFake parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonar.core.test.Test.NestedFake parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(org.sonar.core.test.Test.NestedFake prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code NestedFake}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:NestedFake)
+        org.sonar.core.test.Test.NestedFakeOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonar.core.test.Test.internal_static_NestedFake_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonar.core.test.Test.internal_static_NestedFake_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonar.core.test.Test.NestedFake.class, org.sonar.core.test.Test.NestedFake.Builder.class);
+      }
+
+      // Construct using org.sonar.core.test.Test.NestedFake.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        label_ = "";
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonar.core.test.Test.internal_static_NestedFake_descriptor;
+      }
+
+      public org.sonar.core.test.Test.NestedFake getDefaultInstanceForType() {
+        return org.sonar.core.test.Test.NestedFake.getDefaultInstance();
+      }
+
+      public org.sonar.core.test.Test.NestedFake build() {
+        org.sonar.core.test.Test.NestedFake result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonar.core.test.Test.NestedFake buildPartial() {
+        org.sonar.core.test.Test.NestedFake result = new org.sonar.core.test.Test.NestedFake(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.label_ = label_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonar.core.test.Test.NestedFake) {
+          return mergeFrom((org.sonar.core.test.Test.NestedFake)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonar.core.test.Test.NestedFake other) {
+        if (other == org.sonar.core.test.Test.NestedFake.getDefaultInstance()) return this;
+        if (other.hasLabel()) {
+          bitField0_ |= 0x00000001;
+          label_ = other.label_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonar.core.test.Test.NestedFake parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonar.core.test.Test.NestedFake) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.lang.Object label_ = "";
+      /**
+       * <code>optional string label = 1;</code>
+       */
+      public boolean hasLabel() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional string label = 1;</code>
+       */
+      public java.lang.String getLabel() {
+        java.lang.Object ref = label_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            label_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string label = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getLabelBytes() {
+        java.lang.Object ref = label_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          label_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string label = 1;</code>
+       */
+      public Builder setLabel(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        label_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string label = 1;</code>
+       */
+      public Builder clearLabel() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        label_ = getDefaultInstance().getLabel();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string label = 1;</code>
+       */
+      public Builder setLabelBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        label_ = value;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:NestedFake)
+    }
+
+    static {
+      defaultInstance = new NestedFake(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:NestedFake)
+  }
+
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_Fake_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_Fake_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_NestedFake_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_NestedFake_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -576,8 +1922,14 @@ public final class Test {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\ntest.proto\"!\n\004Fake\022\013\n\003key\030\001 \001(\t\022\014\n\004lin" +
-      "e\030\002 \001(\005B\027\n\023org.sonar.core.testH\001"
+      "\n\ntest.proto\"\274\001\n\004Fake\022\017\n\007aString\030\001 \001(\t\022\r" +
+      "\n\005anInt\030\002 \001(\005\022\r\n\005aLong\030\003 \001(\003\022\017\n\007aDouble\030" +
+      "\004 \001(\001\022\020\n\010aBoolean\030\005 \001(\010\022\031\n\006anEnum\030\006 \001(\0162" +
+      "\t.FakeEnum\022\021\n\tsomeBytes\030\007 \001(\014\022\017\n\007anArray" +
+      "\030\010 \003(\t\022#\n\016aNestedMessage\030\t \001(\0132\013.NestedF" +
+      "ake\"\033\n\nNestedFake\022\r\n\005label\030\001 \001(\t*(\n\010Fake" +
+      "Enum\022\010\n\004BLUE\020\000\022\007\n\003RED\020\001\022\t\n\005GREEN\020\002B\027\n\023or" +
+      "g.sonar.core.testH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -596,7 +1948,13 @@ public final class Test {
     internal_static_Fake_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Fake_descriptor,
-        new java.lang.String[] { "Key", "Line", });
+        new java.lang.String[] { "AString", "AnInt", "ALong", "ADouble", "ABoolean", "AnEnum", "SomeBytes", "AnArray", "ANestedMessage", });
+    internal_static_NestedFake_descriptor =
+      getDescriptor().getMessageTypes().get(1);
+    internal_static_NestedFake_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_NestedFake_descriptor,
+        new java.lang.String[] { "Label", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
