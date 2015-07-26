@@ -1,0 +1,78 @@
+// SonarQube, open source software quality management tool.
+// Copyright (C) 2008-2015 SonarSource
+// mailto:contact AT sonarsource DOT com
+//
+// SonarQube is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+//
+// SonarQube is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+syntax = "proto2";
+
+package sonarqube.ws.issues;
+
+import "ws-common.proto";
+
+option java_package = "org.sonarqube.ws";
+option java_outer_classname = "Issues";
+option optimize_for = SPEED;
+
+// Response of URL api/issues/search
+message Search {
+  // TODO errors
+  optional Paging paging = 1;
+  repeated Issue issues = 2;
+  repeated Facet facets = 3;
+  repeated Component projects = 4;
+  repeated Component components = 5;
+  repeated Rule rules = 6;
+  repeated User users = 7;
+}
+
+message Issue {
+  optional string key = 1;
+  optional string rule = 2;
+  optional string component = 3;
+  optional int32 componentId = 4;
+  optional string project = 5;
+  optional string subProject = 6;
+  optional int32 line = 7;
+  optional string resolution = 8;
+  optional string status = 9;
+  optional string message = 10;
+  optional string debt = 11;
+  optional string assignee = 12;
+  optional string reporter = 13;
+  optional string scmAuthor = 14;
+  optional string actionPlan = 15;
+  optional string actionPlanName = 16;
+  optional string attr = 17;
+  repeated string tags = 18;
+  repeated string transitions = 19;
+  repeated string actions = 20;
+  repeated Comment comments = 21;
+  optional string creationDate= 22;
+  optional string updateDate= 23;
+  optional string fUpdateAge= 24;
+  optional string closeDate= 25;
+}
+
+message Comment {
+  optional string key = 1;
+  optional string login = 2;
+  optional string email = 3;
+  optional string userName = 4;
+  optional string htmlText = 5;
+  optional string markdown = 6;
+  optional bool updatable = 7;
+  optional string createdAt = 8;
+}

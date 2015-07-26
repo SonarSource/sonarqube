@@ -20,6 +20,7 @@ function compile_protobuf {
 compile_protobuf "sonar-batch-protocol" "main"
 compile_protobuf "sonar-core" "test"
 compile_protobuf "sonar-db" "main"
+compile_protobuf "server/sonar-server" "main"
 
 
 
