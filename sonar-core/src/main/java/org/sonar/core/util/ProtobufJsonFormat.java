@@ -29,13 +29,13 @@ import org.sonar.api.utils.text.JsonWriter;
  * Converts a Protocol Buffers message to JSON. Unknown fields, binary fields, (deprecated) groups
  * and maps are not supported.
  */
-class ProtobufJsonFormat {
+public class ProtobufJsonFormat {
 
   private ProtobufJsonFormat() {
     // only statics
   }
 
-  static void write(Message message, JsonWriter writer) {
+  public static void write(Message message, JsonWriter writer) {
     writer.beginObject();
     writeMessage(message, writer);
     writer.endObject();
