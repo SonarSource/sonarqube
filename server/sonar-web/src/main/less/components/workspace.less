@@ -20,12 +20,15 @@
 @import (reference) "../mixins";
 @import (reference) "../variables";
 
+@workspace-height: 30px;
+@workspace-padding: (@workspace-height - @formControlHeight) / 2;
+
 .workspace-nav {
   position: fixed;
   z-index: @workspace-nav-z-index;
   bottom: 0;
   right: 0;
-  height: 30px;
+  height: @workspace-height;
 }
 
 .workspace-nav-list {
@@ -34,15 +37,20 @@
 
 .workspace-nav-item {
   float: left;
-  height: 30px;
-  line-height: 30px;
+  vertical-align: middle;
   margin-right: 10px;
-  padding: 0 10px;
+  padding: @workspace-padding 10px;
   background-color: #404040;
   color: #fff;
   font-size: @smallFontSize;
   font-weight: 300;
   cursor: pointer;
+
+  & > i {
+    position: relative;
+    top: -2px;
+    vertical-align: middle;
+  }
 }
 
 .workspace-viewer {
