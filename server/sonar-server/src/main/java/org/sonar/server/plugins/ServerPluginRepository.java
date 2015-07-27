@@ -37,7 +37,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
-import org.sonar.api.Plugin;
+import org.sonar.api.SonarPlugin;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.MessageException;
@@ -83,7 +83,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
 
   // following fields are available after startup
   private final Map<String, PluginInfo> pluginInfosByKeys = new HashMap<>();
-  private final Map<String, Plugin> pluginInstancesByKeys = new HashMap<>();
+  private final Map<String, SonarPlugin> pluginInstancesByKeys = new HashMap<>();
 
   public ServerPluginRepository(Server server, ServerUpgradeStatus upgradeStatus,
     DefaultServerFileSystem fs, PluginLoader loader) {
@@ -348,8 +348,8 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   }
 
   @Override
-  public Plugin getPluginInstance(String key) {
-    Plugin plugin = pluginInstancesByKeys.get(key);
+  public SonarPlugin getPluginInstance(String key) {
+    SonarPlugin plugin = pluginInstancesByKeys.get(key);
     if (plugin == null) {
       throw new IllegalArgumentException(format("Plugin [%s] does not exist", key));
     }

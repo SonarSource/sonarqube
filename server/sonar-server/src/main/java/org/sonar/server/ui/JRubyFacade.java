@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.Plugin;
+import org.sonar.api.SonarPlugin;
 import org.sonar.api.config.License;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
@@ -285,7 +285,7 @@ public final class JRubyFacade {
   }
 
   public Object getComponentByClassname(String pluginKey, String className) {
-    Plugin plugin = get(PluginRepository.class).getPluginInstance(pluginKey);
+    SonarPlugin plugin = get(PluginRepository.class).getPluginInstance(pluginKey);
     try {
       Class componentClass = plugin.getClass().getClassLoader().loadClass(className);
       return get(componentClass);

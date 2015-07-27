@@ -24,7 +24,7 @@ import com.google.common.collect.Lists;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
-import org.sonar.api.Plugin;
+import org.sonar.api.SonarPlugin;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 
@@ -71,7 +71,7 @@ class I18nClassloader extends URLClassLoader {
     // there may be duplicated classloaders in the list.
     List<ClassLoader> list = Lists.newArrayList();
     for (PluginInfo info : pluginRepository.getPluginInfos()) {
-      Plugin plugin = pluginRepository.getPluginInstance(info.getKey());
+      SonarPlugin plugin = pluginRepository.getPluginInstance(info.getKey());
       list.add(plugin.getClass().getClassLoader());
     }
     list.add(I18nClassloader.class.getClassLoader());

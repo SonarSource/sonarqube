@@ -20,11 +20,9 @@
 package org.sonar.batch.bootstrap;
 
 import java.util.List;
-
 import javax.annotation.Nullable;
-
 import org.sonar.api.ExtensionProvider;
-import org.sonar.api.Plugin;
+import org.sonar.api.SonarPlugin;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
@@ -51,7 +49,7 @@ public class ExtensionInstaller {
 
     // plugin extensions
     for (PluginInfo pluginInfo : pluginRepository.getPluginInfos()) {
-      Plugin plugin = pluginRepository.getPluginInstance(pluginInfo.getKey());
+      SonarPlugin plugin = pluginRepository.getPluginInstance(pluginInfo.getKey());
       for (Object extension : plugin.getExtensions()) {
         doInstall(container, matcher, pluginInfo, extension);
       }

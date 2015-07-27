@@ -24,7 +24,7 @@ import com.google.common.collect.ListMultimap;
 import java.util.Map;
 import org.sonar.api.Extension;
 import org.sonar.api.ExtensionProvider;
-import org.sonar.api.Plugin;
+import org.sonar.api.SonarPlugin;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.core.platform.ComponentContainer;
@@ -49,7 +49,7 @@ public class ServerExtensionInstaller {
     for (PluginInfo pluginInfo : pluginRepository.getPluginInfos()) {
       try {
         String pluginKey = pluginInfo.getKey();
-        Plugin plugin = pluginRepository.getPluginInstance(pluginKey);
+        SonarPlugin plugin = pluginRepository.getPluginInstance(pluginKey);
         container.addExtension(pluginInfo, plugin);
 
         for (Object extension : plugin.getExtensions()) {
