@@ -109,6 +109,15 @@ define(function (require) {
     });
   };
 
+  Command.prototype.changeElement = function (selector) {
+    return new this.constructor(this, function () {
+      return this.parent
+          .execute(function (selector) {
+            jQuery(selector).change();
+          }, [selector]);
+    });
+  };
+
   Command.prototype.submitForm = function (selector) {
     return new this.constructor(this, function () {
       return this.parent
