@@ -29,11 +29,23 @@ import org.sonar.core.permission.GlobalPermissions;
 
 public class PermissionsWs implements WebService {
 
+  public static final String ENDPOINT = "api/permissions";
+
+  private final PermissionsWsAction[] actions;
+
+  public PermissionsWs(PermissionsWsAction... actions) {
+    this.actions = actions;
+  }
+
   @Override
   public void define(Context context) {
-    NewController controller = context.createController("api/permissions");
-    controller.setDescription("Permissions");
+    NewController controller = context.createController(ENDPOINT);
+    controller.setDescription("Permissions management");
     controller.setSince("3.7");
+
+    for (PermissionsWsAction action : actions) {
+      action.define(controller);
+    }
 
     defineAddAction(controller);
     defineRemoveAction(controller);
