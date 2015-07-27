@@ -25,6 +25,7 @@ import administration.suite.administration.PropertySetsTest;
 import administration.suite.administration.SubCategoriesTest;
 import administration.suite.administration.WebServiceTest;
 import administration.suite.server.ServerAdministrationTest;
+import administration.suite.ui.I18nTest;
 import com.sonar.orchestrator.Orchestrator;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
@@ -40,7 +41,8 @@ import static util.ItUtils.pluginArtifact;
   PropertySetsTest.class,
   SubCategoriesTest.class,
   WebServiceTest.class,
-  ServerAdministrationTest.class
+  ServerAdministrationTest.class,
+  I18nTest.class
 })
 public class AdministrationTestSuite {
 
