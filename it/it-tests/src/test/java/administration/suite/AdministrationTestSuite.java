@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package administation.suite;
+package administration.suite;
 
-import administation.suite.administration.BulkDeletionTest;
-import administation.suite.administration.ProjectAdministrationTest;
-import administation.suite.administration.PropertySetsTest;
-import administation.suite.administration.SubCategoriesTest;
-import administation.suite.administration.WebServiceTest;
-import administation.suite.server.ServerAdministrationTest;
+import administration.suite.administration.BulkDeletionTest;
+import administration.suite.administration.ProjectAdministrationTest;
+import administration.suite.administration.PropertySetsTest;
+import administration.suite.administration.SubCategoriesTest;
+import administration.suite.administration.WebServiceTest;
+import administration.suite.server.ServerAdministrationTest;
 import com.sonar.orchestrator.Orchestrator;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;

@@ -3,9 +3,9 @@
  * All rights reserved
  * mailto:contact AT sonarsource DOT com
  */
-package administation.suite.administration;
+package administration.suite.administration;
 
-import administation.suite.AdministrationTestSuite;
+import administration.suite.AdministrationTestSuite;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.sonar.orchestrator.Orchestrator;

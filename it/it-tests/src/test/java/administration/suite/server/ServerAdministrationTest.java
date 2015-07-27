@@ -3,9 +3,9 @@
  * All rights reserved
  * mailto:contact AT sonarsource DOT com
  */
-package administation.suite.server;
+package administration.suite.server;
 
-import administation.suite.AdministrationTestSuite;
+import administration.suite.AdministrationTestSuite;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.selenium.Selenese;
 import java.io.IOException;
