@@ -100,7 +100,7 @@ public class InternalPermissionService {
     try {
       applyChange(Operation.ADD, change, session);
     } finally {
-      session.close();
+      dbClient.closeSession(session);
     }
   }
 
