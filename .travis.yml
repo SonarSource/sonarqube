@@ -10,13 +10,13 @@ env:
   - JOB=POSTGRES
   - JOB=MYSQL
   - JOB=WEB
-  - JOB=ITS_ISSUE
-  - JOB=ITS_QUALITYGATE
-  - JOB=ITS_UPDATECENTER
-  - JOB=ITS_TESTING
-  - JOB=ITS_MEASURE
-  - JOB=ITS_UI
-  - JOB=ITS_PLUGINS
+  - JOB=ITS IT_CATEGORY=issue
+  - JOB=ITS IT_CATEGORY=measure
+  - JOB=ITS IT_CATEGORY=plugins
+  - JOB=ITS IT_CATEGORY=qualitygate
+  - JOB=ITS IT_CATEGORY=testing
+  - JOB=ITS IT_CATEGORY=ui
+  - JOB=ITS IT_CATEGORY=updatecenter
 
 matrix:
   fast_finish: true

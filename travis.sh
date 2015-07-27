@@ -62,39 +62,9 @@ PRANALYSIS)
   fi
   ;;
 
-ITS_QUALITYGATE)
+ITS)
   prepareIts
-  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="qualitygate" -Dmaven.test.redirectTestOutputToFile=false
-  ;;
-
-ITS_ISSUE)
-  prepareIts
-  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="issue" -Dmaven.test.redirectTestOutputToFile=false
-  ;;
-
-ITS_UPDATECENTER)
-  prepareIts
-  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="updatecenter" -Dmaven.test.redirectTestOutputToFile=false
-  ;;
-
-ITS_TESTING)
-  prepareIts
-  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="testing" -Dmaven.test.redirectTestOutputToFile=false
-  ;;
-
-ITS_MEASURE)
-  prepareIts
-  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="measure" -Dmaven.test.redirectTestOutputToFile=false
-  ;;
-
-ITS_UI)
-  prepareIts
-  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="ui" -Dmaven.test.redirectTestOutputToFile=false
-  ;;
-
-ITS_PLUGINS)
-  prepareIts
-  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory="plugins" -Dmaven.test.redirectTestOutputToFile=false
+  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory=$IT_CATEGORY -Dmaven.test.redirectTestOutputToFile=false -e
   ;;
 
 esac
