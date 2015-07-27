@@ -17,44 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package administration.suite;
 
-import administration.suite.administration.BulkDeletionTest;
-import administration.suite.administration.ProjectAdministrationTest;
-import administration.suite.administration.PropertySetsTest;
-import administration.suite.administration.SubCategoriesTest;
-import administration.suite.ui.I18nTest;
+package server.suite;
+
 import com.sonar.orchestrator.Orchestrator;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import server.suite.ServerAdministrationTest;
-import server.suite.WebServiceTest;
 import util.ItUtils;
-
-import static util.ItUtils.pluginArtifact;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  BulkDeletionTest.class,
-  ProjectAdministrationTest.class,
-  PropertySetsTest.class,
-  SubCategoriesTest.class,
-  WebServiceTest.class,
   ServerAdministrationTest.class,
-  I18nTest.class
+  WebServiceTest.class
 })
-public class AdministrationTestSuite {
+public class ServerTestSuite {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
-    .setServerProperty("sonar.notifications.delay", "1")
-    .addPlugin(ItUtils.pluginArtifact("property-sets-plugin"))
-    .addPlugin(ItUtils.pluginArtifact("sonar-subcategories-plugin"))
-
-    // Used in I18nTest
-    .addPlugin(pluginArtifact("l10n-fr-pack"))
-
     .addPlugin(ItUtils.xooPlugin())
     .build();
 }

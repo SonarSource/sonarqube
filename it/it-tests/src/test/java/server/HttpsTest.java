@@ -3,7 +3,7 @@
  * All rights reserved
  * mailto:contact AT sonarsource DOT com
  */
-package administration;
+package server;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.util.NetworkUtils;

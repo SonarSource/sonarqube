@@ -3,9 +3,8 @@
  * All rights reserved
  * mailto:contact AT sonarsource DOT com
  */
-package administration.suite.server;
+package server.suite;
 
-import administration.suite.AdministrationTestSuite;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.selenium.Selenese;
 import java.io.IOException;
@@ -30,7 +29,7 @@ import static org.junit.Assert.fail;
 public class ServerAdministrationTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = AdministrationTestSuite.ORCHESTRATOR;
+  public static final Orchestrator orchestrator = ServerTestSuite.ORCHESTRATOR;
 
   @Test
   public void get_sonar_version() {

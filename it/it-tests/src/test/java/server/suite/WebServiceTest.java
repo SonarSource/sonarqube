@@ -3,9 +3,8 @@
  * All rights reserved
  * mailto:contact AT sonarsource DOT com
  */
-package administration.suite.administration;
+package server.suite;
 
-import administration.suite.AdministrationTestSuite;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.sonar.orchestrator.Orchestrator;
@@ -34,7 +33,7 @@ import static util.ItUtils.projectDir;
 public class WebServiceTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = AdministrationTestSuite.ORCHESTRATOR;
+  public static final Orchestrator orchestrator = ServerTestSuite.ORCHESTRATOR;
 
   @Before
   public void inspectProject() {
