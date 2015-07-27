@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.scan.report;
 
+import org.sonar.api.batch.rule.Rule;
+
+import org.sonar.api.batch.rule.Rules;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.BatchSide;
@@ -26,8 +29,6 @@ import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.index.BatchComponent;
@@ -43,14 +44,14 @@ public class IssuesReportBuilder {
   private static final Logger LOG = LoggerFactory.getLogger(IssuesReportBuilder.class);
 
   private final IssueCache issueCache;
-  private final RuleFinder ruleFinder;
+  private final Rules rules;
   private final BatchComponentCache resourceCache;
   private final DefaultProjectTree projectTree;
   private final InputPathCache inputPathCache;
 
-  public IssuesReportBuilder(IssueCache issueCache, RuleFinder ruleFinder, BatchComponentCache resourceCache, DefaultProjectTree projectTree, InputPathCache inputPathCache) {
+  public IssuesReportBuilder(IssueCache issueCache, Rules rules, BatchComponentCache resourceCache, DefaultProjectTree projectTree, InputPathCache inputPathCache) {
     this.issueCache = issueCache;
-    this.ruleFinder = ruleFinder;
+    this.rules = rules;
     this.resourceCache = resourceCache;
     this.projectTree = projectTree;
     this.inputPathCache = inputPathCache;
@@ -98,8 +99,7 @@ public class IssuesReportBuilder {
 
   @CheckForNull
   private Rule findRule(Issue issue) {
-    RuleKey ruleKey = issue.ruleKey();
-    return ruleFinder.findByKey(ruleKey);
+    return rules.find(issue.ruleKey());
   }
 
 }

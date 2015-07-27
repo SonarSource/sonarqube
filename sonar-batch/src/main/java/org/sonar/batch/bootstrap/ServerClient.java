@@ -72,7 +72,7 @@ public class ServerClient {
   }
 
   public URI getURI(String pathStartingWithSlash) {
-    Preconditions.checkArgument(pathStartingWithSlash.startsWith("/"), "Path must start with slash /");
+    Preconditions.checkArgument(pathStartingWithSlash.startsWith("/"), "Path must start with slash /: " + pathStartingWithSlash);
     String path = StringEscapeUtils.escapeHtml(pathStartingWithSlash);
     return URI.create(getURL() + path);
   }

@@ -19,26 +19,27 @@
  */
 package org.sonar.batch.scan.report;
 
+import org.sonar.api.batch.rule.Rule;
+
+import org.sonar.api.batch.rule.Rules;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
 
 import javax.annotation.CheckForNull;
 
 @BatchSide
 public class RuleNameProvider {
-  private RuleFinder ruleFinder;
+  private Rules rules;
 
-  public RuleNameProvider(RuleFinder ruleFinder) {
-    this.ruleFinder = ruleFinder;
+  public RuleNameProvider(Rules rules) {
+    this.rules = rules;
   }
 
   @CheckForNull
   private String nameFromDB(RuleKey ruleKey) {
-    Rule r = ruleFinder.findByKey(ruleKey);
-    return r != null ? r.getName() : null;
+    Rule r = rules.find(ruleKey);
+    return r != null ? r.name() : null;
   }
 
   public String nameForHTML(RuleKey ruleKey) {
@@ -52,8 +53,7 @@ public class RuleNameProvider {
   }
 
   public String nameForHTML(Rule rule) {
-    String name = nameFromDB(RuleKey.of(rule.getRepositoryKey(), rule.getKey()));
-    return StringEscapeUtils.escapeHtml(name != null ? name : rule.getName());
+    return StringEscapeUtils.escapeHtml(rule.name());
   }
 
 }

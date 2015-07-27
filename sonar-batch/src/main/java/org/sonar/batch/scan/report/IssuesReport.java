@@ -19,9 +19,10 @@
  */
 package org.sonar.batch.scan.report;
 
+import org.sonar.api.batch.rule.Rule;
+
 import com.google.common.collect.Maps;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.batch.index.BatchComponent;
 

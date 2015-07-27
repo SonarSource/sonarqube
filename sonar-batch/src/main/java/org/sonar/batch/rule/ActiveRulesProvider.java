@@ -44,7 +44,7 @@ public class ActiveRulesProvider extends ProviderAdapter {
     return singleton;
   }
 
-  private ActiveRules load(ProjectRepositories ref) {
+  private static ActiveRules load(ProjectRepositories ref) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (ActiveRule activeRule : ref.activeRules()) {
       NewActiveRule newActiveRule = builder.create(RuleKey.of(activeRule.repositoryKey(), activeRule.ruleKey()));

@@ -64,5 +64,4 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
       throw MessageException.of("No quality profiles has been found this project, you probably don't have any language plugin suitable for this analysis.");
     }
   }
-
 }

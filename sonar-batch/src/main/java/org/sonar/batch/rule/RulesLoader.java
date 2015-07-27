@@ -17,41 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan.report;
+package org.sonar.batch.rule;
 
-import org.sonar.api.batch.rule.Rule;
+import org.sonar.batch.protocol.input.RulesSearchResult;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-
-public final class RuleReport {
-  private final ReportRuleKey reportRuleKey;
-  private final IssueVariation total = new IssueVariation();
-
-  public RuleReport(ReportRuleKey reportRuleKey) {
-    this.reportRuleKey = reportRuleKey;
-  }
-
-  public IssueVariation getTotal() {
-    return total;
-  }
-
-  public ReportRuleKey getReportRuleKey() {
-    return reportRuleKey;
-  }
-
-  public String getSeverity() {
-    return reportRuleKey.getSeverity().toString();
-  }
-
-  public Rule getRule() {
-    return reportRuleKey.getRule();
-  }
-
-  @Override
-  public String toString() {
-    return new ToStringBuilder(this).
-      append("reportRuleKey", reportRuleKey).
-      append("total", total).
-      toString();
-  }
+public interface RulesLoader {
+  RulesSearchResult load();
 }

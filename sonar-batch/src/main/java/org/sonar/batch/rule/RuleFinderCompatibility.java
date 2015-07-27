@@ -19,13 +19,12 @@
  */
 package org.sonar.batch.rule;
 
+import org.sonar.api.batch.rule.Rules;
+
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.batch.rule.ActiveRule;
-import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.rule.internal.DefaultActiveRule;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
@@ -46,10 +45,10 @@ import java.util.Collections;
  */
 public class RuleFinderCompatibility implements RuleFinder {
 
-  private final ActiveRules activeRules;
+  private final Rules rules;
 
-  public RuleFinderCompatibility(ActiveRules activeRules) {
-    this.activeRules = activeRules;
+  public RuleFinderCompatibility(Rules rules) {
+    this.rules = rules;
   }
 
   @Override
@@ -64,7 +63,7 @@ public class RuleFinderCompatibility implements RuleFinder {
 
   @Override
   public Rule findByKey(RuleKey key) {
-    return toRule(activeRules.find(key));
+    return toRule(rules.find(key));
   }
 
   @Override
@@ -96,28 +95,27 @@ public class RuleFinderCompatibility implements RuleFinder {
   }
 
   private Collection<Rule> byRepository(RuleQuery query) {
-    return Collections2.transform(activeRules.findByRepository(query.getRepositoryKey()), new Function<ActiveRule, Rule>() {
+    return Collections2.transform(rules.findByRepository(query.getRepositoryKey()), new Function<org.sonar.api.batch.rule.Rule, Rule>() {
       @Override
-      public Rule apply(@Nonnull ActiveRule input) {
+      public Rule apply(@Nonnull org.sonar.api.batch.rule.Rule input) {
         return toRule(input);
       }
     });
   }
 
   private Collection<Rule> byKey(RuleQuery query) {
-    Rule rule = toRule(activeRules.find(RuleKey.of(query.getRepositoryKey(), query.getKey())));
+    Rule rule = toRule(rules.find(RuleKey.of(query.getRepositoryKey(), query.getKey())));
     return rule != null ? Arrays.asList(rule) : Collections.<Rule>emptyList();
   }
 
   private Collection<Rule> byInternalKey(RuleQuery query) {
-    Rule rule = toRule(activeRules.findByInternalKey(query.getRepositoryKey(), query.getConfigKey()));
+    Rule rule = toRule(rules.findByInternalKey(query.getRepositoryKey(), query.getConfigKey()));
     return rule != null ? Arrays.asList(rule) : Collections.<Rule>emptyList();
   }
 
   @CheckForNull
-  private Rule toRule(@Nullable ActiveRule rule) {
-    DefaultActiveRule ar = (DefaultActiveRule) rule;
-    return ar == null ? null : Rule.create(ar.ruleKey().repository(), ar.ruleKey().rule()).setName(ar.name()).setConfigKey(ar.internalKey()).setLanguage(ar.language());
+  private static Rule toRule(@Nullable org.sonar.api.batch.rule.Rule ar) {
+    return ar == null ? null : Rule.create(ar.key().repository(), ar.key().rule()).setName(ar.name()).setConfigKey(ar.internalKey());
   }
 
 }
