@@ -49,7 +49,7 @@ public class BulkDeletionTest {
     executeBuild("cameleon-3", "Bar-Sonar-Plugin");
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("project-bulk-deletion-on-selected-project",
-      "/administration/project-bulk-deletion/bulk-delete-filter-projects.html"
+      "/administration/suite/BulkDeletionTest/project-bulk-deletion/bulk-delete-filter-projects.html"
     ).build();
     orchestrator.executeSelenese(selenese);
   }
@@ -63,8 +63,8 @@ public class BulkDeletionTest {
 
     Selenese selenese = Selenese.builder()
       .setHtmlTestsInClasspath("bulk-delete-projects-with-short-name",
-        "/administration/project-bulk-deletion/display-two-letters-long-project.html",
-        "/administration/project-bulk-deletion/filter-two-letters-long-project.html"
+        "/administration/suite/BulkDeletionTest/project-bulk-deletion/display-two-letters-long-project.html",
+        "/administration/suite/BulkDeletionTest/project-bulk-deletion/filter-two-letters-long-project.html"
       ).build();
     orchestrator.executeSelenese(selenese);
   }

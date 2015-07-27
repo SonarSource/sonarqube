@@ -30,14 +30,15 @@ import util.ItUtils;
   BulkDeletionTest.class,
   ProjectAdministrationTest.class,
   PropertySetsTest.class,
-  SubCategoriesTest.class
+  SubCategoriesTest.class,
+  WebServiceTest.class,
+  ServerAdministrationTest.class
 })
 public class AdministrationTestSuite {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .setServerProperty("sonar.notifications.delay", "1")
-//    .addPlugin(ItUtils.pluginArtifact("crash-plugin"))
     .addPlugin(ItUtils.pluginArtifact("property-sets-plugin"))
     .addPlugin(ItUtils.pluginArtifact("sonar-subcategories-plugin"))
     .addPlugin(ItUtils.xooPlugin())

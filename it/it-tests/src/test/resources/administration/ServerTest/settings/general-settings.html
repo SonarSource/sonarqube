@@ -3,16 +3,21 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <title>reate_user_with_email</title>
+    <title>settings_on_core_plugins</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
     <thead>
     <tr>
-        <td rowspan="1" colspan="3">create_user_with_email</td>
+        <td rowspan="1" colspan="3">settings_on_core_plugins</td>
     </tr>
     </thead>
     <tbody>
+    <tr>
+	<td>open</td>
+	<td>/sonar/sessions/logout</td>
+	<td></td>
+</tr>
 <tr>
 	<td>open</td>
 	<td>/sonar/sessions/new</td>
@@ -21,12 +26,12 @@
 <tr>
 	<td>type</td>
 	<td>login</td>
-	<td>tester</td>
+	<td>admin</td>
 </tr>
 <tr>
 	<td>type</td>
 	<td>password</td>
-	<td>tester</td>
+	<td>admin</td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
@@ -35,18 +40,13 @@
 </tr>
 <tr>
 	<td>open</td>
-	<td>/sonar/account/index</td>
+	<td>/sonar/settings/index</td>
 	<td></td>
 </tr>
 <tr>
-	<td>check</td>
-	<td>global_notifs_NewAlerts.EmailNotificationChannel</td>
-	<td></td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>//input[@value='Save changes']</td>
-	<td></td>
+	<td>assertText</td>
+	<td>plugins</td>
+	<td>*General*</td>
 </tr>
 </tbody>
 </table>

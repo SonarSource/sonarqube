@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <title>create-user</title>
+    <title>property-relocation</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
@@ -15,7 +15,7 @@
 </tr>
 <tr>
 	<td>open</td>
-	<td>/sonar/users</td>
+	<td>/sonar/settings/index?category=general</td>
 	<td></td>
 </tr>
 <tr>
@@ -34,49 +34,14 @@
 	<td></td>
 </tr>
 <tr>
-	<td>click</td>
-	<td>id=create-link-user</td>
-	<td></td>
-</tr>
-<tr>
-	<td>waitForVisible</td>
-	<td>user_create_form</td>
-	<td></td>
-</tr>
-<tr>
-	<td>type</td>
-	<td>id=user_login</td>
-	<td>user</td>
-</tr>
-<tr>
-	<td>type</td>
-	<td>id=user_name</td>
-	<td>Simple User</td>
-</tr>
-<tr>
-	<td>type</td>
-	<td>id=user_password</td>
-	<td>userpwd</td>
-</tr>
-<tr>
-	<td>type</td>
-	<td>id=user_password_confirmation</td>
-	<td>userpwd</td>
-</tr>
-<tr>
-	<td>click</td>
-	<td>name=commit</td>
-	<td></td>
-</tr>
-<tr>
-	<td>waitForVisible</td>
-	<td>info</td>
-	<td></td>
-</tr>
-<tr>
 	<td>assertText</td>
-	<td>info</td>
-	<td>*User is created*</td>
+	<td>properties</td>
+	<td>*sonar.newKey*</td>
+</tr>
+<tr>
+	<td>assertNotText</td>
+	<td>properties</td>
+	<td>*sonar.deprecatedKey*</td>
 </tr>
 </tbody>
 </table>

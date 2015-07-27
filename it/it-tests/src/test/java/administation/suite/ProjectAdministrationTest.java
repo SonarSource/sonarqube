@@ -116,7 +116,7 @@ public class ProjectAdministrationTest {
         PermissionParameters.create().user(projectAdminUser).component("sample").permission("admin"));
 
       orchestrator.executeSelenese(
-        Selenese.builder().setHtmlTestsInClasspath("project-deletion", "/administration/project-deletion/project-deletion.html").build()
+        Selenese.builder().setHtmlTestsInClasspath("project-deletion", "/administration/suite/ProjectAdministrationTest/project-deletion/project-deletion.html").build()
         );
     } finally {
       adminClient.userClient().deactivate(projectAdminUser);
@@ -143,7 +143,7 @@ public class ProjectAdministrationTest {
     Selenese selenese = Selenese
       .builder()
       .setHtmlTestsInClasspath("delete_version_of_multimodule_project",
-        "/administration/project-administration/multimodule-project-modify-version.html"
+        "/administration/suite/ProjectAdministrationTest/project-administration/multimodule-project-modify-version.html"
       ).build();
     orchestrator.executeSelenese(selenese);
 
@@ -152,7 +152,7 @@ public class ProjectAdministrationTest {
     selenese = Selenese
       .builder()
       .setHtmlTestsInClasspath("delete_version_of_multimodule_project",
-        "/administration/project-administration/multimodule-project-delete-version.html"
+        "/administration/suite/ProjectAdministrationTest/project-administration/multimodule-project-delete-version.html"
       ).build();
     orchestrator.executeSelenese(selenese);
 
@@ -176,7 +176,7 @@ public class ProjectAdministrationTest {
     Selenese selenese = Selenese
       .builder()
       .setHtmlTestsInClasspath("display-alerts-history-page",
-        "/administration/display-alerts-history-page/should-display-alerts-correctly-history-page.html"
+        "/administration/suite/ProjectAdministrationTest/display-alerts-history-page/should-display-alerts-correctly-history-page.html"
       ).build();
     orchestrator.executeSelenese(selenese);
 
@@ -204,7 +204,7 @@ public class ProjectAdministrationTest {
     Selenese selenese = Selenese
       .builder()
       .setHtmlTestsInClasspath("display-period-alerts",
-        "/administration/display-alerts/should-display-period-alerts-correctly.html"
+        "/administration/suite/ProjectAdministrationTest/display-alerts/should-display-period-alerts-correctly.html"
       ).build();
     orchestrator.executeSelenese(selenese);
 
@@ -221,9 +221,9 @@ public class ProjectAdministrationTest {
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("project-settings",
       // SONAR-3425
-      "/administration/project-settings/override-global-settings.html",
+      "/administration/suite/ProjectAdministrationTest/project-settings/override-global-settings.html",
 
-      "/administration/project-settings/only-on-project-settings.html"
+      "/administration/suite/ProjectAdministrationTest/project-settings/only-on-project-settings.html"
       ).build();
     orchestrator.executeSelenese(selenese);
 
@@ -242,10 +242,10 @@ public class ProjectAdministrationTest {
     Selenese selenese = Selenese
       .builder()
       .setHtmlTestsInClasspath("project-bulk-update-keys",
-        "/administration/project-update-keys/bulk-update-impossible-because-duplicate-keys.html",
-        "/administration/project-update-keys/bulk-update-impossible-because-no-input.html",
-        "/administration/project-update-keys/bulk-update-impossible-because-no-match.html",
-        "/administration/project-update-keys/bulk-update-success.html"
+        "/administration/suite/ProjectAdministrationTest/project-update-keys/bulk-update-impossible-because-duplicate-keys.html",
+        "/administration/suite/ProjectAdministrationTest/project-update-keys/bulk-update-impossible-because-no-input.html",
+        "/administration/suite/ProjectAdministrationTest/project-update-keys/bulk-update-impossible-because-no-match.html",
+        "/administration/suite/ProjectAdministrationTest/project-update-keys/bulk-update-success.html"
       ).build();
     orchestrator.executeSelenese(selenese);
   }
@@ -261,8 +261,8 @@ public class ProjectAdministrationTest {
     Selenese selenese = Selenese
       .builder()
       .setHtmlTestsInClasspath("project-fine-grained-update-keys",
-        "/administration/project-update-keys/fine-grained-update-impossible.html",
-        "/administration/project-update-keys/fine-grained-update-success.html"
+        "/administration/suite/ProjectAdministrationTest/project-update-keys/fine-grained-update-impossible.html",
+        "/administration/suite/ProjectAdministrationTest/project-update-keys/fine-grained-update-success.html"
       ).build();
     orchestrator.executeSelenese(selenese);
   }
@@ -273,7 +273,7 @@ public class ProjectAdministrationTest {
 
     Selenese selenese = Selenese.builder()
       .setHtmlTestsInClasspath("anonymous_should_have_user_role_to_access_project",
-        "/administration/anonymous_should_have_user_role_to_access_project/remove_user_role.html"
+        "/administration/suite/ProjectAdministrationTest/anonymous_should_have_user_role_to_access_project/remove_user_role.html"
       ).build();
     orchestrator.executeSelenese(selenese);
   }
@@ -287,7 +287,7 @@ public class ProjectAdministrationTest {
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("module-settings",
       // SONAR-3425
-      "/administration/module-settings/display-module-settings.html"
+      "/administration/suite/ProjectAdministrationTest/module-settings/display-module-settings.html"
       ).build();
     orchestrator.executeSelenese(selenese);
   }
