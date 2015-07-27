@@ -118,8 +118,10 @@ define([
     },
 
     showRule: function (model) {
-      this.showViewer(RuleView, model);
-      this.fetchRule(model);
+      var that = this;
+      this.fetchRule(model).done(function () {
+        that.showViewer(RuleView, model);
+      });
     },
 
     fetchRule: function (model) {

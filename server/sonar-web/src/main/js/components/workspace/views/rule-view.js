@@ -25,11 +25,6 @@ define([
   return BaseView.extend({
     template: Templates['workspace-rule'],
 
-    modelEvents: {
-      'destroy': 'destroy',
-      'change': 'render'
-    },
-
     onRender: function () {
       BaseView.prototype.onRender.apply(this, arguments);
       this.$('[data-toggle="tooltip"]').tooltip({ container: 'body' });
