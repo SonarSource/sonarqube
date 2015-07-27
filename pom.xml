@@ -48,9 +48,10 @@
 
   <distributionManagement>
     <repository>
-      <id>codehaus-nexus-staging</id>
-      <name>Codehaus Release Repository</name>
-      <url>https://nexus.codehaus.org/service/local/staging/deploy/maven2/</url>
+<!-- Temporary workaround for previous and LTS version -->    
+      <id>sonarsource-releases</id>
+      <name>Internal</name>
+      <url>http://nexus-master.internal.sonarsource.com/nexus/content/repositories/releases-oss/</url>
     </repository>
     <snapshotRepository>
       <id>sonar-snapshots</id>
