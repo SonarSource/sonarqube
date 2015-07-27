@@ -123,7 +123,7 @@
       metric: <% if @metric %>'<%= @metric.key -%>'<% else %>null<% end %>,
       rule: null,
       severity: null,
-      period: <% if @period %>'<%= @snapshot.period_datetime(@period) -%>'<% else %>null<% end %>,
+      period: <% if @period %>'<%= @snapshot.period_datetime(@period).strftime('%FT%T%z') -%>'<% else %>null<% end %>,
       periodName: <% if @period %>'<%= period_label(@snapshot, @period) -%>'<% else %>null<% end %>,
     };
   </script>
