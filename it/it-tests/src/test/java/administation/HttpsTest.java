@@ -67,7 +67,7 @@ public class HttpsTest {
   @Test
   public void fail_to_start_if_bad_keystore_credentials() throws Exception {
     try {
-      URL jksKeystore = getClass().getResource("/administration/HttpsTest/keystore.jks");
+      URL jksKeystore = getClass().getResource("/server/HttpsTest/keystore.jks");
       orchestrator = Orchestrator.builderEnv()
         .setServerProperty("sonar.web.https.port", String.valueOf(httpsPort))
         .setServerProperty("sonar.web.https.keyAlias", "tests")
@@ -86,7 +86,7 @@ public class HttpsTest {
   @Test
   public void enable_https_port() throws Exception {
     // start server
-    URL jksKeystore = getClass().getResource("/administration/HttpsTest/keystore.jks");
+    URL jksKeystore = getClass().getResource("/server/HttpsTest/keystore.jks");
     orchestrator = Orchestrator.builderEnv()
       .setServerProperty("sonar.web.https.port", String.valueOf(httpsPort))
       .setServerProperty("sonar.web.https.keyAlias", "tests")

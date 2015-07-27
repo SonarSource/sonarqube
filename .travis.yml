@@ -15,7 +15,6 @@ env:
   - JOB=ITS IT_CATEGORY=administration
   - JOB=ITS IT_CATEGORY=plugins
   - JOB=ITS IT_CATEGORY=qualitygate
-  - JOB=ITS IT_CATEGORY=ui
   - JOB=ITS IT_CATEGORY=updatecenter
 
 matrix:

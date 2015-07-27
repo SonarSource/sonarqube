@@ -19,11 +19,19 @@
  */
 package administation.suite;
 
+import administation.suite.administration.BulkDeletionTest;
+import administation.suite.administration.ProjectAdministrationTest;
+import administation.suite.administration.PropertySetsTest;
+import administation.suite.administration.SubCategoriesTest;
+import administation.suite.administration.WebServiceTest;
+import administation.suite.server.ServerAdministrationTest;
 import com.sonar.orchestrator.Orchestrator;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import util.ItUtils;
+
+import static util.ItUtils.pluginArtifact;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -41,6 +49,10 @@ public class AdministrationTestSuite {
     .setServerProperty("sonar.notifications.delay", "1")
     .addPlugin(ItUtils.pluginArtifact("property-sets-plugin"))
     .addPlugin(ItUtils.pluginArtifact("sonar-subcategories-plugin"))
+
+    // Used in I18nTest
+    .addPlugin(pluginArtifact("l10n-fr-pack"))
+
     .addPlugin(ItUtils.xooPlugin())
     .build();
 }

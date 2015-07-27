@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package ui;
+package administation.suite.ui;
 
+import administation.suite.AdministrationTestSuite;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.selenium.Selenese;
@@ -27,17 +28,12 @@ import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.projectDir;
-import static util.ItUtils.xooPlugin;
 
 public class I18nTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Orchestrator.builderEnv()
-    .addPlugin(pluginArtifact("l10n-fr-pack"))
-    .addPlugin(xooPlugin())
-    .build();
+  public static Orchestrator orchestrator = AdministrationTestSuite.ORCHESTRATOR;
 
   @After
   public void cleanDatabase() {

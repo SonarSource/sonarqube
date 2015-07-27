@@ -3,8 +3,9 @@
  * All rights reserved
  * mailto:contact AT sonarsource DOT com
  */
-package administation.suite;
+package administation.suite.server;
 
+import administation.suite.AdministrationTestSuite;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.selenium.Selenese;
 import java.io.IOException;
@@ -47,17 +48,17 @@ public class ServerAdministrationTest {
   @Test
   public void generate_server_id() {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("server_id",
-      "/administration/suite/ServerAdministrationTest/server_id/missing_ip.html",
+      "/server/ServerAdministrationTest/server_id/missing_ip.html",
       // SONAR-4102
-      "/administration/suite/ServerAdministrationTest/organisation_must_not_accept_special_chars.html",
-      "/administration/suite/ServerAdministrationTest/valid_id.html").build();
+      "/server/ServerAdministrationTest/organisation_must_not_accept_special_chars.html",
+      "/server/ServerAdministrationTest/valid_id.html").build();
     orchestrator.executeSelenese(selenese);
   }
 
   @Test
   public void display_system_info() {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("server-administration",
-      "/administration/suite/ServerAdministrationTest/server-administration/system_info.html"
+      "/server/ServerAdministrationTest/server-administration/system_info.html"
       ).build();
     orchestrator.executeSelenese(selenese);
   }

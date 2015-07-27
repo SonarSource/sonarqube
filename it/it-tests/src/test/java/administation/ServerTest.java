@@ -59,7 +59,7 @@ public class ServerTest {
       orchestrator.start();
 
       Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("derby-warnings",
-        "/administration/ServerTest/derby-warning.html").build();
+        "/server/ServerTest/derby-warning.html").build();
       orchestrator.executeSelenese(selenese);
     }
   }
@@ -73,13 +73,13 @@ public class ServerTest {
     orchestrator.start();
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("jdbc-settings",
-      "/administration/ServerTest/hide-jdbc-settings.html").build();
+      "/server/ServerTest/hide-jdbc-settings.html").build();
     orchestrator.executeSelenese(selenese);
   }
 
   @Test
   public void test_settings() {
-    URL secretKeyUrl = getClass().getResource("/administration/ServerTest/sonar-secret.txt");
+    URL secretKeyUrl = getClass().getResource("/server/ServerTest/sonar-secret.txt");
     orchestrator = Orchestrator.builderEnv()
       .addPlugin(ItUtils.pluginArtifact("settings-plugin"))
       .addPlugin(ItUtils.pluginArtifact("license-plugin"))
@@ -88,26 +88,26 @@ public class ServerTest {
     orchestrator.start();
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("settings",
-      "/administration/ServerTest/settings/general-settings.html",
+      "/server/ServerTest/settings/general-settings.html",
 
       // SONAR-2869 the annotation @Properties can be used on extensions and not only on plugin entry points
-      "/administration/ServerTest/settings/hidden-extension-property.html",
-      "/administration/ServerTest/settings/global-extension-property.html",
+      "/server/ServerTest/settings/hidden-extension-property.html",
+      "/server/ServerTest/settings/global-extension-property.html",
 
       // SONAR-3344 - licenses
-      "/administration/ServerTest/settings/ignore-corrupted-license.html",
-      "/administration/ServerTest/settings/display-license.html",
-      "/administration/ServerTest/settings/display-untyped-license.html",
+      "/server/ServerTest/settings/ignore-corrupted-license.html",
+      "/server/ServerTest/settings/display-license.html",
+      "/server/ServerTest/settings/display-untyped-license.html",
 
       // SONAR-2084 - encryption
-      "/administration/ServerTest/settings/generate-secret-key.html",
-      "/administration/ServerTest/settings/encrypt-text.html",
+      "/server/ServerTest/settings/generate-secret-key.html",
+      "/server/ServerTest/settings/encrypt-text.html",
 
       // SONAR-1378 - property types
-      "/administration/ServerTest/settings/validate-property-type.html",
+      "/server/ServerTest/settings/validate-property-type.html",
 
       // SONAR-3127 - hide passwords
-      "/administration/ServerTest/settings/hide-passwords.html"
+      "/server/ServerTest/settings/hide-passwords.html"
       ).build();
     orchestrator.executeSelenese(selenese);
   }
@@ -129,7 +129,7 @@ public class ServerTest {
     orchestrator.executeBuilds(withDeprecatedKey, withNewKey);
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("property_relocation",
-      "/administration/ServerTest/settings/property_relocation.html"
+      "/server/ServerTest/settings/property_relocation.html"
       ).build();
     orchestrator.executeSelenese(selenese);
   }
@@ -202,7 +202,7 @@ public class ServerTest {
   public void check_minimal_sonar_version_at_startup() throws Exception {
     try {
       orchestrator = Orchestrator.builderEnv()
-        .addPlugin(FileLocation.of(new File(ServerTest.class.getResource("/administration/ServerTest/incompatible-plugin-1.0.jar").toURI())))
+        .addPlugin(FileLocation.of(new File(ServerTest.class.getResource("/server/ServerTest/incompatible-plugin-1.0.jar").toURI())))
         .build();
       orchestrator.start();
       fail();
@@ -224,7 +224,7 @@ public class ServerTest {
       .setProperty("sonar.projectKey", "myproject.jsp"));
     // Access dashboard
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("url_ending_by_jsp",
-      "/administration/ServerTest/url_ending_by_jsp.html").build();
+      "/server/ServerTest/url_ending_by_jsp.html").build();
     orchestrator.executeSelenese(selenese);
   }
 
@@ -248,7 +248,7 @@ public class ServerTest {
     orchestrator.start();
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("settings-default-value",
-      "/administration/ServerTest/settings-default-value.html").build();
+      "/server/ServerTest/settings-default-value.html").build();
     orchestrator.executeSelenese(selenese);
   }
 
