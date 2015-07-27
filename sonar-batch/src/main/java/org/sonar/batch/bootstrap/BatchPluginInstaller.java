@@ -19,24 +19,22 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.batch.cache.WSLoaderResult;
-import org.sonar.batch.cache.WSLoader;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.Plugin;
+import org.sonar.api.SonarPlugin;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.batch.cache.WSLoader;
+import org.sonar.batch.cache.WSLoaderResult;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.RemotePlugin;
 import org.sonar.core.platform.RemotePluginFile;
@@ -90,7 +88,7 @@ public class BatchPluginInstaller implements PluginInstaller {
    * @see org.sonar.batch.mediumtest.BatchMediumTester
    */
   @Override
-  public Map<String, Plugin> installLocals() {
+  public Map<String, SonarPlugin> installLocals() {
     return Collections.emptyMap();
   }
 

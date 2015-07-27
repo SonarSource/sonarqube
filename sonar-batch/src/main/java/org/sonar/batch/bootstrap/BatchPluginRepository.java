@@ -24,14 +24,13 @@ import org.sonar.api.utils.log.Loggers;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import java.util.Collection;
+import java.util.Map;
 import org.picocontainer.Startable;
-import org.sonar.api.Plugin;
+import org.sonar.api.SonarPlugin;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.platform.PluginRepository;
-
-import java.util.Collection;
-import java.util.Map;
 
 /**
  * Orchestrates the installation and loading of plugins
@@ -42,7 +41,7 @@ public class BatchPluginRepository implements PluginRepository, Startable {
   private final PluginInstaller installer;
   private final PluginLoader loader;
 
-  private Map<String, Plugin> pluginInstancesByKeys;
+  private Map<String, SonarPlugin> pluginInstancesByKeys;
   private Map<String, PluginInfo> infosByKeys;
 
   public BatchPluginRepository(PluginInstaller installer, PluginLoader loader) {
@@ -56,7 +55,7 @@ public class BatchPluginRepository implements PluginRepository, Startable {
     pluginInstancesByKeys = Maps.newHashMap(loader.load(infosByKeys));
 
     // this part is only used by tests
-    for (Map.Entry<String, Plugin> entry : installer.installLocals().entrySet()) {
+    for (Map.Entry<String, SonarPlugin> entry : installer.installLocals().entrySet()) {
       String pluginKey = entry.getKey();
       infosByKeys.put(pluginKey, new PluginInfo(pluginKey));
       pluginInstancesByKeys.put(pluginKey, entry.getValue());
@@ -98,8 +97,8 @@ public class BatchPluginRepository implements PluginRepository, Startable {
   }
 
   @Override
-  public Plugin getPluginInstance(String key) {
-    Plugin instance = pluginInstancesByKeys.get(key);
+  public SonarPlugin getPluginInstance(String key) {
+    SonarPlugin instance = pluginInstancesByKeys.get(key);
     Preconditions.checkState(instance != null, String.format("Plugin [%s] does not exist", key));
     return instance;
   }

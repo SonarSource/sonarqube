@@ -19,6 +19,8 @@
  */
 package org.sonar.api;
 
+import java.util.List;
+
 /**
  * Plugin entry-point used to declare its extensions (see {@link org.sonar.api.Extension}.
  * <p/>
@@ -27,22 +29,12 @@ package org.sonar.api;
  * 
  * @since 2.8
  */
-public abstract class SonarPlugin implements Plugin {
+public abstract class SonarPlugin {
 
-  @Override
-  public final String getKey() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public final String getName() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public final String getDescription() {
-    throw new UnsupportedOperationException();
-  }
+  /**
+   * Classes of the implemented extensions.
+   */
+  public abstract List getExtensions();
 
   /**
    * Returns a string representation of the plugin, suitable for debugging purposes only.

@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.SystemUtils;
-import org.sonar.api.Plugin;
+import org.sonar.api.SonarPlugin;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.updatecenter.common.Version;
 
@@ -67,7 +67,7 @@ public class PluginLoader {
     this.classloaderFactory = classloaderFactory;
   }
 
-  public Map<String, Plugin> load(Map<String, PluginInfo> infoByKeys) {
+  public Map<String, SonarPlugin> load(Map<String, PluginInfo> infoByKeys) {
     Collection<PluginClassLoaderDef> defs = defineClassloaders(infoByKeys);
     Map<PluginClassLoaderDef, ClassLoader> classloaders = classloaderFactory.create(defs);
     return instantiatePluginClasses(classloaders);
@@ -126,9 +126,9 @@ public class PluginLoader {
    * @throws IllegalStateException if at least one plugin can't be correctly loaded
    */
   @VisibleForTesting
-  Map<String, Plugin> instantiatePluginClasses(Map<PluginClassLoaderDef, ClassLoader> classloaders) {
+  Map<String, SonarPlugin> instantiatePluginClasses(Map<PluginClassLoaderDef, ClassLoader> classloaders) {
     // instantiate plugins
-    Map<String, Plugin> instancesByPluginKey = new HashMap<>();
+    Map<String, SonarPlugin> instancesByPluginKey = new HashMap<>();
     for (Map.Entry<PluginClassLoaderDef, ClassLoader> entry : classloaders.entrySet()) {
       PluginClassLoaderDef def = entry.getKey();
       ClassLoader classLoader = entry.getValue();
@@ -138,7 +138,7 @@ public class PluginLoader {
         String pluginKey = mainClassEntry.getKey();
         String mainClass = mainClassEntry.getValue();
         try {
-          instancesByPluginKey.put(pluginKey, (Plugin) classLoader.loadClass(mainClass).newInstance());
+          instancesByPluginKey.put(pluginKey, (SonarPlugin) classLoader.loadClass(mainClass).newInstance());
         } catch (UnsupportedClassVersionError e) {
           throw new IllegalStateException(String.format("The plugin [%s] does not support Java %s",
             pluginKey, SystemUtils.JAVA_VERSION_TRIMMED), e);
@@ -151,8 +151,8 @@ public class PluginLoader {
     return instancesByPluginKey;
   }
 
-  public void unload(Collection<Plugin> plugins) {
-    for (Plugin plugin : plugins) {
+  public void unload(Collection<SonarPlugin> plugins) {
+    for (SonarPlugin plugin : plugins) {
       ClassLoader classLoader = plugin.getClass().getClassLoader();
       if (classLoader instanceof Closeable && classLoader != classloaderFactory.baseClassLoader()) {
         try {

@@ -21,20 +21,18 @@ package org.sonar.server.platform;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
+import java.io.File;
+import java.io.IOException;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
-import org.sonar.api.Plugin;
+import org.sonar.api.SonarPlugin;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
-
-import javax.annotation.Nullable;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Ruby on Rails requires the files to be on filesystem but not in Java classpath (JAR). This component extracts
@@ -62,7 +60,7 @@ public class RailsAppsDeployer implements Startable {
 
     for (PluginInfo pluginInfo : pluginRepository.getPluginInfos()) {
       String pluginKey = pluginInfo.getKey();
-      Plugin plugin = pluginRepository.getPluginInstance(pluginKey);
+      SonarPlugin plugin = pluginRepository.getPluginInstance(pluginKey);
       try {
         deployRailsApp(appsDir, pluginKey, plugin.getClass().getClassLoader());
       } catch (Exception e) {

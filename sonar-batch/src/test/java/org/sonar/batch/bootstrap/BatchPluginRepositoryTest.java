@@ -21,7 +21,7 @@ package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
-import org.sonar.api.Plugin;
+import org.sonar.api.SonarPlugin;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginLoader;
 
@@ -42,7 +42,7 @@ public class BatchPluginRepositoryTest {
   public void install_and_load_plugins() {
     PluginInfo info = new PluginInfo("squid");
     ImmutableMap<String, PluginInfo> infos = ImmutableMap.of("squid", info);
-    Plugin instance = mock(Plugin.class);
+    SonarPlugin instance = mock(SonarPlugin.class);
     when(loader.load(infos)).thenReturn(ImmutableMap.of("squid", instance));
     when(installer.installRemotes()).thenReturn(infos);
 
@@ -53,7 +53,7 @@ public class BatchPluginRepositoryTest {
     assertThat(underTest.getPluginInstance("squid")).isSameAs(instance);
 
     underTest.stop();
-    verify(loader).unload(anyCollectionOf(Plugin.class));
+    verify(loader).unload(anyCollectionOf(SonarPlugin.class));
   }
 
   @Test

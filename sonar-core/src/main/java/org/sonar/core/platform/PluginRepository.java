@@ -20,7 +20,7 @@
 package org.sonar.core.platform;
 
 import java.util.Collection;
-import org.sonar.api.Plugin;
+import org.sonar.api.SonarPlugin;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.server.ServerSide;
 
@@ -38,7 +38,7 @@ public interface PluginRepository {
   /**
    * @return the instance of {@link Plugin} for the given plugin key. Never return null.
    */
-  Plugin getPluginInstance(String key);
+  SonarPlugin getPluginInstance(String key);
 
   boolean hasPlugin(String key);
 }
