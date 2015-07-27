@@ -19,16 +19,21 @@
  */
 package org.sonar.server.computation.container;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Member;
 import java.util.Arrays;
 import java.util.List;
 import org.picocontainer.ComponentAdapter;
+import org.picocontainer.ComponentMonitor;
 import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.MutablePicoContainer;
+import org.picocontainer.PicoContainer;
 import org.picocontainer.behaviors.OptInCaching;
 import org.picocontainer.lifecycle.ReflectionLifecycleStrategy;
+import org.picocontainer.monitors.ComponentMonitorHelper;
 import org.picocontainer.monitors.NullComponentMonitor;
+import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.utils.log.Profiler;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.Module;
@@ -85,8 +90,14 @@ import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.view.index.ViewIndex;
 
 import static java.util.Objects.requireNonNull;
+import static org.picocontainer.monitors.ComponentMonitorHelper.ctorToString;
+import static org.picocontainer.monitors.ComponentMonitorHelper.format;
+import static org.picocontainer.monitors.ComponentMonitorHelper.methodToString;
+import static org.picocontainer.monitors.ComponentMonitorHelper.parmsToString;
 
 public class ComputeEngineContainerImpl extends ComponentContainer implements ComputeEngineContainer {
+  private static final Logger LOG = Loggers.get(ComputeEngineContainerImpl.class);
+
   private final ReportQueue.Item item;
   private final ComputationSteps steps;
 
@@ -125,22 +136,36 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
    * and lazily starts its components.
    */
   private static MutablePicoContainer createContainer(ComponentContainer parent) {
-    ReflectionLifecycleStrategy lifecycleStrategy = new ReflectionLifecycleStrategy(new NullComponentMonitor(), "start", "stop", "close") {
+    ComponentMonitor componentMonitor = instanceComponentMonitor();
+    ReflectionLifecycleStrategy lifecycleStrategy = new ReflectionLifecycleStrategy(componentMonitor, "start", "stop", "close") {
       @Override
       public boolean isLazy(ComponentAdapter<?> adapter) {
         return true;
       }
-
-      @Override
-      public void start(Object component) {
-        Profiler profiler = Profiler.createIfTrace(Loggers.get(ComponentContainer.class));
-        profiler.start();
-        super.start(component);
-        profiler.stopTrace(component.getClass().getCanonicalName() + " started");
-      }
     };
 
-    return new DefaultPicoContainer(new OptInCaching(), lifecycleStrategy, parent.getPicoContainer());
+    return new DefaultPicoContainer(new OptInCaching(), lifecycleStrategy, parent.getPicoContainer(), componentMonitor);
+  }
+
+  private static ComponentMonitor instanceComponentMonitor() {
+    if (!LOG.isTraceEnabled()) {
+      return new NullComponentMonitor();
+    }
+    return new ComputeEngineComponentMonitor();
+  }
+
+  private static class ComputeEngineComponentMonitor extends NullComponentMonitor {
+
+    public <T> void instantiated(PicoContainer container, ComponentAdapter<T> componentAdapter,
+      Constructor<T> constructor, Object instantiated, Object[] parameters, long duration) {
+      LOG.trace(format(ComponentMonitorHelper.INSTANTIATED, ctorToString(constructor), duration, instantiated.getClass().getName(), parmsToString(parameters)));
+    }
+
+    @Override
+    public void invoked(PicoContainer container, ComponentAdapter<?> componentAdapter, Member member, Object instance, long duration, Object[] args, Object retVal) {
+      LOG.trace(format(ComponentMonitorHelper.INVOKED, methodToString(member), instance, duration));
+    }
+
   }
 
   /**
@@ -151,11 +176,11 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
     return Arrays.asList(
       new ComputationTempFolderProvider(),
 
-      ActivityManager.class,
+    ActivityManager.class,
 
-      MetricModule.class,
+    MetricModule.class,
 
-      // holders
+    // holders
       BatchReportDirectoryHolderImpl.class,
       TreeRootHolderImpl.class,
       PeriodsHolderImpl.class,
@@ -164,9 +189,9 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       SqaleRatingSettings.class,
       ActiveRulesHolderImpl.class,
 
-      BatchReportReaderImpl.class,
+    BatchReportReaderImpl.class,
 
-      // repositories
+    // repositories
       LanguageRepositoryImpl.class,
       MeasureRepositoryImpl.class,
       EventRepositoryImpl.class,
@@ -175,10 +200,10 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       QualityGateServiceImpl.class,
       EvaluationResultTextConverterImpl.class,
 
-      // new coverage measures
+    // new coverage measures
       NewCoverageMetricKeysModule.class,
 
-      // issues
+    // issues
       RuleCacheLoader.class,
       RuleRepositoryImpl.class,
       ScmAccountToUserLoader.class,
@@ -188,7 +213,7 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       IssueVisitors.class,
       IssueLifecycle.class,
 
-      // common rules
+    // common rules
       CommonRuleEngineImpl.class,
       BranchCoverageRule.class,
       LineCoverageRule.class,
@@ -197,7 +222,7 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       TestErrorRule.class,
       SkippedTestRule.class,
 
-      // order is important: DebtAggregator then NewDebtAggregator (new debt requires debt)
+    // order is important: DebtAggregator then NewDebtAggregator (new debt requires debt)
       DebtCalculator.class,
       DebtAggregator.class,
       NewDebtCalculator.class,
@@ -206,19 +231,18 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       RuleTagsCopier.class,
       IssueCounter.class,
 
-      UpdateConflictResolver.class,
+    UpdateConflictResolver.class,
       TrackerBaseInputFactory.class,
       TrackerRawInputFactory.class,
       Tracker.class,
       TrackerExecution.class,
       BaseIssuesLoader.class,
 
-      // views
+    // views
       ViewIndex.class,
 
-      // ComputationService
-      ComputationService.class
-      );
+    // ComputationService
+      ComputationService.class);
   }
 
   @Override

@@ -74,8 +74,9 @@ public class ComputationServiceTest {
     assertThat(dto.getFinishedAt()).isNotNull();
 
     // one info log at the end
-    assertThat(logTester.logs(LoggerLevel.INFO)).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.INFO).get(0)).startsWith("Analysis of project P1 (report 1) (done) | time=");
+    assertThat(logTester.logs(LoggerLevel.INFO)).hasSize(3);
+//    assertThat(logTester.logs(LoggerLevel.INFO).get(0)).startsWith("Analysis of project P1 (report 1) (done) | time=");
+    assertThat(logTester.logs(LoggerLevel.INFO).get(2)).startsWith("Analysis of project P1 (report 1) total time spent in steps=");
 
     // execute only the steps supporting the project qualifier
     verify(projectStep1).execute();

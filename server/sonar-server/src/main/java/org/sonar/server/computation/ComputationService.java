@@ -24,11 +24,12 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.utils.log.Profiler;
+import org.sonar.core.util.logs.Profiler;
 import org.sonar.server.computation.activity.ActivityManager;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
 
+import static java.lang.String.format;
 import static org.sonar.db.compute.AnalysisReportDto.Status.FAILED;
 import static org.sonar.db.compute.AnalysisReportDto.Status.SUCCESS;
 
@@ -51,15 +52,16 @@ public class ComputationService {
 
   public void process() {
     String projectKey = item.dto.getProjectKey();
-    Profiler profiler = Profiler.create(LOG).startDebug(
-      String.format("Analysis of project %s (report %d)", projectKey, item.dto.getId())
-      );
+    String message = format("Analysis of project %s (report %d)", projectKey, item.dto.getId());
+    Profiler profiler = Profiler.create(LOG).startDebug(message);
 
+    long timingSum = 0L;
+    Profiler stepProfiler = Profiler.create(LOG);
     try {
       for (ComputationStep step : steps.instances()) {
-        Profiler stepProfiler = Profiler.createIfDebug(LOG).startDebug(step.getDescription());
+        stepProfiler.start();
         step.execute();
-        stepProfiler.stopDebug();
+        timingSum += stepProfiler.stopInfo(step.getDescription());
       }
       item.dto.setStatus(SUCCESS);
     } catch (Throwable e) {
@@ -68,7 +70,7 @@ public class ComputationService {
     } finally {
       item.dto.setFinishedAt(system.now());
       activityManager.saveActivity(item.dto);
-      profiler.stopInfo();
+      profiler.stopInfo(format("%s total time spent in steps=%sms", message, timingSum));
     }
   }
 }

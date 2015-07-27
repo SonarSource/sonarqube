@@ -23,6 +23,7 @@ package org.sonar.server.computation;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.util.logs.Profiler;
 import org.sonar.server.computation.container.ComputeEngineContainer;
 import org.sonar.server.computation.container.ContainerFactory;
 
@@ -45,6 +46,7 @@ public class ComputationThread implements Runnable {
 
   @Override
   public void run() {
+    Profiler profiler = Profiler.create(LOG).start();
     ReportQueue.Item item = null;
     try {
       item = queue.pop();
@@ -66,6 +68,7 @@ public class ComputationThread implements Runnable {
 
       removeSilentlyFromQueue(item);
     }
+    profiler.stopInfo(String.format("Total thread execution of project %s (report %d)", item.dto.getProjectKey(), item.dto.getId()));
   }
 
   private void removeSilentlyFromQueue(ReportQueue.Item item) {
