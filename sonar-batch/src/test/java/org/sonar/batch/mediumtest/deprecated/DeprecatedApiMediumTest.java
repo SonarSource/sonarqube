@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.mediumtest.deprecated;
 
+import org.sonar.xoo.rule.XooRulesDefinition;
+
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
@@ -42,6 +44,7 @@ public class DeprecatedApiMediumTest {
 
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
+    .addRules(new XooRulesDefinition())
     .addDefaultQProfile("xoo", "Sonar Way")
     .activateRule(new ActiveRule("xoo", "DeprecatedResourceApi", null, "One issue per line", "MAJOR", null, "xoo"))
     .build();
@@ -82,9 +85,9 @@ public class DeprecatedApiMediumTest {
       .start();
 
     assertThat(result.issues()).extracting("componentKey", "message", "line").containsOnly(
-      tuple("com.foo.project:src/sample.xoo", "One issue per line", null),
+      tuple("com.foo.project:src/sample.xoo", "Issue created using deprecated API", null),
       tuple("com.foo.project:src/sample.xoo", "Issue created using deprecated API", 1),
-      tuple("com.foo.project:src/package/sample.xoo", "One issue per line", null),
+      tuple("com.foo.project:src/package/sample.xoo", "Issue created using deprecated API", null),
       tuple("com.foo.project:src/package/sample.xoo", "Issue created using deprecated API", 1),
       tuple("com.foo.project:src", "Issue created using deprecated API", null),
       tuple("com.foo.project:src/package", "Issue created using deprecated API", null));

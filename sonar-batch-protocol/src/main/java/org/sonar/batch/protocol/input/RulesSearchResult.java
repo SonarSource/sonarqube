@@ -17,41 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan.report;
+package org.sonar.batch.protocol.input;
 
-import org.sonar.api.batch.rule.Rule;
+import java.util.List;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.sonar.batch.protocol.GsonHelper;
 
-public final class RuleReport {
-  private final ReportRuleKey reportRuleKey;
-  private final IssueVariation total = new IssueVariation();
+public class RulesSearchResult {
+  List<Rule> rules;
 
-  public RuleReport(ReportRuleKey reportRuleKey) {
-    this.reportRuleKey = reportRuleKey;
+  public List<Rule> getRules() {
+    return rules;
   }
 
-  public IssueVariation getTotal() {
-    return total;
+  public void setRules(List<Rule> rules) {
+    this.rules = rules;
   }
 
-  public ReportRuleKey getReportRuleKey() {
-    return reportRuleKey;
+  public String toJson() {
+    return GsonHelper.create().toJson(this);
   }
 
-  public String getSeverity() {
-    return reportRuleKey.getSeverity().toString();
+  public static RulesSearchResult fromJson(String json) {
+    return GsonHelper.create().fromJson(json, RulesSearchResult.class);
   }
 
-  public Rule getRule() {
-    return reportRuleKey.getRule();
-  }
-
-  @Override
-  public String toString() {
-    return new ToStringBuilder(this).
-      append("reportRuleKey", reportRuleKey).
-      append("total", total).
-      toString();
-  }
 }

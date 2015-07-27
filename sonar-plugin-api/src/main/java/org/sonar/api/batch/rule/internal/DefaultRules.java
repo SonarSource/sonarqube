@@ -19,10 +19,12 @@
  */
 package org.sonar.api.batch.rule.internal;
 
+import org.sonar.api.batch.rule.Rule;
+import com.google.common.collect.ImmutableTable;
+import com.google.common.collect.Table;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ListMultimap;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.rule.RuleKey;
 
@@ -36,14 +38,22 @@ class DefaultRules implements Rules {
 
   // TODO use disk-backed cache (persistit) instead of full in-memory cache ?
   private final ListMultimap<String, Rule> rulesByRepository;
+  private final Table<String, String, Rule> rulesByRepositoryAndInternalKey;
 
   DefaultRules(Collection<NewRule> newRules) {
     ImmutableListMultimap.Builder<String, Rule> builder = ImmutableListMultimap.builder();
+    ImmutableTable.Builder<String, String, Rule> tableBuilder = ImmutableTable.builder();
+
     for (NewRule newRule : newRules) {
       DefaultRule r = new DefaultRule(newRule);
       builder.put(r.key().repository(), r);
+      if (r.internalKey() != null) {
+        tableBuilder.put(r.key().repository(), r.internalKey(), r);
+      }
     }
+
     rulesByRepository = builder.build();
+    rulesByRepositoryAndInternalKey = tableBuilder.build();
   }
 
   @Override
@@ -65,5 +75,10 @@ class DefaultRules implements Rules {
   @Override
   public Collection<Rule> findByRepository(String repository) {
     return rulesByRepository.get(repository);
+  }
+
+  @Override
+  public Rule findByInternalKey(String repository, String internalKey) {
+    return rulesByRepositoryAndInternalKey.get(repository, internalKey);
   }
 }

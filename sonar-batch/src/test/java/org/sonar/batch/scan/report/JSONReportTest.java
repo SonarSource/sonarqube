@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.scan.report;
 
+import org.sonar.api.batch.rule.internal.RulesBuilder;
+
+import org.sonar.api.batch.rule.Rules;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import org.junit.Before;
@@ -29,8 +32,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
@@ -68,7 +69,7 @@ public class JSONReportTest {
   Resource resource = mock(Resource.class);
   DefaultFileSystem fs;
   Server server = mock(Server.class);
-  ActiveRules activeRules = mock(ActiveRules.class);
+  Rules rules = mock(Rules.class);
   Settings settings = new Settings();
   IssueCache issueCache = mock(IssueCache.class);
   private UserRepository userRepository;
@@ -91,10 +92,11 @@ public class JSONReportTest {
     moduleA.setParent(rootModule).setPath("core");
     Project moduleB = new Project("struts-ui");
     moduleB.setParent(rootModule).setPath("ui");
-    activeRules = new ActiveRulesBuilder()
-      .create(RuleKey.of("squid", "AvoidCycles")).setName("Avoid Cycles").activate()
-      .build();
-    jsonReport = new JSONReport(settings, fs, server, activeRules, issueCache, rootModule, fileCache, userRepository);
+
+    RulesBuilder builder = new RulesBuilder();
+    builder.add(RuleKey.of("squid", "AvoidCycles")).setName("Avoid Cycles");
+    rules = builder.build();
+    jsonReport = new JSONReport(settings, fs, server, rules, issueCache, rootModule, fileCache, userRepository);
   }
 
   @Test

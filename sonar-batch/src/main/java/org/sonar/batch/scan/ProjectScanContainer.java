@@ -132,7 +132,7 @@ public class ProjectScanContainer extends ComponentContainer {
       ProjectExclusions.class,
       ProjectReactorValidator.class,
       new ProjectRepositoriesProvider(),
-      new WSLoaderProjectProvider(),
+      new ProjectWSLoaderProvider(),
       DefaultResourceCreationLock.class,
       CodeColorizers.class,
       MetricProvider.class,

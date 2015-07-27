@@ -19,6 +19,11 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.batch.rule.RulesLoader;
+
+import org.sonar.batch.rule.DefaultRulesLoader;
+import org.sonar.batch.rule.RulesProvider;
+
 import java.util.List;
 import java.util.Map;
 
@@ -85,6 +90,7 @@ public class GlobalContainer extends ComponentContainer {
       CachesManager.class,
       GlobalMode.class,
       GlobalSettings.class,
+      new RulesProvider(),
       ServerClient.class,
       Logback.class,
       DefaultServer.class,
@@ -101,6 +107,7 @@ public class GlobalContainer extends ComponentContainer {
       new GlobalRepositoriesProvider(),
       UserRepository.class);
     addIfMissing(BatchPluginInstaller.class, PluginInstaller.class);
+    addIfMissing(DefaultRulesLoader.class, RulesLoader.class);
     addIfMissing(DefaultGlobalRepositoriesLoader.class, GlobalRepositoriesLoader.class);
     addIfMissing(DefaultProjectRepositoriesLoader.class, ProjectRepositoriesLoader.class);
     addIfMissing(DefaultServerIssuesLoader.class, ServerIssuesLoader.class);

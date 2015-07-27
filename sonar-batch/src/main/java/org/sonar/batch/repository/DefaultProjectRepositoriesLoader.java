@@ -19,8 +19,8 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.bootstrap.GlobalMode;
 
+import org.sonar.batch.bootstrap.GlobalMode;
 import org.sonar.batch.util.BatchUtils;
 import org.sonar.batch.bootstrap.WSLoader;
 import org.slf4j.Logger;
@@ -56,5 +56,4 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
     url += "&preview=" + globalMode.isPreview();
     return ProjectRepositories.fromJson(wsLoader.loadString(url));
   }
-
 }

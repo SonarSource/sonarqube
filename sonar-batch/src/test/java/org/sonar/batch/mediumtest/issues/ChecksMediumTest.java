@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.mediumtest.issues;
 
+import org.sonar.batch.protocol.input.Rule;
+
+import org.sonar.xoo.rule.XooRulesDefinition;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -42,7 +45,10 @@ public class ChecksMediumTest {
 
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
+    .addRules(new XooRulesDefinition())
     .addDefaultQProfile("xoo", "Sonar Way")
+    .addRule(new Rule("xoo:TemplateRule_1234", "xoo", "TemplateRule_1234", "A template rule", "MAJOR", "xoo"))
+    .addRule(new Rule("xoo:TemplateRule_1235", "xoo", "TemplateRule_1235", "Another template rule", "MAJOR", "xoo"))
     .activateRule(new ActiveRule("xoo", "TemplateRule_1234", "TemplateRule", "A template rule", "MAJOR", null, "xoo").addParam("line", "1"))
     .activateRule(new ActiveRule("xoo", "TemplateRule_1235", "TemplateRule", "Another template rule", "MAJOR", null, "xoo").addParam("line", "2"))
     .build();

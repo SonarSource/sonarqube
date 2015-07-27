@@ -19,9 +19,10 @@
  */
 package org.sonar.batch.scan.report;
 
+import org.sonar.api.batch.rule.Rule;
+
 import com.google.common.collect.Maps;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 
 import java.util.ArrayList;
@@ -49,12 +50,12 @@ public class ReportSummary {
     initMaps(reportRuleKey);
     ruleReportByRuleKey.get(reportRuleKey).getTotal().incrementCountInCurrentAnalysis();
     total.incrementCountInCurrentAnalysis();
-    totalByRuleKey.get(rule.ruleKey().toString()).incrementCountInCurrentAnalysis();
+    totalByRuleKey.get(rule.key().toString()).incrementCountInCurrentAnalysis();
     totalBySeverity.get(severity.toString()).incrementCountInCurrentAnalysis();
     if (issue.isNew()) {
       total.incrementNewIssuesCount();
       ruleReportByRuleKey.get(reportRuleKey).getTotal().incrementNewIssuesCount();
-      totalByRuleKey.get(rule.ruleKey().toString()).incrementNewIssuesCount();
+      totalByRuleKey.get(rule.key().toString()).incrementNewIssuesCount();
       totalBySeverity.get(severity.toString()).incrementNewIssuesCount();
     }
   }
@@ -72,7 +73,7 @@ public class ReportSummary {
     initMaps(reportRuleKey);
     total.incrementResolvedIssuesCount();
     ruleReportByRuleKey.get(reportRuleKey).getTotal().incrementResolvedIssuesCount();
-    totalByRuleKey.get(rule.ruleKey().toString()).incrementResolvedIssuesCount();
+    totalByRuleKey.get(rule.key().toString()).incrementResolvedIssuesCount();
     totalBySeverity.get(severity.toString()).incrementResolvedIssuesCount();
   }
 
@@ -80,8 +81,8 @@ public class ReportSummary {
     if (!ruleReportByRuleKey.containsKey(reportRuleKey)) {
       ruleReportByRuleKey.put(reportRuleKey, new RuleReport(reportRuleKey));
     }
-    if (!totalByRuleKey.containsKey(reportRuleKey.getRule().ruleKey().toString())) {
-      totalByRuleKey.put(reportRuleKey.getRule().ruleKey().toString(), new IssueVariation());
+    if (!totalByRuleKey.containsKey(reportRuleKey.getRule().key().toString())) {
+      totalByRuleKey.put(reportRuleKey.getRule().key().toString(), new IssueVariation());
     }
     if (!totalBySeverity.containsKey(reportRuleKey.getSeverity().toString())) {
       totalBySeverity.put(reportRuleKey.getSeverity().toString(), new IssueVariation());

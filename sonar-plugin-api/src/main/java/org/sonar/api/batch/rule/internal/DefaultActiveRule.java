@@ -30,7 +30,6 @@ import java.util.Map;
 @Immutable
 public class DefaultActiveRule implements ActiveRule {
   private final RuleKey ruleKey;
-  private final String name;
   private final String severity;
   private final String internalKey;
   private final String language;
@@ -39,7 +38,6 @@ public class DefaultActiveRule implements ActiveRule {
 
   DefaultActiveRule(NewActiveRule newActiveRule) {
     this.severity = newActiveRule.severity;
-    this.name = newActiveRule.name;
     this.internalKey = newActiveRule.internalKey;
     this.templateRuleKey = newActiveRule.templateRuleKey;
     this.ruleKey = newActiveRule.ruleKey;
@@ -50,10 +48,6 @@ public class DefaultActiveRule implements ActiveRule {
   @Override
   public RuleKey ruleKey() {
     return ruleKey;
-  }
-
-  public String name() {
-    return name;
   }
 
   @Override

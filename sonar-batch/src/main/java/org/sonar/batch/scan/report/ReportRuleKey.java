@@ -19,9 +19,10 @@
  */
 package org.sonar.batch.scan.report;
 
+import org.sonar.api.batch.rule.Rule;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 
 /**
@@ -68,7 +69,7 @@ public class ReportRuleKey implements Comparable<ReportRuleKey> {
   @Override
   public int compareTo(ReportRuleKey o) {
     if (severity == o.getSeverity()) {
-      return getRule().ruleKey().toString().compareTo(o.getRule().ruleKey().toString());
+      return getRule().key().toString().compareTo(o.getRule().key().toString());
     }
     return o.getSeverity().compareTo(severity);
   }

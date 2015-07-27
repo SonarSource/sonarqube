@@ -105,4 +105,5 @@ public class XooPlugin extends SonarPlugin {
       XooProjectBuilder.class,
       XooPostJob.class);
   }
+
 }

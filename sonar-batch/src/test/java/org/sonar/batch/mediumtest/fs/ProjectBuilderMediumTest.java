@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.mediumtest.fs;
 
+import org.sonar.xoo.rule.XooRulesDefinition;
+
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -44,6 +46,7 @@ public class ProjectBuilderMediumTest {
 
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
+    .addRules(new XooRulesDefinition())
     .addDefaultQProfile("xoo", "Sonar Way")
     .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW))
     .setPreviousAnalysisDate(new Date())

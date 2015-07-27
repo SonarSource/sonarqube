@@ -42,8 +42,8 @@ public class BatchComponents {
     // only static stuff
   }
 
-  public static Collection all(GlobalMode analysisMode) {
-    List components = Lists.newArrayList(
+  public static Collection<Object> all(GlobalMode analysisMode) {
+    List<Object> components = Lists.newArrayList(
       DefaultResourceTypes.get(),
       // SCM
       ScmConfiguration.class,
