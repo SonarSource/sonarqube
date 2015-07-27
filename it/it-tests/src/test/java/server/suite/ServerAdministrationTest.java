@@ -49,8 +49,8 @@ public class ServerAdministrationTest {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("server_id",
       "/server/ServerAdministrationTest/server_id/missing_ip.html",
       // SONAR-4102
-      "/server/ServerAdministrationTest/organisation_must_not_accept_special_chars.html",
-      "/server/ServerAdministrationTest/valid_id.html").build();
+      "/server/ServerAdministrationTest/server_id/organisation_must_not_accept_special_chars.html",
+      "/server/ServerAdministrationTest/server_id/valid_id.html").build();
     orchestrator.executeSelenese(selenese);
   }
 
