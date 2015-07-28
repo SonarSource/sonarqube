@@ -93,6 +93,8 @@ define([
           anchor: that.anchor
         });
         that.options.app.layout.detailsRegion.show(profileDetailsView);
+
+        that.anchor = null;
       });
     },
 

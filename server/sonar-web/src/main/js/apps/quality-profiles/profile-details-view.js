@@ -37,7 +37,8 @@ define([
     },
 
     modelEvents: {
-      'change': 'render'
+      'change': 'render',
+      'flashChangelog': 'flashChangelog'
     },
 
     events: {
@@ -53,6 +54,7 @@ define([
       this.comparisonRegion.show(new ProfileComparisonView({ model: this.model }));
       if (this.options.anchor === 'changelog') {
         this.scrollToChangelog();
+        this.flashChangelog();
       }
       if (this.options.anchor === 'comparison') {
         this.scrollToComparison();
@@ -149,6 +151,14 @@ define([
       return this.options.exporters.filter(function (exporter) {
         return exporter.languages.indexOf(language) !== -1;
       });
+    },
+
+    flashChangelog: function () {
+      var changelogEl = this.$(this.changelogRegion.el);
+      changelogEl.addClass('flash in');
+      setTimeout(function () {
+        changelogEl.removeClass('in');
+      }, 2000);
     },
 
     serializeData: function () {
