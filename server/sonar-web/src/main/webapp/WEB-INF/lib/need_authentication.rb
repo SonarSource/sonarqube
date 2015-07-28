@@ -153,13 +153,16 @@ class PluginRealm
 
       # A user that is synchronized with an external system is always set to 'active' (see SONAR-3258 for the deactivation concept)
       user.active=true
-      # Note that validation disabled
+
+      # This save is to used to set a lock on the users table
       user.save(false)
 
       synchronize_groups(user)
-      user.notify_creation_handlers
-      user
+      user.save(false)
     end
+    # Must be outside the transaction in order to have a lock on the users table : http://jira.sonarsource.com/browse/SONAR-6726
+    user.notify_creation_handlers
+    user
   end
 
   def synchronize_groups(user)
