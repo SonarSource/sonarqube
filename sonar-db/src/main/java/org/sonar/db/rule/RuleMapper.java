@@ -29,7 +29,7 @@ public interface RuleMapper {
 
   List<RuleDto> selectAll();
 
-  List<RuleDto> selectEnablesAndNonManual();
+  List<RuleDto> selectEnabledAndNonManual();
 
   List<RuleDto> selectNonManual();
 

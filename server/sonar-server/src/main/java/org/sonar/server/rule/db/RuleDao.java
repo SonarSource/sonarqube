@@ -92,10 +92,6 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
     return mapper(session).selectAll();
   }
 
-  public List<RuleDto> selectByEnabledAndNotManual(DbSession session) {
-    return mapper(session).selectEnablesAndNonManual();
-  }
-
   /**
    * Nested DTO RuleParams
    */
@@ -139,6 +135,6 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
   }
 
   public List<RuleDto> selectEnabledAndNonManual(DbSession session) {
-    return mapper(session).selectEnablesAndNonManual();
+    return mapper(session).selectEnabledAndNonManual();
   }
 }

@@ -52,6 +52,10 @@ public class RuleDao implements Dao {
     return executeLargeInputs(keys, new KeyToDto(mapper(session)));
   }
 
+  public List<RuleDto> selectEnabledAndNonManual(DbSession session) {
+    return mapper(session).selectEnabledAndNonManual();
+  }
+
   private RuleMapper mapper(DbSession session) {
     return session.getMapper(RuleMapper.class);
   }

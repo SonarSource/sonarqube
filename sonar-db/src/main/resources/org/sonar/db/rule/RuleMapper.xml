@@ -52,7 +52,7 @@
     </where>
   </select>
 
-  <select id="selectEnablesAndNonManual" resultType="Rule">
+  <select id="selectEnabledAndNonManual" resultType="Rule">
     select
     <include refid="selectColumns"/>
     from rules r

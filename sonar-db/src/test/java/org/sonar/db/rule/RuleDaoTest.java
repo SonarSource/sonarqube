@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
@@ -86,4 +87,30 @@ public class RuleDaoTest {
     assertThat(rules).hasSize(1);
     assertThat(rules.get(0).getId()).isEqualTo(1);
   }
+
+  @Test
+  public void selectEnabledAndNonManual() {
+    dbTester.prepareDbUnit(getClass(), "selectEnabledAndNonManual.xml");
+    List<RuleDto> ruleDtos = underTest.selectEnabledAndNonManual(dbTester.getSession());
+
+    assertThat(ruleDtos.size()).isEqualTo(1);
+    RuleDto ruleDto = ruleDtos.get(0);
+    assertThat(ruleDto.getId()).isEqualTo(1);
+    assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
+    assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
+    assertThat(ruleDto.getDescriptionFormat()).isEqualTo(RuleDto.Format.HTML);
+    assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.READY);
+    assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
+    assertThat(ruleDto.getNoteData()).isEqualTo("Rule note with accents \u00e9\u00e8\u00e0");
+    assertThat(ruleDto.getSubCharacteristicId()).isEqualTo(100);
+    assertThat(ruleDto.getDefaultSubCharacteristicId()).isEqualTo(101);
+    assertThat(ruleDto.getRemediationFunction()).isEqualTo("LINEAR");
+    assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
+    assertThat(ruleDto.getRemediationCoefficient()).isEqualTo("1h");
+    assertThat(ruleDto.getDefaultRemediationCoefficient()).isEqualTo("5d");
+    assertThat(ruleDto.getRemediationOffset()).isEqualTo("5min");
+    assertThat(ruleDto.getDefaultRemediationOffset()).isEqualTo("10h");
+    assertThat(ruleDto.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix");
+  }
+
 }
