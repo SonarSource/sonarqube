@@ -18,10 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.permission.ws.global;
+package org.sonar.server.permission.ws;
 
-import org.sonar.server.ws.WsAction;
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-public interface GlobalPermissionsWsAction extends WsAction {
-  // marker interface
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class PermissionsWsModuleTest {
+  @Test
+  public void verify_count_of_added_components() {
+    ComponentContainer container = new ComponentContainer();
+    new PermissionsWsModule().configure(container);
+    assertThat(container.size()).isEqualTo(4);
+  }
 }

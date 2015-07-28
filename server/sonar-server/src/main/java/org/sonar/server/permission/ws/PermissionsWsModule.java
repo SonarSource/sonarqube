@@ -18,29 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.permission.ws.global;
+package org.sonar.server.permission.ws;
 
-import org.sonar.api.server.ws.WebService;
+import org.sonar.core.platform.Module;
 
-public class GlobalPermissionsWs implements WebService {
-  public static final String ENDPOINT = "api/global_permissions";
-
-  private final GlobalPermissionsWsAction[] actions;
-
-  public GlobalPermissionsWs(GlobalPermissionsWsAction... actions) {
-    this.actions = actions;
-  }
-
+public class PermissionsWsModule extends Module {
   @Override
-  public void define(Context context) {
-    NewController controller = context.createController(ENDPOINT)
-      .setSince("5.2")
-      .setDescription("Global permissions management");
-
-    for (GlobalPermissionsWsAction action : actions) {
-      action.define(controller);
-    }
-
-    controller.done();
+  protected void configureModule() {
+    add(
+      PermissionsWs.class,
+      AddGroupAction.class);
   }
 }

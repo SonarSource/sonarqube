@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.permission.ws.global;
+package org.sonar.server.permission.ws;
 
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -26,26 +26,23 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.PermissionChange;
-import org.sonar.server.user.UserSession;
 
-public class AddGroupAction implements GlobalPermissionsWsAction {
+public class AddGroupAction implements PermissionsWsAction {
 
   public static final String ACTION = "add_group";
   public static final String PARAM_PERMISSION = "permission";
   public static final String PARAM_GROUP_NAME = "groupName";
 
   private final InternalPermissionService permissionService;
-  private final UserSession userSession;
 
-  public AddGroupAction(InternalPermissionService permissionService, UserSession userSession) {
+  public AddGroupAction(InternalPermissionService permissionService) {
     this.permissionService = permissionService;
-    this.userSession = userSession;
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
-      .setDescription("Add global permission to a group.<br /> Requires 'Administer System' permission.")
+      .setDescription("Add permission to a group.<br /> Requires 'Administer System' permission.")
       .setSince("5.2")
       .setPost(true)
       .setHandler(this);

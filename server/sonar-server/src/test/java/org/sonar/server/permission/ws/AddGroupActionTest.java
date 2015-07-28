@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.permission.ws.global;
+package org.sonar.server.permission.ws;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -37,8 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
-import static org.sonar.server.permission.ws.global.AddGroupAction.ACTION;
-import static org.sonar.server.permission.ws.global.GlobalPermissionsWs.ENDPOINT;
+import static org.sonar.server.permission.ws.AddGroupAction.ACTION;
 
 public class AddGroupActionTest {
   UserSessionRule userSession = UserSessionRule.standalone();
@@ -52,14 +51,14 @@ public class AddGroupActionTest {
   @Before
   public void setUp() {
     permissionService = mock(InternalPermissionService.class);
-    ws = new WsTester(new GlobalPermissionsWs(
-      new AddGroupAction(permissionService, userSession)));
+    ws = new WsTester(new PermissionsWs(
+      new AddGroupAction(permissionService)));
     userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 
   @Test
   public void call_permission_service_with_right_data() throws Exception {
-    ws.newPostRequest(ENDPOINT, ACTION)
+    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
       .setParam(AddGroupAction.PARAM_GROUP_NAME, "sonar-administrators")
       .setParam(AddGroupAction.PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
@@ -75,7 +74,7 @@ public class AddGroupActionTest {
   public void get_request_are_not_authorized() throws Exception {
     expectedException.expect(ServerException.class);
 
-    ws.newGetRequest(ENDPOINT, ACTION)
+    ws.newGetRequest(PermissionsWs.ENDPOINT, ACTION)
       .setParam(AddGroupAction.PARAM_GROUP_NAME, "sonar-administrators")
       .setParam(AddGroupAction.PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
@@ -85,7 +84,7 @@ public class AddGroupActionTest {
   public void fail_when_group_name_is_missing() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
 
-    ws.newPostRequest(ENDPOINT, ACTION)
+    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
       .setParam(AddGroupAction.PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
   }
@@ -94,7 +93,7 @@ public class AddGroupActionTest {
   public void fail_when_permission_is_missing() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
 
-    ws.newPostRequest(ENDPOINT, ACTION)
+    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
       .setParam(AddGroupAction.PARAM_GROUP_NAME, "sonar-administrators")
       .execute();
   }
