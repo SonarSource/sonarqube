@@ -19,12 +19,16 @@
  */
 package org.sonar.batch.mediumtest.preview;
 
-import org.sonar.batch.protocol.input.Rule;
-
-import org.sonar.xoo.rule.XooRulesDefinition;
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,17 +36,16 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.log.LogTester;
+import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
+import org.sonar.batch.mediumtest.issues.IssuesMediumTest;
 import org.sonar.batch.protocol.Constants.Severity;
 import org.sonar.batch.protocol.input.ActiveRule;
+import org.sonar.batch.protocol.input.Rule;
 import org.sonar.batch.scan.report.ConsoleReport;
 import org.sonar.xoo.XooPlugin;
-
-import java.io.File;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -131,9 +134,16 @@ public class PreviewAndReportsMediumTest {
     tester.stop();
   }
 
+  private File copyProject(String path) throws Exception {
+    File projectDir = temp.newFolder();
+    File originalProjectDir = new File(PreviewAndReportsMediumTest.class.getResource(path).toURI());
+    FileUtils.copyDirectory(originalProjectDir, projectDir, FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter(".sonar")));
+    return projectDir;
+  }
+
   @Test
   public void testIssueTracking() throws Exception {
-    File projectDir = new File(PreviewAndReportsMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File projectDir = copyProject("/mediumtest/xoo/sample");
 
     TaskResult result = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
@@ -142,7 +152,7 @@ public class PreviewAndReportsMediumTest {
     int newIssues = 0;
     int openIssues = 0;
     int resolvedIssue = 0;
-    for (Issue issue : result.issues()) {
+    for (Issue issue : result.trackedIssues()) {
       if (issue.isNew()) {
         newIssues++;
       } else if (issue.resolution() != null) {
@@ -158,7 +168,7 @@ public class PreviewAndReportsMediumTest {
 
   @Test
   public void testConsoleReport() throws Exception {
-    File projectDir = new File(PreviewAndReportsMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File projectDir = copyProject("/mediumtest/xoo/sample");
 
     tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
@@ -170,7 +180,7 @@ public class PreviewAndReportsMediumTest {
 
   @Test
   public void testPostJob() throws Exception {
-    File projectDir = new File(PreviewAndReportsMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File projectDir = copyProject("/mediumtest/xoo/sample");
 
     tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
@@ -191,7 +201,7 @@ public class PreviewAndReportsMediumTest {
 
   @Test
   public void testHtmlReport() throws Exception {
-    File projectDir = new File(PreviewAndReportsMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File projectDir = copyProject("/mediumtest/xoo/sample");
 
     tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
@@ -223,6 +233,32 @@ public class PreviewAndReportsMediumTest {
 
     assertThat(FileUtils.readFileToString(new File(baseDir, ".sonar/issues-report/issues-report.html"))).contains("No file analyzed");
     assertThat(FileUtils.readFileToString(new File(baseDir, ".sonar/issues-report/issues-report-light.html"))).contains("No file analyzed");
+  }
+
+  @Test
+  public void testIssueCallback() throws Exception {
+    File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File tmpDir = temp.newFolder();
+    FileUtils.copyDirectory(projectDir, tmpDir);
+    IssueRecorder issueListener = new IssueRecorder();
+
+    TaskResult result = tester
+      .newScanTask(new File(tmpDir, "sonar-project.properties"))
+      .setIssueListener(issueListener)
+      .start();
+
+    assertThat(result.trackedIssues()).hasSize(14);
+    assertThat(issueListener.issueList).hasSize(14);
+    assertThat(result.trackedIssues()).containsExactlyElementsOf(issueListener.issueList);
+  }
+
+  private class IssueRecorder implements IssueListener {
+    List<org.sonar.api.issue.Issue> issueList = new LinkedList<>();
+
+    @Override
+    public void handle(org.sonar.api.issue.Issue issue) {
+      issueList.add(issue);
+    }
   }
 
 }

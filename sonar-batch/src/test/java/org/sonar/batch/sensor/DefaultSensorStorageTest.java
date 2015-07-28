@@ -19,25 +19,18 @@
  */
 package org.sonar.batch.sensor;
 
-import java.io.StringReader;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
-import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
-import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
@@ -45,7 +38,6 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.ModuleIssues;
@@ -57,7 +49,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DefaultSensorStorageTest {
@@ -141,68 +132,6 @@ public class DefaultSensorStorageTest {
     org.sonar.api.measures.Measure m = argumentCaptor.getValue();
     assertThat(m.getValue()).isEqualTo(10.0);
     assertThat(m.getMetric()).isEqualTo(CoreMetrics.NCLOC);
-  }
-
-  @Test
-  public void shouldAddIssueOnFile() {
-    InputFile file = new DefaultInputFile("foo", "src/Foo.php").initMetadata(new FileMetadata().readMetadata(new StringReader("Foo\nBar\nBiz\n")));
-
-    ArgumentCaptor<org.sonar.core.issue.DefaultIssue> argumentCaptor = ArgumentCaptor.forClass(org.sonar.core.issue.DefaultIssue.class);
-
-    sensorStorage.store(new DefaultIssue()
-      .addLocation(new DefaultIssueLocation().onFile(file).at(file.selectLine(3)).message("Foo"))
-      .forRule(RuleKey.of("foo", "bar"))
-      .effortToFix(10.0));
-
-    verify(moduleIssues).initAndAddIssue(argumentCaptor.capture());
-
-    org.sonar.core.issue.DefaultIssue issue = argumentCaptor.getValue();
-    assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("foo", "bar"));
-    assertThat(issue.message()).isEqualTo("Foo");
-    assertThat(issue.line()).isEqualTo(3);
-    assertThat(issue.severity()).isNull();
-    assertThat(issue.effortToFix()).isEqualTo(10.0);
-  }
-
-  @Test
-  public void shouldAddIssueOnDirectory() {
-    InputDir dir = new DefaultInputDir("foo", "src");
-
-    ArgumentCaptor<org.sonar.core.issue.DefaultIssue> argumentCaptor = ArgumentCaptor.forClass(org.sonar.core.issue.DefaultIssue.class);
-
-    sensorStorage.store(new DefaultIssue()
-      .addLocation(new DefaultIssueLocation().onDir(dir).message("Foo"))
-      .forRule(RuleKey.of("foo", "bar"))
-      .effortToFix(10.0));
-
-    verify(moduleIssues).initAndAddIssue(argumentCaptor.capture());
-
-    org.sonar.core.issue.DefaultIssue issue = argumentCaptor.getValue();
-    assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("foo", "bar"));
-    assertThat(issue.message()).isEqualTo("Foo");
-    assertThat(issue.line()).isNull();
-    assertThat(issue.severity()).isNull();
-    assertThat(issue.effortToFix()).isEqualTo(10.0);
-  }
-
-  @Test
-  public void shouldAddIssueOnProject() {
-    ArgumentCaptor<org.sonar.core.issue.DefaultIssue> argumentCaptor = ArgumentCaptor.forClass(org.sonar.core.issue.DefaultIssue.class);
-
-    sensorStorage.store(new DefaultIssue()
-      .addLocation(new DefaultIssueLocation().onProject().message("Foo"))
-      .forRule(RuleKey.of("foo", "bar"))
-      .overrideSeverity(Severity.BLOCKER)
-      .effortToFix(10.0));
-
-    verify(moduleIssues).initAndAddIssue(argumentCaptor.capture());
-
-    org.sonar.core.issue.DefaultIssue issue = argumentCaptor.getValue();
-    assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("foo", "bar"));
-    assertThat(issue.message()).isEqualTo("Foo");
-    assertThat(issue.line()).isNull();
-    assertThat(issue.severity()).isEqualTo("BLOCKER");
-    assertThat(issue.effortToFix()).isEqualTo(10.0);
   }
 
 }

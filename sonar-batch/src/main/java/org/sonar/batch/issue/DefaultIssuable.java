@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.issue;
 
-import com.google.common.collect.Lists;
+import java.util.Collections;
 import java.util.List;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
@@ -32,13 +32,11 @@ import org.sonar.batch.index.BatchComponent;
  */
 public class DefaultIssuable implements Issuable {
 
-  private final IssueCache cache;
   private final BatchComponent component;
   private final SensorContext sensorContext;
 
-  DefaultIssuable(BatchComponent component, IssueCache cache, SensorContext sensorContext) {
+  DefaultIssuable(BatchComponent component, SensorContext sensorContext) {
     this.component = component;
-    this.cache = cache;
     this.sensorContext = sensorContext;
   }
 
@@ -56,24 +54,12 @@ public class DefaultIssuable implements Issuable {
 
   @Override
   public List<Issue> resolvedIssues() {
-    List<Issue> result = Lists.newArrayList();
-    for (org.sonar.core.issue.DefaultIssue issue : cache.byComponent(component.key())) {
-      if (issue.resolution() != null) {
-        result.add(issue);
-      }
-    }
-    return result;
+    return Collections.emptyList();
   }
 
   @Override
   public List<Issue> issues() {
-    List<Issue> result = Lists.newArrayList();
-    for (org.sonar.core.issue.DefaultIssue issue : cache.byComponent(component.key())) {
-      if (issue.resolution() == null) {
-        result.add(issue);
-      }
-    }
-    return result;
+    return Collections.emptyList();
   }
 
 }

@@ -36,8 +36,10 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -121,8 +123,25 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
     }
   }
 
-  public List<Issue> issues() {
+  public List<Issue> trackedIssues() {
     return issues;
+  }
+
+  public List<BatchReport.Issue> issuesFor(InputPath inputPath) {
+    List<BatchReport.Issue> result = Lists.newArrayList();
+    int ref = reportComponents.get(key(inputPath)).getRef();
+    try (CloseableIterator<BatchReport.Issue> it = reader.readComponentIssues(ref)) {
+      while (it.hasNext()) {
+        result.add(it.next());
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException("Can't read issues for " + inputPath.absolutePath(), e);
+    }
+    return result;
+  }
+
+  private String key(InputPath inputPath) {
+    return inputPath instanceof InputFile ? ((DefaultInputFile) inputPath).key() : ((DefaultInputDir) inputPath).key();
   }
 
   public Collection<InputFile> inputFiles() {

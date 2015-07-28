@@ -133,16 +133,14 @@ public interface Issuable extends Perspective {
   boolean addIssue(Issue issue);
 
   /**
-   * Unresolved issues, including the issues reported by end-users.
-   * <p/>
-   * {@link org.sonar.api.batch.Decorator}s calling this method must be annotated with {@code @DependsUpon(DecoratorBarriers.ISSUES_TRACKED)}.
+   * @deprecated since 5.2 no more decorators on batch side
    */
+  @Deprecated
   List<Issue> issues();
 
   /**
-   * Issues marked as resolved during this scan.
-   * <p/>
-   * {@link org.sonar.api.batch.Decorator}s calling this method must be annotated with {@code @DependsUpon(DecoratorBarriers.ISSUES_TRACKED)}.
+   * @deprecated since 5.2 no more decorators on batch side
    */
+  @Deprecated
   List<Issue> resolvedIssues();
 }

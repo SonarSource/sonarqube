@@ -19,25 +19,23 @@
  */
 package org.sonar.batch.mediumtest.issues;
 
-import org.sonar.api.issue.Issue;
-import org.sonar.batch.bootstrapper.IssueListener;
-import org.sonar.xoo.rule.XooRulesDefinition;
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.rule.Severity;
+import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;
+import org.sonar.batch.protocol.output.BatchReport.Issue;
 import org.sonar.xoo.XooPlugin;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
+import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,44 +50,15 @@ public class IssuesMediumTest {
     .addRules(new XooRulesDefinition())
     .activateRule(new ActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", "OneIssuePerLine.internal", "xoo"))
     .build();
-  
-  public BatchMediumTester testerPreview = BatchMediumTester.builder()
-    .registerPlugin("xoo", new XooPlugin())
-    .addDefaultQProfile("xoo", "Sonar Way")
-    .bootstrapProperties(ImmutableMap.of("sonar.analysis.mode", "preview"))
-    .addRules(new XooRulesDefinition())
-    .activateRule(new ActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", "OneIssuePerLine.internal", "xoo"))
-    .build();
 
   @Before
   public void prepare() {
     tester.start();
-    testerPreview.start();
   }
 
   @After
   public void stop() {
     tester.stop();
-    testerPreview.stop();
-  }
-
-  @Test
-  public void testIssueCallback() throws Exception {
-    File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
-    File tmpDir = temp.newFolder();
-    FileUtils.copyDirectory(projectDir, tmpDir);
-    IssueRecorder issueListener = new IssueRecorder();
-
-    TaskResult result = testerPreview
-      .newScanTask(new File(tmpDir, "sonar-project.properties"))
-      .setIssueListener(issueListener)
-      .property("sonar.analysis.mode", "preview")
-      .start();
-
-    assertThat(result.issues()).hasSize(14);
-    assertThat(issueListener.issueList).hasSize(14);
-
-    assertThat(result.issues()).containsExactlyElementsOf(issueListener.issueList);
   }
 
   @Test
@@ -104,7 +73,7 @@ public class IssuesMediumTest {
       .setIssueListener(issueListener)
       .start();
 
-    assertThat(result.issues()).hasSize(14);
+    assertThat(result.issuesFor(result.inputFile("xources/hello/HelloJava.xoo"))).hasSize(8);
     assertThat(issueListener.issueList).hasSize(0);
   }
 
@@ -118,7 +87,8 @@ public class IssuesMediumTest {
       .newScanTask(new File(tmpDir, "sonar-project.properties"))
       .start();
 
-    assertThat(result.issues()).hasSize(14);
+    List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/HelloJava.xoo"));
+    assertThat(issues).hasSize(8 /* lines */);
   }
 
   @Test
@@ -132,7 +102,8 @@ public class IssuesMediumTest {
       .property("sonar.xoo.internalKey", "OneIssuePerLine.internal")
       .start();
 
-    assertThat(result.issues()).hasSize(14 /* 8 + 6 lines */+ 2 /* 2 files */);
+    List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/HelloJava.xoo"));
+    assertThat(issues).hasSize(8 /* lines */ + 1 /* file */);
   }
 
   @Test
@@ -146,7 +117,8 @@ public class IssuesMediumTest {
       .property("sonar.oneIssuePerLine.forceSeverity", "CRITICAL")
       .start();
 
-    assertThat(result.issues().iterator().next().severity()).isEqualTo(Severity.CRITICAL.name());
+    List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/HelloJava.xoo"));
+    assertThat(issues.get(0).getSeverity()).isEqualTo(org.sonar.batch.protocol.Constants.Severity.CRITICAL);
   }
 
   @Test
@@ -161,7 +133,8 @@ public class IssuesMediumTest {
       .property("sonar.issue.ignore.allfile.1.fileRegexp", "object")
       .start();
 
-    assertThat(result.issues()).hasSize(8);
+    assertThat(result.issuesFor(result.inputFile("xources/hello/HelloJava.xoo"))).hasSize(8 /* lines */);
+    assertThat(result.issuesFor(result.inputFile("xources/hello/helloscala.xoo"))).isEmpty();
   }
 
   @Test
@@ -186,25 +159,25 @@ public class IssuesMediumTest {
         .build())
       .start();
 
-    assertThat(result.issues()).hasSize(10);
+    List<Issue> issues = result.issuesFor(result.inputFile("src/sample.xoo"));
+    assertThat(issues).hasSize(10);
 
     boolean foundIssueAtLine1 = false;
-    for (org.sonar.api.issue.Issue issue : result.issues()) {
-      if (issue.line() == 1) {
+    for (Issue issue : issues) {
+      if (issue.getLine() == 1) {
         foundIssueAtLine1 = true;
-        assertThat(issue.componentKey()).isEqualTo("com.foo.project:src/sample.xoo");
-        assertThat(issue.message()).isEqualTo("This issue is generated on each line");
-        assertThat(issue.effortToFix()).isNull();
+        assertThat(issue.getMsg()).isEqualTo("This issue is generated on each line");
+        assertThat(issue.hasEffortToFix()).isFalse();
       }
     }
     assertThat(foundIssueAtLine1).isTrue();
   }
 
   private class IssueRecorder implements IssueListener {
-    List<Issue> issueList = new LinkedList<>();
+    List<org.sonar.api.issue.Issue> issueList = new LinkedList<>();
 
     @Override
-    public void handle(Issue issue) {
+    public void handle(org.sonar.api.issue.Issue issue) {
       issueList.add(issue);
     }
   }

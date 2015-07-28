@@ -59,7 +59,6 @@ import org.sonar.batch.report.ActiveRulesPublisher;
 import org.sonar.batch.report.ComponentsPublisher;
 import org.sonar.batch.report.CoveragePublisher;
 import org.sonar.batch.report.DuplicationsPublisher;
-import org.sonar.batch.report.IssuesPublisher;
 import org.sonar.batch.report.MeasuresPublisher;
 import org.sonar.batch.report.MetadataPublisher;
 import org.sonar.batch.report.ReportPublisher;
@@ -189,7 +188,6 @@ public class ProjectScanContainer extends ComponentContainer {
       MetadataPublisher.class,
       ActiveRulesPublisher.class,
       ComponentsPublisher.class,
-      IssuesPublisher.class,
       MeasuresPublisher.class,
       DuplicationsPublisher.class,
       CoveragePublisher.class,

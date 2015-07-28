@@ -20,8 +20,8 @@
 package org.sonar.batch.issue;
 
 import org.sonar.api.batch.BatchSide;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.batch.IssueFilter;
-import org.sonar.core.issue.DefaultIssue;
 
 @BatchSide
 public class IssueFilters {
@@ -46,7 +46,7 @@ public class IssueFilters {
     this(new org.sonar.api.issue.IssueFilter[0], new IssueFilter[0]);
   }
 
-  public boolean accept(DefaultIssue issue) {
+  public boolean accept(Issue issue) {
     if (new DefaultIssueFilterChain(filters).accept(issue)) {
       // Apply deprecated rules only if filter chain accepts the current issue
       for (org.sonar.api.issue.IssueFilter filter : exclusionFilters) {

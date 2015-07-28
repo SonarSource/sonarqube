@@ -19,7 +19,11 @@
  */
 package org.sonar.batch.protocol.output;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import org.sonar.core.util.ContextException;
 import org.sonar.core.util.Protobuf;
 
 public class BatchReportWriter {
@@ -65,6 +69,15 @@ public class BatchReportWriter {
     File file = fileStructure.fileFor(FileStructure.Domain.ISSUES, componentRef);
     Protobuf.writeStream(issues, file, false);
     return file;
+  }
+
+  public void appendComponentIssue(int componentRef, BatchReport.Issue issue) {
+    File file = fileStructure.fileFor(FileStructure.Domain.ISSUES, componentRef);
+    try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file, true))) {
+      issue.writeDelimitedTo(out);
+    } catch (Exception e) {
+      throw ContextException.of("Unable to write issue", e).addContext("file", file);
+    }
   }
 
   public File writeComponentMeasures(int componentRef, Iterable<BatchReport.Measure> measures) {

@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.mediumtest.deprecated;
 
-import org.sonar.xoo.rule.XooRulesDefinition;
-
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +31,7 @@ import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.xoo.XooPlugin;
+import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -84,13 +83,16 @@ public class DeprecatedApiMediumTest {
         .build())
       .start();
 
-    assertThat(result.issues()).extracting("componentKey", "message", "line").containsOnly(
-      tuple("com.foo.project:src/sample.xoo", "Issue created using deprecated API", null),
-      tuple("com.foo.project:src/sample.xoo", "Issue created using deprecated API", 1),
-      tuple("com.foo.project:src/package/sample.xoo", "Issue created using deprecated API", null),
-      tuple("com.foo.project:src/package/sample.xoo", "Issue created using deprecated API", 1),
-      tuple("com.foo.project:src", "Issue created using deprecated API", null),
-      tuple("com.foo.project:src/package", "Issue created using deprecated API", null));
+    assertThat(result.issuesFor(result.inputFile("src/sample.xoo"))).extracting("msg", "line").containsOnly(
+      tuple("Issue created using deprecated API", 0),
+      tuple("Issue created using deprecated API", 1));
+    assertThat(result.issuesFor(result.inputFile("src/package/sample.xoo"))).extracting("msg", "line").containsOnly(
+      tuple("Issue created using deprecated API", 0),
+      tuple("Issue created using deprecated API", 1));
+    assertThat(result.issuesFor(result.inputDir("src"))).extracting("msg", "line").containsOnly(
+      tuple("Issue created using deprecated API", 0));
+    assertThat(result.issuesFor(result.inputDir("src/package"))).extracting("msg", "line").containsOnly(
+      tuple("Issue created using deprecated API", 0));
 
   }
 

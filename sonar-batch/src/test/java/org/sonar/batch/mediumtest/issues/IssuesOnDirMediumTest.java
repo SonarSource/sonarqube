@@ -19,9 +19,9 @@
  */
 package org.sonar.batch.mediumtest.issues;
 
-import org.sonar.xoo.rule.XooRulesDefinition;
-
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -31,9 +31,7 @@ import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.xoo.XooPlugin;
-
-import java.io.File;
-import java.io.IOException;
+import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -84,9 +82,7 @@ public class IssuesOnDirMediumTest {
         .build())
       .start();
 
-    assertThat(result.issues()).hasSize(2);
-    assertThat(result.issues().iterator().next().componentKey()).isEqualTo("com.foo.project:src");
-
+    assertThat(result.issuesFor(result.inputDir("src"))).hasSize(2);
   }
 
 }

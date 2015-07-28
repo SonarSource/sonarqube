@@ -19,9 +19,11 @@
  */
 package org.sonar.batch.mediumtest.preview;
 
-import org.sonar.xoo.rule.XooRulesDefinition;
-
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -29,20 +31,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.issue.Issue;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.Constants.Severity;
 import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.xoo.XooPlugin;
-
-import java.io.File;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 
 public class IncrementalModeMediumTest {
 
@@ -143,21 +142,14 @@ public class IncrementalModeMediumTest {
         .build())
       .start();
 
-    int newIssues = 0;
-    int openIssues = 0;
-    int resolvedIssue = 0;
-    for (Issue issue : result.issues()) {
-      if (issue.isNew()) {
-        newIssues++;
-      } else if (issue.resolution() != null) {
-        resolvedIssue++;
-      } else {
-        openIssues++;
-      }
-    }
-    assertThat(newIssues).isEqualTo(4);
-    assertThat(openIssues).isEqualTo(2);
-    assertThat(resolvedIssue).isEqualTo(1);
+    assertThat(result.trackedIssues()).extracting("ruleKey", "line", "message", "status", "resolution", "new").containsOnly(
+      tuple(RuleKey.of("xoo", "OneIssuePerLine"), 1, "This issue is generated on each line", "OPEN", null, false),
+      tuple(RuleKey.of("xoo", "OneIssuePerLine"), 2, "This issue is generated on each line", "OPEN", null, true),
+      tuple(RuleKey.of("xoo", "OneIssuePerLine"), 3, "This issue is generated on each line", "OPEN", null, true),
+      tuple(RuleKey.of("xoo", "OneIssuePerLine"), 4, "This issue is generated on each line", "OPEN", null, true),
+      tuple(RuleKey.of("xoo", "OneIssuePerLine"), 5, "This issue is generated on each line", "OPEN", null, true),
+      tuple(RuleKey.of("manual", "MyManualIssue"), 4, null, "OPEN", null, false),
+      tuple(RuleKey.of("xoo", "OneIssuePerFile"), null, "An issue that is no more detected", "CLOSED", "REMOVED", false));
   }
 
 }

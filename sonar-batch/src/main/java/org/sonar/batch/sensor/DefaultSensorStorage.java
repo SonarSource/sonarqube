@@ -30,12 +30,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.duplication.Duplication;
@@ -52,7 +50,6 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.SonarException;
@@ -67,8 +64,6 @@ import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
 import org.sonar.batch.source.DefaultSymbol;
-import org.sonar.core.component.ComponentKeys;
-import org.sonar.core.issue.DefaultIssue;
 
 public class DefaultSensorStorage implements SensorStorage {
 
@@ -194,28 +189,7 @@ public class DefaultSensorStorage implements SensorStorage {
 
   @Override
   public void store(Issue issue) {
-    String componentKey;
-    InputPath inputPath = issue.locations().get(0).inputPath();
-    if (inputPath != null) {
-      componentKey = ComponentKeys.createEffectiveKey(project.getKey(), inputPath);
-    } else {
-      componentKey = project.getKey();
-    }
-    moduleIssues.initAndAddIssue(toDefaultIssue(project.getKey(), componentKey, issue));
-  }
-
-  public static DefaultIssue toDefaultIssue(String projectKey, String componentKey, Issue issue) {
-    Severity overriddenSeverity = issue.overriddenSeverity();
-    TextRange textRange = issue.locations().get(0).textRange();
-    return new org.sonar.core.issue.DefaultIssueBuilder()
-      .componentKey(componentKey)
-      .projectKey(projectKey)
-      .ruleKey(RuleKey.of(issue.ruleKey().repository(), issue.ruleKey().rule()))
-      .effortToFix(issue.effortToFix())
-      .line(textRange != null ? textRange.start().line() : null)
-      .message(issue.locations().get(0).message())
-      .severity(overriddenSeverity != null ? overriddenSeverity.name() : null)
-      .build();
+    moduleIssues.initAndAddIssue(issue);
   }
 
   private File getFile(InputFile file) {

@@ -19,9 +19,11 @@
  */
 package org.sonar.batch.mediumtest.fs;
 
-import org.sonar.xoo.rule.XooRulesDefinition;
-
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -32,11 +34,9 @@ import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.Benchmark;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;
+import org.sonar.batch.protocol.output.BatchReport.Issue;
 import org.sonar.xoo.XooPlugin;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -92,7 +92,8 @@ public class RandomFsAccessMediumTest {
         .build())
       .start();
 
-    assertThat(result.issues()).hasSize(ISSUE_COUNT);
+    List<Issue> issues = result.issuesFor(result.inputFile("src/sample1.xoo"));
+    assertThat(issues).hasSize(10);
     bench.expectLessThanOrEqualTo("Time to create " + ISSUE_COUNT + " issues on random files using FileSystem query", System.currentTimeMillis() - start, 2000);
   }
 
@@ -121,7 +122,8 @@ public class RandomFsAccessMediumTest {
         .build())
       .start();
 
-    assertThat(result.issues()).hasSize(ISSUE_COUNT);
+    List<Issue> issues = result.issuesFor(result.inputFile("src/sample1.xoo"));
+    assertThat(issues).hasSize(10);
 
   }
 

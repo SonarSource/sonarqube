@@ -19,12 +19,7 @@
  */
 package org.sonar.batch.mediumtest.issues;
 
-import org.sonar.xoo.rule.XooRulesDefinition;
-
-import org.sonar.batch.protocol.input.Rule;
-
 import java.io.File;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -33,7 +28,10 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;
+import org.sonar.batch.protocol.input.Rule;
 import org.sonar.xoo.XooPlugin;
+import org.sonar.xoo.rule.XooRulesDefinition;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MultilineIssuesMediumTest {
@@ -69,7 +67,7 @@ public class MultilineIssuesMediumTest {
       .newScanTask(new File(tmpDir, "sonar-project.properties"))
       .start();
 
-    assertThat(result.issues()).hasSize(1);
+    assertThat(result.issuesFor(result.inputFile("xources/hello/HelloJava.xoo"))).hasSize(1);
 
   }
 

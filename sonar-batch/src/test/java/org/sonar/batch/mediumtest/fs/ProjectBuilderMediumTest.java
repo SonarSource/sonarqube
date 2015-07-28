@@ -19,23 +19,22 @@
  */
 package org.sonar.batch.mediumtest.fs;
 
-import org.sonar.xoo.rule.XooRulesDefinition;
-
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.CoreProperties;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;
+import org.sonar.batch.protocol.output.BatchReport.Issue;
 import org.sonar.xoo.XooPlugin;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
+import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,7 +47,6 @@ public class ProjectBuilderMediumTest {
     .registerPlugin("xoo", new XooPlugin())
     .addRules(new XooRulesDefinition())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW))
     .setPreviousAnalysisDate(new Date())
     .activateRule(new ActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", "OneIssuePerLine.internal", "xoo"))
     .build();
@@ -88,19 +86,19 @@ public class ProjectBuilderMediumTest {
         .put("sonar.xoo.enableProjectBuilder", "true")
         .build())
       .start();
-
-    assertThat(result.issues()).hasSize(10);
+    List<Issue> issues = result.issuesFor(result.inputFile("src/sample.xoo"));
+    assertThat(issues).hasSize(10);
 
     boolean foundIssueAtLine1 = false;
-    for (org.sonar.api.issue.Issue issue : result.issues()) {
-      if (issue.line() == 1) {
+    for (Issue issue : issues) {
+      if (issue.getLine() == 1) {
         foundIssueAtLine1 = true;
-        assertThat(issue.componentKey()).isEqualTo("com.foo.project:module1:src/sample.xoo");
-        assertThat(issue.message()).isEqualTo("This issue is generated on each line");
-        assertThat(issue.effortToFix()).isNull();
+        assertThat(issue.getMsg()).isEqualTo("This issue is generated on each line");
+        assertThat(issue.hasEffortToFix()).isFalse();
       }
     }
     assertThat(foundIssueAtLine1).isTrue();
+
   }
 
   @Test
@@ -130,15 +128,15 @@ public class ProjectBuilderMediumTest {
         .build())
       .start();
 
-    assertThat(result.issues()).hasSize(10);
+    List<Issue> issues = result.issuesFor(result.inputFile("src/sample.xoo"));
+    assertThat(issues).hasSize(10);
 
     boolean foundIssueAtLine1 = false;
-    for (org.sonar.api.issue.Issue issue : result.issues()) {
-      if (issue.line() == 1) {
+    for (Issue issue : issues) {
+      if (issue.getLine() == 1) {
         foundIssueAtLine1 = true;
-        assertThat(issue.componentKey()).isEqualTo("com.foo.project:module1:my-branch:src/sample.xoo");
-        assertThat(issue.message()).isEqualTo("This issue is generated on each line");
-        assertThat(issue.effortToFix()).isNull();
+        assertThat(issue.getMsg()).isEqualTo("This issue is generated on each line");
+        assertThat(issue.hasEffortToFix()).isFalse();
       }
     }
     assertThat(foundIssueAtLine1).isTrue();

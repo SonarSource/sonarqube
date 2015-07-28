@@ -19,10 +19,10 @@
  */
 package org.sonar.batch.mediumtest.issues;
 
-import org.sonar.batch.protocol.input.Rule;
-
-import org.sonar.xoo.rule.XooRulesDefinition;
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -31,10 +31,10 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;
+import org.sonar.batch.protocol.input.Rule;
+import org.sonar.batch.protocol.output.BatchReport.Issue;
 import org.sonar.xoo.XooPlugin;
-
-import java.io.File;
-import java.io.IOException;
+import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -85,20 +85,19 @@ public class ChecksMediumTest {
         .build())
       .start();
 
-    assertThat(result.issues()).hasSize(2);
+    List<Issue> issues = result.issuesFor(result.inputFile("src/sample.xoo"));
+    assertThat(issues).hasSize(2);
 
     boolean foundIssueAtLine1 = false;
     boolean foundIssueAtLine2 = false;
-    for (org.sonar.api.issue.Issue issue : result.issues()) {
-      if (issue.line() == 1) {
+    for (Issue issue : issues) {
+      if (issue.getLine() == 1) {
         foundIssueAtLine1 = true;
-        assertThat(issue.componentKey()).isEqualTo("com.foo.project:src/sample.xoo");
-        assertThat(issue.message()).isEqualTo("A template rule");
+        assertThat(issue.getMsg()).isEqualTo("A template rule");
       }
-      if (issue.line() == 2) {
+      if (issue.getLine() == 2) {
         foundIssueAtLine2 = true;
-        assertThat(issue.componentKey()).isEqualTo("com.foo.project:src/sample.xoo");
-        assertThat(issue.message()).isEqualTo("Another template rule");
+        assertThat(issue.getMsg()).isEqualTo("Another template rule");
       }
     }
     assertThat(foundIssueAtLine1).isTrue();

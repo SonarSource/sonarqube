@@ -19,12 +19,12 @@
  */
 package org.sonar.api.issue;
 
-import org.sonar.api.batch.BatchSide;
 import org.sonar.api.ExtensionPoint;
+import org.sonar.api.batch.BatchSide;
 
 /**
  * @since 3.6
- * @deprecated since 4.0
+ * @deprecated since 4.0 use {@link org.sonar.api.issue.batch.IssueFilter}
  */
 @Deprecated
 @BatchSide

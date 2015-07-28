@@ -19,25 +19,36 @@
  */
 package org.sonar.batch.issue;
 
-import java.util.Calendar;
+import java.io.StringReader;
 import java.util.Date;
-import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
+import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
+import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
+import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.MessageException;
-import org.sonar.core.issue.DefaultIssue;
+import org.sonar.batch.index.BatchComponentCache;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.report.ReportPublisher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -48,11 +59,7 @@ public class ModuleIssuesTest {
   static final RuleKey SQUID_RULE_KEY = RuleKey.of("squid", "AvoidCycle");
   static final String SQUID_RULE_NAME = "Avoid Cycle";
 
-  @Mock
-  IssueCache cache;
-
-  @Mock
-  Project project;
+  Project project = new Project("foo").setAnalysisDate(new Date());
 
   @Mock
   IssueFilters filters;
@@ -62,18 +69,21 @@ public class ModuleIssuesTest {
 
   ModuleIssues moduleIssues;
 
+  BatchComponentCache componentCache = new BatchComponentCache();
+  InputFile file = new DefaultInputFile("foo", "src/Foo.php").initMetadata(new FileMetadata().readMetadata(new StringReader("Foo\nBar\nBiz\n")));
+  ReportPublisher reportPublisher = mock(ReportPublisher.class, RETURNS_DEEP_STUBS);
+
   @Before
-  public void setUp() {
-    when(project.getAnalysisDate()).thenReturn(new Date());
-    when(project.getEffectiveKey()).thenReturn("org.apache:struts-core");
-    when(project.getRoot()).thenReturn(project);
+  public void prepare() {
+    componentCache.add(File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php"), null).setInputPath(file);
   }
 
   @Test
   public void fail_on_unknown_rule() {
     initModuleIssues();
-    DefaultIssue issue = new DefaultIssue().setRuleKey(SQUID_RULE_KEY);
-
+    DefaultIssue issue = new DefaultIssue()
+      .addLocation(new DefaultIssueLocation().onFile(file).at(file.selectLine(3)).message("Foo"))
+      .forRule(SQUID_RULE_KEY);
     try {
       moduleIssues.initAndAddIssue(issue);
       fail();
@@ -81,15 +91,16 @@ public class ModuleIssuesTest {
       assertThat(e).isInstanceOf(MessageException.class);
     }
 
-    verifyZeroInteractions(cache);
+    verifyZeroInteractions(reportPublisher);
   }
 
   @Test
   public void fail_if_rule_has_no_name_and_issue_has_no_message() {
     ruleBuilder.add(SQUID_RULE_KEY).setInternalKey(SQUID_RULE_KEY.rule());
     initModuleIssues();
-    DefaultIssue issue = new DefaultIssue().setRuleKey(SQUID_RULE_KEY).setMessage("");
-
+    DefaultIssue issue = new DefaultIssue()
+      .addLocation(new DefaultIssueLocation().onFile(file).at(file.selectLine(3)).message(""))
+      .forRule(SQUID_RULE_KEY);
     try {
       moduleIssues.initAndAddIssue(issue);
       fail();
@@ -97,19 +108,20 @@ public class ModuleIssuesTest {
       assertThat(e).isInstanceOf(MessageException.class);
     }
 
-    verifyZeroInteractions(cache);
+    verifyZeroInteractions(reportPublisher);
   }
 
   @Test
   public void ignore_null_active_rule() {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
     initModuleIssues();
-
-    DefaultIssue issue = new DefaultIssue().setRuleKey(SQUID_RULE_KEY);
+    DefaultIssue issue = new DefaultIssue()
+      .addLocation(new DefaultIssueLocation().onFile(file).at(file.selectLine(3)).message("Foo"))
+      .forRule(SQUID_RULE_KEY);
     boolean added = moduleIssues.initAndAddIssue(issue);
 
     assertThat(added).isFalse();
-    verifyZeroInteractions(cache);
+    verifyZeroInteractions(reportPublisher);
   }
 
   @Test
@@ -118,11 +130,13 @@ public class ModuleIssuesTest {
     activeRulesBuilder.create(SQUID_RULE_KEY).activate();
     initModuleIssues();
 
-    DefaultIssue issue = new DefaultIssue().setRuleKey(SQUID_RULE_KEY);
+    DefaultIssue issue = new DefaultIssue()
+      .addLocation(new DefaultIssueLocation().onFile(file).at(file.selectLine(3)).message("Foo"))
+      .forRule(SQUID_RULE_KEY);
     boolean added = moduleIssues.initAndAddIssue(issue);
 
     assertThat(added).isFalse();
-    verifyZeroInteractions(cache);
+    verifyZeroInteractions(reportPublisher);
   }
 
   @Test
@@ -131,22 +145,19 @@ public class ModuleIssuesTest {
     activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
     initModuleIssues();
 
-    Date analysisDate = new Date();
-    when(project.getAnalysisDate()).thenReturn(analysisDate);
-
     DefaultIssue issue = new DefaultIssue()
-      .setKey("ABCDE")
-      .setRuleKey(SQUID_RULE_KEY)
-      .setSeverity(Severity.CRITICAL);
-    when(filters.accept(issue)).thenReturn(true);
+      .addLocation(new DefaultIssueLocation().onFile(file).at(file.selectLine(3)).message("Foo"))
+      .forRule(SQUID_RULE_KEY)
+      .overrideSeverity(org.sonar.api.batch.rule.Severity.CRITICAL);
+
+    when(filters.accept(any(org.sonar.core.issue.DefaultIssue.class))).thenReturn(true);
 
     boolean added = moduleIssues.initAndAddIssue(issue);
 
     assertThat(added).isTrue();
-    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(cache).put(argument.capture());
-    assertThat(argument.getValue().severity()).isEqualTo(Severity.CRITICAL);
-    assertThat(argument.getValue().creationDate()).isEqualTo(DateUtils.truncate(analysisDate, Calendar.SECOND));
+    ArgumentCaptor<BatchReport.Issue> argument = ArgumentCaptor.forClass(BatchReport.Issue.class);
+    verify(reportPublisher.getWriter()).appendComponentIssue(eq(1), argument.capture());
+    assertThat(argument.getValue().getSeverity()).isEqualTo(org.sonar.batch.protocol.Constants.Severity.CRITICAL);
   }
 
   @Test
@@ -155,17 +166,15 @@ public class ModuleIssuesTest {
     activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
     initModuleIssues();
 
-    Date analysisDate = new Date();
-    when(project.getAnalysisDate()).thenReturn(analysisDate);
-
-    DefaultIssue issue = new DefaultIssue().setRuleKey(SQUID_RULE_KEY).setSeverity(null);
-    when(filters.accept(issue)).thenReturn(true);
+    DefaultIssue issue = new DefaultIssue()
+      .addLocation(new DefaultIssueLocation().onFile(file).at(file.selectLine(3)).message("Foo"))
+      .forRule(SQUID_RULE_KEY);
+    when(filters.accept(any(org.sonar.core.issue.DefaultIssue.class))).thenReturn(true);
     moduleIssues.initAndAddIssue(issue);
 
-    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(cache).put(argument.capture());
-    assertThat(argument.getValue().severity()).isEqualTo(Severity.INFO);
-    assertThat(argument.getValue().creationDate()).isEqualTo(DateUtils.truncate(analysisDate, Calendar.SECOND));
+    ArgumentCaptor<BatchReport.Issue> argument = ArgumentCaptor.forClass(BatchReport.Issue.class);
+    verify(reportPublisher.getWriter()).appendComponentIssue(eq(1), argument.capture());
+    assertThat(argument.getValue().getSeverity()).isEqualTo(org.sonar.batch.protocol.Constants.Severity.INFO);
   }
 
   @Test
@@ -174,22 +183,17 @@ public class ModuleIssuesTest {
     activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).setName(SQUID_RULE_NAME).activate();
     initModuleIssues();
 
-    Date analysisDate = new Date();
-    when(project.getAnalysisDate()).thenReturn(analysisDate);
-
     DefaultIssue issue = new DefaultIssue()
-      .setKey("ABCDE")
-      .setRuleKey(SQUID_RULE_KEY)
-      .setSeverity(Severity.CRITICAL)
-      .setMessage("");
-    when(filters.accept(issue)).thenReturn(true);
+      .addLocation(new DefaultIssueLocation().onFile(file).at(file.selectLine(3)).message(""))
+      .forRule(SQUID_RULE_KEY);
+    when(filters.accept(any(org.sonar.core.issue.DefaultIssue.class))).thenReturn(true);
 
     boolean added = moduleIssues.initAndAddIssue(issue);
 
     assertThat(added).isTrue();
-    ArgumentCaptor<DefaultIssue> argument = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(cache).put(argument.capture());
-    assertThat(argument.getValue().message()).isEqualTo("Avoid Cycle");
+    ArgumentCaptor<BatchReport.Issue> argument = ArgumentCaptor.forClass(BatchReport.Issue.class);
+    verify(reportPublisher.getWriter()).appendComponentIssue(eq(1), argument.capture());
+    assertThat(argument.getValue().getMsg()).isEqualTo("Avoid Cycle");
   }
 
   @Test
@@ -199,23 +203,22 @@ public class ModuleIssuesTest {
     initModuleIssues();
 
     DefaultIssue issue = new DefaultIssue()
-      .setKey("ABCDE")
-      .setRuleKey(SQUID_RULE_KEY)
-      .setSeverity(Severity.CRITICAL);
+      .addLocation(new DefaultIssueLocation().onFile(file).at(file.selectLine(3)).message(""))
+      .forRule(SQUID_RULE_KEY);
 
-    when(filters.accept(issue)).thenReturn(false);
+    when(filters.accept(any(org.sonar.core.issue.DefaultIssue.class))).thenReturn(false);
 
     boolean added = moduleIssues.initAndAddIssue(issue);
 
     assertThat(added).isFalse();
-    verifyZeroInteractions(cache);
+    verifyZeroInteractions(reportPublisher);
   }
 
   /**
    * Every rules and active rules has to be added in builders before creating ModuleIssues
    */
   private void initModuleIssues() {
-    moduleIssues = new ModuleIssues(activeRulesBuilder.build(), ruleBuilder.build(), cache, project, filters);
+    moduleIssues = new ModuleIssues(activeRulesBuilder.build(), ruleBuilder.build(), project, filters, reportPublisher, componentCache);
   }
 
 }

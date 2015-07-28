@@ -22,22 +22,20 @@ package org.sonar.batch.issue.tracking;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.api.rule.RuleKey;
-
-import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.batch.protocol.output.BatchReport;
 
 class IssueTrackingResult {
   private final Map<String, ServerIssue> unmatchedByKey = new HashMap<>();
   private final Map<RuleKey, Map<String, ServerIssue>> unmatchedByRuleAndKey = new HashMap<>();
   private final Map<RuleKey, Map<Integer, Multimap<String, ServerIssue>>> unmatchedByRuleAndLineAndChecksum = new HashMap<>();
-  private final Map<DefaultIssue, ServerIssue> matched = Maps.newIdentityHashMap();
+  private final Map<BatchReport.Issue, ServerIssue> matched = Maps.newIdentityHashMap();
 
   Collection<ServerIssue> unmatched() {
     return unmatchedByKey.values();
@@ -64,15 +62,15 @@ class IssueTrackingResult {
     return unmatchedForRuleAndLine.get(checksumNotNull);
   }
 
-  Collection<DefaultIssue> matched() {
+  Collection<BatchReport.Issue> matched() {
     return matched.keySet();
   }
 
-  boolean isMatched(DefaultIssue issue) {
+  boolean isMatched(BatchReport.Issue issue) {
     return matched.containsKey(issue);
   }
 
-  ServerIssue matching(DefaultIssue issue) {
+  ServerIssue matching(BatchReport.Issue issue) {
     return matched.get(issue);
   }
 
@@ -99,7 +97,7 @@ class IssueTrackingResult {
     return line != null ? line : 0;
   }
 
-  void setMatch(DefaultIssue issue, ServerIssue matching) {
+  void setMatch(BatchReport.Issue issue, ServerIssue matching) {
     matched.put(issue, matching);
     RuleKey ruleKey = matching.ruleKey();
     unmatchedByRuleAndKey.get(ruleKey).remove(matching.key());

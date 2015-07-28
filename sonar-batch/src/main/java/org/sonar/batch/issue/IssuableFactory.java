@@ -31,17 +31,15 @@ import org.sonar.batch.sensor.DefaultSensorContext;
  */
 public class IssuableFactory extends PerspectiveBuilder<Issuable> {
 
-  private final IssueCache cache;
   private final SensorContext sensorContext;
 
-  public IssuableFactory(IssueCache cache, DefaultSensorContext sensorContext) {
+  public IssuableFactory(DefaultSensorContext sensorContext) {
     super(Issuable.class);
-    this.cache = cache;
     this.sensorContext = sensorContext;
   }
 
   @Override
   public Issuable loadPerspective(Class<Issuable> perspectiveClass, BatchComponent component) {
-    return new DefaultIssuable(component, cache, sensorContext);
+    return new DefaultIssuable(component, sensorContext);
   }
 }

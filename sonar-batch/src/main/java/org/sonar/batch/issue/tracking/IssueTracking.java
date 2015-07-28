@@ -27,102 +27,92 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.core.issue.DefaultIssue;
-
-import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.batch.protocol.output.BatchReport;
 
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @BatchSide
 public class IssueTracking {
 
+  private SourceHashHolder sourceHashHolder;
+
   /**
    * @param sourceHashHolder Null when working on resource that is not a file (directory/project)
    */
-  public IssueTrackingResult track(@Nullable SourceHashHolder sourceHashHolder, Collection<ServerIssue> previousIssues, Collection<DefaultIssue> newIssues) {
+  public IssueTrackingResult track(@Nullable SourceHashHolder sourceHashHolder, Collection<ServerIssue> previousIssues, Collection<BatchReport.Issue> rawIssues) {
+    this.sourceHashHolder = sourceHashHolder;
     IssueTrackingResult result = new IssueTrackingResult();
 
-    if (sourceHashHolder != null) {
-      setChecksumOnNewIssues(newIssues, sourceHashHolder);
-    }
-
     // Map new issues with old ones
-    mapIssues(newIssues, previousIssues, sourceHashHolder, result);
+    mapIssues(rawIssues, previousIssues, sourceHashHolder, result);
     return result;
   }
 
-  private void setChecksumOnNewIssues(Collection<DefaultIssue> issues, SourceHashHolder sourceHashHolder) {
-    if (issues.isEmpty()) {
-      return;
-    }
+  private String checksum(BatchReport.Issue rawIssue) {
     FileHashes hashedSource = sourceHashHolder.getHashedSource();
-    for (DefaultIssue issue : issues) {
-      Integer line = issue.line();
-      if (line != null) {
-        // Extra verification if some plugin managed to create issue on a wrong line
-        Preconditions.checkState(line <= hashedSource.length(), "Invalid line number for issue %s. File has only %s line(s)", issue, hashedSource.length());
-        issue.setChecksum(hashedSource.getHash(line));
-      }
+    if (rawIssue.hasLine()) {
+      // Extra verification if some plugin managed to create issue on a wrong line
+      Preconditions.checkState(rawIssue.getLine() <= hashedSource.length(), "Invalid line number for issue %s. File has only %s line(s)", rawIssue, hashedSource.length());
+      return hashedSource.getHash(rawIssue.getLine());
     }
+    return null;
   }
 
   @VisibleForTesting
-  void mapIssues(Collection<DefaultIssue> newIssues, @Nullable Collection<ServerIssue> previousIssues, @Nullable SourceHashHolder sourceHashHolder, IssueTrackingResult result) {
+  void mapIssues(Collection<BatchReport.Issue> rawIssues, @Nullable Collection<ServerIssue> previousIssues, @Nullable SourceHashHolder sourceHashHolder,
+    IssueTrackingResult result) {
     boolean hasLastScan = false;
 
     if (previousIssues != null) {
       hasLastScan = true;
-      mapLastIssues(newIssues, previousIssues, result);
+      mapLastIssues(rawIssues, previousIssues, result);
     }
 
     // If each new issue matches an old one we can stop the matching mechanism
-    if (result.matched().size() != newIssues.size()) {
+    if (result.matched().size() != rawIssues.size()) {
       if (sourceHashHolder != null && hasLastScan) {
         FileHashes hashedReference = sourceHashHolder.getHashedReference();
         if (hashedReference != null) {
-          mapNewissues(hashedReference, sourceHashHolder.getHashedSource(), newIssues, result);
+          mapNewissues(hashedReference, sourceHashHolder.getHashedSource(), rawIssues, result);
         }
       }
-      mapIssuesOnSameRule(newIssues, result);
+      mapIssuesOnSameRule(rawIssues, result);
     }
   }
 
-  private void mapLastIssues(Collection<DefaultIssue> newIssues, Collection<ServerIssue> previousIssues, IssueTrackingResult result) {
+  private void mapLastIssues(Collection<BatchReport.Issue> rawIssues, Collection<ServerIssue> previousIssues, IssueTrackingResult result) {
     for (ServerIssue lastIssue : previousIssues) {
       result.addUnmatched(lastIssue);
     }
 
-    // Match the key of the issue. (For manual issues)
-    for (DefaultIssue newIssue : newIssues) {
-      mapIssue(newIssue, result.unmatchedByKeyForRule(newIssue.ruleKey()).get(newIssue.key()), result);
-    }
-
     // Try first to match issues on same rule with same line and with same checksum (but not necessarily with same message)
-    for (DefaultIssue newIssue : newIssues) {
-      if (isNotAlreadyMapped(newIssue, result)) {
+    for (BatchReport.Issue rawIssue : rawIssues) {
+      if (isNotAlreadyMapped(rawIssue, result)) {
         mapIssue(
-          newIssue,
-          findLastIssueWithSameLineAndChecksum(newIssue, result),
+          rawIssue,
+          findLastIssueWithSameLineAndChecksum(rawIssue, result),
           result);
       }
     }
   }
 
-  private void mapNewissues(FileHashes hashedReference, FileHashes hashedSource, Collection<DefaultIssue> newIssues, IssueTrackingResult result) {
+  private void mapNewissues(FileHashes hashedReference, FileHashes hashedSource, Collection<BatchReport.Issue> rawIssues, IssueTrackingResult result) {
 
     IssueTrackingBlocksRecognizer rec = new IssueTrackingBlocksRecognizer(hashedReference, hashedSource);
 
     RollingFileHashes a = RollingFileHashes.create(hashedReference, 5);
     RollingFileHashes b = RollingFileHashes.create(hashedSource, 5);
 
-    Multimap<Integer, DefaultIssue> newIssuesByLines = newIssuesByLines(newIssues, rec, result);
+    Multimap<Integer, BatchReport.Issue> rawIssuesByLines = rawIssuesByLines(rawIssues, rec, result);
     Multimap<Integer, ServerIssue> lastIssuesByLines = lastIssuesByLines(result.unmatched(), rec);
 
     Map<Integer, HashOccurrence> map = Maps.newHashMap();
@@ -141,7 +131,7 @@ public class IssueTracking {
       }
     }
 
-    for (Integer line : newIssuesByLines.keySet()) {
+    for (Integer line : rawIssuesByLines.keySet()) {
       int hash = b.getHash(line);
       HashOccurrence hashOccurrence = map.get(hash);
       if (hashOccurrence != null) {
@@ -153,17 +143,17 @@ public class IssueTracking {
     for (HashOccurrence hashOccurrence : map.values()) {
       if (hashOccurrence.countA == 1 && hashOccurrence.countB == 1) {
         // Guaranteed that lineA has been moved to lineB, so we can map all issues on lineA to all issues on lineB
-        map(newIssuesByLines.get(hashOccurrence.lineB), lastIssuesByLines.get(hashOccurrence.lineA), result);
+        map(rawIssuesByLines.get(hashOccurrence.lineB), lastIssuesByLines.get(hashOccurrence.lineA), result);
         lastIssuesByLines.removeAll(hashOccurrence.lineA);
-        newIssuesByLines.removeAll(hashOccurrence.lineB);
+        rawIssuesByLines.removeAll(hashOccurrence.lineB);
       }
     }
 
     // Check if remaining number of lines exceeds threshold
-    if (lastIssuesByLines.keySet().size() * newIssuesByLines.keySet().size() < 250000) {
+    if (lastIssuesByLines.keySet().size() * rawIssuesByLines.keySet().size() < 250000) {
       List<LinePair> possibleLinePairs = Lists.newArrayList();
       for (Integer oldLine : lastIssuesByLines.keySet()) {
-        for (Integer newLine : newIssuesByLines.keySet()) {
+        for (Integer newLine : rawIssuesByLines.keySet()) {
           int weight = rec.computeLengthOfMaximalBlock(oldLine, newLine);
           possibleLinePairs.add(new LinePair(oldLine, newLine, weight));
         }
@@ -171,50 +161,54 @@ public class IssueTracking {
       Collections.sort(possibleLinePairs, LINE_PAIR_COMPARATOR);
       for (LinePair linePair : possibleLinePairs) {
         // High probability that lineA has been moved to lineB, so we can map all Issues on lineA to all Issues on lineB
-        map(newIssuesByLines.get(linePair.lineB), lastIssuesByLines.get(linePair.lineA), result);
+        map(rawIssuesByLines.get(linePair.lineB), lastIssuesByLines.get(linePair.lineA), result);
       }
     }
   }
 
-  private void mapIssuesOnSameRule(Collection<DefaultIssue> newIssues, IssueTrackingResult result) {
+  private void mapIssuesOnSameRule(Collection<BatchReport.Issue> rawIssues, IssueTrackingResult result) {
     // Try then to match issues on same rule with same message and with same checksum
-    for (DefaultIssue newIssue : newIssues) {
-      if (isNotAlreadyMapped(newIssue, result)) {
+    for (BatchReport.Issue rawIssue : rawIssues) {
+      if (isNotAlreadyMapped(rawIssue, result)) {
         mapIssue(
-          newIssue,
-          findLastIssueWithSameChecksumAndMessage(newIssue, result.unmatchedByKeyForRule(newIssue.ruleKey()).values()),
+          rawIssue,
+          findLastIssueWithSameChecksumAndMessage(rawIssue, result.unmatchedByKeyForRule(ruleKey(rawIssue)).values()),
           result);
       }
     }
 
     // Try then to match issues on same rule with same line and with same message
-    for (DefaultIssue newIssue : newIssues) {
-      if (isNotAlreadyMapped(newIssue, result)) {
+    for (BatchReport.Issue rawIssue : rawIssues) {
+      if (isNotAlreadyMapped(rawIssue, result)) {
         mapIssue(
-          newIssue,
-          findLastIssueWithSameLineAndMessage(newIssue, result.unmatchedByKeyForRule(newIssue.ruleKey()).values()),
+          rawIssue,
+          findLastIssueWithSameLineAndMessage(rawIssue, result.unmatchedByKeyForRule(ruleKey(rawIssue)).values()),
           result);
       }
     }
 
     // Last check: match issue if same rule and same checksum but different line and different message
     // See SONAR-2812
-    for (DefaultIssue newIssue : newIssues) {
-      if (isNotAlreadyMapped(newIssue, result)) {
+    for (BatchReport.Issue rawIssue : rawIssues) {
+      if (isNotAlreadyMapped(rawIssue, result)) {
         mapIssue(
-          newIssue,
-          findLastIssueWithSameChecksum(newIssue, result.unmatchedByKeyForRule(newIssue.ruleKey()).values()),
+          rawIssue,
+          findLastIssueWithSameChecksum(rawIssue, result.unmatchedByKeyForRule(ruleKey(rawIssue)).values()),
           result);
       }
     }
   }
 
-  private void map(Collection<DefaultIssue> newIssues, Collection<ServerIssue> previousIssues, IssueTrackingResult result) {
-    for (DefaultIssue newIssue : newIssues) {
-      if (isNotAlreadyMapped(newIssue, result)) {
+  private RuleKey ruleKey(BatchReport.Issue rawIssue) {
+    return RuleKey.of(rawIssue.getRuleRepository(), rawIssue.getRuleKey());
+  }
+
+  private void map(Collection<BatchReport.Issue> rawIssues, Collection<ServerIssue> previousIssues, IssueTrackingResult result) {
+    for (BatchReport.Issue rawIssue : rawIssues) {
+      if (isNotAlreadyMapped(rawIssue, result)) {
         for (ServerIssue previousIssue : previousIssues) {
-          if (isNotAlreadyMapped(previousIssue, result) && Objects.equal(newIssue.ruleKey(), previousIssue.ruleKey())) {
-            mapIssue(newIssue, previousIssue, result);
+          if (isNotAlreadyMapped(previousIssue, result) && Objects.equal(ruleKey(rawIssue), previousIssue.ruleKey())) {
+            mapIssue(rawIssue, previousIssue, result);
             break;
           }
         }
@@ -222,14 +216,14 @@ public class IssueTracking {
     }
   }
 
-  private Multimap<Integer, DefaultIssue> newIssuesByLines(Collection<DefaultIssue> newIssues, IssueTrackingBlocksRecognizer rec, IssueTrackingResult result) {
-    Multimap<Integer, DefaultIssue> newIssuesByLines = LinkedHashMultimap.create();
-    for (DefaultIssue newIssue : newIssues) {
-      if (isNotAlreadyMapped(newIssue, result) && rec.isValidLineInSource(newIssue.line())) {
-        newIssuesByLines.put(newIssue.line(), newIssue);
+  private Multimap<Integer, BatchReport.Issue> rawIssuesByLines(Collection<BatchReport.Issue> rawIssues, IssueTrackingBlocksRecognizer rec, IssueTrackingResult result) {
+    Multimap<Integer, BatchReport.Issue> rawIssuesByLines = LinkedHashMultimap.create();
+    for (BatchReport.Issue rawIssue : rawIssues) {
+      if (isNotAlreadyMapped(rawIssue, result) && rawIssue.hasLine() && rec.isValidLineInSource(rawIssue.getLine())) {
+        rawIssuesByLines.put(rawIssue.getLine(), rawIssue);
       }
     }
-    return newIssuesByLines;
+    return rawIssuesByLines;
   }
 
   private Multimap<Integer, ServerIssue> lastIssuesByLines(Collection<ServerIssue> previousIssues, IssueTrackingBlocksRecognizer rec) {
@@ -242,64 +236,74 @@ public class IssueTracking {
     return previousIssuesByLines;
   }
 
-  private ServerIssue findLastIssueWithSameChecksum(DefaultIssue newIssue, Collection<ServerIssue> previousIssues) {
+  private ServerIssue findLastIssueWithSameChecksum(BatchReport.Issue rawIssue, Collection<ServerIssue> previousIssues) {
     for (ServerIssue previousIssue : previousIssues) {
-      if (isSameChecksum(newIssue, previousIssue)) {
+      if (isSameChecksum(rawIssue, previousIssue)) {
         return previousIssue;
       }
     }
     return null;
   }
 
-  private ServerIssue findLastIssueWithSameLineAndMessage(DefaultIssue newIssue, Collection<ServerIssue> previousIssues) {
+  private ServerIssue findLastIssueWithSameLineAndMessage(BatchReport.Issue rawIssue, Collection<ServerIssue> previousIssues) {
     for (ServerIssue previousIssue : previousIssues) {
-      if (isSameLine(newIssue, previousIssue) && isSameMessage(newIssue, previousIssue)) {
+      if (isSameLine(rawIssue, previousIssue) && isSameMessage(rawIssue, previousIssue)) {
         return previousIssue;
       }
     }
     return null;
   }
 
-  private ServerIssue findLastIssueWithSameChecksumAndMessage(DefaultIssue newIssue, Collection<ServerIssue> previousIssues) {
+  private ServerIssue findLastIssueWithSameChecksumAndMessage(BatchReport.Issue rawIssue, Collection<ServerIssue> previousIssues) {
     for (ServerIssue previousIssue : previousIssues) {
-      if (isSameChecksum(newIssue, previousIssue) && isSameMessage(newIssue, previousIssue)) {
+      if (isSameChecksum(rawIssue, previousIssue) && isSameMessage(rawIssue, previousIssue)) {
         return previousIssue;
       }
     }
     return null;
   }
 
-  private ServerIssue findLastIssueWithSameLineAndChecksum(DefaultIssue newIssue, IssueTrackingResult result) {
-    Collection<ServerIssue> sameRuleAndSameLineAndSameChecksum = result.unmatchedForRuleAndForLineAndForChecksum(newIssue.ruleKey(), newIssue.line(), newIssue.checksum());
+  private ServerIssue findLastIssueWithSameLineAndChecksum(BatchReport.Issue rawIssue, IssueTrackingResult result) {
+    Collection<ServerIssue> sameRuleAndSameLineAndSameChecksum = result.unmatchedForRuleAndForLineAndForChecksum(ruleKey(rawIssue), line(rawIssue), checksum(rawIssue));
     if (!sameRuleAndSameLineAndSameChecksum.isEmpty()) {
       return sameRuleAndSameLineAndSameChecksum.iterator().next();
     }
     return null;
   }
 
+  @CheckForNull
+  private Integer line(BatchReport.Issue rawIssue) {
+    return rawIssue.hasLine() ? rawIssue.getLine() : null;
+  }
+
   private boolean isNotAlreadyMapped(ServerIssue previousIssue, IssueTrackingResult result) {
     return result.unmatched().contains(previousIssue);
   }
 
-  private boolean isNotAlreadyMapped(DefaultIssue newIssue, IssueTrackingResult result) {
-    return !result.isMatched(newIssue);
+  private boolean isNotAlreadyMapped(BatchReport.Issue rawIssue, IssueTrackingResult result) {
+    return !result.isMatched(rawIssue);
   }
 
-  private boolean isSameChecksum(DefaultIssue newIssue, ServerIssue previousIssue) {
-    return Objects.equal(previousIssue.checksum(), newIssue.checksum());
+  private boolean isSameChecksum(BatchReport.Issue rawIssue, ServerIssue previousIssue) {
+    return Objects.equal(previousIssue.checksum(), checksum(rawIssue));
   }
 
-  private boolean isSameLine(DefaultIssue newIssue, ServerIssue previousIssue) {
-    return Objects.equal(previousIssue.line(), newIssue.line());
+  private boolean isSameLine(BatchReport.Issue rawIssue, ServerIssue previousIssue) {
+    return Objects.equal(previousIssue.line(), line(rawIssue));
   }
 
-  private boolean isSameMessage(DefaultIssue newIssue, ServerIssue previousIssue) {
-    return Objects.equal(newIssue.message(), previousIssue.message());
+  private boolean isSameMessage(BatchReport.Issue rawIssue, ServerIssue previousIssue) {
+    return Objects.equal(message(rawIssue), previousIssue.message());
   }
 
-  private void mapIssue(DefaultIssue issue, @Nullable ServerIssue ref, IssueTrackingResult result) {
+  @CheckForNull
+  private String message(BatchReport.Issue rawIssue) {
+    return rawIssue.hasMsg() ? rawIssue.getMsg() : null;
+  }
+
+  private void mapIssue(BatchReport.Issue rawIssue, @Nullable ServerIssue ref, IssueTrackingResult result) {
     if (ref != null) {
-      result.setMatch(issue, ref);
+      result.setMatch(rawIssue, ref);
     }
   }
 

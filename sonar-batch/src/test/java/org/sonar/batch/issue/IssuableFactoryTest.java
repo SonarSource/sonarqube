@@ -20,7 +20,6 @@
 package org.sonar.batch.issue;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
@@ -34,12 +33,11 @@ import static org.mockito.Mockito.mock;
 public class IssuableFactoryTest {
 
   ModuleIssues moduleIssues = mock(ModuleIssues.class);
-  IssueCache cache = mock(IssueCache.class, Mockito.RETURNS_MOCKS);
   DefaultProjectTree projectTree = mock(DefaultProjectTree.class);
 
   @Test
   public void file_should_be_issuable() {
-    IssuableFactory factory = new IssuableFactory(cache, mock(DefaultSensorContext.class));
+    IssuableFactory factory = new IssuableFactory(mock(DefaultSensorContext.class));
     BatchComponent component = new BatchComponent(1, File.create("foo/bar.c").setEffectiveKey("foo/bar.c"), null);
     Issuable issuable = factory.loadPerspective(Issuable.class, component);
 
@@ -49,7 +47,7 @@ public class IssuableFactoryTest {
 
   @Test
   public void project_should_be_issuable() {
-    IssuableFactory factory = new IssuableFactory(cache, mock(DefaultSensorContext.class));
+    IssuableFactory factory = new IssuableFactory(mock(DefaultSensorContext.class));
     BatchComponent component = new BatchComponent(1, new Project("Foo").setEffectiveKey("foo"), null);
     Issuable issuable = factory.loadPerspective(Issuable.class, component);
 
