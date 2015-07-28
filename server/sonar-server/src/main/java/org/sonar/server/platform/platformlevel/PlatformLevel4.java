@@ -311,6 +311,7 @@ import org.sonar.server.user.ws.UserPropertiesWs;
 import org.sonar.server.user.ws.UsersWs;
 import org.sonar.server.usergroups.ws.UserGroupsModule;
 import org.sonar.server.util.TypeValidationModule;
+import org.sonar.server.view.bridge.ViewsStopper;
 import org.sonar.server.view.index.ViewIndex;
 import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
@@ -723,6 +724,9 @@ public class PlatformLevel4 extends PlatformLevel {
       ProjectCleaner.class,
       ProjectSettingsFactory.class,
       IndexPurgeListener.class,
+
+      // Views plugin
+      ViewsStopper.class,
 
     // UI
       GlobalNavigationAction.class,

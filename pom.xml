@@ -692,6 +692,11 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.codehaus.sonar</groupId>
+        <artifactId>sonar-views-bridge</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.sonarsource.java</groupId>
         <artifactId>sonar-java-plugin</artifactId>
         <version>${sonarJava.version}</version>

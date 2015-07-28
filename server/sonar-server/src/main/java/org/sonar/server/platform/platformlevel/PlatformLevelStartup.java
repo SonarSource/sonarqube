@@ -39,6 +39,7 @@ import org.sonar.server.startup.RenameDeprecatedPropertyKeys;
 import org.sonar.server.startup.RenameIssueWidgets;
 import org.sonar.server.user.DoPrivileged;
 import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.view.bridge.ViewsBootstrap;
 
 public class PlatformLevelStartup extends PlatformLevel {
   public PlatformLevelStartup(PlatformLevel parent) {
@@ -65,7 +66,8 @@ public class PlatformLevelStartup extends PlatformLevel {
       ReportQueueCleaner.class,
       RegisterIssueFilters.class,
       RenameIssueWidgets.class,
-      ServerLifecycleNotifier.class);
+      ServerLifecycleNotifier.class,
+      ViewsBootstrap.class);
   }
 
   @Override
