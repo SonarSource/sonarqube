@@ -160,9 +160,12 @@ class PluginRealm
       user.save(false)
 
       synchronize_groups(user)
-      user.notify_creation_handlers
-      user
+      # Note that validation disabled
+      user.save(false)
     end
+    # Must be outside the transaction in order to not have a lock on the users table : http://jira.sonarsource.com/browse/SONAR-6726
+    user.notify_creation_handlers
+    
     Internal.users_api.index()
 
     # Return user
