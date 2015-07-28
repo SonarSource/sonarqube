@@ -27,6 +27,7 @@ public class PermissionsWsModule extends Module {
   protected void configureModule() {
     add(
       PermissionsWs.class,
-      AddGroupAction.class);
+      AddGroupAction.class,
+      AddUserAction.class);
   }
 }
