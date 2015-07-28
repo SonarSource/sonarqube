@@ -29,12 +29,20 @@ import util.ItUtils;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   ServerAdministrationTest.class,
-  WebServiceTest.class
+  WebServiceTest.class,
+  ServerTest.class
 })
 public class ServerTestSuite {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .addPlugin(ItUtils.xooPlugin())
+
+    // Used in global_property_change_extension_point
+    .addPlugin(ItUtils.pluginArtifact("global-property-change-plugin"))
+
+    // Used in should_get_settings_default_value
+    .addPlugin(ItUtils.pluginArtifact("server-plugin"))
+
     .build();
 }

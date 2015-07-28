@@ -12,6 +12,8 @@ env:
   - JOB=WEB
   - JOB=ITS IT_CATEGORY=issue
   - JOB=ITS IT_CATEGORY=analysis
+  - JOB=ITS IT_CATEGORY=administration
+  - JOB=ITS IT_CATEGORY=server
   - JOB=ITS IT_CATEGORY=plugins
   - JOB=ITS IT_CATEGORY=qualitygate
   - JOB=ITS IT_CATEGORY=updatecenter
