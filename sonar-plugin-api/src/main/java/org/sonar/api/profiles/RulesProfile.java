@@ -19,12 +19,18 @@
  */
 package org.sonar.api.profiles;
 
+import org.sonar.api.batch.rule.Rules;
+
+import org.sonar.api.batch.rule.ActiveRules;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.StringUtils;
@@ -37,7 +43,9 @@ import org.sonar.api.utils.MessageException;
 
 /**
  * This class is badly named. It should be "QualityProfile". Indeed it does not relate only to rules but to metric thresholds too.
+ * @deprecated since 5.2. Use {@link ActiveRules} and {@link Rules} to access rules.
  */
+@Deprecated
 public class RulesProfile implements Cloneable {
 
   /**
