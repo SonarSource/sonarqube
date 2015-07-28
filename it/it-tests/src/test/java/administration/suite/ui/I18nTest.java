@@ -24,7 +24,7 @@ import administration.suite.AdministrationTestSuite;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.selenium.Selenese;
-import org.junit.After;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -35,7 +35,7 @@ public class I18nTest {
   @ClassRule
   public static Orchestrator orchestrator = AdministrationTestSuite.ORCHESTRATOR;
 
-  @After
+  @Before
   public void cleanDatabase() {
     orchestrator.resetData();
   }
