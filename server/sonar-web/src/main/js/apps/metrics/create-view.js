@@ -27,8 +27,8 @@ define([
         }
         that.destroy();
       }).fail(function (jqXHR) {
+        that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
         that.enableForm();
-        that.showErrors([{ msg: jqXHR.responseJSON.err_msg }]);
       });
     }
   });
