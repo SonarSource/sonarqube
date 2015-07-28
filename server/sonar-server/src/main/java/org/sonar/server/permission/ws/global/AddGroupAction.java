@@ -57,13 +57,12 @@ public class AddGroupAction implements GlobalPermissionsWsAction {
 
     action.createParam(PARAM_GROUP_NAME)
       .setRequired(true)
-      .setDescription("Group name or 'Anyone'")
+      .setDescription("Group name or 'anyone' (whatever the case)")
       .setExampleValue("sonar-administrators");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession.checkLoggedIn().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
     String permission = request.mandatoryParam(PARAM_PERMISSION);
     String groupName = request.mandatoryParam(PARAM_GROUP_NAME);
     permissionService.addPermission(

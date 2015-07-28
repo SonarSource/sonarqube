@@ -27,7 +27,6 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.PermissionChange;
@@ -70,17 +69,6 @@ public class AddGroupActionTest {
     PermissionChange permissionChange = permissionChangeCaptor.getValue();
     assertThat(permissionChange.group()).isEqualTo("sonar-administrators");
     assertThat(permissionChange.permission()).isEqualTo(SYSTEM_ADMIN);
-  }
-
-  @Test
-  public void fail_when_insufficient_privilege() throws Exception {
-    userSession.login("login");
-    expectedException.expect(ForbiddenException.class);
-
-    ws.newPostRequest(ENDPOINT, ACTION)
-      .setParam(AddGroupAction.PARAM_GROUP_NAME, "sonar-administrators")
-      .setParam(AddGroupAction.PARAM_PERMISSION, SYSTEM_ADMIN)
-      .execute();
   }
 
   @Test
