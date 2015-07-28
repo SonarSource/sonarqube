@@ -36,13 +36,13 @@ import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.issue.IssueDao;
+import org.sonar.db.rule.RuleDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.RuleCacheLoader;
 import org.sonar.server.computation.issue.RuleRepositoryImpl;
 import org.sonar.server.computation.issue.UpdateConflictResolver;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.rule.db.RuleDao;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -79,7 +79,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   public void setup() throws Exception {
     dbTester.truncateTables();
     session = dbTester.myBatis().openSession(false);
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new IssueDao(dbTester.myBatis()), new RuleDao(system2));
+    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new IssueDao(dbTester.myBatis()), new RuleDao());
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     system2 = mock(System2.class);
     when(system2.now()).thenReturn(NOW);

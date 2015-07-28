@@ -19,13 +19,14 @@
  */
 package org.sonar.server.computation.issue;
 
+import com.google.common.base.Optional;
 import java.util.Collection;
 import java.util.Map;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.util.cache.CacheLoader;
 
 public class RuleCacheLoader implements CacheLoader<RuleKey, Rule> {
@@ -40,9 +41,9 @@ public class RuleCacheLoader implements CacheLoader<RuleKey, Rule> {
   public Rule load(RuleKey key) {
     DbSession session = dbClient.openSession(false);
     try {
-      RuleDto dto = dbClient.deprecatedRuleDao().getNullableByKey(session, key);
-      if (dto != null) {
-        return new RuleImpl(dto);
+      Optional<RuleDto> dto = dbClient.ruleDao().selectByKey(session, key);
+      if (dto.isPresent()) {
+        return new RuleImpl(dto.get());
       }
       return null;
     } finally {

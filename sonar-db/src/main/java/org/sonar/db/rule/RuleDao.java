@@ -20,21 +20,35 @@
 package org.sonar.db.rule;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.RowNotFoundException;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class RuleDao implements Dao {
 
+  public Optional<RuleDto> selectByKey(DbSession session, RuleKey key) {
+    return Optional.fromNullable(mapper(session).selectByKey(key));
+  }
+
+  public RuleDto selectOrFailByKey(DbSession session, RuleKey key) {
+    RuleDto rule = mapper(session).selectByKey(key);
+    if (rule == null) {
+      throw new RowNotFoundException(String.format("Rule with key '%s' does not exist", key));
+    }
+    return rule;
+  }
+
   /**
    * Select rules by keys, whatever their status. Returns an empty list
    * if the list of {@code keys} is empty, without any db round trip.
    */
-  public List<RuleDto> selectByKeys(final DbSession session, List<RuleKey> keys) {
+  public List<RuleDto> selectByKeys(DbSession session, List<RuleKey> keys) {
     return executeLargeInputs(keys, new KeyToDto(mapper(session)));
   }
 
