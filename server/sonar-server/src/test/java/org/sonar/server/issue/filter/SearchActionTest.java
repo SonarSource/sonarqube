@@ -34,8 +34,8 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
   static final String EMPTY_JSON = "{}";
-  static final String EMPTY_FAVORITES_JSON = "{" +
-    "    \"favorites\": []" +
+  static final String EMPTY_ISSUE_FILTERS_JSON = "{" +
+    "    \"issueFilters\": []" +
     "}";
 
   @Rule
@@ -63,13 +63,13 @@ public class SearchActionTest {
     userSessionRule.login("eric").setUserId(123);
     WsTester.Result result = ws.newGetRequest("api/issue_filters", "search").execute();
 
-    assertJson(result.outputAsString()).isSimilarTo(EMPTY_FAVORITES_JSON);
+    assertJson(result.outputAsString()).isSimilarTo(EMPTY_ISSUE_FILTERS_JSON);
   }
 
   @Test
-  public void logged_in_app_with_favorites() throws Exception {
+  public void logged_in_app_with_all_issue_filters() throws Exception {
     userSessionRule.login("eric").setUserId(123);
-    when(service.findFavoriteFilters(userSessionRule)).thenReturn(Arrays.asList(
+    when(service.findByUser(userSessionRule)).thenReturn(Arrays.asList(
       new IssueFilterDto()
         .setId(3L)
         .setName("My Unresolved Issues")

@@ -48,7 +48,7 @@ public class AppAction implements IssueFilterWsAction {
       .setDescription("Data required for rendering the page 'Issues'")
       .setInternal(true)
       .setHandler(this)
-      .setResponseExample(Resources.getResource(this.getClass(), "app-example-show.json"));
+      .setResponseExample(Resources.getResource(this.getClass(), "example-app.json"));
     action
       .createParam("id")
       .setDescription("Optionally, the ID of the current filter");

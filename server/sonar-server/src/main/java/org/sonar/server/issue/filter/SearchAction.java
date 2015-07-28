@@ -49,7 +49,7 @@ public class SearchAction implements IssueFilterWsAction {
       .setInternal(false)
       .setHandler(this)
       .setSince("5.2")
-      .setResponseExample(Resources.getResource(this.getClass(), "search-example-show.json"));
+      .setResponseExample(Resources.getResource(this.getClass(), "example-search.json"));
   }
 
   @Override
@@ -59,8 +59,8 @@ public class SearchAction implements IssueFilterWsAction {
 
     // Favorite filters, if logged in
     if (userSession.isLoggedIn()) {
-      List<IssueFilterDto> favorites = service.findFavoriteFilters(userSession);
-      json.name("favorites").beginArray();
+      List<IssueFilterDto> favorites = service.findByUser(userSession);
+      json.name("issueFilters").beginArray();
       for (IssueFilterDto favorite : favorites) {
         issueFilterJsonWriter.write(json, favorite, userSession);
       }
