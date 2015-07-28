@@ -101,6 +101,14 @@
         <p class="text-danger">Uninstall Pending</p>
       {{/eq}}
 
+      {{#eq _status 'failed'}}
+        <span class="text-danger">
+          {{#each _errors}}
+            {{msg}}
+          {{/each}}
+        </span>
+      {{/eq}}
+
       {{#unless _status}}
         <i class="js-spinner spinner hidden"></i>
         {{> '_update-center-plugin-actions'}}

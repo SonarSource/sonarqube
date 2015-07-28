@@ -29,6 +29,9 @@ define(function () {
         },
         success: function () {
           options.success(that);
+        },
+        error: function (jqXHR) {
+          that.set({ _status: 'failed', _errors: jqXHR.responseJSON.errors });
         }
       });
       var xhr = Backbone.ajax(opts);
