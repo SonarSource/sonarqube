@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.rule;
 
-import org.sonar.batch.protocol.input.Rule;
-
 import org.sonar.batch.protocol.input.RulesSearchResult;
 import org.sonar.batch.bootstrap.WSLoader;
 
@@ -48,7 +46,7 @@ public class DefaultRulesLoader implements RulesLoader {
     return rules;
   }
 
-  private String getUrl(int page) {
+  private static String getUrl(int page) {
     return RULES_SEARCH_URL + "&p=" + page;
   }
 }

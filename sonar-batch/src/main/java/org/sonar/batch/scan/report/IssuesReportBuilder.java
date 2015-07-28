@@ -28,7 +28,6 @@ import org.sonar.api.batch.BatchSide;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.resources.Project;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.index.BatchComponent;

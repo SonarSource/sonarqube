@@ -30,7 +30,7 @@ public final class CpdComponents {
   private CpdComponents() {
   }
 
-  public static List<? extends Object> all() {
+  public static List all() {
     return ImmutableList.of(
       CpdSensor.class,
       CpdMappings.class,
