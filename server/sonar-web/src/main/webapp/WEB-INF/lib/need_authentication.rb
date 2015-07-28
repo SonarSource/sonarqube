@@ -160,7 +160,7 @@ class PluginRealm
       synchronize_groups(user)
       user.save(false)
     end
-    # Must be outside the transaction in order to have a lock on the users table : http://jira.sonarsource.com/browse/SONAR-6726
+    # Must be outside the transaction in order to not have a lock on the users table : http://jira.sonarsource.com/browse/SONAR-6726
     user.notify_creation_handlers
     user
   end
