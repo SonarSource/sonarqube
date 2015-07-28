@@ -19,15 +19,15 @@
  */
 package org.sonar.batch.rule;
 
+import org.sonar.api.batch.rule.internal.RulesBuilder;
+
+import org.sonar.api.batch.rule.Rules;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RuleFinderCompatibilityTest {
@@ -35,20 +35,18 @@ public class RuleFinderCompatibilityTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private ActiveRules activeRules = new ActiveRulesBuilder()
-    .create(RuleKey.of("repo1", "rule1"))
-    .activate()
-    .create(RuleKey.of("repo1", "rule2"))
-    .setInternalKey("rule2_internal")
-    .activate()
-    .create(RuleKey.of("repo2", "rule1"))
-    .activate()
-    .build();
+  private Rules rules;
   private RuleFinderCompatibility ruleFinder;
 
   @Before
   public void prepare() {
-    ruleFinder = new RuleFinderCompatibility(activeRules);
+    RulesBuilder builder = new RulesBuilder();
+    builder.add(RuleKey.of("repo1", "rule1"));
+    builder.add(RuleKey.of("repo1", "rule2")).setInternalKey("rule2_internal");
+    builder.add(RuleKey.of("repo2", "rule1"));
+    rules = builder.build();
+    
+    ruleFinder = new RuleFinderCompatibility(rules);
   }
 
   @Test

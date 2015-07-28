@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.scan.report;
 
+import org.sonar.api.batch.rule.Rule;
+
+import org.sonar.api.batch.rule.Rules;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -31,8 +34,6 @@ import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.rule.internal.DefaultActiveRule;
 import org.sonar.api.config.Settings;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.platform.Server;
@@ -72,18 +73,18 @@ public class JSONReport implements Reporter {
   private final Settings settings;
   private final FileSystem fileSystem;
   private final Server server;
-  private final ActiveRules activeRules;
+  private final Rules rules;
   private final IssueCache issueCache;
   private final InputPathCache fileCache;
   private final Project rootModule;
   private final UserRepository userRepository;
 
-  public JSONReport(Settings settings, FileSystem fileSystem, Server server, ActiveRules activeRules, IssueCache issueCache,
+  public JSONReport(Settings settings, FileSystem fileSystem, Server server, Rules rules, IssueCache issueCache,
     Project rootModule, InputPathCache fileCache, UserRepository userRepository) {
     this.settings = settings;
     this.fileSystem = fileSystem;
     this.server = server;
-    this.activeRules = activeRules;
+    this.rules = rules;
     this.issueCache = issueCache;
     this.rootModule = rootModule;
     this.fileCache = fileCache;
@@ -214,7 +215,7 @@ public class JSONReport implements Reporter {
     json.endArray();
   }
 
-  private void writeUsers(JsonWriter json, Collection<BatchInput.User> users) throws IOException {
+  private static void writeUsers(JsonWriter json, Collection<BatchInput.User> users) throws IOException {
     json.name("users").beginArray();
     for (BatchInput.User user : users) {
       json
@@ -227,7 +228,7 @@ public class JSONReport implements Reporter {
   }
 
   private String getRuleName(RuleKey ruleKey) {
-    DefaultActiveRule rule = (DefaultActiveRule) activeRules.find(ruleKey);
+    Rule rule = rules.find(ruleKey);
     return rule != null ? rule.name() : null;
   }
 

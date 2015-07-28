@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.mediumtest;
 
+import org.sonar.api.SonarPlugin;
+
 import org.sonar.api.Plugin;
 import org.sonar.batch.bootstrap.PluginInstaller;
 import org.sonar.core.platform.PluginInfo;
@@ -37,7 +39,7 @@ public class FakePluginInstaller implements PluginInstaller {
     return this;
   }
 
-  public FakePluginInstaller add(String pluginKey, Plugin instance) {
+  public FakePluginInstaller add(String pluginKey, SonarPlugin instance) {
     instancesByKeys.put(pluginKey, instance);
     return this;
   }

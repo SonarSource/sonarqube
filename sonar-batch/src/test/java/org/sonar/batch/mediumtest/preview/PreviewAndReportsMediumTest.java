@@ -19,12 +19,14 @@
  */
 package org.sonar.batch.mediumtest.preview;
 
+import org.sonar.batch.protocol.input.Rule;
+
+import org.sonar.xoo.rule.XooRulesDefinition;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
@@ -46,10 +48,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PreviewAndReportsMediumTest {
 
-  @Rule
+  @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  @Rule
+  @org.junit.Rule
   public LogTester logTester = new LogTester();
 
   private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
@@ -66,6 +68,8 @@ public class PreviewAndReportsMediumTest {
     .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW))
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
+    .addRules(new XooRulesDefinition())
+    .addRule(new Rule("manual:MyManualIssue", "manual", "MyManualIssue", "My manual issue", "MAJOR", null))
     .activateRule(new ActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", null, "xoo"))
     .activateRule(new ActiveRule("manual", "MyManualIssue", null, "My manual issue", "MAJOR", null, null))
     .setPreviousAnalysisDate(new Date())

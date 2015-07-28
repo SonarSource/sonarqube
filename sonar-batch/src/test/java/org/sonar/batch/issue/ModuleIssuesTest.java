@@ -86,7 +86,7 @@ public class ModuleIssuesTest {
 
   @Test
   public void fail_if_rule_has_no_name_and_issue_has_no_message() {
-    ruleBuilder.add(RuleKey.of("squid", "AvoidCycle"));
+    ruleBuilder.add(SQUID_RULE_KEY).setInternalKey(SQUID_RULE_KEY.rule());
     initModuleIssues();
     DefaultIssue issue = new DefaultIssue().setRuleKey(SQUID_RULE_KEY).setMessage("");
 

@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.mediumtest.preview;
 
+import org.sonar.xoo.rule.XooRulesDefinition;
+
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -63,6 +65,7 @@ public class IncrementalModeMediumTest {
     .builder()
     .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_INCREMENTAL))
     .registerPlugin("xoo", new XooPlugin())
+    .addRules(new XooRulesDefinition())
     .addDefaultQProfile("xoo", "Sonar Way")
     .activateRule(new ActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", null, "xoo"))
     .activateRule(new ActiveRule("manual", "MyManualIssue", null, "My manual issue", "MAJOR", null, null))

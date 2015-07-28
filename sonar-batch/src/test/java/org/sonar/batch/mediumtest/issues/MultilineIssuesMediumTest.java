@@ -19,7 +19,12 @@
  */
 package org.sonar.batch.mediumtest.issues;
 
+import org.sonar.xoo.rule.XooRulesDefinition;
+
+import org.sonar.batch.protocol.input.Rule;
+
 import java.io.File;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -29,7 +34,6 @@ import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.xoo.XooPlugin;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MultilineIssuesMediumTest {
@@ -39,6 +43,8 @@ public class MultilineIssuesMediumTest {
 
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
+    .addRules(new XooRulesDefinition())
+    .addRule(new Rule("xoo:MultilineIssue", "xoo", null, "Multinile Issue", "MAJOR", "xoo"))
     .addDefaultQProfile("xoo", "Sonar Way")
     .activateRule(new ActiveRule("xoo", "MultilineIssue", null, "Multinile Issue", "MAJOR", null, "xoo"))
     .build();

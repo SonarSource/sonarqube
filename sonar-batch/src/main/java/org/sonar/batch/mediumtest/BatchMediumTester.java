@@ -19,8 +19,15 @@
  */
 package org.sonar.batch.mediumtest;
 
+import org.sonar.api.server.rule.RulesDefinition.Repository;
+
+import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.batch.protocol.input.RulesSearchResult;
+import org.sonar.batch.rule.RulesLoader;
+import org.sonar.batch.protocol.input.Rule;
 import com.google.common.base.Function;
 import com.google.common.io.Files;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
@@ -29,9 +36,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
 import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
@@ -78,6 +87,7 @@ public class BatchMediumTester {
     private final FakeServerIssuesLoader serverIssues = new FakeServerIssuesLoader();
     private final FakeServerLineHashesLoader serverLineHashes = new FakeServerLineHashesLoader();
     private final Map<String, String> bootstrapProperties = new HashMap<>();
+    private final FakeRulesLoader rulesLoader = new FakeRulesLoader();
     private LogOutput logOutput = null;
 
     public BatchMediumTester build() {
@@ -113,6 +123,30 @@ public class BatchMediumTester {
 
     public BatchMediumTesterBuilder addQProfile(String language, String name) {
       projectRefProvider.addQProfile(language, name);
+      return this;
+    }
+
+    public BatchMediumTesterBuilder addRule(Rule rule) {
+      rulesLoader.addRule(rule);
+      return this;
+    }
+
+    public BatchMediumTesterBuilder addRules(List<Rule> rules) {
+      for (Rule r : rules) {
+        rulesLoader.addRule(r);
+      }
+      return this;
+    }
+
+    public BatchMediumTesterBuilder addRules(RulesDefinition rulesDefinition) {
+      RulesDefinition.Context context = new RulesDefinition.Context();
+      rulesDefinition.define(context);
+      List<Repository> repositories = context.repositories();
+      for (Repository repo : repositories) {
+        for (RulesDefinition.Rule rule : repo.rules()) {
+          this.addRule(new Rule(rule.repository().key() + ":" + rule.key(), rule.repository().key(), rule.internalKey(), rule.name(), rule.severity(), repo.language()));
+        }
+      }
       return this;
     }
 
@@ -171,6 +205,7 @@ public class BatchMediumTester {
         builder.projectRefProvider,
         builder.serverIssues,
         builder.serverLineHashes,
+        builder.rulesLoader,
         new DefaultDebtModel())
       .setBootstrapProperties(builder.bootstrapProperties)
       .setLogOutput(builder.logOutput)
@@ -221,6 +256,23 @@ public class BatchMediumTester {
       taskProperties.put(key, value);
       return this;
     }
+  }
+
+  private static class FakeRulesLoader implements RulesLoader {
+    private List<Rule> rules = new LinkedList<>();
+
+    public FakeRulesLoader addRule(Rule rule) {
+      rules.add(rule);
+      return this;
+    }
+
+    @Override
+    public RulesSearchResult load() {
+      RulesSearchResult r = new RulesSearchResult();
+      r.setRules(rules);
+      return r;
+    }
+
   }
 
   private static class FakeGlobalRepositoriesLoader implements GlobalRepositoriesLoader {

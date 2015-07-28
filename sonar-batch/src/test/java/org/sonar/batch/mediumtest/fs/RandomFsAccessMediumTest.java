@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.mediumtest.fs;
 
+import org.sonar.xoo.rule.XooRulesDefinition;
+
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -49,6 +51,7 @@ public class RandomFsAccessMediumTest {
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
+    .addRules(new XooRulesDefinition())
     .activateRule(new ActiveRule("xoo", "RandomAccessIssue", null, "One issue per line", "MAJOR", null, "xoo"))
     .build();
 

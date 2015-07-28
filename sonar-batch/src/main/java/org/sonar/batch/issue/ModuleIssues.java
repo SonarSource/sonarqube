@@ -25,7 +25,6 @@ import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.Rules;
-import org.sonar.api.batch.rule.internal.DefaultActiveRule;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.MessageException;
@@ -42,7 +41,7 @@ public class ModuleIssues {
   private final Project project;
   private final IssueFilters filters;
 
-  public ModuleIssues(ActiveRules activeRules, @Nullable Rules rules, IssueCache cache, Project project, IssueFilters filters) {
+  public ModuleIssues(ActiveRules activeRules, Rules rules, IssueCache cache, Project project, IssueFilters filters) {
     this.activeRules = activeRules;
     this.rules = rules;
     this.cache = cache;
@@ -50,17 +49,10 @@ public class ModuleIssues {
     this.filters = filters;
   }
 
-  public ModuleIssues(ActiveRules activeRules, IssueCache cache, Project project, IssueFilters filters) {
-    this(activeRules, null, cache, project, filters);
-  }
-
   public boolean initAndAddIssue(DefaultIssue issue) {
     RuleKey ruleKey = issue.ruleKey();
-    Rule rule = null;
-    if (rules != null) {
-      rule = rules.find(ruleKey);
-      validateRule(issue, rule);
-    }
+    Rule rule = rules.find(ruleKey);
+    validateRule(issue, rule);
     ActiveRule activeRule = activeRules.find(ruleKey);
     if (activeRule == null) {
       // rule does not exist or is not enabled -> ignore the issue
@@ -86,7 +78,7 @@ public class ModuleIssues {
 
   private void updateIssue(DefaultIssue issue, @Nullable Rule rule, ActiveRule activeRule) {
     if (Strings.isNullOrEmpty(issue.message())) {
-      issue.setMessage(((DefaultActiveRule) activeRule).name());
+      issue.setMessage(rule.name());
     }
     if (project != null) {
       issue.setCreationDate(project.getAnalysisDate());

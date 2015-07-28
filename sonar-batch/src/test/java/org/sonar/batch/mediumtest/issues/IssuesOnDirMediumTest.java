@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.mediumtest.issues;
 
+import org.sonar.xoo.rule.XooRulesDefinition;
+
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -43,6 +45,7 @@ public class IssuesOnDirMediumTest {
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
+    .addRules(new XooRulesDefinition())
     .activateRule(new ActiveRule("xoo", "OneIssueOnDirPerFile", null, "One issue per line", "MINOR", "xoo", "xoo"))
     .build();
 
