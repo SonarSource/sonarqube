@@ -127,7 +127,6 @@ public class RuleDaoTest {
     assertThat(rows).hasSize(2);
     assertThat(rows.get(0).get("ruleKey")).isEqualTo("S001");
     assertThat(rows.get(1).get("ruleKey")).isEqualTo("S002");
-
   }
 
   @Test
