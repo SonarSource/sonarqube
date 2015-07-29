@@ -20,12 +20,17 @@
 package org.sonar.server.computation.monitoring;
 
 import java.util.LinkedHashMap;
+import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.platform.monitoring.BaseMonitorMBean;
 
 public class ComputeEngineQueueMonitor extends BaseMonitorMBean implements ComputeEngineQueueMonitorMBean {
   private final CEQueueStatus queueStatus;
 
-  public ComputeEngineQueueMonitor(CEQueueStatus queueStatus) {
+  public ComputeEngineQueueMonitor(CEQueueStatus queueStatus,
+    // ReportQueue initializes CEQueueStatus and is therefor a dependency of
+    // ComputeEngineQueueMonitor.
+    // Do not remove this parameter, it ensures start order of components
+    ReportQueue reportQueue) {
     this.queueStatus = queueStatus;
   }
 

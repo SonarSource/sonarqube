@@ -20,9 +20,11 @@
 package org.sonar.server.computation.monitoring;
 
 import org.junit.Test;
+import org.sonar.server.computation.ReportQueue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Mockito.mock;
 
 public class ComputeEngineQueueMonitorTest {
   private static final long RECEIVED_COUNT = 30;
@@ -31,7 +33,7 @@ public class ComputeEngineQueueMonitorTest {
   private static final long ERROR_COUNT = 10;
   private static final long SUCCESS_COUNT = 13;
 
-  private ComputeEngineQueueMonitor underTest = new ComputeEngineQueueMonitor(new DumbCEQueueStatus());
+  private ComputeEngineQueueMonitor underTest = new ComputeEngineQueueMonitor(new DumbCEQueueStatus(), mock(ReportQueue.class));
 
   @Test
   public void name_is_ComputeEngineQueue() {
