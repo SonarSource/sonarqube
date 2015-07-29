@@ -63,10 +63,6 @@ public class ListAction implements RulesWsAction {
             .clear()
             .setRepository(dto.getRepositoryKey())
             .setKey(dto.getRuleKey());
-          String name = dto.getName();
-          if (!Strings.isNullOrEmpty(name)) {
-            ruleBuilder.setName(name);
-          }
           String internalKey = dto.getConfigKey();
           if (!Strings.isNullOrEmpty(internalKey)) {
             ruleBuilder.setInternalKey(internalKey);
