@@ -70,6 +70,7 @@ public class PreviewAndReportsMediumTest {
     .addDefaultQProfile("xoo", "Sonar Way")
     .addRules(new XooRulesDefinition())
     .addRule(new Rule("manual:MyManualIssue", "manual", "MyManualIssue", "My manual issue", "MAJOR", null))
+    .addRule(new Rule("manual:MyManualIssueDup", "manual", "MyManualIssue", "My manual issue", "MAJOR", null))
     .activateRule(new ActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", null, "xoo"))
     .activateRule(new ActiveRule("manual", "MyManualIssue", null, "My manual issue", "MAJOR", null, null))
     .setPreviousAnalysisDate(new Date())

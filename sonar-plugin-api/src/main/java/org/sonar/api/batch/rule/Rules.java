@@ -49,6 +49,6 @@ public interface Rules {
    */
   Collection<Rule> findByRepository(String repository);
 
-  Rule findByInternalKey(String repository, String internalKey);
+  Collection<Rule> findByInternalKey(String repository, String internalKey);
 
 }

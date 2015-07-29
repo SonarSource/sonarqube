@@ -19,8 +19,10 @@
  */
 package org.sonar.api.batch.rule.internal;
 
-import org.sonar.api.batch.rule.Rule;
 import com.google.common.collect.ImmutableTable;
+
+import com.google.common.collect.HashBasedTable;
+import org.sonar.api.batch.rule.Rule;
 import com.google.common.collect.Table;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -31,6 +33,8 @@ import org.sonar.api.rule.RuleKey;
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 @Immutable
@@ -38,22 +42,35 @@ class DefaultRules implements Rules {
 
   // TODO use disk-backed cache (persistit) instead of full in-memory cache ?
   private final ListMultimap<String, Rule> rulesByRepository;
-  private final Table<String, String, Rule> rulesByRepositoryAndInternalKey;
+  private final ImmutableTable<String, String, List<Rule>> rulesByRepositoryAndInternalKey;
 
   DefaultRules(Collection<NewRule> newRules) {
     ImmutableListMultimap.Builder<String, Rule> builder = ImmutableListMultimap.builder();
-    ImmutableTable.Builder<String, String, Rule> tableBuilder = ImmutableTable.builder();
+    Table<String, String, List<Rule>> tableBuilder = HashBasedTable.create();
 
     for (NewRule newRule : newRules) {
       DefaultRule r = new DefaultRule(newRule);
       builder.put(r.key().repository(), r);
-      if (r.internalKey() != null) {
-        tableBuilder.put(r.key().repository(), r.internalKey(), r);
-      }
+      addToTable(tableBuilder, r);
     }
 
     rulesByRepository = builder.build();
-    rulesByRepositoryAndInternalKey = tableBuilder.build();
+    rulesByRepositoryAndInternalKey = ImmutableTable.copyOf(tableBuilder);
+  }
+
+  private void addToTable(Table<String, String, List<Rule>> table, DefaultRule r) {
+    if (r.internalKey() == null) {
+      return;
+    }
+
+    List<Rule> ruleList = table.get(r.key().repository(), r.internalKey());
+    
+    if(ruleList == null) {
+      ruleList = new LinkedList<>();
+    }
+    
+    ruleList.add(r);
+    table.put(r.key().repository(), r.internalKey(), ruleList);
   }
 
   @Override
@@ -78,7 +95,9 @@ class DefaultRules implements Rules {
   }
 
   @Override
-  public Rule findByInternalKey(String repository, String internalKey) {
-    return rulesByRepositoryAndInternalKey.get(repository, internalKey);
+  public Collection<Rule> findByInternalKey(String repository, String internalKey) {
+    List<Rule> rules = rulesByRepositoryAndInternalKey.get(repository, internalKey);
+    
+    return rules != null ? rules : Collections.<Rule>emptyList();
   }
 }

@@ -111,8 +111,7 @@ public class RuleFinderCompatibility implements RuleFinder {
   }
 
   private Collection<Rule> byInternalKey(RuleQuery query) {
-    Rule rule = toRule(rules.findByInternalKey(query.getRepositoryKey(), query.getConfigKey()));
-    return rule != null ? Arrays.asList(rule) : Collections.<Rule>emptyList();
+    return Collections2.transform(rules.findByInternalKey(query.getRepositoryKey(), query.getConfigKey()), RuleTransformer);
   }
 
   @CheckForNull
