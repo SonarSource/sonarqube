@@ -37,8 +37,8 @@ public class ComputeEngineQueueMonitor extends BaseMonitorMBean implements Compu
   @Override
   public LinkedHashMap<String, Object> attributes() {
     LinkedHashMap<String, Object> attributes = new LinkedHashMap<>();
-    attributes.put("Received reports", getReceivedCount());
-    attributes.put("Pending reports", getPendingCount());
+    attributes.put("Received", getReceivedCount());
+    attributes.put("Pending", getPendingCount());
     attributes.put("In progress", getInProgressCount());
     attributes.put("Successfully processed", getSuccessCount());
     attributes.put("Processed with error", getErrorCount());

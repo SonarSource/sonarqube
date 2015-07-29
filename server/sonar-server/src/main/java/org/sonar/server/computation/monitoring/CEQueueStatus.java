@@ -49,7 +49,7 @@ public interface CEQueueStatus {
   long initPendingCount(long initialPendingCount);
 
   /**
-   * Count of batch report waiting for processing since startup, including reports received before instance startup.
+   * Count of batch reports waiting for processing since startup, including reports received before instance startup.
    */
   long getPendingCount();
 
@@ -57,7 +57,7 @@ public interface CEQueueStatus {
    * Adds 1 to the count of batch reports under processing and removes 1 from the count of batch reports waiting for
    * processing.
    *
-   * @return the new count of batch report under processing
+   * @return the new count of batch reports under processing
    *
    * @see #getInProgressCount()
    * @see #getPendingCount()
@@ -65,15 +65,15 @@ public interface CEQueueStatus {
   long addInProgress();
 
   /**
-   * Count of batch report under processing.
+   * Count of batch reports under processing.
    */
   long getInProgressCount();
 
   /**
-   * Adds 1 to the count of batch report which processing ended with an error and removes 1 from the count of batch
-   * report under processing.
+   * Adds 1 to the count of batch reports which processing ended with an error and removes 1 from the count of batch
+   * reports under processing.
    *
-   * @return the new count of batch report which processing ended with an error
+   * @return the new count of batch reports which processing ended with an error
    *
    * @see #getErrorCount()
    * @see #getInProgressCount()
@@ -81,15 +81,15 @@ public interface CEQueueStatus {
   long addError();
 
   /**
-   * Count of batch report which processing ended with an error since instance startup.
+   * Count of batch reports which processing ended with an error since instance startup.
    */
   long getErrorCount();
 
   /**
-   * Adds 1 to the count of batch report which processing ended successfully and removes 1 from the count of batch
-   * report under processing.
+   * Adds 1 to the count of batch reports which processing ended successfully and removes 1 from the count of batch
+   * reports under processing.
    *
-   * @return the new count of batch report which processing ended successfully
+   * @return the new count of batch reports which processing ended successfully
    *
    * @see #getSuccessCount()
    * @see #getInProgressCount()
@@ -97,7 +97,7 @@ public interface CEQueueStatus {
   long addSuccess();
 
   /**
-   * Count of batch report which processing ended successfully since instance startup.
+   * Count of batch reports which processing ended successfully since instance startup.
    */
   long getSuccessCount();
 }
