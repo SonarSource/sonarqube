@@ -123,10 +123,10 @@ public class RuleDaoTest {
     dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), RuleTesting.newDto(RuleKey.of("java", "S002")).setConfigKey("I002"));
     dbTester.getSession().commit();
 
-    List<Map<String, Object>> rows = dbTester.select("select plugin_rule_key as RULE_KEY from rules order by plugin_rule_key");
+    List<Map<String, Object>> rows = dbTester.select("select plugin_rule_key as \"ruleKey\" from rules order by plugin_rule_key");
     assertThat(rows).hasSize(2);
-    assertThat(rows.get(0).get("RULE_KEY")).isEqualTo("S001");
-    assertThat(rows.get(1).get("RULE_KEY")).isEqualTo("S002");
+    assertThat(rows.get(0).get("ruleKey")).isEqualTo("S001");
+    assertThat(rows.get(1).get("ruleKey")).isEqualTo("S002");
 
   }
 
