@@ -18,8 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 (function () {
-  var defaultActions = ['comment', 'assign', 'assign_to_me', 'plan', 'set_severity', 'set_tags'];
-
   Handlebars.registerHelper('log', function () {
     var args = Array.prototype.slice.call(arguments, 0, -1);
     console.log.apply(console, args);
@@ -372,22 +370,6 @@
       format = '0a';
     }
     return numeral(number).format(format);
-  });
-
-  Handlebars.registerHelper('pluginActions', function (actions, options) {
-    var pluginActions = _.difference(actions, defaultActions);
-    return pluginActions.reduce(function (prev, current) {
-      return prev + options.fn(current);
-    }, '');
-  });
-
-  Handlebars.registerHelper('ifHasExtraActions', function (actions, options) {
-    var actionsLeft = _.difference(actions, defaultActions);
-    if (actionsLeft.length > 0) {
-      return options.fn(this);
-    } else {
-      return options.inverse(this);
-    }
   });
 
   Handlebars.registerHelper('withFirst', function (list, options) {

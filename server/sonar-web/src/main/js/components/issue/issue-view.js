@@ -36,7 +36,6 @@ define([
         'click .js-issue-assign-to-me': 'assignToMe',
         'click .js-issue-plan': 'plan',
         'click .js-issue-show-changelog': 'showChangeLog',
-        'click .js-issue-more': 'showMoreActions',
         'click .js-issue-rule': 'showRule',
         'click .js-issue-edit-tags': 'editTags'
       };
@@ -196,29 +195,6 @@ define([
           collection: actionPlans
         });
         that.popup.render();
-      });
-    },
-
-    showMoreActions: function (e) {
-      e.stopPropagation();
-      $('body').click();
-      this.popup = new MoreActionsView({
-        triggerEl: $(e.currentTarget),
-        bottomRight: true,
-        model: this.model,
-        detailView: this
-      });
-      this.popup.render();
-    },
-
-    action: function (action) {
-      var that = this;
-      this.disableControls();
-      return $.post(baseUrl + '/api/issues/do_action', {
-        issue: this.model.id,
-        actionKey: action
-      }).done(function () {
-        that.resetIssue();
       });
     },
 
