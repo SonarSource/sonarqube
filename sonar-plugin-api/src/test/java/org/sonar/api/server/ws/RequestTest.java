@@ -49,6 +49,11 @@ public class RequestTest {
     }
 
     @Override
+    public String getMediaType() {
+      return "application/json";
+    }
+
+    @Override
     public boolean hasParam(String key) {
       return params.keySet().contains(key);
     }

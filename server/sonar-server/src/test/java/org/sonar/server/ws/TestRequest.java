@@ -59,7 +59,8 @@ public class TestRequest extends ValidatingRequest {
     return this;
   }
 
-  public String getMimeType() {
+  @Override
+  public String getMediaType() {
     return mimeType;
   }
 

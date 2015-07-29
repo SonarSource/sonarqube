@@ -42,6 +42,11 @@ public abstract class Request {
   public abstract String method();
 
   /**
+   * Returns the requested MIME type, or {@code "application/octet-stream"} if not specified.
+   */
+  public abstract String getMediaType();
+
+  /**
    * Return true of the parameter is set.
    */
   public abstract boolean hasParam(String key);

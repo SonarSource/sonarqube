@@ -37,6 +37,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
+import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.ws.WsTester.TestResponse.TestStream;
 import org.sonar.test.JsonAssert;
 
@@ -51,6 +52,7 @@ public class WsTester {
   public static class TestRequest extends ValidatingRequest {
 
     private final String method;
+
     private Map<String, String> params = Maps.newHashMap();
 
     private TestRequest(String method) {
@@ -60,6 +62,11 @@ public class WsTester {
     @Override
     public String method() {
       return method;
+    }
+
+    @Override
+    public String getMediaType() {
+      return MimeTypes.JSON;
     }
 
     @Override

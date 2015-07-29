@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ws;
 
+import com.google.common.base.Objects;
 import org.jruby.RubyFile;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 
@@ -40,6 +41,11 @@ public class ServletRequest extends ValidatingRequest {
   @Override
   public String method() {
     return source.getMethod();
+  }
+
+  @Override
+  public String getMediaType() {
+    return Objects.firstNonNull(source.getContentType(), "application/octet-stream");
   }
 
   @Override

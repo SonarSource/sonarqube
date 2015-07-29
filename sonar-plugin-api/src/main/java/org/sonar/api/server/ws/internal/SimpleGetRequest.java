@@ -20,13 +20,13 @@
 package org.sonar.api.server.ws.internal;
 
 import com.google.common.collect.Maps;
+import java.io.InputStream;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
 
-import javax.annotation.Nullable;
-
-import java.io.InputStream;
-import java.util.Map;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Fake implementation of {@link org.sonar.api.server.ws.Request} used
@@ -36,10 +36,22 @@ import java.util.Map;
 public class SimpleGetRequest extends Request {
 
   private final Map<String, String> params = Maps.newHashMap();
+  private String mediaType = "application/json";
 
   @Override
   public String method() {
     return "GET";
+  }
+
+  @Override
+  public String getMediaType() {
+    return mediaType;
+  }
+
+  public SimpleGetRequest setMediaType(String mediaType) {
+    checkNotNull(mediaType);
+    this.mediaType = mediaType;
+    return this;
   }
 
   @Override

@@ -62,6 +62,11 @@ public class WebServiceEngineTest {
     }
 
     @Override
+    public String getMediaType() {
+      return MimeTypes.JSON;
+    }
+
+    @Override
     public boolean hasParam(String key) {
       return params.keySet().contains(key);
     }

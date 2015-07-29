@@ -27,6 +27,7 @@ import org.junit.Test;
 import javax.servlet.http.HttpServletRequest;
 
 import java.util.Collections;
+import org.sonar.server.plugins.MimeTypes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -40,6 +41,19 @@ public class ServletRequestTest {
     ServletRequest request = new ServletRequest(source, Collections.<String, Object>emptyMap());
     request.method();
     verify(source).getMethod();
+  }
+
+  @Test
+  public void getMediaType() throws Exception {
+    when(source.getContentType()).thenReturn(MimeTypes.JSON);
+    ServletRequest request = new ServletRequest(source, Collections.<String, Object>emptyMap());
+    assertThat(request.getMediaType()).isEqualTo(MimeTypes.JSON);
+  }
+
+  @Test
+  public void default_media_type_is_octet_stream() throws Exception {
+    ServletRequest request = new ServletRequest(source, Collections.<String, Object>emptyMap());
+    assertThat(request.getMediaType()).isEqualTo("application/octet-stream");
   }
 
   @Test
