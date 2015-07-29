@@ -31,6 +31,7 @@ public class CEQueueStatusImpl implements CEQueueStatus {
   private final AtomicLong inProgress = new AtomicLong(0);
   private final AtomicLong error = new AtomicLong(0);
   private final AtomicLong success = new AtomicLong(0);
+  private final AtomicLong processingTime = new AtomicLong(0);
 
   @Override
   public long addReceived() {
@@ -80,7 +81,8 @@ public class CEQueueStatusImpl implements CEQueueStatus {
   }
 
   @Override
-  public long addError() {
+  public long addError(long processingTime) {
+    addProcessingTime(processingTime);
     inProgress.decrementAndGet();
     return error.incrementAndGet();
   }
@@ -91,13 +93,24 @@ public class CEQueueStatusImpl implements CEQueueStatus {
   }
 
   @Override
-  public long addSuccess() {
+  public long addSuccess(long processingTime) {
+    addProcessingTime(processingTime);
     inProgress.decrementAndGet();
     return success.incrementAndGet();
+  }
+
+  private void addProcessingTime(long time) {
+    checkArgument(time >= 0, "Processing time can not be < 0");
+    processingTime.addAndGet(time);
   }
 
   @Override
   public long getSuccessCount() {
     return success.get();
+  }
+
+  @Override
+  public long getProcessingTime() {
+    return processingTime.get();
   }
 }

@@ -32,6 +32,7 @@ public class ComputeEngineQueueMonitorTest {
   private static final long IN_PROGRESS_COUNT = 5;
   private static final long ERROR_COUNT = 10;
   private static final long SUCCESS_COUNT = 13;
+  private static final long PROCESSING_TIME = 987;
 
   private ComputeEngineQueueMonitor underTest = new ComputeEngineQueueMonitor(new DumbCEQueueStatus(), mock(ReportQueue.class));
 
@@ -43,11 +44,12 @@ public class ComputeEngineQueueMonitorTest {
   @Test
   public void attributes_has_entry_for_each_get_method() {
     assertThat(underTest.attributes()).containsOnly(
-      entry("Received reports", RECEIVED_COUNT),
-      entry("Pending reports", PENDING_COUNT),
+      entry("Received", RECEIVED_COUNT),
+      entry("Pending", PENDING_COUNT),
       entry("In progress", IN_PROGRESS_COUNT),
       entry("Successfully processed", SUCCESS_COUNT),
-      entry("Processed with error", ERROR_COUNT));
+      entry("Processed with error", ERROR_COUNT),
+      entry("Processing time", PROCESSING_TIME));
   }
 
   @Test
@@ -57,6 +59,7 @@ public class ComputeEngineQueueMonitorTest {
     assertThat(underTest.getInProgressCount()).isEqualTo(IN_PROGRESS_COUNT);
     assertThat(underTest.getErrorCount()).isEqualTo(ERROR_COUNT);
     assertThat(underTest.getSuccessCount()).isEqualTo(SUCCESS_COUNT);
+    assertThat(underTest.getProcessingTime()).isEqualTo(PROCESSING_TIME);
   }
 
   /**
@@ -100,7 +103,7 @@ public class ComputeEngineQueueMonitorTest {
     }
 
     @Override
-    public long addError() {
+    public long addError(long processingTime) {
       return methodNotImplemented();
     }
 
@@ -110,13 +113,18 @@ public class ComputeEngineQueueMonitorTest {
     }
 
     @Override
-    public long addSuccess() {
+    public long addSuccess(long processingTime) {
       return methodNotImplemented();
     }
 
     @Override
     public long getSuccessCount() {
       return SUCCESS_COUNT;
+    }
+
+    @Override
+    public long getProcessingTime() {
+      return PROCESSING_TIME;
     }
   }
 }

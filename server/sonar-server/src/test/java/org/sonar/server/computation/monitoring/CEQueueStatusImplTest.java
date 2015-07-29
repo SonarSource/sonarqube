@@ -29,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CEQueueStatusImplTest {
   private static final String ISE_initPendingCount_CALL_MSG = "Method initPendingCount must be used before any other method and can not be called twice";
   private static final int SOME_RANDOM_MAX = 96535;
+  private static final int SOME_PROCESSING_TIME = 8723;
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -42,6 +43,7 @@ public class CEQueueStatusImplTest {
     assertThat(underTest.getInProgressCount()).isEqualTo(0);
     assertThat(underTest.getErrorCount()).isEqualTo(0);
     assertThat(underTest.getSuccessCount()).isEqualTo(0);
+    assertThat(underTest.getProcessingTime()).isEqualTo(0);
   }
 
   @Test
@@ -116,6 +118,7 @@ public class CEQueueStatusImplTest {
     assertThat(underTest.getInProgressCount()).isEqualTo(1);
     assertThat(underTest.getErrorCount()).isEqualTo(0);
     assertThat(underTest.getSuccessCount()).isEqualTo(0);
+    assertThat(underTest.getProcessingTime()).isEqualTo(0);
   }
 
   @Test
@@ -127,49 +130,70 @@ public class CEQueueStatusImplTest {
 
     assertThat(underTest.getInProgressCount()).isEqualTo(calls);
     assertThat(underTest.getPendingCount()).isEqualTo(-calls);
+    assertThat(underTest.getProcessingTime()).isEqualTo(0);
+  }
+
+  @Test
+  public void addError_throws_IAE_if_time_is_less_than_0() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Processing time can not be < 0");
+
+    underTest.addError(-1);
   }
 
   @Test
   public void addError_increases_Error_and_decreases_InProgress_by_1_without_check_on_InProgress() {
-    underTest.addError();
+    underTest.addError(SOME_PROCESSING_TIME);
 
     assertThat(underTest.getReceivedCount()).isEqualTo(0);
     assertThat(underTest.getPendingCount()).isEqualTo(0);
     assertThat(underTest.getInProgressCount()).isEqualTo(-1);
     assertThat(underTest.getErrorCount()).isEqualTo(1);
     assertThat(underTest.getSuccessCount()).isEqualTo(0);
+    assertThat(underTest.getProcessingTime()).isEqualTo(SOME_PROCESSING_TIME);
   }
 
   @Test
   public void addError_any_number_of_call_change_by_1_per_call() {
     int calls = new Random().nextInt(SOME_RANDOM_MAX);
     for (int i = 0; i < calls; i++) {
-      underTest.addError();
+      underTest.addError(1);
     }
 
     assertThat(underTest.getErrorCount()).isEqualTo(calls);
     assertThat(underTest.getInProgressCount()).isEqualTo(-calls);
+    assertThat(underTest.getProcessingTime()).isEqualTo(calls);
+  }
+
+  @Test
+  public void addSuccess_throws_IAE_if_time_is_less_than_0() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Processing time can not be < 0");
+
+    underTest.addSuccess(-1);
   }
 
   @Test
   public void addSuccess_increases_Error_and_decreases_InProgress_by_1_without_check_on_InProgress() {
-    underTest.addSuccess();
+    underTest.addSuccess(SOME_PROCESSING_TIME);
 
     assertThat(underTest.getReceivedCount()).isEqualTo(0);
     assertThat(underTest.getPendingCount()).isEqualTo(0);
     assertThat(underTest.getInProgressCount()).isEqualTo(-1);
     assertThat(underTest.getErrorCount()).isEqualTo(0);
     assertThat(underTest.getSuccessCount()).isEqualTo(1);
+    assertThat(underTest.getProcessingTime()).isEqualTo(SOME_PROCESSING_TIME);
   }
 
   @Test
   public void addSuccess_any_number_of_call_change_by_1_per_call() {
     int calls = new Random().nextInt(SOME_RANDOM_MAX);
     for (int i = 0; i < calls; i++) {
-      underTest.addSuccess();
+      underTest.addSuccess(1);
     }
 
     assertThat(underTest.getSuccessCount()).isEqualTo(calls);
     assertThat(underTest.getInProgressCount()).isEqualTo(-calls);
+    assertThat(underTest.getProcessingTime()).isEqualTo(calls);
   }
 }

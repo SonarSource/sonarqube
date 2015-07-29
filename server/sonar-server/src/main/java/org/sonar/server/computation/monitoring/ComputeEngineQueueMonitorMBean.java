@@ -27,22 +27,27 @@ public interface ComputeEngineQueueMonitorMBean {
   long getReceivedCount();
 
   /**
-   * Count of batch report waiting for processing since startup, including reports received before instance startup.
+   * Count of batch reports waiting for processing since startup, including reports received before instance startup.
    */
   long getPendingCount();
 
   /**
-   * Count of batch report under processing.
+   * Count of batch reports under processing.
    */
   long getInProgressCount();
 
   /**
-   * Count of batch report which processing ended with an error since instance startup.
+   * Count of batch reports which processing ended with an error since instance startup.
    */
   long getErrorCount();
 
   /**
-   * Count of batch report which processing ended successfully since instance startup.
+   * Count of batch reports which processing ended successfully since instance startup.
    */
   long getSuccessCount();
+
+  /**
+   * Time spent processing reports since startup.
+   */
+  long getProcessingTime();
 }

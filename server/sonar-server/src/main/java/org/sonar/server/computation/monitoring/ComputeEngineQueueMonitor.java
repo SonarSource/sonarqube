@@ -47,6 +47,7 @@ public class ComputeEngineQueueMonitor extends BaseMonitorMBean implements Compu
     attributes.put("In progress", getInProgressCount());
     attributes.put("Successfully processed", getSuccessCount());
     attributes.put("Processed with error", getErrorCount());
+    attributes.put("Processing time", getProcessingTime());
     return attributes;
   }
 
@@ -73,5 +74,10 @@ public class ComputeEngineQueueMonitor extends BaseMonitorMBean implements Compu
   @Override
   public long getSuccessCount() {
     return queueStatus.getSuccessCount();
+  }
+
+  @Override
+  public long getProcessingTime() {
+    return queueStatus.getProcessingTime();
   }
 }

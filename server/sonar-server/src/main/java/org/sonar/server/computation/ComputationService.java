@@ -69,15 +69,20 @@ public class ComputationService {
         timingSum += stepProfiler.stopInfo(step.getDescription());
       }
       item.dto.setStatus(SUCCESS);
-      queueStatus.addSuccess();
+      long timing = logProcessingEnd(message, profiler, timingSum);
+      queueStatus.addSuccess(timing);
     } catch (Throwable e) {
       item.dto.setStatus(FAILED);
-      queueStatus.addError();
+      long timing = logProcessingEnd(message, profiler, timingSum);
+      queueStatus.addError(timing);
       throw Throwables.propagate(e);
     } finally {
       item.dto.setFinishedAt(system.now());
       activityManager.saveActivity(item.dto);
-      profiler.stopInfo(format("%s total time spent in steps=%sms", message, timingSum));
     }
+  }
+
+  private static long logProcessingEnd(String message, Profiler profiler, long timingSum) {
+    return profiler.stopInfo(format("%s total time spent in steps=%sms", message, timingSum));
   }
 }

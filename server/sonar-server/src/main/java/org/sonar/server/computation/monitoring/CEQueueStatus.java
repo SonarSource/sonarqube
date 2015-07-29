@@ -71,14 +71,18 @@ public interface CEQueueStatus {
 
   /**
    * Adds 1 to the count of batch reports which processing ended with an error and removes 1 from the count of batch
-   * reports under processing.
+   * reports under processing. Adds the specified time to the processing time counter.
+   *
+   * @param processingTime duration of processing in ms
    *
    * @return the new count of batch reports which processing ended with an error
    *
    * @see #getErrorCount()
    * @see #getInProgressCount()
+   *
+   * @throws IllegalArgumentException if processingTime is < 0
    */
-  long addError();
+  long addError(long processingTime);
 
   /**
    * Count of batch reports which processing ended with an error since instance startup.
@@ -87,17 +91,26 @@ public interface CEQueueStatus {
 
   /**
    * Adds 1 to the count of batch reports which processing ended successfully and removes 1 from the count of batch
-   * reports under processing.
+   * reports under processing. Adds the specified time to the processing time counter.
+   *
+   * @param processingTime duration of processing in ms
    *
    * @return the new count of batch reports which processing ended successfully
    *
    * @see #getSuccessCount()
    * @see #getInProgressCount()
+   *
+   * @throws IllegalArgumentException if processingTime is < 0
    */
-  long addSuccess();
+  long addSuccess(long processingTime);
 
   /**
    * Count of batch reports which processing ended successfully since instance startup.
    */
   long getSuccessCount();
+
+  /**
+   * Time spent processing batch reports since startup.
+   */
+  long getProcessingTime();
 }

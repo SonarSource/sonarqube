@@ -39,6 +39,7 @@ import org.sonar.server.computation.step.ComputationSteps;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -87,7 +88,7 @@ public class ComputationServiceTest {
     verify(activityManager).saveActivity(dto);
 
     verify(queueStatus).addInProgress();
-    verify(queueStatus).addSuccess();
+    verify(queueStatus).addSuccess(anyLong());
     verifyNoMoreInteractions(queueStatus);
   }
 
@@ -116,7 +117,7 @@ public class ComputationServiceTest {
       assertThat(dto.getFinishedAt()).isNotNull();
 
       verify(queueStatus).addInProgress();
-      verify(queueStatus).addError();
+      verify(queueStatus).addError(anyLong());
       verifyNoMoreInteractions(queueStatus);
     }
   }
@@ -135,7 +136,7 @@ public class ComputationServiceTest {
       assertThat(dto.getFinishedAt()).isNotNull();
 
       verify(queueStatus).addInProgress();
-      verify(queueStatus).addError();
+      verify(queueStatus).addError(anyLong());
       verifyNoMoreInteractions(queueStatus);
     }
   }

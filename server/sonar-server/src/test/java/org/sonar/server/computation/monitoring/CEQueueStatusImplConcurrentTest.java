@@ -60,6 +60,7 @@ public class CEQueueStatusImplConcurrentTest {
     assertThat(underTest.getInProgressCount()).isEqualTo(1);
     assertThat(underTest.getErrorCount()).isEqualTo(17);
     assertThat(underTest.getSuccessCount()).isEqualTo(80);
+    assertThat(underTest.getProcessingTime()).isEqualTo(177);
   }
 
   private List<Runnable> buildShuffleCallsToUnderTest() {
@@ -97,14 +98,14 @@ public class CEQueueStatusImplConcurrentTest {
   private class AddErrorRunnable implements Runnable {
     @Override
     public void run() {
-      underTest.addError();
+      underTest.addError(1);
     }
   }
 
   private class AddSuccessRunnable implements Runnable {
     @Override
     public void run() {
-      underTest.addSuccess();
+      underTest.addSuccess(2);
     }
   }
 }
