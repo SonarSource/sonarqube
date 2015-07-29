@@ -44,12 +44,13 @@ import static org.sonar.db.version.DatabaseMigration.Status.FAILED;
 import static org.sonar.db.version.DatabaseMigration.Status.NONE;
 import static org.sonar.db.version.DatabaseMigration.Status.RUNNING;
 import static org.sonar.db.version.DatabaseMigration.Status.SUCCEEDED;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.MESSAGE_MIGRATION_NEEDED;
+import static org.sonar.server.platform.ws.DbMigrationJsonWriter.MESSAGE_MIGRATION_REQUIRED;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.MESSAGE_NO_MIGRATION_ON_EMBEDDED_DATABASE;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.MESSAGE_STATUS_NONE;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.MESSAGE_STATUS_RUNNING;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.MESSAGE_STATUS_SUCCEEDED;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_MIGRATION_FAILED;
+import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_MIGRATION_REQUIRED;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_MIGRATION_RUNNING;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_MIGRATION_SUCCEEDED;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.STATUS_NOT_SUPPORTED;
@@ -190,7 +191,7 @@ public class DbMigrationStatusActionTest {
 
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(STATUS_NO_MIGRATION, MESSAGE_MIGRATION_NEEDED));
+    assertJson(response.outputAsString()).isSimilarTo(expectedResponse(STATUS_MIGRATION_REQUIRED, MESSAGE_MIGRATION_REQUIRED));
   }
 
   private static String failedMsg(@Nullable String t) {

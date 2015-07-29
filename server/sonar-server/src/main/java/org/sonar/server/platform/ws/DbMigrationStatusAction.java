@@ -32,7 +32,7 @@ import org.sonar.db.version.DatabaseVersion;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.UNSUPPORTED_DATABASE_MIGRATION_STATUS;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.statusDescription;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.write;
-import static org.sonar.server.platform.ws.DbMigrationJsonWriter.writeMigrationNeededResponse;
+import static org.sonar.server.platform.ws.DbMigrationJsonWriter.writeMigrationRequiredResponse;
 import static org.sonar.server.platform.ws.DbMigrationJsonWriter.writeNotSupportedResponse;
 
 /**
@@ -79,7 +79,7 @@ public class DbMigrationStatusAction implements SystemWsAction {
             write(json, databaseMigration);
             break;
           case NONE:
-            writeMigrationNeededResponse(json);
+            writeMigrationRequiredResponse(json);
             break;
           default:
             throw new IllegalArgumentException(UNSUPPORTED_DATABASE_MIGRATION_STATUS);

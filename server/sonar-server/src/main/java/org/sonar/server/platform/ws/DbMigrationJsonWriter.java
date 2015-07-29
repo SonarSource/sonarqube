@@ -23,7 +23,6 @@ package org.sonar.server.platform.ws;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.version.DatabaseMigration;
 
-import static org.sonar.db.version.DatabaseMigration.Status.NONE;
 import static org.sonar.db.version.DatabaseMigration.Status.RUNNING;
 
 public class DbMigrationJsonWriter {
@@ -36,10 +35,11 @@ public class DbMigrationJsonWriter {
   static final String STATUS_MIGRATION_RUNNING = "MIGRATION_RUNNING";
   static final String STATUS_MIGRATION_FAILED = "MIGRATION_FAILED";
   static final String STATUS_MIGRATION_SUCCEEDED = "MIGRATION_SUCCEEDED";
+  static final String STATUS_MIGRATION_REQUIRED = "MIGRATION_REQUIRED";
 
   static final String UNSUPPORTED_DATABASE_MIGRATION_STATUS = "Unsupported DatabaseMigration status";
   static final String MESSAGE_NO_MIGRATION_ON_EMBEDDED_DATABASE = "Upgrade is not supported on embedded database.";
-  static final String MESSAGE_MIGRATION_NEEDED = "Database migration is required. DB migration can be started using WS /api/system/migrate_db.";
+  static final String MESSAGE_MIGRATION_REQUIRED = "Database migration is required. DB migration can be started using WS /api/system/migrate_db.";
   static final String MESSAGE_STATUS_NONE = "Database is up-to-date, no migration needed.";
   static final String MESSAGE_STATUS_RUNNING = "Database migration is running.";
   static final String MESSAGE_STATUS_SUCCEEDED = "Migration succeeded.";
@@ -72,10 +72,10 @@ public class DbMigrationJsonWriter {
       .endObject();
   }
 
-  static void writeMigrationNeededResponse(JsonWriter json) {
+  static void writeMigrationRequiredResponse(JsonWriter json) {
     json.beginObject()
-      .prop(FIELD_STATE, statusToJson(NONE))
-      .prop(FIELD_MESSAGE, MESSAGE_MIGRATION_NEEDED)
+      .prop(FIELD_STATE, STATUS_MIGRATION_REQUIRED)
+      .prop(FIELD_MESSAGE, MESSAGE_MIGRATION_REQUIRED)
       .endObject();
   }
 
