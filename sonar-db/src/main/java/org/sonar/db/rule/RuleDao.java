@@ -23,6 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import java.util.List;
 import javax.annotation.Nonnull;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -54,6 +55,14 @@ public class RuleDao implements Dao {
 
   public List<RuleDto> selectEnabledAndNonManual(DbSession session) {
     return mapper(session).selectEnabledAndNonManual();
+  }
+
+  public void selectEnabledAndNonManual(DbSession session, ResultHandler resultHandler) {
+    mapper(session).selectEnabledAndNonManual(resultHandler);
+  }
+
+  public void insert(DbSession session, RuleDto dto) {
+    mapper(session).insert(dto);
   }
 
   private RuleMapper mapper(DbSession session) {

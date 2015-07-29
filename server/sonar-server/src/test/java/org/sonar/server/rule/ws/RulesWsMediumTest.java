@@ -97,7 +97,7 @@ public class RulesWsMediumTest {
     WebService.Controller controller = context.controller(API_ENDPOINT);
 
     assertThat(controller).isNotNull();
-    assertThat(controller.actions()).hasSize(8);
+    assertThat(controller.actions()).hasSize(9);
     assertThat(controller.action(API_SEARCH_METHOD)).isNotNull();
     assertThat(controller.action(API_SHOW_METHOD)).isNotNull();
     assertThat(controller.action(API_TAGS_METHOD)).isNotNull();
