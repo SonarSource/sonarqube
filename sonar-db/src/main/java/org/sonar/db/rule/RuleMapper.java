@@ -23,6 +23,7 @@ import java.sql.Timestamp;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 
 public interface RuleMapper {
@@ -30,6 +31,8 @@ public interface RuleMapper {
   List<RuleDto> selectAll();
 
   List<RuleDto> selectEnabledAndNonManual();
+
+  void selectEnabledAndNonManual(ResultHandler resultHandler);
 
   List<RuleDto> selectNonManual();
 

@@ -20,8 +20,12 @@
 package org.sonar.db.rule;
 
 import com.google.common.base.Optional;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -113,4 +117,34 @@ public class RuleDaoTest {
     assertThat(ruleDto.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix");
   }
 
+  @Test
+  public void insert() throws Exception {
+    dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), RuleTesting.newDto(RuleKey.of("java", "S001")).setConfigKey(null));
+    dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), RuleTesting.newDto(RuleKey.of("java", "S002")).setConfigKey("I002"));
+    dbTester.getSession().commit();
+
+    List<Map<String, Object>> rows = dbTester.select("select plugin_rule_key as \"ruleKey\" from rules order by plugin_rule_key");
+    assertThat(rows).hasSize(2);
+    assertThat(rows.get(0).get("ruleKey")).isEqualTo("S001");
+    assertThat(rows.get(1).get("ruleKey")).isEqualTo("S002");
+
+  }
+
+  @Test
+  public void selectEnabledAndNonManual_with_ResultHandler() {
+    dbTester.prepareDbUnit(getClass(), "selectEnabledAndNonManual.xml");
+
+    final List<RuleDto> rules = new ArrayList<>();
+    ResultHandler resultHandler = new ResultHandler() {
+      @Override
+      public void handleResult(ResultContext resultContext) {
+        rules.add((RuleDto) resultContext.getResultObject());
+      }
+    };
+    underTest.selectEnabledAndNonManual(dbTester.getSession(), resultHandler);
+
+    assertThat(rules.size()).isEqualTo(1);
+    RuleDto ruleDto = rules.get(0);
+    assertThat(ruleDto.getId()).isEqualTo(1);
+  }
 }

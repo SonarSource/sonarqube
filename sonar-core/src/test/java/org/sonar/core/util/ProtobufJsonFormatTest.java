@@ -66,4 +66,18 @@ public class ProtobufJsonFormatTest {
 
     ProtobufJsonFormat.write(protobuf, JsonWriter.of(new StringWriter()));
   }
+
+  @Test
+  public void protobuf_empty_strings_are_not_output() throws Exception {
+    org.sonar.core.test.Test.Fake protobuf = org.sonar.core.test.Test.Fake.newBuilder().build();
+
+    // field is not set but value is "", not null
+    assertThat(protobuf.hasAString()).isFalse();
+    assertThat(protobuf.getAString()).isEqualTo("");
+
+    StringWriter json = new StringWriter();
+    JsonWriter jsonWriter = JsonWriter.of(json);
+    ProtobufJsonFormat.write(protobuf, jsonWriter);
+    assertThat(json.toString()).isEqualTo("{}");
+  }
 }
