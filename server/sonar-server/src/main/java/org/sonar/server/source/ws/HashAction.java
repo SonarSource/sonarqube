@@ -66,7 +66,8 @@ public class HashAction implements SourcesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    try (DbSession session = dbClient.openSession(false)) {
+    DbSession session = dbClient.openSession(false);
+    try {
       final String componentKey = request.mandatoryParam("key");
       final ComponentDto component = componentFinder.getByKey(session, componentKey);
       userSession.checkProjectUuidPermission(UserRole.USER, component.projectUuid());
@@ -82,6 +83,8 @@ public class HashAction implements SourcesWsAction {
       } finally {
         writer.close();
       }
+    } finally {
+      session.close();
     }
   }
 

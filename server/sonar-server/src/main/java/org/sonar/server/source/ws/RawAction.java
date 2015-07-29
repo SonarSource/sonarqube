@@ -69,13 +69,16 @@ public class RawAction implements SourcesWsAction {
   public void handle(Request request, Response response) {
     String fileKey = request.mandatoryParam("key");
     userSession.checkComponentPermission(UserRole.CODEVIEWER, fileKey);
-    try (DbSession session = dbClient.openSession(false)) {
+    DbSession session = dbClient.openSession(false);
+    try {
       ComponentDto componentDto = componentFinder.getByKey(session, fileKey);
       List<String> lines = sourceService.getLinesAsTxt(componentDto.uuid(), null, null);
       response.stream().setMediaType("text/plain");
       IOUtils.writeLines(lines, "\n", response.stream().output(), StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to write raw source of file " + fileKey, e);
+    } finally {
+      session.close();
     }
   }
 }
