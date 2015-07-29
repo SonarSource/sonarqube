@@ -74,6 +74,7 @@ public class ListAction implements RulesWsAction {
       dbClient.closeSession(dbSession);
     }
 
+    // JSON response is voluntarily not supported. This WS is for internal use.
     wsResponse.stream().setMediaType(MimeTypes.PROTOBUF);
     listResponseBuilder.build().writeTo(wsResponse.stream().output());
   }

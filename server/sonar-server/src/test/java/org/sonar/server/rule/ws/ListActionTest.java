@@ -50,7 +50,6 @@ public class ListActionTest {
 
   @Test
   public void return_rules_in_protobuf() throws Exception {
-    // prepare database with 2 rules
     dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), RuleTesting.newDto(RuleKey.of("java", "S001")).setConfigKey(null));
     dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), RuleTesting.newDto(RuleKey.of("java", "S002")).setConfigKey("I002"));
     dbTester.getSession().commit();
