@@ -53,7 +53,7 @@ public class CEQueueStatusImplConcurrentTest {
       executorService.submit(runnable);
     }
 
-    executorService.awaitTermination(5, TimeUnit.SECONDS);
+    executorService.awaitTermination(1, TimeUnit.SECONDS);
 
     assertThat(underTest.getReceivedCount()).isEqualTo(100);
     assertThat(underTest.getPendingCount()).isEqualTo(2);
