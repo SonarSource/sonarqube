@@ -17,36 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.rule;
+package org.sonar.batch.bootstrapper;
 
-import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.issue.Issue;
 
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.batch.rule.internal.RulesBuilder;
-import org.sonar.api.batch.rule.internal.NewRule;
-import org.sonar.batch.protocol.input.Rule;
-import org.sonar.api.batch.rule.Rules;
-
-public class RulesProvider extends ProviderAdapter {
-  private Rules singleton = null;
-
-  public Rules provide(RulesLoader ref) {
-    if (singleton == null) {
-      singleton = load(ref);
-    }
-    return singleton;
-  }
-
-  private static Rules load(RulesLoader ref) {
-    RulesBuilder builder = new RulesBuilder();
-
-    for (Rule inputRule : ref.load().getRules()) {
-      NewRule newRule = builder.add(RuleKey.parse(inputRule.ruleKey()));
-      newRule.setName(inputRule.name());
-      newRule.setInternalKey(inputRule.internalKey());
-    }
-
-    return builder.build();
-  }
-
+public interface IssueListener {
+  void handle(Issue issue);
 }

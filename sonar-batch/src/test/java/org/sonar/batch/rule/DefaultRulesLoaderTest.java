@@ -36,9 +36,9 @@ import org.sonar.batch.protocol.input.RulesSearchResult;
 public class DefaultRulesLoaderTest {
   @Test
   public void testLoadingJson() throws IOException {
-    Rule rule1 = new Rule("squid:S1194", "squid", "S1194", "\"java.lang.Error\" should not be extended", "MAJOR", "java");
+    Rule rule1 = new Rule("squid:S1194", "squid", "S1194", "\"java.lang.Error\" should not be extended");
     Rule rule2 = new Rule("squid:ObjectFinalizeOverridenCallsSuperFinalizeCheck", "squid", "ObjectFinalizeOverridenCallsSuperFinalizeCheck",
-      "super.finalize() should be called at the end of Object.finalize() implementations", "BLOCKER", "java");
+      "super.finalize() should be called at the end of Object.finalize() implementations");
 
     // generate json
     RulesSearchResult rulesSearch = new RulesSearchResult();

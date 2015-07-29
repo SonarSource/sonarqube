@@ -102,7 +102,7 @@ public class JSONReport implements Reporter {
   private void exportResults(String exportPath) {
     File exportFile = new File(fileSystem.workDir(), exportPath);
 
-    LOG.info("Export issues to " + exportFile.getAbsolutePath());
+    LOG.info("Export issues to {}", exportFile.getAbsolutePath());
     try (Writer output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(exportFile), StandardCharsets.UTF_8))) {
       writeJson(output);
 
@@ -190,7 +190,7 @@ public class JSONReport implements Reporter {
     json.endArray();
   }
 
-  private void writeJsonModuleComponents(JsonWriter json, Project module) {
+  private static void writeJsonModuleComponents(JsonWriter json, Project module) {
     json
       .beginObject()
       .prop("key", module.getEffectiveKey())

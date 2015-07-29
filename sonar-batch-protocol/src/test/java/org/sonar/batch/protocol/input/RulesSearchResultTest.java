@@ -33,9 +33,9 @@ import org.junit.Test;
 public class RulesSearchResultTest {
   @Test
   public void testJsonParsing() {
-    Rule rule1 = new Rule("squid:S1194", "squid", "S1194", "\"java.lang.Error\" should not be extended", "MAJOR", "java");
+    Rule rule1 = new Rule("squid:S1194", "squid", "S1194", "\"java.lang.Error\" should not be extended");
     Rule rule2 = new Rule("squid:ObjectFinalizeOverridenCallsSuperFinalizeCheck", "squid", "ObjectFinalizeOverridenCallsSuperFinalizeCheck",
-      "super.finalize() should be called at the end of Object.finalize() implementations", "BLOCKER", "java");
+      "super.finalize() should be called at the end of Object.finalize() implementations");
 
     RulesSearchResult rules = new RulesSearchResult();
     rules.setRules(Lists.newArrayList(rule1, rule2));

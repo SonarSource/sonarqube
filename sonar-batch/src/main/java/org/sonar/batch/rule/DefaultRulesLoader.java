@@ -23,7 +23,7 @@ import org.sonar.batch.protocol.input.RulesSearchResult;
 import org.sonar.batch.bootstrap.WSLoader;
 
 public class DefaultRulesLoader implements RulesLoader {
-  private static final String RULES_SEARCH_URL = "/api/rules/search?ps=500&f=repo,name,internalKey,severity,lang";
+  private static final String RULES_SEARCH_URL = "/api/rules/search?ps=500&f=repo,name,internalKey";
 
   private final WSLoader wsLoader;
 

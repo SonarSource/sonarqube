@@ -59,7 +59,7 @@ public class DefaultProjectIssues implements ProjectIssues {
     @Override
     public boolean apply(@Nullable DefaultIssue issue) {
       if (issue != null) {
-        return resolved ? issue.resolution() != null : issue.resolution() == null;
+        return resolved ? (issue.resolution() != null) : (issue.resolution() == null);
       }
       return false;
     }

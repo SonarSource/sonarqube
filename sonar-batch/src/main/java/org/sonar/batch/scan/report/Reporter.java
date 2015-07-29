@@ -24,6 +24,6 @@ import org.sonar.api.batch.BatchSide;
 @BatchSide
 public interface Reporter {
 
-  public void execute();
+  void execute();
 
 }

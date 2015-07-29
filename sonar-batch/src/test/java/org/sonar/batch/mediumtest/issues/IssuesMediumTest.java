@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.mediumtest.issues;
 
+import org.sonar.api.issue.Issue;
+import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.xoo.rule.XooRulesDefinition;
-
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -35,6 +36,8 @@ import org.sonar.xoo.XooPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -49,15 +52,60 @@ public class IssuesMediumTest {
     .addRules(new XooRulesDefinition())
     .activateRule(new ActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", "OneIssuePerLine.internal", "xoo"))
     .build();
+  
+  public BatchMediumTester testerPreview = BatchMediumTester.builder()
+    .registerPlugin("xoo", new XooPlugin())
+    .addDefaultQProfile("xoo", "Sonar Way")
+    .bootstrapProperties(ImmutableMap.of("sonar.analysis.mode", "preview"))
+    .addRules(new XooRulesDefinition())
+    .activateRule(new ActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", "OneIssuePerLine.internal", "xoo"))
+    .build();
 
   @Before
   public void prepare() {
     tester.start();
+    testerPreview.start();
   }
 
   @After
   public void stop() {
     tester.stop();
+    testerPreview.stop();
+  }
+
+  @Test
+  public void testIssueCallback() throws Exception {
+    File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File tmpDir = temp.newFolder();
+    FileUtils.copyDirectory(projectDir, tmpDir);
+    IssueRecorder issueListener = new IssueRecorder();
+
+    TaskResult result = testerPreview
+      .newScanTask(new File(tmpDir, "sonar-project.properties"))
+      .setIssueListener(issueListener)
+      .property("sonar.analysis.mode", "preview")
+      .start();
+
+    assertThat(result.issues()).hasSize(14);
+    assertThat(issueListener.issueList).hasSize(14);
+
+    assertThat(result.issues()).containsExactlyElementsOf(issueListener.issueList);
+  }
+
+  @Test
+  public void testNoIssueCallbackInNonPreview() throws Exception {
+    File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+    File tmpDir = temp.newFolder();
+    FileUtils.copyDirectory(projectDir, tmpDir);
+    IssueRecorder issueListener = new IssueRecorder();
+
+    TaskResult result = tester
+      .newScanTask(new File(tmpDir, "sonar-project.properties"))
+      .setIssueListener(issueListener)
+      .start();
+
+    assertThat(result.issues()).hasSize(14);
+    assertThat(issueListener.issueList).hasSize(0);
   }
 
   @Test
@@ -152,4 +200,12 @@ public class IssuesMediumTest {
     assertThat(foundIssueAtLine1).isTrue();
   }
 
+  private class IssueRecorder implements IssueListener {
+    List<Issue> issueList = new LinkedList<>();
+
+    @Override
+    public void handle(Issue issue) {
+      issueList.add(issue);
+    }
+  }
 }

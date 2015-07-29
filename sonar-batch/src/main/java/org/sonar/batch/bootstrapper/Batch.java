@@ -100,12 +100,34 @@ public final class Batch {
    * @since 4.4
    */
   public Batch executeTask(Map<String, String> analysisProperties, Object... components) {
+    checkStarted();
+    bootstrapContainer.executeAnalysis(analysisProperties, components);
+    return this;
+  }
+
+  /**
+   * @since 5.2
+   */
+  public Batch executeTask(Map<String, String> analysisProperties) {
+    checkStarted();
+    bootstrapContainer.executeAnalysis(analysisProperties, components);
+    return this;
+  }
+
+  /**
+   * @since 5.2
+   */
+  public Batch executeTask(Map<String, String> analysisProperties, IssueListener issueListener) {
+    checkStarted();
+    components.add(issueListener);
+    bootstrapContainer.executeAnalysis(analysisProperties, components);
+    return this;
+  }
+
+  private void checkStarted() {
     if (!started) {
       throw new IllegalStateException("Batch is not started. Unable to execute task.");
     }
-
-    bootstrapContainer.executeAnalysis(analysisProperties, components);
-    return this;
   }
 
   /**
@@ -116,12 +138,8 @@ public final class Batch {
   }
 
   private void doStop(boolean swallowException) {
-    if (!started) {
-      throw new IllegalStateException("Batch is not started.");
-    }
-
+    checkStarted();
     bootstrapContainer.stopComponents(swallowException);
-
     this.started = false;
   }
 

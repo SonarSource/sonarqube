@@ -35,7 +35,7 @@ import org.junit.Test;
 public class RulesProviderTest {
   @Test
   public void testRuleTranslation() {
-    final Rule testRule = new Rule("repo1:key1", "repo1", "key1", "name", "severity", "language");
+    final Rule testRule = new Rule("repo1:key1", "repo1", "key1", "name");
 
     RulesSearchResult loadResult = new RulesSearchResult();
     loadResult.setRules(Arrays.asList(testRule));
@@ -53,7 +53,6 @@ public class RulesProviderTest {
         return value.key().rule().equals(testRule.internalKey()) &&
           value.internalKey().equals(testRule.internalKey()) &&
           value.name().equals(testRule.name()) &&
-          value.severity().equals(testRule.severity()) &&
           value.key().repository().equals(testRule.repositoryKey());
       }
     });

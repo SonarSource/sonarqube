@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.mediumtest;
 
-import org.sonar.api.server.rule.RulesDefinition.Repository;
+import org.sonar.batch.bootstrapper.IssueListener;
 
+import org.sonar.api.server.rule.RulesDefinition.Repository;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.batch.protocol.input.RulesSearchResult;
 import org.sonar.batch.rule.RulesLoader;
@@ -144,7 +145,7 @@ public class BatchMediumTester {
       List<Repository> repositories = context.repositories();
       for (Repository repo : repositories) {
         for (RulesDefinition.Rule rule : repo.rules()) {
-          this.addRule(new Rule(rule.repository().key() + ":" + rule.key(), rule.repository().key(), rule.internalKey(), rule.name(), rule.severity(), repo.language()));
+          this.addRule(new Rule(rule.repository().key() + ":" + rule.key(), rule.repository().key(), rule.internalKey(), rule.name()));
         }
       }
       return this;
@@ -234,6 +235,7 @@ public class BatchMediumTester {
   public static class TaskBuilder {
     private final Map<String, String> taskProperties = new HashMap<>();
     private BatchMediumTester tester;
+    private IssueListener issueListener = null;
 
     public TaskBuilder(BatchMediumTester tester) {
       this.tester = tester;
@@ -243,7 +245,11 @@ public class BatchMediumTester {
       TaskResult result = new TaskResult();
       Map<String, String> props = new HashMap<>();
       props.putAll(taskProperties);
-      tester.batch.executeTask(props, result);
+      if (issueListener != null) {
+        tester.batch.executeTask(props, result, issueListener);
+      } else {
+        tester.batch.executeTask(props, result);
+      }
       return result;
     }
 
@@ -254,6 +260,11 @@ public class BatchMediumTester {
 
     public TaskBuilder property(String key, String value) {
       taskProperties.put(key, value);
+      return this;
+    }
+
+    public TaskBuilder setIssueListener(IssueListener issueListener) {
+      this.issueListener = issueListener;
       return this;
     }
   }

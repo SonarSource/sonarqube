@@ -19,24 +19,17 @@
  */
 package org.sonar.batch.protocol.input;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 public class Rule {
   private final String key;
   private final String repo;
   private final String internalKey;
   private final String name;
-  private final String severity;
-  private final String lang;
 
-  public Rule(String ruleKey, String repositoryKey, String internalKey, String name, @Nullable String severity, @Nullable String language) {
+  public Rule(String ruleKey, String repositoryKey, String internalKey, String name) {
     this.key = ruleKey;
     this.repo = repositoryKey;
     this.internalKey = internalKey;
     this.name = name;
-    this.severity = severity;
-    this.lang = language;
   }
 
   public String ruleKey() {
@@ -53,22 +46,6 @@ public class Rule {
 
   public String name() {
     return name;
-  }
-
-  /**
-   * Is null on manual rules
-   */
-  @CheckForNull
-  public String severity() {
-    return severity;
-  }
-
-  /**
-   * Is null on manual rules
-   */
-  @CheckForNull
-  public String language() {
-    return lang;
   }
 
 }
