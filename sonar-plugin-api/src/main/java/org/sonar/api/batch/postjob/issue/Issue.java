@@ -20,11 +20,10 @@
 package org.sonar.api.batch.postjob.issue;
 
 import com.google.common.annotations.Beta;
-import org.sonar.api.batch.fs.InputPath;
+import javax.annotation.CheckForNull;
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.rule.RuleKey;
-
-import javax.annotation.CheckForNull;
 
 /**
  * Represents an issue state at the end of the batch analysis. Only available after local issue tracking in preview mode.
@@ -50,10 +49,10 @@ public interface Issue {
   String componentKey();
 
   /**
-   * The {@link InputPath} this issue belongs to. Returns null if issue is global to the project or if component was deleted (for resolved issues).
+   * The {@link InputComponent} this issue belongs to. Returns null if component was deleted (for resolved issues).
    */
   @CheckForNull
-  InputPath inputPath();
+  InputComponent inputComponent();
 
   /**
    * Line of the issue. Null for global issues and issues on directories. Can also be null

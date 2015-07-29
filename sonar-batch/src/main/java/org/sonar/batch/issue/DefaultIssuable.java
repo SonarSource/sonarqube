@@ -43,7 +43,7 @@ public class DefaultIssuable implements Issuable {
   @Override
   public IssueBuilder newIssueBuilder() {
     DefaultIssue newIssue = (DefaultIssue) sensorContext.newIssue();
-    return new DeprecatedIssueBuilderWrapper(component, newIssue);
+    return new DeprecatedIssueBuilderWrapper(component.inputComponent(), newIssue);
   }
 
   @Override

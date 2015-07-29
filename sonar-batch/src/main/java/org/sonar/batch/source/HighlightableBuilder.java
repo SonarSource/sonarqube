@@ -40,7 +40,7 @@ public class HighlightableBuilder extends PerspectiveBuilder<Highlightable> {
   @Override
   public Highlightable loadPerspective(Class<Highlightable> perspectiveClass, BatchComponent component) {
     if (component.isFile()) {
-      InputFile path = (InputFile) component.inputPath();
+      InputFile path = (InputFile) component.inputComponent();
       return new DefaultHighlightable((DefaultInputFile) path, sensorStorage);
     }
     return null;

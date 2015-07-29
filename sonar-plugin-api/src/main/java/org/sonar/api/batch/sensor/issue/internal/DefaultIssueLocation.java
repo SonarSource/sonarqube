@@ -20,10 +20,7 @@
 package org.sonar.api.batch.sensor.issue.internal;
 
 import com.google.common.base.Preconditions;
-import javax.annotation.CheckForNull;
-import org.sonar.api.batch.fs.InputDir;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
@@ -31,46 +28,23 @@ import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 
 public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
 
-  private static final String INPUT_DIR_SHOULD_BE_NON_NULL = "InputDir should be non null";
-  private static final String INPUT_FILE_SHOULD_BE_NON_NULL = "InputFile should be non null";
-  private static final String ON_FILE_OR_ON_DIR_ALREADY_CALLED = "onFile or onDir already called";
-  private static final String ON_PROJECT_ALREADY_CALLED = "onProject already called";
-
-  private boolean onProject = false;
-  private InputPath path;
+  private InputComponent component;
   private TextRange textRange;
   private String message;
 
   @Override
-  public NewIssueLocation onFile(InputFile file) {
-    Preconditions.checkState(!this.onProject, ON_PROJECT_ALREADY_CALLED);
-    Preconditions.checkState(this.path == null, ON_FILE_OR_ON_DIR_ALREADY_CALLED);
-    Preconditions.checkNotNull(file, INPUT_FILE_SHOULD_BE_NON_NULL);
-    this.path = file;
-    return this;
-  }
-
-  @Override
-  public NewIssueLocation onDir(InputDir dir) {
-    Preconditions.checkState(!this.onProject, ON_PROJECT_ALREADY_CALLED);
-    Preconditions.checkState(this.path == null, ON_FILE_OR_ON_DIR_ALREADY_CALLED);
-    Preconditions.checkNotNull(dir, INPUT_DIR_SHOULD_BE_NON_NULL);
-    this.path = dir;
-    return this;
-  }
-
-  @Override
-  public NewIssueLocation onProject() {
-    Preconditions.checkState(!this.onProject, ON_PROJECT_ALREADY_CALLED);
-    Preconditions.checkState(this.path == null, ON_FILE_OR_ON_DIR_ALREADY_CALLED);
-    this.onProject = true;
+  public NewIssueLocation on(InputComponent component) {
+    Preconditions.checkArgument(component != null, "Component can't be null");
+    Preconditions.checkState(this.component == null, "on() already called");
+    this.component = component;
     return this;
   }
 
   @Override
   public NewIssueLocation at(TextRange location) {
-    Preconditions.checkState(this.path != null && this.path instanceof InputFile, "at() should be called after onFile.");
-    DefaultInputFile file = (DefaultInputFile) this.path;
+    Preconditions.checkState(this.component != null, "at() should be called after on()");
+    Preconditions.checkState(this.component.isFile(), "at() should be called only for an InputFile.");
+    DefaultInputFile file = (DefaultInputFile) this.component;
     file.validate(location);
     this.textRange = location;
     return this;
@@ -86,9 +60,8 @@ public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
   }
 
   @Override
-  @CheckForNull
-  public InputPath inputPath() {
-    return this.path;
+  public InputComponent inputComponent() {
+    return this.component;
   }
 
   @Override

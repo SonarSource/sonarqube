@@ -66,8 +66,8 @@ public class RandomAccessSensor implements Sensor {
     NewIssue newIssue = context.newIssue();
     newIssue
       .forRule(ruleKey)
-      .addLocation(newIssue.newLocation()
-        .onFile(file)
+      .at(newIssue.newLocation()
+        .on(file)
         .at(file.selectLine(1))
         .message("This issue is generated on each file"))
       .save();

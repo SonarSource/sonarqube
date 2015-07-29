@@ -34,6 +34,7 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.xoo.Xoo;
 
@@ -76,7 +77,7 @@ public class MultilineIssuesSensor implements Sensor {
         while (m.find()) {
           Integer issueId = Integer.parseInt(m.group(1));
           Integer issueLocationId = Integer.parseInt(m.group(2));
-          TextPointer newPointer = file.newPointer(currentLine, m.start());
+          TextPointer newPointer = file.newPointer(currentLine, m.end());
           if (!startPositions.containsKey(issueId)) {
             startPositions.put(issueId, new HashMap<Integer, TextPointer>());
           }
@@ -100,10 +101,14 @@ public class MultilineIssuesSensor implements Sensor {
     for (Map.Entry<Integer, Map<Integer, TextPointer>> entry : startPositions.entrySet()) {
       NewIssue newIssue = context.newIssue().forRule(ruleKey);
       for (Map.Entry<Integer, TextPointer> location : entry.getValue().entrySet()) {
-        newIssue.addLocation(newIssue.newLocation()
-          .onFile(file)
-          .at(file.newRange(location.getValue(), endPositions.get(entry.getKey()).get(location.getKey())))
-          .message("Multiline issue"));
+        NewIssueLocation newLocation = newIssue.newLocation()
+          .on(file)
+          .at(file.newRange(location.getValue(), endPositions.get(entry.getKey()).get(location.getKey())));
+        if (location.getKey() == 1) {
+          newIssue.at(newLocation.message("Primary location"));
+        } else {
+          newIssue.addLocation(newLocation.message("Location #" + location.getKey()));
+        }
       }
       newIssue.save();
     }

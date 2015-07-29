@@ -19,10 +19,9 @@
  */
 package org.sonar.batch.issue;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.google.common.base.Preconditions;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.fs.InputDir;
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.rule.Severity;
@@ -33,17 +32,15 @@ import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issuable.IssueBuilder;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.batch.index.BatchComponent;
 
 public class DeprecatedIssueBuilderWrapper implements Issuable.IssueBuilder {
 
   private final DefaultIssue newIssue;
-  private final BatchComponent primaryComponent;
+  private final InputComponent primaryComponent;
   private TextRange primaryRange = null;
   private String primaryMessage = null;
-  private List<NewIssueLocation> locations = new ArrayList<>();
 
-  public DeprecatedIssueBuilderWrapper(BatchComponent primaryComponent, DefaultIssue newIssue) {
+  public DeprecatedIssueBuilderWrapper(InputComponent primaryComponent, DefaultIssue newIssue) {
     this.primaryComponent = primaryComponent;
     this.newIssue = newIssue;
   }
@@ -56,9 +53,10 @@ public class DeprecatedIssueBuilderWrapper implements Issuable.IssueBuilder {
 
   @Override
   public IssueBuilder line(@Nullable Integer line) {
+    Preconditions.checkState(newIssue.primaryLocation() == null, "Do not use line() and at() for the same issue");
     if (primaryComponent.isFile()) {
       if (line != null) {
-        this.primaryRange = ((InputFile) primaryComponent.inputPath()).selectLine(line.intValue());
+        this.primaryRange = ((InputFile) primaryComponent).selectLine(line.intValue());
       }
       return this;
     } else {
@@ -68,6 +66,7 @@ public class DeprecatedIssueBuilderWrapper implements Issuable.IssueBuilder {
 
   @Override
   public IssueBuilder message(String message) {
+    Preconditions.checkState(newIssue.primaryLocation() == null, "Do not use message() and at() for the same issue");
     this.primaryMessage = message;
     return this;
   }
@@ -78,8 +77,15 @@ public class DeprecatedIssueBuilderWrapper implements Issuable.IssueBuilder {
   }
 
   @Override
+  public IssueBuilder at(NewIssueLocation primaryLocation) {
+    Preconditions.checkState(primaryMessage == null && primaryRange == null, "Do not use message() or line() and at() for the same issue");
+    newIssue.at(primaryLocation);
+    return this;
+  }
+
+  @Override
   public IssueBuilder addLocation(NewIssueLocation location) {
-    locations.add(location);
+    newIssue.addLocation(location);
     return this;
   }
 
@@ -113,27 +119,16 @@ public class DeprecatedIssueBuilderWrapper implements Issuable.IssueBuilder {
 
   @Override
   public Issue build() {
-    if (primaryMessage != null || primaryRange != null || locations.isEmpty()) {
-      NewIssueLocation newLocation = newIssue.newLocation();
+    if (newIssue.primaryLocation() == null) {
+      NewIssueLocation newLocation = newIssue.newLocation().on(primaryComponent);
       if (primaryMessage != null) {
         newLocation.message(primaryMessage);
       }
-      if (primaryComponent.isProjectOrModule()) {
-        newLocation.onProject();
-      } else if (primaryComponent.isFile()) {
-        newLocation.onFile((InputFile) primaryComponent.inputPath());
-        if (primaryRange != null) {
-          newLocation.at(primaryRange);
-        }
-      } else if (primaryComponent.isDir()) {
-        newLocation.onDir((InputDir) primaryComponent.inputPath());
+      if (primaryComponent.isFile() && primaryRange != null) {
+        newLocation.at(primaryRange);
       }
-      newIssue.addLocation(newLocation);
+      newIssue.at(newLocation);
     }
-    for (NewIssueLocation issueLocation : locations) {
-      newIssue.addLocation(issueLocation);
-    }
-
     return new DeprecatedIssueWrapper(newIssue);
   }
 

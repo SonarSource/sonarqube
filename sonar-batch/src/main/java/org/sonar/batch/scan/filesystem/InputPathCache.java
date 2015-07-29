@@ -21,20 +21,16 @@ package org.sonar.batch.scan.filesystem;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.batch.fs.InputDir;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputPath;
-import org.sonar.batch.index.BatchComponent;
-
-import javax.annotation.CheckForNull;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import javax.annotation.CheckForNull;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.fs.InputDir;
+import org.sonar.api.batch.fs.InputFile;
 
 /**
  * Cache of all files and dirs. This cache is shared amongst all project modules. Inclusion and
@@ -126,16 +122,6 @@ public class InputPathCache {
   public InputDir getDir(String moduleKey, String relativePath) {
     if (inputDirCache.containsKey(moduleKey)) {
       return inputDirCache.get(moduleKey).get(relativePath);
-    }
-    return null;
-  }
-
-  @CheckForNull
-  public InputPath getInputPath(BatchComponent component) {
-    if (component.isFile()) {
-      return getFile(component.parent().parent().resource().getEffectiveKey(), component.resource().getPath());
-    } else if (component.isDir()) {
-      return getDir(component.parent().parent().resource().getEffectiveKey(), component.resource().getPath());
     }
     return null;
   }

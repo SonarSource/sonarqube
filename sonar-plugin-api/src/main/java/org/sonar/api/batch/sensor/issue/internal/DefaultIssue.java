@@ -21,11 +21,13 @@ package org.sonar.api.batch.sensor.issue.internal;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
@@ -35,25 +37,23 @@ import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.internal.Uuids;
 
 public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
 
-  private String key;
   private RuleKey ruleKey;
   private Double effortToFix;
   private Severity overriddenSeverity;
+  private IssueLocation primaryLocation;
   private List<IssueLocation> locations = new ArrayList<>();
   private List<List<IssueLocation>> executionFlows = new ArrayList<>();
+  private final Map<String, String> attributes = new LinkedHashMap<>();
 
   public DefaultIssue() {
     super(null);
-    this.key = Uuids.create();
   }
 
   public DefaultIssue(SensorStorage storage) {
     super(storage);
-    this.key = Uuids.create();
   }
 
   @Override
@@ -80,6 +80,14 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
   }
 
   @Override
+  public DefaultIssue at(NewIssueLocation primaryLocation) {
+    Preconditions.checkArgument(primaryLocation != null, "Cannot use a location that is null");
+    Preconditions.checkState(this.primaryLocation == null, "at() already called");
+    this.primaryLocation = (DefaultIssueLocation) primaryLocation;
+    return this;
+  }
+
+  @Override
   public DefaultIssue addLocation(NewIssueLocation location) {
     locations.add((DefaultIssueLocation) location);
     return this;
@@ -93,6 +101,17 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
     }
     executionFlows.add(flowAsList);
     return null;
+  }
+
+  @Override
+  public DefaultIssue addAttribute(String key, String value) {
+    attributes.put(key, value);
+    return this;
+  }
+
+  @Override
+  public Map<String, String> attributes() {
+    return ImmutableMap.copyOf(attributes);
   }
 
   @Override
@@ -110,8 +129,9 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
     return this.effortToFix;
   }
 
-  public String key() {
-    return this.key;
+  @Override
+  public IssueLocation primaryLocation() {
+    return primaryLocation;
   }
 
   @Override
@@ -137,34 +157,8 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
   @Override
   public void doSave() {
     Preconditions.checkNotNull(this.ruleKey, "ruleKey is mandatory on issue");
-    Preconditions.checkState(!Strings.isNullOrEmpty(key), "Fail to generate issue key");
-    Preconditions.checkState(!locations.isEmpty(), "At least one location is mandatory on every issue");
+    Preconditions.checkState(primaryLocation != null, "Primary location is mandatory on every issue");
     storage.store(this);
-  }
-
-  /**
-   * For testing only.
-   */
-  public DefaultIssue withKey(String key) {
-    this.key = key;
-    return this;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    DefaultIssue that = (DefaultIssue) o;
-    return !key.equals(that.key);
-  }
-
-  @Override
-  public int hashCode() {
-    return key.hashCode();
   }
 
 }

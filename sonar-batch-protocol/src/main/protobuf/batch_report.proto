@@ -103,8 +103,9 @@ message Issue {
   optional Severity severity = 5;
   optional double effort_to_fix = 6;
   optional string attributes = 7;
-  repeated IssueLocation locations = 8;
-  repeated ExecutionFlow execution_flows = 9;
+  optional IssueLocation primary_location = 9;
+  repeated IssueLocation additional_location = 10;
+  repeated ExecutionFlow execution_flow = 11;
 }
 
 message IssueLocation {
@@ -115,7 +116,7 @@ message IssueLocation {
 }
 
 message ExecutionFlow {
-  repeated IssueLocation locations = 1;
+  repeated IssueLocation location = 1;
 }
 
 message Changesets {

@@ -119,7 +119,7 @@ public class TestExecutionAndCoveragePublisher implements ReportPublisherStep {
         continue;
       }
 
-      DefaultInputFile inputFile = (DefaultInputFile) component.inputPath();
+      DefaultInputFile inputFile = (DefaultInputFile) component.inputComponent();
       if (inputFile.type() != Type.TEST) {
         continue;
       }

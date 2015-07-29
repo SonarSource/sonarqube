@@ -20,6 +20,8 @@
 package org.sonar.batch.source;
 
 import org.junit.Test;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
@@ -35,7 +37,7 @@ public class HighlightableBuilderTest {
   @Test
   public void should_load_default_perspective() {
     Resource file = File.create("foo.c").setEffectiveKey("myproject:path/to/foo.c");
-    BatchComponent component = new BatchComponent(1, file, null);
+    BatchComponent component = new BatchComponent(1, file, null).setInputComponent(new DefaultInputFile("foo", "foo.c"));
 
     HighlightableBuilder builder = new HighlightableBuilder(mock(SensorStorage.class));
     Highlightable perspective = builder.loadPerspective(Highlightable.class, component);
@@ -45,7 +47,7 @@ public class HighlightableBuilderTest {
 
   @Test
   public void project_should_not_be_highlightable() {
-    BatchComponent component = new BatchComponent(1, new Project("struts").setEffectiveKey("org.struts"), null);
+    BatchComponent component = new BatchComponent(1, new Project("struts").setEffectiveKey("org.struts"), null).setInputComponent(new DefaultInputModule("struts"));
 
     HighlightableBuilder builder = new HighlightableBuilder(mock(SensorStorage.class));
     Highlightable perspective = builder.loadPerspective(Highlightable.class, component);

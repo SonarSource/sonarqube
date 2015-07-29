@@ -40,8 +40,8 @@ public class TemplateRuleCheck implements Check {
     NewIssue newIssue = sensorContext.newIssue();
     newIssue
       .forRule(ruleKey)
-      .addLocation(newIssue.newLocation()
-        .onFile(file)
+      .at(newIssue.newLocation()
+        .on(file)
         .at(file.selectLine(line)))
       .save();
   }

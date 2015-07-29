@@ -29,6 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.batch.index.BatchComponentCache;
@@ -55,10 +56,10 @@ public class SourcePublisherTest {
     BatchComponentCache resourceCache = new BatchComponentCache();
     sampleFile = org.sonar.api.resources.File.create("src/Foo.php");
     sampleFile.setEffectiveKey("foo:src/Foo.php");
-    resourceCache.add(p, null);
+    resourceCache.add(p, null).setInputComponent(new DefaultInputModule("foo"));
     File baseDir = temp.newFolder();
     sourceFile = new File(baseDir, "src/Foo.php");
-    resourceCache.add(sampleFile, null).setInputPath(
+    resourceCache.add(sampleFile, null).setInputComponent(
       new DefaultInputFile("foo", "src/Foo.php").setLines(5).setModuleBaseDir(baseDir.toPath()).setCharset(StandardCharsets.ISO_8859_1));
     publisher = new SourcePublisher(resourceCache);
     File outputDir = temp.newFolder();

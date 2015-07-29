@@ -28,6 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
@@ -58,8 +59,8 @@ public class CoveragePublisherTest {
     Project p = new Project("foo").setAnalysisDate(new Date(1234567L));
     BatchComponentCache resourceCache = new BatchComponentCache();
     sampleFile = org.sonar.api.resources.File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");
-    resourceCache.add(p, null);
-    resourceCache.add(sampleFile, null).setInputPath(new DefaultInputFile("foo", "src/Foo.php").setLines(5));
+    resourceCache.add(p, null).setInputComponent(new DefaultInputModule("foo"));
+    resourceCache.add(sampleFile, null).setInputComponent(new DefaultInputFile("foo", "src/Foo.php").setLines(5));
     measureCache = mock(MeasureCache.class);
     when(measureCache.byMetric(anyString(), anyString())).thenReturn(Collections.<Measure>emptyList());
     publisher = new CoveragePublisher(resourceCache, measureCache);

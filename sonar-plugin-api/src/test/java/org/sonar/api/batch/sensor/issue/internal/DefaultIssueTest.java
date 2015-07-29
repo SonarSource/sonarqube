@@ -23,6 +23,7 @@ import java.io.StringReader;
 import org.junit.Test;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
@@ -40,18 +41,18 @@ public class DefaultIssueTest {
   public void build_file_issue() {
     SensorStorage storage = mock(SensorStorage.class);
     DefaultIssue issue = new DefaultIssue(storage)
-      .addLocation(new DefaultIssueLocation()
-        .onFile(inputFile)
+      .at(new DefaultIssueLocation()
+        .on(inputFile)
         .at(inputFile.selectLine(1))
         .message("Wrong way!"))
       .forRule(RuleKey.of("repo", "rule"))
       .effortToFix(10.0);
 
-    assertThat(issue.locations().get(0).inputPath()).isEqualTo(inputFile);
+    assertThat(issue.primaryLocation().inputComponent()).isEqualTo(inputFile);
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
-    assertThat(issue.locations().get(0).textRange().start().line()).isEqualTo(1);
+    assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(1);
     assertThat(issue.effortToFix()).isEqualTo(10.0);
-    assertThat(issue.locations().get(0).message()).isEqualTo("Wrong way!");
+    assertThat(issue.primaryLocation().message()).isEqualTo("Wrong way!");
 
     issue.save();
 
@@ -62,16 +63,16 @@ public class DefaultIssueTest {
   public void build_directory_issue() {
     SensorStorage storage = mock(SensorStorage.class);
     DefaultIssue issue = new DefaultIssue(storage)
-      .addLocation(new DefaultIssueLocation()
-        .onDir(new DefaultInputDir("foo", "src"))
+      .at(new DefaultIssueLocation()
+        .on(new DefaultInputDir("foo", "src"))
         .message("Wrong way!"))
       .forRule(RuleKey.of("repo", "rule"))
       .overrideSeverity(Severity.BLOCKER);
 
-    assertThat(issue.locations().get(0).inputPath()).isEqualTo(new DefaultInputDir("foo", "src"));
+    assertThat(issue.primaryLocation().inputComponent()).isEqualTo(new DefaultInputDir("foo", "src"));
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
-    assertThat(issue.locations().get(0).textRange()).isNull();
-    assertThat(issue.locations().get(0).message()).isEqualTo("Wrong way!");
+    assertThat(issue.primaryLocation().textRange()).isNull();
+    assertThat(issue.primaryLocation().message()).isEqualTo("Wrong way!");
     assertThat(issue.overriddenSeverity()).isEqualTo(Severity.BLOCKER);
 
     issue.save();
@@ -83,17 +84,17 @@ public class DefaultIssueTest {
   public void build_project_issue() {
     SensorStorage storage = mock(SensorStorage.class);
     DefaultIssue issue = new DefaultIssue(storage)
-      .addLocation(new DefaultIssueLocation()
-        .onProject()
+      .at(new DefaultIssueLocation()
+        .on(new DefaultInputModule("foo"))
         .message("Wrong way!"))
       .forRule(RuleKey.of("repo", "rule"))
       .effortToFix(10.0);
 
-    assertThat(issue.locations().get(0).inputPath()).isNull();
+    assertThat(issue.primaryLocation().inputComponent()).isEqualTo(new DefaultInputModule("foo"));
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
-    assertThat(issue.locations().get(0).textRange()).isNull();
+    assertThat(issue.primaryLocation().textRange()).isNull();
     assertThat(issue.effortToFix()).isEqualTo(10.0);
-    assertThat(issue.locations().get(0).message()).isEqualTo("Wrong way!");
+    assertThat(issue.primaryLocation().message()).isEqualTo("Wrong way!");
 
     issue.save();
 

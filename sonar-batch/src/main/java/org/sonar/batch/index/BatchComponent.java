@@ -23,9 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.fs.InputPath;
-import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 
@@ -35,7 +33,7 @@ public class BatchComponent {
   private final Resource r;
   private final BatchComponent parent;
   private final Collection<BatchComponent> children = new ArrayList<>();
-  private InputPath inputPath;
+  private InputComponent inputComponent;
 
   public BatchComponent(int batchId, Resource r, @Nullable BatchComponent parent) {
     this.batchId = batchId;
@@ -68,21 +66,16 @@ public class BatchComponent {
   }
 
   public boolean isFile() {
-    return Qualifiers.isFile(r) || StringUtils.equals(Qualifiers.UNIT_TEST_FILE, r.getQualifier());
+    return this.inputComponent.isFile();
   }
 
-  public boolean isDir() {
-    return Qualifiers.isDirectory(r);
-  }
-
-  public BatchComponent setInputPath(InputPath inputPath) {
-    this.inputPath = inputPath;
+  public BatchComponent setInputComponent(InputComponent inputComponent) {
+    this.inputComponent = inputComponent;
     return this;
   }
 
-  @CheckForNull
-  public InputPath inputPath() {
-    return inputPath;
+  public InputComponent inputComponent() {
+    return inputComponent;
   }
 
   public boolean isProjectOrModule() {

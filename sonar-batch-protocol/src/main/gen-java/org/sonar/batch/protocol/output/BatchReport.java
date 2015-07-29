@@ -6576,51 +6576,64 @@ public final class BatchReport {
         getAttributesBytes();
 
     /**
-     * <code>repeated .IssueLocation locations = 8;</code>
+     * <code>optional .IssueLocation primary_location = 9;</code>
+     */
+    boolean hasPrimaryLocation();
+    /**
+     * <code>optional .IssueLocation primary_location = 9;</code>
+     */
+    org.sonar.batch.protocol.output.BatchReport.IssueLocation getPrimaryLocation();
+    /**
+     * <code>optional .IssueLocation primary_location = 9;</code>
+     */
+    org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder getPrimaryLocationOrBuilder();
+
+    /**
+     * <code>repeated .IssueLocation additional_location = 10;</code>
      */
     java.util.List<org.sonar.batch.protocol.output.BatchReport.IssueLocation> 
-        getLocationsList();
+        getAdditionalLocationList();
     /**
-     * <code>repeated .IssueLocation locations = 8;</code>
+     * <code>repeated .IssueLocation additional_location = 10;</code>
      */
-    org.sonar.batch.protocol.output.BatchReport.IssueLocation getLocations(int index);
+    org.sonar.batch.protocol.output.BatchReport.IssueLocation getAdditionalLocation(int index);
     /**
-     * <code>repeated .IssueLocation locations = 8;</code>
+     * <code>repeated .IssueLocation additional_location = 10;</code>
      */
-    int getLocationsCount();
+    int getAdditionalLocationCount();
     /**
-     * <code>repeated .IssueLocation locations = 8;</code>
+     * <code>repeated .IssueLocation additional_location = 10;</code>
      */
     java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder> 
-        getLocationsOrBuilderList();
+        getAdditionalLocationOrBuilderList();
     /**
-     * <code>repeated .IssueLocation locations = 8;</code>
+     * <code>repeated .IssueLocation additional_location = 10;</code>
      */
-    org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder getLocationsOrBuilder(
+    org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder getAdditionalLocationOrBuilder(
         int index);
 
     /**
-     * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+     * <code>repeated .ExecutionFlow execution_flow = 11;</code>
      */
     java.util.List<org.sonar.batch.protocol.output.BatchReport.ExecutionFlow> 
-        getExecutionFlowsList();
+        getExecutionFlowList();
     /**
-     * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+     * <code>repeated .ExecutionFlow execution_flow = 11;</code>
      */
-    org.sonar.batch.protocol.output.BatchReport.ExecutionFlow getExecutionFlows(int index);
+    org.sonar.batch.protocol.output.BatchReport.ExecutionFlow getExecutionFlow(int index);
     /**
-     * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+     * <code>repeated .ExecutionFlow execution_flow = 11;</code>
      */
-    int getExecutionFlowsCount();
+    int getExecutionFlowCount();
     /**
-     * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+     * <code>repeated .ExecutionFlow execution_flow = 11;</code>
      */
     java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.ExecutionFlowOrBuilder> 
-        getExecutionFlowsOrBuilderList();
+        getExecutionFlowOrBuilderList();
     /**
-     * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+     * <code>repeated .ExecutionFlow execution_flow = 11;</code>
      */
-    org.sonar.batch.protocol.output.BatchReport.ExecutionFlowOrBuilder getExecutionFlowsOrBuilder(
+    org.sonar.batch.protocol.output.BatchReport.ExecutionFlowOrBuilder getExecutionFlowOrBuilder(
         int index);
   }
   /**
@@ -6720,20 +6733,33 @@ public final class BatchReport {
               attributes_ = bs;
               break;
             }
-            case 66: {
-              if (!((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
-                locations_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.IssueLocation>();
-                mutable_bitField0_ |= 0x00000080;
+            case 74: {
+              org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000080) == 0x00000080)) {
+                subBuilder = primaryLocation_.toBuilder();
               }
-              locations_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.IssueLocation.PARSER, extensionRegistry));
+              primaryLocation_ = input.readMessage(org.sonar.batch.protocol.output.BatchReport.IssueLocation.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(primaryLocation_);
+                primaryLocation_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000080;
               break;
             }
-            case 74: {
+            case 82: {
               if (!((mutable_bitField0_ & 0x00000100) == 0x00000100)) {
-                executionFlows_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.ExecutionFlow>();
+                additionalLocation_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.IssueLocation>();
                 mutable_bitField0_ |= 0x00000100;
               }
-              executionFlows_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.PARSER, extensionRegistry));
+              additionalLocation_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.IssueLocation.PARSER, extensionRegistry));
+              break;
+            }
+            case 90: {
+              if (!((mutable_bitField0_ & 0x00000200) == 0x00000200)) {
+                executionFlow_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.ExecutionFlow>();
+                mutable_bitField0_ |= 0x00000200;
+              }
+              executionFlow_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.PARSER, extensionRegistry));
               break;
             }
           }
@@ -6744,11 +6770,11 @@ public final class BatchReport {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000080) == 0x00000080)) {
-          locations_ = java.util.Collections.unmodifiableList(locations_);
-        }
         if (((mutable_bitField0_ & 0x00000100) == 0x00000100)) {
-          executionFlows_ = java.util.Collections.unmodifiableList(executionFlows_);
+          additionalLocation_ = java.util.Collections.unmodifiableList(additionalLocation_);
+        }
+        if (((mutable_bitField0_ & 0x00000200) == 0x00000200)) {
+          executionFlow_ = java.util.Collections.unmodifiableList(executionFlow_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -6995,74 +7021,95 @@ public final class BatchReport {
       }
     }
 
-    public static final int LOCATIONS_FIELD_NUMBER = 8;
-    private java.util.List<org.sonar.batch.protocol.output.BatchReport.IssueLocation> locations_;
+    public static final int PRIMARY_LOCATION_FIELD_NUMBER = 9;
+    private org.sonar.batch.protocol.output.BatchReport.IssueLocation primaryLocation_;
     /**
-     * <code>repeated .IssueLocation locations = 8;</code>
+     * <code>optional .IssueLocation primary_location = 9;</code>
      */
-    public java.util.List<org.sonar.batch.protocol.output.BatchReport.IssueLocation> getLocationsList() {
-      return locations_;
+    public boolean hasPrimaryLocation() {
+      return ((bitField0_ & 0x00000080) == 0x00000080);
     }
     /**
-     * <code>repeated .IssueLocation locations = 8;</code>
+     * <code>optional .IssueLocation primary_location = 9;</code>
      */
-    public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder> 
-        getLocationsOrBuilderList() {
-      return locations_;
+    public org.sonar.batch.protocol.output.BatchReport.IssueLocation getPrimaryLocation() {
+      return primaryLocation_;
     }
     /**
-     * <code>repeated .IssueLocation locations = 8;</code>
+     * <code>optional .IssueLocation primary_location = 9;</code>
      */
-    public int getLocationsCount() {
-      return locations_.size();
-    }
-    /**
-     * <code>repeated .IssueLocation locations = 8;</code>
-     */
-    public org.sonar.batch.protocol.output.BatchReport.IssueLocation getLocations(int index) {
-      return locations_.get(index);
-    }
-    /**
-     * <code>repeated .IssueLocation locations = 8;</code>
-     */
-    public org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder getLocationsOrBuilder(
-        int index) {
-      return locations_.get(index);
+    public org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder getPrimaryLocationOrBuilder() {
+      return primaryLocation_;
     }
 
-    public static final int EXECUTION_FLOWS_FIELD_NUMBER = 9;
-    private java.util.List<org.sonar.batch.protocol.output.BatchReport.ExecutionFlow> executionFlows_;
+    public static final int ADDITIONAL_LOCATION_FIELD_NUMBER = 10;
+    private java.util.List<org.sonar.batch.protocol.output.BatchReport.IssueLocation> additionalLocation_;
     /**
-     * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+     * <code>repeated .IssueLocation additional_location = 10;</code>
      */
-    public java.util.List<org.sonar.batch.protocol.output.BatchReport.ExecutionFlow> getExecutionFlowsList() {
-      return executionFlows_;
+    public java.util.List<org.sonar.batch.protocol.output.BatchReport.IssueLocation> getAdditionalLocationList() {
+      return additionalLocation_;
     }
     /**
-     * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+     * <code>repeated .IssueLocation additional_location = 10;</code>
+     */
+    public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder> 
+        getAdditionalLocationOrBuilderList() {
+      return additionalLocation_;
+    }
+    /**
+     * <code>repeated .IssueLocation additional_location = 10;</code>
+     */
+    public int getAdditionalLocationCount() {
+      return additionalLocation_.size();
+    }
+    /**
+     * <code>repeated .IssueLocation additional_location = 10;</code>
+     */
+    public org.sonar.batch.protocol.output.BatchReport.IssueLocation getAdditionalLocation(int index) {
+      return additionalLocation_.get(index);
+    }
+    /**
+     * <code>repeated .IssueLocation additional_location = 10;</code>
+     */
+    public org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder getAdditionalLocationOrBuilder(
+        int index) {
+      return additionalLocation_.get(index);
+    }
+
+    public static final int EXECUTION_FLOW_FIELD_NUMBER = 11;
+    private java.util.List<org.sonar.batch.protocol.output.BatchReport.ExecutionFlow> executionFlow_;
+    /**
+     * <code>repeated .ExecutionFlow execution_flow = 11;</code>
+     */
+    public java.util.List<org.sonar.batch.protocol.output.BatchReport.ExecutionFlow> getExecutionFlowList() {
+      return executionFlow_;
+    }
+    /**
+     * <code>repeated .ExecutionFlow execution_flow = 11;</code>
      */
     public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.ExecutionFlowOrBuilder> 
-        getExecutionFlowsOrBuilderList() {
-      return executionFlows_;
+        getExecutionFlowOrBuilderList() {
+      return executionFlow_;
     }
     /**
-     * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+     * <code>repeated .ExecutionFlow execution_flow = 11;</code>
      */
-    public int getExecutionFlowsCount() {
-      return executionFlows_.size();
+    public int getExecutionFlowCount() {
+      return executionFlow_.size();
     }
     /**
-     * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+     * <code>repeated .ExecutionFlow execution_flow = 11;</code>
      */
-    public org.sonar.batch.protocol.output.BatchReport.ExecutionFlow getExecutionFlows(int index) {
-      return executionFlows_.get(index);
+    public org.sonar.batch.protocol.output.BatchReport.ExecutionFlow getExecutionFlow(int index) {
+      return executionFlow_.get(index);
     }
     /**
-     * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+     * <code>repeated .ExecutionFlow execution_flow = 11;</code>
      */
-    public org.sonar.batch.protocol.output.BatchReport.ExecutionFlowOrBuilder getExecutionFlowsOrBuilder(
+    public org.sonar.batch.protocol.output.BatchReport.ExecutionFlowOrBuilder getExecutionFlowOrBuilder(
         int index) {
-      return executionFlows_.get(index);
+      return executionFlow_.get(index);
     }
 
     private void initFields() {
@@ -7073,8 +7120,9 @@ public final class BatchReport {
       severity_ = org.sonar.batch.protocol.Constants.Severity.INFO;
       effortToFix_ = 0D;
       attributes_ = "";
-      locations_ = java.util.Collections.emptyList();
-      executionFlows_ = java.util.Collections.emptyList();
+      primaryLocation_ = org.sonar.batch.protocol.output.BatchReport.IssueLocation.getDefaultInstance();
+      additionalLocation_ = java.util.Collections.emptyList();
+      executionFlow_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -7110,11 +7158,14 @@ public final class BatchReport {
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         output.writeBytes(7, getAttributesBytes());
       }
-      for (int i = 0; i < locations_.size(); i++) {
-        output.writeMessage(8, locations_.get(i));
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+        output.writeMessage(9, primaryLocation_);
       }
-      for (int i = 0; i < executionFlows_.size(); i++) {
-        output.writeMessage(9, executionFlows_.get(i));
+      for (int i = 0; i < additionalLocation_.size(); i++) {
+        output.writeMessage(10, additionalLocation_.get(i));
+      }
+      for (int i = 0; i < executionFlow_.size(); i++) {
+        output.writeMessage(11, executionFlow_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -7153,13 +7204,17 @@ public final class BatchReport {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(7, getAttributesBytes());
       }
-      for (int i = 0; i < locations_.size(); i++) {
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(8, locations_.get(i));
+          .computeMessageSize(9, primaryLocation_);
       }
-      for (int i = 0; i < executionFlows_.size(); i++) {
+      for (int i = 0; i < additionalLocation_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(9, executionFlows_.get(i));
+          .computeMessageSize(10, additionalLocation_.get(i));
+      }
+      for (int i = 0; i < executionFlow_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(11, executionFlow_.get(i));
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -7270,8 +7325,9 @@ public final class BatchReport {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-          getLocationsFieldBuilder();
-          getExecutionFlowsFieldBuilder();
+          getPrimaryLocationFieldBuilder();
+          getAdditionalLocationFieldBuilder();
+          getExecutionFlowFieldBuilder();
         }
       }
       private static Builder create() {
@@ -7294,17 +7350,23 @@ public final class BatchReport {
         bitField0_ = (bitField0_ & ~0x00000020);
         attributes_ = "";
         bitField0_ = (bitField0_ & ~0x00000040);
-        if (locationsBuilder_ == null) {
-          locations_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000080);
+        if (primaryLocationBuilder_ == null) {
+          primaryLocation_ = org.sonar.batch.protocol.output.BatchReport.IssueLocation.getDefaultInstance();
         } else {
-          locationsBuilder_.clear();
+          primaryLocationBuilder_.clear();
         }
-        if (executionFlowsBuilder_ == null) {
-          executionFlows_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000080);
+        if (additionalLocationBuilder_ == null) {
+          additionalLocation_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000100);
         } else {
-          executionFlowsBuilder_.clear();
+          additionalLocationBuilder_.clear();
+        }
+        if (executionFlowBuilder_ == null) {
+          executionFlow_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000200);
+        } else {
+          executionFlowBuilder_.clear();
         }
         return this;
       }
@@ -7362,23 +7424,31 @@ public final class BatchReport {
           to_bitField0_ |= 0x00000040;
         }
         result.attributes_ = attributes_;
-        if (locationsBuilder_ == null) {
-          if (((bitField0_ & 0x00000080) == 0x00000080)) {
-            locations_ = java.util.Collections.unmodifiableList(locations_);
-            bitField0_ = (bitField0_ & ~0x00000080);
-          }
-          result.locations_ = locations_;
-        } else {
-          result.locations_ = locationsBuilder_.build();
+        if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
+          to_bitField0_ |= 0x00000080;
         }
-        if (executionFlowsBuilder_ == null) {
+        if (primaryLocationBuilder_ == null) {
+          result.primaryLocation_ = primaryLocation_;
+        } else {
+          result.primaryLocation_ = primaryLocationBuilder_.build();
+        }
+        if (additionalLocationBuilder_ == null) {
           if (((bitField0_ & 0x00000100) == 0x00000100)) {
-            executionFlows_ = java.util.Collections.unmodifiableList(executionFlows_);
+            additionalLocation_ = java.util.Collections.unmodifiableList(additionalLocation_);
             bitField0_ = (bitField0_ & ~0x00000100);
           }
-          result.executionFlows_ = executionFlows_;
+          result.additionalLocation_ = additionalLocation_;
         } else {
-          result.executionFlows_ = executionFlowsBuilder_.build();
+          result.additionalLocation_ = additionalLocationBuilder_.build();
+        }
+        if (executionFlowBuilder_ == null) {
+          if (((bitField0_ & 0x00000200) == 0x00000200)) {
+            executionFlow_ = java.util.Collections.unmodifiableList(executionFlow_);
+            bitField0_ = (bitField0_ & ~0x00000200);
+          }
+          result.executionFlow_ = executionFlow_;
+        } else {
+          result.executionFlow_ = executionFlowBuilder_.build();
         }
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -7425,55 +7495,58 @@ public final class BatchReport {
           attributes_ = other.attributes_;
           onChanged();
         }
-        if (locationsBuilder_ == null) {
-          if (!other.locations_.isEmpty()) {
-            if (locations_.isEmpty()) {
-              locations_ = other.locations_;
-              bitField0_ = (bitField0_ & ~0x00000080);
+        if (other.hasPrimaryLocation()) {
+          mergePrimaryLocation(other.getPrimaryLocation());
+        }
+        if (additionalLocationBuilder_ == null) {
+          if (!other.additionalLocation_.isEmpty()) {
+            if (additionalLocation_.isEmpty()) {
+              additionalLocation_ = other.additionalLocation_;
+              bitField0_ = (bitField0_ & ~0x00000100);
             } else {
-              ensureLocationsIsMutable();
-              locations_.addAll(other.locations_);
+              ensureAdditionalLocationIsMutable();
+              additionalLocation_.addAll(other.additionalLocation_);
             }
             onChanged();
           }
         } else {
-          if (!other.locations_.isEmpty()) {
-            if (locationsBuilder_.isEmpty()) {
-              locationsBuilder_.dispose();
-              locationsBuilder_ = null;
-              locations_ = other.locations_;
-              bitField0_ = (bitField0_ & ~0x00000080);
-              locationsBuilder_ = 
+          if (!other.additionalLocation_.isEmpty()) {
+            if (additionalLocationBuilder_.isEmpty()) {
+              additionalLocationBuilder_.dispose();
+              additionalLocationBuilder_ = null;
+              additionalLocation_ = other.additionalLocation_;
+              bitField0_ = (bitField0_ & ~0x00000100);
+              additionalLocationBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   getLocationsFieldBuilder() : null;
+                   getAdditionalLocationFieldBuilder() : null;
             } else {
-              locationsBuilder_.addAllMessages(other.locations_);
+              additionalLocationBuilder_.addAllMessages(other.additionalLocation_);
             }
           }
         }
-        if (executionFlowsBuilder_ == null) {
-          if (!other.executionFlows_.isEmpty()) {
-            if (executionFlows_.isEmpty()) {
-              executionFlows_ = other.executionFlows_;
-              bitField0_ = (bitField0_ & ~0x00000100);
+        if (executionFlowBuilder_ == null) {
+          if (!other.executionFlow_.isEmpty()) {
+            if (executionFlow_.isEmpty()) {
+              executionFlow_ = other.executionFlow_;
+              bitField0_ = (bitField0_ & ~0x00000200);
             } else {
-              ensureExecutionFlowsIsMutable();
-              executionFlows_.addAll(other.executionFlows_);
+              ensureExecutionFlowIsMutable();
+              executionFlow_.addAll(other.executionFlow_);
             }
             onChanged();
           }
         } else {
-          if (!other.executionFlows_.isEmpty()) {
-            if (executionFlowsBuilder_.isEmpty()) {
-              executionFlowsBuilder_.dispose();
-              executionFlowsBuilder_ = null;
-              executionFlows_ = other.executionFlows_;
-              bitField0_ = (bitField0_ & ~0x00000100);
-              executionFlowsBuilder_ = 
+          if (!other.executionFlow_.isEmpty()) {
+            if (executionFlowBuilder_.isEmpty()) {
+              executionFlowBuilder_.dispose();
+              executionFlowBuilder_ = null;
+              executionFlow_ = other.executionFlow_;
+              bitField0_ = (bitField0_ & ~0x00000200);
+              executionFlowBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   getExecutionFlowsFieldBuilder() : null;
+                   getExecutionFlowFieldBuilder() : null;
             } else {
-              executionFlowsBuilder_.addAllMessages(other.executionFlows_);
+              executionFlowBuilder_.addAllMessages(other.executionFlow_);
             }
           }
         }
@@ -7907,484 +7980,600 @@ public final class BatchReport {
         return this;
       }
 
-      private java.util.List<org.sonar.batch.protocol.output.BatchReport.IssueLocation> locations_ =
-        java.util.Collections.emptyList();
-      private void ensureLocationsIsMutable() {
-        if (!((bitField0_ & 0x00000080) == 0x00000080)) {
-          locations_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.IssueLocation>(locations_);
-          bitField0_ |= 0x00000080;
-         }
-      }
-
-      private com.google.protobuf.RepeatedFieldBuilder<
-          org.sonar.batch.protocol.output.BatchReport.IssueLocation, org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder, org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder> locationsBuilder_;
-
+      private org.sonar.batch.protocol.output.BatchReport.IssueLocation primaryLocation_ = org.sonar.batch.protocol.output.BatchReport.IssueLocation.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonar.batch.protocol.output.BatchReport.IssueLocation, org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder, org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder> primaryLocationBuilder_;
       /**
-       * <code>repeated .IssueLocation locations = 8;</code>
+       * <code>optional .IssueLocation primary_location = 9;</code>
        */
-      public java.util.List<org.sonar.batch.protocol.output.BatchReport.IssueLocation> getLocationsList() {
-        if (locationsBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(locations_);
+      public boolean hasPrimaryLocation() {
+        return ((bitField0_ & 0x00000080) == 0x00000080);
+      }
+      /**
+       * <code>optional .IssueLocation primary_location = 9;</code>
+       */
+      public org.sonar.batch.protocol.output.BatchReport.IssueLocation getPrimaryLocation() {
+        if (primaryLocationBuilder_ == null) {
+          return primaryLocation_;
         } else {
-          return locationsBuilder_.getMessageList();
+          return primaryLocationBuilder_.getMessage();
         }
       }
       /**
-       * <code>repeated .IssueLocation locations = 8;</code>
+       * <code>optional .IssueLocation primary_location = 9;</code>
        */
-      public int getLocationsCount() {
-        if (locationsBuilder_ == null) {
-          return locations_.size();
-        } else {
-          return locationsBuilder_.getCount();
-        }
-      }
-      /**
-       * <code>repeated .IssueLocation locations = 8;</code>
-       */
-      public org.sonar.batch.protocol.output.BatchReport.IssueLocation getLocations(int index) {
-        if (locationsBuilder_ == null) {
-          return locations_.get(index);
-        } else {
-          return locationsBuilder_.getMessage(index);
-        }
-      }
-      /**
-       * <code>repeated .IssueLocation locations = 8;</code>
-       */
-      public Builder setLocations(
-          int index, org.sonar.batch.protocol.output.BatchReport.IssueLocation value) {
-        if (locationsBuilder_ == null) {
+      public Builder setPrimaryLocation(org.sonar.batch.protocol.output.BatchReport.IssueLocation value) {
+        if (primaryLocationBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureLocationsIsMutable();
-          locations_.set(index, value);
+          primaryLocation_ = value;
           onChanged();
         } else {
-          locationsBuilder_.setMessage(index, value);
+          primaryLocationBuilder_.setMessage(value);
         }
+        bitField0_ |= 0x00000080;
         return this;
       }
       /**
-       * <code>repeated .IssueLocation locations = 8;</code>
+       * <code>optional .IssueLocation primary_location = 9;</code>
        */
-      public Builder setLocations(
-          int index, org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder builderForValue) {
-        if (locationsBuilder_ == null) {
-          ensureLocationsIsMutable();
-          locations_.set(index, builderForValue.build());
-          onChanged();
-        } else {
-          locationsBuilder_.setMessage(index, builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .IssueLocation locations = 8;</code>
-       */
-      public Builder addLocations(org.sonar.batch.protocol.output.BatchReport.IssueLocation value) {
-        if (locationsBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureLocationsIsMutable();
-          locations_.add(value);
-          onChanged();
-        } else {
-          locationsBuilder_.addMessage(value);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .IssueLocation locations = 8;</code>
-       */
-      public Builder addLocations(
-          int index, org.sonar.batch.protocol.output.BatchReport.IssueLocation value) {
-        if (locationsBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureLocationsIsMutable();
-          locations_.add(index, value);
-          onChanged();
-        } else {
-          locationsBuilder_.addMessage(index, value);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .IssueLocation locations = 8;</code>
-       */
-      public Builder addLocations(
+      public Builder setPrimaryLocation(
           org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder builderForValue) {
-        if (locationsBuilder_ == null) {
-          ensureLocationsIsMutable();
-          locations_.add(builderForValue.build());
+        if (primaryLocationBuilder_ == null) {
+          primaryLocation_ = builderForValue.build();
           onChanged();
         } else {
-          locationsBuilder_.addMessage(builderForValue.build());
+          primaryLocationBuilder_.setMessage(builderForValue.build());
         }
+        bitField0_ |= 0x00000080;
         return this;
       }
       /**
-       * <code>repeated .IssueLocation locations = 8;</code>
+       * <code>optional .IssueLocation primary_location = 9;</code>
        */
-      public Builder addLocations(
-          int index, org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder builderForValue) {
-        if (locationsBuilder_ == null) {
-          ensureLocationsIsMutable();
-          locations_.add(index, builderForValue.build());
+      public Builder mergePrimaryLocation(org.sonar.batch.protocol.output.BatchReport.IssueLocation value) {
+        if (primaryLocationBuilder_ == null) {
+          if (((bitField0_ & 0x00000080) == 0x00000080) &&
+              primaryLocation_ != org.sonar.batch.protocol.output.BatchReport.IssueLocation.getDefaultInstance()) {
+            primaryLocation_ =
+              org.sonar.batch.protocol.output.BatchReport.IssueLocation.newBuilder(primaryLocation_).mergeFrom(value).buildPartial();
+          } else {
+            primaryLocation_ = value;
+          }
           onChanged();
         } else {
-          locationsBuilder_.addMessage(index, builderForValue.build());
+          primaryLocationBuilder_.mergeFrom(value);
         }
+        bitField0_ |= 0x00000080;
         return this;
       }
       /**
-       * <code>repeated .IssueLocation locations = 8;</code>
+       * <code>optional .IssueLocation primary_location = 9;</code>
        */
-      public Builder addAllLocations(
-          java.lang.Iterable<? extends org.sonar.batch.protocol.output.BatchReport.IssueLocation> values) {
-        if (locationsBuilder_ == null) {
-          ensureLocationsIsMutable();
-          com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, locations_);
+      public Builder clearPrimaryLocation() {
+        if (primaryLocationBuilder_ == null) {
+          primaryLocation_ = org.sonar.batch.protocol.output.BatchReport.IssueLocation.getDefaultInstance();
           onChanged();
         } else {
-          locationsBuilder_.addAllMessages(values);
+          primaryLocationBuilder_.clear();
         }
+        bitField0_ = (bitField0_ & ~0x00000080);
         return this;
       }
       /**
-       * <code>repeated .IssueLocation locations = 8;</code>
+       * <code>optional .IssueLocation primary_location = 9;</code>
        */
-      public Builder clearLocations() {
-        if (locationsBuilder_ == null) {
-          locations_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000080);
-          onChanged();
+      public org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder getPrimaryLocationBuilder() {
+        bitField0_ |= 0x00000080;
+        onChanged();
+        return getPrimaryLocationFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .IssueLocation primary_location = 9;</code>
+       */
+      public org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder getPrimaryLocationOrBuilder() {
+        if (primaryLocationBuilder_ != null) {
+          return primaryLocationBuilder_.getMessageOrBuilder();
         } else {
-          locationsBuilder_.clear();
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .IssueLocation locations = 8;</code>
-       */
-      public Builder removeLocations(int index) {
-        if (locationsBuilder_ == null) {
-          ensureLocationsIsMutable();
-          locations_.remove(index);
-          onChanged();
-        } else {
-          locationsBuilder_.remove(index);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .IssueLocation locations = 8;</code>
-       */
-      public org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder getLocationsBuilder(
-          int index) {
-        return getLocationsFieldBuilder().getBuilder(index);
-      }
-      /**
-       * <code>repeated .IssueLocation locations = 8;</code>
-       */
-      public org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder getLocationsOrBuilder(
-          int index) {
-        if (locationsBuilder_ == null) {
-          return locations_.get(index);  } else {
-          return locationsBuilder_.getMessageOrBuilder(index);
+          return primaryLocation_;
         }
       }
       /**
-       * <code>repeated .IssueLocation locations = 8;</code>
+       * <code>optional .IssueLocation primary_location = 9;</code>
        */
-      public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder> 
-           getLocationsOrBuilderList() {
-        if (locationsBuilder_ != null) {
-          return locationsBuilder_.getMessageOrBuilderList();
-        } else {
-          return java.util.Collections.unmodifiableList(locations_);
-        }
-      }
-      /**
-       * <code>repeated .IssueLocation locations = 8;</code>
-       */
-      public org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder addLocationsBuilder() {
-        return getLocationsFieldBuilder().addBuilder(
-            org.sonar.batch.protocol.output.BatchReport.IssueLocation.getDefaultInstance());
-      }
-      /**
-       * <code>repeated .IssueLocation locations = 8;</code>
-       */
-      public org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder addLocationsBuilder(
-          int index) {
-        return getLocationsFieldBuilder().addBuilder(
-            index, org.sonar.batch.protocol.output.BatchReport.IssueLocation.getDefaultInstance());
-      }
-      /**
-       * <code>repeated .IssueLocation locations = 8;</code>
-       */
-      public java.util.List<org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder> 
-           getLocationsBuilderList() {
-        return getLocationsFieldBuilder().getBuilderList();
-      }
-      private com.google.protobuf.RepeatedFieldBuilder<
+      private com.google.protobuf.SingleFieldBuilder<
           org.sonar.batch.protocol.output.BatchReport.IssueLocation, org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder, org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder> 
-          getLocationsFieldBuilder() {
-        if (locationsBuilder_ == null) {
-          locationsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+          getPrimaryLocationFieldBuilder() {
+        if (primaryLocationBuilder_ == null) {
+          primaryLocationBuilder_ = new com.google.protobuf.SingleFieldBuilder<
               org.sonar.batch.protocol.output.BatchReport.IssueLocation, org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder, org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder>(
-                  locations_,
-                  ((bitField0_ & 0x00000080) == 0x00000080),
+                  getPrimaryLocation(),
                   getParentForChildren(),
                   isClean());
-          locations_ = null;
+          primaryLocation_ = null;
         }
-        return locationsBuilder_;
+        return primaryLocationBuilder_;
       }
 
-      private java.util.List<org.sonar.batch.protocol.output.BatchReport.ExecutionFlow> executionFlows_ =
+      private java.util.List<org.sonar.batch.protocol.output.BatchReport.IssueLocation> additionalLocation_ =
         java.util.Collections.emptyList();
-      private void ensureExecutionFlowsIsMutable() {
+      private void ensureAdditionalLocationIsMutable() {
         if (!((bitField0_ & 0x00000100) == 0x00000100)) {
-          executionFlows_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.ExecutionFlow>(executionFlows_);
+          additionalLocation_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.IssueLocation>(additionalLocation_);
           bitField0_ |= 0x00000100;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilder<
-          org.sonar.batch.protocol.output.BatchReport.ExecutionFlow, org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.Builder, org.sonar.batch.protocol.output.BatchReport.ExecutionFlowOrBuilder> executionFlowsBuilder_;
+          org.sonar.batch.protocol.output.BatchReport.IssueLocation, org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder, org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder> additionalLocationBuilder_;
 
       /**
-       * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+       * <code>repeated .IssueLocation additional_location = 10;</code>
        */
-      public java.util.List<org.sonar.batch.protocol.output.BatchReport.ExecutionFlow> getExecutionFlowsList() {
-        if (executionFlowsBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(executionFlows_);
+      public java.util.List<org.sonar.batch.protocol.output.BatchReport.IssueLocation> getAdditionalLocationList() {
+        if (additionalLocationBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(additionalLocation_);
         } else {
-          return executionFlowsBuilder_.getMessageList();
+          return additionalLocationBuilder_.getMessageList();
         }
       }
       /**
-       * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+       * <code>repeated .IssueLocation additional_location = 10;</code>
        */
-      public int getExecutionFlowsCount() {
-        if (executionFlowsBuilder_ == null) {
-          return executionFlows_.size();
+      public int getAdditionalLocationCount() {
+        if (additionalLocationBuilder_ == null) {
+          return additionalLocation_.size();
         } else {
-          return executionFlowsBuilder_.getCount();
+          return additionalLocationBuilder_.getCount();
         }
       }
       /**
-       * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+       * <code>repeated .IssueLocation additional_location = 10;</code>
        */
-      public org.sonar.batch.protocol.output.BatchReport.ExecutionFlow getExecutionFlows(int index) {
-        if (executionFlowsBuilder_ == null) {
-          return executionFlows_.get(index);
+      public org.sonar.batch.protocol.output.BatchReport.IssueLocation getAdditionalLocation(int index) {
+        if (additionalLocationBuilder_ == null) {
+          return additionalLocation_.get(index);
         } else {
-          return executionFlowsBuilder_.getMessage(index);
+          return additionalLocationBuilder_.getMessage(index);
         }
       }
       /**
-       * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+       * <code>repeated .IssueLocation additional_location = 10;</code>
        */
-      public Builder setExecutionFlows(
-          int index, org.sonar.batch.protocol.output.BatchReport.ExecutionFlow value) {
-        if (executionFlowsBuilder_ == null) {
+      public Builder setAdditionalLocation(
+          int index, org.sonar.batch.protocol.output.BatchReport.IssueLocation value) {
+        if (additionalLocationBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureExecutionFlowsIsMutable();
-          executionFlows_.set(index, value);
+          ensureAdditionalLocationIsMutable();
+          additionalLocation_.set(index, value);
           onChanged();
         } else {
-          executionFlowsBuilder_.setMessage(index, value);
+          additionalLocationBuilder_.setMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+       * <code>repeated .IssueLocation additional_location = 10;</code>
        */
-      public Builder setExecutionFlows(
-          int index, org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.Builder builderForValue) {
-        if (executionFlowsBuilder_ == null) {
-          ensureExecutionFlowsIsMutable();
-          executionFlows_.set(index, builderForValue.build());
+      public Builder setAdditionalLocation(
+          int index, org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder builderForValue) {
+        if (additionalLocationBuilder_ == null) {
+          ensureAdditionalLocationIsMutable();
+          additionalLocation_.set(index, builderForValue.build());
           onChanged();
         } else {
-          executionFlowsBuilder_.setMessage(index, builderForValue.build());
+          additionalLocationBuilder_.setMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+       * <code>repeated .IssueLocation additional_location = 10;</code>
        */
-      public Builder addExecutionFlows(org.sonar.batch.protocol.output.BatchReport.ExecutionFlow value) {
-        if (executionFlowsBuilder_ == null) {
+      public Builder addAdditionalLocation(org.sonar.batch.protocol.output.BatchReport.IssueLocation value) {
+        if (additionalLocationBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureExecutionFlowsIsMutable();
-          executionFlows_.add(value);
+          ensureAdditionalLocationIsMutable();
+          additionalLocation_.add(value);
           onChanged();
         } else {
-          executionFlowsBuilder_.addMessage(value);
+          additionalLocationBuilder_.addMessage(value);
         }
         return this;
       }
       /**
-       * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+       * <code>repeated .IssueLocation additional_location = 10;</code>
        */
-      public Builder addExecutionFlows(
-          int index, org.sonar.batch.protocol.output.BatchReport.ExecutionFlow value) {
-        if (executionFlowsBuilder_ == null) {
+      public Builder addAdditionalLocation(
+          int index, org.sonar.batch.protocol.output.BatchReport.IssueLocation value) {
+        if (additionalLocationBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureExecutionFlowsIsMutable();
-          executionFlows_.add(index, value);
+          ensureAdditionalLocationIsMutable();
+          additionalLocation_.add(index, value);
           onChanged();
         } else {
-          executionFlowsBuilder_.addMessage(index, value);
+          additionalLocationBuilder_.addMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+       * <code>repeated .IssueLocation additional_location = 10;</code>
        */
-      public Builder addExecutionFlows(
-          org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.Builder builderForValue) {
-        if (executionFlowsBuilder_ == null) {
-          ensureExecutionFlowsIsMutable();
-          executionFlows_.add(builderForValue.build());
+      public Builder addAdditionalLocation(
+          org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder builderForValue) {
+        if (additionalLocationBuilder_ == null) {
+          ensureAdditionalLocationIsMutable();
+          additionalLocation_.add(builderForValue.build());
           onChanged();
         } else {
-          executionFlowsBuilder_.addMessage(builderForValue.build());
+          additionalLocationBuilder_.addMessage(builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+       * <code>repeated .IssueLocation additional_location = 10;</code>
        */
-      public Builder addExecutionFlows(
-          int index, org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.Builder builderForValue) {
-        if (executionFlowsBuilder_ == null) {
-          ensureExecutionFlowsIsMutable();
-          executionFlows_.add(index, builderForValue.build());
+      public Builder addAdditionalLocation(
+          int index, org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder builderForValue) {
+        if (additionalLocationBuilder_ == null) {
+          ensureAdditionalLocationIsMutable();
+          additionalLocation_.add(index, builderForValue.build());
           onChanged();
         } else {
-          executionFlowsBuilder_.addMessage(index, builderForValue.build());
+          additionalLocationBuilder_.addMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+       * <code>repeated .IssueLocation additional_location = 10;</code>
        */
-      public Builder addAllExecutionFlows(
-          java.lang.Iterable<? extends org.sonar.batch.protocol.output.BatchReport.ExecutionFlow> values) {
-        if (executionFlowsBuilder_ == null) {
-          ensureExecutionFlowsIsMutable();
+      public Builder addAllAdditionalLocation(
+          java.lang.Iterable<? extends org.sonar.batch.protocol.output.BatchReport.IssueLocation> values) {
+        if (additionalLocationBuilder_ == null) {
+          ensureAdditionalLocationIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, executionFlows_);
+              values, additionalLocation_);
           onChanged();
         } else {
-          executionFlowsBuilder_.addAllMessages(values);
+          additionalLocationBuilder_.addAllMessages(values);
         }
         return this;
       }
       /**
-       * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+       * <code>repeated .IssueLocation additional_location = 10;</code>
        */
-      public Builder clearExecutionFlows() {
-        if (executionFlowsBuilder_ == null) {
-          executionFlows_ = java.util.Collections.emptyList();
+      public Builder clearAdditionalLocation() {
+        if (additionalLocationBuilder_ == null) {
+          additionalLocation_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000100);
           onChanged();
         } else {
-          executionFlowsBuilder_.clear();
+          additionalLocationBuilder_.clear();
         }
         return this;
       }
       /**
-       * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+       * <code>repeated .IssueLocation additional_location = 10;</code>
        */
-      public Builder removeExecutionFlows(int index) {
-        if (executionFlowsBuilder_ == null) {
-          ensureExecutionFlowsIsMutable();
-          executionFlows_.remove(index);
+      public Builder removeAdditionalLocation(int index) {
+        if (additionalLocationBuilder_ == null) {
+          ensureAdditionalLocationIsMutable();
+          additionalLocation_.remove(index);
           onChanged();
         } else {
-          executionFlowsBuilder_.remove(index);
+          additionalLocationBuilder_.remove(index);
         }
         return this;
       }
       /**
-       * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+       * <code>repeated .IssueLocation additional_location = 10;</code>
        */
-      public org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.Builder getExecutionFlowsBuilder(
+      public org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder getAdditionalLocationBuilder(
           int index) {
-        return getExecutionFlowsFieldBuilder().getBuilder(index);
+        return getAdditionalLocationFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+       * <code>repeated .IssueLocation additional_location = 10;</code>
        */
-      public org.sonar.batch.protocol.output.BatchReport.ExecutionFlowOrBuilder getExecutionFlowsOrBuilder(
+      public org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder getAdditionalLocationOrBuilder(
           int index) {
-        if (executionFlowsBuilder_ == null) {
-          return executionFlows_.get(index);  } else {
-          return executionFlowsBuilder_.getMessageOrBuilder(index);
+        if (additionalLocationBuilder_ == null) {
+          return additionalLocation_.get(index);  } else {
+          return additionalLocationBuilder_.getMessageOrBuilder(index);
         }
       }
       /**
-       * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+       * <code>repeated .IssueLocation additional_location = 10;</code>
        */
-      public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.ExecutionFlowOrBuilder> 
-           getExecutionFlowsOrBuilderList() {
-        if (executionFlowsBuilder_ != null) {
-          return executionFlowsBuilder_.getMessageOrBuilderList();
+      public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder> 
+           getAdditionalLocationOrBuilderList() {
+        if (additionalLocationBuilder_ != null) {
+          return additionalLocationBuilder_.getMessageOrBuilderList();
         } else {
-          return java.util.Collections.unmodifiableList(executionFlows_);
+          return java.util.Collections.unmodifiableList(additionalLocation_);
         }
       }
       /**
-       * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+       * <code>repeated .IssueLocation additional_location = 10;</code>
        */
-      public org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.Builder addExecutionFlowsBuilder() {
-        return getExecutionFlowsFieldBuilder().addBuilder(
-            org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.getDefaultInstance());
+      public org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder addAdditionalLocationBuilder() {
+        return getAdditionalLocationFieldBuilder().addBuilder(
+            org.sonar.batch.protocol.output.BatchReport.IssueLocation.getDefaultInstance());
       }
       /**
-       * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+       * <code>repeated .IssueLocation additional_location = 10;</code>
        */
-      public org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.Builder addExecutionFlowsBuilder(
+      public org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder addAdditionalLocationBuilder(
           int index) {
-        return getExecutionFlowsFieldBuilder().addBuilder(
-            index, org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.getDefaultInstance());
+        return getAdditionalLocationFieldBuilder().addBuilder(
+            index, org.sonar.batch.protocol.output.BatchReport.IssueLocation.getDefaultInstance());
       }
       /**
-       * <code>repeated .ExecutionFlow execution_flows = 9;</code>
+       * <code>repeated .IssueLocation additional_location = 10;</code>
        */
-      public java.util.List<org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.Builder> 
-           getExecutionFlowsBuilderList() {
-        return getExecutionFlowsFieldBuilder().getBuilderList();
+      public java.util.List<org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder> 
+           getAdditionalLocationBuilderList() {
+        return getAdditionalLocationFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilder<
-          org.sonar.batch.protocol.output.BatchReport.ExecutionFlow, org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.Builder, org.sonar.batch.protocol.output.BatchReport.ExecutionFlowOrBuilder> 
-          getExecutionFlowsFieldBuilder() {
-        if (executionFlowsBuilder_ == null) {
-          executionFlowsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.sonar.batch.protocol.output.BatchReport.ExecutionFlow, org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.Builder, org.sonar.batch.protocol.output.BatchReport.ExecutionFlowOrBuilder>(
-                  executionFlows_,
+          org.sonar.batch.protocol.output.BatchReport.IssueLocation, org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder, org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder> 
+          getAdditionalLocationFieldBuilder() {
+        if (additionalLocationBuilder_ == null) {
+          additionalLocationBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonar.batch.protocol.output.BatchReport.IssueLocation, org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder, org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder>(
+                  additionalLocation_,
                   ((bitField0_ & 0x00000100) == 0x00000100),
                   getParentForChildren(),
                   isClean());
-          executionFlows_ = null;
+          additionalLocation_ = null;
         }
-        return executionFlowsBuilder_;
+        return additionalLocationBuilder_;
+      }
+
+      private java.util.List<org.sonar.batch.protocol.output.BatchReport.ExecutionFlow> executionFlow_ =
+        java.util.Collections.emptyList();
+      private void ensureExecutionFlowIsMutable() {
+        if (!((bitField0_ & 0x00000200) == 0x00000200)) {
+          executionFlow_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.ExecutionFlow>(executionFlow_);
+          bitField0_ |= 0x00000200;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonar.batch.protocol.output.BatchReport.ExecutionFlow, org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.Builder, org.sonar.batch.protocol.output.BatchReport.ExecutionFlowOrBuilder> executionFlowBuilder_;
+
+      /**
+       * <code>repeated .ExecutionFlow execution_flow = 11;</code>
+       */
+      public java.util.List<org.sonar.batch.protocol.output.BatchReport.ExecutionFlow> getExecutionFlowList() {
+        if (executionFlowBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(executionFlow_);
+        } else {
+          return executionFlowBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .ExecutionFlow execution_flow = 11;</code>
+       */
+      public int getExecutionFlowCount() {
+        if (executionFlowBuilder_ == null) {
+          return executionFlow_.size();
+        } else {
+          return executionFlowBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .ExecutionFlow execution_flow = 11;</code>
+       */
+      public org.sonar.batch.protocol.output.BatchReport.ExecutionFlow getExecutionFlow(int index) {
+        if (executionFlowBuilder_ == null) {
+          return executionFlow_.get(index);
+        } else {
+          return executionFlowBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .ExecutionFlow execution_flow = 11;</code>
+       */
+      public Builder setExecutionFlow(
+          int index, org.sonar.batch.protocol.output.BatchReport.ExecutionFlow value) {
+        if (executionFlowBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureExecutionFlowIsMutable();
+          executionFlow_.set(index, value);
+          onChanged();
+        } else {
+          executionFlowBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .ExecutionFlow execution_flow = 11;</code>
+       */
+      public Builder setExecutionFlow(
+          int index, org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.Builder builderForValue) {
+        if (executionFlowBuilder_ == null) {
+          ensureExecutionFlowIsMutable();
+          executionFlow_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          executionFlowBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .ExecutionFlow execution_flow = 11;</code>
+       */
+      public Builder addExecutionFlow(org.sonar.batch.protocol.output.BatchReport.ExecutionFlow value) {
+        if (executionFlowBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureExecutionFlowIsMutable();
+          executionFlow_.add(value);
+          onChanged();
+        } else {
+          executionFlowBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .ExecutionFlow execution_flow = 11;</code>
+       */
+      public Builder addExecutionFlow(
+          int index, org.sonar.batch.protocol.output.BatchReport.ExecutionFlow value) {
+        if (executionFlowBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureExecutionFlowIsMutable();
+          executionFlow_.add(index, value);
+          onChanged();
+        } else {
+          executionFlowBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .ExecutionFlow execution_flow = 11;</code>
+       */
+      public Builder addExecutionFlow(
+          org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.Builder builderForValue) {
+        if (executionFlowBuilder_ == null) {
+          ensureExecutionFlowIsMutable();
+          executionFlow_.add(builderForValue.build());
+          onChanged();
+        } else {
+          executionFlowBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .ExecutionFlow execution_flow = 11;</code>
+       */
+      public Builder addExecutionFlow(
+          int index, org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.Builder builderForValue) {
+        if (executionFlowBuilder_ == null) {
+          ensureExecutionFlowIsMutable();
+          executionFlow_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          executionFlowBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .ExecutionFlow execution_flow = 11;</code>
+       */
+      public Builder addAllExecutionFlow(
+          java.lang.Iterable<? extends org.sonar.batch.protocol.output.BatchReport.ExecutionFlow> values) {
+        if (executionFlowBuilder_ == null) {
+          ensureExecutionFlowIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, executionFlow_);
+          onChanged();
+        } else {
+          executionFlowBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .ExecutionFlow execution_flow = 11;</code>
+       */
+      public Builder clearExecutionFlow() {
+        if (executionFlowBuilder_ == null) {
+          executionFlow_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000200);
+          onChanged();
+        } else {
+          executionFlowBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .ExecutionFlow execution_flow = 11;</code>
+       */
+      public Builder removeExecutionFlow(int index) {
+        if (executionFlowBuilder_ == null) {
+          ensureExecutionFlowIsMutable();
+          executionFlow_.remove(index);
+          onChanged();
+        } else {
+          executionFlowBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .ExecutionFlow execution_flow = 11;</code>
+       */
+      public org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.Builder getExecutionFlowBuilder(
+          int index) {
+        return getExecutionFlowFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .ExecutionFlow execution_flow = 11;</code>
+       */
+      public org.sonar.batch.protocol.output.BatchReport.ExecutionFlowOrBuilder getExecutionFlowOrBuilder(
+          int index) {
+        if (executionFlowBuilder_ == null) {
+          return executionFlow_.get(index);  } else {
+          return executionFlowBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .ExecutionFlow execution_flow = 11;</code>
+       */
+      public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.ExecutionFlowOrBuilder> 
+           getExecutionFlowOrBuilderList() {
+        if (executionFlowBuilder_ != null) {
+          return executionFlowBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(executionFlow_);
+        }
+      }
+      /**
+       * <code>repeated .ExecutionFlow execution_flow = 11;</code>
+       */
+      public org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.Builder addExecutionFlowBuilder() {
+        return getExecutionFlowFieldBuilder().addBuilder(
+            org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .ExecutionFlow execution_flow = 11;</code>
+       */
+      public org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.Builder addExecutionFlowBuilder(
+          int index) {
+        return getExecutionFlowFieldBuilder().addBuilder(
+            index, org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .ExecutionFlow execution_flow = 11;</code>
+       */
+      public java.util.List<org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.Builder> 
+           getExecutionFlowBuilderList() {
+        return getExecutionFlowFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonar.batch.protocol.output.BatchReport.ExecutionFlow, org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.Builder, org.sonar.batch.protocol.output.BatchReport.ExecutionFlowOrBuilder> 
+          getExecutionFlowFieldBuilder() {
+        if (executionFlowBuilder_ == null) {
+          executionFlowBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonar.batch.protocol.output.BatchReport.ExecutionFlow, org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.Builder, org.sonar.batch.protocol.output.BatchReport.ExecutionFlowOrBuilder>(
+                  executionFlow_,
+                  ((bitField0_ & 0x00000200) == 0x00000200),
+                  getParentForChildren(),
+                  isClean());
+          executionFlow_ = null;
+        }
+        return executionFlowBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:Issue)
@@ -9206,27 +9395,27 @@ public final class BatchReport {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>repeated .IssueLocation locations = 1;</code>
+     * <code>repeated .IssueLocation location = 1;</code>
      */
     java.util.List<org.sonar.batch.protocol.output.BatchReport.IssueLocation> 
-        getLocationsList();
+        getLocationList();
     /**
-     * <code>repeated .IssueLocation locations = 1;</code>
+     * <code>repeated .IssueLocation location = 1;</code>
      */
-    org.sonar.batch.protocol.output.BatchReport.IssueLocation getLocations(int index);
+    org.sonar.batch.protocol.output.BatchReport.IssueLocation getLocation(int index);
     /**
-     * <code>repeated .IssueLocation locations = 1;</code>
+     * <code>repeated .IssueLocation location = 1;</code>
      */
-    int getLocationsCount();
+    int getLocationCount();
     /**
-     * <code>repeated .IssueLocation locations = 1;</code>
+     * <code>repeated .IssueLocation location = 1;</code>
      */
     java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder> 
-        getLocationsOrBuilderList();
+        getLocationOrBuilderList();
     /**
-     * <code>repeated .IssueLocation locations = 1;</code>
+     * <code>repeated .IssueLocation location = 1;</code>
      */
-    org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder getLocationsOrBuilder(
+    org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder getLocationOrBuilder(
         int index);
   }
   /**
@@ -9283,10 +9472,10 @@ public final class BatchReport {
             }
             case 10: {
               if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-                locations_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.IssueLocation>();
+                location_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.IssueLocation>();
                 mutable_bitField0_ |= 0x00000001;
               }
-              locations_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.IssueLocation.PARSER, extensionRegistry));
+              location_.add(input.readMessage(org.sonar.batch.protocol.output.BatchReport.IssueLocation.PARSER, extensionRegistry));
               break;
             }
           }
@@ -9298,7 +9487,7 @@ public final class BatchReport {
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
         if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-          locations_ = java.util.Collections.unmodifiableList(locations_);
+          location_ = java.util.Collections.unmodifiableList(location_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -9331,43 +9520,43 @@ public final class BatchReport {
       return PARSER;
     }
 
-    public static final int LOCATIONS_FIELD_NUMBER = 1;
-    private java.util.List<org.sonar.batch.protocol.output.BatchReport.IssueLocation> locations_;
+    public static final int LOCATION_FIELD_NUMBER = 1;
+    private java.util.List<org.sonar.batch.protocol.output.BatchReport.IssueLocation> location_;
     /**
-     * <code>repeated .IssueLocation locations = 1;</code>
+     * <code>repeated .IssueLocation location = 1;</code>
      */
-    public java.util.List<org.sonar.batch.protocol.output.BatchReport.IssueLocation> getLocationsList() {
-      return locations_;
+    public java.util.List<org.sonar.batch.protocol.output.BatchReport.IssueLocation> getLocationList() {
+      return location_;
     }
     /**
-     * <code>repeated .IssueLocation locations = 1;</code>
+     * <code>repeated .IssueLocation location = 1;</code>
      */
     public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder> 
-        getLocationsOrBuilderList() {
-      return locations_;
+        getLocationOrBuilderList() {
+      return location_;
     }
     /**
-     * <code>repeated .IssueLocation locations = 1;</code>
+     * <code>repeated .IssueLocation location = 1;</code>
      */
-    public int getLocationsCount() {
-      return locations_.size();
+    public int getLocationCount() {
+      return location_.size();
     }
     /**
-     * <code>repeated .IssueLocation locations = 1;</code>
+     * <code>repeated .IssueLocation location = 1;</code>
      */
-    public org.sonar.batch.protocol.output.BatchReport.IssueLocation getLocations(int index) {
-      return locations_.get(index);
+    public org.sonar.batch.protocol.output.BatchReport.IssueLocation getLocation(int index) {
+      return location_.get(index);
     }
     /**
-     * <code>repeated .IssueLocation locations = 1;</code>
+     * <code>repeated .IssueLocation location = 1;</code>
      */
-    public org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder getLocationsOrBuilder(
+    public org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder getLocationOrBuilder(
         int index) {
-      return locations_.get(index);
+      return location_.get(index);
     }
 
     private void initFields() {
-      locations_ = java.util.Collections.emptyList();
+      location_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -9382,8 +9571,8 @@ public final class BatchReport {
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      for (int i = 0; i < locations_.size(); i++) {
-        output.writeMessage(1, locations_.get(i));
+      for (int i = 0; i < location_.size(); i++) {
+        output.writeMessage(1, location_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -9394,9 +9583,9 @@ public final class BatchReport {
       if (size != -1) return size;
 
       size = 0;
-      for (int i = 0; i < locations_.size(); i++) {
+      for (int i = 0; i < location_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1, locations_.get(i));
+          .computeMessageSize(1, location_.get(i));
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -9507,7 +9696,7 @@ public final class BatchReport {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-          getLocationsFieldBuilder();
+          getLocationFieldBuilder();
         }
       }
       private static Builder create() {
@@ -9516,11 +9705,11 @@ public final class BatchReport {
 
       public Builder clear() {
         super.clear();
-        if (locationsBuilder_ == null) {
-          locations_ = java.util.Collections.emptyList();
+        if (locationBuilder_ == null) {
+          location_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000001);
         } else {
-          locationsBuilder_.clear();
+          locationBuilder_.clear();
         }
         return this;
       }
@@ -9549,14 +9738,14 @@ public final class BatchReport {
       public org.sonar.batch.protocol.output.BatchReport.ExecutionFlow buildPartial() {
         org.sonar.batch.protocol.output.BatchReport.ExecutionFlow result = new org.sonar.batch.protocol.output.BatchReport.ExecutionFlow(this);
         int from_bitField0_ = bitField0_;
-        if (locationsBuilder_ == null) {
+        if (locationBuilder_ == null) {
           if (((bitField0_ & 0x00000001) == 0x00000001)) {
-            locations_ = java.util.Collections.unmodifiableList(locations_);
+            location_ = java.util.Collections.unmodifiableList(location_);
             bitField0_ = (bitField0_ & ~0x00000001);
           }
-          result.locations_ = locations_;
+          result.location_ = location_;
         } else {
-          result.locations_ = locationsBuilder_.build();
+          result.location_ = locationBuilder_.build();
         }
         onBuilt();
         return result;
@@ -9573,29 +9762,29 @@ public final class BatchReport {
 
       public Builder mergeFrom(org.sonar.batch.protocol.output.BatchReport.ExecutionFlow other) {
         if (other == org.sonar.batch.protocol.output.BatchReport.ExecutionFlow.getDefaultInstance()) return this;
-        if (locationsBuilder_ == null) {
-          if (!other.locations_.isEmpty()) {
-            if (locations_.isEmpty()) {
-              locations_ = other.locations_;
+        if (locationBuilder_ == null) {
+          if (!other.location_.isEmpty()) {
+            if (location_.isEmpty()) {
+              location_ = other.location_;
               bitField0_ = (bitField0_ & ~0x00000001);
             } else {
-              ensureLocationsIsMutable();
-              locations_.addAll(other.locations_);
+              ensureLocationIsMutable();
+              location_.addAll(other.location_);
             }
             onChanged();
           }
         } else {
-          if (!other.locations_.isEmpty()) {
-            if (locationsBuilder_.isEmpty()) {
-              locationsBuilder_.dispose();
-              locationsBuilder_ = null;
-              locations_ = other.locations_;
+          if (!other.location_.isEmpty()) {
+            if (locationBuilder_.isEmpty()) {
+              locationBuilder_.dispose();
+              locationBuilder_ = null;
+              location_ = other.location_;
               bitField0_ = (bitField0_ & ~0x00000001);
-              locationsBuilder_ = 
+              locationBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   getLocationsFieldBuilder() : null;
+                   getLocationFieldBuilder() : null;
             } else {
-              locationsBuilder_.addAllMessages(other.locations_);
+              locationBuilder_.addAllMessages(other.location_);
             }
           }
         }
@@ -9626,244 +9815,244 @@ public final class BatchReport {
       }
       private int bitField0_;
 
-      private java.util.List<org.sonar.batch.protocol.output.BatchReport.IssueLocation> locations_ =
+      private java.util.List<org.sonar.batch.protocol.output.BatchReport.IssueLocation> location_ =
         java.util.Collections.emptyList();
-      private void ensureLocationsIsMutable() {
+      private void ensureLocationIsMutable() {
         if (!((bitField0_ & 0x00000001) == 0x00000001)) {
-          locations_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.IssueLocation>(locations_);
+          location_ = new java.util.ArrayList<org.sonar.batch.protocol.output.BatchReport.IssueLocation>(location_);
           bitField0_ |= 0x00000001;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilder<
-          org.sonar.batch.protocol.output.BatchReport.IssueLocation, org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder, org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder> locationsBuilder_;
+          org.sonar.batch.protocol.output.BatchReport.IssueLocation, org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder, org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder> locationBuilder_;
 
       /**
-       * <code>repeated .IssueLocation locations = 1;</code>
+       * <code>repeated .IssueLocation location = 1;</code>
        */
-      public java.util.List<org.sonar.batch.protocol.output.BatchReport.IssueLocation> getLocationsList() {
-        if (locationsBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(locations_);
+      public java.util.List<org.sonar.batch.protocol.output.BatchReport.IssueLocation> getLocationList() {
+        if (locationBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(location_);
         } else {
-          return locationsBuilder_.getMessageList();
+          return locationBuilder_.getMessageList();
         }
       }
       /**
-       * <code>repeated .IssueLocation locations = 1;</code>
+       * <code>repeated .IssueLocation location = 1;</code>
        */
-      public int getLocationsCount() {
-        if (locationsBuilder_ == null) {
-          return locations_.size();
+      public int getLocationCount() {
+        if (locationBuilder_ == null) {
+          return location_.size();
         } else {
-          return locationsBuilder_.getCount();
+          return locationBuilder_.getCount();
         }
       }
       /**
-       * <code>repeated .IssueLocation locations = 1;</code>
+       * <code>repeated .IssueLocation location = 1;</code>
        */
-      public org.sonar.batch.protocol.output.BatchReport.IssueLocation getLocations(int index) {
-        if (locationsBuilder_ == null) {
-          return locations_.get(index);
+      public org.sonar.batch.protocol.output.BatchReport.IssueLocation getLocation(int index) {
+        if (locationBuilder_ == null) {
+          return location_.get(index);
         } else {
-          return locationsBuilder_.getMessage(index);
+          return locationBuilder_.getMessage(index);
         }
       }
       /**
-       * <code>repeated .IssueLocation locations = 1;</code>
+       * <code>repeated .IssueLocation location = 1;</code>
        */
-      public Builder setLocations(
+      public Builder setLocation(
           int index, org.sonar.batch.protocol.output.BatchReport.IssueLocation value) {
-        if (locationsBuilder_ == null) {
+        if (locationBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureLocationsIsMutable();
-          locations_.set(index, value);
+          ensureLocationIsMutable();
+          location_.set(index, value);
           onChanged();
         } else {
-          locationsBuilder_.setMessage(index, value);
+          locationBuilder_.setMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .IssueLocation locations = 1;</code>
+       * <code>repeated .IssueLocation location = 1;</code>
        */
-      public Builder setLocations(
+      public Builder setLocation(
           int index, org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder builderForValue) {
-        if (locationsBuilder_ == null) {
-          ensureLocationsIsMutable();
-          locations_.set(index, builderForValue.build());
+        if (locationBuilder_ == null) {
+          ensureLocationIsMutable();
+          location_.set(index, builderForValue.build());
           onChanged();
         } else {
-          locationsBuilder_.setMessage(index, builderForValue.build());
+          locationBuilder_.setMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .IssueLocation locations = 1;</code>
+       * <code>repeated .IssueLocation location = 1;</code>
        */
-      public Builder addLocations(org.sonar.batch.protocol.output.BatchReport.IssueLocation value) {
-        if (locationsBuilder_ == null) {
+      public Builder addLocation(org.sonar.batch.protocol.output.BatchReport.IssueLocation value) {
+        if (locationBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureLocationsIsMutable();
-          locations_.add(value);
+          ensureLocationIsMutable();
+          location_.add(value);
           onChanged();
         } else {
-          locationsBuilder_.addMessage(value);
+          locationBuilder_.addMessage(value);
         }
         return this;
       }
       /**
-       * <code>repeated .IssueLocation locations = 1;</code>
+       * <code>repeated .IssueLocation location = 1;</code>
        */
-      public Builder addLocations(
+      public Builder addLocation(
           int index, org.sonar.batch.protocol.output.BatchReport.IssueLocation value) {
-        if (locationsBuilder_ == null) {
+        if (locationBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureLocationsIsMutable();
-          locations_.add(index, value);
+          ensureLocationIsMutable();
+          location_.add(index, value);
           onChanged();
         } else {
-          locationsBuilder_.addMessage(index, value);
+          locationBuilder_.addMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .IssueLocation locations = 1;</code>
+       * <code>repeated .IssueLocation location = 1;</code>
        */
-      public Builder addLocations(
+      public Builder addLocation(
           org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder builderForValue) {
-        if (locationsBuilder_ == null) {
-          ensureLocationsIsMutable();
-          locations_.add(builderForValue.build());
+        if (locationBuilder_ == null) {
+          ensureLocationIsMutable();
+          location_.add(builderForValue.build());
           onChanged();
         } else {
-          locationsBuilder_.addMessage(builderForValue.build());
+          locationBuilder_.addMessage(builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .IssueLocation locations = 1;</code>
+       * <code>repeated .IssueLocation location = 1;</code>
        */
-      public Builder addLocations(
+      public Builder addLocation(
           int index, org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder builderForValue) {
-        if (locationsBuilder_ == null) {
-          ensureLocationsIsMutable();
-          locations_.add(index, builderForValue.build());
+        if (locationBuilder_ == null) {
+          ensureLocationIsMutable();
+          location_.add(index, builderForValue.build());
           onChanged();
         } else {
-          locationsBuilder_.addMessage(index, builderForValue.build());
+          locationBuilder_.addMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .IssueLocation locations = 1;</code>
+       * <code>repeated .IssueLocation location = 1;</code>
        */
-      public Builder addAllLocations(
+      public Builder addAllLocation(
           java.lang.Iterable<? extends org.sonar.batch.protocol.output.BatchReport.IssueLocation> values) {
-        if (locationsBuilder_ == null) {
-          ensureLocationsIsMutable();
+        if (locationBuilder_ == null) {
+          ensureLocationIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, locations_);
+              values, location_);
           onChanged();
         } else {
-          locationsBuilder_.addAllMessages(values);
+          locationBuilder_.addAllMessages(values);
         }
         return this;
       }
       /**
-       * <code>repeated .IssueLocation locations = 1;</code>
+       * <code>repeated .IssueLocation location = 1;</code>
        */
-      public Builder clearLocations() {
-        if (locationsBuilder_ == null) {
-          locations_ = java.util.Collections.emptyList();
+      public Builder clearLocation() {
+        if (locationBuilder_ == null) {
+          location_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000001);
           onChanged();
         } else {
-          locationsBuilder_.clear();
+          locationBuilder_.clear();
         }
         return this;
       }
       /**
-       * <code>repeated .IssueLocation locations = 1;</code>
+       * <code>repeated .IssueLocation location = 1;</code>
        */
-      public Builder removeLocations(int index) {
-        if (locationsBuilder_ == null) {
-          ensureLocationsIsMutable();
-          locations_.remove(index);
+      public Builder removeLocation(int index) {
+        if (locationBuilder_ == null) {
+          ensureLocationIsMutable();
+          location_.remove(index);
           onChanged();
         } else {
-          locationsBuilder_.remove(index);
+          locationBuilder_.remove(index);
         }
         return this;
       }
       /**
-       * <code>repeated .IssueLocation locations = 1;</code>
+       * <code>repeated .IssueLocation location = 1;</code>
        */
-      public org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder getLocationsBuilder(
+      public org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder getLocationBuilder(
           int index) {
-        return getLocationsFieldBuilder().getBuilder(index);
+        return getLocationFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .IssueLocation locations = 1;</code>
+       * <code>repeated .IssueLocation location = 1;</code>
        */
-      public org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder getLocationsOrBuilder(
+      public org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder getLocationOrBuilder(
           int index) {
-        if (locationsBuilder_ == null) {
-          return locations_.get(index);  } else {
-          return locationsBuilder_.getMessageOrBuilder(index);
+        if (locationBuilder_ == null) {
+          return location_.get(index);  } else {
+          return locationBuilder_.getMessageOrBuilder(index);
         }
       }
       /**
-       * <code>repeated .IssueLocation locations = 1;</code>
+       * <code>repeated .IssueLocation location = 1;</code>
        */
       public java.util.List<? extends org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder> 
-           getLocationsOrBuilderList() {
-        if (locationsBuilder_ != null) {
-          return locationsBuilder_.getMessageOrBuilderList();
+           getLocationOrBuilderList() {
+        if (locationBuilder_ != null) {
+          return locationBuilder_.getMessageOrBuilderList();
         } else {
-          return java.util.Collections.unmodifiableList(locations_);
+          return java.util.Collections.unmodifiableList(location_);
         }
       }
       /**
-       * <code>repeated .IssueLocation locations = 1;</code>
+       * <code>repeated .IssueLocation location = 1;</code>
        */
-      public org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder addLocationsBuilder() {
-        return getLocationsFieldBuilder().addBuilder(
+      public org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder addLocationBuilder() {
+        return getLocationFieldBuilder().addBuilder(
             org.sonar.batch.protocol.output.BatchReport.IssueLocation.getDefaultInstance());
       }
       /**
-       * <code>repeated .IssueLocation locations = 1;</code>
+       * <code>repeated .IssueLocation location = 1;</code>
        */
-      public org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder addLocationsBuilder(
+      public org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder addLocationBuilder(
           int index) {
-        return getLocationsFieldBuilder().addBuilder(
+        return getLocationFieldBuilder().addBuilder(
             index, org.sonar.batch.protocol.output.BatchReport.IssueLocation.getDefaultInstance());
       }
       /**
-       * <code>repeated .IssueLocation locations = 1;</code>
+       * <code>repeated .IssueLocation location = 1;</code>
        */
       public java.util.List<org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder> 
-           getLocationsBuilderList() {
-        return getLocationsFieldBuilder().getBuilderList();
+           getLocationBuilderList() {
+        return getLocationFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilder<
           org.sonar.batch.protocol.output.BatchReport.IssueLocation, org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder, org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder> 
-          getLocationsFieldBuilder() {
-        if (locationsBuilder_ == null) {
-          locationsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+          getLocationFieldBuilder() {
+        if (locationBuilder_ == null) {
+          locationBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.sonar.batch.protocol.output.BatchReport.IssueLocation, org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder, org.sonar.batch.protocol.output.BatchReport.IssueLocationOrBuilder>(
-                  locations_,
+                  location_,
                   ((bitField0_ & 0x00000001) == 0x00000001),
                   getParentForChildren(),
                   isClean());
-          locations_ = null;
+          location_ = null;
         }
-        return locationsBuilder_;
+        return locationBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:ExecutionFlow)
@@ -19101,43 +19290,44 @@ public final class BatchReport {
       "_type\030\001 \001(\0162\021.MeasureValueType\022\025\n\rboolea" +
       "n_value\030\002 \001(\010\022\021\n\tint_value\030\003 \001(\005\022\022\n\nlong" +
       "_value\030\004 \001(\003\022\024\n\014double_value\030\005 \001(\001\022\024\n\014st" +
-      "ring_value\030\006 \001(\t\022\022\n\nmetric_key\030\007 \001(\t\"\341\001\n",
+      "ring_value\030\006 \001(\t\022\022\n\nmetric_key\030\007 \001(\t\"\224\002\n",
       "\005Issue\022\027\n\017rule_repository\030\001 \001(\t\022\020\n\010rule_" +
       "key\030\002 \001(\t\022\014\n\004line\030\003 \001(\005\022\013\n\003msg\030\004 \001(\t\022\033\n\010" +
       "severity\030\005 \001(\0162\t.Severity\022\025\n\reffort_to_f" +
-      "ix\030\006 \001(\001\022\022\n\nattributes\030\007 \001(\t\022!\n\tlocation" +
-      "s\030\010 \003(\0132\016.IssueLocation\022\'\n\017execution_flo" +
-      "ws\030\t \003(\0132\016.ExecutionFlow\"S\n\rIssueLocatio" +
-      "n\022\025\n\rcomponent_ref\030\001 \001(\005\022\036\n\ntext_range\030\002" +
-      " \001(\0132\n.TextRange\022\013\n\003msg\030\003 \001(\t\"2\n\rExecuti" +
-      "onFlow\022!\n\tlocations\030\001 \003(\0132\016.IssueLocatio" +
-      "n\"\254\001\n\nChangesets\022\025\n\rcomponent_ref\030\001 \001(\005\022",
-      "(\n\tchangeset\030\002 \003(\0132\025.Changesets.Changese" +
-      "t\022 \n\024changesetIndexByLine\030\003 \003(\005B\002\020\001\032;\n\tC" +
-      "hangeset\022\020\n\010revision\030\001 \001(\t\022\016\n\006author\030\002 \001" +
-      "(\t\022\014\n\004date\030\003 \001(\003\"V\n\tDuplicate\022\026\n\016other_f" +
-      "ile_ref\030\001 \001(\005\022\031\n\005range\030\002 \001(\0132\n.TextRange" +
-      "\022\026\n\016other_file_key\030\003 \001(\t\"Q\n\013Duplication\022" +
-      "#\n\017origin_position\030\001 \001(\0132\n.TextRange\022\035\n\t" +
-      "duplicate\030\002 \003(\0132\n.Duplicate\"[\n\tTextRange" +
-      "\022\022\n\nstart_line\030\001 \001(\005\022\020\n\010end_line\030\002 \001(\005\022\024" +
-      "\n\014start_offset\030\003 \001(\005\022\022\n\nend_offset\030\004 \001(\005",
-      "\"H\n\006Symbol\022\037\n\013declaration\030\001 \001(\0132\n.TextRa" +
-      "nge\022\035\n\treference\030\002 \003(\0132\n.TextRange\"\260\001\n\010C" +
-      "overage\022\014\n\004line\030\001 \001(\005\022\022\n\nconditions\030\002 \001(" +
-      "\005\022\017\n\007ut_hits\030\003 \001(\010\022\017\n\007it_hits\030\004 \001(\010\022\035\n\025u" +
-      "t_covered_conditions\030\005 \001(\005\022\035\n\025it_covered" +
-      "_conditions\030\006 \001(\005\022\"\n\032overall_covered_con" +
-      "ditions\030\007 \001(\005\"P\n\022SyntaxHighlighting\022\031\n\005r" +
-      "ange\030\001 \001(\0132\n.TextRange\022\037\n\004type\030\002 \001(\0162\021.H" +
-      "ighlightingType\"j\n\004Test\022\014\n\004name\030\001 \001(\t\022\033\n" +
-      "\006status\030\002 \001(\0162\013.TestStatus\022\026\n\016duration_i",
-      "n_ms\030\003 \001(\003\022\022\n\nstacktrace\030\004 \001(\t\022\013\n\003msg\030\005 " +
-      "\001(\t\"\221\001\n\016CoverageDetail\022\021\n\ttest_name\030\001 \001(" +
-      "\t\0221\n\014covered_file\030\002 \003(\0132\033.CoverageDetail" +
-      ".CoveredFile\0329\n\013CoveredFile\022\020\n\010file_ref\030" +
-      "\001 \001(\005\022\030\n\014covered_line\030\002 \003(\005B\002\020\001B#\n\037org.s" +
-      "onar.batch.protocol.outputH\001"
+      "ix\030\006 \001(\001\022\022\n\nattributes\030\007 \001(\t\022(\n\020primary_" +
+      "location\030\t \001(\0132\016.IssueLocation\022+\n\023additi" +
+      "onal_location\030\n \003(\0132\016.IssueLocation\022&\n\016e" +
+      "xecution_flow\030\013 \003(\0132\016.ExecutionFlow\"S\n\rI" +
+      "ssueLocation\022\025\n\rcomponent_ref\030\001 \001(\005\022\036\n\nt" +
+      "ext_range\030\002 \001(\0132\n.TextRange\022\013\n\003msg\030\003 \001(\t" +
+      "\"1\n\rExecutionFlow\022 \n\010location\030\001 \003(\0132\016.Is",
+      "sueLocation\"\254\001\n\nChangesets\022\025\n\rcomponent_" +
+      "ref\030\001 \001(\005\022(\n\tchangeset\030\002 \003(\0132\025.Changeset" +
+      "s.Changeset\022 \n\024changesetIndexByLine\030\003 \003(" +
+      "\005B\002\020\001\032;\n\tChangeset\022\020\n\010revision\030\001 \001(\t\022\016\n\006" +
+      "author\030\002 \001(\t\022\014\n\004date\030\003 \001(\003\"V\n\tDuplicate\022" +
+      "\026\n\016other_file_ref\030\001 \001(\005\022\031\n\005range\030\002 \001(\0132\n" +
+      ".TextRange\022\026\n\016other_file_key\030\003 \001(\t\"Q\n\013Du" +
+      "plication\022#\n\017origin_position\030\001 \001(\0132\n.Tex" +
+      "tRange\022\035\n\tduplicate\030\002 \003(\0132\n.Duplicate\"[\n" +
+      "\tTextRange\022\022\n\nstart_line\030\001 \001(\005\022\020\n\010end_li",
+      "ne\030\002 \001(\005\022\024\n\014start_offset\030\003 \001(\005\022\022\n\nend_of" +
+      "fset\030\004 \001(\005\"H\n\006Symbol\022\037\n\013declaration\030\001 \001(" +
+      "\0132\n.TextRange\022\035\n\treference\030\002 \003(\0132\n.TextR" +
+      "ange\"\260\001\n\010Coverage\022\014\n\004line\030\001 \001(\005\022\022\n\ncondi" +
+      "tions\030\002 \001(\005\022\017\n\007ut_hits\030\003 \001(\010\022\017\n\007it_hits\030" +
+      "\004 \001(\010\022\035\n\025ut_covered_conditions\030\005 \001(\005\022\035\n\025" +
+      "it_covered_conditions\030\006 \001(\005\022\"\n\032overall_c" +
+      "overed_conditions\030\007 \001(\005\"P\n\022SyntaxHighlig" +
+      "hting\022\031\n\005range\030\001 \001(\0132\n.TextRange\022\037\n\004type" +
+      "\030\002 \001(\0162\021.HighlightingType\"j\n\004Test\022\014\n\004nam",
+      "e\030\001 \001(\t\022\033\n\006status\030\002 \001(\0162\013.TestStatus\022\026\n\016" +
+      "duration_in_ms\030\003 \001(\003\022\022\n\nstacktrace\030\004 \001(\t" +
+      "\022\013\n\003msg\030\005 \001(\t\"\221\001\n\016CoverageDetail\022\021\n\ttest" +
+      "_name\030\001 \001(\t\0221\n\014covered_file\030\002 \003(\0132\033.Cove" +
+      "rageDetail.CoveredFile\0329\n\013CoveredFile\022\020\n" +
+      "\010file_ref\030\001 \001(\005\022\030\n\014covered_line\030\002 \003(\005B\002\020" +
+      "\001B#\n\037org.sonar.batch.protocol.outputH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -19193,7 +19383,7 @@ public final class BatchReport {
     internal_static_Issue_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Issue_descriptor,
-        new java.lang.String[] { "RuleRepository", "RuleKey", "Line", "Msg", "Severity", "EffortToFix", "Attributes", "Locations", "ExecutionFlows", });
+        new java.lang.String[] { "RuleRepository", "RuleKey", "Line", "Msg", "Severity", "EffortToFix", "Attributes", "PrimaryLocation", "AdditionalLocation", "ExecutionFlow", });
     internal_static_IssueLocation_descriptor =
       getDescriptor().getMessageTypes().get(6);
     internal_static_IssueLocation_fieldAccessorTable = new
@@ -19205,7 +19395,7 @@ public final class BatchReport {
     internal_static_ExecutionFlow_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_ExecutionFlow_descriptor,
-        new java.lang.String[] { "Locations", });
+        new java.lang.String[] { "Location", });
     internal_static_Changesets_descriptor =
       getDescriptor().getMessageTypes().get(8);
     internal_static_Changesets_fieldAccessorTable = new

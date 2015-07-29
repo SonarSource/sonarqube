@@ -17,37 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.sensor.issue;
+package org.sonar.api.batch.fs.internal;
 
-import com.google.common.annotations.Beta;
-import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.InputComponent;
-import org.sonar.api.batch.fs.TextRange;
 
 /**
- * Represents an issue location.
- *
  * @since 5.2
  */
-@Beta
-public interface IssueLocation {
+public abstract class DefaultInputComponent implements InputComponent {
 
-  /**
-   * The {@link InputComponent} this location belongs to.
-   */
-  InputComponent inputComponent();
+  public abstract String key();
 
-  /**
-   * Range of the issue. Null for global issues and issues on directories. Can also be null
-   * for files (issue global to the file).
-   */
-  @CheckForNull
-  TextRange textRange();
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || this.getClass() != o.getClass()) {
+      return false;
+    }
 
-  /**
-   * Message of the issue.
-   */
-  @CheckForNull
-  String message();
+    DefaultInputComponent that = (DefaultInputComponent) o;
+    return key().equals(that.key());
+  }
 
+  @Override
+  public int hashCode() {
+    return key().hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return "[key=" + key() + "]";
+  }
 }

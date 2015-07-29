@@ -37,7 +37,7 @@ public class TestableBuilder extends PerspectiveBuilder<MutableTestable> {
   @Override
   public MutableTestable loadPerspective(Class<MutableTestable> perspectiveClass, BatchComponent component) {
     if (component.isFile()) {
-      InputFile inputFile = (InputFile) component.inputPath();
+      InputFile inputFile = (InputFile) component.inputComponent();
       if (inputFile.type() == Type.MAIN) {
         return new DefaultTestable((DefaultInputFile) inputFile);
       }

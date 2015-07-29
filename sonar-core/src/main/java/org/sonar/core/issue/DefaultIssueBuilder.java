@@ -86,6 +86,11 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   }
 
   @Override
+  public IssueBuilder at(NewIssueLocation location) {
+    throw unsupported();
+  }
+
+  @Override
   public IssueBuilder addLocation(NewIssueLocation location) {
     throw unsupported();
   }

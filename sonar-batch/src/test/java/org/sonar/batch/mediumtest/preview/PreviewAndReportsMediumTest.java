@@ -247,8 +247,8 @@ public class PreviewAndReportsMediumTest {
       .setIssueListener(issueListener)
       .start();
 
-    assertThat(result.trackedIssues()).hasSize(14);
-    assertThat(issueListener.issueList).hasSize(14);
+    assertThat(result.trackedIssues()).hasSize(17);
+    assertThat(issueListener.issueList).hasSize(17);
     assertThat(result.trackedIssues()).containsExactlyElementsOf(issueListener.issueList);
   }
 

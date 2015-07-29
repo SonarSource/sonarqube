@@ -21,6 +21,8 @@
 package org.sonar.batch.source;
 
 import org.junit.Test;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.component.Perspective;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
@@ -37,7 +39,7 @@ public class SymbolizableBuilderTest {
   @Test
   public void should_load_perspective() {
     Resource file = File.create("foo.c").setEffectiveKey("myproject:path/to/foo.c");
-    BatchComponent component = new BatchComponent(1, file, null);
+    BatchComponent component = new BatchComponent(1, file, null).setInputComponent(new DefaultInputFile("foo", "foo.c"));
 
     SymbolizableBuilder perspectiveBuilder = new SymbolizableBuilder(mock(DefaultSensorStorage.class));
     Perspective perspective = perspectiveBuilder.loadPerspective(Symbolizable.class, component);
@@ -47,7 +49,7 @@ public class SymbolizableBuilderTest {
 
   @Test
   public void project_should_not_be_highlightable() {
-    BatchComponent component = new BatchComponent(1, new Project("struts").setEffectiveKey("org.struts"), null);
+    BatchComponent component = new BatchComponent(1, new Project("struts").setEffectiveKey("org.struts"), null).setInputComponent(new DefaultInputModule("struts"));
 
     SymbolizableBuilder builder = new SymbolizableBuilder(mock(DefaultSensorStorage.class));
     Perspective perspective = builder.loadPerspective(Symbolizable.class, component);

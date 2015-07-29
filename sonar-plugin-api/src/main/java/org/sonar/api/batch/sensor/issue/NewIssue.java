@@ -51,7 +51,13 @@ public interface NewIssue {
 
   /**
    * @since 5.2
-   * Register a new location for this issue. First registered location is considered as primary location.
+   * Primary for this issue.
+   */
+  NewIssue at(NewIssueLocation primaryLocation);
+
+  /**
+   * @since 5.2
+   * Register an additional location for this issue.
    */
   NewIssue addLocation(NewIssueLocation location);
 
@@ -66,6 +72,12 @@ public interface NewIssue {
    * Create a new location for this issue. First registered location is considered as primary location.
    */
   NewIssueLocation newLocation();
+
+  /**
+   * @since 5.2
+   * Attach a new attribute to the issue. Not used by SQ but can be reused later for integration needs (for example it is returned by WS).
+   */
+  NewIssue addAttribute(String key, String value);
 
   /**
    * Save the issue. If rule key is unknown or rule not enabled in the current quality profile then a warning is logged but no exception

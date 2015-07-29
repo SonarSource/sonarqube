@@ -22,19 +22,18 @@ package org.sonar.batch.postjob;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.batch.postjob.issue.Issue;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.config.Settings;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.IssueCache;
-
-import javax.annotation.Nullable;
+import org.sonar.core.issue.DefaultIssue;
 
 public class DefaultPostJobContext implements PostJobContext {
 
@@ -104,9 +103,9 @@ public class DefaultPostJobContext implements PostJobContext {
     }
 
     @Override
-    public InputPath inputPath() {
+    public InputComponent inputComponent() {
       BatchComponent component = resourceCache.get(wrapped.componentKey());
-      return component != null ? component.inputPath() : null;
+      return component != null ? component.inputComponent() : null;
     }
 
     @Override

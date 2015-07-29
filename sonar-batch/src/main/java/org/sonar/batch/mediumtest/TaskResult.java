@@ -140,7 +140,7 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
     return result;
   }
 
-  private String key(InputPath inputPath) {
+  private static String key(InputPath inputPath) {
     return inputPath instanceof InputFile ? ((DefaultInputFile) inputPath).key() : ((DefaultInputDir) inputPath).key();
   }
 

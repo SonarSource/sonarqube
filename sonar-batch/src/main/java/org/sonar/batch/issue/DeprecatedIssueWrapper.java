@@ -45,7 +45,7 @@ public class DeprecatedIssueWrapper implements Issue {
 
   @Override
   public String key() {
-    return newIssue.key();
+    return null;
   }
 
   @Override

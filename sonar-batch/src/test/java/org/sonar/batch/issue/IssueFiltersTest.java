@@ -21,7 +21,8 @@ package org.sonar.batch.issue;
 
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
-import org.sonar.core.issue.DefaultIssue;
+import org.sonar.api.resources.Project;
+import org.sonar.batch.protocol.output.BatchReport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -38,19 +39,19 @@ public class IssueFiltersTest {
     org.sonar.api.issue.IssueFilter ko = mock(org.sonar.api.issue.IssueFilter.class);
     when(ko.accept(any(Issue.class))).thenReturn(false);
 
-    IssueFilters filters = new IssueFilters(new org.sonar.api.issue.IssueFilter[] {ok, ko});
-    assertThat(filters.accept(new DefaultIssue())).isFalse();
+    IssueFilters filters = new IssueFilters(new Project("foo"), new org.sonar.api.issue.IssueFilter[] {ok, ko});
+    assertThat(filters.accept("foo:src/Foo.java", BatchReport.Issue.newBuilder().build())).isFalse();
 
-    filters = new IssueFilters(new org.sonar.api.issue.IssueFilter[] {ok});
-    assertThat(filters.accept(new DefaultIssue())).isTrue();
+    filters = new IssueFilters(new Project("foo"), new org.sonar.api.issue.IssueFilter[] {ok});
+    assertThat(filters.accept("foo:src/Foo.java", BatchReport.Issue.newBuilder().build())).isTrue();
 
-    filters = new IssueFilters(new org.sonar.api.issue.IssueFilter[] {ko});
-    assertThat(filters.accept(new DefaultIssue())).isFalse();
+    filters = new IssueFilters(new Project("foo"), new org.sonar.api.issue.IssueFilter[] {ko});
+    assertThat(filters.accept("foo:src/Foo.java", BatchReport.Issue.newBuilder().build())).isFalse();
   }
 
   @Test
   public void should_always_accept_if_no_filters() {
-    IssueFilters filters = new IssueFilters();
-    assertThat(filters.accept(new DefaultIssue())).isTrue();
+    IssueFilters filters = new IssueFilters(new Project("foo"));
+    assertThat(filters.accept("foo:src/Foo.java", BatchReport.Issue.newBuilder().build())).isTrue();
   }
 }

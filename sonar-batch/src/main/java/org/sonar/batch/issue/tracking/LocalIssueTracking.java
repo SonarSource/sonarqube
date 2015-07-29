@@ -48,7 +48,6 @@ import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.report.ReportPublisher;
-import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
@@ -68,7 +67,6 @@ public class LocalIssueTracking {
   private final IssueUpdater updater;
   private final IssueChangeContext changeContext;
   private final ActiveRules activeRules;
-  private final InputPathCache inputPathCache;
   private final BatchComponentCache componentCache;
   private final ServerIssueRepository serverIssueRepository;
   private final ProjectRepositories projectRepositories;
@@ -78,7 +76,7 @@ public class LocalIssueTracking {
 
   public LocalIssueTracking(BatchComponentCache resourceCache, IssueCache issueCache, IssueTracking tracking,
     ServerLineHashesLoader lastLineHashes, IssueWorkflow workflow, IssueUpdater updater,
-    ActiveRules activeRules, InputPathCache inputPathCache, ServerIssueRepository serverIssueRepository,
+    ActiveRules activeRules, ServerIssueRepository serverIssueRepository,
     ProjectRepositories projectRepositories, AnalysisMode analysisMode, ReportPublisher reportPublisher) {
     this.componentCache = resourceCache;
     this.issueCache = issueCache;
@@ -86,7 +84,6 @@ public class LocalIssueTracking {
     this.lastLineHashes = lastLineHashes;
     this.workflow = workflow;
     this.updater = updater;
-    this.inputPathCache = inputPathCache;
     this.serverIssueRepository = serverIssueRepository;
     this.projectRepositories = projectRepositories;
     this.analysisMode = analysisMode;
@@ -183,7 +180,7 @@ public class LocalIssueTracking {
   private SourceHashHolder loadSourceHashes(BatchComponent component) {
     SourceHashHolder sourceHashHolder = null;
     if (component.isFile()) {
-      DefaultInputFile file = (DefaultInputFile) inputPathCache.getInputPath(component);
+      DefaultInputFile file = (DefaultInputFile) component.inputComponent();
       if (file == null) {
         throw new IllegalStateException("Resource " + component.resource() + " was not found in InputPath cache");
       }

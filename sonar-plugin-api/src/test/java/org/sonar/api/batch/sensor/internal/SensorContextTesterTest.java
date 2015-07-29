@@ -89,12 +89,12 @@ public class SensorContextTesterTest {
     assertThat(tester.allIssues()).isEmpty();
     NewIssue newIssue = tester.newIssue();
     newIssue
-      .addLocation(newIssue.newLocation().onFile(new DefaultInputFile("foo", "src/Foo.java")))
+      .at(newIssue.newLocation().on(new DefaultInputFile("foo", "src/Foo.java")))
       .forRule(RuleKey.of("repo", "rule"))
       .save();
     newIssue = tester.newIssue();
     newIssue
-      .addLocation(newIssue.newLocation().onFile(new DefaultInputFile("foo", "src/Foo.java")))
+      .at(newIssue.newLocation().on(new DefaultInputFile("foo", "src/Foo.java")))
       .forRule(RuleKey.of("repo", "rule"))
       .save();
     assertThat(tester.allIssues()).hasSize(2);

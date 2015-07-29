@@ -99,7 +99,7 @@ public class ServerIssueRepository {
       if (!component.isFile()) {
         throw new UnsupportedOperationException("Incremental mode should only get issues on files");
       }
-      InputFile inputFile = (InputFile) inputPathCache.getInputPath(component);
+      InputFile inputFile = (InputFile) component.inputComponent();
       if (inputFile.status() == Status.ADDED) {
         return Collections.emptyList();
       }

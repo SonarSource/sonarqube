@@ -17,37 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.sensor.issue;
-
-import com.google.common.annotations.Beta;
-import javax.annotation.CheckForNull;
-import org.sonar.api.batch.fs.InputComponent;
-import org.sonar.api.batch.fs.TextRange;
+package org.sonar.api.batch.fs;
 
 /**
- * Represents an issue location.
+ * Used to create issues and measures on modules.
  *
  * @since 5.2
  */
-@Beta
-public interface IssueLocation {
-
-  /**
-   * The {@link InputComponent} this location belongs to.
-   */
-  InputComponent inputComponent();
-
-  /**
-   * Range of the issue. Null for global issues and issues on directories. Can also be null
-   * for files (issue global to the file).
-   */
-  @CheckForNull
-  TextRange textRange();
-
-  /**
-   * Message of the issue.
-   */
-  @CheckForNull
-  String message();
+public interface InputModule extends InputComponent {
 
 }

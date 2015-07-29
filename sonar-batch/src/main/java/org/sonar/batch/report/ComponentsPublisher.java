@@ -74,7 +74,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
 
     if (batchComponent.isFile()) {
       builder.setIsTest(ResourceUtils.isUnitTestFile(r));
-      builder.setLines(((InputFile) batchComponent.inputPath()).lines());
+      builder.setLines(((InputFile) batchComponent.inputComponent()).lines());
     }
     String name = getName(r);
     if (name != null) {

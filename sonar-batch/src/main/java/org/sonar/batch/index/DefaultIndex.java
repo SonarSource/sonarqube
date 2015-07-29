@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
@@ -82,7 +83,8 @@ public class DefaultIndex extends SonarIndex {
   void doStart(Project rootProject) {
     Bucket bucket = new Bucket(rootProject);
     addBucket(rootProject, bucket);
-    componentCache.add(rootProject, null);
+    BatchComponent component = componentCache.add(rootProject, null);
+    component.setInputComponent(new DefaultInputModule(rootProject.getEffectiveKey()));
     currentProject = rootProject;
 
     for (Project module : rootProject.getModules()) {
@@ -269,11 +271,7 @@ public class DefaultIndex extends SonarIndex {
       return null;
     }
 
-    Resource parent = null;
-    if (!ResourceUtils.isLibrary(resource)) {
-      // a library has no parent
-      parent = (Resource) ObjectUtils.defaultIfNull(parentReference, currentProject);
-    }
+    Resource parent = (Resource) ObjectUtils.defaultIfNull(parentReference, currentProject);
 
     Bucket parentBucket = getBucket(parent);
     if (parentBucket == null && parent != null) {
@@ -290,7 +288,10 @@ public class DefaultIndex extends SonarIndex {
     addBucket(resource, bucket);
 
     Resource parentResource = parentBucket != null ? parentBucket.getResource() : null;
-    componentCache.add(resource, parentResource);
+    BatchComponent component = componentCache.add(resource, parentResource);
+    if (ResourceUtils.isProject(resource)) {
+      component.setInputComponent(new DefaultInputModule(resource.getEffectiveKey()));
+    }
 
     return bucket;
   }

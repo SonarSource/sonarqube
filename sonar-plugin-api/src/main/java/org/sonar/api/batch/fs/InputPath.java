@@ -20,7 +20,6 @@
 package org.sonar.api.batch.fs;
 
 import java.io.File;
-import java.io.Serializable;
 import java.nio.file.Path;
 
 /**
@@ -30,7 +29,7 @@ import java.nio.file.Path;
  * @see InputFile
  * @see InputDir
  */
-public interface InputPath extends Serializable {
+public interface InputPath extends InputComponent {
 
   /**
    * @see InputFile#relativePath()

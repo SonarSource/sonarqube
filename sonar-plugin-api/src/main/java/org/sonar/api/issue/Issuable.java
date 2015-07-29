@@ -67,7 +67,7 @@ public interface Issuable extends Perspective {
 
     /**
      * Optional line index, starting from 1. It must not be zero or negative.
-     * @deprecated since 5.2 use {@link #addLocation(NewIssueLocation)}
+     * @deprecated since 5.2 use {@link #at(NewIssueLocation)}
      */
     @Deprecated
     IssueBuilder line(@Nullable Integer line);
@@ -76,7 +76,7 @@ public interface Issuable extends Perspective {
      * Optional, but recommended, plain-text message.
      * <p/>
      * Formats like Markdown or HTML are not supported. Size must not be greater than {@link Issue#MESSAGE_MAX_SIZE} characters.
-     * @deprecated since 5.2 use {@link #addLocation(NewIssueLocation)}
+     * @deprecated since 5.2 use {@link #at(NewIssueLocation)}
      */
     @Deprecated
     IssueBuilder message(@Nullable String message);
@@ -86,6 +86,12 @@ public interface Issuable extends Perspective {
      * Create a new location for this issue. First registered location is considered as primary location.
      */
     NewIssueLocation newLocation();
+
+    /**
+     * @since 5.2
+     * Register primary location for this issue.
+     */
+    IssueBuilder at(NewIssueLocation primaryLocation);
 
     /**
      * @since 5.2

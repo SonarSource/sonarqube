@@ -19,10 +19,15 @@
  */
 package org.sonar.batch.report;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.sensor.duplication.Duplication;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplication;
 import org.sonar.api.resources.Project;
@@ -31,11 +36,6 @@ import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReportReader;
 import org.sonar.batch.protocol.output.BatchReportWriter;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import org.sonar.core.util.CloseableIterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,11 +55,11 @@ public class DuplicationsPublisherTest {
   public void prepare() {
     BatchComponentCache resourceCache = new BatchComponentCache();
     Project p = new Project("foo");
-    resourceCache.add(p, null);
+    resourceCache.add(p, null).setInputComponent(new DefaultInputModule("foo"));
     org.sonar.api.resources.Resource sampleFile = org.sonar.api.resources.File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");
-    resourceCache.add(sampleFile, null);
+    resourceCache.add(sampleFile, null).setInputComponent(new DefaultInputFile("foo", "src/Foo.php").setLines(5));
     org.sonar.api.resources.Resource sampleFile2 = org.sonar.api.resources.File.create("src/Foo2.php").setEffectiveKey("foo:src/Foo2.php");
-    resourceCache.add(sampleFile2, null);
+    resourceCache.add(sampleFile2, null).setInputComponent(new DefaultInputFile("foo", "src/Foo2.php").setLines(5));
     duplicationCache = mock(DuplicationCache.class);
     when(duplicationCache.byComponent(anyString())).thenReturn(Collections.<DefaultDuplication>emptyList());
     publisher = new DuplicationsPublisher(resourceCache, duplicationCache);

@@ -106,7 +106,7 @@ public class DefaultSensorStorageTest {
 
     ArgumentCaptor<org.sonar.api.measures.Measure> argumentCaptor = ArgumentCaptor.forClass(org.sonar.api.measures.Measure.class);
     Resource sonarFile = File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");
-    resourceCache.add(sonarFile, null).setInputPath(file);
+    resourceCache.add(sonarFile, null).setInputComponent(file);
     when(measureCache.put(eq(sonarFile), argumentCaptor.capture())).thenReturn(null);
     sensorStorage.store(new DefaultMeasure()
       .onFile(file)

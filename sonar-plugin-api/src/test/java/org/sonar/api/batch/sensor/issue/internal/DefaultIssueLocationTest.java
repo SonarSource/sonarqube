@@ -35,19 +35,19 @@ public class DefaultIssueLocationTest {
   private DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.php").initMetadata(new FileMetadata().readMetadata(new StringReader("Foo\nBar\n")));
 
   @Test
-  public void not_allowed_to_call_onFile_and_onProject() {
+  public void not_allowed_to_call_on_twice() {
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("onProject already called");
+    thrown.expectMessage("on() already called");
     new DefaultIssueLocation()
-      .onProject()
-      .onFile(inputFile)
+      .on(inputFile)
+      .on(inputFile)
       .message("Wrong way!");
   }
 
   @Test
   public void prevent_too_long_messages() {
     new DefaultIssueLocation()
-      .onFile(inputFile)
+      .on(inputFile)
       .message(StringUtils.repeat("a", 4000));
 
     thrown.expect(IllegalArgumentException.class);
@@ -55,7 +55,7 @@ public class DefaultIssueLocationTest {
     thrown.expectMessage("aaa] size is 4001");
 
     new DefaultIssueLocation()
-      .onFile(inputFile)
+      .on(inputFile)
       .message(StringUtils.repeat("a", 4001));
 
   }

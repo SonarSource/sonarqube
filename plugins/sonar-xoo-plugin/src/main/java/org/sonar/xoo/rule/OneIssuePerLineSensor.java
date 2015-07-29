@@ -61,8 +61,8 @@ public class OneIssuePerLineSensor implements Sensor {
       NewIssue newIssue = context.newIssue();
       newIssue
         .forRule(ruleKey)
-        .addLocation(newIssue.newLocation()
-          .onFile(file)
+        .at(newIssue.newLocation()
+          .on(file)
           .at(file.selectLine(line))
           .message("This issue is generated on each line"))
         .effortToFix(context.settings().getDouble(EFFORT_TO_FIX_PROPERTY))

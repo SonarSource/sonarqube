@@ -20,6 +20,7 @@
 package org.sonar.batch.mediumtest.issues;
 
 import java.io.File;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -29,6 +30,8 @@ import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.batch.protocol.input.Rule;
+import org.sonar.batch.protocol.output.BatchReport.Issue;
+import org.sonar.batch.protocol.output.BatchReport.IssueLocation;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
@@ -47,9 +50,19 @@ public class MultilineIssuesMediumTest {
     .activateRule(new ActiveRule("xoo", "MultilineIssue", null, "Multinile Issue", "MAJOR", null, "xoo"))
     .build();
 
+  private TaskResult result;
+
   @Before
-  public void prepare() {
+  public void prepare() throws Exception {
     tester.start();
+
+    File projectDir = new File(MultilineIssuesMediumTest.class.getResource("/mediumtest/xoo/sample-multiline").toURI());
+    File tmpDir = temp.newFolder();
+    FileUtils.copyDirectory(projectDir, tmpDir);
+
+    result = tester
+      .newScanTask(new File(tmpDir, "sonar-project.properties"))
+      .start();
   }
 
   @After
@@ -59,16 +72,54 @@ public class MultilineIssuesMediumTest {
 
   @Test
   public void testIssueRange() throws Exception {
-    File projectDir = new File(MultilineIssuesMediumTest.class.getResource("/mediumtest/xoo/sample-multiline").toURI());
-    File tmpDir = temp.newFolder();
-    FileUtils.copyDirectory(projectDir, tmpDir);
-
-    TaskResult result = tester
-      .newScanTask(new File(tmpDir, "sonar-project.properties"))
-      .start();
-
-    assertThat(result.issuesFor(result.inputFile("xources/hello/HelloJava.xoo"))).hasSize(1);
-
+    List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/Single.xoo"));
+    assertThat(issues).hasSize(1);
+    Issue issue = issues.get(0);
+    assertThat(issue.getLine()).isEqualTo(6);
+    assertThat(issue.getMsg()).isEqualTo("Primary location");
+    IssueLocation primaryLocation = issue.getPrimaryLocation();
+    assertThat(primaryLocation.getMsg()).isEqualTo("Primary location");
+    assertThat(primaryLocation.getTextRange().getStartLine()).isEqualTo(6);
+    assertThat(primaryLocation.getTextRange().getStartOffset()).isEqualTo(25);
+    assertThat(primaryLocation.getTextRange().getEndLine()).isEqualTo(6);
+    assertThat(primaryLocation.getTextRange().getEndOffset()).isEqualTo(52);
   }
 
+  @Test
+  public void testMultilineIssueRange() throws Exception {
+    List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/Multiline.xoo"));
+    assertThat(issues).hasSize(1);
+    Issue issue = issues.get(0);
+    assertThat(issue.getLine()).isEqualTo(6);
+    assertThat(issue.getMsg()).isEqualTo("Primary location");
+    IssueLocation primaryLocation = issue.getPrimaryLocation();
+    assertThat(primaryLocation.getMsg()).isEqualTo("Primary location");
+    assertThat(primaryLocation.getTextRange().getStartLine()).isEqualTo(6);
+    assertThat(primaryLocation.getTextRange().getStartOffset()).isEqualTo(25);
+    assertThat(primaryLocation.getTextRange().getEndLine()).isEqualTo(7);
+    assertThat(primaryLocation.getTextRange().getEndOffset()).isEqualTo(23);
+  }
+
+  @Test
+  public void testMultipleIssueLocation() throws Exception {
+    List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/Multiple.xoo"));
+    assertThat(issues).hasSize(1);
+    Issue issue = issues.get(0);
+    assertThat(issue.getLine()).isEqualTo(6);
+    assertThat(issue.getMsg()).isEqualTo("Primary location");
+    IssueLocation primaryLocation = issue.getPrimaryLocation();
+    assertThat(primaryLocation.getMsg()).isEqualTo("Primary location");
+    assertThat(primaryLocation.getTextRange().getStartLine()).isEqualTo(6);
+    assertThat(primaryLocation.getTextRange().getStartOffset()).isEqualTo(25);
+    assertThat(primaryLocation.getTextRange().getEndLine()).isEqualTo(6);
+    assertThat(primaryLocation.getTextRange().getEndOffset()).isEqualTo(52);
+
+    assertThat(issue.getAdditionalLocationList()).hasSize(1);
+    IssueLocation additionalLocation = issue.getAdditionalLocation(0);
+    assertThat(additionalLocation.getMsg()).isEqualTo("Location #2");
+    assertThat(additionalLocation.getTextRange().getStartLine()).isEqualTo(7);
+    assertThat(additionalLocation.getTextRange().getStartOffset()).isEqualTo(25);
+    assertThat(additionalLocation.getTextRange().getEndLine()).isEqualTo(7);
+    assertThat(additionalLocation.getTextRange().getEndOffset()).isEqualTo(52);
+  }
 }

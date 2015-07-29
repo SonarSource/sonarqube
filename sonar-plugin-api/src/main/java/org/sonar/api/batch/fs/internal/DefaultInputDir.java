@@ -19,16 +19,15 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import org.sonar.api.batch.fs.InputDir;
-import org.sonar.api.utils.PathUtils;
-
 import java.io.File;
 import java.nio.file.Path;
+import org.sonar.api.batch.fs.InputDir;
+import org.sonar.api.utils.PathUtils;
 
 /**
  * @since 4.5
  */
-public class DefaultInputDir implements InputDir {
+public class DefaultInputDir extends DefaultInputComponent implements InputDir {
 
   private final String relativePath;
   private final String moduleKey;
@@ -66,6 +65,7 @@ public class DefaultInputDir implements InputDir {
     return moduleKey;
   }
 
+  @Override
   public String key() {
     return new StringBuilder().append(moduleKey).append(":").append(relativePath).toString();
   }
@@ -76,6 +76,11 @@ public class DefaultInputDir implements InputDir {
   public DefaultInputDir setModuleBaseDir(Path moduleBaseDir) {
     this.moduleBaseDir = moduleBaseDir.normalize();
     return this;
+  }
+
+  @Override
+  public boolean isFile() {
+    return false;
   }
 
   @Override

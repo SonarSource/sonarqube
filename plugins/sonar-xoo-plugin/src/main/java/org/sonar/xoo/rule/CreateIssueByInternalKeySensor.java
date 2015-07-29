@@ -58,8 +58,8 @@ public class CreateIssueByInternalKeySensor implements Sensor {
       NewIssue newIssue = context.newIssue();
       newIssue
         .forRule(rule.ruleKey())
-        .addLocation(newIssue.newLocation()
-          .onFile(file)
+        .at(newIssue.newLocation()
+          .on(file)
           .message("This issue is generated on each file"))
         .save();
     }

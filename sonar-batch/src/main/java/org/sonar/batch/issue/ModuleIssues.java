@@ -20,25 +20,24 @@
 package org.sonar.batch.issue;
 
 import com.google.common.base.Strings;
-import javax.annotation.Nullable;
-import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.Rules;
-import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.resources.Project;
+import org.sonar.api.batch.sensor.issue.Issue.ExecutionFlow;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
-import org.sonar.batch.protocol.Constants;
+import org.sonar.batch.protocol.Constants.Severity;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReport.IssueLocation;
+import org.sonar.batch.protocol.output.BatchReport.IssueLocation.Builder;
 import org.sonar.batch.report.ReportPublisher;
-import org.sonar.core.issue.DefaultIssue;
 
 /**
  * Initialize the issues raised during scan.
@@ -47,108 +46,126 @@ public class ModuleIssues {
 
   private final ActiveRules activeRules;
   private final Rules rules;
-  private final Project project;
   private final IssueFilters filters;
   private final ReportPublisher reportPublisher;
   private final BatchComponentCache componentCache;
   private final BatchReport.Issue.Builder builder = BatchReport.Issue.newBuilder();
+  private final Builder locationBuilder = IssueLocation.newBuilder();
+  private final org.sonar.batch.protocol.output.BatchReport.TextRange.Builder textRangeBuilder = org.sonar.batch.protocol.output.BatchReport.TextRange.newBuilder();
+  private final BatchReport.ExecutionFlow.Builder flowBuilder = BatchReport.ExecutionFlow.newBuilder();
 
-  public ModuleIssues(ActiveRules activeRules, Rules rules, Project project, IssueFilters filters, ReportPublisher reportPublisher, BatchComponentCache componentCache) {
+  public ModuleIssues(ActiveRules activeRules, Rules rules, IssueFilters filters, ReportPublisher reportPublisher, BatchComponentCache componentCache) {
     this.activeRules = activeRules;
     this.rules = rules;
-    this.project = project;
     this.filters = filters;
     this.reportPublisher = reportPublisher;
     this.componentCache = componentCache;
   }
 
   public boolean initAndAddIssue(Issue issue) {
-    BatchComponent component;
-    InputPath inputPath = issue.locations().get(0).inputPath();
-    if (inputPath != null) {
-      component = componentCache.get(inputPath);
-    } else {
-      component = componentCache.get(project);
-    }
-    DefaultIssue defaultIssue = toDefaultIssue(project.getKey(), component.key(), issue);
-    RuleKey ruleKey = defaultIssue.ruleKey();
-    Rule rule = rules.find(ruleKey);
-    validateRule(defaultIssue, rule);
-    ActiveRule activeRule = activeRules.find(ruleKey);
+    String key = ((DefaultInputComponent) issue.primaryLocation().inputComponent()).key();
+    BatchComponent component = componentCache.get(key);
+
+    Rule rule = validateRule(issue);
+    ActiveRule activeRule = activeRules.find(issue.ruleKey());
     if (activeRule == null) {
       // rule does not exist or is not enabled -> ignore the issue
       return false;
     }
-    updateIssue(defaultIssue, rule, activeRule);
-    if (filters.accept(defaultIssue)) {
-      write(component, defaultIssue);
+
+    String primaryMessage = Strings.isNullOrEmpty(issue.primaryLocation().message()) ? rule.name() : issue.primaryLocation().message();
+    org.sonar.api.batch.rule.Severity overriddenSeverity = issue.overriddenSeverity();
+    Severity severity = overriddenSeverity != null ? Severity.valueOf(overriddenSeverity.name()) : Severity.valueOf(activeRule.severity());
+
+    builder.clear();
+    locationBuilder.clear();
+    // non-null fields
+    builder.setSeverity(severity);
+    builder.setRuleRepository(issue.ruleKey().repository());
+    builder.setRuleKey(issue.ruleKey().rule());
+    builder.setAttributes(KeyValueFormat.format(issue.attributes()));
+    builder.setMsg(primaryMessage);
+    locationBuilder.setMsg(primaryMessage);
+
+    locationBuilder.setComponentRef(component.batchId());
+    TextRange primaryTextRange = issue.primaryLocation().textRange();
+    applyTextRange(primaryTextRange);
+    if (primaryTextRange != null) {
+      builder.setLine(primaryTextRange.start().line());
+    }
+    builder.setPrimaryLocation(locationBuilder.build());
+    Double effortToFix = issue.effortToFix();
+    if (effortToFix != null) {
+      builder.setEffortToFix(effortToFix);
+    }
+    applyAdditionalLocations(issue);
+    applyExecutionFlows(issue);
+    BatchReport.Issue rawIssue = builder.build();
+
+    if (filters.accept(key, rawIssue)) {
+      write(component, rawIssue);
       return true;
     }
     return false;
   }
 
-  public void write(BatchComponent component, DefaultIssue issue) {
-    reportPublisher.getWriter().appendComponentIssue(component.batchId(), toReportIssue(builder, issue));
+  private void applyAdditionalLocations(Issue issue) {
+    for (org.sonar.api.batch.sensor.issue.IssueLocation additionalLocation : issue.locations()) {
+      locationBuilder.clear();
+      String locationComponentKey = ((DefaultInputComponent) additionalLocation.inputComponent()).key();
+      locationBuilder.setComponentRef(componentCache.get(locationComponentKey).batchId());
+      String message = additionalLocation.message();
+      if (message != null) {
+        locationBuilder.setMsg(message);
+      }
+      applyTextRange(additionalLocation.textRange());
+      builder.addAdditionalLocation(locationBuilder.build());
+    }
   }
 
-  private static BatchReport.Issue toReportIssue(BatchReport.Issue.Builder builder, DefaultIssue issue) {
-    builder.clear();
-    // non-null fields
-    builder.setSeverity(Constants.Severity.valueOf(issue.severity()));
-    builder.setRuleRepository(issue.ruleKey().repository());
-    builder.setRuleKey(issue.ruleKey().rule());
-    builder.setAttributes(KeyValueFormat.format(issue.attributes()));
-
-    // nullable fields
-    Integer line = issue.line();
-    if (line != null) {
-      builder.setLine(line);
+  private void applyExecutionFlows(Issue issue) {
+    for (ExecutionFlow executionFlow : issue.executionFlows()) {
+      flowBuilder.clear();
+      for (org.sonar.api.batch.sensor.issue.IssueLocation location : executionFlow.locations()) {
+        locationBuilder.clear();
+        String locationComponentKey = ((DefaultInputComponent) location.inputComponent()).key();
+        locationBuilder.setComponentRef(componentCache.get(locationComponentKey).batchId());
+        String message = location.message();
+        if (message != null) {
+          locationBuilder.setMsg(message);
+        }
+        applyTextRange(location.textRange());
+        flowBuilder.addLocation(locationBuilder.build());
+      }
+      builder.addExecutionFlow(flowBuilder.build());
     }
-    String message = issue.message();
-    if (message != null) {
-      builder.setMsg(message);
-    }
-    Double effortToFix = issue.effortToFix();
-    if (effortToFix != null) {
-      builder.setEffortToFix(effortToFix);
-    }
-    return builder.build();
   }
 
-  public static DefaultIssue toDefaultIssue(String projectKey, String componentKey, Issue issue) {
-    Severity overriddenSeverity = issue.overriddenSeverity();
-    TextRange textRange = issue.locations().get(0).textRange();
-    return new org.sonar.core.issue.DefaultIssueBuilder()
-      .componentKey(componentKey)
-      .projectKey(projectKey)
-      .ruleKey(RuleKey.of(issue.ruleKey().repository(), issue.ruleKey().rule()))
-      .effortToFix(issue.effortToFix())
-      .line(textRange != null ? textRange.start().line() : null)
-      .message(issue.locations().get(0).message())
-      .severity(overriddenSeverity != null ? overriddenSeverity.name() : null)
-      .build();
+  private void applyTextRange(TextRange primaryTextRange) {
+    if (primaryTextRange != null) {
+      textRangeBuilder.clear();
+      textRangeBuilder.setStartLine(primaryTextRange.start().line());
+      textRangeBuilder.setStartOffset(primaryTextRange.start().lineOffset());
+      textRangeBuilder.setEndLine(primaryTextRange.end().line());
+      textRangeBuilder.setEndOffset(primaryTextRange.end().lineOffset());
+      locationBuilder.setTextRange(textRangeBuilder.build());
+    }
   }
 
-  private static void validateRule(DefaultIssue issue, @Nullable Rule rule) {
+  private Rule validateRule(Issue issue) {
     RuleKey ruleKey = issue.ruleKey();
+    Rule rule = rules.find(ruleKey);
     if (rule == null) {
       throw MessageException.of(String.format("The rule '%s' does not exist.", ruleKey));
     }
-    if (Strings.isNullOrEmpty(rule.name()) && Strings.isNullOrEmpty(issue.message())) {
+    if (Strings.isNullOrEmpty(rule.name()) && Strings.isNullOrEmpty(issue.primaryLocation().message())) {
       throw MessageException.of(String.format("The rule '%s' has no name and the related issue has no message.", ruleKey));
     }
+    return rule;
   }
 
-  private void updateIssue(DefaultIssue issue, @Nullable Rule rule, ActiveRule activeRule) {
-    if (Strings.isNullOrEmpty(issue.message())) {
-      issue.setMessage(rule.name());
-    }
-    if (project != null) {
-      issue.setCreationDate(project.getAnalysisDate());
-      issue.setUpdateDate(project.getAnalysisDate());
-    }
-    if (issue.severity() == null) {
-      issue.setSeverity(activeRule.severity());
-    }
+  public void write(BatchComponent component, BatchReport.Issue rawIssue) {
+    reportPublisher.getWriter().appendComponentIssue(component.batchId(), rawIssue);
   }
+
 }

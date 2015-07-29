@@ -50,7 +50,7 @@ public class SourcePublisher implements ReportPublisherStep {
         continue;
       }
 
-      DefaultInputFile inputFile = (DefaultInputFile) resource.inputPath();
+      DefaultInputFile inputFile = (DefaultInputFile) resource.inputComponent();
       File iofile = writer.getSourceFile(resource.batchId());
       int line = 0;
       try (FileOutputStream output = new FileOutputStream(iofile); BOMInputStream bomIn = new BOMInputStream(new FileInputStream(inputFile.file()),

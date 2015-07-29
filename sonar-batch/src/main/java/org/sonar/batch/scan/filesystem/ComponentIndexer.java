@@ -59,10 +59,10 @@ public class ComponentIndexer {
       Resource sonarFile = File.create(inputFile.relativePath(), languages.get(languageKey), unitTest);
       sonarIndex.index(sonarFile);
       BatchComponent file = componentCache.get(sonarFile);
-      file.setInputPath(inputFile);
+      file.setInputComponent(inputFile);
       Resource sonarDir = file.parent().resource();
       InputDir inputDir = fs.inputDir(inputFile.file().getParentFile());
-      componentCache.get(sonarDir).setInputPath(inputDir);
+      componentCache.get(sonarDir).setInputComponent(inputDir);
     }
   }
 }

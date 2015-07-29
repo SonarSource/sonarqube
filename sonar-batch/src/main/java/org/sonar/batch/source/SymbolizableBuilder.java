@@ -41,7 +41,7 @@ public class SymbolizableBuilder extends PerspectiveBuilder<Symbolizable> {
   @Override
   public Symbolizable loadPerspective(Class<Symbolizable> perspectiveClass, BatchComponent component) {
     if (component.isFile()) {
-      InputFile path = (InputFile) component.inputPath();
+      InputFile path = (InputFile) component.inputComponent();
       return new DefaultSymbolizable((DefaultInputFile) path, sensorStorage);
     }
     return null;

@@ -40,7 +40,7 @@ public class TestPlanBuilder extends PerspectiveBuilder<MutableTestPlan> {
   @Override
   public MutableTestPlan loadPerspective(Class<MutableTestPlan> perspectiveClass, BatchComponent component) {
     if (component.isFile()) {
-      InputFile inputFile = (InputFile) component.inputPath();
+      InputFile inputFile = (InputFile) component.inputComponent();
       if (inputFile.type() == Type.TEST) {
         if (!testPlanByFile.containsKey(inputFile)) {
           testPlanByFile.put(inputFile, new DefaultTestPlan());

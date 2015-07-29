@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.postjob;
 
+import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.AnalysisMode;
@@ -26,12 +27,10 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.postjob.issue.Issue;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.config.Settings;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.resources.File;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.IssueCache;
-
-import java.util.Arrays;
+import org.sonar.core.issue.DefaultIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -77,11 +76,11 @@ public class DefaultPostJobContextTest {
     assertThat(issue.line()).isEqualTo(1);
     assertThat(issue.message()).isEqualTo("msg");
     assertThat(issue.severity()).isEqualTo(Severity.BLOCKER);
-    assertThat(issue.inputPath()).isNull();
+    assertThat(issue.inputComponent()).isNull();
 
     InputFile inputPath = mock(InputFile.class);
-    resourceCache.add(File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php"), null).setInputPath(inputPath);
-    assertThat(issue.inputPath()).isEqualTo(inputPath);
+    resourceCache.add(File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php"), null).setInputComponent(inputPath);
+    assertThat(issue.inputComponent()).isEqualTo(inputPath);
 
   }
 }

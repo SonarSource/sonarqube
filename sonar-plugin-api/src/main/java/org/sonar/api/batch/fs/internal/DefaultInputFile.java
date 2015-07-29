@@ -39,7 +39,7 @@ import org.sonar.api.utils.PathUtils;
 /**
  * @since 4.2
  */
-public class DefaultInputFile implements InputFile, org.sonar.api.resources.InputFile {
+public class DefaultInputFile extends DefaultInputComponent implements InputFile, org.sonar.api.resources.InputFile {
 
   private final String relativePath;
   private final String moduleKey;
@@ -114,6 +114,7 @@ public class DefaultInputFile implements InputFile, org.sonar.api.resources.Inpu
   /**
    * Component key.
    */
+  @Override
   public String key() {
     return new StringBuilder().append(moduleKey).append(":").append(relativePath).toString();
   }
@@ -325,6 +326,11 @@ public class DefaultInputFile implements InputFile, org.sonar.api.resources.Inpu
   @Override
   public InputStream getInputStream() throws FileNotFoundException {
     return new BufferedInputStream(new FileInputStream(file()));
+  }
+
+  @Override
+  public boolean isFile() {
+    return true;
   }
 
 }

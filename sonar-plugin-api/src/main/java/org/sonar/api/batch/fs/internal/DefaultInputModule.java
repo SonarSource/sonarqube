@@ -17,37 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.sensor.issue;
+package org.sonar.api.batch.fs.internal;
 
-import com.google.common.annotations.Beta;
-import javax.annotation.CheckForNull;
-import org.sonar.api.batch.fs.InputComponent;
-import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.batch.fs.InputModule;
 
 /**
- * Represents an issue location.
- *
  * @since 5.2
  */
-@Beta
-public interface IssueLocation {
+public class DefaultInputModule extends DefaultInputComponent implements InputModule {
 
-  /**
-   * The {@link InputComponent} this location belongs to.
-   */
-  InputComponent inputComponent();
+  private final String moduleKey;
 
-  /**
-   * Range of the issue. Null for global issues and issues on directories. Can also be null
-   * for files (issue global to the file).
-   */
-  @CheckForNull
-  TextRange textRange();
+  public DefaultInputModule(String moduleKey) {
+    this.moduleKey = moduleKey;
+  }
 
-  /**
-   * Message of the issue.
-   */
-  @CheckForNull
-  String message();
+  @Override
+  public String key() {
+    return moduleKey;
+  }
+
+  @Override
+  public boolean isFile() {
+    return false;
+  }
 
 }

@@ -20,7 +20,7 @@
 package org.sonar.api.batch.sensor.issue;
 
 import com.google.common.annotations.Beta;
-import org.sonar.api.batch.fs.InputDir;
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 
@@ -38,22 +38,12 @@ public interface NewIssueLocation {
   int MESSAGE_MAX_SIZE = 4000;
 
   /**
-   * The {@link InputFile} the issue location belongs to. For global issues call {@link #onProject()}.
+   * The {@link InputComponent} the issue location belongs to. Mandatory.
    */
-  NewIssueLocation onFile(InputFile file);
+  NewIssueLocation on(InputComponent component);
 
   /**
-   * The {@link InputDir} the issue location belongs to. For global issues call {@link #onProject()}.
-   */
-  NewIssueLocation onDir(InputDir inputDir);
-
-  /**
-   * Tell that the issue location is global to the project.
-   */
-  NewIssueLocation onProject();
-
-  /**
-   * Position in the file. Only valid when {@link #onFile(InputFile)} has been called. 
+   * Position in the file. Only applicable when {@link #on(InputComponent)} has been called with an InputFile. 
    * See {@link InputFile#newRange(org.sonar.api.batch.fs.TextPointer, org.sonar.api.batch.fs.TextPointer)}
    */
   NewIssueLocation at(TextRange location);

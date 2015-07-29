@@ -19,6 +19,10 @@
  */
 package org.sonar.batch.scan.report;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
@@ -28,11 +32,6 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.scan.filesystem.InputPathCache;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 @BatchSide
 public class SourceProvider {
@@ -52,7 +51,7 @@ public class SourceProvider {
       return Collections.emptyList();
     }
     try {
-      InputFile inputFile = (InputFile) inputPathCache.getInputPath(component);
+      InputFile inputFile = (InputFile) component.inputComponent();
       List<String> lines = FileUtils.readLines(inputFile.file(), fs.encoding());
       List<String> escapedLines = new ArrayList<>(lines.size());
       for (String line : lines) {
