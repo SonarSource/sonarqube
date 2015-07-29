@@ -17,28 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.platform;
+@ParametersAreNonnullByDefault
+package org.sonar.batch.debt;
 
-import java.util.Collection;
-import org.sonar.api.Plugin;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.server.ServerSide;
-
-/**
- * Provides information about the plugins installed in the dependency injection container
- */
-@BatchSide
-@ServerSide
-public interface PluginRepository {
-
-  Collection<PluginInfo> getPluginInfos();
-
-  PluginInfo getPluginInfo(String key);
-
-  /**
-   * @return the instance of {@link Plugin} for the given plugin key. Never return null.
-   */
-  Plugin getPluginInstance(String key);
-
-  boolean hasPlugin(String key);
-}
+import javax.annotation.ParametersAreNonnullByDefault;

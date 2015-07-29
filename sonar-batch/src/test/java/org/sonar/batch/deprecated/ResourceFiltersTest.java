@@ -17,39 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api;
+package org.sonar.batch.deprecated;
 
-/**
- * Plugin entry-point used to declare its extensions (see {@link org.sonar.api.Extension}.
- * <p/>
- * <p>The JAR manifest must declare the name of the implementation class in the property <code>Plugin-Class</code>.
- * This property is automatically set by sonar-packaging-maven-plugin when building plugin.</p>
- * 
- * @since 2.8
- */
-public abstract class SonarPlugin implements Plugin {
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.sonar.api.batch.ResourceFilter;
 
-  @Override
-  public final String getKey() {
-    throw new UnsupportedOperationException();
+import static org.mockito.Matchers.startsWith;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+public class ResourceFiltersTest {
+  @Test
+  public void warn_on_resource_filters() {
+    Logger logger = mock(Logger.class);
+    ResourceFilter[] filters = {mock(ResourceFilter.class)};
+    new ResourceFilters(logger, filters);
+    verify(logger).warn(startsWith("ResourceFilters are not supported since version 4.2"));
+
+    // verify that the standard constructor does not fail
+    new ResourceFilters(filters);
   }
 
-  @Override
-  public final String getName() {
-    throw new UnsupportedOperationException();
+  @Test
+  public void ok_if_no_resource_filters() {
+    // just for verify that it does not fail. Should check that no warning is logged.
+    new ResourceFilters();
   }
-
-  @Override
-  public final String getDescription() {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Returns a string representation of the plugin, suitable for debugging purposes only.
-   */
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
-  }
-
 }

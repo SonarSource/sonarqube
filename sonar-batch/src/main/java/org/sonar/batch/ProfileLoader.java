@@ -17,39 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api;
+package org.sonar.batch;
+
+import org.sonar.api.config.Settings;
+import org.sonar.api.profiles.RulesProfile;
 
 /**
- * Plugin entry-point used to declare its extensions (see {@link org.sonar.api.Extension}.
- * <p/>
- * <p>The JAR manifest must declare the name of the implementation class in the property <code>Plugin-Class</code>.
- * This property is automatically set by sonar-packaging-maven-plugin when building plugin.</p>
- * 
- * @since 2.8
+ * This interface is implemented by the views plugin!!
+ *
+ * @deprecated in 4.2
  */
-public abstract class SonarPlugin implements Plugin {
-
-  @Override
-  public final String getKey() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public final String getName() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public final String getDescription() {
-    throw new UnsupportedOperationException();
-  }
+@Deprecated
+public interface ProfileLoader {
 
   /**
-   * Returns a string representation of the plugin, suitable for debugging purposes only.
+   * Loads quality profile for specified project.
    */
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
-  }
+  RulesProfile load(Settings settings);
 
 }

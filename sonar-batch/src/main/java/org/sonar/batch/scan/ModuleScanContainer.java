@@ -35,6 +35,7 @@ import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.deprecated.DeprecatedSensorContext;
+import org.sonar.batch.deprecated.ResourceFilters;
 import org.sonar.batch.deprecated.perspectives.BatchPerspectives;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
@@ -146,6 +147,7 @@ public class ModuleScanContainer extends ComponentContainer {
       BatchExtensionDictionnary.class,
       IssueFilters.class,
       CoverageExclusions.class,
+      ResourceFilters.class,
 
     // rules
       ModuleQProfiles.class,

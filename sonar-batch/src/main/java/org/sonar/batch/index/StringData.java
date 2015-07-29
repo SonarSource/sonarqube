@@ -17,39 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api;
+package org.sonar.batch.index;
 
-/**
- * Plugin entry-point used to declare its extensions (see {@link org.sonar.api.Extension}.
- * <p/>
- * <p>The JAR manifest must declare the name of the implementation class in the property <code>Plugin-Class</code>.
- * This property is automatically set by sonar-packaging-maven-plugin when building plugin.</p>
- * 
- * @since 2.8
- */
-public abstract class SonarPlugin implements Plugin {
+public class StringData implements Data {
+  private String data = null;
 
-  @Override
-  public final String getKey() {
-    throw new UnsupportedOperationException();
+  public StringData() {
+  }
+
+  public StringData(String s) {
+    this.data = s;
+  }
+
+  public String data() {
+    return data;
   }
 
   @Override
-  public final String getName() {
-    throw new UnsupportedOperationException();
+  public String writeString() {
+    return data;
   }
-
-  @Override
-  public final String getDescription() {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Returns a string representation of the plugin, suitable for debugging purposes only.
-   */
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
-  }
-
 }

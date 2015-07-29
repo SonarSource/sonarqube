@@ -19,18 +19,20 @@
  */
 package org.sonar.batch.bootstrap;
 
-import java.util.Arrays;
-import java.util.List;
 import org.apache.commons.lang.ClassUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ExtensionProvider;
+import org.sonar.api.Plugin;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -41,7 +43,7 @@ public class ExtensionInstallerTest {
   GlobalMode mode;
   BatchPluginRepository pluginRepository = mock(BatchPluginRepository.class);
 
-  private static SonarPlugin newPluginInstance(final Object... extensions) {
+  private static Plugin newPluginInstance(final Object... extensions) {
     return new SonarPlugin() {
       public List getExtensions() {
         return Arrays.asList(extensions);

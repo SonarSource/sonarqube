@@ -29,6 +29,7 @@ import org.assertj.core.data.MapEntry;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.Plugin;
 import org.sonar.api.SonarPlugin;
 import org.sonar.updatecenter.common.Version;
 
@@ -50,7 +51,7 @@ public class PluginLoaderTest {
     PluginClassloaderDef def = new PluginClassloaderDef("fake");
     def.addMainClass("fake", FakePlugin.class.getName());
 
-    Map<String, SonarPlugin> instances = loader.instantiatePluginClasses(ImmutableMap.of(def, getClass().getClassLoader()));
+    Map<String, Plugin> instances = loader.instantiatePluginClasses(ImmutableMap.of(def, getClass().getClassLoader()));
     assertThat(instances).containsOnlyKeys("fake");
     assertThat(instances.get("fake")).isInstanceOf(FakePlugin.class);
   }

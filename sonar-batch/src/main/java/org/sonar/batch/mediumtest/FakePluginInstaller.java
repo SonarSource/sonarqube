@@ -19,24 +19,25 @@
  */
 package org.sonar.batch.mediumtest;
 
+import org.sonar.api.Plugin;
+import org.sonar.batch.bootstrap.PluginInstaller;
+import org.sonar.core.platform.PluginInfo;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import org.sonar.api.SonarPlugin;
-import org.sonar.batch.bootstrap.PluginInstaller;
-import org.sonar.core.platform.PluginInfo;
 
 public class FakePluginInstaller implements PluginInstaller {
 
   private final Map<String, PluginInfo> infosByKeys = new HashMap<>();
-  private final Map<String, SonarPlugin> instancesByKeys = new HashMap<>();
+  private final Map<String, Plugin> instancesByKeys = new HashMap<>();
 
   public FakePluginInstaller add(String pluginKey, File jarFile) {
     infosByKeys.put(pluginKey, PluginInfo.create(jarFile));
     return this;
   }
 
-  public FakePluginInstaller add(String pluginKey, SonarPlugin instance) {
+  public FakePluginInstaller add(String pluginKey, Plugin instance) {
     instancesByKeys.put(pluginKey, instance);
     return this;
   }
@@ -47,7 +48,7 @@ public class FakePluginInstaller implements PluginInstaller {
   }
 
   @Override
-  public Map<String, SonarPlugin> installLocals() {
+  public Map<String, Plugin> installLocals() {
     return instancesByKeys;
   }
 }

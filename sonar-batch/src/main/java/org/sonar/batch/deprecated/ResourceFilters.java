@@ -17,39 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api;
+package org.sonar.batch.deprecated;
+
+import com.google.common.base.Joiner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.ResourceFilter;
 
 /**
- * Plugin entry-point used to declare its extensions (see {@link org.sonar.api.Extension}.
- * <p/>
- * <p>The JAR manifest must declare the name of the implementation class in the property <code>Plugin-Class</code>.
- * This property is automatically set by sonar-packaging-maven-plugin when building plugin.</p>
- * 
- * @since 2.8
+ * @since 1.12
  */
-public abstract class SonarPlugin implements Plugin {
+public class ResourceFilters {
 
-  @Override
-  public final String getKey() {
-    throw new UnsupportedOperationException();
+  public ResourceFilters(ResourceFilter[] filters) {
+    this(LoggerFactory.getLogger(ResourceFilters.class), filters);
   }
 
-  @Override
-  public final String getName() {
-    throw new UnsupportedOperationException();
+  public ResourceFilters() {
+    // perfect
   }
 
-  @Override
-  public final String getDescription() {
-    throw new UnsupportedOperationException();
+  ResourceFilters(Logger logger, ResourceFilter[] filters) {
+    check(logger, filters);
   }
 
-  /**
-   * Returns a string representation of the plugin, suitable for debugging purposes only.
-   */
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
+  private void check(Logger logger, ResourceFilter[] filters) {
+    if (filters.length > 0) {
+      logger.warn("ResourceFilters are not supported since version 4.2: " + Joiner.on(", ").join(filters));
+    }
   }
-
 }

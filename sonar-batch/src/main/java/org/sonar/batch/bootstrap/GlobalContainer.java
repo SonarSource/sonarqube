@@ -26,8 +26,10 @@ import org.sonar.batch.rule.RulesProvider;
 
 import java.util.List;
 import java.util.Map;
+
 import org.sonar.api.CoreProperties;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.Plugin;
+import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.batch.index.CachesManager;
@@ -44,6 +46,8 @@ import org.sonar.batch.repository.ServerIssuesLoader;
 import org.sonar.batch.repository.user.UserRepository;
 import org.sonar.batch.scan.ProjectScanContainer;
 import org.sonar.core.config.Logback;
+import org.sonar.core.i18n.DefaultI18n;
+import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginInfo;
@@ -83,7 +87,7 @@ public class GlobalContainer extends ComponentContainer {
       BatchPluginPredicate.class,
       ExtensionInstaller.class,
 
-    CachesManager.class,
+      CachesManager.class,
       GlobalMode.class,
       GlobalSettings.class,
       new RulesProvider(),
@@ -97,6 +101,9 @@ public class GlobalContainer extends ComponentContainer {
       new PersistentCacheProvider(),
       new WSLoaderGlobalProvider(),
       System2.INSTANCE,
+      DefaultI18n.class,
+      Durations.class,
+      RuleI18nManager.class,
       new GlobalRepositoriesProvider(),
       UserRepository.class);
     addIfMissing(BatchPluginInstaller.class, PluginInstaller.class);
@@ -121,7 +128,7 @@ public class GlobalContainer extends ComponentContainer {
   private void installPlugins() {
     PluginRepository pluginRepository = getComponentByType(PluginRepository.class);
     for (PluginInfo pluginInfo : pluginRepository.getPluginInfos()) {
-      SonarPlugin instance = pluginRepository.getPluginInstance(pluginInfo.getKey());
+      Plugin instance = pluginRepository.getPluginInstance(pluginInfo.getKey());
       addExtension(pluginInfo, instance);
     }
   }
