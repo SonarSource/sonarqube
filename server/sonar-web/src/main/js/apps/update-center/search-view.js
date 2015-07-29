@@ -24,6 +24,14 @@ define([
       this.listenTo(this.options.state, 'change', this.render);
     },
 
+    onRender: function () {
+      this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
+    },
+
+    onDestroy: function () {
+      this.$('[data-toggle="tooltip"]').tooltip('destroy');
+    },
+
     onFilterChange: function () {
       var value = this.$('[name="update-center-filter"]:checked').val();
       this.filter(value);

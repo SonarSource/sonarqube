@@ -89,6 +89,27 @@ define(function (require) {
           .checkElementExist('li[data-id="abap"]');
     });
 
+    bdd.it('should work offline', function () {
+      return this.remote
+          .open('')
+          .mockFromString('/api/l10n/index', '{}')
+          .mockFromFile('/api/plugins/installed', 'update-center-spec/installed.json')
+          .mockFromFile('/api/plugins/updates', 'update-center-spec/updates.json')
+          .mockFromFile('/api/plugins/pending', 'update-center-spec/pending.json')
+          .execute(function () {
+            window.SS.updateCenterActive = false;
+          })
+          .startApp('update-center', { urlRoot: '/test/medium/base.html' })
+          .checkElementExist('.js-plugin-name')
+          .checkElementCount('li[data-id]', 5)
+          .checkElementExist('li[data-id="scmgit"]')
+          .checkElementExist('li[data-id="javascript"]')
+          .checkElementNotExist('#update-center-filter-installed[disabled]')
+          .checkElementExist('#update-center-filter-updates[disabled]')
+          .checkElementExist('#update-center-filter-available[disabled]')
+          .checkElementExist('#update-center-filter-system[disabled]');
+    });
+
     bdd.it('should switch between views', function () {
       return this.remote
           .open('#installed')

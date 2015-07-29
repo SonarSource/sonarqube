@@ -12,7 +12,9 @@ define([
   var App = new Marionette.Application(),
       init = function (options) {
         // State
-        this.state = new Backbone.Model();
+        this.state = new Backbone.Model({
+          updateCenterActive: window.SS.updateCenterActive
+        });
 
         // Layout
         this.layout = new Layout({ el: options.el });

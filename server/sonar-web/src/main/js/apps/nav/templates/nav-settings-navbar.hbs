@@ -1,8 +1,8 @@
 <div class="container">
   <ul class="nav navbar-nav nav-crumbs">
-      <li>
-        <a href="{{link '/settings'}}">{{t 'layout.settings'}}</a>
-      </li>
+    <li>
+      <a href="{{link '/settings'}}">{{t 'layout.settings'}}</a>
+    </li>
   </ul>
 
   <ul class="nav navbar-nav nav-tabs">
@@ -72,11 +72,14 @@
         {{t 'sidebar.system'}}&nbsp;<i class="icon-dropdown"></i>
       </a>
       <ul class="dropdown-menu">
-        {{#if settings.showUpdateCenter}}
-          <li>
-            <a href="{{link '/updatecenter'}}">{{t 'update_center.page'}}</a>
-          </li>
-        {{/if}}
+        <li>
+          <a href="{{link '/updatecenter'}}">
+            {{t 'update_center.page'}}
+            {{#unless settings.showUpdateCenter}}
+              <span class="spacer-left badge badge-warning">offline</span>
+            {{/unless}}
+          </a>
+        </li>
         <li>
           <a href="{{link '/system'}}">{{t 'system_info.page'}}</a>
         </li>

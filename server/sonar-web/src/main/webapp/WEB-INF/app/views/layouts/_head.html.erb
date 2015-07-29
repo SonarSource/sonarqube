@@ -32,7 +32,8 @@
       lf: {
         enableGravatar: <%= configuration('sonar.lf.enableGravatar', true) %>,
         gravatarServerUrl: '<%= configuration('sonar.lf.gravatarServerUrl') %>'
-      }
+      },
+      updateCenterActive: <%= configuration('sonar.updatecenter.activate', true) %>
     };
   </script>
   <script src="<%= ApplicationController.root_context -%>/js/sonar.js?v=<%= sonar_version -%>"></script>
