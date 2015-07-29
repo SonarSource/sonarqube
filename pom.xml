@@ -26,6 +26,7 @@
     <module>sonar-markdown</module>
     <module>sonar-plugin-api</module>
     <module>server</module>
+    <module>sonar-ws</module>
     <module>sonar-testing-harness</module>
     <module>plugins/sonar-xoo-plugin</module>
     <module>plugins/sonar-batch-maven-plugin</module>
