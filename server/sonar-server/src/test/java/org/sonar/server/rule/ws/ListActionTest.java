@@ -50,8 +50,8 @@ public class ListActionTest {
 
   @Test
   public void return_rules_in_protobuf() throws Exception {
-    dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), RuleTesting.newDto(RuleKey.of("java", "S001")).setConfigKey(null));
-    dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), RuleTesting.newDto(RuleKey.of("java", "S002")).setConfigKey("I002"));
+    dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), RuleTesting.newDto(RuleKey.of("java", "S001")).setConfigKey(null).setName(null));
+    dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), RuleTesting.newDto(RuleKey.of("java", "S002")).setConfigKey("I002").setName("Rule Two"));
     dbTester.getSession().commit();
 
     TestResponse response = tester.newRequest()
@@ -64,7 +64,9 @@ public class ListActionTest {
 
     assertThat(listResponse.getRules(0).getKey()).isEqualTo("S001");
     assertThat(listResponse.getRules(0).hasInternalKey()).isFalse();
+    assertThat(listResponse.getRules(0).hasName()).isFalse();
     assertThat(listResponse.getRules(1).getKey()).isEqualTo("S002");
     assertThat(listResponse.getRules(1).getInternalKey()).isEqualTo("I002");
+    assertThat(listResponse.getRules(1).getName()).isEqualTo("Rule Two");
   }
 }

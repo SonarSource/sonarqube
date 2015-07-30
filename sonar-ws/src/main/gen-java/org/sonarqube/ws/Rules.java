@@ -187,6 +187,20 @@ public final class Rules {
        */
       com.google.protobuf.ByteString
           getInternalKeyBytes();
+
+      /**
+       * <code>optional string name = 4;</code>
+       */
+      boolean hasName();
+      /**
+       * <code>optional string name = 4;</code>
+       */
+      java.lang.String getName();
+      /**
+       * <code>optional string name = 4;</code>
+       */
+      com.google.protobuf.ByteString
+          getNameBytes();
     }
     /**
      * Protobuf type {@code sonarqube.ws.rules.ListResponse.Rule}
@@ -256,6 +270,12 @@ public final class Rules {
                 com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000004;
                 internalKey_ = bs;
+                break;
+              }
+              case 34: {
+                com.google.protobuf.ByteString bs = input.readBytes();
+                bitField0_ |= 0x00000008;
+                name_ = bs;
                 break;
               }
             }
@@ -424,10 +444,53 @@ public final class Rules {
         }
       }
 
+      public static final int NAME_FIELD_NUMBER = 4;
+      private java.lang.Object name_;
+      /**
+       * <code>optional string name = 4;</code>
+       */
+      public boolean hasName() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>optional string name = 4;</code>
+       */
+      public java.lang.String getName() {
+        java.lang.Object ref = name_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            name_ = s;
+          }
+          return s;
+        }
+      }
+      /**
+       * <code>optional string name = 4;</code>
+       */
+      public com.google.protobuf.ByteString
+          getNameBytes() {
+        java.lang.Object ref = name_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          name_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
       private void initFields() {
         repository_ = "";
         key_ = "";
         internalKey_ = "";
+        name_ = "";
       }
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
@@ -451,6 +514,9 @@ public final class Rules {
         if (((bitField0_ & 0x00000004) == 0x00000004)) {
           output.writeBytes(3, getInternalKeyBytes());
         }
+        if (((bitField0_ & 0x00000008) == 0x00000008)) {
+          output.writeBytes(4, getNameBytes());
+        }
         getUnknownFields().writeTo(output);
       }
 
@@ -471,6 +537,10 @@ public final class Rules {
         if (((bitField0_ & 0x00000004) == 0x00000004)) {
           size += com.google.protobuf.CodedOutputStream
             .computeBytesSize(3, getInternalKeyBytes());
+        }
+        if (((bitField0_ & 0x00000008) == 0x00000008)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeBytesSize(4, getNameBytes());
         }
         size += getUnknownFields().getSerializedSize();
         memoizedSerializedSize = size;
@@ -595,6 +665,8 @@ public final class Rules {
           bitField0_ = (bitField0_ & ~0x00000002);
           internalKey_ = "";
           bitField0_ = (bitField0_ & ~0x00000004);
+          name_ = "";
+          bitField0_ = (bitField0_ & ~0x00000008);
           return this;
         }
 
@@ -635,6 +707,10 @@ public final class Rules {
             to_bitField0_ |= 0x00000004;
           }
           result.internalKey_ = internalKey_;
+          if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+            to_bitField0_ |= 0x00000008;
+          }
+          result.name_ = name_;
           result.bitField0_ = to_bitField0_;
           onBuilt();
           return result;
@@ -664,6 +740,11 @@ public final class Rules {
           if (other.hasInternalKey()) {
             bitField0_ |= 0x00000004;
             internalKey_ = other.internalKey_;
+            onChanged();
+          }
+          if (other.hasName()) {
+            bitField0_ |= 0x00000008;
+            name_ = other.name_;
             onChanged();
           }
           this.mergeUnknownFields(other.getUnknownFields());
@@ -917,6 +998,82 @@ public final class Rules {
   }
   bitField0_ |= 0x00000004;
           internalKey_ = value;
+          onChanged();
+          return this;
+        }
+
+        private java.lang.Object name_ = "";
+        /**
+         * <code>optional string name = 4;</code>
+         */
+        public boolean hasName() {
+          return ((bitField0_ & 0x00000008) == 0x00000008);
+        }
+        /**
+         * <code>optional string name = 4;</code>
+         */
+        public java.lang.String getName() {
+          java.lang.Object ref = name_;
+          if (!(ref instanceof java.lang.String)) {
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            if (bs.isValidUtf8()) {
+              name_ = s;
+            }
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string name = 4;</code>
+         */
+        public com.google.protobuf.ByteString
+            getNameBytes() {
+          java.lang.Object ref = name_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            name_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string name = 4;</code>
+         */
+        public Builder setName(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
+          name_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string name = 4;</code>
+         */
+        public Builder clearName() {
+          bitField0_ = (bitField0_ & ~0x00000008);
+          name_ = getDefaultInstance().getName();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string name = 4;</code>
+         */
+        public Builder setNameBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
+          name_ = value;
           onChanged();
           return this;
         }
@@ -1501,11 +1658,12 @@ public final class Rules {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\016ws-rules.proto\022\022sonarqube.ws.rules\"\203\001\n" +
+      "\n\016ws-rules.proto\022\022sonarqube.ws.rules\"\221\001\n" +
       "\014ListResponse\0224\n\005rules\030\001 \003(\0132%.sonarqube" +
-      ".ws.rules.ListResponse.Rule\032=\n\004Rule\022\022\n\nr" +
+      ".ws.rules.ListResponse.Rule\032K\n\004Rule\022\022\n\nr" +
       "epository\030\001 \001(\t\022\013\n\003key\030\002 \001(\t\022\024\n\014internal" +
-      "_key\030\003 \001(\tB\033\n\020org.sonarqube.wsB\005RulesH\001"
+      "_key\030\003 \001(\t\022\014\n\004name\030\004 \001(\tB\033\n\020org.sonarqub" +
+      "e.wsB\005RulesH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -1530,7 +1688,7 @@ public final class Rules {
     internal_static_sonarqube_ws_rules_ListResponse_Rule_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_rules_ListResponse_Rule_descriptor,
-        new java.lang.String[] { "Repository", "Key", "InternalKey", });
+        new java.lang.String[] { "Repository", "Key", "InternalKey", "Name", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
