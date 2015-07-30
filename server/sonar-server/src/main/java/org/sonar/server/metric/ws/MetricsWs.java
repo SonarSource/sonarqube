@@ -20,7 +20,6 @@
 
 package org.sonar.server.metric.ws;
 
-import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
 public class MetricsWs implements WebService {
@@ -42,16 +41,7 @@ public class MetricsWs implements WebService {
     for (MetricsWsAction action : actions) {
       action.define(controller);
     }
-    defineIndexAction(controller);
 
     controller.done();
   }
-
-  private static void defineIndexAction(NewController controller) {
-    controller.createAction("index")
-      .setDescription("Documentation of this web service is available <a href=\"http://redirect.sonarsource.com/doc/old-web-service-api.html\">here</a>")
-      .setSince("2.6")
-      .setHandler(RailsHandler.INSTANCE);
-  }
-
 }

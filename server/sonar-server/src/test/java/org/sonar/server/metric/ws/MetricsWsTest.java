@@ -56,7 +56,7 @@ public class MetricsWsTest {
     WebService.Controller controller = ws.controller("api/metrics");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(7);
+    assertThat(controller.actions()).hasSize(6);
   }
 
 }
