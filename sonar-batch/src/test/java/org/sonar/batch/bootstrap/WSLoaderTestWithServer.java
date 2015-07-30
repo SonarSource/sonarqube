@@ -51,7 +51,7 @@ public class WSLoaderTestWithServer {
     when(bootstrapProps.property("sonar.host.url")).thenReturn("http://localhost:" + server.getPort());
 
     client = new ServerClient(bootstrapProps, new EnvironmentInformation("Junit", "4"));
-    cache = new PersistentCache(temp.getRoot().toPath(), 1000 * 60, new Slf4jLogger());
+    cache = new PersistentCache(temp.getRoot().toPath(), 1000 * 60, new Slf4jLogger(), null);
     loader = new WSLoader(cache, client);
   }
 

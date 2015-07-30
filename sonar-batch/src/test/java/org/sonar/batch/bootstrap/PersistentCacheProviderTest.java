@@ -20,14 +20,12 @@
 package org.sonar.batch.bootstrap;
 
 import java.util.Collections;
-
 import org.junit.Before;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 
 public class PersistentCacheProviderTest {
   private PersistentCacheProvider provider = null;
-
   private BootstrapProperties props = null;
 
   @Before

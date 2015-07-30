@@ -19,12 +19,14 @@
  */
 package org.sonar.batch.platform;
 
+import org.apache.commons.lang.StringUtils;
+
+import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
-import org.sonar.batch.bootstrap.ServerClient;
 
 import javax.annotation.CheckForNull;
 
@@ -37,11 +39,11 @@ import java.util.Date;
 public class DefaultServer extends Server {
 
   private Settings settings;
-  private ServerClient client;
+  private BootstrapProperties props;
 
-  public DefaultServer(Settings settings, ServerClient client) {
+  public DefaultServer(Settings settings, BootstrapProperties props) {
     this.settings = settings;
-    this.client = client;
+    this.props = props;
   }
 
   @Override
@@ -86,7 +88,7 @@ public class DefaultServer extends Server {
 
   @Override
   public String getURL() {
-    return client.getURL();
+    return StringUtils.removeEnd(StringUtils.defaultIfBlank(props.property("sonar.host.url"), "http://localhost:9000"), "/");
   }
 
   @Override
