@@ -19,12 +19,13 @@
  */
 package org.sonar.batch.rule;
 
-import org.picocontainer.injectors.ProviderAdapter;
+import java.util.List;
 
+import org.sonarqube.ws.Rules.ListResponse.Rule;
+import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.batch.rule.internal.NewRule;
-import org.sonar.batch.protocol.input.Rule;
 import org.sonar.api.batch.rule.Rules;
 
 public class RulesProvider extends ProviderAdapter {
@@ -38,15 +39,15 @@ public class RulesProvider extends ProviderAdapter {
   }
 
   private static Rules load(RulesLoader ref) {
+    List<Rule> loadedRules = ref.load();
     RulesBuilder builder = new RulesBuilder();
 
-    for (Rule inputRule : ref.load().getRules()) {
-      NewRule newRule = builder.add(RuleKey.parse(inputRule.ruleKey()));
-      newRule.setName(inputRule.name());
-      newRule.setInternalKey(inputRule.internalKey());
+    for (Rule r : loadedRules) {
+      NewRule newRule = builder.add(RuleKey.parse(r.getKey()));
+      newRule.setName(r.getName());
+      newRule.setInternalKey(r.getInternalKey());
     }
 
     return builder.build();
   }
-
 }

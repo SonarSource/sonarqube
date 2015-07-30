@@ -21,42 +21,26 @@ package org.sonar.batch.rule;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import org.sonarqube.ws.Rules.ListResponse.Rule;
+import com.google.common.io.ByteSource;
+import com.google.common.io.Resources;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.List;
 
-import static org.mockito.Matchers.contains;
+import static org.mockito.Matchers.anyString;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.sonar.batch.bootstrap.WSLoader;
 import org.junit.Test;
-import org.sonar.batch.protocol.input.Rule;
-import org.sonar.batch.protocol.input.RulesSearchResult;
 
 public class DefaultRulesLoaderTest {
   @Test
-  public void testLoadingJson() throws IOException {
-    Rule rule1 = new Rule("squid:S1194", "squid", "S1194", "\"java.lang.Error\" should not be extended");
-    Rule rule2 = new Rule("squid:ObjectFinalizeOverridenCallsSuperFinalizeCheck", "squid", "ObjectFinalizeOverridenCallsSuperFinalizeCheck",
-      "super.finalize() should be called at the end of Object.finalize() implementations");
-
-    // generate json
-    RulesSearchResult rulesSearch = new RulesSearchResult();
-    rulesSearch.setRules(Arrays.asList(rule1, rule2));
-    String json = rulesSearch.toJson();
-
-    RulesSearchResult empty = new RulesSearchResult();
-    empty.setRules(new LinkedList<Rule>());
-    String emptyJson = empty.toJson();
-
+  public void testParseServerResponse() throws IOException {
     WSLoader wsLoader = mock(WSLoader.class);
-    when(wsLoader.loadString(contains("p=1"))).thenReturn(json);
-    when(wsLoader.loadString(contains("p=2"))).thenReturn(emptyJson);
-
-    // load
-    RulesLoader loader = new DefaultRulesLoader(wsLoader);
-    RulesSearchResult rules = loader.load();
-
-    assertThat(rules.toJson()).isEqualTo(json);
+    ByteSource source = Resources.asByteSource(this.getClass().getResource("DefaultRulesLoader/response.protobuf"));
+    when(wsLoader.loadSource(anyString())).thenReturn(source);
+    DefaultRulesLoader loader = new DefaultRulesLoader(wsLoader);
+    List<Rule> ruleList = loader.load();
+    assertThat(ruleList).hasSize(318);
   }
 }

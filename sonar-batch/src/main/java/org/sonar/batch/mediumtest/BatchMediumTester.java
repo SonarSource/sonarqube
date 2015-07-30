@@ -19,13 +19,12 @@
  */
 package org.sonar.batch.mediumtest;
 
-import org.sonar.batch.bootstrapper.IssueListener;
+import org.sonarqube.ws.Rules.ListResponse.Rule;
 
+import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.api.server.rule.RulesDefinition.Repository;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.batch.protocol.input.RulesSearchResult;
 import org.sonar.batch.rule.RulesLoader;
-import org.sonar.batch.protocol.input.Rule;
 import com.google.common.base.Function;
 import com.google.common.io.Files;
 
@@ -132,10 +131,16 @@ public class BatchMediumTester {
       return this;
     }
 
-    public BatchMediumTesterBuilder addRules(List<Rule> rules) {
-      for (Rule r : rules) {
-        rulesLoader.addRule(r);
+    public BatchMediumTesterBuilder addRule(String key, String repoKey, String internalKey, String name) {
+      Rule.Builder builder = Rule.newBuilder();
+      builder.setKey(key);
+      builder.setRepository(repoKey);
+      if (internalKey != null) {
+        builder.setInternalKey(internalKey);
       }
+      builder.setName(name);
+
+      rulesLoader.addRule(builder.build());
       return this;
     }
 
@@ -145,7 +150,7 @@ public class BatchMediumTester {
       List<Repository> repositories = context.repositories();
       for (Repository repo : repositories) {
         for (RulesDefinition.Rule rule : repo.rules()) {
-          this.addRule(new Rule(rule.repository().key() + ":" + rule.key(), rule.repository().key(), rule.internalKey(), rule.name()));
+          this.addRule(rule.repository().key() + ":" + rule.key(), rule.repository().key(), rule.internalKey(), rule.name());
         }
       }
       return this;
@@ -270,7 +275,7 @@ public class BatchMediumTester {
   }
 
   private static class FakeRulesLoader implements RulesLoader {
-    private List<Rule> rules = new LinkedList<>();
+    private List<org.sonarqube.ws.Rules.ListResponse.Rule> rules = new LinkedList<>();
 
     public FakeRulesLoader addRule(Rule rule) {
       rules.add(rule);
@@ -278,10 +283,8 @@ public class BatchMediumTester {
     }
 
     @Override
-    public RulesSearchResult load() {
-      RulesSearchResult r = new RulesSearchResult();
-      r.setRules(rules);
-      return r;
+    public List<Rule> load() {
+      return rules;
     }
 
   }

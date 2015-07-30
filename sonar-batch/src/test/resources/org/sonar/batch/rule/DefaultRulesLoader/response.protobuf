@@ -1,0 +1,637 @@
+
+i
+common-javaInsufficientCommentDensity">Source files should have a sufficient density of comment lines
+S
+common-javaDuplicatedBlocks"2Source files should not have any duplicated blocks
+U
+common-javaSkippedUnitTests"4Skipped unit tests should be either removed or fixed
+\
+common-javaInsufficientLineCoverage"3Lines should have sufficient coverage by unit tests
+A
+common-javaFailedUnitTests"!Failed unit tests should be fixed
+a
+common-javaInsufficientBranchCoverage"6Branches should have sufficient coverage by unit tests
+ì
+squidUselessParenthesesCheckUselessParenthesesCheck"XUseless parentheses around expressions should be removed to prevent any misunderstanding
+Z
+squidS2134S2134"CClasses extending java.lang.Thread should override the "run" method
+;
+squidS138S138"&Methods should not have too many lines
+G
+squidS2133S2133"0Objects should not be created only to "getClass"
+M
+squidS1294S1294"6The Array.equals(Object obj) method should not be used
+R
+squidS2131S2131";Primitives should not be boxed just for "String" conversion
+`
+squidS135S135"KLoops should not contain more than a single "break" or "continue" statement
+<
+squidS1150S1150"%Enumeration should not be implemented
+K
+squidS1151S1151"4"switch case" clauses should not have too many lines
+M
+squidS1939S1939"6Extensions and implementations should not be redundant
+E
+squidS2039S2039".Member variable visibility should be specified
+L
+squidNoSonarNoSonar"1"NOSONAR" should not be used to switch off issues
+>
+squidS2232S2232"'"ResultSet.isLast()" should not be used
+f
+squidS1943S1943"OClasses and methods that rely on the default system encoding should not be used
+m
+squidS1158S1158"VPrimitive wrappers should not be instantiated only for "toString" or "compareTo" calls
+H
+squidS2230S2230"1Non-public methods should not be "@Transactional"
+t
+squidS1157S1157"]Case insensitive string comparisons should be made without intermediate upper or lower casing
+P
+squidS1155S1155"9Collection.isEmpty() should be used to test for emptiness
+s
+squidS2236S2236"\Methods "wait(...)", "notify()" and "notifyAll()" should never be called on Thread instances
+b
+squidS1948S1948"KFields in a "Serializable" class should either be transient or serializable
+J
+squidS1153S1153"3String.valueOf() should not be appended to a String
+H
+squidS2235S2235"1IllegalMonitorStateException should not be caught
+b
+squidS1764S1764"KIdentical expressions should not be used on both sides of a binary operator
+P
+squidS2130S2130"9Parsing should be used to convert "Strings" to primitives
+s
+squidUndocumentedApiUndocumentedApi"HPublic types, methods and fields (API) should be documented with Javadoc
+=
+squidS2333S2333"&Redundant modifiers should not be used
+o
+squidTrailingCommentCheckTrailingCommentCheck":Comments should not be located at the end of lines of code
+m
+squidMaximumInheritanceDepthMaximumInheritanceDepth"2Inheritance tree of classes should not be too deep
+<
+squidS1940S1940"%Boolean checks should not be inverted
+L
+squidS1699S1699"5Constructors should only call non-overridable methods
+T
+squidS128S128"?Switch cases should end with an unconditional "break" statement
+M
+squidS2127S2127"6"Double.longBitsToDouble" should not be used for "int"
+X
+squidCallToDeprecatedMethodCallToDeprecatedMethod"Avoid use of deprecated methods
+]
+squidS888S888"HRelational operators should be used in "for" loop termination conditions
+A
+squidS2123S2123"*Values should not be uselessly incremented
+S
+squidS2122S2122"<"ScheduledThreadPoolExecutor" should not have 0 core threads
+P
+squidS1160S1160"9Public methods should throw at most one checked exception
+è
+squidS1161S1161"x"@Override" annotation should be used on any method overriding (since Java 5) or implementing (since Java 6) another one
+W
+squidS1694S1694"@An abstract class should have both abstract and concrete methods
+=
+squidS1162S1162"&Checked Exception should not be thrown
+K
+squidS00101S00101"2Class names should comply with a naming convention
+M
+squidS1695S1695"6"NullPointerException" should not be explicitly thrown
+L
+squidS00100S00100"3Method names should comply with a naming convention
+B
+squidS1696S1696"+"NullPointerException" should not be caught
+n
+squidS1697S1697"WShort-circuit logic should be used to prevent null pointer dereferences in conditionals
+A
+squidS1698S1698"*Objects should be compared with "equals()"
+V
+squidS1168S1168"?Empty arrays and collections should be returned instead of null
+r
+squidStringEqualityComparisonCheckStringEqualityComparisonCheck"+Strings should be compared using "equals()"
+/
+squidS2222S2222"Locks should be released
+[
+squidHiddenFieldCheckHiddenFieldCheck".Local variables should not shadow class fields
+?
+squidS2326S2326"(Unused type parameters should be removed
+H
+squidS1163S1163"1Exceptions should not be thrown in finally blocks
+P
+squidS2225S2225"9"toString()" and "clone()" methods should not return null
+P
+squidS1166S1166"9Exception handlers should preserve the original exception
+<
+squidS1165S1165"%Exception classes should be immutable
+I
+squidS2226S2226"2Servlets should never have mutable instance fields
+S
+squidArchitecturalConstraintArchitecturalConstraint"Architectural constraint
+u
+squidS134S134"`Control flow statements "if", "for", "while", "switch" and "try" should not be nested too deeply
+[
+squidS2325S2325"D"private" methods that don't access instance data should be "static"
+J
+squidS2156S2156"3"final" classes should not have "protected" members
+z
+squidS2154S2154"cDissimilar primitive wrappers should not be used with the ternary operator without explicit casting
+M
+squidS2153S2153"6Boxing and unboxing should not be immediately reversed
+?
+squidS2159S2159"(Silly equality checks should not be made
+<
+squidS2157S2157"%"Cloneables" should implement "clone"
+A
+squidS1172S1172"*Unused method parameters should be removed
+R
+squidS1479S1479";"switch" statements should not have too many "case" clauses
+Å
+squidS1170S1170"jPublic constants and fields initialized at declaration should be "static final" rather than merely "final"
+D
+squidS1171S1171"-Only static class initializers should be used
+]
+squidS1175S1175"FThe signature of "finalize()" should match that of "Object.finalize()"
+b
+squidS1174S1174"K"Object.finalize()" should remain protected (versus public) when overriding
+A
+squidS2151S2151"*"runFinalizersOnExit" should not be called
+f
+squidCallToFileDeleteOnExitMethodCallToFileDeleteOnExitMethod"!"deleteOnExit" should not be used
+Z
+squidLabelsShouldNotBeUsedCheckLabelsShouldNotBeUsedCheck"Labels should not be used
+e
+squidS1488S1488"NLocal Variables should not be declared and then immediately returned or thrown
+Z
+squidS3008S3008"CStatic non-final field names should comply with a naming convention
+{
+squidSwitchLastCaseIsDefaultCheckSwitchLastCaseIsDefaultCheck"6"switch" statements should end with a "default" clause
+À
+squid,RightCurlyBraceDifferentLineAsNextBlockCheck,RightCurlyBraceDifferentLineAsNextBlockCheck"fClose curly brace and the next "else", "catch" and "finally" keywords should be on two different lines
+d
+squidModifiersOrderCheckModifiersOrderCheck"1Modifiers should be declared in the correct order
+?
+squidS1181S1181"(Throwable and Error should not be caught
+9
+squidS1905S1905""Redundant casts should not be used
+c
+squidS1182S1182"LClasses that override "clone" should be "Cloneable" and call "super.clone()"
+j
+squidS2201S2201"SReturn values should not be ignored when function calls don't have any side effects
+2
+squidS1186S1186"Methods should not be empty
+=
+squidS1872S1872"&Classes should not be compared by name
+R
+squidS2438S2438";"Threads" should not be used where "Runnables" are expected
+u
+squidS1871S1871"^Two branches in the same conditional structure should not have exactly the same implementation
+l
+squidS1185S1185"UOverriding methods should do more than simply call the same method in the super class
+S
+squidS1188S1188"<Lambdas and anonymous classes should not have too many lines
+@
+squidS1873S1873")"static final" arrays should be "private"
+\
+squidS2204S2204"E".equals()" should not be used to test the values of "Atomic" classes
+C
+squidS2437S2437",Silly bit operations should not be performed
+T
+squidS2200S2200"="compareTo" results should not be checked for specific values
+R
+squidUselessImportCheckUselessImportCheck"!Useless imports should be removed
+E
+squidS2209S2209"."static" members should be accessed statically
+?
+squidS1481S1481"(Unused local variables should be removed
+Ä
+squidMissingDeprecatedCheckMissingDeprecatedCheck"GDeprecated elements should have both the annotation and the Javadoc tag
+:
+squidS2208S2208"#Wildcard imports should not be used
+>
+squidS1774S1774"'The ternary operator should not be used
+V
+squidS2272S2272"?"Iterator.next()" methods should throw "NoSuchElementException"
+â
+squidS2273S2273"r"wait(...)", "notify()" and "notifyAll()" methods should only be called when a lock is obviously held on an object
+a
+squidLowerCaseLongSuffixCheckLowerCaseLongSuffixCheck"$Long suffix "L" should be upper case
+C
+squidS2786S2786",Nested "enum"s should not be declared static
+J
+squidS1118S1118"3Utility classes should not have public constructors
+z
+squidS2277S2277"cCryptographic RSA algorithms should always incorporate OAEP (Optimal Asymmetric Encryption Padding)
+a
+squidUnusedProtectedMethodUnusedProtectedMethod"*Unused protected methods should be removed
+d
+squidS2276S2276"M"wait(...)" should be used instead of "Thread.sleep(...)" when a lock is held
+d
+squidS2275S2275"MPrintf-style format strings should not lead to unexpected behavior at runtime
+k
+squidS2274S2274"T"Object.wait(...)" and "Condition.await(...)" should be called inside a "while" loop
+c
+squidCommentedOutCodeLineCommentedOutCodeLine".Sections of code should not be "commented out"
+^
+squidS2278S2278"GNeither DES (Data Encryption Standard) nor DESede (3DES) should be used
+C
+squidS2912S2912","indexOf" checks should use a start position
+<
+squidS1656S1656"%Variables should not be self-assigned
+Q
+squidS1659S1659":Multiple variables should not be declared on the same line
+L
+squidS1264S1264"5A "while" loop should be used instead of a "for" loop
+Y
+squidS1125S1125"BLiteral boolean values should not be used in condition expressions
+k
+squidS1126S1126"TReturn of boolean expressions should not be wrapped into an "if-then-else" statement
+
+squidClassVariableVisibilityCheckClassVariableVisibilityCheck":Class variable fields should not have public accessibility
+H
+squidS2250S2250"1"ConcurrentLinkedQueue.size()" should not be used
+M
+squidS1643S1643"6Strings should not be concatenated using '+' in a loop
+`
+squidS2251S2251"IA "for" loop update clause should move the counter in the right direction
+Z
+squidS1640S1640"CMaps with keys that are enum values should be replaced with EnumMap
+E
+squidS2118S2118".Non-serializable classes should not be written
+B
+squidS00112S00112")Generic exceptions should never be thrown
+>
+squidS2111S2111"'"BigDecimal(double)" should not be used
+H
+squidS2112S2112"1"URL.hashCode" and "URL.equals" should be avoided
+?
+squidS2110S2110"(Invalid "Date" values should not be used
+X
+squidS2116S2116"A"hashCode" and "toString" should not be called on array instances
+J
+squidS2391S2391"3JUnit framework methods should be declared properly
+Y
+squidS2114S2114"BCollections should not be passed as arguments to their own methods
+?
+squidS2259S2259"(Null pointers should not be dereferenced
+d
+squidS1132S1132"MStrings literals should be placed on the left side when checking for equality
+D
+squidS00107S00107"+Methods should not have too many parameters
+c
+squidS2258S2258"L"javax.crypto.NullCipher" should not be used for anything other than testing
+C
+squidS1133S1133",Deprecated code should be removed eventually
+L
+squidS2257S2257"5Only standard cryptographic algorithms should be used
+G
+squidS00108S00108".Nested blocks of code should not be left empty
+5
+squidS00103S00103"Lines should not be too long
+V
+squidS2254S2254"?"HttpServletRequest.getRequestedSessionId()" should not be used
+<
+squidS2253S2253"%Disallowed methods should not be used
+5
+squidS1134S1134""FIXME" tags should be handled
+A
+squidS00105S00105"(Tabulation characters should not be used
+C
+squidS2252S2252",Loop conditions should be true at least once
+4
+squidS1135S1135""TODO" tags should be handled
+=
+squidS00104S00104"$Files should not have too many lines
+?
+squidS00122S00122"&Statements should be on separate lines
+M
+squidS00120S00120"4Package names should comply with a naming convention
+U
+squidS2109S2109">Reflection should not be used to check non-runtime annotations
+J
+squidS00121S00121"1Control structures should always use curly braces
+j
+squidS2676S2676"SNeither "Math.abs" nor negation should be used on numbers that could be "MIN_VALUE"
+I
+squidS2677S2677"2"read" and "readLine" return values should be used
+N
+squidS2674S2674"7The value returned from a stream read should be checked
+@
+squidS2675S2675")"readObject" should not be "synchronized"
+V
+squidCycleBetweenPackagesCycleBetweenPackages"!Avoid cycle between java packages
+h
+squidS1149S1149"QSynchronized classes Vector, Hashtable, Stack and StringBuffer should not be used
+O
+squidS1244S1244"8Floating point numbers should not be tested for equality
+P
+squidS2384S2384"9Mutable members should not be stored or returned directly
+{
+squidLeftCurlyBraceEndLineCheckLeftCurlyBraceEndLineCheck":An open curly brace should be located at the end of a line
+Q
+squidS2387S2387":Child class members should not shadow parent class members
+P
+squidS2386S2386"9Interfaces should not have "public static" mutable fields
+U
+squidS2388S2388">Inner class calls to super class methods should be unambiguous
+<
+squidS1141S1141"%Try-catch blocks should not be nested
+L
+squidS1142S1142"5Methods should not contain too many return statements
+T
+squidS00119S00119";Type parameter names should comply with a naming convention
+c
+squidS2245S2245"LPseudorandom number generators (PRNGs) should not be used in secure contexts
+O
+squidS1143S1143"8"return" statements should not occur in "finally" blocks
+T
+squidS00118S00118";Abstract class names should comply with a naming convention
+i
+squidS00117S00117"PLocal variable and method parameter names should comply with a naming convention
+]
+squidS1145S1145"FUseless "if(true) {...}" and "if(false){...}" blocks should be removed
+K
+squidS00116S00116"2Field names should comply with a naming convention
+N
+squidS00115S00115"5Constant names should comply with a naming convention
+Ö
+squidLeftCurlyBraceStartLineCheckLeftCurlyBraceStartLineCheck"@An open curly brace should be located at the beginning of a line
+8
+squidS1147S1147"!Exit methods should not be called
+O
+squidS00114S00114"6Interface names should comply with a naming convention
+J
+squidS1148S1148"3Throwable.printStackTrace(...) should not be called
+J
+squidS00113S00113"1Files should contain an empty new line at the end
+]
+squidS1215S1215"FExecution of the Garbage Collector should be triggered only by the JVM
+T
+squidS1217S1217"=Thread.run() and Runnable.run() should not be called directly
+A
+squidS2188S2188"*JUnit test cases should call super methods
+M
+squidS1219S1219"6"switch" statements should not contain non-case labels
+K
+squidS2186S2186"4JUnit assertions should not be used in "run" methods
+5
+squidS2187S2187"TestCases should contain tests
+i
+squidS1210S1210"R"equals(Object obj)" should be overridden along with the "compareTo(T obj)" method
+D
+squidS1214S1214"-Constants should not be defined in interfaces
+o
+squidS1609S1609"X@FunctionalInterface annotation should be used to flag Single Abstract Method interfaces
+l
+squidS1213S1213"UThe members of an interface declaration or class should appear in a pre-defined order
+d
+squidObjectFinalizeCheckObjectFinalizeCheck"1The Object.finalize() method should not be called
+<
+squidS2089S2089"%HTTP referers should not be relied on
+s
+squidS1611S1611"\Parentheses should be removed from a single lambda input parameter when its type is inferred
+J
+squidS2681S2681"3Multiline blocks should be enclosed in curly braces
+K
+squidS1612S1612"4Replace lambdas with method references when possible
+9
+squidS2185S2185""Silly math should not be performed
+E
+squidS2184S2184".Math operands should be cast before assignment
+X
+squidS1610S1610"AAbstract classes without fields should be converted to interfaces
+_
+squidS2183S2183"HInts and longs should not be shifted by more than their number of bits-1
+8
+squid	EmptyFile	EmptyFile"Files should not be empty
+N
+squidS1228S1228"7Packages should have a javadoc file 'package-info.java'
+Z
+squidUnusedPrivateMethodUnusedPrivateMethod"'Unused private method should be removed
+j
+squidS1226S1226"SMethod parameters, caught exceptions and foreach variables should not be reassigned
+P
+squidS2197S2197"9Modulus results should not be checked for direct equality
+É
+squidAssignmentInSubExpressionCheckAssignmentInSubExpressionCheck":Assignments should not be made from within sub-expressions
+H
+squidS1221S1221"1Methods should not be named "hashcode" or "equal"
+E
+squidS1220S1220".The default unnamed package should not be used
+1
+squidS2092S2092"Cookies should be "secure"
+2
+squidS2094S2094"Classes should not be empty
+1
+squidS2095S2095"Resources should be closed
+9
+squidS2096S2096"""main" should not "throw" anything
+c
+squidS1223S1223"LNon-constructor methods should not have the same name as the enclosing class
+E
+squidS2097S2097"."equals(Object obj)" should test argument type
+K
+squidS2696S2696"4Instance methods should not write to "static" fields
+6
+squidS2699S2699"Tests should include assertions
+?
+squidS2698S2698"(JUnit assertions should include messages
+D
+squidS2693S2693"-Threads should not be started in constructors
+J
+squidS2692S2692"3"indexOf" checks should not be for positive numbers
+f
+squidS2695S2695"O"PreparedStatement" and "ResultSet" methods should be called with valid indices
+c
+squidS2694S2694"LInner classes which do not reference their owning classes should be "static"
+I
+squidS2885S2885"2"Calendars" and "DateFormats" should not be static
+]
+squidS2166S2166"FClasses named like "Exception" should extend "Exception" or a subclass
+H
+squidS2167S2167"1"compareTo" should not return "Integer.MIN_VALUE"
+=
+squidS2164S2164"&Math should not be performed on floats
+A
+squidS2165S2165"*"finalize" should not set fields to "null"
+s
+squidS1994S1994"\"for" loop incrementers should modify the variable being tested in the loop's stop condition
+x
+squidRedundantThrowsDeclarationCheckRedundantThrowsDeclarationCheck"-Throws declarations should not be superfluous
+S
+squidS2162S2162"<"equals" methods should be symmetric and work for subclasses
+J
+squidS2160S2160"3Subclasses that add fields should override "equals"
+J
+squidS2175S2175"3Inappropriate "Collection" calls should not be made
+o
+squidForLoopCounterChangedCheckForLoopCounterChangedCheck"."for" loop stop conditions should be invariant
+O
+squidS2176S2176"8Class names should not shadow interfaces or superclasses
+M
+squidS2178S2178"6Short-circuit logic should be used in boolean contexts
+T
+squidS1700S1700"=A field should not duplicate the name of its containing class
+Z
+squidS1206S1206"C"equals(Object obj)" and "hashCode()" should be overridden in pairs
+K
+squidS1701S1701"4Fields and methods should not have conflicting names
+S
+squidS1201S1201"<Methods named "equals" should override Object.equals(Object)
+p
+squidS1200S1200"YClasses should not be coupled to too many other classes (Single Responsibility Principle)
+`
+squidClassCyclomaticComplexityClassCyclomaticComplexity"!Classes should not be too complex
+f
+squidS1602S1602"OLamdbas containing only one statement should not nest this statement in a block
+_
+squidS1604S1604"HAnonymous inner classes containing only one method should become lambdas
+J
+squidS1309S1309"3The @SuppressWarnings annotation should not be used
+K
+squidS1607S1607"4Skipped unit tests should be either removed or fixed
+P
+squidS1301S1301"9"switch" statements should have at least 3 "case" clauses
+1
+squidS2446S2446""notifyAll" should be used
+r
+squidS2445S2445"[Blocks synchronized on fields should not contain assignments of new objects to those fields
+V
+squidS2444S2444"?Lazy initialization of "static" fields should be "synchronized"
+M
+squidS1858S1858"6"toString()" should never be called on a String object
+y
+squidObjectFinalizeOverridenCheckObjectFinalizeOverridenCheck"4The Object.finalize() method should not be overriden
+B
+squidS2442S2442"+"Lock" objects should not be "synchronized"
+V
+squidS2441S2441"?Non-serializable objects should not be stored in "HttpSessions"
+T
+squidS2440S2440"=Classes with only "static" methods should not be instantiated
+C
+squidS1710S1710",Annotation repetitions should not be wrapped
+]
+squidS2583S2583"FConditions should not unconditionally evaluate to "TRUE" or to "FALSE"
+d
+squidS1850S1850"M"instanceof" operators that always return "true" or "false" should be removed
+J
+squidS2447S2447"3Null should not be returned from a "Boolean" method
+F
+squidS1310S1310"/"NOPMD" suppression comments should not be used
+d
+squidS864S864"OLimited dependence should be placed on operator precedence rules in expressions
+;
+squidS1313S1313"$IP addresses should not be hardcoded
+d
+squidS1312S1312"MLoggers should be "private static final" and should share a naming convention
+ö
+squidS1319S1319"ÇDeclarations should use Java collection interfaces such as "List" rather than specific implementation classes such as "LinkedList"
+W
+squidS1318S1318"@"object == null" should be used instead of "object.equals(null)"
+U
+squidS1452S1452">Generic wildcard types should not be used in return parameters
+F
+squidS1451S1451"/Copyright and license headers should be defined
+X
+squidIndentationCheckIndentationCheck"+Source code should be indented consistently
+_
+squidS2718S2718"H"DateUtils.truncate" from Apache Commons Lang library should not be used
+O
+squidS1315S1315"8"CHECKSTYLE:OFF" suppression comments should not be used
+6
+squidS1314S1314"Octal values should not be used
+e
+squidS1317S1317"N"StringBuilder" and "StringBuffer" should not be instantiated with a character
+Y
+squidS1860S1860"BSynchronization should not be based on Strings or boxed primitives
+Y
+squidS1862S1862"BRelated "if/else if" statements should not have the same condition
+[
+squidS1724S1724"DDeprecated classes and interfaces should not be extended/implemented
+z
+squidS881S881"eIncrement (++) and decrement (--) operators should not be mixed with other operators in an expression
+8
+squidParsingErrorParsingError"Java parser failure
+M
+squidS1598S1598"6Package declaration should match source file directory
+u
+squidS2055S2055"^The non-serializable super class of a "Serializable" class must have a no-argument constructor
+ì
+squidS1596S1596"|Collections.emptyList(), emptyMap() and emptySet() should be used instead of Collections.EMPTY_LIST, EMPTY_MAP and EMPTY_SET
+F
+squidS2057S2057"/"Serializable" classes should have a version id
+^
+squidS2059S2059"G"Serializable" inner classes of "Serializable" classes should be static
+N
+squidS2701S2701"7Literal boolean values should not be used in assertions
+;
+squidS2063S2063"$Comparators should be "Serializable"
+√
+squid'RightCurlyBraceSameLineAsNextBlockCheck'RightCurlyBraceSameLineAsNextBlockCheck"hClose curly brace and the next "else", "catch" and "finally" keywords should be located on the same line
+V
+squidS2061S2061"?Custom serialization method signatures should meet requirements
+C
+squidS1066S1066",Collapsible "if" statements should be merged
+<
+squidS1067S1067"%Expressions should not be too complex
+_
+squidEmptyStatementUsageCheckEmptyStatementUsageCheck""Empty statements should be removed
+b
+squidMethodCyclomaticComplexityMethodCyclomaticComplexity"!Methods should not be too complex
+6
+squidS1065S1065"Unused labels should be removed
+>
+squidS1068S1068"'Unused private fields should be removed
+U
+squidS2976S2976">"File.createTempFile" should not be used to create a directory
+N
+squidS2974S2974"7Classes without "public" constructors should be "final"
+;
+squidS2068S2068"$Credentials should not be hard-coded
+4
+squidS2970S2970"Assertions should be complete
+S
+squidS2065S2065"<Fields in non-serializable classes should not be "transient"
+b
+squidS2066S2066"K"Serializable" inner classes of non-serializable classes should be "static"
+U
+squidS1197S1197">Array designators "[]" should be on the type, not the variable
+Å
+squidS1844S1844"j"Object.wait(...)" should never be called on objects that implement "java.util.concurrent.locks.Condition"
+<
+squidS1199S1199"%Nested code blocks should not be used
+a
+squidS1848S1848"JObjects should not be created to be dropped immediately without being used
+K
+squidS2301S2301"4Public methods should not contain selector arguments
+M
+squidS1849S1849"6"Iterator.hasNext()" should not call "Iterator.next()"
+R
+squidS2070S2070";SHA-1 and Message-Digest hash algorithms should not be used
+á
+squidRightCurlyBraceStartLineCheckRightCurlyBraceStartLineCheck"@A close curly brace should be located at the beginning of a line
+]
+squidS2864S2864"F"entrySet()" should be iterated when both the key and value are needed
+
+squidS1444S1444":
+G
+squidS1191S1191"0Classes from "sun.*" packages should not be used
+B
+squidS1190S1190"+Future keywords should not be used as names
+^
+squidS1193S1193"GException types should not be tested using "instanceof" in catch blocks
+G
+squidS2076S2076"0Values passed to OS commands should be sanitized
+H
+squidS2077S2077"1Values passed to SQL commands should be sanitized
+5
+squidS109S109" Magic numbers should not be used
+?
+squidS1192S1192"(String literals should not be duplicated
+P
+squidS106S106";Standard ouputs should not be used directly to log anything
+c
+squidS1195S1195"LArray designators "[]" should be located after the type in method signatures
+H
+squidS2078S2078"1Values passed to LDAP queries should be sanitized
+∫
+squid.ObjectFinalizeOverridenCallsSuperFinalizeCheck.ObjectFinalizeOverridenCallsSuperFinalizeCheck"Qsuper.finalize() should be called at the end of Object.finalize() implementations
+?
+squidS1194S1194"("java.lang.Error" should not be extended

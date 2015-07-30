@@ -19,42 +19,46 @@
  */
 package org.sonar.batch.rule;
 
-import org.assertj.core.api.Condition;
+import com.google.common.collect.Lists;
 
 import org.sonar.api.batch.rule.Rules;
-
-import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
-import org.sonar.batch.protocol.input.Rule;
-import org.sonar.batch.protocol.input.RulesSearchResult;
+import org.sonarqube.ws.Rules.ListResponse.Rule;
 import org.junit.Test;
 
 public class RulesProviderTest {
   @Test
   public void testRuleTranslation() {
-    final Rule testRule = new Rule("repo1:key1", "repo1", "key1", "name");
-
-    RulesSearchResult loadResult = new RulesSearchResult();
-    loadResult.setRules(Arrays.asList(testRule));
     RulesLoader loader = mock(RulesLoader.class);
-    when(loader.load()).thenReturn(loadResult);
+    when(loader.load()).thenReturn(Lists.newArrayList(getTestRule()));
 
     RulesProvider provider = new RulesProvider();
+
     Rules rules = provider.provide(loader);
 
     assertThat(rules.findAll()).hasSize(1);
-    assertThat(rules.findAll()).are(new Condition<org.sonar.api.batch.rule.Rule>() {
+    assertRule(rules.findAll().iterator().next());
+  }
 
-      @Override
-      public boolean matches(org.sonar.api.batch.rule.Rule value) {
-        return value.key().rule().equals(testRule.internalKey()) &&
-          value.internalKey().equals(testRule.internalKey()) &&
-          value.name().equals(testRule.name()) &&
-          value.key().repository().equals(testRule.repositoryKey());
-      }
-    });
+  private static void assertRule(org.sonar.api.batch.rule.Rule r) {
+    Rule testRule = getTestRule();
+
+    assertThat(r.name()).isEqualTo(testRule.getName());
+    assertThat(r.internalKey()).isEqualTo(testRule.getInternalKey());
+    assertThat(r.key().toString()).isEqualTo(testRule.getKey());
+    assertThat(r.key().repository()).isEqualTo(testRule.getRepository());
+  }
+
+  private static Rule getTestRule() {
+    Rule.Builder ruleBuilder = Rule.newBuilder();
+    ruleBuilder.setKey("repo1:key1");
+    ruleBuilder.setRepository("repo1");
+    ruleBuilder.setName("name");
+    ruleBuilder.setInternalKey("key1");
+    return ruleBuilder.build();
+
   }
 }

@@ -19,7 +19,14 @@
  */
 package org.sonar.batch.rule;
 
-import org.sonar.batch.protocol.input.RulesSearchResult;
+import org.sonarqube.ws.Rules.ListResponse.Rule;
+import com.google.common.io.ByteSource;
+import org.sonarqube.ws.Rules.ListResponse;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
 import org.sonar.batch.bootstrap.WSLoader;
 
 public class DefaultRulesLoader implements RulesLoader {
@@ -32,21 +39,17 @@ public class DefaultRulesLoader implements RulesLoader {
   }
 
   @Override
-  public RulesSearchResult load() {
+  public List<Rule> load() {
+    ListResponse list = loadFromSource(wsLoader.loadSource(RULES_SEARCH_URL));
+    return list.getRulesList();
+  }
 
-    RulesSearchResult rules = RulesSearchResult.fromJson(wsLoader.loadString(getUrl(1)));
-
-    for (int i = 2; i < 100; i++) {
-      RulesSearchResult moreRules = RulesSearchResult.fromJson(wsLoader.loadString(getUrl(i)));
-      if (moreRules.getRules().isEmpty()) {
-        break;
-      }
-      rules.getRules().addAll(moreRules.getRules());
+  private ListResponse loadFromSource(ByteSource input) {
+    try (InputStream is = input.openStream()) {
+      return ListResponse.parseFrom(is);
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to get previous issues", e);
     }
-    return rules;
   }
 
-  private static String getUrl(int page) {
-    return RULES_SEARCH_URL + "&p=" + page;
-  }
 }

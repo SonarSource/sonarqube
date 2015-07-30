@@ -620,6 +620,11 @@
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
+        <artifactId>sonar-ws</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-duplications</artifactId>
         <version>${project.version}</version>
       </dependency>

@@ -19,8 +19,10 @@
  */
 package org.sonar.batch.rule;
 
-import org.sonar.batch.protocol.input.RulesSearchResult;
+import java.util.List;
+
+import org.sonarqube.ws.Rules.ListResponse.Rule;
 
 public interface RulesLoader {
-  RulesSearchResult load();
+  List<Rule> load();
 }

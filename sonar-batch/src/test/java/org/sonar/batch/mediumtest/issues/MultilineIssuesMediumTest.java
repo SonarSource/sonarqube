@@ -45,7 +45,7 @@ public class MultilineIssuesMediumTest {
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addRules(new XooRulesDefinition())
-    .addRule(new Rule("xoo:MultilineIssue", "xoo", null, "Multinile Issue"))
+    .addRule("xoo:MultilineIssue", "xoo", null, "Multinile Issue")
     .addDefaultQProfile("xoo", "Sonar Way")
     .activateRule(new ActiveRule("xoo", "MultilineIssue", null, "Multinile Issue", "MAJOR", null, "xoo"))
     .build();

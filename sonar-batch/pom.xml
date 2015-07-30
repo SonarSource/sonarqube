@@ -52,6 +52,10 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-ws</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-home</artifactId>
     </dependency>
     <dependency>
