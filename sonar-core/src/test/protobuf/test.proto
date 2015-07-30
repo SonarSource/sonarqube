@@ -18,6 +18,7 @@
     Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+syntax = "proto2";
 
 option java_package = "org.sonar.core.test";
 option optimize_for = SPEED;

@@ -30,6 +30,7 @@ Notes
     are updated and committed for each change (see src/main/gen-java).
 */
 
+syntax = "proto2";
 
 import "constants.proto";
 

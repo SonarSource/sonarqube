@@ -20,6 +20,8 @@
 
 // Structure of db column FILE_SOURCES.BINARY_DATA
 
+syntax = "proto2";
+
 // Package must not be changed for backward-compatibility
 // with the DB rows inserted in DB before 5.2
 package org.sonar.server.source.db;
