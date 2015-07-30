@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +34,7 @@ import org.sonar.home.cache.PersistentCache;
 import org.sonar.home.cache.PersistentCacheBuilder;
 
 public class PersistentCacheProvider extends ProviderAdapter {
+  private static final Logger LOG = Loggers.get(PersistentCacheProvider.class);
   private PersistentCache cache;
 
   public PersistentCache provide(UserProperties props) {
@@ -57,6 +61,7 @@ public class PersistentCacheProvider extends ProviderAdapter {
     try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
       return br.readLine();
     } catch (IOException e) {
+      LOG.warn("Failed to get SQ version", e);
       return null;
     }
   }
