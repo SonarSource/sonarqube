@@ -127,6 +127,8 @@ public class DbMigrationJsonWriter {
       "<li>MIGRATION_RUNNING: DB migration is under go.</li>" +
       "<li>MIGRATION_SUCCEEDED: DB migration has run and has been successful.</li>" +
       "<li>MIGRATION_FAILED: DB migration has run and failed. SonarQube must be restarted in order to retry a " +
-      "DB migration (optionally after DB has been restored from backup).</li>";
+      "DB migration (optionally after DB has been restored from backup).</li>" +
+      "<li>MIGRATION_REQUIRED: DB migration is required.</li>" +
+      "</ul>";
   }
 }
