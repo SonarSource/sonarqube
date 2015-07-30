@@ -59,9 +59,11 @@ public class SearchAction implements IssueFilterWsAction {
 
     // Favorite filters, if logged in
     if (userSession.isLoggedIn()) {
-      List<IssueFilterDto> favorites = service.findByUser(userSession);
+      List<IssueFilterDto> filters = service.findFavoriteFilters(userSession);
+      List<IssueFilterDto> sharedFiltersWithoutUserFilters = service.findSharedFiltersWithoutUserFilters(userSession);
+      filters.addAll(sharedFiltersWithoutUserFilters);
       json.name("issueFilters").beginArray();
-      for (IssueFilterDto favorite : favorites) {
+      for (IssueFilterDto favorite : filters) {
         issueFilterJsonWriter.write(json, favorite, userSession);
       }
       json.endArray();

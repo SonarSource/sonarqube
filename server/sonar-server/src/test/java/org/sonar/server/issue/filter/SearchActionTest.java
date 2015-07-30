@@ -20,7 +20,6 @@
 
 package org.sonar.server.issue.filter;
 
-import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,6 +27,7 @@ import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -69,12 +69,14 @@ public class SearchActionTest {
   @Test
   public void logged_in_app_with_all_issue_filters() throws Exception {
     userSessionRule.login("eric").setUserId(123);
-    when(service.findByUser(userSessionRule)).thenReturn(Arrays.asList(
+    when(service.findFavoriteFilters(userSessionRule)).thenReturn(newArrayList(
       new IssueFilterDto()
         .setId(3L)
         .setName("My Unresolved Issues")
         .setShared(true)
-        .setData("resolved=false|assignees=__me__"),
+        .setData("resolved=false|assignees=__me__")
+      ));
+    when(service.findSharedFiltersWithoutUserFilters(userSessionRule)).thenReturn(newArrayList(
       new IssueFilterDto()
         .setId(2L)
         .setName("False Positive and Won't Fix Issues")
