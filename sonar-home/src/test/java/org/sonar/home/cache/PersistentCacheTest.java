@@ -41,7 +41,7 @@ public class PersistentCacheTest {
 
   @Before
   public void setUp() {
-    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, mock(Logger.class));
+    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, mock(Logger.class), null);
   }
 
   @Test
@@ -79,7 +79,7 @@ public class PersistentCacheTest {
 
   @Test
   public void testReconfigure() throws Exception {
-    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, mock(Logger.class));
+    cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, mock(Logger.class), null);
     assertCacheHit(false);
     assertCacheHit(true);
 
@@ -97,14 +97,29 @@ public class PersistentCacheTest {
   @Test
   public void testExpiration() throws Exception {
     // negative time to make sure it is expired on the second call
-    cache = new PersistentCache(tmp.getRoot().toPath(), -100, mock(Logger.class));
+    cache = new PersistentCache(tmp.getRoot().toPath(), -100, mock(Logger.class), null);
     assertCacheHit(false);
     assertCacheHit(false);
   }
+  
+  @Test
+  public void testDifferentServerVersions() throws Exception {
+    assertCacheHit(false);
+    assertCacheHit(true);
+    
+    PersistentCache cache2 = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, mock(Logger.class), "5.2");
+    assertCacheHit(cache2, false);
+    assertCacheHit(cache2, true);
+    
+  }
 
   private void assertCacheHit(boolean hit) throws Exception {
+    assertCacheHit(cache, hit);
+  }
+  
+  private void assertCacheHit(PersistentCache pCache, boolean hit) throws Exception {
     CacheFillerString c = new CacheFillerString();
-    assertThat(cache.getString(URI, c)).isEqualTo(VALUE);
+    assertThat(pCache.getString(URI, c)).isEqualTo(VALUE);
     assertThat(c.wasCalled).isEqualTo(!hit);
   }
 
