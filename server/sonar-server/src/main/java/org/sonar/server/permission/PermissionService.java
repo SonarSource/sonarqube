@@ -32,7 +32,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDto;
-import org.sonar.db.permission.PermissionFacade;
+import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
@@ -45,7 +45,7 @@ import org.sonar.server.user.UserSession;
  * Used by ruby code <pre>Internal.permissions</pre>
  */
 @ServerSide
-public class InternalPermissionService {
+public class PermissionService {
 
   private enum Operation {
     ADD, REMOVE
@@ -56,16 +56,16 @@ public class InternalPermissionService {
   private static final String NOT_FOUND_FORMAT = "%s %s does not exist";
 
   private final DbClient dbClient;
-  private final PermissionFacade permissionFacade;
+  private final PermissionRepository permissionRepository;
   private final PermissionFinder finder;
   private final IssueAuthorizationIndexer issueAuthorizationIndexer;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
 
-  public InternalPermissionService(DbClient dbClient, PermissionFacade permissionFacade, PermissionFinder finder,
-                                   IssueAuthorizationIndexer issueAuthorizationIndexer, UserSession userSession, ComponentFinder componentFinder) {
+  public PermissionService(DbClient dbClient, PermissionRepository permissionRepository, PermissionFinder finder,
+                           IssueAuthorizationIndexer issueAuthorizationIndexer, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
-    this.permissionFacade = permissionFacade;
+    this.permissionRepository = permissionRepository;
     this.finder = finder;
     this.issueAuthorizationIndexer = issueAuthorizationIndexer;
     this.userSession = userSession;
@@ -132,7 +132,7 @@ public class InternalPermissionService {
       } else {
         userSession.checkGlobalPermission(GlobalPermissions.PROVISIONING);
       }
-      permissionFacade.grantDefaultRoles(session, component.getId(), component.qualifier());
+      permissionRepository.grantDefaultRoles(session, component.getId(), component.qualifier());
       session.commit();
     } finally {
       session.close();
@@ -164,7 +164,7 @@ public class InternalPermissionService {
 
       for (String componentKey : query.getSelectedComponents()) {
         ComponentDto component = componentFinder.getByKey(session, componentKey);
-        permissionFacade.applyPermissionTemplate(session, query.getTemplateKey(), component.getId());
+        permissionRepository.applyPermissionTemplate(session, query.getTemplateKey(), component.getId());
         projectsChanged = true;
       }
       session.commit();
@@ -197,16 +197,16 @@ public class InternalPermissionService {
     Long componentId = getComponentId(session, permissionChange.component());
     checkProjectAdminPermission(permissionChange.component());
 
-    List<String> existingPermissions = permissionFacade.selectGroupPermissions(session, permissionChange.group(), componentId);
+    List<String> existingPermissions = dbClient.roleDao().selectGroupPermissions(session, permissionChange.group(), componentId);
     if (shouldSkipPermissionChange(operation, existingPermissions, permissionChange)) {
       return false;
     }
 
     Long targetedGroup = getTargetedGroup(session, permissionChange.group());
     if (Operation.ADD == operation) {
-      permissionFacade.insertGroupPermission(componentId, targetedGroup, permissionChange.permission(), session);
+      permissionRepository.insertGroupPermission(componentId, targetedGroup, permissionChange.permission(), session);
     } else {
-      permissionFacade.deleteGroupPermission(componentId, targetedGroup, permissionChange.permission(), session);
+      permissionRepository.deleteGroupPermission(componentId, targetedGroup, permissionChange.permission(), session);
     }
     return true;
   }
@@ -215,16 +215,16 @@ public class InternalPermissionService {
     Long componentId = getComponentId(session, permissionChange.component());
     checkProjectAdminPermission(permissionChange.component());
 
-    List<String> existingPermissions = permissionFacade.selectUserPermissions(session, permissionChange.user(), componentId);
+    List<String> existingPermissions = dbClient.roleDao().selectUserPermissions(session, permissionChange.user(), componentId);
     if (shouldSkipPermissionChange(operation, existingPermissions, permissionChange)) {
       return false;
     }
 
     Long targetedUser = getTargetedUser(session, permissionChange.user());
     if (Operation.ADD == operation) {
-      permissionFacade.insertUserPermission(componentId, targetedUser, permissionChange.permission(), session);
+      permissionRepository.insertUserPermission(componentId, targetedUser, permissionChange.permission(), session);
     } else {
-      permissionFacade.deleteUserPermission(componentId, targetedUser, permissionChange.permission(), session);
+      permissionRepository.deleteUserPermission(componentId, targetedUser, permissionChange.permission(), session);
     }
     return true;
 

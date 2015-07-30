@@ -32,7 +32,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.permission.InternalPermissionService;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.util.RubyUtils;
 
 public class DefaultRubyComponentService implements RubyComponentService {
@@ -40,9 +40,9 @@ public class DefaultRubyComponentService implements RubyComponentService {
   private final ResourceDao resourceDao;
   private final DefaultComponentFinder finder;
   private final ComponentService componentService;
-  private final InternalPermissionService permissionService;
+  private final PermissionService permissionService;
 
-  public DefaultRubyComponentService(ResourceDao resourceDao, DefaultComponentFinder finder, ComponentService componentService, InternalPermissionService permissionService) {
+  public DefaultRubyComponentService(ResourceDao resourceDao, DefaultComponentFinder finder, ComponentService componentService, PermissionService permissionService) {
     this.resourceDao = resourceDao;
     this.finder = finder;
     this.componentService = componentService;

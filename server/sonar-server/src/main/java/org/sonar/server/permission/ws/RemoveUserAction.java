@@ -24,7 +24,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.permission.InternalPermissionService;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionChange;
 
 public class RemoveUserAction implements PermissionsWsAction {
@@ -33,9 +33,9 @@ public class RemoveUserAction implements PermissionsWsAction {
   public static final String PARAM_PERMISSION = "permission";
   public static final String PARAM_USER_LOGIN = "login";
 
-  private final InternalPermissionService permissionService;
+  private final PermissionService permissionService;
 
-  public RemoveUserAction(InternalPermissionService permissionService) {
+  public RemoveUserAction(PermissionService permissionService) {
     this.permissionService = permissionService;
   }
 

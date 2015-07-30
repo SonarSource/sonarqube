@@ -24,7 +24,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.permission.InternalPermissionService;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionChange;
 
 public class RemoveGroupAction implements PermissionsWsAction {
@@ -33,9 +33,9 @@ public class RemoveGroupAction implements PermissionsWsAction {
   public static final String PARAM_PERMISSION = "permission";
   public static final String PARAM_GROUP_NAME = "groupName";
 
-  private final InternalPermissionService permissionService;
+  private final PermissionService permissionService;
 
-  public RemoveGroupAction(InternalPermissionService permissionService) {
+  public RemoveGroupAction(PermissionService permissionService) {
     this.permissionService = permissionService;
   }
 

@@ -53,11 +53,11 @@ public class RoleDao implements Dao {
     mapper(session).deleteGroupRole(groupRole);
   }
 
-  public void deleteGroupRolesByResourceId(Long resourceId, SqlSession session) {
+  public void deleteGroupRolesByResourceId(DbSession session, Long resourceId) {
     mapper(session).deleteGroupRolesByResourceId(resourceId);
   }
 
-  public void deleteUserRolesByResourceId(Long resourceId, SqlSession session) {
+  public void deleteUserRolesByResourceId(DbSession session, Long resourceId) {
     mapper(session).deleteUserRolesByResourceId(resourceId);
   }
 
@@ -71,6 +71,15 @@ public class RoleDao implements Dao {
 
   public void deleteGroupRolesByGroupId(DbSession session, long groupId) {
     mapper(session).deleteGroupRolesByGroupId(groupId);
+  }
+
+  public int countComponentPermissions(DbSession session, Long componentId) {
+    return countResourceGroupRoles(session, componentId) + countResourceUserRoles(session, componentId);
+  }
+
+  public void removeAllPermissions(DbSession session, Long resourceId) {
+    deleteGroupRolesByResourceId(session, resourceId);
+    deleteUserRolesByResourceId(session, resourceId);
   }
 
   private static RoleMapper mapper(SqlSession session) {

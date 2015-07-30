@@ -24,7 +24,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-import org.sonar.db.permission.PermissionFacade;
+import org.sonar.db.permission.PermissionRepository;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
@@ -37,15 +37,15 @@ public class ApplyPermissionsStep implements ComputationStep {
   private final DbClient dbClient;
   private final DbIdsRepository dbIdsRepository;
   private final IssueAuthorizationIndexer indexer;
-  private final PermissionFacade permissionFacade;
+  private final PermissionRepository permissionRepository;
   private final TreeRootHolder treeRootHolder;
 
   public ApplyPermissionsStep(DbClient dbClient, DbIdsRepository dbIdsRepository, IssueAuthorizationIndexer indexer,
-                              PermissionFacade permissionFacade, TreeRootHolder treeRootHolder) {
+                              PermissionRepository permissionRepository, TreeRootHolder treeRootHolder) {
     this.dbClient = dbClient;
     this.dbIdsRepository = dbIdsRepository;
     this.indexer = indexer;
-    this.permissionFacade = permissionFacade;
+    this.permissionRepository = permissionRepository;
     this.treeRootHolder = treeRootHolder;
   }
 
@@ -54,8 +54,8 @@ public class ApplyPermissionsStep implements ComputationStep {
     DbSession session = dbClient.openSession(false);
     try {
       long projectId = dbIdsRepository.getComponentId(treeRootHolder.getRoot());
-      if (permissionFacade.countComponentPermissions(session, projectId) == 0) {
-        permissionFacade.grantDefaultRoles(session, projectId, Qualifiers.PROJECT);
+      if (dbClient.roleDao().countComponentPermissions(session, projectId) == 0) {
+        permissionRepository.grantDefaultRoles(session, projectId, Qualifiers.PROJECT);
         session.commit();
       }
       // As batch is still apply permission on project, indexing of issue authorization must always been done

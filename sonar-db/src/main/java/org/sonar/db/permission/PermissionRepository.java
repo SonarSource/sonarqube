@@ -20,7 +20,6 @@
 
 package org.sonar.db.permission;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -32,12 +31,9 @@ import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupRoleDto;
-import org.sonar.db.user.RoleDao;
-import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserRoleDto;
 
 /**
@@ -48,19 +44,13 @@ import org.sonar.db.user.UserRoleDto;
  * WARNING, this class is called by Views to apply default permission template on new views
  */
 @ServerSide
-public class PermissionFacade {
+public class PermissionRepository {
 
-  private final RoleDao roleDao;
-  private final UserDao userDao;
-  private final PermissionTemplateDao permissionTemplateDao;
+  private final DbClient dbClient;
   private final Settings settings;
-  private final ResourceDao resourceDao;
 
-  public PermissionFacade(DbClient dbClient, Settings settings) {
-    this.roleDao = dbClient.roleDao();
-    this.userDao = dbClient.userDao();
-    this.resourceDao = dbClient.resourceDao();
-    this.permissionTemplateDao = dbClient.permissionTemplateDao();
+  public PermissionRepository(DbClient dbClient, Settings settings) {
+    this.dbClient = dbClient;
     this.settings = settings;
   }
 
@@ -73,9 +63,9 @@ public class PermissionFacade {
       .setUserId(userId)
       .setResourceId(resourceId);
     if (updateProjectAuthorizationDate) {
-      updateProjectAuthorizationDate(resourceId, session);
+      updateProjectAuthorizationDate(session, resourceId);
     }
-    roleDao.insertUserRole(userRoleDto, session);
+    dbClient.roleDao().insertUserRole(userRoleDto, session);
   }
 
   public void insertUserPermission(@Nullable Long resourceId, Long userId, String permission, DbSession session) {
@@ -87,8 +77,8 @@ public class PermissionFacade {
       .setRole(permission)
       .setUserId(userId)
       .setResourceId(resourceId);
-    updateProjectAuthorizationDate(resourceId, session);
-    roleDao.deleteUserRole(userRoleDto, session);
+    updateProjectAuthorizationDate(session, resourceId);
+    dbClient.roleDao().deleteUserRole(userRoleDto, session);
   }
 
   private void insertGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission, boolean updateProjectAuthorizationDate, DbSession session) {
@@ -96,8 +86,8 @@ public class PermissionFacade {
       .setRole(permission)
       .setGroupId(groupId)
       .setResourceId(resourceId);
-    updateProjectAuthorizationDate(resourceId, session);
-    roleDao.insertGroupRole(groupRole, session);
+    updateProjectAuthorizationDate(session, resourceId);
+    dbClient.roleDao().insertGroupRole(groupRole, session);
   }
 
   public void insertGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission, DbSession session) {
@@ -108,7 +98,7 @@ public class PermissionFacade {
     if (DefaultGroups.isAnyone(groupName)) {
       insertGroupPermission(resourceId, (Long) null, permission, session);
     } else {
-      GroupDto group = userDao.selectGroupByName(groupName, session);
+      GroupDto group = dbClient.userDao().selectGroupByName(groupName, session);
       if (group != null) {
         insertGroupPermission(resourceId, group.getId(), permission, session);
       }
@@ -120,15 +110,15 @@ public class PermissionFacade {
       .setRole(permission)
       .setGroupId(groupId)
       .setResourceId(resourceId);
-    updateProjectAuthorizationDate(resourceId, session);
-    roleDao.deleteGroupRole(groupRole, session);
+    updateProjectAuthorizationDate(session, resourceId);
+    dbClient.roleDao().deleteGroupRole(groupRole, session);
   }
 
   public void deleteGroupPermission(@Nullable Long resourceId, String groupName, String permission, DbSession session) {
     if (DefaultGroups.isAnyone(groupName)) {
       deleteGroupPermission(resourceId, (Long) null, permission, session);
     } else {
-      GroupDto group = userDao.selectGroupByName(groupName, session);
+      GroupDto group = dbClient.userDao().selectGroupByName(groupName, session);
       if (group != null) {
         deleteGroupPermission(resourceId, group.getId(), permission, session);
       }
@@ -138,32 +128,16 @@ public class PermissionFacade {
   /**
    * For each modification of permission on a project, update the authorization_updated_at to help ES reindex only relevant changes
    */
-  private void updateProjectAuthorizationDate(@Nullable Long projectId, DbSession session) {
+  private void updateProjectAuthorizationDate(DbSession session, @Nullable Long projectId) {
     if (projectId != null) {
-      resourceDao.updateAuthorizationDate(projectId, session);
+      dbClient.resourceDao().updateAuthorizationDate(projectId, session);
     }
-  }
-
-  /**
-   * Load permission template and load associated collections of users and groups permissions
-   */
-  @VisibleForTesting
-  PermissionTemplateDto getPermissionTemplateWithPermissions(DbSession session, String templateKey) {
-    PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.selectTemplateByKey(session, templateKey);
-    if (permissionTemplateDto == null) {
-      throw new IllegalArgumentException("Could not retrieve permission template with key " + templateKey);
-    }
-    PermissionTemplateDto templateWithPermissions = permissionTemplateDao.selectPermissionTemplate(session, permissionTemplateDto.getKee());
-    if (templateWithPermissions == null) {
-      throw new IllegalArgumentException("Could not retrieve permissions for template with key " + templateKey);
-    }
-    return templateWithPermissions;
   }
 
   public void applyPermissionTemplate(DbSession session, String templateKey, Long resourceId) {
-    PermissionTemplateDto permissionTemplate = getPermissionTemplateWithPermissions(session, templateKey);
-    updateProjectAuthorizationDate(resourceId, session);
-    removeAllPermissions(resourceId, session);
+    PermissionTemplateDto permissionTemplate = dbClient.permissionTemplateDao().selectPermissionTemplateWithPermissions(session, templateKey);
+    updateProjectAuthorizationDate(session, resourceId);
+    dbClient.roleDao().removeAllPermissions(session, resourceId);
     List<PermissionTemplateUserDto> usersPermissions = permissionTemplate.getUsersPermissions();
     if (usersPermissions != null) {
       for (PermissionTemplateUserDto userPermission : usersPermissions) {
@@ -179,25 +153,8 @@ public class PermissionFacade {
     }
   }
 
-  public int countComponentPermissions(DbSession session, Long resourceId) {
-    return roleDao.countResourceGroupRoles(session, resourceId) + roleDao.countResourceUserRoles(session, resourceId);
-  }
-
-  protected void removeAllPermissions(Long resourceId, DbSession session) {
-    roleDao.deleteGroupRolesByResourceId(resourceId, session);
-    roleDao.deleteUserRolesByResourceId(resourceId, session);
-  }
-
-  public List<String> selectGroupPermissions(DbSession session, String group, @Nullable Long componentId) {
-    return roleDao.selectGroupPermissions(session, group, componentId);
-  }
-
-  public List<String> selectUserPermissions(DbSession session, String user, @Nullable Long componentId) {
-    return roleDao.selectUserPermissions(session, user, componentId);
-  }
-
   public void grantDefaultRoles(DbSession session, Long componentId, String qualifier) {
-    ResourceDto resource = resourceDao.selectResource(componentId, session);
+    ResourceDto resource = dbClient.resourceDao().selectResource(componentId, session);
     String applicablePermissionTemplateKey = getApplicablePermissionTemplateKey(session, resource.getKey(), qualifier);
     applyPermissionTemplate(session, applicablePermissionTemplateKey, componentId);
   }
@@ -207,7 +164,7 @@ public class PermissionFacade {
    * permission template for the resource qualifier.
    */
   private String getApplicablePermissionTemplateKey(DbSession session, final String componentKey, String qualifier) {
-    List<PermissionTemplateDto> allPermissionTemplates = permissionTemplateDao.selectAllPermissionTemplates(session);
+    List<PermissionTemplateDto> allPermissionTemplates = dbClient.permissionTemplateDao().selectAllPermissionTemplates(session);
     List<PermissionTemplateDto> matchingTemplates = new ArrayList<>();
     for (PermissionTemplateDto permissionTemplateDto : allPermissionTemplates) {
       String keyPattern = permissionTemplateDto.getKeyPattern();
@@ -234,7 +191,7 @@ public class PermissionFacade {
   private void checkAtMostOneMatchForComponentKey(final String componentKey, List<PermissionTemplateDto> matchingTemplates) {
     if (matchingTemplates.size() > 1) {
       StringBuilder templatesNames = new StringBuilder();
-      for (Iterator<PermissionTemplateDto> it = matchingTemplates.iterator(); it.hasNext(); ) {
+      for (Iterator<PermissionTemplateDto> it = matchingTemplates.iterator(); it.hasNext();) {
         templatesNames.append("\"").append(it.next().getName()).append("\"");
         if (it.hasNext()) {
           templatesNames.append(", ");

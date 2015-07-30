@@ -56,7 +56,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class InternalPermissionTemplateServiceTest {
+public class PermissionTemplateServiceTest {
 
   private static final String DEFAULT_KEY = "my_template";
   private static final String DEFAULT_DESC = "my description";
@@ -83,7 +83,7 @@ public class InternalPermissionTemplateServiceTest {
   @Mock
   DbSession session;
 
-  InternalPermissionTemplateService service;
+  PermissionTemplateService service;
 
   @Rule
   public ExpectedException expected = ExpectedException.none();
@@ -94,7 +94,7 @@ public class InternalPermissionTemplateServiceTest {
 
     MyBatis myBatis = mock(MyBatis.class);
     when(myBatis.openSession(false)).thenReturn(session);
-    service = new InternalPermissionTemplateService(myBatis, permissionTemplateDao, userDao, finder, userSessionRule);
+    service = new PermissionTemplateService(myBatis, permissionTemplateDao, userDao, finder, userSessionRule);
   }
 
   @Test

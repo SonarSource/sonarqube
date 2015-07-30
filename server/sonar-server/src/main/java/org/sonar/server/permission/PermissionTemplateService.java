@@ -46,7 +46,7 @@ import org.sonar.server.user.UserSession;
  * Used by ruby code <pre>Internal.permission_templates</pre>
  */
 @ServerSide
-public class InternalPermissionTemplateService {
+public class PermissionTemplateService {
 
   private final MyBatis myBatis;
   private final PermissionTemplateDao permissionTemplateDao;
@@ -54,7 +54,7 @@ public class InternalPermissionTemplateService {
   private final PermissionFinder finder;
   private final UserSession userSession;
 
-  public InternalPermissionTemplateService(MyBatis myBatis, PermissionTemplateDao permissionTemplateDao, UserDao userDao, PermissionFinder finder, UserSession userSession) {
+  public PermissionTemplateService(MyBatis myBatis, PermissionTemplateDao permissionTemplateDao, UserDao userDao, PermissionFinder finder, UserSession userSession) {
     this.myBatis = myBatis;
     this.permissionTemplateDao = permissionTemplateDao;
     this.userDao = userDao;

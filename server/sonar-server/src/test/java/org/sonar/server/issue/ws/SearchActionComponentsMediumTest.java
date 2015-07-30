@@ -43,7 +43,7 @@ import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.permission.InternalPermissionService;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
@@ -551,7 +551,7 @@ public class SearchActionComponentsMediumTest {
 
   private void setAnyoneProjectPermission(ComponentDto project, String permission) {
     userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(permission));
+    tester.get(PermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(permission));
   }
 
   private IssueDto insertIssue(IssueDto issue) {

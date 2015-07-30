@@ -251,6 +251,22 @@ public class PermissionTemplateDao implements Dao {
   }
 
   /**
+   * Load permission template and load associated collections of users and groups permissions
+   */
+  @VisibleForTesting
+  PermissionTemplateDto selectPermissionTemplateWithPermissions(DbSession session, String templateKey) {
+    PermissionTemplateDto permissionTemplateDto = selectTemplateByKey(session, templateKey);
+    if (permissionTemplateDto == null) {
+      throw new IllegalArgumentException("Could not retrieve permission template with key " + templateKey);
+    }
+    PermissionTemplateDto templateWithPermissions = selectPermissionTemplate(session, permissionTemplateDto.getKee());
+    if (templateWithPermissions == null) {
+      throw new IllegalArgumentException("Could not retrieve permissions for template with key " + templateKey);
+    }
+    return templateWithPermissions;
+  }
+
+  /**
    * Remove a group from all templates (used when removing a group)
    */
   public void deleteByGroup(SqlSession session, Long groupId) {

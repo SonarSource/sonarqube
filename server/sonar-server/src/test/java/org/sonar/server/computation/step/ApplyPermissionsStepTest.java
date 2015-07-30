@@ -36,7 +36,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.permission.PermissionFacade;
+import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupRoleDto;
 import org.sonar.server.component.ComponentTesting;
@@ -91,7 +91,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
 
     dbIdsRepository = new DbIdsRepository();
 
-    step = new ApplyPermissionsStep(dbClient, dbIdsRepository, issueAuthorizationIndexer, new PermissionFacade(dbClient, settings), treeRootHolder);
+    step = new ApplyPermissionsStep(dbClient, dbIdsRepository, issueAuthorizationIndexer, new PermissionRepository(dbClient, settings), treeRootHolder);
   }
 
   @After

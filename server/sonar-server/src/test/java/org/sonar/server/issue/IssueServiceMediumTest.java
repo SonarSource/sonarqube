@@ -60,7 +60,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.permission.InternalPermissionService;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
@@ -587,7 +587,7 @@ public class IssueServiceMediumTest {
     session.commit();
 
     // project can be seen by group "anyone"
-    tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
+    tester.get(PermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
     userSessionRule.login();
 
     return project;

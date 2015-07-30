@@ -39,7 +39,7 @@ import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.core.user.DeprecatedUserFinder;
-import org.sonar.db.permission.PermissionFacade;
+import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.purge.period.DefaultPeriodCleaner;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
@@ -173,8 +173,8 @@ import org.sonar.server.notification.NotificationCenter;
 import org.sonar.server.notification.NotificationService;
 import org.sonar.server.notification.email.AlertsEmailTemplate;
 import org.sonar.server.notification.email.EmailNotificationChannel;
-import org.sonar.server.permission.InternalPermissionService;
-import org.sonar.server.permission.InternalPermissionTemplateService;
+import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.permission.ws.PermissionsWsModule;
 import org.sonar.server.platform.BackendCleanup;
@@ -555,9 +555,9 @@ public class PlatformLevel4 extends PlatformLevel {
       UserGroupsModule.class,
 
       // permissions
-      PermissionFacade.class,
-      InternalPermissionService.class,
-      InternalPermissionTemplateService.class,
+      PermissionRepository.class,
+      PermissionService.class,
+      PermissionTemplateService.class,
       PermissionFinder.class,
       PermissionsWsModule.class,
 

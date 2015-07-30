@@ -28,7 +28,7 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.permission.InternalPermissionService;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -46,11 +46,11 @@ public class AddUserActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-  private InternalPermissionService permissionService;
+  private PermissionService permissionService;
 
   @Before
   public void setUp() {
-    permissionService = mock(InternalPermissionService.class);
+    permissionService = mock(PermissionService.class);
     ws = new WsTester(new PermissionsWs(
       new AddUserAction(permissionService)));
     userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);

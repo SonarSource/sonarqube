@@ -32,8 +32,8 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.UserDto;
@@ -47,9 +47,9 @@ import org.sonar.server.tester.UserSessionRule;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * New tests should be added in order to be able to remove InternalPermissionServiceTest
+ * New tests should be added in order to be able to remove PermissionServiceTest
  */
-public class InternalPermissionServiceMediumTest {
+public class PermissionServiceMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester().withStartupTasks().withEsIndexes();
@@ -58,7 +58,7 @@ public class InternalPermissionServiceMediumTest {
 
   DbClient db;
   DbSession session;
-  InternalPermissionService service;
+  PermissionService service;
 
   ComponentDto project;
 
@@ -67,7 +67,7 @@ public class InternalPermissionServiceMediumTest {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
     session = db.openSession(false);
-    service = tester.get(InternalPermissionService.class);
+    service = tester.get(PermissionService.class);
 
     project = ComponentTesting.newProjectDto();
     db.componentDao().insert(session, project);

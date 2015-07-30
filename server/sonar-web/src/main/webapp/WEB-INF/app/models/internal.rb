@@ -39,11 +39,11 @@ class Internal
   end
 
   def self.permissions
-    component(Java::OrgSonarServerPermission::InternalPermissionService.java_class)
+    component(Java::OrgSonarServerPermission::PermissionService.java_class)
   end
 
   def self.permission_templates
-    component(Java::OrgSonarServerPermission::InternalPermissionTemplateService.java_class)
+    component(Java::OrgSonarServerPermission::PermissionTemplateService.java_class)
   end
 
   def self.debt

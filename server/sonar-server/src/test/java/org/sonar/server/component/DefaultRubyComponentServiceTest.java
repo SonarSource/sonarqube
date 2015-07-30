@@ -31,7 +31,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.permission.InternalPermissionService;
+import org.sonar.server.permission.PermissionService;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -49,7 +49,7 @@ public class DefaultRubyComponentServiceTest {
   ResourceDao resourceDao = mock(ResourceDao.class);
   DefaultComponentFinder finder = mock(DefaultComponentFinder.class);
   ComponentService componentService = mock(ComponentService.class);
-  InternalPermissionService permissionService = mock(InternalPermissionService.class);
+  PermissionService permissionService = mock(PermissionService.class);
 
   DefaultRubyComponentService service;
 
