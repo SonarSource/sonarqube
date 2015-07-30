@@ -67,6 +67,8 @@ public class ComputationSteps {
       // SQALE measures depend on issues
       SqaleMeasuresStep.class,
 
+      ComputePluginMeasuresStep.class,
+
       // Must be executed after computation of all measures
       FillMeasuresWithVariationsStep.class,
 
