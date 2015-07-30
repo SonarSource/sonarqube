@@ -79,7 +79,7 @@ public class SourceDbBenchmarkTest {
       long period = end - start;
       long throughputPerSecond = 1000L * counter.get() / period;
       LOGGER.info(String.format("%d FILE_SOURCES rows scrolled in %d ms (%d rows/second)", counter.get(), period, throughputPerSecond));
-      benchmark.expectBetween("Throughput to scroll FILE_SOURCES", throughputPerSecond, 9, 13);
+      benchmark.expectBetween("Throughput to scroll FILE_SOURCES", throughputPerSecond, 10, 14);
 
     } finally {
       timer.cancel();
