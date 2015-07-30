@@ -5,7 +5,7 @@
   <groupId>org.codehaus.sonar</groupId>
   <artifactId>sonar</artifactId>
   <packaging>pom</packaging>
-  <version>4.5.5-SNAPSHOT</version>
+  <version>4.5.5</version>
   <name>SonarQube</name>
   <url>http://www.sonarqube.org/</url>
   <description>Open source platform for continuous inspection of code quality</description>
@@ -51,9 +51,10 @@
 
   <distributionManagement>
     <repository>
-      <id>codehaus-nexus-staging</id>
-      <name>Codehaus Release Repository</name>
-      <url>https://nexus.codehaus.org/service/local/staging/deploy/maven2/</url>
+<!-- Temporary workaround for previous and LTS version -->    
+      <id>sonarsource-releases</id>
+      <name>Internal</name>
+      <url>http://nexus-master.internal.sonarsource.com/nexus/content/repositories/releases-oss/</url>
     </repository>
     <snapshotRepository>
       <id>sonar-snapshots</id>
