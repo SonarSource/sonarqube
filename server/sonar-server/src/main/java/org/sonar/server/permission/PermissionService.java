@@ -203,13 +203,22 @@ public class PermissionService {
     }
 
     Long targetedGroup = getTargetedGroup(session, permissionChange.group());
+    String permission = permissionChange.permission();
     if (Operation.ADD == operation) {
-      permissionRepository.insertGroupPermission(componentId, targetedGroup, permissionChange.permission(), session);
+      checkNotAnyoneAndAdmin(permission, permissionChange.group());
+      permissionRepository.insertGroupPermission(componentId, targetedGroup, permission, session);
     } else {
       checkAdminUsersExistOutsideTheRemovedGroup(session, permissionChange, targetedGroup);
-      permissionRepository.deleteGroupPermission(componentId, targetedGroup, permissionChange.permission(), session);
+      permissionRepository.deleteGroupPermission(componentId, targetedGroup, permission, session);
     }
     return true;
+  }
+
+  private void checkNotAnyoneAndAdmin(String permission, String group) {
+    if (GlobalPermissions.SYSTEM_ADMIN.equals(permission)
+      && DefaultGroups.isAnyone(group)) {
+      throw new BadRequestException(String.format("It is not possible to add the '%s' permission to the '%s' group.", permission, group));
+    }
   }
 
   private boolean applyChangeOnUser(DbSession session, Operation operation, PermissionChange permissionChange) {
@@ -239,8 +248,9 @@ public class PermissionService {
     }
   }
 
-  private void checkAdminUsersExistOutsideTheRemovedGroup(DbSession session, PermissionChange permissionChange, Long groupIdToExclude) {
+  private void checkAdminUsersExistOutsideTheRemovedGroup(DbSession session, PermissionChange permissionChange, @Nullable Long groupIdToExclude) {
     if (GlobalPermissions.SYSTEM_ADMIN.equals(permissionChange.permission())
+      && groupIdToExclude != null
       && dbClient.roleDao().countUserPermissions(session, permissionChange.permission(), groupIdToExclude) <= 0) {
       throw new BadRequestException(String.format("Last group with '%s' permission. Permission cannot be removed.", GlobalPermissions.SYSTEM_ADMIN));
     }
