@@ -19,8 +19,9 @@
  */
 define([
   './profile-view',
+  './profiles-empty-view',
   './templates'
-], function (ProfileView) {
+], function (ProfileView, ProfilesEmptyView) {
 
   return Marionette.CompositeView.extend({
     className: 'list-group',
@@ -28,6 +29,7 @@ define([
     languageTemplate: Templates['quality-profiles-profiles-language'],
     childView: ProfileView,
     childViewContainer: '.js-list',
+    emptyView: ProfilesEmptyView,
 
     collectionEvents: {
       'filter': 'filterByLanguage'
