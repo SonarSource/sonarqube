@@ -121,7 +121,7 @@
       WHERE
         ur.role = #{permission} and ur.resource_id IS NULL
       UNION ALL
-      SELECT DISTINCT u.ID as id
+      SELECT DISTINCT u.id as id
       FROM users u
       INNER JOIN groups_users gu ON gu.user_id = u.id
       INNER JOIN group_roles gr ON gr.group_id = gu.group_id
