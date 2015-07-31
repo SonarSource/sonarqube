@@ -29,8 +29,8 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.db.version.DatabaseVersion;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.db.version.DatabaseVersion;
 import org.sonar.server.platform.platformlevel.PlatformLevel;
 import org.sonar.server.platform.platformlevel.PlatformLevel1;
 import org.sonar.server.platform.platformlevel.PlatformLevel2;
@@ -231,7 +231,7 @@ public class Platform {
   }
 
   /**
-   * Stops level 2, 3 and 3 containers cleanly if they exists.
+   * Stops level 2, 3 and 4 containers cleanly if they exists.
    * Call this method before {@link #startLevel1Container()} to avoid duplicate attempt to stop safemode container
    * components (since calling stop on a container calls stop on its children too, see
    * {@link ComponentContainer#stopComponents()}).
@@ -273,7 +273,7 @@ public class Platform {
       dbConnected = false;
       started = false;
     } catch (Exception e) {
-      LOGGER.debug("Fail to stop server - ignored", e);
+      LOGGER.error("Fail to stop server - ignored", e);
     }
   }
 
