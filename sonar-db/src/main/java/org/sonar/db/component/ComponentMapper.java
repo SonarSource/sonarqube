@@ -53,12 +53,23 @@ public interface ComponentMapper {
 
   List<ComponentDto> selectByUuids(@Param("uuids") Collection<String> uuids);
 
+  List<ComponentDto> selectByProjectUuid(@Param("projectUuid") String projectUuid);
+
+  List<ComponentDto> selectByCustomMeasure(@Param("metricKey") String metricKey, @Param("metricValue") String metricValue);
+
   List<String> selectExistingUuids(@Param("uuids") Collection<String> uuids);
 
   /**
    * Return all project (PRJ/TRK) uuids
    */
   List<String> selectProjectUuids();
+
+  /**
+   * Returns all enabled projects (Scope {@link org.sonar.api.resources.Scopes#PROJECT} and qualifier
+   * {@link org.sonar.api.resources.Qualifiers#PROJECT}) no matter if they are ghost project, provisioned projects or
+   * regular ones.
+   */
+  List<ComponentDto> selectProjects();
 
   /**
    * Return all descendant modules (including itself) from a given component uuid and scope

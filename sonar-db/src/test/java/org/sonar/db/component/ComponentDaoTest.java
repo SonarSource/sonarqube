@@ -461,6 +461,15 @@ public class ComponentDaoTest {
   }
 
   @Test
+  public void select_projects() {
+    db.prepareDbUnit(getClass(), "select_provisioned_projects.xml");
+
+    List<ComponentDto> result = underTest.selectProjects(db.getSession());
+
+    assertThat(result).extracting("id").containsOnly(42L, 1L);
+  }
+
+  @Test
   public void select_provisioned_projects() {
     db.prepareDbUnit(getClass(), "select_provisioned_projects.xml");
 
@@ -489,6 +498,15 @@ public class ComponentDaoTest {
     assertThat(result).hasSize(1);
     assertThat(result.get(0).key()).isEqualTo("org.ghost.project");
     assertThat(underTest.countGhostProjects(db.getSession(), null)).isEqualTo(1);
+  }
+
+  @Test
+  public void selectResourcesByRootId() {
+    db.prepareDbUnit(getClass(), "shared.xml");
+
+    List<ComponentDto> resources = underTest.selectByProjectUuid("ABCD", db.getSession());
+
+    assertThat(resources).extracting("id").containsOnly(1l, 2l, 3l, 4l);
   }
 
   @Test

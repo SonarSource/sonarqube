@@ -51,6 +51,8 @@ public final class SnapshotQuery {
   private Boolean isLast;
   private String sortField;
   private String sortOrder;
+  private String scope;
+  private String qualifier;
 
   /**
    * filter to return snapshots created at or after a given date
@@ -132,5 +134,25 @@ public final class SnapshotQuery {
   @CheckForNull
   public String getSortOrder() {
     return sortOrder;
+  }
+
+  @CheckForNull
+  public String getScope() {
+    return scope;
+  }
+
+  public SnapshotQuery setScope(@Nullable String scope) {
+    this.scope = scope;
+    return this;
+  }
+
+  @CheckForNull
+  public String getQualifier() {
+    return qualifier;
+  }
+
+  public SnapshotQuery setQualifier(@Nullable String qualifier) {
+    this.qualifier = qualifier;
+    return this;
   }
 }

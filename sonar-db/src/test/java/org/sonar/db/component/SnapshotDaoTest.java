@@ -25,6 +25,8 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -151,6 +153,9 @@ public class SnapshotDaoTest {
 
     assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(1L).setSort(BY_DATE, ASC)).get(0).getId()).isEqualTo(1L);
     assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(1L).setSort(BY_DATE, DESC)).get(0).getId()).isEqualTo(3L);
+
+    assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setScope(Scopes.PROJECT).setQualifier(Qualifiers.PACKAGE))).extracting("id").containsOnly(1L);
+    assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setScope(Scopes.DIRECTORY).setQualifier(Qualifiers.PACKAGE))).extracting("id").containsOnly(2L, 3L, 4L, 5L, 6L);
   }
 
   @Test

@@ -59,6 +59,27 @@
     </where>
   </select>
 
+  <select id="selectByProjectUuid" parameterType="string" resultType="Component">
+    SELECT
+    <include refid="componentColumns"/>
+    FROM projects p
+    <where>
+      p.project_uuid=#{projectUuid}
+    </where>
+  </select>
+
+  <select id="selectResourcesByCustomerMeasure" parameterType="String" resultType="Component">
+    SELECT
+    <include refid="componentColumns"/>
+    FROM projects p, metric m, manual_measures mm
+    <where>
+      m.name=#{metricKey}
+      and mm.metric_id = m.id
+      and mm.text_value=#{metricValue}
+      and p.id=mm.resourceId
+    </where>
+  </select>
+
   <select id="countById" parameterType="long" resultType="long">
     SELECT count(p.id)
     FROM projects p
@@ -183,6 +204,17 @@
     FROM projects p
     <where>
       AND p.enabled=${_true}
+      AND p.scope='PRJ'
+      AND p.qualifier='TRK'
+    </where>
+  </select>
+
+  <select id="selectProjects" resultType="Component">
+    select
+    <include refid="componentColumns"/>
+    from projects p
+    <where>
+      p.enabled=${_true}
       AND p.scope='PRJ'
       AND p.qualifier='TRK'
     </where>

@@ -168,6 +168,16 @@ public class ComponentDao implements Dao {
     return mapper(session).selectProjectsFromView("%." + viewUuid + ".%", projectViewUuid);
   }
 
+  /**
+   * Returns all projects (Scope {@link org.sonar.api.resources.Scopes#PROJECT} and qualifier
+   * {@link org.sonar.api.resources.Qualifiers#PROJECT}) which are enabled.
+   *
+   * Uses by Views.
+   */
+  public List<ComponentDto> selectProjects(DbSession session) {
+    return mapper(session).selectProjects();
+  }
+
   public List<ComponentDto> selectProvisionedProjects(DbSession session, int offset, int limit, @Nullable String query) {
     Map<String, String> parameters = newHashMapWithExpectedSize(2);
     addProjectQualifier(parameters);
@@ -198,6 +208,24 @@ public class ComponentDao implements Dao {
     addPartialQueryParameterIfNotNull(parameters, query);
 
     return mapper(session).countGhostProjects(parameters);
+  }
+
+  /**
+   * Retrieves all components with a specific root project Uuid, no other filtering is done by this method.
+   *
+   * Used by Views plugin
+   */
+  public List<ComponentDto> selectByProjectUuid(String projectUuid, DbSession dbSession) {
+    return mapper(dbSession).selectByProjectUuid(projectUuid);
+  }
+
+  /**
+   * Retrieves all components with a specific customer measure, no other filtering is done by this method.
+   *
+   * Used by Views plugin
+   */
+  public List<ComponentDto> selectByCustomMeasure(String metricKey, String metricValue, DbSession dbSession) {
+    return mapper(dbSession).selectByCustomMeasure(metricKey, metricValue);
   }
 
   private static void addPartialQueryParameterIfNotNull(Map<String, String> parameters, @Nullable String query) {
