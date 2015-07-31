@@ -129,11 +129,11 @@
       WHERE
         gr.role = #{permission}
         AND gr.resource_id IS NULL
-        AND u.active = true
+        AND u.active=${_true}
         <if test="groupId!=null">
           AND g.id!=#{groupId}
         </if>
-    ) as c
+    ) c
   </select>
 
   <delete id="deleteGroupRolesByGroupId" parameterType="long">
