@@ -43,7 +43,7 @@ public class RulesProvider extends ProviderAdapter {
     RulesBuilder builder = new RulesBuilder();
 
     for (Rule r : loadedRules) {
-      NewRule newRule = builder.add(RuleKey.parse(r.getKey()));
+      NewRule newRule = builder.add(RuleKey.of(r.getRepository(), r.getKey()));
       newRule.setName(r.getName());
       newRule.setInternalKey(r.getInternalKey());
     }

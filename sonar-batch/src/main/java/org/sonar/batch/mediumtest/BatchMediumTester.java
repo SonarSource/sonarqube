@@ -150,7 +150,7 @@ public class BatchMediumTester {
       List<Repository> repositories = context.repositories();
       for (Repository repo : repositories) {
         for (RulesDefinition.Rule rule : repo.rules()) {
-          this.addRule(rule.repository().key() + ":" + rule.key(), rule.repository().key(), rule.internalKey(), rule.name());
+          this.addRule(rule.key(), rule.repository().key(), rule.internalKey(), rule.name());
         }
       }
       return this;

@@ -31,7 +31,6 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;
-import org.sonar.batch.protocol.input.Rule;
 import org.sonar.batch.protocol.output.BatchReport.Issue;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
@@ -47,8 +46,8 @@ public class ChecksMediumTest {
     .registerPlugin("xoo", new XooPlugin())
     .addRules(new XooRulesDefinition())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .addRule("xoo:TemplateRule_1234", "xoo", "TemplateRule_1234", "A template rule")
-    .addRule("xoo:TemplateRule_1235", "xoo", "TemplateRule_1235", "Another template rule")
+    .addRule("TemplateRule_1234", "xoo", "TemplateRule_1234", "A template rule")
+    .addRule("TemplateRule_1235", "xoo", "TemplateRule_1235", "Another template rule")
     .activateRule(new ActiveRule("xoo", "TemplateRule_1234", "TemplateRule", "A template rule", "MAJOR", null, "xoo").addParam("line", "1"))
     .activateRule(new ActiveRule("xoo", "TemplateRule_1235", "TemplateRule", "Another template rule", "MAJOR", null, "xoo").addParam("line", "2"))
     .build();

@@ -48,13 +48,13 @@ public class RulesProviderTest {
 
     assertThat(r.name()).isEqualTo(testRule.getName());
     assertThat(r.internalKey()).isEqualTo(testRule.getInternalKey());
-    assertThat(r.key().toString()).isEqualTo(testRule.getKey());
+    assertThat(r.key().rule()).isEqualTo(testRule.getKey());
     assertThat(r.key().repository()).isEqualTo(testRule.getRepository());
   }
 
   private static Rule getTestRule() {
     Rule.Builder ruleBuilder = Rule.newBuilder();
-    ruleBuilder.setKey("repo1:key1");
+    ruleBuilder.setKey("key1");
     ruleBuilder.setRepository("repo1");
     ruleBuilder.setName("name");
     ruleBuilder.setInternalKey("key1");

@@ -42,7 +42,6 @@ import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.mediumtest.issues.IssuesMediumTest;
 import org.sonar.batch.protocol.Constants.Severity;
 import org.sonar.batch.protocol.input.ActiveRule;
-import org.sonar.batch.protocol.input.Rule;
 import org.sonar.batch.scan.report.ConsoleReport;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;

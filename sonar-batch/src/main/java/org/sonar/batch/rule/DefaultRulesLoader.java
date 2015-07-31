@@ -30,7 +30,7 @@ import java.util.List;
 import org.sonar.batch.bootstrap.WSLoader;
 
 public class DefaultRulesLoader implements RulesLoader {
-  private static final String RULES_SEARCH_URL = "/api/rules/search?ps=500&f=repo,name,internalKey";
+  private static final String RULES_SEARCH_URL = "/api/rules/list";
 
   private final WSLoader wsLoader;
 
