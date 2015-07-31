@@ -74,6 +74,8 @@ public class PreviewAndReportsMediumTest {
     .addRule("manual:MyManualIssue", "manual", "MyManualIssue", "My manual issue")
     .addRule("manual:MyManualIssueDup", "manual", "MyManualIssue", "My manual issue")
     .activateRule(new ActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", null, "xoo"))
+    .activateRule(new ActiveRule("xoo", "OneIssueOnDirPerFile", null, "OneIssueOnDirPerFile", "MAJOR", null, "xoo"))
+    .activateRule(new ActiveRule("xoo", "OneIssuePerModule", null, "OneIssuePerModule", "MAJOR", null, "xoo"))
     .activateRule(new ActiveRule("manual", "MyManualIssue", null, "My manual issue", "MAJOR", null, null))
     .setPreviousAnalysisDate(new Date())
     // Existing issue that is still detected
@@ -160,7 +162,7 @@ public class PreviewAndReportsMediumTest {
         openIssues++;
       }
     }
-    assertThat(newIssues).isEqualTo(13);
+    assertThat(newIssues).isEqualTo(16);
     assertThat(openIssues).isEqualTo(2);
     assertThat(resolvedIssue).isEqualTo(2);
   }
@@ -174,7 +176,7 @@ public class PreviewAndReportsMediumTest {
       .property("sonar.issuesReport.console.enable", "true")
       .start();
 
-    assertThat(getReportLog()).contains("+13 issues", "+13 major");
+    assertThat(getReportLog()).contains("+16 issues", "+16 major");
   }
 
   @Test
@@ -186,7 +188,7 @@ public class PreviewAndReportsMediumTest {
       .property("sonar.xoo.enablePostJob", "true")
       .start();
 
-    assertThat(logTester.logs()).contains("Resolved issues: 2", "Open issues: 15");
+    assertThat(logTester.logs()).contains("Resolved issues: 2", "Open issues: 18");
   }
 
   private String getReportLog() {
@@ -246,8 +248,8 @@ public class PreviewAndReportsMediumTest {
       .setIssueListener(issueListener)
       .start();
 
-    assertThat(result.trackedIssues()).hasSize(17);
-    assertThat(issueListener.issueList).hasSize(17);
+    assertThat(result.trackedIssues()).hasSize(20);
+    assertThat(issueListener.issueList).hasSize(20);
     assertThat(result.trackedIssues()).containsExactlyElementsOf(issueListener.issueList);
   }
 

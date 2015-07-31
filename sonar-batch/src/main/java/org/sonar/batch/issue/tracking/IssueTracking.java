@@ -58,8 +58,8 @@ public class IssueTracking {
   }
 
   private String checksum(BatchReport.Issue rawIssue) {
-    FileHashes hashedSource = sourceHashHolder.getHashedSource();
-    if (rawIssue.hasLine()) {
+    if (sourceHashHolder != null && rawIssue.hasLine()) {
+      FileHashes hashedSource = sourceHashHolder.getHashedSource();
       // Extra verification if some plugin managed to create issue on a wrong line
       Preconditions.checkState(rawIssue.getLine() <= hashedSource.length(), "Invalid line number for issue %s. File has only %s line(s)", rawIssue, hashedSource.length());
       return hashedSource.getHash(rawIssue.getLine());
