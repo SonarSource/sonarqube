@@ -143,7 +143,7 @@ public class ProjectAdministrationTest {
 
     Selenese selenese = Selenese
       .builder()
-      .setHtmlTestsInClasspath("delete_version_of_multimodule_project",
+      .setHtmlTestsInClasspath("modify_version_of_multimodule_project",
         "/administration/suite/ProjectAdministrationTest/project-administration/multimodule-project-modify-version.html"
       ).build();
     orchestrator.executeSelenese(selenese);
