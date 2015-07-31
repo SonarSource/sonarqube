@@ -110,8 +110,7 @@ public final class Batch {
    */
   public Batch executeTask(Map<String, String> analysisProperties, IssueListener issueListener) {
     checkStarted();
-    components.add(issueListener);
-    bootstrapContainer.executeAnalysis(analysisProperties, components);
+    bootstrapContainer.executeAnalysis(analysisProperties, components, issueListener);
     return this;
   }
 

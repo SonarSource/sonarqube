@@ -181,6 +181,11 @@ public class BatchMediumTester {
       projectRefProvider.addFileData(moduleKey, path, fileData);
       return this;
     }
+    
+    public BatchMediumTesterBuilder setLastBuildDate(Date d) {
+      projectRefProvider.setLastAnalysisDate(d);
+      return this;
+    }
 
     public BatchMediumTesterBuilder mockServerIssue(ServerIssue issue) {
       serverIssues.getServerIssues().add(issue);
@@ -344,6 +349,11 @@ public class BatchMediumTester {
 
     public FakeProjectRepositoriesLoader addFileData(String moduleKey, String path, FileData fileData) {
       ref.addFileData(moduleKey, path, fileData);
+      return this;
+    }
+    
+    public FakeProjectRepositoriesLoader setLastAnalysisDate(Date d) {
+      ref.setLastAnalysisDate(d);
       return this;
     }
 
