@@ -113,7 +113,7 @@
   </select>
 
   <select id="countUsersWithPermission" parameterType="map" resultType="int">
-    SELECT count(id)
+    SELECT count(c.id)
     FROM (
       SELECT DISTINCT ur.user_id as id
       FROM user_roles ur
@@ -133,7 +133,7 @@
         <if test="groupId!=null">
           AND g.id!=#{groupId}
         </if>
-    )
+    ) as c
   </select>
 
   <delete id="deleteGroupRolesByGroupId" parameterType="long">
