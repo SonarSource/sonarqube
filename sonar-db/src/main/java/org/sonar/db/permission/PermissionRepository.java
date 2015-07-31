@@ -65,7 +65,7 @@ public class PermissionRepository {
     if (updateProjectAuthorizationDate) {
       updateProjectAuthorizationDate(session, resourceId);
     }
-    dbClient.roleDao().insertUserRole(userRoleDto, session);
+    dbClient.roleDao().insertUserRole(session, userRoleDto);
   }
 
   public void insertUserPermission(@Nullable Long resourceId, Long userId, String permission, DbSession session) {
@@ -87,7 +87,7 @@ public class PermissionRepository {
       .setGroupId(groupId)
       .setResourceId(resourceId);
     updateProjectAuthorizationDate(session, resourceId);
-    dbClient.roleDao().insertGroupRole(groupRole, session);
+    dbClient.roleDao().insertGroupRole(session, groupRole);
   }
 
   public void insertGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission, DbSession session) {

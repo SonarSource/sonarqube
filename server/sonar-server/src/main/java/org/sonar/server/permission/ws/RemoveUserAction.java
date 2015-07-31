@@ -24,8 +24,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionChange;
+import org.sonar.server.permission.PermissionService;
 
 public class RemoveUserAction implements PermissionsWsAction {
 
@@ -42,7 +42,7 @@ public class RemoveUserAction implements PermissionsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
-      .setDescription("Remove permission to a user.<br /> Requires 'Administer System' permission.")
+      .setDescription("Remove permission from a user.<br /> Requires 'Administer System' permission.")
       .setSince("5.2")
       .setPost(true)
       .setHandler(this);

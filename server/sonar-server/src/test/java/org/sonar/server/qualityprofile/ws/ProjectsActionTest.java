@@ -117,7 +117,7 @@ public class ProjectsActionTest {
     dbClient.componentDao().insert(session, project1, project2);
 
     // user only sees project1
-    roleDao.insertUserRole(new UserRoleDto().setUserId(userId).setResourceId(project1.getId()).setRole(UserRole.USER), session);
+    roleDao.insertUserRole(session, new UserRoleDto().setUserId(userId).setResourceId(project1.getId()).setRole(UserRole.USER));
 
     associateProjectsWithProfile(session, xooP1, project1, project2);
 
@@ -231,7 +231,7 @@ public class ProjectsActionTest {
 
   private void addBrowsePermissionToAnyone(DbSession session, ComponentDto... projects) {
     for (ComponentDto project : projects) {
-      roleDao.insertGroupRole(new GroupRoleDto().setGroupId(null).setResourceId(project.getId()).setRole(UserRole.USER), session);
+      roleDao.insertGroupRole(session, new GroupRoleDto().setGroupId(null).setResourceId(project.getId()).setRole(UserRole.USER));
     }
   }
 

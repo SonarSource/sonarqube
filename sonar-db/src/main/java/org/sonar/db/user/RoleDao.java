@@ -37,11 +37,11 @@ public class RoleDao implements Dao {
     return session.getMapper(RoleMapper.class).selectGroupPermissions(groupName, resourceId, DefaultGroups.isAnyone(groupName));
   }
 
-  public void insertGroupRole(GroupRoleDto groupRole, SqlSession session) {
+  public void insertGroupRole(DbSession session, GroupRoleDto groupRole) {
     mapper(session).insertGroupRole(groupRole);
   }
 
-  public void insertUserRole(UserRoleDto userRole, SqlSession session) {
+  public void insertUserRole(DbSession session, UserRoleDto userRole) {
     mapper(session).insertUserRole(userRole);
   }
 
@@ -75,6 +75,10 @@ public class RoleDao implements Dao {
 
   public int countComponentPermissions(DbSession session, Long componentId) {
     return countResourceGroupRoles(session, componentId) + countResourceUserRoles(session, componentId);
+  }
+
+  public int countUserPermissions(DbSession session, String permission, @Nullable Long allGroupsExceptThisGroupId) {
+    return mapper(session).countUsersWithPermission(permission, allGroupsExceptThisGroupId);
   }
 
   public void removeAllPermissions(DbSession session, Long resourceId) {

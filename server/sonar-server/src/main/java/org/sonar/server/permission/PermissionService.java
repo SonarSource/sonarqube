@@ -63,7 +63,7 @@ public class PermissionService {
   private final ComponentFinder componentFinder;
 
   public PermissionService(DbClient dbClient, PermissionRepository permissionRepository, PermissionFinder finder,
-                           IssueAuthorizationIndexer issueAuthorizationIndexer, UserSession userSession, ComponentFinder componentFinder) {
+    IssueAuthorizationIndexer issueAuthorizationIndexer, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.permissionRepository = permissionRepository;
     this.finder = finder;
@@ -206,6 +206,7 @@ public class PermissionService {
     if (Operation.ADD == operation) {
       permissionRepository.insertGroupPermission(componentId, targetedGroup, permissionChange.permission(), session);
     } else {
+      checkAdminUsersExistOutsideTheRemovedGroup(session, permissionChange, targetedGroup);
       permissionRepository.deleteGroupPermission(componentId, targetedGroup, permissionChange.permission(), session);
     }
     return true;
@@ -224,10 +225,25 @@ public class PermissionService {
     if (Operation.ADD == operation) {
       permissionRepository.insertUserPermission(componentId, targetedUser, permissionChange.permission(), session);
     } else {
+      checkOtherAdminUsersExist(session, permissionChange);
       permissionRepository.deleteUserPermission(componentId, targetedUser, permissionChange.permission(), session);
     }
     return true;
 
+  }
+
+  private void checkOtherAdminUsersExist(DbSession session, PermissionChange permissionChange) {
+    if (GlobalPermissions.SYSTEM_ADMIN.equals(permissionChange.permission())
+      && dbClient.roleDao().countUserPermissions(session, permissionChange.permission(), null) <= 1) {
+      throw new BadRequestException(String.format("Last user with '%s' permission. Permission cannot be removed.", GlobalPermissions.SYSTEM_ADMIN));
+    }
+  }
+
+  private void checkAdminUsersExistOutsideTheRemovedGroup(DbSession session, PermissionChange permissionChange, Long groupIdToExclude) {
+    if (GlobalPermissions.SYSTEM_ADMIN.equals(permissionChange.permission())
+      && dbClient.roleDao().countUserPermissions(session, permissionChange.permission(), groupIdToExclude) <= 0) {
+      throw new BadRequestException(String.format("Last group with '%s' permission. Permission cannot be removed.", GlobalPermissions.SYSTEM_ADMIN));
+    }
   }
 
   private Long getTargetedUser(DbSession session, String userLogin) {

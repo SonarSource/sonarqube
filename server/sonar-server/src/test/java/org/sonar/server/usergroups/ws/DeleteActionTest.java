@@ -125,7 +125,7 @@ public class DeleteActionTest {
   @Test
   public void delete_with_permissions() throws Exception {
     GroupDto group = groupDao.insert(session, new GroupDto().setName("to-delete"));
-    roleDao.insertGroupRole(new GroupRoleDto().setGroupId(group.getId()).setResourceId(42L).setRole(UserRole.ADMIN), session);
+    roleDao.insertGroupRole(session, new GroupRoleDto().setGroupId(group.getId()).setResourceId(42L).setRole(UserRole.ADMIN));
     session.commit();
 
     loginAsAdmin();

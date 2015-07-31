@@ -134,7 +134,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     ComponentDto projectDto = ComponentTesting.newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY).setAuthorizationUpdatedAt(authorizationUpdatedAt);
     dbClient.componentDao().insert(dbSession, projectDto);
     // Permissions are already set on the project
-    dbClient.roleDao().insertGroupRole(new GroupRoleDto().setRole(UserRole.USER).setGroupId(null).setResourceId(projectDto.getId()), dbSession);
+    dbClient.roleDao().insertGroupRole(dbSession, new GroupRoleDto().setRole(UserRole.USER).setGroupId(null).setResourceId(projectDto.getId()));
 
     dbSession.commit();
 
