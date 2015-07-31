@@ -20,7 +20,10 @@
 
 package org.sonar.server.issue.filter;
 
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.io.Resources;
+import java.util.Comparator;
 import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -62,8 +65,9 @@ public class SearchAction implements IssueFilterWsAction {
       List<IssueFilterDto> filters = service.findFavoriteFilters(userSession);
       List<IssueFilterDto> sharedFiltersWithoutUserFilters = service.findSharedFiltersWithoutUserFilters(userSession);
       filters.addAll(sharedFiltersWithoutUserFilters);
+      ImmutableSortedSet<IssueFilterDto> allUniqueIssueFilters = FluentIterable.from(filters).toSortedSet(IssueFilterDtoIdComparator.INSTANCE);
       json.name("issueFilters").beginArray();
-      for (IssueFilterDto favorite : filters) {
+      for (IssueFilterDto favorite : allUniqueIssueFilters) {
         issueFilterJsonWriter.write(json, favorite, userSession);
       }
       json.endArray();
@@ -71,5 +75,14 @@ public class SearchAction implements IssueFilterWsAction {
 
     json.endObject();
     json.close();
+  }
+
+  private enum IssueFilterDtoIdComparator implements Comparator<IssueFilterDto> {
+    INSTANCE;
+
+    @Override
+    public int compare(IssueFilterDto o1, IssueFilterDto o2) {
+      return o1.getId().intValue() - o2.getId().intValue();
+    }
   }
 }

@@ -74,7 +74,12 @@ public class SearchActionTest {
         .setId(3L)
         .setName("My Unresolved Issues")
         .setShared(true)
-        .setData("resolved=false|assignees=__me__")
+        .setData("resolved=false|assignees=__me__"),
+      new IssueFilterDto()
+        .setId(2L)
+        .setName("False Positive and Won't Fix Issues")
+        .setShared(false)
+        .setData("resolutions=FALSE-POSITIVE,WONTFIX")
       ));
     when(service.findSharedFiltersWithoutUserFilters(userSessionRule)).thenReturn(newArrayList(
       new IssueFilterDto()
