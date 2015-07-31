@@ -30,6 +30,7 @@ public class PersistentCacheBuilder {
 
   private Path cachePath;
   private final Logger logger;
+  private String version;
 
   public PersistentCacheBuilder(Logger logger) {
     this.logger = logger;
@@ -40,7 +41,12 @@ public class PersistentCacheBuilder {
       setSonarHome(findHome());
     }
 
-    return new PersistentCache(cachePath, DEFAULT_EXPIRE_DURATION, logger);
+    return new PersistentCache(cachePath, DEFAULT_EXPIRE_DURATION, logger, version);
+  }
+
+  public PersistentCacheBuilder setVersion(String version) {
+    this.version = version;
+    return this;
   }
 
   public PersistentCacheBuilder setSonarHome(@Nullable Path p) {

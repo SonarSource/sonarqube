@@ -19,12 +19,22 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.home.cache.PersistentCache;
 import org.sonar.home.cache.PersistentCacheBuilder;
 
 public class PersistentCacheProvider extends ProviderAdapter {
+  private static final Logger LOG = Loggers.get(PersistentCacheProvider.class);
   private PersistentCache cache;
 
   public PersistentCache provide(UserProperties props) {
@@ -36,9 +46,23 @@ public class PersistentCacheProvider extends ProviderAdapter {
         builder.setSonarHome(Paths.get(home));
       }
 
+      builder.setVersion(getVersion());
       cache = builder.build();
-    } 
-    
+    }
+
     return cache;
+  }
+
+  private String getVersion() {
+    InputStream is = this.getClass().getClassLoader().getResourceAsStream("sq-version.txt");
+    if (is == null) {
+      return null;
+    }
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+      return br.readLine();
+    } catch (IOException e) {
+      LOG.warn("Failed to get SQ version", e);
+      return null;
+    }
   }
 }

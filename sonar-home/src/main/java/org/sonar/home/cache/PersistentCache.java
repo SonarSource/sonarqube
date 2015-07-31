@@ -31,6 +31,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -50,11 +51,13 @@ public class PersistentCache {
   // eviction strategy is to expire entries after modification once a time duration has elapsed
   private final long defaultDurationToExpireMs;
   private final Logger logger;
+  private final String version;
 
-  public PersistentCache(Path baseDir, long defaultDurationToExpireMs, Logger logger) {
+  public PersistentCache(Path baseDir, long defaultDurationToExpireMs, Logger logger, String version) {
     this.baseDir = baseDir;
     this.defaultDurationToExpireMs = defaultDurationToExpireMs;
     this.logger = logger;
+    this.version = version;
 
     reconfigure();
     logger.debug("cache: " + baseDir + ", default expiration time (ms): " + defaultDurationToExpireMs);
@@ -200,10 +203,14 @@ public class PersistentCache {
     lockChannel = null;
   }
 
-  private static String getKey(String uri) {
+  private String getKey(String uri) {
     try {
+      String key = uri;
+      if (version != null) {
+        key += version;
+      }
       MessageDigest digest = MessageDigest.getInstance(DIGEST_ALGO);
-      digest.update(uri.getBytes(StandardCharsets.UTF_8));
+      digest.update(key.getBytes(StandardCharsets.UTF_8));
       return byteArrayToHex(digest.digest());
     } catch (NoSuchAlgorithmException e) {
       throw new IllegalStateException("Couldn't create hash", e);
