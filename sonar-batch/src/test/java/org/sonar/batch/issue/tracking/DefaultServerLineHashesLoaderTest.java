@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import org.sonar.batch.bootstrap.WSLoader;
+import org.sonar.batch.bootstrap.WSLoaderResult;
 
+import org.sonar.batch.bootstrap.WSLoader;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,7 +49,7 @@ public class DefaultServerLineHashesLoaderTest {
   @Test
   public void should_download_source_from_ws_if_preview_mode() {
     WSLoader wsLoader = mock(WSLoader.class);
-    when(wsLoader.loadString(anyString())).thenReturn("ae12\n\n43fb");
+    when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult("ae12\n\n43fb", true));
 
     ServerLineHashesLoader lastSnapshots = new DefaultServerLineHashesLoader(wsLoader);
 
@@ -60,7 +61,7 @@ public class DefaultServerLineHashesLoaderTest {
   @Test
   public void should_download_source_with_space_from_ws_if_preview_mode() {
     WSLoader server = mock(WSLoader.class);
-    when(server.loadString(anyString())).thenReturn("ae12\n\n43fb");
+    when(server.loadString(anyString())).thenReturn(new WSLoaderResult("ae12\n\n43fb", true));
 
     ServerLineHashesLoader lastSnapshots = new DefaultServerLineHashesLoader(server);
 

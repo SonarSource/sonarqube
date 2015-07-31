@@ -107,7 +107,7 @@ public class ServerClient {
 
   /**
    * @throws IllegalStateException on I/O error, not limited to the network connection and if HTTP response code > 400 and wrapHttpException is true
-   * @throws HttpException if HTTP response code > 400 and wrapHttpException is false
+   * @throws HttpDownloader.HttpException if HTTP response code > 400 and wrapHttpException is false
    */
   public InputStream load(String pathStartingWithSlash, String requestMethod, boolean wrapHttpException, @Nullable Integer connectTimeoutMs,
     @Nullable Integer readTimeoutMs) {

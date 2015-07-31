@@ -20,10 +20,13 @@
 package org.sonar.batch.issue.tracking;
 
 import com.google.common.base.Function;
-import java.util.ArrayList;
+
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+
 import javax.annotation.Nullable;
+
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -73,25 +76,8 @@ public class ServerIssueRepository {
     Profiler profiler = Profiler.create(LOG).startInfo("Load server issues");
     this.issuesCache = caches.createCache("previousIssues");
     caches.registerValueCoder(ServerIssue.class, new ServerIssueValueCoder());
-    previousIssuesLoader.load(reactor.getRoot().getKeyWithBranch(), new Function<ServerIssue, Void>() {
-
-      @Override
-      public Void apply(@Nullable ServerIssue issue) {
-        if (issue == null) {
-          return null;
-        }
-        String componentKey = ComponentKeys.createEffectiveKey(issue.getModuleKey(), issue.hasPath() ? issue.getPath() : null);
-        BatchComponent r = resourceCache.get(componentKey);
-        if (r == null) {
-          // Deleted resource
-          issuesCache.put(0, issue.getKey(), issue);
-        } else {
-          issuesCache.put(r.batchId(), issue.getKey(), issue);
-        }
-        return null;
-      }
-    }, false);
-    profiler.stopDebug();
+    boolean fromCache = previousIssuesLoader.load(reactor.getRoot().getKeyWithBranch(), new SaveIssueConsumer(), false);
+    stopDebug(profiler, "Load server issues", fromCache);
   }
 
   public Iterable<ServerIssue> byComponent(BatchComponent component) {
@@ -104,22 +90,52 @@ public class ServerIssueRepository {
         return Collections.emptyList();
       }
       Profiler profiler = Profiler.create(LOG).startInfo("Load server issues for " + component.resource().getPath());
-      final List<ServerIssue> result = new ArrayList<>();
-      previousIssuesLoader.load(component.key(), new Function<ServerIssue, Void>() {
-
-        @Override
-        public Void apply(@Nullable ServerIssue issue) {
-          if (issue == null) {
-            return null;
-          }
-          result.add(issue);
-          return null;
-        }
-      }, true);
-      profiler.stopDebug();
-      return result;
+      ServerIssueConsumer consumer = new ServerIssueConsumer();
+      boolean fromCache = previousIssuesLoader.load(component.key(), consumer, true);
+      stopDebug(profiler, "Load server issues for " + component.resource().getPath(), fromCache);
+      return consumer.issueList;
     } else {
       return issuesCache.values(component.batchId());
+    }
+  }
+
+  private void stopDebug(Profiler profiler, String msg, boolean fromCache) {
+    if (fromCache) {
+      profiler.stopDebug(msg + " (done from cache)");
+    } else {
+      profiler.stopDebug(msg + " (done)");
+    }
+  }
+
+  private class SaveIssueConsumer implements Function<ServerIssue, Void> {
+
+    @Override
+    public Void apply(@Nullable ServerIssue issue) {
+      if (issue == null) {
+        return null;
+      }
+      String componentKey = ComponentKeys.createEffectiveKey(issue.getModuleKey(), issue.hasPath() ? issue.getPath() : null);
+      BatchComponent r = resourceCache.get(componentKey);
+      if (r == null) {
+        // Deleted resource
+        issuesCache.put(0, issue.getKey(), issue);
+      } else {
+        issuesCache.put(r.batchId(), issue.getKey(), issue);
+      }
+      return null;
+    }
+  }
+
+  private static class ServerIssueConsumer implements Function<ServerIssue, Void> {
+    List<ServerIssue> issueList = new LinkedList<>();
+
+    @Override
+    public Void apply(@Nullable ServerIssue issue) {
+      if (issue == null) {
+        return null;
+      }
+      issueList.add(issue);
+      return null;
     }
   }
 

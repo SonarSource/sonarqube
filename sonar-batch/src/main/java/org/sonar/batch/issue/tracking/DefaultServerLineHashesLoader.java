@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import org.sonar.batch.util.BatchUtils;
+import org.sonar.batch.bootstrap.WSLoaderResult;
 
+import org.sonar.batch.util.BatchUtils;
 import org.sonar.batch.bootstrap.WSLoader;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterators;
@@ -45,10 +46,15 @@ public class DefaultServerLineHashesLoader implements ServerLineHashesLoader {
     Profiler profiler = Profiler.createIfDebug(Loggers.get(getClass()))
       .addContext("file", fileKey)
       .startDebug("Load line hashes");
+    WSLoaderResult<String> result = wsLoader.loadString("/api/sources/hash?key=" + BatchUtils.encodeForUrl(fileKey));
     try {
-      return wsLoader.loadString("/api/sources/hash?key=" + BatchUtils.encodeForUrl(fileKey));
+      return result.get();
     } finally {
-      profiler.stopDebug();
+      if (result.isFromCache()) {
+        profiler.stopDebug();
+      } else {
+        profiler.stopDebug("Load line hashes (done from cache)");
+      }
     }
   }
 }

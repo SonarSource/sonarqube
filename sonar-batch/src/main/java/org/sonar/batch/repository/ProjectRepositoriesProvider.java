@@ -30,15 +30,22 @@ import org.sonar.batch.protocol.input.ProjectRepositories;
 
 public class ProjectRepositoriesProvider extends ProviderAdapter {
 
+  private static final String LOG_MSG = "Load project repositories";
   private static final Logger LOG = Loggers.get(ProjectRepositoriesProvider.class);
 
   private ProjectRepositories projectReferentials;
 
   public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectReactor reactor, AnalysisProperties taskProps, AnalysisMode analysisMode) {
     if (projectReferentials == null) {
-      Profiler profiler = Profiler.create(LOG).startInfo("Load project repositories");
+      Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
       projectReferentials = loader.load(reactor, taskProps);
-      profiler.stopInfo();
+
+      if (loader.loadedFromCache()) {
+        profiler.stopInfo(LOG_MSG + " (done from cache)");
+      } else {
+        profiler.stopInfo();
+      }
+
       if (analysisMode.isPreview() && projectReferentials.lastAnalysisDate() == null) {
         LOG.warn("No analysis has been found on the server for this project. All issues will be marked as 'new'.");
       }

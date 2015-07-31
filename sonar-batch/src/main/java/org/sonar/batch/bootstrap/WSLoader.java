@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+
 import javax.annotation.Nonnull;
 
 import org.sonar.api.utils.HttpDownloader;
@@ -34,6 +37,7 @@ import static org.sonar.batch.bootstrap.WSLoader.LoadStrategy.*;
 import org.sonar.home.cache.PersistentCache;
 
 public class WSLoader {
+  private static final Logger LOG = Loggers.get(WSLoader.class);
   private static final String FAIL_MSG = "Server is not accessible and data is not cached";
   private static final int CONNECT_TIMEOUT = 5000;
   private static final int READ_TIMEOUT = 10000;
@@ -65,16 +69,20 @@ public class WSLoader {
     this(false, cache, client);
   }
 
-  public ByteSource loadSource(String id) {
-    return ByteSource.wrap(load(id));
-  }
-
-  public String loadString(String id) {
-    return new String(load(id), StandardCharsets.UTF_8);
+  @Nonnull
+  public WSLoaderResult<ByteSource> loadSource(String id) {
+    WSLoaderResult<byte[]> byteResult = load(id);
+    return new WSLoaderResult<ByteSource>(ByteSource.wrap(byteResult.get()), byteResult.isFromCache());
   }
 
   @Nonnull
-  public byte[] load(String id) {
+  public WSLoaderResult<String> loadString(String id) {
+    WSLoaderResult<byte[]> byteResult = load(id);
+    return new WSLoaderResult<String>(new String(byteResult.get(), StandardCharsets.UTF_8), byteResult.isFromCache());
+  }
+
+  @Nonnull
+  public WSLoaderResult<byte[]> load(String id) {
     if (loadStrategy == CACHE_FIRST) {
       return loadFromCacheFirst(id);
     } else {
@@ -99,6 +107,7 @@ public class WSLoader {
   }
 
   private void switchToOffline() {
+    LOG.debug("server not available - switching to offline mode");
     serverStatus = NOT_ACCESSIBLE;
   }
 
@@ -110,71 +119,94 @@ public class WSLoader {
     return serverStatus == NOT_ACCESSIBLE;
   }
 
-  @Nonnull
-  private byte[] loadFromCacheFirst(String id) {
-    byte[] cached = loadFromCache(id);
-    if (cached != null) {
-      return cached;
-    }
-
-    try {
-      return loadFromServer(id);
-    } catch (Exception e) {
-      if (e.getCause() instanceof HttpDownloader.HttpException) {
-        throw e;
+  private void updateCache(String id, byte[] value) {
+    if (cacheEnabled) {
+      try {
+        cache.put(client.getURI(id).toString(), value);
+      } catch (IOException e) {
+        LOG.warn("Error saving to WS cache", e);
       }
-      throw new IllegalStateException(FAIL_MSG, e);
     }
   }
 
   @Nonnull
-  private byte[] loadFromServerFirst(String id) {
+  private WSLoaderResult<byte[]> loadFromCacheFirst(String id) {
     try {
-      return loadFromServer(id);
-    } catch (Exception serverException) {
-      if (serverException.getCause() instanceof HttpDownloader.HttpException) {
-        // http exceptions should always be thrown (no fallback)
-        throw serverException;
+      return loadFromCache(id);
+    } catch (NotAvailableException cacheNotAvailable) {
+      try {
+        return loadFromServer(id);
+      } catch (NotAvailableException serverNotAvailable) {
+        throw new IllegalStateException(FAIL_MSG, serverNotAvailable.getCause());
       }
-      byte[] cached = loadFromCache(id);
-      if (cached != null) {
-        return cached;
-      }
-      throw new IllegalStateException(FAIL_MSG, serverException);
     }
   }
 
-  private byte[] loadFromCache(String id) {
+  @Nonnull
+  private WSLoaderResult<byte[]> loadFromServerFirst(String id) {
+    try {
+      return loadFromServer(id);
+    } catch (NotAvailableException serverNotAvailable) {
+      try {
+        return loadFromCache(id);
+      } catch (NotAvailableException cacheNotAvailable) {
+        throw new IllegalStateException(FAIL_MSG, serverNotAvailable.getCause());
+      }
+    }
+  }
+
+  @Nonnull
+  private WSLoaderResult<byte[]> loadFromCache(String id) throws NotAvailableException {
     if (!cacheEnabled) {
-      return null;
+      throw new NotAvailableException("cache disabled");
     }
 
     try {
-      return cache.get(client.getURI(id).toString(), null);
+      byte[] result = cache.get(client.getURI(id).toString(), null);
+      if (result == null) {
+        throw new NotAvailableException("resource not cached");
+      }
+      return new WSLoaderResult<byte[]>(result, true);
     } catch (IOException e) {
+      // any exception on the cache should fail fast
       throw new IllegalStateException(e);
     }
   }
 
-  private byte[] loadFromServer(String id) {
+  @Nonnull
+  private WSLoaderResult<byte[]> loadFromServer(String id) throws NotAvailableException {
     if (isOffline()) {
-      throw new IllegalStateException("Server is not accessible");
+      throw new NotAvailableException("Server not available");
     }
 
     try {
       InputStream is = client.load(id, REQUEST_METHOD, true, CONNECT_TIMEOUT, READ_TIMEOUT);
       switchToOnline();
       byte[] value = IOUtils.toByteArray(is);
-      if (cacheEnabled) {
-        cache.put(client.getURI(id).toString(), value);
-      }
-      return value;
+      updateCache(client.getURI(id).toString(), value);
+      return new WSLoaderResult<byte[]>(value, false);
     } catch (IllegalStateException e) {
+      if (e.getCause() instanceof HttpDownloader.HttpException) {
+        // fail fast if it could connect but there was a application-level error
+        throw e;
+      }
       switchToOffline();
-      throw e;
+      throw new NotAvailableException(e);
     } catch (Exception e) {
-      switchToOffline();
+      // fail fast
       throw new IllegalStateException(e);
+    }
+  }
+
+  private class NotAvailableException extends Exception {
+    private static final long serialVersionUID = 1L;
+
+    public NotAvailableException(String message) {
+      super(message);
+    }
+
+    public NotAvailableException(Throwable cause) {
+      super(cause);
     }
   }
 }

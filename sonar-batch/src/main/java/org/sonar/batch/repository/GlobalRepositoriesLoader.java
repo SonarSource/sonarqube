@@ -25,4 +25,6 @@ public interface GlobalRepositoriesLoader {
 
   GlobalRepositories load();
 
+  boolean loadedFromCache();
+
 }

@@ -17,16 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.repository;
+package org.sonar.batch.bootstrap;
 
-import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.bootstrap.AnalysisProperties;
-import org.sonar.batch.protocol.input.ProjectRepositories;
+public class AbstractServerLoader {
+  protected Boolean loadedFromCache = null;
 
-public interface ProjectRepositoriesLoader {
-
-  ProjectRepositories load(ProjectReactor reactor, AnalysisProperties taskProperties);
-  
-  boolean loadedFromCache();
-
+  public boolean loadedFromCache() {
+    if (loadedFromCache == null) {
+      throw new IllegalStateException("Didn't load");
+    }
+    return loadedFromCache;
+  }
 }

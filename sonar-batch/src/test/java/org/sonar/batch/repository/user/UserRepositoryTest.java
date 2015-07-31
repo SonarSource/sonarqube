@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.repository.user;
 
-import com.google.common.io.ByteSource;
+import org.sonar.batch.bootstrap.WSLoaderResult;
 
+import com.google.common.io.ByteSource;
 import org.sonar.batch.bootstrap.WSLoader;
 import org.junit.Test;
 import org.sonar.batch.protocol.input.BatchInput;
@@ -48,7 +49,7 @@ public class UserRepositoryTest {
     builder.setLogin("sbrandhof").setName("Simon").build().writeDelimitedTo(out);
 
     ByteSource source = mock(ByteSource.class);
-    when(wsLoader.loadSource("/batch/users?logins=fmallet,sbrandhof")).thenReturn(source);
+    when(wsLoader.loadSource("/batch/users?logins=fmallet,sbrandhof")).thenReturn(new WSLoaderResult(source, true));
     when(source.openStream()).thenReturn(new ByteArrayInputStream(out.toByteArray()));
 
     assertThat(userRepo.loadFromWs(Arrays.asList("fmallet", "sbrandhof"))).extracting("login", "name").containsOnly(tuple("fmallet", "Freddy Mallet"), tuple("sbrandhof", "Simon"));

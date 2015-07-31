@@ -181,7 +181,7 @@ public class BatchMediumTester {
       projectRefProvider.addFileData(moduleKey, path, fileData);
       return this;
     }
-    
+
     public BatchMediumTesterBuilder setLastBuildDate(Date d) {
       projectRefProvider.setLastAnalysisDate(d);
       return this;
@@ -292,6 +292,10 @@ public class BatchMediumTester {
       return rules;
     }
 
+    @Override
+    public boolean loadedFromCache() {
+      return false;
+    }
   }
 
   private static class FakeGlobalRepositoriesLoader implements GlobalRepositoriesLoader {
@@ -325,6 +329,11 @@ public class BatchMediumTester {
       metricId++;
       return this;
     }
+
+    @Override
+    public boolean loadedFromCache() {
+      return true;
+    }
   }
 
   private static class FakeProjectRepositoriesLoader implements ProjectRepositoriesLoader {
@@ -351,12 +360,16 @@ public class BatchMediumTester {
       ref.addFileData(moduleKey, path, fileData);
       return this;
     }
-    
+
     public FakeProjectRepositoriesLoader setLastAnalysisDate(Date d) {
       ref.setLastAnalysisDate(d);
       return this;
     }
 
+    @Override
+    public boolean loadedFromCache() {
+      return true;
+    }
   }
 
   private static class FakeServerIssuesLoader implements ServerIssuesLoader {
@@ -368,13 +381,13 @@ public class BatchMediumTester {
     }
 
     @Override
-    public void load(String componentKey, Function<ServerIssue, Void> consumer, boolean incremental) {
+    public boolean load(String componentKey, Function<ServerIssue, Void> consumer, boolean incremental) {
       for (ServerIssue serverIssue : serverIssues) {
         if (!incremental || ComponentKeys.createEffectiveKey(serverIssue.getModuleKey(), serverIssue.hasPath() ? serverIssue.getPath() : null).equals(componentKey)) {
           consumer.apply(serverIssue);
         }
       }
-
+      return false;
     }
 
   }
