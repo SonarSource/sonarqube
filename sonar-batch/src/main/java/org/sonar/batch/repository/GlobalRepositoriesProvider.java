@@ -28,14 +28,19 @@ import org.sonar.batch.protocol.input.GlobalRepositories;
 public class GlobalRepositoriesProvider extends ProviderAdapter {
 
   private static final Logger LOG = Loggers.get(GlobalRepositoriesProvider.class);
-
+  private static final String LOG_MSG = "Load global repositories";
   private GlobalRepositories globalReferentials;
 
   public GlobalRepositories provide(GlobalRepositoriesLoader loader) {
     if (globalReferentials == null) {
-      Profiler profiler = Profiler.create(LOG).startInfo("Load global repositories");
+      Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
       globalReferentials = loader.load();
-      profiler.stopInfo();
+
+      if (loader.loadedFromCache()) {
+        profiler.stopInfo(LOG_MSG + " (done from cache)");
+      } else {
+        profiler.stopInfo();
+      }
     }
     return globalReferentials;
   }

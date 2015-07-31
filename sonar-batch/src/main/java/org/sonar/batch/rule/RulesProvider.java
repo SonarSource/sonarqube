@@ -19,6 +19,11 @@
  */
 package org.sonar.batch.rule;
 
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+
+import org.sonar.api.utils.log.Profiler;
+
 import java.util.List;
 
 import org.sonarqube.ws.Rules.ListResponse.Rule;
@@ -29,6 +34,8 @@ import org.sonar.api.batch.rule.internal.NewRule;
 import org.sonar.api.batch.rule.Rules;
 
 public class RulesProvider extends ProviderAdapter {
+  private static final Logger LOG = Loggers.get(RulesProvider.class);
+  private static final String LOG_MSG = "Load server rules";
   private Rules singleton = null;
 
   public Rules provide(RulesLoader ref) {
@@ -39,6 +46,7 @@ public class RulesProvider extends ProviderAdapter {
   }
 
   private static Rules load(RulesLoader ref) {
+    Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
     List<Rule> loadedRules = ref.load();
     RulesBuilder builder = new RulesBuilder();
 
@@ -46,6 +54,12 @@ public class RulesProvider extends ProviderAdapter {
       NewRule newRule = builder.add(RuleKey.of(r.getRepository(), r.getKey()));
       newRule.setName(r.getName());
       newRule.setInternalKey(r.getInternalKey());
+    }
+
+    if (ref.loadedFromCache()) {
+      profiler.stopInfo(LOG_MSG + " (done from cache)");
+    } else {
+      profiler.stopInfo();
     }
 
     return builder.build();

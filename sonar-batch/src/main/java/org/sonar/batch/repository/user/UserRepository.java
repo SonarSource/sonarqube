@@ -19,8 +19,12 @@
  */
 package org.sonar.batch.repository.user;
 
-import org.sonar.batch.util.BatchUtils;
+import org.sonar.batch.bootstrap.WSLoaderResult;
 
+import org.sonar.api.utils.log.Profiler;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.batch.util.BatchUtils;
 import org.sonar.batch.bootstrap.WSLoader;
 import com.google.common.io.ByteSource;
 import com.google.common.base.Function;
@@ -36,8 +40,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class UserRepository {
-
-  private WSLoader wsLoader;
+  private static final Logger LOG = Loggers.get(UserRepository.class);
+  private final WSLoader wsLoader;
 
   public UserRepository(WSLoader wsLoader) {
     this.wsLoader = wsLoader;
@@ -47,15 +51,22 @@ public class UserRepository {
     if (userLogins.isEmpty()) {
       return Collections.emptyList();
     }
+    Profiler profiler = Profiler.create(LOG).startDebug("Load user repository");
+    WSLoaderResult<ByteSource> result = wsLoader.loadSource("/batch/users?logins=" + Joiner.on(',').join(Lists.transform(userLogins, new UserEncodingFunction())));
+    if (result.isFromCache()) {
+      profiler.stopInfo("Load user repository (done from cache)");
+    } else {
+      profiler.stopInfo();
+    }
 
-    ByteSource source = wsLoader.loadSource("/batch/users?logins=" + Joiner.on(',').join(Lists.transform(userLogins, new Function<String, String>() {
-      @Override
-      public String apply(String input) {
-        return BatchUtils.encodeForUrl(input);
-      }
-    })));
+    return parseUsers(result.get());
+  }
 
-    return parseUsers(source);
+  private static class UserEncodingFunction implements Function<String, String> {
+    @Override
+    public String apply(String input) {
+      return BatchUtils.encodeForUrl(input);
+    }
   }
 
   private static Collection<BatchInput.User> parseUsers(ByteSource input) {

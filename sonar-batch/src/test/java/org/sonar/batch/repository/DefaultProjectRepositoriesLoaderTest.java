@@ -19,8 +19,12 @@
  */
 package org.sonar.batch.repository;
 
+import org.sonar.batch.bootstrap.WSLoaderResult;
+
 import com.google.common.collect.Maps;
+
 import java.util.Date;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,7 +38,6 @@ import org.sonar.batch.bootstrap.WSLoader;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.protocol.input.QProfile;
 import org.sonar.batch.rule.ModuleQProfiles;
-
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -58,7 +61,7 @@ public class DefaultProjectRepositoriesLoaderTest {
     globalMode = mock(GlobalMode.class);
     loader = new DefaultProjectRepositoriesLoader(wsLoader, globalMode);
     loader = spy(loader);
-    when(wsLoader.loadString(anyString())).thenReturn("{}");
+    when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult("{}", true));
     taskProperties = new AnalysisProperties(Maps.<String, String>newHashMap(), "");
   }
 
@@ -98,15 +101,15 @@ public class DefaultProjectRepositoriesLoaderTest {
     thrown.expectMessage("No quality profiles has been found this project, you probably don't have any language plugin suitable for this analysis.");
 
     reactor = new ProjectReactor(ProjectDefinition.create().setKey("foo"));
-    when(wsLoader.loadString(anyString())).thenReturn(new ProjectRepositories().toJson());
+    when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult(new ProjectRepositories().toJson(), true));
 
     loader.load(reactor, taskProperties);
   }
 
-  private void addQualityProfile(){
+  private void addQualityProfile() {
     ProjectRepositories projectRepositories = new ProjectRepositories();
     projectRepositories.addQProfile(new QProfile("key", "name", "language", new Date()));
-    when(wsLoader.loadString(anyString())).thenReturn(projectRepositories.toJson());
+    when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult(projectRepositories.toJson(), true));
   }
 
 }
