@@ -49,6 +49,9 @@ public interface Rules {
    */
   Collection<Rule> findByRepository(String repository);
 
+  /**
+   * @since 5.2
+   */
   Collection<Rule> findByInternalKey(String repository, String internalKey);
 
 }

@@ -142,7 +142,7 @@ public class PersistentCache {
     logger.info("cache: clearing");
     try {
       lock();
-      deleteCacheEntries(createClearFilter());
+      deleteCacheEntries(new DirectoryClearFilter());
     } catch (IOException e) {
       logger.error("Error clearing cache", e);
     } finally {
@@ -157,7 +157,7 @@ public class PersistentCache {
     logger.info("cache: cleaning");
     try {
       lock();
-      deleteCacheEntries(createCleanFilter());
+      deleteCacheEntries(new DirectoryCleanFilter(defaultDurationToExpireMs));
     } catch (IOException e) {
       logger.error("Error cleaning cache", e);
     } finally {
@@ -229,26 +229,28 @@ public class PersistentCache {
     }
   }
 
-  private DirectoryStream.Filter<Path> createClearFilter() throws IOException {
-    return new DirectoryStream.Filter<Path>() {
-      @Override
-      public boolean accept(Path entry) throws IOException {
-        return !LOCK_FNAME.equals(entry.getFileName().toString());
-      }
-    };
+  private static class DirectoryClearFilter implements DirectoryStream.Filter<Path> {
+    @Override
+    public boolean accept(Path entry) throws IOException {
+      return !LOCK_FNAME.equals(entry.getFileName().toString());
+    }
   }
 
-  private DirectoryStream.Filter<Path> createCleanFilter() throws IOException {
-    return new DirectoryStream.Filter<Path>() {
-      @Override
-      public boolean accept(Path entry) throws IOException {
-        if (LOCK_FNAME.equals(entry.getFileName().toString())) {
-          return false;
-        }
+  private static class DirectoryCleanFilter implements DirectoryStream.Filter<Path> {
+    private long defaultDurationToExpireMs;
 
-        return isCacheEntryExpired(entry, PersistentCache.this.defaultDurationToExpireMs);
+    DirectoryCleanFilter(long defaultDurationToExpireMs) {
+      this.defaultDurationToExpireMs = defaultDurationToExpireMs;
+    }
+
+    @Override
+    public boolean accept(Path entry) throws IOException {
+      if (LOCK_FNAME.equals(entry.getFileName().toString())) {
+        return false;
       }
-    };
+
+      return isCacheEntryExpired(entry, defaultDurationToExpireMs);
+    }
   }
 
   private void putCache(String key, byte[] value) throws IOException {
@@ -280,7 +282,7 @@ public class PersistentCache {
     return true;
   }
 
-  private boolean isCacheEntryExpired(Path cacheEntryPath, long durationToExpireMs) throws IOException {
+  private static boolean isCacheEntryExpired(Path cacheEntryPath, long durationToExpireMs) throws IOException {
     BasicFileAttributes attr = Files.readAttributes(cacheEntryPath, BasicFileAttributes.class);
     long modTime = attr.lastModifiedTime().toMillis();
 

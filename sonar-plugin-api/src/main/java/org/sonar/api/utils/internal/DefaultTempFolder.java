@@ -79,8 +79,7 @@ public class DefaultTempFolder implements TempFolder {
 
   private static Path createTempFile(Path baseDir, String prefix, String suffix) {
     try {
-      Path p = Files.createTempFile(baseDir, prefix, suffix);
-      return p;
+      return Files.createTempFile(baseDir, prefix, suffix);
     } catch (IOException e) {
       throw new IllegalStateException("Failed to create temp file", e);
     }

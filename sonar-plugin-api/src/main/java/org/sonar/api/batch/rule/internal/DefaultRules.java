@@ -58,17 +58,17 @@ class DefaultRules implements Rules {
     rulesByRepositoryAndInternalKey = ImmutableTable.copyOf(tableBuilder);
   }
 
-  private void addToTable(Table<String, String, List<Rule>> table, DefaultRule r) {
+  private static void addToTable(Table<String, String, List<Rule>> table, DefaultRule r) {
     if (r.internalKey() == null) {
       return;
     }
 
     List<Rule> ruleList = table.get(r.key().repository(), r.internalKey());
-    
-    if(ruleList == null) {
+
+    if (ruleList == null) {
       ruleList = new LinkedList<>();
     }
-    
+
     ruleList.add(r);
     table.put(r.key().repository(), r.internalKey(), ruleList);
   }
@@ -97,7 +97,7 @@ class DefaultRules implements Rules {
   @Override
   public Collection<Rule> findByInternalKey(String repository, String internalKey) {
     List<Rule> rules = rulesByRepositoryAndInternalKey.get(repository, internalKey);
-    
+
     return rules != null ? rules : Collections.<Rule>emptyList();
   }
 }

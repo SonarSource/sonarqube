@@ -20,12 +20,13 @@
 package org.sonar.home.cache;
 
 import java.io.File;
+import java.io.IOException;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -66,6 +67,16 @@ public class PersistentCacheTest {
 
   @Test
   public void testClean() throws Exception {
+    // puts entry
+    assertCacheHit(false);
+    // negative time to make sure it is expired
+    cache = new PersistentCache(tmp.getRoot().toPath(), -100, mock(Logger.class), null);
+    cache.clean();
+    assertCacheHit(false);
+  }
+
+  @Test
+  public void testClear() throws Exception {
     assertCacheHit(false);
     cache.clear();
     assertCacheHit(false);
@@ -74,6 +85,12 @@ public class PersistentCacheTest {
   @Test
   public void testCacheHit() throws Exception {
     assertCacheHit(false);
+    assertCacheHit(true);
+  }
+
+  @Test
+  public void testPut() throws Exception {
+    cache.put(URI, VALUE.getBytes());
     assertCacheHit(true);
   }
 
@@ -101,22 +118,22 @@ public class PersistentCacheTest {
     assertCacheHit(false);
     assertCacheHit(false);
   }
-  
+
   @Test
   public void testDifferentServerVersions() throws Exception {
     assertCacheHit(false);
     assertCacheHit(true);
-    
+
     PersistentCache cache2 = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, mock(Logger.class), "5.2");
     assertCacheHit(cache2, false);
     assertCacheHit(cache2, true);
-    
+
   }
 
   private void assertCacheHit(boolean hit) throws Exception {
     assertCacheHit(cache, hit);
   }
-  
+
   private void assertCacheHit(PersistentCache pCache, boolean hit) throws Exception {
     CacheFillerString c = new CacheFillerString();
     assertThat(pCache.getString(URI, c)).isEqualTo(VALUE);

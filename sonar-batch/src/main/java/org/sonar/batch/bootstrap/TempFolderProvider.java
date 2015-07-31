@@ -76,7 +76,7 @@ public class TempFolderProvider extends LifecycleProviderAdapter {
     return tempFolder;
   }
 
-  private Path createTempFolder(Path workingPath) {
+  private static Path createTempFolder(Path workingPath) {
     try {
       Files.createDirectories(workingPath);
     } catch (IOException e) {
