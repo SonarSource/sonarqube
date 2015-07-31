@@ -21,6 +21,7 @@ package org.sonar.core.platform;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -144,6 +145,34 @@ public class PluginLoaderTest {
       entry("fooExtension1", "org.foo.Extension1Plugin"),
       entry("fooExtension2", "org.foo.Extension2Plugin"));
     // TODO test mask - require change in sonar-classloader
+  }
+
+  @Test
+  public void plugin_is_recognised_as_server_extension_if_key_is_views_and_extends_no_other_plugin_and_runs_in_compatibility_mode() throws IOException {
+    PluginInfo views = create52PluginInfo("views");
+
+    Collection<PluginClassloaderDef> defs = loader.defineClassloaders(ImmutableMap.of("views", views));
+
+    assertThat(defs.iterator().next().isServerExtension()).isTrue();
+  }
+
+  @Test
+  public void plugin_is_not_recognised_as_system_extension_if_key_is_views_and_extends_another_plugin() throws IOException {
+    PluginInfo foo = create52PluginInfo("foo");
+    PluginInfo views = create52PluginInfo("views")
+        .setBasePlugin("foo");
+
+    Collection<PluginClassloaderDef> defs = loader.defineClassloaders(ImmutableMap.of("foo", foo, "views", views));
+
+    assertThat(defs).extracting("compatibilityMode").containsOnly(false, false);
+  }
+
+  private PluginInfo create52PluginInfo(String pluginKey) throws IOException {
+    File jarFile = temp.newFile();
+    return new PluginInfo(pluginKey)
+        .setJarFile(jarFile)
+        .setMainClass("org.foo." + pluginKey + "Plugin")
+        .setMinimalSqVersion(Version.create("5.2"));
   }
 
   /**

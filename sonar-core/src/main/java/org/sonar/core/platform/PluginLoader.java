@@ -21,10 +21,12 @@ package org.sonar.core.platform;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
 import java.io.Closeable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang.SystemUtils;
 import org.sonar.api.Plugin;
 import org.sonar.api.utils.log.Loggers;
@@ -44,11 +46,17 @@ import static java.util.Arrays.asList;
  * Plugins have their own isolated classloader, inheriting only from API classes.
  * Some plugins can extend a "base" plugin, sharing the same classloader.
  * <p/>
- * This class is stateless. It does not keep pointers to classloaders and {@link Plugin}.
+ * This class is stateless. It does not keep pointers to classloaders and {@link org.sonar.api.SonarPlugin}.
  */
 public class PluginLoader {
 
   private static final String[] DEFAULT_SHARED_RESOURCES = {"org/sonar/plugins", "com/sonar/plugins", "com/sonarsource/plugins"};
+  /**
+   * Defines the base keys (defined by {@link #basePluginKey(PluginInfo, Map)}) of the plugins which are allowed to
+   * run a full server extensions.
+   */
+  private static final Set<String> SYSTEM_EXTENSION_PLUGINS_BASE_KEYS = ImmutableSet.of("views");
+
   public static final Version COMPATIBILITY_MODE_MAX_VERSION = Version.create("5.2");
 
   private final PluginJarExploder jarExploder;
@@ -85,9 +93,9 @@ public class PluginLoader {
       def.addFiles(explodedPlugin.getLibs());
       def.addMainClass(info.getKey(), info.getMainClass());
 
-      for (String defaultSharedResource : DEFAULT_SHARED_RESOURCES) {
-        def.getExportMask().addInclusion(String.format("%s/%s/api/", defaultSharedResource, info.getKey()));
-      }
+        for (String defaultSharedResource : DEFAULT_SHARED_RESOURCES) {
+          def.getExportMask().addInclusion(String.format("%s/%s/api/", defaultSharedResource, info.getKey()));
+        }
 
       // The plugins that extend other plugins can only add some files to classloader.
       // They can't change metadata like ordering strategy or compatibility mode.
@@ -96,6 +104,7 @@ public class PluginLoader {
         Version minSqVersion = info.getMinimalSqVersion();
         boolean compatibilityMode = minSqVersion != null && minSqVersion.compareToIgnoreQualifier(COMPATIBILITY_MODE_MAX_VERSION) < 0;
         def.setCompatibilityMode(compatibilityMode);
+        def.setServerExtension(isServerExtension(baseKey));
         if (compatibilityMode) {
           Loggers.get(getClass()).debug("API compatibility mode is enabled on plugin {} [{}] " +
             "(built with API lower than {})",
@@ -106,8 +115,12 @@ public class PluginLoader {
     return classloadersByBasePlugin.values();
   }
 
+  private static boolean isServerExtension(String basePluginKey) {
+    return SYSTEM_EXTENSION_PLUGINS_BASE_KEYS.contains(basePluginKey);
+  }
+
   /**
-   * Instantiates collection of ({@link Plugin} according to given metadata and classloaders
+   * Instantiates collection of {@link org.sonar.api.SonarPlugin} according to given metadata and classloaders
    *
    * @return the instances grouped by plugin key
    * @throws IllegalStateException if at least one plugin can't be correctly loaded

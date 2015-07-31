@@ -65,9 +65,9 @@ public class PluginClassloaderFactory {
   public Map<PluginClassloaderDef, ClassLoader> create(Collection<PluginClassloaderDef> defs) {
     ClassloaderBuilder builder = new ClassloaderBuilder();
     builder.newClassloader(API_CLASSLOADER_KEY, baseClassloader());
-    builder.setMask(API_CLASSLOADER_KEY, apiMask());
 
     for (PluginClassloaderDef def : defs) {
+      builder.setMask(API_CLASSLOADER_KEY, def.isServerExtension() ? new Mask() : apiMask());
       builder.newClassloader(def.getBasePluginKey());
       builder.setParent(def.getBasePluginKey(), API_CLASSLOADER_KEY, new Mask());
       builder.setLoadingOrder(def.getBasePluginKey(), def.isSelfFirstStrategy() ? SELF_FIRST : PARENT_FIRST);
@@ -145,7 +145,7 @@ public class PluginClassloaderFactory {
    */
   private static Mask apiMask() {
     return new Mask()
-      .addInclusion("org/sonar/api/")
+        .addInclusion("org/sonar/api/")
       .addInclusion("org/sonar/channel/")
       .addInclusion("org/sonar/check/")
       .addInclusion("org/sonar/colorizer/")
@@ -169,6 +169,7 @@ public class PluginClassloaderFactory {
       .addInclusion("org/sonar/server/platform/")
       .addInclusion("org/sonar/core/persistence/")
       .addInclusion("org/sonar/core/properties/")
+      .addInclusion("org/sonar/server/views/")
 
       // API exclusions
       .addExclusion("org/sonar/api/internal/");

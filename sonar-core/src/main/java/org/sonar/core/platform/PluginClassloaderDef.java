@@ -46,6 +46,8 @@ class PluginClassloaderDef {
    */
   private boolean compatibilityMode = false;
 
+  private boolean serverExtension = false;
+
   PluginClassloaderDef(String basePluginKey) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(basePluginKey));
     this.basePluginKey = basePluginKey;
@@ -91,6 +93,14 @@ class PluginClassloaderDef {
 
   void setCompatibilityMode(boolean b) {
     this.compatibilityMode = b;
+  }
+
+  boolean isServerExtension() {
+    return serverExtension;
+  }
+
+  void setServerExtension(boolean serverExtension) {
+    this.serverExtension = serverExtension;
   }
 
   @Override
