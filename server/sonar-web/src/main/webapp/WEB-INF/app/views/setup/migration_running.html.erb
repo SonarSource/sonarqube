@@ -1,6 +1,0 @@
-<meta http-equiv='refresh' content='5;'>
-
-<% start_time = DatabaseMigrationManager.instance.migration_start_time %>
-<h1 class="maintenance-title">Database is currently upgrading</h1>
-<p class="maintenance-text text-center">Started <%= distance_of_time_in_words(start_time, Time.now) -%> ago (<%= l start_time -%>)</p>
-<div class="maintenance-spinner"><i class="spinner"></i></div>

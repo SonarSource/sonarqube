@@ -7,17 +7,11 @@
 
 {{else}}
 
-  {{#notNull state}}
-    {{#eq state 'NO_MIGRATION'}}{{> '_maintenance-status-no-migration'}}{{/eq}}
-    {{#eq state 'NOT_SUPPORTED'}}{{> '_maintenance-status-migration-not-supported'}}{{/eq}}
-    {{#eq state 'MIGRATION_RUNNING'}}{{> '_maintenance-status-migration-running'}}{{/eq}}
-    {{#eq state 'MIGRATION_SUCCEEDED'}}{{> '_maintenance-status-migration-succeeded'}}{{/eq}}
-    {{#eq state 'MIGRATION_FAILED'}}{{> '_maintenance-status-migration-failed'}}{{/eq}}
-  {{else}}
-    {{#eq status 'UP'}}{{> '_maintenance-status-up'}}{{/eq}}
-    {{#eq status 'DOWN'}}{{> '_maintenance-status-down'}}{{/eq}}
-    {{#eq status 'DB_MIGRATION_NEEDED'}}{{> '_maintenance-status-migration-needed'}}{{/eq}}
-    {{#eq status 'DB_MIGRATION_RUNNING'}}{{> '_maintenance-status-migration-running'}}{{/eq}}
-  {{/notNull}}
+  {{#eq state 'NO_MIGRATION'}}{{> '_maintenance-state-no-migration'}}{{/eq}}
+  {{#eq state 'MIGRATION_REQUIRED'}}{{> '_maintenance-state-migration-required'}}{{/eq}}
+  {{#eq state 'NOT_SUPPORTED'}}{{> '_maintenance-state-migration-not-supported'}}{{/eq}}
+  {{#eq state 'MIGRATION_RUNNING'}}{{> '_maintenance-state-migration-running'}}{{/eq}}
+  {{#eq state 'MIGRATION_SUCCEEDED'}}{{> '_maintenance-state-migration-succeeded'}}{{/eq}}
+  {{#eq state 'MIGRATION_FAILED'}}{{> '_maintenance-state-migration-failed'}}{{/eq}}
 
 {{/unless}}
