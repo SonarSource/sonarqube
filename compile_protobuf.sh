@@ -1,7 +1,12 @@
 #!/bin/bash
 
 # Compiles all the Protocol Buffers files (*.proto) to Java source code.
-# IMPORTANT - protobuf 2.6.1 must be installed. Other versions are not supported.
+# Local installation of protobuf compiler is NOT needed.
+
+# Available versions listed at http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.github.os72%22%20AND%20a%3A%22protoc-jar%22
+PROTOBUF_VERSION="2.6.1.4"
+
+mvn org.apache.maven.plugins:maven-dependency-plugin::copy -Dartifact=com.github.os72:protoc-jar:$PROTOBUF_VERSION -DoutputDirectory=target
 
 # Usage: compile_protobuf <module> <type: main or test>
 function compile_protobuf {
@@ -13,7 +18,7 @@ function compile_protobuf {
     echo "Compiling [$INPUT] to [$OUTPUT]..."
     rm -rf $OUTPUT
     mkdir -p $OUTPUT
-    protoc --proto_path=$INPUT --java_out=$OUTPUT $INPUT/*.proto
+    java -jar target/protoc-jar-$PROTOBUF_VERSION.jar --proto_path=$INPUT --java_out=$OUTPUT $INPUT/*.proto
   fi
 }
 
