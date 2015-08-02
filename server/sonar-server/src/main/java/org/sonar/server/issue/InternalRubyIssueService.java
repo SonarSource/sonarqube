@@ -192,16 +192,6 @@ public class InternalRubyIssueService {
     return result;
   }
 
-  public Result<Issue> assign(String issueKey, @Nullable String assignee) {
-    Result<Issue> result = Result.of();
-    try {
-      result.set(issueService.assign(issueKey, StringUtils.defaultIfBlank(assignee, null)));
-    } catch (Exception e) {
-      result.addError(e.getMessage());
-    }
-    return result;
-  }
-
   public Result<Issue> setSeverity(String issueKey, String severity) {
     Result<Issue> result = Result.of();
     try {

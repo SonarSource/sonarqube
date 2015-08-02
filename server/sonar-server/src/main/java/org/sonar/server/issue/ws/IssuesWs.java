@@ -62,7 +62,6 @@ public class IssuesWs implements WebService {
 
   private static void defineRailsActions(NewController controller) {
     defineChangelogAction(controller);
-    defineAssignAction(controller);
     defineAddCommentAction(controller);
     defineDeleteCommentAction(controller);
     defineEditCommentAction(controller);
@@ -86,23 +85,6 @@ public class IssuesWs implements WebService {
       .setDescription("Key of the issue")
       .setRequired(true)
       .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
-    RailsHandler.addFormatParam(action);
-  }
-
-  private static void defineAssignAction(NewController controller) {
-    WebService.NewAction action = controller.createAction(ASSIGN_ACTION)
-      .setDescription("Assign/Unassign an issue. Requires authentication and Browse permission on project")
-      .setSince("3.6")
-      .setHandler(RailsHandler.INSTANCE)
-      .setPost(true);
-
-    action.createParam("issue")
-      .setDescription("Key of the issue")
-      .setRequired(true)
-      .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
-    action.createParam("assignee")
-      .setDescription("Login of the assignee")
-      .setExampleValue("admin");
     RailsHandler.addFormatParam(action);
   }
 
