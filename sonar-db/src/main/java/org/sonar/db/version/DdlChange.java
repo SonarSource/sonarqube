@@ -64,4 +64,7 @@ public abstract class DdlChange implements MigrationStep {
 
   public abstract void execute(Context context) throws SQLException;
 
+  protected Database getDatabase() {
+    return db;
+  }
 }
