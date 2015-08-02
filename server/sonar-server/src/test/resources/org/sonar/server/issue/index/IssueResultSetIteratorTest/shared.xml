@@ -32,7 +32,9 @@
     updated_at="1400000000000"
     issue_creation_date="1115848800000"
     issue_update_date="1356994800000"
-    issue_close_date="[null]"/>
+    issue_close_date="[null]"
+    locations="[null]"
+    />
 
   <issues
     id="2"
@@ -59,7 +61,9 @@
     updated_at="1400000000000"
     issue_creation_date="1115848800000"
     issue_update_date="1356994800000"
-    issue_close_date="[null]"/>
+    issue_close_date="[null]"
+    locations="[null]"
+    />
 
   <issues
     id="3"
@@ -86,7 +90,8 @@
     updated_at="1450000000000"
     issue_creation_date="1115848800000"
     issue_update_date="1368828000000"
-    issue_close_date="[null]"/>
+    issue_close_date="[null]"
+    locations="[null]"/>
 
   <issues
     id="4"
@@ -113,6 +118,8 @@
     updated_at="1400000000000"
     issue_creation_date="1115848800000"
     issue_update_date="1356994800000"
-    issue_close_date="[null]"/>
+    issue_close_date="[null]"
+    locations="[null]"
+    />
 
 </dataset>

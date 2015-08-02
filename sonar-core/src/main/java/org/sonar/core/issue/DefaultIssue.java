@@ -87,7 +87,8 @@ public class DefaultIssue implements Issue, Trackable {
   private String actionPlanKey;
   private List<IssueComment> comments = null;
   private Set<String> tags = null;
-
+  // temporarily an Object as long as DefaultIssue is used by sonar-batch
+  private Object locations = null;
   // FUNCTIONAL DATES
   private Date creationDate;
   private Date updateDate;
@@ -555,6 +556,14 @@ public class DefaultIssue implements Issue, Trackable {
   public DefaultIssue setSelectedAt(@Nullable Long d) {
     this.selectedAt = d;
     return this;
+  }
+
+  public <T> T getLocations() {
+    return (T)locations;
+  }
+
+  public void setLocations(Object locations) {
+    this.locations = locations;
   }
 
   @Override
