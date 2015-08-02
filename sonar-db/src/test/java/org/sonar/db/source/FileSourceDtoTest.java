@@ -23,7 +23,7 @@ package org.sonar.db.source;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
-import org.sonar.db.FileSources;
+import org.sonar.db.protobuf.DbFileSources;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,11 +31,11 @@ public class FileSourceDtoTest {
 
   @Test
   public void encode_and_decode_test_data() {
-    List<FileSources.Test> tests = Arrays.asList(
-      FileSources.Test.newBuilder()
+    List<DbFileSources.Test> tests = Arrays.asList(
+      DbFileSources.Test.newBuilder()
         .setName("name#1")
         .build(),
-      FileSources.Test.newBuilder()
+      DbFileSources.Test.newBuilder()
         .setName("name#2")
         .build());
 

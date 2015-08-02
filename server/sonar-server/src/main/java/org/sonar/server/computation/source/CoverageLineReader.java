@@ -20,12 +20,10 @@
 
 package org.sonar.server.computation.source;
 
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.FileSources;
-
-import javax.annotation.CheckForNull;
-
 import java.util.Iterator;
+import javax.annotation.CheckForNull;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.db.protobuf.DbFileSources;
 
 public class CoverageLineReader implements LineReader {
 
@@ -37,7 +35,7 @@ public class CoverageLineReader implements LineReader {
   }
 
   @Override
-  public void read(FileSources.Line.Builder lineBuilder) {
+  public void read(DbFileSources.Line.Builder lineBuilder) {
     BatchReport.Coverage reportCoverage = getNextLineCoverageIfMatchLine(lineBuilder.getLine());
     if (reportCoverage != null) {
       processUnitTest(lineBuilder, reportCoverage);
@@ -47,7 +45,7 @@ public class CoverageLineReader implements LineReader {
     }
   }
 
-  private static void processUnitTest(FileSources.Line.Builder lineBuilder, BatchReport.Coverage reportCoverage){
+  private static void processUnitTest(DbFileSources.Line.Builder lineBuilder, BatchReport.Coverage reportCoverage) {
     if (reportCoverage.hasUtHits()) {
       lineBuilder.setUtLineHits(reportCoverage.getUtHits() ? 1 : 0);
     }
@@ -57,7 +55,7 @@ public class CoverageLineReader implements LineReader {
     }
   }
 
-  private static void processIntegrationTest(FileSources.Line.Builder lineBuilder, BatchReport.Coverage reportCoverage){
+  private static void processIntegrationTest(DbFileSources.Line.Builder lineBuilder, BatchReport.Coverage reportCoverage) {
     if (reportCoverage.hasItHits()) {
       lineBuilder.setItLineHits(reportCoverage.getItHits() ? 1 : 0);
     }
@@ -67,7 +65,7 @@ public class CoverageLineReader implements LineReader {
     }
   }
 
-  private static void processOverallTest(FileSources.Line.Builder lineBuilder, BatchReport.Coverage reportCoverage){
+  private static void processOverallTest(DbFileSources.Line.Builder lineBuilder, BatchReport.Coverage reportCoverage) {
     if (reportCoverage.hasUtHits() || reportCoverage.hasItHits()) {
       lineBuilder.setOverallLineHits((reportCoverage.getUtHits() || reportCoverage.getItHits()) ? 1 : 0);
     }

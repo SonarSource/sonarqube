@@ -42,14 +42,15 @@ import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.FileSources;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.ActionPlanDto;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentTesting;
@@ -61,8 +62,8 @@ import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionChange;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.source.index.SourceLineIndexer;
@@ -71,7 +72,6 @@ import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.db.user.GroupDao;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -609,7 +609,7 @@ public class IssueServiceMediumTest {
   }
 
   private void newSourceLine(ComponentDto file, int line, String scmAuthor) {
-    FileSources.Data.Builder dataBuilder = FileSources.Data.newBuilder();
+    DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
     dataBuilder.addLinesBuilder()
       .setLine(line)
       .setScmAuthor(scmAuthor)

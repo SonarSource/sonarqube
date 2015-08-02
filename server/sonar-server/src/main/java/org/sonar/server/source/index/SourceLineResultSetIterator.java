@@ -19,17 +19,6 @@
  */
 package org.sonar.server.source.index;
 
-import org.elasticsearch.action.update.UpdateRequest;
-import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.db.DbSession;
-import org.sonar.db.FileSources;
-import org.sonar.db.source.FileSourceDto;
-import org.sonar.db.DbClient;
-import org.sonar.db.ResultSetIterator;
-import org.sonar.server.es.EsUtils;
-
-import javax.annotation.Nullable;
-
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
@@ -37,6 +26,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
+import javax.annotation.Nullable;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.ResultSetIterator;
+import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.db.source.FileSourceDto;
+import org.sonar.server.es.EsUtils;
 
 import static org.sonar.server.source.index.FileSourcesUpdaterHelper.Row;
 
@@ -64,16 +62,16 @@ public class SourceLineResultSetIterator extends ResultSetIterator<FileSourcesUp
     String projectUuid = rs.getString(1);
     String fileUuid = rs.getString(2);
     Date updatedAt = new Date(rs.getLong(3));
-    FileSources.Data data = FileSourceDto.decodeSourceData(rs.getBinaryStream(4));
+    DbFileSources.Data data = FileSourceDto.decodeSourceData(rs.getBinaryStream(4));
     return toRow(projectUuid, fileUuid, updatedAt, data);
   }
 
   /**
    * Convert protobuf message to data required for Elasticsearch indexing
    */
-  public static Row toRow(String projectUuid, String fileUuid, Date updatedAt, FileSources.Data data) {
+  public static Row toRow(String projectUuid, String fileUuid, Date updatedAt, DbFileSources.Data data) {
     Row result = new Row(projectUuid, fileUuid, updatedAt.getTime());
-    for (FileSources.Line line : data.getLinesList()) {
+    for (DbFileSources.Line line : data.getLinesList()) {
       ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
       // all the fields must be present, even if value is null

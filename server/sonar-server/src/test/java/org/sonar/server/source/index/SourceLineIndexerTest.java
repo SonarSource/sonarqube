@@ -40,7 +40,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.FileSources;
+import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.test.DbTests;
@@ -131,7 +131,7 @@ public class SourceLineIndexerTest {
     indexLine("P1", "F2", 1);
 
     List<Integer> duplications = ImmutableList.of(1, 2, 3);
-    FileSources.Data.Builder dataBuilder = FileSources.Data.newBuilder();
+    DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
     dataBuilder.addLinesBuilder()
       .setLine(1)
       .setScmRevision("new_revision")
@@ -194,7 +194,7 @@ public class SourceLineIndexerTest {
   public void index_source_lines_with_big_test_data() {
     Integer bigValue = Short.MAX_VALUE * 2;
 
-    FileSources.Data.Builder dataBuilder = FileSources.Data.newBuilder();
+    DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
     dataBuilder.addLinesBuilder()
       .setLine(1)
       .setScmRevision("cafebabe")

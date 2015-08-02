@@ -28,7 +28,7 @@ package org.sonar.server.source.db;
 
 // The java package can be changed without breaking compatibility.
 // it impacts only the generated Java code.
-option java_package = "org.sonar.db";
+option java_package = "org.sonar.db.protobuf";
 option optimize_for = SPEED;
 
 message Line {

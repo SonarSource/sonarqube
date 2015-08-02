@@ -23,7 +23,7 @@ syntax = "proto2";
 
 package sonarqube.db.issues;
 
-import "db_commons.proto";
+import "db-commons.proto";
 
 // The java package can be changed without breaking compatibility.
 // it impacts only the generated Java code.

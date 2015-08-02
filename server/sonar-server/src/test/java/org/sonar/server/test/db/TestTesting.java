@@ -30,7 +30,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.db.DbSession;
-import org.sonar.db.FileSources;
+import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 
 public class TestTesting {
@@ -39,7 +39,7 @@ public class TestTesting {
     // only static stuff
   }
 
-  public static void updateDataColumn(DbSession session, String fileUuid, List<FileSources.Test> tests) throws SQLException {
+  public static void updateDataColumn(DbSession session, String fileUuid, List<DbFileSources.Test> tests) throws SQLException {
     updateDataColumn(session, fileUuid, FileSourceDto.encodeTestData(tests));
   }
 
@@ -56,19 +56,19 @@ public class TestTesting {
   /**
    * Generate random data.
    */
-  public static List<FileSources.Test> newRandomTests(int numberOfTests) throws IOException {
-    List<FileSources.Test> tests = new ArrayList<>();
+  public static List<DbFileSources.Test> newRandomTests(int numberOfTests) throws IOException {
+    List<DbFileSources.Test> tests = new ArrayList<>();
     for (int i = 1; i <= numberOfTests; i++) {
-      FileSources.Test.Builder test = FileSources.Test.newBuilder()
+      DbFileSources.Test.Builder test = DbFileSources.Test.newBuilder()
         .setUuid(Uuids.create())
         .setName(RandomStringUtils.randomAlphanumeric(20))
-        .setStatus(FileSources.Test.TestStatus.FAILURE)
+        .setStatus(DbFileSources.Test.TestStatus.FAILURE)
         .setStacktrace(RandomStringUtils.randomAlphanumeric(50))
         .setMsg(RandomStringUtils.randomAlphanumeric(30))
         .setExecutionTimeMs(RandomUtils.nextLong());
       for (int j = 0; j < numberOfTests; j++) {
         test.addCoveredFile(
-          FileSources.Test.CoveredFile.newBuilder()
+          DbFileSources.Test.CoveredFile.newBuilder()
             .setFileUuid(Uuids.create())
             .addCoveredLine(RandomUtils.nextInt(500)));
       }

@@ -33,7 +33,7 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.CoverageDetail;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.FileSources;
+import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
@@ -150,12 +150,12 @@ public class PersistTestsStepTest extends BaseStepTest {
     assertThat(dto.getFileUuid()).isEqualTo(TEST_FILE_UUID_1);
     assertThat(dto.getTestData()).hasSize(1);
 
-    FileSources.Test test1 = dto.getTestData().get(0);
+    DbFileSources.Test test1 = dto.getTestData().get(0);
     assertThat(test1.getUuid()).isNotEmpty();
     assertThat(test1.getName()).isEqualTo("name#1");
     assertThat(test1.getMsg()).isEqualTo("message#1");
     assertThat(test1.getStacktrace()).isEqualTo("stacktrace#1");
-    assertThat(test1.getStatus()).isEqualTo(FileSources.Test.TestStatus.FAILURE);
+    assertThat(test1.getStatus()).isEqualTo(DbFileSources.Test.TestStatus.FAILURE);
     assertThat(test1.getExecutionTimeMs()).isEqualTo(1_000);
     assertThat(test1.getCoveredFileCount()).isEqualTo(1);
     assertThat(test1.getCoveredFile(0).getCoveredLineList()).containsOnly(1, 2, 3);
@@ -171,7 +171,7 @@ public class PersistTestsStepTest extends BaseStepTest {
 
     FileSourceDto dto = dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1);
     assertThat(dto.getFileUuid()).isEqualTo(TEST_FILE_UUID_1);
-    List<FileSources.Test> tests = dto.getTestData();
+    List<DbFileSources.Test> tests = dto.getTestData();
     assertThat(tests).hasSize(1);
     assertThat(tests.get(0).getCoveredFileList()).isEmpty();
     assertThat(tests.get(0).getMsg()).isEqualTo("message#1");
@@ -215,10 +215,10 @@ public class PersistTestsStepTest extends BaseStepTest {
     dbClient.fileSourceDao().insert(db.getSession(), new FileSourceDto()
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(TEST_FILE_UUID_1)
-      .setTestData(Arrays.asList(FileSources.Test.newBuilder()
+      .setTestData(Arrays.asList(DbFileSources.Test.newBuilder()
         .setUuid("test-uuid-1")
         .setName("name#1")
-        .setStatus(FileSources.Test.TestStatus.ERROR)
+        .setStatus(DbFileSources.Test.TestStatus.ERROR)
         .setStacktrace("old-stacktrace#1")
         .setMsg("old-message#1")
         .setExecutionTimeMs(987_654_321L)
@@ -243,10 +243,10 @@ public class PersistTestsStepTest extends BaseStepTest {
     assertThat(dto.getUpdatedAt()).isEqualTo(now);
     assertThat(dto.getTestData()).hasSize(1);
 
-    FileSources.Test test = dto.getTestData().get(0);
+    DbFileSources.Test test = dto.getTestData().get(0);
     assertThat(test.getUuid()).isNotEqualTo("test-uuid-1");
     assertThat(test.getName()).isEqualTo("name#1");
-    assertThat(test.getStatus()).isEqualTo(FileSources.Test.TestStatus.valueOf(newBatchTest.getStatus().name()));
+    assertThat(test.getStatus()).isEqualTo(DbFileSources.Test.TestStatus.valueOf(newBatchTest.getStatus().name()));
     assertThat(test.getMsg()).isEqualTo(newBatchTest.getMsg());
     assertThat(test.getStacktrace()).isEqualTo(newBatchTest.getStacktrace());
     assertThat(test.getExecutionTimeMs()).isEqualTo(newBatchTest.getDurationInMs());

@@ -32,7 +32,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.FileSources;
+import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.test.db.TestTesting;
 import org.sonar.test.DbTests;
@@ -86,8 +86,8 @@ public class TestResultSetIteratorTest {
   @Test
   public void minimal_data() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    List<FileSources.Test> tests = Arrays.asList(
-      FileSources.Test.newBuilder()
+    List<DbFileSources.Test> tests = Arrays.asList(
+      DbFileSources.Test.newBuilder()
         .setUuid("U1")
         .setName("N1")
         .build());
@@ -170,19 +170,19 @@ public class TestResultSetIteratorTest {
     }
   }
 
-  private static List<FileSources.Test> newFakeTests(int numberOfTests) {
-    List<FileSources.Test> tests = new ArrayList<>();
+  private static List<DbFileSources.Test> newFakeTests(int numberOfTests) {
+    List<DbFileSources.Test> tests = new ArrayList<>();
     for (int i = 1; i <= numberOfTests; i++) {
-      FileSources.Test.Builder test = FileSources.Test.newBuilder()
+      DbFileSources.Test.Builder test = DbFileSources.Test.newBuilder()
         .setUuid("TEST_FILE_UUID_" + i)
         .setName("NAME_" + i)
-        .setStatus(FileSources.Test.TestStatus.FAILURE)
+        .setStatus(DbFileSources.Test.TestStatus.FAILURE)
         .setStacktrace("STACKTRACE_" + i)
         .setMsg("MESSAGE_" + i)
         .setExecutionTimeMs(i);
       for (int j = 1; j <= numberOfTests; j++) {
         test.addCoveredFile(
-          FileSources.Test.CoveredFile.newBuilder()
+          DbFileSources.Test.CoveredFile.newBuilder()
             .setFileUuid("MAIN_FILE_UUID_" + j)
             .addCoveredLine(j));
       }
