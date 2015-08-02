@@ -60,11 +60,13 @@ public class SearchResponseFormat {
     this.languages = languages;
   }
 
-  public Issues.Search format(Set<SearchAdditionalField> fields, SearchResponseData data, Paging paging,
-    @Nullable Facets facets) {
+  public Issues.Search format(Set<SearchAdditionalField> fields, SearchResponseData data,
+                              @Nullable Paging paging, @Nullable Facets facets) {
     Issues.Search.Builder response = Issues.Search.newBuilder();
 
-    formatPaging(paging, response);
+    if (paging != null) {
+      formatPaging(paging, response);
+    }
     formatDebtTotal(data, response);
     formatIssues(fields, data, response);
     formatComponents(data, response);

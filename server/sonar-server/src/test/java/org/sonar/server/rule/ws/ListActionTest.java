@@ -55,7 +55,7 @@ public class ListActionTest {
     dbTester.getSession().commit();
 
     TestResponse response = tester.newRequest()
-      .setMimeType(MimeTypes.PROTOBUF)
+      .setMediaType(MimeTypes.PROTOBUF)
       .execute();
 
     assertThat(response.getMediaType()).isEqualTo(MimeTypes.PROTOBUF);

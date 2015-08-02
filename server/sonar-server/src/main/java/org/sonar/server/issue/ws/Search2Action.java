@@ -22,7 +22,6 @@ package org.sonar.server.issue.ws;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import java.io.OutputStreamWriter;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
@@ -37,9 +36,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.rule.RuleKeyFunctions;
-import org.sonar.core.util.ProtobufJsonFormat;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -49,8 +46,8 @@ import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Issues;
 
 import static com.google.common.collect.FluentIterable.from;
@@ -259,19 +256,8 @@ public class Search2Action implements IssuesWsAction {
 
     // FIXME allow long in Paging
     Paging paging = Paging.create(options.getLimit(), options.getPage(), (int) result.getTotal());
-    Issues.Search searchFormat = searchResponseFormat.format(additionalFields, data, paging, facets);
-    // TODO share this code elsewhere
-    if (request.getMediaType().equals(MimeTypes.PROTOBUF)) {
-      response.stream().setMediaType(MimeTypes.PROTOBUF);
-      searchFormat.writeTo(response.stream().output());
-    } else {
-      response.stream().setMediaType(MimeTypes.JSON);
-      try (OutputStreamWriter writer = new OutputStreamWriter(response.stream().output())) {
-        ProtobufJsonFormat.write(searchFormat, JsonWriter.of(writer));
-      }
-    }
-    // TODO to be improved
-    response.stream().output().close();
+    Issues.Search responseBody = searchResponseFormat.format(additionalFields, data, paging, facets);
+    WsUtils.writeProtobuf(responseBody, request, response);
   }
 
   private Facets reorderFacets(@Nullable Facets facets, Collection<String> orderedNames) {

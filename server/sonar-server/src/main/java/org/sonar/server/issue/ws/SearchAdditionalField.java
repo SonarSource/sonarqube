@@ -39,6 +39,8 @@ public enum SearchAdditionalField {
   USERS("users");
 
   public static final String ALL_ALIAS = "_all";
+  public static final EnumSet<SearchAdditionalField> ALL_ADDITIONAL_FIELDS = EnumSet.allOf(SearchAdditionalField.class);
+
   private final String label;
 
   SearchAdditionalField(String label) {

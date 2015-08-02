@@ -64,7 +64,7 @@ public class TestRequest extends ValidatingRequest {
     return mimeType;
   }
 
-  public TestRequest setMimeType(String type) {
+  public TestRequest setMediaType(String type) {
     checkNotNull(type);
     this.mimeType = type;
     return this;
