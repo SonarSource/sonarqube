@@ -31,7 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.db.FileSources;
+import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.source.index.SourceLineDoc;
@@ -115,8 +115,8 @@ public class SourceIndexBenchmarkTest {
     private final int nbLinesPerFile;
     private int currentProject = 0;
     private AtomicLong count = new AtomicLong(0L);
-    private final FileSources.Data.Builder dataBuilder = FileSources.Data.newBuilder();
-    private final FileSources.Line.Builder lineBuilder = FileSources.Line.newBuilder();
+    private final DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
+    private final DbFileSources.Line.Builder lineBuilder = DbFileSources.Line.newBuilder();
 
     SourceIterator(long nbFiles, int nbLinesPerFile) {
       this.nbFiles = nbFiles;

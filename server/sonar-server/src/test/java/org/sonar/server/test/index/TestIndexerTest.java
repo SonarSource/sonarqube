@@ -39,7 +39,7 @@ import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.FileSources;
+import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
@@ -120,14 +120,14 @@ public class TestIndexerTest {
     indexTest("P1", "F2", "T1", "U121");
 
     FileSourcesUpdaterHelper.Row dbRow = TestResultSetIterator.toRow("P1", "F1", new Date(), Arrays.asList(
-      FileSources.Test.newBuilder()
+      DbFileSources.Test.newBuilder()
         .setUuid("U111")
         .setName("NAME_1")
-        .setStatus(FileSources.Test.TestStatus.FAILURE)
+        .setStatus(DbFileSources.Test.TestStatus.FAILURE)
         .setMsg("NEW_MESSAGE_1")
         .setStacktrace("NEW_STACKTRACE_1")
         .setExecutionTimeMs(123_456L)
-        .addCoveredFile(FileSources.Test.CoveredFile.newBuilder().setFileUuid("MAIN_UUID_1").addCoveredLine(42))
+        .addCoveredFile(DbFileSources.Test.CoveredFile.newBuilder().setFileUuid("MAIN_UUID_1").addCoveredLine(42))
         .build()));
     underTest.index(Iterators.singletonIterator(dbRow));
 

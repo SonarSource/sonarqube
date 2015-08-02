@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.FileSources;
+import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.version.MigrationStep;
 
@@ -55,7 +55,7 @@ public class FeedFileSourcesBinaryDataTest {
     assertThat(count).isEqualTo(3);
 
     try (Connection connection = db.openConnection()) {
-      FileSources.Data data = selectData(connection, 1L);
+      DbFileSources.Data data = selectData(connection, 1L);
       assertThat(data.getLinesCount()).isEqualTo(4);
       assertThat(data.getLines(0).getScmRevision()).isEqualTo("aef12a");
 
@@ -80,7 +80,7 @@ public class FeedFileSourcesBinaryDataTest {
     migration.execute();
   }
 
-  private FileSources.Data selectData(Connection connection, long fileSourceId) throws SQLException {
+  private DbFileSources.Data selectData(Connection connection, long fileSourceId) throws SQLException {
     PreparedStatement pstmt = connection.prepareStatement("select binary_data from file_sources where id=?");
     ResultSet rs = null;
     try {

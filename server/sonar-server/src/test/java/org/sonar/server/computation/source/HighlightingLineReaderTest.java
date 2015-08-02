@@ -24,7 +24,7 @@ import java.util.Collections;
 import org.junit.Test;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.FileSources;
+import org.sonar.db.protobuf.DbFileSources;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,17 +32,17 @@ import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
 public class HighlightingLineReaderTest {
 
-  FileSources.Data.Builder sourceData = FileSources.Data.newBuilder();
-  FileSources.Line.Builder line1 = sourceData.addLinesBuilder().setSource("line1").setLine(1);
-  FileSources.Line.Builder line2 = sourceData.addLinesBuilder().setSource("line2").setLine(2);
-  FileSources.Line.Builder line3 = sourceData.addLinesBuilder().setSource("line3").setLine(3);
-  FileSources.Line.Builder line4 = sourceData.addLinesBuilder().setSource("line4").setLine(4);
+  DbFileSources.Data.Builder sourceData = DbFileSources.Data.newBuilder();
+  DbFileSources.Line.Builder line1 = sourceData.addLinesBuilder().setSource("line1").setLine(1);
+  DbFileSources.Line.Builder line2 = sourceData.addLinesBuilder().setSource("line2").setLine(2);
+  DbFileSources.Line.Builder line3 = sourceData.addLinesBuilder().setSource("line3").setLine(3);
+  DbFileSources.Line.Builder line4 = sourceData.addLinesBuilder().setSource("line4").setLine(4);
 
   @Test
   public void nothing_to_read() {
     HighlightingLineReader highlightingLineReader = new HighlightingLineReader(Collections.<BatchReport.SyntaxHighlighting>emptyList().iterator());
 
-    FileSources.Line.Builder lineBuilder = FileSources.Data.newBuilder().addLinesBuilder().setLine(1);
+    DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     highlightingLineReader.read(lineBuilder);
 
     assertThat(lineBuilder.hasHighlighting()).isFalse();
@@ -159,7 +159,7 @@ public class HighlightingLineReaderTest {
         .build()).iterator());
 
     highlightingLineReader.read(line1);
-    FileSources.Line.Builder line2 = sourceData.addLinesBuilder().setSource("line 2").setLine(2);
+    DbFileSources.Line.Builder line2 = sourceData.addLinesBuilder().setSource("line 2").setLine(2);
     highlightingLineReader.read(line2);
     highlightingLineReader.read(line3);
 

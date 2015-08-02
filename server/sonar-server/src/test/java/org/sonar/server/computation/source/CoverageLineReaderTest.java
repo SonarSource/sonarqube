@@ -23,7 +23,7 @@ package org.sonar.server.computation.source;
 import java.util.Collections;
 import org.junit.Test;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.FileSources;
+import org.sonar.db.protobuf.DbFileSources;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +42,7 @@ public class CoverageLineReaderTest {
       .setOverallCoveredConditions(4)
       .build()).iterator());
 
-    FileSources.Line.Builder lineBuilder = FileSources.Data.newBuilder().addLinesBuilder().setLine(1);
+    DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     computeCoverageLine.read(lineBuilder);
 
     assertThat(lineBuilder.getUtLineHits()).isEqualTo(1);
@@ -62,7 +62,7 @@ public class CoverageLineReaderTest {
       .setItHits(false)
       .build()).iterator());
 
-    FileSources.Line.Builder lineBuilder = FileSources.Data.newBuilder().addLinesBuilder().setLine(1);
+    DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     computeCoverageLine.read(lineBuilder);
 
     assertThat(lineBuilder.hasUtLineHits()).isTrue();
@@ -79,7 +79,7 @@ public class CoverageLineReaderTest {
       .setLine(1)
       .build()).iterator());
 
-    FileSources.Line.Builder lineBuilder = FileSources.Data.newBuilder().addLinesBuilder().setLine(1);
+    DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     computeCoverageLine.read(lineBuilder);
 
     assertThat(lineBuilder.hasUtLineHits()).isFalse();
@@ -95,7 +95,7 @@ public class CoverageLineReaderTest {
       .setItHits(false)
       .build()).iterator());
 
-    FileSources.Line.Builder lineBuilder = FileSources.Data.newBuilder().addLinesBuilder().setLine(1);
+    DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     computeCoverageLine.read(lineBuilder);
 
     assertThat(lineBuilder.getOverallLineHits()).isEqualTo(1);
@@ -109,7 +109,7 @@ public class CoverageLineReaderTest {
       .setItHits(true)
       .build()).iterator());
 
-    FileSources.Line.Builder lineBuilder = FileSources.Data.newBuilder().addLinesBuilder().setLine(1);
+    DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     computeCoverageLine.read(lineBuilder);
 
     assertThat(lineBuilder.getOverallLineHits()).isEqualTo(1);
@@ -123,7 +123,7 @@ public class CoverageLineReaderTest {
       .setItHits(true)
       .build()).iterator());
 
-    FileSources.Line.Builder lineBuilder = FileSources.Data.newBuilder().addLinesBuilder().setLine(1);
+    DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     computeCoverageLine.read(lineBuilder);
 
     assertThat(lineBuilder.getOverallLineHits()).isEqualTo(1);
@@ -133,7 +133,7 @@ public class CoverageLineReaderTest {
   public void nothing_to_do_when_no_coverage_info() {
     CoverageLineReader computeCoverageLine = new CoverageLineReader(Collections.<BatchReport.Coverage>emptyList().iterator());
 
-    FileSources.Line.Builder lineBuilder = FileSources.Data.newBuilder().addLinesBuilder().setLine(1);
+    DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     computeCoverageLine.read(lineBuilder);
 
     assertThat(lineBuilder.hasUtLineHits()).isFalse();
@@ -160,7 +160,7 @@ public class CoverageLineReaderTest {
     // No coverage info on line 2
     ).iterator());
 
-    FileSources.Line.Builder line2Builder = FileSources.Data.newBuilder().addLinesBuilder().setLine(2);
+    DbFileSources.Line.Builder line2Builder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(2);
     computeCoverageLine.read(line2Builder);
 
     assertThat(line2Builder.hasUtLineHits()).isFalse();
@@ -187,9 +187,9 @@ public class CoverageLineReaderTest {
     // No coverage info on line 2
     ).iterator());
 
-    FileSources.Data.Builder fileSourceBuilder = FileSources.Data.newBuilder();
-    FileSources.Line.Builder line1Builder = fileSourceBuilder.addLinesBuilder().setLine(1);
-    FileSources.Line.Builder line2Builder = fileSourceBuilder.addLinesBuilder().setLine(2);
+    DbFileSources.Data.Builder fileSourceBuilder = DbFileSources.Data.newBuilder();
+    DbFileSources.Line.Builder line1Builder = fileSourceBuilder.addLinesBuilder().setLine(1);
+    DbFileSources.Line.Builder line2Builder = fileSourceBuilder.addLinesBuilder().setLine(2);
     computeCoverageLine.read(line1Builder);
     computeCoverageLine.read(line2Builder);
 

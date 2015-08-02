@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.FileSources;
+import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,7 +90,7 @@ public class SourceLineResultSetIteratorTest {
   @Test
   public void minimal_data() throws Exception {
     db.prepareDbUnit(getClass(), "shared.xml");
-    FileSources.Data.Builder dataBuilder = FileSources.Data.newBuilder();
+    DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
     dataBuilder.addLinesBuilder().setLine(1).build();
     try (Connection connection = db.openConnection()) {
       FileSourceTesting.updateDataColumn(connection, "F1", dataBuilder.build());
@@ -136,7 +136,7 @@ public class SourceLineResultSetIteratorTest {
   @Test
   public void filter_by_project() throws Exception {
     db.prepareDbUnit(getClass(), "filter_by_project.xml");
-    FileSources.Data.Builder dataBuilder = FileSources.Data.newBuilder();
+    DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
     dataBuilder.addLinesBuilder().setLine(1).build();
     try (Connection connection = db.openConnection()) {
       FileSourceTesting.updateDataColumn(connection, "F1", dataBuilder.build());
@@ -155,7 +155,7 @@ public class SourceLineResultSetIteratorTest {
   @Test
   public void filter_by_project_and_date() throws Exception {
     db.prepareDbUnit(getClass(), "filter_by_project_and_date.xml");
-    FileSources.Data.Builder dataBuilder = FileSources.Data.newBuilder();
+    DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
     dataBuilder.addLinesBuilder().setLine(1).build();
     try (Connection connection = db.openConnection()) {
       FileSourceTesting.updateDataColumn(connection, "F1", dataBuilder.build());

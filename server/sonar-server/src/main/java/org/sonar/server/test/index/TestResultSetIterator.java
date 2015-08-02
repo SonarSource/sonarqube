@@ -33,8 +33,8 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.FileSources;
 import org.sonar.db.ResultSetIterator;
+import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper.Row;
@@ -76,16 +76,16 @@ public class TestResultSetIterator extends ResultSetIterator<Row> {
     String projectUuid = rs.getString(1);
     String fileUuid = rs.getString(2);
     Date updatedAt = new Date(rs.getLong(3));
-    List<FileSources.Test> data = FileSourceDto.decodeTestData(rs.getBinaryStream(4));
+    List<DbFileSources.Test> data = FileSourceDto.decodeTestData(rs.getBinaryStream(4));
     return toRow(projectUuid, fileUuid, updatedAt, data);
   }
 
   /**
    * Convert protobuf message to tests required for Elasticsearch indexing
    */
-  public static Row toRow(String projectUuid, String fileUuid, Date updatedAt, List<FileSources.Test> tests) {
+  public static Row toRow(String projectUuid, String fileUuid, Date updatedAt, List<DbFileSources.Test> tests) {
     Row result = new Row(projectUuid, fileUuid, updatedAt.getTime());
-    for (FileSources.Test test : tests) {
+    for (DbFileSources.Test test : tests) {
       ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
       // all the fields must be present, even if value is null
@@ -101,7 +101,7 @@ public class TestResultSetIterator extends ResultSetIterator<Row> {
       writer.prop(FIELD_STACKTRACE, test.hasStacktrace() ? test.getStacktrace() : null);
       writer.name(FIELD_COVERED_FILES);
       writer.beginArray();
-      for (FileSources.Test.CoveredFile coveredFile : test.getCoveredFileList()) {
+      for (DbFileSources.Test.CoveredFile coveredFile : test.getCoveredFileList()) {
         writer.beginObject();
         writer.prop(FIELD_COVERED_FILE_UUID, coveredFile.getFileUuid());
         writer.name(FIELD_COVERED_FILE_LINES).valueObject(coveredFile.getCoveredLineList());

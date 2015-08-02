@@ -47,7 +47,7 @@ import org.sonar.server.computation.source.HighlightingLineReader;
 import org.sonar.server.computation.source.LineReader;
 import org.sonar.server.computation.source.ScmLineReader;
 import org.sonar.server.computation.source.SymbolsLineReader;
-import org.sonar.db.FileSources;
+import org.sonar.db.protobuf.DbFileSources;
 
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
@@ -120,7 +120,7 @@ public class PersistFileSourcesStep implements ComputationStep {
     }
 
     private void persistSource(ComputeFileSourceData.Data fileSourceData, String componentUuid) {
-      FileSources.Data fileData = fileSourceData.getFileSourceData();
+      DbFileSources.Data fileData = fileSourceData.getFileSourceData();
 
       byte[] data = FileSourceDto.encodeSourceData(fileData);
       String dataHash = DigestUtils.md5Hex(data);
