@@ -38,6 +38,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class ComponentDao implements Dao {
 
@@ -131,7 +132,20 @@ public class ComponentDao implements Dao {
   }
 
   public List<ComponentDto> selectByKeys(DbSession session, Collection<String> keys) {
-    return mapper(session).selectByKeys(keys);
+    return executeLargeInputs(keys, new KeyToDto(mapper(session)));
+  }
+
+  private static class KeyToDto implements Function<List<String>, List<ComponentDto>> {
+    private final ComponentMapper mapper;
+
+    private KeyToDto(ComponentMapper mapper) {
+      this.mapper = mapper;
+    }
+
+    @Override
+    public List<ComponentDto> apply(@Nonnull List<String> partitionOfKeys) {
+      return mapper.selectByKeys(partitionOfKeys);
+    }
   }
 
   public ComponentDto selectOrFailByKey(DbSession session, String key) {
