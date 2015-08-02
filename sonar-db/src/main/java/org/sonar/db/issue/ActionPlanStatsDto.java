@@ -44,6 +44,7 @@ public class ActionPlanStatsDto {
   private int unresolvedIssues;
   // return by joins
   private String projectKey;
+  private String projectUuid;
 
   public Integer getId() {
     return id;
@@ -163,6 +164,10 @@ public class ActionPlanStatsDto {
   public ActionPlanStatsDto setProjectKey_unit_test_only(String projectKey) {
     this.projectKey = projectKey;
     return this;
+  }
+
+  public String getProjectUuid() {
+    return projectUuid;
   }
 
   @Override
