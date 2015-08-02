@@ -25,5 +25,6 @@
       created_at="1400000000000"
       updated_at="1450000000000"
       action_plan_key="current_sprint"
-      />
+      locations="[null]"
+    />
 </dataset>

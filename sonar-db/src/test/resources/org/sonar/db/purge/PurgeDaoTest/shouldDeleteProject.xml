@@ -32,6 +32,7 @@
           issue_creation_date="1366063200000"
           issue_update_date="1366063200000"
           issue_close_date="1366063200000"
+          locations="[null]"
     />
 
   <issues id="2" kee="ABCDF" component_uuid="A" project_uuid="A" status="CLOSED" resolution="[null]" line="200"
@@ -45,6 +46,7 @@
           issue_creation_date="1366063200000"
           issue_update_date="1366063200000"
           issue_close_date="1366063200000"
+          locations="[null]"
     />
 
   <issue_changes id="1" kee="[null]" issue_key="ABCDF" created_at="[null]" updated_at="[null]" user_login="admin"

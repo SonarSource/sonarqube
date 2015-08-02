@@ -27,7 +27,7 @@
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]"
           issue_attributes="[null]" checksum="[null]" author_login="[null]"
           updated_at="[null]" issue_creation_date="1366063200000" issue_update_date="1366063200000"
-          created_at="1400000000000"/>
+          created_at="1400000000000" locations="[null]"/>
   <issue_changes id="1" kee="[null]" issue_key="ISSUE-1" created_at="[null]" updated_at="[null]" user_login="admin"
                  change_type="comment" change_data="abc" issue_change_creation_date="[null]"/>
 
@@ -41,7 +41,7 @@
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]"
           issue_attributes="[null]" checksum="[null]" author_login="[null]"
           updated_at="[null]" issue_creation_date="1366063200000" issue_update_date="1366063200000"
-          created_at="1400000000000"/>
+          created_at="1400000000000" locations="[null]"/>
   <issue_changes id="2" kee="[null]" issue_key="ISSUE-2" created_at="[null]" updated_at="[null]" user_login="admin"
                  change_type="comment" change_data="abc" issue_change_creation_date="[null]"/>
 
@@ -57,7 +57,7 @@
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]"
           issue_attributes="[null]" checksum="[null]" author_login="[null]"
           updated_at="[null]" issue_creation_date="1366063200000" issue_update_date="1366063200000"
-          created_at="1400000000000"/>
+          created_at="1400000000000" locations="[null]"/>
   <issue_changes id="3" kee="[null]" issue_key="ISSUE-3" created_at="[null]" updated_at="[null]" user_login="admin"
                  change_type="comment" change_data="abc" issue_change_creation_date="[null]"/>
 
@@ -72,7 +72,7 @@
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]"
           issue_attributes="[null]" checksum="[null]" author_login="[null]"
           updated_at="[null]" issue_creation_date="1366063200000" issue_update_date="1366063200000"
-          created_at="1400000000000"/>
+          created_at="1400000000000" locations="[null]"/>
   <issue_changes id="4" kee="[null]" issue_key="ISSUE-4" created_at="[null]" updated_at="[null]" user_login="admin"
                  change_type="comment" change_data="abc" issue_change_creation_date="[null]"/>
 
@@ -86,7 +86,7 @@
           message="[null]" action_plan_key="[null]" effort_to_fix="[null]" technical_debt="[null]"
           issue_attributes="[null]" checksum="[null]" author_login="[null]"
           updated_at="[null]" issue_creation_date="1366063200000" issue_update_date="1366063200000"
-          created_at="1400000000000"/>
+          created_at="1400000000000" locations="[null]"/>
   <issue_changes id="5" kee="[null]" issue_key="ISSUE-5" created_at="[null]" updated_at="[null]" user_login="admin"
                  change_type="comment" change_data="abc" issue_change_creation_date="[null]"/>
 

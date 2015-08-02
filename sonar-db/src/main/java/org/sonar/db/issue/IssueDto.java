@@ -24,6 +24,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
@@ -39,6 +40,7 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 
 import static org.sonar.api.utils.DateUtils.dateToLong;
@@ -69,6 +71,7 @@ public final class IssueDto implements Serializable {
   private String authorLogin;
   private String actionPlanKey;
   private String issueAttributes;
+  private byte[] locations;
   private long createdAt;
   private long updatedAt;
 
@@ -642,6 +645,37 @@ public final class IssueDto implements Serializable {
 
   public IssueDto setTagsString(String tags) {
     this.tags = tags;
+    return this;
+  }
+
+  @CheckForNull
+  public byte[] getLocations() {
+    return locations;
+  }
+
+  @CheckForNull
+  public DbIssues.Locations parseLocations() {
+    if (locations != null) {
+      try {
+        return DbIssues.Locations.parseFrom(locations);
+      } catch (InvalidProtocolBufferException e) {
+        throw new IllegalStateException(String.format("Fail to read ISSUES.LOCATIONS [KEE=%s]", kee), e);
+      }
+    }
+    return null;
+  }
+
+  public IssueDto setLocations(byte[] locations) {
+    this.locations = locations;
+    return this;
+  }
+
+  public IssueDto setLocations(@Nullable DbIssues.Locations locations) {
+    if (locations == null) {
+      this.locations = null;
+    } else {
+      this.locations = locations.toByteArray();
+    }
     return this;
   }
 

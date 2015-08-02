@@ -44,6 +44,7 @@
     issue_close_date="1366063200000"
     created_at="1400000000000"
     updated_at="[null]"
+    locations="[null]"
     />
 
   <!-- Open Issue on a file -->
@@ -70,6 +71,7 @@
     issue_close_date="1366063200000"
     created_at="1400000000000"
     updated_at="[null]"
+    locations="[null]"
     />
 
   <!-- Closed Issue on a file -->
@@ -96,6 +98,7 @@
     issue_close_date="1366063200000"
     created_at="1400000000000"
     updated_at="[null]"
+    locations="[null]"
     />
 
   <!-- Open Issue on a sub module -->
@@ -122,6 +125,7 @@
     issue_close_date="1366063200000"
     created_at="1400000000000"
     updated_at="[null]"
+    locations="[null]"
     />
 
 </dataset>
