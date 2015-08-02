@@ -10,11 +10,8 @@
       "key": "AP-ABCD",
       "name": "1.0",
       "status": "OPEN",
-      "project": "MyProject",
-      "userLogin": "simon",
       "deadLine": "2014-01-24T19:10:03+0000",
-      "createdAt": "2014-01-22T19:10:03+0000",
-      "updatedAt": "2014-01-23T19:10:03+0000"
+      "project": "PROJECT_ID"
     }
   ]
 }

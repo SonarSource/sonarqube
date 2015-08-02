@@ -88,7 +88,7 @@ public class IssueCommentServiceTest {
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.issueChangeDao()).thenReturn(changeDao);
 
-    issueCommentService = new IssueCommentService(dbClient, issueService, updater);
+    issueCommentService = new IssueCommentService(dbClient, issueService, updater, userSessionRule);
   }
 
   @Test
@@ -109,7 +109,7 @@ public class IssueCommentServiceTest {
     when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issueDto);
     when(issueCommentService.findComments(session, "ABCD")).thenReturn(newArrayList(new DefaultIssueComment()));
 
-    issueCommentService.addComment("ABCD", "my comment", userSessionRule);
+    issueCommentService.addComment("ABCD", "my comment");
 
     verify(updater).addComment(eq(issueDto.toDefaultIssue()), eq("my comment"), any(IssueChangeContext.class));
     verify(issueService).saveIssue(eq(session), eq(issueDto.toDefaultIssue()), any(IssueChangeContext.class), eq("my comment"));
@@ -120,7 +120,7 @@ public class IssueCommentServiceTest {
     throwable.expect(UnauthorizedException.class);
     userSessionRule.anonymous();
 
-    issueCommentService.addComment("myIssue", "my comment", userSessionRule);
+    issueCommentService.addComment("myIssue", "my comment");
 
     verify(updater, never()).addComment(any(DefaultIssue.class), anyString(), any(IssueChangeContext.class));
     verifyZeroInteractions(issueService);
@@ -130,7 +130,7 @@ public class IssueCommentServiceTest {
   public void should_prevent_adding_empty_comment() {
     throwable.expect(BadRequestException.class);
 
-    issueCommentService.addComment("myIssue", " ", userSessionRule);
+    issueCommentService.addComment("myIssue", " ");
 
     verify(updater, never()).addComment(any(DefaultIssue.class), anyString(), any(IssueChangeContext.class));
     verifyZeroInteractions(issueService);
@@ -140,7 +140,7 @@ public class IssueCommentServiceTest {
   public void should_prevent_adding_null_comment() {
     throwable.expect(BadRequestException.class);
 
-    issueCommentService.addComment("myIssue", null, userSessionRule);
+    issueCommentService.addComment("myIssue", null);
 
     verify(updater, never()).addComment(any(DefaultIssue.class), anyString(), any(IssueChangeContext.class));
     verifyZeroInteractions(issueService);
@@ -154,7 +154,7 @@ public class IssueCommentServiceTest {
     when(issueCommentService.findComments(session, "ABCD")).thenReturn(Collections.<DefaultIssueComment>emptyList());
 
     try {
-      issueCommentService.addComment("ABCD", "my comment", userSessionRule);
+      issueCommentService.addComment("ABCD", "my comment");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Fail to add a comment on issue ABCD");
@@ -165,7 +165,7 @@ public class IssueCommentServiceTest {
   public void should_delete_comment() {
     when(changeDao.selectCommentByKey("ABCD")).thenReturn(new DefaultIssueComment().setUserLogin("admin").setIssueKey("EFGH"));
 
-    issueCommentService.deleteComment("ABCD", userSessionRule);
+    issueCommentService.deleteComment("ABCD");
 
     verify(changeDao).delete("ABCD");
     verify(issueService).getByKey("EFGH");
@@ -177,7 +177,7 @@ public class IssueCommentServiceTest {
 
     when(changeDao.selectCommentByKey("ABCD")).thenReturn(null);
 
-    issueCommentService.deleteComment("ABCD", userSessionRule);
+    issueCommentService.deleteComment("ABCD");
 
     verify(changeDao, never()).delete(anyString());
   }
@@ -188,7 +188,7 @@ public class IssueCommentServiceTest {
 
     when(changeDao.selectCommentByKey("ABCD")).thenReturn(new DefaultIssueComment().setUserLogin("julien"));
 
-    issueCommentService.deleteComment("ABCD", userSessionRule);
+    issueCommentService.deleteComment("ABCD");
 
     verify(changeDao, never()).delete(anyString());
   }
@@ -197,7 +197,7 @@ public class IssueCommentServiceTest {
   public void should_update_comment() {
     when(changeDao.selectCommentByKey("ABCD")).thenReturn(new DefaultIssueComment().setIssueKey("EFGH").setUserLogin("admin"));
 
-    issueCommentService.editComment("ABCD", "updated comment", userSessionRule);
+    issueCommentService.editComment("ABCD", "updated comment");
 
     verify(changeDao).update(any(IssueChangeDto.class));
     verify(issueService).getByKey("EFGH");
@@ -209,7 +209,7 @@ public class IssueCommentServiceTest {
 
     when(changeDao.selectCommentByKey("ABCD")).thenReturn(null);
 
-    issueCommentService.editComment("ABCD", "updated comment", userSessionRule);
+    issueCommentService.editComment("ABCD", "updated comment");
 
     verify(changeDao, never()).update(any(IssueChangeDto.class));
   }
@@ -218,7 +218,7 @@ public class IssueCommentServiceTest {
   public void should_prevent_updating_empty_comment() {
     throwable.expect(BadRequestException.class);
 
-    issueCommentService.editComment("ABCD", "", userSessionRule);
+    issueCommentService.editComment("ABCD", "");
 
     verify(changeDao, never()).update(any(IssueChangeDto.class));
   }
@@ -227,7 +227,7 @@ public class IssueCommentServiceTest {
   public void should_prevent_updating_null_comment() {
     throwable.expect(BadRequestException.class);
 
-    issueCommentService.editComment("ABCD", null, userSessionRule);
+    issueCommentService.editComment("ABCD", null);
 
     verify(changeDao, never()).update(any(IssueChangeDto.class));
   }
@@ -238,7 +238,7 @@ public class IssueCommentServiceTest {
 
     when(changeDao.selectCommentByKey("ABCD")).thenReturn(new DefaultIssueComment().setUserLogin("julien"));
 
-    issueCommentService.editComment("ABCD", "updated comment", userSessionRule);
+    issueCommentService.editComment("ABCD", "updated comment");
 
     verify(changeDao, never()).update(any(IssueChangeDto.class));
   }

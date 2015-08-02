@@ -80,9 +80,6 @@ public class IssueActionsWriter {
         if (projectUuid != null && userSession.hasProjectPermissionByUuid(UserRole.ISSUE_ADMIN, projectUuid)) {
           actions.add("set_severity");
         }
-        for (Action action : actionService.listAvailableActions(issue)) {
-          actions.add(action.key());
-        }
       }
     }
     return actions;

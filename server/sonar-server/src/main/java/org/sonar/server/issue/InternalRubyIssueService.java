@@ -27,7 +27,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -81,7 +80,6 @@ import org.sonar.server.user.ws.UserJsonWriter;
 import org.sonar.server.util.RubyUtils;
 import org.sonar.server.util.Validation;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
 /**
@@ -176,10 +174,6 @@ public class InternalRubyIssueService {
     return changelogService.formatDiffs(diffs);
   }
 
-  public List<String> listPluginActions() {
-    return newArrayList(Iterables.transform(actionService.listAllActions(), ActionToKey.INSTANCE));
-  }
-
   public List<DefaultIssueComment> findComments(String issueKey) {
     return commentService.findComments(issueKey);
   }
@@ -231,7 +225,7 @@ public class InternalRubyIssueService {
   public Result<IssueComment> addComment(String issueKey, String text) {
     Result<IssueComment> result = Result.of();
     try {
-      result.set(commentService.addComment(issueKey, text, userSession));
+      result.set(commentService.addComment(issueKey, text));
     } catch (Exception e) {
       result.addError(e.getMessage());
     }
@@ -239,13 +233,13 @@ public class InternalRubyIssueService {
   }
 
   public IssueComment deleteComment(String commentKey) {
-    return commentService.deleteComment(commentKey, userSession);
+    return commentService.deleteComment(commentKey);
   }
 
   public Result<IssueComment> editComment(String commentKey, String newText) {
     Result<IssueComment> result = Result.of();
     try {
-      result.set(commentService.editComment(commentKey, newText, userSession));
+      result.set(commentService.editComment(commentKey, newText));
     } catch (Exception e) {
       result.addError(e.getMessage());
     }
@@ -432,24 +426,6 @@ public class InternalRubyIssueService {
       result.addError(Result.Message.ofL10n(ACTION_PLANS_ERRORS_ACTION_PLAN_DOES_NOT_EXIST_MESSAGE, actionPlanKey));
     }
     return result;
-  }
-
-  public Result<Issue> executeAction(String issueKey, String actionKey) {
-    Result<Issue> result = Result.of();
-    try {
-      result.set(actionService.execute(issueKey, actionKey, userSession));
-    } catch (Exception e) {
-      result.addError(e.getMessage());
-    }
-    return result;
-  }
-
-  public List<Action> listActions(String issueKey) {
-    return actionService.listAvailableActions(issueKey);
-  }
-
-  public List<Action> listActions(Issue issue) {
-    return actionService.listAvailableActions(issue);
   }
 
   public IssueQuery emptyIssueQuery() {

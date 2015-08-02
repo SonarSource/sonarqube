@@ -3,8 +3,8 @@
   "issues": [
     {
       "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
-      "component": "MyComponent",
-      "project": "MyProject",
+      "component": "FILE_ID",
+      "project": "PROJECT_ID",
       "rule": "xoo:x1",
       "status": "OPEN",
       "severity": "MAJOR",
@@ -41,16 +41,16 @@
       "property": "severities",
       "values": [
         {
+          "val": "MAJOR",
+          "count": 10
+        },
+        {
           "val": "INFO",
           "count": 0
         },
         {
           "val": "MINOR",
           "count": 0
-        },
-        {
-          "val": "MAJOR",
-          "count": 10
         },
         {
           "val": "CRITICAL",
@@ -91,7 +91,7 @@
       "property": "projectUuids",
       "values": [
         {
-          "val": "ABCD",
+          "val": "PROJECT_ID",
           "count": 10
         }
       ]
@@ -109,7 +109,7 @@
       "property": "fileUuids",
       "values": [
         {
-          "val": "BCDE",
+          "val": "FILE_ID",
           "count": 10
         }
       ]

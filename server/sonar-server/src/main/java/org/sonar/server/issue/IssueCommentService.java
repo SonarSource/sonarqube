@@ -44,28 +44,26 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-/**
- * @since 3.6
- */
-@ServerSide
 public class IssueCommentService {
 
   private final DbClient dbClient;
   private final IssueService issueService;
   private final IssueUpdater updater;
+  private final UserSession userSession;
 
-  public IssueCommentService(DbClient dbClient, IssueService issueService, IssueUpdater updater) {
+  public IssueCommentService(DbClient dbClient, IssueService issueService, IssueUpdater updater, UserSession userSession) {
     this.dbClient = dbClient;
     this.issueService = issueService;
     this.updater = updater;
+    this.userSession = userSession;
   }
 
   public List<DefaultIssueComment> findComments(String issueKey) {
     return findComments(newArrayList(issueKey));
   }
 
-  public List<DefaultIssueComment> findComments(DbSession session, String issueKey) {
-    return findComments(session, newArrayList(issueKey));
+  public List<DefaultIssueComment> findComments(DbSession dbSession, String issueKey) {
+    return findComments(dbSession, newArrayList(issueKey));
   }
 
   public List<DefaultIssueComment> findComments(Collection<String> issueKeys) {
@@ -85,7 +83,7 @@ public class IssueCommentService {
     return dbClient.issueChangeDao().selectCommentByKey(commentKey);
   }
 
-  public IssueComment addComment(String issueKey, String text, UserSession userSession) {
+  public IssueComment addComment(String issueKey, String text) {
     verifyLoggedIn(userSession);
     if (StringUtils.isBlank(text)) {
       throw new BadRequestException("Cannot add empty comments to an issue");
@@ -110,7 +108,7 @@ public class IssueCommentService {
     }
   }
 
-  public IssueComment deleteComment(String commentKey, UserSession userSession) {
+  public IssueComment deleteComment(String commentKey) {
     DefaultIssueComment comment = dbClient.issueChangeDao().selectCommentByKey(commentKey);
     if (comment == null) {
       throw new NotFoundException("Comment not found: " + commentKey);
@@ -126,7 +124,7 @@ public class IssueCommentService {
     return comment;
   }
 
-  public IssueComment editComment(String commentKey, String text, UserSession userSession) {
+  public IssueComment editComment(String commentKey, String text) {
     DefaultIssueComment comment = dbClient.issueChangeDao().selectCommentByKey(commentKey);
     if (StringUtils.isBlank(text)) {
       throw new BadRequestException("Cannot add empty comments to an issue");
@@ -147,6 +145,10 @@ public class IssueCommentService {
     dbClient.issueChangeDao().update(dto);
 
     return comment;
+  }
+
+  public boolean canEditOrDelete(IssueChangeDto dto) {
+    return userSession.isLoggedIn() && userSession.getLogin().equals(dto.getUserLogin());
   }
 
   private void verifyLoggedIn(UserSession userSession) {

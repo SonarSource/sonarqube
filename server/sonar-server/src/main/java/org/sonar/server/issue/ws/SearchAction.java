@@ -273,7 +273,7 @@ public class SearchAction implements IssuesWsAction {
     options.addFacets(request.paramAsStrings(WebService.Param.FACETS));
 
     IssueQuery query = issueQueryService.createFromRequest(request);
-    SearchResult<IssueDoc> result = execute(query, options);
+    SearchResult<IssueDoc> result = service.search(query, options);
 
     JsonWriter json = response.newJsonWriter().beginObject();
     options.writeJson(json, result.getTotal());
@@ -284,10 +284,6 @@ public class SearchAction implements IssuesWsAction {
       writeFacets(request, options, result, json);
     }
     json.endObject().close();
-  }
-
-  private SearchResult<IssueDoc> execute(IssueQuery query, SearchOptions options) {
-    return service.search(query, options);
   }
 
   private void writeResponse(Request request, SearchResult<IssueDoc> result, JsonWriter json) {

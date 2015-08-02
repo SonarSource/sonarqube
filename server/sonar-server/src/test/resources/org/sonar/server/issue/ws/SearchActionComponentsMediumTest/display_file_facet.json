@@ -1,37 +1,34 @@
 {
   "total": 1,
   "p": 1,
-  "projects": [
-    { "key": "MyProject" }
-  ],
-  "components": [
-    { "key": "MyProject" },
-    { "key": "MyComponent1" },
-    { "key": "MyComponent2" },
-    { "key": "MyComponent3" }
-  ],
   "issues": [
     {
       "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
-      "component": "MyComponent1",
-      "project": "MyProject",
+      "component": "F1",
+      "project": "P1",
       "rule": "xoo:x1"
     }
+  ],
+  "components": [
+    { "id": "P1" },
+    { "id": "F1" },
+    { "id": "F2" },
+    { "id": "F3" }
   ],
   "facets": [
     {
       "property": "fileUuids",
       "values": [
         {
-          "val": "BCDE",
+          "val": "F1",
           "count": 1
         },
         {
-          "val": "CDEF",
+          "val": "F2",
           "count": 1
         },
         {
-          "val": "DEFA",
+          "val": "F3",
           "count": 0
         }
       ]
