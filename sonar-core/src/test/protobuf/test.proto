@@ -24,15 +24,8 @@ option java_package = "org.sonar.core.test";
 option optimize_for = SPEED;
 
 message Fake {
-    optional string aString = 1;
-    optional int32 anInt = 2;
-    optional int64 aLong = 3;
-    optional double aDouble = 4;
-    optional bool aBoolean = 5;
-    optional FakeEnum anEnum = 6;
-    optional bytes someBytes = 7;
-    repeated string anArray = 8;
-    optional NestedFake aNestedMessage = 9;
+  optional string label = 1;
+  optional int32 line = 2;
 }
 
 enum FakeEnum {
@@ -41,6 +34,25 @@ enum FakeEnum {
   GREEN = 2;
 }
 
-message NestedFake {
+message JsonTest {
+  optional string stringField = 1;
+  optional int32 intField = 2;
+  optional int64 longField = 3;
+  optional double doubleField = 4;
+  optional bool booleanField = 5;
+  optional FakeEnum enumField = 6;
+  optional bytes bytesField = 7;
+  optional NestedJsonTest nested = 8;
+  repeated string anArray = 9;
+}
+
+message JsonArrayTest {
+// naming convention. A boolean field is used
+  // to know if the array field is present.
+  optional bool aNullableArrayPresentIfEmpty = 1;
+  repeated string aNullableArray = 2;
+}
+
+message NestedJsonTest {
   optional string label = 1;
 }
