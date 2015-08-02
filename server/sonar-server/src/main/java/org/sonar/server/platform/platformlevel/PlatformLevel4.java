@@ -158,6 +158,8 @@ import org.sonar.server.issue.ws.IssueActionsWriter;
 import org.sonar.server.issue.ws.IssueComponentHelper;
 import org.sonar.server.issue.ws.IssueJsonWriter;
 import org.sonar.server.issue.ws.IssuesWs;
+import org.sonar.server.issue.ws.SearchResponseFormat;
+import org.sonar.server.issue.ws.SearchResponseLoader;
 import org.sonar.server.issue.ws.SetTagsAction;
 import org.sonar.server.language.ws.LanguageWs;
 import org.sonar.server.measure.MeasureFilterEngine;
@@ -321,6 +323,7 @@ import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.ListingWs;
 import org.sonar.server.ws.WebServiceEngine;
+import org.sonar.server.ws.WsResponseCommonFormat;
 
 public class PlatformLevel4 extends PlatformLevel {
 
@@ -602,8 +605,12 @@ public class PlatformLevel4 extends PlatformLevel {
       IssuesWs.class,
       IssueJsonWriter.class,
       IssueComponentHelper.class,
+      WsResponseCommonFormat.class,
+      SearchResponseLoader.class,
+      SearchResponseFormat.class,
       org.sonar.server.issue.ws.ShowAction.class,
       org.sonar.server.issue.ws.SearchAction.class,
+      org.sonar.server.issue.ws.Search2Action.class,
       org.sonar.server.issue.ws.TagsAction.class,
       SetTagsAction.class,
       ComponentTagsAction.class,

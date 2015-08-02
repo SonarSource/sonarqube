@@ -1,39 +1,32 @@
 {
-  "total": 1,
-  "p": 1,
-  "projects": [
-    { "key": "MyProject1" },
-    { "key": "MyProject2" },
-    { "key": "MyProject3" }
-  ],
-  "components": [
-    { "key": "MyProject1" },
-    { "key": "MyProject2" },
-    { "key": "MyProject3" },
-    { "key": "MyComponent1" }
-  ],
   "issues": [
     {
       "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
-      "component": "MyComponent1",
-      "project": "MyProject1",
+      "component": "F1",
+      "project": "P1",
       "rule": "xoo:x1"
     }
+  ],
+  "components": [
+    { "id": "P1" },
+    { "id": "P2" },
+    { "id": "P3" },
+    { "id": "F1" }
   ],
   "facets": [
     {
       "property": "projectUuids",
       "values": [
         {
-          "val": "ABCD",
+          "val": "P1",
           "count": 1
         },
         {
-          "val": "BCDE",
+          "val": "P2",
           "count": 1
         },
         {
-          "val": "CDEF",
+          "val": "P3",
           "count": 1
         }
       ]

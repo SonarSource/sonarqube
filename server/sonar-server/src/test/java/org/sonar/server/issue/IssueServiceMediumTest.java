@@ -59,6 +59,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionChange;
@@ -478,7 +479,7 @@ public class IssueServiceMediumTest {
     ComponentDto file = newFile(project);
     saveIssue(IssueTesting.newDto(rule, file, project));
 
-    List<IssueDoc> result = service.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs();
+    List<IssueDoc> result = service.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions().addFields(IssueIndexDefinition.FIELD_ISSUE_KEY)).getDocs();
     assertThat(result).hasSize(1);
   }
 

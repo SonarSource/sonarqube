@@ -5,13 +5,19 @@
       "assignee": "simon",
       "reporter": "fabrice",
       "actionPlan": "AP-ABCD",
-      "actionPlanName": "1.0",
       "actions": [
         "comment", "assign", "set_tags", "assign_to_me", "plan"
       ],
       "transitions": [
         "confirm", "resolve"
       ]
+    }
+  ],
+  "actionPlans": [
+    {
+      "key": "AP-ABCD",
+      "name": "1.0",
+      "status": "OPEN"
     }
   ]
 }

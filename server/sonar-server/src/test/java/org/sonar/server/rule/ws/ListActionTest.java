@@ -63,8 +63,8 @@ public class ListActionTest {
     assertThat(listResponse.getRulesCount()).isEqualTo(2);
 
     assertThat(listResponse.getRules(0).getKey()).isEqualTo("S001");
-    assertThat(listResponse.getRules(0).hasInternalKey()).isFalse();
-    assertThat(listResponse.getRules(0).hasName()).isFalse();
+    assertThat(listResponse.getRules(0).getInternalKey()).isEqualTo("");
+    assertThat(listResponse.getRules(0).getName()).isEqualTo("");
     assertThat(listResponse.getRules(1).getKey()).isEqualTo("S002");
     assertThat(listResponse.getRules(1).getInternalKey()).isEqualTo("I002");
     assertThat(listResponse.getRules(1).getName()).isEqualTo("Rule Two");

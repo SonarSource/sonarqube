@@ -2,8 +2,8 @@
   "issues": [
     {
       "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
-      "component": "RemovedComponent",
-      "project": "MyProject",
+      "component": "REMOVED_FILE_ID",
+      "project": "PROJECT_ID",
       "rule": "xoo:x1",
       "status": "OPEN",
       "resolution": "OPEN",
@@ -13,12 +13,12 @@
   ],
   "components": [
     {
-      "uuid": "EDCB",
+      "id": "REMOVED_FILE_ID",
       "key": "RemovedComponent",
       "enabled" : false
     },
     {
-      "uuid": "ABCD",
+      "id": "PROJECT_ID",
       "key": "MyProject",
       "enabled" : true
     }

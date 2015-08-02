@@ -9,6 +9,115 @@ public final class Common {
       com.google.protobuf.ExtensionRegistry registry) {
   }
   /**
+   * Protobuf enum {@code sonarqube.ws.Severity}
+   */
+  public enum Severity
+      implements com.google.protobuf.ProtocolMessageEnum {
+    /**
+     * <code>INFO = 0;</code>
+     */
+    INFO(0, 0),
+    /**
+     * <code>MINOR = 1;</code>
+     */
+    MINOR(1, 1),
+    /**
+     * <code>MAJOR = 2;</code>
+     */
+    MAJOR(2, 2),
+    /**
+     * <code>CRITICAL = 3;</code>
+     */
+    CRITICAL(3, 3),
+    /**
+     * <code>BLOCKER = 4;</code>
+     */
+    BLOCKER(4, 4),
+    ;
+
+    /**
+     * <code>INFO = 0;</code>
+     */
+    public static final int INFO_VALUE = 0;
+    /**
+     * <code>MINOR = 1;</code>
+     */
+    public static final int MINOR_VALUE = 1;
+    /**
+     * <code>MAJOR = 2;</code>
+     */
+    public static final int MAJOR_VALUE = 2;
+    /**
+     * <code>CRITICAL = 3;</code>
+     */
+    public static final int CRITICAL_VALUE = 3;
+    /**
+     * <code>BLOCKER = 4;</code>
+     */
+    public static final int BLOCKER_VALUE = 4;
+
+
+    public final int getNumber() { return value; }
+
+    public static Severity valueOf(int value) {
+      switch (value) {
+        case 0: return INFO;
+        case 1: return MINOR;
+        case 2: return MAJOR;
+        case 3: return CRITICAL;
+        case 4: return BLOCKER;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<Severity>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static com.google.protobuf.Internal.EnumLiteMap<Severity>
+        internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<Severity>() {
+            public Severity findValueByNumber(int number) {
+              return Severity.valueOf(number);
+            }
+          };
+
+    public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+      return getDescriptor().getValues().get(index);
+    }
+    public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+      return getDescriptor();
+    }
+    public static final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+      return org.sonarqube.ws.Common.getDescriptor().getEnumTypes().get(0);
+    }
+
+    private static final Severity[] VALUES = values();
+
+    public static Severity valueOf(
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+      if (desc.getType() != getDescriptor()) {
+        throw new java.lang.IllegalArgumentException(
+          "EnumValueDescriptor is not for this type.");
+      }
+      return VALUES[desc.getIndex()];
+    }
+
+    private final int index;
+    private final int value;
+
+    private Severity(int index, int value) {
+      this.index = index;
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:sonarqube.ws.Severity)
+  }
+
+  /**
    * Protobuf enum {@code sonarqube.ws.RuleStatus}
    */
   public enum RuleStatus
@@ -83,7 +192,7 @@ public final class Common {
     }
     public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
-      return org.sonarqube.ws.Common.getDescriptor().getEnumTypes().get(0);
+      return org.sonarqube.ws.Common.getDescriptor().getEnumTypes().get(1);
     }
 
     private static final RuleStatus[] VALUES = values();
@@ -113,20 +222,20 @@ public final class Common {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional int32 page_index = 1;</code>
+     * <code>optional int32 pageIndex = 1;</code>
      */
     boolean hasPageIndex();
     /**
-     * <code>optional int32 page_index = 1;</code>
+     * <code>optional int32 pageIndex = 1;</code>
      */
     int getPageIndex();
 
     /**
-     * <code>optional int32 page_size = 2;</code>
+     * <code>optional int32 pageSize = 2;</code>
      */
     boolean hasPageSize();
     /**
-     * <code>optional int32 page_size = 2;</code>
+     * <code>optional int32 pageSize = 2;</code>
      */
     int getPageSize();
 
@@ -260,31 +369,31 @@ public final class Common {
     }
 
     private int bitField0_;
-    public static final int PAGE_INDEX_FIELD_NUMBER = 1;
+    public static final int PAGEINDEX_FIELD_NUMBER = 1;
     private int pageIndex_;
     /**
-     * <code>optional int32 page_index = 1;</code>
+     * <code>optional int32 pageIndex = 1;</code>
      */
     public boolean hasPageIndex() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional int32 page_index = 1;</code>
+     * <code>optional int32 pageIndex = 1;</code>
      */
     public int getPageIndex() {
       return pageIndex_;
     }
 
-    public static final int PAGE_SIZE_FIELD_NUMBER = 2;
+    public static final int PAGESIZE_FIELD_NUMBER = 2;
     private int pageSize_;
     /**
-     * <code>optional int32 page_size = 2;</code>
+     * <code>optional int32 pageSize = 2;</code>
      */
     public boolean hasPageSize() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>optional int32 page_size = 2;</code>
+     * <code>optional int32 pageSize = 2;</code>
      */
     public int getPageSize() {
       return pageSize_;
@@ -602,19 +711,19 @@ public final class Common {
 
       private int pageIndex_ ;
       /**
-       * <code>optional int32 page_index = 1;</code>
+       * <code>optional int32 pageIndex = 1;</code>
        */
       public boolean hasPageIndex() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>optional int32 page_index = 1;</code>
+       * <code>optional int32 pageIndex = 1;</code>
        */
       public int getPageIndex() {
         return pageIndex_;
       }
       /**
-       * <code>optional int32 page_index = 1;</code>
+       * <code>optional int32 pageIndex = 1;</code>
        */
       public Builder setPageIndex(int value) {
         bitField0_ |= 0x00000001;
@@ -623,7 +732,7 @@ public final class Common {
         return this;
       }
       /**
-       * <code>optional int32 page_index = 1;</code>
+       * <code>optional int32 pageIndex = 1;</code>
        */
       public Builder clearPageIndex() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -634,19 +743,19 @@ public final class Common {
 
       private int pageSize_ ;
       /**
-       * <code>optional int32 page_size = 2;</code>
+       * <code>optional int32 pageSize = 2;</code>
        */
       public boolean hasPageSize() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>optional int32 page_size = 2;</code>
+       * <code>optional int32 pageSize = 2;</code>
        */
       public int getPageSize() {
         return pageSize_;
       }
       /**
-       * <code>optional int32 page_size = 2;</code>
+       * <code>optional int32 pageSize = 2;</code>
        */
       public Builder setPageSize(int value) {
         bitField0_ |= 0x00000002;
@@ -655,7 +764,7 @@ public final class Common {
         return this;
       }
       /**
-       * <code>optional int32 page_size = 2;</code>
+       * <code>optional int32 pageSize = 2;</code>
        */
       public Builder clearPageSize() {
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -2182,18 +2291,18 @@ public final class Common {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional string uuid = 1;</code>
+     * <code>optional string id = 1;</code>
      */
-    boolean hasUuid();
+    boolean hasId();
     /**
-     * <code>optional string uuid = 1;</code>
+     * <code>optional string id = 1;</code>
      */
-    java.lang.String getUuid();
+    java.lang.String getId();
     /**
-     * <code>optional string uuid = 1;</code>
+     * <code>optional string id = 1;</code>
      */
     com.google.protobuf.ByteString
-        getUuidBytes();
+        getIdBytes();
 
     /**
      * <code>optional string key = 2;</code>
@@ -2210,96 +2319,97 @@ public final class Common {
         getKeyBytes();
 
     /**
-     * <code>optional int32 id = 3;</code>
-     */
-    boolean hasId();
-    /**
-     * <code>optional int32 id = 3;</code>
-     */
-    int getId();
-
-    /**
-     * <code>optional bool enabled = 4;</code>
+     * <code>optional bool enabled = 3;</code>
      */
     boolean hasEnabled();
     /**
-     * <code>optional bool enabled = 4;</code>
+     * <code>optional bool enabled = 3;</code>
      */
     boolean getEnabled();
 
     /**
-     * <code>optional string qualifier = 5;</code>
+     * <code>optional string qualifier = 4;</code>
      */
     boolean hasQualifier();
     /**
-     * <code>optional string qualifier = 5;</code>
+     * <code>optional string qualifier = 4;</code>
      */
     java.lang.String getQualifier();
     /**
-     * <code>optional string qualifier = 5;</code>
+     * <code>optional string qualifier = 4;</code>
      */
     com.google.protobuf.ByteString
         getQualifierBytes();
 
     /**
-     * <code>optional string name = 6;</code>
+     * <code>optional string name = 5;</code>
      */
     boolean hasName();
     /**
-     * <code>optional string name = 6;</code>
+     * <code>optional string name = 5;</code>
      */
     java.lang.String getName();
     /**
-     * <code>optional string name = 6;</code>
+     * <code>optional string name = 5;</code>
      */
     com.google.protobuf.ByteString
         getNameBytes();
 
     /**
-     * <code>optional string longName = 7;</code>
+     * <code>optional string longName = 6;</code>
      */
     boolean hasLongName();
     /**
-     * <code>optional string longName = 7;</code>
+     * <code>optional string longName = 6;</code>
      */
     java.lang.String getLongName();
     /**
-     * <code>optional string longName = 7;</code>
+     * <code>optional string longName = 6;</code>
      */
     com.google.protobuf.ByteString
         getLongNameBytes();
 
     /**
-     * <code>optional string path = 8;</code>
+     * <code>optional string path = 7;</code>
      */
     boolean hasPath();
     /**
-     * <code>optional string path = 8;</code>
+     * <code>optional string path = 7;</code>
      */
     java.lang.String getPath();
     /**
-     * <code>optional string path = 8;</code>
+     * <code>optional string path = 7;</code>
      */
     com.google.protobuf.ByteString
         getPathBytes();
 
     /**
-     * <code>optional int32 projectId = 9;</code>
+     * <code>optional string project = 8;</code>
      */
-    boolean hasProjectId();
+    boolean hasProject();
     /**
-     * <code>optional int32 projectId = 9;</code>
+     * <code>optional string project = 8;</code>
      */
-    int getProjectId();
+    java.lang.String getProject();
+    /**
+     * <code>optional string project = 8;</code>
+     */
+    com.google.protobuf.ByteString
+        getProjectBytes();
 
     /**
-     * <code>optional int32 subProjectId = 10;</code>
+     * <code>optional string subProject = 9;</code>
      */
-    boolean hasSubProjectId();
+    boolean hasSubProject();
     /**
-     * <code>optional int32 subProjectId = 10;</code>
+     * <code>optional string subProject = 9;</code>
      */
-    int getSubProjectId();
+    java.lang.String getSubProject();
+    /**
+     * <code>optional string subProject = 9;</code>
+     */
+    com.google.protobuf.ByteString
+        getSubProjectBytes();
   }
   /**
    * Protobuf type {@code sonarqube.ws.Component}
@@ -2356,7 +2466,7 @@ public final class Common {
             case 10: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000001;
-              uuid_ = bs;
+              id_ = bs;
               break;
             }
             case 18: {
@@ -2367,46 +2477,43 @@ public final class Common {
             }
             case 24: {
               bitField0_ |= 0x00000004;
-              id_ = input.readInt32();
+              enabled_ = input.readBool();
               break;
             }
-            case 32: {
+            case 34: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000008;
-              enabled_ = input.readBool();
+              qualifier_ = bs;
               break;
             }
             case 42: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000010;
-              qualifier_ = bs;
+              name_ = bs;
               break;
             }
             case 50: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000020;
-              name_ = bs;
+              longName_ = bs;
               break;
             }
             case 58: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000040;
-              longName_ = bs;
+              path_ = bs;
               break;
             }
             case 66: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000080;
-              path_ = bs;
+              project_ = bs;
               break;
             }
-            case 72: {
+            case 74: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000100;
-              projectId_ = input.readInt32();
-              break;
-            }
-            case 80: {
-              bitField0_ |= 0x00000200;
-              subProjectId_ = input.readInt32();
+              subProject_ = bs;
               break;
             }
           }
@@ -2449,19 +2556,19 @@ public final class Common {
     }
 
     private int bitField0_;
-    public static final int UUID_FIELD_NUMBER = 1;
-    private java.lang.Object uuid_;
+    public static final int ID_FIELD_NUMBER = 1;
+    private java.lang.Object id_;
     /**
-     * <code>optional string uuid = 1;</code>
+     * <code>optional string id = 1;</code>
      */
-    public boolean hasUuid() {
+    public boolean hasId() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional string uuid = 1;</code>
+     * <code>optional string id = 1;</code>
      */
-    public java.lang.String getUuid() {
-      java.lang.Object ref = uuid_;
+    public java.lang.String getId() {
+      java.lang.Object ref = id_;
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
@@ -2469,22 +2576,22 @@ public final class Common {
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
-          uuid_ = s;
+          id_ = s;
         }
         return s;
       }
     }
     /**
-     * <code>optional string uuid = 1;</code>
+     * <code>optional string id = 1;</code>
      */
     public com.google.protobuf.ByteString
-        getUuidBytes() {
-      java.lang.Object ref = uuid_;
+        getIdBytes() {
+      java.lang.Object ref = id_;
       if (ref instanceof java.lang.String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        uuid_ = b;
+        id_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
@@ -2533,46 +2640,31 @@ public final class Common {
       }
     }
 
-    public static final int ID_FIELD_NUMBER = 3;
-    private int id_;
+    public static final int ENABLED_FIELD_NUMBER = 3;
+    private boolean enabled_;
     /**
-     * <code>optional int32 id = 3;</code>
+     * <code>optional bool enabled = 3;</code>
      */
-    public boolean hasId() {
+    public boolean hasEnabled() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>optional int32 id = 3;</code>
-     */
-    public int getId() {
-      return id_;
-    }
-
-    public static final int ENABLED_FIELD_NUMBER = 4;
-    private boolean enabled_;
-    /**
-     * <code>optional bool enabled = 4;</code>
-     */
-    public boolean hasEnabled() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
-    }
-    /**
-     * <code>optional bool enabled = 4;</code>
+     * <code>optional bool enabled = 3;</code>
      */
     public boolean getEnabled() {
       return enabled_;
     }
 
-    public static final int QUALIFIER_FIELD_NUMBER = 5;
+    public static final int QUALIFIER_FIELD_NUMBER = 4;
     private java.lang.Object qualifier_;
     /**
-     * <code>optional string qualifier = 5;</code>
+     * <code>optional string qualifier = 4;</code>
      */
     public boolean hasQualifier() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
+      return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
-     * <code>optional string qualifier = 5;</code>
+     * <code>optional string qualifier = 4;</code>
      */
     public java.lang.String getQualifier() {
       java.lang.Object ref = qualifier_;
@@ -2589,7 +2681,7 @@ public final class Common {
       }
     }
     /**
-     * <code>optional string qualifier = 5;</code>
+     * <code>optional string qualifier = 4;</code>
      */
     public com.google.protobuf.ByteString
         getQualifierBytes() {
@@ -2605,16 +2697,16 @@ public final class Common {
       }
     }
 
-    public static final int NAME_FIELD_NUMBER = 6;
+    public static final int NAME_FIELD_NUMBER = 5;
     private java.lang.Object name_;
     /**
-     * <code>optional string name = 6;</code>
+     * <code>optional string name = 5;</code>
      */
     public boolean hasName() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
+      return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
-     * <code>optional string name = 6;</code>
+     * <code>optional string name = 5;</code>
      */
     public java.lang.String getName() {
       java.lang.Object ref = name_;
@@ -2631,7 +2723,7 @@ public final class Common {
       }
     }
     /**
-     * <code>optional string name = 6;</code>
+     * <code>optional string name = 5;</code>
      */
     public com.google.protobuf.ByteString
         getNameBytes() {
@@ -2647,16 +2739,16 @@ public final class Common {
       }
     }
 
-    public static final int LONGNAME_FIELD_NUMBER = 7;
+    public static final int LONGNAME_FIELD_NUMBER = 6;
     private java.lang.Object longName_;
     /**
-     * <code>optional string longName = 7;</code>
+     * <code>optional string longName = 6;</code>
      */
     public boolean hasLongName() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
+      return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     /**
-     * <code>optional string longName = 7;</code>
+     * <code>optional string longName = 6;</code>
      */
     public java.lang.String getLongName() {
       java.lang.Object ref = longName_;
@@ -2673,7 +2765,7 @@ public final class Common {
       }
     }
     /**
-     * <code>optional string longName = 7;</code>
+     * <code>optional string longName = 6;</code>
      */
     public com.google.protobuf.ByteString
         getLongNameBytes() {
@@ -2689,16 +2781,16 @@ public final class Common {
       }
     }
 
-    public static final int PATH_FIELD_NUMBER = 8;
+    public static final int PATH_FIELD_NUMBER = 7;
     private java.lang.Object path_;
     /**
-     * <code>optional string path = 8;</code>
+     * <code>optional string path = 7;</code>
      */
     public boolean hasPath() {
-      return ((bitField0_ & 0x00000080) == 0x00000080);
+      return ((bitField0_ & 0x00000040) == 0x00000040);
     }
     /**
-     * <code>optional string path = 8;</code>
+     * <code>optional string path = 7;</code>
      */
     public java.lang.String getPath() {
       java.lang.Object ref = path_;
@@ -2715,7 +2807,7 @@ public final class Common {
       }
     }
     /**
-     * <code>optional string path = 8;</code>
+     * <code>optional string path = 7;</code>
      */
     public com.google.protobuf.ByteString
         getPathBytes() {
@@ -2731,47 +2823,100 @@ public final class Common {
       }
     }
 
-    public static final int PROJECTID_FIELD_NUMBER = 9;
-    private int projectId_;
+    public static final int PROJECT_FIELD_NUMBER = 8;
+    private java.lang.Object project_;
     /**
-     * <code>optional int32 projectId = 9;</code>
+     * <code>optional string project = 8;</code>
      */
-    public boolean hasProjectId() {
+    public boolean hasProject() {
+      return ((bitField0_ & 0x00000080) == 0x00000080);
+    }
+    /**
+     * <code>optional string project = 8;</code>
+     */
+    public java.lang.String getProject() {
+      java.lang.Object ref = project_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          project_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string project = 8;</code>
+     */
+    public com.google.protobuf.ByteString
+        getProjectBytes() {
+      java.lang.Object ref = project_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        project_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int SUBPROJECT_FIELD_NUMBER = 9;
+    private java.lang.Object subProject_;
+    /**
+     * <code>optional string subProject = 9;</code>
+     */
+    public boolean hasSubProject() {
       return ((bitField0_ & 0x00000100) == 0x00000100);
     }
     /**
-     * <code>optional int32 projectId = 9;</code>
+     * <code>optional string subProject = 9;</code>
      */
-    public int getProjectId() {
-      return projectId_;
+    public java.lang.String getSubProject() {
+      java.lang.Object ref = subProject_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          subProject_ = s;
+        }
+        return s;
+      }
     }
-
-    public static final int SUBPROJECTID_FIELD_NUMBER = 10;
-    private int subProjectId_;
     /**
-     * <code>optional int32 subProjectId = 10;</code>
+     * <code>optional string subProject = 9;</code>
      */
-    public boolean hasSubProjectId() {
-      return ((bitField0_ & 0x00000200) == 0x00000200);
-    }
-    /**
-     * <code>optional int32 subProjectId = 10;</code>
-     */
-    public int getSubProjectId() {
-      return subProjectId_;
+    public com.google.protobuf.ByteString
+        getSubProjectBytes() {
+      java.lang.Object ref = subProject_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        subProject_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     private void initFields() {
-      uuid_ = "";
+      id_ = "";
       key_ = "";
-      id_ = 0;
       enabled_ = false;
       qualifier_ = "";
       name_ = "";
       longName_ = "";
       path_ = "";
-      projectId_ = 0;
-      subProjectId_ = 0;
+      project_ = "";
+      subProject_ = "";
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -2787,34 +2932,31 @@ public final class Common {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getUuidBytes());
+        output.writeBytes(1, getIdBytes());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeBytes(2, getKeyBytes());
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeInt32(3, id_);
+        output.writeBool(3, enabled_);
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeBool(4, enabled_);
+        output.writeBytes(4, getQualifierBytes());
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeBytes(5, getQualifierBytes());
+        output.writeBytes(5, getNameBytes());
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        output.writeBytes(6, getNameBytes());
+        output.writeBytes(6, getLongNameBytes());
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
-        output.writeBytes(7, getLongNameBytes());
+        output.writeBytes(7, getPathBytes());
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
-        output.writeBytes(8, getPathBytes());
+        output.writeBytes(8, getProjectBytes());
       }
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
-        output.writeInt32(9, projectId_);
-      }
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        output.writeInt32(10, subProjectId_);
+        output.writeBytes(9, getSubProjectBytes());
       }
       getUnknownFields().writeTo(output);
     }
@@ -2827,7 +2969,7 @@ public final class Common {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getUuidBytes());
+          .computeBytesSize(1, getIdBytes());
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
@@ -2835,35 +2977,31 @@ public final class Common {
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(3, id_);
+          .computeBoolSize(3, enabled_);
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(4, enabled_);
+          .computeBytesSize(4, getQualifierBytes());
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(5, getQualifierBytes());
+          .computeBytesSize(5, getNameBytes());
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(6, getNameBytes());
+          .computeBytesSize(6, getLongNameBytes());
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(7, getLongNameBytes());
+          .computeBytesSize(7, getPathBytes());
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(8, getPathBytes());
+          .computeBytesSize(8, getProjectBytes());
       }
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(9, projectId_);
-      }
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(10, subProjectId_);
+          .computeBytesSize(9, getSubProjectBytes());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -2982,26 +3120,24 @@ public final class Common {
 
       public Builder clear() {
         super.clear();
-        uuid_ = "";
+        id_ = "";
         bitField0_ = (bitField0_ & ~0x00000001);
         key_ = "";
         bitField0_ = (bitField0_ & ~0x00000002);
-        id_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000004);
         enabled_ = false;
-        bitField0_ = (bitField0_ & ~0x00000008);
+        bitField0_ = (bitField0_ & ~0x00000004);
         qualifier_ = "";
-        bitField0_ = (bitField0_ & ~0x00000010);
+        bitField0_ = (bitField0_ & ~0x00000008);
         name_ = "";
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000010);
         longName_ = "";
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000020);
         path_ = "";
+        bitField0_ = (bitField0_ & ~0x00000040);
+        project_ = "";
         bitField0_ = (bitField0_ & ~0x00000080);
-        projectId_ = 0;
+        subProject_ = "";
         bitField0_ = (bitField0_ & ~0x00000100);
-        subProjectId_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000200);
         return this;
       }
 
@@ -3033,7 +3169,7 @@ public final class Common {
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
           to_bitField0_ |= 0x00000001;
         }
-        result.uuid_ = uuid_;
+        result.id_ = id_;
         if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
           to_bitField0_ |= 0x00000002;
         }
@@ -3041,35 +3177,31 @@ public final class Common {
         if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
           to_bitField0_ |= 0x00000004;
         }
-        result.id_ = id_;
+        result.enabled_ = enabled_;
         if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
           to_bitField0_ |= 0x00000008;
         }
-        result.enabled_ = enabled_;
+        result.qualifier_ = qualifier_;
         if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
           to_bitField0_ |= 0x00000010;
         }
-        result.qualifier_ = qualifier_;
+        result.name_ = name_;
         if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
           to_bitField0_ |= 0x00000020;
         }
-        result.name_ = name_;
+        result.longName_ = longName_;
         if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
           to_bitField0_ |= 0x00000040;
         }
-        result.longName_ = longName_;
+        result.path_ = path_;
         if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
           to_bitField0_ |= 0x00000080;
         }
-        result.path_ = path_;
+        result.project_ = project_;
         if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
           to_bitField0_ |= 0x00000100;
         }
-        result.projectId_ = projectId_;
-        if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
-          to_bitField0_ |= 0x00000200;
-        }
-        result.subProjectId_ = subProjectId_;
+        result.subProject_ = subProject_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -3086,9 +3218,9 @@ public final class Common {
 
       public Builder mergeFrom(org.sonarqube.ws.Common.Component other) {
         if (other == org.sonarqube.ws.Common.Component.getDefaultInstance()) return this;
-        if (other.hasUuid()) {
+        if (other.hasId()) {
           bitField0_ |= 0x00000001;
-          uuid_ = other.uuid_;
+          id_ = other.id_;
           onChanged();
         }
         if (other.hasKey()) {
@@ -3096,37 +3228,38 @@ public final class Common {
           key_ = other.key_;
           onChanged();
         }
-        if (other.hasId()) {
-          setId(other.getId());
-        }
         if (other.hasEnabled()) {
           setEnabled(other.getEnabled());
         }
         if (other.hasQualifier()) {
-          bitField0_ |= 0x00000010;
+          bitField0_ |= 0x00000008;
           qualifier_ = other.qualifier_;
           onChanged();
         }
         if (other.hasName()) {
-          bitField0_ |= 0x00000020;
+          bitField0_ |= 0x00000010;
           name_ = other.name_;
           onChanged();
         }
         if (other.hasLongName()) {
-          bitField0_ |= 0x00000040;
+          bitField0_ |= 0x00000020;
           longName_ = other.longName_;
           onChanged();
         }
         if (other.hasPath()) {
-          bitField0_ |= 0x00000080;
+          bitField0_ |= 0x00000040;
           path_ = other.path_;
           onChanged();
         }
-        if (other.hasProjectId()) {
-          setProjectId(other.getProjectId());
+        if (other.hasProject()) {
+          bitField0_ |= 0x00000080;
+          project_ = other.project_;
+          onChanged();
         }
-        if (other.hasSubProjectId()) {
-          setSubProjectId(other.getSubProjectId());
+        if (other.hasSubProject()) {
+          bitField0_ |= 0x00000100;
+          subProject_ = other.subProject_;
+          onChanged();
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -3155,24 +3288,24 @@ public final class Common {
       }
       private int bitField0_;
 
-      private java.lang.Object uuid_ = "";
+      private java.lang.Object id_ = "";
       /**
-       * <code>optional string uuid = 1;</code>
+       * <code>optional string id = 1;</code>
        */
-      public boolean hasUuid() {
+      public boolean hasId() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>optional string uuid = 1;</code>
+       * <code>optional string id = 1;</code>
        */
-      public java.lang.String getUuid() {
-        java.lang.Object ref = uuid_;
+      public java.lang.String getId() {
+        java.lang.Object ref = id_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
           if (bs.isValidUtf8()) {
-            uuid_ = s;
+            id_ = s;
           }
           return s;
         } else {
@@ -3180,53 +3313,53 @@ public final class Common {
         }
       }
       /**
-       * <code>optional string uuid = 1;</code>
+       * <code>optional string id = 1;</code>
        */
       public com.google.protobuf.ByteString
-          getUuidBytes() {
-        java.lang.Object ref = uuid_;
+          getIdBytes() {
+        java.lang.Object ref = id_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
-          uuid_ = b;
+          id_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
       /**
-       * <code>optional string uuid = 1;</code>
+       * <code>optional string id = 1;</code>
        */
-      public Builder setUuid(
+      public Builder setId(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
   bitField0_ |= 0x00000001;
-        uuid_ = value;
+        id_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string uuid = 1;</code>
+       * <code>optional string id = 1;</code>
        */
-      public Builder clearUuid() {
+      public Builder clearId() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        uuid_ = getDefaultInstance().getUuid();
+        id_ = getDefaultInstance().getId();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string uuid = 1;</code>
+       * <code>optional string id = 1;</code>
        */
-      public Builder setUuidBytes(
+      public Builder setIdBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
   bitField0_ |= 0x00000001;
-        uuid_ = value;
+        id_ = value;
         onChanged();
         return this;
       }
@@ -3307,65 +3440,33 @@ public final class Common {
         return this;
       }
 
-      private int id_ ;
+      private boolean enabled_ ;
       /**
-       * <code>optional int32 id = 3;</code>
+       * <code>optional bool enabled = 3;</code>
        */
-      public boolean hasId() {
+      public boolean hasEnabled() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>optional int32 id = 3;</code>
-       */
-      public int getId() {
-        return id_;
-      }
-      /**
-       * <code>optional int32 id = 3;</code>
-       */
-      public Builder setId(int value) {
-        bitField0_ |= 0x00000004;
-        id_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional int32 id = 3;</code>
-       */
-      public Builder clearId() {
-        bitField0_ = (bitField0_ & ~0x00000004);
-        id_ = 0;
-        onChanged();
-        return this;
-      }
-
-      private boolean enabled_ ;
-      /**
-       * <code>optional bool enabled = 4;</code>
-       */
-      public boolean hasEnabled() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
-      }
-      /**
-       * <code>optional bool enabled = 4;</code>
+       * <code>optional bool enabled = 3;</code>
        */
       public boolean getEnabled() {
         return enabled_;
       }
       /**
-       * <code>optional bool enabled = 4;</code>
+       * <code>optional bool enabled = 3;</code>
        */
       public Builder setEnabled(boolean value) {
-        bitField0_ |= 0x00000008;
+        bitField0_ |= 0x00000004;
         enabled_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional bool enabled = 4;</code>
+       * <code>optional bool enabled = 3;</code>
        */
       public Builder clearEnabled() {
-        bitField0_ = (bitField0_ & ~0x00000008);
+        bitField0_ = (bitField0_ & ~0x00000004);
         enabled_ = false;
         onChanged();
         return this;
@@ -3373,13 +3474,13 @@ public final class Common {
 
       private java.lang.Object qualifier_ = "";
       /**
-       * <code>optional string qualifier = 5;</code>
+       * <code>optional string qualifier = 4;</code>
        */
       public boolean hasQualifier() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
+        return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
-       * <code>optional string qualifier = 5;</code>
+       * <code>optional string qualifier = 4;</code>
        */
       public java.lang.String getQualifier() {
         java.lang.Object ref = qualifier_;
@@ -3396,7 +3497,7 @@ public final class Common {
         }
       }
       /**
-       * <code>optional string qualifier = 5;</code>
+       * <code>optional string qualifier = 4;</code>
        */
       public com.google.protobuf.ByteString
           getQualifierBytes() {
@@ -3412,36 +3513,36 @@ public final class Common {
         }
       }
       /**
-       * <code>optional string qualifier = 5;</code>
+       * <code>optional string qualifier = 4;</code>
        */
       public Builder setQualifier(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000010;
+  bitField0_ |= 0x00000008;
         qualifier_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string qualifier = 5;</code>
+       * <code>optional string qualifier = 4;</code>
        */
       public Builder clearQualifier() {
-        bitField0_ = (bitField0_ & ~0x00000010);
+        bitField0_ = (bitField0_ & ~0x00000008);
         qualifier_ = getDefaultInstance().getQualifier();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string qualifier = 5;</code>
+       * <code>optional string qualifier = 4;</code>
        */
       public Builder setQualifierBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000010;
+  bitField0_ |= 0x00000008;
         qualifier_ = value;
         onChanged();
         return this;
@@ -3449,13 +3550,13 @@ public final class Common {
 
       private java.lang.Object name_ = "";
       /**
-       * <code>optional string name = 6;</code>
+       * <code>optional string name = 5;</code>
        */
       public boolean hasName() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
+        return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
-       * <code>optional string name = 6;</code>
+       * <code>optional string name = 5;</code>
        */
       public java.lang.String getName() {
         java.lang.Object ref = name_;
@@ -3472,7 +3573,7 @@ public final class Common {
         }
       }
       /**
-       * <code>optional string name = 6;</code>
+       * <code>optional string name = 5;</code>
        */
       public com.google.protobuf.ByteString
           getNameBytes() {
@@ -3488,36 +3589,36 @@ public final class Common {
         }
       }
       /**
-       * <code>optional string name = 6;</code>
+       * <code>optional string name = 5;</code>
        */
       public Builder setName(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000020;
+  bitField0_ |= 0x00000010;
         name_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string name = 6;</code>
+       * <code>optional string name = 5;</code>
        */
       public Builder clearName() {
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000010);
         name_ = getDefaultInstance().getName();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string name = 6;</code>
+       * <code>optional string name = 5;</code>
        */
       public Builder setNameBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000020;
+  bitField0_ |= 0x00000010;
         name_ = value;
         onChanged();
         return this;
@@ -3525,13 +3626,13 @@ public final class Common {
 
       private java.lang.Object longName_ = "";
       /**
-       * <code>optional string longName = 7;</code>
+       * <code>optional string longName = 6;</code>
        */
       public boolean hasLongName() {
-        return ((bitField0_ & 0x00000040) == 0x00000040);
+        return ((bitField0_ & 0x00000020) == 0x00000020);
       }
       /**
-       * <code>optional string longName = 7;</code>
+       * <code>optional string longName = 6;</code>
        */
       public java.lang.String getLongName() {
         java.lang.Object ref = longName_;
@@ -3548,7 +3649,7 @@ public final class Common {
         }
       }
       /**
-       * <code>optional string longName = 7;</code>
+       * <code>optional string longName = 6;</code>
        */
       public com.google.protobuf.ByteString
           getLongNameBytes() {
@@ -3564,36 +3665,36 @@ public final class Common {
         }
       }
       /**
-       * <code>optional string longName = 7;</code>
+       * <code>optional string longName = 6;</code>
        */
       public Builder setLongName(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000040;
+  bitField0_ |= 0x00000020;
         longName_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string longName = 7;</code>
+       * <code>optional string longName = 6;</code>
        */
       public Builder clearLongName() {
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000020);
         longName_ = getDefaultInstance().getLongName();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string longName = 7;</code>
+       * <code>optional string longName = 6;</code>
        */
       public Builder setLongNameBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000040;
+  bitField0_ |= 0x00000020;
         longName_ = value;
         onChanged();
         return this;
@@ -3601,13 +3702,13 @@ public final class Common {
 
       private java.lang.Object path_ = "";
       /**
-       * <code>optional string path = 8;</code>
+       * <code>optional string path = 7;</code>
        */
       public boolean hasPath() {
-        return ((bitField0_ & 0x00000080) == 0x00000080);
+        return ((bitField0_ & 0x00000040) == 0x00000040);
       }
       /**
-       * <code>optional string path = 8;</code>
+       * <code>optional string path = 7;</code>
        */
       public java.lang.String getPath() {
         java.lang.Object ref = path_;
@@ -3624,7 +3725,7 @@ public final class Common {
         }
       }
       /**
-       * <code>optional string path = 8;</code>
+       * <code>optional string path = 7;</code>
        */
       public com.google.protobuf.ByteString
           getPathBytes() {
@@ -3640,101 +3741,189 @@ public final class Common {
         }
       }
       /**
-       * <code>optional string path = 8;</code>
+       * <code>optional string path = 7;</code>
        */
       public Builder setPath(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000080;
+  bitField0_ |= 0x00000040;
         path_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string path = 8;</code>
+       * <code>optional string path = 7;</code>
        */
       public Builder clearPath() {
-        bitField0_ = (bitField0_ & ~0x00000080);
+        bitField0_ = (bitField0_ & ~0x00000040);
         path_ = getDefaultInstance().getPath();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string path = 8;</code>
+       * <code>optional string path = 7;</code>
        */
       public Builder setPathBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000080;
+  bitField0_ |= 0x00000040;
         path_ = value;
         onChanged();
         return this;
       }
 
-      private int projectId_ ;
+      private java.lang.Object project_ = "";
       /**
-       * <code>optional int32 projectId = 9;</code>
+       * <code>optional string project = 8;</code>
        */
-      public boolean hasProjectId() {
-        return ((bitField0_ & 0x00000100) == 0x00000100);
+      public boolean hasProject() {
+        return ((bitField0_ & 0x00000080) == 0x00000080);
       }
       /**
-       * <code>optional int32 projectId = 9;</code>
+       * <code>optional string project = 8;</code>
        */
-      public int getProjectId() {
-        return projectId_;
+      public java.lang.String getProject() {
+        java.lang.Object ref = project_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            project_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>optional int32 projectId = 9;</code>
+       * <code>optional string project = 8;</code>
        */
-      public Builder setProjectId(int value) {
-        bitField0_ |= 0x00000100;
-        projectId_ = value;
+      public com.google.protobuf.ByteString
+          getProjectBytes() {
+        java.lang.Object ref = project_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          project_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string project = 8;</code>
+       */
+      public Builder setProject(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000080;
+        project_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional int32 projectId = 9;</code>
+       * <code>optional string project = 8;</code>
        */
-      public Builder clearProjectId() {
-        bitField0_ = (bitField0_ & ~0x00000100);
-        projectId_ = 0;
+      public Builder clearProject() {
+        bitField0_ = (bitField0_ & ~0x00000080);
+        project_ = getDefaultInstance().getProject();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string project = 8;</code>
+       */
+      public Builder setProjectBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000080;
+        project_ = value;
         onChanged();
         return this;
       }
 
-      private int subProjectId_ ;
+      private java.lang.Object subProject_ = "";
       /**
-       * <code>optional int32 subProjectId = 10;</code>
+       * <code>optional string subProject = 9;</code>
        */
-      public boolean hasSubProjectId() {
-        return ((bitField0_ & 0x00000200) == 0x00000200);
+      public boolean hasSubProject() {
+        return ((bitField0_ & 0x00000100) == 0x00000100);
       }
       /**
-       * <code>optional int32 subProjectId = 10;</code>
+       * <code>optional string subProject = 9;</code>
        */
-      public int getSubProjectId() {
-        return subProjectId_;
+      public java.lang.String getSubProject() {
+        java.lang.Object ref = subProject_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            subProject_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
       }
       /**
-       * <code>optional int32 subProjectId = 10;</code>
+       * <code>optional string subProject = 9;</code>
        */
-      public Builder setSubProjectId(int value) {
-        bitField0_ |= 0x00000200;
-        subProjectId_ = value;
+      public com.google.protobuf.ByteString
+          getSubProjectBytes() {
+        java.lang.Object ref = subProject_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          subProject_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string subProject = 9;</code>
+       */
+      public Builder setSubProject(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000100;
+        subProject_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional int32 subProjectId = 10;</code>
+       * <code>optional string subProject = 9;</code>
        */
-      public Builder clearSubProjectId() {
-        bitField0_ = (bitField0_ & ~0x00000200);
-        subProjectId_ = 0;
+      public Builder clearSubProject() {
+        bitField0_ = (bitField0_ & ~0x00000100);
+        subProject_ = getDefaultInstance().getSubProject();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string subProject = 9;</code>
+       */
+      public Builder setSubProjectBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000100;
+        subProject_ = value;
         onChanged();
         return this;
       }
@@ -5944,24 +6133,25 @@ public final class Common {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\017ws-common.proto\022\014sonarqube.ws\"M\n\006Pagin" +
-      "g\022\022\n\npage_index\030\001 \001(\005\022\021\n\tpage_size\030\002 \001(\005" +
-      "\022\r\n\005total\030\003 \001(\005\022\r\n\005pages\030\004 \001(\005\"C\n\005Facet\022" +
-      "\020\n\010property\030\001 \001(\t\022(\n\006values\030\002 \003(\0132\030.sona" +
-      "rqube.ws.FacetValue\"(\n\nFacetValue\022\013\n\003val" +
-      "\030\001 \001(\t\022\r\n\005count\030\002 \001(\003\"\255\001\n\tComponent\022\014\n\004u" +
-      "uid\030\001 \001(\t\022\013\n\003key\030\002 \001(\t\022\n\n\002id\030\003 \001(\005\022\017\n\007en" +
-      "abled\030\004 \001(\010\022\021\n\tqualifier\030\005 \001(\t\022\014\n\004name\030\006" +
-      " \001(\t\022\020\n\010longName\030\007 \001(\t\022\014\n\004path\030\010 \001(\t\022\021\n\t" +
-      "projectId\030\t \001(\005\022\024\n\014subProjectId\030\n \001(\005\"y\n",
-      "\004Rule\022\013\n\003key\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\014\n\004lang" +
-      "\030\003 \001(\t\022\014\n\004desc\030\004 \001(\t\022(\n\006status\030\005 \001(\0162\030.s" +
-      "onarqube.ws.RuleStatus\022\020\n\010langName\030\006 \001(\t" +
-      "\"B\n\004User\022\r\n\005login\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\r\n" +
-      "\005email\030\003 \001(\t\022\016\n\006active\030\004 \001(\010*>\n\nRuleStat" +
-      "us\022\010\n\004BETA\020\000\022\016\n\nDEPRECATED\020\001\022\t\n\005READY\020\002\022" +
-      "\013\n\007REMOVED\020\003B\034\n\020org.sonarqube.wsB\006Common" +
-      "H\001"
+      "\n\017ws-common.proto\022\014sonarqube.ws\"K\n\006Pagin" +
+      "g\022\021\n\tpageIndex\030\001 \001(\005\022\020\n\010pageSize\030\002 \001(\005\022\r" +
+      "\n\005total\030\003 \001(\005\022\r\n\005pages\030\004 \001(\005\"C\n\005Facet\022\020\n" +
+      "\010property\030\001 \001(\t\022(\n\006values\030\002 \003(\0132\030.sonarq" +
+      "ube.ws.FacetValue\"(\n\nFacetValue\022\013\n\003val\030\001" +
+      " \001(\t\022\r\n\005count\030\002 \001(\003\"\233\001\n\tComponent\022\n\n\002id\030" +
+      "\001 \001(\t\022\013\n\003key\030\002 \001(\t\022\017\n\007enabled\030\003 \001(\010\022\021\n\tq" +
+      "ualifier\030\004 \001(\t\022\014\n\004name\030\005 \001(\t\022\020\n\010longName" +
+      "\030\006 \001(\t\022\014\n\004path\030\007 \001(\t\022\017\n\007project\030\010 \001(\t\022\022\n" +
+      "\nsubProject\030\t \001(\t\"y\n\004Rule\022\013\n\003key\030\001 \001(\t\022\014",
+      "\n\004name\030\002 \001(\t\022\014\n\004lang\030\003 \001(\t\022\014\n\004desc\030\004 \001(\t" +
+      "\022(\n\006status\030\005 \001(\0162\030.sonarqube.ws.RuleStat" +
+      "us\022\020\n\010langName\030\006 \001(\t\"B\n\004User\022\r\n\005login\030\001 " +
+      "\001(\t\022\014\n\004name\030\002 \001(\t\022\r\n\005email\030\003 \001(\t\022\016\n\006acti" +
+      "ve\030\004 \001(\010*E\n\010Severity\022\010\n\004INFO\020\000\022\t\n\005MINOR\020" +
+      "\001\022\t\n\005MAJOR\020\002\022\014\n\010CRITICAL\020\003\022\013\n\007BLOCKER\020\004*" +
+      ">\n\nRuleStatus\022\010\n\004BETA\020\000\022\016\n\nDEPRECATED\020\001\022" +
+      "\t\n\005READY\020\002\022\013\n\007REMOVED\020\003B\034\n\020org.sonarqube" +
+      ".wsB\006CommonH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -5998,7 +6188,7 @@ public final class Common {
     internal_static_sonarqube_ws_Component_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_Component_descriptor,
-        new java.lang.String[] { "Uuid", "Key", "Id", "Enabled", "Qualifier", "Name", "LongName", "Path", "ProjectId", "SubProjectId", });
+        new java.lang.String[] { "Id", "Key", "Enabled", "Qualifier", "Name", "LongName", "Path", "Project", "SubProject", });
     internal_static_sonarqube_ws_Rule_descriptor =
       getDescriptor().getMessageTypes().get(4);
     internal_static_sonarqube_ws_Rule_fieldAccessorTable = new

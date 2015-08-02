@@ -114,7 +114,7 @@ public class IssueCommentServiceMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    service.addComment(issue.getKey(), "my comment", userSessionRule);
+    service.addComment(issue.getKey(), "my comment");
 
     List<DefaultIssueComment> comments = service.findComments(issue.getKey());
     assertThat(comments).hasSize(1);
@@ -131,7 +131,7 @@ public class IssueCommentServiceMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    service.addComment(issue.getKey(), "my comment", userSessionRule);
+    service.addComment(issue.getKey(), "my comment");
 
     List<DefaultIssueComment> comments = service.findComments(issue.getKey());
     assertThat(comments).hasSize(1);

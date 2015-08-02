@@ -2,8 +2,7 @@
   "issues": [
     {
       "key": "7b112bd4-b650-4037-80bc-82fd47d4eac2",
-      "component": "MyComponent",
-      "project": "MyProject",
+      "component": "FILE_ID",
       "rule": "xoo:x1",
       "status": "OPEN",
       "severity": "MAJOR",

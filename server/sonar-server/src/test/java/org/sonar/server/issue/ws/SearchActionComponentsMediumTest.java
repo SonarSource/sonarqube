@@ -43,8 +43,8 @@ import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionChange;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
@@ -83,9 +83,9 @@ public class SearchActionComponentsMediumTest {
   @Test
   public void issues_on_different_projects() throws Exception {
     RuleDto rule = newRule();
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("P1").setKey("MyProject"));
     setDefaultProjectPermission(project);
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "F1").setKey("MyComponent"));
     IssueDto issue = IssueTesting.newDto(rule, file, project)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setStatus("OPEN").setResolution("OPEN")
@@ -94,9 +94,9 @@ public class SearchActionComponentsMediumTest {
       .setIssueUpdateDate(DateUtils.parseDateTime("2017-12-04T00:00:00+0100"));
     db.issueDao().insert(session, issue);
 
-    ComponentDto project2 = insertComponent(ComponentTesting.newProjectDto("DBCA").setKey("MyProject2"));
+    ComponentDto project2 = insertComponent(ComponentTesting.newProjectDto("P2").setKey("MyProject2"));
     setDefaultProjectPermission(project2);
-    ComponentDto file2 = insertComponent(ComponentTesting.newFileDto(project2, "EDCB").setKey("MyComponent2"));
+    ComponentDto file2 = insertComponent(ComponentTesting.newFileDto(project2, "F2").setKey("MyComponent2"));
     IssueDto issue2 = IssueTesting.newDto(rule, file2, project2)
       .setKee("92fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setStatus("OPEN").setResolution("OPEN")
@@ -107,36 +107,36 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION).execute();
     result.assertJson(this.getClass(), "issues_on_different_projects.json");
   }
 
   @Test
   public void search_by_project_uuid() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("P1").setKey("MyProject"));
     setDefaultProjectPermission(project);
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "F1").setKey("MyComponent"));
     IssueDto issue = IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
     db.issueDao().insert(session, issue);
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.PROJECT_UUIDS, project.uuid())
       .execute()
       .assertJson(this.getClass(), "search_by_project_uuid.json");
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.PROJECT_UUIDS, "unknown")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, project.uuid())
       .execute()
       .assertJson(this.getClass(), "search_by_project_uuid.json");
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, "unknown")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
@@ -144,15 +144,15 @@ public class SearchActionComponentsMediumTest {
 
   @Test
   public void project_facet_is_sticky() throws Exception {
-    ComponentDto project1 = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject1"));
-    ComponentDto project2 = insertComponent(ComponentTesting.newProjectDto("BCDE").setKey("MyProject2"));
-    ComponentDto project3 = insertComponent(ComponentTesting.newProjectDto("CDEF").setKey("MyProject3"));
+    ComponentDto project1 = insertComponent(ComponentTesting.newProjectDto("P1").setKey("MyProject1"));
+    ComponentDto project2 = insertComponent(ComponentTesting.newProjectDto("P2").setKey("MyProject2"));
+    ComponentDto project3 = insertComponent(ComponentTesting.newProjectDto("P3").setKey("MyProject3"));
     setDefaultProjectPermission(project1);
     setDefaultProjectPermission(project2);
     setDefaultProjectPermission(project3);
-    ComponentDto file1 = insertComponent(ComponentTesting.newFileDto(project1, "FEDC").setKey("MyComponent1"));
-    ComponentDto file2 = insertComponent(ComponentTesting.newFileDto(project2, "EDCB").setKey("MyComponent2"));
-    ComponentDto file3 = insertComponent(ComponentTesting.newFileDto(project3, "DCBA").setKey("MyComponent3"));
+    ComponentDto file1 = insertComponent(ComponentTesting.newFileDto(project1, "F1").setKey("MyComponent1"));
+    ComponentDto file2 = insertComponent(ComponentTesting.newFileDto(project2, "F2").setKey("MyComponent2"));
+    ComponentDto file3 = insertComponent(ComponentTesting.newFileDto(project3, "F3").setKey("MyComponent3"));
     RuleDto rule = newRule();
     IssueDto issue1 = IssueTesting.newDto(rule, file1, project1).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
     IssueDto issue2 = IssueTesting.newDto(rule, file2, project2).setKee("2bd4eac2-b650-4037-80bc-7b1182fd47d4");
@@ -161,7 +161,7 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.PROJECT_UUIDS, project1.uuid())
       .setParam(WebService.Param.FACETS, "projectUuids")
       .execute()
@@ -170,30 +170,30 @@ public class SearchActionComponentsMediumTest {
 
   @Test
   public void search_by_file_uuid() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("P1").setKey("MyProject"));
     setDefaultProjectPermission(project);
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "F1").setKey("MyComponent"));
     IssueDto issue = IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
     db.issueDao().insert(session, issue);
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.FILE_UUIDS, file.uuid())
       .execute()
       .assertJson(this.getClass(), "search_by_file_uuid.json");
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.FILE_UUIDS, "unknown")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, file.uuid())
       .execute()
       .assertJson(this.getClass(), "search_by_file_uuid.json");
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, "unknown")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
@@ -201,10 +201,10 @@ public class SearchActionComponentsMediumTest {
 
   @Test
   public void search_by_file_key() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("P1").setKey("MyProject"));
     setDefaultProjectPermission(project);
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
-    ComponentDto unitTest = insertComponent(ComponentTesting.newFileDto(project, "CDEF").setQualifier(Qualifiers.UNIT_TEST_FILE).setKey("MyComponentTest"));
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "F1").setKey("MyComponent"));
+    ComponentDto unitTest = insertComponent(ComponentTesting.newFileDto(project, "F2").setQualifier(Qualifiers.UNIT_TEST_FILE).setKey("MyComponentTest"));
     RuleDto rule = newRule();
     IssueDto issueOnFile = IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
     IssueDto issueOnTest = IssueTesting.newDto(rule, unitTest, project).setKee("2bd4eac2-b650-4037-80bc-7b1182fd47d4");
@@ -212,12 +212,12 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENTS, file.key())
       .execute()
       .assertJson(this.getClass(), "search_by_file_key.json");
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENTS, unitTest.key())
       .execute()
       .assertJson(this.getClass(), "search_by_test_key.json");
@@ -226,11 +226,11 @@ public class SearchActionComponentsMediumTest {
 
   @Test
   public void display_file_facet() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("P1").setKey("MyProject"));
     setDefaultProjectPermission(project);
-    ComponentDto file1 = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent1"));
-    ComponentDto file2 = insertComponent(ComponentTesting.newFileDto(project, "CDEF").setKey("MyComponent2"));
-    ComponentDto file3 = insertComponent(ComponentTesting.newFileDto(project, "DEFA").setKey("MyComponent3"));
+    ComponentDto file1 = insertComponent(ComponentTesting.newFileDto(project, "F1").setKey("MyComponent1"));
+    ComponentDto file2 = insertComponent(ComponentTesting.newFileDto(project, "F2").setKey("MyComponent2"));
+    ComponentDto file3 = insertComponent(ComponentTesting.newFileDto(project, "F3").setKey("MyComponent3"));
     RuleDto newRule = newRule();
     IssueDto issue1 = IssueTesting.newDto(newRule, file1, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
     IssueDto issue2 = IssueTesting.newDto(newRule, file2, project).setKee("2bd4eac2-b650-4037-80bc-7b1182fd47d4");
@@ -238,7 +238,7 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, project.uuid())
       .setParam(IssueFilterParameters.FILE_UUIDS, file1.uuid() + "," + file3.uuid())
       .setParam(WebService.Param.FACETS, "fileUuids")
@@ -248,31 +248,31 @@ public class SearchActionComponentsMediumTest {
 
   @Test
   public void search_by_directory_path() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("P1").setKey("MyProject"));
     setDefaultProjectPermission(project);
-    ComponentDto directory = insertComponent(ComponentTesting.newDirectory(project, "src/main/java/dir"));
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent").setPath(directory.path() + "/MyComponent.java"));
+    ComponentDto directory = insertComponent(ComponentTesting.newDirectory(project, "D1", "src/main/java/dir"));
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "F1").setKey("MyComponent").setPath(directory.path() + "/MyComponent.java"));
     IssueDto issue = IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
     db.issueDao().insert(session, issue);
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, directory.uuid())
       .execute()
       .assertJson(this.getClass(), "search_by_file_uuid.json");
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, "unknown")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.DIRECTORIES, "src/main/java/dir")
       .execute()
       .assertJson(this.getClass(), "search_by_file_uuid.json");
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.DIRECTORIES, "src/main/java")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
@@ -280,14 +280,14 @@ public class SearchActionComponentsMediumTest {
 
   @Test
   public void search_by_directory_path_in_different_modules() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("P1").setKey("MyProject"));
     setDefaultProjectPermission(project);
-    ComponentDto module1 = insertComponent(ComponentTesting.newModuleDto(project).setKey("module1"));
-    ComponentDto module2 = insertComponent(ComponentTesting.newModuleDto(project).setKey("module2"));
-    ComponentDto directory1 = insertComponent(ComponentTesting.newDirectory(module1, "src/main/java/dir"));
-    ComponentDto directory2 = insertComponent(ComponentTesting.newDirectory(module2, "src/main/java/dir"));
-    ComponentDto file1 = insertComponent(ComponentTesting.newFileDto(module1, "BCDE").setKey("module1:MyComponent").setPath(directory1.path() + "/MyComponent.java"));
-    insertComponent(ComponentTesting.newFileDto(module2, "CDEF").setKey("module2:MyComponent").setPath(directory2.path() + "/MyComponent.java"));
+    ComponentDto module1 = insertComponent(ComponentTesting.newModuleDto("M1", project).setKey("module1"));
+    ComponentDto module2 = insertComponent(ComponentTesting.newModuleDto("M2", project).setKey("module2"));
+    ComponentDto directory1 = insertComponent(ComponentTesting.newDirectory(module1, "D1", "src/main/java/dir"));
+    ComponentDto directory2 = insertComponent(ComponentTesting.newDirectory(module2, "D2", "src/main/java/dir"));
+    ComponentDto file1 = insertComponent(ComponentTesting.newFileDto(module1, "F1").setKey("module1:MyComponent").setPath(directory1.path() + "/MyComponent.java"));
+    insertComponent(ComponentTesting.newFileDto(module2, "F2").setKey("module2:MyComponent").setPath(directory2.path() + "/MyComponent.java"));
     RuleDto rule = newRule();
     IssueDto issue1 = IssueTesting.newDto(rule, file1, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
     db.issueDao().insert(session, issue1);
@@ -295,34 +295,34 @@ public class SearchActionComponentsMediumTest {
 
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, directory1.uuid())
       .execute()
       .assertJson(this.getClass(), "search_by_directory_uuid.json");
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, directory2.uuid())
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.MODULE_UUIDS, module1.uuid())
       .setParam(IssueFilterParameters.DIRECTORIES, "src/main/java/dir")
       .execute()
       .assertJson(this.getClass(), "search_by_directory_uuid.json");
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.MODULE_UUIDS, module2.uuid())
       .setParam(IssueFilterParameters.DIRECTORIES, "src/main/java/dir")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.DIRECTORIES, "src/main/java/dir")
       .execute()
       .assertJson(this.getClass(), "search_by_directory_uuid.json");
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.DIRECTORIES, "src/main/java")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
@@ -330,14 +330,14 @@ public class SearchActionComponentsMediumTest {
 
   @Test
   public void display_module_facet() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("P1").setKey("MyProject"));
     setDefaultProjectPermission(project);
-    ComponentDto module = insertComponent(ComponentTesting.newModuleDto("BCDE", project).setKey("MyModule"));
-    ComponentDto subModule1 = insertComponent(ComponentTesting.newModuleDto("CDEF", module).setKey("MySubModule1"));
-    ComponentDto subModule2 = insertComponent(ComponentTesting.newModuleDto("DEFA", module).setKey("MySubModule2"));
-    ComponentDto subModule3 = insertComponent(ComponentTesting.newModuleDto("EFAB", module).setKey("MySubModule3"));
-    ComponentDto file1 = insertComponent(ComponentTesting.newFileDto(subModule1, "FEDC").setKey("MyComponent1"));
-    ComponentDto file2 = insertComponent(ComponentTesting.newFileDto(subModule2, "EDCB").setKey("MyComponent2"));
+    ComponentDto module = insertComponent(ComponentTesting.newModuleDto("M1", project).setKey("MyModule"));
+    ComponentDto subModule1 = insertComponent(ComponentTesting.newModuleDto("SUBM1", module).setKey("MySubModule1"));
+    ComponentDto subModule2 = insertComponent(ComponentTesting.newModuleDto("SUBM2", module).setKey("MySubModule2"));
+    ComponentDto subModule3 = insertComponent(ComponentTesting.newModuleDto("SUBM3", module).setKey("MySubModule3"));
+    ComponentDto file1 = insertComponent(ComponentTesting.newFileDto(subModule1, "F1").setKey("MyComponent1"));
+    ComponentDto file2 = insertComponent(ComponentTesting.newFileDto(subModule2, "F2").setKey("MyComponent2"));
     RuleDto newRule = newRule();
     IssueDto issue1 = IssueTesting.newDto(newRule, file1, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
     IssueDto issue2 = IssueTesting.newDto(newRule, file2, project).setKee("2bd4eac2-b650-4037-80bc-7b1182fd47d4");
@@ -345,7 +345,7 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, module.uuid())
       .setParam(IssueFilterParameters.MODULE_UUIDS, subModule1.uuid() + "," + subModule3.uuid())
       .setParam(WebService.Param.FACETS, "moduleUuids")
@@ -355,17 +355,17 @@ public class SearchActionComponentsMediumTest {
 
   @Test
   public void display_directory_facet() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("P1").setKey("MyProject"));
     setDefaultProjectPermission(project);
-    ComponentDto directory = insertComponent(ComponentTesting.newDirectory(project, "src/main/java/dir"));
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent").setPath(directory.path() + "/MyComponent.java"));
+    ComponentDto directory = insertComponent(ComponentTesting.newDirectory(project, "D1", "src/main/java/dir"));
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "F1").setKey("MyComponent").setPath(directory.path() + "/MyComponent.java"));
     IssueDto issue = IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
     db.issueDao().insert(session, issue);
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
     userSessionRule.login("john");
-    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam("resolved", "false")
       .setParam(WebService.Param.FACETS, "directories")
       .execute();
@@ -374,18 +374,18 @@ public class SearchActionComponentsMediumTest {
 
   @Test
   public void search_by_view_uuid() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("P1").setKey("MyProject"));
     setDefaultProjectPermission(project);
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "F1").setKey("MyComponent"));
     insertIssue(IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
 
-    ComponentDto view = insertComponent(ComponentTesting.newProjectDto("CDEF").setQualifier(Qualifiers.VIEW).setKey("MyView"));
+    ComponentDto view = insertComponent(ComponentTesting.newProjectDto("V1").setQualifier(Qualifiers.VIEW).setKey("MyView"));
     indexView(view.uuid(), newArrayList(project.uuid()));
 
     setAnyoneProjectPermission(view, UserRole.USER);
     userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, view.uuid());
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, view.uuid())
       .execute()
       .assertJson(this.getClass(), "search_by_view_uuid.json");
@@ -393,19 +393,19 @@ public class SearchActionComponentsMediumTest {
 
   @Test
   public void search_by_view_uuid_return_only_authorized_view() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("P1").setKey("MyProject"));
     setDefaultProjectPermission(project);
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "F1").setKey("MyComponent"));
     insertIssue(IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
 
-    ComponentDto view = insertComponent(ComponentTesting.newProjectDto("CDEF").setQualifier(Qualifiers.VIEW).setKey("MyView"));
+    ComponentDto view = insertComponent(ComponentTesting.newProjectDto("V1").setQualifier(Qualifiers.VIEW).setKey("MyView"));
     indexView(view.uuid(), newArrayList(project.uuid()));
 
     setAnyoneProjectPermission(view, UserRole.USER);
     // User has wrong permission on the view, no issue will be returned
     userSessionRule.login("john").addProjectUuidPermissions(UserRole.CODEVIEWER, view.uuid());
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, view.uuid())
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
@@ -413,20 +413,20 @@ public class SearchActionComponentsMediumTest {
 
   @Test
   public void search_by_sub_view_uuid() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("P1").setKey("MyProject"));
     setDefaultProjectPermission(project);
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "F1").setKey("MyComponent"));
     insertIssue(IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
 
-    ComponentDto view = insertComponent(ComponentTesting.newProjectDto("CDEF").setQualifier(Qualifiers.VIEW).setKey("MyView"));
+    ComponentDto view = insertComponent(ComponentTesting.newProjectDto("V1").setQualifier(Qualifiers.VIEW).setKey("MyView"));
     indexView(view.uuid(), newArrayList(project.uuid()));
-    ComponentDto subView = insertComponent(ComponentTesting.newProjectDto("DEFG").setQualifier(Qualifiers.SUBVIEW).setKey("MySubView"));
+    ComponentDto subView = insertComponent(ComponentTesting.newProjectDto("SV1").setQualifier(Qualifiers.SUBVIEW).setKey("MySubView"));
     indexView(subView.uuid(), newArrayList(project.uuid()));
 
     setAnyoneProjectPermission(view, UserRole.USER);
     userSessionRule.login("john").addComponentUuidPermission(UserRole.USER, view.uuid(), subView.uuid());
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, subView.uuid())
       .execute()
       .assertJson(this.getClass(), "search_by_view_uuid.json");
@@ -434,30 +434,31 @@ public class SearchActionComponentsMediumTest {
 
   @Test
   public void search_by_sub_view_uuid_return_only_authorized_view() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("P1").setKey("MyProject"));
     setDefaultProjectPermission(project);
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "F1").setKey("MyComponent"));
     insertIssue(IssueTesting.newDto(newRule(), file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
 
-    ComponentDto view = insertComponent(ComponentTesting.newProjectDto("CDEF").setQualifier(Qualifiers.VIEW).setKey("MyView"));
+    ComponentDto view = insertComponent(ComponentTesting.newProjectDto("V1").setQualifier(Qualifiers.VIEW).setKey("MyView"));
     indexView(view.uuid(), newArrayList(project.uuid()));
-    ComponentDto subView = insertComponent(ComponentTesting.newProjectDto("DEFG").setQualifier(Qualifiers.SUBVIEW).setKey("MySubView"));
+    ComponentDto subView = insertComponent(ComponentTesting.newProjectDto("SV1").setQualifier(Qualifiers.SUBVIEW).setKey("MySubView"));
     indexView(subView.uuid(), newArrayList(project.uuid()));
 
     setAnyoneProjectPermission(view, UserRole.USER);
     // User has wrong permission on the view, no issue will be returned
     userSessionRule.login("john").addComponentUuidPermission(UserRole.CODEVIEWER, view.uuid(), subView.uuid());
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, subView.uuid())
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
   }
 
+  @Test
   public void search_by_author() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("P1").setKey("MyProject"));
     setDefaultProjectPermission(project);
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "F1").setKey("MyComponent"));
     RuleDto newRule = newRule();
     IssueDto issue1 = IssueTesting.newDto(newRule, file, project).setAuthorLogin("leia").setKee("2bd4eac2-b650-4037-80bc-7b112bd4eac2");
     IssueDto issue2 = IssueTesting.newDto(newRule, file, project).setAuthorLogin("luke@skywalker.name").setKee("82fd47d4-b650-4037-80bc-7b1182fd47d4");
@@ -466,13 +467,13 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.AUTHORS, "leia")
       .setParam(WebService.Param.FACETS, "authors")
       .execute()
       .assertJson(this.getClass(), "search_by_authors.json");
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.AUTHORS, "unknown")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
@@ -481,9 +482,9 @@ public class SearchActionComponentsMediumTest {
 
   @Test
   public void search_by_developer() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("P1").setKey("MyProject"));
     setDefaultProjectPermission(project);
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "F1").setKey("MyComponent"));
     ComponentDto developer = insertComponent(ComponentTesting.newDeveloper("Anakin Skywalker"));
     db.authorDao().insertAuthor("vader", developer.getId());
     db.authorDao().insertAuthor("anakin@skywalker.name", developer.getId());
@@ -495,7 +496,7 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, developer.uuid())
       .execute()
       .assertJson(this.getClass(), "search_by_developer.json");
@@ -503,17 +504,17 @@ public class SearchActionComponentsMediumTest {
 
   @Test
   public void search_by_developer_technical_project() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("ABCD").setKey("MyProject"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("P1").setKey("MyProject"));
     setDefaultProjectPermission(project);
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "BCDE").setKey("MyComponent"));
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "F1").setKey("MyComponent"));
 
-    ComponentDto otherProject = insertComponent(ComponentTesting.newProjectDto("XXXX").setKey("OtherProject"));
+    ComponentDto otherProject = insertComponent(ComponentTesting.newProjectDto("P2").setKey("OtherProject"));
     setDefaultProjectPermission(otherProject);
-    ComponentDto otherFile = insertComponent(ComponentTesting.newFileDto(otherProject, "YYYY").setKey("OtherComponent"));
+    ComponentDto otherFile = insertComponent(ComponentTesting.newFileDto(otherProject, "F2").setKey("OtherComponent"));
 
     ComponentDto developer = insertComponent(ComponentTesting.newDeveloper("Anakin Skywalker"));
-    ComponentDto technicalProject = insertComponent(ComponentTesting.newDevProjectCopy("CDEF", project, developer));
-    insertComponent(ComponentTesting.newDevProjectCopy("DEFG", otherProject, developer));
+    ComponentDto technicalProject = insertComponent(ComponentTesting.newDevProjectCopy("COPY_P1", project, developer));
+    insertComponent(ComponentTesting.newDevProjectCopy("COPY_P2", otherProject, developer));
 
     db.authorDao().insertAuthor("vader", developer.getId());
     db.authorDao().insertAuthor("anakin@skywalker.name", developer.getId());
@@ -527,7 +528,7 @@ public class SearchActionComponentsMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+    Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, Search2Action.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, technicalProject.uuid())
       .execute();
     result

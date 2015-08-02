@@ -20,29 +20,10 @@
 
 package org.sonar.server.issue;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
-import java.util.Date;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import org.sonar.api.component.Component;
-import org.sonar.api.config.Settings;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.action.Action;
-import org.sonar.api.issue.action.Actions;
-import org.sonar.api.issue.action.Function;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.IssueUpdater;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.property.PropertiesDao;
-import org.sonar.db.property.PropertyDto;
+import org.sonar.api.web.UserRole;
+import org.sonar.db.issue.IssueDto;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -53,144 +34,30 @@ import static com.google.common.collect.Lists.newArrayList;
 @ServerSide
 public class ActionService {
 
-  private final DbClient dbClient;
-  private final IssueService issueService;
-  private final IssueStorage issueStorage;
-  private final IssueUpdater updater;
-  private final Settings settings;
-  private final PropertiesDao propertiesDao;
-  private final Actions actions;
+  private final UserSession userSession;
 
-  public ActionService(DbClient dbClient, IssueService issueService, IssueStorage issueStorage, IssueUpdater updater, Settings settings, PropertiesDao propertiesDao,
-                       Actions actions) {
-    this.dbClient = dbClient;
-    this.issueService = issueService;
-    this.issueStorage = issueStorage;
-    this.updater = updater;
-    this.settings = settings;
-    this.propertiesDao = propertiesDao;
-    this.actions = actions;
+  public ActionService(UserSession userSession) {
+    this.userSession = userSession;
   }
 
-  public List<Action> listAllActions() {
-    return actions.list();
-  }
-
-  public List<Action> listAvailableActions(String issueKey) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      return listAvailableActions(issueService.getByKeyForUpdate(session, issueKey).toDefaultIssue());
-    } finally {
-      session.close();
-    }
-  }
-
-  public List<Action> listAvailableActions(Issue issue) {
-    return newArrayList(Iterables.filter(actions.list(), new SupportIssue(issue)));
-  }
-
-  public Issue execute(String issueKey, String actionKey, UserSession userSession) {
-    Preconditions.checkArgument(!Strings.isNullOrEmpty(actionKey), "Missing action");
-
-    DbSession session = dbClient.openSession(false);
-    try {
-      DefaultIssue issue = issueService.getByKeyForUpdate(session, issueKey).toDefaultIssue();
-      Action action = getAction(actionKey);
-      if (action == null) {
-        throw new IllegalArgumentException("Action is not found : " + actionKey);
+  public List<String> listAvailableActions(IssueDto issue) {
+    List<String> actions = newArrayList();
+    String login = userSession.getLogin();
+    if (login != null) {
+      actions.add("comment");
+      if (issue.getResolution() == null) {
+        actions.add("assign");
+        actions.add("set_tags");
+        if (!login.equals(issue.getAssignee())) {
+          actions.add("assign_to_me");
+        }
+        actions.add("plan");
+        String projectUuid = issue.getProjectUuid();
+        if (projectUuid != null && userSession.hasProjectPermissionByUuid(UserRole.ISSUE_ADMIN, projectUuid)) {
+          actions.add("set_severity");
+        }
       }
-      if (!action.supports(issue)) {
-        throw new IllegalStateException("A condition is not respected");
-      }
-
-      IssueChangeContext changeContext = IssueChangeContext.createUser(new Date(), userSession.getLogin());
-      Component project = dbClient.componentDao().selectOrFailByKey(session, issue.projectKey());
-      FunctionContext functionContext = new FunctionContext(issue, updater, changeContext, getProjectSettings(project));
-      for (Function function : action.functions()) {
-        function.execute(functionContext);
-      }
-      issueStorage.save(issue);
-      return issue;
-    } finally {
-      session.close();
     }
-  }
-
-  @CheckForNull
-  private Action getAction(final String actionKey) {
-    return Iterables.find(actions.list(), new ActionMatchKey(actionKey), null);
-  }
-
-  // TODO org.sonar.server.properties.ProjectSettings should be used instead
-  public Settings getProjectSettings(Component project) {
-    Settings projectSettings = new Settings(settings);
-    List<PropertyDto> properties = propertiesDao.selectProjectProperties(project.key());
-    for (PropertyDto dto : properties) {
-      projectSettings.setProperty(dto.getKey(), dto.getValue());
-    }
-    return projectSettings;
-  }
-
-  static class FunctionContext implements Function.Context {
-
-    private final DefaultIssue issue;
-    private final IssueUpdater updater;
-    private final IssueChangeContext changeContext;
-    private final Settings projectSettings;
-
-    FunctionContext(DefaultIssue issue, IssueUpdater updater, IssueChangeContext changeContext, Settings projectSettings) {
-      this.updater = updater;
-      this.issue = issue;
-      this.changeContext = changeContext;
-      this.projectSettings = projectSettings;
-    }
-
-    @Override
-    public Issue issue() {
-      return issue;
-    }
-
-    @Override
-    public Settings projectSettings() {
-      return projectSettings;
-    }
-
-    @Override
-    public Function.Context setAttribute(String key, @Nullable String value) {
-      updater.setAttribute(issue, key, value, changeContext);
-      return this;
-    }
-
-    @Override
-    public Function.Context addComment(String text) {
-      updater.addComment(issue, text, changeContext);
-      return this;
-    }
-  }
-
-  private static class SupportIssue implements Predicate<Action> {
-    private final Issue issue;
-
-    public SupportIssue(Issue issue) {
-      this.issue = issue;
-    }
-
-    @Override
-    public boolean apply(@Nonnull Action action) {
-      return action.supports(issue);
-    }
-  }
-
-  private static class ActionMatchKey implements Predicate<Action> {
-    private final String key;
-
-    public ActionMatchKey(String key) {
-      this.key = key;
-    }
-
-    @Override
-    public boolean apply(@Nonnull Action action) {
-      return action.key().equals(key);
-    }
+    return actions;
   }
 }

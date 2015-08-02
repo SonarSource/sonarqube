@@ -1,0 +1,289 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.server.issue.ws;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nullable;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Languages;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.Duration;
+import org.sonar.api.utils.Durations;
+import org.sonar.api.utils.Paging;
+import org.sonar.core.issue.workflow.Transition;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.ActionPlanDto;
+import org.sonar.db.issue.IssueChangeDto;
+import org.sonar.db.issue.IssueDto;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.db.user.UserDto;
+import org.sonar.markdown.Markdown;
+import org.sonar.server.es.Facets;
+import org.sonar.server.ws.WsResponseCommonFormat;
+import org.sonarqube.ws.Common;
+import org.sonarqube.ws.Issues;
+
+import static com.google.common.base.Strings.nullToEmpty;
+
+public class SearchResponseFormat {
+
+  private final Durations durations;
+  private final WsResponseCommonFormat commonFormat;
+  private final Languages languages;
+
+  public SearchResponseFormat(Durations durations, WsResponseCommonFormat commonFormat, Languages languages) {
+    this.durations = durations;
+    this.commonFormat = commonFormat;
+    this.languages = languages;
+  }
+
+  public Issues.Search format(Set<SearchAdditionalField> fields, SearchResponseData data, Paging paging,
+    @Nullable Facets facets) {
+    Issues.Search.Builder response = Issues.Search.newBuilder();
+
+    formatPaging(paging, response);
+    formatDebtTotal(data, response);
+    formatIssues(fields, data, response);
+    formatComponents(data, response);
+    if (facets != null) {
+      formatFacets(facets, response);
+    }
+    if (fields.contains(SearchAdditionalField.RULES)) {
+      formatRules(data, response);
+    }
+    if (fields.contains(SearchAdditionalField.USERS)) {
+      formatUsers(data, response);
+    }
+    if (fields.contains(SearchAdditionalField.ACTION_PLANS)) {
+      formatActionPlans(data, response);
+    }
+    if (fields.contains(SearchAdditionalField.LANGUAGES)) {
+      formatLanguages(response);
+    }
+    return response.build();
+  }
+
+  private void formatDebtTotal(SearchResponseData data, Issues.Search.Builder response) {
+    Long debt = data.getDebtTotal();
+    if (debt != null) {
+      response.setDebtTotal(debt);
+    }
+  }
+
+  private void formatPaging(Paging paging, Issues.Search.Builder response) {
+    response.setP(paging.pageIndex());
+    response.setPs(paging.pageSize());
+    response.setTotal(paging.total());
+    response.setPaging(commonFormat.formatPaging(paging));
+  }
+
+  private void formatIssues(Set<SearchAdditionalField> fields, SearchResponseData data, Issues.Search.Builder response) {
+    Issues.Issue.Builder issueBuilder = Issues.Issue.newBuilder();
+    for (IssueDto dto : data.getIssues()) {
+      issueBuilder.clear();
+      formatIssue(issueBuilder, dto, data);
+      if (fields.contains(SearchAdditionalField.ACTIONS)) {
+        formatIssueActions(data, issueBuilder, dto);
+      }
+      if (fields.contains(SearchAdditionalField.TRANSITIONS)) {
+        formatIssueTransitions(data, issueBuilder, dto);
+      }
+      if (fields.contains(SearchAdditionalField.COMMENTS)) {
+        formatIssueComments(data, issueBuilder, dto);
+      }
+      // TODO attributes
+      response.addIssues(issueBuilder.build());
+    }
+  }
+
+  private void formatIssue(Issues.Issue.Builder issueBuilder, IssueDto dto, SearchResponseData data) {
+    issueBuilder.setKey(dto.getKey());
+    ComponentDto component = data.getComponentByUuid(dto.getComponentUuid());
+    issueBuilder.setComponent(dto.getComponentUuid());
+    // Only used for the compatibility with the Issues Java WS Client <= 4.4 used by Eclipse
+    issueBuilder.setComponentId(component.getId());
+
+    ComponentDto project = data.getComponentByUuid(dto.getProjectUuid());
+    if (project != null) {
+      issueBuilder.setProject(project.uuid());
+    }
+    issueBuilder.setRule(dto.getRuleKey().toString());
+    issueBuilder.setSeverity(Common.Severity.valueOf(dto.getSeverity()));
+    issueBuilder.setAssignee(nullToEmpty(dto.getAssignee()));
+    issueBuilder.setReporter(nullToEmpty(dto.getReporter()));
+    issueBuilder.setResolution(nullToEmpty(dto.getResolution()));
+    issueBuilder.setStatus(nullToEmpty(dto.getStatus()));
+    issueBuilder.setActionPlan(nullToEmpty(dto.getActionPlanKey()));
+    issueBuilder.setMessage(nullToEmpty(dto.getMessage()));
+    issueBuilder.addAllTags(dto.getTags());
+    Long debt = dto.getDebt();
+    if (debt != null) {
+      issueBuilder.setDebt(durations.encode(Duration.create(debt)));
+    }
+    Integer line = dto.getLine();
+    if (line != null) {
+      issueBuilder.setLine(line);
+    }
+    issueBuilder.setAuthor(nullToEmpty(dto.getAuthorLogin()));
+    Date date = dto.getIssueCreationDate();
+    if (date != null) {
+      issueBuilder.setCreationDate(DateUtils.formatDateTime(date));
+    }
+    date = dto.getIssueUpdateDate();
+    if (date != null) {
+      issueBuilder.setUpdateDate(DateUtils.formatDateTime(date));
+    }
+    date = dto.getIssueCloseDate();
+    if (date != null) {
+      issueBuilder.setCloseDate(DateUtils.formatDateTime(date));
+    }
+  }
+
+  private void formatIssueTransitions(SearchResponseData data, Issues.Issue.Builder issueBuilder, IssueDto dto) {
+    issueBuilder.setTransitionsPresentIfEmpty(true);
+    List<Transition> transitions = data.getTransitionsForIssueKey(dto.getKey());
+    if (transitions != null) {
+      for (Transition transition : transitions) {
+        issueBuilder.addTransitions(transition.key());
+      }
+    }
+  }
+
+  private void formatIssueActions(SearchResponseData data, Issues.Issue.Builder issueBuilder, IssueDto dto) {
+    issueBuilder.setActionsPresentIfEmpty(true);
+    List<String> actions = data.getActionsForIssueKey(dto.getKey());
+    if (actions != null) {
+      issueBuilder.addAllActions(actions);
+    }
+  }
+
+  private void formatIssueComments(SearchResponseData data, Issues.Issue.Builder issueBuilder, IssueDto dto) {
+    issueBuilder.setCommentsPresentIfEmpty(true);
+    List<IssueChangeDto> comments = data.getCommentsForIssueKey(dto.getKey());
+    if (comments != null) {
+      Issues.Comment.Builder commentBuilder = Issues.Comment.newBuilder();
+      for (IssueChangeDto comment : comments) {
+        String markdown = comment.getChangeData();
+        commentBuilder
+          .clear()
+          .setKey(comment.getKey())
+          .setLogin(nullToEmpty(comment.getUserLogin()))
+          .setUpdatable(data.isUpdatableComment(comment.getKey()))
+          .setCreatedAt(DateUtils.formatDateTime(new Date(comment.getCreatedAt())));
+        if (markdown != null) {
+          commentBuilder
+            .setHtmlText(Markdown.convertToHtml(markdown))
+            .setMarkdown(markdown);
+        }
+        issueBuilder.addComments(commentBuilder.build());
+      }
+    }
+  }
+
+  private void formatRules(SearchResponseData data, Issues.Search.Builder response) {
+    response.setRulesPresentIfEmpty(true);
+    List<RuleDto> rules = data.getRules();
+    if (rules != null) {
+      for (RuleDto rule : rules) {
+        response.addRules(commonFormat.formatRule(rule));
+      }
+    }
+  }
+
+  private void formatComponents(SearchResponseData data, Issues.Search.Builder response) {
+    response.setComponentsPresentIfEmpty(true);
+    Collection<ComponentDto> components = data.getComponents();
+    if (components != null) {
+      for (ComponentDto dto : components) {
+        response.addComponents(commonFormat.formatComponent(dto));
+      }
+    }
+  }
+
+  private void formatUsers(SearchResponseData data, Issues.Search.Builder response) {
+    response.setUsersPresentIfEmpty(true);
+    List<UserDto> users = data.getUsers();
+    if (users != null) {
+      for (UserDto user : users) {
+        response.addUsers(commonFormat.formatUser(user));
+      }
+    }
+  }
+
+  private void formatActionPlans(SearchResponseData data, Issues.Search.Builder response) {
+    response.setActionPlansPresentIfEmpty(true);
+    List<ActionPlanDto> actionPlans = data.getActionPlans();
+    if (actionPlans != null) {
+      Issues.ActionPlan.Builder planBuilder = Issues.ActionPlan.newBuilder();
+      for (ActionPlanDto actionPlan : actionPlans) {
+        planBuilder
+          .clear()
+          .setKey(actionPlan.getKey())
+          .setName(nullToEmpty(actionPlan.getName()))
+          .setStatus(nullToEmpty(actionPlan.getStatus()))
+          .setProject(nullToEmpty(actionPlan.getProjectUuid()));
+        Date deadLine = actionPlan.getDeadLine();
+        if (deadLine != null) {
+          planBuilder.setDeadLine(DateUtils.formatDateTime(deadLine));
+        }
+        response.addActionPlans(planBuilder.build());
+      }
+    }
+  }
+
+  private void formatLanguages(Issues.Search.Builder response) {
+    response.setLanguagesPresentIfEmpty(true);
+    Issues.Language.Builder builder = Issues.Language.newBuilder();
+    for (Language lang : languages.all()) {
+      builder
+        .clear()
+        .setKey(lang.getKey())
+        .setName(lang.getName());
+      response.addLanguages(builder.build());
+    }
+  }
+
+  private void formatFacets(Facets facets, Issues.Search.Builder response) {
+    response.setFacetsPresentIfEmpty(true);
+    Common.Facet.Builder facetBuilder = Common.Facet.newBuilder();
+    for (Map.Entry<String, LinkedHashMap<String, Long>> facet : facets.getAll().entrySet()) {
+      facetBuilder.clear();
+      facetBuilder.setProperty(facet.getKey());
+      LinkedHashMap<String, Long> buckets = facet.getValue();
+      if (buckets != null) {
+        for (Map.Entry<String, Long> bucket : buckets.entrySet()) {
+          Common.FacetValue.Builder valueBuilder = facetBuilder.addValuesBuilder();
+          valueBuilder.setVal(bucket.getKey());
+          valueBuilder.setCount(bucket.getValue());
+          valueBuilder.build();
+        }
+      } else {
+        facetBuilder.addAllValues(Collections.<Common.FacetValue>emptyList());
+      }
+      response.addFacets(facetBuilder.build());
+    }
+  }
+}

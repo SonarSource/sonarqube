@@ -29,22 +29,39 @@ option optimize_for = SPEED;
 // Response of URL api/issues/search
 message Search {
   // TODO errors
-  optional Paging paging = 1;
-  repeated Issue issues = 2;
-  repeated Facet facets = 3;
-  repeated Component projects = 4;
-  repeated Component components = 5;
-  repeated Rule rules = 6;
-  repeated User users = 7;
+
+  optional int64 total = 1;
+  optional int64 p = 2;
+  optional int32 ps = 3;
+  optional Paging paging = 4;
+
+  // Total amount of debt, only when the facet "total" is enabled
+  optional int64 debtTotal = 5;
+
+  repeated Issue issues = 6;
+  optional bool projectsPresentIfEmpty = 8;
+  repeated Component projects = 9;
+  optional bool componentsPresentIfEmpty = 10;
+  repeated Component components = 11;
+  optional bool rulesPresentIfEmpty = 12;
+  repeated Rule rules = 13;
+  optional bool usersPresentIfEmpty = 14;
+  repeated User users = 15;
+  optional bool actionPlansPresentIfEmpty = 16;
+  repeated ActionPlan actionPlans = 17;
+  optional bool languagesPresentIfEmpty = 18;
+  repeated Language languages = 19;
+  repeated Facet facets = 20;
+  optional bool facetsPresentIfEmpty = 21;
 }
 
 message Issue {
   optional string key = 1;
   optional string rule = 2;
-  optional string component = 3;
-  optional int32 componentId = 4;
-  optional string project = 5;
-  optional string subProject = 6;
+  optional Severity severity = 3;
+  optional string component = 4;
+  optional int64 componentId = 5;
+  optional string project = 6;
   optional int32 line = 7;
   optional string resolution = 8;
   optional string status = 9;
@@ -52,27 +69,57 @@ message Issue {
   optional string debt = 11;
   optional string assignee = 12;
   optional string reporter = 13;
-  optional string scmAuthor = 14;
+
+  // SCM login of the committer who introduced the issue
+  optional string author = 14;
+
   optional string actionPlan = 15;
   optional string actionPlanName = 16;
   optional string attr = 17;
   repeated string tags = 18;
-  repeated string transitions = 19;
-  repeated string actions = 20;
-  repeated Comment comments = 21;
-  optional string creationDate= 22;
-  optional string updateDate= 23;
-  optional string fUpdateAge= 24;
-  optional string closeDate= 25;
+
+  // the transitions allowed for the requesting user.
+  optional bool transitionsPresentIfEmpty=19;
+  repeated string transitions = 20;
+
+  // the actions allowed for the requesting user.
+  optional bool actionsPresentIfEmpty=21;
+  repeated string actions = 22;
+
+  optional bool commentsPresentIfEmpty = 23;
+  repeated Comment comments = 24;
+  optional string creationDate= 25;
+  optional string updateDate= 26;
+  optional string fUpdateAge= 27;
+  optional string closeDate= 28;
 }
 
 message Comment {
   optional string key = 1;
   optional string login = 2;
+  // TODO drop, it's already in field "users"
   optional string email = 3;
+  // TODO drop, it's already in field "users"
   optional string userName = 4;
   optional string htmlText = 5;
+  // TODO rename markdownText ?
   optional string markdown = 6;
   optional bool updatable = 7;
   optional string createdAt = 8;
+}
+
+message ActionPlan {
+  optional string key = 1;
+  optional string name = 2;
+
+  // TODO define enum
+  optional string status = 3;
+  optional string deadLine = 4;
+  // TODO to be renamed, is it id or key ?
+  optional string project = 5;
+}
+
+message Language {
+  optional string key = 1;
+  optional string name = 2;
 }

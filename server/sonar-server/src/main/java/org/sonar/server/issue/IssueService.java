@@ -135,7 +135,7 @@ public class IssueService {
     List<Transition> allowedTransitions = new ArrayList<>();
     for (Transition transition : outTransitions) {
       String projectUuid = issue.projectUuid();
-      if (StringUtils.isBlank(transition.requiredProjectPermission()) ||
+      if (userSession.isLoggedIn() && StringUtils.isBlank(transition.requiredProjectPermission()) ||
         (projectUuid != null && userSession.hasProjectPermissionByUuid(transition.requiredProjectPermission(), projectUuid))) {
         allowedTransitions.add(transition);
       }

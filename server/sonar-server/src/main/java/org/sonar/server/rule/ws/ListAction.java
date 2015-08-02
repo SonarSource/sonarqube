@@ -31,6 +31,8 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonarqube.ws.Rules.ListResponse;
 
+import static com.google.common.base.Strings.nullToEmpty;
+
 public class ListAction implements RulesWsAction {
 
   private final DbClient dbClient;
@@ -62,11 +64,9 @@ public class ListAction implements RulesWsAction {
           ruleBuilder
             .clear()
             .setRepository(dto.getRepositoryKey())
-            .setKey(dto.getRuleKey());
-          String internalKey = dto.getConfigKey();
-          if (!Strings.isNullOrEmpty(internalKey)) {
-            ruleBuilder.setInternalKey(internalKey);
-          }
+            .setKey(dto.getRuleKey())
+            .setName(nullToEmpty(dto.getName()))
+            .setInternalKey(nullToEmpty(dto.getConfigKey()));
           listResponseBuilder.addRules(ruleBuilder.build());
         }
       });

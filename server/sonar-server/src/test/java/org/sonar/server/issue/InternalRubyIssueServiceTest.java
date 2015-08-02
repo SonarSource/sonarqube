@@ -159,16 +159,6 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void list_plugin_actions() {
-    Action action = mock(Action.class);
-    when(action.key()).thenReturn("link-to-jira");
-
-    when(actionService.listAllActions()).thenReturn(newArrayList(action));
-
-    assertThat(service.listPluginActions()).containsOnly("link-to-jira");
-  }
-
-  @Test
   public void find_comments_by_issue_key() {
     service.findComments("ABCD");
     verify(commentService).findComments("ABCD");
