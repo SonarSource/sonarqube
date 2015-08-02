@@ -158,6 +158,7 @@ import org.sonar.server.issue.ws.IssueActionsWriter;
 import org.sonar.server.issue.ws.IssueComponentHelper;
 import org.sonar.server.issue.ws.IssueJsonWriter;
 import org.sonar.server.issue.ws.IssuesWs;
+import org.sonar.server.issue.ws.OperationResponseWriter;
 import org.sonar.server.issue.ws.SearchResponseFormat;
 import org.sonar.server.issue.ws.SearchResponseLoader;
 import org.sonar.server.issue.ws.SetTagsAction;
@@ -608,6 +609,8 @@ public class PlatformLevel4 extends PlatformLevel {
       WsResponseCommonFormat.class,
       SearchResponseLoader.class,
       SearchResponseFormat.class,
+      OperationResponseWriter.class,
+      org.sonar.server.issue.ws.AssignAction.class,
       org.sonar.server.issue.ws.ShowAction.class,
       org.sonar.server.issue.ws.SearchAction.class,
       org.sonar.server.issue.ws.Search2Action.class,

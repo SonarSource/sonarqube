@@ -145,24 +145,6 @@ class Api::IssuesController < Api::ApiController
     end
   end
 
-  #
-  # Assign an existing issue to a user or un-assign.
-  #
-  # POST /api/issues/assign?issue=<key>&assignee=<optional assignee>&me=<true or false>
-  # A nil or blank assignee removes the assignee.
-  #
-  # -- Example
-  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/assign?issue=4a2881e7-825e-4140-a154-01f420c43d11&assignee=emmerik'
-  #
-  def assign
-    verify_post_request
-    require_parameters :issue
-
-    assignee = (params[:me]=='true' ? current_user.login : params[:assignee])
-    result = Internal.issues.assign(params[:issue], assignee)
-    render_result_issue(result)
-  end
-
 
   #
   # Change the severity of an existing issue
