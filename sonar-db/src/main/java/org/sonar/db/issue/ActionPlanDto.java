@@ -46,6 +46,7 @@ public class ActionPlanDto {
 
   // return by joins
   private String projectKey;
+  private String projectUuid;
 
   public Long getId() {
     return id;
@@ -149,6 +150,10 @@ public class ActionPlanDto {
   public ActionPlanDto setProjectKey_unit_test_only(String projectKey) {
     this.projectKey = projectKey;
     return this;
+  }
+
+  public String getProjectUuid() {
+    return projectUuid;
   }
 
   @Override

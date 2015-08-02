@@ -46,7 +46,8 @@ public class ActionPlanStatsDaoTest {
     assertThat(result).isNotEmpty();
 
     ActionPlanStatsDto actionPlanStatsDto = result.iterator().next();
-    assertThat(actionPlanStatsDto.getProjectKey()).isEqualTo("org.sonar.Sample");
+    assertThat(actionPlanStatsDto.getProjectKey()).isEqualTo("PROJECT_KEY");
+    assertThat(actionPlanStatsDto.getProjectUuid()).isEqualTo("PROJECT_UUID");
     assertThat(actionPlanStatsDto.getTotalIssues()).isEqualTo(3);
     assertThat(actionPlanStatsDto.getUnresolvedIssues()).isEqualTo(1);
   }

@@ -15,7 +15,8 @@
     ap.deadline as deadLine,
     ap.created_at as createdAt,
     ap.updated_at as updatedAt,
-    p.kee as projectKey
+    p.kee as projectKey,
+    p.uuid as projectUuid
   </sql>
 
   <select id="findByProjectId" parameterType="map" resultType="ActionPlanStats">
