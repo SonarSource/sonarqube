@@ -26,11 +26,9 @@ import org.sonar.api.utils.Paging;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.markdown.Markdown;
 import org.sonarqube.ws.Common;
 
 import static com.google.common.base.Strings.nullToEmpty;
-import static java.lang.String.format;
 
 public class WsResponseCommonFormat {
 
@@ -51,27 +49,13 @@ public class WsResponseCommonFormat {
   public Common.Rule.Builder formatRule(RuleDto rule) {
     Common.Rule.Builder builder = Common.Rule.newBuilder()
       .setKey(rule.getKey().toString())
-      .setDesc(nullToEmpty(rule.getDescription()))
+      .setName(nullToEmpty(rule.getName()))
       .setStatus(Common.RuleStatus.valueOf(rule.getStatus().name()));
 
     builder.setLang(nullToEmpty(rule.getLanguage()));
     Language lang = languages.get(rule.getLanguage());
     if (lang != null) {
       builder.setLangName(lang.getName());
-    }
-
-    String desc = rule.getDescription();
-    if (desc != null) {
-      switch (rule.getDescriptionFormat()) {
-        case HTML:
-          builder.setDesc(desc);
-          break;
-        case MARKDOWN:
-          builder.setDesc(Markdown.convertToHtml(desc));
-          break;
-        default:
-          throw new IllegalArgumentException(format("Unknown description format '%s' on rule '%s'", rule.getDescriptionFormat(), rule.getKey()));
-      }
     }
     return builder;
   }

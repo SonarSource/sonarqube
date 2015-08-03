@@ -26,10 +26,8 @@ option java_package = "org.sonarqube.ws";
 option java_outer_classname = "Issues";
 option optimize_for = SPEED;
 
-// Response of URL api/issues/search
+// Response of GET api/issues/search
 message Search {
-  // TODO errors
-
   optional int64 total = 1;
   optional int64 p = 2;
   optional int32 ps = 3;
@@ -39,21 +37,28 @@ message Search {
   optional int64 debtTotal = 5;
 
   repeated Issue issues = 6;
-  optional bool projectsPresentIfEmpty = 8;
-  repeated Component projects = 9;
-  optional bool componentsPresentIfEmpty = 10;
-  repeated Component components = 11;
-  optional bool rulesPresentIfEmpty = 12;
-  repeated Rule rules = 13;
-  optional bool usersPresentIfEmpty = 14;
-  repeated User users = 15;
-  optional bool actionPlansPresentIfEmpty = 16;
-  repeated ActionPlan actionPlans = 17;
-  optional bool languagesPresentIfEmpty = 18;
-  repeated Language languages = 19;
-  repeated Facet facets = 20;
-  optional bool facetsPresentIfEmpty = 21;
+  repeated Component components = 7;
+  optional bool rulesPresentIfEmpty = 8;
+  repeated Rule rules = 9;
+  optional bool usersPresentIfEmpty = 10;
+  repeated User users = 11;
+  optional bool actionPlansPresentIfEmpty = 12;
+  repeated ActionPlan actionPlans = 13;
+  optional bool languagesPresentIfEmpty = 14;
+  repeated Language languages = 15;
+  optional bool facetsPresentIfEmpty = 16;
+  repeated Facet facets = 17;
 }
+
+// Response of most of POST/issues/{operation}, for instance assign, add_comment and set_severity
+message Operation {
+  optional Issue issue = 1;
+  repeated Component components = 2;
+  repeated Rule rules = 3;
+  repeated User users = 4;
+  repeated ActionPlan actionPlans = 5;
+}
+
 
 message Issue {
   optional string key = 1;
@@ -62,36 +67,37 @@ message Issue {
   optional string component = 4;
   optional int64 componentId = 5;
   optional string project = 6;
-  optional int32 line = 7;
-  optional string resolution = 8;
-  optional string status = 9;
-  optional string message = 10;
-  optional string debt = 11;
-  optional string assignee = 12;
-  optional string reporter = 13;
+  optional string subProject = 7;
+  optional int32 line = 8;
+  optional string resolution = 9;
+  optional string status = 10;
+  optional string message = 11;
+  optional string debt = 12;
+  optional string assignee = 13;
+  optional string reporter = 14;
 
   // SCM login of the committer who introduced the issue
-  optional string author = 14;
+  optional string author = 15;
 
-  optional string actionPlan = 15;
-  optional string actionPlanName = 16;
-  optional string attr = 17;
-  repeated string tags = 18;
+  optional string actionPlan = 16;
+  optional string actionPlanName = 17;
+  optional string attr = 18;
+  repeated string tags = 19;
 
   // the transitions allowed for the requesting user.
-  optional bool transitionsPresentIfEmpty=19;
-  repeated string transitions = 20;
+  optional bool transitionsPresentIfEmpty = 20;
+  repeated string transitions = 21;
 
   // the actions allowed for the requesting user.
-  optional bool actionsPresentIfEmpty=21;
-  repeated string actions = 22;
+  optional bool actionsPresentIfEmpty = 22;
+  repeated string actions = 23;
 
-  optional bool commentsPresentIfEmpty = 23;
-  repeated Comment comments = 24;
-  optional string creationDate= 25;
-  optional string updateDate= 26;
-  optional string fUpdateAge= 27;
-  optional string closeDate= 28;
+  optional bool commentsPresentIfEmpty = 24;
+  repeated Comment comments = 25;
+  optional string creationDate = 26;
+  optional string updateDate = 27;
+  optional string fUpdateAge = 28;
+  optional string closeDate = 29;
 }
 
 message Comment {

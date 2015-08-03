@@ -2,8 +2,8 @@
   "issues": [
     {
       "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
-      "component": "F1",
-      "project": "P1",
+      "component": "FK1",
+      "project": "PK1",
       "rule": "xoo:x1"
     }
   ]

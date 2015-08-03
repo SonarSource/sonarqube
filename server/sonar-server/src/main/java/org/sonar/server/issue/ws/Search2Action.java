@@ -58,7 +58,7 @@ public class Search2Action implements IssuesWsAction {
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
   public static final String ADDITIONAL_FIELDS = "additionalFields";
-  public static final String SEARCH_ACTION = "search2";
+  public static final String SEARCH_ACTION = "search";
 
   private final UserSession userSession;
   private final IssueService service;
@@ -256,7 +256,7 @@ public class Search2Action implements IssuesWsAction {
 
     // FIXME allow long in Paging
     Paging paging = Paging.create(options.getLimit(), options.getPage(), (int) result.getTotal());
-    Issues.Search responseBody = searchResponseFormat.format(additionalFields, data, paging, facets);
+    Issues.Search responseBody = searchResponseFormat.formatSearch(additionalFields, data, paging, facets);
     WsUtils.writeProtobuf(responseBody, request, response);
   }
 

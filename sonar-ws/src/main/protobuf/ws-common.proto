@@ -66,11 +66,8 @@ message Rule {
   optional string key = 1;
   optional string name = 2;
   optional string lang = 3;
-  // TODO what's the format ?
-  optional string desc = 4;
-  optional RuleStatus status = 5;
-  // TODO missing 'lang'
-  optional string langName = 6;
+  optional RuleStatus status = 4;
+  optional string langName = 5;
 }
 
 enum RuleStatus {
