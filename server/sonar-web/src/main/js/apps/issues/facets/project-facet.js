@@ -58,7 +58,7 @@ define([
 
     getValuesWithLabels: function () {
       var values = this.model.getValues(),
-          projects = this.options.app.facets.projects;
+          projects = this.options.app.facets.components;
       values.forEach(function (v) {
         var uuid = v.val,
             label = '';

@@ -27,11 +27,6 @@ define([
 
     parse: function (r) {
       var that = this;
-      function find (source, key, keyField) {
-        var searchDict = {};
-        searchDict[keyField || 'key'] = key;
-        return _.findWhere(source, searchDict) || key;
-      }
 
       this.paging = {
         p: r.p,
@@ -41,26 +36,13 @@ define([
       };
 
       return r.issues.map(function (issue) {
-        var component = find(r.components, issue.component),
-            project = find(r.projects, issue.project),
-            rule = find(r.rules, issue.rule);
-        if (component) {
-          _.extend(issue, {
-            componentLongName: component.longName,
-            componentQualifier: component.qualifier
-          });
-        }
-        if (project) {
-          _.extend(issue, {
-            projectLongName: project.longName,
-            projectUuid: project.uuid
-          });
-        }
-        if (rule) {
-          _.extend(issue, { ruleName: rule.name });
-        }
+        issue = that._injectRelational(issue, r.components, 'component', 'key');
+        issue = that._injectRelational(issue, r.components, 'project', 'key');
+        issue = that._injectRelational(issue, r.components, 'subProject', 'key');
+        issue = that._injectRelational(issue, r.rules, 'rule', 'key');
         issue = that._injectRelational(issue, r.users, 'assignee', 'login');
         issue = that._injectRelational(issue, r.users, 'reporter', 'login');
+        issue = that._injectRelational(issue, r.actionPlans, 'actionPlan', 'key');
         return issue;
       });
     }

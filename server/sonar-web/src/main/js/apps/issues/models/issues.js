@@ -27,43 +27,15 @@ define([
 
     parseIssues: function (r) {
       var that = this;
-      var find = function (source, key, keyField) {
-        var searchDict = {};
-        searchDict[keyField || 'key'] = key;
-        return _.findWhere(source, searchDict) || key;
-      };
       return r.issues.map(function (issue, index) {
-        var component = find(r.components, issue.component),
-            project = find(r.projects, issue.project),
-            subProject = find(r.components, issue.subProject),
-            rule = find(r.rules, issue.rule);
         _.extend(issue, { index: index });
-        if (component) {
-          _.extend(issue, {
-            componentUuid: component.uuid,
-            componentLongName: component.longName,
-            componentQualifier: component.qualifier
-          });
-        }
-        if (project) {
-          _.extend(issue, {
-            projectLongName: project.longName,
-            projectUuid: project.uuid
-          });
-        }
-        if (subProject) {
-          _.extend(issue, {
-            subProjectLongName: subProject.longName,
-            subProjectUuid: subProject.uuid
-          });
-        }
-        if (rule) {
-          _.extend(issue, {
-            ruleName: rule.name
-          });
-        }
+        issue = that._injectRelational(issue, r.components, 'component', 'key');
+        issue = that._injectRelational(issue, r.components, 'project', 'key');
+        issue = that._injectRelational(issue, r.components, 'subProject', 'key');
+        issue = that._injectRelational(issue, r.rules, 'rule', 'key');
         issue = that._injectRelational(issue, r.users, 'assignee', 'login');
         issue = that._injectRelational(issue, r.users, 'reporter', 'login');
+        issue = that._injectRelational(issue, r.actionPlans, 'actionPlan', 'key');
         return issue;
       });
     },

@@ -2,16 +2,6 @@
   "total": 1,
   "p": 1,
   "ps": 50,
-  "projects": [
-    {
-      "uuid": "015c6451-1709-4360-b4fa-e4508e13082d",
-      "key": "org.codehaus.sonar-plugins.xml:xml",
-      "id": 17156,
-      "qualifier": "TRK",
-      "name": "XML",
-      "longName": "XML"
-    }
-  ],
   "components": [
     {
       "uuid": "639e257b-d3fb-4d10-b94a-31079b71532d",

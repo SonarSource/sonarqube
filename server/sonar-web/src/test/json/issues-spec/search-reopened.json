@@ -2,32 +2,6 @@
   "total": 4,
   "p": 1,
   "ps": 50,
-  "projects": [
-    {
-      "uuid": "06a742ea-5c55-4c7e-a2b4-8747c163cb40",
-      "key": "org.codehaus.sonar-plugins:sonar-issues-report-plugin",
-      "id": 17637,
-      "qualifier": "TRK",
-      "name": "Sonar :: Issues Report :: Plugin",
-      "longName": "Sonar :: Issues Report :: Plugin"
-    },
-    {
-      "uuid": "69e57151-be0d-4157-adff-c06741d88879",
-      "key": "org.codehaus.sonar:sonar",
-      "id": 2865,
-      "qualifier": "TRK",
-      "name": "SonarQube",
-      "longName": "SonarQube"
-    },
-    {
-      "uuid": "963cefe8-9128-475f-8d39-636685195e43",
-      "key": "com.sonarsource.rpg:rpg",
-      "id": 27165,
-      "qualifier": "TRK",
-      "name": "SonarSource :: RPG",
-      "longName": "SonarSource :: RPG"
-    }
-  ],
   "components": [
     {
       "uuid": "f62c3080-6e75-4940-ae95-7dae743bcac3",

@@ -41,7 +41,7 @@ define([
       if (projectFacet != null) {
         var values = _.head(projectFacet.values, 3);
         values.forEach(function (v) {
-          var project = _.findWhere(r.projects, { uuid: v.val });
+          var project = _.findWhere(r.components, { uuid: v.val });
           v.label = project.longName;
         });
         return values;

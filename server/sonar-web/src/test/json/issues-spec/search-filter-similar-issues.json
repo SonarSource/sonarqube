@@ -9,16 +9,6 @@
     "fTotal": "1",
     "pages": 1
   },
-  "projects": [
-    {
-      "uuid": "69e57151-be0d-4157-adff-c06741d88879",
-      "key": "org.codehaus.sonar:sonar",
-      "id": 2865,
-      "qualifier": "TRK",
-      "name": "SonarQube",
-      "longName": "SonarQube"
-    }
-  ],
   "components": [
     {
       "uuid": "7feef7c3-11b9-4175-b5a7-527ca3c75cb7",

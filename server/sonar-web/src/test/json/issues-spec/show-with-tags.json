@@ -19,7 +19,7 @@
       "plan",
       "set_severity"
     ],
-    "tags": ["security", "cwe"]
+    "tags": ["security", "cwe"],
     "transitions": [
       "unconfirm",
       "resolve",

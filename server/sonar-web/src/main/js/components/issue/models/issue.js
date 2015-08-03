@@ -13,10 +13,13 @@ define(function () {
 
     parse: function (r) {
       if (r.issue) {
-        var issue = this._injectRelational(r.issue, r.users, 'assignee', 'login');
-        issue = this._injectRelational(issue, r.users, 'reporter', 'login');
-        issue = this._injectRelational(issue, r.components, 'component', 'key');
+        var issue = this._injectRelational(r.issue, r.components, 'component', 'key');
         issue = this._injectRelational(issue, r.components, 'project', 'key');
+        issue = this._injectRelational(issue, r.components, 'subProject', 'key');
+        issue = this._injectRelational(issue, r.rules, 'rule', 'key');
+        issue = this._injectRelational(issue, r.users, 'assignee', 'login');
+        issue = this._injectRelational(issue, r.users, 'reporter', 'login');
+        issue = this._injectRelational(issue, r.actionPlans, 'actionPlan', 'key');
         return issue;
       } else {
         return r;

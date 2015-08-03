@@ -2,24 +2,6 @@
   "total": 4623,
   "p": 1,
   "ps": 50,
-  "projects": [
-    {
-      "uuid": "015c6451-1709-4360-b4fa-e4508e13082d",
-      "key": "org.codehaus.sonar-plugins.xml:xml",
-      "id": 17156,
-      "qualifier": "TRK",
-      "name": "XML",
-      "longName": "XML"
-    },
-    {
-      "uuid": "071bdfec-a244-444d-877e-772a68973e18",
-      "key": "com.sonarsource.plugins.vb:vb",
-      "id": 28554,
-      "qualifier": "TRK",
-      "name": "SonarSource :: Visual Basic",
-      "longName": "SonarSource :: Visual Basic"
-    }
-  ],
   "components": [
     {
       "uuid": "367350ce-00c7-461b-8348-c64138515ef9",

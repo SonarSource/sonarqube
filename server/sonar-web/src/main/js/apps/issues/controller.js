@@ -8,7 +8,7 @@ define([
       FIELDS = 'component,componentId,project,subProject,rule,status,resolution,author,reporter,assignee,debt,line,' +
         'message,severity,actionPlan,creationDate,updateDate,closeDate,tags,comments,attr,actions,transitions,' +
         'actionPlanName',
-      FACET_DATA_FIELDS = ['components', 'projects', 'users', 'rules', 'actionPlans', 'languages'];
+      FACET_DATA_FIELDS = ['components', 'users', 'rules', 'actionPlans', 'languages'];
 
   return Controller.extend({
     _facetsFromServer: function () {
