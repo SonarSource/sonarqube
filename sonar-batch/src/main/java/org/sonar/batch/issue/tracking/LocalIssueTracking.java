@@ -69,10 +69,11 @@ public class LocalIssueTracking {
   private final ActiveRules activeRules;
   private final BatchComponentCache componentCache;
   private final ServerIssueRepository serverIssueRepository;
-  private final ProjectRepositories projectRepositories;
   private final AnalysisMode analysisMode;
   private final ReportPublisher reportPublisher;
   private final Date analysisDate;
+
+  private boolean hasServerAnalysis;
 
   public LocalIssueTracking(BatchComponentCache resourceCache, IssueCache issueCache, IssueTracking tracking,
     ServerLineHashesLoader lastLineHashes, IssueWorkflow workflow, IssueUpdater updater,
@@ -85,21 +86,19 @@ public class LocalIssueTracking {
     this.workflow = workflow;
     this.updater = updater;
     this.serverIssueRepository = serverIssueRepository;
-    this.projectRepositories = projectRepositories;
     this.analysisMode = analysisMode;
     this.reportPublisher = reportPublisher;
     this.analysisDate = ((Project) resourceCache.getRoot().resource()).getAnalysisDate();
     this.changeContext = IssueChangeContext.createScan(analysisDate);
     this.activeRules = activeRules;
+    this.hasServerAnalysis = projectRepositories.lastAnalysisDate() != null;
   }
 
   public void execute() {
-    if (projectRepositories.lastAnalysisDate() == null) {
-      LOG.debug("No previous analysis, skipping issue tracking");
-      return;
+    if (hasServerAnalysis) {
+      serverIssueRepository.load();
     }
 
-    serverIssueRepository.load();
     BatchReportReader reader = new BatchReportReader(reportPublisher.getReportDir());
 
     for (BatchComponent component : componentCache.all()) {
@@ -124,23 +123,25 @@ public class LocalIssueTracking {
       throw new IllegalStateException("Can't read issues for " + component.key(), e);
     }
 
-    // all the issues that are not closed in db before starting this module scan, including manual issues
-    Collection<ServerIssue> serverIssues = loadServerIssues(component);
-
-    SourceHashHolder sourceHashHolder = loadSourceHashes(component);
-
-    IssueTrackingResult trackingResult = tracking.track(sourceHashHolder, serverIssues, rawIssues);
-
     List<DefaultIssue> trackedIssues = Lists.newArrayList();
-    // unmatched from server = issues that have been resolved + issues on disabled/removed rules + manual issues
-    addUnmatchedFromServer(trackingResult.unmatched(), sourceHashHolder, trackedIssues);
+    if (hasServerAnalysis) {
+      // all the issues that are not closed in db before starting this module scan, including manual issues
+      Collection<ServerIssue> serverIssues = loadServerIssues(component);
 
-    mergeMatched(component, trackingResult, trackedIssues, rawIssues);
+      SourceHashHolder sourceHashHolder = loadSourceHashes(component);
+
+      IssueTrackingResult trackingResult = tracking.track(sourceHashHolder, serverIssues, rawIssues);
+
+      // unmatched from server = issues that have been resolved + issues on disabled/removed rules + manual issues
+      addUnmatchedFromServer(trackingResult.unmatched(), sourceHashHolder, trackedIssues);
+
+      mergeMatched(component, trackingResult, trackedIssues, rawIssues);
+    }
 
     // Unmatched raw issues = new issues
     addUnmatchedRawIssues(component, rawIssues, trackedIssues);
 
-    if (ResourceUtils.isRootProject(component.resource())) {
+    if (hasServerAnalysis && ResourceUtils.isRootProject(component.resource())) {
       // issues that relate to deleted components
       addIssuesOnDeletedComponents(trackedIssues);
     }
