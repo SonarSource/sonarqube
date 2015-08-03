@@ -54,7 +54,7 @@ public class AssignAction implements IssuesWsAction {
       .setRequired(true)
       .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
     action.createParam("assignee")
-      // TODO document absent value for unassign, or _me for assigning to me
+      // TODO document absent value for unassign, and "_me" for assigning to me
       .setDescription("Login of the assignee")
       .setExampleValue("admin");
     action.createParam("me")
@@ -64,7 +64,6 @@ public class AssignAction implements IssuesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-
     String assignee = request.param("assignee");
     if ("_me".equals(assignee) || BooleanUtils.isTrue(request.paramAsBoolean("me"))) {
       // Permission is currently checked by IssueService. We still

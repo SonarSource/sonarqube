@@ -2,8 +2,8 @@
   "issues": [
     {
       "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
-      "component": "F1",
-      "project": "P1",
+      "component": "FK1",
+      "project": "PK1",
       "rule": "xoo:x1",
       "status": "OPEN",
       "resolution": "OPEN",
@@ -12,8 +12,8 @@
     },
     {
       "key": "92fd47d4-b650-4037-80bc-7b112bd4eac2",
-      "component": "F2",
-      "project": "P2",
+      "component": "FK2",
+      "project": "PK2",
       "rule": "xoo:x1",
       "status": "OPEN",
       "resolution": "OPEN",
@@ -24,22 +24,22 @@
   "components": [
     {
       "id": "F1",
-      "key": "MyComponent",
+      "key": "FK1",
       "enabled" : true
     },
     {
       "id": "P1",
-      "key": "MyProject",
+      "key": "PK1",
       "enabled" : true
     },
     {
       "id": "F2",
-      "key": "MyComponent2",
+      "key": "FK2",
       "enabled" : true
     },
     {
       "id": "P2",
-      "key": "MyProject2",
+      "key": "PK2",
       "enabled" : true
     }
   ]

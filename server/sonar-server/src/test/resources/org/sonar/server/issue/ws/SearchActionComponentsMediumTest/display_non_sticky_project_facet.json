@@ -4,14 +4,14 @@
   "issues": [
     {
       "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
-      "component": "MyComponent1",
-      "project": "MyProject1",
+      "component": "FK1",
+      "project": "PK1",
       "rule": "xoo:x1"
     }
   ],
   "components": [
-    { "key": "MyProject1" },
-    { "key": "MyComponent1" }
+    { "key": "PK1" },
+    { "key": "FK1" }
   ],
   "facets": [
     {

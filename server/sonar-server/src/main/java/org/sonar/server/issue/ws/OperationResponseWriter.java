@@ -42,7 +42,7 @@ public class OperationResponseWriter {
       ALL_ADDITIONAL_FIELDS, singletonList(issueKey));
     SearchResponseData data = loader.load(collector, null);
 
-    Issues.Search responseBody = this.format.format(ALL_ADDITIONAL_FIELDS, data, null, null);
+    Issues.Operation responseBody = this.format.formatOperation(data);
 
     WsUtils.writeProtobuf(responseBody, request, response);
   }

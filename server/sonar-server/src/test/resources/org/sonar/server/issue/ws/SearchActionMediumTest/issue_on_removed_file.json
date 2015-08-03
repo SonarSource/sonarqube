@@ -2,8 +2,8 @@
   "issues": [
     {
       "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
-      "component": "REMOVED_FILE_ID",
-      "project": "PROJECT_ID",
+      "component": "REMOVED_FILE_KEY",
+      "project": "PROJECT_KEY",
       "rule": "xoo:x1",
       "status": "OPEN",
       "resolution": "OPEN",
@@ -14,12 +14,12 @@
   "components": [
     {
       "id": "REMOVED_FILE_ID",
-      "key": "RemovedComponent",
+      "key": "REMOVED_FILE_KEY",
       "enabled" : false
     },
     {
       "id": "PROJECT_ID",
-      "key": "MyProject",
+      "key": "PROJECT_KEY",
       "enabled" : true
     }
   ]

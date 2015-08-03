@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -60,31 +61,48 @@ public class SearchResponseFormat {
     this.languages = languages;
   }
 
-  public Issues.Search format(Set<SearchAdditionalField> fields, SearchResponseData data,
-                              @Nullable Paging paging, @Nullable Facets facets) {
+  public Issues.Search formatSearch(Set<SearchAdditionalField> fields, SearchResponseData data,
+    Paging paging, @Nullable Facets facets) {
     Issues.Search.Builder response = Issues.Search.newBuilder();
 
-    if (paging != null) {
-      formatPaging(paging, response);
-    }
+    formatPaging(paging, response);
     formatDebtTotal(data, response);
-    formatIssues(fields, data, response);
-    formatComponents(data, response);
+    response.addAllIssues(formatIssues(fields, data));
+    response.addAllComponents(formatComponents(data));
     if (facets != null) {
       formatFacets(facets, response);
     }
     if (fields.contains(SearchAdditionalField.RULES)) {
-      formatRules(data, response);
+      response.setRulesPresentIfEmpty(true);
+      response.addAllRules(formatRules(data));
     }
     if (fields.contains(SearchAdditionalField.USERS)) {
-      formatUsers(data, response);
+      response.setUsersPresentIfEmpty(true);
+      response.addAllUsers(formatUsers(data));
     }
     if (fields.contains(SearchAdditionalField.ACTION_PLANS)) {
-      formatActionPlans(data, response);
+      response.setActionPlansPresentIfEmpty(true);
+      response.addAllActionPlans(formatActionPlans(data));
     }
     if (fields.contains(SearchAdditionalField.LANGUAGES)) {
-      formatLanguages(response);
+      response.setLanguagesPresentIfEmpty(true);
+      response.addAllLanguages(formatLanguages());
     }
+    return response.build();
+  }
+
+  public Issues.Operation formatOperation(SearchResponseData data) {
+    Issues.Operation.Builder response = Issues.Operation.newBuilder();
+
+    if (data.getIssues().size() == 1) {
+      Issues.Issue.Builder issueBuilder = Issues.Issue.newBuilder();
+      formatIssue(issueBuilder, data.getIssues().get(0), data);
+      response.setIssue(issueBuilder.build());
+    }
+    response.addAllComponents(formatComponents(data));
+    response.addAllRules(formatRules(data));
+    response.addAllUsers(formatUsers(data));
+    response.addAllActionPlans(formatActionPlans(data));
     return response.build();
   }
 
@@ -102,7 +120,8 @@ public class SearchResponseFormat {
     response.setPaging(commonFormat.formatPaging(paging));
   }
 
-  private void formatIssues(Set<SearchAdditionalField> fields, SearchResponseData data, Issues.Search.Builder response) {
+  private List<Issues.Issue> formatIssues(Set<SearchAdditionalField> fields, SearchResponseData data) {
+    List<Issues.Issue> result = new ArrayList<>();
     Issues.Issue.Builder issueBuilder = Issues.Issue.newBuilder();
     for (IssueDto dto : data.getIssues()) {
       issueBuilder.clear();
@@ -117,20 +136,25 @@ public class SearchResponseFormat {
         formatIssueComments(data, issueBuilder, dto);
       }
       // TODO attributes
-      response.addIssues(issueBuilder.build());
+      result.add(issueBuilder.build());
     }
+    return result;
   }
 
   private void formatIssue(Issues.Issue.Builder issueBuilder, IssueDto dto, SearchResponseData data) {
     issueBuilder.setKey(dto.getKey());
     ComponentDto component = data.getComponentByUuid(dto.getComponentUuid());
-    issueBuilder.setComponent(dto.getComponentUuid());
-    // Only used for the compatibility with the Issues Java WS Client <= 4.4 used by Eclipse
+    issueBuilder.setComponent(dto.getComponentKey());
+    // Only used for the compatibility with the Java WS Client <= 4.4 used by Eclipse
     issueBuilder.setComponentId(component.getId());
 
     ComponentDto project = data.getComponentByUuid(dto.getProjectUuid());
     if (project != null) {
-      issueBuilder.setProject(project.uuid());
+      issueBuilder.setProject(project.getKey());
+    }
+    ComponentDto subProject = data.getComponentByUuid(dto.getModuleUuid());
+    if (subProject != null) {
+      issueBuilder.setSubProject(subProject.getKey());
     }
     issueBuilder.setRule(dto.getRuleKey().toString());
     issueBuilder.setSeverity(Common.Severity.valueOf(dto.getSeverity()));
@@ -205,38 +229,41 @@ public class SearchResponseFormat {
     }
   }
 
-  private void formatRules(SearchResponseData data, Issues.Search.Builder response) {
-    response.setRulesPresentIfEmpty(true);
+  private List<Common.Rule> formatRules(SearchResponseData data) {
+    List<Common.Rule> result = new ArrayList<>();
     List<RuleDto> rules = data.getRules();
     if (rules != null) {
       for (RuleDto rule : rules) {
-        response.addRules(commonFormat.formatRule(rule));
+        result.add(commonFormat.formatRule(rule).build());
       }
     }
+    return result;
   }
 
-  private void formatComponents(SearchResponseData data, Issues.Search.Builder response) {
-    response.setComponentsPresentIfEmpty(true);
+  private List<Common.Component> formatComponents(SearchResponseData data) {
+    List<Common.Component> result = new ArrayList<>();
     Collection<ComponentDto> components = data.getComponents();
     if (components != null) {
       for (ComponentDto dto : components) {
-        response.addComponents(commonFormat.formatComponent(dto));
+        result.add(commonFormat.formatComponent(dto).build());
       }
     }
+    return result;
   }
 
-  private void formatUsers(SearchResponseData data, Issues.Search.Builder response) {
-    response.setUsersPresentIfEmpty(true);
+  private List<Common.User> formatUsers(SearchResponseData data) {
+    List<Common.User> result = new ArrayList<>();
     List<UserDto> users = data.getUsers();
     if (users != null) {
       for (UserDto user : users) {
-        response.addUsers(commonFormat.formatUser(user));
+        result.add(commonFormat.formatUser(user).build());
       }
     }
+    return result;
   }
 
-  private void formatActionPlans(SearchResponseData data, Issues.Search.Builder response) {
-    response.setActionPlansPresentIfEmpty(true);
+  private List<Issues.ActionPlan> formatActionPlans(SearchResponseData data) {
+    List<Issues.ActionPlan> result = new ArrayList<>();
     List<ActionPlanDto> actionPlans = data.getActionPlans();
     if (actionPlans != null) {
       Issues.ActionPlan.Builder planBuilder = Issues.ActionPlan.newBuilder();
@@ -246,26 +273,28 @@ public class SearchResponseFormat {
           .setKey(actionPlan.getKey())
           .setName(nullToEmpty(actionPlan.getName()))
           .setStatus(nullToEmpty(actionPlan.getStatus()))
-          .setProject(nullToEmpty(actionPlan.getProjectUuid()));
+          .setProject(nullToEmpty(actionPlan.getProjectKey()));
         Date deadLine = actionPlan.getDeadLine();
         if (deadLine != null) {
           planBuilder.setDeadLine(DateUtils.formatDateTime(deadLine));
         }
-        response.addActionPlans(planBuilder.build());
+        result.add(planBuilder.build());
       }
     }
+    return result;
   }
 
-  private void formatLanguages(Issues.Search.Builder response) {
-    response.setLanguagesPresentIfEmpty(true);
+  private List<Issues.Language> formatLanguages() {
+    List<Issues.Language> result = new ArrayList<>();
     Issues.Language.Builder builder = Issues.Language.newBuilder();
     for (Language lang : languages.all()) {
       builder
         .clear()
         .setKey(lang.getKey())
         .setName(lang.getName());
-      response.addLanguages(builder.build());
+      result.add(builder.build());
     }
+    return result;
   }
 
   private void formatFacets(Facets facets, Issues.Search.Builder response) {

@@ -3986,62 +3986,24 @@ public final class Common {
         getLangBytes();
 
     /**
-     * <code>optional string desc = 4;</code>
-     *
-     * <pre>
-     * TODO what's the format ?
-     * </pre>
-     */
-    boolean hasDesc();
-    /**
-     * <code>optional string desc = 4;</code>
-     *
-     * <pre>
-     * TODO what's the format ?
-     * </pre>
-     */
-    java.lang.String getDesc();
-    /**
-     * <code>optional string desc = 4;</code>
-     *
-     * <pre>
-     * TODO what's the format ?
-     * </pre>
-     */
-    com.google.protobuf.ByteString
-        getDescBytes();
-
-    /**
-     * <code>optional .sonarqube.ws.RuleStatus status = 5;</code>
+     * <code>optional .sonarqube.ws.RuleStatus status = 4;</code>
      */
     boolean hasStatus();
     /**
-     * <code>optional .sonarqube.ws.RuleStatus status = 5;</code>
+     * <code>optional .sonarqube.ws.RuleStatus status = 4;</code>
      */
     org.sonarqube.ws.Common.RuleStatus getStatus();
 
     /**
-     * <code>optional string langName = 6;</code>
-     *
-     * <pre>
-     * TODO missing 'lang'
-     * </pre>
+     * <code>optional string langName = 5;</code>
      */
     boolean hasLangName();
     /**
-     * <code>optional string langName = 6;</code>
-     *
-     * <pre>
-     * TODO missing 'lang'
-     * </pre>
+     * <code>optional string langName = 5;</code>
      */
     java.lang.String getLangName();
     /**
-     * <code>optional string langName = 6;</code>
-     *
-     * <pre>
-     * TODO missing 'lang'
-     * </pre>
+     * <code>optional string langName = 5;</code>
      */
     com.google.protobuf.ByteString
         getLangNameBytes();
@@ -4116,26 +4078,20 @@ public final class Common {
               lang_ = bs;
               break;
             }
-            case 34: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000008;
-              desc_ = bs;
-              break;
-            }
-            case 40: {
+            case 32: {
               int rawValue = input.readEnum();
               org.sonarqube.ws.Common.RuleStatus value = org.sonarqube.ws.Common.RuleStatus.valueOf(rawValue);
               if (value == null) {
-                unknownFields.mergeVarintField(5, rawValue);
+                unknownFields.mergeVarintField(4, rawValue);
               } else {
-                bitField0_ |= 0x00000010;
+                bitField0_ |= 0x00000008;
                 status_ = value;
               }
               break;
             }
-            case 50: {
+            case 42: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000020;
+              bitField0_ |= 0x00000010;
               langName_ = bs;
               break;
             }
@@ -4305,93 +4261,31 @@ public final class Common {
       }
     }
 
-    public static final int DESC_FIELD_NUMBER = 4;
-    private java.lang.Object desc_;
+    public static final int STATUS_FIELD_NUMBER = 4;
+    private org.sonarqube.ws.Common.RuleStatus status_;
     /**
-     * <code>optional string desc = 4;</code>
-     *
-     * <pre>
-     * TODO what's the format ?
-     * </pre>
+     * <code>optional .sonarqube.ws.RuleStatus status = 4;</code>
      */
-    public boolean hasDesc() {
+    public boolean hasStatus() {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
-     * <code>optional string desc = 4;</code>
-     *
-     * <pre>
-     * TODO what's the format ?
-     * </pre>
-     */
-    public java.lang.String getDesc() {
-      java.lang.Object ref = desc_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          desc_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string desc = 4;</code>
-     *
-     * <pre>
-     * TODO what's the format ?
-     * </pre>
-     */
-    public com.google.protobuf.ByteString
-        getDescBytes() {
-      java.lang.Object ref = desc_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        desc_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int STATUS_FIELD_NUMBER = 5;
-    private org.sonarqube.ws.Common.RuleStatus status_;
-    /**
-     * <code>optional .sonarqube.ws.RuleStatus status = 5;</code>
-     */
-    public boolean hasStatus() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
-    }
-    /**
-     * <code>optional .sonarqube.ws.RuleStatus status = 5;</code>
+     * <code>optional .sonarqube.ws.RuleStatus status = 4;</code>
      */
     public org.sonarqube.ws.Common.RuleStatus getStatus() {
       return status_;
     }
 
-    public static final int LANGNAME_FIELD_NUMBER = 6;
+    public static final int LANGNAME_FIELD_NUMBER = 5;
     private java.lang.Object langName_;
     /**
-     * <code>optional string langName = 6;</code>
-     *
-     * <pre>
-     * TODO missing 'lang'
-     * </pre>
+     * <code>optional string langName = 5;</code>
      */
     public boolean hasLangName() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
+      return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
-     * <code>optional string langName = 6;</code>
-     *
-     * <pre>
-     * TODO missing 'lang'
-     * </pre>
+     * <code>optional string langName = 5;</code>
      */
     public java.lang.String getLangName() {
       java.lang.Object ref = langName_;
@@ -4408,11 +4302,7 @@ public final class Common {
       }
     }
     /**
-     * <code>optional string langName = 6;</code>
-     *
-     * <pre>
-     * TODO missing 'lang'
-     * </pre>
+     * <code>optional string langName = 5;</code>
      */
     public com.google.protobuf.ByteString
         getLangNameBytes() {
@@ -4432,7 +4322,6 @@ public final class Common {
       key_ = "";
       name_ = "";
       lang_ = "";
-      desc_ = "";
       status_ = org.sonarqube.ws.Common.RuleStatus.BETA;
       langName_ = "";
     }
@@ -4459,13 +4348,10 @@ public final class Common {
         output.writeBytes(3, getLangBytes());
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeBytes(4, getDescBytes());
+        output.writeEnum(4, status_.getNumber());
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeEnum(5, status_.getNumber());
-      }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        output.writeBytes(6, getLangNameBytes());
+        output.writeBytes(5, getLangNameBytes());
       }
       getUnknownFields().writeTo(output);
     }
@@ -4490,15 +4376,11 @@ public final class Common {
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(4, getDescBytes());
+          .computeEnumSize(4, status_.getNumber());
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(5, status_.getNumber());
-      }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(6, getLangNameBytes());
+          .computeBytesSize(5, getLangNameBytes());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -4623,12 +4505,10 @@ public final class Common {
         bitField0_ = (bitField0_ & ~0x00000002);
         lang_ = "";
         bitField0_ = (bitField0_ & ~0x00000004);
-        desc_ = "";
-        bitField0_ = (bitField0_ & ~0x00000008);
         status_ = org.sonarqube.ws.Common.RuleStatus.BETA;
-        bitField0_ = (bitField0_ & ~0x00000010);
+        bitField0_ = (bitField0_ & ~0x00000008);
         langName_ = "";
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000010);
         return this;
       }
 
@@ -4672,13 +4552,9 @@ public final class Common {
         if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
           to_bitField0_ |= 0x00000008;
         }
-        result.desc_ = desc_;
+        result.status_ = status_;
         if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
           to_bitField0_ |= 0x00000010;
-        }
-        result.status_ = status_;
-        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
-          to_bitField0_ |= 0x00000020;
         }
         result.langName_ = langName_;
         result.bitField0_ = to_bitField0_;
@@ -4712,16 +4588,11 @@ public final class Common {
           lang_ = other.lang_;
           onChanged();
         }
-        if (other.hasDesc()) {
-          bitField0_ |= 0x00000008;
-          desc_ = other.desc_;
-          onChanged();
-        }
         if (other.hasStatus()) {
           setStatus(other.getStatus());
         }
         if (other.hasLangName()) {
-          bitField0_ |= 0x00000020;
+          bitField0_ |= 0x00000010;
           langName_ = other.langName_;
           onChanged();
         }
@@ -4980,136 +4851,36 @@ public final class Common {
         return this;
       }
 
-      private java.lang.Object desc_ = "";
+      private org.sonarqube.ws.Common.RuleStatus status_ = org.sonarqube.ws.Common.RuleStatus.BETA;
       /**
-       * <code>optional string desc = 4;</code>
-       *
-       * <pre>
-       * TODO what's the format ?
-       * </pre>
+       * <code>optional .sonarqube.ws.RuleStatus status = 4;</code>
        */
-      public boolean hasDesc() {
+      public boolean hasStatus() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
-       * <code>optional string desc = 4;</code>
-       *
-       * <pre>
-       * TODO what's the format ?
-       * </pre>
-       */
-      public java.lang.String getDesc() {
-        java.lang.Object ref = desc_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            desc_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>optional string desc = 4;</code>
-       *
-       * <pre>
-       * TODO what's the format ?
-       * </pre>
-       */
-      public com.google.protobuf.ByteString
-          getDescBytes() {
-        java.lang.Object ref = desc_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          desc_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string desc = 4;</code>
-       *
-       * <pre>
-       * TODO what's the format ?
-       * </pre>
-       */
-      public Builder setDesc(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000008;
-        desc_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string desc = 4;</code>
-       *
-       * <pre>
-       * TODO what's the format ?
-       * </pre>
-       */
-      public Builder clearDesc() {
-        bitField0_ = (bitField0_ & ~0x00000008);
-        desc_ = getDefaultInstance().getDesc();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string desc = 4;</code>
-       *
-       * <pre>
-       * TODO what's the format ?
-       * </pre>
-       */
-      public Builder setDescBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000008;
-        desc_ = value;
-        onChanged();
-        return this;
-      }
-
-      private org.sonarqube.ws.Common.RuleStatus status_ = org.sonarqube.ws.Common.RuleStatus.BETA;
-      /**
-       * <code>optional .sonarqube.ws.RuleStatus status = 5;</code>
-       */
-      public boolean hasStatus() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
-      }
-      /**
-       * <code>optional .sonarqube.ws.RuleStatus status = 5;</code>
+       * <code>optional .sonarqube.ws.RuleStatus status = 4;</code>
        */
       public org.sonarqube.ws.Common.RuleStatus getStatus() {
         return status_;
       }
       /**
-       * <code>optional .sonarqube.ws.RuleStatus status = 5;</code>
+       * <code>optional .sonarqube.ws.RuleStatus status = 4;</code>
        */
       public Builder setStatus(org.sonarqube.ws.Common.RuleStatus value) {
         if (value == null) {
           throw new NullPointerException();
         }
-        bitField0_ |= 0x00000010;
+        bitField0_ |= 0x00000008;
         status_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional .sonarqube.ws.RuleStatus status = 5;</code>
+       * <code>optional .sonarqube.ws.RuleStatus status = 4;</code>
        */
       public Builder clearStatus() {
-        bitField0_ = (bitField0_ & ~0x00000010);
+        bitField0_ = (bitField0_ & ~0x00000008);
         status_ = org.sonarqube.ws.Common.RuleStatus.BETA;
         onChanged();
         return this;
@@ -5117,21 +4888,13 @@ public final class Common {
 
       private java.lang.Object langName_ = "";
       /**
-       * <code>optional string langName = 6;</code>
-       *
-       * <pre>
-       * TODO missing 'lang'
-       * </pre>
+       * <code>optional string langName = 5;</code>
        */
       public boolean hasLangName() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
+        return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
-       * <code>optional string langName = 6;</code>
-       *
-       * <pre>
-       * TODO missing 'lang'
-       * </pre>
+       * <code>optional string langName = 5;</code>
        */
       public java.lang.String getLangName() {
         java.lang.Object ref = langName_;
@@ -5148,11 +4911,7 @@ public final class Common {
         }
       }
       /**
-       * <code>optional string langName = 6;</code>
-       *
-       * <pre>
-       * TODO missing 'lang'
-       * </pre>
+       * <code>optional string langName = 5;</code>
        */
       public com.google.protobuf.ByteString
           getLangNameBytes() {
@@ -5168,48 +4927,36 @@ public final class Common {
         }
       }
       /**
-       * <code>optional string langName = 6;</code>
-       *
-       * <pre>
-       * TODO missing 'lang'
-       * </pre>
+       * <code>optional string langName = 5;</code>
        */
       public Builder setLangName(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000020;
+  bitField0_ |= 0x00000010;
         langName_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string langName = 6;</code>
-       *
-       * <pre>
-       * TODO missing 'lang'
-       * </pre>
+       * <code>optional string langName = 5;</code>
        */
       public Builder clearLangName() {
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000010);
         langName_ = getDefaultInstance().getLangName();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string langName = 6;</code>
-       *
-       * <pre>
-       * TODO missing 'lang'
-       * </pre>
+       * <code>optional string langName = 5;</code>
        */
       public Builder setLangNameBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000020;
+  bitField0_ |= 0x00000010;
         langName_ = value;
         onChanged();
         return this;
@@ -6142,16 +5889,15 @@ public final class Common {
       "\001 \001(\t\022\013\n\003key\030\002 \001(\t\022\017\n\007enabled\030\003 \001(\010\022\021\n\tq" +
       "ualifier\030\004 \001(\t\022\014\n\004name\030\005 \001(\t\022\020\n\010longName" +
       "\030\006 \001(\t\022\014\n\004path\030\007 \001(\t\022\017\n\007project\030\010 \001(\t\022\022\n" +
-      "\nsubProject\030\t \001(\t\"y\n\004Rule\022\013\n\003key\030\001 \001(\t\022\014",
-      "\n\004name\030\002 \001(\t\022\014\n\004lang\030\003 \001(\t\022\014\n\004desc\030\004 \001(\t" +
-      "\022(\n\006status\030\005 \001(\0162\030.sonarqube.ws.RuleStat" +
-      "us\022\020\n\010langName\030\006 \001(\t\"B\n\004User\022\r\n\005login\030\001 " +
-      "\001(\t\022\014\n\004name\030\002 \001(\t\022\r\n\005email\030\003 \001(\t\022\016\n\006acti" +
-      "ve\030\004 \001(\010*E\n\010Severity\022\010\n\004INFO\020\000\022\t\n\005MINOR\020" +
-      "\001\022\t\n\005MAJOR\020\002\022\014\n\010CRITICAL\020\003\022\013\n\007BLOCKER\020\004*" +
-      ">\n\nRuleStatus\022\010\n\004BETA\020\000\022\016\n\nDEPRECATED\020\001\022" +
-      "\t\n\005READY\020\002\022\013\n\007REMOVED\020\003B\034\n\020org.sonarqube" +
-      ".wsB\006CommonH\001"
+      "\nsubProject\030\t \001(\t\"k\n\004Rule\022\013\n\003key\030\001 \001(\t\022\014",
+      "\n\004name\030\002 \001(\t\022\014\n\004lang\030\003 \001(\t\022(\n\006status\030\004 \001" +
+      "(\0162\030.sonarqube.ws.RuleStatus\022\020\n\010langName" +
+      "\030\005 \001(\t\"B\n\004User\022\r\n\005login\030\001 \001(\t\022\014\n\004name\030\002 " +
+      "\001(\t\022\r\n\005email\030\003 \001(\t\022\016\n\006active\030\004 \001(\010*E\n\010Se" +
+      "verity\022\010\n\004INFO\020\000\022\t\n\005MINOR\020\001\022\t\n\005MAJOR\020\002\022\014" +
+      "\n\010CRITICAL\020\003\022\013\n\007BLOCKER\020\004*>\n\nRuleStatus\022" +
+      "\010\n\004BETA\020\000\022\016\n\nDEPRECATED\020\001\022\t\n\005READY\020\002\022\013\n\007" +
+      "REMOVED\020\003B\034\n\020org.sonarqube.wsB\006CommonH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -6194,7 +5940,7 @@ public final class Common {
     internal_static_sonarqube_ws_Rule_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_Rule_descriptor,
-        new java.lang.String[] { "Key", "Name", "Lang", "Desc", "Status", "LangName", });
+        new java.lang.String[] { "Key", "Name", "Lang", "Status", "LangName", });
     internal_static_sonarqube_ws_User_descriptor =
       getDescriptor().getMessageTypes().get(5);
     internal_static_sonarqube_ws_User_fieldAccessorTable = new

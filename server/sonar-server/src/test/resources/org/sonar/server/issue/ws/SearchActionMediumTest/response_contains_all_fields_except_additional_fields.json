@@ -4,7 +4,7 @@
       "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
       "rule": "xoo:x1",
       "severity": "MAJOR",
-      "component": "FILE_ID",
+      "component": "FILE_KEY",
       "resolution": "FIXED",
       "status": "RESOLVED",
       "message": "the message",
