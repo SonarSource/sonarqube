@@ -19,11 +19,15 @@
  */
 package org.sonar.batch.scan.report;
 
-import org.sonar.api.batch.rule.internal.RulesBuilder;
-
-import org.sonar.api.batch.rule.Rules;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.TimeZone;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -32,9 +36,10 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.rule.Rules;
+import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.platform.Server;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -43,19 +48,13 @@ import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.input.BatchInput;
 import org.sonar.batch.repository.user.UserRepository;
 import org.sonar.batch.scan.filesystem.InputPathCache;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.test.JsonAssert;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class JSONReportTest {
@@ -116,7 +115,7 @@ public class JSONReportTest {
       .setCreationDate(SIMPLE_DATE_FORMAT.parse("2013-04-24"))
       .setUpdateDate(SIMPLE_DATE_FORMAT.parse("2013-04-25"))
       .setNew(false);
-    when(jsonReport.getIssues()).thenReturn(Lists.newArrayList(issue));
+    when(issueCache.all()).thenReturn(Lists.newArrayList(issue));
     BatchInput.User user1 = BatchInput.User.newBuilder().setLogin("julien").setName("Julien").build();
     BatchInput.User user2 = BatchInput.User.newBuilder().setLogin("simon").setName("Simon").build();
     when(userRepository.loadFromWs(anyListOf(String.class))).thenReturn(Lists.newArrayList(user1, user2));
@@ -140,7 +139,7 @@ public class JSONReportTest {
       .setUpdateDate(SIMPLE_DATE_FORMAT.parse("2013-04-25"))
       .setCloseDate(SIMPLE_DATE_FORMAT.parse("2013-04-26"))
       .setNew(false);
-    when(jsonReport.getIssues()).thenReturn(Lists.newArrayList(issue));
+    when(issueCache.all()).thenReturn(Lists.newArrayList(issue));
 
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
@@ -151,7 +150,7 @@ public class JSONReportTest {
 
   @Test
   public void should_ignore_components_without_issue() {
-    when(jsonReport.getIssues()).thenReturn(Collections.<DefaultIssue>emptyList());
+    when(issueCache.all()).thenReturn(Collections.<DefaultIssue>emptyList());
 
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
@@ -160,11 +159,21 @@ public class JSONReportTest {
   }
 
   @Test
+  public void should_not_export_by_default() throws IOException {
+    File workDir = temp.newFolder("sonar");
+    fs.setWorkDir(workDir);
+
+    jsonReport.execute();
+
+    verifyZeroInteractions(issueCache);
+  }
+
+  @Test
   public void should_export_issues_to_file() throws IOException {
     File workDir = temp.newFolder("sonar");
     fs.setWorkDir(workDir);
 
-    when(jsonReport.getIssues()).thenReturn(Collections.<DefaultIssue>emptyList());
+    when(issueCache.all()).thenReturn(Collections.<DefaultIssue>emptyList());
 
     settings.setProperty("sonar.report.export.path", "output.json");
 

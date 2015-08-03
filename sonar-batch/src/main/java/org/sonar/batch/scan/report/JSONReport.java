@@ -19,10 +19,17 @@
  */
 package org.sonar.batch.scan.report;
 
-import org.sonar.api.batch.rule.Rule;
-
-import org.sonar.api.batch.rule.Rules;
 import com.google.common.annotations.VisibleForTesting;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +41,9 @@ import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.rule.Rule;
+import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.config.Settings;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.platform.Server;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
@@ -45,24 +53,13 @@ import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.input.BatchInput;
 import org.sonar.batch.repository.user.UserRepository;
 import org.sonar.batch.scan.filesystem.InputPathCache;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Set;
+import org.sonar.core.issue.DefaultIssue;
 
 import static com.google.common.collect.Sets.newHashSet;
 
 @Properties({
   @Property(
     key = JSONReport.SONAR_REPORT_EXPORT_PATH,
-    defaultValue = "sonar-report.json",
     name = "Report Results Export File",
     type = PropertyType.STRING,
     global = false, project = false)})
