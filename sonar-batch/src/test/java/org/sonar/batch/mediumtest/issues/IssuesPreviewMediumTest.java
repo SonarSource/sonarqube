@@ -75,27 +75,26 @@ public class IssuesPreviewMediumTest {
       .setIssueListener(issueListener)
       .property(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW)
       .start();
-    
+
     assertThat(result1.trackedIssues()).hasSize(14);
     assertThat(issueListener.issueList).hasSize(14);
     issueListener = new IssueRecorder();
-    
+
     TaskResult result2 = testerPreview
       .newScanTask(new File(tmpDir, "sonar-project.properties"))
       .setIssueListener(issueListener)
       .property(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW)
       .start();
-    
-    
+
     assertThat(result2.trackedIssues()).hasSize(28);
     assertThat(issueListener.issueList).hasSize(28);
   }
 
   private class IssueRecorder implements IssueListener {
-    List<org.sonar.api.issue.Issue> issueList = new LinkedList<>();
+    List<Issue> issueList = new LinkedList<>();
 
     @Override
-    public void handle(org.sonar.api.issue.Issue issue) {
+    public void handle(Issue issue) {
       issueList.add(issue);
     }
   }

@@ -20,12 +20,14 @@
 package org.sonar.batch.mediumtest.preview;
 
 import com.google.common.collect.ImmutableMap;
+
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
@@ -45,7 +47,6 @@ import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.batch.scan.report.ConsoleReport;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PreviewAndReportsMediumTest {
@@ -250,14 +251,13 @@ public class PreviewAndReportsMediumTest {
 
     assertThat(result.trackedIssues()).hasSize(20);
     assertThat(issueListener.issueList).hasSize(20);
-    assertThat(result.trackedIssues()).containsExactlyElementsOf(issueListener.issueList);
   }
 
   private class IssueRecorder implements IssueListener {
-    List<org.sonar.api.issue.Issue> issueList = new LinkedList<>();
+    List<Issue> issueList = new LinkedList<>();
 
     @Override
-    public void handle(org.sonar.api.issue.Issue issue) {
+    public void handle(Issue issue) {
       issueList.add(issue);
     }
   }

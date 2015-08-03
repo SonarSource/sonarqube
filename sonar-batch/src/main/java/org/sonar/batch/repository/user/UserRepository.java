@@ -46,7 +46,7 @@ public class UserRepository {
   public UserRepository(WSLoader wsLoader) {
     this.wsLoader = wsLoader;
   }
-
+  
   public Collection<BatchInput.User> loadFromWs(List<String> userLogins) {
     if (userLogins.isEmpty()) {
       return Collections.emptyList();

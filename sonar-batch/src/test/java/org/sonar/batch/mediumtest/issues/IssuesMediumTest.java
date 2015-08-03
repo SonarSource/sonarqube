@@ -103,7 +103,7 @@ public class IssuesMediumTest {
       .start();
 
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/HelloJava.xoo"));
-    assertThat(issues).hasSize(8 /* lines */ + 1 /* file */);
+    assertThat(issues).hasSize(8 /* lines */+ 1 /* file */);
   }
 
   @Test
@@ -174,10 +174,10 @@ public class IssuesMediumTest {
   }
 
   private class IssueRecorder implements IssueListener {
-    List<org.sonar.api.issue.Issue> issueList = new LinkedList<>();
+    List<Issue> issueList = new LinkedList<>();
 
     @Override
-    public void handle(org.sonar.api.issue.Issue issue) {
+    public void handle(Issue issue) {
       issueList.add(issue);
     }
   }
