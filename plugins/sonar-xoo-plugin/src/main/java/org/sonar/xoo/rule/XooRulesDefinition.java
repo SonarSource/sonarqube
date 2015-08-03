@@ -76,13 +76,16 @@ public class XooRulesDefinition implements RulesDefinition {
 
     repo.createRule(CustomMessageSensor.RULE_KEY).setName("Issue With Custom Message")
       .setHtmlDescription("Generate an issue on each file with a custom message");
-    
+
     repo.createRule(RandomAccessSensor.RULE_KEY).setName("One Issue Per File with Random Access")
       .setHtmlDescription("This issue is generated on each file");
 
     repo.createRule(DeprecatedResourceApiSensor.RULE_KEY).setName("Issue created using deprecated API")
-    .setHtmlDescription("Issue created using deprecated API");
-    
+      .setHtmlDescription("Issue created using deprecated API");
+
+    repo.createRule(MultilineIssuesSensor.RULE_KEY).setName("Creates issues with ranges/multiple locations")
+      .setHtmlDescription("Issue with range and multiple locations");
+
     repo.done();
 
   }
