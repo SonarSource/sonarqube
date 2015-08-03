@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.repository;
 
+import org.sonar.batch.bootstrap.AbstractServerLoader;
+
+import org.sonar.batch.bootstrap.WSLoaderResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
@@ -30,10 +33,9 @@ import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.util.BatchUtils;
 
-public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoader {
+public class DefaultProjectRepositoriesLoader extends AbstractServerLoader implements ProjectRepositoriesLoader {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultProjectRepositoriesLoader.class);
-
   private static final String BATCH_PROJECT_URL = "/batch/project";
 
   private final WSLoader wsLoader;
@@ -54,9 +56,15 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
       url += "&profile=" + BatchUtils.encodeForUrl(taskProperties.properties().get(ModuleQProfiles.SONAR_PROFILE_PROP));
     }
     url += "&preview=" + globalMode.isPreview();
-    ProjectRepositories projectRepositories = ProjectRepositories.fromJson(wsLoader.loadString(url));
+    ProjectRepositories projectRepositories = ProjectRepositories.fromJson(load(url));
     validateProjectRepositories(projectRepositories, reactor.getRoot().getKey());
     return projectRepositories;
+  }
+
+  private String load(String resource) {
+    WSLoaderResult<String> result = wsLoader.loadString(resource);
+    super.loadedFromCache = result.isFromCache();
+    return result.get();
   }
 
   private static void validateProjectRepositories(ProjectRepositories projectRepositories, String projectKey) {

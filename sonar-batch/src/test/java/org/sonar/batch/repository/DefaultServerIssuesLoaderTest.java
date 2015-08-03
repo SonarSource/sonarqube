@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.repository;
 
-import com.google.common.io.ByteSource;
+import org.sonar.batch.bootstrap.WSLoaderResult;
 
+import com.google.common.io.ByteSource;
 import org.sonar.batch.bootstrap.WSLoader;
 import com.google.common.base.Function;
 import org.junit.Before;
@@ -50,7 +51,7 @@ public class DefaultServerIssuesLoaderTest {
   @Test
   public void loadFromWs() throws Exception {
     ByteSource bs = mock(ByteSource.class);
-    when(wsLoader.loadSource("/batch/issues?key=foo")).thenReturn(bs);
+    when(wsLoader.loadSource("/batch/issues?key=foo")).thenReturn(new WSLoaderResult(bs, true));
 
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
 

@@ -25,4 +25,6 @@ import org.sonarqube.ws.Rules.ListResponse.Rule;
 
 public interface RulesLoader {
   List<Rule> load();
+
+  boolean loadedFromCache();
 }

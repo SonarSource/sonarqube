@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import com.google.common.io.Files;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 
@@ -54,18 +52,25 @@ public class BatchPluginInstaller implements PluginInstaller {
   private final WSLoader wsLoader;
   private final FileCache fileCache;
   private final BatchPluginPredicate pluginPredicate;
+  private final ServerClient serverClient;
 
-  public BatchPluginInstaller(WSLoader wsLoader, FileCache fileCache, BatchPluginPredicate pluginPredicate) {
+  public BatchPluginInstaller(WSLoader wsLoader, ServerClient serverClient, FileCache fileCache, BatchPluginPredicate pluginPredicate) {
     this.wsLoader = wsLoader;
     this.fileCache = fileCache;
     this.pluginPredicate = pluginPredicate;
+    this.serverClient = serverClient;
   }
 
   @Override
   public Map<String, PluginInfo> installRemotes() {
+    return loadPlugins(listRemotePlugins());
+  }
+
+  private Map<String, PluginInfo> loadPlugins(List<RemotePlugin> remotePlugins) {
     Map<String, PluginInfo> infosByKey = new HashMap<>();
-    List<RemotePlugin> remotePlugins = listRemotePlugins();
+
     Profiler profiler = Profiler.create(LOG).startDebug("Load plugins");
+
     for (RemotePlugin remotePlugin : remotePlugins) {
       if (pluginPredicate.apply(remotePlugin.getKey())) {
         File jarFile = download(remotePlugin);
@@ -73,6 +78,7 @@ public class BatchPluginInstaller implements PluginInstaller {
         infosByKey.put(info.getKey(), info);
       }
     }
+
     profiler.stopDebug();
     return infosByKey;
   }
@@ -100,7 +106,7 @@ public class BatchPluginInstaller implements PluginInstaller {
             LOG.info("Download {}", file.getFilename());
           }
 
-          Files.write(wsLoader.load(url), toFile);
+          serverClient.download(url, toFile);
         }
       });
 
@@ -115,10 +121,8 @@ public class BatchPluginInstaller implements PluginInstaller {
   @VisibleForTesting
   List<RemotePlugin> listRemotePlugins() {
     try {
-      Profiler profiler = Profiler.create(LOG).startInfo("Load plugins index");
-      String indexContent = wsLoader.loadString(PLUGINS_INDEX_URL);
-      profiler.stopInfo();
-      String[] rows = StringUtils.split(indexContent, CharUtils.LF);
+      String pluginIndex = loadPluginIndex();
+      String[] rows = StringUtils.split(pluginIndex, CharUtils.LF);
       List<RemotePlugin> result = Lists.newArrayList();
       for (String row : rows) {
         result.add(RemotePlugin.unmarshal(row));
@@ -129,4 +133,18 @@ public class BatchPluginInstaller implements PluginInstaller {
       throw new IllegalStateException("Fail to load plugin index: " + PLUGINS_INDEX_URL, e);
     }
   }
+
+  private String loadPluginIndex() {
+    Profiler profiler = Profiler.create(LOG).startInfo("Load plugins index");
+    WSLoaderResult<String> wsResult = wsLoader.loadString(PLUGINS_INDEX_URL);
+
+    if (wsResult.isFromCache()) {
+      profiler.stopInfo("Load plugins index (done from cache)");
+    } else {
+      profiler.stopInfo();
+    }
+
+    return wsResult.get();
+  }
+
 }

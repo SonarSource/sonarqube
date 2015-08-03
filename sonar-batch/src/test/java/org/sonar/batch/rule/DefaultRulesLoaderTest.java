@@ -21,6 +21,9 @@ package org.sonar.batch.rule;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import org.sonar.batch.bootstrap.WSLoaderResult;
+
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Resources;
@@ -38,9 +41,20 @@ public class DefaultRulesLoaderTest {
   public void testParseServerResponse() throws IOException {
     WSLoader wsLoader = mock(WSLoader.class);
     ByteSource source = Resources.asByteSource(this.getClass().getResource("DefaultRulesLoader/response.protobuf"));
-    when(wsLoader.loadSource(anyString())).thenReturn(source);
+    when(wsLoader.loadSource(anyString())).thenReturn(new WSLoaderResult(source, true));
     DefaultRulesLoader loader = new DefaultRulesLoader(wsLoader);
     List<Rule> ruleList = loader.load();
     assertThat(ruleList).hasSize(318);
+  }
+
+  @Test
+  public void testLoadedFromCache() {
+    WSLoader wsLoader = mock(WSLoader.class);
+    ByteSource source = Resources.asByteSource(this.getClass().getResource("DefaultRulesLoader/response.protobuf"));
+    when(wsLoader.loadSource(anyString())).thenReturn(new WSLoaderResult(source, true));
+    DefaultRulesLoader loader = new DefaultRulesLoader(wsLoader);
+    loader.load();
+
+    assertThat(loader.loadedFromCache()).isTrue();
   }
 }

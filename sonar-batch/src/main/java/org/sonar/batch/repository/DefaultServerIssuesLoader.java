@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.util.BatchUtils;
+import org.sonar.batch.bootstrap.WSLoaderResult;
 
+import org.sonar.batch.util.BatchUtils;
 import com.google.common.io.ByteSource;
 import org.sonar.batch.bootstrap.WSLoader;
 import com.google.common.base.Function;
@@ -38,9 +39,10 @@ public class DefaultServerIssuesLoader implements ServerIssuesLoader {
   }
 
   @Override
-  public void load(String componentKey, Function<ServerIssue, Void> consumer, boolean incremental) {
-    ByteSource request = wsLoader.loadSource("/batch/issues?key=" + BatchUtils.encodeForUrl(componentKey));
-    parseIssues(request, consumer);
+  public boolean load(String componentKey, Function<ServerIssue, Void> consumer, boolean incremental) {
+    WSLoaderResult<ByteSource> result = wsLoader.loadSource("/batch/issues?key=" + BatchUtils.encodeForUrl(componentKey));
+    parseIssues(result.get(), consumer);
+    return result.isFromCache();
   }
 
   private static void parseIssues(ByteSource input, Function<ServerIssue, Void> consumer) {
