@@ -16,8 +16,12 @@ function call_patches() {
   IFS=','
   for PATCH in $PATCHES; do
     #echo "calling $PATCHES_HOME/$PATCH.sh $ARGS"
+    echo ""
+    echo "******** $PATCH *******"
     $PATCHES_HOME/$PATCH.sh $ARGS
   done
+
+  echo ""
 }
 
 
