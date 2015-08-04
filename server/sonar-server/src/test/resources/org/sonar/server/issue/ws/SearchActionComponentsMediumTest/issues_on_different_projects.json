@@ -23,22 +23,18 @@
   ],
   "components": [
     {
-      "id": "F1",
       "key": "FK1",
       "enabled" : true
     },
     {
-      "id": "P1",
       "key": "PK1",
       "enabled" : true
     },
     {
-      "id": "F2",
       "key": "FK2",
       "enabled" : true
     },
     {
-      "id": "P2",
       "key": "PK2",
       "enabled" : true
     }

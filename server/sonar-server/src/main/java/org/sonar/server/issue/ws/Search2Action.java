@@ -58,7 +58,7 @@ public class Search2Action implements IssuesWsAction {
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
   public static final String ADDITIONAL_FIELDS = "additionalFields";
-  public static final String SEARCH_ACTION = "search";
+  public static final String SEARCH_ACTION = "search2";
 
   private final UserSession userSession;
   private final IssueService service;

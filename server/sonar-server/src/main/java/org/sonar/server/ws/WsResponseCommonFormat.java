@@ -60,31 +60,6 @@ public class WsResponseCommonFormat {
     return builder;
   }
 
-  public Common.Component.Builder formatComponent(ComponentDto dto) {
-    Common.Component.Builder builder = Common.Component.newBuilder()
-      .setId(dto.uuid())
-      .setKey(dto.key())
-      .setQualifier(dto.qualifier())
-      .setName(nullToEmpty(dto.name()))
-      .setLongName(nullToEmpty(dto.longName()))
-      .setEnabled(dto.isEnabled());
-    String path = dto.path();
-    // path is not applicable to the components that are not files.
-    // Value must not be "" in this case.
-    if (!Strings.isNullOrEmpty(path)) {
-      builder.setPath(path);
-    }
-
-    // On a root project, parentProjectId is null but projectId is equal to itself, which make no sense.
-    if (dto.projectUuid() != null && dto.parentProjectId() != null) {
-      builder.setProject(dto.projectUuid());
-    }
-    if (dto.parentProjectId() != null) {
-      builder.setSubProject(dto.moduleUuid());
-    }
-    return builder;
-  }
-
   public Common.User.Builder formatUser(UserDto user) {
     return Common.User.newBuilder()
       .setLogin(user.getLogin())

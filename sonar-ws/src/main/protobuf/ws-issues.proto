@@ -129,3 +129,16 @@ message Language {
   optional string key = 1;
   optional string name = 2;
 }
+
+message Component {
+  optional int64 id = 1;
+  optional string key = 2;
+  optional string uuid = 3;
+  optional bool enabled = 4;
+  optional string qualifier = 5;
+  optional string name = 6;
+  optional string longName = 7;
+  optional string path = 8;
+  optional int64 projectId = 9;
+  optional int64 subProjectId = 10;
+}

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
+import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -240,12 +241,35 @@ public class SearchResponseFormat {
     return result;
   }
 
-  private List<Common.Component> formatComponents(SearchResponseData data) {
-    List<Common.Component> result = new ArrayList<>();
+  private List<Issues.Component> formatComponents(SearchResponseData data) {
+    List<Issues.Component> result = new ArrayList<>();
     Collection<ComponentDto> components = data.getComponents();
     if (components != null) {
       for (ComponentDto dto : components) {
-        result.add(commonFormat.formatComponent(dto).build());
+        Issues.Component.Builder builder = Issues.Component.newBuilder()
+          .setId(dto.getId())
+          .setKey(dto.key())
+          .setUuid(dto.uuid())
+          .setQualifier(dto.qualifier())
+          .setName(nullToEmpty(dto.name()))
+          .setLongName(nullToEmpty(dto.longName()))
+          .setEnabled(dto.isEnabled());
+        String path = dto.path();
+        // path is not applicable to the components that are not files.
+        // Value must not be "" in this case.
+        if (!Strings.isNullOrEmpty(path)) {
+          builder.setPath(path);
+        }
+
+        // On a root project, parentProjectId is null but projectId is equal to itself, which make no sense.
+        if (dto.projectUuid() != null && dto.parentProjectId() != null) {
+          ComponentDto project = data.getComponentByUuid(dto.projectUuid());
+          builder.setProjectId(project.getId());
+        }
+        if (dto.parentProjectId() != null) {
+          builder.setSubProjectId(dto.parentProjectId());
+        }
+        result.add(builder.build());
       }
     }
     return result;
