@@ -47,10 +47,11 @@ import org.sonar.server.user.UserSession;
 @ServerSide
 public class PermissionService {
 
-  private enum Operation {
-    ADD, REMOVE
-  }
 
+
+  private enum Operation {
+    ADD, REMOVE;
+  }
   private static final String OBJECT_TYPE_USER = "User";
   private static final String OBJECT_TYPE_GROUP = "Group";
   private static final String NOT_FOUND_FORMAT = "%s %s does not exist";
@@ -61,7 +62,6 @@ public class PermissionService {
   private final IssueAuthorizationIndexer issueAuthorizationIndexer;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
-
   public PermissionService(DbClient dbClient, PermissionRepository permissionRepository, PermissionFinder finder,
     IssueAuthorizationIndexer issueAuthorizationIndexer, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;

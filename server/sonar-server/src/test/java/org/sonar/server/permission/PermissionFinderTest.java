@@ -27,15 +27,17 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.permission.GroupWithPermission;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.component.ResourceDao;
+import org.sonar.db.component.ResourceDto;
+import org.sonar.db.component.ResourceQuery;
 import org.sonar.db.permission.GroupWithPermissionDto;
 import org.sonar.db.permission.PermissionDao;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.PermissionTemplateDao;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.permission.UserWithPermissionDto;
-import org.sonar.db.component.ResourceDao;
-import org.sonar.db.component.ResourceDto;
-import org.sonar.db.component.ResourceQuery;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -45,6 +47,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -60,23 +63,28 @@ public class PermissionFinderTest {
   @Mock
   PermissionTemplateDao permissionTemplateDao;
 
-  PermissionFinder finder;
+  PermissionFinder underTest;
 
   @Before
   public void setUp() {
+    DbClient dbClient = mock(DbClient.class);
+    when(dbClient.resourceDao()).thenReturn(resourceDao);
+    when(dbClient.permissionDao()).thenReturn(permissionDao);
+    when(dbClient.permissionTemplateDao()).thenReturn(permissionTemplateDao);
     when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setId(100L).setName("org.sample.Sample"));
-    finder = new PermissionFinder(permissionDao, resourceDao, permissionTemplateDao);
+    underTest = new PermissionFinder(dbClient);
   }
 
   @Test
   public void find_users() {
-    when(permissionDao.selectUsers(any(PermissionQuery.class), anyLong(), anyInt(), anyInt())).thenReturn(
+    when(permissionDao.selectUsers(any(DbSession.class), any(PermissionQuery.class), anyLong(), anyInt(), anyInt())).thenReturn(
       newArrayList(new UserWithPermissionDto().setName("user1").setPermission("user"))
       );
+    when(permissionDao.countUsers(any(DbSession.class), any(PermissionQuery.class), anyLong())).thenReturn(1);
 
-    UserWithPermissionQueryResult result = finder.findUsersWithPermission(PermissionQuery.builder().permission("user").build());
+    UserWithPermissionQueryResult result = underTest.findUsersWithPermission(PermissionQuery.builder().permission("user").build());
     assertThat(result.users()).hasSize(1);
-    assertThat(result.hasMoreResults()).isFalse();
+    assertThat(result.total()).isEqualTo(1);
   }
 
   @Test
@@ -84,7 +92,7 @@ public class PermissionFinderTest {
     when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(null);
 
     try {
-      finder.findUsersWithPermission(PermissionQuery.builder().permission("user").component("Unknown").build());
+      underTest.findUsersWithPermission(PermissionQuery.builder().permission("user").component("Unknown").build());
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("Component 'Unknown' does not exist");
@@ -93,51 +101,54 @@ public class PermissionFinderTest {
 
   @Test
   public void find_users_with_paging() {
-    finder.findUsersWithPermission(PermissionQuery.builder().permission("user").pageIndex(3).pageSize(10).build());
+    underTest.findUsersWithPermission(PermissionQuery.builder().permission("user").pageIndex(3).pageSize(10).build());
 
     ArgumentCaptor<Integer> argumentOffset = ArgumentCaptor.forClass(Integer.class);
     ArgumentCaptor<Integer> argumentLimit = ArgumentCaptor.forClass(Integer.class);
-    verify(permissionDao).selectUsers(any(PermissionQuery.class), anyLong(), argumentOffset.capture(), argumentLimit.capture());
+    verify(permissionDao).selectUsers(any(DbSession.class), any(PermissionQuery.class), anyLong(), argumentOffset.capture(), argumentLimit.capture());
 
     assertThat(argumentOffset.getValue()).isEqualTo(20);
-    assertThat(argumentLimit.getValue()).isEqualTo(11);
+    assertThat(argumentLimit.getValue()).isEqualTo(10);
   }
 
   @Test
   public void find_users_with_paging_having_more_results() {
-    when(permissionDao.selectUsers(any(PermissionQuery.class), anyLong(), anyInt(), anyInt())).thenReturn(newArrayList(
+    when(permissionDao.selectUsers(any(DbSession.class), any(PermissionQuery.class), anyLong(), anyInt(), anyInt())).thenReturn(newArrayList(
       new UserWithPermissionDto().setName("user1").setPermission("user"),
       new UserWithPermissionDto().setName("user2").setPermission("user"),
       new UserWithPermissionDto().setName("user3").setPermission("user"))
       );
-    UserWithPermissionQueryResult result = finder.findUsersWithPermission(PermissionQuery.builder().permission("user").pageIndex(1).pageSize(2).build());
+    when(permissionDao.countUsers(any(DbSession.class), any(PermissionQuery.class), anyLong())).thenReturn(3);
+    UserWithPermissionQueryResult result = underTest.findUsersWithPermission(PermissionQuery.builder().permission("user").pageIndex(1).pageSize(2).build());
 
     ArgumentCaptor<Integer> argumentOffset = ArgumentCaptor.forClass(Integer.class);
     ArgumentCaptor<Integer> argumentLimit = ArgumentCaptor.forClass(Integer.class);
-    verify(permissionDao).selectUsers(any(PermissionQuery.class), anyLong(), argumentOffset.capture(), argumentLimit.capture());
+    verify(permissionDao).selectUsers(any(DbSession.class), any(PermissionQuery.class), anyLong(), argumentOffset.capture(), argumentLimit.capture());
 
     assertThat(argumentOffset.getValue()).isEqualTo(0);
-    assertThat(argumentLimit.getValue()).isEqualTo(3);
-    assertThat(result.hasMoreResults()).isTrue();
+    assertThat(argumentLimit.getValue()).isEqualTo(2);
+    assertThat(result.total()).isEqualTo(3);
   }
 
   @Test
   public void find_users_with_paging_having_no_more_results() {
-    when(permissionDao.selectUsers(any(PermissionQuery.class), anyLong(), anyInt(), anyInt())).thenReturn(newArrayList(
+    when(permissionDao.selectUsers(any(DbSession.class), any(PermissionQuery.class), anyLong(), anyInt(), anyInt())).thenReturn(newArrayList(
       new UserWithPermissionDto().setName("user1").setPermission("user"),
       new UserWithPermissionDto().setName("user2").setPermission("user"),
       new UserWithPermissionDto().setName("user4").setPermission("user"),
       new UserWithPermissionDto().setName("user3").setPermission("user"))
       );
-    UserWithPermissionQueryResult result = finder.findUsersWithPermission(PermissionQuery.builder().permission("user").pageIndex(1).pageSize(10).build());
+    when(permissionDao.countUsers(any(DbSession.class), any(PermissionQuery.class), anyLong())).thenReturn(4);
+
+    UserWithPermissionQueryResult result = underTest.findUsersWithPermission(PermissionQuery.builder().permission("user").pageIndex(1).pageSize(10).build());
 
     ArgumentCaptor<Integer> argumentOffset = ArgumentCaptor.forClass(Integer.class);
     ArgumentCaptor<Integer> argumentLimit = ArgumentCaptor.forClass(Integer.class);
-    verify(permissionDao).selectUsers(any(PermissionQuery.class), anyLong(), argumentOffset.capture(), argumentLimit.capture());
+    verify(permissionDao).selectUsers(any(DbSession.class), any(PermissionQuery.class), anyLong(), argumentOffset.capture(), argumentLimit.capture());
 
     assertThat(argumentOffset.getValue()).isEqualTo(0);
-    assertThat(argumentLimit.getValue()).isEqualTo(11);
-    assertThat(result.hasMoreResults()).isFalse();
+    assertThat(argumentLimit.getValue()).isEqualTo(10);
+    assertThat(result.total()).isEqualTo(4);
   }
 
   @Test
@@ -146,7 +157,7 @@ public class PermissionFinderTest {
       newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
       );
 
-    GroupWithPermissionQueryResult result = finder.findGroupsWithPermission(
+    GroupWithPermissionQueryResult result = underTest.findGroupsWithPermission(
       PermissionQuery.builder().permission("user").membership(PermissionQuery.IN).build());
     assertThat(result.groups()).hasSize(1);
     assertThat(result.hasMoreResults()).isFalse();
@@ -162,7 +173,7 @@ public class PermissionFinderTest {
       new GroupWithPermissionDto().setName("Other").setPermission(null)
       ));
 
-    GroupWithPermissionQueryResult result = finder.findGroupsWithPermission(
+    GroupWithPermissionQueryResult result = underTest.findGroupsWithPermission(
       PermissionQuery.builder()
         .permission("user")
         .pageSize(2)
@@ -175,7 +186,7 @@ public class PermissionFinderTest {
     assertThat(groups.get(0).name()).isEqualTo("Users");
     assertThat(groups.get(1).name()).isEqualTo("Reviewers");
 
-    assertThat(finder.findGroupsWithPermission(
+    assertThat(underTest.findGroupsWithPermission(
       PermissionQuery.builder()
         .permission("user")
         .pageSize(2)
@@ -193,11 +204,11 @@ public class PermissionFinderTest {
       new GroupWithPermissionDto().setName("Other").setPermission(null)
       ));
 
-    assertThat(finder.findGroupsWithPermission(
+    assertThat(underTest.findGroupsWithPermission(
       PermissionQuery.builder().permission("user").membership(PermissionQuery.IN).build()).groups()).hasSize(2);
-    assertThat(finder.findGroupsWithPermission(
+    assertThat(underTest.findGroupsWithPermission(
       PermissionQuery.builder().permission("user").membership(PermissionQuery.OUT).build()).groups()).hasSize(3);
-    assertThat(finder.findGroupsWithPermission(
+    assertThat(underTest.findGroupsWithPermission(
       PermissionQuery.builder().permission("user").membership(PermissionQuery.ANY).build()).groups()).hasSize(5);
   }
 
@@ -207,7 +218,7 @@ public class PermissionFinderTest {
       newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
       );
 
-    GroupWithPermissionQueryResult result = finder.findGroupsWithPermission(PermissionQuery.builder().permission("user")
+    GroupWithPermissionQueryResult result = underTest.findGroupsWithPermission(PermissionQuery.builder().permission("user")
       .pageIndex(1).membership(PermissionQuery.ANY).build());
     assertThat(result.groups()).hasSize(2);
     GroupWithPermission first = result.groups().get(0);
@@ -221,7 +232,7 @@ public class PermissionFinderTest {
       newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
       );
 
-    GroupWithPermissionQueryResult result = finder.findGroupsWithPermission(PermissionQuery.builder().permission("user").search("other")
+    GroupWithPermissionQueryResult result = underTest.findGroupsWithPermission(PermissionQuery.builder().permission("user").search("other")
       .pageIndex(1).membership(PermissionQuery.ANY).build());
     // Anyone group should not be added
     assertThat(result.groups()).hasSize(1);
@@ -233,7 +244,7 @@ public class PermissionFinderTest {
       newArrayList(new GroupWithPermissionDto().setName("MyAnyGroup").setPermission("user"))
       );
 
-    GroupWithPermissionQueryResult result = finder.findGroupsWithPermission(PermissionQuery.builder().permission("user").search("any")
+    GroupWithPermissionQueryResult result = underTest.findGroupsWithPermission(PermissionQuery.builder().permission("user").search("any")
       .pageIndex(1).membership(PermissionQuery.ANY).build());
     assertThat(result.groups()).hasSize(2);
   }
@@ -244,7 +255,7 @@ public class PermissionFinderTest {
       newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
       );
 
-    GroupWithPermissionQueryResult result = finder.findGroupsWithPermission(PermissionQuery.builder().permission("user")
+    GroupWithPermissionQueryResult result = underTest.findGroupsWithPermission(PermissionQuery.builder().permission("user")
       .pageIndex(1).membership(PermissionQuery.OUT).build());
     // Anyone group should not be added
     assertThat(result.groups()).hasSize(1);
@@ -254,13 +265,15 @@ public class PermissionFinderTest {
   public void find_users_from_permission_template() {
     when(permissionTemplateDao.selectTemplateByKey(anyString())).thenReturn(new PermissionTemplateDto().setId(1L).setKee("my_template"));
 
-    when(permissionTemplateDao.selectUsers(any(PermissionQuery.class), anyLong(), anyInt(), anyInt())).thenReturn(
+    when(permissionTemplateDao.selectUsers(any(DbSession.class), any(PermissionQuery.class), anyLong(), anyInt(), anyInt())).thenReturn(
       newArrayList(new UserWithPermissionDto().setName("user1").setPermission("user"))
       );
 
-    UserWithPermissionQueryResult result = finder.findUsersWithPermissionTemplate(PermissionQuery.builder().permission("user").template("my_template").build());
+    when(permissionTemplateDao.countUsers(any(DbSession.class), any(PermissionQuery.class), anyLong())).thenReturn(1);
+
+    UserWithPermissionQueryResult result = underTest.findUsersWithPermissionTemplate(PermissionQuery.builder().permission("user").template("my_template").build());
     assertThat(result.users()).hasSize(1);
-    assertThat(result.hasMoreResults()).isFalse();
+    assertThat(result.total()).isEqualTo(1);
   }
 
   @Test
@@ -268,7 +281,7 @@ public class PermissionFinderTest {
     when(permissionTemplateDao.selectTemplateByKey(anyString())).thenReturn(null);
 
     try {
-      finder.findUsersWithPermissionTemplate(PermissionQuery.builder().permission("user").template("Unknown").build());
+      underTest.findUsersWithPermissionTemplate(PermissionQuery.builder().permission("user").template("Unknown").build());
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("Template 'Unknown' does not exist");
@@ -283,7 +296,7 @@ public class PermissionFinderTest {
       newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
       );
 
-    GroupWithPermissionQueryResult result = finder.findGroupsWithPermissionTemplate(
+    GroupWithPermissionQueryResult result = underTest.findGroupsWithPermissionTemplate(
       PermissionQuery.builder().permission("user").template("my_template").membership(PermissionQuery.OUT).build());
     assertThat(result.groups()).hasSize(1);
     assertThat(result.hasMoreResults()).isFalse();
@@ -294,7 +307,7 @@ public class PermissionFinderTest {
     when(permissionTemplateDao.selectTemplateByKey(anyString())).thenReturn(null);
 
     try {
-      finder.findGroupsWithPermissionTemplate(PermissionQuery.builder().permission("user").template("Unknown").build());
+      underTest.findGroupsWithPermissionTemplate(PermissionQuery.builder().permission("user").template("Unknown").build());
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("Template 'Unknown' does not exist");

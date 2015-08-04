@@ -20,26 +20,31 @@
 
 package org.sonar.server.permission;
 
-import org.sonar.core.permission.UserWithPermission;
-
 import java.util.List;
+import org.sonar.core.permission.UserWithPermission;
 
 public class UserWithPermissionQueryResult {
 
-  private List<UserWithPermission> users;
-  private boolean hasMoreResults;
+  private final List<UserWithPermission> users;
+  private final int total;
+  private final boolean hasMoreResults;
 
-  public UserWithPermissionQueryResult(List<UserWithPermission> users, boolean hasMoreResults) {
+  public UserWithPermissionQueryResult(List<UserWithPermission> users, int total) {
     this.users = users;
-    this.hasMoreResults = hasMoreResults;
+    this.total = total;
+    this.hasMoreResults = total > users.size();
   }
 
   public List<UserWithPermission> users() {
     return users;
   }
 
+  public int total() {
+    return total;
+  }
+
+  // called by Ruby Code
   public boolean hasMoreResults() {
     return hasMoreResults;
   }
-
 }

@@ -1,0 +1,19 @@
+{
+  "users": [
+    {
+      "login": "login-1",
+      "name": "name-1",
+      "selected": true
+    },
+    {
+      "login": "login-2",
+      "name": "name-2",
+      "selected": true
+    }
+  ],
+  "paging": {
+    "pageSize": 100,
+    "total": 2,
+    "pages": 1
+  }
+}

@@ -5,6 +5,16 @@
 
   <select id="selectUsers" parameterType="map" resultType="UserWithPermission">
     SELECT u.login as login, u.name as name, user_role.role as permission
+    <include refid="usersSelection"/>
+    ORDER BY u.name
+  </select>
+
+  <select id="countUsers" parameterType="map" resultType="int">
+    SELECT count(u.login)
+    <include refid="usersSelection"/>
+  </select>
+
+  <sql id="usersSelection">
     FROM users u
     LEFT JOIN user_roles user_role ON user_role.user_id=u.id
     AND user_role.role=#{query.permission}
@@ -28,8 +38,7 @@
         AND (UPPER(u.name) LIKE #{query.searchSql} ESCAPE '/')
       </if>
     </where>
-    ORDER BY u.name
-  </select>
+  </sql>
 
   <select id="selectGroups" parameterType="map" resultType="GroupWithPermission">
     SELECT name, description, permission FROM

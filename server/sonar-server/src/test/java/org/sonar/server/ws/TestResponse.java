@@ -42,5 +42,4 @@ public class TestResponse {
   public String getMediaType() {
     return dumbResponse.stream().mediaType();
   }
-
 }

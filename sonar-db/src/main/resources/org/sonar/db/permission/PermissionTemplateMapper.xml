@@ -68,6 +68,16 @@
 
   <select id="selectUsers" parameterType="map" resultType="UserWithPermission">
     SELECT u.login as login, u.name as name, ptu.permission_reference as permission
+    <include refid="usersSelection"/>
+    ORDER BY u.name
+  </select>
+
+  <select id="countUsers" parameterType="map" resultType="int">
+    SELECT count(u.login)
+    <include refid="usersSelection"/>
+  </select>
+
+  <sql id="usersSelection">
     FROM users u
     LEFT JOIN perm_templates_users ptu ON ptu.user_id=u.id
     AND ptu.permission_reference=#{query.permission}
@@ -86,8 +96,7 @@
         AND (UPPER(u.name) LIKE #{query.searchSql} ESCAPE '/')
       </if>
     </where>
-    ORDER BY u.name
-  </select>
+  </sql>
 
   <select id="selectGroups" parameterType="map" resultType="GroupWithPermission">
     SELECT name, description, permission FROM

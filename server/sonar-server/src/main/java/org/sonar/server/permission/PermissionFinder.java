@@ -30,16 +30,18 @@ import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Paging;
 import org.sonar.core.permission.GroupWithPermission;
+import org.sonar.core.permission.UserWithPermission;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.component.ResourceDao;
+import org.sonar.db.component.ResourceDto;
+import org.sonar.db.component.ResourceQuery;
 import org.sonar.db.permission.GroupWithPermissionDto;
 import org.sonar.db.permission.PermissionDao;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.PermissionTemplateDao;
 import org.sonar.db.permission.PermissionTemplateDto;
-import org.sonar.core.permission.UserWithPermission;
 import org.sonar.db.permission.UserWithPermissionDto;
-import org.sonar.db.component.ResourceDao;
-import org.sonar.db.component.ResourceDto;
-import org.sonar.db.component.ResourceQuery;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -47,27 +49,41 @@ import static com.google.common.collect.Lists.newArrayList;
 @ServerSide
 public class PermissionFinder {
 
+  private final DbClient dbClient;
+
   private final PermissionDao permissionDao;
   private final ResourceDao resourceDao;
-
   private final PermissionTemplateDao permissionTemplateDao;
 
-  public PermissionFinder(PermissionDao permissionDao, ResourceDao resourceDao, PermissionTemplateDao permissionTemplateDao) {
-    this.resourceDao = resourceDao;
-    this.permissionDao = permissionDao;
-    this.permissionTemplateDao = permissionTemplateDao;
+  public PermissionFinder(DbClient dbClient) {
+    this.dbClient = dbClient;
+    this.resourceDao = dbClient.resourceDao();
+    this.permissionDao = dbClient.permissionDao();
+    this.permissionTemplateDao = dbClient.permissionTemplateDao();
   }
 
   public UserWithPermissionQueryResult findUsersWithPermission(PermissionQuery query) {
     Long componentId = componentId(query.component());
-    int limit = limit(query);
-    return toUserQueryResult(permissionDao.selectUsers(query, componentId, offset(query), limit), limit);
+    int limit = query.pageSize();
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      int total = permissionDao.countUsers(dbSession, query, componentId);
+      return toUserQueryResult(permissionDao.selectUsers(dbSession, query, componentId, offset(query), limit), total);
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 
   public UserWithPermissionQueryResult findUsersWithPermissionTemplate(PermissionQuery query) {
     Long permissionTemplateId = templateId(query.template());
-    int limit = limit(query);
-    return toUserQueryResult(permissionTemplateDao.selectUsers(query, permissionTemplateId, offset(query), limit), limit);
+    int limit = query.pageSize();
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      int total = permissionTemplateDao.countUsers(dbSession, query, permissionTemplateId);
+      return toUserQueryResult(permissionTemplateDao.selectUsers(dbSession, query, permissionTemplateId, offset(query), limit), total);
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 
   /**
@@ -86,14 +102,8 @@ public class PermissionFinder {
     return toGroupQueryResult(permissionTemplateDao.selectGroups(query, permissionTemplateId), query);
   }
 
-  private static UserWithPermissionQueryResult toUserQueryResult(List<UserWithPermissionDto> dtos, int limit) {
-    boolean hasMoreResults = false;
-    if (dtos.size() == limit) {
-      hasMoreResults = true;
-      // Removed last entry as it's only need to know if there more results or not
-      dtos.remove(dtos.size() - 1);
-    }
-    return new UserWithPermissionQueryResult(toUserWithPermissionList(dtos), hasMoreResults);
+  private static UserWithPermissionQueryResult toUserQueryResult(List<UserWithPermissionDto> dtos, int total) {
+    return new UserWithPermissionQueryResult(toUserWithPermissionList(dtos), total);
   }
 
   private static List<UserWithPermission> toUserWithPermissionList(List<UserWithPermissionDto> dtos) {
@@ -138,11 +148,6 @@ public class PermissionFinder {
     int pageSize = query.pageSize();
     int pageIndex = query.pageIndex();
     return (pageIndex - 1) * pageSize;
-  }
-
-  private static int limit(PermissionQuery query) {
-    // Add one to page size in order to be able to know if there's more results or not
-    return query.pageSize() + 1;
   }
 
   private List<GroupWithPermissionDto> filterMembership(List<GroupWithPermissionDto> dtos, PermissionQuery query) {

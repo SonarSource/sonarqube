@@ -18,17 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.db.permission;
+package org.sonar.db.user;
 
-import java.util.List;
-import java.util.Map;
-import org.apache.ibatis.session.RowBounds;
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 
-public interface PermissionMapper {
+public class UserTesting {
 
-  List<UserWithPermissionDto> selectUsers(Map<String, Object> parameters, RowBounds rowBounds);
-
-  List<GroupWithPermissionDto> selectGroups(Map<String, Object> parameters);
-
-  int countUsers(Map<String, Object> parameters);
+  public static UserDto newUserDto() {
+    return new UserDto()
+      .setActive(RandomUtils.nextBoolean())
+      .setLogin(RandomStringUtils.randomAlphanumeric(30));
+  }
 }

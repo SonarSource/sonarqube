@@ -20,7 +20,6 @@
 
 package org.sonar.db.permission;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -28,6 +27,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
 import static com.google.common.collect.Maps.newHashMap;
@@ -46,27 +46,29 @@ public class PermissionDao implements Dao {
   /**
    * @return a paginated list of users.
    */
-  public List<UserWithPermissionDto> selectUsers(PermissionQuery query, @Nullable Long componentId, int offset, int limit) {
-    SqlSession session = myBatis.openSession(false);
-    try {
-      Map<String, Object> params = newHashMap();
-      params.put(QUERY_PARAMETER, query);
-      params.put(COMPONENT_ID_PARAMETER, componentId);
+  public List<UserWithPermissionDto> selectUsers(DbSession session, PermissionQuery query, @Nullable Long componentId, int offset, int limit) {
+    Map<String, Object> params = usersParameters(query, componentId);
 
-      return mapper(session).selectUsers(params, new RowBounds(offset, limit));
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+    return mapper(session).selectUsers(params, new RowBounds(offset, limit));
   }
 
-  @VisibleForTesting
-  List<UserWithPermissionDto> selectUsers(PermissionQuery query, @Nullable Long componentId) {
-    return selectUsers(query, componentId, 0, Integer.MAX_VALUE);
+  public int countUsers(DbSession session, PermissionQuery query, @Nullable Long componentId) {
+    Map<String, Object> params = usersParameters(query, componentId);
+
+    return mapper(session).countUsers(params);
+  }
+
+  private static Map<String, Object> usersParameters(PermissionQuery query, @Nullable Long componentId) {
+    Map<String, Object> params = newHashMap();
+    params.put(QUERY_PARAMETER, query);
+    params.put(COMPONENT_ID_PARAMETER, componentId);
+    return params;
   }
 
   /**
    * 'Anyone' group is not returned when it has not the asked permission.
    * Membership parameter from query is not taking into account in order to deal more easily with the 'Anyone' group
+   *
    * @return a non paginated list of groups.
    */
   public List<GroupWithPermissionDto> selectGroups(PermissionQuery query, @Nullable Long componentId) {
@@ -86,5 +88,4 @@ public class PermissionDao implements Dao {
   private PermissionMapper mapper(SqlSession session) {
     return session.getMapper(PermissionMapper.class);
   }
-
 }

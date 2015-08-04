@@ -30,6 +30,7 @@ public class PermissionsWsModule extends Module {
       AddGroupAction.class,
       AddUserAction.class,
       RemoveGroupAction.class,
-      RemoveUserAction.class);
+      RemoveUserAction.class,
+      UsersAction.class);
   }
 }

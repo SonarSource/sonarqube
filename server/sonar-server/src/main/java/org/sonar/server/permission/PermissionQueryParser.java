@@ -20,17 +20,15 @@
 
 package org.sonar.server.permission;
 
+import java.util.Map;
 import org.sonar.api.server.ws.WebService.SelectionMode;
-
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.server.util.RubyUtils;
 
-import java.util.Map;
-
 public class PermissionQueryParser {
 
-  private PermissionQueryParser(){
+  private PermissionQueryParser() {
     // Utility class
   }
 
@@ -39,15 +37,15 @@ public class PermissionQueryParser {
     builder.permission((String) params.get("permission"));
     builder.component((String) params.get("component"));
     builder.template((String) params.get("template"));
-    builder.membership(membership(params));
+    builder.membership(toMembership((String) params.get("selected")));
     builder.search((String) params.get("query"));
     builder.pageIndex(RubyUtils.toInteger(params.get("page")));
     builder.pageSize(RubyUtils.toInteger(params.get("pageSize")));
     return builder.build();
   }
 
-  private static String membership(Map<String, Object> params) {
-    SelectionMode selectionMode = SelectionMode.fromParam((String) params.get("selected"));
+  public static String toMembership(String selectionModeString) {
+    SelectionMode selectionMode = SelectionMode.fromParam(selectionModeString);
     if (SelectionMode.SELECTED == selectionMode) {
       return GroupMembershipQuery.IN;
     } else if (SelectionMode.DESELECTED == selectionMode) {
@@ -56,6 +54,5 @@ public class PermissionQueryParser {
       return GroupMembershipQuery.ANY;
     }
   }
-
 
 }

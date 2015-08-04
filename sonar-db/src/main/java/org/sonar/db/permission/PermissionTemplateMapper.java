@@ -58,4 +58,6 @@ public interface PermissionTemplateMapper {
   List<GroupWithPermissionDto> selectGroups(Map<String, Object> params);
 
   List<UserWithPermissionDto> selectUsers(Map<String, Object> params, RowBounds rowBounds);
+
+  int countUsers(Map<String, Object> params);
 }

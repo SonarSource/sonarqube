@@ -54,15 +54,29 @@ public class PermissionTemplateDao implements Dao {
    * @return a paginated list of users.
    */
   public List<UserWithPermissionDto> selectUsers(PermissionQuery query, Long templateId, int offset, int limit) {
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
-      Map<String, Object> params = newHashMap();
-      params.put(QUERY_PARAMETER, query);
-      params.put(TEMPLATE_ID_PARAMETER, templateId);
-      return mapper(session).selectUsers(params, new RowBounds(offset, limit));
+      return selectUsers(session, query, templateId, offset, limit);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  /**
+   * @return a paginated list of users.
+   */
+  public List<UserWithPermissionDto> selectUsers(DbSession session, PermissionQuery query, Long templateId, int offset, int limit) {
+    Map<String, Object> params = newHashMap();
+    params.put(QUERY_PARAMETER, query);
+    params.put(TEMPLATE_ID_PARAMETER, templateId);
+    return mapper(session).selectUsers(params, new RowBounds(offset, limit));
+  }
+
+  public int countUsers(DbSession session, PermissionQuery query, Long templateId) {
+    Map<String, Object> params = newHashMap();
+    params.put(QUERY_PARAMETER, query);
+    params.put(TEMPLATE_ID_PARAMETER, templateId);
+    return mapper(session).countUsers(params);
   }
 
   @VisibleForTesting
