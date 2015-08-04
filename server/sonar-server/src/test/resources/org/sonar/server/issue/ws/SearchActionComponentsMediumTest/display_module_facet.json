@@ -8,12 +8,12 @@
     }
   ],
   "components": [
-    { "id": "P1" },
-    { "id": "M1" },
-    { "id": "SUBM1" },
-    { "id": "SUBM2" },
-    { "id": "SUBM3" },
-    { "id": "F1" }
+    { "key": "PK1" },
+    { "key": "MK1" },
+    { "key": "SUBMK1" },
+    { "key": "SUBMK2" },
+    { "key": "SUBMK3" },
+    { "key": "FK1" }
   ],
   "facets": [
     {

@@ -8,10 +8,10 @@
     }
   ],
   "components": [
-    { "id": "P1" },
-    { "id": "P2" },
-    { "id": "P3" },
-    { "id": "F1" }
+    { "key": "PK1" },
+    { "key": "PK2" },
+    { "key": "PK3" },
+    { "key": "FK1" }
   ],
   "facets": [
     {

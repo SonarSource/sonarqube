@@ -50,18 +50,6 @@ enum Severity {
   BLOCKER = 4;
 }
 
-message Component {
-  optional string id = 1;
-  optional string key = 2;
-  optional bool enabled = 3;
-  optional string qualifier = 4;
-  optional string name = 5;
-  optional string longName = 6;
-  optional string path = 7;
-  optional string project = 8;
-  optional string subProject = 9;
-}
-
 message Rule {
   optional string key = 1;
   optional string name = 2;
