@@ -12,5 +12,11 @@ define({
   tunnel: 'NullTunnel',
   environments: [
     { browserName: 'firefox' }
-  ]
+  ],
+
+  loaderOptions: {
+    paths: {
+      'react': 'build/js/libs/third-party/react-with-addons'
+    }
+  }
 });

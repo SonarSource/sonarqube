@@ -32,6 +32,12 @@ define(['intern'], function (intern) {
     tunnel: tunnel,
     environments: [
       { browserName: 'firefox' }
-    ]
+    ],
+
+    loaderOptions: {
+      paths: {
+        'react': 'build/js/libs/third-party/react-with-addons'
+      }
+    }
   };
 });

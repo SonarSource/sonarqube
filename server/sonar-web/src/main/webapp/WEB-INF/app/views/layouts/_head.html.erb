@@ -45,7 +45,10 @@
     numeral.language(window.pageLang);
     requirejs.config({
       baseUrl: baseUrl + '/js',
-      urlArgs: 'v=<%= sonar_version -%>'
+      urlArgs: 'v=<%= sonar_version -%>',
+      paths: {
+        'react': 'libs/third-party/react-with-addons'
+      }
     });
   </script>
   <%= yield :script -%>

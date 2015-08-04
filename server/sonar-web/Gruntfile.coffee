@@ -93,6 +93,8 @@ module.exports = (grunt) ->
       options:
         baseUrl: '<%= BUILD_PATH %>/js/'
         preserveLicenseComments: false
+        paths:
+          'react': 'libs/third-party/react-with-addons'
 
       issuesContext: options:
         name: 'apps/issues/app-context'
