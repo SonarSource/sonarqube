@@ -27,8 +27,6 @@ public class IssueWsModule extends Module {
   protected void configureModule() {
     add(
       IssuesWs.class,
-      IssueJsonWriter.class,
-      IssueComponentHelper.class,
       SearchResponseLoader.class,
       SearchResponseFormat.class,
       OperationResponseWriter.class,
@@ -38,7 +36,6 @@ public class IssueWsModule extends Module {
       PlanAction.class,
       ShowAction.class,
       SearchAction.class,
-      Search2Action.class,
       SetSeverityAction.class,
       TagsAction.class,
       SetTagsAction.class,

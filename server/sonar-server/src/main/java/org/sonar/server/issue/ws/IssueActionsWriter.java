@@ -21,13 +21,11 @@
 package org.sonar.server.issue.ws;
 
 import java.util.List;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.action.Action;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.workflow.Transition;
-import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.user.UserSession;
 
@@ -37,12 +35,10 @@ import static com.google.common.collect.Lists.newArrayList;
 public class IssueActionsWriter {
 
   private final IssueService issueService;
-  private final ActionService actionService;
   private final UserSession userSession;
 
-  public IssueActionsWriter(IssueService issueService, ActionService actionService, UserSession userSession) {
+  public IssueActionsWriter(IssueService issueService, UserSession userSession) {
     this.issueService = issueService;
-    this.actionService = actionService;
     this.userSession = userSession;
   }
 

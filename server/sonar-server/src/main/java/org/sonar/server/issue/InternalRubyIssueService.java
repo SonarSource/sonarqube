@@ -22,7 +22,6 @@ package org.sonar.server.issue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.util.Collection;
@@ -43,23 +42,17 @@ import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.workflow.Transition;
-import org.sonar.db.DbClient;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
 import org.sonar.db.component.ResourceQuery;
 import org.sonar.db.issue.IssueFilterDto;
-import org.sonar.server.component.ws.ComponentJsonWriter;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.issue.filter.IssueFilterService;
-import org.sonar.server.issue.ws.IssueComponentHelper;
-import org.sonar.server.issue.ws.IssueJsonWriter;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.index.UserIndex;
-import org.sonar.server.user.ws.UserJsonWriter;
 import org.sonar.server.util.RubyUtils;
 import org.sonar.server.util.Validation;
 
@@ -81,8 +74,6 @@ public class InternalRubyIssueService {
 
   private static final String ACTION_PLANS_ERRORS_ACTION_PLAN_DOES_NOT_EXIST_MESSAGE = "action_plans.errors.action_plan_does_not_exist";
 
-  private static final List<String> ISSUE_FIELDS = ImmutableList.copyOf(IssueJsonWriter.SELECTABLE_FIELDS);
-
   private final IssueService issueService;
   private final IssueQueryService issueQueryService;
   private final IssueCommentService commentService;
@@ -91,13 +82,7 @@ public class InternalRubyIssueService {
   private final ResourceDao resourceDao;
   private final IssueFilterService issueFilterService;
   private final IssueBulkChangeService issueBulkChangeService;
-  private final IssueJsonWriter issueWriter;
-  private final IssueComponentHelper issueComponentHelper;
-  private final ComponentJsonWriter componentWriter;
-  private final UserIndex userIndex;
-  private final DbClient dbClient;
   private final UserSession userSession;
-  private final UserJsonWriter userWriter;
 
   public InternalRubyIssueService(
     IssueService issueService,
@@ -106,8 +91,7 @@ public class InternalRubyIssueService {
     IssueChangelogService changelogService, ActionPlanService actionPlanService,
     ResourceDao resourceDao,
     IssueFilterService issueFilterService, IssueBulkChangeService issueBulkChangeService,
-    IssueJsonWriter issueWriter, IssueComponentHelper issueComponentHelper, ComponentJsonWriter componentWriter, UserIndex userIndex, DbClient dbClient,
-    UserSession userSession, UserJsonWriter userWriter) {
+    UserSession userSession) {
     this.issueService = issueService;
     this.issueQueryService = issueQueryService;
     this.commentService = commentService;
@@ -116,13 +100,7 @@ public class InternalRubyIssueService {
     this.resourceDao = resourceDao;
     this.issueFilterService = issueFilterService;
     this.issueBulkChangeService = issueBulkChangeService;
-    this.issueWriter = issueWriter;
-    this.issueComponentHelper = issueComponentHelper;
-    this.componentWriter = componentWriter;
-    this.userIndex = userIndex;
-    this.dbClient = dbClient;
     this.userSession = userSession;
-    this.userWriter = userWriter;
   }
 
   public List<Transition> listTransitions(String issueKey) {

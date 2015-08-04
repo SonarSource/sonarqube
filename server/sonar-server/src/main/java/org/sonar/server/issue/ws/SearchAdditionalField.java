@@ -67,7 +67,7 @@ public enum SearchAdditionalField {
   }
 
   public static EnumSet<SearchAdditionalField> getFromRequest(Request request) {
-    List<String> labels = request.paramAsStrings(Search2Action.ADDITIONAL_FIELDS);
+    List<String> labels = request.paramAsStrings(SearchAction.ADDITIONAL_FIELDS);
     if (labels == null) {
       return EnumSet.noneOf(SearchAdditionalField.class);
     }
