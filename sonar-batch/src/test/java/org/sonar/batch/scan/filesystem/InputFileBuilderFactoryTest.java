@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.batch.scan.ProjectAnalysisMode;
-
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -37,10 +35,9 @@ public class InputFileBuilderFactoryTest {
     LanguageDetectionFactory langDetectionFactory = mock(LanguageDetectionFactory.class, Mockito.RETURNS_MOCKS);
     StatusDetectionFactory statusDetectionFactory = mock(StatusDetectionFactory.class, Mockito.RETURNS_MOCKS);
     DefaultModuleFileSystem fs = mock(DefaultModuleFileSystem.class);
-    ProjectAnalysisMode analysisMode = mock(ProjectAnalysisMode.class);
 
     InputFileBuilderFactory factory = new InputFileBuilderFactory(ProjectDefinition.create().setKey("struts"), pathResolver, langDetectionFactory,
-      statusDetectionFactory, analysisMode, new Settings(), new FileMetadata());
+      statusDetectionFactory, new Settings(), new FileMetadata());
     InputFileBuilder builder = factory.create(fs);
 
     assertThat(builder.langDetection()).isNotNull();

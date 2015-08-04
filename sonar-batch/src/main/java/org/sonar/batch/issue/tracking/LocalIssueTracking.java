@@ -31,7 +31,6 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRule;
@@ -69,7 +68,6 @@ public class LocalIssueTracking {
   private final ActiveRules activeRules;
   private final BatchComponentCache componentCache;
   private final ServerIssueRepository serverIssueRepository;
-  private final AnalysisMode analysisMode;
   private final ReportPublisher reportPublisher;
   private final Date analysisDate;
 
@@ -78,7 +76,7 @@ public class LocalIssueTracking {
   public LocalIssueTracking(BatchComponentCache resourceCache, IssueCache issueCache, IssueTracking tracking,
     ServerLineHashesLoader lastLineHashes, IssueWorkflow workflow, IssueUpdater updater,
     ActiveRules activeRules, ServerIssueRepository serverIssueRepository,
-    ProjectRepositories projectRepositories, AnalysisMode analysisMode, ReportPublisher reportPublisher) {
+    ProjectRepositories projectRepositories, ReportPublisher reportPublisher) {
     this.componentCache = resourceCache;
     this.issueCache = issueCache;
     this.tracking = tracking;
@@ -86,7 +84,6 @@ public class LocalIssueTracking {
     this.workflow = workflow;
     this.updater = updater;
     this.serverIssueRepository = serverIssueRepository;
-    this.analysisMode = analysisMode;
     this.reportPublisher = reportPublisher;
     this.analysisDate = ((Project) resourceCache.getRoot().resource()).getAnalysisDate();
     this.changeContext = IssueChangeContext.createScan(analysisDate);
@@ -107,12 +104,6 @@ public class LocalIssueTracking {
   }
 
   public void trackIssues(BatchReportReader reader, BatchComponent component) {
-
-    if (analysisMode.isIncremental() && !component.isFile()) {
-      // No need to report issues on project or directories in preview mode since it is likely to be wrong anyway
-      return;
-    }
-
     // raw issues = all the issues created by rule engines during this module scan and not excluded by filters
     Set<BatchReport.Issue> rawIssues = Sets.newIdentityHashSet();
     try (CloseableIterator<BatchReport.Issue> it = reader.readComponentIssues(component.batchId())) {

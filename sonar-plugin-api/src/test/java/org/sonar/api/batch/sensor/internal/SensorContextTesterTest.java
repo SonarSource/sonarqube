@@ -77,10 +77,7 @@ public class SensorContextTesterTest {
 
   @Test
   public void testAnalysisMode() {
-    assertThat(tester.analysisMode().isIncremental()).isFalse();
     assertThat(tester.analysisMode().isPreview()).isFalse();
-    tester.analysisMode().setIncremental(true);
-    assertThat(tester.analysisMode().isIncremental()).isTrue();
     tester.analysisMode().setPreview(true);
     assertThat(tester.analysisMode().isPreview()).isTrue();
   }

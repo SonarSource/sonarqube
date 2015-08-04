@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.batch.scan.ProjectAnalysisMode;
-
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.FileMetadata;
@@ -34,22 +32,20 @@ public class InputFileBuilderFactory {
   private final PathResolver pathResolver;
   private final LanguageDetectionFactory langDetectionFactory;
   private final StatusDetectionFactory statusDetectionFactory;
-  private final ProjectAnalysisMode analysisMode;
   private final Settings settings;
   private final FileMetadata fileMetadata;
 
   public InputFileBuilderFactory(ProjectDefinition def, PathResolver pathResolver, LanguageDetectionFactory langDetectionFactory,
-    StatusDetectionFactory statusDetectionFactory, ProjectAnalysisMode analysisMode, Settings settings, FileMetadata fileMetadata) {
+    StatusDetectionFactory statusDetectionFactory, Settings settings, FileMetadata fileMetadata) {
     this.fileMetadata = fileMetadata;
     this.moduleKey = def.getKeyWithBranch();
     this.pathResolver = pathResolver;
     this.langDetectionFactory = langDetectionFactory;
     this.statusDetectionFactory = statusDetectionFactory;
-    this.analysisMode = analysisMode;
     this.settings = settings;
   }
 
   InputFileBuilder create(DefaultModuleFileSystem fs) {
-    return new InputFileBuilder(moduleKey, pathResolver, langDetectionFactory.create(), statusDetectionFactory.create(), fs, analysisMode, settings, fileMetadata);
+    return new InputFileBuilder(moduleKey, pathResolver, langDetectionFactory.create(), statusDetectionFactory.create(), fs, settings, fileMetadata);
   }
 }

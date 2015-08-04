@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.batch.scan.ProjectAnalysisMode;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -44,18 +42,16 @@ class InputFileBuilder {
   private final LanguageDetection langDetection;
   private final StatusDetection statusDetection;
   private final DefaultModuleFileSystem fs;
-  private final ProjectAnalysisMode analysisMode;
   private final Settings settings;
   private final FileMetadata fileMetadata;
 
   InputFileBuilder(String moduleKey, PathResolver pathResolver, LanguageDetection langDetection,
-    StatusDetection statusDetection, DefaultModuleFileSystem fs, ProjectAnalysisMode analysisMode, Settings settings, FileMetadata fileMetadata) {
+    StatusDetection statusDetection, DefaultModuleFileSystem fs, Settings settings, FileMetadata fileMetadata) {
     this.moduleKey = moduleKey;
     this.pathResolver = pathResolver;
     this.langDetection = langDetection;
     this.statusDetection = statusDetection;
     this.fs = fs;
-    this.analysisMode = analysisMode;
     this.settings = settings;
     this.fileMetadata = fileMetadata;
   }
@@ -108,9 +104,7 @@ class InputFileBuilder {
     inputFile.initMetadata(fileMetadata.readMetadata(inputFile.file(), fs.encoding()));
 
     inputFile.setStatus(statusDetection.status(inputFile.moduleKey(), inputFile.relativePath(), inputFile.hash()));
-    if (analysisMode.isIncremental() && inputFile.status() == InputFile.Status.SAME) {
-      return null;
-    }
+
     return inputFile;
   }
 

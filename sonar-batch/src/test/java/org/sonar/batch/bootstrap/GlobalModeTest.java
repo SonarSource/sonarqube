@@ -41,12 +41,6 @@ public class GlobalModeTest {
   }
 
   @Test
-  public void testIncremental() {
-    GlobalMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_INCREMENTAL);
-    assertThat(mode.isPreview()).isTrue();
-  }
-
-  @Test
   public void testOtherProperty() {
     GlobalMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ANALYSIS);
     assertThat(mode.isPreview()).isFalse();

@@ -39,12 +39,10 @@ public class ProjectAnalysisModeTest {
     ProjectAnalysisMode mode = createMode(null);
 
     assertThat(mode.isPreview()).isFalse();
-    assertThat(mode.isIncremental()).isFalse();
 
     mode = createMode(CoreProperties.ANALYSIS_MODE, "pouet");
 
     assertThat(mode.isPreview()).isFalse();
-    assertThat(mode.isIncremental()).isFalse();
   }
 
   @Test(expected = IllegalStateException.class)
@@ -57,7 +55,6 @@ public class ProjectAnalysisModeTest {
     ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_ANALYSIS);
 
     assertThat(mode.isPreview()).isFalse();
-    assertThat(mode.isIncremental()).isFalse();
   }
 
   @Test
@@ -65,7 +62,6 @@ public class ProjectAnalysisModeTest {
     ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_PREVIEW);
 
     assertThat(mode.isPreview()).isTrue();
-    assertThat(mode.isIncremental()).isFalse();
   }
 
   @Test
@@ -73,16 +69,7 @@ public class ProjectAnalysisModeTest {
     ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_QUICK);
 
     assertThat(mode.isPreview()).isTrue();
-    assertThat(mode.isIncremental()).isFalse();
     assertThat(mode.isQuick()).isTrue();
-  }
-
-  @Test
-  public void support_incremental_mode() {
-    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_INCREMENTAL);
-
-    assertThat(mode.isPreview()).isTrue();
-    assertThat(mode.isIncremental()).isTrue();
   }
 
   @Test
@@ -96,7 +83,6 @@ public class ProjectAnalysisModeTest {
     ProjectAnalysisMode mode = new ProjectAnalysisMode(new BootstrapProperties(bootstrapMap), new AnalysisProperties(analysisMap));
 
     assertThat(mode.isPreview()).isTrue();
-    assertThat(mode.isIncremental()).isFalse();
   }
 
   private static ProjectAnalysisMode createMode(@Nullable String mode) {
