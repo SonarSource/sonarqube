@@ -29,17 +29,15 @@ import org.junit.experimental.categories.Category;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.measure.MeasureDao;
-import org.sonar.db.metric.MetricDao;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DumbComponent;
-import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -61,18 +59,15 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
 
   DbIdsRepository dbIdsRepository = new DbIdsRepository();
 
-  DbSession session;
+  DbSession session = dbTester.getSession();
 
-  DbClient dbClient;
+  DbClient dbClient = dbTester.getDbClient();
 
   PersistDuplicationsStep underTest;
 
   @Before
   public void setup() {
     dbTester.truncateTables();
-    session = dbTester.myBatis().openSession(false);
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new MeasureDao(), new MetricDao());
-
     underTest = new PersistDuplicationsStep(dbClient, dbIdsRepository, treeRootHolder, reportReader);
   }
 

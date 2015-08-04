@@ -33,16 +33,14 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.issue.IssueDao;
-import org.sonar.db.rule.RuleDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.RuleCacheLoader;
 import org.sonar.server.computation.issue.RuleRepositoryImpl;
 import org.sonar.server.computation.issue.UpdateConflictResolver;
-import org.sonar.server.db.DbClient;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -60,9 +58,9 @@ public class PersistIssuesStepTest extends BaseStepTest {
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
-  DbSession session;
+  DbSession session = dbTester.getSession();
 
-  DbClient dbClient;
+  DbClient dbClient = dbTester.getDbClient();
 
   System2 system2;
 
@@ -78,8 +76,6 @@ public class PersistIssuesStepTest extends BaseStepTest {
   @Before
   public void setup() throws Exception {
     dbTester.truncateTables();
-    session = dbTester.myBatis().openSession(false);
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new IssueDao(dbTester.myBatis()), new RuleDao());
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     system2 = mock(System2.class);
     when(system2.now()).thenReturn(NOW);

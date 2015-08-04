@@ -28,10 +28,8 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.qualitygate.QualityGateConditionDao;
-import org.sonar.server.db.DbClient;
-import org.sonar.db.metric.MetricDao;
 import org.sonar.test.DbTests;
 
 import static java.util.Arrays.asList;
@@ -42,6 +40,8 @@ public class RegisterMetricsTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
+  DbClient dbClient = dbTester.getDbClient();
 
   /**
    * Insert new metrics, including custom metrics
@@ -62,7 +62,7 @@ public class RegisterMetricsTest {
       .setUserManaged(true)
       .create();
 
-    RegisterMetrics register = new RegisterMetrics(dbClient());
+    RegisterMetrics register = new RegisterMetrics(dbClient);
     register.register(asList(m1, custom));
     dbTester.assertDbUnit(getClass(), "insert_new_metrics-result.xml", "metrics");
   }
@@ -74,7 +74,7 @@ public class RegisterMetricsTest {
   public void update_non_custom_metrics() {
     dbTester.prepareDbUnit(getClass(), "update_non_custom_metrics.xml");
 
-    RegisterMetrics register = new RegisterMetrics(dbClient());
+    RegisterMetrics register = new RegisterMetrics(dbClient);
     Metric m1 = new Metric.Builder("m1", "New name", Metric.ValueType.FLOAT)
       .setDescription("new description")
       .setDirection(-1)
@@ -96,7 +96,7 @@ public class RegisterMetricsTest {
   public void disable_undefined_metrics() {
     dbTester.prepareDbUnit(getClass(), "disable_undefined_metrics.xml");
 
-    RegisterMetrics register = new RegisterMetrics(dbClient());
+    RegisterMetrics register = new RegisterMetrics(dbClient);
     register.register(Collections.<Metric>emptyList());
 
     dbTester.assertDbUnit(getClass(), "disable_undefined_metrics-result.xml", "metrics");
@@ -106,7 +106,7 @@ public class RegisterMetricsTest {
   public void insert_core_metrics() {
     dbTester.truncateTables();
 
-    RegisterMetrics register = new RegisterMetrics(dbClient());
+    RegisterMetrics register = new RegisterMetrics(dbClient);
     register.start();
 
     assertThat(dbTester.countRowsOfTable("metrics")).isEqualTo(CoreMetrics.getMetrics().size());
@@ -117,18 +117,14 @@ public class RegisterMetricsTest {
     Metrics plugin1 = new TestMetrics(new Metric.Builder("m1", "In first plugin", Metric.ValueType.FLOAT).create());
     Metrics plugin2 = new TestMetrics(new Metric.Builder("m1", "In second plugin", Metric.ValueType.FLOAT).create());
 
-    new RegisterMetrics(dbClient(), new Metrics[]{plugin1, plugin2}).start();
+    new RegisterMetrics(dbClient, new Metrics[] {plugin1, plugin2}).start();
   }
 
   @Test(expected = IllegalStateException.class)
   public void fail_if_plugin_duplicates_core_metric() {
     Metrics plugin = new TestMetrics(new Metric.Builder("ncloc", "In plugin", Metric.ValueType.FLOAT).create());
 
-    new RegisterMetrics(dbClient(), new Metrics[]{plugin}).start();
-  }
-
-  private DbClient dbClient() {
-    return new DbClient(dbTester.database(), dbTester.myBatis(), new MetricDao(), new QualityGateConditionDao(dbTester.myBatis()));
+    new RegisterMetrics(dbClient, new Metrics[] {plugin}).start();
   }
 
   private class TestMetrics implements Metrics {

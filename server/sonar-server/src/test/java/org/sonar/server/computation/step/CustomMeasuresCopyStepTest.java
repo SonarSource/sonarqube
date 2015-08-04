@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
@@ -36,8 +37,6 @@ import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepository;
-import org.sonar.server.db.DbClient;
-import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,7 +66,7 @@ public class CustomMeasuresCopyStepTest {
 
   @Before
   public void setUp() {
-    DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new CustomMeasureDao());
+    DbClient dbClient = dbTester.getDbClient();
     underTest = new CustomMeasuresCopyStep(treeRootHolder, dbClient, metricRepository, measureRepository);
   }
 

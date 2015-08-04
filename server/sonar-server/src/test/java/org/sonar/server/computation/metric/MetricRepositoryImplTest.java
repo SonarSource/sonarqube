@@ -25,9 +25,8 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.server.db.DbClient;
-import org.sonar.db.metric.MetricDao;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +41,7 @@ public class MetricRepositoryImplTest {
   @Rule
   public final ExpectedException expectedException = ExpectedException.none();
 
-  private DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new MetricDao());
+  private DbClient dbClient = dbTester.getDbClient();
   private MetricRepositoryImpl underTest = new MetricRepositoryImpl(dbClient);
 
   @Before

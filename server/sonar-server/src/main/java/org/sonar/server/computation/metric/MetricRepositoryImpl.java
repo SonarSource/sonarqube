@@ -26,14 +26,15 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.picocontainer.Startable;
-import org.sonar.db.metric.MetricDto;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.metric.MetricDto;
 
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Objects.requireNonNull;
 
 public class MetricRepositoryImpl implements MetricRepository, Startable {
+
   private final DbClient dbClient;
   @CheckForNull
   private Map<String, Metric> metricsByKey;

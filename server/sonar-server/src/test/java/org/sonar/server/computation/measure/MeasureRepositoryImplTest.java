@@ -38,11 +38,9 @@ import org.junit.runner.RunWith;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDao;
-import org.sonar.db.component.SnapshotDao;
-import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.batch.BatchReportReader;
@@ -54,8 +52,6 @@ import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.computation.metric.ReportMetricValidator;
-import org.sonar.server.db.DbClient;
-import org.sonar.db.metric.MetricDao;
 
 import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
@@ -93,7 +89,7 @@ public class MeasureRepositoryImplTest {
 
   private ReportMetricValidator reportMetricValidator = mock(ReportMetricValidator.class);
 
-  private DbClient dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), new MeasureDao(), new SnapshotDao(), new MetricDao(), new ComponentDao());
+  private DbClient dbClient = dbTester.getDbClient();
   private MetricRepository metricRepository = mock(MetricRepository.class);
   private MeasureRepositoryImpl underTest = new MeasureRepositoryImpl(dbClient, reportReader, metricRepository, reportMetricValidator);
 

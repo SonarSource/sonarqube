@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.measure.MeasureDto;
@@ -34,7 +35,6 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.server.db.DbClient;
 
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 

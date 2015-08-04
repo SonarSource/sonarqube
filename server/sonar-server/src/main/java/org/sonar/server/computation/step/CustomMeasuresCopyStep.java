@@ -22,6 +22,7 @@ package org.sonar.server.computation.step;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import org.apache.commons.lang.math.NumberUtils;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.measure.custom.CustomMeasureDto;
@@ -32,7 +33,6 @@ import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
-import org.sonar.server.db.DbClient;
 
 public class CustomMeasuresCopyStep implements ComputationStep {
 
