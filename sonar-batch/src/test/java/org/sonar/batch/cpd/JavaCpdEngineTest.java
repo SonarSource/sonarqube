@@ -19,6 +19,10 @@
  */
 package org.sonar.batch.cpd;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,11 +39,6 @@ import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -88,9 +87,9 @@ public class JavaCpdEngineTest {
     List<CloneGroup> groups = Arrays.asList(newCloneGroup(new ClonePart("key1", 0, 2, 4), new ClonePart("key2", 0, 15, 17)));
     JavaCpdEngine.save(context, inputFile, groups);
 
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_FILES).onFile(inputFile).withValue(1));
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_BLOCKS).onFile(inputFile).withValue(1));
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_LINES).onFile(inputFile).withValue(3));
+    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_FILES).on(inputFile).withValue(1));
+    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_BLOCKS).on(inputFile).withValue(1));
+    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_LINES).on(inputFile).withValue(3));
 
     verify(storage).store(new DefaultDuplication()
       .originBlock(inputFile, 2, 4)
@@ -102,9 +101,9 @@ public class JavaCpdEngineTest {
     List<CloneGroup> groups = Arrays.asList(newCloneGroup(new ClonePart("key1", 0, 5, 204), new ClonePart("key1", 0, 215, 414)));
     JavaCpdEngine.save(context, inputFile, groups);
 
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_FILES).onFile(inputFile).withValue(1));
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_BLOCKS).onFile(inputFile).withValue(2));
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_LINES).onFile(inputFile).withValue(400));
+    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_FILES).on(inputFile).withValue(1));
+    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_BLOCKS).on(inputFile).withValue(2));
+    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_LINES).on(inputFile).withValue(400));
 
     verify(storage).store(new DefaultDuplication()
       .originBlock(inputFile, 5, 204)
@@ -116,9 +115,9 @@ public class JavaCpdEngineTest {
     List<CloneGroup> groups = Arrays.asList(newCloneGroup(new ClonePart("key1", 0, 5, 204), new ClonePart("key2", 0, 15, 214), new ClonePart("key3", 0, 25, 224)));
     JavaCpdEngine.save(context, inputFile, groups);
 
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_FILES).onFile(inputFile).withValue(1));
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_BLOCKS).onFile(inputFile).withValue(1));
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_LINES).onFile(inputFile).withValue(200));
+    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_FILES).on(inputFile).withValue(1));
+    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_BLOCKS).on(inputFile).withValue(1));
+    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_LINES).on(inputFile).withValue(200));
 
     verify(storage).store(new DefaultDuplication()
       .originBlock(inputFile, 5, 204)
@@ -133,9 +132,9 @@ public class JavaCpdEngineTest {
       newCloneGroup(new ClonePart("key1", 0, 15, 214), new ClonePart("key3", 0, 15, 214)));
     JavaCpdEngine.save(context, inputFile, groups);
 
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_FILES).onFile(inputFile).withValue(1));
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_BLOCKS).onFile(inputFile).withValue(2));
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_LINES).onFile(inputFile).withValue(210));
+    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_FILES).on(inputFile).withValue(1));
+    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_BLOCKS).on(inputFile).withValue(2));
+    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_LINES).on(inputFile).withValue(210));
 
     verify(storage).store(new DefaultDuplication()
       .originBlock(inputFile, 5, 204)

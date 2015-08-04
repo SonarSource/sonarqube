@@ -19,13 +19,14 @@
  */
 package org.sonar.api.batch.sensor.measure.internal;
 
-import org.sonar.api.batch.sensor.internal.SensorStorage;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.measures.CoreMetrics;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -40,10 +41,10 @@ public class DefaultMeasureTest {
     SensorStorage storage = mock(SensorStorage.class);
     DefaultMeasure<Integer> newMeasure = new DefaultMeasure<Integer>(storage)
       .forMetric(CoreMetrics.LINES)
-      .onFile(new DefaultInputFile("foo", "src/Foo.php"))
+      .on(new DefaultInputFile("foo", "src/Foo.php"))
       .withValue(3);
 
-    assertThat(newMeasure.inputFile()).isEqualTo(new DefaultInputFile("foo", "src/Foo.php"));
+    assertThat(newMeasure.inputComponent()).isEqualTo(new DefaultInputFile("foo", "src/Foo.php"));
     assertThat(newMeasure.metric()).isEqualTo(CoreMetrics.LINES);
     assertThat(newMeasure.value()).isEqualTo(3);
 
@@ -55,12 +56,13 @@ public class DefaultMeasureTest {
   @Test
   public void build_project_measure() {
     SensorStorage storage = mock(SensorStorage.class);
+    DefaultInputModule module = new DefaultInputModule("foo");
     DefaultMeasure<Integer> newMeasure = new DefaultMeasure<Integer>(storage)
       .forMetric(CoreMetrics.LINES)
-      .onProject()
+      .on(module)
       .withValue(3);
 
-    assertThat(newMeasure.inputFile()).isNull();
+    assertThat(newMeasure.inputComponent()).isEqualTo(new DefaultInputModule("foo"));
     assertThat(newMeasure.metric()).isEqualTo(CoreMetrics.LINES);
     assertThat(newMeasure.value()).isEqualTo(3);
 
@@ -70,12 +72,12 @@ public class DefaultMeasureTest {
   }
 
   @Test
-  public void not_allowed_to_call_onFile_and_onProject() {
+  public void not_allowed_to_call_on_twice() {
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("onProject already called");
+    thrown.expectMessage("on() already called");
     new DefaultMeasure<Integer>()
-      .onProject()
-      .onFile(new DefaultInputFile("foo", "src/Foo.php"))
+      .on(new DefaultInputModule("foo"))
+      .on(new DefaultInputFile("foo", "src/Foo.php"))
       .withValue(3)
       .save();
   }

@@ -43,24 +43,24 @@ public final class LinesSensor implements Sensor {
     FileSystem fs = context.fileSystem();
     for (InputFile f : fs.inputFiles(fs.predicates().hasType(Type.MAIN))) {
       ((DefaultMeasure<Integer>) context.<Integer>newMeasure()
-        .onFile(f)
+        .on(f)
         .forMetric(CoreMetrics.LINES)
         .withValue(f.lines()))
-        .setFromCore()
-        .save();
+          .setFromCore()
+          .save();
       if (f.language() == null) {
         // As an approximation for files with no language plugin we consider every non blank line as ncloc
         ((DefaultMeasure<Integer>) context.<Integer>newMeasure()
-          .onFile(f)
+          .on(f)
           .forMetric(CoreMetrics.NCLOC)
           .withValue(((DefaultInputFile) f).nonBlankLines()))
-          .save();
+            .save();
         // No test and no coverage on those files
         ((DefaultMeasure<Integer>) context.<Integer>newMeasure()
-          .onFile(f)
+          .on(f)
           .forMetric(CoreMetrics.LINES_TO_COVER)
           .withValue(0))
-          .save();
+            .save();
       }
     }
   }

@@ -207,19 +207,19 @@ public class JavaCpdEngine extends CpdEngine {
     // Save
     ((DefaultMeasure<Integer>) context.<Integer>newMeasure()
       .forMetric(CoreMetrics.DUPLICATED_FILES)
-      .onFile(inputFile)
+      .on(inputFile)
       .withValue(1))
       .setFromCore()
       .save();
     ((DefaultMeasure<Integer>) context.<Integer>newMeasure()
       .forMetric(CoreMetrics.DUPLICATED_LINES)
-      .onFile(inputFile)
+      .on(inputFile)
       .withValue(duplicatedLines))
       .setFromCore()
       .save();
     ((DefaultMeasure<Integer>) context.<Integer>newMeasure()
       .forMetric(CoreMetrics.DUPLICATED_BLOCKS)
-      .onFile(inputFile)
+      .on(inputFile)
       .withValue(duplicatedBlocks))
       .setFromCore()
       .save();

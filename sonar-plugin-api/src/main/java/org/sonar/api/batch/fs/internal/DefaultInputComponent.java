@@ -26,8 +26,6 @@ import org.sonar.api.batch.fs.InputComponent;
  */
 public abstract class DefaultInputComponent implements InputComponent {
 
-  public abstract String key();
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {

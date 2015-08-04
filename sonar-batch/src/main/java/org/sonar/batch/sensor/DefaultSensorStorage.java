@@ -29,6 +29,7 @@ import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -48,7 +49,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.File;
-import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.utils.KeyValueFormat;
@@ -92,7 +92,6 @@ public class DefaultSensorStorage implements SensorStorage {
     CoreMetrics.DUPLICATIONS_DATA_KEY);
 
   private final MetricFinder metricFinder;
-  private final Project project;
   private final ModuleIssues moduleIssues;
   private final CoverageExclusions coverageExclusions;
   private final DuplicationCache duplicationCache;
@@ -100,11 +99,10 @@ public class DefaultSensorStorage implements SensorStorage {
   private final ReportPublisher reportPublisher;
   private final MeasureCache measureCache;
 
-  public DefaultSensorStorage(MetricFinder metricFinder, Project project, ModuleIssues moduleIssues,
+  public DefaultSensorStorage(MetricFinder metricFinder, ModuleIssues moduleIssues,
     Settings settings, FileSystem fs, ActiveRules activeRules, DuplicationCache duplicationCache,
     CoverageExclusions coverageExclusions, BatchComponentCache resourceCache, ReportPublisher reportPublisher, MeasureCache measureCache) {
     this.metricFinder = metricFinder;
-    this.project = project;
     this.moduleIssues = moduleIssues;
     this.coverageExclusions = coverageExclusions;
     this.duplicationCache = duplicationCache;
@@ -128,14 +126,10 @@ public class DefaultSensorStorage implements SensorStorage {
     org.sonar.api.measures.Measure measureToSave = new org.sonar.api.measures.Measure(m);
     setValueAccordingToMetricType(newMeasure, m, measureToSave);
     measureToSave.setFromCore(measure.isFromCore());
-    InputFile inputFile = newMeasure.inputFile();
-    if (inputFile != null) {
-      File sonarFile = getFile(inputFile);
-      if (coverageExclusions.accept(sonarFile, measureToSave)) {
-        saveMeasure(sonarFile, measureToSave);
-      }
-    } else {
-      saveMeasure(project, measureToSave);
+    InputComponent inputComponent = newMeasure.inputComponent();
+    Resource resource = resourceCache.get(inputComponent).resource();
+    if (coverageExclusions.accept(resource, measureToSave)) {
+      saveMeasure(resource, measureToSave);
     }
   }
 

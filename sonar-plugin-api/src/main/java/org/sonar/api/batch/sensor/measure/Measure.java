@@ -20,12 +20,9 @@
 package org.sonar.api.batch.sensor.measure;
 
 import com.google.common.annotations.Beta;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.measure.Metric;
-
-import javax.annotation.CheckForNull;
-
 import java.io.Serializable;
+import org.sonar.api.batch.fs.InputComponent;
+import org.sonar.api.batch.measure.Metric;
 
 /**
  * Measure on File, Directory or Project.
@@ -36,11 +33,9 @@ import java.io.Serializable;
 public interface Measure<G extends Serializable> {
 
   /**
-   * The file the measure belong to.
-   * @return null if measure is on project
+   * The {@link InputComponent} this measure belongs to.
    */
-  @CheckForNull
-  InputFile inputFile();
+  InputComponent inputComponent();
 
   /**
    * The metric this measure belong to.

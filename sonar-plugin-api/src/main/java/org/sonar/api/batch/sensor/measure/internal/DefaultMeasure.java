@@ -19,26 +19,21 @@
  */
 package org.sonar.api.batch.sensor.measure.internal;
 
-import org.sonar.api.batch.sensor.internal.SensorStorage;
-
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
+import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.io.Serializable;
-
 public class DefaultMeasure<G extends Serializable> extends DefaultStorable implements Measure<G>, NewMeasure<G> {
 
-  private boolean onProject = false;
-  private InputFile file;
+  private InputComponent component;
   private Metric<G> metric;
   private G value;
   private boolean fromCore = false;
@@ -52,19 +47,10 @@ public class DefaultMeasure<G extends Serializable> extends DefaultStorable impl
   }
 
   @Override
-  public DefaultMeasure<G> onFile(InputFile inputFile) {
-    Preconditions.checkState(!this.onProject, "onProject already called");
-    Preconditions.checkState(this.file == null, "onFile already called");
-    Preconditions.checkNotNull(inputFile, "InputFile should be non null");
-    this.file = inputFile;
-    return this;
-  }
-
-  @Override
-  public DefaultMeasure<G> onProject() {
-    Preconditions.checkState(!this.onProject, "onProject already called");
-    Preconditions.checkState(this.file == null, "onFile already called");
-    this.onProject = true;
+  public DefaultMeasure<G> on(InputComponent component) {
+    Preconditions.checkArgument(component != null, "Component can't be null");
+    Preconditions.checkState(this.component == null, "on() already called");
+    this.component = component;
     return this;
   }
 
@@ -113,9 +99,8 @@ public class DefaultMeasure<G extends Serializable> extends DefaultStorable impl
   }
 
   @Override
-  @CheckForNull
-  public InputFile inputFile() {
-    return file;
+  public InputComponent inputComponent() {
+    return component;
   }
 
   @Override
@@ -138,7 +123,7 @@ public class DefaultMeasure<G extends Serializable> extends DefaultStorable impl
     }
     DefaultMeasure<?> rhs = (DefaultMeasure<?>) obj;
     return new EqualsBuilder()
-      .append(file, rhs.file)
+      .append(component, rhs.component)
       .append(metric, rhs.metric)
       .append(value, rhs.value)
       .isEquals();
@@ -146,11 +131,7 @@ public class DefaultMeasure<G extends Serializable> extends DefaultStorable impl
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(27, 45).
-      append(file).
-      append(metric).
-      append(value).
-      toHashCode();
+    return new HashCodeBuilder(27, 45).append(component).append(metric).append(value).toHashCode();
   }
 
 }

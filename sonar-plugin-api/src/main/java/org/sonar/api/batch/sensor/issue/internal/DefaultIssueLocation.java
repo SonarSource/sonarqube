@@ -41,7 +41,7 @@ public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
   }
 
   @Override
-  public NewIssueLocation at(TextRange location) {
+  public DefaultIssueLocation at(TextRange location) {
     Preconditions.checkState(this.component != null, "at() should be called after on()");
     Preconditions.checkState(this.component.isFile(), "at() should be called only for an InputFile.");
     DefaultInputFile file = (DefaultInputFile) this.component;
@@ -51,7 +51,7 @@ public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
   }
 
   @Override
-  public NewIssueLocation message(String message) {
+  public DefaultIssueLocation message(String message) {
     Preconditions.checkNotNull(message, "Message can't be null");
     Preconditions.checkArgument(message.length() <= MESSAGE_MAX_SIZE,
       "Message of an issue can't be greater than " + MESSAGE_MAX_SIZE + ": [" + message + "] size is " + message.length());

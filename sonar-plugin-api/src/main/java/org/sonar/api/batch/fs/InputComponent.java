@@ -29,6 +29,11 @@ package org.sonar.api.batch.fs;
 public interface InputComponent {
 
   /**
+   * Component key shared by all part of SonarQube (batch, server, WS...)
+   */
+  String key();
+
+  /**
    * Is the component an {@link InputFile}
    */
   boolean isFile();

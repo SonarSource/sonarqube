@@ -28,6 +28,7 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
@@ -83,7 +84,7 @@ public class DefaultSensorStorageTest {
     CoverageExclusions coverageExclusions = mock(CoverageExclusions.class);
     when(coverageExclusions.accept(any(Resource.class), any(Measure.class))).thenReturn(true);
     resourceCache = new BatchComponentCache();
-    sensorStorage = new DefaultSensorStorage(metricFinder, project,
+    sensorStorage = new DefaultSensorStorage(metricFinder,
       moduleIssues, settings, fs, activeRules, mock(DuplicationCache.class), coverageExclusions, resourceCache, mock(ReportPublisher.class), measureCache);
   }
 
@@ -95,7 +96,7 @@ public class DefaultSensorStorageTest {
     thrown.expectMessage("Unknow metric with key: lines");
 
     sensorStorage.store(new DefaultMeasure()
-      .onFile(file)
+      .on(file)
       .forMetric(CoreMetrics.LINES)
       .withValue(10));
   }
@@ -109,7 +110,7 @@ public class DefaultSensorStorageTest {
     resourceCache.add(sonarFile, null).setInputComponent(file);
     when(measureCache.put(eq(sonarFile), argumentCaptor.capture())).thenReturn(null);
     sensorStorage.store(new DefaultMeasure()
-      .onFile(file)
+      .on(file)
       .forMetric(CoreMetrics.NCLOC)
       .withValue(10));
 
@@ -120,12 +121,14 @@ public class DefaultSensorStorageTest {
 
   @Test
   public void shouldSaveProjectMeasureToSensorContext() {
+    DefaultInputModule module = new DefaultInputModule(project.getEffectiveKey());
+    resourceCache.add(project, null).setInputComponent(module);
 
     ArgumentCaptor<org.sonar.api.measures.Measure> argumentCaptor = ArgumentCaptor.forClass(org.sonar.api.measures.Measure.class);
     when(measureCache.put(eq(project), argumentCaptor.capture())).thenReturn(null);
 
     sensorStorage.store(new DefaultMeasure()
-      .onProject()
+      .on(module)
       .forMetric(CoreMetrics.NCLOC)
       .withValue(10));
 

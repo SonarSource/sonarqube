@@ -27,9 +27,7 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.BatchSide;
-import org.sonar.api.batch.fs.InputPath;
-import org.sonar.api.batch.fs.internal.DefaultInputDir;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.resources.Resource;
 
 @BatchSide
@@ -48,11 +46,8 @@ public class BatchComponentCache {
     return components.get(resource.getEffectiveKey());
   }
 
-  public BatchComponent get(InputPath inputPath) {
-    if (inputPath instanceof DefaultInputFile) {
-      return components.get(((DefaultInputFile) inputPath).key());
-    }
-    return components.get(((DefaultInputDir) inputPath).key());
+  public BatchComponent get(InputComponent inputComponent) {
+    return components.get(inputComponent.key());
   }
 
   public BatchComponent add(Resource resource, @Nullable Resource parentResource) {

@@ -19,6 +19,10 @@
  */
 package org.sonar.xoo.lang;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
@@ -30,11 +34,6 @@ import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.xoo.Xoo;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.List;
 
 /**
  * Parse files *.xoo.measures
@@ -89,7 +88,7 @@ public class MeasureSensor implements Sensor {
     }
     NewMeasure<Serializable> newMeasure = context.newMeasure()
       .forMetric(metric)
-      .onFile(xooFile);
+      .on(xooFile);
     if (Boolean.class.equals(metric.valueType())) {
       newMeasure.withValue(Boolean.parseBoolean(value));
     } else if (Integer.class.equals(metric.valueType())) {

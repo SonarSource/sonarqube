@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
@@ -105,14 +106,14 @@ public class SensorContextTesterTest {
     assertThat(tester.measures("foo:src/Foo.java")).isEmpty();
     assertThat(tester.measure("foo:src/Foo.java", "ncloc")).isNull();
     tester.<Integer>newMeasure()
-      .onFile(new DefaultInputFile("foo", "src/Foo.java"))
+      .on(new DefaultInputFile("foo", "src/Foo.java"))
       .forMetric(CoreMetrics.NCLOC)
       .withValue(2)
       .save();
     assertThat(tester.measures("foo:src/Foo.java")).hasSize(1);
     assertThat(tester.measure("foo:src/Foo.java", "ncloc")).isNotNull();
     tester.<Integer>newMeasure()
-      .onFile(new DefaultInputFile("foo", "src/Foo.java"))
+      .on(new DefaultInputFile("foo", "src/Foo.java"))
       .forMetric(CoreMetrics.LINES)
       .withValue(4)
       .save();
@@ -120,12 +121,12 @@ public class SensorContextTesterTest {
     assertThat(tester.measure("foo:src/Foo.java", "ncloc")).isNotNull();
     assertThat(tester.measure("foo:src/Foo.java", "lines")).isNotNull();
     tester.<Integer>newMeasure()
-      .onProject()
+      .on(new DefaultInputModule("foo"))
       .forMetric(CoreMetrics.DIRECTORIES)
       .withValue(4)
       .save();
-    assertThat(tester.measures(null)).hasSize(1);
-    assertThat(tester.measure(null, "directories")).isNotNull();
+    assertThat(tester.measures("foo")).hasSize(1);
+    assertThat(tester.measure("foo", "directories")).isNotNull();
   }
 
   @Test

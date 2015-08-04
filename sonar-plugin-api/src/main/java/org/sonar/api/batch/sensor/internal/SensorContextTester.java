@@ -20,6 +20,8 @@
 package org.sonar.api.batch.sensor.internal;
 
 import com.google.common.annotations.Beta;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -30,14 +32,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.batch.fs.InputDir;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputDir;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
@@ -128,24 +124,16 @@ public class SensorContextTester implements SensorContext {
     return new DefaultMeasure<>(sensorStorage);
   }
 
-  public Collection<Measure> measures(@Nullable String componetKey) {
-    if (componetKey == null) {
-      return sensorStorage.projectMeasuresByMetric.values();
-    }
-    Map<String, Measure> measures = sensorStorage.measuresByComponentAndMetric.get(componetKey);
-    return measures != null ? measures.values() : Collections.<Measure>emptyList();
+  public Collection<Measure> measures(String componentKey) {
+    return sensorStorage.measuresByComponentAndMetric.row(componentKey).values();
   }
 
   public <G extends Serializable> Measure<G> measure(String componetKey, Metric<G> metric) {
     return measure(componetKey, metric.key());
   }
 
-  public Measure measure(String componetKey, String metricKey) {
-    if (componetKey == null) {
-      return sensorStorage.projectMeasuresByMetric.get(metricKey);
-    }
-    Map<String, Measure> measures = sensorStorage.measuresByComponentAndMetric.get(componetKey);
-    return measures != null ? measures.get(metricKey) : null;
+  public <G extends Serializable> Measure<G> measure(String componentKey, String metricKey) {
+    return sensorStorage.measuresByComponentAndMetric.row(componentKey).get(metricKey);
   }
 
   @Override
@@ -254,7 +242,7 @@ public class SensorContextTester implements SensorContext {
     public boolean isQuick() {
       return this.isSingle;
     }
-    
+
     public void setSingle(boolean single) {
       this.isSingle = single;
     }
@@ -262,8 +250,7 @@ public class SensorContextTester implements SensorContext {
 
   private static class InMemorySensorStorage implements SensorStorage {
 
-    private Map<String, Measure> projectMeasuresByMetric = new HashMap<>();
-    private Map<String, Map<String, Measure>> measuresByComponentAndMetric = new HashMap<>();
+    private Table<String, String, Measure> measuresByComponentAndMetric = HashBasedTable.create();
 
     private Collection<Issue> allIssues = new ArrayList<>();
 
@@ -274,15 +261,7 @@ public class SensorContextTester implements SensorContext {
 
     @Override
     public void store(Measure measure) {
-      String key = getKey(measure.inputFile());
-      if (key == null) {
-        projectMeasuresByMetric.put(measure.metric().key(), measure);
-      } else {
-        if (!measuresByComponentAndMetric.containsKey(key)) {
-          measuresByComponentAndMetric.put(key, new HashMap<String, Measure>());
-        }
-        measuresByComponentAndMetric.get(key).put(measure.metric().key(), measure);
-      }
+      measuresByComponentAndMetric.row(measure.inputComponent().key()).put(measure.metric().key(), measure);
     }
 
     @Override
@@ -297,30 +276,16 @@ public class SensorContextTester implements SensorContext {
 
     @Override
     public void store(DefaultHighlighting highlighting) {
-      highlightingByComponent.put(getKey(highlighting.inputFile()), highlighting);
+      highlightingByComponent.put(highlighting.inputFile().key(), highlighting);
     }
 
     @Override
     public void store(DefaultCoverage defaultCoverage) {
-      String key = getKey(defaultCoverage.inputFile());
+      String key = defaultCoverage.inputFile().key();
       if (!coverageByComponent.containsKey(key)) {
         coverageByComponent.put(key, new EnumMap<CoverageType, DefaultCoverage>(CoverageType.class));
       }
       coverageByComponent.get(key).put(defaultCoverage.type(), defaultCoverage);
-    }
-
-    @CheckForNull
-    private static String getKey(@Nullable InputPath inputPath) {
-      if (inputPath == null) {
-        return null;
-      }
-      if (inputPath instanceof InputFile) {
-        return ((DefaultInputFile) inputPath).key();
-      }
-      if (inputPath instanceof InputDir) {
-        return ((DefaultInputDir) inputPath).key();
-      }
-      throw new IllegalStateException("Unknow component " + inputPath);
     }
 
   }
