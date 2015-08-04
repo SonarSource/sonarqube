@@ -30,16 +30,10 @@ public class IssuesWs implements WebService {
   public static final String API_ENDPOINT = "api/issues";
 
   public static final String CHANGELOG_ACTION = "changelog";
-  public static final String ASSIGN_ACTION = "assign";
   public static final String ADD_COMMENT_ACTION = "add_comment";
   public static final String DELETE_COMMENT_ACTION = "delete_comment";
   public static final String EDIT_COMMENT_ACTION = "edit_comment";
-  public static final String SET_SEVERITY_ACTION = "set_severity";
-  public static final String PLAN_ACTION = "plan";
-  public static final String DO_TRANSITION_ACTION = "do_transition";
   public static final String TRANSITIONS_ACTION = "transitions";
-  public static final String CREATE_ACTION = "create";
-  public static final String DO_ACTION_ACTION = "do_action";
   public static final String BULK_CHANGE_ACTION = "bulk_change";
 
   private final IssuesWsAction[] actions;
@@ -65,12 +59,7 @@ public class IssuesWs implements WebService {
     defineAddCommentAction(controller);
     defineDeleteCommentAction(controller);
     defineEditCommentAction(controller);
-    defineSetSeverityAction(controller);
-    definePlanAction(controller);
-    defineDoTransitionAction(controller);
     defineTransitionsAction(controller);
-    defineCreateAction(controller);
-    defineDoActionAction(controller);
     defineBulkChangeAction(controller);
   }
 
@@ -135,59 +124,6 @@ public class IssuesWs implements WebService {
     RailsHandler.addFormatParam(action);
   }
 
-  private static void defineSetSeverityAction(NewController controller) {
-    WebService.NewAction action = controller.createAction(SET_SEVERITY_ACTION)
-      .setDescription("Change severity. Requires authentication and Browse permission on project")
-      .setSince("3.6")
-      .setHandler(RailsHandler.INSTANCE)
-      .setPost(true);
-
-    action.createParam("issue")
-      .setDescription("Key of the issue")
-      .setRequired(true)
-      .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
-    action.createParam("severity")
-      .setDescription("New severity")
-      .setExampleValue(Severity.BLOCKER)
-      .setPossibleValues(Severity.ALL);
-    RailsHandler.addFormatParam(action);
-  }
-
-  private static void definePlanAction(NewController controller) {
-    WebService.NewAction action = controller.createAction(PLAN_ACTION)
-      .setDescription("Plan/Unplan an issue. Requires authentication and Browse permission on project")
-      .setSince("3.6")
-      .setHandler(RailsHandler.INSTANCE)
-      .setPost(true);
-
-    action.createParam("issue")
-      .setDescription("Key of the issue")
-      .setRequired(true)
-      .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
-    action.createParam("plan")
-      .setDescription("Key of the action plan")
-      .setExampleValue("3f19de90-1521-4482-a737-a311758ff513");
-    RailsHandler.addFormatParam(action);
-  }
-
-  private static void defineDoTransitionAction(NewController controller) {
-    WebService.NewAction action = controller.createAction(DO_TRANSITION_ACTION)
-      .setDescription("Do workflow transition on an issue. Requires authentication and Browse permission on project")
-      .setSince("3.6")
-      .setHandler(RailsHandler.INSTANCE)
-      .setPost(true);
-
-    action.createParam("issue")
-      .setDescription("Key of the issue")
-      .setRequired(true)
-      .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
-    action.createParam("transition")
-      .setDescription("Transition")
-      .setExampleValue("reopen")
-      .setPossibleValues(DefaultTransitions.ALL);
-    RailsHandler.addFormatParam(action);
-  }
-
   private static void defineTransitionsAction(NewController controller) {
     WebService.NewAction action = controller.createAction(TRANSITIONS_ACTION)
       .setDescription("Get Possible Workflow Transitions for an Issue. Requires Browse permission on project")
@@ -199,52 +135,6 @@ public class IssuesWs implements WebService {
       .setDescription("Key of the issue")
       .setRequired(true)
       .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
-  }
-
-  private static void defineCreateAction(NewController controller) {
-    WebService.NewAction action = controller.createAction(CREATE_ACTION)
-      .setDescription("Create a manual issue. Requires authentication and Browse permission on project")
-      .setSince("3.6")
-      .setHandler(RailsHandler.INSTANCE)
-      .setPost(true);
-
-    action.createParam("component")
-      .setDescription("Key of the component on which to log the issue")
-      .setRequired(true)
-      .setExampleValue("org.apache.struts:struts:org.apache.struts.Action");
-    action.createParam("rule")
-      .setDescription("Manual rule key")
-      .setRequired(true)
-      .setExampleValue("manual:performance");
-    action.createParam("severity")
-      .setDescription("Severity of the issue")
-      .setExampleValue(Severity.BLOCKER + "," + Severity.CRITICAL)
-      .setPossibleValues(Severity.ALL);
-    action.createParam("line")
-      .setDescription("Line on which to log the issue. " +
-        "If no line is specified, the issue is attached to the component and not to a specific line")
-      .setExampleValue("15");
-    action.createParam("message")
-      .setDescription("Description of the issue")
-      .setExampleValue("blabla...");
-    RailsHandler.addFormatParam(action);
-  }
-
-  private static void defineDoActionAction(NewController controller) {
-    WebService.NewAction action = controller.createAction(DO_ACTION_ACTION)
-      .setDescription("Do workflow transition on an issue. Requires authentication and Browse permission on project")
-      .setSince("3.6")
-      .setHandler(RailsHandler.INSTANCE)
-      .setPost(true);
-
-    action.createParam("issue")
-      .setDescription("Key of the issue")
-      .setRequired(true)
-      .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
-    action.createParam("actionKey")
-      .setDescription("Action to perform")
-      .setExampleValue("link-to-jira");
-    RailsHandler.addFormatParam(action);
   }
 
   private static void defineBulkChangeAction(NewController controller) {

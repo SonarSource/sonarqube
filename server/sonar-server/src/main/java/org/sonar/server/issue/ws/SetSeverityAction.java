@@ -19,62 +19,46 @@
  */
 package org.sonar.server.issue.ws;
 
-import org.apache.commons.lang.BooleanUtils;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.issue.IssueService;
-import org.sonar.server.user.UserSession;
 
-import static com.google.common.base.Strings.emptyToNull;
+public class SetSeverityAction implements IssuesWsAction {
 
-public class AssignAction implements IssuesWsAction {
+  public static final String ACTION = "set_severity";
 
-  public static final String ASSIGN_ACTION = "assign";
-
-  private final UserSession userSession;
   private final IssueService issueService;
   private final OperationResponseWriter responseWriter;
 
-  public AssignAction(UserSession userSession, IssueService issueService, OperationResponseWriter responseWriter) {
-    this.userSession = userSession;
+  public SetSeverityAction(IssueService issueService, OperationResponseWriter responseWriter) {
     this.issueService = issueService;
     this.responseWriter = responseWriter;
   }
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction(ASSIGN_ACTION)
-      .setDescription("Assign/Unassign an issue. Requires authentication and Browse permission on project")
+    WebService.NewAction action = controller.createAction(ACTION)
+      .setDescription("Change severity. Requires authentication and Browse permission on project")
       .setSince("3.6")
       .setHandler(this)
       .setPost(true);
-    // TODO add example of response
 
     action.createParam("issue")
       .setDescription("Key of the issue")
       .setRequired(true)
       .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
-    action.createParam("assignee")
-      // TODO document absent value for unassign, and "_me" for assigning to me
-      .setDescription("Login of the assignee")
-      .setExampleValue("admin");
-    action.createParam("me")
-      .setDescription("(deprecated) Assign the issue to the logged-in user. Replaced by the parameter assignee=_me")
-      .setBooleanPossibleValues();
+    action.createParam("severity")
+      .setDescription("New severity")
+      .setRequired(true)
+      .setPossibleValues(Severity.ALL);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String assignee = emptyToNull(request.param("assignee"));
-    if ("_me".equals(assignee) || BooleanUtils.isTrue(request.paramAsBoolean("me"))) {
-      // Permission is currently checked by IssueService. We still
-      // check that user is authenticated in order to get his login.
-      userSession.checkLoggedIn();
-      assignee = userSession.getLogin();
-    }
     String key = request.mandatoryParam("issue");
-    issueService.assign(key, assignee);
+    issueService.setSeverity(key, request.mandatoryParam("severity"));
 
     responseWriter.write(key, request, response);
   }
