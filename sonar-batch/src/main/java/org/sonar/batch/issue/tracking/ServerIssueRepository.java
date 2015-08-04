@@ -57,16 +57,14 @@ public class ServerIssueRepository {
   private final ImmutableProjectReactor reactor;
   private final BatchComponentCache resourceCache;
   private final AnalysisMode analysisMode;
-  private final InputPathCache inputPathCache;
 
   public ServerIssueRepository(Caches caches, ServerIssuesLoader previousIssuesLoader, ImmutableProjectReactor reactor, BatchComponentCache resourceCache,
-    AnalysisMode analysisMode, InputPathCache inputPathCache) {
+    AnalysisMode analysisMode) {
     this.caches = caches;
     this.previousIssuesLoader = previousIssuesLoader;
     this.reactor = reactor;
     this.resourceCache = resourceCache;
     this.analysisMode = analysisMode;
-    this.inputPathCache = inputPathCache;
   }
 
   public void load() {
@@ -99,7 +97,7 @@ public class ServerIssueRepository {
     }
   }
 
-  private void stopDebug(Profiler profiler, String msg, boolean fromCache) {
+  private static void stopDebug(Profiler profiler, String msg, boolean fromCache) {
     if (fromCache) {
       profiler.stopDebug(msg + " (done from cache)");
     } else {

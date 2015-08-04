@@ -47,14 +47,14 @@ public class WSLoaderProjectProviderTest {
   @Mock
   private AnalysisMode mode;
 
-  private WSLoaderProjectProvider loaderProvider;
+  private ProjectWSLoaderProvider loaderProvider;
   private Map<String, String> propMap;
   private AnalysisProperties props;
 
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    loaderProvider = new WSLoaderProjectProvider();
+    loaderProvider = new ProjectWSLoaderProvider();
     propMap = new HashMap<>();
   }
 

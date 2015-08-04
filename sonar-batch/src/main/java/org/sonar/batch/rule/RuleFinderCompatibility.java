@@ -95,10 +95,10 @@ public class RuleFinderCompatibility implements RuleFinder {
   }
 
   private Collection<Rule> byRepository(RuleQuery query) {
-    return Collections2.transform(rules.findByRepository(query.getRepositoryKey()), RuleTransformer);
+    return Collections2.transform(rules.findByRepository(query.getRepositoryKey()), ruleTransformer);
   }
 
-  private static Function<org.sonar.api.batch.rule.Rule, Rule> RuleTransformer = new Function<org.sonar.api.batch.rule.Rule, Rule>() {
+  private static Function<org.sonar.api.batch.rule.Rule, Rule> ruleTransformer = new Function<org.sonar.api.batch.rule.Rule, Rule>() {
     @Override
     public Rule apply(@Nonnull org.sonar.api.batch.rule.Rule input) {
       return toRule(input);
@@ -111,7 +111,7 @@ public class RuleFinderCompatibility implements RuleFinder {
   }
 
   private Collection<Rule> byInternalKey(RuleQuery query) {
-    return Collections2.transform(rules.findByInternalKey(query.getRepositoryKey(), query.getConfigKey()), RuleTransformer);
+    return Collections2.transform(rules.findByInternalKey(query.getRepositoryKey(), query.getConfigKey()), ruleTransformer);
   }
 
   @CheckForNull

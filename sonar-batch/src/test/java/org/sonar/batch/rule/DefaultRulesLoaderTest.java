@@ -57,4 +57,10 @@ public class DefaultRulesLoaderTest {
 
     assertThat(loader.loadedFromCache()).isTrue();
   }
+  
+  @Test(expected = IllegalStateException.class)
+  public void testGetLoadedFromCacheBefore() {
+    DefaultRulesLoader loader = new DefaultRulesLoader(mock(WSLoader.class));
+    loader.loadedFromCache();
+  }
 }

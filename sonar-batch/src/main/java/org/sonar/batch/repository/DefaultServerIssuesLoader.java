@@ -46,7 +46,7 @@ public class DefaultServerIssuesLoader implements ServerIssuesLoader {
   }
 
   private static void parseIssues(ByteSource input, Function<ServerIssue, Void> consumer) {
-    try (InputStream is = input.openStream()) {
+    try (InputStream is = input.openBufferedStream()) {
       ServerIssue previousIssue = ServerIssue.parseDelimitedFrom(is);
       while (previousIssue != null) {
         consumer.apply(previousIssue);

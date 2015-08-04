@@ -20,7 +20,6 @@
 package org.sonar.batch.repository;
 
 import org.sonar.batch.bootstrap.WSLoaderResult;
-
 import com.google.common.io.ByteSource;
 import org.sonar.batch.bootstrap.WSLoader;
 import com.google.common.base.Function;
@@ -31,6 +30,7 @@ import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,7 +60,7 @@ public class DefaultServerIssuesLoaderTest {
     ServerIssue.newBuilder().setKey("ab2").build()
       .writeDelimitedTo(bos);
 
-    when(bs.openStream()).thenReturn(new ByteArrayInputStream(bos.toByteArray()));
+    when(bs.openBufferedStream()).thenReturn(new ByteArrayInputStream(bos.toByteArray()));
 
     final List<ServerIssue> result = new ArrayList<>();
     loader.load("foo", new Function<BatchInput.ServerIssue, Void>() {
@@ -73,5 +73,13 @@ public class DefaultServerIssuesLoaderTest {
     }, false);
 
     assertThat(result).extracting("key").containsExactly("ab1", "ab2");
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void testError() throws IOException {
+    ByteSource source = mock(ByteSource.class);
+    when(source.openBufferedStream()).thenThrow(IOException.class);
+    when(wsLoader.loadSource("/batch/issues?key=foo")).thenReturn(new WSLoaderResult<ByteSource>(source, true));
+    loader.load("foo", mock(Function.class), false);
   }
 }

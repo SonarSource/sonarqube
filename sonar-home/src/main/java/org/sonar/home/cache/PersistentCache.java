@@ -77,16 +77,7 @@ public class PersistentCache {
 
   @CheckForNull
   public synchronized String getString(@Nonnull String obj, @Nullable final PersistentCacheLoader<String> valueLoader) throws IOException {
-    byte[] cached = get(obj, new PersistentCacheLoader<byte[]>() {
-      @Override
-      public byte[] get() throws IOException {
-        String s = valueLoader.get();
-        if (s != null) {
-          return s.getBytes(ENCODING);
-        }
-        return null;
-      }
-    });
+    byte[] cached = get(obj, new ValueLoaderDecoder(valueLoader));
 
     if (cached == null) {
       return null;
@@ -226,6 +217,23 @@ public class PersistentCache {
           logger.error("Error deleting " + p, e);
         }
       }
+    }
+  }
+
+  private static class ValueLoaderDecoder implements PersistentCacheLoader<byte[]> {
+    PersistentCacheLoader<String> valueLoader;
+
+    ValueLoaderDecoder(PersistentCacheLoader<String> valueLoader) {
+      this.valueLoader = valueLoader;
+    }
+
+    @Override
+    public byte[] get() throws IOException {
+      String s = valueLoader.get();
+      if (s != null) {
+        return s.getBytes(ENCODING);
+      }
+      return null;
     }
   }
 
