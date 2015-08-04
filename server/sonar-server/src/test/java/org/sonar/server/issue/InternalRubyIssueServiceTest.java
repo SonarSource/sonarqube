@@ -32,7 +32,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.action.Action;
 import org.sonar.api.user.User;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultActionPlan;
@@ -86,8 +85,6 @@ public class InternalRubyIssueServiceTest {
 
   ResourceDao resourceDao;
 
-  ActionService actionService;
-
   IssueFilterService issueFilterService;
 
   IssueBulkChangeService issueBulkChangeService;
@@ -116,7 +113,6 @@ public class InternalRubyIssueServiceTest {
     changelogService = mock(IssueChangelogService.class);
     actionPlanService = mock(ActionPlanService.class);
     resourceDao = mock(ResourceDao.class);
-    actionService = mock(ActionService.class);
     issueFilterService = mock(IssueFilterService.class);
     issueBulkChangeService = mock(IssueBulkChangeService.class);
     issueWriter = mock(IssueJsonWriter.class);
@@ -130,7 +126,7 @@ public class InternalRubyIssueServiceTest {
     ResourceDto project = new ResourceDto().setKey("org.sonar.Sample");
     when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(project);
 
-    service = new InternalRubyIssueService(issueService, issueQueryService, commentService, changelogService, actionPlanService, resourceDao, actionService,
+    service = new InternalRubyIssueService(issueService, issueQueryService, commentService, changelogService, actionPlanService, resourceDao,
       issueFilterService, issueBulkChangeService, issueWriter, issueComponentHelper, componentWriter, userIndex, dbClient, userSessionRule, userWriter);
   }
 
@@ -168,12 +164,6 @@ public class InternalRubyIssueServiceTest {
   public void find_comments_by_issue_keys() {
     service.findCommentsByIssueKeys(newArrayList("ABCD"));
     verify(commentService).findComments(newArrayList("ABCD"));
-  }
-
-  @Test
-  public void do_transition() {
-    service.doTransition("ABCD", Issue.STATUS_RESOLVED);
-    verify(issueService).doTransition(eq("ABCD"), eq(Issue.STATUS_RESOLVED));
   }
 
   @Test

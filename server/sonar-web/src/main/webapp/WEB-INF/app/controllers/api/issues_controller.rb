@@ -61,20 +61,6 @@ class Api::IssuesController < Api::ApiController
   end
 
   #
-  # POST /api/issues/do_transition?issue=<key>&transition=<key>&comment=<optional comment>
-  #
-  # -- Example
-  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/do_transition?issue=9b6f89c0-3347-46f6-a6d1-dd6c761240e0&transition=resolve'
-  #
-  def do_transition
-    verify_post_request
-    require_parameters :issue, :transition
-
-    result = Internal.issues.doTransition(params[:issue], params[:transition])
-    render_result_issue(result)
-  end
-
-  #
   # POST /api/issues/add_comment?issue=<key>&text=<text>
   #
   # -- Mandatory parameters
@@ -145,66 +131,6 @@ class Api::IssuesController < Api::ApiController
     end
   end
 
-
-  #
-  # Change the severity of an existing issue
-  #
-  # POST /api/issues/set_severity?issue=<key>&severity=<severity>
-  #
-  # -- Example
-  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/set_severity?issue=4a2881e7-825e-4140-a154-01f420c43d11&severity=BLOCKER'
-  #
-  def set_severity
-    verify_post_request
-    require_parameters :issue, :severity
-
-    result = Internal.issues.setSeverity(params[:issue], params[:severity])
-    render_result_issue(result)
-  end
-
-  #
-  # Link an existing issue to an action plan or unlink
-  #
-  # POST /api/issues/plan?issue=<key>&plan=<optional plan>
-  # A nil or blank plan removes the action plan.
-  #
-  # -- Example
-  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/plan?issue=4a2881e7-825e-4140-a154-01f420c43d11&plan=6b851f3c-e25c-432c-aee0-0e13a4184ca3'
-  #
-  def plan
-    verify_post_request
-    require_parameters :issue
-
-    plan = nil
-    plan = params[:plan] if params[:plan] && !params[:plan].blank?
-    result = Internal.issues.plan(params[:issue], plan)
-    render_result_issue(result)
-  end
-
-  #
-  # Create a manual issue.
-  #
-  # POST /api/issues/create
-  #
-  # -- Mandatory parameters
-  # 'component' is the component key
-  # 'rule' is the rule key prefixed with "manual:", for example 'manual:performance'
-  #
-  # -- Optional parameters
-  # 'severity' is in BLOCKER, CRITICAL, ... INFO. Default value is MAJOR.
-  # 'line' starts at 1
-  # 'message' is the plain-text message
-  #
-  # -- Example
-  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/create?component=commons-io:commons-io:org.apache.commons.io.filefilter.OrFileFilter&rule=manual:performance&line=2&severity=BLOCKER'
-  #
-  def create
-    verify_post_request
-
-    issue_result = Internal.issues.create(params)
-    render_result_issue(issue_result)
-  end
-
   #
   # GET /api/issues/actions?issue=<key>
   #
@@ -220,21 +146,6 @@ class Api::IssuesController < Api::ApiController
         :actions => actions.map { |t| t.key() }
       }
     )
-  end
-
-
-  #
-  # POST /api/issues/do_action?issue=<key>&actionKey=<action key>
-  #
-  # -- Example
-  # curl -X POST -v -u admin:admin 'http://localhost:9000/api/issues/do_action?issue=9b6f89c0-3347-46f6-a6d1-dd6c761240e0&actionKey=link-to-jira'
-  #
-  def do_action
-    verify_post_request
-    require_parameters :issue, :actionKey
-
-    result = Internal.issues.executeAction(params[:issue], params[:actionKey])
-    render_result_issue(result)
   end
 
   #
@@ -283,16 +194,6 @@ class Api::IssuesController < Api::ApiController
 
   protected
 
-  def render_result_issue(result)
-    hash = result_to_hash(result)
-    hash[:issue] = Issue.to_hash(result.get) if result.get
-
-    respond_to do |format|
-      # if the request header "Accept" is "*/*", then the default format is the first one (json)
-      format.json { render :json => Internal.issues.writeIssueJson(result.get), :status => result.httpStatus }
-      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => (result.ok ? 200 : 400)) }
-    end
-  end
 
   def result_to_hash(result)
     hash = {}

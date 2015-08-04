@@ -153,15 +153,7 @@ import org.sonar.server.issue.notification.MyNewIssuesNotificationDispatcher;
 import org.sonar.server.issue.notification.NewIssuesEmailTemplate;
 import org.sonar.server.issue.notification.NewIssuesNotificationDispatcher;
 import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
-import org.sonar.server.issue.ws.ComponentTagsAction;
-import org.sonar.server.issue.ws.IssueActionsWriter;
-import org.sonar.server.issue.ws.IssueComponentHelper;
-import org.sonar.server.issue.ws.IssueJsonWriter;
-import org.sonar.server.issue.ws.IssuesWs;
-import org.sonar.server.issue.ws.OperationResponseWriter;
-import org.sonar.server.issue.ws.SearchResponseFormat;
-import org.sonar.server.issue.ws.SearchResponseLoader;
-import org.sonar.server.issue.ws.SetTagsAction;
+import org.sonar.server.issue.ws.IssueWsModule;
 import org.sonar.server.language.ws.LanguageWs;
 import org.sonar.server.measure.MeasureFilterEngine;
 import org.sonar.server.measure.MeasureFilterExecutor;
@@ -178,9 +170,9 @@ import org.sonar.server.notification.NotificationCenter;
 import org.sonar.server.notification.NotificationService;
 import org.sonar.server.notification.email.AlertsEmailTemplate;
 import org.sonar.server.notification.email.EmailNotificationChannel;
+import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionTemplateService;
-import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.permission.ws.PermissionsWsModule;
 import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.platform.SettingsChangeNotifier;
@@ -547,7 +539,6 @@ public class PlatformLevel4 extends PlatformLevel {
       CurrentAction.class,
       org.sonar.server.user.ws.SearchAction.class,
       org.sonar.server.user.ws.GroupsAction.class,
-      org.sonar.server.issue.ws.AuthorsAction.class,
       FavoritesWs.class,
       UserPropertiesWs.class,
       UserIndexDefinition.class,
@@ -603,22 +594,9 @@ public class PlatformLevel4 extends PlatformLevel {
       Actions.class,
       IssueBulkChangeService.class,
       IssueChangelogFormatter.class,
-      IssuesWs.class,
-      IssueJsonWriter.class,
-      IssueComponentHelper.class,
       WsResponseCommonFormat.class,
-      SearchResponseLoader.class,
-      SearchResponseFormat.class,
-      OperationResponseWriter.class,
-      org.sonar.server.issue.ws.AssignAction.class,
-      org.sonar.server.issue.ws.ShowAction.class,
-      org.sonar.server.issue.ws.SearchAction.class,
-      org.sonar.server.issue.ws.Search2Action.class,
-      org.sonar.server.issue.ws.TagsAction.class,
-      SetTagsAction.class,
-      ComponentTagsAction.class,
+      IssueWsModule.class,
       IssueService.class,
-      IssueActionsWriter.class,
       IssueQueryService.class,
       NewIssuesEmailTemplate.class,
       MyNewIssuesEmailTemplate.class,
