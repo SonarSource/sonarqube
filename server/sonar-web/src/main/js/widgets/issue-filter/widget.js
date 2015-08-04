@@ -258,7 +258,7 @@ define(['./templates'], function () {
       this.listenTo(this.model, 'change', this.render);
       this.conf = byDistributionConf[this.options.distributionAxis];
       this.query = this.getParsedQuery();
-      this.requestIssues();
+      this.requestNutshellIssues();
     },
 
     getParsedQuery: function () {
@@ -317,7 +317,7 @@ define(['./templates'], function () {
       });
     },
 
-    requestIssues: function () {
+    requestNutshellIssues: function () {
       var that = this,
           facetMode = this.options.displayMode,
           url = baseUrl + '/api/issues/search',

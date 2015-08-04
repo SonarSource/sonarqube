@@ -465,6 +465,7 @@ function closeModalWindow () {
    * @returns {string}
    */
   var shortDurationFormatter = function (value) {
+    value = parseInt(value, 10);
     if (value === 0) {
       return '0';
     }
@@ -517,6 +518,9 @@ function closeModalWindow () {
           },
           'PERCENT': function (value) {
             return numeral(+value / 100).format('0,0.0%');
+          },
+          'SHORT_PERCENT': function (value) {
+            return numeral(+value / 100).format('0,0%');
           },
           'WORK_DUR': durationFormatter,
           'SHORT_WORK_DUR': shortDurationFormatter,

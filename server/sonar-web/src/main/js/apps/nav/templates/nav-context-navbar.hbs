@@ -21,8 +21,8 @@
   </div>
 
   <ul class="nav navbar-nav nav-tabs">
-    <li {{#if isOverviewActive}}class="active"{{/if}}>
-      <a href="{{componentPermalink component.key}}">{{t 'overview.page'}}</a>
+    <li {{#isActiveLink '/overview'}}class="active"{{/isActiveLink}}>
+      <a href="{{componentOverviewPermalink component.key}}">{{t 'overview.page'}}</a>
     </li>
     <li {{#isActiveLink '/components'}}class="active"{{/isActiveLink}}>
       <a href="{{componentBrowsePermalink component.key}}">{{t 'components.page'}}</a>
@@ -95,11 +95,11 @@
       <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{t 'more'}}&nbsp;<i class="icon-dropdown"></i></a>
       <ul class="dropdown-menu">
         <li class="dropdown-header">{{t 'layout.dashboards'}}</li>
-        {{#withoutFirst component.dashboards}}
+        {{#each component.dashboards}}
           <li>
             <a href="{{componentDashboardPermalink ../component.key key}}">{{dashboardL10n name}}</a>
           </li>
-        {{/withoutFirst}}
+        {{/each}}
         {{#if canManageContextDashboards}}
           <li class="small-divider"></li>
           <li>

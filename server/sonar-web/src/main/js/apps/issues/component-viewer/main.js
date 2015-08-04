@@ -158,7 +158,7 @@ define([
       });
     },
 
-    requestIssues: function () {
+    requestNutshellIssues: function () {
       var that = this;
       var r;
       if (this.options.app.list.last().get('component') === this.model.get('key')) {

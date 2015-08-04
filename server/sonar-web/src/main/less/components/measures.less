@@ -57,6 +57,10 @@
   }
 }
 
+.measures-chart-indent {
+  padding-left: 90px;
+}
+
 .measure {
   line-height: 1.3333333333333;
 }
@@ -108,7 +112,8 @@
   vertical-align: middle;
 
   .measure-name {
-    font-size: 16px;
+    margin-top: 2px;
+    font-size: 15px;
     font-weight: 300;
   }
 
@@ -127,15 +132,14 @@
 }
 
 .measure-one-line {
-  .justify;
+  .clearfix;
 
   .measure-name {
-    display: inline-block;
+    float: left;
   }
 
   .measure-value {
-    display: inline-block;
-    text-align: right;
+    float: right;
   }
 }
 

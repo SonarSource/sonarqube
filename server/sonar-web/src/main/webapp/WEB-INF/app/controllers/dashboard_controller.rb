@@ -17,6 +17,7 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
+include ERB::Util
 
 class DashboardController < ApplicationController
 
@@ -26,6 +27,10 @@ class DashboardController < ApplicationController
 
   def index
     load_resource()
+    if @resource && !params[:did]
+      overview_url = url_for({:controller => 'overview', :action => :index}) + '?id=' + url_encode(@resource.key)
+      redirect_to overview_url
+    end
     if !@resource || @resource.display_dashboard?
       redirect_if_bad_component()
       load_dashboard()

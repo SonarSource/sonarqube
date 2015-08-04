@@ -125,7 +125,7 @@ define([
           var that = this,
               opts = typeof options === 'object' ? options : {},
               finalize = function () {
-                that.requestIssues().done(function () {
+                that.requestNutshellIssues().done(function () {
                   that.render();
                   that.trigger('loaded');
                 });
@@ -269,7 +269,7 @@ define([
           });
         },
 
-        requestIssues: function () {
+        requestNutshellIssues: function () {
           var that = this,
               options = {
                 data: {

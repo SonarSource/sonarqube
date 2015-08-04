@@ -38,6 +38,8 @@ module.exports = (grunt) ->
 
     babel:
       build:
+        options:
+          modules: 'amd'
         files: [
           expand: true
           cwd: '<%= SOURCE_PATH %>/js'
@@ -142,6 +144,7 @@ module.exports = (grunt) ->
           'build-app:measures'
           'build-app:metrics'
           'build-app:nav'
+          'build-app:overview'
           'build-app:provisioning'
           'build-app:quality-gates'
           'build-app:quality-profiles'
