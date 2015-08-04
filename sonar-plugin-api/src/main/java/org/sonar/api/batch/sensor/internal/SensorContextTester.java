@@ -228,18 +228,8 @@ public class SensorContextTester implements SensorContext {
   }
 
   public static class MockAnalysisMode implements AnalysisMode {
-    private boolean isIncremental = false;
     private boolean isPreview = false;
     private boolean isSingle = false;
-
-    @Override
-    public boolean isIncremental() {
-      return isIncremental;
-    }
-
-    public void setIncremental(boolean value) {
-      this.isIncremental = value;
-    }
 
     @Override
     public boolean isPreview() {
@@ -254,7 +244,7 @@ public class SensorContextTester implements SensorContext {
     public boolean isQuick() {
       return this.isSingle;
     }
-    
+
     public void setSingle(boolean single) {
       this.isSingle = single;
     }

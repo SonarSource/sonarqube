@@ -184,11 +184,11 @@ public class DefaultHttpDownloader extends HttpDownloader {
     }
 
     private void initUserAgent(@Nullable String sonarVersion) {
-      userAgent = (sonarVersion == null ? "SonarQube" : String.format("SonarQube %s", sonarVersion));
+      userAgent = sonarVersion == null ? "SonarQube" : String.format("SonarQube %s", sonarVersion);
       System.setProperty("http.agent", userAgent);
     }
 
-    private String getProxySynthesis(URI uri) {
+    private static String getProxySynthesis(URI uri) {
       return getProxySynthesis(uri, ProxySelector.getDefault());
     }
 

@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.batch.scan.ProjectAnalysisMode;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,7 +46,6 @@ public class InputFileBuilderTest {
   LanguageDetection langDetection = mock(LanguageDetection.class);
   StatusDetection statusDetection = mock(StatusDetection.class);
   DefaultModuleFileSystem fs = mock(DefaultModuleFileSystem.class);
-  ProjectAnalysisMode analysisMode = mock(ProjectAnalysisMode.class);
 
   @Test
   public void complete_input_file() throws Exception {
@@ -68,7 +65,7 @@ public class InputFileBuilderTest {
       .thenReturn(InputFile.Status.ADDED);
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
-      langDetection, statusDetection, fs, analysisMode, new Settings(), new FileMetadata());
+      langDetection, statusDetection, fs, new Settings(), new FileMetadata());
     DefaultInputFile inputFile = builder.create(srcFile);
     builder.completeAndComputeMetadata(inputFile, InputFile.Type.MAIN);
 
@@ -91,7 +88,7 @@ public class InputFileBuilderTest {
     when(fs.baseDir()).thenReturn(basedir);
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
-      langDetection, statusDetection, fs, analysisMode, new Settings(), new FileMetadata());
+      langDetection, statusDetection, fs, new Settings(), new FileMetadata());
     DefaultInputFile inputFile = builder.create(srcFile);
 
     assertThat(inputFile).isNull();
@@ -111,7 +108,7 @@ public class InputFileBuilderTest {
     when(langDetection.language(any(InputFile.class))).thenReturn(null);
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
-      langDetection, statusDetection, fs, analysisMode, new Settings(), new FileMetadata());
+      langDetection, statusDetection, fs, new Settings(), new FileMetadata());
     DefaultInputFile inputFile = builder.create(srcFile);
     inputFile = builder.completeAndComputeMetadata(inputFile, InputFile.Type.MAIN);
 

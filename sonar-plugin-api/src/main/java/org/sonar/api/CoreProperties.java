@@ -446,7 +446,7 @@ public interface CoreProperties {
    * @since 4.0
    */
   String ANALYSIS_MODE_PREVIEW = "preview";
-  
+
   /**
    * @since 5.2
    */
@@ -454,6 +454,7 @@ public interface CoreProperties {
 
   /**
    * @since 4.0
+   * @deprecated since 5.2
    */
   String ANALYSIS_MODE_INCREMENTAL = "incremental";
 

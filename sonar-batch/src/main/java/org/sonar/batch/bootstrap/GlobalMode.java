@@ -40,8 +40,7 @@ public class GlobalMode {
       preview = "true".equals(props.property(CoreProperties.DRY_RUN));
     } else {
       String mode = props.property(CoreProperties.ANALYSIS_MODE);
-      preview = CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode) || CoreProperties.ANALYSIS_MODE_INCREMENTAL.equals(mode) ||
-        CoreProperties.ANALYSIS_MODE_QUICK.equals(mode);
+      preview = CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode) || CoreProperties.ANALYSIS_MODE_QUICK.equals(mode);
     }
 
     if (preview) {

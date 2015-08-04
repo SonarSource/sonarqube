@@ -39,7 +39,6 @@ public class ProjectAnalysisMode implements AnalysisMode {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectAnalysisMode.class);
 
   private boolean preview;
-  private boolean incremental;
   private boolean quick;
   private boolean mediumTestMode;
 
@@ -49,17 +48,12 @@ public class ProjectAnalysisMode implements AnalysisMode {
 
   @Override
   public boolean isPreview() {
-    return preview || incremental || quick;
+    return preview || quick;
   }
 
   @Override
   public boolean isQuick() {
     return quick;
-  }
-
-  @Override
-  public boolean isIncremental() {
-    return incremental;
   }
 
   public boolean isMediumTest() {
@@ -82,18 +76,14 @@ public class ProjectAnalysisMode implements AnalysisMode {
     if (getPropertyWithFallback(analysisProps, globalProps, CoreProperties.DRY_RUN) != null) {
       LOG.warn(MessageFormat.format("Property {0} is deprecated. Please use {1} instead.", CoreProperties.DRY_RUN, CoreProperties.ANALYSIS_MODE));
       preview = "true".equals(getPropertyWithFallback(analysisProps, globalProps, CoreProperties.DRY_RUN));
-      incremental = false;
     } else {
       String mode = getPropertyWithFallback(analysisProps, globalProps, CoreProperties.ANALYSIS_MODE);
       preview = CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
-      incremental = CoreProperties.ANALYSIS_MODE_INCREMENTAL.equals(mode);
       quick = CoreProperties.ANALYSIS_MODE_QUICK.equals(mode);
     }
     mediumTestMode = "true".equals(getPropertyWithFallback(analysisProps, globalProps, BatchMediumTester.MEDIUM_TEST_ENABLED));
 
-    if (incremental) {
-      LOG.info("Incremental mode");
-    } else if (preview) {
+    if (preview) {
       LOG.info("Preview mode");
     } else if (quick) {
       LOG.info("Quick mode");
@@ -115,6 +105,6 @@ public class ProjectAnalysisMode implements AnalysisMode {
     String mode = props.get(CoreProperties.ANALYSIS_MODE);
 
     return "true".equals(props.get(CoreProperties.DRY_RUN)) || CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode) ||
-      CoreProperties.ANALYSIS_MODE_INCREMENTAL.equals(mode) || CoreProperties.ANALYSIS_MODE_QUICK.equals(mode);
+      CoreProperties.ANALYSIS_MODE_QUICK.equals(mode);
   }
 }
