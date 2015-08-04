@@ -36,6 +36,17 @@ module.exports = (grunt) ->
           ]
 
 
+    babel:
+      build:
+        files: [
+          expand: true
+          cwd: '<%= SOURCE_PATH %>/js'
+          src: ['**/*.jsx']
+          dest: '<%= BUILD_PATH %>/js'
+          ext: '.js'
+        ]
+
+
     concat:
       build:
         files:
@@ -300,6 +311,10 @@ module.exports = (grunt) ->
         files: '<%= SOURCE_PATH %>/js/**/*.js'
         tasks: ['copy:js', 'concat:build', 'copy:assets-all-js']
 
+      jsx:
+        files: '<%= SOURCE_PATH %>/js/**/*.jsx'
+        tasks: ['babel:build', 'concat:build', 'copy:assets-all-js']
+
       handlebars:
         files: '<%= SOURCE_PATH %>/**/*.hbs'
         tasks: ['handlebars:build', 'copy:assets-all-js']
@@ -307,7 +322,7 @@ module.exports = (grunt) ->
 
   # Basic tasks
   grunt.registerTask 'prepare',
-      ['clean:css', 'clean:js', 'clean:build', 'less:build', 'handlebars:build', 'copy:js', 'concat:build']
+      ['clean:css', 'clean:js', 'clean:build', 'less:build', 'handlebars:build', 'copy:js', 'babel:build', 'concat:build']
 
   grunt.registerTask 'build-fast-suffix',
       ['copy:assets-css', 'copy:assets-all-js']
