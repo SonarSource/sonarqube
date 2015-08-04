@@ -178,12 +178,11 @@ public class WSLoader {
     if (isOffline()) {
       throw new NotAvailableException("Server not available");
     }
-
     try {
       InputStream is = client.load(id, REQUEST_METHOD, true, CONNECT_TIMEOUT, READ_TIMEOUT);
       switchToOnline();
       byte[] value = IOUtils.toByteArray(is);
-      updateCache(client.getURI(id).toString(), value);
+      updateCache(id, value);
       return new WSLoaderResult<byte[]>(value, false);
     } catch (IllegalStateException e) {
       if (e.getCause() instanceof HttpDownloader.HttpException) {
