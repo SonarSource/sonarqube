@@ -182,23 +182,20 @@ public class SearchResponseLoader {
         add(RULES, issue.getRuleKey());
         add(USERS, issue.getReporter());
         add(USERS, issue.getAssignee());
-        collectIssueLocations(issue);
+        collectComponentsFromIssueLocations(issue);
       }
     }
 
-    private void collectIssueLocations(IssueDto issue) {
+    private void collectComponentsFromIssueLocations(IssueDto issue) {
       DbIssues.Locations locations = issue.parseLocations();
       if (locations != null) {
-        if (locations.hasPrimary() && locations.getPrimary().hasComponentId()) {
-          componentUuids.add(locations.getPrimary().getComponentId());
-        }
         for (DbIssues.Location location : locations.getSecondaryList()) {
           if (location.hasComponentId()) {
             componentUuids.add(location.getComponentId());
           }
         }
         for (DbIssues.ExecutionFlow flow : locations.getExecutionFlowList()) {
-          for (DbIssues.Location location : flow.getLocationsList()) {
+          for (DbIssues.Location location : flow.getLocationList()) {
             if (location.hasComponentId()) {
               componentUuids.add(location.getComponentId());
             }

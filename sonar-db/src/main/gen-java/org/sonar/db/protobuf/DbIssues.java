@@ -13,17 +13,17 @@ public final class DbIssues {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional .sonarqube.db.issues.Location primary = 1;</code>
+     * <code>optional .sonarqube.db.commons.TextRange primary = 1;</code>
      */
     boolean hasPrimary();
     /**
-     * <code>optional .sonarqube.db.issues.Location primary = 1;</code>
+     * <code>optional .sonarqube.db.commons.TextRange primary = 1;</code>
      */
-    org.sonar.db.protobuf.DbIssues.Location getPrimary();
+    org.sonar.db.protobuf.DbCommons.TextRange getPrimary();
     /**
-     * <code>optional .sonarqube.db.issues.Location primary = 1;</code>
+     * <code>optional .sonarqube.db.commons.TextRange primary = 1;</code>
      */
-    org.sonar.db.protobuf.DbIssues.LocationOrBuilder getPrimaryOrBuilder();
+    org.sonar.db.protobuf.DbCommons.TextRangeOrBuilder getPrimaryOrBuilder();
 
     /**
      * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
@@ -126,11 +126,11 @@ public final class DbIssues {
               break;
             }
             case 10: {
-              org.sonar.db.protobuf.DbIssues.Location.Builder subBuilder = null;
+              org.sonar.db.protobuf.DbCommons.TextRange.Builder subBuilder = null;
               if (((bitField0_ & 0x00000001) == 0x00000001)) {
                 subBuilder = primary_.toBuilder();
               }
-              primary_ = input.readMessage(org.sonar.db.protobuf.DbIssues.Location.PARSER, extensionRegistry);
+              primary_ = input.readMessage(org.sonar.db.protobuf.DbCommons.TextRange.PARSER, extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(primary_);
                 primary_ = subBuilder.buildPartial();
@@ -201,23 +201,23 @@ public final class DbIssues {
 
     private int bitField0_;
     public static final int PRIMARY_FIELD_NUMBER = 1;
-    private org.sonar.db.protobuf.DbIssues.Location primary_;
+    private org.sonar.db.protobuf.DbCommons.TextRange primary_;
     /**
-     * <code>optional .sonarqube.db.issues.Location primary = 1;</code>
+     * <code>optional .sonarqube.db.commons.TextRange primary = 1;</code>
      */
     public boolean hasPrimary() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional .sonarqube.db.issues.Location primary = 1;</code>
+     * <code>optional .sonarqube.db.commons.TextRange primary = 1;</code>
      */
-    public org.sonar.db.protobuf.DbIssues.Location getPrimary() {
+    public org.sonar.db.protobuf.DbCommons.TextRange getPrimary() {
       return primary_;
     }
     /**
-     * <code>optional .sonarqube.db.issues.Location primary = 1;</code>
+     * <code>optional .sonarqube.db.commons.TextRange primary = 1;</code>
      */
-    public org.sonar.db.protobuf.DbIssues.LocationOrBuilder getPrimaryOrBuilder() {
+    public org.sonar.db.protobuf.DbCommons.TextRangeOrBuilder getPrimaryOrBuilder() {
       return primary_;
     }
 
@@ -292,7 +292,7 @@ public final class DbIssues {
     }
 
     private void initFields() {
-      primary_ = org.sonar.db.protobuf.DbIssues.Location.getDefaultInstance();
+      primary_ = org.sonar.db.protobuf.DbCommons.TextRange.getDefaultInstance();
       secondary_ = java.util.Collections.emptyList();
       executionFlow_ = java.util.Collections.emptyList();
     }
@@ -460,7 +460,7 @@ public final class DbIssues {
       public Builder clear() {
         super.clear();
         if (primaryBuilder_ == null) {
-          primary_ = org.sonar.db.protobuf.DbIssues.Location.getDefaultInstance();
+          primary_ = org.sonar.db.protobuf.DbCommons.TextRange.getDefaultInstance();
         } else {
           primaryBuilder_.clear();
         }
@@ -629,19 +629,19 @@ public final class DbIssues {
       }
       private int bitField0_;
 
-      private org.sonar.db.protobuf.DbIssues.Location primary_ = org.sonar.db.protobuf.DbIssues.Location.getDefaultInstance();
+      private org.sonar.db.protobuf.DbCommons.TextRange primary_ = org.sonar.db.protobuf.DbCommons.TextRange.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
-          org.sonar.db.protobuf.DbIssues.Location, org.sonar.db.protobuf.DbIssues.Location.Builder, org.sonar.db.protobuf.DbIssues.LocationOrBuilder> primaryBuilder_;
+          org.sonar.db.protobuf.DbCommons.TextRange, org.sonar.db.protobuf.DbCommons.TextRange.Builder, org.sonar.db.protobuf.DbCommons.TextRangeOrBuilder> primaryBuilder_;
       /**
-       * <code>optional .sonarqube.db.issues.Location primary = 1;</code>
+       * <code>optional .sonarqube.db.commons.TextRange primary = 1;</code>
        */
       public boolean hasPrimary() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>optional .sonarqube.db.issues.Location primary = 1;</code>
+       * <code>optional .sonarqube.db.commons.TextRange primary = 1;</code>
        */
-      public org.sonar.db.protobuf.DbIssues.Location getPrimary() {
+      public org.sonar.db.protobuf.DbCommons.TextRange getPrimary() {
         if (primaryBuilder_ == null) {
           return primary_;
         } else {
@@ -649,9 +649,9 @@ public final class DbIssues {
         }
       }
       /**
-       * <code>optional .sonarqube.db.issues.Location primary = 1;</code>
+       * <code>optional .sonarqube.db.commons.TextRange primary = 1;</code>
        */
-      public Builder setPrimary(org.sonar.db.protobuf.DbIssues.Location value) {
+      public Builder setPrimary(org.sonar.db.protobuf.DbCommons.TextRange value) {
         if (primaryBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -665,10 +665,10 @@ public final class DbIssues {
         return this;
       }
       /**
-       * <code>optional .sonarqube.db.issues.Location primary = 1;</code>
+       * <code>optional .sonarqube.db.commons.TextRange primary = 1;</code>
        */
       public Builder setPrimary(
-          org.sonar.db.protobuf.DbIssues.Location.Builder builderForValue) {
+          org.sonar.db.protobuf.DbCommons.TextRange.Builder builderForValue) {
         if (primaryBuilder_ == null) {
           primary_ = builderForValue.build();
           onChanged();
@@ -679,14 +679,14 @@ public final class DbIssues {
         return this;
       }
       /**
-       * <code>optional .sonarqube.db.issues.Location primary = 1;</code>
+       * <code>optional .sonarqube.db.commons.TextRange primary = 1;</code>
        */
-      public Builder mergePrimary(org.sonar.db.protobuf.DbIssues.Location value) {
+      public Builder mergePrimary(org.sonar.db.protobuf.DbCommons.TextRange value) {
         if (primaryBuilder_ == null) {
           if (((bitField0_ & 0x00000001) == 0x00000001) &&
-              primary_ != org.sonar.db.protobuf.DbIssues.Location.getDefaultInstance()) {
+              primary_ != org.sonar.db.protobuf.DbCommons.TextRange.getDefaultInstance()) {
             primary_ =
-              org.sonar.db.protobuf.DbIssues.Location.newBuilder(primary_).mergeFrom(value).buildPartial();
+              org.sonar.db.protobuf.DbCommons.TextRange.newBuilder(primary_).mergeFrom(value).buildPartial();
           } else {
             primary_ = value;
           }
@@ -698,11 +698,11 @@ public final class DbIssues {
         return this;
       }
       /**
-       * <code>optional .sonarqube.db.issues.Location primary = 1;</code>
+       * <code>optional .sonarqube.db.commons.TextRange primary = 1;</code>
        */
       public Builder clearPrimary() {
         if (primaryBuilder_ == null) {
-          primary_ = org.sonar.db.protobuf.DbIssues.Location.getDefaultInstance();
+          primary_ = org.sonar.db.protobuf.DbCommons.TextRange.getDefaultInstance();
           onChanged();
         } else {
           primaryBuilder_.clear();
@@ -711,17 +711,17 @@ public final class DbIssues {
         return this;
       }
       /**
-       * <code>optional .sonarqube.db.issues.Location primary = 1;</code>
+       * <code>optional .sonarqube.db.commons.TextRange primary = 1;</code>
        */
-      public org.sonar.db.protobuf.DbIssues.Location.Builder getPrimaryBuilder() {
+      public org.sonar.db.protobuf.DbCommons.TextRange.Builder getPrimaryBuilder() {
         bitField0_ |= 0x00000001;
         onChanged();
         return getPrimaryFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .sonarqube.db.issues.Location primary = 1;</code>
+       * <code>optional .sonarqube.db.commons.TextRange primary = 1;</code>
        */
-      public org.sonar.db.protobuf.DbIssues.LocationOrBuilder getPrimaryOrBuilder() {
+      public org.sonar.db.protobuf.DbCommons.TextRangeOrBuilder getPrimaryOrBuilder() {
         if (primaryBuilder_ != null) {
           return primaryBuilder_.getMessageOrBuilder();
         } else {
@@ -729,14 +729,14 @@ public final class DbIssues {
         }
       }
       /**
-       * <code>optional .sonarqube.db.issues.Location primary = 1;</code>
+       * <code>optional .sonarqube.db.commons.TextRange primary = 1;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
-          org.sonar.db.protobuf.DbIssues.Location, org.sonar.db.protobuf.DbIssues.Location.Builder, org.sonar.db.protobuf.DbIssues.LocationOrBuilder> 
+          org.sonar.db.protobuf.DbCommons.TextRange, org.sonar.db.protobuf.DbCommons.TextRange.Builder, org.sonar.db.protobuf.DbCommons.TextRangeOrBuilder> 
           getPrimaryFieldBuilder() {
         if (primaryBuilder_ == null) {
           primaryBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              org.sonar.db.protobuf.DbIssues.Location, org.sonar.db.protobuf.DbIssues.Location.Builder, org.sonar.db.protobuf.DbIssues.LocationOrBuilder>(
+              org.sonar.db.protobuf.DbCommons.TextRange, org.sonar.db.protobuf.DbCommons.TextRange.Builder, org.sonar.db.protobuf.DbCommons.TextRangeOrBuilder>(
                   getPrimary(),
                   getParentForChildren(),
                   isClean());
@@ -1241,27 +1241,27 @@ public final class DbIssues {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+     * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
      */
     java.util.List<org.sonar.db.protobuf.DbIssues.Location> 
-        getLocationsList();
+        getLocationList();
     /**
-     * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+     * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
      */
-    org.sonar.db.protobuf.DbIssues.Location getLocations(int index);
+    org.sonar.db.protobuf.DbIssues.Location getLocation(int index);
     /**
-     * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+     * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
      */
-    int getLocationsCount();
+    int getLocationCount();
     /**
-     * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+     * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
      */
     java.util.List<? extends org.sonar.db.protobuf.DbIssues.LocationOrBuilder> 
-        getLocationsOrBuilderList();
+        getLocationOrBuilderList();
     /**
-     * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+     * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
      */
-    org.sonar.db.protobuf.DbIssues.LocationOrBuilder getLocationsOrBuilder(
+    org.sonar.db.protobuf.DbIssues.LocationOrBuilder getLocationOrBuilder(
         int index);
   }
   /**
@@ -1318,10 +1318,10 @@ public final class DbIssues {
             }
             case 10: {
               if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-                locations_ = new java.util.ArrayList<org.sonar.db.protobuf.DbIssues.Location>();
+                location_ = new java.util.ArrayList<org.sonar.db.protobuf.DbIssues.Location>();
                 mutable_bitField0_ |= 0x00000001;
               }
-              locations_.add(input.readMessage(org.sonar.db.protobuf.DbIssues.Location.PARSER, extensionRegistry));
+              location_.add(input.readMessage(org.sonar.db.protobuf.DbIssues.Location.PARSER, extensionRegistry));
               break;
             }
           }
@@ -1333,7 +1333,7 @@ public final class DbIssues {
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
         if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-          locations_ = java.util.Collections.unmodifiableList(locations_);
+          location_ = java.util.Collections.unmodifiableList(location_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -1366,43 +1366,43 @@ public final class DbIssues {
       return PARSER;
     }
 
-    public static final int LOCATIONS_FIELD_NUMBER = 1;
-    private java.util.List<org.sonar.db.protobuf.DbIssues.Location> locations_;
+    public static final int LOCATION_FIELD_NUMBER = 1;
+    private java.util.List<org.sonar.db.protobuf.DbIssues.Location> location_;
     /**
-     * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+     * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
      */
-    public java.util.List<org.sonar.db.protobuf.DbIssues.Location> getLocationsList() {
-      return locations_;
+    public java.util.List<org.sonar.db.protobuf.DbIssues.Location> getLocationList() {
+      return location_;
     }
     /**
-     * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+     * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
      */
     public java.util.List<? extends org.sonar.db.protobuf.DbIssues.LocationOrBuilder> 
-        getLocationsOrBuilderList() {
-      return locations_;
+        getLocationOrBuilderList() {
+      return location_;
     }
     /**
-     * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+     * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
      */
-    public int getLocationsCount() {
-      return locations_.size();
+    public int getLocationCount() {
+      return location_.size();
     }
     /**
-     * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+     * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
      */
-    public org.sonar.db.protobuf.DbIssues.Location getLocations(int index) {
-      return locations_.get(index);
+    public org.sonar.db.protobuf.DbIssues.Location getLocation(int index) {
+      return location_.get(index);
     }
     /**
-     * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+     * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
      */
-    public org.sonar.db.protobuf.DbIssues.LocationOrBuilder getLocationsOrBuilder(
+    public org.sonar.db.protobuf.DbIssues.LocationOrBuilder getLocationOrBuilder(
         int index) {
-      return locations_.get(index);
+      return location_.get(index);
     }
 
     private void initFields() {
-      locations_ = java.util.Collections.emptyList();
+      location_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1417,8 +1417,8 @@ public final class DbIssues {
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      for (int i = 0; i < locations_.size(); i++) {
-        output.writeMessage(1, locations_.get(i));
+      for (int i = 0; i < location_.size(); i++) {
+        output.writeMessage(1, location_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -1429,9 +1429,9 @@ public final class DbIssues {
       if (size != -1) return size;
 
       size = 0;
-      for (int i = 0; i < locations_.size(); i++) {
+      for (int i = 0; i < location_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1, locations_.get(i));
+          .computeMessageSize(1, location_.get(i));
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1542,7 +1542,7 @@ public final class DbIssues {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-          getLocationsFieldBuilder();
+          getLocationFieldBuilder();
         }
       }
       private static Builder create() {
@@ -1551,11 +1551,11 @@ public final class DbIssues {
 
       public Builder clear() {
         super.clear();
-        if (locationsBuilder_ == null) {
-          locations_ = java.util.Collections.emptyList();
+        if (locationBuilder_ == null) {
+          location_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000001);
         } else {
-          locationsBuilder_.clear();
+          locationBuilder_.clear();
         }
         return this;
       }
@@ -1584,14 +1584,14 @@ public final class DbIssues {
       public org.sonar.db.protobuf.DbIssues.ExecutionFlow buildPartial() {
         org.sonar.db.protobuf.DbIssues.ExecutionFlow result = new org.sonar.db.protobuf.DbIssues.ExecutionFlow(this);
         int from_bitField0_ = bitField0_;
-        if (locationsBuilder_ == null) {
+        if (locationBuilder_ == null) {
           if (((bitField0_ & 0x00000001) == 0x00000001)) {
-            locations_ = java.util.Collections.unmodifiableList(locations_);
+            location_ = java.util.Collections.unmodifiableList(location_);
             bitField0_ = (bitField0_ & ~0x00000001);
           }
-          result.locations_ = locations_;
+          result.location_ = location_;
         } else {
-          result.locations_ = locationsBuilder_.build();
+          result.location_ = locationBuilder_.build();
         }
         onBuilt();
         return result;
@@ -1608,29 +1608,29 @@ public final class DbIssues {
 
       public Builder mergeFrom(org.sonar.db.protobuf.DbIssues.ExecutionFlow other) {
         if (other == org.sonar.db.protobuf.DbIssues.ExecutionFlow.getDefaultInstance()) return this;
-        if (locationsBuilder_ == null) {
-          if (!other.locations_.isEmpty()) {
-            if (locations_.isEmpty()) {
-              locations_ = other.locations_;
+        if (locationBuilder_ == null) {
+          if (!other.location_.isEmpty()) {
+            if (location_.isEmpty()) {
+              location_ = other.location_;
               bitField0_ = (bitField0_ & ~0x00000001);
             } else {
-              ensureLocationsIsMutable();
-              locations_.addAll(other.locations_);
+              ensureLocationIsMutable();
+              location_.addAll(other.location_);
             }
             onChanged();
           }
         } else {
-          if (!other.locations_.isEmpty()) {
-            if (locationsBuilder_.isEmpty()) {
-              locationsBuilder_.dispose();
-              locationsBuilder_ = null;
-              locations_ = other.locations_;
+          if (!other.location_.isEmpty()) {
+            if (locationBuilder_.isEmpty()) {
+              locationBuilder_.dispose();
+              locationBuilder_ = null;
+              location_ = other.location_;
               bitField0_ = (bitField0_ & ~0x00000001);
-              locationsBuilder_ = 
+              locationBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   getLocationsFieldBuilder() : null;
+                   getLocationFieldBuilder() : null;
             } else {
-              locationsBuilder_.addAllMessages(other.locations_);
+              locationBuilder_.addAllMessages(other.location_);
             }
           }
         }
@@ -1661,244 +1661,244 @@ public final class DbIssues {
       }
       private int bitField0_;
 
-      private java.util.List<org.sonar.db.protobuf.DbIssues.Location> locations_ =
+      private java.util.List<org.sonar.db.protobuf.DbIssues.Location> location_ =
         java.util.Collections.emptyList();
-      private void ensureLocationsIsMutable() {
+      private void ensureLocationIsMutable() {
         if (!((bitField0_ & 0x00000001) == 0x00000001)) {
-          locations_ = new java.util.ArrayList<org.sonar.db.protobuf.DbIssues.Location>(locations_);
+          location_ = new java.util.ArrayList<org.sonar.db.protobuf.DbIssues.Location>(location_);
           bitField0_ |= 0x00000001;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilder<
-          org.sonar.db.protobuf.DbIssues.Location, org.sonar.db.protobuf.DbIssues.Location.Builder, org.sonar.db.protobuf.DbIssues.LocationOrBuilder> locationsBuilder_;
+          org.sonar.db.protobuf.DbIssues.Location, org.sonar.db.protobuf.DbIssues.Location.Builder, org.sonar.db.protobuf.DbIssues.LocationOrBuilder> locationBuilder_;
 
       /**
-       * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+       * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
        */
-      public java.util.List<org.sonar.db.protobuf.DbIssues.Location> getLocationsList() {
-        if (locationsBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(locations_);
+      public java.util.List<org.sonar.db.protobuf.DbIssues.Location> getLocationList() {
+        if (locationBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(location_);
         } else {
-          return locationsBuilder_.getMessageList();
+          return locationBuilder_.getMessageList();
         }
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+       * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
        */
-      public int getLocationsCount() {
-        if (locationsBuilder_ == null) {
-          return locations_.size();
+      public int getLocationCount() {
+        if (locationBuilder_ == null) {
+          return location_.size();
         } else {
-          return locationsBuilder_.getCount();
+          return locationBuilder_.getCount();
         }
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+       * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
        */
-      public org.sonar.db.protobuf.DbIssues.Location getLocations(int index) {
-        if (locationsBuilder_ == null) {
-          return locations_.get(index);
+      public org.sonar.db.protobuf.DbIssues.Location getLocation(int index) {
+        if (locationBuilder_ == null) {
+          return location_.get(index);
         } else {
-          return locationsBuilder_.getMessage(index);
+          return locationBuilder_.getMessage(index);
         }
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+       * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
        */
-      public Builder setLocations(
+      public Builder setLocation(
           int index, org.sonar.db.protobuf.DbIssues.Location value) {
-        if (locationsBuilder_ == null) {
+        if (locationBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureLocationsIsMutable();
-          locations_.set(index, value);
+          ensureLocationIsMutable();
+          location_.set(index, value);
           onChanged();
         } else {
-          locationsBuilder_.setMessage(index, value);
+          locationBuilder_.setMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+       * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
        */
-      public Builder setLocations(
+      public Builder setLocation(
           int index, org.sonar.db.protobuf.DbIssues.Location.Builder builderForValue) {
-        if (locationsBuilder_ == null) {
-          ensureLocationsIsMutable();
-          locations_.set(index, builderForValue.build());
+        if (locationBuilder_ == null) {
+          ensureLocationIsMutable();
+          location_.set(index, builderForValue.build());
           onChanged();
         } else {
-          locationsBuilder_.setMessage(index, builderForValue.build());
+          locationBuilder_.setMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+       * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
        */
-      public Builder addLocations(org.sonar.db.protobuf.DbIssues.Location value) {
-        if (locationsBuilder_ == null) {
+      public Builder addLocation(org.sonar.db.protobuf.DbIssues.Location value) {
+        if (locationBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureLocationsIsMutable();
-          locations_.add(value);
+          ensureLocationIsMutable();
+          location_.add(value);
           onChanged();
         } else {
-          locationsBuilder_.addMessage(value);
+          locationBuilder_.addMessage(value);
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+       * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
        */
-      public Builder addLocations(
+      public Builder addLocation(
           int index, org.sonar.db.protobuf.DbIssues.Location value) {
-        if (locationsBuilder_ == null) {
+        if (locationBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureLocationsIsMutable();
-          locations_.add(index, value);
+          ensureLocationIsMutable();
+          location_.add(index, value);
           onChanged();
         } else {
-          locationsBuilder_.addMessage(index, value);
+          locationBuilder_.addMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+       * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
        */
-      public Builder addLocations(
+      public Builder addLocation(
           org.sonar.db.protobuf.DbIssues.Location.Builder builderForValue) {
-        if (locationsBuilder_ == null) {
-          ensureLocationsIsMutable();
-          locations_.add(builderForValue.build());
+        if (locationBuilder_ == null) {
+          ensureLocationIsMutable();
+          location_.add(builderForValue.build());
           onChanged();
         } else {
-          locationsBuilder_.addMessage(builderForValue.build());
+          locationBuilder_.addMessage(builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+       * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
        */
-      public Builder addLocations(
+      public Builder addLocation(
           int index, org.sonar.db.protobuf.DbIssues.Location.Builder builderForValue) {
-        if (locationsBuilder_ == null) {
-          ensureLocationsIsMutable();
-          locations_.add(index, builderForValue.build());
+        if (locationBuilder_ == null) {
+          ensureLocationIsMutable();
+          location_.add(index, builderForValue.build());
           onChanged();
         } else {
-          locationsBuilder_.addMessage(index, builderForValue.build());
+          locationBuilder_.addMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+       * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
        */
-      public Builder addAllLocations(
+      public Builder addAllLocation(
           java.lang.Iterable<? extends org.sonar.db.protobuf.DbIssues.Location> values) {
-        if (locationsBuilder_ == null) {
-          ensureLocationsIsMutable();
+        if (locationBuilder_ == null) {
+          ensureLocationIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, locations_);
+              values, location_);
           onChanged();
         } else {
-          locationsBuilder_.addAllMessages(values);
+          locationBuilder_.addAllMessages(values);
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+       * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
        */
-      public Builder clearLocations() {
-        if (locationsBuilder_ == null) {
-          locations_ = java.util.Collections.emptyList();
+      public Builder clearLocation() {
+        if (locationBuilder_ == null) {
+          location_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000001);
           onChanged();
         } else {
-          locationsBuilder_.clear();
+          locationBuilder_.clear();
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+       * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
        */
-      public Builder removeLocations(int index) {
-        if (locationsBuilder_ == null) {
-          ensureLocationsIsMutable();
-          locations_.remove(index);
+      public Builder removeLocation(int index) {
+        if (locationBuilder_ == null) {
+          ensureLocationIsMutable();
+          location_.remove(index);
           onChanged();
         } else {
-          locationsBuilder_.remove(index);
+          locationBuilder_.remove(index);
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+       * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
        */
-      public org.sonar.db.protobuf.DbIssues.Location.Builder getLocationsBuilder(
+      public org.sonar.db.protobuf.DbIssues.Location.Builder getLocationBuilder(
           int index) {
-        return getLocationsFieldBuilder().getBuilder(index);
+        return getLocationFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+       * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
        */
-      public org.sonar.db.protobuf.DbIssues.LocationOrBuilder getLocationsOrBuilder(
+      public org.sonar.db.protobuf.DbIssues.LocationOrBuilder getLocationOrBuilder(
           int index) {
-        if (locationsBuilder_ == null) {
-          return locations_.get(index);  } else {
-          return locationsBuilder_.getMessageOrBuilder(index);
+        if (locationBuilder_ == null) {
+          return location_.get(index);  } else {
+          return locationBuilder_.getMessageOrBuilder(index);
         }
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+       * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
        */
       public java.util.List<? extends org.sonar.db.protobuf.DbIssues.LocationOrBuilder> 
-           getLocationsOrBuilderList() {
-        if (locationsBuilder_ != null) {
-          return locationsBuilder_.getMessageOrBuilderList();
+           getLocationOrBuilderList() {
+        if (locationBuilder_ != null) {
+          return locationBuilder_.getMessageOrBuilderList();
         } else {
-          return java.util.Collections.unmodifiableList(locations_);
+          return java.util.Collections.unmodifiableList(location_);
         }
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+       * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
        */
-      public org.sonar.db.protobuf.DbIssues.Location.Builder addLocationsBuilder() {
-        return getLocationsFieldBuilder().addBuilder(
+      public org.sonar.db.protobuf.DbIssues.Location.Builder addLocationBuilder() {
+        return getLocationFieldBuilder().addBuilder(
             org.sonar.db.protobuf.DbIssues.Location.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+       * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
        */
-      public org.sonar.db.protobuf.DbIssues.Location.Builder addLocationsBuilder(
+      public org.sonar.db.protobuf.DbIssues.Location.Builder addLocationBuilder(
           int index) {
-        return getLocationsFieldBuilder().addBuilder(
+        return getLocationFieldBuilder().addBuilder(
             index, org.sonar.db.protobuf.DbIssues.Location.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location locations = 1;</code>
+       * <code>repeated .sonarqube.db.issues.Location location = 1;</code>
        */
       public java.util.List<org.sonar.db.protobuf.DbIssues.Location.Builder> 
-           getLocationsBuilderList() {
-        return getLocationsFieldBuilder().getBuilderList();
+           getLocationBuilderList() {
+        return getLocationFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilder<
           org.sonar.db.protobuf.DbIssues.Location, org.sonar.db.protobuf.DbIssues.Location.Builder, org.sonar.db.protobuf.DbIssues.LocationOrBuilder> 
-          getLocationsFieldBuilder() {
-        if (locationsBuilder_ == null) {
-          locationsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+          getLocationFieldBuilder() {
+        if (locationBuilder_ == null) {
+          locationBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.sonar.db.protobuf.DbIssues.Location, org.sonar.db.protobuf.DbIssues.Location.Builder, org.sonar.db.protobuf.DbIssues.LocationOrBuilder>(
-                  locations_,
+                  location_,
                   ((bitField0_ & 0x00000001) == 0x00000001),
                   getParentForChildren(),
                   isClean());
-          locations_ = null;
+          location_ = null;
         }
-        return locationsBuilder_;
+        return locationBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:sonarqube.db.issues.ExecutionFlow)
@@ -2819,16 +2819,16 @@ public final class DbIssues {
   static {
     java.lang.String[] descriptorData = {
       "\n\017db-issues.proto\022\023sonarqube.db.issues\032\020" +
-      "db-commons.proto\"\251\001\n\tLocations\022.\n\007primar" +
-      "y\030\001 \001(\0132\035.sonarqube.db.issues.Location\0220" +
-      "\n\tsecondary\030\002 \003(\0132\035.sonarqube.db.issues." +
-      "Location\022:\n\016execution_flow\030\003 \003(\0132\".sonar" +
-      "qube.db.issues.ExecutionFlow\"A\n\rExecutio" +
-      "nFlow\0220\n\tlocations\030\001 \003(\0132\035.sonarqube.db." +
-      "issues.Location\"b\n\010Location\022\024\n\014component" +
-      "_id\030\001 \001(\t\0223\n\ntext_range\030\002 \001(\0132\037.sonarqub" +
-      "e.db.commons.TextRange\022\013\n\003msg\030\003 \001(\tB\031\n\025o",
-      "rg.sonar.db.protobufH\001"
+      "db-commons.proto\"\253\001\n\tLocations\0220\n\007primar" +
+      "y\030\001 \001(\0132\037.sonarqube.db.commons.TextRange" +
+      "\0220\n\tsecondary\030\002 \003(\0132\035.sonarqube.db.issue" +
+      "s.Location\022:\n\016execution_flow\030\003 \003(\0132\".son" +
+      "arqube.db.issues.ExecutionFlow\"@\n\rExecut" +
+      "ionFlow\022/\n\010location\030\001 \003(\0132\035.sonarqube.db" +
+      ".issues.Location\"b\n\010Location\022\024\n\014componen" +
+      "t_id\030\001 \001(\t\0223\n\ntext_range\030\002 \001(\0132\037.sonarqu" +
+      "be.db.commons.TextRange\022\013\n\003msg\030\003 \001(\tB\031\n\025",
+      "org.sonar.db.protobufH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -2854,7 +2854,7 @@ public final class DbIssues {
     internal_static_sonarqube_db_issues_ExecutionFlow_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_db_issues_ExecutionFlow_descriptor,
-        new java.lang.String[] { "Locations", });
+        new java.lang.String[] { "Location", });
     internal_static_sonarqube_db_issues_Location_descriptor =
       getDescriptor().getMessageTypes().get(2);
     internal_static_sonarqube_db_issues_Location_fieldAccessorTable = new
