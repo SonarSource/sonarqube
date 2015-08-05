@@ -35,6 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.protobuf.DbIssues;
 import org.sonar.server.es.Facets;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueCommentService;
@@ -181,6 +182,28 @@ public class SearchResponseLoader {
         add(RULES, issue.getRuleKey());
         add(USERS, issue.getReporter());
         add(USERS, issue.getAssignee());
+        collectIssueLocations(issue);
+      }
+    }
+
+    private void collectIssueLocations(IssueDto issue) {
+      DbIssues.Locations locations = issue.parseLocations();
+      if (locations != null) {
+        if (locations.hasPrimary() && locations.getPrimary().hasComponentId()) {
+          componentUuids.add(locations.getPrimary().getComponentId());
+        }
+        for (DbIssues.Location location : locations.getSecondaryList()) {
+          if (location.hasComponentId()) {
+            componentUuids.add(location.getComponentId());
+          }
+        }
+        for (DbIssues.ExecutionFlow flow : locations.getExecutionFlowList()) {
+          for (DbIssues.Location location : flow.getLocationsList()) {
+            if (location.hasComponentId()) {
+              componentUuids.add(location.getComponentId());
+            }
+          }
+        }
       }
     }
 
@@ -188,10 +211,6 @@ public class SearchResponseLoader {
       if (value != null) {
         fieldValues.put(key, value);
       }
-    }
-
-    public void addComponentUuid(String uuid) {
-      this.componentUuids.add(uuid);
     }
 
     public void addComponentUuids(@Nullable Collection<String> uuids) {

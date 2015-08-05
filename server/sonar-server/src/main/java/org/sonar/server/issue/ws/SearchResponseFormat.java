@@ -40,6 +40,8 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.ActionPlanDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.protobuf.DbCommons;
+import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
@@ -165,6 +167,7 @@ public class SearchResponseFormat {
     issueBuilder.setStatus(nullToEmpty(dto.getStatus()));
     issueBuilder.setActionPlan(nullToEmpty(dto.getActionPlanKey()));
     issueBuilder.setMessage(nullToEmpty(dto.getMessage()));
+    issueBuilder.setTagsPresentIfEmpty(true);
     issueBuilder.addAllTags(dto.getTags());
     Long debt = dto.getDebt();
     if (debt != null) {
@@ -174,6 +177,7 @@ public class SearchResponseFormat {
     if (line != null) {
       issueBuilder.setLine(line);
     }
+    completeIssueLocations(dto, issueBuilder);
     issueBuilder.setAuthor(nullToEmpty(dto.getAuthorLogin()));
     Date date = dto.getIssueCreationDate();
     if (date != null) {
@@ -189,7 +193,55 @@ public class SearchResponseFormat {
     }
   }
 
-  private void formatIssueTransitions(SearchResponseData data, Issues.Issue.Builder issueBuilder, IssueDto dto) {
+  private void completeIssueLocations(IssueDto dto, Issues.Issue.Builder issueBuilder) {
+    DbIssues.Locations locations = dto.parseLocations();
+    if (locations != null) {
+      if (locations.hasPrimary()) {
+        DbIssues.Location primary = locations.getPrimary();
+        issueBuilder.setLocation(convertLocation(primary));
+      }
+      for (DbIssues.Location secondary : locations.getSecondaryList()) {
+        issueBuilder.addSecondaryLocations(convertLocation(secondary));
+      }
+      for (DbIssues.ExecutionFlow flow : locations.getExecutionFlowList()) {
+        Issues.ExecutionFlow.Builder targetFlow = Issues.ExecutionFlow.newBuilder();
+        for (DbIssues.Location flowLocation : flow.getLocationsList()) {
+          targetFlow.addLocations(convertLocation(flowLocation));
+        }
+        issueBuilder.addExecutionFlows(targetFlow);
+      }
+    }
+  }
+
+  private static Issues.Location convertLocation(DbIssues.Location source) {
+    Issues.Location.Builder target = Issues.Location.newBuilder();
+    if (source.hasComponentId()) {
+      target.setComponentId(source.getComponentId());
+    }
+    if (source.hasMsg()) {
+      target.setMsg(source.getMsg());
+    }
+    if (source.hasTextRange()) {
+      DbCommons.TextRange sourceRange = source.getTextRange();
+      Common.TextRange.Builder targetRange = Common.TextRange.newBuilder();
+      if (sourceRange.hasStartLine()) {
+        targetRange.setStartLine(sourceRange.getStartLine());
+      }
+      if (sourceRange.hasStartOffset()) {
+        targetRange.setStartOffset(sourceRange.getStartOffset());
+      }
+      if (sourceRange.hasEndLine()) {
+        targetRange.setEndLine(sourceRange.getEndLine());
+      }
+      if (sourceRange.hasEndOffset()) {
+        targetRange.setEndOffset(sourceRange.getEndOffset());
+      }
+      target.setTextRange(targetRange);
+    }
+    return target.build();
+  }
+
+  private static void formatIssueTransitions(SearchResponseData data, Issues.Issue.Builder issueBuilder, IssueDto dto) {
     issueBuilder.setTransitionsPresentIfEmpty(true);
     List<Transition> transitions = data.getTransitionsForIssueKey(dto.getKey());
     if (transitions != null) {
@@ -199,7 +251,7 @@ public class SearchResponseFormat {
     }
   }
 
-  private void formatIssueActions(SearchResponseData data, Issues.Issue.Builder issueBuilder, IssueDto dto) {
+  private static void formatIssueActions(SearchResponseData data, Issues.Issue.Builder issueBuilder, IssueDto dto) {
     issueBuilder.setActionsPresentIfEmpty(true);
     List<String> actions = data.getActionsForIssueKey(dto.getKey());
     if (actions != null) {
@@ -207,7 +259,7 @@ public class SearchResponseFormat {
     }
   }
 
-  private void formatIssueComments(SearchResponseData data, Issues.Issue.Builder issueBuilder, IssueDto dto) {
+  private static void formatIssueComments(SearchResponseData data, Issues.Issue.Builder issueBuilder, IssueDto dto) {
     issueBuilder.setCommentsPresentIfEmpty(true);
     List<IssueChangeDto> comments = data.getCommentsForIssueKey(dto.getKey());
     if (comments != null) {
@@ -241,7 +293,7 @@ public class SearchResponseFormat {
     return result;
   }
 
-  private List<Issues.Component> formatComponents(SearchResponseData data) {
+  private static List<Issues.Component> formatComponents(SearchResponseData data) {
     List<Issues.Component> result = new ArrayList<>();
     Collection<ComponentDto> components = data.getComponents();
     if (components != null) {
