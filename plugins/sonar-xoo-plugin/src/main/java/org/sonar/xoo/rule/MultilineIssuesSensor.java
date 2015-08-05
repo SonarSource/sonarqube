@@ -19,9 +19,14 @@
  */
 package org.sonar.xoo.rule;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Table;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,8 +46,11 @@ import org.sonar.xoo.Xoo;
 public class MultilineIssuesSensor implements Sensor {
 
   public static final String RULE_KEY = "MultilineIssue";
-  private static final String START_ISSUE_PATTERN = "\\{xoo-start-issue:([0-9]+):([0-9]+)\\}";
-  private static final String END_ISSUE_PATTERN = "\\{xoo-end-issue:([0-9]+):([0-9]+)\\}";
+  private static final Pattern START_ISSUE_PATTERN = Pattern.compile("\\{xoo-start-issue:([0-9]+):([0-9]+)\\}");
+  private static final Pattern END_ISSUE_PATTERN = Pattern.compile("\\{xoo-end-issue:([0-9]+):([0-9]+)\\}");
+
+  private static final Pattern START_FLOW_PATTERN = Pattern.compile("\\{xoo-start-flow:([0-9]+):([0-9]+):([0-9]+)\\}");
+  private static final Pattern END_FLOW_PATTERN = Pattern.compile("\\{xoo-end-flow:([0-9]+):([0-9]+):([0-9]+)\\}");
 
   @Override
   public void describe(SensorDescriptor descriptor) {
@@ -62,62 +70,114 @@ public class MultilineIssuesSensor implements Sensor {
   }
 
   private static void createIssues(InputFile file, SensorContext context) {
-    Pattern startPattern = Pattern.compile(START_ISSUE_PATTERN);
-    Pattern endPattern = Pattern.compile(END_ISSUE_PATTERN);
-    Map<Integer, Map<Integer, TextPointer>> startPositions = new HashMap<>();
-    Map<Integer, Map<Integer, TextPointer>> endPositions = new HashMap<>();
+    Table<Integer, Integer, TextPointer> startIssuesPositions = HashBasedTable.create();
+    Table<Integer, Integer, TextPointer> endIssuesPositions = HashBasedTable.create();
+    Map<Integer, Table<Integer, Integer, TextPointer>> startFlowsPositions = Maps.newHashMap();
+    Map<Integer, Table<Integer, Integer, TextPointer>> endFlowsPositions = Maps.newHashMap();
 
-    RuleKey ruleKey = RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY);
-    parse(file, context, startPattern, endPattern, startPositions, endPositions);
-    createIssues(file, context, startPositions, endPositions, ruleKey);
+    parseIssues(file, context, startIssuesPositions, endIssuesPositions);
+    parseFlows(file, context, startFlowsPositions, endFlowsPositions);
+    createIssues(file, context, startIssuesPositions, endIssuesPositions, startFlowsPositions, endFlowsPositions);
   }
 
-  private static void createIssues(InputFile file, SensorContext context, Map<Integer, Map<Integer, TextPointer>> startPositions,
-    Map<Integer, Map<Integer, TextPointer>> endPositions,
-    RuleKey ruleKey) {
-    for (Map.Entry<Integer, Map<Integer, TextPointer>> entry : startPositions.entrySet()) {
+  private static void parseFlows(InputFile file, SensorContext context, Map<Integer, Table<Integer, Integer, TextPointer>> startFlowsPositions,
+    Map<Integer, Table<Integer, Integer, TextPointer>> endFlowsPositions) {
+    int currentLine = 0;
+    try {
+      for (String lineStr : Files.readAllLines(file.path(), context.fileSystem().encoding())) {
+        currentLine++;
+
+        Matcher m = START_FLOW_PATTERN.matcher(lineStr);
+        while (m.find()) {
+          Integer issueId = Integer.parseInt(m.group(1));
+          Integer issueFlowId = Integer.parseInt(m.group(2));
+          Integer issueFlowNum = Integer.parseInt(m.group(3));
+          TextPointer newPointer = file.newPointer(currentLine, m.end());
+          if (!startFlowsPositions.containsKey(issueId)) {
+            startFlowsPositions.put(issueId, HashBasedTable.<Integer, Integer, TextPointer>create());
+          }
+          startFlowsPositions.get(issueId).row(issueFlowId).put(issueFlowNum, newPointer);
+        }
+
+        m = END_FLOW_PATTERN.matcher(lineStr);
+        while (m.find()) {
+          Integer issueId = Integer.parseInt(m.group(1));
+          Integer issueFlowId = Integer.parseInt(m.group(2));
+          Integer issueFlowNum = Integer.parseInt(m.group(3));
+          TextPointer newPointer = file.newPointer(currentLine, m.start());
+          if (!endFlowsPositions.containsKey(issueId)) {
+            endFlowsPositions.put(issueId, HashBasedTable.<Integer, Integer, TextPointer>create());
+          }
+          endFlowsPositions.get(issueId).row(issueFlowId).put(issueFlowNum, newPointer);
+        }
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to read file", e);
+    }
+  }
+
+  private static void createIssues(InputFile file, SensorContext context, Table<Integer, Integer, TextPointer> startPositions,
+    Table<Integer, Integer, TextPointer> endPositions, Map<Integer, Table<Integer, Integer, TextPointer>> startFlowsPositions,
+    Map<Integer, Table<Integer, Integer, TextPointer>> endFlowsPositions) {
+    RuleKey ruleKey = RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY);
+
+    for (Map.Entry<Integer, Map<Integer, TextPointer>> entry : startPositions.rowMap().entrySet()) {
+      Integer issueId = entry.getKey();
       NewIssue newIssue = context.newIssue().forRule(ruleKey);
       for (Map.Entry<Integer, TextPointer> location : entry.getValue().entrySet()) {
         NewIssueLocation newLocation = newIssue.newLocation()
           .on(file)
-          .at(file.newRange(location.getValue(), endPositions.get(entry.getKey()).get(location.getKey())));
+          .at(file.newRange(location.getValue(), endPositions.row(entry.getKey()).get(location.getKey())));
         if (location.getKey() == 1) {
           newIssue.at(newLocation.message("Primary location"));
         } else {
           newIssue.addLocation(newLocation.message("Location #" + location.getKey()));
         }
       }
+      if (startFlowsPositions.containsKey(issueId)) {
+        Table<Integer, Integer, TextPointer> flows = startFlowsPositions.get(issueId);
+        for (Map.Entry<Integer, Map<Integer, TextPointer>> flowEntry : flows.rowMap().entrySet()) {
+          Integer flowId = flowEntry.getKey();
+          List<NewIssueLocation> flowLocations = Lists.newArrayList();
+          List<Integer> flowNums = Lists.newArrayList(flowEntry.getValue().keySet());
+          Collections.sort(flowNums);
+          for (Integer flowNum : flowNums) {
+            TextPointer start = flowEntry.getValue().get(flowNum);
+            TextPointer end = endFlowsPositions.get(issueId).row(flowId).get(flowNum);
+            NewIssueLocation newLocation = newIssue.newLocation()
+              .on(file)
+              .at(file.newRange(start, end))
+              .message("Flow step #" + flowNum);
+            flowLocations.add(newLocation);
+          }
+          newIssue.addExecutionFlow(flowLocations);
+        }
+      }
       newIssue.save();
     }
   }
 
-  private static void parse(InputFile file, SensorContext context, Pattern startPattern, Pattern endPattern, Map<Integer, Map<Integer, TextPointer>> startPositions,
-    Map<Integer, Map<Integer, TextPointer>> endPositions) {
+  private static void parseIssues(InputFile file, SensorContext context, Table<Integer, Integer, TextPointer> startPositions,
+    Table<Integer, Integer, TextPointer> endPositions) {
     int currentLine = 0;
     try {
       for (String lineStr : Files.readAllLines(file.path(), context.fileSystem().encoding())) {
         currentLine++;
 
-        Matcher m = startPattern.matcher(lineStr);
+        Matcher m = START_ISSUE_PATTERN.matcher(lineStr);
         while (m.find()) {
           Integer issueId = Integer.parseInt(m.group(1));
           Integer issueLocationId = Integer.parseInt(m.group(2));
           TextPointer newPointer = file.newPointer(currentLine, m.end());
-          if (!startPositions.containsKey(issueId)) {
-            startPositions.put(issueId, new HashMap<Integer, TextPointer>());
-          }
-          startPositions.get(issueId).put(issueLocationId, newPointer);
+          startPositions.row(issueId).put(issueLocationId, newPointer);
         }
 
-        m = endPattern.matcher(lineStr);
+        m = END_ISSUE_PATTERN.matcher(lineStr);
         while (m.find()) {
           Integer issueId = Integer.parseInt(m.group(1));
           Integer issueLocationId = Integer.parseInt(m.group(2));
           TextPointer newPointer = file.newPointer(currentLine, m.start());
-          if (!endPositions.containsKey(issueId)) {
-            endPositions.put(issueId, new HashMap<Integer, TextPointer>());
-          }
-          endPositions.get(issueId).put(issueLocationId, newPointer);
+          endPositions.row(issueId).put(issueLocationId, newPointer);
         }
       }
     } catch (IOException e) {

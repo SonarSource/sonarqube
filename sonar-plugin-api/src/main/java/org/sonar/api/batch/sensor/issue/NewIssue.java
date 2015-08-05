@@ -65,7 +65,13 @@ public interface NewIssue {
    * @since 5.2
    * Register an execution flow for this issue.
    */
-  NewIssue addExecutionFlow(NewIssueLocation... flow);
+  NewIssue addExecutionFlow(NewIssueLocation... locations);
+
+  /**
+   * @since 5.2
+   * Register an execution flow for this issue.
+   */
+  NewIssue addExecutionFlow(Iterable<NewIssueLocation> locations);
 
   /**
    * @since 5.2

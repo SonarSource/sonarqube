@@ -29,6 +29,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;
+import org.sonar.batch.protocol.output.BatchReport.ExecutionFlow;
 import org.sonar.batch.protocol.output.BatchReport.Issue;
 import org.sonar.batch.protocol.output.BatchReport.IssueLocation;
 import org.sonar.xoo.XooPlugin;
@@ -119,5 +120,18 @@ public class MultilineIssuesMediumTest {
     assertThat(additionalLocation.getTextRange().getStartOffset()).isEqualTo(25);
     assertThat(additionalLocation.getTextRange().getEndLine()).isEqualTo(7);
     assertThat(additionalLocation.getTextRange().getEndOffset()).isEqualTo(52);
+  }
+
+  @Test
+  public void testExecutionFlows() throws Exception {
+    List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/WithFlow.xoo"));
+    assertThat(issues).hasSize(1);
+    Issue issue = issues.get(0);
+    assertThat(issue.getExecutionFlowList()).hasSize(1);
+
+    ExecutionFlow executionFlow = issue.getExecutionFlow(0);
+    assertThat(executionFlow.getLocationList()).hasSize(2);
+
+    // TODO more assertions
   }
 }
