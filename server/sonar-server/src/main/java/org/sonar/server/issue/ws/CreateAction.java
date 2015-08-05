@@ -77,8 +77,7 @@ public class CreateAction implements IssuesWsAction {
     DefaultIssue issue = issueService.createManualIssue(componentKey, ruleKey,
       request.paramAsInt("line"),
       request.param("message"),
-      request.param("severity"),
-      null);
+      request.param("severity"));
 
     responseWriter.write(issue.key(), request, response);
   }
