@@ -44,7 +44,7 @@ public class CreateActionTest {
   @Test
   public void create_manual_issue_with_default_values() throws Exception {
     RuleKey ruleKey = RuleKey.of(RuleKey.MANUAL_REPOSITORY_KEY, "S1");
-    when(issueService.createManualIssue("FILE_KEY", ruleKey, null, null, null, null))
+    when(issueService.createManualIssue("FILE_KEY", ruleKey, null, null, null))
       .thenReturn(new DefaultIssue().setKey("ISSUE_KEY"));
 
     tester.newRequest()
@@ -52,14 +52,14 @@ public class CreateActionTest {
       .setParam("rule", ruleKey.toString())
       .execute();
 
-    verify(issueService).createManualIssue("FILE_KEY", ruleKey, null, null, null, null);
+    verify(issueService).createManualIssue("FILE_KEY", ruleKey, null, null, null);
     verify(responseWriter).write(eq("ISSUE_KEY"), any(Request.class), any(Response.class));
   }
 
   @Test
   public void create_manual_issue() throws Exception {
     RuleKey ruleKey = RuleKey.of(RuleKey.MANUAL_REPOSITORY_KEY, "S1");
-    when(issueService.createManualIssue("FILE_KEY", ruleKey, 13, "the msg", "BLOCKER", null))
+    when(issueService.createManualIssue("FILE_KEY", ruleKey, 13, "the msg", "BLOCKER"))
       .thenReturn(new DefaultIssue().setKey("ISSUE_KEY"));
 
     tester.newRequest()
@@ -70,7 +70,7 @@ public class CreateActionTest {
       .setParam("message", "the msg")
       .execute();
 
-    verify(issueService).createManualIssue("FILE_KEY", ruleKey, 13, "the msg", "BLOCKER", null);
+    verify(issueService).createManualIssue("FILE_KEY", ruleKey, 13, "the msg", "BLOCKER");
     verify(responseWriter).write(eq("ISSUE_KEY"), any(Request.class), any(Response.class));
   }
 }
