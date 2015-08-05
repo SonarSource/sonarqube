@@ -54,7 +54,6 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
@@ -84,14 +83,14 @@ public class IssueService {
   private final UserSession userSession;
 
   public IssueService(DbClient dbClient, IssueIndex issueIndex,
-                      IssueWorkflow workflow,
-                      IssueStorage issueStorage,
-                      IssueUpdater issueUpdater,
-                      NotificationManager notificationService,
-                      ActionPlanService actionPlanService,
-                      RuleFinder ruleFinder,
-                      UserFinder userFinder,
-                      UserIndex userIndex, SourceLineIndex sourceLineIndex, UserSession userSession) {
+    IssueWorkflow workflow,
+    IssueStorage issueStorage,
+    IssueUpdater issueUpdater,
+    NotificationManager notificationService,
+    ActionPlanService actionPlanService,
+    RuleFinder ruleFinder,
+    UserFinder userFinder,
+    UserIndex userIndex, SourceLineIndex sourceLineIndex, UserSession userSession) {
     this.dbClient = dbClient;
     this.issueIndex = issueIndex;
     this.workflow = workflow;
@@ -246,7 +245,7 @@ public class IssueService {
     try {
       Optional<ComponentDto> componentOptional = dbClient.componentDao().selectByKey(session, componentKey);
       if (!componentOptional.isPresent()) {
-        throw new NotFoundException(String.format("Component with key '%s' not found", componentKey));
+        throw new BadRequestException(String.format("Component with key '%s' not found", componentKey));
       }
       ComponentDto component = componentOptional.get();
       ComponentDto project = dbClient.componentDao().selectOrFailByUuid(session, component.projectUuid());

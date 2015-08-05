@@ -58,7 +58,6 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
@@ -436,7 +435,7 @@ public class IssueServiceMediumTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void fail_create_manual_issue_if_rule_does_not_exists() {
+  public void fail_create_manual_issue_if_rule_does_not_exist() {
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
     userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
@@ -460,7 +459,7 @@ public class IssueServiceMediumTest {
     service.createManualIssue(file.key(), rule.getKey(), 10, "Fix it", null);
   }
 
-  @Test(expected = NotFoundException.class)
+  @Test(expected = BadRequestException.class)
   public void fail_to_create_manual_issue_on_unknown_component() {
     ComponentDto project = newProject();
     userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
