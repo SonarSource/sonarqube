@@ -247,15 +247,6 @@ public final class Common {
      * <code>optional int32 total = 3;</code>
      */
     int getTotal();
-
-    /**
-     * <code>optional int32 pages = 4;</code>
-     */
-    boolean hasPages();
-    /**
-     * <code>optional int32 pages = 4;</code>
-     */
-    int getPages();
   }
   /**
    * Protobuf type {@code sonarqube.ws.commons.Paging}
@@ -322,11 +313,6 @@ public final class Common {
             case 24: {
               bitField0_ |= 0x00000004;
               total_ = input.readInt32();
-              break;
-            }
-            case 32: {
-              bitField0_ |= 0x00000008;
-              pages_ = input.readInt32();
               break;
             }
           }
@@ -414,26 +400,10 @@ public final class Common {
       return total_;
     }
 
-    public static final int PAGES_FIELD_NUMBER = 4;
-    private int pages_;
-    /**
-     * <code>optional int32 pages = 4;</code>
-     */
-    public boolean hasPages() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
-    }
-    /**
-     * <code>optional int32 pages = 4;</code>
-     */
-    public int getPages() {
-      return pages_;
-    }
-
     private void initFields() {
       pageIndex_ = 0;
       pageSize_ = 0;
       total_ = 0;
-      pages_ = 0;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -457,9 +427,6 @@ public final class Common {
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeInt32(3, total_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeInt32(4, pages_);
-      }
       getUnknownFields().writeTo(output);
     }
 
@@ -480,10 +447,6 @@ public final class Common {
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(3, total_);
-      }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(4, pages_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -608,8 +571,6 @@ public final class Common {
         bitField0_ = (bitField0_ & ~0x00000002);
         total_ = 0;
         bitField0_ = (bitField0_ & ~0x00000004);
-        pages_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000008);
         return this;
       }
 
@@ -650,10 +611,6 @@ public final class Common {
           to_bitField0_ |= 0x00000004;
         }
         result.total_ = total_;
-        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
-          to_bitField0_ |= 0x00000008;
-        }
-        result.pages_ = pages_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -678,9 +635,6 @@ public final class Common {
         }
         if (other.hasTotal()) {
           setTotal(other.getTotal());
-        }
-        if (other.hasPages()) {
-          setPages(other.getPages());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -801,38 +755,6 @@ public final class Common {
       public Builder clearTotal() {
         bitField0_ = (bitField0_ & ~0x00000004);
         total_ = 0;
-        onChanged();
-        return this;
-      }
-
-      private int pages_ ;
-      /**
-       * <code>optional int32 pages = 4;</code>
-       */
-      public boolean hasPages() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
-      }
-      /**
-       * <code>optional int32 pages = 4;</code>
-       */
-      public int getPages() {
-        return pages_;
-      }
-      /**
-       * <code>optional int32 pages = 4;</code>
-       */
-      public Builder setPages(int value) {
-        bitField0_ |= 0x00000008;
-        pages_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional int32 pages = 4;</code>
-       */
-      public Builder clearPages() {
-        bitField0_ = (bitField0_ & ~0x00000008);
-        pages_ = 0;
         onChanged();
         return this;
       }
@@ -4995,22 +4917,22 @@ public final class Common {
   static {
     java.lang.String[] descriptorData = {
       "\n\020ws-commons.proto\022\024sonarqube.ws.commons" +
-      "\"K\n\006Paging\022\021\n\tpageIndex\030\001 \001(\005\022\020\n\010pageSiz" +
-      "e\030\002 \001(\005\022\r\n\005total\030\003 \001(\005\022\r\n\005pages\030\004 \001(\005\"K\n" +
-      "\005Facet\022\020\n\010property\030\001 \001(\t\0220\n\006values\030\002 \003(\013" +
-      "2 .sonarqube.ws.commons.FacetValue\"(\n\nFa" +
-      "cetValue\022\013\n\003val\030\001 \001(\t\022\r\n\005count\030\002 \001(\003\"s\n\004" +
-      "Rule\022\013\n\003key\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\014\n\004lang\030" +
-      "\003 \001(\t\0220\n\006status\030\004 \001(\0162 .sonarqube.ws.com" +
-      "mons.RuleStatus\022\020\n\010langName\030\005 \001(\t\"B\n\004Use" +
-      "r\022\r\n\005login\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\r\n\005email\030",
-      "\003 \001(\t\022\016\n\006active\030\004 \001(\010\"W\n\tTextRange\022\021\n\tst" +
-      "artLine\030\001 \001(\005\022\017\n\007endLine\030\002 \001(\005\022\023\n\013startO" +
-      "ffset\030\003 \001(\005\022\021\n\tendOffset\030\004 \001(\005*E\n\010Severi" +
-      "ty\022\010\n\004INFO\020\000\022\t\n\005MINOR\020\001\022\t\n\005MAJOR\020\002\022\014\n\010CR" +
-      "ITICAL\020\003\022\013\n\007BLOCKER\020\004*>\n\nRuleStatus\022\010\n\004B" +
-      "ETA\020\000\022\016\n\nDEPRECATED\020\001\022\t\n\005READY\020\002\022\013\n\007REMO" +
-      "VED\020\003B\034\n\020org.sonarqube.wsB\006CommonH\001"
+      "\"<\n\006Paging\022\021\n\tpageIndex\030\001 \001(\005\022\020\n\010pageSiz" +
+      "e\030\002 \001(\005\022\r\n\005total\030\003 \001(\005\"K\n\005Facet\022\020\n\010prope" +
+      "rty\030\001 \001(\t\0220\n\006values\030\002 \003(\0132 .sonarqube.ws" +
+      ".commons.FacetValue\"(\n\nFacetValue\022\013\n\003val" +
+      "\030\001 \001(\t\022\r\n\005count\030\002 \001(\003\"s\n\004Rule\022\013\n\003key\030\001 \001" +
+      "(\t\022\014\n\004name\030\002 \001(\t\022\014\n\004lang\030\003 \001(\t\0220\n\006status" +
+      "\030\004 \001(\0162 .sonarqube.ws.commons.RuleStatus" +
+      "\022\020\n\010langName\030\005 \001(\t\"B\n\004User\022\r\n\005login\030\001 \001(" +
+      "\t\022\014\n\004name\030\002 \001(\t\022\r\n\005email\030\003 \001(\t\022\016\n\006active",
+      "\030\004 \001(\010\"W\n\tTextRange\022\021\n\tstartLine\030\001 \001(\005\022\017" +
+      "\n\007endLine\030\002 \001(\005\022\023\n\013startOffset\030\003 \001(\005\022\021\n\t" +
+      "endOffset\030\004 \001(\005*E\n\010Severity\022\010\n\004INFO\020\000\022\t\n" +
+      "\005MINOR\020\001\022\t\n\005MAJOR\020\002\022\014\n\010CRITICAL\020\003\022\013\n\007BLO" +
+      "CKER\020\004*>\n\nRuleStatus\022\010\n\004BETA\020\000\022\016\n\nDEPREC" +
+      "ATED\020\001\022\t\n\005READY\020\002\022\013\n\007REMOVED\020\003B\034\n\020org.so" +
+      "narqube.wsB\006CommonH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -5029,7 +4951,7 @@ public final class Common {
     internal_static_sonarqube_ws_commons_Paging_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_commons_Paging_descriptor,
-        new java.lang.String[] { "PageIndex", "PageSize", "Total", "Pages", });
+        new java.lang.String[] { "PageIndex", "PageSize", "Total", });
     internal_static_sonarqube_ws_commons_Facet_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_sonarqube_ws_commons_Facet_fieldAccessorTable = new

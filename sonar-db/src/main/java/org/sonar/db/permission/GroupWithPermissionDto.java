@@ -26,9 +26,18 @@ import org.sonar.core.permission.GroupWithPermission;
 
 public class GroupWithPermissionDto {
 
+  private long id;
   private String name;
   private String permission;
   private String description;
+
+  public long getId() {
+    return id;
+  }
+
+  public void setId(long id) {
+    this.id = id;
+  }
 
   public String getName() {
     return name;
@@ -61,6 +70,7 @@ public class GroupWithPermissionDto {
 
   public GroupWithPermission toGroupWithPermission() {
     return new GroupWithPermission()
+      .setId(id)
       .setName(name)
       .setDescription(description)
       .hasPermission(permission != null);

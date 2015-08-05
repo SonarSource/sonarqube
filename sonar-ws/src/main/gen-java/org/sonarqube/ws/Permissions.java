@@ -201,11 +201,11 @@ public final class Permissions {
           getNameBytes();
 
       /**
-       * <code>optional bool selected = 4;</code>
+       * <code>optional bool selected = 3;</code>
        */
       boolean hasSelected();
       /**
-       * <code>optional bool selected = 4;</code>
+       * <code>optional bool selected = 3;</code>
        */
       boolean getSelected();
     }
@@ -273,7 +273,7 @@ public final class Permissions {
                 name_ = bs;
                 break;
               }
-              case 32: {
+              case 24: {
                 bitField0_ |= 0x00000004;
                 selected_ = input.readBool();
                 break;
@@ -402,16 +402,16 @@ public final class Permissions {
         }
       }
 
-      public static final int SELECTED_FIELD_NUMBER = 4;
+      public static final int SELECTED_FIELD_NUMBER = 3;
       private boolean selected_;
       /**
-       * <code>optional bool selected = 4;</code>
+       * <code>optional bool selected = 3;</code>
        */
       public boolean hasSelected() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>optional bool selected = 4;</code>
+       * <code>optional bool selected = 3;</code>
        */
       public boolean getSelected() {
         return selected_;
@@ -442,7 +442,7 @@ public final class Permissions {
           output.writeBytes(2, getNameBytes());
         }
         if (((bitField0_ & 0x00000004) == 0x00000004)) {
-          output.writeBool(4, selected_);
+          output.writeBool(3, selected_);
         }
         getUnknownFields().writeTo(output);
       }
@@ -463,7 +463,7 @@ public final class Permissions {
         }
         if (((bitField0_ & 0x00000004) == 0x00000004)) {
           size += com.google.protobuf.CodedOutputStream
-            .computeBoolSize(4, selected_);
+            .computeBoolSize(3, selected_);
         }
         size += getUnknownFields().getSerializedSize();
         memoizedSerializedSize = size;
@@ -838,19 +838,19 @@ public final class Permissions {
 
         private boolean selected_ ;
         /**
-         * <code>optional bool selected = 4;</code>
+         * <code>optional bool selected = 3;</code>
          */
         public boolean hasSelected() {
           return ((bitField0_ & 0x00000004) == 0x00000004);
         }
         /**
-         * <code>optional bool selected = 4;</code>
+         * <code>optional bool selected = 3;</code>
          */
         public boolean getSelected() {
           return selected_;
         }
         /**
-         * <code>optional bool selected = 4;</code>
+         * <code>optional bool selected = 3;</code>
          */
         public Builder setSelected(boolean value) {
           bitField0_ |= 0x00000004;
@@ -859,7 +859,7 @@ public final class Permissions {
           return this;
         }
         /**
-         * <code>optional bool selected = 4;</code>
+         * <code>optional bool selected = 3;</code>
          */
         public Builder clearSelected() {
           bitField0_ = (bitField0_ & ~0x00000004);
@@ -1595,6 +1595,1750 @@ public final class Permissions {
     // @@protoc_insertion_point(class_scope:sonarqube.ws.permissions.UsersResponse)
   }
 
+  public interface GroupsResponseOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:sonarqube.ws.permissions.GroupsResponse)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+     */
+    java.util.List<org.sonarqube.ws.Permissions.GroupsResponse.Group> 
+        getGroupsList();
+    /**
+     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+     */
+    org.sonarqube.ws.Permissions.GroupsResponse.Group getGroups(int index);
+    /**
+     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+     */
+    int getGroupsCount();
+    /**
+     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+     */
+    java.util.List<? extends org.sonarqube.ws.Permissions.GroupsResponse.GroupOrBuilder> 
+        getGroupsOrBuilderList();
+    /**
+     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+     */
+    org.sonarqube.ws.Permissions.GroupsResponse.GroupOrBuilder getGroupsOrBuilder(
+        int index);
+
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
+     */
+    boolean hasPaging();
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
+     */
+    org.sonarqube.ws.Common.Paging getPaging();
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
+     */
+    org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder();
+  }
+  /**
+   * Protobuf type {@code sonarqube.ws.permissions.GroupsResponse}
+   *
+   * <pre>
+   * WS api/permissions/groups for internal use only
+   * </pre>
+   */
+  public static final class GroupsResponse extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:sonarqube.ws.permissions.GroupsResponse)
+      GroupsResponseOrBuilder {
+    // Use GroupsResponse.newBuilder() to construct.
+    private GroupsResponse(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private GroupsResponse(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final GroupsResponse defaultInstance;
+    public static GroupsResponse getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public GroupsResponse getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private GroupsResponse(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                groups_ = new java.util.ArrayList<org.sonarqube.ws.Permissions.GroupsResponse.Group>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              groups_.add(input.readMessage(org.sonarqube.ws.Permissions.GroupsResponse.Group.PARSER, extensionRegistry));
+              break;
+            }
+            case 18: {
+              org.sonarqube.ws.Common.Paging.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                subBuilder = paging_.toBuilder();
+              }
+              paging_ = input.readMessage(org.sonarqube.ws.Common.Paging.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(paging_);
+                paging_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000001;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+          groups_ = java.util.Collections.unmodifiableList(groups_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_GroupsResponse_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_GroupsResponse_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonarqube.ws.Permissions.GroupsResponse.class, org.sonarqube.ws.Permissions.GroupsResponse.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<GroupsResponse> PARSER =
+        new com.google.protobuf.AbstractParser<GroupsResponse>() {
+      public GroupsResponse parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new GroupsResponse(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<GroupsResponse> getParserForType() {
+      return PARSER;
+    }
+
+    public interface GroupOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:sonarqube.ws.permissions.GroupsResponse.Group)
+        com.google.protobuf.MessageOrBuilder {
+
+      /**
+       * <code>optional string id = 1;</code>
+       */
+      boolean hasId();
+      /**
+       * <code>optional string id = 1;</code>
+       */
+      java.lang.String getId();
+      /**
+       * <code>optional string id = 1;</code>
+       */
+      com.google.protobuf.ByteString
+          getIdBytes();
+
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      boolean hasName();
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      java.lang.String getName();
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      com.google.protobuf.ByteString
+          getNameBytes();
+
+      /**
+       * <code>optional string description = 3;</code>
+       */
+      boolean hasDescription();
+      /**
+       * <code>optional string description = 3;</code>
+       */
+      java.lang.String getDescription();
+      /**
+       * <code>optional string description = 3;</code>
+       */
+      com.google.protobuf.ByteString
+          getDescriptionBytes();
+
+      /**
+       * <code>optional bool selected = 4;</code>
+       */
+      boolean hasSelected();
+      /**
+       * <code>optional bool selected = 4;</code>
+       */
+      boolean getSelected();
+    }
+    /**
+     * Protobuf type {@code sonarqube.ws.permissions.GroupsResponse.Group}
+     */
+    public static final class Group extends
+        com.google.protobuf.GeneratedMessage implements
+        // @@protoc_insertion_point(message_implements:sonarqube.ws.permissions.GroupsResponse.Group)
+        GroupOrBuilder {
+      // Use Group.newBuilder() to construct.
+      private Group(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+        super(builder);
+        this.unknownFields = builder.getUnknownFields();
+      }
+      private Group(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+      private static final Group defaultInstance;
+      public static Group getDefaultInstance() {
+        return defaultInstance;
+      }
+
+      public Group getDefaultInstanceForType() {
+        return defaultInstance;
+      }
+
+      private final com.google.protobuf.UnknownFieldSet unknownFields;
+      @java.lang.Override
+      public final com.google.protobuf.UnknownFieldSet
+          getUnknownFields() {
+        return this.unknownFields;
+      }
+      private Group(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        initFields();
+        int mutable_bitField0_ = 0;
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+            com.google.protobuf.UnknownFieldSet.newBuilder();
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              default: {
+                if (!parseUnknownField(input, unknownFields,
+                                       extensionRegistry, tag)) {
+                  done = true;
+                }
+                break;
+              }
+              case 10: {
+                com.google.protobuf.ByteString bs = input.readBytes();
+                bitField0_ |= 0x00000001;
+                id_ = bs;
+                break;
+              }
+              case 18: {
+                com.google.protobuf.ByteString bs = input.readBytes();
+                bitField0_ |= 0x00000002;
+                name_ = bs;
+                break;
+              }
+              case 26: {
+                com.google.protobuf.ByteString bs = input.readBytes();
+                bitField0_ |= 0x00000004;
+                description_ = bs;
+                break;
+              }
+              case 32: {
+                bitField0_ |= 0x00000008;
+                selected_ = input.readBool();
+                break;
+              }
+            }
+          }
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(this);
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(
+              e.getMessage()).setUnfinishedMessage(this);
+        } finally {
+          this.unknownFields = unknownFields.build();
+          makeExtensionsImmutable();
+        }
+      }
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_GroupsResponse_Group_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_GroupsResponse_Group_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonarqube.ws.Permissions.GroupsResponse.Group.class, org.sonarqube.ws.Permissions.GroupsResponse.Group.Builder.class);
+      }
+
+      public static com.google.protobuf.Parser<Group> PARSER =
+          new com.google.protobuf.AbstractParser<Group>() {
+        public Group parsePartialFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+          return new Group(input, extensionRegistry);
+        }
+      };
+
+      @java.lang.Override
+      public com.google.protobuf.Parser<Group> getParserForType() {
+        return PARSER;
+      }
+
+      private int bitField0_;
+      public static final int ID_FIELD_NUMBER = 1;
+      private java.lang.Object id_;
+      /**
+       * <code>optional string id = 1;</code>
+       */
+      public boolean hasId() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional string id = 1;</code>
+       */
+      public java.lang.String getId() {
+        java.lang.Object ref = id_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            id_ = s;
+          }
+          return s;
+        }
+      }
+      /**
+       * <code>optional string id = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getIdBytes() {
+        java.lang.Object ref = id_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          id_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      public static final int NAME_FIELD_NUMBER = 2;
+      private java.lang.Object name_;
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public boolean hasName() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public java.lang.String getName() {
+        java.lang.Object ref = name_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            name_ = s;
+          }
+          return s;
+        }
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getNameBytes() {
+        java.lang.Object ref = name_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          name_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      public static final int DESCRIPTION_FIELD_NUMBER = 3;
+      private java.lang.Object description_;
+      /**
+       * <code>optional string description = 3;</code>
+       */
+      public boolean hasDescription() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional string description = 3;</code>
+       */
+      public java.lang.String getDescription() {
+        java.lang.Object ref = description_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            description_ = s;
+          }
+          return s;
+        }
+      }
+      /**
+       * <code>optional string description = 3;</code>
+       */
+      public com.google.protobuf.ByteString
+          getDescriptionBytes() {
+        java.lang.Object ref = description_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          description_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      public static final int SELECTED_FIELD_NUMBER = 4;
+      private boolean selected_;
+      /**
+       * <code>optional bool selected = 4;</code>
+       */
+      public boolean hasSelected() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>optional bool selected = 4;</code>
+       */
+      public boolean getSelected() {
+        return selected_;
+      }
+
+      private void initFields() {
+        id_ = "";
+        name_ = "";
+        description_ = "";
+        selected_ = false;
+      }
+      private byte memoizedIsInitialized = -1;
+      public final boolean isInitialized() {
+        byte isInitialized = memoizedIsInitialized;
+        if (isInitialized == 1) return true;
+        if (isInitialized == 0) return false;
+
+        memoizedIsInitialized = 1;
+        return true;
+      }
+
+      public void writeTo(com.google.protobuf.CodedOutputStream output)
+                          throws java.io.IOException {
+        getSerializedSize();
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          output.writeBytes(1, getIdBytes());
+        }
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          output.writeBytes(2, getNameBytes());
+        }
+        if (((bitField0_ & 0x00000004) == 0x00000004)) {
+          output.writeBytes(3, getDescriptionBytes());
+        }
+        if (((bitField0_ & 0x00000008) == 0x00000008)) {
+          output.writeBool(4, selected_);
+        }
+        getUnknownFields().writeTo(output);
+      }
+
+      private int memoizedSerializedSize = -1;
+      public int getSerializedSize() {
+        int size = memoizedSerializedSize;
+        if (size != -1) return size;
+
+        size = 0;
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeBytesSize(1, getIdBytes());
+        }
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeBytesSize(2, getNameBytes());
+        }
+        if (((bitField0_ & 0x00000004) == 0x00000004)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeBytesSize(3, getDescriptionBytes());
+        }
+        if (((bitField0_ & 0x00000008) == 0x00000008)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeBoolSize(4, selected_);
+        }
+        size += getUnknownFields().getSerializedSize();
+        memoizedSerializedSize = size;
+        return size;
+      }
+
+      private static final long serialVersionUID = 0L;
+      @java.lang.Override
+      protected java.lang.Object writeReplace()
+          throws java.io.ObjectStreamException {
+        return super.writeReplace();
+      }
+
+      public static org.sonarqube.ws.Permissions.GroupsResponse.Group parseFrom(
+          com.google.protobuf.ByteString data)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+      }
+      public static org.sonarqube.ws.Permissions.GroupsResponse.Group parseFrom(
+          com.google.protobuf.ByteString data,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+      }
+      public static org.sonarqube.ws.Permissions.GroupsResponse.Group parseFrom(byte[] data)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+      }
+      public static org.sonarqube.ws.Permissions.GroupsResponse.Group parseFrom(
+          byte[] data,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+      }
+      public static org.sonarqube.ws.Permissions.GroupsResponse.Group parseFrom(java.io.InputStream input)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input);
+      }
+      public static org.sonarqube.ws.Permissions.GroupsResponse.Group parseFrom(
+          java.io.InputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input, extensionRegistry);
+      }
+      public static org.sonarqube.ws.Permissions.GroupsResponse.Group parseDelimitedFrom(java.io.InputStream input)
+          throws java.io.IOException {
+        return PARSER.parseDelimitedFrom(input);
+      }
+      public static org.sonarqube.ws.Permissions.GroupsResponse.Group parseDelimitedFrom(
+          java.io.InputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return PARSER.parseDelimitedFrom(input, extensionRegistry);
+      }
+      public static org.sonarqube.ws.Permissions.GroupsResponse.Group parseFrom(
+          com.google.protobuf.CodedInputStream input)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input);
+      }
+      public static org.sonarqube.ws.Permissions.GroupsResponse.Group parseFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input, extensionRegistry);
+      }
+
+      public static Builder newBuilder() { return Builder.create(); }
+      public Builder newBuilderForType() { return newBuilder(); }
+      public static Builder newBuilder(org.sonarqube.ws.Permissions.GroupsResponse.Group prototype) {
+        return newBuilder().mergeFrom(prototype);
+      }
+      public Builder toBuilder() { return newBuilder(this); }
+
+      @java.lang.Override
+      protected Builder newBuilderForType(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        Builder builder = new Builder(parent);
+        return builder;
+      }
+      /**
+       * Protobuf type {@code sonarqube.ws.permissions.GroupsResponse.Group}
+       */
+      public static final class Builder extends
+          com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+          // @@protoc_insertion_point(builder_implements:sonarqube.ws.permissions.GroupsResponse.Group)
+          org.sonarqube.ws.Permissions.GroupsResponse.GroupOrBuilder {
+        public static final com.google.protobuf.Descriptors.Descriptor
+            getDescriptor() {
+          return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_GroupsResponse_Group_descriptor;
+        }
+
+        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+            internalGetFieldAccessorTable() {
+          return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_GroupsResponse_Group_fieldAccessorTable
+              .ensureFieldAccessorsInitialized(
+                  org.sonarqube.ws.Permissions.GroupsResponse.Group.class, org.sonarqube.ws.Permissions.GroupsResponse.Group.Builder.class);
+        }
+
+        // Construct using org.sonarqube.ws.Permissions.GroupsResponse.Group.newBuilder()
+        private Builder() {
+          maybeForceBuilderInitialization();
+        }
+
+        private Builder(
+            com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+          super(parent);
+          maybeForceBuilderInitialization();
+        }
+        private void maybeForceBuilderInitialization() {
+          if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          }
+        }
+        private static Builder create() {
+          return new Builder();
+        }
+
+        public Builder clear() {
+          super.clear();
+          id_ = "";
+          bitField0_ = (bitField0_ & ~0x00000001);
+          name_ = "";
+          bitField0_ = (bitField0_ & ~0x00000002);
+          description_ = "";
+          bitField0_ = (bitField0_ & ~0x00000004);
+          selected_ = false;
+          bitField0_ = (bitField0_ & ~0x00000008);
+          return this;
+        }
+
+        public Builder clone() {
+          return create().mergeFrom(buildPartial());
+        }
+
+        public com.google.protobuf.Descriptors.Descriptor
+            getDescriptorForType() {
+          return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_GroupsResponse_Group_descriptor;
+        }
+
+        public org.sonarqube.ws.Permissions.GroupsResponse.Group getDefaultInstanceForType() {
+          return org.sonarqube.ws.Permissions.GroupsResponse.Group.getDefaultInstance();
+        }
+
+        public org.sonarqube.ws.Permissions.GroupsResponse.Group build() {
+          org.sonarqube.ws.Permissions.GroupsResponse.Group result = buildPartial();
+          if (!result.isInitialized()) {
+            throw newUninitializedMessageException(result);
+          }
+          return result;
+        }
+
+        public org.sonarqube.ws.Permissions.GroupsResponse.Group buildPartial() {
+          org.sonarqube.ws.Permissions.GroupsResponse.Group result = new org.sonarqube.ws.Permissions.GroupsResponse.Group(this);
+          int from_bitField0_ = bitField0_;
+          int to_bitField0_ = 0;
+          if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+            to_bitField0_ |= 0x00000001;
+          }
+          result.id_ = id_;
+          if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+            to_bitField0_ |= 0x00000002;
+          }
+          result.name_ = name_;
+          if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+            to_bitField0_ |= 0x00000004;
+          }
+          result.description_ = description_;
+          if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+            to_bitField0_ |= 0x00000008;
+          }
+          result.selected_ = selected_;
+          result.bitField0_ = to_bitField0_;
+          onBuilt();
+          return result;
+        }
+
+        public Builder mergeFrom(com.google.protobuf.Message other) {
+          if (other instanceof org.sonarqube.ws.Permissions.GroupsResponse.Group) {
+            return mergeFrom((org.sonarqube.ws.Permissions.GroupsResponse.Group)other);
+          } else {
+            super.mergeFrom(other);
+            return this;
+          }
+        }
+
+        public Builder mergeFrom(org.sonarqube.ws.Permissions.GroupsResponse.Group other) {
+          if (other == org.sonarqube.ws.Permissions.GroupsResponse.Group.getDefaultInstance()) return this;
+          if (other.hasId()) {
+            bitField0_ |= 0x00000001;
+            id_ = other.id_;
+            onChanged();
+          }
+          if (other.hasName()) {
+            bitField0_ |= 0x00000002;
+            name_ = other.name_;
+            onChanged();
+          }
+          if (other.hasDescription()) {
+            bitField0_ |= 0x00000004;
+            description_ = other.description_;
+            onChanged();
+          }
+          if (other.hasSelected()) {
+            setSelected(other.getSelected());
+          }
+          this.mergeUnknownFields(other.getUnknownFields());
+          return this;
+        }
+
+        public final boolean isInitialized() {
+          return true;
+        }
+
+        public Builder mergeFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+          org.sonarqube.ws.Permissions.GroupsResponse.Group parsedMessage = null;
+          try {
+            parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            parsedMessage = (org.sonarqube.ws.Permissions.GroupsResponse.Group) e.getUnfinishedMessage();
+            throw e;
+          } finally {
+            if (parsedMessage != null) {
+              mergeFrom(parsedMessage);
+            }
+          }
+          return this;
+        }
+        private int bitField0_;
+
+        private java.lang.Object id_ = "";
+        /**
+         * <code>optional string id = 1;</code>
+         */
+        public boolean hasId() {
+          return ((bitField0_ & 0x00000001) == 0x00000001);
+        }
+        /**
+         * <code>optional string id = 1;</code>
+         */
+        public java.lang.String getId() {
+          java.lang.Object ref = id_;
+          if (!(ref instanceof java.lang.String)) {
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            if (bs.isValidUtf8()) {
+              id_ = s;
+            }
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string id = 1;</code>
+         */
+        public com.google.protobuf.ByteString
+            getIdBytes() {
+          java.lang.Object ref = id_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            id_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string id = 1;</code>
+         */
+        public Builder setId(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+          id_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string id = 1;</code>
+         */
+        public Builder clearId() {
+          bitField0_ = (bitField0_ & ~0x00000001);
+          id_ = getDefaultInstance().getId();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string id = 1;</code>
+         */
+        public Builder setIdBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+          id_ = value;
+          onChanged();
+          return this;
+        }
+
+        private java.lang.Object name_ = "";
+        /**
+         * <code>optional string name = 2;</code>
+         */
+        public boolean hasName() {
+          return ((bitField0_ & 0x00000002) == 0x00000002);
+        }
+        /**
+         * <code>optional string name = 2;</code>
+         */
+        public java.lang.String getName() {
+          java.lang.Object ref = name_;
+          if (!(ref instanceof java.lang.String)) {
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            if (bs.isValidUtf8()) {
+              name_ = s;
+            }
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string name = 2;</code>
+         */
+        public com.google.protobuf.ByteString
+            getNameBytes() {
+          java.lang.Object ref = name_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            name_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string name = 2;</code>
+         */
+        public Builder setName(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+          name_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string name = 2;</code>
+         */
+        public Builder clearName() {
+          bitField0_ = (bitField0_ & ~0x00000002);
+          name_ = getDefaultInstance().getName();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string name = 2;</code>
+         */
+        public Builder setNameBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+          name_ = value;
+          onChanged();
+          return this;
+        }
+
+        private java.lang.Object description_ = "";
+        /**
+         * <code>optional string description = 3;</code>
+         */
+        public boolean hasDescription() {
+          return ((bitField0_ & 0x00000004) == 0x00000004);
+        }
+        /**
+         * <code>optional string description = 3;</code>
+         */
+        public java.lang.String getDescription() {
+          java.lang.Object ref = description_;
+          if (!(ref instanceof java.lang.String)) {
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            if (bs.isValidUtf8()) {
+              description_ = s;
+            }
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string description = 3;</code>
+         */
+        public com.google.protobuf.ByteString
+            getDescriptionBytes() {
+          java.lang.Object ref = description_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            description_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string description = 3;</code>
+         */
+        public Builder setDescription(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+          description_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string description = 3;</code>
+         */
+        public Builder clearDescription() {
+          bitField0_ = (bitField0_ & ~0x00000004);
+          description_ = getDefaultInstance().getDescription();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string description = 3;</code>
+         */
+        public Builder setDescriptionBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+          description_ = value;
+          onChanged();
+          return this;
+        }
+
+        private boolean selected_ ;
+        /**
+         * <code>optional bool selected = 4;</code>
+         */
+        public boolean hasSelected() {
+          return ((bitField0_ & 0x00000008) == 0x00000008);
+        }
+        /**
+         * <code>optional bool selected = 4;</code>
+         */
+        public boolean getSelected() {
+          return selected_;
+        }
+        /**
+         * <code>optional bool selected = 4;</code>
+         */
+        public Builder setSelected(boolean value) {
+          bitField0_ |= 0x00000008;
+          selected_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional bool selected = 4;</code>
+         */
+        public Builder clearSelected() {
+          bitField0_ = (bitField0_ & ~0x00000008);
+          selected_ = false;
+          onChanged();
+          return this;
+        }
+
+        // @@protoc_insertion_point(builder_scope:sonarqube.ws.permissions.GroupsResponse.Group)
+      }
+
+      static {
+        defaultInstance = new Group(true);
+        defaultInstance.initFields();
+      }
+
+      // @@protoc_insertion_point(class_scope:sonarqube.ws.permissions.GroupsResponse.Group)
+    }
+
+    private int bitField0_;
+    public static final int GROUPS_FIELD_NUMBER = 1;
+    private java.util.List<org.sonarqube.ws.Permissions.GroupsResponse.Group> groups_;
+    /**
+     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+     */
+    public java.util.List<org.sonarqube.ws.Permissions.GroupsResponse.Group> getGroupsList() {
+      return groups_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+     */
+    public java.util.List<? extends org.sonarqube.ws.Permissions.GroupsResponse.GroupOrBuilder> 
+        getGroupsOrBuilderList() {
+      return groups_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+     */
+    public int getGroupsCount() {
+      return groups_.size();
+    }
+    /**
+     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+     */
+    public org.sonarqube.ws.Permissions.GroupsResponse.Group getGroups(int index) {
+      return groups_.get(index);
+    }
+    /**
+     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+     */
+    public org.sonarqube.ws.Permissions.GroupsResponse.GroupOrBuilder getGroupsOrBuilder(
+        int index) {
+      return groups_.get(index);
+    }
+
+    public static final int PAGING_FIELD_NUMBER = 2;
+    private org.sonarqube.ws.Common.Paging paging_;
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
+     */
+    public boolean hasPaging() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
+     */
+    public org.sonarqube.ws.Common.Paging getPaging() {
+      return paging_;
+    }
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
+     */
+    public org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder() {
+      return paging_;
+    }
+
+    private void initFields() {
+      groups_ = java.util.Collections.emptyList();
+      paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      for (int i = 0; i < groups_.size(); i++) {
+        output.writeMessage(1, groups_.get(i));
+      }
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeMessage(2, paging_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (int i = 0; i < groups_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, groups_.get(i));
+      }
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, paging_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static org.sonarqube.ws.Permissions.GroupsResponse parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Permissions.GroupsResponse parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Permissions.GroupsResponse parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Permissions.GroupsResponse parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Permissions.GroupsResponse parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Permissions.GroupsResponse parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Permissions.GroupsResponse parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonarqube.ws.Permissions.GroupsResponse parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Permissions.GroupsResponse parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Permissions.GroupsResponse parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(org.sonarqube.ws.Permissions.GroupsResponse prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code sonarqube.ws.permissions.GroupsResponse}
+     *
+     * <pre>
+     * WS api/permissions/groups for internal use only
+     * </pre>
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:sonarqube.ws.permissions.GroupsResponse)
+        org.sonarqube.ws.Permissions.GroupsResponseOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_GroupsResponse_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_GroupsResponse_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonarqube.ws.Permissions.GroupsResponse.class, org.sonarqube.ws.Permissions.GroupsResponse.Builder.class);
+      }
+
+      // Construct using org.sonarqube.ws.Permissions.GroupsResponse.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getGroupsFieldBuilder();
+          getPagingFieldBuilder();
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        if (groupsBuilder_ == null) {
+          groups_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          groupsBuilder_.clear();
+        }
+        if (pagingBuilder_ == null) {
+          paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
+        } else {
+          pagingBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_GroupsResponse_descriptor;
+      }
+
+      public org.sonarqube.ws.Permissions.GroupsResponse getDefaultInstanceForType() {
+        return org.sonarqube.ws.Permissions.GroupsResponse.getDefaultInstance();
+      }
+
+      public org.sonarqube.ws.Permissions.GroupsResponse build() {
+        org.sonarqube.ws.Permissions.GroupsResponse result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonarqube.ws.Permissions.GroupsResponse buildPartial() {
+        org.sonarqube.ws.Permissions.GroupsResponse result = new org.sonarqube.ws.Permissions.GroupsResponse(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (groupsBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001)) {
+            groups_ = java.util.Collections.unmodifiableList(groups_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.groups_ = groups_;
+        } else {
+          result.groups_ = groupsBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        if (pagingBuilder_ == null) {
+          result.paging_ = paging_;
+        } else {
+          result.paging_ = pagingBuilder_.build();
+        }
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonarqube.ws.Permissions.GroupsResponse) {
+          return mergeFrom((org.sonarqube.ws.Permissions.GroupsResponse)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonarqube.ws.Permissions.GroupsResponse other) {
+        if (other == org.sonarqube.ws.Permissions.GroupsResponse.getDefaultInstance()) return this;
+        if (groupsBuilder_ == null) {
+          if (!other.groups_.isEmpty()) {
+            if (groups_.isEmpty()) {
+              groups_ = other.groups_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+            } else {
+              ensureGroupsIsMutable();
+              groups_.addAll(other.groups_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.groups_.isEmpty()) {
+            if (groupsBuilder_.isEmpty()) {
+              groupsBuilder_.dispose();
+              groupsBuilder_ = null;
+              groups_ = other.groups_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              groupsBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getGroupsFieldBuilder() : null;
+            } else {
+              groupsBuilder_.addAllMessages(other.groups_);
+            }
+          }
+        }
+        if (other.hasPaging()) {
+          mergePaging(other.getPaging());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonarqube.ws.Permissions.GroupsResponse parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonarqube.ws.Permissions.GroupsResponse) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.util.List<org.sonarqube.ws.Permissions.GroupsResponse.Group> groups_ =
+        java.util.Collections.emptyList();
+      private void ensureGroupsIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          groups_ = new java.util.ArrayList<org.sonarqube.ws.Permissions.GroupsResponse.Group>(groups_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Permissions.GroupsResponse.Group, org.sonarqube.ws.Permissions.GroupsResponse.Group.Builder, org.sonarqube.ws.Permissions.GroupsResponse.GroupOrBuilder> groupsBuilder_;
+
+      /**
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Permissions.GroupsResponse.Group> getGroupsList() {
+        if (groupsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(groups_);
+        } else {
+          return groupsBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       */
+      public int getGroupsCount() {
+        if (groupsBuilder_ == null) {
+          return groups_.size();
+        } else {
+          return groupsBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       */
+      public org.sonarqube.ws.Permissions.GroupsResponse.Group getGroups(int index) {
+        if (groupsBuilder_ == null) {
+          return groups_.get(index);
+        } else {
+          return groupsBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       */
+      public Builder setGroups(
+          int index, org.sonarqube.ws.Permissions.GroupsResponse.Group value) {
+        if (groupsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureGroupsIsMutable();
+          groups_.set(index, value);
+          onChanged();
+        } else {
+          groupsBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       */
+      public Builder setGroups(
+          int index, org.sonarqube.ws.Permissions.GroupsResponse.Group.Builder builderForValue) {
+        if (groupsBuilder_ == null) {
+          ensureGroupsIsMutable();
+          groups_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          groupsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       */
+      public Builder addGroups(org.sonarqube.ws.Permissions.GroupsResponse.Group value) {
+        if (groupsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureGroupsIsMutable();
+          groups_.add(value);
+          onChanged();
+        } else {
+          groupsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       */
+      public Builder addGroups(
+          int index, org.sonarqube.ws.Permissions.GroupsResponse.Group value) {
+        if (groupsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureGroupsIsMutable();
+          groups_.add(index, value);
+          onChanged();
+        } else {
+          groupsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       */
+      public Builder addGroups(
+          org.sonarqube.ws.Permissions.GroupsResponse.Group.Builder builderForValue) {
+        if (groupsBuilder_ == null) {
+          ensureGroupsIsMutable();
+          groups_.add(builderForValue.build());
+          onChanged();
+        } else {
+          groupsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       */
+      public Builder addGroups(
+          int index, org.sonarqube.ws.Permissions.GroupsResponse.Group.Builder builderForValue) {
+        if (groupsBuilder_ == null) {
+          ensureGroupsIsMutable();
+          groups_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          groupsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       */
+      public Builder addAllGroups(
+          java.lang.Iterable<? extends org.sonarqube.ws.Permissions.GroupsResponse.Group> values) {
+        if (groupsBuilder_ == null) {
+          ensureGroupsIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, groups_);
+          onChanged();
+        } else {
+          groupsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       */
+      public Builder clearGroups() {
+        if (groupsBuilder_ == null) {
+          groups_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          groupsBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       */
+      public Builder removeGroups(int index) {
+        if (groupsBuilder_ == null) {
+          ensureGroupsIsMutable();
+          groups_.remove(index);
+          onChanged();
+        } else {
+          groupsBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       */
+      public org.sonarqube.ws.Permissions.GroupsResponse.Group.Builder getGroupsBuilder(
+          int index) {
+        return getGroupsFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       */
+      public org.sonarqube.ws.Permissions.GroupsResponse.GroupOrBuilder getGroupsOrBuilder(
+          int index) {
+        if (groupsBuilder_ == null) {
+          return groups_.get(index);  } else {
+          return groupsBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       */
+      public java.util.List<? extends org.sonarqube.ws.Permissions.GroupsResponse.GroupOrBuilder> 
+           getGroupsOrBuilderList() {
+        if (groupsBuilder_ != null) {
+          return groupsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(groups_);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       */
+      public org.sonarqube.ws.Permissions.GroupsResponse.Group.Builder addGroupsBuilder() {
+        return getGroupsFieldBuilder().addBuilder(
+            org.sonarqube.ws.Permissions.GroupsResponse.Group.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       */
+      public org.sonarqube.ws.Permissions.GroupsResponse.Group.Builder addGroupsBuilder(
+          int index) {
+        return getGroupsFieldBuilder().addBuilder(
+            index, org.sonarqube.ws.Permissions.GroupsResponse.Group.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Permissions.GroupsResponse.Group.Builder> 
+           getGroupsBuilderList() {
+        return getGroupsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Permissions.GroupsResponse.Group, org.sonarqube.ws.Permissions.GroupsResponse.Group.Builder, org.sonarqube.ws.Permissions.GroupsResponse.GroupOrBuilder> 
+          getGroupsFieldBuilder() {
+        if (groupsBuilder_ == null) {
+          groupsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonarqube.ws.Permissions.GroupsResponse.Group, org.sonarqube.ws.Permissions.GroupsResponse.Group.Builder, org.sonarqube.ws.Permissions.GroupsResponse.GroupOrBuilder>(
+                  groups_,
+                  ((bitField0_ & 0x00000001) == 0x00000001),
+                  getParentForChildren(),
+                  isClean());
+          groups_ = null;
+        }
+        return groupsBuilder_;
+      }
+
+      private org.sonarqube.ws.Common.Paging paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder> pagingBuilder_;
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
+       */
+      public boolean hasPaging() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
+       */
+      public org.sonarqube.ws.Common.Paging getPaging() {
+        if (pagingBuilder_ == null) {
+          return paging_;
+        } else {
+          return pagingBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
+       */
+      public Builder setPaging(org.sonarqube.ws.Common.Paging value) {
+        if (pagingBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          paging_ = value;
+          onChanged();
+        } else {
+          pagingBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
+       */
+      public Builder setPaging(
+          org.sonarqube.ws.Common.Paging.Builder builderForValue) {
+        if (pagingBuilder_ == null) {
+          paging_ = builderForValue.build();
+          onChanged();
+        } else {
+          pagingBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
+       */
+      public Builder mergePaging(org.sonarqube.ws.Common.Paging value) {
+        if (pagingBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) == 0x00000002) &&
+              paging_ != org.sonarqube.ws.Common.Paging.getDefaultInstance()) {
+            paging_ =
+              org.sonarqube.ws.Common.Paging.newBuilder(paging_).mergeFrom(value).buildPartial();
+          } else {
+            paging_ = value;
+          }
+          onChanged();
+        } else {
+          pagingBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
+       */
+      public Builder clearPaging() {
+        if (pagingBuilder_ == null) {
+          paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
+          onChanged();
+        } else {
+          pagingBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
+       */
+      public org.sonarqube.ws.Common.Paging.Builder getPagingBuilder() {
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return getPagingFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
+       */
+      public org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder() {
+        if (pagingBuilder_ != null) {
+          return pagingBuilder_.getMessageOrBuilder();
+        } else {
+          return paging_;
+        }
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder> 
+          getPagingFieldBuilder() {
+        if (pagingBuilder_ == null) {
+          pagingBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder>(
+                  getPaging(),
+                  getParentForChildren(),
+                  isClean());
+          paging_ = null;
+        }
+        return pagingBuilder_;
+      }
+
+      // @@protoc_insertion_point(builder_scope:sonarqube.ws.permissions.GroupsResponse)
+    }
+
+    static {
+      defaultInstance = new GroupsResponse(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:sonarqube.ws.permissions.GroupsResponse)
+  }
+
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_sonarqube_ws_permissions_UsersResponse_descriptor;
   private static
@@ -1605,6 +3349,16 @@ public final class Permissions {
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_sonarqube_ws_permissions_UsersResponse_User_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_sonarqube_ws_permissions_GroupsResponse_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_sonarqube_ws_permissions_GroupsResponse_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_sonarqube_ws_permissions_GroupsResponse_Group_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_sonarqube_ws_permissions_GroupsResponse_Group_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -1620,8 +3374,13 @@ public final class Permissions {
       "ssions.UsersResponse.User\022,\n\006paging\030\002 \001(" +
       "\0132\034.sonarqube.ws.commons.Paging\0325\n\004User\022" +
       "\r\n\005login\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\020\n\010selected" +
-      "\030\004 \001(\010B!\n\020org.sonarqube.wsB\013PermissionsH" +
-      "\001"
+      "\030\003 \001(\010\"\310\001\n\016GroupsResponse\022>\n\006groups\030\001 \003(" +
+      "\0132..sonarqube.ws.permissions.GroupsRespo" +
+      "nse.Group\022,\n\006paging\030\002 \001(\0132\034.sonarqube.ws" +
+      ".commons.Paging\032H\n\005Group\022\n\n\002id\030\001 \001(\t\022\014\n\004",
+      "name\030\002 \001(\t\022\023\n\013description\030\003 \001(\t\022\020\n\010selec" +
+      "ted\030\004 \001(\010B!\n\020org.sonarqube.wsB\013Permissio" +
+      "nsH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -1648,6 +3407,18 @@ public final class Permissions {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_permissions_UsersResponse_User_descriptor,
         new java.lang.String[] { "Login", "Name", "Selected", });
+    internal_static_sonarqube_ws_permissions_GroupsResponse_descriptor =
+      getDescriptor().getMessageTypes().get(1);
+    internal_static_sonarqube_ws_permissions_GroupsResponse_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_sonarqube_ws_permissions_GroupsResponse_descriptor,
+        new java.lang.String[] { "Groups", "Paging", });
+    internal_static_sonarqube_ws_permissions_GroupsResponse_Group_descriptor =
+      internal_static_sonarqube_ws_permissions_GroupsResponse_descriptor.getNestedTypes().get(0);
+    internal_static_sonarqube_ws_permissions_GroupsResponse_Group_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_sonarqube_ws_permissions_GroupsResponse_Group_descriptor,
+        new java.lang.String[] { "Id", "Name", "Description", "Selected", });
     org.sonarqube.ws.Common.getDescriptor();
   }
 

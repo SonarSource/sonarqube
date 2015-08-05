@@ -19,18 +19,19 @@
  */
 package org.sonar.server.permission;
 
-import org.sonar.core.permission.GroupWithPermission;
-
 import java.util.List;
+import org.sonar.core.permission.GroupWithPermission;
 
 public class GroupWithPermissionQueryResult {
 
-  private List<GroupWithPermission> groups;
-  private boolean hasMoreResults;
+  private final List<GroupWithPermission> groups;
+  private final int total;
+  private final boolean hasMoreResults;
 
-  public GroupWithPermissionQueryResult(List<GroupWithPermission> groups, boolean hasMoreResults) {
+  public GroupWithPermissionQueryResult(List<GroupWithPermission> groups, int total) {
     this.groups = groups;
-    this.hasMoreResults = hasMoreResults;
+    this.total = total;
+    this.hasMoreResults = total > groups.size();
   }
 
   public List<GroupWithPermission> groups() {
@@ -41,4 +42,7 @@ public class GroupWithPermissionQueryResult {
     return hasMoreResults;
   }
 
+  public int total() {
+    return total;
+  }
 }

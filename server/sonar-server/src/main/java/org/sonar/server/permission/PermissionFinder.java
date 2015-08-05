@@ -91,7 +91,12 @@ public class PermissionFinder {
    */
   public GroupWithPermissionQueryResult findGroupsWithPermission(PermissionQuery query) {
     Long componentId = componentId(query.component());
-    return toGroupQueryResult(permissionDao.selectGroups(query, componentId), query);
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      return toGroupQueryResult(permissionDao.selectGroups(dbSession, query, componentId), query);
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 
   /**
@@ -99,7 +104,12 @@ public class PermissionFinder {
    */
   public GroupWithPermissionQueryResult findGroupsWithPermissionTemplate(PermissionQuery query) {
     Long permissionTemplateId = templateId(query.template());
-    return toGroupQueryResult(permissionTemplateDao.selectGroups(query, permissionTemplateId), query);
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      return toGroupQueryResult(permissionTemplateDao.selectGroups(dbSession, query, permissionTemplateId), query);
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 
   private static UserWithPermissionQueryResult toUserQueryResult(List<UserWithPermissionDto> dtos, int total) {
@@ -133,7 +143,7 @@ public class PermissionFinder {
 
     Paging paging = Paging.create(query.pageSize(), query.pageIndex(), filteredDtos.size());
     List<GroupWithPermission> pagedGroups = pagedGroups(filteredDtos, paging);
-    return new GroupWithPermissionQueryResult(pagedGroups, paging.hasNextPage());
+    return new GroupWithPermissionQueryResult(pagedGroups, filteredDtos.size());
   }
 
   private Long templateId(String templateKey) {

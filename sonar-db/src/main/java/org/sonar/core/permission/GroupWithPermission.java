@@ -27,9 +27,19 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 public class GroupWithPermission {
 
+  private long id;
   private String name;
   private String description;
   private boolean hasPermission;
+
+  public long id() {
+    return id;
+  }
+
+  public GroupWithPermission setId(Long id) {
+    this.id = id;
+    return this;
+  }
 
   public String name() {
     return name;

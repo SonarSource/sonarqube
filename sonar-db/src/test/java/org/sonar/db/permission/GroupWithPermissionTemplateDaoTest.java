@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.test.DbTests;
 
@@ -37,17 +38,20 @@ public class GroupWithPermissionTemplateDaoTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  DbSession session = dbTester.getSession();
 
-  PermissionTemplateDao dao = dbTester.getDbClient().permissionTemplateDao();
+  PermissionTemplateDao underTest = dbTester.getDbClient().permissionTemplateDao();
 
   @Test
   public void select_groups() {
     dbTester.prepareDbUnit(getClass(), "groups_with_permissions.xml");
 
     PermissionQuery query = PermissionQuery.builder().permission("user").build();
-    List<GroupWithPermissionDto> result = dao.selectGroups(query, TEMPLATE_ID);
+    List<GroupWithPermissionDto> result = underTest.selectGroups(session, query, TEMPLATE_ID);
+    int count = underTest.countGroups(session, query, TEMPLATE_ID);
 
     assertThat(result).hasSize(4);
+    assertThat(count).isEqualTo(4);
 
     GroupWithPermissionDto anyone = result.get(0);
     assertThat(anyone.getName()).isEqualTo("Anyone");
@@ -76,7 +80,7 @@ public class GroupWithPermissionTemplateDaoTest {
 
     // Anyone group has not the permission 'admin', so it's not returned
     PermissionQuery query = PermissionQuery.builder().permission("admin").build();
-    List<GroupWithPermissionDto> result = dao.selectGroups(query, TEMPLATE_ID);
+    List<GroupWithPermissionDto> result = underTest.selectGroups(session, query, TEMPLATE_ID);
     assertThat(result).hasSize(3);
 
     GroupWithPermissionDto group1 = result.get(0);
@@ -96,11 +100,11 @@ public class GroupWithPermissionTemplateDaoTest {
   public void search_by_groups_name() {
     dbTester.prepareDbUnit(getClass(), "groups_with_permissions.xml");
 
-    List<GroupWithPermissionDto> result = dao.selectGroups(PermissionQuery.builder().permission("user").search("aDMini").build(), TEMPLATE_ID);
+    List<GroupWithPermissionDto> result = underTest.selectGroups(session, PermissionQuery.builder().permission("user").search("aDMini").build(), TEMPLATE_ID);
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getName()).isEqualTo("sonar-administrators");
 
-    result = dao.selectGroups(PermissionQuery.builder().permission("user").search("sonar").build(), TEMPLATE_ID);
+    result = underTest.selectGroups(session, PermissionQuery.builder().permission("user").search("sonar").build(), TEMPLATE_ID);
     assertThat(result).hasSize(3);
   }
 
@@ -108,7 +112,7 @@ public class GroupWithPermissionTemplateDaoTest {
   public void search_groups_should_be_sorted_by_group_name() {
     dbTester.prepareDbUnit(getClass(), "groups_with_permissions_should_be_sorted_by_group_name.xml");
 
-    List<GroupWithPermissionDto> result = dao.selectGroups(PermissionQuery.builder().permission("user").build(), TEMPLATE_ID);
+    List<GroupWithPermissionDto> result = underTest.selectGroups(session, PermissionQuery.builder().permission("user").build(), TEMPLATE_ID);
     assertThat(result).hasSize(4);
     assertThat(result.get(0).getName()).isEqualTo("Anyone");
     assertThat(result.get(1).getName()).isEqualTo("sonar-administrators");

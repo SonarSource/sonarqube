@@ -41,8 +41,8 @@
   </sql>
 
   <select id="selectGroups" parameterType="map" resultType="GroupWithPermission">
-    SELECT name, description, permission FROM
-    (SELECT g.name as name, g.description as description, group_role.role as permission
+    SELECT id, name, description, permission FROM
+    (SELECT g.id as id, g.name as name, g.description as description, group_role.role as permission
     FROM groups g
     LEFT JOIN group_roles group_role ON group_role.group_id=g.id
     AND group_role.role=#{query.permission}
@@ -54,7 +54,7 @@
     </if>
     UNION
     -- Add Anyone group permission
-    SELECT #{anyoneGroup} as name, NULL as description, group_role.role as permission
+    SELECT 0 as id, #{anyoneGroup} as name, NULL as description, group_role.role as permission
     FROM group_roles group_role
     <where>
       AND group_role.role=#{query.permission}
@@ -75,4 +75,37 @@
     ORDER BY groups.name
   </select>
 
+  <select id="countGroups" parameterType="map" resultType="int">
+    SELECT count(name) FROM
+    (SELECT g.name as name
+    FROM groups g
+    LEFT JOIN group_roles group_role ON group_role.group_id=g.id
+    AND group_role.role=#{query.permission}
+    <if test="componentId != null">
+      AND group_role.resource_id=#{componentId}
+    </if>
+    <if test="componentId == null">
+      AND group_role.resource_id IS NULL
+    </if>
+    UNION
+    -- Add Anyone group permission
+    SELECT #{anyoneGroup} as name
+    FROM group_roles group_role
+    <where>
+      AND group_role.role=#{query.permission}
+      AND group_role.group_id IS NULL
+      <if test="componentId != null">
+        AND group_role.resource_id=#{componentId}
+      </if>
+      <if test="componentId == null">
+        AND group_role.resource_id IS NULL
+      </if>
+    </where>
+    ) groups
+    <where>
+      <if test="query.search() != null">
+        AND (UPPER(groups.name) LIKE #{query.searchSql} ESCAPE '/')
+      </if>
+    </where>
+  </select>
 </mapper>

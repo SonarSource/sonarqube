@@ -89,17 +89,31 @@ public class PermissionTemplateDao implements Dao {
    * Membership parameter from query is not taking into account in order to deal more easily with the 'Anyone' group.
    * @return a non paginated list of groups.
    */
+  public List<GroupWithPermissionDto> selectGroups(DbSession session, PermissionQuery query, Long templateId) {
+    Map<String, Object> params = groupsParamaters(query, templateId);
+    return mapper(session).selectGroups(params);
+  }
+
   public List<GroupWithPermissionDto> selectGroups(PermissionQuery query, Long templateId) {
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
-      Map<String, Object> params = newHashMap();
-      params.put(QUERY_PARAMETER, query);
-      params.put(TEMPLATE_ID_PARAMETER, templateId);
-      params.put("anyoneGroup", DefaultGroups.ANYONE);
-      return mapper(session).selectGroups(params);
+      return selectGroups(session, query, templateId);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public int countGroups(DbSession session, PermissionQuery query, Long templateId) {
+    Map<String, Object> parameters = groupsParamaters(query, templateId);
+    return mapper(session).countGroups(parameters);
+  }
+
+  private Map<String, Object> groupsParamaters(PermissionQuery query, Long templateId) {
+    Map<String, Object> params = newHashMap();
+    params.put(QUERY_PARAMETER, query);
+    params.put(TEMPLATE_ID_PARAMETER, templateId);
+    params.put("anyoneGroup", DefaultGroups.ANYONE);
+    return params;
   }
 
   @CheckForNull

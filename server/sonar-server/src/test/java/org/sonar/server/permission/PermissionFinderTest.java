@@ -153,19 +153,20 @@ public class PermissionFinderTest {
 
   @Test
   public void find_groups() {
-    when(permissionDao.selectGroups(any(PermissionQuery.class), anyLong())).thenReturn(
+    when(permissionDao.selectGroups(any(DbSession.class), any(PermissionQuery.class), anyLong())).thenReturn(
       newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
       );
 
     GroupWithPermissionQueryResult result = underTest.findGroupsWithPermission(
       PermissionQuery.builder().permission("user").membership(PermissionQuery.IN).build());
+
     assertThat(result.groups()).hasSize(1);
     assertThat(result.hasMoreResults()).isFalse();
   }
 
   @Test
   public void find_groups_should_be_paginated() {
-    when(permissionDao.selectGroups(any(PermissionQuery.class), anyLong())).thenReturn(newArrayList(
+    when(permissionDao.selectGroups(any(DbSession.class), any(PermissionQuery.class), anyLong())).thenReturn(newArrayList(
       new GroupWithPermissionDto().setName("Anyone").setPermission("user"),
       new GroupWithPermissionDto().setName("Admin").setPermission("user"),
       new GroupWithPermissionDto().setName("Users").setPermission(null),
@@ -191,12 +192,12 @@ public class PermissionFinderTest {
         .permission("user")
         .pageSize(2)
         .pageIndex(3)
-        .build()).hasMoreResults()).isFalse();
+        .build()).hasMoreResults()).isTrue();
   }
 
   @Test
   public void find_groups_should_filter_membership() {
-    when(permissionDao.selectGroups(any(PermissionQuery.class), anyLong())).thenReturn(newArrayList(
+    when(permissionDao.selectGroups(any(DbSession.class), any(PermissionQuery.class), anyLong())).thenReturn(newArrayList(
       new GroupWithPermissionDto().setName("Anyone").setPermission("user"),
       new GroupWithPermissionDto().setName("Admin").setPermission("user"),
       new GroupWithPermissionDto().setName("Users").setPermission(null),
@@ -214,7 +215,7 @@ public class PermissionFinderTest {
 
   @Test
   public void find_groups_with_added_anyone_group() {
-    when(permissionDao.selectGroups(any(PermissionQuery.class), anyLong())).thenReturn(
+    when(permissionDao.selectGroups(any(DbSession.class), any(PermissionQuery.class), anyLong())).thenReturn(
       newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
       );
 
@@ -228,7 +229,7 @@ public class PermissionFinderTest {
 
   @Test
   public void find_groups_without_adding_anyone_group_when_search_text_do_not_matched() {
-    when(permissionDao.selectGroups(any(PermissionQuery.class), anyLong())).thenReturn(
+    when(permissionDao.selectGroups(any(DbSession.class), any(PermissionQuery.class), anyLong())).thenReturn(
       newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
       );
 
@@ -240,7 +241,7 @@ public class PermissionFinderTest {
 
   @Test
   public void find_groups_with_added_anyone_group_when_search_text_matched() {
-    when(permissionDao.selectGroups(any(PermissionQuery.class), anyLong())).thenReturn(
+    when(permissionDao.selectGroups(any(DbSession.class), any(PermissionQuery.class), anyLong())).thenReturn(
       newArrayList(new GroupWithPermissionDto().setName("MyAnyGroup").setPermission("user"))
       );
 
@@ -251,7 +252,7 @@ public class PermissionFinderTest {
 
   @Test
   public void find_groups_without_adding_anyone_group_when_out_membership_selected() {
-    when(permissionDao.selectGroups(any(PermissionQuery.class), anyLong())).thenReturn(
+    when(permissionDao.selectGroups(any(DbSession.class), any(PermissionQuery.class), anyLong())).thenReturn(
       newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
       );
 
@@ -292,7 +293,7 @@ public class PermissionFinderTest {
   public void find_groups_from_permission_template() {
     when(permissionTemplateDao.selectTemplateByKey(anyString())).thenReturn(new PermissionTemplateDto().setId(1L).setKee("my_template"));
 
-    when(permissionTemplateDao.selectGroups(any(PermissionQuery.class), anyLong())).thenReturn(
+    when(permissionTemplateDao.selectGroups(any(DbSession.class), any(PermissionQuery.class), anyLong())).thenReturn(
       newArrayList(new GroupWithPermissionDto().setName("users").setPermission("user"))
       );
 

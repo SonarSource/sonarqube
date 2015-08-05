@@ -1,0 +1,19 @@
+{
+  "groups": [
+    {
+      "name": "group-1-name",
+      "description": "group-1-description",
+      "selected": true
+    },
+    {
+      "name": "group-2-name",
+      "description": "group-2-description",
+      "selected": true
+    }
+  ],
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 2
+  }
+}

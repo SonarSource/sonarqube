@@ -32,9 +32,23 @@ message UsersResponse {
   message User {
     optional string login = 1;
     optional string name = 2;
-    optional bool selected = 4;
+    optional bool selected = 3;
   }
 
   repeated User users = 1;
+  optional sonarqube.ws.commons.Paging paging = 2;
+}
+
+// WS api/permissions/groups for internal use only
+message GroupsResponse {
+
+  message Group {
+    optional string id = 1;
+    optional string name = 2;
+    optional string description = 3;
+    optional bool selected = 4;
+  }
+
+  repeated Group groups = 1;
   optional sonarqube.ws.commons.Paging paging = 2;
 }

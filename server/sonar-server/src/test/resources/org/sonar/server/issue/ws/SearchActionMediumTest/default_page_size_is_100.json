@@ -5,7 +5,6 @@
   "paging": {
     "pageIndex": 1,
     "pageSize": 100,
-    "total": 0,
-    "pages": 0
+    "total": 0
   }
 }

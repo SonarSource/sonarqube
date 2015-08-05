@@ -19,11 +19,9 @@
  */
 package org.sonar.server.ws;
 
-import com.google.common.base.Strings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.Paging;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonarqube.ws.Common;
@@ -41,7 +39,6 @@ public class WsResponseCommonFormat {
   public Common.Paging.Builder formatPaging(Paging paging) {
     return Common.Paging.newBuilder()
       .setPageIndex(paging.pageIndex())
-      .setPages(paging.pages())
       .setPageSize(paging.pageSize())
       .setTotal(paging.total());
   }

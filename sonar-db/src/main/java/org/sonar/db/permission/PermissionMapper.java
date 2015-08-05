@@ -28,7 +28,9 @@ public interface PermissionMapper {
 
   List<UserWithPermissionDto> selectUsers(Map<String, Object> parameters, RowBounds rowBounds);
 
+  int countUsers(Map<String, Object> parameters);
+
   List<GroupWithPermissionDto> selectGroups(Map<String, Object> parameters);
 
-  int countUsers(Map<String, Object> parameters);
+  int countGroups(Map<String, Object> parameters);
 }

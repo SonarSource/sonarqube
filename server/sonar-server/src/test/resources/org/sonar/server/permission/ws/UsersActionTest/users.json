@@ -14,6 +14,6 @@
   "paging": {
     "pageSize": 100,
     "total": 2,
-    "pages": 1
+    "pageIndex": 1
   }
 }

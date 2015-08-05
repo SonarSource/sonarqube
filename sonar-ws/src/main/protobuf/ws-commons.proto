@@ -28,7 +28,6 @@ message Paging {
   optional int32 pageIndex = 1;
   optional int32 pageSize = 2;
   optional int32 total = 3;
-  optional int32 pages = 4;
 }
 
 message Facet {

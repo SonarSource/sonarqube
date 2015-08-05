@@ -71,18 +71,31 @@ public class PermissionDao implements Dao {
    *
    * @return a non paginated list of groups.
    */
-  public List<GroupWithPermissionDto> selectGroups(PermissionQuery query, @Nullable Long componentId) {
-    SqlSession session = myBatis.openSession(false);
-    try {
-      Map<String, Object> params = newHashMap();
-      params.put(QUERY_PARAMETER, query);
-      params.put(COMPONENT_ID_PARAMETER, componentId);
-      params.put("anyoneGroup", DefaultGroups.ANYONE);
+  public List<GroupWithPermissionDto> selectGroups(DbSession session, PermissionQuery query, @Nullable Long componentId) {
+    Map<String, Object> params = groupsParameters(query, componentId);
+    return mapper(session).selectGroups(params);
+  }
 
-      return mapper(session).selectGroups(params);
+  public List<GroupWithPermissionDto> selectGroups(PermissionQuery query, @Nullable Long componentId) {
+    DbSession session = myBatis.openSession(false);
+    try {
+      return selectGroups(session, query, componentId);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public int countGroups(DbSession session, PermissionQuery query, @Nullable Long componentId) {
+    Map<String, Object> parameters = groupsParameters(query, componentId);
+    return mapper(session).countGroups(parameters);
+  }
+
+  private static Map<String, Object> groupsParameters(PermissionQuery query, @Nullable Long componentId) {
+    Map<String, Object> params = newHashMap();
+    params.put(QUERY_PARAMETER, query);
+    params.put(COMPONENT_ID_PARAMETER, componentId);
+    params.put("anyoneGroup", DefaultGroups.ANYONE);
+    return params;
   }
 
   private PermissionMapper mapper(SqlSession session) {

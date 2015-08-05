@@ -1,0 +1,25 @@
+{
+  "groups": [
+    {
+      "name": "Anyone",
+      "selected": true
+    },
+    {
+      "id": "1",
+      "name": "sonar-administrators",
+      "description": "System administrators",
+      "selected": true
+    },
+    {
+      "id": "2",
+      "name": "sonar-users",
+      "description": "Any new users created will automatically join this group",
+      "selected": true
+    }
+  ],
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 3
+  }
+}
