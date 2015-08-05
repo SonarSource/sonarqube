@@ -56,6 +56,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.index.IssueDoc;
@@ -225,7 +226,7 @@ public class IssueServiceMediumTest {
       service.assign(issue.getKey(), "unknown");
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("Unknown user: unknown");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Unknown user: unknown");
     }
   }
 
@@ -280,7 +281,7 @@ public class IssueServiceMediumTest {
       service.plan(issue.getKey(), "unknown");
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("Unknown action plan: unknown");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Unknown action plan: unknown");
     }
   }
 

@@ -53,6 +53,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.index.IssueDoc;
@@ -181,7 +182,7 @@ public class IssueService {
       if (!Strings.isNullOrEmpty(assignee)) {
         user = userFinder.findByLogin(assignee);
         if (user == null) {
-          throw new NotFoundException("Unknown user: " + assignee);
+          throw new BadRequestException("Unknown user: " + assignee);
         }
       }
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
@@ -204,7 +205,7 @@ public class IssueService {
       if (!Strings.isNullOrEmpty(actionPlanKey)) {
         actionPlan = actionPlanService.findByKey(actionPlanKey, userSession);
         if (actionPlan == null) {
-          throw new NotFoundException("Unknown action plan: " + actionPlanKey);
+          throw new BadRequestException("Unknown action plan: " + actionPlanKey);
         }
       }
       DefaultIssue issue = getByKeyForUpdate(session, issueKey).toDefaultIssue();
