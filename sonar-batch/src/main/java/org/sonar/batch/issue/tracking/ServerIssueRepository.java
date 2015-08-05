@@ -20,9 +20,7 @@
 package org.sonar.batch.issue.tracking;
 
 import com.google.common.base.Function;
-
 import javax.annotation.Nullable;
-
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.utils.log.Logger;

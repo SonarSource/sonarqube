@@ -40,6 +40,18 @@ import org.sonar.api.rule.RuleKey;
 
 public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
 
+  private static final class ToExecutionFlow implements Function<List<IssueLocation>, ExecutionFlow> {
+    @Override
+    public ExecutionFlow apply(final List<IssueLocation> input) {
+      return new ExecutionFlow() {
+        @Override
+        public List<IssueLocation> locations() {
+          return ImmutableList.copyOf(input);
+        }
+      };
+    }
+  }
+
   private RuleKey ruleKey;
   private Double effortToFix;
   private Severity overriddenSeverity;
@@ -141,17 +153,7 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
 
   @Override
   public List<ExecutionFlow> executionFlows() {
-    return Lists.transform(this.executionFlows, new Function<List<IssueLocation>, ExecutionFlow>() {
-      @Override
-      public ExecutionFlow apply(final List<IssueLocation> input) {
-        return new ExecutionFlow() {
-          @Override
-          public List<IssueLocation> locations() {
-            return ImmutableList.copyOf(input);
-          }
-        };
-      }
-    });
+    return Lists.transform(this.executionFlows, new ToExecutionFlow());
   }
 
   @Override

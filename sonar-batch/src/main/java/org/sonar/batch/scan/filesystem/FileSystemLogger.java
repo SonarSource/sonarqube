@@ -20,17 +20,16 @@
 package org.sonar.batch.scan.filesystem;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.scan.filesystem.PathResolver;
-
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.scan.filesystem.PathResolver;
 
 @BatchSide
 public class FileSystemLogger {
@@ -63,7 +62,7 @@ public class FileSystemLogger {
     }
   }
 
-  private void logPaths(Logger logger, String label, File baseDir, List<File> paths) {
+  private static void logPaths(Logger logger, String label, File baseDir, List<File> paths) {
     if (!paths.isEmpty()) {
       PathResolver resolver = new PathResolver();
       StringBuilder sb = new StringBuilder(label);

@@ -25,12 +25,12 @@ import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.Settings;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.filesystem.InputPathCache;
+import org.sonar.core.issue.DefaultIssue;
 
 @Properties({
   @Property(key = ConsoleReport.CONSOLE_REPORT_ENABLED_KEY, name = "Enable console report", description = "Set this to true to generate a report in console output",
@@ -135,7 +135,7 @@ public class ConsoleReport implements Reporter {
     }
   }
 
-  private void printNewIssues(StringBuilder sb, int issueCount, String severity, String severityLabel) {
+  private static void printNewIssues(StringBuilder sb, int issueCount, String severity, String severityLabel) {
     if (issueCount > 0) {
       sb.append(StringUtils.leftPad("+" + issueCount, LEFT_PAD)).append(" ").append(severityLabel).append("\n");
     }

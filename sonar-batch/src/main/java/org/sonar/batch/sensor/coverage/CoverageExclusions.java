@@ -124,7 +124,7 @@ public class CoverageExclusions {
     log("Excluded sources for coverage: ", resourcePatterns);
   }
 
-  private void log(String title, Collection<WildcardPattern> patterns) {
+  private static void log(String title, Collection<WildcardPattern> patterns) {
     if (!patterns.isEmpty()) {
       LOG.info(title);
       for (WildcardPattern pattern : patterns) {

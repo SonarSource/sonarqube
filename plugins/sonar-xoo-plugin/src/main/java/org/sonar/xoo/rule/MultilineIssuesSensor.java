@@ -61,13 +61,38 @@ public class MultilineIssuesSensor implements Sensor {
     }
   }
 
-  private void createIssues(InputFile file, SensorContext context) {
+  private static void createIssues(InputFile file, SensorContext context) {
     Pattern startPattern = Pattern.compile(START_ISSUE_PATTERN);
     Pattern endPattern = Pattern.compile(END_ISSUE_PATTERN);
     Map<Integer, Map<Integer, TextPointer>> startPositions = new HashMap<>();
     Map<Integer, Map<Integer, TextPointer>> endPositions = new HashMap<>();
 
     RuleKey ruleKey = RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY);
+    parse(file, context, startPattern, endPattern, startPositions, endPositions);
+    createIssues(file, context, startPositions, endPositions, ruleKey);
+  }
+
+  private static void createIssues(InputFile file, SensorContext context, Map<Integer, Map<Integer, TextPointer>> startPositions,
+    Map<Integer, Map<Integer, TextPointer>> endPositions,
+    RuleKey ruleKey) {
+    for (Map.Entry<Integer, Map<Integer, TextPointer>> entry : startPositions.entrySet()) {
+      NewIssue newIssue = context.newIssue().forRule(ruleKey);
+      for (Map.Entry<Integer, TextPointer> location : entry.getValue().entrySet()) {
+        NewIssueLocation newLocation = newIssue.newLocation()
+          .on(file)
+          .at(file.newRange(location.getValue(), endPositions.get(entry.getKey()).get(location.getKey())));
+        if (location.getKey() == 1) {
+          newIssue.at(newLocation.message("Primary location"));
+        } else {
+          newIssue.addLocation(newLocation.message("Location #" + location.getKey()));
+        }
+      }
+      newIssue.save();
+    }
+  }
+
+  private static void parse(InputFile file, SensorContext context, Pattern startPattern, Pattern endPattern, Map<Integer, Map<Integer, TextPointer>> startPositions,
+    Map<Integer, Map<Integer, TextPointer>> endPositions) {
     int currentLine = 0;
     try {
       for (String lineStr : Files.readAllLines(file.path(), context.fileSystem().encoding())) {
@@ -97,20 +122,6 @@ public class MultilineIssuesSensor implements Sensor {
       }
     } catch (IOException e) {
       throw new IllegalStateException("Unable to read file", e);
-    }
-    for (Map.Entry<Integer, Map<Integer, TextPointer>> entry : startPositions.entrySet()) {
-      NewIssue newIssue = context.newIssue().forRule(ruleKey);
-      for (Map.Entry<Integer, TextPointer> location : entry.getValue().entrySet()) {
-        NewIssueLocation newLocation = newIssue.newLocation()
-          .on(file)
-          .at(file.newRange(location.getValue(), endPositions.get(entry.getKey()).get(location.getKey())));
-        if (location.getKey() == 1) {
-          newIssue.at(newLocation.message("Primary location"));
-        } else {
-          newIssue.addLocation(newLocation.message("Location #" + location.getKey()));
-        }
-      }
-      newIssue.save();
     }
   }
 

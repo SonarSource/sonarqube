@@ -20,6 +20,10 @@
 package org.sonar.xoo.lang;
 
 import com.google.common.base.Splitter;
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
@@ -32,11 +36,6 @@ import org.sonar.api.source.Symbolizable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.xoo.Xoo;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Parse files *.xoo.symbol
@@ -79,7 +78,7 @@ public class SymbolReferencesSensor implements Sensor {
     }
   }
 
-  private void processLine(File symbolFile, int lineNumber, Symbolizable.SymbolTableBuilder symbolTableBuilder, String line) {
+  private static void processLine(File symbolFile, int lineNumber, Symbolizable.SymbolTableBuilder symbolTableBuilder, String line) {
     try {
       Iterator<String> split = Splitter.on(",").split(line).iterator();
       int startOffset = Integer.parseInt(split.next());

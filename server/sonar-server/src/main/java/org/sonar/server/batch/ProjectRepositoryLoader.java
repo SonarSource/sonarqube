@@ -77,7 +77,7 @@ public class ProjectRepositoryLoader {
   private final UserSession userSession;
 
   public ProjectRepositoryLoader(DbClient dbClient, QProfileFactory qProfileFactory, QProfileLoader qProfileLoader, RuleService ruleService,
-                                 Languages languages, UserSession userSession) {
+    Languages languages, UserSession userSession) {
     this.dbClient = dbClient;
     this.qProfileFactory = qProfileFactory;
     this.qProfileLoader = qProfileLoader;
@@ -117,9 +117,8 @@ public class ProjectRepositoryLoader {
         TreeModuleSettings treeModuleSettings = new TreeModuleSettings(moduleUuidsByKey, moduleIdsByKey, modulesTree, modulesTreeSettings, module);
 
         addSettingsToChildrenModules(ref, query.getModuleKey(), Maps.<String, String>newHashMap(), treeModuleSettings, hasScanPerm, session);
-        List<FilePathWithHashDto> files = module.isRootProject() ?
-          dbClient.componentDao().selectEnabledFilesFromProject(session, module.uuid()) :
-          dbClient.componentDao().selectEnabledDescendantFiles(session, module.uuid());
+        List<FilePathWithHashDto> files = module.isRootProject() ? dbClient.componentDao().selectEnabledFilesFromProject(session, module.uuid())
+          : dbClient.componentDao().selectEnabledDescendantFiles(session, module.uuid());
         addFileData(session, ref, modulesTree, files);
 
         // FIXME need real value but actually only used to know if there is a previous analysis in local issue tracking mode so any value is
@@ -170,7 +169,7 @@ public class ProjectRepositoryLoader {
   }
 
   private void addSettingsToChildrenModules(ProjectRepositories ref, String moduleKey, Map<String, String> parentProperties, TreeModuleSettings treeModuleSettings,
-                                            boolean hasScanPerm, DbSession session) {
+    boolean hasScanPerm, DbSession session) {
     Map<String, String> currentParentProperties = newHashMap();
     currentParentProperties.putAll(parentProperties);
     currentParentProperties.putAll(getPropertiesMap(treeModuleSettings.findModuleSettings(moduleKey), hasScanPerm));
@@ -182,7 +181,7 @@ public class ProjectRepositoryLoader {
     }
   }
 
-  private void addSettings(ProjectRepositories ref, String module, Map<String, String> properties) {
+  private static void addSettings(ProjectRepositories ref, String module, Map<String, String> properties) {
     if (!properties.isEmpty()) {
       ref.addSettings(module, properties);
     }
@@ -241,10 +240,10 @@ public class ProjectRepositoryLoader {
       // Load all rules of the profile language (only needed fields are loaded)
       Map<RuleKey, Rule> languageRules = ruleByRuleKey(ruleService.search(new RuleQuery().setLanguages(newArrayList(qProfile.language())),
         new QueryContext(userSession).setLimit(100).setFieldsToReturn(newArrayList(
-          RuleNormalizer.RuleField.KEY.field(), RuleNormalizer.RuleField.NAME.field(), RuleNormalizer.RuleField.INTERNAL_KEY.field(), RuleNormalizer.RuleField.TEMPLATE_KEY.field()
-        )).setScroll(true))
+          RuleNormalizer.RuleField.KEY.field(), RuleNormalizer.RuleField.NAME.field(), RuleNormalizer.RuleField.INTERNAL_KEY.field(),
+          RuleNormalizer.RuleField.TEMPLATE_KEY.field())).setScroll(true))
         .scroll());
-      for (Iterator<ActiveRule> activeRuleIterator = qProfileLoader.findActiveRulesByProfile(qProfile.key()); activeRuleIterator.hasNext(); ) {
+      for (Iterator<ActiveRule> activeRuleIterator = qProfileLoader.findActiveRulesByProfile(qProfile.key()); activeRuleIterator.hasNext();) {
         ActiveRule activeRule = activeRuleIterator.next();
         Rule rule = languageRules.get(activeRule.key().ruleKey());
         if (rule == null) {
@@ -339,7 +338,7 @@ public class ProjectRepositoryLoader {
     private Multimap<String, ComponentDto> moduleChildrenByModuleUuid;
 
     private TreeModuleSettings(Map<String, String> moduleUuidsByKey, Map<String, Long> moduleIdsByKey, List<ComponentDto> moduleChildren,
-                               List<PropertyDto> moduleChildrenSettings, ComponentDto module) {
+      List<PropertyDto> moduleChildrenSettings, ComponentDto module) {
       this.moduleIdsByKey = moduleIdsByKey;
       this.moduleUuidsByKey = moduleUuidsByKey;
       propertiesByModuleId = ArrayListMultimap.create();

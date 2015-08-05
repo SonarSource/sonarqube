@@ -20,6 +20,10 @@
 package org.sonar.xoo.lang;
 
 import com.google.common.base.Splitter;
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
@@ -31,11 +35,6 @@ import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.xoo.Xoo;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Parse files *.xoo.highlighting
@@ -69,7 +68,7 @@ public class SyntaxHighlightingSensor implements Sensor {
     }
   }
 
-  private void processLine(File highlightingFile, int lineNumber, NewHighlighting highlightingBuilder, String line) {
+  private static void processLine(File highlightingFile, int lineNumber, NewHighlighting highlightingBuilder, String line) {
     try {
       Iterator<String> split = Splitter.on(":").split(line).iterator();
       int startOffset = Integer.parseInt(split.next());

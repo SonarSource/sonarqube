@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scm;
 
+import java.util.LinkedList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -34,9 +36,6 @@ import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.scan.filesystem.InputPathCache;
-
-import java.util.LinkedList;
-import java.util.List;
 
 public final class ScmSensor implements Sensor {
 
@@ -105,7 +104,7 @@ public final class ScmSensor implements Sensor {
     return filesToBlame;
   }
 
-  private void addIfNotEmpty(List<InputFile> filesToBlame, InputFile f) {
+  private static void addIfNotEmpty(List<InputFile> filesToBlame, InputFile f) {
     if (!f.isEmpty()) {
       filesToBlame.add(f);
     }

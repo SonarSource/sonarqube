@@ -226,7 +226,7 @@ public class IssueTracking {
     return rawIssuesByLines;
   }
 
-  private Multimap<Integer, ServerIssue> lastIssuesByLines(Collection<ServerIssue> previousIssues, IssueTrackingBlocksRecognizer rec) {
+  private static Multimap<Integer, ServerIssue> lastIssuesByLines(Collection<ServerIssue> previousIssues, IssueTrackingBlocksRecognizer rec) {
     Multimap<Integer, ServerIssue> previousIssuesByLines = LinkedHashMultimap.create();
     for (ServerIssue previousIssue : previousIssues) {
       if (rec.isValidLineInReference(previousIssue.line())) {
@@ -272,15 +272,15 @@ public class IssueTracking {
   }
 
   @CheckForNull
-  private Integer line(BatchReport.Issue rawIssue) {
+  private static Integer line(BatchReport.Issue rawIssue) {
     return rawIssue.hasLine() ? rawIssue.getLine() : null;
   }
 
-  private boolean isNotAlreadyMapped(ServerIssue previousIssue, IssueTrackingResult result) {
+  private static boolean isNotAlreadyMapped(ServerIssue previousIssue, IssueTrackingResult result) {
     return result.unmatched().contains(previousIssue);
   }
 
-  private boolean isNotAlreadyMapped(BatchReport.Issue rawIssue, IssueTrackingResult result) {
+  private static boolean isNotAlreadyMapped(BatchReport.Issue rawIssue, IssueTrackingResult result) {
     return !result.isMatched(rawIssue);
   }
 
@@ -297,11 +297,11 @@ public class IssueTracking {
   }
 
   @CheckForNull
-  private String message(BatchReport.Issue rawIssue) {
+  private static String message(BatchReport.Issue rawIssue) {
     return rawIssue.hasMsg() ? rawIssue.getMsg() : null;
   }
 
-  private void mapIssue(BatchReport.Issue rawIssue, @Nullable ServerIssue ref, IssueTrackingResult result) {
+  private static void mapIssue(BatchReport.Issue rawIssue, @Nullable ServerIssue ref, IssueTrackingResult result) {
     if (ref != null) {
       result.setMatch(rawIssue, ref);
     }

@@ -112,7 +112,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
     }
   }
 
-  private String getVersion(ProjectDefinition def) {
+  private static String getVersion(ProjectDefinition def) {
     String version = def.getVersion();
     return StringUtils.isNotBlank(version) ? version : getVersion(def.getParent());
   }
@@ -130,7 +130,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
     }
   }
 
-  private void writeProjectLink(BatchReport.Component.Builder componentBuilder, ProjectDefinition def, ComponentLink.Builder linkBuilder, String linkProp,
+  private static void writeProjectLink(BatchReport.Component.Builder componentBuilder, ProjectDefinition def, ComponentLink.Builder linkBuilder, String linkProp,
     ComponentLinkType linkType) {
     String link = def.properties().get(linkProp);
     if (StringUtils.isNotBlank(link)) {
@@ -142,19 +142,19 @@ public class ComponentsPublisher implements ReportPublisherStep {
   }
 
   @CheckForNull
-  private String getLanguageKey(Resource r) {
+  private static String getLanguageKey(Resource r) {
     Language language = r.getLanguage();
     return ResourceUtils.isFile(r) && language != null ? language.getKey() : null;
   }
 
   @CheckForNull
-  private String getName(Resource r) {
+  private static String getName(Resource r) {
     // Don't return name for directories and files since it can be guessed from the path
     return (ResourceUtils.isFile(r) || ResourceUtils.isDirectory(r)) ? null : r.getName();
   }
 
   @CheckForNull
-  private String getDescription(Resource r) {
+  private static String getDescription(Resource r) {
     // Only for projets and modules
     return ResourceUtils.isProject(r) ? r.getDescription() : null;
   }

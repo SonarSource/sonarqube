@@ -28,7 +28,7 @@ import java.util.List;
 import org.apache.commons.dbutils.DbUtils;
 import org.sonar.db.Database;
 
-class SelectImpl extends BaseSqlStatement<Select> implements Select {
+class SelectImpl extends BaseSqlStatement<Select>implements Select {
 
   private SelectImpl(PreparedStatement pstmt) {
     super(pstmt);
@@ -85,7 +85,7 @@ class SelectImpl extends BaseSqlStatement<Select> implements Select {
     }
   }
 
-  private IllegalStateException newExceptionWithRowDetails(Select.Row row, Exception e) {
+  private static IllegalStateException newExceptionWithRowDetails(Select.Row row, Exception e) {
     return new IllegalStateException("Error during processing of row: [" + row + "]", e);
   }
 

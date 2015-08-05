@@ -92,7 +92,7 @@ class IssueTrackingResult {
     unmatchedForRuleAndLine.put(checksumNotNull, i);
   }
 
-  private Integer lineNotNull(ServerIssue i) {
+  private static Integer lineNotNull(ServerIssue i) {
     Integer line = i.line();
     return line != null ? line : 0;
   }

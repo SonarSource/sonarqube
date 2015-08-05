@@ -62,7 +62,7 @@ public class ProjectReactorValidator {
     }
   }
 
-  private void validateModule(ProjectDefinition moduleDef, List<String> validationMessages, @Nullable String branch, String rootProjectKey) {
+  private static void validateModule(ProjectDefinition moduleDef, List<String> validationMessages, @Nullable String branch, String rootProjectKey) {
     if (!ComponentKeys.isValidModuleKey(moduleDef.getKey())) {
       validationMessages.add(String.format("\"%s\" is not a valid project or module key. "
         + "Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", moduleDef.getKey()));
@@ -75,7 +75,7 @@ public class ProjectReactorValidator {
     }
   }
 
-  private void validateBranch(List<String> validationMessages, @Nullable String branch) {
+  private static void validateBranch(List<String> validationMessages, @Nullable String branch) {
     if (StringUtils.isNotEmpty(branch) && !ComponentKeys.isValidBranch(branch)) {
       validationMessages.add(String.format("\"%s\" is not a valid branch name. "
         + "Allowed characters are alphanumeric, '-', '_', '.' and '/'.", branch));

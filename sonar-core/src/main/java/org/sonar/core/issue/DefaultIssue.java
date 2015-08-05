@@ -342,7 +342,7 @@ public class DefaultIssue implements Issue, Trackable {
 
   public DefaultIssue setCreationDate(Date d) {
     // d is not marked as Nullable but we still allow null parameter for unit testing.
-    this.creationDate = (d != null ? DateUtils.truncate(d, Calendar.SECOND) : null);
+    this.creationDate = d != null ? DateUtils.truncate(d, Calendar.SECOND) : null;
     return this;
   }
 
@@ -353,7 +353,7 @@ public class DefaultIssue implements Issue, Trackable {
   }
 
   public DefaultIssue setUpdateDate(@Nullable Date d) {
-    this.updateDate = (d != null ? DateUtils.truncate(d, Calendar.SECOND) : null);
+    this.updateDate = d != null ? DateUtils.truncate(d, Calendar.SECOND) : null;
     return this;
   }
 
@@ -364,7 +364,7 @@ public class DefaultIssue implements Issue, Trackable {
   }
 
   public DefaultIssue setCloseDate(@Nullable Date d) {
-    this.closeDate = (d != null ? DateUtils.truncate(d, Calendar.SECOND) : null);
+    this.closeDate = d != null ? DateUtils.truncate(d, Calendar.SECOND) : null;
     return this;
   }
 

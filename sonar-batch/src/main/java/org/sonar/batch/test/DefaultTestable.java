@@ -79,7 +79,7 @@ public class DefaultTestable implements MutableTestable {
     throw unsupported();
   }
 
-  private UnsupportedOperationException unsupported() {
+  private static UnsupportedOperationException unsupported() {
     return new UnsupportedOperationException("No more available since SQ 5.2");
   }
 

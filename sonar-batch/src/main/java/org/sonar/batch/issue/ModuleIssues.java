@@ -20,8 +20,8 @@
 package org.sonar.batch.issue;
 
 import com.google.common.base.Strings;
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.Rule;
@@ -63,8 +63,8 @@ public class ModuleIssues {
   }
 
   public boolean initAndAddIssue(Issue issue) {
-    String key = ((DefaultInputComponent) issue.primaryLocation().inputComponent()).key();
-    BatchComponent component = componentCache.get(key);
+    InputComponent inputComponent = issue.primaryLocation().inputComponent();
+    BatchComponent component = componentCache.get(inputComponent);
 
     Rule rule = validateRule(issue);
     ActiveRule activeRule = activeRules.find(issue.ruleKey());
@@ -102,7 +102,7 @@ public class ModuleIssues {
     applyExecutionFlows(issue);
     BatchReport.Issue rawIssue = builder.build();
 
-    if (filters.accept(key, rawIssue)) {
+    if (filters.accept(inputComponent.key(), rawIssue)) {
       write(component, rawIssue);
       return true;
     }
@@ -112,8 +112,7 @@ public class ModuleIssues {
   private void applyAdditionalLocations(Issue issue) {
     for (org.sonar.api.batch.sensor.issue.IssueLocation additionalLocation : issue.locations()) {
       locationBuilder.clear();
-      String locationComponentKey = ((DefaultInputComponent) additionalLocation.inputComponent()).key();
-      locationBuilder.setComponentRef(componentCache.get(locationComponentKey).batchId());
+      locationBuilder.setComponentRef(componentCache.get(additionalLocation.inputComponent()).batchId());
       String message = additionalLocation.message();
       if (message != null) {
         locationBuilder.setMsg(message);
@@ -128,8 +127,7 @@ public class ModuleIssues {
       flowBuilder.clear();
       for (org.sonar.api.batch.sensor.issue.IssueLocation location : executionFlow.locations()) {
         locationBuilder.clear();
-        String locationComponentKey = ((DefaultInputComponent) location.inputComponent()).key();
-        locationBuilder.setComponentRef(componentCache.get(locationComponentKey).batchId());
+        locationBuilder.setComponentRef(componentCache.get(location.inputComponent()).batchId());
         String message = location.message();
         if (message != null) {
           locationBuilder.setMsg(message);

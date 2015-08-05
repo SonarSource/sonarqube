@@ -58,7 +58,7 @@ class MeasureValueCoder implements ValueCoder {
     value.putString(persistenceMode != null ? persistenceMode.name() : null);
   }
 
-  private void putUTFOrNull(Value value, @Nullable String utfOrNull) {
+  private static void putUTFOrNull(Value value, @Nullable String utfOrNull) {
     if (utfOrNull != null) {
       value.putUTF(utfOrNull);
     } else {

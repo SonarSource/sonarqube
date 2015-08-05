@@ -38,27 +38,27 @@ public class RuleReportComparator implements Comparator<RuleReport>, Serializabl
     }
   }
 
-  private int compareByRuleSeverityAndName(RuleReport o1, RuleReport o2) {
+  private static int compareByRuleSeverityAndName(RuleReport o1, RuleReport o2) {
     return o1.getReportRuleKey().compareTo(o2.getReportRuleKey());
   }
 
-  private boolean sameNewIssueCount(RuleReport o1, RuleReport o2) {
+  private static boolean sameNewIssueCount(RuleReport o1, RuleReport o2) {
     return o2.getTotal().getNewIssuesCount() == o1.getTotal().getNewIssuesCount();
   }
 
-  private boolean sameSeverity(RuleReport o1, RuleReport o2) {
+  private static boolean sameSeverity(RuleReport o1, RuleReport o2) {
     return o1.getSeverity().equals(o2.getSeverity());
   }
 
-  private int compareNewIssueCount(RuleReport o1, RuleReport o2) {
+  private static int compareNewIssueCount(RuleReport o1, RuleReport o2) {
     return o2.getTotal().getNewIssuesCount() - o1.getTotal().getNewIssuesCount();
   }
 
-  private boolean bothHaveNewIssues(RuleReport o1, RuleReport o2) {
+  private static boolean bothHaveNewIssues(RuleReport o1, RuleReport o2) {
     return o1.getTotal().getNewIssuesCount() > 0 && o2.getTotal().getNewIssuesCount() > 0;
   }
 
-  private boolean bothHaveNoNewIssue(RuleReport o1, RuleReport o2) {
+  private static boolean bothHaveNoNewIssue(RuleReport o1, RuleReport o2) {
     return o1.getTotal().getNewIssuesCount() == 0 && o2.getTotal().getNewIssuesCount() == 0;
   }
 }

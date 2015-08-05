@@ -52,7 +52,7 @@ public class RulesProfileProvider extends ProviderAdapter {
     return singleton;
   }
 
-  private RulesProfile loadSingleLanguageProfile(ModuleQProfiles qProfiles, ActiveRules activeRules, String language) {
+  private static RulesProfile loadSingleLanguageProfile(ModuleQProfiles qProfiles, ActiveRules activeRules, String language) {
     QProfile qProfile = qProfiles.findByLanguage(language);
     if (qProfile != null) {
       return new RulesProfileWrapper(select(qProfile, activeRules));
@@ -60,7 +60,7 @@ public class RulesProfileProvider extends ProviderAdapter {
     return new RulesProfileWrapper(Lists.<RulesProfile>newArrayList());
   }
 
-  private RulesProfile loadProfiles(ModuleQProfiles qProfiles, ActiveRules activeRules) {
+  private static RulesProfile loadProfiles(ModuleQProfiles qProfiles, ActiveRules activeRules) {
     Collection<RulesProfile> dtos = Lists.newArrayList();
     for (QProfile qProfile : qProfiles.findAll()) {
       dtos.add(select(qProfile, activeRules));
@@ -68,7 +68,7 @@ public class RulesProfileProvider extends ProviderAdapter {
     return new RulesProfileWrapper(dtos);
   }
 
-  private RulesProfile select(QProfile qProfile, ActiveRules activeRules) {
+  private static RulesProfile select(QProfile qProfile, ActiveRules activeRules) {
     RulesProfile deprecatedProfile = new RulesProfile();
     // TODO deprecatedProfile.setVersion(qProfile.version());
     deprecatedProfile.setName(qProfile.getName());

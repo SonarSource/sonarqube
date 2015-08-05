@@ -37,6 +37,152 @@ import org.sonar.batch.protocol.output.BatchReport;
 @BatchSide
 public class IssueFilters {
 
+  private static final class IssueAdapterForFilter implements Issue {
+    private final Project project;
+    private final org.sonar.batch.protocol.output.BatchReport.Issue rawIssue;
+    private final String componentKey;
+
+    private IssueAdapterForFilter(Project project, org.sonar.batch.protocol.output.BatchReport.Issue rawIssue, String componentKey) {
+      this.project = project;
+      this.rawIssue = rawIssue;
+      this.componentKey = componentKey;
+    }
+
+    @Override
+    public String key() {
+      throw unsupported();
+    }
+
+    @Override
+    public String componentKey() {
+      return componentKey;
+    }
+
+    @Override
+    public RuleKey ruleKey() {
+      return RuleKey.of(rawIssue.getRuleRepository(), rawIssue.getRuleKey());
+    }
+
+    @Override
+    public String language() {
+      throw unsupported();
+    }
+
+    @Override
+    public String severity() {
+      return rawIssue.getSeverity().name();
+    }
+
+    @Override
+    public String message() {
+      return rawIssue.getMsg();
+    }
+
+    @Override
+    public Integer line() {
+      return rawIssue.hasLine() ? rawIssue.getLine() : null;
+    }
+
+    @Override
+    public Double effortToFix() {
+      return rawIssue.hasEffortToFix() ? rawIssue.getEffortToFix() : null;
+    }
+
+    @Override
+    public String status() {
+      return Issue.STATUS_OPEN;
+    }
+
+    @Override
+    public String resolution() {
+      return null;
+    }
+
+    @Override
+    public String reporter() {
+      throw unsupported();
+    }
+
+    @Override
+    public String assignee() {
+      return null;
+    }
+
+    @Override
+    public Date creationDate() {
+      return project.getAnalysisDate();
+    }
+
+    @Override
+    public Date updateDate() {
+      return null;
+    }
+
+    @Override
+    public Date closeDate() {
+      return null;
+    }
+
+    @Override
+    public String attribute(String key) {
+      return attributes().get(key);
+    }
+
+    @Override
+    public Map<String, String> attributes() {
+      return rawIssue.hasAttributes() ? KeyValueFormat.parse(rawIssue.getAttributes()) : Collections.<String, String>emptyMap();
+    }
+
+    @Override
+    public String authorLogin() {
+      throw unsupported();
+    }
+
+    @Override
+    public String actionPlanKey() {
+      throw unsupported();
+    }
+
+    @Override
+    public List<IssueComment> comments() {
+      throw unsupported();
+    }
+
+    @Override
+    public boolean isNew() {
+      throw unsupported();
+    }
+
+    @Override
+    public Duration debt() {
+      throw unsupported();
+    }
+
+    @Override
+    public String projectKey() {
+      return project.getEffectiveKey();
+    }
+
+    @Override
+    public String projectUuid() {
+      throw unsupported();
+    }
+
+    @Override
+    public String componentUuid() {
+      throw unsupported();
+    }
+
+    @Override
+    public Collection<String> tags() {
+      throw unsupported();
+    }
+
+    private static UnsupportedOperationException unsupported() {
+      return new UnsupportedOperationException("Not available for issues filters");
+    }
+  }
+
   private final org.sonar.api.issue.IssueFilter[] exclusionFilters;
   private final IssueFilter[] filters;
   private final Project project;
@@ -60,7 +206,7 @@ public class IssueFilters {
   }
 
   public boolean accept(String componentKey, BatchReport.Issue rawIssue) {
-    Issue issue = toIssueForIssueFilter(componentKey, rawIssue);
+    Issue issue = new IssueAdapterForFilter(project, rawIssue, componentKey);
     if (new DefaultIssueFilterChain(filters).accept(issue)) {
       // Apply deprecated rules only if filter chain accepts the current issue
       for (org.sonar.api.issue.IssueFilter filter : exclusionFilters) {
@@ -72,146 +218,5 @@ public class IssueFilters {
     } else {
       return false;
     }
-  }
-
-  private Issue toIssueForIssueFilter(final String componentKey, final BatchReport.Issue rawIssue) {
-    return new Issue() {
-
-      @Override
-      public String key() {
-        throw unsupported();
-      }
-
-      @Override
-      public String componentKey() {
-        return componentKey;
-      }
-
-      @Override
-      public RuleKey ruleKey() {
-        return RuleKey.of(rawIssue.getRuleRepository(), rawIssue.getRuleKey());
-      }
-
-      @Override
-      public String language() {
-        throw unsupported();
-      }
-
-      @Override
-      public String severity() {
-        return rawIssue.getSeverity().name();
-      }
-
-      @Override
-      public String message() {
-        return rawIssue.getMsg();
-      }
-
-      @Override
-      public Integer line() {
-        return rawIssue.hasLine() ? rawIssue.getLine() : null;
-      }
-
-      @Override
-      public Double effortToFix() {
-        return rawIssue.hasEffortToFix() ? rawIssue.getEffortToFix() : null;
-      }
-
-      @Override
-      public String status() {
-        return Issue.STATUS_OPEN;
-      }
-
-      @Override
-      public String resolution() {
-        return null;
-      }
-
-      @Override
-      public String reporter() {
-        throw unsupported();
-      }
-
-      @Override
-      public String assignee() {
-        return null;
-      }
-
-      @Override
-      public Date creationDate() {
-        return project.getAnalysisDate();
-      }
-
-      @Override
-      public Date updateDate() {
-        return null;
-      }
-
-      @Override
-      public Date closeDate() {
-        return null;
-      }
-
-      @Override
-      public String attribute(String key) {
-        return attributes().get(key);
-      }
-
-      @Override
-      public Map<String, String> attributes() {
-        return rawIssue.hasAttributes() ? KeyValueFormat.parse(rawIssue.getAttributes()) : Collections.<String, String>emptyMap();
-      }
-
-      @Override
-      public String authorLogin() {
-        throw unsupported();
-      }
-
-      @Override
-      public String actionPlanKey() {
-        throw unsupported();
-      }
-
-      @Override
-      public List<IssueComment> comments() {
-        throw unsupported();
-      }
-
-      @Override
-      public boolean isNew() {
-        throw unsupported();
-      }
-
-      @Override
-      public Duration debt() {
-        throw unsupported();
-      }
-
-      @Override
-      public String projectKey() {
-        return project.getEffectiveKey();
-      }
-
-      @Override
-      public String projectUuid() {
-        throw unsupported();
-      }
-
-      @Override
-      public String componentUuid() {
-        throw unsupported();
-      }
-
-      @Override
-      public Collection<String> tags() {
-        throw unsupported();
-      }
-
-      private UnsupportedOperationException unsupported() {
-        return new UnsupportedOperationException("Not available for issues filters");
-      }
-
-    };
-
   }
 }

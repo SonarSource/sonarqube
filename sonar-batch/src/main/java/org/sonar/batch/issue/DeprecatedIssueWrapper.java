@@ -20,6 +20,7 @@
 package org.sonar.batch.issue;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -142,7 +143,7 @@ public class DeprecatedIssueWrapper implements Issue {
 
   @Override
   public List<IssueComment> comments() {
-    return null;
+    return Collections.emptyList();
   }
 
   @Override
@@ -172,7 +173,7 @@ public class DeprecatedIssueWrapper implements Issue {
 
   @Override
   public Collection<String> tags() {
-    return null;
+    return Collections.emptyList();
   }
 
 }

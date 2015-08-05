@@ -21,25 +21,23 @@
 package org.sonar.server.permission;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.server.ServerSide;
-import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.db.permission.PermissionTemplateDao;
-import org.sonar.db.permission.PermissionTemplateDto;
-import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
-import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.UserDao;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.server.ServerSide;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
+import org.sonar.db.permission.PermissionTemplateDao;
+import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDao;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 /**
@@ -188,7 +186,7 @@ public class PermissionTemplateService {
     }
   }
 
-  private void validateKeyPattern(@Nullable String keyPattern) {
+  private static void validateKeyPattern(@Nullable String keyPattern) {
     if (StringUtils.isEmpty(keyPattern)) {
       return;
     }

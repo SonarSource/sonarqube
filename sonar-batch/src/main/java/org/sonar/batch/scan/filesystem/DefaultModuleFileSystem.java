@@ -24,6 +24,14 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import java.io.File;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -33,16 +41,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.MessageException;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.io.File;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @since 3.5
@@ -121,7 +119,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     return testDirsOrFiles;
   }
 
-  private List<File> keepOnlyDirs(List<File> dirsOrFiles) {
+  private static List<File> keepOnlyDirs(List<File> dirsOrFiles) {
     List<File> result = new ArrayList<>();
     for (File f : dirsOrFiles) {
       if (f.isDirectory()) {
@@ -173,7 +171,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     throw modificationNotPermitted();
   }
 
-  private UnsupportedOperationException modificationNotPermitted() {
+  private static UnsupportedOperationException modificationNotPermitted() {
     return new UnsupportedOperationException("Modifications of the file system are not permitted");
   }
 

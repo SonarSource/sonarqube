@@ -31,17 +31,14 @@ import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.batch.index.BatchComponent;
-import org.sonar.batch.scan.filesystem.InputPathCache;
 
 @BatchSide
 public class SourceProvider {
 
   private static final Logger LOG = LoggerFactory.getLogger(SourceProvider.class);
-  private final InputPathCache inputPathCache;
   private final FileSystem fs;
 
-  public SourceProvider(InputPathCache inputPathCache, FileSystem fs) {
-    this.inputPathCache = inputPathCache;
+  public SourceProvider(FileSystem fs) {
     this.fs = fs;
   }
 

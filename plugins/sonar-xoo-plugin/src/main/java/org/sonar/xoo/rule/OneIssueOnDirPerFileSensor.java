@@ -47,7 +47,7 @@ public class OneIssueOnDirPerFileSensor implements Sensor {
     }
   }
 
-  private void createIssues(InputFile file, SensorContext context) {
+  private static void createIssues(InputFile file, SensorContext context) {
     RuleKey ruleKey = RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY);
     InputDir inputDir = context.fileSystem().inputDir(file.file().getParentFile());
     if (inputDir != null) {

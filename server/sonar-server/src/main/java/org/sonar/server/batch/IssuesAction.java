@@ -86,7 +86,7 @@ public class IssuesAction implements BatchWsAction {
       Map<String, String> keysByUUid = keysByUUid(session, component);
 
       BatchInput.ServerIssue.Builder issueBuilder = BatchInput.ServerIssue.newBuilder();
-      for (Iterator<IssueDoc> issueDocIterator = issueIndex.selectIssuesForBatch(component); issueDocIterator.hasNext(); ) {
+      for (Iterator<IssueDoc> issueDocIterator = issueIndex.selectIssuesForBatch(component); issueDocIterator.hasNext();) {
         handleIssue(issueDocIterator.next(), issueBuilder, keysByUUid, response.stream().output());
       }
     } finally {
@@ -94,7 +94,7 @@ public class IssuesAction implements BatchWsAction {
     }
   }
 
-  private void handleIssue(IssueDoc issue, BatchInput.ServerIssue.Builder issueBuilder, Map<String, String> keysByUUid, OutputStream out) {
+  private static void handleIssue(IssueDoc issue, BatchInput.ServerIssue.Builder issueBuilder, Map<String, String> keysByUUid, OutputStream out) {
     issueBuilder.setKey(issue.key());
     issueBuilder.setModuleKey(keysByUUid.get(issue.moduleUuid()));
     String path = issue.filePath();

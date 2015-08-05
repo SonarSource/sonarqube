@@ -125,7 +125,7 @@ public class ProjectReactorBuilder {
     return new ProjectReactor(rootProject);
   }
 
-  private Map<String, Map<String, String>> extractPropertiesByModule(String currentModuleId, Map<String, String> parentProperties) {
+  private static Map<String, Map<String, String>> extractPropertiesByModule(String currentModuleId, Map<String, String> parentProperties) {
     Map<String, String> allProperties = new HashMap<>();
     allProperties.putAll(parentProperties);
     Map<String, String> currentModuleProperties = new HashMap<>();
@@ -202,7 +202,7 @@ public class ProjectReactorBuilder {
   }
 
   @CheckForNull
-  private File initModuleBuildDir(File moduleBaseDir, Map<String, String> moduleProperties) {
+  private static File initModuleBuildDir(File moduleBaseDir, Map<String, String> moduleProperties) {
     String buildDir = moduleProperties.get(PROPERTY_PROJECT_BUILDDIR);
     if (StringUtils.isBlank(buildDir)) {
       return null;

@@ -67,8 +67,8 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.core.util.NonNullInputFunction;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
@@ -91,7 +91,6 @@ import static com.google.common.collect.Lists.newArrayList;
  * All the requests are listed here.
  */
 public class IssueIndex extends BaseIndex {
-
 
   private static final String SUBSTRING_MATCH_REGEXP = ".*%s.*";
 
@@ -326,7 +325,7 @@ public class IssueIndex extends BaseIndex {
     return String.format("%s%s%s", IssueIndexDefinition.TYPE_ISSUE, viewUuid, ViewIndexDefinition.TYPE_VIEW);
   }
 
-  private FilterBuilder createAuthorizationFilter(boolean checkAuthorization, @Nullable String userLogin, Set<String> userGroups) {
+  private static FilterBuilder createAuthorizationFilter(boolean checkAuthorization, @Nullable String userLogin, Set<String> userGroups) {
     if (checkAuthorization) {
       OrFilterBuilder groupsAndUser = FilterBuilders.orFilter();
       if (userLogin != null) {
@@ -340,8 +339,7 @@ public class IssueIndex extends BaseIndex {
           QueryBuilders.matchAllQuery(),
           FilterBuilders.boolFilter()
             .must(groupsAndUser)
-            .cache(true))
-        );
+            .cache(true)));
     } else {
       return FilterBuilders.matchAllFilter();
     }
@@ -533,8 +531,7 @@ public class IssueIndex extends BaseIndex {
     facetTopAggregation.subAggregation(
       addDebtAggregationIfNeeded(query, AggregationBuilders
         .missing(facetName + FACET_SUFFIX_MISSING)
-        .field(fieldName))
-      );
+        .field(fieldName)));
 
     return AggregationBuilders
       .global(facetName)
@@ -543,11 +540,11 @@ public class IssueIndex extends BaseIndex {
 
   private Collection<String> escapeValuesForFacetInclusion(@Nullable Collection<String> values) {
     return values == null ? Arrays.<String>asList() : Collections2.transform(values, new Function<String, String>() {
-        @Override
-        public String apply(String input) {
-          return Pattern.quote(input);
-        }
-      });
+      @Override
+      public String apply(String input) {
+        return Pattern.quote(input);
+      }
+    });
   }
 
   private void addAssignedToMeFacetIfNeeded(SearchRequestBuilder builder, SearchOptions options, IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder queryBuilder) {
@@ -591,8 +588,7 @@ public class IssueIndex extends BaseIndex {
     facetTopAggregation.subAggregation(
       addDebtAggregationIfNeeded(query, AggregationBuilders
         .missing(facetName + FACET_SUFFIX_MISSING)
-        .field(fieldName))
-      );
+        .field(fieldName)));
 
     return AggregationBuilders
       .global(facetName)
@@ -616,8 +612,7 @@ public class IssueIndex extends BaseIndex {
     facetTopAggregation.subAggregation(
       addDebtAggregationIfNeeded(query, AggregationBuilders
         .missing(facetName + FACET_SUFFIX_MISSING)
-        .field(fieldName))
-      );
+        .field(fieldName)));
 
     return AggregationBuilders
       .global(facetName)
@@ -711,8 +706,7 @@ public class IssueIndex extends BaseIndex {
     FilterBuilder dateFilter = FilterBuilders.rangeFilter(IssueIndexDefinition.FIELD_ISSUE_FUNC_CLOSED_AT).lt(beforeDate.getTime());
     QueryBuilder queryBuilder = QueryBuilders.filteredQuery(
       QueryBuilders.matchAllQuery(),
-      FilterBuilders.andFilter(projectFilter, dateFilter)
-      );
+      FilterBuilders.andFilter(projectFilter, dateFilter));
 
     getClient().prepareDeleteByQuery(IssueIndexDefinition.INDEX).setQuery(queryBuilder).get();
   }

@@ -20,6 +20,16 @@
 package org.sonar.batch.scm;
 
 import com.google.common.base.Preconditions;
+import java.text.Normalizer;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,13 +42,6 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Changesets.Builder;
 import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.batch.util.ProgressReport;
-
-import javax.annotation.Nullable;
-
-import java.text.Normalizer;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 class DefaultBlameOutput implements BlameOutput {
 
@@ -99,7 +102,7 @@ class DefaultBlameOutput implements BlameOutput {
     progressReport.message(count + "/" + total + " files analyzed, last one was " + file.absolutePath());
   }
 
-  private void addChangeset(Builder scmBuilder, BlameLine line) {
+  private static void addChangeset(Builder scmBuilder, BlameLine line) {
     BatchReport.Changesets.Changeset.Builder changesetBuilder = BatchReport.Changesets.Changeset.newBuilder();
     if (StringUtils.isNotBlank(line.revision())) {
       changesetBuilder.setRevision(line.revision());
@@ -114,7 +117,7 @@ class DefaultBlameOutput implements BlameOutput {
     scmBuilder.addChangeset(changesetBuilder.build());
   }
 
-  private String normalizeString(@Nullable String inputString) {
+  private static String normalizeString(@Nullable String inputString) {
     if (inputString == null) {
       return "";
     }
@@ -123,12 +126,12 @@ class DefaultBlameOutput implements BlameOutput {
     return removeNonAsciiCharacters(stringWithoutAccents);
   }
 
-  private String removeAccents(String inputString) {
+  private static String removeAccents(String inputString) {
     String unicodeDecomposedString = Normalizer.normalize(inputString, Normalizer.Form.NFD);
     return ACCENT_CODES.matcher(unicodeDecomposedString).replaceAll("");
   }
 
-  private String removeNonAsciiCharacters(String inputString) {
+  private static String removeNonAsciiCharacters(String inputString) {
     return NON_ASCII_CHARS.matcher(inputString).replaceAll("_");
   }
 

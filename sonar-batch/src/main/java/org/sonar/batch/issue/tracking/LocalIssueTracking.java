@@ -29,8 +29,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRule;
@@ -56,8 +54,6 @@ import org.sonar.core.util.CloseableIterator;
 
 @BatchSide
 public class LocalIssueTracking {
-
-  private static final Logger LOG = LoggerFactory.getLogger(LocalIssueTracking.class);
 
   private final IssueCache issueCache;
   private final IssueTracking tracking;
