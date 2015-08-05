@@ -4193,7 +4193,7 @@ public final class Common {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional int32 start_line = 1;</code>
+     * <code>optional int32 startLine = 1;</code>
      *
      * <pre>
      * Start line. Should never be absent
@@ -4201,7 +4201,7 @@ public final class Common {
      */
     boolean hasStartLine();
     /**
-     * <code>optional int32 start_line = 1;</code>
+     * <code>optional int32 startLine = 1;</code>
      *
      * <pre>
      * Start line. Should never be absent
@@ -4210,7 +4210,7 @@ public final class Common {
     int getStartLine();
 
     /**
-     * <code>optional int32 end_line = 2;</code>
+     * <code>optional int32 endLine = 2;</code>
      *
      * <pre>
      * End line (inclusive). Absent means it is same as start line
@@ -4218,7 +4218,7 @@ public final class Common {
      */
     boolean hasEndLine();
     /**
-     * <code>optional int32 end_line = 2;</code>
+     * <code>optional int32 endLine = 2;</code>
      *
      * <pre>
      * End line (inclusive). Absent means it is same as start line
@@ -4227,7 +4227,7 @@ public final class Common {
     int getEndLine();
 
     /**
-     * <code>optional int32 start_offset = 3;</code>
+     * <code>optional int32 startOffset = 3;</code>
      *
      * <pre>
      * If absent it means range starts at the first offset of start line
@@ -4235,7 +4235,7 @@ public final class Common {
      */
     boolean hasStartOffset();
     /**
-     * <code>optional int32 start_offset = 3;</code>
+     * <code>optional int32 startOffset = 3;</code>
      *
      * <pre>
      * If absent it means range starts at the first offset of start line
@@ -4244,7 +4244,7 @@ public final class Common {
     int getStartOffset();
 
     /**
-     * <code>optional int32 end_offset = 4;</code>
+     * <code>optional int32 endOffset = 4;</code>
      *
      * <pre>
      * If absent it means range ends at the last offset of end line
@@ -4252,7 +4252,7 @@ public final class Common {
      */
     boolean hasEndOffset();
     /**
-     * <code>optional int32 end_offset = 4;</code>
+     * <code>optional int32 endOffset = 4;</code>
      *
      * <pre>
      * If absent it means range ends at the last offset of end line
@@ -4376,10 +4376,10 @@ public final class Common {
     }
 
     private int bitField0_;
-    public static final int START_LINE_FIELD_NUMBER = 1;
+    public static final int STARTLINE_FIELD_NUMBER = 1;
     private int startLine_;
     /**
-     * <code>optional int32 start_line = 1;</code>
+     * <code>optional int32 startLine = 1;</code>
      *
      * <pre>
      * Start line. Should never be absent
@@ -4389,7 +4389,7 @@ public final class Common {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional int32 start_line = 1;</code>
+     * <code>optional int32 startLine = 1;</code>
      *
      * <pre>
      * Start line. Should never be absent
@@ -4399,10 +4399,10 @@ public final class Common {
       return startLine_;
     }
 
-    public static final int END_LINE_FIELD_NUMBER = 2;
+    public static final int ENDLINE_FIELD_NUMBER = 2;
     private int endLine_;
     /**
-     * <code>optional int32 end_line = 2;</code>
+     * <code>optional int32 endLine = 2;</code>
      *
      * <pre>
      * End line (inclusive). Absent means it is same as start line
@@ -4412,7 +4412,7 @@ public final class Common {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>optional int32 end_line = 2;</code>
+     * <code>optional int32 endLine = 2;</code>
      *
      * <pre>
      * End line (inclusive). Absent means it is same as start line
@@ -4422,10 +4422,10 @@ public final class Common {
       return endLine_;
     }
 
-    public static final int START_OFFSET_FIELD_NUMBER = 3;
+    public static final int STARTOFFSET_FIELD_NUMBER = 3;
     private int startOffset_;
     /**
-     * <code>optional int32 start_offset = 3;</code>
+     * <code>optional int32 startOffset = 3;</code>
      *
      * <pre>
      * If absent it means range starts at the first offset of start line
@@ -4435,7 +4435,7 @@ public final class Common {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>optional int32 start_offset = 3;</code>
+     * <code>optional int32 startOffset = 3;</code>
      *
      * <pre>
      * If absent it means range starts at the first offset of start line
@@ -4445,10 +4445,10 @@ public final class Common {
       return startOffset_;
     }
 
-    public static final int END_OFFSET_FIELD_NUMBER = 4;
+    public static final int ENDOFFSET_FIELD_NUMBER = 4;
     private int endOffset_;
     /**
-     * <code>optional int32 end_offset = 4;</code>
+     * <code>optional int32 endOffset = 4;</code>
      *
      * <pre>
      * If absent it means range ends at the last offset of end line
@@ -4458,7 +4458,7 @@ public final class Common {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
-     * <code>optional int32 end_offset = 4;</code>
+     * <code>optional int32 endOffset = 4;</code>
      *
      * <pre>
      * If absent it means range ends at the last offset of end line
@@ -4754,7 +4754,7 @@ public final class Common {
 
       private int startLine_ ;
       /**
-       * <code>optional int32 start_line = 1;</code>
+       * <code>optional int32 startLine = 1;</code>
        *
        * <pre>
        * Start line. Should never be absent
@@ -4764,7 +4764,7 @@ public final class Common {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>optional int32 start_line = 1;</code>
+       * <code>optional int32 startLine = 1;</code>
        *
        * <pre>
        * Start line. Should never be absent
@@ -4774,7 +4774,7 @@ public final class Common {
         return startLine_;
       }
       /**
-       * <code>optional int32 start_line = 1;</code>
+       * <code>optional int32 startLine = 1;</code>
        *
        * <pre>
        * Start line. Should never be absent
@@ -4787,7 +4787,7 @@ public final class Common {
         return this;
       }
       /**
-       * <code>optional int32 start_line = 1;</code>
+       * <code>optional int32 startLine = 1;</code>
        *
        * <pre>
        * Start line. Should never be absent
@@ -4802,7 +4802,7 @@ public final class Common {
 
       private int endLine_ ;
       /**
-       * <code>optional int32 end_line = 2;</code>
+       * <code>optional int32 endLine = 2;</code>
        *
        * <pre>
        * End line (inclusive). Absent means it is same as start line
@@ -4812,7 +4812,7 @@ public final class Common {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>optional int32 end_line = 2;</code>
+       * <code>optional int32 endLine = 2;</code>
        *
        * <pre>
        * End line (inclusive). Absent means it is same as start line
@@ -4822,7 +4822,7 @@ public final class Common {
         return endLine_;
       }
       /**
-       * <code>optional int32 end_line = 2;</code>
+       * <code>optional int32 endLine = 2;</code>
        *
        * <pre>
        * End line (inclusive). Absent means it is same as start line
@@ -4835,7 +4835,7 @@ public final class Common {
         return this;
       }
       /**
-       * <code>optional int32 end_line = 2;</code>
+       * <code>optional int32 endLine = 2;</code>
        *
        * <pre>
        * End line (inclusive). Absent means it is same as start line
@@ -4850,7 +4850,7 @@ public final class Common {
 
       private int startOffset_ ;
       /**
-       * <code>optional int32 start_offset = 3;</code>
+       * <code>optional int32 startOffset = 3;</code>
        *
        * <pre>
        * If absent it means range starts at the first offset of start line
@@ -4860,7 +4860,7 @@ public final class Common {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>optional int32 start_offset = 3;</code>
+       * <code>optional int32 startOffset = 3;</code>
        *
        * <pre>
        * If absent it means range starts at the first offset of start line
@@ -4870,7 +4870,7 @@ public final class Common {
         return startOffset_;
       }
       /**
-       * <code>optional int32 start_offset = 3;</code>
+       * <code>optional int32 startOffset = 3;</code>
        *
        * <pre>
        * If absent it means range starts at the first offset of start line
@@ -4883,7 +4883,7 @@ public final class Common {
         return this;
       }
       /**
-       * <code>optional int32 start_offset = 3;</code>
+       * <code>optional int32 startOffset = 3;</code>
        *
        * <pre>
        * If absent it means range starts at the first offset of start line
@@ -4898,7 +4898,7 @@ public final class Common {
 
       private int endOffset_ ;
       /**
-       * <code>optional int32 end_offset = 4;</code>
+       * <code>optional int32 endOffset = 4;</code>
        *
        * <pre>
        * If absent it means range ends at the last offset of end line
@@ -4908,7 +4908,7 @@ public final class Common {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
-       * <code>optional int32 end_offset = 4;</code>
+       * <code>optional int32 endOffset = 4;</code>
        *
        * <pre>
        * If absent it means range ends at the last offset of end line
@@ -4918,7 +4918,7 @@ public final class Common {
         return endOffset_;
       }
       /**
-       * <code>optional int32 end_offset = 4;</code>
+       * <code>optional int32 endOffset = 4;</code>
        *
        * <pre>
        * If absent it means range ends at the last offset of end line
@@ -4931,7 +4931,7 @@ public final class Common {
         return this;
       }
       /**
-       * <code>optional int32 end_offset = 4;</code>
+       * <code>optional int32 endOffset = 4;</code>
        *
        * <pre>
        * If absent it means range ends at the last offset of end line
@@ -5004,13 +5004,13 @@ public final class Common {
       "\003 \001(\t\0220\n\006status\030\004 \001(\0162 .sonarqube.ws.com" +
       "mons.RuleStatus\022\020\n\010langName\030\005 \001(\t\"B\n\004Use" +
       "r\022\r\n\005login\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\r\n\005email\030",
-      "\003 \001(\t\022\016\n\006active\030\004 \001(\010\"[\n\tTextRange\022\022\n\nst" +
-      "art_line\030\001 \001(\005\022\020\n\010end_line\030\002 \001(\005\022\024\n\014star" +
-      "t_offset\030\003 \001(\005\022\022\n\nend_offset\030\004 \001(\005*E\n\010Se" +
-      "verity\022\010\n\004INFO\020\000\022\t\n\005MINOR\020\001\022\t\n\005MAJOR\020\002\022\014" +
-      "\n\010CRITICAL\020\003\022\013\n\007BLOCKER\020\004*>\n\nRuleStatus\022" +
-      "\010\n\004BETA\020\000\022\016\n\nDEPRECATED\020\001\022\t\n\005READY\020\002\022\013\n\007" +
-      "REMOVED\020\003B\034\n\020org.sonarqube.wsB\006CommonH\001"
+      "\003 \001(\t\022\016\n\006active\030\004 \001(\010\"W\n\tTextRange\022\021\n\tst" +
+      "artLine\030\001 \001(\005\022\017\n\007endLine\030\002 \001(\005\022\023\n\013startO" +
+      "ffset\030\003 \001(\005\022\021\n\tendOffset\030\004 \001(\005*E\n\010Severi" +
+      "ty\022\010\n\004INFO\020\000\022\t\n\005MINOR\020\001\022\t\n\005MAJOR\020\002\022\014\n\010CR" +
+      "ITICAL\020\003\022\013\n\007BLOCKER\020\004*>\n\nRuleStatus\022\010\n\004B" +
+      "ETA\020\000\022\016\n\nDEPRECATED\020\001\022\t\n\005READY\020\002\022\013\n\007REMO" +
+      "VED\020\003B\034\n\020org.sonarqube.wsB\006CommonH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {

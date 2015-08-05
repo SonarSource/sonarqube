@@ -31,13 +31,13 @@ option java_package = "org.sonar.db.protobuf";
 option optimize_for = SPEED;
 
 message Locations {
-  optional Location primary = 1;
+  optional sonarqube.db.commons.TextRange primary = 1;
   repeated Location secondary = 2;
   repeated ExecutionFlow execution_flow = 3;
 }
 
 message ExecutionFlow {
-  repeated Location locations = 1;
+  repeated Location location = 1;
 }
 
 message Location {

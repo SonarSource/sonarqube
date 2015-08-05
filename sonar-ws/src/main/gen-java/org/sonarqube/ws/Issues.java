@@ -5836,17 +5836,17 @@ public final class Issues {
     int getLine();
 
     /**
-     * <code>optional .sonarqube.ws.issues.Location location = 9;</code>
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
      */
-    boolean hasLocation();
+    boolean hasTextRange();
     /**
-     * <code>optional .sonarqube.ws.issues.Location location = 9;</code>
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
      */
-    org.sonarqube.ws.Issues.Location getLocation();
+    org.sonarqube.ws.Common.TextRange getTextRange();
     /**
-     * <code>optional .sonarqube.ws.issues.Location location = 9;</code>
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
      */
-    org.sonarqube.ws.Issues.LocationOrBuilder getLocationOrBuilder();
+    org.sonarqube.ws.Common.TextRangeOrBuilder getTextRangeOrBuilder();
 
     /**
      * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
@@ -6313,14 +6313,14 @@ public final class Issues {
               break;
             }
             case 74: {
-              org.sonarqube.ws.Issues.Location.Builder subBuilder = null;
+              org.sonarqube.ws.Common.TextRange.Builder subBuilder = null;
               if (((bitField0_ & 0x00000100) == 0x00000100)) {
-                subBuilder = location_.toBuilder();
+                subBuilder = textRange_.toBuilder();
               }
-              location_ = input.readMessage(org.sonarqube.ws.Issues.Location.PARSER, extensionRegistry);
+              textRange_ = input.readMessage(org.sonarqube.ws.Common.TextRange.PARSER, extensionRegistry);
               if (subBuilder != null) {
-                subBuilder.mergeFrom(location_);
-                location_ = subBuilder.buildPartial();
+                subBuilder.mergeFrom(textRange_);
+                textRange_ = subBuilder.buildPartial();
               }
               bitField0_ |= 0x00000100;
               break;
@@ -6781,25 +6781,25 @@ public final class Issues {
       return line_;
     }
 
-    public static final int LOCATION_FIELD_NUMBER = 9;
-    private org.sonarqube.ws.Issues.Location location_;
+    public static final int TEXTRANGE_FIELD_NUMBER = 9;
+    private org.sonarqube.ws.Common.TextRange textRange_;
     /**
-     * <code>optional .sonarqube.ws.issues.Location location = 9;</code>
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
      */
-    public boolean hasLocation() {
+    public boolean hasTextRange() {
       return ((bitField0_ & 0x00000100) == 0x00000100);
     }
     /**
-     * <code>optional .sonarqube.ws.issues.Location location = 9;</code>
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
      */
-    public org.sonarqube.ws.Issues.Location getLocation() {
-      return location_;
+    public org.sonarqube.ws.Common.TextRange getTextRange() {
+      return textRange_;
     }
     /**
-     * <code>optional .sonarqube.ws.issues.Location location = 9;</code>
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
      */
-    public org.sonarqube.ws.Issues.LocationOrBuilder getLocationOrBuilder() {
-      return location_;
+    public org.sonarqube.ws.Common.TextRangeOrBuilder getTextRangeOrBuilder() {
+      return textRange_;
     }
 
     public static final int SECONDARYLOCATIONS_FIELD_NUMBER = 10;
@@ -7595,7 +7595,7 @@ public final class Issues {
       project_ = "";
       subProject_ = "";
       line_ = 0;
-      location_ = org.sonarqube.ws.Issues.Location.getDefaultInstance();
+      textRange_ = org.sonarqube.ws.Common.TextRange.getDefaultInstance();
       secondaryLocations_ = java.util.Collections.emptyList();
       executionFlows_ = java.util.Collections.emptyList();
       resolution_ = "";
@@ -7657,7 +7657,7 @@ public final class Issues {
         output.writeInt32(8, line_);
       }
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
-        output.writeMessage(9, location_);
+        output.writeMessage(9, textRange_);
       }
       for (int i = 0; i < secondaryLocations_.size(); i++) {
         output.writeMessage(10, secondaryLocations_.get(i));
@@ -7768,7 +7768,7 @@ public final class Issues {
       }
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(9, location_);
+          .computeMessageSize(9, textRange_);
       }
       for (int i = 0; i < secondaryLocations_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
@@ -7982,7 +7982,7 @@ public final class Issues {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-          getLocationFieldBuilder();
+          getTextRangeFieldBuilder();
           getSecondaryLocationsFieldBuilder();
           getExecutionFlowsFieldBuilder();
           getCommentsFieldBuilder();
@@ -8010,10 +8010,10 @@ public final class Issues {
         bitField0_ = (bitField0_ & ~0x00000040);
         line_ = 0;
         bitField0_ = (bitField0_ & ~0x00000080);
-        if (locationBuilder_ == null) {
-          location_ = org.sonarqube.ws.Issues.Location.getDefaultInstance();
+        if (textRangeBuilder_ == null) {
+          textRange_ = org.sonarqube.ws.Common.TextRange.getDefaultInstance();
         } else {
-          locationBuilder_.clear();
+          textRangeBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000100);
         if (secondaryLocationsBuilder_ == null) {
@@ -8135,10 +8135,10 @@ public final class Issues {
         if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
           to_bitField0_ |= 0x00000100;
         }
-        if (locationBuilder_ == null) {
-          result.location_ = location_;
+        if (textRangeBuilder_ == null) {
+          result.textRange_ = textRange_;
         } else {
-          result.location_ = locationBuilder_.build();
+          result.textRange_ = textRangeBuilder_.build();
         }
         if (secondaryLocationsBuilder_ == null) {
           if (((bitField0_ & 0x00000200) == 0x00000200)) {
@@ -8296,8 +8296,8 @@ public final class Issues {
         if (other.hasLine()) {
           setLine(other.getLine());
         }
-        if (other.hasLocation()) {
-          mergeLocation(other.getLocation());
+        if (other.hasTextRange()) {
+          mergeTextRange(other.getTextRange());
         }
         if (secondaryLocationsBuilder_ == null) {
           if (!other.secondaryLocations_.isEmpty()) {
@@ -8985,120 +8985,120 @@ public final class Issues {
         return this;
       }
 
-      private org.sonarqube.ws.Issues.Location location_ = org.sonarqube.ws.Issues.Location.getDefaultInstance();
+      private org.sonarqube.ws.Common.TextRange textRange_ = org.sonarqube.ws.Common.TextRange.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
-          org.sonarqube.ws.Issues.Location, org.sonarqube.ws.Issues.Location.Builder, org.sonarqube.ws.Issues.LocationOrBuilder> locationBuilder_;
+          org.sonarqube.ws.Common.TextRange, org.sonarqube.ws.Common.TextRange.Builder, org.sonarqube.ws.Common.TextRangeOrBuilder> textRangeBuilder_;
       /**
-       * <code>optional .sonarqube.ws.issues.Location location = 9;</code>
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
        */
-      public boolean hasLocation() {
+      public boolean hasTextRange() {
         return ((bitField0_ & 0x00000100) == 0x00000100);
       }
       /**
-       * <code>optional .sonarqube.ws.issues.Location location = 9;</code>
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
        */
-      public org.sonarqube.ws.Issues.Location getLocation() {
-        if (locationBuilder_ == null) {
-          return location_;
+      public org.sonarqube.ws.Common.TextRange getTextRange() {
+        if (textRangeBuilder_ == null) {
+          return textRange_;
         } else {
-          return locationBuilder_.getMessage();
+          return textRangeBuilder_.getMessage();
         }
       }
       /**
-       * <code>optional .sonarqube.ws.issues.Location location = 9;</code>
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
        */
-      public Builder setLocation(org.sonarqube.ws.Issues.Location value) {
-        if (locationBuilder_ == null) {
+      public Builder setTextRange(org.sonarqube.ws.Common.TextRange value) {
+        if (textRangeBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          location_ = value;
+          textRange_ = value;
           onChanged();
         } else {
-          locationBuilder_.setMessage(value);
+          textRangeBuilder_.setMessage(value);
         }
         bitField0_ |= 0x00000100;
         return this;
       }
       /**
-       * <code>optional .sonarqube.ws.issues.Location location = 9;</code>
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
        */
-      public Builder setLocation(
-          org.sonarqube.ws.Issues.Location.Builder builderForValue) {
-        if (locationBuilder_ == null) {
-          location_ = builderForValue.build();
+      public Builder setTextRange(
+          org.sonarqube.ws.Common.TextRange.Builder builderForValue) {
+        if (textRangeBuilder_ == null) {
+          textRange_ = builderForValue.build();
           onChanged();
         } else {
-          locationBuilder_.setMessage(builderForValue.build());
+          textRangeBuilder_.setMessage(builderForValue.build());
         }
         bitField0_ |= 0x00000100;
         return this;
       }
       /**
-       * <code>optional .sonarqube.ws.issues.Location location = 9;</code>
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
        */
-      public Builder mergeLocation(org.sonarqube.ws.Issues.Location value) {
-        if (locationBuilder_ == null) {
+      public Builder mergeTextRange(org.sonarqube.ws.Common.TextRange value) {
+        if (textRangeBuilder_ == null) {
           if (((bitField0_ & 0x00000100) == 0x00000100) &&
-              location_ != org.sonarqube.ws.Issues.Location.getDefaultInstance()) {
-            location_ =
-              org.sonarqube.ws.Issues.Location.newBuilder(location_).mergeFrom(value).buildPartial();
+              textRange_ != org.sonarqube.ws.Common.TextRange.getDefaultInstance()) {
+            textRange_ =
+              org.sonarqube.ws.Common.TextRange.newBuilder(textRange_).mergeFrom(value).buildPartial();
           } else {
-            location_ = value;
+            textRange_ = value;
           }
           onChanged();
         } else {
-          locationBuilder_.mergeFrom(value);
+          textRangeBuilder_.mergeFrom(value);
         }
         bitField0_ |= 0x00000100;
         return this;
       }
       /**
-       * <code>optional .sonarqube.ws.issues.Location location = 9;</code>
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
        */
-      public Builder clearLocation() {
-        if (locationBuilder_ == null) {
-          location_ = org.sonarqube.ws.Issues.Location.getDefaultInstance();
+      public Builder clearTextRange() {
+        if (textRangeBuilder_ == null) {
+          textRange_ = org.sonarqube.ws.Common.TextRange.getDefaultInstance();
           onChanged();
         } else {
-          locationBuilder_.clear();
+          textRangeBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000100);
         return this;
       }
       /**
-       * <code>optional .sonarqube.ws.issues.Location location = 9;</code>
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
        */
-      public org.sonarqube.ws.Issues.Location.Builder getLocationBuilder() {
+      public org.sonarqube.ws.Common.TextRange.Builder getTextRangeBuilder() {
         bitField0_ |= 0x00000100;
         onChanged();
-        return getLocationFieldBuilder().getBuilder();
+        return getTextRangeFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .sonarqube.ws.issues.Location location = 9;</code>
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
        */
-      public org.sonarqube.ws.Issues.LocationOrBuilder getLocationOrBuilder() {
-        if (locationBuilder_ != null) {
-          return locationBuilder_.getMessageOrBuilder();
+      public org.sonarqube.ws.Common.TextRangeOrBuilder getTextRangeOrBuilder() {
+        if (textRangeBuilder_ != null) {
+          return textRangeBuilder_.getMessageOrBuilder();
         } else {
-          return location_;
+          return textRange_;
         }
       }
       /**
-       * <code>optional .sonarqube.ws.issues.Location location = 9;</code>
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
-          org.sonarqube.ws.Issues.Location, org.sonarqube.ws.Issues.Location.Builder, org.sonarqube.ws.Issues.LocationOrBuilder> 
-          getLocationFieldBuilder() {
-        if (locationBuilder_ == null) {
-          locationBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              org.sonarqube.ws.Issues.Location, org.sonarqube.ws.Issues.Location.Builder, org.sonarqube.ws.Issues.LocationOrBuilder>(
-                  getLocation(),
+          org.sonarqube.ws.Common.TextRange, org.sonarqube.ws.Common.TextRange.Builder, org.sonarqube.ws.Common.TextRangeOrBuilder> 
+          getTextRangeFieldBuilder() {
+        if (textRangeBuilder_ == null) {
+          textRangeBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              org.sonarqube.ws.Common.TextRange, org.sonarqube.ws.Common.TextRange.Builder, org.sonarqube.ws.Common.TextRangeOrBuilder>(
+                  getTextRange(),
                   getParentForChildren(),
                   isClean());
-          location_ = null;
+          textRange_ = null;
         }
-        return locationBuilder_;
+        return textRangeBuilder_;
       }
 
       private java.util.List<org.sonarqube.ws.Issues.Location> secondaryLocations_ =
@@ -11888,21 +11888,21 @@ public final class Issues {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional string component_id = 1;</code>
+     * <code>optional string componentId = 1;</code>
      */
     boolean hasComponentId();
     /**
-     * <code>optional string component_id = 1;</code>
+     * <code>optional string componentId = 1;</code>
      */
     java.lang.String getComponentId();
     /**
-     * <code>optional string component_id = 1;</code>
+     * <code>optional string componentId = 1;</code>
      */
     com.google.protobuf.ByteString
         getComponentIdBytes();
 
     /**
-     * <code>optional .sonarqube.ws.commons.TextRange text_range = 2;</code>
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
      *
      * <pre>
      * Only when component is a file. Can be empty for a file if this is an issue global to the file.
@@ -11910,7 +11910,7 @@ public final class Issues {
      */
     boolean hasTextRange();
     /**
-     * <code>optional .sonarqube.ws.commons.TextRange text_range = 2;</code>
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
      *
      * <pre>
      * Only when component is a file. Can be empty for a file if this is an issue global to the file.
@@ -11918,7 +11918,7 @@ public final class Issues {
      */
     org.sonarqube.ws.Common.TextRange getTextRange();
     /**
-     * <code>optional .sonarqube.ws.commons.TextRange text_range = 2;</code>
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
      *
      * <pre>
      * Only when component is a file. Can be empty for a file if this is an issue global to the file.
@@ -12057,16 +12057,16 @@ public final class Issues {
     }
 
     private int bitField0_;
-    public static final int COMPONENT_ID_FIELD_NUMBER = 1;
+    public static final int COMPONENTID_FIELD_NUMBER = 1;
     private java.lang.Object componentId_;
     /**
-     * <code>optional string component_id = 1;</code>
+     * <code>optional string componentId = 1;</code>
      */
     public boolean hasComponentId() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional string component_id = 1;</code>
+     * <code>optional string componentId = 1;</code>
      */
     public java.lang.String getComponentId() {
       java.lang.Object ref = componentId_;
@@ -12083,7 +12083,7 @@ public final class Issues {
       }
     }
     /**
-     * <code>optional string component_id = 1;</code>
+     * <code>optional string componentId = 1;</code>
      */
     public com.google.protobuf.ByteString
         getComponentIdBytes() {
@@ -12099,10 +12099,10 @@ public final class Issues {
       }
     }
 
-    public static final int TEXT_RANGE_FIELD_NUMBER = 2;
+    public static final int TEXTRANGE_FIELD_NUMBER = 2;
     private org.sonarqube.ws.Common.TextRange textRange_;
     /**
-     * <code>optional .sonarqube.ws.commons.TextRange text_range = 2;</code>
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
      *
      * <pre>
      * Only when component is a file. Can be empty for a file if this is an issue global to the file.
@@ -12112,7 +12112,7 @@ public final class Issues {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>optional .sonarqube.ws.commons.TextRange text_range = 2;</code>
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
      *
      * <pre>
      * Only when component is a file. Can be empty for a file if this is an issue global to the file.
@@ -12122,7 +12122,7 @@ public final class Issues {
       return textRange_;
     }
     /**
-     * <code>optional .sonarqube.ws.commons.TextRange text_range = 2;</code>
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
      *
      * <pre>
      * Only when component is a file. Can be empty for a file if this is an issue global to the file.
@@ -12452,13 +12452,13 @@ public final class Issues {
 
       private java.lang.Object componentId_ = "";
       /**
-       * <code>optional string component_id = 1;</code>
+       * <code>optional string componentId = 1;</code>
        */
       public boolean hasComponentId() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>optional string component_id = 1;</code>
+       * <code>optional string componentId = 1;</code>
        */
       public java.lang.String getComponentId() {
         java.lang.Object ref = componentId_;
@@ -12475,7 +12475,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string component_id = 1;</code>
+       * <code>optional string componentId = 1;</code>
        */
       public com.google.protobuf.ByteString
           getComponentIdBytes() {
@@ -12491,7 +12491,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string component_id = 1;</code>
+       * <code>optional string componentId = 1;</code>
        */
       public Builder setComponentId(
           java.lang.String value) {
@@ -12504,7 +12504,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>optional string component_id = 1;</code>
+       * <code>optional string componentId = 1;</code>
        */
       public Builder clearComponentId() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -12513,7 +12513,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>optional string component_id = 1;</code>
+       * <code>optional string componentId = 1;</code>
        */
       public Builder setComponentIdBytes(
           com.google.protobuf.ByteString value) {
@@ -12530,7 +12530,7 @@ public final class Issues {
       private com.google.protobuf.SingleFieldBuilder<
           org.sonarqube.ws.Common.TextRange, org.sonarqube.ws.Common.TextRange.Builder, org.sonarqube.ws.Common.TextRangeOrBuilder> textRangeBuilder_;
       /**
-       * <code>optional .sonarqube.ws.commons.TextRange text_range = 2;</code>
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
        *
        * <pre>
        * Only when component is a file. Can be empty for a file if this is an issue global to the file.
@@ -12540,7 +12540,7 @@ public final class Issues {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>optional .sonarqube.ws.commons.TextRange text_range = 2;</code>
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
        *
        * <pre>
        * Only when component is a file. Can be empty for a file if this is an issue global to the file.
@@ -12554,7 +12554,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional .sonarqube.ws.commons.TextRange text_range = 2;</code>
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
        *
        * <pre>
        * Only when component is a file. Can be empty for a file if this is an issue global to the file.
@@ -12574,7 +12574,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>optional .sonarqube.ws.commons.TextRange text_range = 2;</code>
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
        *
        * <pre>
        * Only when component is a file. Can be empty for a file if this is an issue global to the file.
@@ -12592,7 +12592,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>optional .sonarqube.ws.commons.TextRange text_range = 2;</code>
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
        *
        * <pre>
        * Only when component is a file. Can be empty for a file if this is an issue global to the file.
@@ -12615,7 +12615,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>optional .sonarqube.ws.commons.TextRange text_range = 2;</code>
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
        *
        * <pre>
        * Only when component is a file. Can be empty for a file if this is an issue global to the file.
@@ -12632,7 +12632,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>optional .sonarqube.ws.commons.TextRange text_range = 2;</code>
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
        *
        * <pre>
        * Only when component is a file. Can be empty for a file if this is an issue global to the file.
@@ -12644,7 +12644,7 @@ public final class Issues {
         return getTextRangeFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .sonarqube.ws.commons.TextRange text_range = 2;</code>
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
        *
        * <pre>
        * Only when component is a file. Can be empty for a file if this is an issue global to the file.
@@ -12658,7 +12658,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional .sonarqube.ws.commons.TextRange text_range = 2;</code>
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
        *
        * <pre>
        * Only when component is a file. Can be empty for a file if this is an issue global to the file.
@@ -17887,43 +17887,43 @@ public final class Issues {
       "ponent\022)\n\005rules\030\003 \003(\0132\032.sonarqube.ws.com",
       "mons.Rule\022)\n\005users\030\004 \003(\0132\032.sonarqube.ws." +
       "commons.User\0224\n\013actionPlans\030\005 \003(\0132\037.sona" +
-      "rqube.ws.issues.ActionPlan\"\225\006\n\005Issue\022\013\n\003" +
+      "rqube.ws.issues.ActionPlan\"\230\006\n\005Issue\022\013\n\003" +
       "key\030\001 \001(\t\022\014\n\004rule\030\002 \001(\t\0220\n\010severity\030\003 \001(" +
       "\0162\036.sonarqube.ws.commons.Severity\022\021\n\tcom" +
       "ponent\030\004 \001(\t\022\023\n\013componentId\030\005 \001(\003\022\017\n\007pro" +
       "ject\030\006 \001(\t\022\022\n\nsubProject\030\007 \001(\t\022\014\n\004line\030\010" +
-      " \001(\005\022/\n\010location\030\t \001(\0132\035.sonarqube.ws.is" +
-      "sues.Location\0229\n\022secondaryLocations\030\n \003(" +
-      "\0132\035.sonarqube.ws.issues.Location\022:\n\016exec",
-      "utionFlows\030\013 \003(\0132\".sonarqube.ws.issues.E" +
-      "xecutionFlow\022\022\n\nresolution\030\014 \001(\t\022\016\n\006stat" +
-      "us\030\r \001(\t\022\017\n\007message\030\016 \001(\t\022\014\n\004debt\030\017 \001(\t\022" +
-      "\020\n\010assignee\030\020 \001(\t\022\020\n\010reporter\030\021 \001(\t\022\016\n\006a" +
-      "uthor\030\022 \001(\t\022\022\n\nactionPlan\030\023 \001(\t\022\032\n\022tagsP" +
-      "resentIfEmpty\030\024 \001(\010\022\014\n\004tags\030\025 \003(\t\022!\n\031tra" +
-      "nsitionsPresentIfEmpty\030\026 \001(\010\022\023\n\013transiti" +
-      "ons\030\027 \003(\t\022\035\n\025actionsPresentIfEmpty\030\030 \001(\010" +
-      "\022\017\n\007actions\030\031 \003(\t\022\036\n\026commentsPresentIfEm" +
-      "pty\030\032 \001(\010\022.\n\010comments\030\033 \003(\0132\034.sonarqube.",
-      "ws.issues.Comment\022\024\n\014creationDate\030\034 \001(\t\022" +
-      "\022\n\nupdateDate\030\035 \001(\t\022\022\n\nfUpdateAge\030\036 \001(\t\022" +
-      "\021\n\tcloseDate\030\037 \001(\t\"A\n\rExecutionFlow\0220\n\tl" +
-      "ocations\030\001 \003(\0132\035.sonarqube.ws.issues.Loc" +
-      "ation\"b\n\010Location\022\024\n\014component_id\030\001 \001(\t\022" +
-      "3\n\ntext_range\030\002 \001(\0132\037.sonarqube.ws.commo" +
-      "ns.TextRange\022\013\n\003msg\030\003 \001(\t\"\220\001\n\007Comment\022\013\n" +
-      "\003key\030\001 \001(\t\022\r\n\005login\030\002 \001(\t\022\r\n\005email\030\003 \001(\t" +
-      "\022\020\n\010userName\030\004 \001(\t\022\020\n\010htmlText\030\005 \001(\t\022\020\n\010" +
-      "markdown\030\006 \001(\t\022\021\n\tupdatable\030\007 \001(\010\022\021\n\tcre",
-      "atedAt\030\010 \001(\t\"Z\n\nActionPlan\022\013\n\003key\030\001 \001(\t\022" +
-      "\014\n\004name\030\002 \001(\t\022\016\n\006status\030\003 \001(\t\022\020\n\010deadLin" +
-      "e\030\004 \001(\t\022\017\n\007project\030\005 \001(\t\"%\n\010Language\022\013\n\003" +
-      "key\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\"\255\001\n\tComponent\022\n\n" +
-      "\002id\030\001 \001(\003\022\013\n\003key\030\002 \001(\t\022\014\n\004uuid\030\003 \001(\t\022\017\n\007" +
-      "enabled\030\004 \001(\010\022\021\n\tqualifier\030\005 \001(\t\022\014\n\004name" +
-      "\030\006 \001(\t\022\020\n\010longName\030\007 \001(\t\022\014\n\004path\030\010 \001(\t\022\021" +
-      "\n\tprojectId\030\t \001(\003\022\024\n\014subProjectId\030\n \001(\003B" +
-      "\034\n\020org.sonarqube.wsB\006IssuesH\001"
+      " \001(\005\0222\n\ttextRange\030\t \001(\0132\037.sonarqube.ws.c" +
+      "ommons.TextRange\0229\n\022secondaryLocations\030\n" +
+      " \003(\0132\035.sonarqube.ws.issues.Location\022:\n\016e",
+      "xecutionFlows\030\013 \003(\0132\".sonarqube.ws.issue" +
+      "s.ExecutionFlow\022\022\n\nresolution\030\014 \001(\t\022\016\n\006s" +
+      "tatus\030\r \001(\t\022\017\n\007message\030\016 \001(\t\022\014\n\004debt\030\017 \001" +
+      "(\t\022\020\n\010assignee\030\020 \001(\t\022\020\n\010reporter\030\021 \001(\t\022\016" +
+      "\n\006author\030\022 \001(\t\022\022\n\nactionPlan\030\023 \001(\t\022\032\n\022ta" +
+      "gsPresentIfEmpty\030\024 \001(\010\022\014\n\004tags\030\025 \003(\t\022!\n\031" +
+      "transitionsPresentIfEmpty\030\026 \001(\010\022\023\n\013trans" +
+      "itions\030\027 \003(\t\022\035\n\025actionsPresentIfEmpty\030\030 " +
+      "\001(\010\022\017\n\007actions\030\031 \003(\t\022\036\n\026commentsPresentI" +
+      "fEmpty\030\032 \001(\010\022.\n\010comments\030\033 \003(\0132\034.sonarqu",
+      "be.ws.issues.Comment\022\024\n\014creationDate\030\034 \001" +
+      "(\t\022\022\n\nupdateDate\030\035 \001(\t\022\022\n\nfUpdateAge\030\036 \001" +
+      "(\t\022\021\n\tcloseDate\030\037 \001(\t\"A\n\rExecutionFlow\0220" +
+      "\n\tlocations\030\001 \003(\0132\035.sonarqube.ws.issues." +
+      "Location\"`\n\010Location\022\023\n\013componentId\030\001 \001(" +
+      "\t\0222\n\ttextRange\030\002 \001(\0132\037.sonarqube.ws.comm" +
+      "ons.TextRange\022\013\n\003msg\030\003 \001(\t\"\220\001\n\007Comment\022\013" +
+      "\n\003key\030\001 \001(\t\022\r\n\005login\030\002 \001(\t\022\r\n\005email\030\003 \001(" +
+      "\t\022\020\n\010userName\030\004 \001(\t\022\020\n\010htmlText\030\005 \001(\t\022\020\n" +
+      "\010markdown\030\006 \001(\t\022\021\n\tupdatable\030\007 \001(\010\022\021\n\tcr",
+      "eatedAt\030\010 \001(\t\"Z\n\nActionPlan\022\013\n\003key\030\001 \001(\t" +
+      "\022\014\n\004name\030\002 \001(\t\022\016\n\006status\030\003 \001(\t\022\020\n\010deadLi" +
+      "ne\030\004 \001(\t\022\017\n\007project\030\005 \001(\t\"%\n\010Language\022\013\n" +
+      "\003key\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\"\255\001\n\tComponent\022\n" +
+      "\n\002id\030\001 \001(\003\022\013\n\003key\030\002 \001(\t\022\014\n\004uuid\030\003 \001(\t\022\017\n" +
+      "\007enabled\030\004 \001(\010\022\021\n\tqualifier\030\005 \001(\t\022\014\n\004nam" +
+      "e\030\006 \001(\t\022\020\n\010longName\030\007 \001(\t\022\014\n\004path\030\010 \001(\t\022" +
+      "\021\n\tprojectId\030\t \001(\003\022\024\n\014subProjectId\030\n \001(\003" +
+      "B\034\n\020org.sonarqube.wsB\006IssuesH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -17955,7 +17955,7 @@ public final class Issues {
     internal_static_sonarqube_ws_issues_Issue_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_issues_Issue_descriptor,
-        new java.lang.String[] { "Key", "Rule", "Severity", "Component", "ComponentId", "Project", "SubProject", "Line", "Location", "SecondaryLocations", "ExecutionFlows", "Resolution", "Status", "Message", "Debt", "Assignee", "Reporter", "Author", "ActionPlan", "TagsPresentIfEmpty", "Tags", "TransitionsPresentIfEmpty", "Transitions", "ActionsPresentIfEmpty", "Actions", "CommentsPresentIfEmpty", "Comments", "CreationDate", "UpdateDate", "FUpdateAge", "CloseDate", });
+        new java.lang.String[] { "Key", "Rule", "Severity", "Component", "ComponentId", "Project", "SubProject", "Line", "TextRange", "SecondaryLocations", "ExecutionFlows", "Resolution", "Status", "Message", "Debt", "Assignee", "Reporter", "Author", "ActionPlan", "TagsPresentIfEmpty", "Tags", "TransitionsPresentIfEmpty", "Transitions", "ActionsPresentIfEmpty", "Actions", "CommentsPresentIfEmpty", "Comments", "CreationDate", "UpdateDate", "FUpdateAge", "CloseDate", });
     internal_static_sonarqube_ws_issues_ExecutionFlow_descriptor =
       getDescriptor().getMessageTypes().get(3);
     internal_static_sonarqube_ws_issues_ExecutionFlow_fieldAccessorTable = new

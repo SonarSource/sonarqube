@@ -69,7 +69,7 @@ message Issue {
   optional string project = 6;
   optional string subProject = 7;
   optional int32 line = 8;
-  optional Location location = 9;
+  optional sonarqube.ws.commons.TextRange textRange = 9;
   repeated Location secondaryLocations = 10;
   repeated ExecutionFlow executionFlows = 11;
   optional string resolution = 12;
@@ -107,9 +107,9 @@ message ExecutionFlow {
 }
 
 message Location {
-  optional string component_id = 1;
+  optional string componentId = 1;
   // Only when component is a file. Can be empty for a file if this is an issue global to the file.
-  optional sonarqube.ws.commons.TextRange text_range = 2;
+  optional sonarqube.ws.commons.TextRange textRange = 2;
   optional string msg = 3;
 }
 

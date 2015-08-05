@@ -131,7 +131,9 @@ public class TrackerRawInputFactory {
       DbIssues.Locations.Builder dbLocationsBuilder = DbIssues.Locations.newBuilder();
       if (reportIssue.hasPrimaryLocation()) {
         BatchReport.IssueLocation location = reportIssue.getPrimaryLocation();
-        dbLocationsBuilder.setPrimary(convertLocation(location));
+        if (location.hasTextRange()) {
+          dbLocationsBuilder.setPrimary(convertTextRange(location.getTextRange()));
+        }
       }
       for (BatchReport.IssueLocation location : reportIssue.getAdditionalLocationList()) {
         dbLocationsBuilder.addSecondary(convertLocation(location));
@@ -139,7 +141,7 @@ public class TrackerRawInputFactory {
       for (BatchReport.ExecutionFlow flow : reportIssue.getExecutionFlowList()) {
         DbIssues.ExecutionFlow.Builder dbFlowBuilder = DbIssues.ExecutionFlow.newBuilder();
         for (BatchReport.IssueLocation location : flow.getLocationList()) {
-          dbFlowBuilder.addLocations(convertLocation(location));
+          dbFlowBuilder.addLocation(convertLocation(location));
         }
         dbLocationsBuilder.addExecutionFlow(dbFlowBuilder);
       }
@@ -167,22 +169,27 @@ public class TrackerRawInputFactory {
       }
       if (source.hasTextRange()) {
         BatchReport.TextRange sourceRange = source.getTextRange();
-        DbCommons.TextRange.Builder targetRange = DbCommons.TextRange.newBuilder();
-        if (sourceRange.hasStartLine()) {
-          targetRange.setStartLine(sourceRange.getStartLine());
-        }
-        if (sourceRange.hasStartOffset()) {
-          targetRange.setStartOffset(sourceRange.getStartOffset());
-        }
-        if (sourceRange.hasEndLine()) {
-          targetRange.setEndLine(sourceRange.getEndLine());
-        }
-        if (sourceRange.hasEndOffset()) {
-          targetRange.setEndOffset(sourceRange.getEndOffset());
-        }
+        DbCommons.TextRange.Builder targetRange = convertTextRange(sourceRange);
         target.setTextRange(targetRange);
       }
       return target.build();
     }
+  }
+
+  private DbCommons.TextRange.Builder convertTextRange(BatchReport.TextRange sourceRange) {
+    DbCommons.TextRange.Builder targetRange = DbCommons.TextRange.newBuilder();
+    if (sourceRange.hasStartLine()) {
+      targetRange.setStartLine(sourceRange.getStartLine());
+    }
+    if (sourceRange.hasStartOffset()) {
+      targetRange.setStartOffset(sourceRange.getStartOffset());
+    }
+    if (sourceRange.hasEndLine()) {
+      targetRange.setEndLine(sourceRange.getEndLine());
+    }
+    if (sourceRange.hasEndOffset()) {
+      targetRange.setEndOffset(sourceRange.getEndOffset());
+    }
+    return targetRange;
   }
 }

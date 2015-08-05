@@ -197,15 +197,15 @@ public class SearchResponseFormat {
     DbIssues.Locations locations = dto.parseLocations();
     if (locations != null) {
       if (locations.hasPrimary()) {
-        DbIssues.Location primary = locations.getPrimary();
-        issueBuilder.setLocation(convertLocation(primary));
+        DbCommons.TextRange primary = locations.getPrimary();
+        issueBuilder.setTextRange(convertTextRange(primary));
       }
       for (DbIssues.Location secondary : locations.getSecondaryList()) {
         issueBuilder.addSecondaryLocations(convertLocation(secondary));
       }
       for (DbIssues.ExecutionFlow flow : locations.getExecutionFlowList()) {
         Issues.ExecutionFlow.Builder targetFlow = Issues.ExecutionFlow.newBuilder();
-        for (DbIssues.Location flowLocation : flow.getLocationsList()) {
+        for (DbIssues.Location flowLocation : flow.getLocationList()) {
           targetFlow.addLocations(convertLocation(flowLocation));
         }
         issueBuilder.addExecutionFlows(targetFlow);
@@ -223,22 +223,27 @@ public class SearchResponseFormat {
     }
     if (source.hasTextRange()) {
       DbCommons.TextRange sourceRange = source.getTextRange();
-      Common.TextRange.Builder targetRange = Common.TextRange.newBuilder();
-      if (sourceRange.hasStartLine()) {
-        targetRange.setStartLine(sourceRange.getStartLine());
-      }
-      if (sourceRange.hasStartOffset()) {
-        targetRange.setStartOffset(sourceRange.getStartOffset());
-      }
-      if (sourceRange.hasEndLine()) {
-        targetRange.setEndLine(sourceRange.getEndLine());
-      }
-      if (sourceRange.hasEndOffset()) {
-        targetRange.setEndOffset(sourceRange.getEndOffset());
-      }
+      Common.TextRange.Builder targetRange = convertTextRange(sourceRange);
       target.setTextRange(targetRange);
     }
     return target.build();
+  }
+
+  private static Common.TextRange.Builder convertTextRange(DbCommons.TextRange sourceRange) {
+    Common.TextRange.Builder targetRange = Common.TextRange.newBuilder();
+    if (sourceRange.hasStartLine()) {
+      targetRange.setStartLine(sourceRange.getStartLine());
+    }
+    if (sourceRange.hasStartOffset()) {
+      targetRange.setStartOffset(sourceRange.getStartOffset());
+    }
+    if (sourceRange.hasEndLine()) {
+      targetRange.setEndLine(sourceRange.getEndLine());
+    }
+    if (sourceRange.hasEndOffset()) {
+      targetRange.setEndOffset(sourceRange.getEndOffset());
+    }
+    return targetRange;
   }
 
   private static void formatIssueTransitions(SearchResponseData data, Issues.Issue.Builder issueBuilder, IssueDto dto) {
