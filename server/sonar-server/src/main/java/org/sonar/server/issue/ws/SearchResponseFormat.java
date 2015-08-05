@@ -150,7 +150,6 @@ public class SearchResponseFormat {
     issueBuilder.setComponent(dto.getComponentKey());
     // Only used for the compatibility with the Java WS Client <= 4.4 used by Eclipse
     issueBuilder.setComponentId(component.getId());
-
     ComponentDto project = data.getComponentByUuid(dto.getProjectUuid());
     if (project != null) {
       issueBuilder.setProject(project.getKey());
@@ -161,11 +160,19 @@ public class SearchResponseFormat {
     }
     issueBuilder.setRule(dto.getRuleKey().toString());
     issueBuilder.setSeverity(Common.Severity.valueOf(dto.getSeverity()));
-    issueBuilder.setAssignee(nullToEmpty(dto.getAssignee()));
-    issueBuilder.setReporter(nullToEmpty(dto.getReporter()));
-    issueBuilder.setResolution(nullToEmpty(dto.getResolution()));
-    issueBuilder.setStatus(nullToEmpty(dto.getStatus()));
-    issueBuilder.setActionPlan(nullToEmpty(dto.getActionPlanKey()));
+    if (!Strings.isNullOrEmpty(dto.getAssignee())) {
+      issueBuilder.setAssignee(dto.getAssignee());
+    }
+    if (!Strings.isNullOrEmpty(dto.getReporter())) {
+      issueBuilder.setReporter(dto.getReporter());
+    }
+    if (!Strings.isNullOrEmpty(dto.getResolution())) {
+      issueBuilder.setResolution(dto.getResolution());
+    }
+    issueBuilder.setStatus(dto.getStatus());
+    if (!Strings.isNullOrEmpty(dto.getActionPlanKey())) {
+      issueBuilder.setActionPlan(dto.getActionPlanKey());
+    }
     issueBuilder.setMessage(nullToEmpty(dto.getMessage()));
     issueBuilder.setTagsPresentIfEmpty(true);
     issueBuilder.addAllTags(dto.getTags());
