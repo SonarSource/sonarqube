@@ -24,6 +24,7 @@
     issue_close_date="1366063200000"
     created_at="1400000000000"
     updated_at="1400000000000"
+    locations="[null]"
     />
 
   <issues
@@ -49,6 +50,7 @@
     issue_close_date="1366063200000"
     created_at="1400000000000"
     updated_at="1400000000000"
+    locations="[null]"
     />
 
 
@@ -76,5 +78,6 @@
     issue_close_date="1366063200000"
     created_at="1400000000000"
     updated_at="1400000000000"
+    locations="[null]"
     />
 </dataset>

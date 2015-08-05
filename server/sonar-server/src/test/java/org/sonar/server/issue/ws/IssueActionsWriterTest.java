@@ -28,20 +28,17 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.action.Action;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.workflow.Transition;
-import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.test.JsonAssert;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -52,14 +49,11 @@ public class IssueActionsWriterTest {
   @Mock
   IssueService issueService;
 
-  @Mock
-  ActionService actionService;
-
   IssueActionsWriter writer;
 
   @Before
   public void setUp() {
-    writer = new IssueActionsWriter(issueService, actionService, userSessionRule);
+    writer = new IssueActionsWriter(issueService, userSessionRule);
   }
 
   @Test
@@ -78,26 +72,6 @@ public class IssueActionsWriterTest {
       "{\"actions\": " +
         "[" +
         "\"comment\", \"assign\", \"set_tags\", \"assign_to_me\", \"plan\", \"set_severity\"\n" +
-        "]}");
-  }
-
-  @Test
-  public void write_plugin_actions() {
-    Issue issue = new DefaultIssue()
-      .setKey("ABCD")
-      .setComponentKey("sample:src/main/xoo/sample/Sample.xoo")
-      .setProjectKey("sample")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycle"));
-
-    userSessionRule.login("john");
-    Action action = mock(Action.class);
-    when(action.key()).thenReturn("link-to-jira");
-    when(actionService.listAvailableActions(eq(issue))).thenReturn(newArrayList(action));
-
-    testActions(issue,
-      "{\"actions\": " +
-        "[" +
-        "\"comment\", \"assign\", \"set_tags\", \"assign_to_me\", \"plan\", \"link-to-jira\"\n" +
         "]}");
   }
 

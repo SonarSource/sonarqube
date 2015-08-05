@@ -29,9 +29,9 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.db.RowNotFoundException;
 import org.sonar.test.DbTests;
 
 import static java.util.Arrays.asList;
@@ -126,6 +126,8 @@ public class IssueDaoTest {
     assertThat(issue.getRule()).isEqualTo("AvoidCycle");
     assertThat(issue.getComponentKey()).isEqualTo("Action.java");
     assertThat(issue.getProjectKey()).isEqualTo("struts");
+    assertThat(issue.getLocations()).isNull();
+    assertThat(issue.parseLocations()).isNull();
   }
 
   @Test

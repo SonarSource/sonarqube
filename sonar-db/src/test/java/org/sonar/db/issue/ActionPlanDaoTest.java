@@ -81,7 +81,8 @@ public class ActionPlanDaoTest {
     ActionPlanDto result = dao.selectByKey("ABC");
     assertThat(result).isNotNull();
     assertThat(result.getKey()).isEqualTo("ABC");
-    assertThat(result.getProjectKey()).isEqualTo("org.sonar.Sample");
+    assertThat(result.getProjectKey()).isEqualTo("PROJECT_KEY");
+    assertThat(result.getProjectUuid()).isEqualTo("PROJECT_UUID");
   }
 
   @Test

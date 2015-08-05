@@ -2,8 +2,8 @@
   "issues": [
     {
       "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
-      "component": "MyComponent",
-      "project": "MyProject",
+      "component": "FK1",
+      "project": "PK1",
       "rule": "xoo:x1",
       "status": "OPEN",
       "resolution": "OPEN",
@@ -12,8 +12,8 @@
     },
     {
       "key": "92fd47d4-b650-4037-80bc-7b112bd4eac2",
-      "component": "MyComponent2",
-      "project": "MyProject2",
+      "component": "FK2",
+      "project": "PK2",
       "rule": "xoo:x1",
       "status": "OPEN",
       "resolution": "OPEN",
@@ -23,34 +23,20 @@
   ],
   "components": [
     {
-      "uuid": "BCDE",
-      "key": "MyComponent",
+      "key": "FK1",
       "enabled" : true
     },
     {
-      "uuid": "ABCD",
-      "key": "MyProject",
+      "key": "PK1",
       "enabled" : true
     },
     {
-      "uuid": "EDCB",
-      "key": "MyComponent2",
+      "key": "FK2",
       "enabled" : true
     },
     {
-      "uuid": "DBCA",
-      "key": "MyProject2",
+      "key": "PK2",
       "enabled" : true
-    }
-  ],
-  "projects": [
-    {
-      "uuid": "ABCD",
-      "key": "MyProject"
-    },
-    {
-      "uuid": "DBCA",
-      "key": "MyProject2"
     }
   ]
 }

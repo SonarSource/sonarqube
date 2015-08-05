@@ -26,7 +26,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
-import org.sonar.db.FileSources;
+import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 
 public class FileSourceTesting {
@@ -35,7 +35,7 @@ public class FileSourceTesting {
     // only static stuff
   }
 
-  public static void updateDataColumn(Connection connection, String fileUuid, FileSources.Data data) throws SQLException {
+  public static void updateDataColumn(Connection connection, String fileUuid, DbFileSources.Data data) throws SQLException {
     updateDataColumn(connection, fileUuid, FileSourceDto.encodeSourceData(data));
   }
 
@@ -50,8 +50,8 @@ public class FileSourceTesting {
   /**
    * Generate predefined fake data. Result is mutable.
    */
-  public static FileSources.Data.Builder newFakeData(int numberOfLines) throws IOException {
-    FileSources.Data.Builder dataBuilder = FileSources.Data.newBuilder();
+  public static DbFileSources.Data.Builder newFakeData(int numberOfLines) throws IOException {
+    DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
     for (int i = 1; i <= numberOfLines; i++) {
       dataBuilder.addLinesBuilder()
         .setLine(i)
@@ -79,8 +79,8 @@ public class FileSourceTesting {
   /**
    * Generate random data. Result is mutable.
    */
-  public static FileSources.Data.Builder newRandomData(int numberOfLines) throws IOException {
-    FileSources.Data.Builder dataBuilder = FileSources.Data.newBuilder();
+  public static DbFileSources.Data.Builder newRandomData(int numberOfLines) throws IOException {
+    DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
     for (int i = 1; i <= numberOfLines; i++) {
       dataBuilder.addLinesBuilder()
         .setLine(i)

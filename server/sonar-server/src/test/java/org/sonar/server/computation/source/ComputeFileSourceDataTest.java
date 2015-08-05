@@ -22,7 +22,7 @@ package org.sonar.server.computation.source;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
-import org.sonar.db.FileSources;
+import org.sonar.db.protobuf.DbFileSources;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -97,7 +97,7 @@ public class ComputeFileSourceDataTest {
 
   private static class MockLineReader implements LineReader {
     @Override
-    public void read(FileSources.Line.Builder lineBuilder) {
+    public void read(DbFileSources.Line.Builder lineBuilder) {
       lineBuilder.setHighlighting("h-" + lineBuilder.getLine());
     }
   }

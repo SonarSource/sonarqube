@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.Uuids;
 import org.sonar.db.DbTester;
-import org.sonar.db.FileSources;
+import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
@@ -110,8 +110,8 @@ public class SourceDbBenchmarkTest {
   }
 
   private byte[] generateData() {
-    FileSources.Data.Builder dataBuilder = FileSources.Data.newBuilder();
-    FileSources.Line.Builder lineBuilder = FileSources.Line.newBuilder();
+    DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
+    DbFileSources.Line.Builder lineBuilder = DbFileSources.Line.newBuilder();
     for (int i = 1; i <= NUMBER_OF_LINES; i++) {
       lineBuilder.clear();
       dataBuilder.addLines(lineBuilder

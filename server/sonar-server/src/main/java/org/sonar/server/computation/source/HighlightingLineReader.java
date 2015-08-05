@@ -27,7 +27,7 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.FileSources;
+import org.sonar.db.protobuf.DbFileSources;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -56,7 +56,7 @@ public class HighlightingLineReader implements LineReader {
   }
 
   @Override
-  public void read(FileSources.Line.Builder lineBuilder) {
+  public void read(DbFileSources.Line.Builder lineBuilder) {
     int line = lineBuilder.getLine();
     StringBuilder highlighting = new StringBuilder();
 

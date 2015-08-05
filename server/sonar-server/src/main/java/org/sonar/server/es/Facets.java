@@ -28,6 +28,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.HasAggregations;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
 import org.elasticsearch.search.aggregations.bucket.missing.Missing;
@@ -38,18 +39,20 @@ public class Facets {
 
   public static final String TOTAL = "total";
 
-  private final Map<String, LinkedHashMap<String, Long>> facetsByName = new LinkedHashMap<>();
+  private final LinkedHashMap<String, LinkedHashMap<String, Long>> facetsByName;
+
+  public Facets(LinkedHashMap<String, LinkedHashMap<String, Long>> facetsByName) {
+    this.facetsByName = facetsByName;
+  }
 
   public Facets(SearchResponse response) {
-    if (response.getAggregations() != null) {
-      for (Aggregation facet : response.getAggregations()) {
+    this.facetsByName = new LinkedHashMap<>();
+    Aggregations aggregations = response.getAggregations();
+    if (aggregations != null) {
+      for (Aggregation facet : aggregations) {
         processAggregation(facet);
       }
     }
-  }
-
-  public Facets(Terms terms) {
-    processTermsAggregation(terms);
   }
 
   private void processAggregation(Aggregation aggregation) {

@@ -20,59 +20,138 @@ syntax = "proto2";
 
 package sonarqube.ws.issues;
 
-import "ws-common.proto";
+import "ws-commons.proto";
 
 option java_package = "org.sonarqube.ws";
 option java_outer_classname = "Issues";
 option optimize_for = SPEED;
 
-// Response of URL api/issues/search
+// Response of GET api/issues/search
 message Search {
-  // TODO errors
-  optional Paging paging = 1;
-  repeated Issue issues = 2;
-  repeated Facet facets = 3;
-  repeated Component projects = 4;
-  repeated Component components = 5;
-  repeated Rule rules = 6;
-  repeated User users = 7;
+  optional int64 total = 1;
+  optional int64 p = 2;
+  optional int32 ps = 3;
+  optional sonarqube.ws.commons.Paging paging = 4;
+
+  // Total amount of debt, only when the facet "total" is enabled
+  optional int64 debtTotal = 5;
+
+  repeated Issue issues = 6;
+  repeated Component components = 7;
+  optional bool rulesPresentIfEmpty = 8;
+  repeated sonarqube.ws.commons.Rule rules = 9;
+  optional bool usersPresentIfEmpty = 10;
+  repeated sonarqube.ws.commons.User users = 11;
+  optional bool actionPlansPresentIfEmpty = 12;
+  repeated ActionPlan actionPlans = 13;
+  optional bool languagesPresentIfEmpty = 14;
+  repeated Language languages = 15;
+  optional bool facetsPresentIfEmpty = 16;
+  repeated sonarqube.ws.commons.Facet facets = 17;
 }
+
+// Response of most of POST/issues/{operation}, for instance assign, add_comment and set_severity
+message Operation {
+  optional Issue issue = 1;
+  repeated Component components = 2;
+  repeated sonarqube.ws.commons.Rule rules = 3;
+  repeated sonarqube.ws.commons.User users = 4;
+  repeated ActionPlan actionPlans = 5;
+}
+
 
 message Issue {
   optional string key = 1;
   optional string rule = 2;
-  optional string component = 3;
-  optional int32 componentId = 4;
-  optional string project = 5;
-  optional string subProject = 6;
-  optional int32 line = 7;
-  optional string resolution = 8;
-  optional string status = 9;
-  optional string message = 10;
-  optional string debt = 11;
-  optional string assignee = 12;
-  optional string reporter = 13;
-  optional string scmAuthor = 14;
-  optional string actionPlan = 15;
-  optional string actionPlanName = 16;
-  optional string attr = 17;
-  repeated string tags = 18;
-  repeated string transitions = 19;
-  repeated string actions = 20;
-  repeated Comment comments = 21;
-  optional string creationDate= 22;
-  optional string updateDate= 23;
-  optional string fUpdateAge= 24;
-  optional string closeDate= 25;
+  optional sonarqube.ws.commons.Severity severity = 3;
+  optional string component = 4;
+  optional int64 componentId = 5;
+  optional string project = 6;
+  optional string subProject = 7;
+  optional int32 line = 8;
+  optional sonarqube.ws.commons.TextRange textRange = 9;
+  repeated Location secondaryLocations = 10;
+  repeated ExecutionFlow executionFlows = 11;
+  optional string resolution = 12;
+  optional string status = 13;
+  optional string message = 14;
+  optional string debt = 15;
+  optional string assignee = 16;
+  optional string reporter = 17;
+
+  // SCM login of the committer who introduced the issue
+  optional string author = 18;
+
+  optional string actionPlan = 19;
+  optional bool tagsPresentIfEmpty = 20;
+  repeated string tags = 21;
+
+  // the transitions allowed for the requesting user.
+  optional bool transitionsPresentIfEmpty = 22;
+  repeated string transitions = 23;
+
+  // the actions allowed for the requesting user.
+  optional bool actionsPresentIfEmpty = 24;
+  repeated string actions = 25;
+
+  optional bool commentsPresentIfEmpty = 26;
+  repeated Comment comments = 27;
+  optional string creationDate = 28;
+  optional string updateDate = 29;
+  optional string fUpdateAge = 30;
+  optional string closeDate = 31;
+}
+
+message ExecutionFlow {
+  repeated Location locations = 1;
+}
+
+message Location {
+  optional string componentId = 1;
+  // Only when component is a file. Can be empty for a file if this is an issue global to the file.
+  optional sonarqube.ws.commons.TextRange textRange = 2;
+  optional string msg = 3;
 }
 
 message Comment {
   optional string key = 1;
   optional string login = 2;
+  // TODO drop, it's already in field "users"
   optional string email = 3;
+  // TODO drop, it's already in field "users"
   optional string userName = 4;
   optional string htmlText = 5;
+  // TODO rename markdownText ?
   optional string markdown = 6;
   optional bool updatable = 7;
   optional string createdAt = 8;
+}
+
+message ActionPlan {
+  optional string key = 1;
+  optional string name = 2;
+
+  // TODO define enum
+  optional string status = 3;
+  optional string deadLine = 4;
+  // TODO to be renamed, is it id or key ?
+  optional string project = 5;
+}
+
+message Language {
+  optional string key = 1;
+  optional string name = 2;
+}
+
+message Component {
+  optional int64 id = 1;
+  optional string key = 2;
+  optional string uuid = 3;
+  optional bool enabled = 4;
+  optional string qualifier = 5;
+  optional string name = 6;
+  optional string longName = 7;
+  optional string path = 8;
+  optional int64 projectId = 9;
+  optional int64 subProjectId = 10;
 }

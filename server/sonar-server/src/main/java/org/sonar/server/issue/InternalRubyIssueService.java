@@ -20,69 +20,41 @@
 package org.sonar.server.issue;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
-import org.sonar.api.issue.action.Action;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.user.User;
 import org.sonar.api.utils.SonarException;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.workflow.Transition;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
 import org.sonar.db.component.ResourceQuery;
 import org.sonar.db.issue.IssueFilterDto;
-import org.sonar.server.component.ws.ComponentJsonWriter;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.issue.filter.IssueFilterService;
-import org.sonar.server.issue.ws.IssueComponentHelper;
-import org.sonar.server.issue.ws.IssueJsonWriter;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.index.UserIndex;
-import org.sonar.server.user.ws.UserJsonWriter;
 import org.sonar.server.util.RubyUtils;
 import org.sonar.server.util.Validation;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * Used through ruby code <pre>Internal.issues</pre>
@@ -102,50 +74,33 @@ public class InternalRubyIssueService {
 
   private static final String ACTION_PLANS_ERRORS_ACTION_PLAN_DOES_NOT_EXIST_MESSAGE = "action_plans.errors.action_plan_does_not_exist";
 
-  private static final List<String> ISSUE_FIELDS = ImmutableList.copyOf(IssueJsonWriter.SELECTABLE_FIELDS);
-
   private final IssueService issueService;
   private final IssueQueryService issueQueryService;
   private final IssueCommentService commentService;
   private final IssueChangelogService changelogService;
   private final ActionPlanService actionPlanService;
   private final ResourceDao resourceDao;
-  private final ActionService actionService;
   private final IssueFilterService issueFilterService;
   private final IssueBulkChangeService issueBulkChangeService;
-  private final IssueJsonWriter issueWriter;
-  private final IssueComponentHelper issueComponentHelper;
-  private final ComponentJsonWriter componentWriter;
-  private final UserIndex userIndex;
-  private final DbClient dbClient;
   private final UserSession userSession;
-  private final UserJsonWriter userWriter;
 
   public InternalRubyIssueService(
     IssueService issueService,
     IssueQueryService issueQueryService,
     IssueCommentService commentService,
     IssueChangelogService changelogService, ActionPlanService actionPlanService,
-    ResourceDao resourceDao, ActionService actionService,
+    ResourceDao resourceDao,
     IssueFilterService issueFilterService, IssueBulkChangeService issueBulkChangeService,
-    IssueJsonWriter issueWriter, IssueComponentHelper issueComponentHelper, ComponentJsonWriter componentWriter, UserIndex userIndex, DbClient dbClient,
-    UserSession userSession, UserJsonWriter userWriter) {
+    UserSession userSession) {
     this.issueService = issueService;
     this.issueQueryService = issueQueryService;
     this.commentService = commentService;
     this.changelogService = changelogService;
     this.actionPlanService = actionPlanService;
     this.resourceDao = resourceDao;
-    this.actionService = actionService;
     this.issueFilterService = issueFilterService;
     this.issueBulkChangeService = issueBulkChangeService;
-    this.issueWriter = issueWriter;
-    this.issueComponentHelper = issueComponentHelper;
-    this.componentWriter = componentWriter;
-    this.userIndex = userIndex;
-    this.dbClient = dbClient;
     this.userSession = userSession;
-    this.userWriter = userWriter;
   }
 
   public List<Transition> listTransitions(String issueKey) {
@@ -176,10 +131,6 @@ public class InternalRubyIssueService {
     return changelogService.formatDiffs(diffs);
   }
 
-  public List<String> listPluginActions() {
-    return newArrayList(Iterables.transform(actionService.listAllActions(), ActionToKey.INSTANCE));
-  }
-
   public List<DefaultIssueComment> findComments(String issueKey) {
     return commentService.findComments(issueKey);
   }
@@ -188,50 +139,10 @@ public class InternalRubyIssueService {
     return commentService.findComments(issueKeys);
   }
 
-  public Result<Issue> doTransition(String issueKey, String transitionKey) {
-    Result<Issue> result = Result.of();
-    try {
-      result.set(issueService.doTransition(issueKey, transitionKey));
-    } catch (Exception e) {
-      result.addError(e.getMessage());
-    }
-    return result;
-  }
-
-  public Result<Issue> assign(String issueKey, @Nullable String assignee) {
-    Result<Issue> result = Result.of();
-    try {
-      result.set(issueService.assign(issueKey, StringUtils.defaultIfBlank(assignee, null)));
-    } catch (Exception e) {
-      result.addError(e.getMessage());
-    }
-    return result;
-  }
-
-  public Result<Issue> setSeverity(String issueKey, String severity) {
-    Result<Issue> result = Result.of();
-    try {
-      result.set(issueService.setSeverity(issueKey, severity));
-    } catch (Exception e) {
-      result.addError(e.getMessage());
-    }
-    return result;
-  }
-
-  public Result<Issue> plan(String issueKey, @Nullable String actionPlanKey) {
-    Result<Issue> result = Result.of();
-    try {
-      result.set(issueService.plan(issueKey, actionPlanKey));
-    } catch (Exception e) {
-      result.addError(e.getMessage());
-    }
-    return result;
-  }
-
   public Result<IssueComment> addComment(String issueKey, String text) {
     Result<IssueComment> result = Result.of();
     try {
-      result.set(commentService.addComment(issueKey, text, userSession));
+      result.set(commentService.addComment(issueKey, text));
     } catch (Exception e) {
       result.addError(e.getMessage());
     }
@@ -239,13 +150,13 @@ public class InternalRubyIssueService {
   }
 
   public IssueComment deleteComment(String commentKey) {
-    return commentService.deleteComment(commentKey, userSession);
+    return commentService.deleteComment(commentKey);
   }
 
   public Result<IssueComment> editComment(String commentKey, String newText) {
     Result<IssueComment> result = Result.of();
     try {
-      result.set(commentService.editComment(commentKey, newText, userSession));
+      result.set(commentService.editComment(commentKey, newText));
     } catch (Exception e) {
       result.addError(e.getMessage());
     }
@@ -254,37 +165,6 @@ public class InternalRubyIssueService {
 
   public IssueComment findComment(String commentKey) {
     return commentService.findComment(commentKey);
-  }
-
-  /**
-   * Create manual issue
-   */
-  public Result<DefaultIssue> create(Map<String, String> params) {
-    Result<DefaultIssue> result = Result.of();
-    try {
-      // mandatory parameters
-      String componentKey = params.get("component");
-      if (StringUtils.isBlank(componentKey)) {
-        result.addError("Component is not set");
-      }
-      RuleKey ruleKey = null;
-      String rule = params.get("rule");
-      if (StringUtils.isBlank(rule)) {
-        result.addError(Result.Message.ofL10n("issue.manual.missing_rule"));
-      } else {
-        ruleKey = RuleKey.parse(rule);
-      }
-
-      if (result.ok()) {
-        DefaultIssue issue = issueService.createManualIssue(componentKey, ruleKey, RubyUtils.toInteger(params.get("line")), params.get("message"), params.get("severity"),
-          RubyUtils.toDouble(params.get("effortToFix")));
-        result.set(issue);
-      }
-
-    } catch (Exception e) {
-      result.addError(e.getMessage());
-    }
-    return result;
   }
 
   public Collection<ActionPlan> findOpenActionPlans(String projectKey) {
@@ -432,24 +312,6 @@ public class InternalRubyIssueService {
       result.addError(Result.Message.ofL10n(ACTION_PLANS_ERRORS_ACTION_PLAN_DOES_NOT_EXIST_MESSAGE, actionPlanKey));
     }
     return result;
-  }
-
-  public Result<Issue> executeAction(String issueKey, String actionKey) {
-    Result<Issue> result = Result.of();
-    try {
-      result.set(actionService.execute(issueKey, actionKey, userSession));
-    } catch (Exception e) {
-      result.addError(e.getMessage());
-    }
-    return result;
-  }
-
-  public List<Action> listActions(String issueKey) {
-    return actionService.listAvailableActions(issueKey);
-  }
-
-  public List<Action> listActions(Issue issue) {
-    return actionService.listAvailableActions(issue);
   }
 
   public IssueQuery emptyIssueQuery() {
@@ -688,113 +550,6 @@ public class InternalRubyIssueService {
 
   public boolean isUserIssueAdmin(String projectUuid) {
     return userSession.hasProjectPermissionByUuid(UserRole.ISSUE_ADMIN, projectUuid);
-  }
-
-  /**
-   * Used by issue modification actions currently implemented in Rails
-   *
-   * @return the JSON representation of the modified issue, as a ready to use string
-   */
-  public String writeIssueJson(@Nullable Issue original) {
-    if (original == null) {
-      return "{}";
-    }
-
-    // Reloading from ES to avoid partial object, e.g for manual issues
-    Issue issue = issueService.getByKey(original.key());
-
-    StringWriter writer = new StringWriter();
-    JsonWriter json = JsonWriter.of(writer);
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      Map<String, User> usersByLogin = getIssueUsersByLogin(issue);
-
-      Set<String> componentUuids = ImmutableSet.of(issue.componentUuid());
-      Set<String> projectUuids = Sets.newHashSet();
-      Set<ComponentDto> componentDtos = Sets.newHashSet();
-      List<ComponentDto> projectDtos = Lists.newArrayList();
-
-      Map<String, ComponentDto> componentsByUuid = Maps.newHashMap();
-      Map<String, ComponentDto> projectsByComponentUuid = Maps.newHashMap();
-
-      List<ComponentDto> fileDtos = dbClient.componentDao().selectByUuids(dbSession, componentUuids);
-      List<ComponentDto> subProjectDtos = dbClient.componentDao().selectSubProjectsByComponentUuids(dbSession, componentUuids);
-      componentDtos.addAll(fileDtos);
-      componentDtos.addAll(subProjectDtos);
-      for (ComponentDto component : componentDtos) {
-        projectUuids.add(component.projectUuid());
-      }
-      projectDtos.addAll(dbClient.componentDao().selectByUuids(dbSession, projectUuids));
-      componentDtos.addAll(projectDtos);
-
-      for (ComponentDto componentDto : componentDtos) {
-        componentsByUuid.put(componentDto.uuid(), componentDto);
-      }
-
-      projectsByComponentUuid = issueComponentHelper.prepareComponentsAndProjects(projectUuids, componentUuids, componentsByUuid, componentDtos, subProjectDtos, dbSession);
-
-      Map<String, ActionPlan> actionPlans = newHashMap();
-      String actionPlanKey = issue.actionPlanKey();
-      if (actionPlanKey != null) {
-        actionPlans.put(actionPlanKey, actionPlanService.findByKey(actionPlanKey, userSession));
-      }
-
-      json.beginObject().name("issue");
-      issueWriter.write(json, issue,
-        usersByLogin,
-        componentsByUuid,
-        projectsByComponentUuid,
-        ImmutableMultimap.<String, DefaultIssueComment>of(),
-        actionPlans,
-        ISSUE_FIELDS);
-
-      json.name("users").beginArray();
-      String assignee = issue.assignee();
-      if (assignee != null && usersByLogin.containsKey(assignee)) {
-        userWriter.write(json, usersByLogin.get(assignee));
-      }
-      json.endArray();
-
-      json.name("projects").beginArray();
-      for (ComponentDto project : projectDtos) {
-        componentWriter.write(json, project, project);
-      }
-      json.endArray();
-
-      json.name("components").beginArray();
-      for (ComponentDto component : componentDtos) {
-        componentWriter.write(json, component, projectsByComponentUuid.get(component.uuid()));
-      }
-      json.endArray();
-
-      json.endObject().close();
-    } finally {
-      MyBatis.closeQuietly(dbSession);
-      IOUtils.closeQuietly(writer);
-    }
-    return writer.toString();
-  }
-
-  private Map<String, User> getIssueUsersByLogin(Issue issue) {
-    Map<String, User> usersByLogin = Maps.newHashMap();
-    String assignee = issue.assignee();
-    if (assignee != null) {
-      usersByLogin.put(assignee, userIndex.getByLogin(assignee));
-    }
-    String reporter = issue.reporter();
-    if (reporter != null) {
-      usersByLogin.put(reporter, userIndex.getByLogin(reporter));
-    }
-    return usersByLogin;
-  }
-
-  private enum ActionToKey implements Function<Action, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull Action input) {
-      return input.key();
-    }
   }
 
   private enum MatchIssueFilterParameters implements Predicate<Map.Entry<String, Object>> {

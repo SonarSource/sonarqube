@@ -51,7 +51,6 @@ import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.debt.DebtModelService;
-import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueChangelog;
 import org.sonar.server.issue.IssueChangelogService;
 import org.sonar.server.issue.IssueCommentService;
@@ -102,9 +101,6 @@ public class ShowActionTest {
   ActionPlanService actionPlanService;
 
   @Mock
-  ActionService actionService;
-
-  @Mock
   UserFinder userFinder;
 
   @Mock
@@ -150,9 +146,8 @@ public class ShowActionTest {
     tester = new WsTester(new IssuesWs(
       new ShowAction(
         dbClient, issueService, issueChangelogService, commentService,
-        new IssueActionsWriter(issueService, actionService, userSessionRule),
-        actionPlanService, userFinder, debtModel, ruleService, i18n, durations, userSessionRule)
-    ));
+        new IssueActionsWriter(issueService, userSessionRule),
+        actionPlanService, userFinder, debtModel, ruleService, i18n, durations, userSessionRule)));
   }
 
   @Test
@@ -431,8 +426,7 @@ public class ShowActionTest {
         .setKey("COMMENT-ABCE")
         .setMarkdownText("Another comment")
         .setUserLogin("arthur")
-        .setCreatedAt(date2)
-    ));
+        .setCreatedAt(date2)));
 
     when(userFinder.findByLogin("john")).thenReturn(new DefaultUser().setLogin("john").setName("John"));
     when(userFinder.findByLogin("arthur")).thenReturn(new DefaultUser().setLogin("arthur").setName("Arthur"));

@@ -18,15 +18,15 @@
 
 syntax = "proto2";
 
-package sonarqube.ws;
+package sonarqube.ws.commons;
 
 option java_package = "org.sonarqube.ws";
 option java_outer_classname = "Common";
 option optimize_for = SPEED;
 
 message Paging {
-  optional int32 page_index = 1;
-  optional int32 page_size = 2;
+  optional int32 pageIndex = 1;
+  optional int32 pageSize = 2;
   optional int32 total = 3;
   optional int32 pages = 4;
 }
@@ -42,28 +42,20 @@ message FacetValue {
   optional int64 count = 2;
 }
 
-message Component {
-  optional string uuid = 1;
-  optional string key = 2;
-  optional int32 id = 3;
-  optional bool enabled = 4;
-  optional string qualifier = 5;
-  optional string name = 6;
-  optional string longName = 7;
-  optional string path = 8;
-  optional int32 projectId = 9;
-  optional int32 subProjectId = 10;
+enum Severity {
+  INFO = 0;
+  MINOR = 1;
+  MAJOR = 2;
+  CRITICAL = 3;
+  BLOCKER = 4;
 }
 
 message Rule {
   optional string key = 1;
   optional string name = 2;
   optional string lang = 3;
-  // TODO what's the format ?
-  optional string desc = 4;
-  optional RuleStatus status = 5;
-  // TODO missing 'lang'
-  optional string langName = 6;
+  optional RuleStatus status = 4;
+  optional string langName = 5;
 }
 
 enum RuleStatus {
@@ -78,4 +70,19 @@ message User {
   optional string name = 2;
   optional string email = 3;
   optional bool active = 4;
+}
+
+// Lines start at 1 and line offsets start at 0
+message TextRange {
+  // Start line. Should never be absent
+  optional int32 startLine = 1;
+
+  // End line (inclusive). Absent means it is same as start line
+  optional int32 endLine = 2;
+
+  // If absent it means range starts at the first offset of start line
+  optional int32 startOffset = 3;
+
+  // If absent it means range ends at the last offset of end line
+  optional int32 endOffset = 4;
 }

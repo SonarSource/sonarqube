@@ -42,14 +42,15 @@ import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.FileSources;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.ActionPlanDto;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
+import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentTesting;
@@ -59,9 +60,10 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionChange;
+import org.sonar.server.permission.PermissionService;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.source.index.SourceLineIndexer;
@@ -70,7 +72,6 @@ import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.db.user.GroupDao;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -309,7 +310,7 @@ public class IssueServiceMediumTest {
     tester.get(RuleDao.class).insert(session, manualRule);
     session.commit();
 
-    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), null, "Fix it", Severity.MINOR, 2d);
+    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), null, "Fix it", Severity.MINOR);
 
     IssueDoc manualIssue = IssueIndex.getByKey(result.key());
     assertThat(manualIssue.componentUuid()).isEqualTo(file.uuid());
@@ -318,7 +319,6 @@ public class IssueServiceMediumTest {
     assertThat(manualIssue.message()).isEqualTo("Fix it");
     assertThat(manualIssue.line()).isNull();
     assertThat(manualIssue.severity()).isEqualTo(Severity.MINOR);
-    assertThat(manualIssue.effortToFix()).isEqualTo(2d);
     assertThat(manualIssue.reporter()).isEqualTo("john");
   }
 
@@ -335,7 +335,7 @@ public class IssueServiceMediumTest {
     tester.get(RuleDao.class).insert(session, manualRule);
     session.commit();
 
-    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), 1, "Fix it", Severity.MINOR, 2d);
+    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), 1, "Fix it", Severity.MINOR);
 
     IssueDoc manualIssue = IssueIndex.getByKey(result.key());
     assertThat(manualIssue.componentUuid()).isEqualTo(file.uuid());
@@ -344,7 +344,7 @@ public class IssueServiceMediumTest {
     assertThat(manualIssue.message()).isEqualTo("Fix it");
     assertThat(manualIssue.line()).isEqualTo(1);
     assertThat(manualIssue.severity()).isEqualTo(Severity.MINOR);
-    assertThat(manualIssue.effortToFix()).isEqualTo(2d);
+    assertThat(manualIssue.effortToFix()).isNull();
     assertThat(manualIssue.reporter()).isEqualTo("john");
     assertThat(manualIssue.assignee()).isEqualTo("arthur");
   }
@@ -359,7 +359,7 @@ public class IssueServiceMediumTest {
     tester.get(RuleDao.class).insert(session, manualRule);
     session.commit();
 
-    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), null, "Fix it", null, 2d);
+    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), null, "Fix it", null);
 
     Issue manualIssue = IssueIndex.getByKey(result.key());
     assertThat(manualIssue.severity()).isEqualTo(Severity.MAJOR);
@@ -375,7 +375,7 @@ public class IssueServiceMediumTest {
     tester.get(RuleDao.class).insert(session, manualRule);
     session.commit();
 
-    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), null, null, null, 2d);
+    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), null, null, null);
 
     Issue manualIssue = IssueIndex.getByKey(result.key());
     assertThat(manualIssue.message()).isEqualTo("Manual rule name");
@@ -395,7 +395,7 @@ public class IssueServiceMediumTest {
     tester.get(RuleDao.class).insert(session, manualRule);
     session.commit();
 
-    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), 1, "Fix it", Severity.MINOR, 2d);
+    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), 1, "Fix it", Severity.MINOR);
 
     IssueDoc manualIssue = IssueIndex.getByKey(result.key());
     assertThat(manualIssue.assignee()).isNull();
@@ -413,7 +413,7 @@ public class IssueServiceMediumTest {
     tester.get(RuleDao.class).insert(session, manualRule);
     session.commit();
 
-    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), 1, "Fix it", Severity.MINOR, 2d);
+    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), 1, "Fix it", Severity.MINOR);
 
     IssueDoc manualIssue = IssueIndex.getByKey(result.key());
     assertThat(manualIssue.assignee()).isNull();
@@ -427,7 +427,7 @@ public class IssueServiceMediumTest {
     userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
 
     try {
-      service.createManualIssue(file.key(), rule.getKey(), null, "Fix it", null, 2d);
+      service.createManualIssue(file.key(), rule.getKey(), null, "Fix it", null);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Issues can be created only on rules marked as 'manual': xoo:x1");
@@ -440,7 +440,7 @@ public class IssueServiceMediumTest {
     ComponentDto file = newFile(project);
     userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
 
-    service.createManualIssue(file.key(), RuleKey.of("rule", "unknown"), 10, "Fix it", null, 2d);
+    service.createManualIssue(file.key(), RuleKey.of("rule", "unknown"), 10, "Fix it", null);
   }
 
   @Test(expected = ForbiddenException.class)
@@ -456,7 +456,7 @@ public class IssueServiceMediumTest {
     tester.get(RuleDao.class).insert(session, manualRule);
     session.commit();
 
-    service.createManualIssue(file.key(), rule.getKey(), 10, "Fix it", null, 2d);
+    service.createManualIssue(file.key(), rule.getKey(), 10, "Fix it", null);
   }
 
   @Test(expected = NotFoundException.class)
@@ -468,7 +468,7 @@ public class IssueServiceMediumTest {
     tester.get(RuleDao.class).insert(session, manualRule);
     session.commit();
 
-    service.createManualIssue("UNKNOWN", manualRule.getKey(), null, "Fix it", Severity.MINOR, 2d);
+    service.createManualIssue("UNKNOWN", manualRule.getKey(), null, "Fix it", Severity.MINOR);
   }
 
   @Test
@@ -478,7 +478,7 @@ public class IssueServiceMediumTest {
     ComponentDto file = newFile(project);
     saveIssue(IssueTesting.newDto(rule, file, project));
 
-    List<IssueDoc> result = service.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs();
+    List<IssueDoc> result = service.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions().addFields(IssueIndexDefinition.FIELD_ISSUE_KEY)).getDocs();
     assertThat(result).hasSize(1);
   }
 
@@ -608,7 +608,7 @@ public class IssueServiceMediumTest {
   }
 
   private void newSourceLine(ComponentDto file, int line, String scmAuthor) {
-    FileSources.Data.Builder dataBuilder = FileSources.Data.newBuilder();
+    DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
     dataBuilder.addLinesBuilder()
       .setLine(line)
       .setScmAuthor(scmAuthor)

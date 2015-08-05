@@ -32,11 +32,9 @@ import static org.sonar.db.version.AddColumnsBuilder.ColumnDef.Type.STRING;
  * - component_uuid
  */
 public class AddManualMeasuresComponentUuidColumn extends DdlChange {
-  private final Database db;
 
   public AddManualMeasuresComponentUuidColumn(Database db) {
     super(db);
-    this.db = db;
   }
 
   @Override
@@ -45,14 +43,13 @@ public class AddManualMeasuresComponentUuidColumn extends DdlChange {
   }
 
   private String generateSql() {
-    return new AddColumnsBuilder(db.getDialect(), "manual_measures")
+    return new AddColumnsBuilder(getDatabase().getDialect(), "manual_measures")
       .addColumn(
         new AddColumnsBuilder.ColumnDef()
           .setName("component_uuid")
           .setType(STRING)
           .setLimit(50)
-          .setNullable(true)
-      )
+          .setNullable(true))
       .build();
   }
 }

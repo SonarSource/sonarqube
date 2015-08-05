@@ -13,179 +13,280 @@ public final class Issues {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional .sonarqube.ws.Paging paging = 1;</code>
-     *
-     * <pre>
-     * TODO errors
-     * </pre>
+     * <code>optional int64 total = 1;</code>
+     */
+    boolean hasTotal();
+    /**
+     * <code>optional int64 total = 1;</code>
+     */
+    long getTotal();
+
+    /**
+     * <code>optional int64 p = 2;</code>
+     */
+    boolean hasP();
+    /**
+     * <code>optional int64 p = 2;</code>
+     */
+    long getP();
+
+    /**
+     * <code>optional int32 ps = 3;</code>
+     */
+    boolean hasPs();
+    /**
+     * <code>optional int32 ps = 3;</code>
+     */
+    int getPs();
+
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 4;</code>
      */
     boolean hasPaging();
     /**
-     * <code>optional .sonarqube.ws.Paging paging = 1;</code>
-     *
-     * <pre>
-     * TODO errors
-     * </pre>
+     * <code>optional .sonarqube.ws.commons.Paging paging = 4;</code>
      */
     org.sonarqube.ws.Common.Paging getPaging();
     /**
-     * <code>optional .sonarqube.ws.Paging paging = 1;</code>
-     *
-     * <pre>
-     * TODO errors
-     * </pre>
+     * <code>optional .sonarqube.ws.commons.Paging paging = 4;</code>
      */
     org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder();
 
     /**
-     * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+     * <code>optional int64 debtTotal = 5;</code>
+     *
+     * <pre>
+     * Total amount of debt, only when the facet "total" is enabled
+     * </pre>
+     */
+    boolean hasDebtTotal();
+    /**
+     * <code>optional int64 debtTotal = 5;</code>
+     *
+     * <pre>
+     * Total amount of debt, only when the facet "total" is enabled
+     * </pre>
+     */
+    long getDebtTotal();
+
+    /**
+     * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
      */
     java.util.List<org.sonarqube.ws.Issues.Issue> 
         getIssuesList();
     /**
-     * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+     * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
      */
     org.sonarqube.ws.Issues.Issue getIssues(int index);
     /**
-     * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+     * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
      */
     int getIssuesCount();
     /**
-     * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+     * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
      */
     java.util.List<? extends org.sonarqube.ws.Issues.IssueOrBuilder> 
         getIssuesOrBuilderList();
     /**
-     * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+     * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
      */
     org.sonarqube.ws.Issues.IssueOrBuilder getIssuesOrBuilder(
         int index);
 
     /**
-     * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
+     * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
      */
-    java.util.List<org.sonarqube.ws.Common.Facet> 
-        getFacetsList();
-    /**
-     * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-     */
-    org.sonarqube.ws.Common.Facet getFacets(int index);
-    /**
-     * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-     */
-    int getFacetsCount();
-    /**
-     * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-     */
-    java.util.List<? extends org.sonarqube.ws.Common.FacetOrBuilder> 
-        getFacetsOrBuilderList();
-    /**
-     * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-     */
-    org.sonarqube.ws.Common.FacetOrBuilder getFacetsOrBuilder(
-        int index);
-
-    /**
-     * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-     */
-    java.util.List<org.sonarqube.ws.Common.Component> 
-        getProjectsList();
-    /**
-     * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-     */
-    org.sonarqube.ws.Common.Component getProjects(int index);
-    /**
-     * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-     */
-    int getProjectsCount();
-    /**
-     * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-     */
-    java.util.List<? extends org.sonarqube.ws.Common.ComponentOrBuilder> 
-        getProjectsOrBuilderList();
-    /**
-     * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-     */
-    org.sonarqube.ws.Common.ComponentOrBuilder getProjectsOrBuilder(
-        int index);
-
-    /**
-     * <code>repeated .sonarqube.ws.Component components = 5;</code>
-     */
-    java.util.List<org.sonarqube.ws.Common.Component> 
+    java.util.List<org.sonarqube.ws.Issues.Component> 
         getComponentsList();
     /**
-     * <code>repeated .sonarqube.ws.Component components = 5;</code>
+     * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
      */
-    org.sonarqube.ws.Common.Component getComponents(int index);
+    org.sonarqube.ws.Issues.Component getComponents(int index);
     /**
-     * <code>repeated .sonarqube.ws.Component components = 5;</code>
+     * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
      */
     int getComponentsCount();
     /**
-     * <code>repeated .sonarqube.ws.Component components = 5;</code>
+     * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
      */
-    java.util.List<? extends org.sonarqube.ws.Common.ComponentOrBuilder> 
+    java.util.List<? extends org.sonarqube.ws.Issues.ComponentOrBuilder> 
         getComponentsOrBuilderList();
     /**
-     * <code>repeated .sonarqube.ws.Component components = 5;</code>
+     * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
      */
-    org.sonarqube.ws.Common.ComponentOrBuilder getComponentsOrBuilder(
+    org.sonarqube.ws.Issues.ComponentOrBuilder getComponentsOrBuilder(
         int index);
 
     /**
-     * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+     * <code>optional bool rulesPresentIfEmpty = 8;</code>
+     */
+    boolean hasRulesPresentIfEmpty();
+    /**
+     * <code>optional bool rulesPresentIfEmpty = 8;</code>
+     */
+    boolean getRulesPresentIfEmpty();
+
+    /**
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
      */
     java.util.List<org.sonarqube.ws.Common.Rule> 
         getRulesList();
     /**
-     * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
      */
     org.sonarqube.ws.Common.Rule getRules(int index);
     /**
-     * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
      */
     int getRulesCount();
     /**
-     * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
      */
     java.util.List<? extends org.sonarqube.ws.Common.RuleOrBuilder> 
         getRulesOrBuilderList();
     /**
-     * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
      */
     org.sonarqube.ws.Common.RuleOrBuilder getRulesOrBuilder(
         int index);
 
     /**
-     * <code>repeated .sonarqube.ws.User users = 7;</code>
+     * <code>optional bool usersPresentIfEmpty = 10;</code>
+     */
+    boolean hasUsersPresentIfEmpty();
+    /**
+     * <code>optional bool usersPresentIfEmpty = 10;</code>
+     */
+    boolean getUsersPresentIfEmpty();
+
+    /**
+     * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
      */
     java.util.List<org.sonarqube.ws.Common.User> 
         getUsersList();
     /**
-     * <code>repeated .sonarqube.ws.User users = 7;</code>
+     * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
      */
     org.sonarqube.ws.Common.User getUsers(int index);
     /**
-     * <code>repeated .sonarqube.ws.User users = 7;</code>
+     * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
      */
     int getUsersCount();
     /**
-     * <code>repeated .sonarqube.ws.User users = 7;</code>
+     * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
      */
     java.util.List<? extends org.sonarqube.ws.Common.UserOrBuilder> 
         getUsersOrBuilderList();
     /**
-     * <code>repeated .sonarqube.ws.User users = 7;</code>
+     * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
      */
     org.sonarqube.ws.Common.UserOrBuilder getUsersOrBuilder(
+        int index);
+
+    /**
+     * <code>optional bool actionPlansPresentIfEmpty = 12;</code>
+     */
+    boolean hasActionPlansPresentIfEmpty();
+    /**
+     * <code>optional bool actionPlansPresentIfEmpty = 12;</code>
+     */
+    boolean getActionPlansPresentIfEmpty();
+
+    /**
+     * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+     */
+    java.util.List<org.sonarqube.ws.Issues.ActionPlan> 
+        getActionPlansList();
+    /**
+     * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+     */
+    org.sonarqube.ws.Issues.ActionPlan getActionPlans(int index);
+    /**
+     * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+     */
+    int getActionPlansCount();
+    /**
+     * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+     */
+    java.util.List<? extends org.sonarqube.ws.Issues.ActionPlanOrBuilder> 
+        getActionPlansOrBuilderList();
+    /**
+     * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+     */
+    org.sonarqube.ws.Issues.ActionPlanOrBuilder getActionPlansOrBuilder(
+        int index);
+
+    /**
+     * <code>optional bool languagesPresentIfEmpty = 14;</code>
+     */
+    boolean hasLanguagesPresentIfEmpty();
+    /**
+     * <code>optional bool languagesPresentIfEmpty = 14;</code>
+     */
+    boolean getLanguagesPresentIfEmpty();
+
+    /**
+     * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+     */
+    java.util.List<org.sonarqube.ws.Issues.Language> 
+        getLanguagesList();
+    /**
+     * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+     */
+    org.sonarqube.ws.Issues.Language getLanguages(int index);
+    /**
+     * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+     */
+    int getLanguagesCount();
+    /**
+     * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+     */
+    java.util.List<? extends org.sonarqube.ws.Issues.LanguageOrBuilder> 
+        getLanguagesOrBuilderList();
+    /**
+     * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+     */
+    org.sonarqube.ws.Issues.LanguageOrBuilder getLanguagesOrBuilder(
+        int index);
+
+    /**
+     * <code>optional bool facetsPresentIfEmpty = 16;</code>
+     */
+    boolean hasFacetsPresentIfEmpty();
+    /**
+     * <code>optional bool facetsPresentIfEmpty = 16;</code>
+     */
+    boolean getFacetsPresentIfEmpty();
+
+    /**
+     * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+     */
+    java.util.List<org.sonarqube.ws.Common.Facet> 
+        getFacetsList();
+    /**
+     * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+     */
+    org.sonarqube.ws.Common.Facet getFacets(int index);
+    /**
+     * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+     */
+    int getFacetsCount();
+    /**
+     * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+     */
+    java.util.List<? extends org.sonarqube.ws.Common.FacetOrBuilder> 
+        getFacetsOrBuilderList();
+    /**
+     * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+     */
+    org.sonarqube.ws.Common.FacetOrBuilder getFacetsOrBuilder(
         int index);
   }
   /**
    * Protobuf type {@code sonarqube.ws.issues.Search}
    *
    * <pre>
-   * Response of URL api/issues/search
+   * Response of GET api/issues/search
    * </pre>
    */
   public static final class Search extends
@@ -237,9 +338,24 @@ public final class Issues {
               }
               break;
             }
-            case 10: {
+            case 8: {
+              bitField0_ |= 0x00000001;
+              total_ = input.readInt64();
+              break;
+            }
+            case 16: {
+              bitField0_ |= 0x00000002;
+              p_ = input.readInt64();
+              break;
+            }
+            case 24: {
+              bitField0_ |= 0x00000004;
+              ps_ = input.readInt32();
+              break;
+            }
+            case 34: {
               org.sonarqube.ws.Common.Paging.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000001) == 0x00000001)) {
+              if (((bitField0_ & 0x00000008) == 0x00000008)) {
                 subBuilder = paging_.toBuilder();
               }
               paging_ = input.readMessage(org.sonarqube.ws.Common.Paging.PARSER, extensionRegistry);
@@ -247,55 +363,93 @@ public final class Issues {
                 subBuilder.mergeFrom(paging_);
                 paging_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00000001;
+              bitField0_ |= 0x00000008;
               break;
             }
-            case 18: {
-              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                issues_ = new java.util.ArrayList<org.sonarqube.ws.Issues.Issue>();
-                mutable_bitField0_ |= 0x00000002;
-              }
-              issues_.add(input.readMessage(org.sonarqube.ws.Issues.Issue.PARSER, extensionRegistry));
-              break;
-            }
-            case 26: {
-              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-                facets_ = new java.util.ArrayList<org.sonarqube.ws.Common.Facet>();
-                mutable_bitField0_ |= 0x00000004;
-              }
-              facets_.add(input.readMessage(org.sonarqube.ws.Common.Facet.PARSER, extensionRegistry));
-              break;
-            }
-            case 34: {
-              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
-                projects_ = new java.util.ArrayList<org.sonarqube.ws.Common.Component>();
-                mutable_bitField0_ |= 0x00000008;
-              }
-              projects_.add(input.readMessage(org.sonarqube.ws.Common.Component.PARSER, extensionRegistry));
-              break;
-            }
-            case 42: {
-              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
-                components_ = new java.util.ArrayList<org.sonarqube.ws.Common.Component>();
-                mutable_bitField0_ |= 0x00000010;
-              }
-              components_.add(input.readMessage(org.sonarqube.ws.Common.Component.PARSER, extensionRegistry));
+            case 40: {
+              bitField0_ |= 0x00000010;
+              debtTotal_ = input.readInt64();
               break;
             }
             case 50: {
               if (!((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
-                rules_ = new java.util.ArrayList<org.sonarqube.ws.Common.Rule>();
+                issues_ = new java.util.ArrayList<org.sonarqube.ws.Issues.Issue>();
                 mutable_bitField0_ |= 0x00000020;
               }
-              rules_.add(input.readMessage(org.sonarqube.ws.Common.Rule.PARSER, extensionRegistry));
+              issues_.add(input.readMessage(org.sonarqube.ws.Issues.Issue.PARSER, extensionRegistry));
               break;
             }
             case 58: {
               if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
-                users_ = new java.util.ArrayList<org.sonarqube.ws.Common.User>();
+                components_ = new java.util.ArrayList<org.sonarqube.ws.Issues.Component>();
                 mutable_bitField0_ |= 0x00000040;
               }
+              components_.add(input.readMessage(org.sonarqube.ws.Issues.Component.PARSER, extensionRegistry));
+              break;
+            }
+            case 64: {
+              bitField0_ |= 0x00000020;
+              rulesPresentIfEmpty_ = input.readBool();
+              break;
+            }
+            case 74: {
+              if (!((mutable_bitField0_ & 0x00000100) == 0x00000100)) {
+                rules_ = new java.util.ArrayList<org.sonarqube.ws.Common.Rule>();
+                mutable_bitField0_ |= 0x00000100;
+              }
+              rules_.add(input.readMessage(org.sonarqube.ws.Common.Rule.PARSER, extensionRegistry));
+              break;
+            }
+            case 80: {
+              bitField0_ |= 0x00000040;
+              usersPresentIfEmpty_ = input.readBool();
+              break;
+            }
+            case 90: {
+              if (!((mutable_bitField0_ & 0x00000400) == 0x00000400)) {
+                users_ = new java.util.ArrayList<org.sonarqube.ws.Common.User>();
+                mutable_bitField0_ |= 0x00000400;
+              }
               users_.add(input.readMessage(org.sonarqube.ws.Common.User.PARSER, extensionRegistry));
+              break;
+            }
+            case 96: {
+              bitField0_ |= 0x00000080;
+              actionPlansPresentIfEmpty_ = input.readBool();
+              break;
+            }
+            case 106: {
+              if (!((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
+                actionPlans_ = new java.util.ArrayList<org.sonarqube.ws.Issues.ActionPlan>();
+                mutable_bitField0_ |= 0x00001000;
+              }
+              actionPlans_.add(input.readMessage(org.sonarqube.ws.Issues.ActionPlan.PARSER, extensionRegistry));
+              break;
+            }
+            case 112: {
+              bitField0_ |= 0x00000100;
+              languagesPresentIfEmpty_ = input.readBool();
+              break;
+            }
+            case 122: {
+              if (!((mutable_bitField0_ & 0x00004000) == 0x00004000)) {
+                languages_ = new java.util.ArrayList<org.sonarqube.ws.Issues.Language>();
+                mutable_bitField0_ |= 0x00004000;
+              }
+              languages_.add(input.readMessage(org.sonarqube.ws.Issues.Language.PARSER, extensionRegistry));
+              break;
+            }
+            case 128: {
+              bitField0_ |= 0x00000200;
+              facetsPresentIfEmpty_ = input.readBool();
+              break;
+            }
+            case 138: {
+              if (!((mutable_bitField0_ & 0x00010000) == 0x00010000)) {
+                facets_ = new java.util.ArrayList<org.sonarqube.ws.Common.Facet>();
+                mutable_bitField0_ |= 0x00010000;
+              }
+              facets_.add(input.readMessage(org.sonarqube.ws.Common.Facet.PARSER, extensionRegistry));
               break;
             }
           }
@@ -306,23 +460,26 @@ public final class Issues {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
           issues_ = java.util.Collections.unmodifiableList(issues_);
         }
-        if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-          facets_ = java.util.Collections.unmodifiableList(facets_);
-        }
-        if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
-          projects_ = java.util.Collections.unmodifiableList(projects_);
-        }
-        if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
           components_ = java.util.Collections.unmodifiableList(components_);
         }
-        if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
+        if (((mutable_bitField0_ & 0x00000100) == 0x00000100)) {
           rules_ = java.util.Collections.unmodifiableList(rules_);
         }
-        if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+        if (((mutable_bitField0_ & 0x00000400) == 0x00000400)) {
           users_ = java.util.Collections.unmodifiableList(users_);
+        }
+        if (((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
+          actionPlans_ = java.util.Collections.unmodifiableList(actionPlans_);
+        }
+        if (((mutable_bitField0_ & 0x00004000) == 0x00004000)) {
+          languages_ = java.util.Collections.unmodifiableList(languages_);
+        }
+        if (((mutable_bitField0_ & 0x00010000) == 0x00010000)) {
+          facets_ = java.util.Collections.unmodifiableList(facets_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -356,257 +513,433 @@ public final class Issues {
     }
 
     private int bitField0_;
-    public static final int PAGING_FIELD_NUMBER = 1;
-    private org.sonarqube.ws.Common.Paging paging_;
+    public static final int TOTAL_FIELD_NUMBER = 1;
+    private long total_;
     /**
-     * <code>optional .sonarqube.ws.Paging paging = 1;</code>
-     *
-     * <pre>
-     * TODO errors
-     * </pre>
+     * <code>optional int64 total = 1;</code>
      */
-    public boolean hasPaging() {
+    public boolean hasTotal() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional .sonarqube.ws.Paging paging = 1;</code>
-     *
-     * <pre>
-     * TODO errors
-     * </pre>
+     * <code>optional int64 total = 1;</code>
+     */
+    public long getTotal() {
+      return total_;
+    }
+
+    public static final int P_FIELD_NUMBER = 2;
+    private long p_;
+    /**
+     * <code>optional int64 p = 2;</code>
+     */
+    public boolean hasP() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional int64 p = 2;</code>
+     */
+    public long getP() {
+      return p_;
+    }
+
+    public static final int PS_FIELD_NUMBER = 3;
+    private int ps_;
+    /**
+     * <code>optional int32 ps = 3;</code>
+     */
+    public boolean hasPs() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional int32 ps = 3;</code>
+     */
+    public int getPs() {
+      return ps_;
+    }
+
+    public static final int PAGING_FIELD_NUMBER = 4;
+    private org.sonarqube.ws.Common.Paging paging_;
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 4;</code>
+     */
+    public boolean hasPaging() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 4;</code>
      */
     public org.sonarqube.ws.Common.Paging getPaging() {
       return paging_;
     }
     /**
-     * <code>optional .sonarqube.ws.Paging paging = 1;</code>
-     *
-     * <pre>
-     * TODO errors
-     * </pre>
+     * <code>optional .sonarqube.ws.commons.Paging paging = 4;</code>
      */
     public org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder() {
       return paging_;
     }
 
-    public static final int ISSUES_FIELD_NUMBER = 2;
+    public static final int DEBTTOTAL_FIELD_NUMBER = 5;
+    private long debtTotal_;
+    /**
+     * <code>optional int64 debtTotal = 5;</code>
+     *
+     * <pre>
+     * Total amount of debt, only when the facet "total" is enabled
+     * </pre>
+     */
+    public boolean hasDebtTotal() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>optional int64 debtTotal = 5;</code>
+     *
+     * <pre>
+     * Total amount of debt, only when the facet "total" is enabled
+     * </pre>
+     */
+    public long getDebtTotal() {
+      return debtTotal_;
+    }
+
+    public static final int ISSUES_FIELD_NUMBER = 6;
     private java.util.List<org.sonarqube.ws.Issues.Issue> issues_;
     /**
-     * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+     * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
      */
     public java.util.List<org.sonarqube.ws.Issues.Issue> getIssuesList() {
       return issues_;
     }
     /**
-     * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+     * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
      */
     public java.util.List<? extends org.sonarqube.ws.Issues.IssueOrBuilder> 
         getIssuesOrBuilderList() {
       return issues_;
     }
     /**
-     * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+     * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
      */
     public int getIssuesCount() {
       return issues_.size();
     }
     /**
-     * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+     * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
      */
     public org.sonarqube.ws.Issues.Issue getIssues(int index) {
       return issues_.get(index);
     }
     /**
-     * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+     * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
      */
     public org.sonarqube.ws.Issues.IssueOrBuilder getIssuesOrBuilder(
         int index) {
       return issues_.get(index);
     }
 
-    public static final int FACETS_FIELD_NUMBER = 3;
-    private java.util.List<org.sonarqube.ws.Common.Facet> facets_;
+    public static final int COMPONENTS_FIELD_NUMBER = 7;
+    private java.util.List<org.sonarqube.ws.Issues.Component> components_;
     /**
-     * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
+     * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
      */
-    public java.util.List<org.sonarqube.ws.Common.Facet> getFacetsList() {
-      return facets_;
-    }
-    /**
-     * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-     */
-    public java.util.List<? extends org.sonarqube.ws.Common.FacetOrBuilder> 
-        getFacetsOrBuilderList() {
-      return facets_;
-    }
-    /**
-     * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-     */
-    public int getFacetsCount() {
-      return facets_.size();
-    }
-    /**
-     * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-     */
-    public org.sonarqube.ws.Common.Facet getFacets(int index) {
-      return facets_.get(index);
-    }
-    /**
-     * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-     */
-    public org.sonarqube.ws.Common.FacetOrBuilder getFacetsOrBuilder(
-        int index) {
-      return facets_.get(index);
-    }
-
-    public static final int PROJECTS_FIELD_NUMBER = 4;
-    private java.util.List<org.sonarqube.ws.Common.Component> projects_;
-    /**
-     * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-     */
-    public java.util.List<org.sonarqube.ws.Common.Component> getProjectsList() {
-      return projects_;
-    }
-    /**
-     * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-     */
-    public java.util.List<? extends org.sonarqube.ws.Common.ComponentOrBuilder> 
-        getProjectsOrBuilderList() {
-      return projects_;
-    }
-    /**
-     * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-     */
-    public int getProjectsCount() {
-      return projects_.size();
-    }
-    /**
-     * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-     */
-    public org.sonarqube.ws.Common.Component getProjects(int index) {
-      return projects_.get(index);
-    }
-    /**
-     * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-     */
-    public org.sonarqube.ws.Common.ComponentOrBuilder getProjectsOrBuilder(
-        int index) {
-      return projects_.get(index);
-    }
-
-    public static final int COMPONENTS_FIELD_NUMBER = 5;
-    private java.util.List<org.sonarqube.ws.Common.Component> components_;
-    /**
-     * <code>repeated .sonarqube.ws.Component components = 5;</code>
-     */
-    public java.util.List<org.sonarqube.ws.Common.Component> getComponentsList() {
+    public java.util.List<org.sonarqube.ws.Issues.Component> getComponentsList() {
       return components_;
     }
     /**
-     * <code>repeated .sonarqube.ws.Component components = 5;</code>
+     * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
      */
-    public java.util.List<? extends org.sonarqube.ws.Common.ComponentOrBuilder> 
+    public java.util.List<? extends org.sonarqube.ws.Issues.ComponentOrBuilder> 
         getComponentsOrBuilderList() {
       return components_;
     }
     /**
-     * <code>repeated .sonarqube.ws.Component components = 5;</code>
+     * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
      */
     public int getComponentsCount() {
       return components_.size();
     }
     /**
-     * <code>repeated .sonarqube.ws.Component components = 5;</code>
+     * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
      */
-    public org.sonarqube.ws.Common.Component getComponents(int index) {
+    public org.sonarqube.ws.Issues.Component getComponents(int index) {
       return components_.get(index);
     }
     /**
-     * <code>repeated .sonarqube.ws.Component components = 5;</code>
+     * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
      */
-    public org.sonarqube.ws.Common.ComponentOrBuilder getComponentsOrBuilder(
+    public org.sonarqube.ws.Issues.ComponentOrBuilder getComponentsOrBuilder(
         int index) {
       return components_.get(index);
     }
 
-    public static final int RULES_FIELD_NUMBER = 6;
+    public static final int RULESPRESENTIFEMPTY_FIELD_NUMBER = 8;
+    private boolean rulesPresentIfEmpty_;
+    /**
+     * <code>optional bool rulesPresentIfEmpty = 8;</code>
+     */
+    public boolean hasRulesPresentIfEmpty() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    /**
+     * <code>optional bool rulesPresentIfEmpty = 8;</code>
+     */
+    public boolean getRulesPresentIfEmpty() {
+      return rulesPresentIfEmpty_;
+    }
+
+    public static final int RULES_FIELD_NUMBER = 9;
     private java.util.List<org.sonarqube.ws.Common.Rule> rules_;
     /**
-     * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
      */
     public java.util.List<org.sonarqube.ws.Common.Rule> getRulesList() {
       return rules_;
     }
     /**
-     * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
      */
     public java.util.List<? extends org.sonarqube.ws.Common.RuleOrBuilder> 
         getRulesOrBuilderList() {
       return rules_;
     }
     /**
-     * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
      */
     public int getRulesCount() {
       return rules_.size();
     }
     /**
-     * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
      */
     public org.sonarqube.ws.Common.Rule getRules(int index) {
       return rules_.get(index);
     }
     /**
-     * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
      */
     public org.sonarqube.ws.Common.RuleOrBuilder getRulesOrBuilder(
         int index) {
       return rules_.get(index);
     }
 
-    public static final int USERS_FIELD_NUMBER = 7;
+    public static final int USERSPRESENTIFEMPTY_FIELD_NUMBER = 10;
+    private boolean usersPresentIfEmpty_;
+    /**
+     * <code>optional bool usersPresentIfEmpty = 10;</code>
+     */
+    public boolean hasUsersPresentIfEmpty() {
+      return ((bitField0_ & 0x00000040) == 0x00000040);
+    }
+    /**
+     * <code>optional bool usersPresentIfEmpty = 10;</code>
+     */
+    public boolean getUsersPresentIfEmpty() {
+      return usersPresentIfEmpty_;
+    }
+
+    public static final int USERS_FIELD_NUMBER = 11;
     private java.util.List<org.sonarqube.ws.Common.User> users_;
     /**
-     * <code>repeated .sonarqube.ws.User users = 7;</code>
+     * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
      */
     public java.util.List<org.sonarqube.ws.Common.User> getUsersList() {
       return users_;
     }
     /**
-     * <code>repeated .sonarqube.ws.User users = 7;</code>
+     * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
      */
     public java.util.List<? extends org.sonarqube.ws.Common.UserOrBuilder> 
         getUsersOrBuilderList() {
       return users_;
     }
     /**
-     * <code>repeated .sonarqube.ws.User users = 7;</code>
+     * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
      */
     public int getUsersCount() {
       return users_.size();
     }
     /**
-     * <code>repeated .sonarqube.ws.User users = 7;</code>
+     * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
      */
     public org.sonarqube.ws.Common.User getUsers(int index) {
       return users_.get(index);
     }
     /**
-     * <code>repeated .sonarqube.ws.User users = 7;</code>
+     * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
      */
     public org.sonarqube.ws.Common.UserOrBuilder getUsersOrBuilder(
         int index) {
       return users_.get(index);
     }
 
+    public static final int ACTIONPLANSPRESENTIFEMPTY_FIELD_NUMBER = 12;
+    private boolean actionPlansPresentIfEmpty_;
+    /**
+     * <code>optional bool actionPlansPresentIfEmpty = 12;</code>
+     */
+    public boolean hasActionPlansPresentIfEmpty() {
+      return ((bitField0_ & 0x00000080) == 0x00000080);
+    }
+    /**
+     * <code>optional bool actionPlansPresentIfEmpty = 12;</code>
+     */
+    public boolean getActionPlansPresentIfEmpty() {
+      return actionPlansPresentIfEmpty_;
+    }
+
+    public static final int ACTIONPLANS_FIELD_NUMBER = 13;
+    private java.util.List<org.sonarqube.ws.Issues.ActionPlan> actionPlans_;
+    /**
+     * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+     */
+    public java.util.List<org.sonarqube.ws.Issues.ActionPlan> getActionPlansList() {
+      return actionPlans_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+     */
+    public java.util.List<? extends org.sonarqube.ws.Issues.ActionPlanOrBuilder> 
+        getActionPlansOrBuilderList() {
+      return actionPlans_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+     */
+    public int getActionPlansCount() {
+      return actionPlans_.size();
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+     */
+    public org.sonarqube.ws.Issues.ActionPlan getActionPlans(int index) {
+      return actionPlans_.get(index);
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+     */
+    public org.sonarqube.ws.Issues.ActionPlanOrBuilder getActionPlansOrBuilder(
+        int index) {
+      return actionPlans_.get(index);
+    }
+
+    public static final int LANGUAGESPRESENTIFEMPTY_FIELD_NUMBER = 14;
+    private boolean languagesPresentIfEmpty_;
+    /**
+     * <code>optional bool languagesPresentIfEmpty = 14;</code>
+     */
+    public boolean hasLanguagesPresentIfEmpty() {
+      return ((bitField0_ & 0x00000100) == 0x00000100);
+    }
+    /**
+     * <code>optional bool languagesPresentIfEmpty = 14;</code>
+     */
+    public boolean getLanguagesPresentIfEmpty() {
+      return languagesPresentIfEmpty_;
+    }
+
+    public static final int LANGUAGES_FIELD_NUMBER = 15;
+    private java.util.List<org.sonarqube.ws.Issues.Language> languages_;
+    /**
+     * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+     */
+    public java.util.List<org.sonarqube.ws.Issues.Language> getLanguagesList() {
+      return languages_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+     */
+    public java.util.List<? extends org.sonarqube.ws.Issues.LanguageOrBuilder> 
+        getLanguagesOrBuilderList() {
+      return languages_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+     */
+    public int getLanguagesCount() {
+      return languages_.size();
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+     */
+    public org.sonarqube.ws.Issues.Language getLanguages(int index) {
+      return languages_.get(index);
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+     */
+    public org.sonarqube.ws.Issues.LanguageOrBuilder getLanguagesOrBuilder(
+        int index) {
+      return languages_.get(index);
+    }
+
+    public static final int FACETSPRESENTIFEMPTY_FIELD_NUMBER = 16;
+    private boolean facetsPresentIfEmpty_;
+    /**
+     * <code>optional bool facetsPresentIfEmpty = 16;</code>
+     */
+    public boolean hasFacetsPresentIfEmpty() {
+      return ((bitField0_ & 0x00000200) == 0x00000200);
+    }
+    /**
+     * <code>optional bool facetsPresentIfEmpty = 16;</code>
+     */
+    public boolean getFacetsPresentIfEmpty() {
+      return facetsPresentIfEmpty_;
+    }
+
+    public static final int FACETS_FIELD_NUMBER = 17;
+    private java.util.List<org.sonarqube.ws.Common.Facet> facets_;
+    /**
+     * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+     */
+    public java.util.List<org.sonarqube.ws.Common.Facet> getFacetsList() {
+      return facets_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+     */
+    public java.util.List<? extends org.sonarqube.ws.Common.FacetOrBuilder> 
+        getFacetsOrBuilderList() {
+      return facets_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+     */
+    public int getFacetsCount() {
+      return facets_.size();
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+     */
+    public org.sonarqube.ws.Common.Facet getFacets(int index) {
+      return facets_.get(index);
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+     */
+    public org.sonarqube.ws.Common.FacetOrBuilder getFacetsOrBuilder(
+        int index) {
+      return facets_.get(index);
+    }
+
     private void initFields() {
+      total_ = 0L;
+      p_ = 0L;
+      ps_ = 0;
       paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
+      debtTotal_ = 0L;
       issues_ = java.util.Collections.emptyList();
-      facets_ = java.util.Collections.emptyList();
-      projects_ = java.util.Collections.emptyList();
       components_ = java.util.Collections.emptyList();
+      rulesPresentIfEmpty_ = false;
       rules_ = java.util.Collections.emptyList();
+      usersPresentIfEmpty_ = false;
       users_ = java.util.Collections.emptyList();
+      actionPlansPresentIfEmpty_ = false;
+      actionPlans_ = java.util.Collections.emptyList();
+      languagesPresentIfEmpty_ = false;
+      languages_ = java.util.Collections.emptyList();
+      facetsPresentIfEmpty_ = false;
+      facets_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -622,25 +955,55 @@ public final class Issues {
                         throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeMessage(1, paging_);
+        output.writeInt64(1, total_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeInt64(2, p_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeInt32(3, ps_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        output.writeMessage(4, paging_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeInt64(5, debtTotal_);
       }
       for (int i = 0; i < issues_.size(); i++) {
-        output.writeMessage(2, issues_.get(i));
-      }
-      for (int i = 0; i < facets_.size(); i++) {
-        output.writeMessage(3, facets_.get(i));
-      }
-      for (int i = 0; i < projects_.size(); i++) {
-        output.writeMessage(4, projects_.get(i));
+        output.writeMessage(6, issues_.get(i));
       }
       for (int i = 0; i < components_.size(); i++) {
-        output.writeMessage(5, components_.get(i));
+        output.writeMessage(7, components_.get(i));
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        output.writeBool(8, rulesPresentIfEmpty_);
       }
       for (int i = 0; i < rules_.size(); i++) {
-        output.writeMessage(6, rules_.get(i));
+        output.writeMessage(9, rules_.get(i));
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        output.writeBool(10, usersPresentIfEmpty_);
       }
       for (int i = 0; i < users_.size(); i++) {
-        output.writeMessage(7, users_.get(i));
+        output.writeMessage(11, users_.get(i));
+      }
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+        output.writeBool(12, actionPlansPresentIfEmpty_);
+      }
+      for (int i = 0; i < actionPlans_.size(); i++) {
+        output.writeMessage(13, actionPlans_.get(i));
+      }
+      if (((bitField0_ & 0x00000100) == 0x00000100)) {
+        output.writeBool(14, languagesPresentIfEmpty_);
+      }
+      for (int i = 0; i < languages_.size(); i++) {
+        output.writeMessage(15, languages_.get(i));
+      }
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+        output.writeBool(16, facetsPresentIfEmpty_);
+      }
+      for (int i = 0; i < facets_.size(); i++) {
+        output.writeMessage(17, facets_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -653,31 +1016,71 @@ public final class Issues {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1, paging_);
+          .computeInt64Size(1, total_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(2, p_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(3, ps_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(4, paging_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(5, debtTotal_);
       }
       for (int i = 0; i < issues_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, issues_.get(i));
-      }
-      for (int i = 0; i < facets_.size(); i++) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(3, facets_.get(i));
-      }
-      for (int i = 0; i < projects_.size(); i++) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(4, projects_.get(i));
+          .computeMessageSize(6, issues_.get(i));
       }
       for (int i = 0; i < components_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(5, components_.get(i));
+          .computeMessageSize(7, components_.get(i));
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(8, rulesPresentIfEmpty_);
       }
       for (int i = 0; i < rules_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(6, rules_.get(i));
+          .computeMessageSize(9, rules_.get(i));
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(10, usersPresentIfEmpty_);
       }
       for (int i = 0; i < users_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(7, users_.get(i));
+          .computeMessageSize(11, users_.get(i));
+      }
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(12, actionPlansPresentIfEmpty_);
+      }
+      for (int i = 0; i < actionPlans_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(13, actionPlans_.get(i));
+      }
+      if (((bitField0_ & 0x00000100) == 0x00000100)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(14, languagesPresentIfEmpty_);
+      }
+      for (int i = 0; i < languages_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(15, languages_.get(i));
+      }
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(16, facetsPresentIfEmpty_);
+      }
+      for (int i = 0; i < facets_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(17, facets_.get(i));
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -761,7 +1164,7 @@ public final class Issues {
      * Protobuf type {@code sonarqube.ws.issues.Search}
      *
      * <pre>
-     * Response of URL api/issues/search
+     * Response of GET api/issues/search
      * </pre>
      */
     public static final class Builder extends
@@ -794,11 +1197,12 @@ public final class Issues {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           getPagingFieldBuilder();
           getIssuesFieldBuilder();
-          getFacetsFieldBuilder();
-          getProjectsFieldBuilder();
           getComponentsFieldBuilder();
           getRulesFieldBuilder();
           getUsersFieldBuilder();
+          getActionPlansFieldBuilder();
+          getLanguagesFieldBuilder();
+          getFacetsFieldBuilder();
         }
       }
       private static Builder create() {
@@ -807,47 +1211,71 @@ public final class Issues {
 
       public Builder clear() {
         super.clear();
+        total_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        p_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        ps_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000004);
         if (pagingBuilder_ == null) {
           paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
         } else {
           pagingBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000001);
+        bitField0_ = (bitField0_ & ~0x00000008);
+        debtTotal_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000010);
         if (issuesBuilder_ == null) {
           issues_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000002);
+          bitField0_ = (bitField0_ & ~0x00000020);
         } else {
           issuesBuilder_.clear();
         }
-        if (facetsBuilder_ == null) {
-          facets_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000004);
-        } else {
-          facetsBuilder_.clear();
-        }
-        if (projectsBuilder_ == null) {
-          projects_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000008);
-        } else {
-          projectsBuilder_.clear();
-        }
         if (componentsBuilder_ == null) {
           components_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000010);
+          bitField0_ = (bitField0_ & ~0x00000040);
         } else {
           componentsBuilder_.clear();
         }
+        rulesPresentIfEmpty_ = false;
+        bitField0_ = (bitField0_ & ~0x00000080);
         if (rulesBuilder_ == null) {
           rules_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000020);
+          bitField0_ = (bitField0_ & ~0x00000100);
         } else {
           rulesBuilder_.clear();
         }
+        usersPresentIfEmpty_ = false;
+        bitField0_ = (bitField0_ & ~0x00000200);
         if (usersBuilder_ == null) {
           users_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000040);
+          bitField0_ = (bitField0_ & ~0x00000400);
         } else {
           usersBuilder_.clear();
+        }
+        actionPlansPresentIfEmpty_ = false;
+        bitField0_ = (bitField0_ & ~0x00000800);
+        if (actionPlansBuilder_ == null) {
+          actionPlans_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00001000);
+        } else {
+          actionPlansBuilder_.clear();
+        }
+        languagesPresentIfEmpty_ = false;
+        bitField0_ = (bitField0_ & ~0x00002000);
+        if (languagesBuilder_ == null) {
+          languages_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00004000);
+        } else {
+          languagesBuilder_.clear();
+        }
+        facetsPresentIfEmpty_ = false;
+        bitField0_ = (bitField0_ & ~0x00008000);
+        if (facetsBuilder_ == null) {
+          facets_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00010000);
+        } else {
+          facetsBuilder_.clear();
         }
         return this;
       }
@@ -880,64 +1308,109 @@ public final class Issues {
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
           to_bitField0_ |= 0x00000001;
         }
+        result.total_ = total_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.p_ = p_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.ps_ = ps_;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000008;
+        }
         if (pagingBuilder_ == null) {
           result.paging_ = paging_;
         } else {
           result.paging_ = pagingBuilder_.build();
         }
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
+        }
+        result.debtTotal_ = debtTotal_;
         if (issuesBuilder_ == null) {
-          if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          if (((bitField0_ & 0x00000020) == 0x00000020)) {
             issues_ = java.util.Collections.unmodifiableList(issues_);
-            bitField0_ = (bitField0_ & ~0x00000002);
+            bitField0_ = (bitField0_ & ~0x00000020);
           }
           result.issues_ = issues_;
         } else {
           result.issues_ = issuesBuilder_.build();
         }
-        if (facetsBuilder_ == null) {
-          if (((bitField0_ & 0x00000004) == 0x00000004)) {
-            facets_ = java.util.Collections.unmodifiableList(facets_);
-            bitField0_ = (bitField0_ & ~0x00000004);
-          }
-          result.facets_ = facets_;
-        } else {
-          result.facets_ = facetsBuilder_.build();
-        }
-        if (projectsBuilder_ == null) {
-          if (((bitField0_ & 0x00000008) == 0x00000008)) {
-            projects_ = java.util.Collections.unmodifiableList(projects_);
-            bitField0_ = (bitField0_ & ~0x00000008);
-          }
-          result.projects_ = projects_;
-        } else {
-          result.projects_ = projectsBuilder_.build();
-        }
         if (componentsBuilder_ == null) {
-          if (((bitField0_ & 0x00000010) == 0x00000010)) {
+          if (((bitField0_ & 0x00000040) == 0x00000040)) {
             components_ = java.util.Collections.unmodifiableList(components_);
-            bitField0_ = (bitField0_ & ~0x00000010);
+            bitField0_ = (bitField0_ & ~0x00000040);
           }
           result.components_ = components_;
         } else {
           result.components_ = componentsBuilder_.build();
         }
+        if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
+          to_bitField0_ |= 0x00000020;
+        }
+        result.rulesPresentIfEmpty_ = rulesPresentIfEmpty_;
         if (rulesBuilder_ == null) {
-          if (((bitField0_ & 0x00000020) == 0x00000020)) {
+          if (((bitField0_ & 0x00000100) == 0x00000100)) {
             rules_ = java.util.Collections.unmodifiableList(rules_);
-            bitField0_ = (bitField0_ & ~0x00000020);
+            bitField0_ = (bitField0_ & ~0x00000100);
           }
           result.rules_ = rules_;
         } else {
           result.rules_ = rulesBuilder_.build();
         }
+        if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
+          to_bitField0_ |= 0x00000040;
+        }
+        result.usersPresentIfEmpty_ = usersPresentIfEmpty_;
         if (usersBuilder_ == null) {
-          if (((bitField0_ & 0x00000040) == 0x00000040)) {
+          if (((bitField0_ & 0x00000400) == 0x00000400)) {
             users_ = java.util.Collections.unmodifiableList(users_);
-            bitField0_ = (bitField0_ & ~0x00000040);
+            bitField0_ = (bitField0_ & ~0x00000400);
           }
           result.users_ = users_;
         } else {
           result.users_ = usersBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
+          to_bitField0_ |= 0x00000080;
+        }
+        result.actionPlansPresentIfEmpty_ = actionPlansPresentIfEmpty_;
+        if (actionPlansBuilder_ == null) {
+          if (((bitField0_ & 0x00001000) == 0x00001000)) {
+            actionPlans_ = java.util.Collections.unmodifiableList(actionPlans_);
+            bitField0_ = (bitField0_ & ~0x00001000);
+          }
+          result.actionPlans_ = actionPlans_;
+        } else {
+          result.actionPlans_ = actionPlansBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
+          to_bitField0_ |= 0x00000100;
+        }
+        result.languagesPresentIfEmpty_ = languagesPresentIfEmpty_;
+        if (languagesBuilder_ == null) {
+          if (((bitField0_ & 0x00004000) == 0x00004000)) {
+            languages_ = java.util.Collections.unmodifiableList(languages_);
+            bitField0_ = (bitField0_ & ~0x00004000);
+          }
+          result.languages_ = languages_;
+        } else {
+          result.languages_ = languagesBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00008000) == 0x00008000)) {
+          to_bitField0_ |= 0x00000200;
+        }
+        result.facetsPresentIfEmpty_ = facetsPresentIfEmpty_;
+        if (facetsBuilder_ == null) {
+          if (((bitField0_ & 0x00010000) == 0x00010000)) {
+            facets_ = java.util.Collections.unmodifiableList(facets_);
+            bitField0_ = (bitField0_ & ~0x00010000);
+          }
+          result.facets_ = facets_;
+        } else {
+          result.facets_ = facetsBuilder_.build();
         }
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -955,14 +1428,26 @@ public final class Issues {
 
       public Builder mergeFrom(org.sonarqube.ws.Issues.Search other) {
         if (other == org.sonarqube.ws.Issues.Search.getDefaultInstance()) return this;
+        if (other.hasTotal()) {
+          setTotal(other.getTotal());
+        }
+        if (other.hasP()) {
+          setP(other.getP());
+        }
+        if (other.hasPs()) {
+          setPs(other.getPs());
+        }
         if (other.hasPaging()) {
           mergePaging(other.getPaging());
+        }
+        if (other.hasDebtTotal()) {
+          setDebtTotal(other.getDebtTotal());
         }
         if (issuesBuilder_ == null) {
           if (!other.issues_.isEmpty()) {
             if (issues_.isEmpty()) {
               issues_ = other.issues_;
-              bitField0_ = (bitField0_ & ~0x00000002);
+              bitField0_ = (bitField0_ & ~0x00000020);
             } else {
               ensureIssuesIsMutable();
               issues_.addAll(other.issues_);
@@ -975,7 +1460,7 @@ public final class Issues {
               issuesBuilder_.dispose();
               issuesBuilder_ = null;
               issues_ = other.issues_;
-              bitField0_ = (bitField0_ & ~0x00000002);
+              bitField0_ = (bitField0_ & ~0x00000020);
               issuesBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getIssuesFieldBuilder() : null;
@@ -984,63 +1469,11 @@ public final class Issues {
             }
           }
         }
-        if (facetsBuilder_ == null) {
-          if (!other.facets_.isEmpty()) {
-            if (facets_.isEmpty()) {
-              facets_ = other.facets_;
-              bitField0_ = (bitField0_ & ~0x00000004);
-            } else {
-              ensureFacetsIsMutable();
-              facets_.addAll(other.facets_);
-            }
-            onChanged();
-          }
-        } else {
-          if (!other.facets_.isEmpty()) {
-            if (facetsBuilder_.isEmpty()) {
-              facetsBuilder_.dispose();
-              facetsBuilder_ = null;
-              facets_ = other.facets_;
-              bitField0_ = (bitField0_ & ~0x00000004);
-              facetsBuilder_ = 
-                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   getFacetsFieldBuilder() : null;
-            } else {
-              facetsBuilder_.addAllMessages(other.facets_);
-            }
-          }
-        }
-        if (projectsBuilder_ == null) {
-          if (!other.projects_.isEmpty()) {
-            if (projects_.isEmpty()) {
-              projects_ = other.projects_;
-              bitField0_ = (bitField0_ & ~0x00000008);
-            } else {
-              ensureProjectsIsMutable();
-              projects_.addAll(other.projects_);
-            }
-            onChanged();
-          }
-        } else {
-          if (!other.projects_.isEmpty()) {
-            if (projectsBuilder_.isEmpty()) {
-              projectsBuilder_.dispose();
-              projectsBuilder_ = null;
-              projects_ = other.projects_;
-              bitField0_ = (bitField0_ & ~0x00000008);
-              projectsBuilder_ = 
-                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   getProjectsFieldBuilder() : null;
-            } else {
-              projectsBuilder_.addAllMessages(other.projects_);
-            }
-          }
-        }
         if (componentsBuilder_ == null) {
           if (!other.components_.isEmpty()) {
             if (components_.isEmpty()) {
               components_ = other.components_;
-              bitField0_ = (bitField0_ & ~0x00000010);
+              bitField0_ = (bitField0_ & ~0x00000040);
             } else {
               ensureComponentsIsMutable();
               components_.addAll(other.components_);
@@ -1053,7 +1486,7 @@ public final class Issues {
               componentsBuilder_.dispose();
               componentsBuilder_ = null;
               components_ = other.components_;
-              bitField0_ = (bitField0_ & ~0x00000010);
+              bitField0_ = (bitField0_ & ~0x00000040);
               componentsBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getComponentsFieldBuilder() : null;
@@ -1062,11 +1495,14 @@ public final class Issues {
             }
           }
         }
+        if (other.hasRulesPresentIfEmpty()) {
+          setRulesPresentIfEmpty(other.getRulesPresentIfEmpty());
+        }
         if (rulesBuilder_ == null) {
           if (!other.rules_.isEmpty()) {
             if (rules_.isEmpty()) {
               rules_ = other.rules_;
-              bitField0_ = (bitField0_ & ~0x00000020);
+              bitField0_ = (bitField0_ & ~0x00000100);
             } else {
               ensureRulesIsMutable();
               rules_.addAll(other.rules_);
@@ -1079,7 +1515,7 @@ public final class Issues {
               rulesBuilder_.dispose();
               rulesBuilder_ = null;
               rules_ = other.rules_;
-              bitField0_ = (bitField0_ & ~0x00000020);
+              bitField0_ = (bitField0_ & ~0x00000100);
               rulesBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getRulesFieldBuilder() : null;
@@ -1088,11 +1524,14 @@ public final class Issues {
             }
           }
         }
+        if (other.hasUsersPresentIfEmpty()) {
+          setUsersPresentIfEmpty(other.getUsersPresentIfEmpty());
+        }
         if (usersBuilder_ == null) {
           if (!other.users_.isEmpty()) {
             if (users_.isEmpty()) {
               users_ = other.users_;
-              bitField0_ = (bitField0_ & ~0x00000040);
+              bitField0_ = (bitField0_ & ~0x00000400);
             } else {
               ensureUsersIsMutable();
               users_.addAll(other.users_);
@@ -1105,12 +1544,99 @@ public final class Issues {
               usersBuilder_.dispose();
               usersBuilder_ = null;
               users_ = other.users_;
-              bitField0_ = (bitField0_ & ~0x00000040);
+              bitField0_ = (bitField0_ & ~0x00000400);
               usersBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getUsersFieldBuilder() : null;
             } else {
               usersBuilder_.addAllMessages(other.users_);
+            }
+          }
+        }
+        if (other.hasActionPlansPresentIfEmpty()) {
+          setActionPlansPresentIfEmpty(other.getActionPlansPresentIfEmpty());
+        }
+        if (actionPlansBuilder_ == null) {
+          if (!other.actionPlans_.isEmpty()) {
+            if (actionPlans_.isEmpty()) {
+              actionPlans_ = other.actionPlans_;
+              bitField0_ = (bitField0_ & ~0x00001000);
+            } else {
+              ensureActionPlansIsMutable();
+              actionPlans_.addAll(other.actionPlans_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.actionPlans_.isEmpty()) {
+            if (actionPlansBuilder_.isEmpty()) {
+              actionPlansBuilder_.dispose();
+              actionPlansBuilder_ = null;
+              actionPlans_ = other.actionPlans_;
+              bitField0_ = (bitField0_ & ~0x00001000);
+              actionPlansBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getActionPlansFieldBuilder() : null;
+            } else {
+              actionPlansBuilder_.addAllMessages(other.actionPlans_);
+            }
+          }
+        }
+        if (other.hasLanguagesPresentIfEmpty()) {
+          setLanguagesPresentIfEmpty(other.getLanguagesPresentIfEmpty());
+        }
+        if (languagesBuilder_ == null) {
+          if (!other.languages_.isEmpty()) {
+            if (languages_.isEmpty()) {
+              languages_ = other.languages_;
+              bitField0_ = (bitField0_ & ~0x00004000);
+            } else {
+              ensureLanguagesIsMutable();
+              languages_.addAll(other.languages_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.languages_.isEmpty()) {
+            if (languagesBuilder_.isEmpty()) {
+              languagesBuilder_.dispose();
+              languagesBuilder_ = null;
+              languages_ = other.languages_;
+              bitField0_ = (bitField0_ & ~0x00004000);
+              languagesBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getLanguagesFieldBuilder() : null;
+            } else {
+              languagesBuilder_.addAllMessages(other.languages_);
+            }
+          }
+        }
+        if (other.hasFacetsPresentIfEmpty()) {
+          setFacetsPresentIfEmpty(other.getFacetsPresentIfEmpty());
+        }
+        if (facetsBuilder_ == null) {
+          if (!other.facets_.isEmpty()) {
+            if (facets_.isEmpty()) {
+              facets_ = other.facets_;
+              bitField0_ = (bitField0_ & ~0x00010000);
+            } else {
+              ensureFacetsIsMutable();
+              facets_.addAll(other.facets_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.facets_.isEmpty()) {
+            if (facetsBuilder_.isEmpty()) {
+              facetsBuilder_.dispose();
+              facetsBuilder_ = null;
+              facets_ = other.facets_;
+              bitField0_ = (bitField0_ & ~0x00010000);
+              facetsBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getFacetsFieldBuilder() : null;
+            } else {
+              facetsBuilder_.addAllMessages(other.facets_);
             }
           }
         }
@@ -1141,25 +1667,113 @@ public final class Issues {
       }
       private int bitField0_;
 
+      private long total_ ;
+      /**
+       * <code>optional int64 total = 1;</code>
+       */
+      public boolean hasTotal() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional int64 total = 1;</code>
+       */
+      public long getTotal() {
+        return total_;
+      }
+      /**
+       * <code>optional int64 total = 1;</code>
+       */
+      public Builder setTotal(long value) {
+        bitField0_ |= 0x00000001;
+        total_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 total = 1;</code>
+       */
+      public Builder clearTotal() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        total_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      private long p_ ;
+      /**
+       * <code>optional int64 p = 2;</code>
+       */
+      public boolean hasP() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional int64 p = 2;</code>
+       */
+      public long getP() {
+        return p_;
+      }
+      /**
+       * <code>optional int64 p = 2;</code>
+       */
+      public Builder setP(long value) {
+        bitField0_ |= 0x00000002;
+        p_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 p = 2;</code>
+       */
+      public Builder clearP() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        p_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      private int ps_ ;
+      /**
+       * <code>optional int32 ps = 3;</code>
+       */
+      public boolean hasPs() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional int32 ps = 3;</code>
+       */
+      public int getPs() {
+        return ps_;
+      }
+      /**
+       * <code>optional int32 ps = 3;</code>
+       */
+      public Builder setPs(int value) {
+        bitField0_ |= 0x00000004;
+        ps_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 ps = 3;</code>
+       */
+      public Builder clearPs() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        ps_ = 0;
+        onChanged();
+        return this;
+      }
+
       private org.sonarqube.ws.Common.Paging paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder> pagingBuilder_;
       /**
-       * <code>optional .sonarqube.ws.Paging paging = 1;</code>
-       *
-       * <pre>
-       * TODO errors
-       * </pre>
+       * <code>optional .sonarqube.ws.commons.Paging paging = 4;</code>
        */
       public boolean hasPaging() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
-       * <code>optional .sonarqube.ws.Paging paging = 1;</code>
-       *
-       * <pre>
-       * TODO errors
-       * </pre>
+       * <code>optional .sonarqube.ws.commons.Paging paging = 4;</code>
        */
       public org.sonarqube.ws.Common.Paging getPaging() {
         if (pagingBuilder_ == null) {
@@ -1169,11 +1783,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional .sonarqube.ws.Paging paging = 1;</code>
-       *
-       * <pre>
-       * TODO errors
-       * </pre>
+       * <code>optional .sonarqube.ws.commons.Paging paging = 4;</code>
        */
       public Builder setPaging(org.sonarqube.ws.Common.Paging value) {
         if (pagingBuilder_ == null) {
@@ -1185,15 +1795,11 @@ public final class Issues {
         } else {
           pagingBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00000001;
+        bitField0_ |= 0x00000008;
         return this;
       }
       /**
-       * <code>optional .sonarqube.ws.Paging paging = 1;</code>
-       *
-       * <pre>
-       * TODO errors
-       * </pre>
+       * <code>optional .sonarqube.ws.commons.Paging paging = 4;</code>
        */
       public Builder setPaging(
           org.sonarqube.ws.Common.Paging.Builder builderForValue) {
@@ -1203,19 +1809,15 @@ public final class Issues {
         } else {
           pagingBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00000001;
+        bitField0_ |= 0x00000008;
         return this;
       }
       /**
-       * <code>optional .sonarqube.ws.Paging paging = 1;</code>
-       *
-       * <pre>
-       * TODO errors
-       * </pre>
+       * <code>optional .sonarqube.ws.commons.Paging paging = 4;</code>
        */
       public Builder mergePaging(org.sonarqube.ws.Common.Paging value) {
         if (pagingBuilder_ == null) {
-          if (((bitField0_ & 0x00000001) == 0x00000001) &&
+          if (((bitField0_ & 0x00000008) == 0x00000008) &&
               paging_ != org.sonarqube.ws.Common.Paging.getDefaultInstance()) {
             paging_ =
               org.sonarqube.ws.Common.Paging.newBuilder(paging_).mergeFrom(value).buildPartial();
@@ -1226,15 +1828,11 @@ public final class Issues {
         } else {
           pagingBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00000001;
+        bitField0_ |= 0x00000008;
         return this;
       }
       /**
-       * <code>optional .sonarqube.ws.Paging paging = 1;</code>
-       *
-       * <pre>
-       * TODO errors
-       * </pre>
+       * <code>optional .sonarqube.ws.commons.Paging paging = 4;</code>
        */
       public Builder clearPaging() {
         if (pagingBuilder_ == null) {
@@ -1243,27 +1841,19 @@ public final class Issues {
         } else {
           pagingBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000001);
+        bitField0_ = (bitField0_ & ~0x00000008);
         return this;
       }
       /**
-       * <code>optional .sonarqube.ws.Paging paging = 1;</code>
-       *
-       * <pre>
-       * TODO errors
-       * </pre>
+       * <code>optional .sonarqube.ws.commons.Paging paging = 4;</code>
        */
       public org.sonarqube.ws.Common.Paging.Builder getPagingBuilder() {
-        bitField0_ |= 0x00000001;
+        bitField0_ |= 0x00000008;
         onChanged();
         return getPagingFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .sonarqube.ws.Paging paging = 1;</code>
-       *
-       * <pre>
-       * TODO errors
-       * </pre>
+       * <code>optional .sonarqube.ws.commons.Paging paging = 4;</code>
        */
       public org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder() {
         if (pagingBuilder_ != null) {
@@ -1273,11 +1863,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional .sonarqube.ws.Paging paging = 1;</code>
-       *
-       * <pre>
-       * TODO errors
-       * </pre>
+       * <code>optional .sonarqube.ws.commons.Paging paging = 4;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
           org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder> 
@@ -1293,12 +1879,60 @@ public final class Issues {
         return pagingBuilder_;
       }
 
+      private long debtTotal_ ;
+      /**
+       * <code>optional int64 debtTotal = 5;</code>
+       *
+       * <pre>
+       * Total amount of debt, only when the facet "total" is enabled
+       * </pre>
+       */
+      public boolean hasDebtTotal() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>optional int64 debtTotal = 5;</code>
+       *
+       * <pre>
+       * Total amount of debt, only when the facet "total" is enabled
+       * </pre>
+       */
+      public long getDebtTotal() {
+        return debtTotal_;
+      }
+      /**
+       * <code>optional int64 debtTotal = 5;</code>
+       *
+       * <pre>
+       * Total amount of debt, only when the facet "total" is enabled
+       * </pre>
+       */
+      public Builder setDebtTotal(long value) {
+        bitField0_ |= 0x00000010;
+        debtTotal_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 debtTotal = 5;</code>
+       *
+       * <pre>
+       * Total amount of debt, only when the facet "total" is enabled
+       * </pre>
+       */
+      public Builder clearDebtTotal() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        debtTotal_ = 0L;
+        onChanged();
+        return this;
+      }
+
       private java.util.List<org.sonarqube.ws.Issues.Issue> issues_ =
         java.util.Collections.emptyList();
       private void ensureIssuesIsMutable() {
-        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+        if (!((bitField0_ & 0x00000020) == 0x00000020)) {
           issues_ = new java.util.ArrayList<org.sonarqube.ws.Issues.Issue>(issues_);
-          bitField0_ |= 0x00000002;
+          bitField0_ |= 0x00000020;
          }
       }
 
@@ -1306,7 +1940,7 @@ public final class Issues {
           org.sonarqube.ws.Issues.Issue, org.sonarqube.ws.Issues.Issue.Builder, org.sonarqube.ws.Issues.IssueOrBuilder> issuesBuilder_;
 
       /**
-       * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+       * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
        */
       public java.util.List<org.sonarqube.ws.Issues.Issue> getIssuesList() {
         if (issuesBuilder_ == null) {
@@ -1316,7 +1950,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+       * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
        */
       public int getIssuesCount() {
         if (issuesBuilder_ == null) {
@@ -1326,7 +1960,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+       * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
        */
       public org.sonarqube.ws.Issues.Issue getIssues(int index) {
         if (issuesBuilder_ == null) {
@@ -1336,7 +1970,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+       * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
        */
       public Builder setIssues(
           int index, org.sonarqube.ws.Issues.Issue value) {
@@ -1353,7 +1987,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+       * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
        */
       public Builder setIssues(
           int index, org.sonarqube.ws.Issues.Issue.Builder builderForValue) {
@@ -1367,7 +2001,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+       * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
        */
       public Builder addIssues(org.sonarqube.ws.Issues.Issue value) {
         if (issuesBuilder_ == null) {
@@ -1383,7 +2017,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+       * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
        */
       public Builder addIssues(
           int index, org.sonarqube.ws.Issues.Issue value) {
@@ -1400,7 +2034,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+       * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
        */
       public Builder addIssues(
           org.sonarqube.ws.Issues.Issue.Builder builderForValue) {
@@ -1414,7 +2048,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+       * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
        */
       public Builder addIssues(
           int index, org.sonarqube.ws.Issues.Issue.Builder builderForValue) {
@@ -1428,7 +2062,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+       * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
        */
       public Builder addAllIssues(
           java.lang.Iterable<? extends org.sonarqube.ws.Issues.Issue> values) {
@@ -1443,12 +2077,12 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+       * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
        */
       public Builder clearIssues() {
         if (issuesBuilder_ == null) {
           issues_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000002);
+          bitField0_ = (bitField0_ & ~0x00000020);
           onChanged();
         } else {
           issuesBuilder_.clear();
@@ -1456,7 +2090,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+       * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
        */
       public Builder removeIssues(int index) {
         if (issuesBuilder_ == null) {
@@ -1469,14 +2103,14 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+       * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
        */
       public org.sonarqube.ws.Issues.Issue.Builder getIssuesBuilder(
           int index) {
         return getIssuesFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+       * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
        */
       public org.sonarqube.ws.Issues.IssueOrBuilder getIssuesOrBuilder(
           int index) {
@@ -1486,7 +2120,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+       * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
        */
       public java.util.List<? extends org.sonarqube.ws.Issues.IssueOrBuilder> 
            getIssuesOrBuilderList() {
@@ -1497,14 +2131,14 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+       * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
        */
       public org.sonarqube.ws.Issues.Issue.Builder addIssuesBuilder() {
         return getIssuesFieldBuilder().addBuilder(
             org.sonarqube.ws.Issues.Issue.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+       * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
        */
       public org.sonarqube.ws.Issues.Issue.Builder addIssuesBuilder(
           int index) {
@@ -1512,7 +2146,7 @@ public final class Issues {
             index, org.sonarqube.ws.Issues.Issue.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Issue issues = 2;</code>
+       * <code>repeated .sonarqube.ws.issues.Issue issues = 6;</code>
        */
       public java.util.List<org.sonarqube.ws.Issues.Issue.Builder> 
            getIssuesBuilderList() {
@@ -1525,7 +2159,7 @@ public final class Issues {
           issuesBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.sonarqube.ws.Issues.Issue, org.sonarqube.ws.Issues.Issue.Builder, org.sonarqube.ws.Issues.IssueOrBuilder>(
                   issues_,
-                  ((bitField0_ & 0x00000002) == 0x00000002),
+                  ((bitField0_ & 0x00000020) == 0x00000020),
                   getParentForChildren(),
                   isClean());
           issues_ = null;
@@ -1533,502 +2167,22 @@ public final class Issues {
         return issuesBuilder_;
       }
 
-      private java.util.List<org.sonarqube.ws.Common.Facet> facets_ =
-        java.util.Collections.emptyList();
-      private void ensureFacetsIsMutable() {
-        if (!((bitField0_ & 0x00000004) == 0x00000004)) {
-          facets_ = new java.util.ArrayList<org.sonarqube.ws.Common.Facet>(facets_);
-          bitField0_ |= 0x00000004;
-         }
-      }
-
-      private com.google.protobuf.RepeatedFieldBuilder<
-          org.sonarqube.ws.Common.Facet, org.sonarqube.ws.Common.Facet.Builder, org.sonarqube.ws.Common.FacetOrBuilder> facetsBuilder_;
-
-      /**
-       * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-       */
-      public java.util.List<org.sonarqube.ws.Common.Facet> getFacetsList() {
-        if (facetsBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(facets_);
-        } else {
-          return facetsBuilder_.getMessageList();
-        }
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-       */
-      public int getFacetsCount() {
-        if (facetsBuilder_ == null) {
-          return facets_.size();
-        } else {
-          return facetsBuilder_.getCount();
-        }
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-       */
-      public org.sonarqube.ws.Common.Facet getFacets(int index) {
-        if (facetsBuilder_ == null) {
-          return facets_.get(index);
-        } else {
-          return facetsBuilder_.getMessage(index);
-        }
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-       */
-      public Builder setFacets(
-          int index, org.sonarqube.ws.Common.Facet value) {
-        if (facetsBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureFacetsIsMutable();
-          facets_.set(index, value);
-          onChanged();
-        } else {
-          facetsBuilder_.setMessage(index, value);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-       */
-      public Builder setFacets(
-          int index, org.sonarqube.ws.Common.Facet.Builder builderForValue) {
-        if (facetsBuilder_ == null) {
-          ensureFacetsIsMutable();
-          facets_.set(index, builderForValue.build());
-          onChanged();
-        } else {
-          facetsBuilder_.setMessage(index, builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-       */
-      public Builder addFacets(org.sonarqube.ws.Common.Facet value) {
-        if (facetsBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureFacetsIsMutable();
-          facets_.add(value);
-          onChanged();
-        } else {
-          facetsBuilder_.addMessage(value);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-       */
-      public Builder addFacets(
-          int index, org.sonarqube.ws.Common.Facet value) {
-        if (facetsBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureFacetsIsMutable();
-          facets_.add(index, value);
-          onChanged();
-        } else {
-          facetsBuilder_.addMessage(index, value);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-       */
-      public Builder addFacets(
-          org.sonarqube.ws.Common.Facet.Builder builderForValue) {
-        if (facetsBuilder_ == null) {
-          ensureFacetsIsMutable();
-          facets_.add(builderForValue.build());
-          onChanged();
-        } else {
-          facetsBuilder_.addMessage(builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-       */
-      public Builder addFacets(
-          int index, org.sonarqube.ws.Common.Facet.Builder builderForValue) {
-        if (facetsBuilder_ == null) {
-          ensureFacetsIsMutable();
-          facets_.add(index, builderForValue.build());
-          onChanged();
-        } else {
-          facetsBuilder_.addMessage(index, builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-       */
-      public Builder addAllFacets(
-          java.lang.Iterable<? extends org.sonarqube.ws.Common.Facet> values) {
-        if (facetsBuilder_ == null) {
-          ensureFacetsIsMutable();
-          com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, facets_);
-          onChanged();
-        } else {
-          facetsBuilder_.addAllMessages(values);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-       */
-      public Builder clearFacets() {
-        if (facetsBuilder_ == null) {
-          facets_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000004);
-          onChanged();
-        } else {
-          facetsBuilder_.clear();
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-       */
-      public Builder removeFacets(int index) {
-        if (facetsBuilder_ == null) {
-          ensureFacetsIsMutable();
-          facets_.remove(index);
-          onChanged();
-        } else {
-          facetsBuilder_.remove(index);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-       */
-      public org.sonarqube.ws.Common.Facet.Builder getFacetsBuilder(
-          int index) {
-        return getFacetsFieldBuilder().getBuilder(index);
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-       */
-      public org.sonarqube.ws.Common.FacetOrBuilder getFacetsOrBuilder(
-          int index) {
-        if (facetsBuilder_ == null) {
-          return facets_.get(index);  } else {
-          return facetsBuilder_.getMessageOrBuilder(index);
-        }
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-       */
-      public java.util.List<? extends org.sonarqube.ws.Common.FacetOrBuilder> 
-           getFacetsOrBuilderList() {
-        if (facetsBuilder_ != null) {
-          return facetsBuilder_.getMessageOrBuilderList();
-        } else {
-          return java.util.Collections.unmodifiableList(facets_);
-        }
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-       */
-      public org.sonarqube.ws.Common.Facet.Builder addFacetsBuilder() {
-        return getFacetsFieldBuilder().addBuilder(
-            org.sonarqube.ws.Common.Facet.getDefaultInstance());
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-       */
-      public org.sonarqube.ws.Common.Facet.Builder addFacetsBuilder(
-          int index) {
-        return getFacetsFieldBuilder().addBuilder(
-            index, org.sonarqube.ws.Common.Facet.getDefaultInstance());
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Facet facets = 3;</code>
-       */
-      public java.util.List<org.sonarqube.ws.Common.Facet.Builder> 
-           getFacetsBuilderList() {
-        return getFacetsFieldBuilder().getBuilderList();
-      }
-      private com.google.protobuf.RepeatedFieldBuilder<
-          org.sonarqube.ws.Common.Facet, org.sonarqube.ws.Common.Facet.Builder, org.sonarqube.ws.Common.FacetOrBuilder> 
-          getFacetsFieldBuilder() {
-        if (facetsBuilder_ == null) {
-          facetsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.sonarqube.ws.Common.Facet, org.sonarqube.ws.Common.Facet.Builder, org.sonarqube.ws.Common.FacetOrBuilder>(
-                  facets_,
-                  ((bitField0_ & 0x00000004) == 0x00000004),
-                  getParentForChildren(),
-                  isClean());
-          facets_ = null;
-        }
-        return facetsBuilder_;
-      }
-
-      private java.util.List<org.sonarqube.ws.Common.Component> projects_ =
-        java.util.Collections.emptyList();
-      private void ensureProjectsIsMutable() {
-        if (!((bitField0_ & 0x00000008) == 0x00000008)) {
-          projects_ = new java.util.ArrayList<org.sonarqube.ws.Common.Component>(projects_);
-          bitField0_ |= 0x00000008;
-         }
-      }
-
-      private com.google.protobuf.RepeatedFieldBuilder<
-          org.sonarqube.ws.Common.Component, org.sonarqube.ws.Common.Component.Builder, org.sonarqube.ws.Common.ComponentOrBuilder> projectsBuilder_;
-
-      /**
-       * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-       */
-      public java.util.List<org.sonarqube.ws.Common.Component> getProjectsList() {
-        if (projectsBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(projects_);
-        } else {
-          return projectsBuilder_.getMessageList();
-        }
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-       */
-      public int getProjectsCount() {
-        if (projectsBuilder_ == null) {
-          return projects_.size();
-        } else {
-          return projectsBuilder_.getCount();
-        }
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-       */
-      public org.sonarqube.ws.Common.Component getProjects(int index) {
-        if (projectsBuilder_ == null) {
-          return projects_.get(index);
-        } else {
-          return projectsBuilder_.getMessage(index);
-        }
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-       */
-      public Builder setProjects(
-          int index, org.sonarqube.ws.Common.Component value) {
-        if (projectsBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureProjectsIsMutable();
-          projects_.set(index, value);
-          onChanged();
-        } else {
-          projectsBuilder_.setMessage(index, value);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-       */
-      public Builder setProjects(
-          int index, org.sonarqube.ws.Common.Component.Builder builderForValue) {
-        if (projectsBuilder_ == null) {
-          ensureProjectsIsMutable();
-          projects_.set(index, builderForValue.build());
-          onChanged();
-        } else {
-          projectsBuilder_.setMessage(index, builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-       */
-      public Builder addProjects(org.sonarqube.ws.Common.Component value) {
-        if (projectsBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureProjectsIsMutable();
-          projects_.add(value);
-          onChanged();
-        } else {
-          projectsBuilder_.addMessage(value);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-       */
-      public Builder addProjects(
-          int index, org.sonarqube.ws.Common.Component value) {
-        if (projectsBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureProjectsIsMutable();
-          projects_.add(index, value);
-          onChanged();
-        } else {
-          projectsBuilder_.addMessage(index, value);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-       */
-      public Builder addProjects(
-          org.sonarqube.ws.Common.Component.Builder builderForValue) {
-        if (projectsBuilder_ == null) {
-          ensureProjectsIsMutable();
-          projects_.add(builderForValue.build());
-          onChanged();
-        } else {
-          projectsBuilder_.addMessage(builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-       */
-      public Builder addProjects(
-          int index, org.sonarqube.ws.Common.Component.Builder builderForValue) {
-        if (projectsBuilder_ == null) {
-          ensureProjectsIsMutable();
-          projects_.add(index, builderForValue.build());
-          onChanged();
-        } else {
-          projectsBuilder_.addMessage(index, builderForValue.build());
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-       */
-      public Builder addAllProjects(
-          java.lang.Iterable<? extends org.sonarqube.ws.Common.Component> values) {
-        if (projectsBuilder_ == null) {
-          ensureProjectsIsMutable();
-          com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, projects_);
-          onChanged();
-        } else {
-          projectsBuilder_.addAllMessages(values);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-       */
-      public Builder clearProjects() {
-        if (projectsBuilder_ == null) {
-          projects_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000008);
-          onChanged();
-        } else {
-          projectsBuilder_.clear();
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-       */
-      public Builder removeProjects(int index) {
-        if (projectsBuilder_ == null) {
-          ensureProjectsIsMutable();
-          projects_.remove(index);
-          onChanged();
-        } else {
-          projectsBuilder_.remove(index);
-        }
-        return this;
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-       */
-      public org.sonarqube.ws.Common.Component.Builder getProjectsBuilder(
-          int index) {
-        return getProjectsFieldBuilder().getBuilder(index);
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-       */
-      public org.sonarqube.ws.Common.ComponentOrBuilder getProjectsOrBuilder(
-          int index) {
-        if (projectsBuilder_ == null) {
-          return projects_.get(index);  } else {
-          return projectsBuilder_.getMessageOrBuilder(index);
-        }
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-       */
-      public java.util.List<? extends org.sonarqube.ws.Common.ComponentOrBuilder> 
-           getProjectsOrBuilderList() {
-        if (projectsBuilder_ != null) {
-          return projectsBuilder_.getMessageOrBuilderList();
-        } else {
-          return java.util.Collections.unmodifiableList(projects_);
-        }
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-       */
-      public org.sonarqube.ws.Common.Component.Builder addProjectsBuilder() {
-        return getProjectsFieldBuilder().addBuilder(
-            org.sonarqube.ws.Common.Component.getDefaultInstance());
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-       */
-      public org.sonarqube.ws.Common.Component.Builder addProjectsBuilder(
-          int index) {
-        return getProjectsFieldBuilder().addBuilder(
-            index, org.sonarqube.ws.Common.Component.getDefaultInstance());
-      }
-      /**
-       * <code>repeated .sonarqube.ws.Component projects = 4;</code>
-       */
-      public java.util.List<org.sonarqube.ws.Common.Component.Builder> 
-           getProjectsBuilderList() {
-        return getProjectsFieldBuilder().getBuilderList();
-      }
-      private com.google.protobuf.RepeatedFieldBuilder<
-          org.sonarqube.ws.Common.Component, org.sonarqube.ws.Common.Component.Builder, org.sonarqube.ws.Common.ComponentOrBuilder> 
-          getProjectsFieldBuilder() {
-        if (projectsBuilder_ == null) {
-          projectsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.sonarqube.ws.Common.Component, org.sonarqube.ws.Common.Component.Builder, org.sonarqube.ws.Common.ComponentOrBuilder>(
-                  projects_,
-                  ((bitField0_ & 0x00000008) == 0x00000008),
-                  getParentForChildren(),
-                  isClean());
-          projects_ = null;
-        }
-        return projectsBuilder_;
-      }
-
-      private java.util.List<org.sonarqube.ws.Common.Component> components_ =
+      private java.util.List<org.sonarqube.ws.Issues.Component> components_ =
         java.util.Collections.emptyList();
       private void ensureComponentsIsMutable() {
-        if (!((bitField0_ & 0x00000010) == 0x00000010)) {
-          components_ = new java.util.ArrayList<org.sonarqube.ws.Common.Component>(components_);
-          bitField0_ |= 0x00000010;
+        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
+          components_ = new java.util.ArrayList<org.sonarqube.ws.Issues.Component>(components_);
+          bitField0_ |= 0x00000040;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilder<
-          org.sonarqube.ws.Common.Component, org.sonarqube.ws.Common.Component.Builder, org.sonarqube.ws.Common.ComponentOrBuilder> componentsBuilder_;
+          org.sonarqube.ws.Issues.Component, org.sonarqube.ws.Issues.Component.Builder, org.sonarqube.ws.Issues.ComponentOrBuilder> componentsBuilder_;
 
       /**
-       * <code>repeated .sonarqube.ws.Component components = 5;</code>
+       * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
        */
-      public java.util.List<org.sonarqube.ws.Common.Component> getComponentsList() {
+      public java.util.List<org.sonarqube.ws.Issues.Component> getComponentsList() {
         if (componentsBuilder_ == null) {
           return java.util.Collections.unmodifiableList(components_);
         } else {
@@ -2036,7 +2190,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.Component components = 5;</code>
+       * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
        */
       public int getComponentsCount() {
         if (componentsBuilder_ == null) {
@@ -2046,9 +2200,9 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.Component components = 5;</code>
+       * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
        */
-      public org.sonarqube.ws.Common.Component getComponents(int index) {
+      public org.sonarqube.ws.Issues.Component getComponents(int index) {
         if (componentsBuilder_ == null) {
           return components_.get(index);
         } else {
@@ -2056,10 +2210,10 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.Component components = 5;</code>
+       * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
        */
       public Builder setComponents(
-          int index, org.sonarqube.ws.Common.Component value) {
+          int index, org.sonarqube.ws.Issues.Component value) {
         if (componentsBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -2073,10 +2227,10 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.Component components = 5;</code>
+       * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
        */
       public Builder setComponents(
-          int index, org.sonarqube.ws.Common.Component.Builder builderForValue) {
+          int index, org.sonarqube.ws.Issues.Component.Builder builderForValue) {
         if (componentsBuilder_ == null) {
           ensureComponentsIsMutable();
           components_.set(index, builderForValue.build());
@@ -2087,9 +2241,9 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.Component components = 5;</code>
+       * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
        */
-      public Builder addComponents(org.sonarqube.ws.Common.Component value) {
+      public Builder addComponents(org.sonarqube.ws.Issues.Component value) {
         if (componentsBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -2103,10 +2257,10 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.Component components = 5;</code>
+       * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
        */
       public Builder addComponents(
-          int index, org.sonarqube.ws.Common.Component value) {
+          int index, org.sonarqube.ws.Issues.Component value) {
         if (componentsBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -2120,10 +2274,10 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.Component components = 5;</code>
+       * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
        */
       public Builder addComponents(
-          org.sonarqube.ws.Common.Component.Builder builderForValue) {
+          org.sonarqube.ws.Issues.Component.Builder builderForValue) {
         if (componentsBuilder_ == null) {
           ensureComponentsIsMutable();
           components_.add(builderForValue.build());
@@ -2134,10 +2288,10 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.Component components = 5;</code>
+       * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
        */
       public Builder addComponents(
-          int index, org.sonarqube.ws.Common.Component.Builder builderForValue) {
+          int index, org.sonarqube.ws.Issues.Component.Builder builderForValue) {
         if (componentsBuilder_ == null) {
           ensureComponentsIsMutable();
           components_.add(index, builderForValue.build());
@@ -2148,10 +2302,10 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.Component components = 5;</code>
+       * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
        */
       public Builder addAllComponents(
-          java.lang.Iterable<? extends org.sonarqube.ws.Common.Component> values) {
+          java.lang.Iterable<? extends org.sonarqube.ws.Issues.Component> values) {
         if (componentsBuilder_ == null) {
           ensureComponentsIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
@@ -2163,12 +2317,12 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.Component components = 5;</code>
+       * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
        */
       public Builder clearComponents() {
         if (componentsBuilder_ == null) {
           components_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000010);
+          bitField0_ = (bitField0_ & ~0x00000040);
           onChanged();
         } else {
           componentsBuilder_.clear();
@@ -2176,7 +2330,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.Component components = 5;</code>
+       * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
        */
       public Builder removeComponents(int index) {
         if (componentsBuilder_ == null) {
@@ -2189,16 +2343,16 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.Component components = 5;</code>
+       * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
        */
-      public org.sonarqube.ws.Common.Component.Builder getComponentsBuilder(
+      public org.sonarqube.ws.Issues.Component.Builder getComponentsBuilder(
           int index) {
         return getComponentsFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .sonarqube.ws.Component components = 5;</code>
+       * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
        */
-      public org.sonarqube.ws.Common.ComponentOrBuilder getComponentsOrBuilder(
+      public org.sonarqube.ws.Issues.ComponentOrBuilder getComponentsOrBuilder(
           int index) {
         if (componentsBuilder_ == null) {
           return components_.get(index);  } else {
@@ -2206,9 +2360,9 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.Component components = 5;</code>
+       * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
        */
-      public java.util.List<? extends org.sonarqube.ws.Common.ComponentOrBuilder> 
+      public java.util.List<? extends org.sonarqube.ws.Issues.ComponentOrBuilder> 
            getComponentsOrBuilderList() {
         if (componentsBuilder_ != null) {
           return componentsBuilder_.getMessageOrBuilderList();
@@ -2217,35 +2371,35 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.Component components = 5;</code>
+       * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
        */
-      public org.sonarqube.ws.Common.Component.Builder addComponentsBuilder() {
+      public org.sonarqube.ws.Issues.Component.Builder addComponentsBuilder() {
         return getComponentsFieldBuilder().addBuilder(
-            org.sonarqube.ws.Common.Component.getDefaultInstance());
+            org.sonarqube.ws.Issues.Component.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.ws.Component components = 5;</code>
+       * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
        */
-      public org.sonarqube.ws.Common.Component.Builder addComponentsBuilder(
+      public org.sonarqube.ws.Issues.Component.Builder addComponentsBuilder(
           int index) {
         return getComponentsFieldBuilder().addBuilder(
-            index, org.sonarqube.ws.Common.Component.getDefaultInstance());
+            index, org.sonarqube.ws.Issues.Component.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.ws.Component components = 5;</code>
+       * <code>repeated .sonarqube.ws.issues.Component components = 7;</code>
        */
-      public java.util.List<org.sonarqube.ws.Common.Component.Builder> 
+      public java.util.List<org.sonarqube.ws.Issues.Component.Builder> 
            getComponentsBuilderList() {
         return getComponentsFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilder<
-          org.sonarqube.ws.Common.Component, org.sonarqube.ws.Common.Component.Builder, org.sonarqube.ws.Common.ComponentOrBuilder> 
+          org.sonarqube.ws.Issues.Component, org.sonarqube.ws.Issues.Component.Builder, org.sonarqube.ws.Issues.ComponentOrBuilder> 
           getComponentsFieldBuilder() {
         if (componentsBuilder_ == null) {
           componentsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              org.sonarqube.ws.Common.Component, org.sonarqube.ws.Common.Component.Builder, org.sonarqube.ws.Common.ComponentOrBuilder>(
+              org.sonarqube.ws.Issues.Component, org.sonarqube.ws.Issues.Component.Builder, org.sonarqube.ws.Issues.ComponentOrBuilder>(
                   components_,
-                  ((bitField0_ & 0x00000010) == 0x00000010),
+                  ((bitField0_ & 0x00000040) == 0x00000040),
                   getParentForChildren(),
                   isClean());
           components_ = null;
@@ -2253,12 +2407,44 @@ public final class Issues {
         return componentsBuilder_;
       }
 
+      private boolean rulesPresentIfEmpty_ ;
+      /**
+       * <code>optional bool rulesPresentIfEmpty = 8;</code>
+       */
+      public boolean hasRulesPresentIfEmpty() {
+        return ((bitField0_ & 0x00000080) == 0x00000080);
+      }
+      /**
+       * <code>optional bool rulesPresentIfEmpty = 8;</code>
+       */
+      public boolean getRulesPresentIfEmpty() {
+        return rulesPresentIfEmpty_;
+      }
+      /**
+       * <code>optional bool rulesPresentIfEmpty = 8;</code>
+       */
+      public Builder setRulesPresentIfEmpty(boolean value) {
+        bitField0_ |= 0x00000080;
+        rulesPresentIfEmpty_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool rulesPresentIfEmpty = 8;</code>
+       */
+      public Builder clearRulesPresentIfEmpty() {
+        bitField0_ = (bitField0_ & ~0x00000080);
+        rulesPresentIfEmpty_ = false;
+        onChanged();
+        return this;
+      }
+
       private java.util.List<org.sonarqube.ws.Common.Rule> rules_ =
         java.util.Collections.emptyList();
       private void ensureRulesIsMutable() {
-        if (!((bitField0_ & 0x00000020) == 0x00000020)) {
+        if (!((bitField0_ & 0x00000100) == 0x00000100)) {
           rules_ = new java.util.ArrayList<org.sonarqube.ws.Common.Rule>(rules_);
-          bitField0_ |= 0x00000020;
+          bitField0_ |= 0x00000100;
          }
       }
 
@@ -2266,7 +2452,7 @@ public final class Issues {
           org.sonarqube.ws.Common.Rule, org.sonarqube.ws.Common.Rule.Builder, org.sonarqube.ws.Common.RuleOrBuilder> rulesBuilder_;
 
       /**
-       * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
        */
       public java.util.List<org.sonarqube.ws.Common.Rule> getRulesList() {
         if (rulesBuilder_ == null) {
@@ -2276,7 +2462,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
        */
       public int getRulesCount() {
         if (rulesBuilder_ == null) {
@@ -2286,7 +2472,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
        */
       public org.sonarqube.ws.Common.Rule getRules(int index) {
         if (rulesBuilder_ == null) {
@@ -2296,7 +2482,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
        */
       public Builder setRules(
           int index, org.sonarqube.ws.Common.Rule value) {
@@ -2313,7 +2499,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
        */
       public Builder setRules(
           int index, org.sonarqube.ws.Common.Rule.Builder builderForValue) {
@@ -2327,7 +2513,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
        */
       public Builder addRules(org.sonarqube.ws.Common.Rule value) {
         if (rulesBuilder_ == null) {
@@ -2343,7 +2529,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
        */
       public Builder addRules(
           int index, org.sonarqube.ws.Common.Rule value) {
@@ -2360,7 +2546,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
        */
       public Builder addRules(
           org.sonarqube.ws.Common.Rule.Builder builderForValue) {
@@ -2374,7 +2560,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
        */
       public Builder addRules(
           int index, org.sonarqube.ws.Common.Rule.Builder builderForValue) {
@@ -2388,7 +2574,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
        */
       public Builder addAllRules(
           java.lang.Iterable<? extends org.sonarqube.ws.Common.Rule> values) {
@@ -2403,12 +2589,12 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
        */
       public Builder clearRules() {
         if (rulesBuilder_ == null) {
           rules_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000020);
+          bitField0_ = (bitField0_ & ~0x00000100);
           onChanged();
         } else {
           rulesBuilder_.clear();
@@ -2416,7 +2602,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
        */
       public Builder removeRules(int index) {
         if (rulesBuilder_ == null) {
@@ -2429,14 +2615,14 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
        */
       public org.sonarqube.ws.Common.Rule.Builder getRulesBuilder(
           int index) {
         return getRulesFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
        */
       public org.sonarqube.ws.Common.RuleOrBuilder getRulesOrBuilder(
           int index) {
@@ -2446,7 +2632,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
        */
       public java.util.List<? extends org.sonarqube.ws.Common.RuleOrBuilder> 
            getRulesOrBuilderList() {
@@ -2457,14 +2643,14 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
        */
       public org.sonarqube.ws.Common.Rule.Builder addRulesBuilder() {
         return getRulesFieldBuilder().addBuilder(
             org.sonarqube.ws.Common.Rule.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
        */
       public org.sonarqube.ws.Common.Rule.Builder addRulesBuilder(
           int index) {
@@ -2472,7 +2658,7 @@ public final class Issues {
             index, org.sonarqube.ws.Common.Rule.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.ws.Rule rules = 6;</code>
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 9;</code>
        */
       public java.util.List<org.sonarqube.ws.Common.Rule.Builder> 
            getRulesBuilderList() {
@@ -2485,7 +2671,7 @@ public final class Issues {
           rulesBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.sonarqube.ws.Common.Rule, org.sonarqube.ws.Common.Rule.Builder, org.sonarqube.ws.Common.RuleOrBuilder>(
                   rules_,
-                  ((bitField0_ & 0x00000020) == 0x00000020),
+                  ((bitField0_ & 0x00000100) == 0x00000100),
                   getParentForChildren(),
                   isClean());
           rules_ = null;
@@ -2493,12 +2679,44 @@ public final class Issues {
         return rulesBuilder_;
       }
 
+      private boolean usersPresentIfEmpty_ ;
+      /**
+       * <code>optional bool usersPresentIfEmpty = 10;</code>
+       */
+      public boolean hasUsersPresentIfEmpty() {
+        return ((bitField0_ & 0x00000200) == 0x00000200);
+      }
+      /**
+       * <code>optional bool usersPresentIfEmpty = 10;</code>
+       */
+      public boolean getUsersPresentIfEmpty() {
+        return usersPresentIfEmpty_;
+      }
+      /**
+       * <code>optional bool usersPresentIfEmpty = 10;</code>
+       */
+      public Builder setUsersPresentIfEmpty(boolean value) {
+        bitField0_ |= 0x00000200;
+        usersPresentIfEmpty_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool usersPresentIfEmpty = 10;</code>
+       */
+      public Builder clearUsersPresentIfEmpty() {
+        bitField0_ = (bitField0_ & ~0x00000200);
+        usersPresentIfEmpty_ = false;
+        onChanged();
+        return this;
+      }
+
       private java.util.List<org.sonarqube.ws.Common.User> users_ =
         java.util.Collections.emptyList();
       private void ensureUsersIsMutable() {
-        if (!((bitField0_ & 0x00000040) == 0x00000040)) {
+        if (!((bitField0_ & 0x00000400) == 0x00000400)) {
           users_ = new java.util.ArrayList<org.sonarqube.ws.Common.User>(users_);
-          bitField0_ |= 0x00000040;
+          bitField0_ |= 0x00000400;
          }
       }
 
@@ -2506,7 +2724,7 @@ public final class Issues {
           org.sonarqube.ws.Common.User, org.sonarqube.ws.Common.User.Builder, org.sonarqube.ws.Common.UserOrBuilder> usersBuilder_;
 
       /**
-       * <code>repeated .sonarqube.ws.User users = 7;</code>
+       * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
        */
       public java.util.List<org.sonarqube.ws.Common.User> getUsersList() {
         if (usersBuilder_ == null) {
@@ -2516,7 +2734,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.User users = 7;</code>
+       * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
        */
       public int getUsersCount() {
         if (usersBuilder_ == null) {
@@ -2526,7 +2744,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.User users = 7;</code>
+       * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
        */
       public org.sonarqube.ws.Common.User getUsers(int index) {
         if (usersBuilder_ == null) {
@@ -2536,7 +2754,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.User users = 7;</code>
+       * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
        */
       public Builder setUsers(
           int index, org.sonarqube.ws.Common.User value) {
@@ -2553,7 +2771,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.User users = 7;</code>
+       * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
        */
       public Builder setUsers(
           int index, org.sonarqube.ws.Common.User.Builder builderForValue) {
@@ -2567,7 +2785,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.User users = 7;</code>
+       * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
        */
       public Builder addUsers(org.sonarqube.ws.Common.User value) {
         if (usersBuilder_ == null) {
@@ -2583,7 +2801,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.User users = 7;</code>
+       * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
        */
       public Builder addUsers(
           int index, org.sonarqube.ws.Common.User value) {
@@ -2600,7 +2818,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.User users = 7;</code>
+       * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
        */
       public Builder addUsers(
           org.sonarqube.ws.Common.User.Builder builderForValue) {
@@ -2614,7 +2832,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.User users = 7;</code>
+       * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
        */
       public Builder addUsers(
           int index, org.sonarqube.ws.Common.User.Builder builderForValue) {
@@ -2628,7 +2846,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.User users = 7;</code>
+       * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
        */
       public Builder addAllUsers(
           java.lang.Iterable<? extends org.sonarqube.ws.Common.User> values) {
@@ -2643,12 +2861,12 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.User users = 7;</code>
+       * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
        */
       public Builder clearUsers() {
         if (usersBuilder_ == null) {
           users_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000040);
+          bitField0_ = (bitField0_ & ~0x00000400);
           onChanged();
         } else {
           usersBuilder_.clear();
@@ -2656,7 +2874,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.User users = 7;</code>
+       * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
        */
       public Builder removeUsers(int index) {
         if (usersBuilder_ == null) {
@@ -2669,14 +2887,14 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.User users = 7;</code>
+       * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
        */
       public org.sonarqube.ws.Common.User.Builder getUsersBuilder(
           int index) {
         return getUsersFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .sonarqube.ws.User users = 7;</code>
+       * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
        */
       public org.sonarqube.ws.Common.UserOrBuilder getUsersOrBuilder(
           int index) {
@@ -2686,7 +2904,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.User users = 7;</code>
+       * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
        */
       public java.util.List<? extends org.sonarqube.ws.Common.UserOrBuilder> 
            getUsersOrBuilderList() {
@@ -2697,14 +2915,14 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.User users = 7;</code>
+       * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
        */
       public org.sonarqube.ws.Common.User.Builder addUsersBuilder() {
         return getUsersFieldBuilder().addBuilder(
             org.sonarqube.ws.Common.User.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.ws.User users = 7;</code>
+       * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
        */
       public org.sonarqube.ws.Common.User.Builder addUsersBuilder(
           int index) {
@@ -2712,7 +2930,7 @@ public final class Issues {
             index, org.sonarqube.ws.Common.User.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.ws.User users = 7;</code>
+       * <code>repeated .sonarqube.ws.commons.User users = 11;</code>
        */
       public java.util.List<org.sonarqube.ws.Common.User.Builder> 
            getUsersBuilderList() {
@@ -2725,12 +2943,828 @@ public final class Issues {
           usersBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.sonarqube.ws.Common.User, org.sonarqube.ws.Common.User.Builder, org.sonarqube.ws.Common.UserOrBuilder>(
                   users_,
-                  ((bitField0_ & 0x00000040) == 0x00000040),
+                  ((bitField0_ & 0x00000400) == 0x00000400),
                   getParentForChildren(),
                   isClean());
           users_ = null;
         }
         return usersBuilder_;
+      }
+
+      private boolean actionPlansPresentIfEmpty_ ;
+      /**
+       * <code>optional bool actionPlansPresentIfEmpty = 12;</code>
+       */
+      public boolean hasActionPlansPresentIfEmpty() {
+        return ((bitField0_ & 0x00000800) == 0x00000800);
+      }
+      /**
+       * <code>optional bool actionPlansPresentIfEmpty = 12;</code>
+       */
+      public boolean getActionPlansPresentIfEmpty() {
+        return actionPlansPresentIfEmpty_;
+      }
+      /**
+       * <code>optional bool actionPlansPresentIfEmpty = 12;</code>
+       */
+      public Builder setActionPlansPresentIfEmpty(boolean value) {
+        bitField0_ |= 0x00000800;
+        actionPlansPresentIfEmpty_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool actionPlansPresentIfEmpty = 12;</code>
+       */
+      public Builder clearActionPlansPresentIfEmpty() {
+        bitField0_ = (bitField0_ & ~0x00000800);
+        actionPlansPresentIfEmpty_ = false;
+        onChanged();
+        return this;
+      }
+
+      private java.util.List<org.sonarqube.ws.Issues.ActionPlan> actionPlans_ =
+        java.util.Collections.emptyList();
+      private void ensureActionPlansIsMutable() {
+        if (!((bitField0_ & 0x00001000) == 0x00001000)) {
+          actionPlans_ = new java.util.ArrayList<org.sonarqube.ws.Issues.ActionPlan>(actionPlans_);
+          bitField0_ |= 0x00001000;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Issues.ActionPlan, org.sonarqube.ws.Issues.ActionPlan.Builder, org.sonarqube.ws.Issues.ActionPlanOrBuilder> actionPlansBuilder_;
+
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Issues.ActionPlan> getActionPlansList() {
+        if (actionPlansBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(actionPlans_);
+        } else {
+          return actionPlansBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+       */
+      public int getActionPlansCount() {
+        if (actionPlansBuilder_ == null) {
+          return actionPlans_.size();
+        } else {
+          return actionPlansBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+       */
+      public org.sonarqube.ws.Issues.ActionPlan getActionPlans(int index) {
+        if (actionPlansBuilder_ == null) {
+          return actionPlans_.get(index);
+        } else {
+          return actionPlansBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+       */
+      public Builder setActionPlans(
+          int index, org.sonarqube.ws.Issues.ActionPlan value) {
+        if (actionPlansBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureActionPlansIsMutable();
+          actionPlans_.set(index, value);
+          onChanged();
+        } else {
+          actionPlansBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+       */
+      public Builder setActionPlans(
+          int index, org.sonarqube.ws.Issues.ActionPlan.Builder builderForValue) {
+        if (actionPlansBuilder_ == null) {
+          ensureActionPlansIsMutable();
+          actionPlans_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          actionPlansBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+       */
+      public Builder addActionPlans(org.sonarqube.ws.Issues.ActionPlan value) {
+        if (actionPlansBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureActionPlansIsMutable();
+          actionPlans_.add(value);
+          onChanged();
+        } else {
+          actionPlansBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+       */
+      public Builder addActionPlans(
+          int index, org.sonarqube.ws.Issues.ActionPlan value) {
+        if (actionPlansBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureActionPlansIsMutable();
+          actionPlans_.add(index, value);
+          onChanged();
+        } else {
+          actionPlansBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+       */
+      public Builder addActionPlans(
+          org.sonarqube.ws.Issues.ActionPlan.Builder builderForValue) {
+        if (actionPlansBuilder_ == null) {
+          ensureActionPlansIsMutable();
+          actionPlans_.add(builderForValue.build());
+          onChanged();
+        } else {
+          actionPlansBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+       */
+      public Builder addActionPlans(
+          int index, org.sonarqube.ws.Issues.ActionPlan.Builder builderForValue) {
+        if (actionPlansBuilder_ == null) {
+          ensureActionPlansIsMutable();
+          actionPlans_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          actionPlansBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+       */
+      public Builder addAllActionPlans(
+          java.lang.Iterable<? extends org.sonarqube.ws.Issues.ActionPlan> values) {
+        if (actionPlansBuilder_ == null) {
+          ensureActionPlansIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, actionPlans_);
+          onChanged();
+        } else {
+          actionPlansBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+       */
+      public Builder clearActionPlans() {
+        if (actionPlansBuilder_ == null) {
+          actionPlans_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00001000);
+          onChanged();
+        } else {
+          actionPlansBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+       */
+      public Builder removeActionPlans(int index) {
+        if (actionPlansBuilder_ == null) {
+          ensureActionPlansIsMutable();
+          actionPlans_.remove(index);
+          onChanged();
+        } else {
+          actionPlansBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+       */
+      public org.sonarqube.ws.Issues.ActionPlan.Builder getActionPlansBuilder(
+          int index) {
+        return getActionPlansFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+       */
+      public org.sonarqube.ws.Issues.ActionPlanOrBuilder getActionPlansOrBuilder(
+          int index) {
+        if (actionPlansBuilder_ == null) {
+          return actionPlans_.get(index);  } else {
+          return actionPlansBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+       */
+      public java.util.List<? extends org.sonarqube.ws.Issues.ActionPlanOrBuilder> 
+           getActionPlansOrBuilderList() {
+        if (actionPlansBuilder_ != null) {
+          return actionPlansBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(actionPlans_);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+       */
+      public org.sonarqube.ws.Issues.ActionPlan.Builder addActionPlansBuilder() {
+        return getActionPlansFieldBuilder().addBuilder(
+            org.sonarqube.ws.Issues.ActionPlan.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+       */
+      public org.sonarqube.ws.Issues.ActionPlan.Builder addActionPlansBuilder(
+          int index) {
+        return getActionPlansFieldBuilder().addBuilder(
+            index, org.sonarqube.ws.Issues.ActionPlan.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 13;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Issues.ActionPlan.Builder> 
+           getActionPlansBuilderList() {
+        return getActionPlansFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Issues.ActionPlan, org.sonarqube.ws.Issues.ActionPlan.Builder, org.sonarqube.ws.Issues.ActionPlanOrBuilder> 
+          getActionPlansFieldBuilder() {
+        if (actionPlansBuilder_ == null) {
+          actionPlansBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonarqube.ws.Issues.ActionPlan, org.sonarqube.ws.Issues.ActionPlan.Builder, org.sonarqube.ws.Issues.ActionPlanOrBuilder>(
+                  actionPlans_,
+                  ((bitField0_ & 0x00001000) == 0x00001000),
+                  getParentForChildren(),
+                  isClean());
+          actionPlans_ = null;
+        }
+        return actionPlansBuilder_;
+      }
+
+      private boolean languagesPresentIfEmpty_ ;
+      /**
+       * <code>optional bool languagesPresentIfEmpty = 14;</code>
+       */
+      public boolean hasLanguagesPresentIfEmpty() {
+        return ((bitField0_ & 0x00002000) == 0x00002000);
+      }
+      /**
+       * <code>optional bool languagesPresentIfEmpty = 14;</code>
+       */
+      public boolean getLanguagesPresentIfEmpty() {
+        return languagesPresentIfEmpty_;
+      }
+      /**
+       * <code>optional bool languagesPresentIfEmpty = 14;</code>
+       */
+      public Builder setLanguagesPresentIfEmpty(boolean value) {
+        bitField0_ |= 0x00002000;
+        languagesPresentIfEmpty_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool languagesPresentIfEmpty = 14;</code>
+       */
+      public Builder clearLanguagesPresentIfEmpty() {
+        bitField0_ = (bitField0_ & ~0x00002000);
+        languagesPresentIfEmpty_ = false;
+        onChanged();
+        return this;
+      }
+
+      private java.util.List<org.sonarqube.ws.Issues.Language> languages_ =
+        java.util.Collections.emptyList();
+      private void ensureLanguagesIsMutable() {
+        if (!((bitField0_ & 0x00004000) == 0x00004000)) {
+          languages_ = new java.util.ArrayList<org.sonarqube.ws.Issues.Language>(languages_);
+          bitField0_ |= 0x00004000;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Issues.Language, org.sonarqube.ws.Issues.Language.Builder, org.sonarqube.ws.Issues.LanguageOrBuilder> languagesBuilder_;
+
+      /**
+       * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Issues.Language> getLanguagesList() {
+        if (languagesBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(languages_);
+        } else {
+          return languagesBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+       */
+      public int getLanguagesCount() {
+        if (languagesBuilder_ == null) {
+          return languages_.size();
+        } else {
+          return languagesBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+       */
+      public org.sonarqube.ws.Issues.Language getLanguages(int index) {
+        if (languagesBuilder_ == null) {
+          return languages_.get(index);
+        } else {
+          return languagesBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+       */
+      public Builder setLanguages(
+          int index, org.sonarqube.ws.Issues.Language value) {
+        if (languagesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureLanguagesIsMutable();
+          languages_.set(index, value);
+          onChanged();
+        } else {
+          languagesBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+       */
+      public Builder setLanguages(
+          int index, org.sonarqube.ws.Issues.Language.Builder builderForValue) {
+        if (languagesBuilder_ == null) {
+          ensureLanguagesIsMutable();
+          languages_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          languagesBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+       */
+      public Builder addLanguages(org.sonarqube.ws.Issues.Language value) {
+        if (languagesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureLanguagesIsMutable();
+          languages_.add(value);
+          onChanged();
+        } else {
+          languagesBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+       */
+      public Builder addLanguages(
+          int index, org.sonarqube.ws.Issues.Language value) {
+        if (languagesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureLanguagesIsMutable();
+          languages_.add(index, value);
+          onChanged();
+        } else {
+          languagesBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+       */
+      public Builder addLanguages(
+          org.sonarqube.ws.Issues.Language.Builder builderForValue) {
+        if (languagesBuilder_ == null) {
+          ensureLanguagesIsMutable();
+          languages_.add(builderForValue.build());
+          onChanged();
+        } else {
+          languagesBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+       */
+      public Builder addLanguages(
+          int index, org.sonarqube.ws.Issues.Language.Builder builderForValue) {
+        if (languagesBuilder_ == null) {
+          ensureLanguagesIsMutable();
+          languages_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          languagesBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+       */
+      public Builder addAllLanguages(
+          java.lang.Iterable<? extends org.sonarqube.ws.Issues.Language> values) {
+        if (languagesBuilder_ == null) {
+          ensureLanguagesIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, languages_);
+          onChanged();
+        } else {
+          languagesBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+       */
+      public Builder clearLanguages() {
+        if (languagesBuilder_ == null) {
+          languages_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00004000);
+          onChanged();
+        } else {
+          languagesBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+       */
+      public Builder removeLanguages(int index) {
+        if (languagesBuilder_ == null) {
+          ensureLanguagesIsMutable();
+          languages_.remove(index);
+          onChanged();
+        } else {
+          languagesBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+       */
+      public org.sonarqube.ws.Issues.Language.Builder getLanguagesBuilder(
+          int index) {
+        return getLanguagesFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+       */
+      public org.sonarqube.ws.Issues.LanguageOrBuilder getLanguagesOrBuilder(
+          int index) {
+        if (languagesBuilder_ == null) {
+          return languages_.get(index);  } else {
+          return languagesBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+       */
+      public java.util.List<? extends org.sonarqube.ws.Issues.LanguageOrBuilder> 
+           getLanguagesOrBuilderList() {
+        if (languagesBuilder_ != null) {
+          return languagesBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(languages_);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+       */
+      public org.sonarqube.ws.Issues.Language.Builder addLanguagesBuilder() {
+        return getLanguagesFieldBuilder().addBuilder(
+            org.sonarqube.ws.Issues.Language.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+       */
+      public org.sonarqube.ws.Issues.Language.Builder addLanguagesBuilder(
+          int index) {
+        return getLanguagesFieldBuilder().addBuilder(
+            index, org.sonarqube.ws.Issues.Language.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Language languages = 15;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Issues.Language.Builder> 
+           getLanguagesBuilderList() {
+        return getLanguagesFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Issues.Language, org.sonarqube.ws.Issues.Language.Builder, org.sonarqube.ws.Issues.LanguageOrBuilder> 
+          getLanguagesFieldBuilder() {
+        if (languagesBuilder_ == null) {
+          languagesBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonarqube.ws.Issues.Language, org.sonarqube.ws.Issues.Language.Builder, org.sonarqube.ws.Issues.LanguageOrBuilder>(
+                  languages_,
+                  ((bitField0_ & 0x00004000) == 0x00004000),
+                  getParentForChildren(),
+                  isClean());
+          languages_ = null;
+        }
+        return languagesBuilder_;
+      }
+
+      private boolean facetsPresentIfEmpty_ ;
+      /**
+       * <code>optional bool facetsPresentIfEmpty = 16;</code>
+       */
+      public boolean hasFacetsPresentIfEmpty() {
+        return ((bitField0_ & 0x00008000) == 0x00008000);
+      }
+      /**
+       * <code>optional bool facetsPresentIfEmpty = 16;</code>
+       */
+      public boolean getFacetsPresentIfEmpty() {
+        return facetsPresentIfEmpty_;
+      }
+      /**
+       * <code>optional bool facetsPresentIfEmpty = 16;</code>
+       */
+      public Builder setFacetsPresentIfEmpty(boolean value) {
+        bitField0_ |= 0x00008000;
+        facetsPresentIfEmpty_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool facetsPresentIfEmpty = 16;</code>
+       */
+      public Builder clearFacetsPresentIfEmpty() {
+        bitField0_ = (bitField0_ & ~0x00008000);
+        facetsPresentIfEmpty_ = false;
+        onChanged();
+        return this;
+      }
+
+      private java.util.List<org.sonarqube.ws.Common.Facet> facets_ =
+        java.util.Collections.emptyList();
+      private void ensureFacetsIsMutable() {
+        if (!((bitField0_ & 0x00010000) == 0x00010000)) {
+          facets_ = new java.util.ArrayList<org.sonarqube.ws.Common.Facet>(facets_);
+          bitField0_ |= 0x00010000;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Common.Facet, org.sonarqube.ws.Common.Facet.Builder, org.sonarqube.ws.Common.FacetOrBuilder> facetsBuilder_;
+
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Common.Facet> getFacetsList() {
+        if (facetsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(facets_);
+        } else {
+          return facetsBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+       */
+      public int getFacetsCount() {
+        if (facetsBuilder_ == null) {
+          return facets_.size();
+        } else {
+          return facetsBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+       */
+      public org.sonarqube.ws.Common.Facet getFacets(int index) {
+        if (facetsBuilder_ == null) {
+          return facets_.get(index);
+        } else {
+          return facetsBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+       */
+      public Builder setFacets(
+          int index, org.sonarqube.ws.Common.Facet value) {
+        if (facetsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureFacetsIsMutable();
+          facets_.set(index, value);
+          onChanged();
+        } else {
+          facetsBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+       */
+      public Builder setFacets(
+          int index, org.sonarqube.ws.Common.Facet.Builder builderForValue) {
+        if (facetsBuilder_ == null) {
+          ensureFacetsIsMutable();
+          facets_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          facetsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+       */
+      public Builder addFacets(org.sonarqube.ws.Common.Facet value) {
+        if (facetsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureFacetsIsMutable();
+          facets_.add(value);
+          onChanged();
+        } else {
+          facetsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+       */
+      public Builder addFacets(
+          int index, org.sonarqube.ws.Common.Facet value) {
+        if (facetsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureFacetsIsMutable();
+          facets_.add(index, value);
+          onChanged();
+        } else {
+          facetsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+       */
+      public Builder addFacets(
+          org.sonarqube.ws.Common.Facet.Builder builderForValue) {
+        if (facetsBuilder_ == null) {
+          ensureFacetsIsMutable();
+          facets_.add(builderForValue.build());
+          onChanged();
+        } else {
+          facetsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+       */
+      public Builder addFacets(
+          int index, org.sonarqube.ws.Common.Facet.Builder builderForValue) {
+        if (facetsBuilder_ == null) {
+          ensureFacetsIsMutable();
+          facets_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          facetsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+       */
+      public Builder addAllFacets(
+          java.lang.Iterable<? extends org.sonarqube.ws.Common.Facet> values) {
+        if (facetsBuilder_ == null) {
+          ensureFacetsIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, facets_);
+          onChanged();
+        } else {
+          facetsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+       */
+      public Builder clearFacets() {
+        if (facetsBuilder_ == null) {
+          facets_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00010000);
+          onChanged();
+        } else {
+          facetsBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+       */
+      public Builder removeFacets(int index) {
+        if (facetsBuilder_ == null) {
+          ensureFacetsIsMutable();
+          facets_.remove(index);
+          onChanged();
+        } else {
+          facetsBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+       */
+      public org.sonarqube.ws.Common.Facet.Builder getFacetsBuilder(
+          int index) {
+        return getFacetsFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+       */
+      public org.sonarqube.ws.Common.FacetOrBuilder getFacetsOrBuilder(
+          int index) {
+        if (facetsBuilder_ == null) {
+          return facets_.get(index);  } else {
+          return facetsBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+       */
+      public java.util.List<? extends org.sonarqube.ws.Common.FacetOrBuilder> 
+           getFacetsOrBuilderList() {
+        if (facetsBuilder_ != null) {
+          return facetsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(facets_);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+       */
+      public org.sonarqube.ws.Common.Facet.Builder addFacetsBuilder() {
+        return getFacetsFieldBuilder().addBuilder(
+            org.sonarqube.ws.Common.Facet.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+       */
+      public org.sonarqube.ws.Common.Facet.Builder addFacetsBuilder(
+          int index) {
+        return getFacetsFieldBuilder().addBuilder(
+            index, org.sonarqube.ws.Common.Facet.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Facet facets = 17;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Common.Facet.Builder> 
+           getFacetsBuilderList() {
+        return getFacetsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Common.Facet, org.sonarqube.ws.Common.Facet.Builder, org.sonarqube.ws.Common.FacetOrBuilder> 
+          getFacetsFieldBuilder() {
+        if (facetsBuilder_ == null) {
+          facetsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonarqube.ws.Common.Facet, org.sonarqube.ws.Common.Facet.Builder, org.sonarqube.ws.Common.FacetOrBuilder>(
+                  facets_,
+                  ((bitField0_ & 0x00010000) == 0x00010000),
+                  getParentForChildren(),
+                  isClean());
+          facets_ = null;
+        }
+        return facetsBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:sonarqube.ws.issues.Search)
@@ -2742,6 +3776,1962 @@ public final class Issues {
     }
 
     // @@protoc_insertion_point(class_scope:sonarqube.ws.issues.Search)
+  }
+
+  public interface OperationOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:sonarqube.ws.issues.Operation)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>optional .sonarqube.ws.issues.Issue issue = 1;</code>
+     */
+    boolean hasIssue();
+    /**
+     * <code>optional .sonarqube.ws.issues.Issue issue = 1;</code>
+     */
+    org.sonarqube.ws.Issues.Issue getIssue();
+    /**
+     * <code>optional .sonarqube.ws.issues.Issue issue = 1;</code>
+     */
+    org.sonarqube.ws.Issues.IssueOrBuilder getIssueOrBuilder();
+
+    /**
+     * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+     */
+    java.util.List<org.sonarqube.ws.Issues.Component> 
+        getComponentsList();
+    /**
+     * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+     */
+    org.sonarqube.ws.Issues.Component getComponents(int index);
+    /**
+     * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+     */
+    int getComponentsCount();
+    /**
+     * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+     */
+    java.util.List<? extends org.sonarqube.ws.Issues.ComponentOrBuilder> 
+        getComponentsOrBuilderList();
+    /**
+     * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+     */
+    org.sonarqube.ws.Issues.ComponentOrBuilder getComponentsOrBuilder(
+        int index);
+
+    /**
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+     */
+    java.util.List<org.sonarqube.ws.Common.Rule> 
+        getRulesList();
+    /**
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+     */
+    org.sonarqube.ws.Common.Rule getRules(int index);
+    /**
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+     */
+    int getRulesCount();
+    /**
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+     */
+    java.util.List<? extends org.sonarqube.ws.Common.RuleOrBuilder> 
+        getRulesOrBuilderList();
+    /**
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+     */
+    org.sonarqube.ws.Common.RuleOrBuilder getRulesOrBuilder(
+        int index);
+
+    /**
+     * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+     */
+    java.util.List<org.sonarqube.ws.Common.User> 
+        getUsersList();
+    /**
+     * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+     */
+    org.sonarqube.ws.Common.User getUsers(int index);
+    /**
+     * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+     */
+    int getUsersCount();
+    /**
+     * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+     */
+    java.util.List<? extends org.sonarqube.ws.Common.UserOrBuilder> 
+        getUsersOrBuilderList();
+    /**
+     * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+     */
+    org.sonarqube.ws.Common.UserOrBuilder getUsersOrBuilder(
+        int index);
+
+    /**
+     * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+     */
+    java.util.List<org.sonarqube.ws.Issues.ActionPlan> 
+        getActionPlansList();
+    /**
+     * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+     */
+    org.sonarqube.ws.Issues.ActionPlan getActionPlans(int index);
+    /**
+     * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+     */
+    int getActionPlansCount();
+    /**
+     * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+     */
+    java.util.List<? extends org.sonarqube.ws.Issues.ActionPlanOrBuilder> 
+        getActionPlansOrBuilderList();
+    /**
+     * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+     */
+    org.sonarqube.ws.Issues.ActionPlanOrBuilder getActionPlansOrBuilder(
+        int index);
+  }
+  /**
+   * Protobuf type {@code sonarqube.ws.issues.Operation}
+   *
+   * <pre>
+   * Response of most of POST/issues/{operation}, for instance assign, add_comment and set_severity
+   * </pre>
+   */
+  public static final class Operation extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:sonarqube.ws.issues.Operation)
+      OperationOrBuilder {
+    // Use Operation.newBuilder() to construct.
+    private Operation(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private Operation(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final Operation defaultInstance;
+    public static Operation getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public Operation getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private Operation(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              org.sonarqube.ws.Issues.Issue.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                subBuilder = issue_.toBuilder();
+              }
+              issue_ = input.readMessage(org.sonarqube.ws.Issues.Issue.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(issue_);
+                issue_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000001;
+              break;
+            }
+            case 18: {
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                components_ = new java.util.ArrayList<org.sonarqube.ws.Issues.Component>();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              components_.add(input.readMessage(org.sonarqube.ws.Issues.Component.PARSER, extensionRegistry));
+              break;
+            }
+            case 26: {
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+                rules_ = new java.util.ArrayList<org.sonarqube.ws.Common.Rule>();
+                mutable_bitField0_ |= 0x00000004;
+              }
+              rules_.add(input.readMessage(org.sonarqube.ws.Common.Rule.PARSER, extensionRegistry));
+              break;
+            }
+            case 34: {
+              if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
+                users_ = new java.util.ArrayList<org.sonarqube.ws.Common.User>();
+                mutable_bitField0_ |= 0x00000008;
+              }
+              users_.add(input.readMessage(org.sonarqube.ws.Common.User.PARSER, extensionRegistry));
+              break;
+            }
+            case 42: {
+              if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+                actionPlans_ = new java.util.ArrayList<org.sonarqube.ws.Issues.ActionPlan>();
+                mutable_bitField0_ |= 0x00000010;
+              }
+              actionPlans_.add(input.readMessage(org.sonarqube.ws.Issues.ActionPlan.PARSER, extensionRegistry));
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+          components_ = java.util.Collections.unmodifiableList(components_);
+        }
+        if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+          rules_ = java.util.Collections.unmodifiableList(rules_);
+        }
+        if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
+          users_ = java.util.Collections.unmodifiableList(users_);
+        }
+        if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+          actionPlans_ = java.util.Collections.unmodifiableList(actionPlans_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_Operation_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_Operation_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonarqube.ws.Issues.Operation.class, org.sonarqube.ws.Issues.Operation.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<Operation> PARSER =
+        new com.google.protobuf.AbstractParser<Operation>() {
+      public Operation parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new Operation(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Operation> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    public static final int ISSUE_FIELD_NUMBER = 1;
+    private org.sonarqube.ws.Issues.Issue issue_;
+    /**
+     * <code>optional .sonarqube.ws.issues.Issue issue = 1;</code>
+     */
+    public boolean hasIssue() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional .sonarqube.ws.issues.Issue issue = 1;</code>
+     */
+    public org.sonarqube.ws.Issues.Issue getIssue() {
+      return issue_;
+    }
+    /**
+     * <code>optional .sonarqube.ws.issues.Issue issue = 1;</code>
+     */
+    public org.sonarqube.ws.Issues.IssueOrBuilder getIssueOrBuilder() {
+      return issue_;
+    }
+
+    public static final int COMPONENTS_FIELD_NUMBER = 2;
+    private java.util.List<org.sonarqube.ws.Issues.Component> components_;
+    /**
+     * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+     */
+    public java.util.List<org.sonarqube.ws.Issues.Component> getComponentsList() {
+      return components_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+     */
+    public java.util.List<? extends org.sonarqube.ws.Issues.ComponentOrBuilder> 
+        getComponentsOrBuilderList() {
+      return components_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+     */
+    public int getComponentsCount() {
+      return components_.size();
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+     */
+    public org.sonarqube.ws.Issues.Component getComponents(int index) {
+      return components_.get(index);
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+     */
+    public org.sonarqube.ws.Issues.ComponentOrBuilder getComponentsOrBuilder(
+        int index) {
+      return components_.get(index);
+    }
+
+    public static final int RULES_FIELD_NUMBER = 3;
+    private java.util.List<org.sonarqube.ws.Common.Rule> rules_;
+    /**
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+     */
+    public java.util.List<org.sonarqube.ws.Common.Rule> getRulesList() {
+      return rules_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+     */
+    public java.util.List<? extends org.sonarqube.ws.Common.RuleOrBuilder> 
+        getRulesOrBuilderList() {
+      return rules_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+     */
+    public int getRulesCount() {
+      return rules_.size();
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+     */
+    public org.sonarqube.ws.Common.Rule getRules(int index) {
+      return rules_.get(index);
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+     */
+    public org.sonarqube.ws.Common.RuleOrBuilder getRulesOrBuilder(
+        int index) {
+      return rules_.get(index);
+    }
+
+    public static final int USERS_FIELD_NUMBER = 4;
+    private java.util.List<org.sonarqube.ws.Common.User> users_;
+    /**
+     * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+     */
+    public java.util.List<org.sonarqube.ws.Common.User> getUsersList() {
+      return users_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+     */
+    public java.util.List<? extends org.sonarqube.ws.Common.UserOrBuilder> 
+        getUsersOrBuilderList() {
+      return users_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+     */
+    public int getUsersCount() {
+      return users_.size();
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+     */
+    public org.sonarqube.ws.Common.User getUsers(int index) {
+      return users_.get(index);
+    }
+    /**
+     * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+     */
+    public org.sonarqube.ws.Common.UserOrBuilder getUsersOrBuilder(
+        int index) {
+      return users_.get(index);
+    }
+
+    public static final int ACTIONPLANS_FIELD_NUMBER = 5;
+    private java.util.List<org.sonarqube.ws.Issues.ActionPlan> actionPlans_;
+    /**
+     * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+     */
+    public java.util.List<org.sonarqube.ws.Issues.ActionPlan> getActionPlansList() {
+      return actionPlans_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+     */
+    public java.util.List<? extends org.sonarqube.ws.Issues.ActionPlanOrBuilder> 
+        getActionPlansOrBuilderList() {
+      return actionPlans_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+     */
+    public int getActionPlansCount() {
+      return actionPlans_.size();
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+     */
+    public org.sonarqube.ws.Issues.ActionPlan getActionPlans(int index) {
+      return actionPlans_.get(index);
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+     */
+    public org.sonarqube.ws.Issues.ActionPlanOrBuilder getActionPlansOrBuilder(
+        int index) {
+      return actionPlans_.get(index);
+    }
+
+    private void initFields() {
+      issue_ = org.sonarqube.ws.Issues.Issue.getDefaultInstance();
+      components_ = java.util.Collections.emptyList();
+      rules_ = java.util.Collections.emptyList();
+      users_ = java.util.Collections.emptyList();
+      actionPlans_ = java.util.Collections.emptyList();
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeMessage(1, issue_);
+      }
+      for (int i = 0; i < components_.size(); i++) {
+        output.writeMessage(2, components_.get(i));
+      }
+      for (int i = 0; i < rules_.size(); i++) {
+        output.writeMessage(3, rules_.get(i));
+      }
+      for (int i = 0; i < users_.size(); i++) {
+        output.writeMessage(4, users_.get(i));
+      }
+      for (int i = 0; i < actionPlans_.size(); i++) {
+        output.writeMessage(5, actionPlans_.get(i));
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, issue_);
+      }
+      for (int i = 0; i < components_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, components_.get(i));
+      }
+      for (int i = 0; i < rules_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(3, rules_.get(i));
+      }
+      for (int i = 0; i < users_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(4, users_.get(i));
+      }
+      for (int i = 0; i < actionPlans_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(5, actionPlans_.get(i));
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static org.sonarqube.ws.Issues.Operation parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Issues.Operation parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.Operation parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Issues.Operation parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.Operation parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Issues.Operation parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.Operation parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonarqube.ws.Issues.Operation parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.Operation parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Issues.Operation parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(org.sonarqube.ws.Issues.Operation prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code sonarqube.ws.issues.Operation}
+     *
+     * <pre>
+     * Response of most of POST/issues/{operation}, for instance assign, add_comment and set_severity
+     * </pre>
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:sonarqube.ws.issues.Operation)
+        org.sonarqube.ws.Issues.OperationOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_Operation_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_Operation_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonarqube.ws.Issues.Operation.class, org.sonarqube.ws.Issues.Operation.Builder.class);
+      }
+
+      // Construct using org.sonarqube.ws.Issues.Operation.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getIssueFieldBuilder();
+          getComponentsFieldBuilder();
+          getRulesFieldBuilder();
+          getUsersFieldBuilder();
+          getActionPlansFieldBuilder();
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        if (issueBuilder_ == null) {
+          issue_ = org.sonarqube.ws.Issues.Issue.getDefaultInstance();
+        } else {
+          issueBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        if (componentsBuilder_ == null) {
+          components_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000002);
+        } else {
+          componentsBuilder_.clear();
+        }
+        if (rulesBuilder_ == null) {
+          rules_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000004);
+        } else {
+          rulesBuilder_.clear();
+        }
+        if (usersBuilder_ == null) {
+          users_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000008);
+        } else {
+          usersBuilder_.clear();
+        }
+        if (actionPlansBuilder_ == null) {
+          actionPlans_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000010);
+        } else {
+          actionPlansBuilder_.clear();
+        }
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_Operation_descriptor;
+      }
+
+      public org.sonarqube.ws.Issues.Operation getDefaultInstanceForType() {
+        return org.sonarqube.ws.Issues.Operation.getDefaultInstance();
+      }
+
+      public org.sonarqube.ws.Issues.Operation build() {
+        org.sonarqube.ws.Issues.Operation result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonarqube.ws.Issues.Operation buildPartial() {
+        org.sonarqube.ws.Issues.Operation result = new org.sonarqube.ws.Issues.Operation(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        if (issueBuilder_ == null) {
+          result.issue_ = issue_;
+        } else {
+          result.issue_ = issueBuilder_.build();
+        }
+        if (componentsBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) == 0x00000002)) {
+            components_ = java.util.Collections.unmodifiableList(components_);
+            bitField0_ = (bitField0_ & ~0x00000002);
+          }
+          result.components_ = components_;
+        } else {
+          result.components_ = componentsBuilder_.build();
+        }
+        if (rulesBuilder_ == null) {
+          if (((bitField0_ & 0x00000004) == 0x00000004)) {
+            rules_ = java.util.Collections.unmodifiableList(rules_);
+            bitField0_ = (bitField0_ & ~0x00000004);
+          }
+          result.rules_ = rules_;
+        } else {
+          result.rules_ = rulesBuilder_.build();
+        }
+        if (usersBuilder_ == null) {
+          if (((bitField0_ & 0x00000008) == 0x00000008)) {
+            users_ = java.util.Collections.unmodifiableList(users_);
+            bitField0_ = (bitField0_ & ~0x00000008);
+          }
+          result.users_ = users_;
+        } else {
+          result.users_ = usersBuilder_.build();
+        }
+        if (actionPlansBuilder_ == null) {
+          if (((bitField0_ & 0x00000010) == 0x00000010)) {
+            actionPlans_ = java.util.Collections.unmodifiableList(actionPlans_);
+            bitField0_ = (bitField0_ & ~0x00000010);
+          }
+          result.actionPlans_ = actionPlans_;
+        } else {
+          result.actionPlans_ = actionPlansBuilder_.build();
+        }
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonarqube.ws.Issues.Operation) {
+          return mergeFrom((org.sonarqube.ws.Issues.Operation)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonarqube.ws.Issues.Operation other) {
+        if (other == org.sonarqube.ws.Issues.Operation.getDefaultInstance()) return this;
+        if (other.hasIssue()) {
+          mergeIssue(other.getIssue());
+        }
+        if (componentsBuilder_ == null) {
+          if (!other.components_.isEmpty()) {
+            if (components_.isEmpty()) {
+              components_ = other.components_;
+              bitField0_ = (bitField0_ & ~0x00000002);
+            } else {
+              ensureComponentsIsMutable();
+              components_.addAll(other.components_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.components_.isEmpty()) {
+            if (componentsBuilder_.isEmpty()) {
+              componentsBuilder_.dispose();
+              componentsBuilder_ = null;
+              components_ = other.components_;
+              bitField0_ = (bitField0_ & ~0x00000002);
+              componentsBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getComponentsFieldBuilder() : null;
+            } else {
+              componentsBuilder_.addAllMessages(other.components_);
+            }
+          }
+        }
+        if (rulesBuilder_ == null) {
+          if (!other.rules_.isEmpty()) {
+            if (rules_.isEmpty()) {
+              rules_ = other.rules_;
+              bitField0_ = (bitField0_ & ~0x00000004);
+            } else {
+              ensureRulesIsMutable();
+              rules_.addAll(other.rules_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.rules_.isEmpty()) {
+            if (rulesBuilder_.isEmpty()) {
+              rulesBuilder_.dispose();
+              rulesBuilder_ = null;
+              rules_ = other.rules_;
+              bitField0_ = (bitField0_ & ~0x00000004);
+              rulesBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getRulesFieldBuilder() : null;
+            } else {
+              rulesBuilder_.addAllMessages(other.rules_);
+            }
+          }
+        }
+        if (usersBuilder_ == null) {
+          if (!other.users_.isEmpty()) {
+            if (users_.isEmpty()) {
+              users_ = other.users_;
+              bitField0_ = (bitField0_ & ~0x00000008);
+            } else {
+              ensureUsersIsMutable();
+              users_.addAll(other.users_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.users_.isEmpty()) {
+            if (usersBuilder_.isEmpty()) {
+              usersBuilder_.dispose();
+              usersBuilder_ = null;
+              users_ = other.users_;
+              bitField0_ = (bitField0_ & ~0x00000008);
+              usersBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getUsersFieldBuilder() : null;
+            } else {
+              usersBuilder_.addAllMessages(other.users_);
+            }
+          }
+        }
+        if (actionPlansBuilder_ == null) {
+          if (!other.actionPlans_.isEmpty()) {
+            if (actionPlans_.isEmpty()) {
+              actionPlans_ = other.actionPlans_;
+              bitField0_ = (bitField0_ & ~0x00000010);
+            } else {
+              ensureActionPlansIsMutable();
+              actionPlans_.addAll(other.actionPlans_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.actionPlans_.isEmpty()) {
+            if (actionPlansBuilder_.isEmpty()) {
+              actionPlansBuilder_.dispose();
+              actionPlansBuilder_ = null;
+              actionPlans_ = other.actionPlans_;
+              bitField0_ = (bitField0_ & ~0x00000010);
+              actionPlansBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getActionPlansFieldBuilder() : null;
+            } else {
+              actionPlansBuilder_.addAllMessages(other.actionPlans_);
+            }
+          }
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonarqube.ws.Issues.Operation parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonarqube.ws.Issues.Operation) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private org.sonarqube.ws.Issues.Issue issue_ = org.sonarqube.ws.Issues.Issue.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonarqube.ws.Issues.Issue, org.sonarqube.ws.Issues.Issue.Builder, org.sonarqube.ws.Issues.IssueOrBuilder> issueBuilder_;
+      /**
+       * <code>optional .sonarqube.ws.issues.Issue issue = 1;</code>
+       */
+      public boolean hasIssue() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional .sonarqube.ws.issues.Issue issue = 1;</code>
+       */
+      public org.sonarqube.ws.Issues.Issue getIssue() {
+        if (issueBuilder_ == null) {
+          return issue_;
+        } else {
+          return issueBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .sonarqube.ws.issues.Issue issue = 1;</code>
+       */
+      public Builder setIssue(org.sonarqube.ws.Issues.Issue value) {
+        if (issueBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          issue_ = value;
+          onChanged();
+        } else {
+          issueBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.issues.Issue issue = 1;</code>
+       */
+      public Builder setIssue(
+          org.sonarqube.ws.Issues.Issue.Builder builderForValue) {
+        if (issueBuilder_ == null) {
+          issue_ = builderForValue.build();
+          onChanged();
+        } else {
+          issueBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.issues.Issue issue = 1;</code>
+       */
+      public Builder mergeIssue(org.sonarqube.ws.Issues.Issue value) {
+        if (issueBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001) &&
+              issue_ != org.sonarqube.ws.Issues.Issue.getDefaultInstance()) {
+            issue_ =
+              org.sonarqube.ws.Issues.Issue.newBuilder(issue_).mergeFrom(value).buildPartial();
+          } else {
+            issue_ = value;
+          }
+          onChanged();
+        } else {
+          issueBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.issues.Issue issue = 1;</code>
+       */
+      public Builder clearIssue() {
+        if (issueBuilder_ == null) {
+          issue_ = org.sonarqube.ws.Issues.Issue.getDefaultInstance();
+          onChanged();
+        } else {
+          issueBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.issues.Issue issue = 1;</code>
+       */
+      public org.sonarqube.ws.Issues.Issue.Builder getIssueBuilder() {
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return getIssueFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .sonarqube.ws.issues.Issue issue = 1;</code>
+       */
+      public org.sonarqube.ws.Issues.IssueOrBuilder getIssueOrBuilder() {
+        if (issueBuilder_ != null) {
+          return issueBuilder_.getMessageOrBuilder();
+        } else {
+          return issue_;
+        }
+      }
+      /**
+       * <code>optional .sonarqube.ws.issues.Issue issue = 1;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonarqube.ws.Issues.Issue, org.sonarqube.ws.Issues.Issue.Builder, org.sonarqube.ws.Issues.IssueOrBuilder> 
+          getIssueFieldBuilder() {
+        if (issueBuilder_ == null) {
+          issueBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              org.sonarqube.ws.Issues.Issue, org.sonarqube.ws.Issues.Issue.Builder, org.sonarqube.ws.Issues.IssueOrBuilder>(
+                  getIssue(),
+                  getParentForChildren(),
+                  isClean());
+          issue_ = null;
+        }
+        return issueBuilder_;
+      }
+
+      private java.util.List<org.sonarqube.ws.Issues.Component> components_ =
+        java.util.Collections.emptyList();
+      private void ensureComponentsIsMutable() {
+        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+          components_ = new java.util.ArrayList<org.sonarqube.ws.Issues.Component>(components_);
+          bitField0_ |= 0x00000002;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Issues.Component, org.sonarqube.ws.Issues.Component.Builder, org.sonarqube.ws.Issues.ComponentOrBuilder> componentsBuilder_;
+
+      /**
+       * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Issues.Component> getComponentsList() {
+        if (componentsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(components_);
+        } else {
+          return componentsBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+       */
+      public int getComponentsCount() {
+        if (componentsBuilder_ == null) {
+          return components_.size();
+        } else {
+          return componentsBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+       */
+      public org.sonarqube.ws.Issues.Component getComponents(int index) {
+        if (componentsBuilder_ == null) {
+          return components_.get(index);
+        } else {
+          return componentsBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+       */
+      public Builder setComponents(
+          int index, org.sonarqube.ws.Issues.Component value) {
+        if (componentsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureComponentsIsMutable();
+          components_.set(index, value);
+          onChanged();
+        } else {
+          componentsBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+       */
+      public Builder setComponents(
+          int index, org.sonarqube.ws.Issues.Component.Builder builderForValue) {
+        if (componentsBuilder_ == null) {
+          ensureComponentsIsMutable();
+          components_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          componentsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+       */
+      public Builder addComponents(org.sonarqube.ws.Issues.Component value) {
+        if (componentsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureComponentsIsMutable();
+          components_.add(value);
+          onChanged();
+        } else {
+          componentsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+       */
+      public Builder addComponents(
+          int index, org.sonarqube.ws.Issues.Component value) {
+        if (componentsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureComponentsIsMutable();
+          components_.add(index, value);
+          onChanged();
+        } else {
+          componentsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+       */
+      public Builder addComponents(
+          org.sonarqube.ws.Issues.Component.Builder builderForValue) {
+        if (componentsBuilder_ == null) {
+          ensureComponentsIsMutable();
+          components_.add(builderForValue.build());
+          onChanged();
+        } else {
+          componentsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+       */
+      public Builder addComponents(
+          int index, org.sonarqube.ws.Issues.Component.Builder builderForValue) {
+        if (componentsBuilder_ == null) {
+          ensureComponentsIsMutable();
+          components_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          componentsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+       */
+      public Builder addAllComponents(
+          java.lang.Iterable<? extends org.sonarqube.ws.Issues.Component> values) {
+        if (componentsBuilder_ == null) {
+          ensureComponentsIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, components_);
+          onChanged();
+        } else {
+          componentsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+       */
+      public Builder clearComponents() {
+        if (componentsBuilder_ == null) {
+          components_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000002);
+          onChanged();
+        } else {
+          componentsBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+       */
+      public Builder removeComponents(int index) {
+        if (componentsBuilder_ == null) {
+          ensureComponentsIsMutable();
+          components_.remove(index);
+          onChanged();
+        } else {
+          componentsBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+       */
+      public org.sonarqube.ws.Issues.Component.Builder getComponentsBuilder(
+          int index) {
+        return getComponentsFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+       */
+      public org.sonarqube.ws.Issues.ComponentOrBuilder getComponentsOrBuilder(
+          int index) {
+        if (componentsBuilder_ == null) {
+          return components_.get(index);  } else {
+          return componentsBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+       */
+      public java.util.List<? extends org.sonarqube.ws.Issues.ComponentOrBuilder> 
+           getComponentsOrBuilderList() {
+        if (componentsBuilder_ != null) {
+          return componentsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(components_);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+       */
+      public org.sonarqube.ws.Issues.Component.Builder addComponentsBuilder() {
+        return getComponentsFieldBuilder().addBuilder(
+            org.sonarqube.ws.Issues.Component.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+       */
+      public org.sonarqube.ws.Issues.Component.Builder addComponentsBuilder(
+          int index) {
+        return getComponentsFieldBuilder().addBuilder(
+            index, org.sonarqube.ws.Issues.Component.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Component components = 2;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Issues.Component.Builder> 
+           getComponentsBuilderList() {
+        return getComponentsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Issues.Component, org.sonarqube.ws.Issues.Component.Builder, org.sonarqube.ws.Issues.ComponentOrBuilder> 
+          getComponentsFieldBuilder() {
+        if (componentsBuilder_ == null) {
+          componentsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonarqube.ws.Issues.Component, org.sonarqube.ws.Issues.Component.Builder, org.sonarqube.ws.Issues.ComponentOrBuilder>(
+                  components_,
+                  ((bitField0_ & 0x00000002) == 0x00000002),
+                  getParentForChildren(),
+                  isClean());
+          components_ = null;
+        }
+        return componentsBuilder_;
+      }
+
+      private java.util.List<org.sonarqube.ws.Common.Rule> rules_ =
+        java.util.Collections.emptyList();
+      private void ensureRulesIsMutable() {
+        if (!((bitField0_ & 0x00000004) == 0x00000004)) {
+          rules_ = new java.util.ArrayList<org.sonarqube.ws.Common.Rule>(rules_);
+          bitField0_ |= 0x00000004;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Common.Rule, org.sonarqube.ws.Common.Rule.Builder, org.sonarqube.ws.Common.RuleOrBuilder> rulesBuilder_;
+
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Common.Rule> getRulesList() {
+        if (rulesBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(rules_);
+        } else {
+          return rulesBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+       */
+      public int getRulesCount() {
+        if (rulesBuilder_ == null) {
+          return rules_.size();
+        } else {
+          return rulesBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+       */
+      public org.sonarqube.ws.Common.Rule getRules(int index) {
+        if (rulesBuilder_ == null) {
+          return rules_.get(index);
+        } else {
+          return rulesBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+       */
+      public Builder setRules(
+          int index, org.sonarqube.ws.Common.Rule value) {
+        if (rulesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureRulesIsMutable();
+          rules_.set(index, value);
+          onChanged();
+        } else {
+          rulesBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+       */
+      public Builder setRules(
+          int index, org.sonarqube.ws.Common.Rule.Builder builderForValue) {
+        if (rulesBuilder_ == null) {
+          ensureRulesIsMutable();
+          rules_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          rulesBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+       */
+      public Builder addRules(org.sonarqube.ws.Common.Rule value) {
+        if (rulesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureRulesIsMutable();
+          rules_.add(value);
+          onChanged();
+        } else {
+          rulesBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+       */
+      public Builder addRules(
+          int index, org.sonarqube.ws.Common.Rule value) {
+        if (rulesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureRulesIsMutable();
+          rules_.add(index, value);
+          onChanged();
+        } else {
+          rulesBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+       */
+      public Builder addRules(
+          org.sonarqube.ws.Common.Rule.Builder builderForValue) {
+        if (rulesBuilder_ == null) {
+          ensureRulesIsMutable();
+          rules_.add(builderForValue.build());
+          onChanged();
+        } else {
+          rulesBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+       */
+      public Builder addRules(
+          int index, org.sonarqube.ws.Common.Rule.Builder builderForValue) {
+        if (rulesBuilder_ == null) {
+          ensureRulesIsMutable();
+          rules_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          rulesBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+       */
+      public Builder addAllRules(
+          java.lang.Iterable<? extends org.sonarqube.ws.Common.Rule> values) {
+        if (rulesBuilder_ == null) {
+          ensureRulesIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, rules_);
+          onChanged();
+        } else {
+          rulesBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+       */
+      public Builder clearRules() {
+        if (rulesBuilder_ == null) {
+          rules_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000004);
+          onChanged();
+        } else {
+          rulesBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+       */
+      public Builder removeRules(int index) {
+        if (rulesBuilder_ == null) {
+          ensureRulesIsMutable();
+          rules_.remove(index);
+          onChanged();
+        } else {
+          rulesBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+       */
+      public org.sonarqube.ws.Common.Rule.Builder getRulesBuilder(
+          int index) {
+        return getRulesFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+       */
+      public org.sonarqube.ws.Common.RuleOrBuilder getRulesOrBuilder(
+          int index) {
+        if (rulesBuilder_ == null) {
+          return rules_.get(index);  } else {
+          return rulesBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+       */
+      public java.util.List<? extends org.sonarqube.ws.Common.RuleOrBuilder> 
+           getRulesOrBuilderList() {
+        if (rulesBuilder_ != null) {
+          return rulesBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(rules_);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+       */
+      public org.sonarqube.ws.Common.Rule.Builder addRulesBuilder() {
+        return getRulesFieldBuilder().addBuilder(
+            org.sonarqube.ws.Common.Rule.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+       */
+      public org.sonarqube.ws.Common.Rule.Builder addRulesBuilder(
+          int index) {
+        return getRulesFieldBuilder().addBuilder(
+            index, org.sonarqube.ws.Common.Rule.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.Rule rules = 3;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Common.Rule.Builder> 
+           getRulesBuilderList() {
+        return getRulesFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Common.Rule, org.sonarqube.ws.Common.Rule.Builder, org.sonarqube.ws.Common.RuleOrBuilder> 
+          getRulesFieldBuilder() {
+        if (rulesBuilder_ == null) {
+          rulesBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonarqube.ws.Common.Rule, org.sonarqube.ws.Common.Rule.Builder, org.sonarqube.ws.Common.RuleOrBuilder>(
+                  rules_,
+                  ((bitField0_ & 0x00000004) == 0x00000004),
+                  getParentForChildren(),
+                  isClean());
+          rules_ = null;
+        }
+        return rulesBuilder_;
+      }
+
+      private java.util.List<org.sonarqube.ws.Common.User> users_ =
+        java.util.Collections.emptyList();
+      private void ensureUsersIsMutable() {
+        if (!((bitField0_ & 0x00000008) == 0x00000008)) {
+          users_ = new java.util.ArrayList<org.sonarqube.ws.Common.User>(users_);
+          bitField0_ |= 0x00000008;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Common.User, org.sonarqube.ws.Common.User.Builder, org.sonarqube.ws.Common.UserOrBuilder> usersBuilder_;
+
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Common.User> getUsersList() {
+        if (usersBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(users_);
+        } else {
+          return usersBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+       */
+      public int getUsersCount() {
+        if (usersBuilder_ == null) {
+          return users_.size();
+        } else {
+          return usersBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+       */
+      public org.sonarqube.ws.Common.User getUsers(int index) {
+        if (usersBuilder_ == null) {
+          return users_.get(index);
+        } else {
+          return usersBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+       */
+      public Builder setUsers(
+          int index, org.sonarqube.ws.Common.User value) {
+        if (usersBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureUsersIsMutable();
+          users_.set(index, value);
+          onChanged();
+        } else {
+          usersBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+       */
+      public Builder setUsers(
+          int index, org.sonarqube.ws.Common.User.Builder builderForValue) {
+        if (usersBuilder_ == null) {
+          ensureUsersIsMutable();
+          users_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          usersBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+       */
+      public Builder addUsers(org.sonarqube.ws.Common.User value) {
+        if (usersBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureUsersIsMutable();
+          users_.add(value);
+          onChanged();
+        } else {
+          usersBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+       */
+      public Builder addUsers(
+          int index, org.sonarqube.ws.Common.User value) {
+        if (usersBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureUsersIsMutable();
+          users_.add(index, value);
+          onChanged();
+        } else {
+          usersBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+       */
+      public Builder addUsers(
+          org.sonarqube.ws.Common.User.Builder builderForValue) {
+        if (usersBuilder_ == null) {
+          ensureUsersIsMutable();
+          users_.add(builderForValue.build());
+          onChanged();
+        } else {
+          usersBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+       */
+      public Builder addUsers(
+          int index, org.sonarqube.ws.Common.User.Builder builderForValue) {
+        if (usersBuilder_ == null) {
+          ensureUsersIsMutable();
+          users_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          usersBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+       */
+      public Builder addAllUsers(
+          java.lang.Iterable<? extends org.sonarqube.ws.Common.User> values) {
+        if (usersBuilder_ == null) {
+          ensureUsersIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, users_);
+          onChanged();
+        } else {
+          usersBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+       */
+      public Builder clearUsers() {
+        if (usersBuilder_ == null) {
+          users_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000008);
+          onChanged();
+        } else {
+          usersBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+       */
+      public Builder removeUsers(int index) {
+        if (usersBuilder_ == null) {
+          ensureUsersIsMutable();
+          users_.remove(index);
+          onChanged();
+        } else {
+          usersBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+       */
+      public org.sonarqube.ws.Common.User.Builder getUsersBuilder(
+          int index) {
+        return getUsersFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+       */
+      public org.sonarqube.ws.Common.UserOrBuilder getUsersOrBuilder(
+          int index) {
+        if (usersBuilder_ == null) {
+          return users_.get(index);  } else {
+          return usersBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+       */
+      public java.util.List<? extends org.sonarqube.ws.Common.UserOrBuilder> 
+           getUsersOrBuilderList() {
+        if (usersBuilder_ != null) {
+          return usersBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(users_);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+       */
+      public org.sonarqube.ws.Common.User.Builder addUsersBuilder() {
+        return getUsersFieldBuilder().addBuilder(
+            org.sonarqube.ws.Common.User.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+       */
+      public org.sonarqube.ws.Common.User.Builder addUsersBuilder(
+          int index) {
+        return getUsersFieldBuilder().addBuilder(
+            index, org.sonarqube.ws.Common.User.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.commons.User users = 4;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Common.User.Builder> 
+           getUsersBuilderList() {
+        return getUsersFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Common.User, org.sonarqube.ws.Common.User.Builder, org.sonarqube.ws.Common.UserOrBuilder> 
+          getUsersFieldBuilder() {
+        if (usersBuilder_ == null) {
+          usersBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonarqube.ws.Common.User, org.sonarqube.ws.Common.User.Builder, org.sonarqube.ws.Common.UserOrBuilder>(
+                  users_,
+                  ((bitField0_ & 0x00000008) == 0x00000008),
+                  getParentForChildren(),
+                  isClean());
+          users_ = null;
+        }
+        return usersBuilder_;
+      }
+
+      private java.util.List<org.sonarqube.ws.Issues.ActionPlan> actionPlans_ =
+        java.util.Collections.emptyList();
+      private void ensureActionPlansIsMutable() {
+        if (!((bitField0_ & 0x00000010) == 0x00000010)) {
+          actionPlans_ = new java.util.ArrayList<org.sonarqube.ws.Issues.ActionPlan>(actionPlans_);
+          bitField0_ |= 0x00000010;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Issues.ActionPlan, org.sonarqube.ws.Issues.ActionPlan.Builder, org.sonarqube.ws.Issues.ActionPlanOrBuilder> actionPlansBuilder_;
+
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Issues.ActionPlan> getActionPlansList() {
+        if (actionPlansBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(actionPlans_);
+        } else {
+          return actionPlansBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+       */
+      public int getActionPlansCount() {
+        if (actionPlansBuilder_ == null) {
+          return actionPlans_.size();
+        } else {
+          return actionPlansBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+       */
+      public org.sonarqube.ws.Issues.ActionPlan getActionPlans(int index) {
+        if (actionPlansBuilder_ == null) {
+          return actionPlans_.get(index);
+        } else {
+          return actionPlansBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+       */
+      public Builder setActionPlans(
+          int index, org.sonarqube.ws.Issues.ActionPlan value) {
+        if (actionPlansBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureActionPlansIsMutable();
+          actionPlans_.set(index, value);
+          onChanged();
+        } else {
+          actionPlansBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+       */
+      public Builder setActionPlans(
+          int index, org.sonarqube.ws.Issues.ActionPlan.Builder builderForValue) {
+        if (actionPlansBuilder_ == null) {
+          ensureActionPlansIsMutable();
+          actionPlans_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          actionPlansBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+       */
+      public Builder addActionPlans(org.sonarqube.ws.Issues.ActionPlan value) {
+        if (actionPlansBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureActionPlansIsMutable();
+          actionPlans_.add(value);
+          onChanged();
+        } else {
+          actionPlansBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+       */
+      public Builder addActionPlans(
+          int index, org.sonarqube.ws.Issues.ActionPlan value) {
+        if (actionPlansBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureActionPlansIsMutable();
+          actionPlans_.add(index, value);
+          onChanged();
+        } else {
+          actionPlansBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+       */
+      public Builder addActionPlans(
+          org.sonarqube.ws.Issues.ActionPlan.Builder builderForValue) {
+        if (actionPlansBuilder_ == null) {
+          ensureActionPlansIsMutable();
+          actionPlans_.add(builderForValue.build());
+          onChanged();
+        } else {
+          actionPlansBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+       */
+      public Builder addActionPlans(
+          int index, org.sonarqube.ws.Issues.ActionPlan.Builder builderForValue) {
+        if (actionPlansBuilder_ == null) {
+          ensureActionPlansIsMutable();
+          actionPlans_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          actionPlansBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+       */
+      public Builder addAllActionPlans(
+          java.lang.Iterable<? extends org.sonarqube.ws.Issues.ActionPlan> values) {
+        if (actionPlansBuilder_ == null) {
+          ensureActionPlansIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, actionPlans_);
+          onChanged();
+        } else {
+          actionPlansBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+       */
+      public Builder clearActionPlans() {
+        if (actionPlansBuilder_ == null) {
+          actionPlans_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000010);
+          onChanged();
+        } else {
+          actionPlansBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+       */
+      public Builder removeActionPlans(int index) {
+        if (actionPlansBuilder_ == null) {
+          ensureActionPlansIsMutable();
+          actionPlans_.remove(index);
+          onChanged();
+        } else {
+          actionPlansBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+       */
+      public org.sonarqube.ws.Issues.ActionPlan.Builder getActionPlansBuilder(
+          int index) {
+        return getActionPlansFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+       */
+      public org.sonarqube.ws.Issues.ActionPlanOrBuilder getActionPlansOrBuilder(
+          int index) {
+        if (actionPlansBuilder_ == null) {
+          return actionPlans_.get(index);  } else {
+          return actionPlansBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+       */
+      public java.util.List<? extends org.sonarqube.ws.Issues.ActionPlanOrBuilder> 
+           getActionPlansOrBuilderList() {
+        if (actionPlansBuilder_ != null) {
+          return actionPlansBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(actionPlans_);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+       */
+      public org.sonarqube.ws.Issues.ActionPlan.Builder addActionPlansBuilder() {
+        return getActionPlansFieldBuilder().addBuilder(
+            org.sonarqube.ws.Issues.ActionPlan.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+       */
+      public org.sonarqube.ws.Issues.ActionPlan.Builder addActionPlansBuilder(
+          int index) {
+        return getActionPlansFieldBuilder().addBuilder(
+            index, org.sonarqube.ws.Issues.ActionPlan.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ActionPlan actionPlans = 5;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Issues.ActionPlan.Builder> 
+           getActionPlansBuilderList() {
+        return getActionPlansFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Issues.ActionPlan, org.sonarqube.ws.Issues.ActionPlan.Builder, org.sonarqube.ws.Issues.ActionPlanOrBuilder> 
+          getActionPlansFieldBuilder() {
+        if (actionPlansBuilder_ == null) {
+          actionPlansBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonarqube.ws.Issues.ActionPlan, org.sonarqube.ws.Issues.ActionPlan.Builder, org.sonarqube.ws.Issues.ActionPlanOrBuilder>(
+                  actionPlans_,
+                  ((bitField0_ & 0x00000010) == 0x00000010),
+                  getParentForChildren(),
+                  isClean());
+          actionPlans_ = null;
+        }
+        return actionPlansBuilder_;
+      }
+
+      // @@protoc_insertion_point(builder_scope:sonarqube.ws.issues.Operation)
+    }
+
+    static {
+      defaultInstance = new Operation(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:sonarqube.ws.issues.Operation)
   }
 
   public interface IssueOrBuilder extends
@@ -2777,338 +5767,444 @@ public final class Issues {
         getRuleBytes();
 
     /**
-     * <code>optional string component = 3;</code>
+     * <code>optional .sonarqube.ws.commons.Severity severity = 3;</code>
+     */
+    boolean hasSeverity();
+    /**
+     * <code>optional .sonarqube.ws.commons.Severity severity = 3;</code>
+     */
+    org.sonarqube.ws.Common.Severity getSeverity();
+
+    /**
+     * <code>optional string component = 4;</code>
      */
     boolean hasComponent();
     /**
-     * <code>optional string component = 3;</code>
+     * <code>optional string component = 4;</code>
      */
     java.lang.String getComponent();
     /**
-     * <code>optional string component = 3;</code>
+     * <code>optional string component = 4;</code>
      */
     com.google.protobuf.ByteString
         getComponentBytes();
 
     /**
-     * <code>optional int32 componentId = 4;</code>
+     * <code>optional int64 componentId = 5;</code>
      */
     boolean hasComponentId();
     /**
-     * <code>optional int32 componentId = 4;</code>
+     * <code>optional int64 componentId = 5;</code>
      */
-    int getComponentId();
+    long getComponentId();
 
     /**
-     * <code>optional string project = 5;</code>
+     * <code>optional string project = 6;</code>
      */
     boolean hasProject();
     /**
-     * <code>optional string project = 5;</code>
+     * <code>optional string project = 6;</code>
      */
     java.lang.String getProject();
     /**
-     * <code>optional string project = 5;</code>
+     * <code>optional string project = 6;</code>
      */
     com.google.protobuf.ByteString
         getProjectBytes();
 
     /**
-     * <code>optional string subProject = 6;</code>
+     * <code>optional string subProject = 7;</code>
      */
     boolean hasSubProject();
     /**
-     * <code>optional string subProject = 6;</code>
+     * <code>optional string subProject = 7;</code>
      */
     java.lang.String getSubProject();
     /**
-     * <code>optional string subProject = 6;</code>
+     * <code>optional string subProject = 7;</code>
      */
     com.google.protobuf.ByteString
         getSubProjectBytes();
 
     /**
-     * <code>optional int32 line = 7;</code>
+     * <code>optional int32 line = 8;</code>
      */
     boolean hasLine();
     /**
-     * <code>optional int32 line = 7;</code>
+     * <code>optional int32 line = 8;</code>
      */
     int getLine();
 
     /**
-     * <code>optional string resolution = 8;</code>
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
+     */
+    boolean hasTextRange();
+    /**
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
+     */
+    org.sonarqube.ws.Common.TextRange getTextRange();
+    /**
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
+     */
+    org.sonarqube.ws.Common.TextRangeOrBuilder getTextRangeOrBuilder();
+
+    /**
+     * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+     */
+    java.util.List<org.sonarqube.ws.Issues.Location> 
+        getSecondaryLocationsList();
+    /**
+     * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+     */
+    org.sonarqube.ws.Issues.Location getSecondaryLocations(int index);
+    /**
+     * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+     */
+    int getSecondaryLocationsCount();
+    /**
+     * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+     */
+    java.util.List<? extends org.sonarqube.ws.Issues.LocationOrBuilder> 
+        getSecondaryLocationsOrBuilderList();
+    /**
+     * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+     */
+    org.sonarqube.ws.Issues.LocationOrBuilder getSecondaryLocationsOrBuilder(
+        int index);
+
+    /**
+     * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+     */
+    java.util.List<org.sonarqube.ws.Issues.ExecutionFlow> 
+        getExecutionFlowsList();
+    /**
+     * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+     */
+    org.sonarqube.ws.Issues.ExecutionFlow getExecutionFlows(int index);
+    /**
+     * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+     */
+    int getExecutionFlowsCount();
+    /**
+     * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+     */
+    java.util.List<? extends org.sonarqube.ws.Issues.ExecutionFlowOrBuilder> 
+        getExecutionFlowsOrBuilderList();
+    /**
+     * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+     */
+    org.sonarqube.ws.Issues.ExecutionFlowOrBuilder getExecutionFlowsOrBuilder(
+        int index);
+
+    /**
+     * <code>optional string resolution = 12;</code>
      */
     boolean hasResolution();
     /**
-     * <code>optional string resolution = 8;</code>
+     * <code>optional string resolution = 12;</code>
      */
     java.lang.String getResolution();
     /**
-     * <code>optional string resolution = 8;</code>
+     * <code>optional string resolution = 12;</code>
      */
     com.google.protobuf.ByteString
         getResolutionBytes();
 
     /**
-     * <code>optional string status = 9;</code>
+     * <code>optional string status = 13;</code>
      */
     boolean hasStatus();
     /**
-     * <code>optional string status = 9;</code>
+     * <code>optional string status = 13;</code>
      */
     java.lang.String getStatus();
     /**
-     * <code>optional string status = 9;</code>
+     * <code>optional string status = 13;</code>
      */
     com.google.protobuf.ByteString
         getStatusBytes();
 
     /**
-     * <code>optional string message = 10;</code>
+     * <code>optional string message = 14;</code>
      */
     boolean hasMessage();
     /**
-     * <code>optional string message = 10;</code>
+     * <code>optional string message = 14;</code>
      */
     java.lang.String getMessage();
     /**
-     * <code>optional string message = 10;</code>
+     * <code>optional string message = 14;</code>
      */
     com.google.protobuf.ByteString
         getMessageBytes();
 
     /**
-     * <code>optional string debt = 11;</code>
+     * <code>optional string debt = 15;</code>
      */
     boolean hasDebt();
     /**
-     * <code>optional string debt = 11;</code>
+     * <code>optional string debt = 15;</code>
      */
     java.lang.String getDebt();
     /**
-     * <code>optional string debt = 11;</code>
+     * <code>optional string debt = 15;</code>
      */
     com.google.protobuf.ByteString
         getDebtBytes();
 
     /**
-     * <code>optional string assignee = 12;</code>
+     * <code>optional string assignee = 16;</code>
      */
     boolean hasAssignee();
     /**
-     * <code>optional string assignee = 12;</code>
+     * <code>optional string assignee = 16;</code>
      */
     java.lang.String getAssignee();
     /**
-     * <code>optional string assignee = 12;</code>
+     * <code>optional string assignee = 16;</code>
      */
     com.google.protobuf.ByteString
         getAssigneeBytes();
 
     /**
-     * <code>optional string reporter = 13;</code>
+     * <code>optional string reporter = 17;</code>
      */
     boolean hasReporter();
     /**
-     * <code>optional string reporter = 13;</code>
+     * <code>optional string reporter = 17;</code>
      */
     java.lang.String getReporter();
     /**
-     * <code>optional string reporter = 13;</code>
+     * <code>optional string reporter = 17;</code>
      */
     com.google.protobuf.ByteString
         getReporterBytes();
 
     /**
-     * <code>optional string scmAuthor = 14;</code>
+     * <code>optional string author = 18;</code>
+     *
+     * <pre>
+     * SCM login of the committer who introduced the issue
+     * </pre>
      */
-    boolean hasScmAuthor();
+    boolean hasAuthor();
     /**
-     * <code>optional string scmAuthor = 14;</code>
+     * <code>optional string author = 18;</code>
+     *
+     * <pre>
+     * SCM login of the committer who introduced the issue
+     * </pre>
      */
-    java.lang.String getScmAuthor();
+    java.lang.String getAuthor();
     /**
-     * <code>optional string scmAuthor = 14;</code>
+     * <code>optional string author = 18;</code>
+     *
+     * <pre>
+     * SCM login of the committer who introduced the issue
+     * </pre>
      */
     com.google.protobuf.ByteString
-        getScmAuthorBytes();
+        getAuthorBytes();
 
     /**
-     * <code>optional string actionPlan = 15;</code>
+     * <code>optional string actionPlan = 19;</code>
      */
     boolean hasActionPlan();
     /**
-     * <code>optional string actionPlan = 15;</code>
+     * <code>optional string actionPlan = 19;</code>
      */
     java.lang.String getActionPlan();
     /**
-     * <code>optional string actionPlan = 15;</code>
+     * <code>optional string actionPlan = 19;</code>
      */
     com.google.protobuf.ByteString
         getActionPlanBytes();
 
     /**
-     * <code>optional string actionPlanName = 16;</code>
+     * <code>optional bool tagsPresentIfEmpty = 20;</code>
      */
-    boolean hasActionPlanName();
+    boolean hasTagsPresentIfEmpty();
     /**
-     * <code>optional string actionPlanName = 16;</code>
+     * <code>optional bool tagsPresentIfEmpty = 20;</code>
      */
-    java.lang.String getActionPlanName();
-    /**
-     * <code>optional string actionPlanName = 16;</code>
-     */
-    com.google.protobuf.ByteString
-        getActionPlanNameBytes();
+    boolean getTagsPresentIfEmpty();
 
     /**
-     * <code>optional string attr = 17;</code>
-     */
-    boolean hasAttr();
-    /**
-     * <code>optional string attr = 17;</code>
-     */
-    java.lang.String getAttr();
-    /**
-     * <code>optional string attr = 17;</code>
-     */
-    com.google.protobuf.ByteString
-        getAttrBytes();
-
-    /**
-     * <code>repeated string tags = 18;</code>
+     * <code>repeated string tags = 21;</code>
      */
     com.google.protobuf.ProtocolStringList
         getTagsList();
     /**
-     * <code>repeated string tags = 18;</code>
+     * <code>repeated string tags = 21;</code>
      */
     int getTagsCount();
     /**
-     * <code>repeated string tags = 18;</code>
+     * <code>repeated string tags = 21;</code>
      */
     java.lang.String getTags(int index);
     /**
-     * <code>repeated string tags = 18;</code>
+     * <code>repeated string tags = 21;</code>
      */
     com.google.protobuf.ByteString
         getTagsBytes(int index);
 
     /**
-     * <code>repeated string transitions = 19;</code>
+     * <code>optional bool transitionsPresentIfEmpty = 22;</code>
+     *
+     * <pre>
+     * the transitions allowed for the requesting user.
+     * </pre>
+     */
+    boolean hasTransitionsPresentIfEmpty();
+    /**
+     * <code>optional bool transitionsPresentIfEmpty = 22;</code>
+     *
+     * <pre>
+     * the transitions allowed for the requesting user.
+     * </pre>
+     */
+    boolean getTransitionsPresentIfEmpty();
+
+    /**
+     * <code>repeated string transitions = 23;</code>
      */
     com.google.protobuf.ProtocolStringList
         getTransitionsList();
     /**
-     * <code>repeated string transitions = 19;</code>
+     * <code>repeated string transitions = 23;</code>
      */
     int getTransitionsCount();
     /**
-     * <code>repeated string transitions = 19;</code>
+     * <code>repeated string transitions = 23;</code>
      */
     java.lang.String getTransitions(int index);
     /**
-     * <code>repeated string transitions = 19;</code>
+     * <code>repeated string transitions = 23;</code>
      */
     com.google.protobuf.ByteString
         getTransitionsBytes(int index);
 
     /**
-     * <code>repeated string actions = 20;</code>
+     * <code>optional bool actionsPresentIfEmpty = 24;</code>
+     *
+     * <pre>
+     * the actions allowed for the requesting user.
+     * </pre>
+     */
+    boolean hasActionsPresentIfEmpty();
+    /**
+     * <code>optional bool actionsPresentIfEmpty = 24;</code>
+     *
+     * <pre>
+     * the actions allowed for the requesting user.
+     * </pre>
+     */
+    boolean getActionsPresentIfEmpty();
+
+    /**
+     * <code>repeated string actions = 25;</code>
      */
     com.google.protobuf.ProtocolStringList
         getActionsList();
     /**
-     * <code>repeated string actions = 20;</code>
+     * <code>repeated string actions = 25;</code>
      */
     int getActionsCount();
     /**
-     * <code>repeated string actions = 20;</code>
+     * <code>repeated string actions = 25;</code>
      */
     java.lang.String getActions(int index);
     /**
-     * <code>repeated string actions = 20;</code>
+     * <code>repeated string actions = 25;</code>
      */
     com.google.protobuf.ByteString
         getActionsBytes(int index);
 
     /**
-     * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+     * <code>optional bool commentsPresentIfEmpty = 26;</code>
+     */
+    boolean hasCommentsPresentIfEmpty();
+    /**
+     * <code>optional bool commentsPresentIfEmpty = 26;</code>
+     */
+    boolean getCommentsPresentIfEmpty();
+
+    /**
+     * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
      */
     java.util.List<org.sonarqube.ws.Issues.Comment> 
         getCommentsList();
     /**
-     * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+     * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
      */
     org.sonarqube.ws.Issues.Comment getComments(int index);
     /**
-     * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+     * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
      */
     int getCommentsCount();
     /**
-     * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+     * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
      */
     java.util.List<? extends org.sonarqube.ws.Issues.CommentOrBuilder> 
         getCommentsOrBuilderList();
     /**
-     * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+     * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
      */
     org.sonarqube.ws.Issues.CommentOrBuilder getCommentsOrBuilder(
         int index);
 
     /**
-     * <code>optional string creationDate = 22;</code>
+     * <code>optional string creationDate = 28;</code>
      */
     boolean hasCreationDate();
     /**
-     * <code>optional string creationDate = 22;</code>
+     * <code>optional string creationDate = 28;</code>
      */
     java.lang.String getCreationDate();
     /**
-     * <code>optional string creationDate = 22;</code>
+     * <code>optional string creationDate = 28;</code>
      */
     com.google.protobuf.ByteString
         getCreationDateBytes();
 
     /**
-     * <code>optional string updateDate = 23;</code>
+     * <code>optional string updateDate = 29;</code>
      */
     boolean hasUpdateDate();
     /**
-     * <code>optional string updateDate = 23;</code>
+     * <code>optional string updateDate = 29;</code>
      */
     java.lang.String getUpdateDate();
     /**
-     * <code>optional string updateDate = 23;</code>
+     * <code>optional string updateDate = 29;</code>
      */
     com.google.protobuf.ByteString
         getUpdateDateBytes();
 
     /**
-     * <code>optional string fUpdateAge = 24;</code>
+     * <code>optional string fUpdateAge = 30;</code>
      */
     boolean hasFUpdateAge();
     /**
-     * <code>optional string fUpdateAge = 24;</code>
+     * <code>optional string fUpdateAge = 30;</code>
      */
     java.lang.String getFUpdateAge();
     /**
-     * <code>optional string fUpdateAge = 24;</code>
+     * <code>optional string fUpdateAge = 30;</code>
      */
     com.google.protobuf.ByteString
         getFUpdateAgeBytes();
 
     /**
-     * <code>optional string closeDate = 25;</code>
+     * <code>optional string closeDate = 31;</code>
      */
     boolean hasCloseDate();
     /**
-     * <code>optional string closeDate = 25;</code>
+     * <code>optional string closeDate = 31;</code>
      */
     java.lang.String getCloseDate();
     /**
-     * <code>optional string closeDate = 25;</code>
+     * <code>optional string closeDate = 31;</code>
      */
     com.google.protobuf.ByteString
         getCloseDateBytes();
@@ -3177,150 +6273,198 @@ public final class Issues {
               rule_ = bs;
               break;
             }
-            case 26: {
+            case 24: {
+              int rawValue = input.readEnum();
+              org.sonarqube.ws.Common.Severity value = org.sonarqube.ws.Common.Severity.valueOf(rawValue);
+              if (value == null) {
+                unknownFields.mergeVarintField(3, rawValue);
+              } else {
+                bitField0_ |= 0x00000004;
+                severity_ = value;
+              }
+              break;
+            }
+            case 34: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000004;
+              bitField0_ |= 0x00000008;
               component_ = bs;
               break;
             }
-            case 32: {
-              bitField0_ |= 0x00000008;
-              componentId_ = input.readInt32();
-              break;
-            }
-            case 42: {
-              com.google.protobuf.ByteString bs = input.readBytes();
+            case 40: {
               bitField0_ |= 0x00000010;
-              project_ = bs;
+              componentId_ = input.readInt64();
               break;
             }
             case 50: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000020;
+              project_ = bs;
+              break;
+            }
+            case 58: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000040;
               subProject_ = bs;
               break;
             }
-            case 56: {
-              bitField0_ |= 0x00000040;
+            case 64: {
+              bitField0_ |= 0x00000080;
               line_ = input.readInt32();
               break;
             }
-            case 66: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000080;
-              resolution_ = bs;
-              break;
-            }
             case 74: {
-              com.google.protobuf.ByteString bs = input.readBytes();
+              org.sonarqube.ws.Common.TextRange.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000100) == 0x00000100)) {
+                subBuilder = textRange_.toBuilder();
+              }
+              textRange_ = input.readMessage(org.sonarqube.ws.Common.TextRange.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(textRange_);
+                textRange_ = subBuilder.buildPartial();
+              }
               bitField0_ |= 0x00000100;
-              status_ = bs;
               break;
             }
             case 82: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000200;
-              message_ = bs;
+              if (!((mutable_bitField0_ & 0x00000200) == 0x00000200)) {
+                secondaryLocations_ = new java.util.ArrayList<org.sonarqube.ws.Issues.Location>();
+                mutable_bitField0_ |= 0x00000200;
+              }
+              secondaryLocations_.add(input.readMessage(org.sonarqube.ws.Issues.Location.PARSER, extensionRegistry));
               break;
             }
             case 90: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000400;
-              debt_ = bs;
+              if (!((mutable_bitField0_ & 0x00000400) == 0x00000400)) {
+                executionFlows_ = new java.util.ArrayList<org.sonarqube.ws.Issues.ExecutionFlow>();
+                mutable_bitField0_ |= 0x00000400;
+              }
+              executionFlows_.add(input.readMessage(org.sonarqube.ws.Issues.ExecutionFlow.PARSER, extensionRegistry));
               break;
             }
             case 98: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000800;
-              assignee_ = bs;
+              bitField0_ |= 0x00000200;
+              resolution_ = bs;
               break;
             }
             case 106: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00001000;
-              reporter_ = bs;
+              bitField0_ |= 0x00000400;
+              status_ = bs;
               break;
             }
             case 114: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00002000;
-              scmAuthor_ = bs;
+              bitField0_ |= 0x00000800;
+              message_ = bs;
               break;
             }
             case 122: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00004000;
-              actionPlan_ = bs;
+              bitField0_ |= 0x00001000;
+              debt_ = bs;
               break;
             }
             case 130: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00008000;
-              actionPlanName_ = bs;
+              bitField0_ |= 0x00002000;
+              assignee_ = bs;
               break;
             }
             case 138: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00010000;
-              attr_ = bs;
+              bitField0_ |= 0x00004000;
+              reporter_ = bs;
               break;
             }
             case 146: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              if (!((mutable_bitField0_ & 0x00020000) == 0x00020000)) {
-                tags_ = new com.google.protobuf.LazyStringArrayList();
-                mutable_bitField0_ |= 0x00020000;
-              }
-              tags_.add(bs);
+              bitField0_ |= 0x00008000;
+              author_ = bs;
               break;
             }
             case 154: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              if (!((mutable_bitField0_ & 0x00040000) == 0x00040000)) {
-                transitions_ = new com.google.protobuf.LazyStringArrayList();
-                mutable_bitField0_ |= 0x00040000;
-              }
-              transitions_.add(bs);
+              bitField0_ |= 0x00010000;
+              actionPlan_ = bs;
               break;
             }
-            case 162: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              if (!((mutable_bitField0_ & 0x00080000) == 0x00080000)) {
-                actions_ = new com.google.protobuf.LazyStringArrayList();
-                mutable_bitField0_ |= 0x00080000;
-              }
-              actions_.add(bs);
+            case 160: {
+              bitField0_ |= 0x00020000;
+              tagsPresentIfEmpty_ = input.readBool();
               break;
             }
             case 170: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               if (!((mutable_bitField0_ & 0x00100000) == 0x00100000)) {
-                comments_ = new java.util.ArrayList<org.sonarqube.ws.Issues.Comment>();
+                tags_ = new com.google.protobuf.LazyStringArrayList();
                 mutable_bitField0_ |= 0x00100000;
               }
-              comments_.add(input.readMessage(org.sonarqube.ws.Issues.Comment.PARSER, extensionRegistry));
+              tags_.add(bs);
               break;
             }
-            case 178: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00020000;
-              creationDate_ = bs;
+            case 176: {
+              bitField0_ |= 0x00040000;
+              transitionsPresentIfEmpty_ = input.readBool();
               break;
             }
             case 186: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00040000;
-              updateDate_ = bs;
+              if (!((mutable_bitField0_ & 0x00400000) == 0x00400000)) {
+                transitions_ = new com.google.protobuf.LazyStringArrayList();
+                mutable_bitField0_ |= 0x00400000;
+              }
+              transitions_.add(bs);
               break;
             }
-            case 194: {
-              com.google.protobuf.ByteString bs = input.readBytes();
+            case 192: {
               bitField0_ |= 0x00080000;
-              fUpdateAge_ = bs;
+              actionsPresentIfEmpty_ = input.readBool();
               break;
             }
             case 202: {
               com.google.protobuf.ByteString bs = input.readBytes();
+              if (!((mutable_bitField0_ & 0x01000000) == 0x01000000)) {
+                actions_ = new com.google.protobuf.LazyStringArrayList();
+                mutable_bitField0_ |= 0x01000000;
+              }
+              actions_.add(bs);
+              break;
+            }
+            case 208: {
               bitField0_ |= 0x00100000;
+              commentsPresentIfEmpty_ = input.readBool();
+              break;
+            }
+            case 218: {
+              if (!((mutable_bitField0_ & 0x04000000) == 0x04000000)) {
+                comments_ = new java.util.ArrayList<org.sonarqube.ws.Issues.Comment>();
+                mutable_bitField0_ |= 0x04000000;
+              }
+              comments_.add(input.readMessage(org.sonarqube.ws.Issues.Comment.PARSER, extensionRegistry));
+              break;
+            }
+            case 226: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00200000;
+              creationDate_ = bs;
+              break;
+            }
+            case 234: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00400000;
+              updateDate_ = bs;
+              break;
+            }
+            case 242: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00800000;
+              fUpdateAge_ = bs;
+              break;
+            }
+            case 250: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x01000000;
               closeDate_ = bs;
               break;
             }
@@ -3332,16 +6476,22 @@ public final class Issues {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00020000) == 0x00020000)) {
-          tags_ = tags_.getUnmodifiableView();
+        if (((mutable_bitField0_ & 0x00000200) == 0x00000200)) {
+          secondaryLocations_ = java.util.Collections.unmodifiableList(secondaryLocations_);
         }
-        if (((mutable_bitField0_ & 0x00040000) == 0x00040000)) {
-          transitions_ = transitions_.getUnmodifiableView();
-        }
-        if (((mutable_bitField0_ & 0x00080000) == 0x00080000)) {
-          actions_ = actions_.getUnmodifiableView();
+        if (((mutable_bitField0_ & 0x00000400) == 0x00000400)) {
+          executionFlows_ = java.util.Collections.unmodifiableList(executionFlows_);
         }
         if (((mutable_bitField0_ & 0x00100000) == 0x00100000)) {
+          tags_ = tags_.getUnmodifiableView();
+        }
+        if (((mutable_bitField0_ & 0x00400000) == 0x00400000)) {
+          transitions_ = transitions_.getUnmodifiableView();
+        }
+        if (((mutable_bitField0_ & 0x01000000) == 0x01000000)) {
+          actions_ = actions_.getUnmodifiableView();
+        }
+        if (((mutable_bitField0_ & 0x04000000) == 0x04000000)) {
           comments_ = java.util.Collections.unmodifiableList(comments_);
         }
         this.unknownFields = unknownFields.build();
@@ -3460,16 +6610,31 @@ public final class Issues {
       }
     }
 
-    public static final int COMPONENT_FIELD_NUMBER = 3;
-    private java.lang.Object component_;
+    public static final int SEVERITY_FIELD_NUMBER = 3;
+    private org.sonarqube.ws.Common.Severity severity_;
     /**
-     * <code>optional string component = 3;</code>
+     * <code>optional .sonarqube.ws.commons.Severity severity = 3;</code>
      */
-    public boolean hasComponent() {
+    public boolean hasSeverity() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
-     * <code>optional string component = 3;</code>
+     * <code>optional .sonarqube.ws.commons.Severity severity = 3;</code>
+     */
+    public org.sonarqube.ws.Common.Severity getSeverity() {
+      return severity_;
+    }
+
+    public static final int COMPONENT_FIELD_NUMBER = 4;
+    private java.lang.Object component_;
+    /**
+     * <code>optional string component = 4;</code>
+     */
+    public boolean hasComponent() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    /**
+     * <code>optional string component = 4;</code>
      */
     public java.lang.String getComponent() {
       java.lang.Object ref = component_;
@@ -3486,7 +6651,7 @@ public final class Issues {
       }
     }
     /**
-     * <code>optional string component = 3;</code>
+     * <code>optional string component = 4;</code>
      */
     public com.google.protobuf.ByteString
         getComponentBytes() {
@@ -3502,31 +6667,31 @@ public final class Issues {
       }
     }
 
-    public static final int COMPONENTID_FIELD_NUMBER = 4;
-    private int componentId_;
+    public static final int COMPONENTID_FIELD_NUMBER = 5;
+    private long componentId_;
     /**
-     * <code>optional int32 componentId = 4;</code>
+     * <code>optional int64 componentId = 5;</code>
      */
     public boolean hasComponentId() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
-    }
-    /**
-     * <code>optional int32 componentId = 4;</code>
-     */
-    public int getComponentId() {
-      return componentId_;
-    }
-
-    public static final int PROJECT_FIELD_NUMBER = 5;
-    private java.lang.Object project_;
-    /**
-     * <code>optional string project = 5;</code>
-     */
-    public boolean hasProject() {
       return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
-     * <code>optional string project = 5;</code>
+     * <code>optional int64 componentId = 5;</code>
+     */
+    public long getComponentId() {
+      return componentId_;
+    }
+
+    public static final int PROJECT_FIELD_NUMBER = 6;
+    private java.lang.Object project_;
+    /**
+     * <code>optional string project = 6;</code>
+     */
+    public boolean hasProject() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    /**
+     * <code>optional string project = 6;</code>
      */
     public java.lang.String getProject() {
       java.lang.Object ref = project_;
@@ -3543,7 +6708,7 @@ public final class Issues {
       }
     }
     /**
-     * <code>optional string project = 5;</code>
+     * <code>optional string project = 6;</code>
      */
     public com.google.protobuf.ByteString
         getProjectBytes() {
@@ -3559,16 +6724,16 @@ public final class Issues {
       }
     }
 
-    public static final int SUBPROJECT_FIELD_NUMBER = 6;
+    public static final int SUBPROJECT_FIELD_NUMBER = 7;
     private java.lang.Object subProject_;
     /**
-     * <code>optional string subProject = 6;</code>
+     * <code>optional string subProject = 7;</code>
      */
     public boolean hasSubProject() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
+      return ((bitField0_ & 0x00000040) == 0x00000040);
     }
     /**
-     * <code>optional string subProject = 6;</code>
+     * <code>optional string subProject = 7;</code>
      */
     public java.lang.String getSubProject() {
       java.lang.Object ref = subProject_;
@@ -3585,7 +6750,7 @@ public final class Issues {
       }
     }
     /**
-     * <code>optional string subProject = 6;</code>
+     * <code>optional string subProject = 7;</code>
      */
     public com.google.protobuf.ByteString
         getSubProjectBytes() {
@@ -3601,31 +6766,122 @@ public final class Issues {
       }
     }
 
-    public static final int LINE_FIELD_NUMBER = 7;
+    public static final int LINE_FIELD_NUMBER = 8;
     private int line_;
     /**
-     * <code>optional int32 line = 7;</code>
+     * <code>optional int32 line = 8;</code>
      */
     public boolean hasLine() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
+      return ((bitField0_ & 0x00000080) == 0x00000080);
     }
     /**
-     * <code>optional int32 line = 7;</code>
+     * <code>optional int32 line = 8;</code>
      */
     public int getLine() {
       return line_;
     }
 
-    public static final int RESOLUTION_FIELD_NUMBER = 8;
-    private java.lang.Object resolution_;
+    public static final int TEXTRANGE_FIELD_NUMBER = 9;
+    private org.sonarqube.ws.Common.TextRange textRange_;
     /**
-     * <code>optional string resolution = 8;</code>
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
      */
-    public boolean hasResolution() {
-      return ((bitField0_ & 0x00000080) == 0x00000080);
+    public boolean hasTextRange() {
+      return ((bitField0_ & 0x00000100) == 0x00000100);
     }
     /**
-     * <code>optional string resolution = 8;</code>
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
+     */
+    public org.sonarqube.ws.Common.TextRange getTextRange() {
+      return textRange_;
+    }
+    /**
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
+     */
+    public org.sonarqube.ws.Common.TextRangeOrBuilder getTextRangeOrBuilder() {
+      return textRange_;
+    }
+
+    public static final int SECONDARYLOCATIONS_FIELD_NUMBER = 10;
+    private java.util.List<org.sonarqube.ws.Issues.Location> secondaryLocations_;
+    /**
+     * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+     */
+    public java.util.List<org.sonarqube.ws.Issues.Location> getSecondaryLocationsList() {
+      return secondaryLocations_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+     */
+    public java.util.List<? extends org.sonarqube.ws.Issues.LocationOrBuilder> 
+        getSecondaryLocationsOrBuilderList() {
+      return secondaryLocations_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+     */
+    public int getSecondaryLocationsCount() {
+      return secondaryLocations_.size();
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+     */
+    public org.sonarqube.ws.Issues.Location getSecondaryLocations(int index) {
+      return secondaryLocations_.get(index);
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+     */
+    public org.sonarqube.ws.Issues.LocationOrBuilder getSecondaryLocationsOrBuilder(
+        int index) {
+      return secondaryLocations_.get(index);
+    }
+
+    public static final int EXECUTIONFLOWS_FIELD_NUMBER = 11;
+    private java.util.List<org.sonarqube.ws.Issues.ExecutionFlow> executionFlows_;
+    /**
+     * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+     */
+    public java.util.List<org.sonarqube.ws.Issues.ExecutionFlow> getExecutionFlowsList() {
+      return executionFlows_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+     */
+    public java.util.List<? extends org.sonarqube.ws.Issues.ExecutionFlowOrBuilder> 
+        getExecutionFlowsOrBuilderList() {
+      return executionFlows_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+     */
+    public int getExecutionFlowsCount() {
+      return executionFlows_.size();
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+     */
+    public org.sonarqube.ws.Issues.ExecutionFlow getExecutionFlows(int index) {
+      return executionFlows_.get(index);
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+     */
+    public org.sonarqube.ws.Issues.ExecutionFlowOrBuilder getExecutionFlowsOrBuilder(
+        int index) {
+      return executionFlows_.get(index);
+    }
+
+    public static final int RESOLUTION_FIELD_NUMBER = 12;
+    private java.lang.Object resolution_;
+    /**
+     * <code>optional string resolution = 12;</code>
+     */
+    public boolean hasResolution() {
+      return ((bitField0_ & 0x00000200) == 0x00000200);
+    }
+    /**
+     * <code>optional string resolution = 12;</code>
      */
     public java.lang.String getResolution() {
       java.lang.Object ref = resolution_;
@@ -3642,7 +6898,7 @@ public final class Issues {
       }
     }
     /**
-     * <code>optional string resolution = 8;</code>
+     * <code>optional string resolution = 12;</code>
      */
     public com.google.protobuf.ByteString
         getResolutionBytes() {
@@ -3658,16 +6914,16 @@ public final class Issues {
       }
     }
 
-    public static final int STATUS_FIELD_NUMBER = 9;
+    public static final int STATUS_FIELD_NUMBER = 13;
     private java.lang.Object status_;
     /**
-     * <code>optional string status = 9;</code>
+     * <code>optional string status = 13;</code>
      */
     public boolean hasStatus() {
-      return ((bitField0_ & 0x00000100) == 0x00000100);
+      return ((bitField0_ & 0x00000400) == 0x00000400);
     }
     /**
-     * <code>optional string status = 9;</code>
+     * <code>optional string status = 13;</code>
      */
     public java.lang.String getStatus() {
       java.lang.Object ref = status_;
@@ -3684,7 +6940,7 @@ public final class Issues {
       }
     }
     /**
-     * <code>optional string status = 9;</code>
+     * <code>optional string status = 13;</code>
      */
     public com.google.protobuf.ByteString
         getStatusBytes() {
@@ -3700,16 +6956,16 @@ public final class Issues {
       }
     }
 
-    public static final int MESSAGE_FIELD_NUMBER = 10;
+    public static final int MESSAGE_FIELD_NUMBER = 14;
     private java.lang.Object message_;
     /**
-     * <code>optional string message = 10;</code>
+     * <code>optional string message = 14;</code>
      */
     public boolean hasMessage() {
-      return ((bitField0_ & 0x00000200) == 0x00000200);
+      return ((bitField0_ & 0x00000800) == 0x00000800);
     }
     /**
-     * <code>optional string message = 10;</code>
+     * <code>optional string message = 14;</code>
      */
     public java.lang.String getMessage() {
       java.lang.Object ref = message_;
@@ -3726,7 +6982,7 @@ public final class Issues {
       }
     }
     /**
-     * <code>optional string message = 10;</code>
+     * <code>optional string message = 14;</code>
      */
     public com.google.protobuf.ByteString
         getMessageBytes() {
@@ -3742,16 +6998,16 @@ public final class Issues {
       }
     }
 
-    public static final int DEBT_FIELD_NUMBER = 11;
+    public static final int DEBT_FIELD_NUMBER = 15;
     private java.lang.Object debt_;
     /**
-     * <code>optional string debt = 11;</code>
+     * <code>optional string debt = 15;</code>
      */
     public boolean hasDebt() {
-      return ((bitField0_ & 0x00000400) == 0x00000400);
+      return ((bitField0_ & 0x00001000) == 0x00001000);
     }
     /**
-     * <code>optional string debt = 11;</code>
+     * <code>optional string debt = 15;</code>
      */
     public java.lang.String getDebt() {
       java.lang.Object ref = debt_;
@@ -3768,7 +7024,7 @@ public final class Issues {
       }
     }
     /**
-     * <code>optional string debt = 11;</code>
+     * <code>optional string debt = 15;</code>
      */
     public com.google.protobuf.ByteString
         getDebtBytes() {
@@ -3784,16 +7040,16 @@ public final class Issues {
       }
     }
 
-    public static final int ASSIGNEE_FIELD_NUMBER = 12;
+    public static final int ASSIGNEE_FIELD_NUMBER = 16;
     private java.lang.Object assignee_;
     /**
-     * <code>optional string assignee = 12;</code>
+     * <code>optional string assignee = 16;</code>
      */
     public boolean hasAssignee() {
-      return ((bitField0_ & 0x00000800) == 0x00000800);
+      return ((bitField0_ & 0x00002000) == 0x00002000);
     }
     /**
-     * <code>optional string assignee = 12;</code>
+     * <code>optional string assignee = 16;</code>
      */
     public java.lang.String getAssignee() {
       java.lang.Object ref = assignee_;
@@ -3810,7 +7066,7 @@ public final class Issues {
       }
     }
     /**
-     * <code>optional string assignee = 12;</code>
+     * <code>optional string assignee = 16;</code>
      */
     public com.google.protobuf.ByteString
         getAssigneeBytes() {
@@ -3826,16 +7082,16 @@ public final class Issues {
       }
     }
 
-    public static final int REPORTER_FIELD_NUMBER = 13;
+    public static final int REPORTER_FIELD_NUMBER = 17;
     private java.lang.Object reporter_;
     /**
-     * <code>optional string reporter = 13;</code>
+     * <code>optional string reporter = 17;</code>
      */
     public boolean hasReporter() {
-      return ((bitField0_ & 0x00001000) == 0x00001000);
+      return ((bitField0_ & 0x00004000) == 0x00004000);
     }
     /**
-     * <code>optional string reporter = 13;</code>
+     * <code>optional string reporter = 17;</code>
      */
     public java.lang.String getReporter() {
       java.lang.Object ref = reporter_;
@@ -3852,7 +7108,7 @@ public final class Issues {
       }
     }
     /**
-     * <code>optional string reporter = 13;</code>
+     * <code>optional string reporter = 17;</code>
      */
     public com.google.protobuf.ByteString
         getReporterBytes() {
@@ -3868,19 +7124,27 @@ public final class Issues {
       }
     }
 
-    public static final int SCMAUTHOR_FIELD_NUMBER = 14;
-    private java.lang.Object scmAuthor_;
+    public static final int AUTHOR_FIELD_NUMBER = 18;
+    private java.lang.Object author_;
     /**
-     * <code>optional string scmAuthor = 14;</code>
+     * <code>optional string author = 18;</code>
+     *
+     * <pre>
+     * SCM login of the committer who introduced the issue
+     * </pre>
      */
-    public boolean hasScmAuthor() {
-      return ((bitField0_ & 0x00002000) == 0x00002000);
+    public boolean hasAuthor() {
+      return ((bitField0_ & 0x00008000) == 0x00008000);
     }
     /**
-     * <code>optional string scmAuthor = 14;</code>
+     * <code>optional string author = 18;</code>
+     *
+     * <pre>
+     * SCM login of the committer who introduced the issue
+     * </pre>
      */
-    public java.lang.String getScmAuthor() {
-      java.lang.Object ref = scmAuthor_;
+    public java.lang.String getAuthor() {
+      java.lang.Object ref = author_;
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
@@ -3888,38 +7152,42 @@ public final class Issues {
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
-          scmAuthor_ = s;
+          author_ = s;
         }
         return s;
       }
     }
     /**
-     * <code>optional string scmAuthor = 14;</code>
+     * <code>optional string author = 18;</code>
+     *
+     * <pre>
+     * SCM login of the committer who introduced the issue
+     * </pre>
      */
     public com.google.protobuf.ByteString
-        getScmAuthorBytes() {
-      java.lang.Object ref = scmAuthor_;
+        getAuthorBytes() {
+      java.lang.Object ref = author_;
       if (ref instanceof java.lang.String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        scmAuthor_ = b;
+        author_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
       }
     }
 
-    public static final int ACTIONPLAN_FIELD_NUMBER = 15;
+    public static final int ACTIONPLAN_FIELD_NUMBER = 19;
     private java.lang.Object actionPlan_;
     /**
-     * <code>optional string actionPlan = 15;</code>
+     * <code>optional string actionPlan = 19;</code>
      */
     public boolean hasActionPlan() {
-      return ((bitField0_ & 0x00004000) == 0x00004000);
+      return ((bitField0_ & 0x00010000) == 0x00010000);
     }
     /**
-     * <code>optional string actionPlan = 15;</code>
+     * <code>optional string actionPlan = 19;</code>
      */
     public java.lang.String getActionPlan() {
       java.lang.Object ref = actionPlan_;
@@ -3936,7 +7204,7 @@ public final class Issues {
       }
     }
     /**
-     * <code>optional string actionPlan = 15;</code>
+     * <code>optional string actionPlan = 19;</code>
      */
     public com.google.protobuf.ByteString
         getActionPlanBytes() {
@@ -3952,222 +7220,214 @@ public final class Issues {
       }
     }
 
-    public static final int ACTIONPLANNAME_FIELD_NUMBER = 16;
-    private java.lang.Object actionPlanName_;
+    public static final int TAGSPRESENTIFEMPTY_FIELD_NUMBER = 20;
+    private boolean tagsPresentIfEmpty_;
     /**
-     * <code>optional string actionPlanName = 16;</code>
+     * <code>optional bool tagsPresentIfEmpty = 20;</code>
      */
-    public boolean hasActionPlanName() {
-      return ((bitField0_ & 0x00008000) == 0x00008000);
+    public boolean hasTagsPresentIfEmpty() {
+      return ((bitField0_ & 0x00020000) == 0x00020000);
     }
     /**
-     * <code>optional string actionPlanName = 16;</code>
+     * <code>optional bool tagsPresentIfEmpty = 20;</code>
      */
-    public java.lang.String getActionPlanName() {
-      java.lang.Object ref = actionPlanName_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          actionPlanName_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string actionPlanName = 16;</code>
-     */
-    public com.google.protobuf.ByteString
-        getActionPlanNameBytes() {
-      java.lang.Object ref = actionPlanName_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        actionPlanName_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
+    public boolean getTagsPresentIfEmpty() {
+      return tagsPresentIfEmpty_;
     }
 
-    public static final int ATTR_FIELD_NUMBER = 17;
-    private java.lang.Object attr_;
-    /**
-     * <code>optional string attr = 17;</code>
-     */
-    public boolean hasAttr() {
-      return ((bitField0_ & 0x00010000) == 0x00010000);
-    }
-    /**
-     * <code>optional string attr = 17;</code>
-     */
-    public java.lang.String getAttr() {
-      java.lang.Object ref = attr_;
-      if (ref instanceof java.lang.String) {
-        return (java.lang.String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          attr_ = s;
-        }
-        return s;
-      }
-    }
-    /**
-     * <code>optional string attr = 17;</code>
-     */
-    public com.google.protobuf.ByteString
-        getAttrBytes() {
-      java.lang.Object ref = attr_;
-      if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        attr_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-
-    public static final int TAGS_FIELD_NUMBER = 18;
+    public static final int TAGS_FIELD_NUMBER = 21;
     private com.google.protobuf.LazyStringList tags_;
     /**
-     * <code>repeated string tags = 18;</code>
+     * <code>repeated string tags = 21;</code>
      */
     public com.google.protobuf.ProtocolStringList
         getTagsList() {
       return tags_;
     }
     /**
-     * <code>repeated string tags = 18;</code>
+     * <code>repeated string tags = 21;</code>
      */
     public int getTagsCount() {
       return tags_.size();
     }
     /**
-     * <code>repeated string tags = 18;</code>
+     * <code>repeated string tags = 21;</code>
      */
     public java.lang.String getTags(int index) {
       return tags_.get(index);
     }
     /**
-     * <code>repeated string tags = 18;</code>
+     * <code>repeated string tags = 21;</code>
      */
     public com.google.protobuf.ByteString
         getTagsBytes(int index) {
       return tags_.getByteString(index);
     }
 
-    public static final int TRANSITIONS_FIELD_NUMBER = 19;
+    public static final int TRANSITIONSPRESENTIFEMPTY_FIELD_NUMBER = 22;
+    private boolean transitionsPresentIfEmpty_;
+    /**
+     * <code>optional bool transitionsPresentIfEmpty = 22;</code>
+     *
+     * <pre>
+     * the transitions allowed for the requesting user.
+     * </pre>
+     */
+    public boolean hasTransitionsPresentIfEmpty() {
+      return ((bitField0_ & 0x00040000) == 0x00040000);
+    }
+    /**
+     * <code>optional bool transitionsPresentIfEmpty = 22;</code>
+     *
+     * <pre>
+     * the transitions allowed for the requesting user.
+     * </pre>
+     */
+    public boolean getTransitionsPresentIfEmpty() {
+      return transitionsPresentIfEmpty_;
+    }
+
+    public static final int TRANSITIONS_FIELD_NUMBER = 23;
     private com.google.protobuf.LazyStringList transitions_;
     /**
-     * <code>repeated string transitions = 19;</code>
+     * <code>repeated string transitions = 23;</code>
      */
     public com.google.protobuf.ProtocolStringList
         getTransitionsList() {
       return transitions_;
     }
     /**
-     * <code>repeated string transitions = 19;</code>
+     * <code>repeated string transitions = 23;</code>
      */
     public int getTransitionsCount() {
       return transitions_.size();
     }
     /**
-     * <code>repeated string transitions = 19;</code>
+     * <code>repeated string transitions = 23;</code>
      */
     public java.lang.String getTransitions(int index) {
       return transitions_.get(index);
     }
     /**
-     * <code>repeated string transitions = 19;</code>
+     * <code>repeated string transitions = 23;</code>
      */
     public com.google.protobuf.ByteString
         getTransitionsBytes(int index) {
       return transitions_.getByteString(index);
     }
 
-    public static final int ACTIONS_FIELD_NUMBER = 20;
+    public static final int ACTIONSPRESENTIFEMPTY_FIELD_NUMBER = 24;
+    private boolean actionsPresentIfEmpty_;
+    /**
+     * <code>optional bool actionsPresentIfEmpty = 24;</code>
+     *
+     * <pre>
+     * the actions allowed for the requesting user.
+     * </pre>
+     */
+    public boolean hasActionsPresentIfEmpty() {
+      return ((bitField0_ & 0x00080000) == 0x00080000);
+    }
+    /**
+     * <code>optional bool actionsPresentIfEmpty = 24;</code>
+     *
+     * <pre>
+     * the actions allowed for the requesting user.
+     * </pre>
+     */
+    public boolean getActionsPresentIfEmpty() {
+      return actionsPresentIfEmpty_;
+    }
+
+    public static final int ACTIONS_FIELD_NUMBER = 25;
     private com.google.protobuf.LazyStringList actions_;
     /**
-     * <code>repeated string actions = 20;</code>
+     * <code>repeated string actions = 25;</code>
      */
     public com.google.protobuf.ProtocolStringList
         getActionsList() {
       return actions_;
     }
     /**
-     * <code>repeated string actions = 20;</code>
+     * <code>repeated string actions = 25;</code>
      */
     public int getActionsCount() {
       return actions_.size();
     }
     /**
-     * <code>repeated string actions = 20;</code>
+     * <code>repeated string actions = 25;</code>
      */
     public java.lang.String getActions(int index) {
       return actions_.get(index);
     }
     /**
-     * <code>repeated string actions = 20;</code>
+     * <code>repeated string actions = 25;</code>
      */
     public com.google.protobuf.ByteString
         getActionsBytes(int index) {
       return actions_.getByteString(index);
     }
 
-    public static final int COMMENTS_FIELD_NUMBER = 21;
+    public static final int COMMENTSPRESENTIFEMPTY_FIELD_NUMBER = 26;
+    private boolean commentsPresentIfEmpty_;
+    /**
+     * <code>optional bool commentsPresentIfEmpty = 26;</code>
+     */
+    public boolean hasCommentsPresentIfEmpty() {
+      return ((bitField0_ & 0x00100000) == 0x00100000);
+    }
+    /**
+     * <code>optional bool commentsPresentIfEmpty = 26;</code>
+     */
+    public boolean getCommentsPresentIfEmpty() {
+      return commentsPresentIfEmpty_;
+    }
+
+    public static final int COMMENTS_FIELD_NUMBER = 27;
     private java.util.List<org.sonarqube.ws.Issues.Comment> comments_;
     /**
-     * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+     * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
      */
     public java.util.List<org.sonarqube.ws.Issues.Comment> getCommentsList() {
       return comments_;
     }
     /**
-     * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+     * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
      */
     public java.util.List<? extends org.sonarqube.ws.Issues.CommentOrBuilder> 
         getCommentsOrBuilderList() {
       return comments_;
     }
     /**
-     * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+     * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
      */
     public int getCommentsCount() {
       return comments_.size();
     }
     /**
-     * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+     * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
      */
     public org.sonarqube.ws.Issues.Comment getComments(int index) {
       return comments_.get(index);
     }
     /**
-     * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+     * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
      */
     public org.sonarqube.ws.Issues.CommentOrBuilder getCommentsOrBuilder(
         int index) {
       return comments_.get(index);
     }
 
-    public static final int CREATIONDATE_FIELD_NUMBER = 22;
+    public static final int CREATIONDATE_FIELD_NUMBER = 28;
     private java.lang.Object creationDate_;
     /**
-     * <code>optional string creationDate = 22;</code>
+     * <code>optional string creationDate = 28;</code>
      */
     public boolean hasCreationDate() {
-      return ((bitField0_ & 0x00020000) == 0x00020000);
+      return ((bitField0_ & 0x00200000) == 0x00200000);
     }
     /**
-     * <code>optional string creationDate = 22;</code>
+     * <code>optional string creationDate = 28;</code>
      */
     public java.lang.String getCreationDate() {
       java.lang.Object ref = creationDate_;
@@ -4184,7 +7444,7 @@ public final class Issues {
       }
     }
     /**
-     * <code>optional string creationDate = 22;</code>
+     * <code>optional string creationDate = 28;</code>
      */
     public com.google.protobuf.ByteString
         getCreationDateBytes() {
@@ -4200,16 +7460,16 @@ public final class Issues {
       }
     }
 
-    public static final int UPDATEDATE_FIELD_NUMBER = 23;
+    public static final int UPDATEDATE_FIELD_NUMBER = 29;
     private java.lang.Object updateDate_;
     /**
-     * <code>optional string updateDate = 23;</code>
+     * <code>optional string updateDate = 29;</code>
      */
     public boolean hasUpdateDate() {
-      return ((bitField0_ & 0x00040000) == 0x00040000);
+      return ((bitField0_ & 0x00400000) == 0x00400000);
     }
     /**
-     * <code>optional string updateDate = 23;</code>
+     * <code>optional string updateDate = 29;</code>
      */
     public java.lang.String getUpdateDate() {
       java.lang.Object ref = updateDate_;
@@ -4226,7 +7486,7 @@ public final class Issues {
       }
     }
     /**
-     * <code>optional string updateDate = 23;</code>
+     * <code>optional string updateDate = 29;</code>
      */
     public com.google.protobuf.ByteString
         getUpdateDateBytes() {
@@ -4242,16 +7502,16 @@ public final class Issues {
       }
     }
 
-    public static final int FUPDATEAGE_FIELD_NUMBER = 24;
+    public static final int FUPDATEAGE_FIELD_NUMBER = 30;
     private java.lang.Object fUpdateAge_;
     /**
-     * <code>optional string fUpdateAge = 24;</code>
+     * <code>optional string fUpdateAge = 30;</code>
      */
     public boolean hasFUpdateAge() {
-      return ((bitField0_ & 0x00080000) == 0x00080000);
+      return ((bitField0_ & 0x00800000) == 0x00800000);
     }
     /**
-     * <code>optional string fUpdateAge = 24;</code>
+     * <code>optional string fUpdateAge = 30;</code>
      */
     public java.lang.String getFUpdateAge() {
       java.lang.Object ref = fUpdateAge_;
@@ -4268,7 +7528,7 @@ public final class Issues {
       }
     }
     /**
-     * <code>optional string fUpdateAge = 24;</code>
+     * <code>optional string fUpdateAge = 30;</code>
      */
     public com.google.protobuf.ByteString
         getFUpdateAgeBytes() {
@@ -4284,16 +7544,16 @@ public final class Issues {
       }
     }
 
-    public static final int CLOSEDATE_FIELD_NUMBER = 25;
+    public static final int CLOSEDATE_FIELD_NUMBER = 31;
     private java.lang.Object closeDate_;
     /**
-     * <code>optional string closeDate = 25;</code>
+     * <code>optional string closeDate = 31;</code>
      */
     public boolean hasCloseDate() {
-      return ((bitField0_ & 0x00100000) == 0x00100000);
+      return ((bitField0_ & 0x01000000) == 0x01000000);
     }
     /**
-     * <code>optional string closeDate = 25;</code>
+     * <code>optional string closeDate = 31;</code>
      */
     public java.lang.String getCloseDate() {
       java.lang.Object ref = closeDate_;
@@ -4310,7 +7570,7 @@ public final class Issues {
       }
     }
     /**
-     * <code>optional string closeDate = 25;</code>
+     * <code>optional string closeDate = 31;</code>
      */
     public com.google.protobuf.ByteString
         getCloseDateBytes() {
@@ -4329,24 +7589,30 @@ public final class Issues {
     private void initFields() {
       key_ = "";
       rule_ = "";
+      severity_ = org.sonarqube.ws.Common.Severity.INFO;
       component_ = "";
-      componentId_ = 0;
+      componentId_ = 0L;
       project_ = "";
       subProject_ = "";
       line_ = 0;
+      textRange_ = org.sonarqube.ws.Common.TextRange.getDefaultInstance();
+      secondaryLocations_ = java.util.Collections.emptyList();
+      executionFlows_ = java.util.Collections.emptyList();
       resolution_ = "";
       status_ = "";
       message_ = "";
       debt_ = "";
       assignee_ = "";
       reporter_ = "";
-      scmAuthor_ = "";
+      author_ = "";
       actionPlan_ = "";
-      actionPlanName_ = "";
-      attr_ = "";
+      tagsPresentIfEmpty_ = false;
       tags_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      transitionsPresentIfEmpty_ = false;
       transitions_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      actionsPresentIfEmpty_ = false;
       actions_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      commentsPresentIfEmpty_ = false;
       comments_ = java.util.Collections.emptyList();
       creationDate_ = "";
       updateDate_ = "";
@@ -4373,73 +7639,91 @@ public final class Issues {
         output.writeBytes(2, getRuleBytes());
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeBytes(3, getComponentBytes());
+        output.writeEnum(3, severity_.getNumber());
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeInt32(4, componentId_);
+        output.writeBytes(4, getComponentBytes());
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeBytes(5, getProjectBytes());
+        output.writeInt64(5, componentId_);
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        output.writeBytes(6, getSubProjectBytes());
+        output.writeBytes(6, getProjectBytes());
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
-        output.writeInt32(7, line_);
+        output.writeBytes(7, getSubProjectBytes());
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
-        output.writeBytes(8, getResolutionBytes());
+        output.writeInt32(8, line_);
       }
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
-        output.writeBytes(9, getStatusBytes());
+        output.writeMessage(9, textRange_);
+      }
+      for (int i = 0; i < secondaryLocations_.size(); i++) {
+        output.writeMessage(10, secondaryLocations_.get(i));
+      }
+      for (int i = 0; i < executionFlows_.size(); i++) {
+        output.writeMessage(11, executionFlows_.get(i));
       }
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        output.writeBytes(10, getMessageBytes());
+        output.writeBytes(12, getResolutionBytes());
       }
       if (((bitField0_ & 0x00000400) == 0x00000400)) {
-        output.writeBytes(11, getDebtBytes());
+        output.writeBytes(13, getStatusBytes());
       }
       if (((bitField0_ & 0x00000800) == 0x00000800)) {
-        output.writeBytes(12, getAssigneeBytes());
+        output.writeBytes(14, getMessageBytes());
       }
       if (((bitField0_ & 0x00001000) == 0x00001000)) {
-        output.writeBytes(13, getReporterBytes());
+        output.writeBytes(15, getDebtBytes());
       }
       if (((bitField0_ & 0x00002000) == 0x00002000)) {
-        output.writeBytes(14, getScmAuthorBytes());
+        output.writeBytes(16, getAssigneeBytes());
       }
       if (((bitField0_ & 0x00004000) == 0x00004000)) {
-        output.writeBytes(15, getActionPlanBytes());
+        output.writeBytes(17, getReporterBytes());
       }
       if (((bitField0_ & 0x00008000) == 0x00008000)) {
-        output.writeBytes(16, getActionPlanNameBytes());
+        output.writeBytes(18, getAuthorBytes());
       }
       if (((bitField0_ & 0x00010000) == 0x00010000)) {
-        output.writeBytes(17, getAttrBytes());
-      }
-      for (int i = 0; i < tags_.size(); i++) {
-        output.writeBytes(18, tags_.getByteString(i));
-      }
-      for (int i = 0; i < transitions_.size(); i++) {
-        output.writeBytes(19, transitions_.getByteString(i));
-      }
-      for (int i = 0; i < actions_.size(); i++) {
-        output.writeBytes(20, actions_.getByteString(i));
-      }
-      for (int i = 0; i < comments_.size(); i++) {
-        output.writeMessage(21, comments_.get(i));
+        output.writeBytes(19, getActionPlanBytes());
       }
       if (((bitField0_ & 0x00020000) == 0x00020000)) {
-        output.writeBytes(22, getCreationDateBytes());
+        output.writeBool(20, tagsPresentIfEmpty_);
+      }
+      for (int i = 0; i < tags_.size(); i++) {
+        output.writeBytes(21, tags_.getByteString(i));
       }
       if (((bitField0_ & 0x00040000) == 0x00040000)) {
-        output.writeBytes(23, getUpdateDateBytes());
+        output.writeBool(22, transitionsPresentIfEmpty_);
+      }
+      for (int i = 0; i < transitions_.size(); i++) {
+        output.writeBytes(23, transitions_.getByteString(i));
       }
       if (((bitField0_ & 0x00080000) == 0x00080000)) {
-        output.writeBytes(24, getFUpdateAgeBytes());
+        output.writeBool(24, actionsPresentIfEmpty_);
+      }
+      for (int i = 0; i < actions_.size(); i++) {
+        output.writeBytes(25, actions_.getByteString(i));
       }
       if (((bitField0_ & 0x00100000) == 0x00100000)) {
-        output.writeBytes(25, getCloseDateBytes());
+        output.writeBool(26, commentsPresentIfEmpty_);
+      }
+      for (int i = 0; i < comments_.size(); i++) {
+        output.writeMessage(27, comments_.get(i));
+      }
+      if (((bitField0_ & 0x00200000) == 0x00200000)) {
+        output.writeBytes(28, getCreationDateBytes());
+      }
+      if (((bitField0_ & 0x00400000) == 0x00400000)) {
+        output.writeBytes(29, getUpdateDateBytes());
+      }
+      if (((bitField0_ & 0x00800000) == 0x00800000)) {
+        output.writeBytes(30, getFUpdateAgeBytes());
+      }
+      if (((bitField0_ & 0x01000000) == 0x01000000)) {
+        output.writeBytes(31, getCloseDateBytes());
       }
       getUnknownFields().writeTo(output);
     }
@@ -4460,63 +7744,75 @@ public final class Issues {
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(3, getComponentBytes());
+          .computeEnumSize(3, severity_.getNumber());
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(4, componentId_);
+          .computeBytesSize(4, getComponentBytes());
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(5, getProjectBytes());
+          .computeInt64Size(5, componentId_);
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(6, getSubProjectBytes());
+          .computeBytesSize(6, getProjectBytes());
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(7, line_);
+          .computeBytesSize(7, getSubProjectBytes());
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(8, getResolutionBytes());
+          .computeInt32Size(8, line_);
       }
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(9, getStatusBytes());
+          .computeMessageSize(9, textRange_);
+      }
+      for (int i = 0; i < secondaryLocations_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(10, secondaryLocations_.get(i));
+      }
+      for (int i = 0; i < executionFlows_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(11, executionFlows_.get(i));
       }
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(10, getMessageBytes());
+          .computeBytesSize(12, getResolutionBytes());
       }
       if (((bitField0_ & 0x00000400) == 0x00000400)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(11, getDebtBytes());
+          .computeBytesSize(13, getStatusBytes());
       }
       if (((bitField0_ & 0x00000800) == 0x00000800)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(12, getAssigneeBytes());
+          .computeBytesSize(14, getMessageBytes());
       }
       if (((bitField0_ & 0x00001000) == 0x00001000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(13, getReporterBytes());
+          .computeBytesSize(15, getDebtBytes());
       }
       if (((bitField0_ & 0x00002000) == 0x00002000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(14, getScmAuthorBytes());
+          .computeBytesSize(16, getAssigneeBytes());
       }
       if (((bitField0_ & 0x00004000) == 0x00004000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(15, getActionPlanBytes());
+          .computeBytesSize(17, getReporterBytes());
       }
       if (((bitField0_ & 0x00008000) == 0x00008000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(16, getActionPlanNameBytes());
+          .computeBytesSize(18, getAuthorBytes());
       }
       if (((bitField0_ & 0x00010000) == 0x00010000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(17, getAttrBytes());
+          .computeBytesSize(19, getActionPlanBytes());
+      }
+      if (((bitField0_ & 0x00020000) == 0x00020000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(20, tagsPresentIfEmpty_);
       }
       {
         int dataSize = 0;
@@ -4527,6 +7823,10 @@ public final class Issues {
         size += dataSize;
         size += 2 * getTagsList().size();
       }
+      if (((bitField0_ & 0x00040000) == 0x00040000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(22, transitionsPresentIfEmpty_);
+      }
       {
         int dataSize = 0;
         for (int i = 0; i < transitions_.size(); i++) {
@@ -4535,6 +7835,10 @@ public final class Issues {
         }
         size += dataSize;
         size += 2 * getTransitionsList().size();
+      }
+      if (((bitField0_ & 0x00080000) == 0x00080000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(24, actionsPresentIfEmpty_);
       }
       {
         int dataSize = 0;
@@ -4545,25 +7849,29 @@ public final class Issues {
         size += dataSize;
         size += 2 * getActionsList().size();
       }
-      for (int i = 0; i < comments_.size(); i++) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(21, comments_.get(i));
-      }
-      if (((bitField0_ & 0x00020000) == 0x00020000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(22, getCreationDateBytes());
-      }
-      if (((bitField0_ & 0x00040000) == 0x00040000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(23, getUpdateDateBytes());
-      }
-      if (((bitField0_ & 0x00080000) == 0x00080000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(24, getFUpdateAgeBytes());
-      }
       if (((bitField0_ & 0x00100000) == 0x00100000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(25, getCloseDateBytes());
+          .computeBoolSize(26, commentsPresentIfEmpty_);
+      }
+      for (int i = 0; i < comments_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(27, comments_.get(i));
+      }
+      if (((bitField0_ & 0x00200000) == 0x00200000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(28, getCreationDateBytes());
+      }
+      if (((bitField0_ & 0x00400000) == 0x00400000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(29, getUpdateDateBytes());
+      }
+      if (((bitField0_ & 0x00800000) == 0x00800000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(30, getFUpdateAgeBytes());
+      }
+      if (((bitField0_ & 0x01000000) == 0x01000000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(31, getCloseDateBytes());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -4674,6 +7982,9 @@ public final class Issues {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getTextRangeFieldBuilder();
+          getSecondaryLocationsFieldBuilder();
+          getExecutionFlowsFieldBuilder();
           getCommentsFieldBuilder();
         }
       }
@@ -4687,56 +7998,80 @@ public final class Issues {
         bitField0_ = (bitField0_ & ~0x00000001);
         rule_ = "";
         bitField0_ = (bitField0_ & ~0x00000002);
-        component_ = "";
+        severity_ = org.sonarqube.ws.Common.Severity.INFO;
         bitField0_ = (bitField0_ & ~0x00000004);
-        componentId_ = 0;
+        component_ = "";
         bitField0_ = (bitField0_ & ~0x00000008);
-        project_ = "";
+        componentId_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000010);
-        subProject_ = "";
+        project_ = "";
         bitField0_ = (bitField0_ & ~0x00000020);
-        line_ = 0;
+        subProject_ = "";
         bitField0_ = (bitField0_ & ~0x00000040);
-        resolution_ = "";
+        line_ = 0;
         bitField0_ = (bitField0_ & ~0x00000080);
-        status_ = "";
+        if (textRangeBuilder_ == null) {
+          textRange_ = org.sonarqube.ws.Common.TextRange.getDefaultInstance();
+        } else {
+          textRangeBuilder_.clear();
+        }
         bitField0_ = (bitField0_ & ~0x00000100);
-        message_ = "";
-        bitField0_ = (bitField0_ & ~0x00000200);
-        debt_ = "";
-        bitField0_ = (bitField0_ & ~0x00000400);
-        assignee_ = "";
+        if (secondaryLocationsBuilder_ == null) {
+          secondaryLocations_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000200);
+        } else {
+          secondaryLocationsBuilder_.clear();
+        }
+        if (executionFlowsBuilder_ == null) {
+          executionFlows_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000400);
+        } else {
+          executionFlowsBuilder_.clear();
+        }
+        resolution_ = "";
         bitField0_ = (bitField0_ & ~0x00000800);
-        reporter_ = "";
+        status_ = "";
         bitField0_ = (bitField0_ & ~0x00001000);
-        scmAuthor_ = "";
+        message_ = "";
         bitField0_ = (bitField0_ & ~0x00002000);
-        actionPlan_ = "";
+        debt_ = "";
         bitField0_ = (bitField0_ & ~0x00004000);
-        actionPlanName_ = "";
+        assignee_ = "";
         bitField0_ = (bitField0_ & ~0x00008000);
-        attr_ = "";
+        reporter_ = "";
         bitField0_ = (bitField0_ & ~0x00010000);
-        tags_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        author_ = "";
         bitField0_ = (bitField0_ & ~0x00020000);
-        transitions_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        actionPlan_ = "";
         bitField0_ = (bitField0_ & ~0x00040000);
-        actions_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        tagsPresentIfEmpty_ = false;
         bitField0_ = (bitField0_ & ~0x00080000);
+        tags_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00100000);
+        transitionsPresentIfEmpty_ = false;
+        bitField0_ = (bitField0_ & ~0x00200000);
+        transitions_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00400000);
+        actionsPresentIfEmpty_ = false;
+        bitField0_ = (bitField0_ & ~0x00800000);
+        actions_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+        bitField0_ = (bitField0_ & ~0x01000000);
+        commentsPresentIfEmpty_ = false;
+        bitField0_ = (bitField0_ & ~0x02000000);
         if (commentsBuilder_ == null) {
           comments_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00100000);
+          bitField0_ = (bitField0_ & ~0x04000000);
         } else {
           commentsBuilder_.clear();
         }
         creationDate_ = "";
-        bitField0_ = (bitField0_ & ~0x00200000);
+        bitField0_ = (bitField0_ & ~0x08000000);
         updateDate_ = "";
-        bitField0_ = (bitField0_ & ~0x00400000);
+        bitField0_ = (bitField0_ & ~0x10000000);
         fUpdateAge_ = "";
-        bitField0_ = (bitField0_ & ~0x00800000);
+        bitField0_ = (bitField0_ & ~0x20000000);
         closeDate_ = "";
-        bitField0_ = (bitField0_ & ~0x01000000);
+        bitField0_ = (bitField0_ & ~0x40000000);
         return this;
       }
 
@@ -4776,101 +8111,139 @@ public final class Issues {
         if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
           to_bitField0_ |= 0x00000004;
         }
-        result.component_ = component_;
+        result.severity_ = severity_;
         if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
           to_bitField0_ |= 0x00000008;
         }
-        result.componentId_ = componentId_;
+        result.component_ = component_;
         if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
           to_bitField0_ |= 0x00000010;
         }
-        result.project_ = project_;
+        result.componentId_ = componentId_;
         if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
           to_bitField0_ |= 0x00000020;
         }
-        result.subProject_ = subProject_;
+        result.project_ = project_;
         if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
           to_bitField0_ |= 0x00000040;
         }
-        result.line_ = line_;
+        result.subProject_ = subProject_;
         if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
           to_bitField0_ |= 0x00000080;
         }
-        result.resolution_ = resolution_;
+        result.line_ = line_;
         if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
           to_bitField0_ |= 0x00000100;
         }
-        result.status_ = status_;
-        if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
+        if (textRangeBuilder_ == null) {
+          result.textRange_ = textRange_;
+        } else {
+          result.textRange_ = textRangeBuilder_.build();
+        }
+        if (secondaryLocationsBuilder_ == null) {
+          if (((bitField0_ & 0x00000200) == 0x00000200)) {
+            secondaryLocations_ = java.util.Collections.unmodifiableList(secondaryLocations_);
+            bitField0_ = (bitField0_ & ~0x00000200);
+          }
+          result.secondaryLocations_ = secondaryLocations_;
+        } else {
+          result.secondaryLocations_ = secondaryLocationsBuilder_.build();
+        }
+        if (executionFlowsBuilder_ == null) {
+          if (((bitField0_ & 0x00000400) == 0x00000400)) {
+            executionFlows_ = java.util.Collections.unmodifiableList(executionFlows_);
+            bitField0_ = (bitField0_ & ~0x00000400);
+          }
+          result.executionFlows_ = executionFlows_;
+        } else {
+          result.executionFlows_ = executionFlowsBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
           to_bitField0_ |= 0x00000200;
         }
-        result.message_ = message_;
-        if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
+        result.resolution_ = resolution_;
+        if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
           to_bitField0_ |= 0x00000400;
         }
-        result.debt_ = debt_;
-        if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
+        result.status_ = status_;
+        if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
           to_bitField0_ |= 0x00000800;
         }
-        result.assignee_ = assignee_;
-        if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
+        result.message_ = message_;
+        if (((from_bitField0_ & 0x00004000) == 0x00004000)) {
           to_bitField0_ |= 0x00001000;
         }
-        result.reporter_ = reporter_;
-        if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
+        result.debt_ = debt_;
+        if (((from_bitField0_ & 0x00008000) == 0x00008000)) {
           to_bitField0_ |= 0x00002000;
         }
-        result.scmAuthor_ = scmAuthor_;
-        if (((from_bitField0_ & 0x00004000) == 0x00004000)) {
+        result.assignee_ = assignee_;
+        if (((from_bitField0_ & 0x00010000) == 0x00010000)) {
           to_bitField0_ |= 0x00004000;
         }
-        result.actionPlan_ = actionPlan_;
-        if (((from_bitField0_ & 0x00008000) == 0x00008000)) {
+        result.reporter_ = reporter_;
+        if (((from_bitField0_ & 0x00020000) == 0x00020000)) {
           to_bitField0_ |= 0x00008000;
         }
-        result.actionPlanName_ = actionPlanName_;
-        if (((from_bitField0_ & 0x00010000) == 0x00010000)) {
+        result.author_ = author_;
+        if (((from_bitField0_ & 0x00040000) == 0x00040000)) {
           to_bitField0_ |= 0x00010000;
         }
-        result.attr_ = attr_;
-        if (((bitField0_ & 0x00020000) == 0x00020000)) {
+        result.actionPlan_ = actionPlan_;
+        if (((from_bitField0_ & 0x00080000) == 0x00080000)) {
+          to_bitField0_ |= 0x00020000;
+        }
+        result.tagsPresentIfEmpty_ = tagsPresentIfEmpty_;
+        if (((bitField0_ & 0x00100000) == 0x00100000)) {
           tags_ = tags_.getUnmodifiableView();
-          bitField0_ = (bitField0_ & ~0x00020000);
+          bitField0_ = (bitField0_ & ~0x00100000);
         }
         result.tags_ = tags_;
-        if (((bitField0_ & 0x00040000) == 0x00040000)) {
+        if (((from_bitField0_ & 0x00200000) == 0x00200000)) {
+          to_bitField0_ |= 0x00040000;
+        }
+        result.transitionsPresentIfEmpty_ = transitionsPresentIfEmpty_;
+        if (((bitField0_ & 0x00400000) == 0x00400000)) {
           transitions_ = transitions_.getUnmodifiableView();
-          bitField0_ = (bitField0_ & ~0x00040000);
+          bitField0_ = (bitField0_ & ~0x00400000);
         }
         result.transitions_ = transitions_;
-        if (((bitField0_ & 0x00080000) == 0x00080000)) {
+        if (((from_bitField0_ & 0x00800000) == 0x00800000)) {
+          to_bitField0_ |= 0x00080000;
+        }
+        result.actionsPresentIfEmpty_ = actionsPresentIfEmpty_;
+        if (((bitField0_ & 0x01000000) == 0x01000000)) {
           actions_ = actions_.getUnmodifiableView();
-          bitField0_ = (bitField0_ & ~0x00080000);
+          bitField0_ = (bitField0_ & ~0x01000000);
         }
         result.actions_ = actions_;
+        if (((from_bitField0_ & 0x02000000) == 0x02000000)) {
+          to_bitField0_ |= 0x00100000;
+        }
+        result.commentsPresentIfEmpty_ = commentsPresentIfEmpty_;
         if (commentsBuilder_ == null) {
-          if (((bitField0_ & 0x00100000) == 0x00100000)) {
+          if (((bitField0_ & 0x04000000) == 0x04000000)) {
             comments_ = java.util.Collections.unmodifiableList(comments_);
-            bitField0_ = (bitField0_ & ~0x00100000);
+            bitField0_ = (bitField0_ & ~0x04000000);
           }
           result.comments_ = comments_;
         } else {
           result.comments_ = commentsBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00200000) == 0x00200000)) {
-          to_bitField0_ |= 0x00020000;
+        if (((from_bitField0_ & 0x08000000) == 0x08000000)) {
+          to_bitField0_ |= 0x00200000;
         }
         result.creationDate_ = creationDate_;
-        if (((from_bitField0_ & 0x00400000) == 0x00400000)) {
-          to_bitField0_ |= 0x00040000;
+        if (((from_bitField0_ & 0x10000000) == 0x10000000)) {
+          to_bitField0_ |= 0x00400000;
         }
         result.updateDate_ = updateDate_;
-        if (((from_bitField0_ & 0x00800000) == 0x00800000)) {
-          to_bitField0_ |= 0x00080000;
+        if (((from_bitField0_ & 0x20000000) == 0x20000000)) {
+          to_bitField0_ |= 0x00800000;
         }
         result.fUpdateAge_ = fUpdateAge_;
-        if (((from_bitField0_ & 0x01000000) == 0x01000000)) {
-          to_bitField0_ |= 0x00100000;
+        if (((from_bitField0_ & 0x40000000) == 0x40000000)) {
+          to_bitField0_ |= 0x01000000;
         }
         result.closeDate_ = closeDate_;
         result.bitField0_ = to_bitField0_;
@@ -4899,8 +8272,11 @@ public final class Issues {
           rule_ = other.rule_;
           onChanged();
         }
+        if (other.hasSeverity()) {
+          setSeverity(other.getSeverity());
+        }
         if (other.hasComponent()) {
-          bitField0_ |= 0x00000004;
+          bitField0_ |= 0x00000008;
           component_ = other.component_;
           onChanged();
         }
@@ -4908,103 +8284,160 @@ public final class Issues {
           setComponentId(other.getComponentId());
         }
         if (other.hasProject()) {
-          bitField0_ |= 0x00000010;
+          bitField0_ |= 0x00000020;
           project_ = other.project_;
           onChanged();
         }
         if (other.hasSubProject()) {
-          bitField0_ |= 0x00000020;
+          bitField0_ |= 0x00000040;
           subProject_ = other.subProject_;
           onChanged();
         }
         if (other.hasLine()) {
           setLine(other.getLine());
         }
+        if (other.hasTextRange()) {
+          mergeTextRange(other.getTextRange());
+        }
+        if (secondaryLocationsBuilder_ == null) {
+          if (!other.secondaryLocations_.isEmpty()) {
+            if (secondaryLocations_.isEmpty()) {
+              secondaryLocations_ = other.secondaryLocations_;
+              bitField0_ = (bitField0_ & ~0x00000200);
+            } else {
+              ensureSecondaryLocationsIsMutable();
+              secondaryLocations_.addAll(other.secondaryLocations_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.secondaryLocations_.isEmpty()) {
+            if (secondaryLocationsBuilder_.isEmpty()) {
+              secondaryLocationsBuilder_.dispose();
+              secondaryLocationsBuilder_ = null;
+              secondaryLocations_ = other.secondaryLocations_;
+              bitField0_ = (bitField0_ & ~0x00000200);
+              secondaryLocationsBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getSecondaryLocationsFieldBuilder() : null;
+            } else {
+              secondaryLocationsBuilder_.addAllMessages(other.secondaryLocations_);
+            }
+          }
+        }
+        if (executionFlowsBuilder_ == null) {
+          if (!other.executionFlows_.isEmpty()) {
+            if (executionFlows_.isEmpty()) {
+              executionFlows_ = other.executionFlows_;
+              bitField0_ = (bitField0_ & ~0x00000400);
+            } else {
+              ensureExecutionFlowsIsMutable();
+              executionFlows_.addAll(other.executionFlows_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.executionFlows_.isEmpty()) {
+            if (executionFlowsBuilder_.isEmpty()) {
+              executionFlowsBuilder_.dispose();
+              executionFlowsBuilder_ = null;
+              executionFlows_ = other.executionFlows_;
+              bitField0_ = (bitField0_ & ~0x00000400);
+              executionFlowsBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getExecutionFlowsFieldBuilder() : null;
+            } else {
+              executionFlowsBuilder_.addAllMessages(other.executionFlows_);
+            }
+          }
+        }
         if (other.hasResolution()) {
-          bitField0_ |= 0x00000080;
+          bitField0_ |= 0x00000800;
           resolution_ = other.resolution_;
           onChanged();
         }
         if (other.hasStatus()) {
-          bitField0_ |= 0x00000100;
+          bitField0_ |= 0x00001000;
           status_ = other.status_;
           onChanged();
         }
         if (other.hasMessage()) {
-          bitField0_ |= 0x00000200;
+          bitField0_ |= 0x00002000;
           message_ = other.message_;
           onChanged();
         }
         if (other.hasDebt()) {
-          bitField0_ |= 0x00000400;
+          bitField0_ |= 0x00004000;
           debt_ = other.debt_;
           onChanged();
         }
         if (other.hasAssignee()) {
-          bitField0_ |= 0x00000800;
+          bitField0_ |= 0x00008000;
           assignee_ = other.assignee_;
           onChanged();
         }
         if (other.hasReporter()) {
-          bitField0_ |= 0x00001000;
+          bitField0_ |= 0x00010000;
           reporter_ = other.reporter_;
           onChanged();
         }
-        if (other.hasScmAuthor()) {
-          bitField0_ |= 0x00002000;
-          scmAuthor_ = other.scmAuthor_;
+        if (other.hasAuthor()) {
+          bitField0_ |= 0x00020000;
+          author_ = other.author_;
           onChanged();
         }
         if (other.hasActionPlan()) {
-          bitField0_ |= 0x00004000;
+          bitField0_ |= 0x00040000;
           actionPlan_ = other.actionPlan_;
           onChanged();
         }
-        if (other.hasActionPlanName()) {
-          bitField0_ |= 0x00008000;
-          actionPlanName_ = other.actionPlanName_;
-          onChanged();
-        }
-        if (other.hasAttr()) {
-          bitField0_ |= 0x00010000;
-          attr_ = other.attr_;
-          onChanged();
+        if (other.hasTagsPresentIfEmpty()) {
+          setTagsPresentIfEmpty(other.getTagsPresentIfEmpty());
         }
         if (!other.tags_.isEmpty()) {
           if (tags_.isEmpty()) {
             tags_ = other.tags_;
-            bitField0_ = (bitField0_ & ~0x00020000);
+            bitField0_ = (bitField0_ & ~0x00100000);
           } else {
             ensureTagsIsMutable();
             tags_.addAll(other.tags_);
           }
           onChanged();
         }
+        if (other.hasTransitionsPresentIfEmpty()) {
+          setTransitionsPresentIfEmpty(other.getTransitionsPresentIfEmpty());
+        }
         if (!other.transitions_.isEmpty()) {
           if (transitions_.isEmpty()) {
             transitions_ = other.transitions_;
-            bitField0_ = (bitField0_ & ~0x00040000);
+            bitField0_ = (bitField0_ & ~0x00400000);
           } else {
             ensureTransitionsIsMutable();
             transitions_.addAll(other.transitions_);
           }
           onChanged();
         }
+        if (other.hasActionsPresentIfEmpty()) {
+          setActionsPresentIfEmpty(other.getActionsPresentIfEmpty());
+        }
         if (!other.actions_.isEmpty()) {
           if (actions_.isEmpty()) {
             actions_ = other.actions_;
-            bitField0_ = (bitField0_ & ~0x00080000);
+            bitField0_ = (bitField0_ & ~0x01000000);
           } else {
             ensureActionsIsMutable();
             actions_.addAll(other.actions_);
           }
           onChanged();
         }
+        if (other.hasCommentsPresentIfEmpty()) {
+          setCommentsPresentIfEmpty(other.getCommentsPresentIfEmpty());
+        }
         if (commentsBuilder_ == null) {
           if (!other.comments_.isEmpty()) {
             if (comments_.isEmpty()) {
               comments_ = other.comments_;
-              bitField0_ = (bitField0_ & ~0x00100000);
+              bitField0_ = (bitField0_ & ~0x04000000);
             } else {
               ensureCommentsIsMutable();
               comments_.addAll(other.comments_);
@@ -5017,7 +8450,7 @@ public final class Issues {
               commentsBuilder_.dispose();
               commentsBuilder_ = null;
               comments_ = other.comments_;
-              bitField0_ = (bitField0_ & ~0x00100000);
+              bitField0_ = (bitField0_ & ~0x04000000);
               commentsBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getCommentsFieldBuilder() : null;
@@ -5027,22 +8460,22 @@ public final class Issues {
           }
         }
         if (other.hasCreationDate()) {
-          bitField0_ |= 0x00200000;
+          bitField0_ |= 0x08000000;
           creationDate_ = other.creationDate_;
           onChanged();
         }
         if (other.hasUpdateDate()) {
-          bitField0_ |= 0x00400000;
+          bitField0_ |= 0x10000000;
           updateDate_ = other.updateDate_;
           onChanged();
         }
         if (other.hasFUpdateAge()) {
-          bitField0_ |= 0x00800000;
+          bitField0_ |= 0x20000000;
           fUpdateAge_ = other.fUpdateAge_;
           onChanged();
         }
         if (other.hasCloseDate()) {
-          bitField0_ |= 0x01000000;
+          bitField0_ |= 0x40000000;
           closeDate_ = other.closeDate_;
           onChanged();
         }
@@ -5225,15 +8658,50 @@ public final class Issues {
         return this;
       }
 
-      private java.lang.Object component_ = "";
+      private org.sonarqube.ws.Common.Severity severity_ = org.sonarqube.ws.Common.Severity.INFO;
       /**
-       * <code>optional string component = 3;</code>
+       * <code>optional .sonarqube.ws.commons.Severity severity = 3;</code>
        */
-      public boolean hasComponent() {
+      public boolean hasSeverity() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>optional string component = 3;</code>
+       * <code>optional .sonarqube.ws.commons.Severity severity = 3;</code>
+       */
+      public org.sonarqube.ws.Common.Severity getSeverity() {
+        return severity_;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Severity severity = 3;</code>
+       */
+      public Builder setSeverity(org.sonarqube.ws.Common.Severity value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        bitField0_ |= 0x00000004;
+        severity_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Severity severity = 3;</code>
+       */
+      public Builder clearSeverity() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        severity_ = org.sonarqube.ws.Common.Severity.INFO;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object component_ = "";
+      /**
+       * <code>optional string component = 4;</code>
+       */
+      public boolean hasComponent() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>optional string component = 4;</code>
        */
       public java.lang.String getComponent() {
         java.lang.Object ref = component_;
@@ -5250,7 +8718,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string component = 3;</code>
+       * <code>optional string component = 4;</code>
        */
       public com.google.protobuf.ByteString
           getComponentBytes() {
@@ -5266,82 +8734,82 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string component = 3;</code>
+       * <code>optional string component = 4;</code>
        */
       public Builder setComponent(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000004;
+  bitField0_ |= 0x00000008;
         component_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string component = 3;</code>
+       * <code>optional string component = 4;</code>
        */
       public Builder clearComponent() {
-        bitField0_ = (bitField0_ & ~0x00000004);
+        bitField0_ = (bitField0_ & ~0x00000008);
         component_ = getDefaultInstance().getComponent();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string component = 3;</code>
+       * <code>optional string component = 4;</code>
        */
       public Builder setComponentBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000004;
+  bitField0_ |= 0x00000008;
         component_ = value;
         onChanged();
         return this;
       }
 
-      private int componentId_ ;
+      private long componentId_ ;
       /**
-       * <code>optional int32 componentId = 4;</code>
+       * <code>optional int64 componentId = 5;</code>
        */
       public boolean hasComponentId() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
+        return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
-       * <code>optional int32 componentId = 4;</code>
+       * <code>optional int64 componentId = 5;</code>
        */
-      public int getComponentId() {
+      public long getComponentId() {
         return componentId_;
       }
       /**
-       * <code>optional int32 componentId = 4;</code>
+       * <code>optional int64 componentId = 5;</code>
        */
-      public Builder setComponentId(int value) {
-        bitField0_ |= 0x00000008;
+      public Builder setComponentId(long value) {
+        bitField0_ |= 0x00000010;
         componentId_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional int32 componentId = 4;</code>
+       * <code>optional int64 componentId = 5;</code>
        */
       public Builder clearComponentId() {
-        bitField0_ = (bitField0_ & ~0x00000008);
-        componentId_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000010);
+        componentId_ = 0L;
         onChanged();
         return this;
       }
 
       private java.lang.Object project_ = "";
       /**
-       * <code>optional string project = 5;</code>
+       * <code>optional string project = 6;</code>
        */
       public boolean hasProject() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
+        return ((bitField0_ & 0x00000020) == 0x00000020);
       }
       /**
-       * <code>optional string project = 5;</code>
+       * <code>optional string project = 6;</code>
        */
       public java.lang.String getProject() {
         java.lang.Object ref = project_;
@@ -5358,7 +8826,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string project = 5;</code>
+       * <code>optional string project = 6;</code>
        */
       public com.google.protobuf.ByteString
           getProjectBytes() {
@@ -5374,36 +8842,36 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string project = 5;</code>
+       * <code>optional string project = 6;</code>
        */
       public Builder setProject(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000010;
+  bitField0_ |= 0x00000020;
         project_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string project = 5;</code>
+       * <code>optional string project = 6;</code>
        */
       public Builder clearProject() {
-        bitField0_ = (bitField0_ & ~0x00000010);
+        bitField0_ = (bitField0_ & ~0x00000020);
         project_ = getDefaultInstance().getProject();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string project = 5;</code>
+       * <code>optional string project = 6;</code>
        */
       public Builder setProjectBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000010;
+  bitField0_ |= 0x00000020;
         project_ = value;
         onChanged();
         return this;
@@ -5411,13 +8879,13 @@ public final class Issues {
 
       private java.lang.Object subProject_ = "";
       /**
-       * <code>optional string subProject = 6;</code>
+       * <code>optional string subProject = 7;</code>
        */
       public boolean hasSubProject() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
+        return ((bitField0_ & 0x00000040) == 0x00000040);
       }
       /**
-       * <code>optional string subProject = 6;</code>
+       * <code>optional string subProject = 7;</code>
        */
       public java.lang.String getSubProject() {
         java.lang.Object ref = subProject_;
@@ -5434,7 +8902,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string subProject = 6;</code>
+       * <code>optional string subProject = 7;</code>
        */
       public com.google.protobuf.ByteString
           getSubProjectBytes() {
@@ -5450,36 +8918,36 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string subProject = 6;</code>
+       * <code>optional string subProject = 7;</code>
        */
       public Builder setSubProject(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000020;
+  bitField0_ |= 0x00000040;
         subProject_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string subProject = 6;</code>
+       * <code>optional string subProject = 7;</code>
        */
       public Builder clearSubProject() {
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000040);
         subProject_ = getDefaultInstance().getSubProject();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string subProject = 6;</code>
+       * <code>optional string subProject = 7;</code>
        */
       public Builder setSubProjectBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000020;
+  bitField0_ |= 0x00000040;
         subProject_ = value;
         onChanged();
         return this;
@@ -5487,45 +8955,641 @@ public final class Issues {
 
       private int line_ ;
       /**
-       * <code>optional int32 line = 7;</code>
+       * <code>optional int32 line = 8;</code>
        */
       public boolean hasLine() {
-        return ((bitField0_ & 0x00000040) == 0x00000040);
+        return ((bitField0_ & 0x00000080) == 0x00000080);
       }
       /**
-       * <code>optional int32 line = 7;</code>
+       * <code>optional int32 line = 8;</code>
        */
       public int getLine() {
         return line_;
       }
       /**
-       * <code>optional int32 line = 7;</code>
+       * <code>optional int32 line = 8;</code>
        */
       public Builder setLine(int value) {
-        bitField0_ |= 0x00000040;
+        bitField0_ |= 0x00000080;
         line_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional int32 line = 7;</code>
+       * <code>optional int32 line = 8;</code>
        */
       public Builder clearLine() {
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000080);
         line_ = 0;
         onChanged();
         return this;
       }
 
-      private java.lang.Object resolution_ = "";
+      private org.sonarqube.ws.Common.TextRange textRange_ = org.sonarqube.ws.Common.TextRange.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonarqube.ws.Common.TextRange, org.sonarqube.ws.Common.TextRange.Builder, org.sonarqube.ws.Common.TextRangeOrBuilder> textRangeBuilder_;
       /**
-       * <code>optional string resolution = 8;</code>
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
        */
-      public boolean hasResolution() {
-        return ((bitField0_ & 0x00000080) == 0x00000080);
+      public boolean hasTextRange() {
+        return ((bitField0_ & 0x00000100) == 0x00000100);
       }
       /**
-       * <code>optional string resolution = 8;</code>
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
+       */
+      public org.sonarqube.ws.Common.TextRange getTextRange() {
+        if (textRangeBuilder_ == null) {
+          return textRange_;
+        } else {
+          return textRangeBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
+       */
+      public Builder setTextRange(org.sonarqube.ws.Common.TextRange value) {
+        if (textRangeBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          textRange_ = value;
+          onChanged();
+        } else {
+          textRangeBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000100;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
+       */
+      public Builder setTextRange(
+          org.sonarqube.ws.Common.TextRange.Builder builderForValue) {
+        if (textRangeBuilder_ == null) {
+          textRange_ = builderForValue.build();
+          onChanged();
+        } else {
+          textRangeBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000100;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
+       */
+      public Builder mergeTextRange(org.sonarqube.ws.Common.TextRange value) {
+        if (textRangeBuilder_ == null) {
+          if (((bitField0_ & 0x00000100) == 0x00000100) &&
+              textRange_ != org.sonarqube.ws.Common.TextRange.getDefaultInstance()) {
+            textRange_ =
+              org.sonarqube.ws.Common.TextRange.newBuilder(textRange_).mergeFrom(value).buildPartial();
+          } else {
+            textRange_ = value;
+          }
+          onChanged();
+        } else {
+          textRangeBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000100;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
+       */
+      public Builder clearTextRange() {
+        if (textRangeBuilder_ == null) {
+          textRange_ = org.sonarqube.ws.Common.TextRange.getDefaultInstance();
+          onChanged();
+        } else {
+          textRangeBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000100);
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
+       */
+      public org.sonarqube.ws.Common.TextRange.Builder getTextRangeBuilder() {
+        bitField0_ |= 0x00000100;
+        onChanged();
+        return getTextRangeFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
+       */
+      public org.sonarqube.ws.Common.TextRangeOrBuilder getTextRangeOrBuilder() {
+        if (textRangeBuilder_ != null) {
+          return textRangeBuilder_.getMessageOrBuilder();
+        } else {
+          return textRange_;
+        }
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 9;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonarqube.ws.Common.TextRange, org.sonarqube.ws.Common.TextRange.Builder, org.sonarqube.ws.Common.TextRangeOrBuilder> 
+          getTextRangeFieldBuilder() {
+        if (textRangeBuilder_ == null) {
+          textRangeBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              org.sonarqube.ws.Common.TextRange, org.sonarqube.ws.Common.TextRange.Builder, org.sonarqube.ws.Common.TextRangeOrBuilder>(
+                  getTextRange(),
+                  getParentForChildren(),
+                  isClean());
+          textRange_ = null;
+        }
+        return textRangeBuilder_;
+      }
+
+      private java.util.List<org.sonarqube.ws.Issues.Location> secondaryLocations_ =
+        java.util.Collections.emptyList();
+      private void ensureSecondaryLocationsIsMutable() {
+        if (!((bitField0_ & 0x00000200) == 0x00000200)) {
+          secondaryLocations_ = new java.util.ArrayList<org.sonarqube.ws.Issues.Location>(secondaryLocations_);
+          bitField0_ |= 0x00000200;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Issues.Location, org.sonarqube.ws.Issues.Location.Builder, org.sonarqube.ws.Issues.LocationOrBuilder> secondaryLocationsBuilder_;
+
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Issues.Location> getSecondaryLocationsList() {
+        if (secondaryLocationsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(secondaryLocations_);
+        } else {
+          return secondaryLocationsBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+       */
+      public int getSecondaryLocationsCount() {
+        if (secondaryLocationsBuilder_ == null) {
+          return secondaryLocations_.size();
+        } else {
+          return secondaryLocationsBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+       */
+      public org.sonarqube.ws.Issues.Location getSecondaryLocations(int index) {
+        if (secondaryLocationsBuilder_ == null) {
+          return secondaryLocations_.get(index);
+        } else {
+          return secondaryLocationsBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+       */
+      public Builder setSecondaryLocations(
+          int index, org.sonarqube.ws.Issues.Location value) {
+        if (secondaryLocationsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureSecondaryLocationsIsMutable();
+          secondaryLocations_.set(index, value);
+          onChanged();
+        } else {
+          secondaryLocationsBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+       */
+      public Builder setSecondaryLocations(
+          int index, org.sonarqube.ws.Issues.Location.Builder builderForValue) {
+        if (secondaryLocationsBuilder_ == null) {
+          ensureSecondaryLocationsIsMutable();
+          secondaryLocations_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          secondaryLocationsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+       */
+      public Builder addSecondaryLocations(org.sonarqube.ws.Issues.Location value) {
+        if (secondaryLocationsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureSecondaryLocationsIsMutable();
+          secondaryLocations_.add(value);
+          onChanged();
+        } else {
+          secondaryLocationsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+       */
+      public Builder addSecondaryLocations(
+          int index, org.sonarqube.ws.Issues.Location value) {
+        if (secondaryLocationsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureSecondaryLocationsIsMutable();
+          secondaryLocations_.add(index, value);
+          onChanged();
+        } else {
+          secondaryLocationsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+       */
+      public Builder addSecondaryLocations(
+          org.sonarqube.ws.Issues.Location.Builder builderForValue) {
+        if (secondaryLocationsBuilder_ == null) {
+          ensureSecondaryLocationsIsMutable();
+          secondaryLocations_.add(builderForValue.build());
+          onChanged();
+        } else {
+          secondaryLocationsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+       */
+      public Builder addSecondaryLocations(
+          int index, org.sonarqube.ws.Issues.Location.Builder builderForValue) {
+        if (secondaryLocationsBuilder_ == null) {
+          ensureSecondaryLocationsIsMutable();
+          secondaryLocations_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          secondaryLocationsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+       */
+      public Builder addAllSecondaryLocations(
+          java.lang.Iterable<? extends org.sonarqube.ws.Issues.Location> values) {
+        if (secondaryLocationsBuilder_ == null) {
+          ensureSecondaryLocationsIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, secondaryLocations_);
+          onChanged();
+        } else {
+          secondaryLocationsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+       */
+      public Builder clearSecondaryLocations() {
+        if (secondaryLocationsBuilder_ == null) {
+          secondaryLocations_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000200);
+          onChanged();
+        } else {
+          secondaryLocationsBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+       */
+      public Builder removeSecondaryLocations(int index) {
+        if (secondaryLocationsBuilder_ == null) {
+          ensureSecondaryLocationsIsMutable();
+          secondaryLocations_.remove(index);
+          onChanged();
+        } else {
+          secondaryLocationsBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+       */
+      public org.sonarqube.ws.Issues.Location.Builder getSecondaryLocationsBuilder(
+          int index) {
+        return getSecondaryLocationsFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+       */
+      public org.sonarqube.ws.Issues.LocationOrBuilder getSecondaryLocationsOrBuilder(
+          int index) {
+        if (secondaryLocationsBuilder_ == null) {
+          return secondaryLocations_.get(index);  } else {
+          return secondaryLocationsBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+       */
+      public java.util.List<? extends org.sonarqube.ws.Issues.LocationOrBuilder> 
+           getSecondaryLocationsOrBuilderList() {
+        if (secondaryLocationsBuilder_ != null) {
+          return secondaryLocationsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(secondaryLocations_);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+       */
+      public org.sonarqube.ws.Issues.Location.Builder addSecondaryLocationsBuilder() {
+        return getSecondaryLocationsFieldBuilder().addBuilder(
+            org.sonarqube.ws.Issues.Location.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+       */
+      public org.sonarqube.ws.Issues.Location.Builder addSecondaryLocationsBuilder(
+          int index) {
+        return getSecondaryLocationsFieldBuilder().addBuilder(
+            index, org.sonarqube.ws.Issues.Location.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location secondaryLocations = 10;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Issues.Location.Builder> 
+           getSecondaryLocationsBuilderList() {
+        return getSecondaryLocationsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Issues.Location, org.sonarqube.ws.Issues.Location.Builder, org.sonarqube.ws.Issues.LocationOrBuilder> 
+          getSecondaryLocationsFieldBuilder() {
+        if (secondaryLocationsBuilder_ == null) {
+          secondaryLocationsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonarqube.ws.Issues.Location, org.sonarqube.ws.Issues.Location.Builder, org.sonarqube.ws.Issues.LocationOrBuilder>(
+                  secondaryLocations_,
+                  ((bitField0_ & 0x00000200) == 0x00000200),
+                  getParentForChildren(),
+                  isClean());
+          secondaryLocations_ = null;
+        }
+        return secondaryLocationsBuilder_;
+      }
+
+      private java.util.List<org.sonarqube.ws.Issues.ExecutionFlow> executionFlows_ =
+        java.util.Collections.emptyList();
+      private void ensureExecutionFlowsIsMutable() {
+        if (!((bitField0_ & 0x00000400) == 0x00000400)) {
+          executionFlows_ = new java.util.ArrayList<org.sonarqube.ws.Issues.ExecutionFlow>(executionFlows_);
+          bitField0_ |= 0x00000400;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Issues.ExecutionFlow, org.sonarqube.ws.Issues.ExecutionFlow.Builder, org.sonarqube.ws.Issues.ExecutionFlowOrBuilder> executionFlowsBuilder_;
+
+      /**
+       * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Issues.ExecutionFlow> getExecutionFlowsList() {
+        if (executionFlowsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(executionFlows_);
+        } else {
+          return executionFlowsBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+       */
+      public int getExecutionFlowsCount() {
+        if (executionFlowsBuilder_ == null) {
+          return executionFlows_.size();
+        } else {
+          return executionFlowsBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+       */
+      public org.sonarqube.ws.Issues.ExecutionFlow getExecutionFlows(int index) {
+        if (executionFlowsBuilder_ == null) {
+          return executionFlows_.get(index);
+        } else {
+          return executionFlowsBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+       */
+      public Builder setExecutionFlows(
+          int index, org.sonarqube.ws.Issues.ExecutionFlow value) {
+        if (executionFlowsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureExecutionFlowsIsMutable();
+          executionFlows_.set(index, value);
+          onChanged();
+        } else {
+          executionFlowsBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+       */
+      public Builder setExecutionFlows(
+          int index, org.sonarqube.ws.Issues.ExecutionFlow.Builder builderForValue) {
+        if (executionFlowsBuilder_ == null) {
+          ensureExecutionFlowsIsMutable();
+          executionFlows_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          executionFlowsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+       */
+      public Builder addExecutionFlows(org.sonarqube.ws.Issues.ExecutionFlow value) {
+        if (executionFlowsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureExecutionFlowsIsMutable();
+          executionFlows_.add(value);
+          onChanged();
+        } else {
+          executionFlowsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+       */
+      public Builder addExecutionFlows(
+          int index, org.sonarqube.ws.Issues.ExecutionFlow value) {
+        if (executionFlowsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureExecutionFlowsIsMutable();
+          executionFlows_.add(index, value);
+          onChanged();
+        } else {
+          executionFlowsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+       */
+      public Builder addExecutionFlows(
+          org.sonarqube.ws.Issues.ExecutionFlow.Builder builderForValue) {
+        if (executionFlowsBuilder_ == null) {
+          ensureExecutionFlowsIsMutable();
+          executionFlows_.add(builderForValue.build());
+          onChanged();
+        } else {
+          executionFlowsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+       */
+      public Builder addExecutionFlows(
+          int index, org.sonarqube.ws.Issues.ExecutionFlow.Builder builderForValue) {
+        if (executionFlowsBuilder_ == null) {
+          ensureExecutionFlowsIsMutable();
+          executionFlows_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          executionFlowsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+       */
+      public Builder addAllExecutionFlows(
+          java.lang.Iterable<? extends org.sonarqube.ws.Issues.ExecutionFlow> values) {
+        if (executionFlowsBuilder_ == null) {
+          ensureExecutionFlowsIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, executionFlows_);
+          onChanged();
+        } else {
+          executionFlowsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+       */
+      public Builder clearExecutionFlows() {
+        if (executionFlowsBuilder_ == null) {
+          executionFlows_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000400);
+          onChanged();
+        } else {
+          executionFlowsBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+       */
+      public Builder removeExecutionFlows(int index) {
+        if (executionFlowsBuilder_ == null) {
+          ensureExecutionFlowsIsMutable();
+          executionFlows_.remove(index);
+          onChanged();
+        } else {
+          executionFlowsBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+       */
+      public org.sonarqube.ws.Issues.ExecutionFlow.Builder getExecutionFlowsBuilder(
+          int index) {
+        return getExecutionFlowsFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+       */
+      public org.sonarqube.ws.Issues.ExecutionFlowOrBuilder getExecutionFlowsOrBuilder(
+          int index) {
+        if (executionFlowsBuilder_ == null) {
+          return executionFlows_.get(index);  } else {
+          return executionFlowsBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+       */
+      public java.util.List<? extends org.sonarqube.ws.Issues.ExecutionFlowOrBuilder> 
+           getExecutionFlowsOrBuilderList() {
+        if (executionFlowsBuilder_ != null) {
+          return executionFlowsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(executionFlows_);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+       */
+      public org.sonarqube.ws.Issues.ExecutionFlow.Builder addExecutionFlowsBuilder() {
+        return getExecutionFlowsFieldBuilder().addBuilder(
+            org.sonarqube.ws.Issues.ExecutionFlow.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+       */
+      public org.sonarqube.ws.Issues.ExecutionFlow.Builder addExecutionFlowsBuilder(
+          int index) {
+        return getExecutionFlowsFieldBuilder().addBuilder(
+            index, org.sonarqube.ws.Issues.ExecutionFlow.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.ExecutionFlow executionFlows = 11;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Issues.ExecutionFlow.Builder> 
+           getExecutionFlowsBuilderList() {
+        return getExecutionFlowsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Issues.ExecutionFlow, org.sonarqube.ws.Issues.ExecutionFlow.Builder, org.sonarqube.ws.Issues.ExecutionFlowOrBuilder> 
+          getExecutionFlowsFieldBuilder() {
+        if (executionFlowsBuilder_ == null) {
+          executionFlowsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonarqube.ws.Issues.ExecutionFlow, org.sonarqube.ws.Issues.ExecutionFlow.Builder, org.sonarqube.ws.Issues.ExecutionFlowOrBuilder>(
+                  executionFlows_,
+                  ((bitField0_ & 0x00000400) == 0x00000400),
+                  getParentForChildren(),
+                  isClean());
+          executionFlows_ = null;
+        }
+        return executionFlowsBuilder_;
+      }
+
+      private java.lang.Object resolution_ = "";
+      /**
+       * <code>optional string resolution = 12;</code>
+       */
+      public boolean hasResolution() {
+        return ((bitField0_ & 0x00000800) == 0x00000800);
+      }
+      /**
+       * <code>optional string resolution = 12;</code>
        */
       public java.lang.String getResolution() {
         java.lang.Object ref = resolution_;
@@ -5542,7 +9606,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string resolution = 8;</code>
+       * <code>optional string resolution = 12;</code>
        */
       public com.google.protobuf.ByteString
           getResolutionBytes() {
@@ -5558,36 +9622,36 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string resolution = 8;</code>
+       * <code>optional string resolution = 12;</code>
        */
       public Builder setResolution(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000080;
+  bitField0_ |= 0x00000800;
         resolution_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string resolution = 8;</code>
+       * <code>optional string resolution = 12;</code>
        */
       public Builder clearResolution() {
-        bitField0_ = (bitField0_ & ~0x00000080);
+        bitField0_ = (bitField0_ & ~0x00000800);
         resolution_ = getDefaultInstance().getResolution();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string resolution = 8;</code>
+       * <code>optional string resolution = 12;</code>
        */
       public Builder setResolutionBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000080;
+  bitField0_ |= 0x00000800;
         resolution_ = value;
         onChanged();
         return this;
@@ -5595,13 +9659,13 @@ public final class Issues {
 
       private java.lang.Object status_ = "";
       /**
-       * <code>optional string status = 9;</code>
+       * <code>optional string status = 13;</code>
        */
       public boolean hasStatus() {
-        return ((bitField0_ & 0x00000100) == 0x00000100);
+        return ((bitField0_ & 0x00001000) == 0x00001000);
       }
       /**
-       * <code>optional string status = 9;</code>
+       * <code>optional string status = 13;</code>
        */
       public java.lang.String getStatus() {
         java.lang.Object ref = status_;
@@ -5618,7 +9682,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string status = 9;</code>
+       * <code>optional string status = 13;</code>
        */
       public com.google.protobuf.ByteString
           getStatusBytes() {
@@ -5634,36 +9698,36 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string status = 9;</code>
+       * <code>optional string status = 13;</code>
        */
       public Builder setStatus(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000100;
+  bitField0_ |= 0x00001000;
         status_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string status = 9;</code>
+       * <code>optional string status = 13;</code>
        */
       public Builder clearStatus() {
-        bitField0_ = (bitField0_ & ~0x00000100);
+        bitField0_ = (bitField0_ & ~0x00001000);
         status_ = getDefaultInstance().getStatus();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string status = 9;</code>
+       * <code>optional string status = 13;</code>
        */
       public Builder setStatusBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000100;
+  bitField0_ |= 0x00001000;
         status_ = value;
         onChanged();
         return this;
@@ -5671,13 +9735,13 @@ public final class Issues {
 
       private java.lang.Object message_ = "";
       /**
-       * <code>optional string message = 10;</code>
+       * <code>optional string message = 14;</code>
        */
       public boolean hasMessage() {
-        return ((bitField0_ & 0x00000200) == 0x00000200);
+        return ((bitField0_ & 0x00002000) == 0x00002000);
       }
       /**
-       * <code>optional string message = 10;</code>
+       * <code>optional string message = 14;</code>
        */
       public java.lang.String getMessage() {
         java.lang.Object ref = message_;
@@ -5694,7 +9758,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string message = 10;</code>
+       * <code>optional string message = 14;</code>
        */
       public com.google.protobuf.ByteString
           getMessageBytes() {
@@ -5710,36 +9774,36 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string message = 10;</code>
+       * <code>optional string message = 14;</code>
        */
       public Builder setMessage(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000200;
+  bitField0_ |= 0x00002000;
         message_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string message = 10;</code>
+       * <code>optional string message = 14;</code>
        */
       public Builder clearMessage() {
-        bitField0_ = (bitField0_ & ~0x00000200);
+        bitField0_ = (bitField0_ & ~0x00002000);
         message_ = getDefaultInstance().getMessage();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string message = 10;</code>
+       * <code>optional string message = 14;</code>
        */
       public Builder setMessageBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000200;
+  bitField0_ |= 0x00002000;
         message_ = value;
         onChanged();
         return this;
@@ -5747,13 +9811,13 @@ public final class Issues {
 
       private java.lang.Object debt_ = "";
       /**
-       * <code>optional string debt = 11;</code>
+       * <code>optional string debt = 15;</code>
        */
       public boolean hasDebt() {
-        return ((bitField0_ & 0x00000400) == 0x00000400);
+        return ((bitField0_ & 0x00004000) == 0x00004000);
       }
       /**
-       * <code>optional string debt = 11;</code>
+       * <code>optional string debt = 15;</code>
        */
       public java.lang.String getDebt() {
         java.lang.Object ref = debt_;
@@ -5770,7 +9834,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string debt = 11;</code>
+       * <code>optional string debt = 15;</code>
        */
       public com.google.protobuf.ByteString
           getDebtBytes() {
@@ -5786,36 +9850,36 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string debt = 11;</code>
+       * <code>optional string debt = 15;</code>
        */
       public Builder setDebt(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000400;
+  bitField0_ |= 0x00004000;
         debt_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string debt = 11;</code>
+       * <code>optional string debt = 15;</code>
        */
       public Builder clearDebt() {
-        bitField0_ = (bitField0_ & ~0x00000400);
+        bitField0_ = (bitField0_ & ~0x00004000);
         debt_ = getDefaultInstance().getDebt();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string debt = 11;</code>
+       * <code>optional string debt = 15;</code>
        */
       public Builder setDebtBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000400;
+  bitField0_ |= 0x00004000;
         debt_ = value;
         onChanged();
         return this;
@@ -5823,13 +9887,13 @@ public final class Issues {
 
       private java.lang.Object assignee_ = "";
       /**
-       * <code>optional string assignee = 12;</code>
+       * <code>optional string assignee = 16;</code>
        */
       public boolean hasAssignee() {
-        return ((bitField0_ & 0x00000800) == 0x00000800);
+        return ((bitField0_ & 0x00008000) == 0x00008000);
       }
       /**
-       * <code>optional string assignee = 12;</code>
+       * <code>optional string assignee = 16;</code>
        */
       public java.lang.String getAssignee() {
         java.lang.Object ref = assignee_;
@@ -5846,7 +9910,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string assignee = 12;</code>
+       * <code>optional string assignee = 16;</code>
        */
       public com.google.protobuf.ByteString
           getAssigneeBytes() {
@@ -5862,36 +9926,36 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string assignee = 12;</code>
+       * <code>optional string assignee = 16;</code>
        */
       public Builder setAssignee(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000800;
+  bitField0_ |= 0x00008000;
         assignee_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string assignee = 12;</code>
+       * <code>optional string assignee = 16;</code>
        */
       public Builder clearAssignee() {
-        bitField0_ = (bitField0_ & ~0x00000800);
+        bitField0_ = (bitField0_ & ~0x00008000);
         assignee_ = getDefaultInstance().getAssignee();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string assignee = 12;</code>
+       * <code>optional string assignee = 16;</code>
        */
       public Builder setAssigneeBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000800;
+  bitField0_ |= 0x00008000;
         assignee_ = value;
         onChanged();
         return this;
@@ -5899,13 +9963,13 @@ public final class Issues {
 
       private java.lang.Object reporter_ = "";
       /**
-       * <code>optional string reporter = 13;</code>
+       * <code>optional string reporter = 17;</code>
        */
       public boolean hasReporter() {
-        return ((bitField0_ & 0x00001000) == 0x00001000);
+        return ((bitField0_ & 0x00010000) == 0x00010000);
       }
       /**
-       * <code>optional string reporter = 13;</code>
+       * <code>optional string reporter = 17;</code>
        */
       public java.lang.String getReporter() {
         java.lang.Object ref = reporter_;
@@ -5922,7 +9986,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string reporter = 13;</code>
+       * <code>optional string reporter = 17;</code>
        */
       public com.google.protobuf.ByteString
           getReporterBytes() {
@@ -5938,59 +10002,67 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string reporter = 13;</code>
+       * <code>optional string reporter = 17;</code>
        */
       public Builder setReporter(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00001000;
+  bitField0_ |= 0x00010000;
         reporter_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string reporter = 13;</code>
+       * <code>optional string reporter = 17;</code>
        */
       public Builder clearReporter() {
-        bitField0_ = (bitField0_ & ~0x00001000);
+        bitField0_ = (bitField0_ & ~0x00010000);
         reporter_ = getDefaultInstance().getReporter();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string reporter = 13;</code>
+       * <code>optional string reporter = 17;</code>
        */
       public Builder setReporterBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00001000;
+  bitField0_ |= 0x00010000;
         reporter_ = value;
         onChanged();
         return this;
       }
 
-      private java.lang.Object scmAuthor_ = "";
+      private java.lang.Object author_ = "";
       /**
-       * <code>optional string scmAuthor = 14;</code>
+       * <code>optional string author = 18;</code>
+       *
+       * <pre>
+       * SCM login of the committer who introduced the issue
+       * </pre>
        */
-      public boolean hasScmAuthor() {
-        return ((bitField0_ & 0x00002000) == 0x00002000);
+      public boolean hasAuthor() {
+        return ((bitField0_ & 0x00020000) == 0x00020000);
       }
       /**
-       * <code>optional string scmAuthor = 14;</code>
+       * <code>optional string author = 18;</code>
+       *
+       * <pre>
+       * SCM login of the committer who introduced the issue
+       * </pre>
        */
-      public java.lang.String getScmAuthor() {
-        java.lang.Object ref = scmAuthor_;
+      public java.lang.String getAuthor() {
+        java.lang.Object ref = author_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
           if (bs.isValidUtf8()) {
-            scmAuthor_ = s;
+            author_ = s;
           }
           return s;
         } else {
@@ -5998,66 +10070,82 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string scmAuthor = 14;</code>
+       * <code>optional string author = 18;</code>
+       *
+       * <pre>
+       * SCM login of the committer who introduced the issue
+       * </pre>
        */
       public com.google.protobuf.ByteString
-          getScmAuthorBytes() {
-        java.lang.Object ref = scmAuthor_;
+          getAuthorBytes() {
+        java.lang.Object ref = author_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
-          scmAuthor_ = b;
+          author_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
       /**
-       * <code>optional string scmAuthor = 14;</code>
+       * <code>optional string author = 18;</code>
+       *
+       * <pre>
+       * SCM login of the committer who introduced the issue
+       * </pre>
        */
-      public Builder setScmAuthor(
+      public Builder setAuthor(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00002000;
-        scmAuthor_ = value;
+  bitField0_ |= 0x00020000;
+        author_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string scmAuthor = 14;</code>
+       * <code>optional string author = 18;</code>
+       *
+       * <pre>
+       * SCM login of the committer who introduced the issue
+       * </pre>
        */
-      public Builder clearScmAuthor() {
-        bitField0_ = (bitField0_ & ~0x00002000);
-        scmAuthor_ = getDefaultInstance().getScmAuthor();
+      public Builder clearAuthor() {
+        bitField0_ = (bitField0_ & ~0x00020000);
+        author_ = getDefaultInstance().getAuthor();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string scmAuthor = 14;</code>
+       * <code>optional string author = 18;</code>
+       *
+       * <pre>
+       * SCM login of the committer who introduced the issue
+       * </pre>
        */
-      public Builder setScmAuthorBytes(
+      public Builder setAuthorBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00002000;
-        scmAuthor_ = value;
+  bitField0_ |= 0x00020000;
+        author_ = value;
         onChanged();
         return this;
       }
 
       private java.lang.Object actionPlan_ = "";
       /**
-       * <code>optional string actionPlan = 15;</code>
+       * <code>optional string actionPlan = 19;</code>
        */
       public boolean hasActionPlan() {
-        return ((bitField0_ & 0x00004000) == 0x00004000);
+        return ((bitField0_ & 0x00040000) == 0x00040000);
       }
       /**
-       * <code>optional string actionPlan = 15;</code>
+       * <code>optional string actionPlan = 19;</code>
        */
       public java.lang.String getActionPlan() {
         java.lang.Object ref = actionPlan_;
@@ -6074,7 +10162,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string actionPlan = 15;</code>
+       * <code>optional string actionPlan = 19;</code>
        */
       public com.google.protobuf.ByteString
           getActionPlanBytes() {
@@ -6090,228 +10178,108 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string actionPlan = 15;</code>
+       * <code>optional string actionPlan = 19;</code>
        */
       public Builder setActionPlan(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00004000;
+  bitField0_ |= 0x00040000;
         actionPlan_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string actionPlan = 15;</code>
+       * <code>optional string actionPlan = 19;</code>
        */
       public Builder clearActionPlan() {
-        bitField0_ = (bitField0_ & ~0x00004000);
+        bitField0_ = (bitField0_ & ~0x00040000);
         actionPlan_ = getDefaultInstance().getActionPlan();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string actionPlan = 15;</code>
+       * <code>optional string actionPlan = 19;</code>
        */
       public Builder setActionPlanBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00004000;
+  bitField0_ |= 0x00040000;
         actionPlan_ = value;
         onChanged();
         return this;
       }
 
-      private java.lang.Object actionPlanName_ = "";
+      private boolean tagsPresentIfEmpty_ ;
       /**
-       * <code>optional string actionPlanName = 16;</code>
+       * <code>optional bool tagsPresentIfEmpty = 20;</code>
        */
-      public boolean hasActionPlanName() {
-        return ((bitField0_ & 0x00008000) == 0x00008000);
+      public boolean hasTagsPresentIfEmpty() {
+        return ((bitField0_ & 0x00080000) == 0x00080000);
       }
       /**
-       * <code>optional string actionPlanName = 16;</code>
+       * <code>optional bool tagsPresentIfEmpty = 20;</code>
        */
-      public java.lang.String getActionPlanName() {
-        java.lang.Object ref = actionPlanName_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            actionPlanName_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
+      public boolean getTagsPresentIfEmpty() {
+        return tagsPresentIfEmpty_;
       }
       /**
-       * <code>optional string actionPlanName = 16;</code>
+       * <code>optional bool tagsPresentIfEmpty = 20;</code>
        */
-      public com.google.protobuf.ByteString
-          getActionPlanNameBytes() {
-        java.lang.Object ref = actionPlanName_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          actionPlanName_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string actionPlanName = 16;</code>
-       */
-      public Builder setActionPlanName(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00008000;
-        actionPlanName_ = value;
+      public Builder setTagsPresentIfEmpty(boolean value) {
+        bitField0_ |= 0x00080000;
+        tagsPresentIfEmpty_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string actionPlanName = 16;</code>
+       * <code>optional bool tagsPresentIfEmpty = 20;</code>
        */
-      public Builder clearActionPlanName() {
-        bitField0_ = (bitField0_ & ~0x00008000);
-        actionPlanName_ = getDefaultInstance().getActionPlanName();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string actionPlanName = 16;</code>
-       */
-      public Builder setActionPlanNameBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00008000;
-        actionPlanName_ = value;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object attr_ = "";
-      /**
-       * <code>optional string attr = 17;</code>
-       */
-      public boolean hasAttr() {
-        return ((bitField0_ & 0x00010000) == 0x00010000);
-      }
-      /**
-       * <code>optional string attr = 17;</code>
-       */
-      public java.lang.String getAttr() {
-        java.lang.Object ref = attr_;
-        if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
-          java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            attr_ = s;
-          }
-          return s;
-        } else {
-          return (java.lang.String) ref;
-        }
-      }
-      /**
-       * <code>optional string attr = 17;</code>
-       */
-      public com.google.protobuf.ByteString
-          getAttrBytes() {
-        java.lang.Object ref = attr_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
-                  (java.lang.String) ref);
-          attr_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      /**
-       * <code>optional string attr = 17;</code>
-       */
-      public Builder setAttr(
-          java.lang.String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00010000;
-        attr_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string attr = 17;</code>
-       */
-      public Builder clearAttr() {
-        bitField0_ = (bitField0_ & ~0x00010000);
-        attr_ = getDefaultInstance().getAttr();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional string attr = 17;</code>
-       */
-      public Builder setAttrBytes(
-          com.google.protobuf.ByteString value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00010000;
-        attr_ = value;
+      public Builder clearTagsPresentIfEmpty() {
+        bitField0_ = (bitField0_ & ~0x00080000);
+        tagsPresentIfEmpty_ = false;
         onChanged();
         return this;
       }
 
       private com.google.protobuf.LazyStringList tags_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       private void ensureTagsIsMutable() {
-        if (!((bitField0_ & 0x00020000) == 0x00020000)) {
+        if (!((bitField0_ & 0x00100000) == 0x00100000)) {
           tags_ = new com.google.protobuf.LazyStringArrayList(tags_);
-          bitField0_ |= 0x00020000;
+          bitField0_ |= 0x00100000;
          }
       }
       /**
-       * <code>repeated string tags = 18;</code>
+       * <code>repeated string tags = 21;</code>
        */
       public com.google.protobuf.ProtocolStringList
           getTagsList() {
         return tags_.getUnmodifiableView();
       }
       /**
-       * <code>repeated string tags = 18;</code>
+       * <code>repeated string tags = 21;</code>
        */
       public int getTagsCount() {
         return tags_.size();
       }
       /**
-       * <code>repeated string tags = 18;</code>
+       * <code>repeated string tags = 21;</code>
        */
       public java.lang.String getTags(int index) {
         return tags_.get(index);
       }
       /**
-       * <code>repeated string tags = 18;</code>
+       * <code>repeated string tags = 21;</code>
        */
       public com.google.protobuf.ByteString
           getTagsBytes(int index) {
         return tags_.getByteString(index);
       }
       /**
-       * <code>repeated string tags = 18;</code>
+       * <code>repeated string tags = 21;</code>
        */
       public Builder setTags(
           int index, java.lang.String value) {
@@ -6324,7 +10292,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated string tags = 18;</code>
+       * <code>repeated string tags = 21;</code>
        */
       public Builder addTags(
           java.lang.String value) {
@@ -6337,7 +10305,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated string tags = 18;</code>
+       * <code>repeated string tags = 21;</code>
        */
       public Builder addAllTags(
           java.lang.Iterable<java.lang.String> values) {
@@ -6348,16 +10316,16 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated string tags = 18;</code>
+       * <code>repeated string tags = 21;</code>
        */
       public Builder clearTags() {
         tags_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00020000);
+        bitField0_ = (bitField0_ & ~0x00100000);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string tags = 18;</code>
+       * <code>repeated string tags = 21;</code>
        */
       public Builder addTagsBytes(
           com.google.protobuf.ByteString value) {
@@ -6370,41 +10338,89 @@ public final class Issues {
         return this;
       }
 
+      private boolean transitionsPresentIfEmpty_ ;
+      /**
+       * <code>optional bool transitionsPresentIfEmpty = 22;</code>
+       *
+       * <pre>
+       * the transitions allowed for the requesting user.
+       * </pre>
+       */
+      public boolean hasTransitionsPresentIfEmpty() {
+        return ((bitField0_ & 0x00200000) == 0x00200000);
+      }
+      /**
+       * <code>optional bool transitionsPresentIfEmpty = 22;</code>
+       *
+       * <pre>
+       * the transitions allowed for the requesting user.
+       * </pre>
+       */
+      public boolean getTransitionsPresentIfEmpty() {
+        return transitionsPresentIfEmpty_;
+      }
+      /**
+       * <code>optional bool transitionsPresentIfEmpty = 22;</code>
+       *
+       * <pre>
+       * the transitions allowed for the requesting user.
+       * </pre>
+       */
+      public Builder setTransitionsPresentIfEmpty(boolean value) {
+        bitField0_ |= 0x00200000;
+        transitionsPresentIfEmpty_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool transitionsPresentIfEmpty = 22;</code>
+       *
+       * <pre>
+       * the transitions allowed for the requesting user.
+       * </pre>
+       */
+      public Builder clearTransitionsPresentIfEmpty() {
+        bitField0_ = (bitField0_ & ~0x00200000);
+        transitionsPresentIfEmpty_ = false;
+        onChanged();
+        return this;
+      }
+
       private com.google.protobuf.LazyStringList transitions_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       private void ensureTransitionsIsMutable() {
-        if (!((bitField0_ & 0x00040000) == 0x00040000)) {
+        if (!((bitField0_ & 0x00400000) == 0x00400000)) {
           transitions_ = new com.google.protobuf.LazyStringArrayList(transitions_);
-          bitField0_ |= 0x00040000;
+          bitField0_ |= 0x00400000;
          }
       }
       /**
-       * <code>repeated string transitions = 19;</code>
+       * <code>repeated string transitions = 23;</code>
        */
       public com.google.protobuf.ProtocolStringList
           getTransitionsList() {
         return transitions_.getUnmodifiableView();
       }
       /**
-       * <code>repeated string transitions = 19;</code>
+       * <code>repeated string transitions = 23;</code>
        */
       public int getTransitionsCount() {
         return transitions_.size();
       }
       /**
-       * <code>repeated string transitions = 19;</code>
+       * <code>repeated string transitions = 23;</code>
        */
       public java.lang.String getTransitions(int index) {
         return transitions_.get(index);
       }
       /**
-       * <code>repeated string transitions = 19;</code>
+       * <code>repeated string transitions = 23;</code>
        */
       public com.google.protobuf.ByteString
           getTransitionsBytes(int index) {
         return transitions_.getByteString(index);
       }
       /**
-       * <code>repeated string transitions = 19;</code>
+       * <code>repeated string transitions = 23;</code>
        */
       public Builder setTransitions(
           int index, java.lang.String value) {
@@ -6417,7 +10433,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated string transitions = 19;</code>
+       * <code>repeated string transitions = 23;</code>
        */
       public Builder addTransitions(
           java.lang.String value) {
@@ -6430,7 +10446,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated string transitions = 19;</code>
+       * <code>repeated string transitions = 23;</code>
        */
       public Builder addAllTransitions(
           java.lang.Iterable<java.lang.String> values) {
@@ -6441,16 +10457,16 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated string transitions = 19;</code>
+       * <code>repeated string transitions = 23;</code>
        */
       public Builder clearTransitions() {
         transitions_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00040000);
+        bitField0_ = (bitField0_ & ~0x00400000);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string transitions = 19;</code>
+       * <code>repeated string transitions = 23;</code>
        */
       public Builder addTransitionsBytes(
           com.google.protobuf.ByteString value) {
@@ -6463,41 +10479,89 @@ public final class Issues {
         return this;
       }
 
+      private boolean actionsPresentIfEmpty_ ;
+      /**
+       * <code>optional bool actionsPresentIfEmpty = 24;</code>
+       *
+       * <pre>
+       * the actions allowed for the requesting user.
+       * </pre>
+       */
+      public boolean hasActionsPresentIfEmpty() {
+        return ((bitField0_ & 0x00800000) == 0x00800000);
+      }
+      /**
+       * <code>optional bool actionsPresentIfEmpty = 24;</code>
+       *
+       * <pre>
+       * the actions allowed for the requesting user.
+       * </pre>
+       */
+      public boolean getActionsPresentIfEmpty() {
+        return actionsPresentIfEmpty_;
+      }
+      /**
+       * <code>optional bool actionsPresentIfEmpty = 24;</code>
+       *
+       * <pre>
+       * the actions allowed for the requesting user.
+       * </pre>
+       */
+      public Builder setActionsPresentIfEmpty(boolean value) {
+        bitField0_ |= 0x00800000;
+        actionsPresentIfEmpty_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool actionsPresentIfEmpty = 24;</code>
+       *
+       * <pre>
+       * the actions allowed for the requesting user.
+       * </pre>
+       */
+      public Builder clearActionsPresentIfEmpty() {
+        bitField0_ = (bitField0_ & ~0x00800000);
+        actionsPresentIfEmpty_ = false;
+        onChanged();
+        return this;
+      }
+
       private com.google.protobuf.LazyStringList actions_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       private void ensureActionsIsMutable() {
-        if (!((bitField0_ & 0x00080000) == 0x00080000)) {
+        if (!((bitField0_ & 0x01000000) == 0x01000000)) {
           actions_ = new com.google.protobuf.LazyStringArrayList(actions_);
-          bitField0_ |= 0x00080000;
+          bitField0_ |= 0x01000000;
          }
       }
       /**
-       * <code>repeated string actions = 20;</code>
+       * <code>repeated string actions = 25;</code>
        */
       public com.google.protobuf.ProtocolStringList
           getActionsList() {
         return actions_.getUnmodifiableView();
       }
       /**
-       * <code>repeated string actions = 20;</code>
+       * <code>repeated string actions = 25;</code>
        */
       public int getActionsCount() {
         return actions_.size();
       }
       /**
-       * <code>repeated string actions = 20;</code>
+       * <code>repeated string actions = 25;</code>
        */
       public java.lang.String getActions(int index) {
         return actions_.get(index);
       }
       /**
-       * <code>repeated string actions = 20;</code>
+       * <code>repeated string actions = 25;</code>
        */
       public com.google.protobuf.ByteString
           getActionsBytes(int index) {
         return actions_.getByteString(index);
       }
       /**
-       * <code>repeated string actions = 20;</code>
+       * <code>repeated string actions = 25;</code>
        */
       public Builder setActions(
           int index, java.lang.String value) {
@@ -6510,7 +10574,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated string actions = 20;</code>
+       * <code>repeated string actions = 25;</code>
        */
       public Builder addActions(
           java.lang.String value) {
@@ -6523,7 +10587,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated string actions = 20;</code>
+       * <code>repeated string actions = 25;</code>
        */
       public Builder addAllActions(
           java.lang.Iterable<java.lang.String> values) {
@@ -6534,16 +10598,16 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated string actions = 20;</code>
+       * <code>repeated string actions = 25;</code>
        */
       public Builder clearActions() {
         actions_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00080000);
+        bitField0_ = (bitField0_ & ~0x01000000);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string actions = 20;</code>
+       * <code>repeated string actions = 25;</code>
        */
       public Builder addActionsBytes(
           com.google.protobuf.ByteString value) {
@@ -6556,12 +10620,44 @@ public final class Issues {
         return this;
       }
 
+      private boolean commentsPresentIfEmpty_ ;
+      /**
+       * <code>optional bool commentsPresentIfEmpty = 26;</code>
+       */
+      public boolean hasCommentsPresentIfEmpty() {
+        return ((bitField0_ & 0x02000000) == 0x02000000);
+      }
+      /**
+       * <code>optional bool commentsPresentIfEmpty = 26;</code>
+       */
+      public boolean getCommentsPresentIfEmpty() {
+        return commentsPresentIfEmpty_;
+      }
+      /**
+       * <code>optional bool commentsPresentIfEmpty = 26;</code>
+       */
+      public Builder setCommentsPresentIfEmpty(boolean value) {
+        bitField0_ |= 0x02000000;
+        commentsPresentIfEmpty_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool commentsPresentIfEmpty = 26;</code>
+       */
+      public Builder clearCommentsPresentIfEmpty() {
+        bitField0_ = (bitField0_ & ~0x02000000);
+        commentsPresentIfEmpty_ = false;
+        onChanged();
+        return this;
+      }
+
       private java.util.List<org.sonarqube.ws.Issues.Comment> comments_ =
         java.util.Collections.emptyList();
       private void ensureCommentsIsMutable() {
-        if (!((bitField0_ & 0x00100000) == 0x00100000)) {
+        if (!((bitField0_ & 0x04000000) == 0x04000000)) {
           comments_ = new java.util.ArrayList<org.sonarqube.ws.Issues.Comment>(comments_);
-          bitField0_ |= 0x00100000;
+          bitField0_ |= 0x04000000;
          }
       }
 
@@ -6569,7 +10665,7 @@ public final class Issues {
           org.sonarqube.ws.Issues.Comment, org.sonarqube.ws.Issues.Comment.Builder, org.sonarqube.ws.Issues.CommentOrBuilder> commentsBuilder_;
 
       /**
-       * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+       * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
        */
       public java.util.List<org.sonarqube.ws.Issues.Comment> getCommentsList() {
         if (commentsBuilder_ == null) {
@@ -6579,7 +10675,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+       * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
        */
       public int getCommentsCount() {
         if (commentsBuilder_ == null) {
@@ -6589,7 +10685,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+       * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
        */
       public org.sonarqube.ws.Issues.Comment getComments(int index) {
         if (commentsBuilder_ == null) {
@@ -6599,7 +10695,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+       * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
        */
       public Builder setComments(
           int index, org.sonarqube.ws.Issues.Comment value) {
@@ -6616,7 +10712,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+       * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
        */
       public Builder setComments(
           int index, org.sonarqube.ws.Issues.Comment.Builder builderForValue) {
@@ -6630,7 +10726,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+       * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
        */
       public Builder addComments(org.sonarqube.ws.Issues.Comment value) {
         if (commentsBuilder_ == null) {
@@ -6646,7 +10742,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+       * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
        */
       public Builder addComments(
           int index, org.sonarqube.ws.Issues.Comment value) {
@@ -6663,7 +10759,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+       * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
        */
       public Builder addComments(
           org.sonarqube.ws.Issues.Comment.Builder builderForValue) {
@@ -6677,7 +10773,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+       * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
        */
       public Builder addComments(
           int index, org.sonarqube.ws.Issues.Comment.Builder builderForValue) {
@@ -6691,7 +10787,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+       * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
        */
       public Builder addAllComments(
           java.lang.Iterable<? extends org.sonarqube.ws.Issues.Comment> values) {
@@ -6706,12 +10802,12 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+       * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
        */
       public Builder clearComments() {
         if (commentsBuilder_ == null) {
           comments_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00100000);
+          bitField0_ = (bitField0_ & ~0x04000000);
           onChanged();
         } else {
           commentsBuilder_.clear();
@@ -6719,7 +10815,7 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+       * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
        */
       public Builder removeComments(int index) {
         if (commentsBuilder_ == null) {
@@ -6732,14 +10828,14 @@ public final class Issues {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+       * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
        */
       public org.sonarqube.ws.Issues.Comment.Builder getCommentsBuilder(
           int index) {
         return getCommentsFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+       * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
        */
       public org.sonarqube.ws.Issues.CommentOrBuilder getCommentsOrBuilder(
           int index) {
@@ -6749,7 +10845,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+       * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
        */
       public java.util.List<? extends org.sonarqube.ws.Issues.CommentOrBuilder> 
            getCommentsOrBuilderList() {
@@ -6760,14 +10856,14 @@ public final class Issues {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+       * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
        */
       public org.sonarqube.ws.Issues.Comment.Builder addCommentsBuilder() {
         return getCommentsFieldBuilder().addBuilder(
             org.sonarqube.ws.Issues.Comment.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+       * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
        */
       public org.sonarqube.ws.Issues.Comment.Builder addCommentsBuilder(
           int index) {
@@ -6775,7 +10871,7 @@ public final class Issues {
             index, org.sonarqube.ws.Issues.Comment.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.ws.issues.Comment comments = 21;</code>
+       * <code>repeated .sonarqube.ws.issues.Comment comments = 27;</code>
        */
       public java.util.List<org.sonarqube.ws.Issues.Comment.Builder> 
            getCommentsBuilderList() {
@@ -6788,7 +10884,7 @@ public final class Issues {
           commentsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.sonarqube.ws.Issues.Comment, org.sonarqube.ws.Issues.Comment.Builder, org.sonarqube.ws.Issues.CommentOrBuilder>(
                   comments_,
-                  ((bitField0_ & 0x00100000) == 0x00100000),
+                  ((bitField0_ & 0x04000000) == 0x04000000),
                   getParentForChildren(),
                   isClean());
           comments_ = null;
@@ -6798,13 +10894,13 @@ public final class Issues {
 
       private java.lang.Object creationDate_ = "";
       /**
-       * <code>optional string creationDate = 22;</code>
+       * <code>optional string creationDate = 28;</code>
        */
       public boolean hasCreationDate() {
-        return ((bitField0_ & 0x00200000) == 0x00200000);
+        return ((bitField0_ & 0x08000000) == 0x08000000);
       }
       /**
-       * <code>optional string creationDate = 22;</code>
+       * <code>optional string creationDate = 28;</code>
        */
       public java.lang.String getCreationDate() {
         java.lang.Object ref = creationDate_;
@@ -6821,7 +10917,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string creationDate = 22;</code>
+       * <code>optional string creationDate = 28;</code>
        */
       public com.google.protobuf.ByteString
           getCreationDateBytes() {
@@ -6837,36 +10933,36 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string creationDate = 22;</code>
+       * <code>optional string creationDate = 28;</code>
        */
       public Builder setCreationDate(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00200000;
+  bitField0_ |= 0x08000000;
         creationDate_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string creationDate = 22;</code>
+       * <code>optional string creationDate = 28;</code>
        */
       public Builder clearCreationDate() {
-        bitField0_ = (bitField0_ & ~0x00200000);
+        bitField0_ = (bitField0_ & ~0x08000000);
         creationDate_ = getDefaultInstance().getCreationDate();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string creationDate = 22;</code>
+       * <code>optional string creationDate = 28;</code>
        */
       public Builder setCreationDateBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00200000;
+  bitField0_ |= 0x08000000;
         creationDate_ = value;
         onChanged();
         return this;
@@ -6874,13 +10970,13 @@ public final class Issues {
 
       private java.lang.Object updateDate_ = "";
       /**
-       * <code>optional string updateDate = 23;</code>
+       * <code>optional string updateDate = 29;</code>
        */
       public boolean hasUpdateDate() {
-        return ((bitField0_ & 0x00400000) == 0x00400000);
+        return ((bitField0_ & 0x10000000) == 0x10000000);
       }
       /**
-       * <code>optional string updateDate = 23;</code>
+       * <code>optional string updateDate = 29;</code>
        */
       public java.lang.String getUpdateDate() {
         java.lang.Object ref = updateDate_;
@@ -6897,7 +10993,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string updateDate = 23;</code>
+       * <code>optional string updateDate = 29;</code>
        */
       public com.google.protobuf.ByteString
           getUpdateDateBytes() {
@@ -6913,36 +11009,36 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string updateDate = 23;</code>
+       * <code>optional string updateDate = 29;</code>
        */
       public Builder setUpdateDate(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00400000;
+  bitField0_ |= 0x10000000;
         updateDate_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string updateDate = 23;</code>
+       * <code>optional string updateDate = 29;</code>
        */
       public Builder clearUpdateDate() {
-        bitField0_ = (bitField0_ & ~0x00400000);
+        bitField0_ = (bitField0_ & ~0x10000000);
         updateDate_ = getDefaultInstance().getUpdateDate();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string updateDate = 23;</code>
+       * <code>optional string updateDate = 29;</code>
        */
       public Builder setUpdateDateBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00400000;
+  bitField0_ |= 0x10000000;
         updateDate_ = value;
         onChanged();
         return this;
@@ -6950,13 +11046,13 @@ public final class Issues {
 
       private java.lang.Object fUpdateAge_ = "";
       /**
-       * <code>optional string fUpdateAge = 24;</code>
+       * <code>optional string fUpdateAge = 30;</code>
        */
       public boolean hasFUpdateAge() {
-        return ((bitField0_ & 0x00800000) == 0x00800000);
+        return ((bitField0_ & 0x20000000) == 0x20000000);
       }
       /**
-       * <code>optional string fUpdateAge = 24;</code>
+       * <code>optional string fUpdateAge = 30;</code>
        */
       public java.lang.String getFUpdateAge() {
         java.lang.Object ref = fUpdateAge_;
@@ -6973,7 +11069,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string fUpdateAge = 24;</code>
+       * <code>optional string fUpdateAge = 30;</code>
        */
       public com.google.protobuf.ByteString
           getFUpdateAgeBytes() {
@@ -6989,36 +11085,36 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string fUpdateAge = 24;</code>
+       * <code>optional string fUpdateAge = 30;</code>
        */
       public Builder setFUpdateAge(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00800000;
+  bitField0_ |= 0x20000000;
         fUpdateAge_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string fUpdateAge = 24;</code>
+       * <code>optional string fUpdateAge = 30;</code>
        */
       public Builder clearFUpdateAge() {
-        bitField0_ = (bitField0_ & ~0x00800000);
+        bitField0_ = (bitField0_ & ~0x20000000);
         fUpdateAge_ = getDefaultInstance().getFUpdateAge();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string fUpdateAge = 24;</code>
+       * <code>optional string fUpdateAge = 30;</code>
        */
       public Builder setFUpdateAgeBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00800000;
+  bitField0_ |= 0x20000000;
         fUpdateAge_ = value;
         onChanged();
         return this;
@@ -7026,13 +11122,13 @@ public final class Issues {
 
       private java.lang.Object closeDate_ = "";
       /**
-       * <code>optional string closeDate = 25;</code>
+       * <code>optional string closeDate = 31;</code>
        */
       public boolean hasCloseDate() {
-        return ((bitField0_ & 0x01000000) == 0x01000000);
+        return ((bitField0_ & 0x40000000) == 0x40000000);
       }
       /**
-       * <code>optional string closeDate = 25;</code>
+       * <code>optional string closeDate = 31;</code>
        */
       public java.lang.String getCloseDate() {
         java.lang.Object ref = closeDate_;
@@ -7049,7 +11145,7 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string closeDate = 25;</code>
+       * <code>optional string closeDate = 31;</code>
        */
       public com.google.protobuf.ByteString
           getCloseDateBytes() {
@@ -7065,36 +11161,36 @@ public final class Issues {
         }
       }
       /**
-       * <code>optional string closeDate = 25;</code>
+       * <code>optional string closeDate = 31;</code>
        */
       public Builder setCloseDate(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x01000000;
+  bitField0_ |= 0x40000000;
         closeDate_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string closeDate = 25;</code>
+       * <code>optional string closeDate = 31;</code>
        */
       public Builder clearCloseDate() {
-        bitField0_ = (bitField0_ & ~0x01000000);
+        bitField0_ = (bitField0_ & ~0x40000000);
         closeDate_ = getDefaultInstance().getCloseDate();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string closeDate = 25;</code>
+       * <code>optional string closeDate = 31;</code>
        */
       public Builder setCloseDateBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x01000000;
+  bitField0_ |= 0x40000000;
         closeDate_ = value;
         onChanged();
         return this;
@@ -7109,6 +11205,1564 @@ public final class Issues {
     }
 
     // @@protoc_insertion_point(class_scope:sonarqube.ws.issues.Issue)
+  }
+
+  public interface ExecutionFlowOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:sonarqube.ws.issues.ExecutionFlow)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+     */
+    java.util.List<org.sonarqube.ws.Issues.Location> 
+        getLocationsList();
+    /**
+     * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+     */
+    org.sonarqube.ws.Issues.Location getLocations(int index);
+    /**
+     * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+     */
+    int getLocationsCount();
+    /**
+     * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+     */
+    java.util.List<? extends org.sonarqube.ws.Issues.LocationOrBuilder> 
+        getLocationsOrBuilderList();
+    /**
+     * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+     */
+    org.sonarqube.ws.Issues.LocationOrBuilder getLocationsOrBuilder(
+        int index);
+  }
+  /**
+   * Protobuf type {@code sonarqube.ws.issues.ExecutionFlow}
+   */
+  public static final class ExecutionFlow extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:sonarqube.ws.issues.ExecutionFlow)
+      ExecutionFlowOrBuilder {
+    // Use ExecutionFlow.newBuilder() to construct.
+    private ExecutionFlow(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private ExecutionFlow(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final ExecutionFlow defaultInstance;
+    public static ExecutionFlow getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public ExecutionFlow getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private ExecutionFlow(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                locations_ = new java.util.ArrayList<org.sonarqube.ws.Issues.Location>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              locations_.add(input.readMessage(org.sonarqube.ws.Issues.Location.PARSER, extensionRegistry));
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+          locations_ = java.util.Collections.unmodifiableList(locations_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_ExecutionFlow_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_ExecutionFlow_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonarqube.ws.Issues.ExecutionFlow.class, org.sonarqube.ws.Issues.ExecutionFlow.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<ExecutionFlow> PARSER =
+        new com.google.protobuf.AbstractParser<ExecutionFlow>() {
+      public ExecutionFlow parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new ExecutionFlow(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ExecutionFlow> getParserForType() {
+      return PARSER;
+    }
+
+    public static final int LOCATIONS_FIELD_NUMBER = 1;
+    private java.util.List<org.sonarqube.ws.Issues.Location> locations_;
+    /**
+     * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+     */
+    public java.util.List<org.sonarqube.ws.Issues.Location> getLocationsList() {
+      return locations_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+     */
+    public java.util.List<? extends org.sonarqube.ws.Issues.LocationOrBuilder> 
+        getLocationsOrBuilderList() {
+      return locations_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+     */
+    public int getLocationsCount() {
+      return locations_.size();
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+     */
+    public org.sonarqube.ws.Issues.Location getLocations(int index) {
+      return locations_.get(index);
+    }
+    /**
+     * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+     */
+    public org.sonarqube.ws.Issues.LocationOrBuilder getLocationsOrBuilder(
+        int index) {
+      return locations_.get(index);
+    }
+
+    private void initFields() {
+      locations_ = java.util.Collections.emptyList();
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      for (int i = 0; i < locations_.size(); i++) {
+        output.writeMessage(1, locations_.get(i));
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (int i = 0; i < locations_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, locations_.get(i));
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static org.sonarqube.ws.Issues.ExecutionFlow parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Issues.ExecutionFlow parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.ExecutionFlow parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Issues.ExecutionFlow parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.ExecutionFlow parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Issues.ExecutionFlow parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.ExecutionFlow parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonarqube.ws.Issues.ExecutionFlow parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.ExecutionFlow parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Issues.ExecutionFlow parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(org.sonarqube.ws.Issues.ExecutionFlow prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code sonarqube.ws.issues.ExecutionFlow}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:sonarqube.ws.issues.ExecutionFlow)
+        org.sonarqube.ws.Issues.ExecutionFlowOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_ExecutionFlow_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_ExecutionFlow_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonarqube.ws.Issues.ExecutionFlow.class, org.sonarqube.ws.Issues.ExecutionFlow.Builder.class);
+      }
+
+      // Construct using org.sonarqube.ws.Issues.ExecutionFlow.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getLocationsFieldBuilder();
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        if (locationsBuilder_ == null) {
+          locations_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          locationsBuilder_.clear();
+        }
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_ExecutionFlow_descriptor;
+      }
+
+      public org.sonarqube.ws.Issues.ExecutionFlow getDefaultInstanceForType() {
+        return org.sonarqube.ws.Issues.ExecutionFlow.getDefaultInstance();
+      }
+
+      public org.sonarqube.ws.Issues.ExecutionFlow build() {
+        org.sonarqube.ws.Issues.ExecutionFlow result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonarqube.ws.Issues.ExecutionFlow buildPartial() {
+        org.sonarqube.ws.Issues.ExecutionFlow result = new org.sonarqube.ws.Issues.ExecutionFlow(this);
+        int from_bitField0_ = bitField0_;
+        if (locationsBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001)) {
+            locations_ = java.util.Collections.unmodifiableList(locations_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.locations_ = locations_;
+        } else {
+          result.locations_ = locationsBuilder_.build();
+        }
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonarqube.ws.Issues.ExecutionFlow) {
+          return mergeFrom((org.sonarqube.ws.Issues.ExecutionFlow)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonarqube.ws.Issues.ExecutionFlow other) {
+        if (other == org.sonarqube.ws.Issues.ExecutionFlow.getDefaultInstance()) return this;
+        if (locationsBuilder_ == null) {
+          if (!other.locations_.isEmpty()) {
+            if (locations_.isEmpty()) {
+              locations_ = other.locations_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+            } else {
+              ensureLocationsIsMutable();
+              locations_.addAll(other.locations_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.locations_.isEmpty()) {
+            if (locationsBuilder_.isEmpty()) {
+              locationsBuilder_.dispose();
+              locationsBuilder_ = null;
+              locations_ = other.locations_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              locationsBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getLocationsFieldBuilder() : null;
+            } else {
+              locationsBuilder_.addAllMessages(other.locations_);
+            }
+          }
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonarqube.ws.Issues.ExecutionFlow parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonarqube.ws.Issues.ExecutionFlow) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.util.List<org.sonarqube.ws.Issues.Location> locations_ =
+        java.util.Collections.emptyList();
+      private void ensureLocationsIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          locations_ = new java.util.ArrayList<org.sonarqube.ws.Issues.Location>(locations_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Issues.Location, org.sonarqube.ws.Issues.Location.Builder, org.sonarqube.ws.Issues.LocationOrBuilder> locationsBuilder_;
+
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Issues.Location> getLocationsList() {
+        if (locationsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(locations_);
+        } else {
+          return locationsBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+       */
+      public int getLocationsCount() {
+        if (locationsBuilder_ == null) {
+          return locations_.size();
+        } else {
+          return locationsBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+       */
+      public org.sonarqube.ws.Issues.Location getLocations(int index) {
+        if (locationsBuilder_ == null) {
+          return locations_.get(index);
+        } else {
+          return locationsBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+       */
+      public Builder setLocations(
+          int index, org.sonarqube.ws.Issues.Location value) {
+        if (locationsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureLocationsIsMutable();
+          locations_.set(index, value);
+          onChanged();
+        } else {
+          locationsBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+       */
+      public Builder setLocations(
+          int index, org.sonarqube.ws.Issues.Location.Builder builderForValue) {
+        if (locationsBuilder_ == null) {
+          ensureLocationsIsMutable();
+          locations_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          locationsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+       */
+      public Builder addLocations(org.sonarqube.ws.Issues.Location value) {
+        if (locationsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureLocationsIsMutable();
+          locations_.add(value);
+          onChanged();
+        } else {
+          locationsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+       */
+      public Builder addLocations(
+          int index, org.sonarqube.ws.Issues.Location value) {
+        if (locationsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureLocationsIsMutable();
+          locations_.add(index, value);
+          onChanged();
+        } else {
+          locationsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+       */
+      public Builder addLocations(
+          org.sonarqube.ws.Issues.Location.Builder builderForValue) {
+        if (locationsBuilder_ == null) {
+          ensureLocationsIsMutable();
+          locations_.add(builderForValue.build());
+          onChanged();
+        } else {
+          locationsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+       */
+      public Builder addLocations(
+          int index, org.sonarqube.ws.Issues.Location.Builder builderForValue) {
+        if (locationsBuilder_ == null) {
+          ensureLocationsIsMutable();
+          locations_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          locationsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+       */
+      public Builder addAllLocations(
+          java.lang.Iterable<? extends org.sonarqube.ws.Issues.Location> values) {
+        if (locationsBuilder_ == null) {
+          ensureLocationsIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, locations_);
+          onChanged();
+        } else {
+          locationsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+       */
+      public Builder clearLocations() {
+        if (locationsBuilder_ == null) {
+          locations_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          locationsBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+       */
+      public Builder removeLocations(int index) {
+        if (locationsBuilder_ == null) {
+          ensureLocationsIsMutable();
+          locations_.remove(index);
+          onChanged();
+        } else {
+          locationsBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+       */
+      public org.sonarqube.ws.Issues.Location.Builder getLocationsBuilder(
+          int index) {
+        return getLocationsFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+       */
+      public org.sonarqube.ws.Issues.LocationOrBuilder getLocationsOrBuilder(
+          int index) {
+        if (locationsBuilder_ == null) {
+          return locations_.get(index);  } else {
+          return locationsBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+       */
+      public java.util.List<? extends org.sonarqube.ws.Issues.LocationOrBuilder> 
+           getLocationsOrBuilderList() {
+        if (locationsBuilder_ != null) {
+          return locationsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(locations_);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+       */
+      public org.sonarqube.ws.Issues.Location.Builder addLocationsBuilder() {
+        return getLocationsFieldBuilder().addBuilder(
+            org.sonarqube.ws.Issues.Location.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+       */
+      public org.sonarqube.ws.Issues.Location.Builder addLocationsBuilder(
+          int index) {
+        return getLocationsFieldBuilder().addBuilder(
+            index, org.sonarqube.ws.Issues.Location.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.issues.Location locations = 1;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Issues.Location.Builder> 
+           getLocationsBuilderList() {
+        return getLocationsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Issues.Location, org.sonarqube.ws.Issues.Location.Builder, org.sonarqube.ws.Issues.LocationOrBuilder> 
+          getLocationsFieldBuilder() {
+        if (locationsBuilder_ == null) {
+          locationsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonarqube.ws.Issues.Location, org.sonarqube.ws.Issues.Location.Builder, org.sonarqube.ws.Issues.LocationOrBuilder>(
+                  locations_,
+                  ((bitField0_ & 0x00000001) == 0x00000001),
+                  getParentForChildren(),
+                  isClean());
+          locations_ = null;
+        }
+        return locationsBuilder_;
+      }
+
+      // @@protoc_insertion_point(builder_scope:sonarqube.ws.issues.ExecutionFlow)
+    }
+
+    static {
+      defaultInstance = new ExecutionFlow(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:sonarqube.ws.issues.ExecutionFlow)
+  }
+
+  public interface LocationOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:sonarqube.ws.issues.Location)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>optional string componentId = 1;</code>
+     */
+    boolean hasComponentId();
+    /**
+     * <code>optional string componentId = 1;</code>
+     */
+    java.lang.String getComponentId();
+    /**
+     * <code>optional string componentId = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getComponentIdBytes();
+
+    /**
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
+     *
+     * <pre>
+     * Only when component is a file. Can be empty for a file if this is an issue global to the file.
+     * </pre>
+     */
+    boolean hasTextRange();
+    /**
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
+     *
+     * <pre>
+     * Only when component is a file. Can be empty for a file if this is an issue global to the file.
+     * </pre>
+     */
+    org.sonarqube.ws.Common.TextRange getTextRange();
+    /**
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
+     *
+     * <pre>
+     * Only when component is a file. Can be empty for a file if this is an issue global to the file.
+     * </pre>
+     */
+    org.sonarqube.ws.Common.TextRangeOrBuilder getTextRangeOrBuilder();
+
+    /**
+     * <code>optional string msg = 3;</code>
+     */
+    boolean hasMsg();
+    /**
+     * <code>optional string msg = 3;</code>
+     */
+    java.lang.String getMsg();
+    /**
+     * <code>optional string msg = 3;</code>
+     */
+    com.google.protobuf.ByteString
+        getMsgBytes();
+  }
+  /**
+   * Protobuf type {@code sonarqube.ws.issues.Location}
+   */
+  public static final class Location extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:sonarqube.ws.issues.Location)
+      LocationOrBuilder {
+    // Use Location.newBuilder() to construct.
+    private Location(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private Location(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final Location defaultInstance;
+    public static Location getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public Location getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private Location(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000001;
+              componentId_ = bs;
+              break;
+            }
+            case 18: {
+              org.sonarqube.ws.Common.TextRange.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                subBuilder = textRange_.toBuilder();
+              }
+              textRange_ = input.readMessage(org.sonarqube.ws.Common.TextRange.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(textRange_);
+                textRange_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000002;
+              break;
+            }
+            case 26: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000004;
+              msg_ = bs;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_Location_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_Location_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonarqube.ws.Issues.Location.class, org.sonarqube.ws.Issues.Location.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<Location> PARSER =
+        new com.google.protobuf.AbstractParser<Location>() {
+      public Location parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new Location(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Location> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    public static final int COMPONENTID_FIELD_NUMBER = 1;
+    private java.lang.Object componentId_;
+    /**
+     * <code>optional string componentId = 1;</code>
+     */
+    public boolean hasComponentId() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional string componentId = 1;</code>
+     */
+    public java.lang.String getComponentId() {
+      java.lang.Object ref = componentId_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          componentId_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string componentId = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getComponentIdBytes() {
+      java.lang.Object ref = componentId_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        componentId_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int TEXTRANGE_FIELD_NUMBER = 2;
+    private org.sonarqube.ws.Common.TextRange textRange_;
+    /**
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
+     *
+     * <pre>
+     * Only when component is a file. Can be empty for a file if this is an issue global to the file.
+     * </pre>
+     */
+    public boolean hasTextRange() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
+     *
+     * <pre>
+     * Only when component is a file. Can be empty for a file if this is an issue global to the file.
+     * </pre>
+     */
+    public org.sonarqube.ws.Common.TextRange getTextRange() {
+      return textRange_;
+    }
+    /**
+     * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
+     *
+     * <pre>
+     * Only when component is a file. Can be empty for a file if this is an issue global to the file.
+     * </pre>
+     */
+    public org.sonarqube.ws.Common.TextRangeOrBuilder getTextRangeOrBuilder() {
+      return textRange_;
+    }
+
+    public static final int MSG_FIELD_NUMBER = 3;
+    private java.lang.Object msg_;
+    /**
+     * <code>optional string msg = 3;</code>
+     */
+    public boolean hasMsg() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional string msg = 3;</code>
+     */
+    public java.lang.String getMsg() {
+      java.lang.Object ref = msg_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          msg_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string msg = 3;</code>
+     */
+    public com.google.protobuf.ByteString
+        getMsgBytes() {
+      java.lang.Object ref = msg_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        msg_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private void initFields() {
+      componentId_ = "";
+      textRange_ = org.sonarqube.ws.Common.TextRange.getDefaultInstance();
+      msg_ = "";
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeBytes(1, getComponentIdBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeMessage(2, textRange_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeBytes(3, getMsgBytes());
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(1, getComponentIdBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, textRange_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(3, getMsgBytes());
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static org.sonarqube.ws.Issues.Location parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Issues.Location parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.Location parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Issues.Location parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.Location parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Issues.Location parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.Location parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonarqube.ws.Issues.Location parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.Location parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Issues.Location parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(org.sonarqube.ws.Issues.Location prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code sonarqube.ws.issues.Location}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:sonarqube.ws.issues.Location)
+        org.sonarqube.ws.Issues.LocationOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_Location_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_Location_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonarqube.ws.Issues.Location.class, org.sonarqube.ws.Issues.Location.Builder.class);
+      }
+
+      // Construct using org.sonarqube.ws.Issues.Location.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getTextRangeFieldBuilder();
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        componentId_ = "";
+        bitField0_ = (bitField0_ & ~0x00000001);
+        if (textRangeBuilder_ == null) {
+          textRange_ = org.sonarqube.ws.Common.TextRange.getDefaultInstance();
+        } else {
+          textRangeBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        msg_ = "";
+        bitField0_ = (bitField0_ & ~0x00000004);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_Location_descriptor;
+      }
+
+      public org.sonarqube.ws.Issues.Location getDefaultInstanceForType() {
+        return org.sonarqube.ws.Issues.Location.getDefaultInstance();
+      }
+
+      public org.sonarqube.ws.Issues.Location build() {
+        org.sonarqube.ws.Issues.Location result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonarqube.ws.Issues.Location buildPartial() {
+        org.sonarqube.ws.Issues.Location result = new org.sonarqube.ws.Issues.Location(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.componentId_ = componentId_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        if (textRangeBuilder_ == null) {
+          result.textRange_ = textRange_;
+        } else {
+          result.textRange_ = textRangeBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.msg_ = msg_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonarqube.ws.Issues.Location) {
+          return mergeFrom((org.sonarqube.ws.Issues.Location)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonarqube.ws.Issues.Location other) {
+        if (other == org.sonarqube.ws.Issues.Location.getDefaultInstance()) return this;
+        if (other.hasComponentId()) {
+          bitField0_ |= 0x00000001;
+          componentId_ = other.componentId_;
+          onChanged();
+        }
+        if (other.hasTextRange()) {
+          mergeTextRange(other.getTextRange());
+        }
+        if (other.hasMsg()) {
+          bitField0_ |= 0x00000004;
+          msg_ = other.msg_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonarqube.ws.Issues.Location parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonarqube.ws.Issues.Location) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.lang.Object componentId_ = "";
+      /**
+       * <code>optional string componentId = 1;</code>
+       */
+      public boolean hasComponentId() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional string componentId = 1;</code>
+       */
+      public java.lang.String getComponentId() {
+        java.lang.Object ref = componentId_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            componentId_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string componentId = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getComponentIdBytes() {
+        java.lang.Object ref = componentId_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          componentId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string componentId = 1;</code>
+       */
+      public Builder setComponentId(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        componentId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string componentId = 1;</code>
+       */
+      public Builder clearComponentId() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        componentId_ = getDefaultInstance().getComponentId();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string componentId = 1;</code>
+       */
+      public Builder setComponentIdBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        componentId_ = value;
+        onChanged();
+        return this;
+      }
+
+      private org.sonarqube.ws.Common.TextRange textRange_ = org.sonarqube.ws.Common.TextRange.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonarqube.ws.Common.TextRange, org.sonarqube.ws.Common.TextRange.Builder, org.sonarqube.ws.Common.TextRangeOrBuilder> textRangeBuilder_;
+      /**
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
+       *
+       * <pre>
+       * Only when component is a file. Can be empty for a file if this is an issue global to the file.
+       * </pre>
+       */
+      public boolean hasTextRange() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
+       *
+       * <pre>
+       * Only when component is a file. Can be empty for a file if this is an issue global to the file.
+       * </pre>
+       */
+      public org.sonarqube.ws.Common.TextRange getTextRange() {
+        if (textRangeBuilder_ == null) {
+          return textRange_;
+        } else {
+          return textRangeBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
+       *
+       * <pre>
+       * Only when component is a file. Can be empty for a file if this is an issue global to the file.
+       * </pre>
+       */
+      public Builder setTextRange(org.sonarqube.ws.Common.TextRange value) {
+        if (textRangeBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          textRange_ = value;
+          onChanged();
+        } else {
+          textRangeBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
+       *
+       * <pre>
+       * Only when component is a file. Can be empty for a file if this is an issue global to the file.
+       * </pre>
+       */
+      public Builder setTextRange(
+          org.sonarqube.ws.Common.TextRange.Builder builderForValue) {
+        if (textRangeBuilder_ == null) {
+          textRange_ = builderForValue.build();
+          onChanged();
+        } else {
+          textRangeBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
+       *
+       * <pre>
+       * Only when component is a file. Can be empty for a file if this is an issue global to the file.
+       * </pre>
+       */
+      public Builder mergeTextRange(org.sonarqube.ws.Common.TextRange value) {
+        if (textRangeBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) == 0x00000002) &&
+              textRange_ != org.sonarqube.ws.Common.TextRange.getDefaultInstance()) {
+            textRange_ =
+              org.sonarqube.ws.Common.TextRange.newBuilder(textRange_).mergeFrom(value).buildPartial();
+          } else {
+            textRange_ = value;
+          }
+          onChanged();
+        } else {
+          textRangeBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
+       *
+       * <pre>
+       * Only when component is a file. Can be empty for a file if this is an issue global to the file.
+       * </pre>
+       */
+      public Builder clearTextRange() {
+        if (textRangeBuilder_ == null) {
+          textRange_ = org.sonarqube.ws.Common.TextRange.getDefaultInstance();
+          onChanged();
+        } else {
+          textRangeBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
+       *
+       * <pre>
+       * Only when component is a file. Can be empty for a file if this is an issue global to the file.
+       * </pre>
+       */
+      public org.sonarqube.ws.Common.TextRange.Builder getTextRangeBuilder() {
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return getTextRangeFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
+       *
+       * <pre>
+       * Only when component is a file. Can be empty for a file if this is an issue global to the file.
+       * </pre>
+       */
+      public org.sonarqube.ws.Common.TextRangeOrBuilder getTextRangeOrBuilder() {
+        if (textRangeBuilder_ != null) {
+          return textRangeBuilder_.getMessageOrBuilder();
+        } else {
+          return textRange_;
+        }
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.TextRange textRange = 2;</code>
+       *
+       * <pre>
+       * Only when component is a file. Can be empty for a file if this is an issue global to the file.
+       * </pre>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonarqube.ws.Common.TextRange, org.sonarqube.ws.Common.TextRange.Builder, org.sonarqube.ws.Common.TextRangeOrBuilder> 
+          getTextRangeFieldBuilder() {
+        if (textRangeBuilder_ == null) {
+          textRangeBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              org.sonarqube.ws.Common.TextRange, org.sonarqube.ws.Common.TextRange.Builder, org.sonarqube.ws.Common.TextRangeOrBuilder>(
+                  getTextRange(),
+                  getParentForChildren(),
+                  isClean());
+          textRange_ = null;
+        }
+        return textRangeBuilder_;
+      }
+
+      private java.lang.Object msg_ = "";
+      /**
+       * <code>optional string msg = 3;</code>
+       */
+      public boolean hasMsg() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional string msg = 3;</code>
+       */
+      public java.lang.String getMsg() {
+        java.lang.Object ref = msg_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            msg_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string msg = 3;</code>
+       */
+      public com.google.protobuf.ByteString
+          getMsgBytes() {
+        java.lang.Object ref = msg_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          msg_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string msg = 3;</code>
+       */
+      public Builder setMsg(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        msg_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string msg = 3;</code>
+       */
+      public Builder clearMsg() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        msg_ = getDefaultInstance().getMsg();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string msg = 3;</code>
+       */
+      public Builder setMsgBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        msg_ = value;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:sonarqube.ws.issues.Location)
+    }
+
+    static {
+      defaultInstance = new Location(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:sonarqube.ws.issues.Location)
   }
 
   public interface CommentOrBuilder extends
@@ -7145,28 +12799,52 @@ public final class Issues {
 
     /**
      * <code>optional string email = 3;</code>
+     *
+     * <pre>
+     * TODO drop, it's already in field "users"
+     * </pre>
      */
     boolean hasEmail();
     /**
      * <code>optional string email = 3;</code>
+     *
+     * <pre>
+     * TODO drop, it's already in field "users"
+     * </pre>
      */
     java.lang.String getEmail();
     /**
      * <code>optional string email = 3;</code>
+     *
+     * <pre>
+     * TODO drop, it's already in field "users"
+     * </pre>
      */
     com.google.protobuf.ByteString
         getEmailBytes();
 
     /**
      * <code>optional string userName = 4;</code>
+     *
+     * <pre>
+     * TODO drop, it's already in field "users"
+     * </pre>
      */
     boolean hasUserName();
     /**
      * <code>optional string userName = 4;</code>
+     *
+     * <pre>
+     * TODO drop, it's already in field "users"
+     * </pre>
      */
     java.lang.String getUserName();
     /**
      * <code>optional string userName = 4;</code>
+     *
+     * <pre>
+     * TODO drop, it's already in field "users"
+     * </pre>
      */
     com.google.protobuf.ByteString
         getUserNameBytes();
@@ -7187,14 +12865,26 @@ public final class Issues {
 
     /**
      * <code>optional string markdown = 6;</code>
+     *
+     * <pre>
+     * TODO rename markdownText ?
+     * </pre>
      */
     boolean hasMarkdown();
     /**
      * <code>optional string markdown = 6;</code>
+     *
+     * <pre>
+     * TODO rename markdownText ?
+     * </pre>
      */
     java.lang.String getMarkdown();
     /**
      * <code>optional string markdown = 6;</code>
+     *
+     * <pre>
+     * TODO rename markdownText ?
+     * </pre>
      */
     com.google.protobuf.ByteString
         getMarkdownBytes();
@@ -7449,12 +13139,20 @@ public final class Issues {
     private java.lang.Object email_;
     /**
      * <code>optional string email = 3;</code>
+     *
+     * <pre>
+     * TODO drop, it's already in field "users"
+     * </pre>
      */
     public boolean hasEmail() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
      * <code>optional string email = 3;</code>
+     *
+     * <pre>
+     * TODO drop, it's already in field "users"
+     * </pre>
      */
     public java.lang.String getEmail() {
       java.lang.Object ref = email_;
@@ -7472,6 +13170,10 @@ public final class Issues {
     }
     /**
      * <code>optional string email = 3;</code>
+     *
+     * <pre>
+     * TODO drop, it's already in field "users"
+     * </pre>
      */
     public com.google.protobuf.ByteString
         getEmailBytes() {
@@ -7491,12 +13193,20 @@ public final class Issues {
     private java.lang.Object userName_;
     /**
      * <code>optional string userName = 4;</code>
+     *
+     * <pre>
+     * TODO drop, it's already in field "users"
+     * </pre>
      */
     public boolean hasUserName() {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
      * <code>optional string userName = 4;</code>
+     *
+     * <pre>
+     * TODO drop, it's already in field "users"
+     * </pre>
      */
     public java.lang.String getUserName() {
       java.lang.Object ref = userName_;
@@ -7514,6 +13224,10 @@ public final class Issues {
     }
     /**
      * <code>optional string userName = 4;</code>
+     *
+     * <pre>
+     * TODO drop, it's already in field "users"
+     * </pre>
      */
     public com.google.protobuf.ByteString
         getUserNameBytes() {
@@ -7575,12 +13289,20 @@ public final class Issues {
     private java.lang.Object markdown_;
     /**
      * <code>optional string markdown = 6;</code>
+     *
+     * <pre>
+     * TODO rename markdownText ?
+     * </pre>
      */
     public boolean hasMarkdown() {
       return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     /**
      * <code>optional string markdown = 6;</code>
+     *
+     * <pre>
+     * TODO rename markdownText ?
+     * </pre>
      */
     public java.lang.String getMarkdown() {
       java.lang.Object ref = markdown_;
@@ -7598,6 +13320,10 @@ public final class Issues {
     }
     /**
      * <code>optional string markdown = 6;</code>
+     *
+     * <pre>
+     * TODO rename markdownText ?
+     * </pre>
      */
     public com.google.protobuf.ByteString
         getMarkdownBytes() {
@@ -8187,12 +13913,20 @@ public final class Issues {
       private java.lang.Object email_ = "";
       /**
        * <code>optional string email = 3;</code>
+       *
+       * <pre>
+       * TODO drop, it's already in field "users"
+       * </pre>
        */
       public boolean hasEmail() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
        * <code>optional string email = 3;</code>
+       *
+       * <pre>
+       * TODO drop, it's already in field "users"
+       * </pre>
        */
       public java.lang.String getEmail() {
         java.lang.Object ref = email_;
@@ -8210,6 +13944,10 @@ public final class Issues {
       }
       /**
        * <code>optional string email = 3;</code>
+       *
+       * <pre>
+       * TODO drop, it's already in field "users"
+       * </pre>
        */
       public com.google.protobuf.ByteString
           getEmailBytes() {
@@ -8226,6 +13964,10 @@ public final class Issues {
       }
       /**
        * <code>optional string email = 3;</code>
+       *
+       * <pre>
+       * TODO drop, it's already in field "users"
+       * </pre>
        */
       public Builder setEmail(
           java.lang.String value) {
@@ -8239,6 +13981,10 @@ public final class Issues {
       }
       /**
        * <code>optional string email = 3;</code>
+       *
+       * <pre>
+       * TODO drop, it's already in field "users"
+       * </pre>
        */
       public Builder clearEmail() {
         bitField0_ = (bitField0_ & ~0x00000004);
@@ -8248,6 +13994,10 @@ public final class Issues {
       }
       /**
        * <code>optional string email = 3;</code>
+       *
+       * <pre>
+       * TODO drop, it's already in field "users"
+       * </pre>
        */
       public Builder setEmailBytes(
           com.google.protobuf.ByteString value) {
@@ -8263,12 +14013,20 @@ public final class Issues {
       private java.lang.Object userName_ = "";
       /**
        * <code>optional string userName = 4;</code>
+       *
+       * <pre>
+       * TODO drop, it's already in field "users"
+       * </pre>
        */
       public boolean hasUserName() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
        * <code>optional string userName = 4;</code>
+       *
+       * <pre>
+       * TODO drop, it's already in field "users"
+       * </pre>
        */
       public java.lang.String getUserName() {
         java.lang.Object ref = userName_;
@@ -8286,6 +14044,10 @@ public final class Issues {
       }
       /**
        * <code>optional string userName = 4;</code>
+       *
+       * <pre>
+       * TODO drop, it's already in field "users"
+       * </pre>
        */
       public com.google.protobuf.ByteString
           getUserNameBytes() {
@@ -8302,6 +14064,10 @@ public final class Issues {
       }
       /**
        * <code>optional string userName = 4;</code>
+       *
+       * <pre>
+       * TODO drop, it's already in field "users"
+       * </pre>
        */
       public Builder setUserName(
           java.lang.String value) {
@@ -8315,6 +14081,10 @@ public final class Issues {
       }
       /**
        * <code>optional string userName = 4;</code>
+       *
+       * <pre>
+       * TODO drop, it's already in field "users"
+       * </pre>
        */
       public Builder clearUserName() {
         bitField0_ = (bitField0_ & ~0x00000008);
@@ -8324,6 +14094,10 @@ public final class Issues {
       }
       /**
        * <code>optional string userName = 4;</code>
+       *
+       * <pre>
+       * TODO drop, it's already in field "users"
+       * </pre>
        */
       public Builder setUserNameBytes(
           com.google.protobuf.ByteString value) {
@@ -8415,12 +14189,20 @@ public final class Issues {
       private java.lang.Object markdown_ = "";
       /**
        * <code>optional string markdown = 6;</code>
+       *
+       * <pre>
+       * TODO rename markdownText ?
+       * </pre>
        */
       public boolean hasMarkdown() {
         return ((bitField0_ & 0x00000020) == 0x00000020);
       }
       /**
        * <code>optional string markdown = 6;</code>
+       *
+       * <pre>
+       * TODO rename markdownText ?
+       * </pre>
        */
       public java.lang.String getMarkdown() {
         java.lang.Object ref = markdown_;
@@ -8438,6 +14220,10 @@ public final class Issues {
       }
       /**
        * <code>optional string markdown = 6;</code>
+       *
+       * <pre>
+       * TODO rename markdownText ?
+       * </pre>
        */
       public com.google.protobuf.ByteString
           getMarkdownBytes() {
@@ -8454,6 +14240,10 @@ public final class Issues {
       }
       /**
        * <code>optional string markdown = 6;</code>
+       *
+       * <pre>
+       * TODO rename markdownText ?
+       * </pre>
        */
       public Builder setMarkdown(
           java.lang.String value) {
@@ -8467,6 +14257,10 @@ public final class Issues {
       }
       /**
        * <code>optional string markdown = 6;</code>
+       *
+       * <pre>
+       * TODO rename markdownText ?
+       * </pre>
        */
       public Builder clearMarkdown() {
         bitField0_ = (bitField0_ & ~0x00000020);
@@ -8476,6 +14270,10 @@ public final class Issues {
       }
       /**
        * <code>optional string markdown = 6;</code>
+       *
+       * <pre>
+       * TODO rename markdownText ?
+       * </pre>
        */
       public Builder setMarkdownBytes(
           com.google.protobuf.ByteString value) {
@@ -8607,21 +14405,3457 @@ public final class Issues {
     // @@protoc_insertion_point(class_scope:sonarqube.ws.issues.Comment)
   }
 
+  public interface ActionPlanOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:sonarqube.ws.issues.ActionPlan)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>optional string key = 1;</code>
+     */
+    boolean hasKey();
+    /**
+     * <code>optional string key = 1;</code>
+     */
+    java.lang.String getKey();
+    /**
+     * <code>optional string key = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getKeyBytes();
+
+    /**
+     * <code>optional string name = 2;</code>
+     */
+    boolean hasName();
+    /**
+     * <code>optional string name = 2;</code>
+     */
+    java.lang.String getName();
+    /**
+     * <code>optional string name = 2;</code>
+     */
+    com.google.protobuf.ByteString
+        getNameBytes();
+
+    /**
+     * <code>optional string status = 3;</code>
+     *
+     * <pre>
+     * TODO define enum
+     * </pre>
+     */
+    boolean hasStatus();
+    /**
+     * <code>optional string status = 3;</code>
+     *
+     * <pre>
+     * TODO define enum
+     * </pre>
+     */
+    java.lang.String getStatus();
+    /**
+     * <code>optional string status = 3;</code>
+     *
+     * <pre>
+     * TODO define enum
+     * </pre>
+     */
+    com.google.protobuf.ByteString
+        getStatusBytes();
+
+    /**
+     * <code>optional string deadLine = 4;</code>
+     */
+    boolean hasDeadLine();
+    /**
+     * <code>optional string deadLine = 4;</code>
+     */
+    java.lang.String getDeadLine();
+    /**
+     * <code>optional string deadLine = 4;</code>
+     */
+    com.google.protobuf.ByteString
+        getDeadLineBytes();
+
+    /**
+     * <code>optional string project = 5;</code>
+     *
+     * <pre>
+     * TODO to be renamed, is it id or key ?
+     * </pre>
+     */
+    boolean hasProject();
+    /**
+     * <code>optional string project = 5;</code>
+     *
+     * <pre>
+     * TODO to be renamed, is it id or key ?
+     * </pre>
+     */
+    java.lang.String getProject();
+    /**
+     * <code>optional string project = 5;</code>
+     *
+     * <pre>
+     * TODO to be renamed, is it id or key ?
+     * </pre>
+     */
+    com.google.protobuf.ByteString
+        getProjectBytes();
+  }
+  /**
+   * Protobuf type {@code sonarqube.ws.issues.ActionPlan}
+   */
+  public static final class ActionPlan extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:sonarqube.ws.issues.ActionPlan)
+      ActionPlanOrBuilder {
+    // Use ActionPlan.newBuilder() to construct.
+    private ActionPlan(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private ActionPlan(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final ActionPlan defaultInstance;
+    public static ActionPlan getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public ActionPlan getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private ActionPlan(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000001;
+              key_ = bs;
+              break;
+            }
+            case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000002;
+              name_ = bs;
+              break;
+            }
+            case 26: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000004;
+              status_ = bs;
+              break;
+            }
+            case 34: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000008;
+              deadLine_ = bs;
+              break;
+            }
+            case 42: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000010;
+              project_ = bs;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_ActionPlan_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_ActionPlan_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonarqube.ws.Issues.ActionPlan.class, org.sonarqube.ws.Issues.ActionPlan.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<ActionPlan> PARSER =
+        new com.google.protobuf.AbstractParser<ActionPlan>() {
+      public ActionPlan parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new ActionPlan(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<ActionPlan> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    public static final int KEY_FIELD_NUMBER = 1;
+    private java.lang.Object key_;
+    /**
+     * <code>optional string key = 1;</code>
+     */
+    public boolean hasKey() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional string key = 1;</code>
+     */
+    public java.lang.String getKey() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          key_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string key = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getKeyBytes() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        key_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int NAME_FIELD_NUMBER = 2;
+    private java.lang.Object name_;
+    /**
+     * <code>optional string name = 2;</code>
+     */
+    public boolean hasName() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional string name = 2;</code>
+     */
+    public java.lang.String getName() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          name_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string name = 2;</code>
+     */
+    public com.google.protobuf.ByteString
+        getNameBytes() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        name_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int STATUS_FIELD_NUMBER = 3;
+    private java.lang.Object status_;
+    /**
+     * <code>optional string status = 3;</code>
+     *
+     * <pre>
+     * TODO define enum
+     * </pre>
+     */
+    public boolean hasStatus() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional string status = 3;</code>
+     *
+     * <pre>
+     * TODO define enum
+     * </pre>
+     */
+    public java.lang.String getStatus() {
+      java.lang.Object ref = status_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          status_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string status = 3;</code>
+     *
+     * <pre>
+     * TODO define enum
+     * </pre>
+     */
+    public com.google.protobuf.ByteString
+        getStatusBytes() {
+      java.lang.Object ref = status_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        status_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int DEADLINE_FIELD_NUMBER = 4;
+    private java.lang.Object deadLine_;
+    /**
+     * <code>optional string deadLine = 4;</code>
+     */
+    public boolean hasDeadLine() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    /**
+     * <code>optional string deadLine = 4;</code>
+     */
+    public java.lang.String getDeadLine() {
+      java.lang.Object ref = deadLine_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          deadLine_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string deadLine = 4;</code>
+     */
+    public com.google.protobuf.ByteString
+        getDeadLineBytes() {
+      java.lang.Object ref = deadLine_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        deadLine_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int PROJECT_FIELD_NUMBER = 5;
+    private java.lang.Object project_;
+    /**
+     * <code>optional string project = 5;</code>
+     *
+     * <pre>
+     * TODO to be renamed, is it id or key ?
+     * </pre>
+     */
+    public boolean hasProject() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>optional string project = 5;</code>
+     *
+     * <pre>
+     * TODO to be renamed, is it id or key ?
+     * </pre>
+     */
+    public java.lang.String getProject() {
+      java.lang.Object ref = project_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          project_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string project = 5;</code>
+     *
+     * <pre>
+     * TODO to be renamed, is it id or key ?
+     * </pre>
+     */
+    public com.google.protobuf.ByteString
+        getProjectBytes() {
+      java.lang.Object ref = project_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        project_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private void initFields() {
+      key_ = "";
+      name_ = "";
+      status_ = "";
+      deadLine_ = "";
+      project_ = "";
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeBytes(1, getKeyBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeBytes(2, getNameBytes());
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeBytes(3, getStatusBytes());
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        output.writeBytes(4, getDeadLineBytes());
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeBytes(5, getProjectBytes());
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(1, getKeyBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, getNameBytes());
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(3, getStatusBytes());
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(4, getDeadLineBytes());
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(5, getProjectBytes());
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static org.sonarqube.ws.Issues.ActionPlan parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Issues.ActionPlan parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.ActionPlan parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Issues.ActionPlan parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.ActionPlan parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Issues.ActionPlan parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.ActionPlan parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonarqube.ws.Issues.ActionPlan parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.ActionPlan parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Issues.ActionPlan parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(org.sonarqube.ws.Issues.ActionPlan prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code sonarqube.ws.issues.ActionPlan}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:sonarqube.ws.issues.ActionPlan)
+        org.sonarqube.ws.Issues.ActionPlanOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_ActionPlan_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_ActionPlan_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonarqube.ws.Issues.ActionPlan.class, org.sonarqube.ws.Issues.ActionPlan.Builder.class);
+      }
+
+      // Construct using org.sonarqube.ws.Issues.ActionPlan.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        key_ = "";
+        bitField0_ = (bitField0_ & ~0x00000001);
+        name_ = "";
+        bitField0_ = (bitField0_ & ~0x00000002);
+        status_ = "";
+        bitField0_ = (bitField0_ & ~0x00000004);
+        deadLine_ = "";
+        bitField0_ = (bitField0_ & ~0x00000008);
+        project_ = "";
+        bitField0_ = (bitField0_ & ~0x00000010);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_ActionPlan_descriptor;
+      }
+
+      public org.sonarqube.ws.Issues.ActionPlan getDefaultInstanceForType() {
+        return org.sonarqube.ws.Issues.ActionPlan.getDefaultInstance();
+      }
+
+      public org.sonarqube.ws.Issues.ActionPlan build() {
+        org.sonarqube.ws.Issues.ActionPlan result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonarqube.ws.Issues.ActionPlan buildPartial() {
+        org.sonarqube.ws.Issues.ActionPlan result = new org.sonarqube.ws.Issues.ActionPlan(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.key_ = key_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.name_ = name_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.status_ = status_;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000008;
+        }
+        result.deadLine_ = deadLine_;
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
+        }
+        result.project_ = project_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonarqube.ws.Issues.ActionPlan) {
+          return mergeFrom((org.sonarqube.ws.Issues.ActionPlan)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonarqube.ws.Issues.ActionPlan other) {
+        if (other == org.sonarqube.ws.Issues.ActionPlan.getDefaultInstance()) return this;
+        if (other.hasKey()) {
+          bitField0_ |= 0x00000001;
+          key_ = other.key_;
+          onChanged();
+        }
+        if (other.hasName()) {
+          bitField0_ |= 0x00000002;
+          name_ = other.name_;
+          onChanged();
+        }
+        if (other.hasStatus()) {
+          bitField0_ |= 0x00000004;
+          status_ = other.status_;
+          onChanged();
+        }
+        if (other.hasDeadLine()) {
+          bitField0_ |= 0x00000008;
+          deadLine_ = other.deadLine_;
+          onChanged();
+        }
+        if (other.hasProject()) {
+          bitField0_ |= 0x00000010;
+          project_ = other.project_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonarqube.ws.Issues.ActionPlan parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonarqube.ws.Issues.ActionPlan) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.lang.Object key_ = "";
+      /**
+       * <code>optional string key = 1;</code>
+       */
+      public boolean hasKey() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional string key = 1;</code>
+       */
+      public java.lang.String getKey() {
+        java.lang.Object ref = key_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            key_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string key = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getKeyBytes() {
+        java.lang.Object ref = key_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          key_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string key = 1;</code>
+       */
+      public Builder setKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        key_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string key = 1;</code>
+       */
+      public Builder clearKey() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string key = 1;</code>
+       */
+      public Builder setKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        key_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object name_ = "";
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public boolean hasName() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public java.lang.String getName() {
+        java.lang.Object ref = name_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            name_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getNameBytes() {
+        java.lang.Object ref = name_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          name_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public Builder setName(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        name_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public Builder clearName() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        name_ = getDefaultInstance().getName();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public Builder setNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        name_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object status_ = "";
+      /**
+       * <code>optional string status = 3;</code>
+       *
+       * <pre>
+       * TODO define enum
+       * </pre>
+       */
+      public boolean hasStatus() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional string status = 3;</code>
+       *
+       * <pre>
+       * TODO define enum
+       * </pre>
+       */
+      public java.lang.String getStatus() {
+        java.lang.Object ref = status_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            status_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string status = 3;</code>
+       *
+       * <pre>
+       * TODO define enum
+       * </pre>
+       */
+      public com.google.protobuf.ByteString
+          getStatusBytes() {
+        java.lang.Object ref = status_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          status_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string status = 3;</code>
+       *
+       * <pre>
+       * TODO define enum
+       * </pre>
+       */
+      public Builder setStatus(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        status_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string status = 3;</code>
+       *
+       * <pre>
+       * TODO define enum
+       * </pre>
+       */
+      public Builder clearStatus() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        status_ = getDefaultInstance().getStatus();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string status = 3;</code>
+       *
+       * <pre>
+       * TODO define enum
+       * </pre>
+       */
+      public Builder setStatusBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        status_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object deadLine_ = "";
+      /**
+       * <code>optional string deadLine = 4;</code>
+       */
+      public boolean hasDeadLine() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>optional string deadLine = 4;</code>
+       */
+      public java.lang.String getDeadLine() {
+        java.lang.Object ref = deadLine_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            deadLine_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string deadLine = 4;</code>
+       */
+      public com.google.protobuf.ByteString
+          getDeadLineBytes() {
+        java.lang.Object ref = deadLine_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          deadLine_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string deadLine = 4;</code>
+       */
+      public Builder setDeadLine(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
+        deadLine_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string deadLine = 4;</code>
+       */
+      public Builder clearDeadLine() {
+        bitField0_ = (bitField0_ & ~0x00000008);
+        deadLine_ = getDefaultInstance().getDeadLine();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string deadLine = 4;</code>
+       */
+      public Builder setDeadLineBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
+        deadLine_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object project_ = "";
+      /**
+       * <code>optional string project = 5;</code>
+       *
+       * <pre>
+       * TODO to be renamed, is it id or key ?
+       * </pre>
+       */
+      public boolean hasProject() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>optional string project = 5;</code>
+       *
+       * <pre>
+       * TODO to be renamed, is it id or key ?
+       * </pre>
+       */
+      public java.lang.String getProject() {
+        java.lang.Object ref = project_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            project_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string project = 5;</code>
+       *
+       * <pre>
+       * TODO to be renamed, is it id or key ?
+       * </pre>
+       */
+      public com.google.protobuf.ByteString
+          getProjectBytes() {
+        java.lang.Object ref = project_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          project_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string project = 5;</code>
+       *
+       * <pre>
+       * TODO to be renamed, is it id or key ?
+       * </pre>
+       */
+      public Builder setProject(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000010;
+        project_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string project = 5;</code>
+       *
+       * <pre>
+       * TODO to be renamed, is it id or key ?
+       * </pre>
+       */
+      public Builder clearProject() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        project_ = getDefaultInstance().getProject();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string project = 5;</code>
+       *
+       * <pre>
+       * TODO to be renamed, is it id or key ?
+       * </pre>
+       */
+      public Builder setProjectBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000010;
+        project_ = value;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:sonarqube.ws.issues.ActionPlan)
+    }
+
+    static {
+      defaultInstance = new ActionPlan(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:sonarqube.ws.issues.ActionPlan)
+  }
+
+  public interface LanguageOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:sonarqube.ws.issues.Language)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>optional string key = 1;</code>
+     */
+    boolean hasKey();
+    /**
+     * <code>optional string key = 1;</code>
+     */
+    java.lang.String getKey();
+    /**
+     * <code>optional string key = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getKeyBytes();
+
+    /**
+     * <code>optional string name = 2;</code>
+     */
+    boolean hasName();
+    /**
+     * <code>optional string name = 2;</code>
+     */
+    java.lang.String getName();
+    /**
+     * <code>optional string name = 2;</code>
+     */
+    com.google.protobuf.ByteString
+        getNameBytes();
+  }
+  /**
+   * Protobuf type {@code sonarqube.ws.issues.Language}
+   */
+  public static final class Language extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:sonarqube.ws.issues.Language)
+      LanguageOrBuilder {
+    // Use Language.newBuilder() to construct.
+    private Language(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private Language(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final Language defaultInstance;
+    public static Language getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public Language getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private Language(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000001;
+              key_ = bs;
+              break;
+            }
+            case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000002;
+              name_ = bs;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_Language_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_Language_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonarqube.ws.Issues.Language.class, org.sonarqube.ws.Issues.Language.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<Language> PARSER =
+        new com.google.protobuf.AbstractParser<Language>() {
+      public Language parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new Language(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Language> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    public static final int KEY_FIELD_NUMBER = 1;
+    private java.lang.Object key_;
+    /**
+     * <code>optional string key = 1;</code>
+     */
+    public boolean hasKey() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional string key = 1;</code>
+     */
+    public java.lang.String getKey() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          key_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string key = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getKeyBytes() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        key_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int NAME_FIELD_NUMBER = 2;
+    private java.lang.Object name_;
+    /**
+     * <code>optional string name = 2;</code>
+     */
+    public boolean hasName() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional string name = 2;</code>
+     */
+    public java.lang.String getName() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          name_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string name = 2;</code>
+     */
+    public com.google.protobuf.ByteString
+        getNameBytes() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        name_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private void initFields() {
+      key_ = "";
+      name_ = "";
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeBytes(1, getKeyBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeBytes(2, getNameBytes());
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(1, getKeyBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, getNameBytes());
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static org.sonarqube.ws.Issues.Language parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Issues.Language parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.Language parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Issues.Language parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.Language parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Issues.Language parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.Language parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonarqube.ws.Issues.Language parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.Language parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Issues.Language parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(org.sonarqube.ws.Issues.Language prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code sonarqube.ws.issues.Language}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:sonarqube.ws.issues.Language)
+        org.sonarqube.ws.Issues.LanguageOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_Language_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_Language_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonarqube.ws.Issues.Language.class, org.sonarqube.ws.Issues.Language.Builder.class);
+      }
+
+      // Construct using org.sonarqube.ws.Issues.Language.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        key_ = "";
+        bitField0_ = (bitField0_ & ~0x00000001);
+        name_ = "";
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_Language_descriptor;
+      }
+
+      public org.sonarqube.ws.Issues.Language getDefaultInstanceForType() {
+        return org.sonarqube.ws.Issues.Language.getDefaultInstance();
+      }
+
+      public org.sonarqube.ws.Issues.Language build() {
+        org.sonarqube.ws.Issues.Language result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonarqube.ws.Issues.Language buildPartial() {
+        org.sonarqube.ws.Issues.Language result = new org.sonarqube.ws.Issues.Language(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.key_ = key_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.name_ = name_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonarqube.ws.Issues.Language) {
+          return mergeFrom((org.sonarqube.ws.Issues.Language)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonarqube.ws.Issues.Language other) {
+        if (other == org.sonarqube.ws.Issues.Language.getDefaultInstance()) return this;
+        if (other.hasKey()) {
+          bitField0_ |= 0x00000001;
+          key_ = other.key_;
+          onChanged();
+        }
+        if (other.hasName()) {
+          bitField0_ |= 0x00000002;
+          name_ = other.name_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonarqube.ws.Issues.Language parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonarqube.ws.Issues.Language) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.lang.Object key_ = "";
+      /**
+       * <code>optional string key = 1;</code>
+       */
+      public boolean hasKey() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional string key = 1;</code>
+       */
+      public java.lang.String getKey() {
+        java.lang.Object ref = key_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            key_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string key = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getKeyBytes() {
+        java.lang.Object ref = key_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          key_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string key = 1;</code>
+       */
+      public Builder setKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        key_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string key = 1;</code>
+       */
+      public Builder clearKey() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string key = 1;</code>
+       */
+      public Builder setKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        key_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object name_ = "";
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public boolean hasName() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public java.lang.String getName() {
+        java.lang.Object ref = name_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            name_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getNameBytes() {
+        java.lang.Object ref = name_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          name_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public Builder setName(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        name_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public Builder clearName() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        name_ = getDefaultInstance().getName();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public Builder setNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        name_ = value;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:sonarqube.ws.issues.Language)
+    }
+
+    static {
+      defaultInstance = new Language(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:sonarqube.ws.issues.Language)
+  }
+
+  public interface ComponentOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:sonarqube.ws.issues.Component)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>optional int64 id = 1;</code>
+     */
+    boolean hasId();
+    /**
+     * <code>optional int64 id = 1;</code>
+     */
+    long getId();
+
+    /**
+     * <code>optional string key = 2;</code>
+     */
+    boolean hasKey();
+    /**
+     * <code>optional string key = 2;</code>
+     */
+    java.lang.String getKey();
+    /**
+     * <code>optional string key = 2;</code>
+     */
+    com.google.protobuf.ByteString
+        getKeyBytes();
+
+    /**
+     * <code>optional string uuid = 3;</code>
+     */
+    boolean hasUuid();
+    /**
+     * <code>optional string uuid = 3;</code>
+     */
+    java.lang.String getUuid();
+    /**
+     * <code>optional string uuid = 3;</code>
+     */
+    com.google.protobuf.ByteString
+        getUuidBytes();
+
+    /**
+     * <code>optional bool enabled = 4;</code>
+     */
+    boolean hasEnabled();
+    /**
+     * <code>optional bool enabled = 4;</code>
+     */
+    boolean getEnabled();
+
+    /**
+     * <code>optional string qualifier = 5;</code>
+     */
+    boolean hasQualifier();
+    /**
+     * <code>optional string qualifier = 5;</code>
+     */
+    java.lang.String getQualifier();
+    /**
+     * <code>optional string qualifier = 5;</code>
+     */
+    com.google.protobuf.ByteString
+        getQualifierBytes();
+
+    /**
+     * <code>optional string name = 6;</code>
+     */
+    boolean hasName();
+    /**
+     * <code>optional string name = 6;</code>
+     */
+    java.lang.String getName();
+    /**
+     * <code>optional string name = 6;</code>
+     */
+    com.google.protobuf.ByteString
+        getNameBytes();
+
+    /**
+     * <code>optional string longName = 7;</code>
+     */
+    boolean hasLongName();
+    /**
+     * <code>optional string longName = 7;</code>
+     */
+    java.lang.String getLongName();
+    /**
+     * <code>optional string longName = 7;</code>
+     */
+    com.google.protobuf.ByteString
+        getLongNameBytes();
+
+    /**
+     * <code>optional string path = 8;</code>
+     */
+    boolean hasPath();
+    /**
+     * <code>optional string path = 8;</code>
+     */
+    java.lang.String getPath();
+    /**
+     * <code>optional string path = 8;</code>
+     */
+    com.google.protobuf.ByteString
+        getPathBytes();
+
+    /**
+     * <code>optional int64 projectId = 9;</code>
+     */
+    boolean hasProjectId();
+    /**
+     * <code>optional int64 projectId = 9;</code>
+     */
+    long getProjectId();
+
+    /**
+     * <code>optional int64 subProjectId = 10;</code>
+     */
+    boolean hasSubProjectId();
+    /**
+     * <code>optional int64 subProjectId = 10;</code>
+     */
+    long getSubProjectId();
+  }
+  /**
+   * Protobuf type {@code sonarqube.ws.issues.Component}
+   */
+  public static final class Component extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:sonarqube.ws.issues.Component)
+      ComponentOrBuilder {
+    // Use Component.newBuilder() to construct.
+    private Component(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private Component(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final Component defaultInstance;
+    public static Component getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public Component getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private Component(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8: {
+              bitField0_ |= 0x00000001;
+              id_ = input.readInt64();
+              break;
+            }
+            case 18: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000002;
+              key_ = bs;
+              break;
+            }
+            case 26: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000004;
+              uuid_ = bs;
+              break;
+            }
+            case 32: {
+              bitField0_ |= 0x00000008;
+              enabled_ = input.readBool();
+              break;
+            }
+            case 42: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000010;
+              qualifier_ = bs;
+              break;
+            }
+            case 50: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000020;
+              name_ = bs;
+              break;
+            }
+            case 58: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000040;
+              longName_ = bs;
+              break;
+            }
+            case 66: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000080;
+              path_ = bs;
+              break;
+            }
+            case 72: {
+              bitField0_ |= 0x00000100;
+              projectId_ = input.readInt64();
+              break;
+            }
+            case 80: {
+              bitField0_ |= 0x00000200;
+              subProjectId_ = input.readInt64();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_Component_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_Component_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonarqube.ws.Issues.Component.class, org.sonarqube.ws.Issues.Component.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<Component> PARSER =
+        new com.google.protobuf.AbstractParser<Component>() {
+      public Component parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new Component(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Component> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    public static final int ID_FIELD_NUMBER = 1;
+    private long id_;
+    /**
+     * <code>optional int64 id = 1;</code>
+     */
+    public boolean hasId() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional int64 id = 1;</code>
+     */
+    public long getId() {
+      return id_;
+    }
+
+    public static final int KEY_FIELD_NUMBER = 2;
+    private java.lang.Object key_;
+    /**
+     * <code>optional string key = 2;</code>
+     */
+    public boolean hasKey() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional string key = 2;</code>
+     */
+    public java.lang.String getKey() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          key_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string key = 2;</code>
+     */
+    public com.google.protobuf.ByteString
+        getKeyBytes() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        key_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int UUID_FIELD_NUMBER = 3;
+    private java.lang.Object uuid_;
+    /**
+     * <code>optional string uuid = 3;</code>
+     */
+    public boolean hasUuid() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional string uuid = 3;</code>
+     */
+    public java.lang.String getUuid() {
+      java.lang.Object ref = uuid_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          uuid_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string uuid = 3;</code>
+     */
+    public com.google.protobuf.ByteString
+        getUuidBytes() {
+      java.lang.Object ref = uuid_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        uuid_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int ENABLED_FIELD_NUMBER = 4;
+    private boolean enabled_;
+    /**
+     * <code>optional bool enabled = 4;</code>
+     */
+    public boolean hasEnabled() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    /**
+     * <code>optional bool enabled = 4;</code>
+     */
+    public boolean getEnabled() {
+      return enabled_;
+    }
+
+    public static final int QUALIFIER_FIELD_NUMBER = 5;
+    private java.lang.Object qualifier_;
+    /**
+     * <code>optional string qualifier = 5;</code>
+     */
+    public boolean hasQualifier() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>optional string qualifier = 5;</code>
+     */
+    public java.lang.String getQualifier() {
+      java.lang.Object ref = qualifier_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          qualifier_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string qualifier = 5;</code>
+     */
+    public com.google.protobuf.ByteString
+        getQualifierBytes() {
+      java.lang.Object ref = qualifier_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        qualifier_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int NAME_FIELD_NUMBER = 6;
+    private java.lang.Object name_;
+    /**
+     * <code>optional string name = 6;</code>
+     */
+    public boolean hasName() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    /**
+     * <code>optional string name = 6;</code>
+     */
+    public java.lang.String getName() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          name_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string name = 6;</code>
+     */
+    public com.google.protobuf.ByteString
+        getNameBytes() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        name_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int LONGNAME_FIELD_NUMBER = 7;
+    private java.lang.Object longName_;
+    /**
+     * <code>optional string longName = 7;</code>
+     */
+    public boolean hasLongName() {
+      return ((bitField0_ & 0x00000040) == 0x00000040);
+    }
+    /**
+     * <code>optional string longName = 7;</code>
+     */
+    public java.lang.String getLongName() {
+      java.lang.Object ref = longName_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          longName_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string longName = 7;</code>
+     */
+    public com.google.protobuf.ByteString
+        getLongNameBytes() {
+      java.lang.Object ref = longName_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        longName_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int PATH_FIELD_NUMBER = 8;
+    private java.lang.Object path_;
+    /**
+     * <code>optional string path = 8;</code>
+     */
+    public boolean hasPath() {
+      return ((bitField0_ & 0x00000080) == 0x00000080);
+    }
+    /**
+     * <code>optional string path = 8;</code>
+     */
+    public java.lang.String getPath() {
+      java.lang.Object ref = path_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          path_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string path = 8;</code>
+     */
+    public com.google.protobuf.ByteString
+        getPathBytes() {
+      java.lang.Object ref = path_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        path_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int PROJECTID_FIELD_NUMBER = 9;
+    private long projectId_;
+    /**
+     * <code>optional int64 projectId = 9;</code>
+     */
+    public boolean hasProjectId() {
+      return ((bitField0_ & 0x00000100) == 0x00000100);
+    }
+    /**
+     * <code>optional int64 projectId = 9;</code>
+     */
+    public long getProjectId() {
+      return projectId_;
+    }
+
+    public static final int SUBPROJECTID_FIELD_NUMBER = 10;
+    private long subProjectId_;
+    /**
+     * <code>optional int64 subProjectId = 10;</code>
+     */
+    public boolean hasSubProjectId() {
+      return ((bitField0_ & 0x00000200) == 0x00000200);
+    }
+    /**
+     * <code>optional int64 subProjectId = 10;</code>
+     */
+    public long getSubProjectId() {
+      return subProjectId_;
+    }
+
+    private void initFields() {
+      id_ = 0L;
+      key_ = "";
+      uuid_ = "";
+      enabled_ = false;
+      qualifier_ = "";
+      name_ = "";
+      longName_ = "";
+      path_ = "";
+      projectId_ = 0L;
+      subProjectId_ = 0L;
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeInt64(1, id_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeBytes(2, getKeyBytes());
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeBytes(3, getUuidBytes());
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        output.writeBool(4, enabled_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeBytes(5, getQualifierBytes());
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        output.writeBytes(6, getNameBytes());
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        output.writeBytes(7, getLongNameBytes());
+      }
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+        output.writeBytes(8, getPathBytes());
+      }
+      if (((bitField0_ & 0x00000100) == 0x00000100)) {
+        output.writeInt64(9, projectId_);
+      }
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+        output.writeInt64(10, subProjectId_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(1, id_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, getKeyBytes());
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(3, getUuidBytes());
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(4, enabled_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(5, getQualifierBytes());
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(6, getNameBytes());
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(7, getLongNameBytes());
+      }
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(8, getPathBytes());
+      }
+      if (((bitField0_ & 0x00000100) == 0x00000100)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(9, projectId_);
+      }
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(10, subProjectId_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static org.sonarqube.ws.Issues.Component parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Issues.Component parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.Component parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Issues.Component parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.Component parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Issues.Component parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.Component parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonarqube.ws.Issues.Component parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Issues.Component parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Issues.Component parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(org.sonarqube.ws.Issues.Component prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code sonarqube.ws.issues.Component}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:sonarqube.ws.issues.Component)
+        org.sonarqube.ws.Issues.ComponentOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_Component_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_Component_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonarqube.ws.Issues.Component.class, org.sonarqube.ws.Issues.Component.Builder.class);
+      }
+
+      // Construct using org.sonarqube.ws.Issues.Component.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        id_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        key_ = "";
+        bitField0_ = (bitField0_ & ~0x00000002);
+        uuid_ = "";
+        bitField0_ = (bitField0_ & ~0x00000004);
+        enabled_ = false;
+        bitField0_ = (bitField0_ & ~0x00000008);
+        qualifier_ = "";
+        bitField0_ = (bitField0_ & ~0x00000010);
+        name_ = "";
+        bitField0_ = (bitField0_ & ~0x00000020);
+        longName_ = "";
+        bitField0_ = (bitField0_ & ~0x00000040);
+        path_ = "";
+        bitField0_ = (bitField0_ & ~0x00000080);
+        projectId_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000100);
+        subProjectId_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000200);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonarqube.ws.Issues.internal_static_sonarqube_ws_issues_Component_descriptor;
+      }
+
+      public org.sonarqube.ws.Issues.Component getDefaultInstanceForType() {
+        return org.sonarqube.ws.Issues.Component.getDefaultInstance();
+      }
+
+      public org.sonarqube.ws.Issues.Component build() {
+        org.sonarqube.ws.Issues.Component result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonarqube.ws.Issues.Component buildPartial() {
+        org.sonarqube.ws.Issues.Component result = new org.sonarqube.ws.Issues.Component(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.id_ = id_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.key_ = key_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.uuid_ = uuid_;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000008;
+        }
+        result.enabled_ = enabled_;
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
+        }
+        result.qualifier_ = qualifier_;
+        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+          to_bitField0_ |= 0x00000020;
+        }
+        result.name_ = name_;
+        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+          to_bitField0_ |= 0x00000040;
+        }
+        result.longName_ = longName_;
+        if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
+          to_bitField0_ |= 0x00000080;
+        }
+        result.path_ = path_;
+        if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
+          to_bitField0_ |= 0x00000100;
+        }
+        result.projectId_ = projectId_;
+        if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
+          to_bitField0_ |= 0x00000200;
+        }
+        result.subProjectId_ = subProjectId_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonarqube.ws.Issues.Component) {
+          return mergeFrom((org.sonarqube.ws.Issues.Component)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonarqube.ws.Issues.Component other) {
+        if (other == org.sonarqube.ws.Issues.Component.getDefaultInstance()) return this;
+        if (other.hasId()) {
+          setId(other.getId());
+        }
+        if (other.hasKey()) {
+          bitField0_ |= 0x00000002;
+          key_ = other.key_;
+          onChanged();
+        }
+        if (other.hasUuid()) {
+          bitField0_ |= 0x00000004;
+          uuid_ = other.uuid_;
+          onChanged();
+        }
+        if (other.hasEnabled()) {
+          setEnabled(other.getEnabled());
+        }
+        if (other.hasQualifier()) {
+          bitField0_ |= 0x00000010;
+          qualifier_ = other.qualifier_;
+          onChanged();
+        }
+        if (other.hasName()) {
+          bitField0_ |= 0x00000020;
+          name_ = other.name_;
+          onChanged();
+        }
+        if (other.hasLongName()) {
+          bitField0_ |= 0x00000040;
+          longName_ = other.longName_;
+          onChanged();
+        }
+        if (other.hasPath()) {
+          bitField0_ |= 0x00000080;
+          path_ = other.path_;
+          onChanged();
+        }
+        if (other.hasProjectId()) {
+          setProjectId(other.getProjectId());
+        }
+        if (other.hasSubProjectId()) {
+          setSubProjectId(other.getSubProjectId());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonarqube.ws.Issues.Component parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonarqube.ws.Issues.Component) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private long id_ ;
+      /**
+       * <code>optional int64 id = 1;</code>
+       */
+      public boolean hasId() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional int64 id = 1;</code>
+       */
+      public long getId() {
+        return id_;
+      }
+      /**
+       * <code>optional int64 id = 1;</code>
+       */
+      public Builder setId(long value) {
+        bitField0_ |= 0x00000001;
+        id_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 id = 1;</code>
+       */
+      public Builder clearId() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        id_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object key_ = "";
+      /**
+       * <code>optional string key = 2;</code>
+       */
+      public boolean hasKey() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional string key = 2;</code>
+       */
+      public java.lang.String getKey() {
+        java.lang.Object ref = key_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            key_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string key = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getKeyBytes() {
+        java.lang.Object ref = key_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          key_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string key = 2;</code>
+       */
+      public Builder setKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        key_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string key = 2;</code>
+       */
+      public Builder clearKey() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string key = 2;</code>
+       */
+      public Builder setKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        key_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object uuid_ = "";
+      /**
+       * <code>optional string uuid = 3;</code>
+       */
+      public boolean hasUuid() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional string uuid = 3;</code>
+       */
+      public java.lang.String getUuid() {
+        java.lang.Object ref = uuid_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            uuid_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string uuid = 3;</code>
+       */
+      public com.google.protobuf.ByteString
+          getUuidBytes() {
+        java.lang.Object ref = uuid_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          uuid_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string uuid = 3;</code>
+       */
+      public Builder setUuid(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        uuid_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string uuid = 3;</code>
+       */
+      public Builder clearUuid() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        uuid_ = getDefaultInstance().getUuid();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string uuid = 3;</code>
+       */
+      public Builder setUuidBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        uuid_ = value;
+        onChanged();
+        return this;
+      }
+
+      private boolean enabled_ ;
+      /**
+       * <code>optional bool enabled = 4;</code>
+       */
+      public boolean hasEnabled() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>optional bool enabled = 4;</code>
+       */
+      public boolean getEnabled() {
+        return enabled_;
+      }
+      /**
+       * <code>optional bool enabled = 4;</code>
+       */
+      public Builder setEnabled(boolean value) {
+        bitField0_ |= 0x00000008;
+        enabled_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool enabled = 4;</code>
+       */
+      public Builder clearEnabled() {
+        bitField0_ = (bitField0_ & ~0x00000008);
+        enabled_ = false;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object qualifier_ = "";
+      /**
+       * <code>optional string qualifier = 5;</code>
+       */
+      public boolean hasQualifier() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>optional string qualifier = 5;</code>
+       */
+      public java.lang.String getQualifier() {
+        java.lang.Object ref = qualifier_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            qualifier_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string qualifier = 5;</code>
+       */
+      public com.google.protobuf.ByteString
+          getQualifierBytes() {
+        java.lang.Object ref = qualifier_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          qualifier_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string qualifier = 5;</code>
+       */
+      public Builder setQualifier(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000010;
+        qualifier_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string qualifier = 5;</code>
+       */
+      public Builder clearQualifier() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        qualifier_ = getDefaultInstance().getQualifier();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string qualifier = 5;</code>
+       */
+      public Builder setQualifierBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000010;
+        qualifier_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object name_ = "";
+      /**
+       * <code>optional string name = 6;</code>
+       */
+      public boolean hasName() {
+        return ((bitField0_ & 0x00000020) == 0x00000020);
+      }
+      /**
+       * <code>optional string name = 6;</code>
+       */
+      public java.lang.String getName() {
+        java.lang.Object ref = name_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            name_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string name = 6;</code>
+       */
+      public com.google.protobuf.ByteString
+          getNameBytes() {
+        java.lang.Object ref = name_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          name_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string name = 6;</code>
+       */
+      public Builder setName(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000020;
+        name_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string name = 6;</code>
+       */
+      public Builder clearName() {
+        bitField0_ = (bitField0_ & ~0x00000020);
+        name_ = getDefaultInstance().getName();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string name = 6;</code>
+       */
+      public Builder setNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000020;
+        name_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object longName_ = "";
+      /**
+       * <code>optional string longName = 7;</code>
+       */
+      public boolean hasLongName() {
+        return ((bitField0_ & 0x00000040) == 0x00000040);
+      }
+      /**
+       * <code>optional string longName = 7;</code>
+       */
+      public java.lang.String getLongName() {
+        java.lang.Object ref = longName_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            longName_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string longName = 7;</code>
+       */
+      public com.google.protobuf.ByteString
+          getLongNameBytes() {
+        java.lang.Object ref = longName_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          longName_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string longName = 7;</code>
+       */
+      public Builder setLongName(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000040;
+        longName_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string longName = 7;</code>
+       */
+      public Builder clearLongName() {
+        bitField0_ = (bitField0_ & ~0x00000040);
+        longName_ = getDefaultInstance().getLongName();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string longName = 7;</code>
+       */
+      public Builder setLongNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000040;
+        longName_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object path_ = "";
+      /**
+       * <code>optional string path = 8;</code>
+       */
+      public boolean hasPath() {
+        return ((bitField0_ & 0x00000080) == 0x00000080);
+      }
+      /**
+       * <code>optional string path = 8;</code>
+       */
+      public java.lang.String getPath() {
+        java.lang.Object ref = path_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            path_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string path = 8;</code>
+       */
+      public com.google.protobuf.ByteString
+          getPathBytes() {
+        java.lang.Object ref = path_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          path_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string path = 8;</code>
+       */
+      public Builder setPath(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000080;
+        path_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string path = 8;</code>
+       */
+      public Builder clearPath() {
+        bitField0_ = (bitField0_ & ~0x00000080);
+        path_ = getDefaultInstance().getPath();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string path = 8;</code>
+       */
+      public Builder setPathBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000080;
+        path_ = value;
+        onChanged();
+        return this;
+      }
+
+      private long projectId_ ;
+      /**
+       * <code>optional int64 projectId = 9;</code>
+       */
+      public boolean hasProjectId() {
+        return ((bitField0_ & 0x00000100) == 0x00000100);
+      }
+      /**
+       * <code>optional int64 projectId = 9;</code>
+       */
+      public long getProjectId() {
+        return projectId_;
+      }
+      /**
+       * <code>optional int64 projectId = 9;</code>
+       */
+      public Builder setProjectId(long value) {
+        bitField0_ |= 0x00000100;
+        projectId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 projectId = 9;</code>
+       */
+      public Builder clearProjectId() {
+        bitField0_ = (bitField0_ & ~0x00000100);
+        projectId_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      private long subProjectId_ ;
+      /**
+       * <code>optional int64 subProjectId = 10;</code>
+       */
+      public boolean hasSubProjectId() {
+        return ((bitField0_ & 0x00000200) == 0x00000200);
+      }
+      /**
+       * <code>optional int64 subProjectId = 10;</code>
+       */
+      public long getSubProjectId() {
+        return subProjectId_;
+      }
+      /**
+       * <code>optional int64 subProjectId = 10;</code>
+       */
+      public Builder setSubProjectId(long value) {
+        bitField0_ |= 0x00000200;
+        subProjectId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 subProjectId = 10;</code>
+       */
+      public Builder clearSubProjectId() {
+        bitField0_ = (bitField0_ & ~0x00000200);
+        subProjectId_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:sonarqube.ws.issues.Component)
+    }
+
+    static {
+      defaultInstance = new Component(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:sonarqube.ws.issues.Component)
+  }
+
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_sonarqube_ws_issues_Search_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_sonarqube_ws_issues_Search_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_sonarqube_ws_issues_Operation_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_sonarqube_ws_issues_Operation_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_sonarqube_ws_issues_Issue_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_sonarqube_ws_issues_Issue_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_sonarqube_ws_issues_ExecutionFlow_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_sonarqube_ws_issues_ExecutionFlow_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_sonarqube_ws_issues_Location_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_sonarqube_ws_issues_Location_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_sonarqube_ws_issues_Comment_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_sonarqube_ws_issues_Comment_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_sonarqube_ws_issues_ActionPlan_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_sonarqube_ws_issues_ActionPlan_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_sonarqube_ws_issues_Language_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_sonarqube_ws_issues_Language_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_sonarqube_ws_issues_Component_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_sonarqube_ws_issues_Component_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -8631,32 +17865,65 @@ public final class Issues {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\017ws-issues.proto\022\023sonarqube.ws.issues\032\017" +
-      "ws-common.proto\"\235\002\n\006Search\022$\n\006paging\030\001 \001" +
-      "(\0132\024.sonarqube.ws.Paging\022*\n\006issues\030\002 \003(\013" +
-      "2\032.sonarqube.ws.issues.Issue\022#\n\006facets\030\003" +
-      " \003(\0132\023.sonarqube.ws.Facet\022)\n\010projects\030\004 " +
-      "\003(\0132\027.sonarqube.ws.Component\022+\n\ncomponen" +
-      "ts\030\005 \003(\0132\027.sonarqube.ws.Component\022!\n\005rul" +
-      "es\030\006 \003(\0132\022.sonarqube.ws.Rule\022!\n\005users\030\007 " +
-      "\003(\0132\022.sonarqube.ws.User\"\346\003\n\005Issue\022\013\n\003key" +
-      "\030\001 \001(\t\022\014\n\004rule\030\002 \001(\t\022\021\n\tcomponent\030\003 \001(\t\022",
-      "\023\n\013componentId\030\004 \001(\005\022\017\n\007project\030\005 \001(\t\022\022\n" +
-      "\nsubProject\030\006 \001(\t\022\014\n\004line\030\007 \001(\005\022\022\n\nresol" +
-      "ution\030\010 \001(\t\022\016\n\006status\030\t \001(\t\022\017\n\007message\030\n" +
-      " \001(\t\022\014\n\004debt\030\013 \001(\t\022\020\n\010assignee\030\014 \001(\t\022\020\n\010" +
-      "reporter\030\r \001(\t\022\021\n\tscmAuthor\030\016 \001(\t\022\022\n\nact" +
-      "ionPlan\030\017 \001(\t\022\026\n\016actionPlanName\030\020 \001(\t\022\014\n" +
-      "\004attr\030\021 \001(\t\022\014\n\004tags\030\022 \003(\t\022\023\n\013transitions" +
-      "\030\023 \003(\t\022\017\n\007actions\030\024 \003(\t\022.\n\010comments\030\025 \003(" +
-      "\0132\034.sonarqube.ws.issues.Comment\022\024\n\014creat" +
-      "ionDate\030\026 \001(\t\022\022\n\nupdateDate\030\027 \001(\t\022\022\n\nfUp",
-      "dateAge\030\030 \001(\t\022\021\n\tcloseDate\030\031 \001(\t\"\220\001\n\007Com" +
-      "ment\022\013\n\003key\030\001 \001(\t\022\r\n\005login\030\002 \001(\t\022\r\n\005emai" +
-      "l\030\003 \001(\t\022\020\n\010userName\030\004 \001(\t\022\020\n\010htmlText\030\005 " +
-      "\001(\t\022\020\n\010markdown\030\006 \001(\t\022\021\n\tupdatable\030\007 \001(\010" +
-      "\022\021\n\tcreatedAt\030\010 \001(\tB\034\n\020org.sonarqube.wsB" +
-      "\006IssuesH\001"
+      "\n\017ws-issues.proto\022\023sonarqube.ws.issues\032\020" +
+      "ws-commons.proto\"\326\004\n\006Search\022\r\n\005total\030\001 \001" +
+      "(\003\022\t\n\001p\030\002 \001(\003\022\n\n\002ps\030\003 \001(\005\022,\n\006paging\030\004 \001(" +
+      "\0132\034.sonarqube.ws.commons.Paging\022\021\n\tdebtT" +
+      "otal\030\005 \001(\003\022*\n\006issues\030\006 \003(\0132\032.sonarqube.w" +
+      "s.issues.Issue\0222\n\ncomponents\030\007 \003(\0132\036.son" +
+      "arqube.ws.issues.Component\022\033\n\023rulesPrese" +
+      "ntIfEmpty\030\010 \001(\010\022)\n\005rules\030\t \003(\0132\032.sonarqu" +
+      "be.ws.commons.Rule\022\033\n\023usersPresentIfEmpt" +
+      "y\030\n \001(\010\022)\n\005users\030\013 \003(\0132\032.sonarqube.ws.co",
+      "mmons.User\022!\n\031actionPlansPresentIfEmpty\030" +
+      "\014 \001(\010\0224\n\013actionPlans\030\r \003(\0132\037.sonarqube.w" +
+      "s.issues.ActionPlan\022\037\n\027languagesPresentI" +
+      "fEmpty\030\016 \001(\010\0220\n\tlanguages\030\017 \003(\0132\035.sonarq" +
+      "ube.ws.issues.Language\022\034\n\024facetsPresentI" +
+      "fEmpty\030\020 \001(\010\022+\n\006facets\030\021 \003(\0132\033.sonarqube" +
+      ".ws.commons.Facet\"\366\001\n\tOperation\022)\n\005issue" +
+      "\030\001 \001(\0132\032.sonarqube.ws.issues.Issue\0222\n\nco" +
+      "mponents\030\002 \003(\0132\036.sonarqube.ws.issues.Com" +
+      "ponent\022)\n\005rules\030\003 \003(\0132\032.sonarqube.ws.com",
+      "mons.Rule\022)\n\005users\030\004 \003(\0132\032.sonarqube.ws." +
+      "commons.User\0224\n\013actionPlans\030\005 \003(\0132\037.sona" +
+      "rqube.ws.issues.ActionPlan\"\230\006\n\005Issue\022\013\n\003" +
+      "key\030\001 \001(\t\022\014\n\004rule\030\002 \001(\t\0220\n\010severity\030\003 \001(" +
+      "\0162\036.sonarqube.ws.commons.Severity\022\021\n\tcom" +
+      "ponent\030\004 \001(\t\022\023\n\013componentId\030\005 \001(\003\022\017\n\007pro" +
+      "ject\030\006 \001(\t\022\022\n\nsubProject\030\007 \001(\t\022\014\n\004line\030\010" +
+      " \001(\005\0222\n\ttextRange\030\t \001(\0132\037.sonarqube.ws.c" +
+      "ommons.TextRange\0229\n\022secondaryLocations\030\n" +
+      " \003(\0132\035.sonarqube.ws.issues.Location\022:\n\016e",
+      "xecutionFlows\030\013 \003(\0132\".sonarqube.ws.issue" +
+      "s.ExecutionFlow\022\022\n\nresolution\030\014 \001(\t\022\016\n\006s" +
+      "tatus\030\r \001(\t\022\017\n\007message\030\016 \001(\t\022\014\n\004debt\030\017 \001" +
+      "(\t\022\020\n\010assignee\030\020 \001(\t\022\020\n\010reporter\030\021 \001(\t\022\016" +
+      "\n\006author\030\022 \001(\t\022\022\n\nactionPlan\030\023 \001(\t\022\032\n\022ta" +
+      "gsPresentIfEmpty\030\024 \001(\010\022\014\n\004tags\030\025 \003(\t\022!\n\031" +
+      "transitionsPresentIfEmpty\030\026 \001(\010\022\023\n\013trans" +
+      "itions\030\027 \003(\t\022\035\n\025actionsPresentIfEmpty\030\030 " +
+      "\001(\010\022\017\n\007actions\030\031 \003(\t\022\036\n\026commentsPresentI" +
+      "fEmpty\030\032 \001(\010\022.\n\010comments\030\033 \003(\0132\034.sonarqu",
+      "be.ws.issues.Comment\022\024\n\014creationDate\030\034 \001" +
+      "(\t\022\022\n\nupdateDate\030\035 \001(\t\022\022\n\nfUpdateAge\030\036 \001" +
+      "(\t\022\021\n\tcloseDate\030\037 \001(\t\"A\n\rExecutionFlow\0220" +
+      "\n\tlocations\030\001 \003(\0132\035.sonarqube.ws.issues." +
+      "Location\"`\n\010Location\022\023\n\013componentId\030\001 \001(" +
+      "\t\0222\n\ttextRange\030\002 \001(\0132\037.sonarqube.ws.comm" +
+      "ons.TextRange\022\013\n\003msg\030\003 \001(\t\"\220\001\n\007Comment\022\013" +
+      "\n\003key\030\001 \001(\t\022\r\n\005login\030\002 \001(\t\022\r\n\005email\030\003 \001(" +
+      "\t\022\020\n\010userName\030\004 \001(\t\022\020\n\010htmlText\030\005 \001(\t\022\020\n" +
+      "\010markdown\030\006 \001(\t\022\021\n\tupdatable\030\007 \001(\010\022\021\n\tcr",
+      "eatedAt\030\010 \001(\t\"Z\n\nActionPlan\022\013\n\003key\030\001 \001(\t" +
+      "\022\014\n\004name\030\002 \001(\t\022\016\n\006status\030\003 \001(\t\022\020\n\010deadLi" +
+      "ne\030\004 \001(\t\022\017\n\007project\030\005 \001(\t\"%\n\010Language\022\013\n" +
+      "\003key\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\"\255\001\n\tComponent\022\n" +
+      "\n\002id\030\001 \001(\003\022\013\n\003key\030\002 \001(\t\022\014\n\004uuid\030\003 \001(\t\022\017\n" +
+      "\007enabled\030\004 \001(\010\022\021\n\tqualifier\030\005 \001(\t\022\014\n\004nam" +
+      "e\030\006 \001(\t\022\020\n\010longName\030\007 \001(\t\022\014\n\004path\030\010 \001(\t\022" +
+      "\021\n\tprojectId\030\t \001(\003\022\024\n\014subProjectId\030\n \001(\003" +
+      "B\034\n\020org.sonarqube.wsB\006IssuesH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -8676,19 +17943,55 @@ public final class Issues {
     internal_static_sonarqube_ws_issues_Search_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_issues_Search_descriptor,
-        new java.lang.String[] { "Paging", "Issues", "Facets", "Projects", "Components", "Rules", "Users", });
-    internal_static_sonarqube_ws_issues_Issue_descriptor =
+        new java.lang.String[] { "Total", "P", "Ps", "Paging", "DebtTotal", "Issues", "Components", "RulesPresentIfEmpty", "Rules", "UsersPresentIfEmpty", "Users", "ActionPlansPresentIfEmpty", "ActionPlans", "LanguagesPresentIfEmpty", "Languages", "FacetsPresentIfEmpty", "Facets", });
+    internal_static_sonarqube_ws_issues_Operation_descriptor =
       getDescriptor().getMessageTypes().get(1);
+    internal_static_sonarqube_ws_issues_Operation_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_sonarqube_ws_issues_Operation_descriptor,
+        new java.lang.String[] { "Issue", "Components", "Rules", "Users", "ActionPlans", });
+    internal_static_sonarqube_ws_issues_Issue_descriptor =
+      getDescriptor().getMessageTypes().get(2);
     internal_static_sonarqube_ws_issues_Issue_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_issues_Issue_descriptor,
-        new java.lang.String[] { "Key", "Rule", "Component", "ComponentId", "Project", "SubProject", "Line", "Resolution", "Status", "Message", "Debt", "Assignee", "Reporter", "ScmAuthor", "ActionPlan", "ActionPlanName", "Attr", "Tags", "Transitions", "Actions", "Comments", "CreationDate", "UpdateDate", "FUpdateAge", "CloseDate", });
+        new java.lang.String[] { "Key", "Rule", "Severity", "Component", "ComponentId", "Project", "SubProject", "Line", "TextRange", "SecondaryLocations", "ExecutionFlows", "Resolution", "Status", "Message", "Debt", "Assignee", "Reporter", "Author", "ActionPlan", "TagsPresentIfEmpty", "Tags", "TransitionsPresentIfEmpty", "Transitions", "ActionsPresentIfEmpty", "Actions", "CommentsPresentIfEmpty", "Comments", "CreationDate", "UpdateDate", "FUpdateAge", "CloseDate", });
+    internal_static_sonarqube_ws_issues_ExecutionFlow_descriptor =
+      getDescriptor().getMessageTypes().get(3);
+    internal_static_sonarqube_ws_issues_ExecutionFlow_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_sonarqube_ws_issues_ExecutionFlow_descriptor,
+        new java.lang.String[] { "Locations", });
+    internal_static_sonarqube_ws_issues_Location_descriptor =
+      getDescriptor().getMessageTypes().get(4);
+    internal_static_sonarqube_ws_issues_Location_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_sonarqube_ws_issues_Location_descriptor,
+        new java.lang.String[] { "ComponentId", "TextRange", "Msg", });
     internal_static_sonarqube_ws_issues_Comment_descriptor =
-      getDescriptor().getMessageTypes().get(2);
+      getDescriptor().getMessageTypes().get(5);
     internal_static_sonarqube_ws_issues_Comment_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_issues_Comment_descriptor,
         new java.lang.String[] { "Key", "Login", "Email", "UserName", "HtmlText", "Markdown", "Updatable", "CreatedAt", });
+    internal_static_sonarqube_ws_issues_ActionPlan_descriptor =
+      getDescriptor().getMessageTypes().get(6);
+    internal_static_sonarqube_ws_issues_ActionPlan_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_sonarqube_ws_issues_ActionPlan_descriptor,
+        new java.lang.String[] { "Key", "Name", "Status", "DeadLine", "Project", });
+    internal_static_sonarqube_ws_issues_Language_descriptor =
+      getDescriptor().getMessageTypes().get(7);
+    internal_static_sonarqube_ws_issues_Language_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_sonarqube_ws_issues_Language_descriptor,
+        new java.lang.String[] { "Key", "Name", });
+    internal_static_sonarqube_ws_issues_Component_descriptor =
+      getDescriptor().getMessageTypes().get(8);
+    internal_static_sonarqube_ws_issues_Component_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_sonarqube_ws_issues_Component_descriptor,
+        new java.lang.String[] { "Id", "Key", "Uuid", "Enabled", "Qualifier", "Name", "LongName", "Path", "ProjectId", "SubProjectId", });
     org.sonarqube.ws.Common.getDescriptor();
   }
 

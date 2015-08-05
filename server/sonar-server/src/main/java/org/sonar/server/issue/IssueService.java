@@ -135,7 +135,7 @@ public class IssueService {
     List<Transition> allowedTransitions = new ArrayList<>();
     for (Transition transition : outTransitions) {
       String projectUuid = issue.projectUuid();
-      if (StringUtils.isBlank(transition.requiredProjectPermission()) ||
+      if (userSession.isLoggedIn() && StringUtils.isBlank(transition.requiredProjectPermission()) ||
         (projectUuid != null && userSession.hasProjectPermissionByUuid(transition.requiredProjectPermission(), projectUuid))) {
         allowedTransitions.add(transition);
       }
@@ -238,8 +238,7 @@ public class IssueService {
     }
   }
 
-  public DefaultIssue createManualIssue(String componentKey, RuleKey ruleKey, @Nullable Integer line, @Nullable String message, @Nullable String severity,
-                                        @Nullable Double effortToFix) {
+  public DefaultIssue createManualIssue(String componentKey, RuleKey ruleKey, @Nullable Integer line, @Nullable String message, @Nullable String severity) {
     verifyLoggedIn();
 
     DbSession session = dbClient.openSession(false);
@@ -266,7 +265,6 @@ public class IssueService {
         .line(line)
         .message(!Strings.isNullOrEmpty(message) ? message : rule.getName())
         .severity(Objects.firstNonNull(severity, Severity.MAJOR))
-        .effortToFix(effortToFix)
         .ruleKey(ruleKey)
         .reporter(userSession.getLogin())
         .assignee(findSourceLineUser(component.uuid(), line))

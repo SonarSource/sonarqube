@@ -26,7 +26,7 @@ import java.util.List;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.db.FileSources;
+import org.sonar.db.protobuf.DbFileSources;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -68,7 +68,7 @@ public class ComputeFileSourceData {
       data.srcMd5Digest.update(source.getBytes(UTF_8));
     }
 
-    FileSources.Line.Builder lineBuilder = data.fileSourceBuilder.addLinesBuilder()
+    DbFileSources.Line.Builder lineBuilder = data.fileSourceBuilder.addLinesBuilder()
       .setSource(source)
       .setLine(currentLine);
     for (LineReader lineReader : lineReaders) {
@@ -91,10 +91,10 @@ public class ComputeFileSourceData {
   public static class Data {
     private final StringBuilder lineHashes;
     private final MessageDigest srcMd5Digest;
-    private final FileSources.Data.Builder fileSourceBuilder;
+    private final DbFileSources.Data.Builder fileSourceBuilder;
 
     public Data() {
-      this.fileSourceBuilder = FileSources.Data.newBuilder();
+      this.fileSourceBuilder = DbFileSources.Data.newBuilder();
       this.lineHashes = new StringBuilder();
       this.srcMd5Digest = DigestUtils.getMd5Digest();
     }
@@ -107,7 +107,7 @@ public class ComputeFileSourceData {
       return lineHashes.toString();
     }
 
-    public FileSources.Data getFileSourceData() {
+    public DbFileSources.Data getFileSourceData() {
       return fileSourceBuilder.build();
     }
   }

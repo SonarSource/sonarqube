@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.FileSources;
+import org.sonar.db.protobuf.DbFileSources;
 
 public class SymbolsLineReader implements LineReader {
 
@@ -49,7 +49,7 @@ public class SymbolsLineReader implements LineReader {
   }
 
   @Override
-  public void read(FileSources.Line.Builder lineBuilder) {
+  public void read(DbFileSources.Line.Builder lineBuilder) {
     int line = lineBuilder.getLine();
     List<BatchReport.Symbol> lineSymbols = findSymbolsMatchingLine(line);
     for (BatchReport.Symbol lineSymbol : lineSymbols) {
