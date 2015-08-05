@@ -103,6 +103,7 @@ public final class IssueDto implements Serializable {
     return new IssueDto()
       .setKee(issue.key())
       .setLine(issue.line())
+      .setLocations((DbIssues.Locations) issue.getLocations())
       .setMessage(issue.message())
       .setEffortToFix(issue.effortToFix())
       .setDebt(issue.debtInMinutes())
@@ -150,6 +151,7 @@ public final class IssueDto implements Serializable {
     return new IssueDto()
       .setKee(issue.key())
       .setLine(issue.line())
+      .setLocations((DbIssues.Locations) issue.getLocations())
       .setMessage(issue.message())
       .setEffortToFix(issue.effortToFix())
       .setDebt(issue.debtInMinutes())
@@ -665,7 +667,7 @@ public final class IssueDto implements Serializable {
     return null;
   }
 
-  public IssueDto setLocations(byte[] locations) {
+  public IssueDto setLocations(@Nullable byte[] locations) {
     this.locations = locations;
     return this;
   }
@@ -715,6 +717,7 @@ public final class IssueDto implements Serializable {
     issue.setCloseDate(longToDate(issueCloseDate));
     issue.setUpdateDate(longToDate(issueUpdateDate));
     issue.setSelectedAt(selectedAt);
+    issue.setLocations(parseLocations());
     return issue;
   }
 }

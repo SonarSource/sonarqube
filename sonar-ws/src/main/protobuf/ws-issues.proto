@@ -20,7 +20,7 @@ syntax = "proto2";
 
 package sonarqube.ws.issues;
 
-import "ws-common.proto";
+import "ws-commons.proto";
 
 option java_package = "org.sonarqube.ws";
 option java_outer_classname = "Issues";
@@ -31,7 +31,7 @@ message Search {
   optional int64 total = 1;
   optional int64 p = 2;
   optional int32 ps = 3;
-  optional Paging paging = 4;
+  optional sonarqube.ws.commons.Paging paging = 4;
 
   // Total amount of debt, only when the facet "total" is enabled
   optional int64 debtTotal = 5;
@@ -39,23 +39,23 @@ message Search {
   repeated Issue issues = 6;
   repeated Component components = 7;
   optional bool rulesPresentIfEmpty = 8;
-  repeated Rule rules = 9;
+  repeated sonarqube.ws.commons.Rule rules = 9;
   optional bool usersPresentIfEmpty = 10;
-  repeated User users = 11;
+  repeated sonarqube.ws.commons.User users = 11;
   optional bool actionPlansPresentIfEmpty = 12;
   repeated ActionPlan actionPlans = 13;
   optional bool languagesPresentIfEmpty = 14;
   repeated Language languages = 15;
   optional bool facetsPresentIfEmpty = 16;
-  repeated Facet facets = 17;
+  repeated sonarqube.ws.commons.Facet facets = 17;
 }
 
 // Response of most of POST/issues/{operation}, for instance assign, add_comment and set_severity
 message Operation {
   optional Issue issue = 1;
   repeated Component components = 2;
-  repeated Rule rules = 3;
-  repeated User users = 4;
+  repeated sonarqube.ws.commons.Rule rules = 3;
+  repeated sonarqube.ws.commons.User users = 4;
   repeated ActionPlan actionPlans = 5;
 }
 
@@ -63,41 +63,54 @@ message Operation {
 message Issue {
   optional string key = 1;
   optional string rule = 2;
-  optional Severity severity = 3;
+  optional sonarqube.ws.commons.Severity severity = 3;
   optional string component = 4;
   optional int64 componentId = 5;
   optional string project = 6;
   optional string subProject = 7;
   optional int32 line = 8;
-  optional string resolution = 9;
-  optional string status = 10;
-  optional string message = 11;
-  optional string debt = 12;
-  optional string assignee = 13;
-  optional string reporter = 14;
+  optional Location location = 9;
+  repeated Location secondaryLocations = 10;
+  repeated ExecutionFlow executionFlows = 11;
+  optional string resolution = 12;
+  optional string status = 13;
+  optional string message = 14;
+  optional string debt = 15;
+  optional string assignee = 16;
+  optional string reporter = 17;
 
   // SCM login of the committer who introduced the issue
-  optional string author = 15;
+  optional string author = 18;
 
-  optional string actionPlan = 16;
-  optional string actionPlanName = 17;
-  optional string attr = 18;
-  repeated string tags = 19;
+  optional string actionPlan = 19;
+  optional bool tagsPresentIfEmpty = 20;
+  repeated string tags = 21;
 
   // the transitions allowed for the requesting user.
-  optional bool transitionsPresentIfEmpty = 20;
-  repeated string transitions = 21;
+  optional bool transitionsPresentIfEmpty = 22;
+  repeated string transitions = 23;
 
   // the actions allowed for the requesting user.
-  optional bool actionsPresentIfEmpty = 22;
-  repeated string actions = 23;
+  optional bool actionsPresentIfEmpty = 24;
+  repeated string actions = 25;
 
-  optional bool commentsPresentIfEmpty = 24;
-  repeated Comment comments = 25;
-  optional string creationDate = 26;
-  optional string updateDate = 27;
-  optional string fUpdateAge = 28;
-  optional string closeDate = 29;
+  optional bool commentsPresentIfEmpty = 26;
+  repeated Comment comments = 27;
+  optional string creationDate = 28;
+  optional string updateDate = 29;
+  optional string fUpdateAge = 30;
+  optional string closeDate = 31;
+}
+
+message ExecutionFlow {
+  repeated Location locations = 1;
+}
+
+message Location {
+  optional string component_id = 1;
+  // Only when component is a file. Can be empty for a file if this is an issue global to the file.
+  optional sonarqube.ws.commons.TextRange text_range = 2;
+  optional string msg = 3;
 }
 
 message Comment {

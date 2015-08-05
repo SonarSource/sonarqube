@@ -21,12 +21,14 @@ package org.sonar.db.issue;
 
 import java.util.List;
 import java.util.Set;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.ResultHandler;
 
 public interface IssueMapper {
 
   IssueDto selectByKey(String key);
 
-  List<IssueDto> selectNonClosedByComponentUuid(String componentUuid);
+  void selectNonClosedByComponentUuid(@Param("componentUuid") String componentUuid, ResultHandler resultHandler);
 
   Set<String> selectComponentUuidsOfOpenIssuesForProjectUuid(String projectUuid);
 

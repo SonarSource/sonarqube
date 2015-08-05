@@ -19,10 +19,8 @@
  */
 package org.sonar.server.computation.issue;
 
-import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
@@ -60,8 +58,7 @@ public class BaseIssuesLoader {
     DbSession session = dbClient.openSession(false);
     final List<DefaultIssue> result = new ArrayList<>();
     try {
-      Map<String, String> params = ImmutableMap.of("componentUuid", componentUuid);
-      session.select(IssueMapper.class.getName() + ".selectNonClosedByComponentUuid", params, new ResultHandler() {
+      session.getMapper(IssueMapper.class).selectNonClosedByComponentUuid(componentUuid, new ResultHandler() {
         @Override
         public void handleResult(ResultContext resultContext) {
           DefaultIssue issue = ((IssueDto) resultContext.getResultObject()).toDefaultIssue();

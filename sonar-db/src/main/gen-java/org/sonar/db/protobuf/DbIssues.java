@@ -26,51 +26,51 @@ public final class DbIssues {
     org.sonar.db.protobuf.DbIssues.LocationOrBuilder getPrimaryOrBuilder();
 
     /**
-     * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+     * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
      */
     java.util.List<org.sonar.db.protobuf.DbIssues.Location> 
-        getSecondariesList();
+        getSecondaryList();
     /**
-     * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+     * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
      */
-    org.sonar.db.protobuf.DbIssues.Location getSecondaries(int index);
+    org.sonar.db.protobuf.DbIssues.Location getSecondary(int index);
     /**
-     * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+     * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
      */
-    int getSecondariesCount();
+    int getSecondaryCount();
     /**
-     * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+     * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
      */
     java.util.List<? extends org.sonar.db.protobuf.DbIssues.LocationOrBuilder> 
-        getSecondariesOrBuilderList();
+        getSecondaryOrBuilderList();
     /**
-     * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+     * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
      */
-    org.sonar.db.protobuf.DbIssues.LocationOrBuilder getSecondariesOrBuilder(
+    org.sonar.db.protobuf.DbIssues.LocationOrBuilder getSecondaryOrBuilder(
         int index);
 
     /**
-     * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+     * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
      */
     java.util.List<org.sonar.db.protobuf.DbIssues.ExecutionFlow> 
-        getExecutionFlowsList();
+        getExecutionFlowList();
     /**
-     * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+     * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
      */
-    org.sonar.db.protobuf.DbIssues.ExecutionFlow getExecutionFlows(int index);
+    org.sonar.db.protobuf.DbIssues.ExecutionFlow getExecutionFlow(int index);
     /**
-     * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+     * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
      */
-    int getExecutionFlowsCount();
+    int getExecutionFlowCount();
     /**
-     * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+     * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
      */
     java.util.List<? extends org.sonar.db.protobuf.DbIssues.ExecutionFlowOrBuilder> 
-        getExecutionFlowsOrBuilderList();
+        getExecutionFlowOrBuilderList();
     /**
-     * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+     * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
      */
-    org.sonar.db.protobuf.DbIssues.ExecutionFlowOrBuilder getExecutionFlowsOrBuilder(
+    org.sonar.db.protobuf.DbIssues.ExecutionFlowOrBuilder getExecutionFlowOrBuilder(
         int index);
   }
   /**
@@ -140,18 +140,18 @@ public final class DbIssues {
             }
             case 18: {
               if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                secondaries_ = new java.util.ArrayList<org.sonar.db.protobuf.DbIssues.Location>();
+                secondary_ = new java.util.ArrayList<org.sonar.db.protobuf.DbIssues.Location>();
                 mutable_bitField0_ |= 0x00000002;
               }
-              secondaries_.add(input.readMessage(org.sonar.db.protobuf.DbIssues.Location.PARSER, extensionRegistry));
+              secondary_.add(input.readMessage(org.sonar.db.protobuf.DbIssues.Location.PARSER, extensionRegistry));
               break;
             }
             case 26: {
               if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-                executionFlows_ = new java.util.ArrayList<org.sonar.db.protobuf.DbIssues.ExecutionFlow>();
+                executionFlow_ = new java.util.ArrayList<org.sonar.db.protobuf.DbIssues.ExecutionFlow>();
                 mutable_bitField0_ |= 0x00000004;
               }
-              executionFlows_.add(input.readMessage(org.sonar.db.protobuf.DbIssues.ExecutionFlow.PARSER, extensionRegistry));
+              executionFlow_.add(input.readMessage(org.sonar.db.protobuf.DbIssues.ExecutionFlow.PARSER, extensionRegistry));
               break;
             }
           }
@@ -163,10 +163,10 @@ public final class DbIssues {
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
         if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-          secondaries_ = java.util.Collections.unmodifiableList(secondaries_);
+          secondary_ = java.util.Collections.unmodifiableList(secondary_);
         }
         if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-          executionFlows_ = java.util.Collections.unmodifiableList(executionFlows_);
+          executionFlow_ = java.util.Collections.unmodifiableList(executionFlow_);
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -221,80 +221,80 @@ public final class DbIssues {
       return primary_;
     }
 
-    public static final int SECONDARIES_FIELD_NUMBER = 2;
-    private java.util.List<org.sonar.db.protobuf.DbIssues.Location> secondaries_;
+    public static final int SECONDARY_FIELD_NUMBER = 2;
+    private java.util.List<org.sonar.db.protobuf.DbIssues.Location> secondary_;
     /**
-     * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+     * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
      */
-    public java.util.List<org.sonar.db.protobuf.DbIssues.Location> getSecondariesList() {
-      return secondaries_;
+    public java.util.List<org.sonar.db.protobuf.DbIssues.Location> getSecondaryList() {
+      return secondary_;
     }
     /**
-     * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+     * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
      */
     public java.util.List<? extends org.sonar.db.protobuf.DbIssues.LocationOrBuilder> 
-        getSecondariesOrBuilderList() {
-      return secondaries_;
+        getSecondaryOrBuilderList() {
+      return secondary_;
     }
     /**
-     * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+     * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
      */
-    public int getSecondariesCount() {
-      return secondaries_.size();
+    public int getSecondaryCount() {
+      return secondary_.size();
     }
     /**
-     * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+     * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
      */
-    public org.sonar.db.protobuf.DbIssues.Location getSecondaries(int index) {
-      return secondaries_.get(index);
+    public org.sonar.db.protobuf.DbIssues.Location getSecondary(int index) {
+      return secondary_.get(index);
     }
     /**
-     * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+     * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
      */
-    public org.sonar.db.protobuf.DbIssues.LocationOrBuilder getSecondariesOrBuilder(
+    public org.sonar.db.protobuf.DbIssues.LocationOrBuilder getSecondaryOrBuilder(
         int index) {
-      return secondaries_.get(index);
+      return secondary_.get(index);
     }
 
-    public static final int EXECUTION_FLOWS_FIELD_NUMBER = 3;
-    private java.util.List<org.sonar.db.protobuf.DbIssues.ExecutionFlow> executionFlows_;
+    public static final int EXECUTION_FLOW_FIELD_NUMBER = 3;
+    private java.util.List<org.sonar.db.protobuf.DbIssues.ExecutionFlow> executionFlow_;
     /**
-     * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+     * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
      */
-    public java.util.List<org.sonar.db.protobuf.DbIssues.ExecutionFlow> getExecutionFlowsList() {
-      return executionFlows_;
+    public java.util.List<org.sonar.db.protobuf.DbIssues.ExecutionFlow> getExecutionFlowList() {
+      return executionFlow_;
     }
     /**
-     * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+     * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
      */
     public java.util.List<? extends org.sonar.db.protobuf.DbIssues.ExecutionFlowOrBuilder> 
-        getExecutionFlowsOrBuilderList() {
-      return executionFlows_;
+        getExecutionFlowOrBuilderList() {
+      return executionFlow_;
     }
     /**
-     * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+     * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
      */
-    public int getExecutionFlowsCount() {
-      return executionFlows_.size();
+    public int getExecutionFlowCount() {
+      return executionFlow_.size();
     }
     /**
-     * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+     * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
      */
-    public org.sonar.db.protobuf.DbIssues.ExecutionFlow getExecutionFlows(int index) {
-      return executionFlows_.get(index);
+    public org.sonar.db.protobuf.DbIssues.ExecutionFlow getExecutionFlow(int index) {
+      return executionFlow_.get(index);
     }
     /**
-     * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+     * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
      */
-    public org.sonar.db.protobuf.DbIssues.ExecutionFlowOrBuilder getExecutionFlowsOrBuilder(
+    public org.sonar.db.protobuf.DbIssues.ExecutionFlowOrBuilder getExecutionFlowOrBuilder(
         int index) {
-      return executionFlows_.get(index);
+      return executionFlow_.get(index);
     }
 
     private void initFields() {
       primary_ = org.sonar.db.protobuf.DbIssues.Location.getDefaultInstance();
-      secondaries_ = java.util.Collections.emptyList();
-      executionFlows_ = java.util.Collections.emptyList();
+      secondary_ = java.util.Collections.emptyList();
+      executionFlow_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -312,11 +312,11 @@ public final class DbIssues {
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeMessage(1, primary_);
       }
-      for (int i = 0; i < secondaries_.size(); i++) {
-        output.writeMessage(2, secondaries_.get(i));
+      for (int i = 0; i < secondary_.size(); i++) {
+        output.writeMessage(2, secondary_.get(i));
       }
-      for (int i = 0; i < executionFlows_.size(); i++) {
-        output.writeMessage(3, executionFlows_.get(i));
+      for (int i = 0; i < executionFlow_.size(); i++) {
+        output.writeMessage(3, executionFlow_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -331,13 +331,13 @@ public final class DbIssues {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1, primary_);
       }
-      for (int i = 0; i < secondaries_.size(); i++) {
+      for (int i = 0; i < secondary_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, secondaries_.get(i));
+          .computeMessageSize(2, secondary_.get(i));
       }
-      for (int i = 0; i < executionFlows_.size(); i++) {
+      for (int i = 0; i < executionFlow_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(3, executionFlows_.get(i));
+          .computeMessageSize(3, executionFlow_.get(i));
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -449,8 +449,8 @@ public final class DbIssues {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           getPrimaryFieldBuilder();
-          getSecondariesFieldBuilder();
-          getExecutionFlowsFieldBuilder();
+          getSecondaryFieldBuilder();
+          getExecutionFlowFieldBuilder();
         }
       }
       private static Builder create() {
@@ -465,17 +465,17 @@ public final class DbIssues {
           primaryBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000001);
-        if (secondariesBuilder_ == null) {
-          secondaries_ = java.util.Collections.emptyList();
+        if (secondaryBuilder_ == null) {
+          secondary_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000002);
         } else {
-          secondariesBuilder_.clear();
+          secondaryBuilder_.clear();
         }
-        if (executionFlowsBuilder_ == null) {
-          executionFlows_ = java.util.Collections.emptyList();
+        if (executionFlowBuilder_ == null) {
+          executionFlow_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000004);
         } else {
-          executionFlowsBuilder_.clear();
+          executionFlowBuilder_.clear();
         }
         return this;
       }
@@ -513,23 +513,23 @@ public final class DbIssues {
         } else {
           result.primary_ = primaryBuilder_.build();
         }
-        if (secondariesBuilder_ == null) {
+        if (secondaryBuilder_ == null) {
           if (((bitField0_ & 0x00000002) == 0x00000002)) {
-            secondaries_ = java.util.Collections.unmodifiableList(secondaries_);
+            secondary_ = java.util.Collections.unmodifiableList(secondary_);
             bitField0_ = (bitField0_ & ~0x00000002);
           }
-          result.secondaries_ = secondaries_;
+          result.secondary_ = secondary_;
         } else {
-          result.secondaries_ = secondariesBuilder_.build();
+          result.secondary_ = secondaryBuilder_.build();
         }
-        if (executionFlowsBuilder_ == null) {
+        if (executionFlowBuilder_ == null) {
           if (((bitField0_ & 0x00000004) == 0x00000004)) {
-            executionFlows_ = java.util.Collections.unmodifiableList(executionFlows_);
+            executionFlow_ = java.util.Collections.unmodifiableList(executionFlow_);
             bitField0_ = (bitField0_ & ~0x00000004);
           }
-          result.executionFlows_ = executionFlows_;
+          result.executionFlow_ = executionFlow_;
         } else {
-          result.executionFlows_ = executionFlowsBuilder_.build();
+          result.executionFlow_ = executionFlowBuilder_.build();
         }
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -550,55 +550,55 @@ public final class DbIssues {
         if (other.hasPrimary()) {
           mergePrimary(other.getPrimary());
         }
-        if (secondariesBuilder_ == null) {
-          if (!other.secondaries_.isEmpty()) {
-            if (secondaries_.isEmpty()) {
-              secondaries_ = other.secondaries_;
+        if (secondaryBuilder_ == null) {
+          if (!other.secondary_.isEmpty()) {
+            if (secondary_.isEmpty()) {
+              secondary_ = other.secondary_;
               bitField0_ = (bitField0_ & ~0x00000002);
             } else {
-              ensureSecondariesIsMutable();
-              secondaries_.addAll(other.secondaries_);
+              ensureSecondaryIsMutable();
+              secondary_.addAll(other.secondary_);
             }
             onChanged();
           }
         } else {
-          if (!other.secondaries_.isEmpty()) {
-            if (secondariesBuilder_.isEmpty()) {
-              secondariesBuilder_.dispose();
-              secondariesBuilder_ = null;
-              secondaries_ = other.secondaries_;
+          if (!other.secondary_.isEmpty()) {
+            if (secondaryBuilder_.isEmpty()) {
+              secondaryBuilder_.dispose();
+              secondaryBuilder_ = null;
+              secondary_ = other.secondary_;
               bitField0_ = (bitField0_ & ~0x00000002);
-              secondariesBuilder_ = 
+              secondaryBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   getSecondariesFieldBuilder() : null;
+                   getSecondaryFieldBuilder() : null;
             } else {
-              secondariesBuilder_.addAllMessages(other.secondaries_);
+              secondaryBuilder_.addAllMessages(other.secondary_);
             }
           }
         }
-        if (executionFlowsBuilder_ == null) {
-          if (!other.executionFlows_.isEmpty()) {
-            if (executionFlows_.isEmpty()) {
-              executionFlows_ = other.executionFlows_;
+        if (executionFlowBuilder_ == null) {
+          if (!other.executionFlow_.isEmpty()) {
+            if (executionFlow_.isEmpty()) {
+              executionFlow_ = other.executionFlow_;
               bitField0_ = (bitField0_ & ~0x00000004);
             } else {
-              ensureExecutionFlowsIsMutable();
-              executionFlows_.addAll(other.executionFlows_);
+              ensureExecutionFlowIsMutable();
+              executionFlow_.addAll(other.executionFlow_);
             }
             onChanged();
           }
         } else {
-          if (!other.executionFlows_.isEmpty()) {
-            if (executionFlowsBuilder_.isEmpty()) {
-              executionFlowsBuilder_.dispose();
-              executionFlowsBuilder_ = null;
-              executionFlows_ = other.executionFlows_;
+          if (!other.executionFlow_.isEmpty()) {
+            if (executionFlowBuilder_.isEmpty()) {
+              executionFlowBuilder_.dispose();
+              executionFlowBuilder_ = null;
+              executionFlow_ = other.executionFlow_;
               bitField0_ = (bitField0_ & ~0x00000004);
-              executionFlowsBuilder_ = 
+              executionFlowBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   getExecutionFlowsFieldBuilder() : null;
+                   getExecutionFlowFieldBuilder() : null;
             } else {
-              executionFlowsBuilder_.addAllMessages(other.executionFlows_);
+              executionFlowBuilder_.addAllMessages(other.executionFlow_);
             }
           }
         }
@@ -745,484 +745,484 @@ public final class DbIssues {
         return primaryBuilder_;
       }
 
-      private java.util.List<org.sonar.db.protobuf.DbIssues.Location> secondaries_ =
+      private java.util.List<org.sonar.db.protobuf.DbIssues.Location> secondary_ =
         java.util.Collections.emptyList();
-      private void ensureSecondariesIsMutable() {
+      private void ensureSecondaryIsMutable() {
         if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-          secondaries_ = new java.util.ArrayList<org.sonar.db.protobuf.DbIssues.Location>(secondaries_);
+          secondary_ = new java.util.ArrayList<org.sonar.db.protobuf.DbIssues.Location>(secondary_);
           bitField0_ |= 0x00000002;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilder<
-          org.sonar.db.protobuf.DbIssues.Location, org.sonar.db.protobuf.DbIssues.Location.Builder, org.sonar.db.protobuf.DbIssues.LocationOrBuilder> secondariesBuilder_;
+          org.sonar.db.protobuf.DbIssues.Location, org.sonar.db.protobuf.DbIssues.Location.Builder, org.sonar.db.protobuf.DbIssues.LocationOrBuilder> secondaryBuilder_;
 
       /**
-       * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+       * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
        */
-      public java.util.List<org.sonar.db.protobuf.DbIssues.Location> getSecondariesList() {
-        if (secondariesBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(secondaries_);
+      public java.util.List<org.sonar.db.protobuf.DbIssues.Location> getSecondaryList() {
+        if (secondaryBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(secondary_);
         } else {
-          return secondariesBuilder_.getMessageList();
+          return secondaryBuilder_.getMessageList();
         }
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+       * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
        */
-      public int getSecondariesCount() {
-        if (secondariesBuilder_ == null) {
-          return secondaries_.size();
+      public int getSecondaryCount() {
+        if (secondaryBuilder_ == null) {
+          return secondary_.size();
         } else {
-          return secondariesBuilder_.getCount();
+          return secondaryBuilder_.getCount();
         }
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+       * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
        */
-      public org.sonar.db.protobuf.DbIssues.Location getSecondaries(int index) {
-        if (secondariesBuilder_ == null) {
-          return secondaries_.get(index);
+      public org.sonar.db.protobuf.DbIssues.Location getSecondary(int index) {
+        if (secondaryBuilder_ == null) {
+          return secondary_.get(index);
         } else {
-          return secondariesBuilder_.getMessage(index);
+          return secondaryBuilder_.getMessage(index);
         }
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+       * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
        */
-      public Builder setSecondaries(
+      public Builder setSecondary(
           int index, org.sonar.db.protobuf.DbIssues.Location value) {
-        if (secondariesBuilder_ == null) {
+        if (secondaryBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureSecondariesIsMutable();
-          secondaries_.set(index, value);
+          ensureSecondaryIsMutable();
+          secondary_.set(index, value);
           onChanged();
         } else {
-          secondariesBuilder_.setMessage(index, value);
+          secondaryBuilder_.setMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+       * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
        */
-      public Builder setSecondaries(
+      public Builder setSecondary(
           int index, org.sonar.db.protobuf.DbIssues.Location.Builder builderForValue) {
-        if (secondariesBuilder_ == null) {
-          ensureSecondariesIsMutable();
-          secondaries_.set(index, builderForValue.build());
+        if (secondaryBuilder_ == null) {
+          ensureSecondaryIsMutable();
+          secondary_.set(index, builderForValue.build());
           onChanged();
         } else {
-          secondariesBuilder_.setMessage(index, builderForValue.build());
+          secondaryBuilder_.setMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+       * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
        */
-      public Builder addSecondaries(org.sonar.db.protobuf.DbIssues.Location value) {
-        if (secondariesBuilder_ == null) {
+      public Builder addSecondary(org.sonar.db.protobuf.DbIssues.Location value) {
+        if (secondaryBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureSecondariesIsMutable();
-          secondaries_.add(value);
+          ensureSecondaryIsMutable();
+          secondary_.add(value);
           onChanged();
         } else {
-          secondariesBuilder_.addMessage(value);
+          secondaryBuilder_.addMessage(value);
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+       * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
        */
-      public Builder addSecondaries(
+      public Builder addSecondary(
           int index, org.sonar.db.protobuf.DbIssues.Location value) {
-        if (secondariesBuilder_ == null) {
+        if (secondaryBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureSecondariesIsMutable();
-          secondaries_.add(index, value);
+          ensureSecondaryIsMutable();
+          secondary_.add(index, value);
           onChanged();
         } else {
-          secondariesBuilder_.addMessage(index, value);
+          secondaryBuilder_.addMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+       * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
        */
-      public Builder addSecondaries(
+      public Builder addSecondary(
           org.sonar.db.protobuf.DbIssues.Location.Builder builderForValue) {
-        if (secondariesBuilder_ == null) {
-          ensureSecondariesIsMutable();
-          secondaries_.add(builderForValue.build());
+        if (secondaryBuilder_ == null) {
+          ensureSecondaryIsMutable();
+          secondary_.add(builderForValue.build());
           onChanged();
         } else {
-          secondariesBuilder_.addMessage(builderForValue.build());
+          secondaryBuilder_.addMessage(builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+       * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
        */
-      public Builder addSecondaries(
+      public Builder addSecondary(
           int index, org.sonar.db.protobuf.DbIssues.Location.Builder builderForValue) {
-        if (secondariesBuilder_ == null) {
-          ensureSecondariesIsMutable();
-          secondaries_.add(index, builderForValue.build());
+        if (secondaryBuilder_ == null) {
+          ensureSecondaryIsMutable();
+          secondary_.add(index, builderForValue.build());
           onChanged();
         } else {
-          secondariesBuilder_.addMessage(index, builderForValue.build());
+          secondaryBuilder_.addMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+       * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
        */
-      public Builder addAllSecondaries(
+      public Builder addAllSecondary(
           java.lang.Iterable<? extends org.sonar.db.protobuf.DbIssues.Location> values) {
-        if (secondariesBuilder_ == null) {
-          ensureSecondariesIsMutable();
+        if (secondaryBuilder_ == null) {
+          ensureSecondaryIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, secondaries_);
+              values, secondary_);
           onChanged();
         } else {
-          secondariesBuilder_.addAllMessages(values);
+          secondaryBuilder_.addAllMessages(values);
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+       * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
        */
-      public Builder clearSecondaries() {
-        if (secondariesBuilder_ == null) {
-          secondaries_ = java.util.Collections.emptyList();
+      public Builder clearSecondary() {
+        if (secondaryBuilder_ == null) {
+          secondary_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000002);
           onChanged();
         } else {
-          secondariesBuilder_.clear();
+          secondaryBuilder_.clear();
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+       * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
        */
-      public Builder removeSecondaries(int index) {
-        if (secondariesBuilder_ == null) {
-          ensureSecondariesIsMutable();
-          secondaries_.remove(index);
+      public Builder removeSecondary(int index) {
+        if (secondaryBuilder_ == null) {
+          ensureSecondaryIsMutable();
+          secondary_.remove(index);
           onChanged();
         } else {
-          secondariesBuilder_.remove(index);
+          secondaryBuilder_.remove(index);
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+       * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
        */
-      public org.sonar.db.protobuf.DbIssues.Location.Builder getSecondariesBuilder(
+      public org.sonar.db.protobuf.DbIssues.Location.Builder getSecondaryBuilder(
           int index) {
-        return getSecondariesFieldBuilder().getBuilder(index);
+        return getSecondaryFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+       * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
        */
-      public org.sonar.db.protobuf.DbIssues.LocationOrBuilder getSecondariesOrBuilder(
+      public org.sonar.db.protobuf.DbIssues.LocationOrBuilder getSecondaryOrBuilder(
           int index) {
-        if (secondariesBuilder_ == null) {
-          return secondaries_.get(index);  } else {
-          return secondariesBuilder_.getMessageOrBuilder(index);
+        if (secondaryBuilder_ == null) {
+          return secondary_.get(index);  } else {
+          return secondaryBuilder_.getMessageOrBuilder(index);
         }
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+       * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
        */
       public java.util.List<? extends org.sonar.db.protobuf.DbIssues.LocationOrBuilder> 
-           getSecondariesOrBuilderList() {
-        if (secondariesBuilder_ != null) {
-          return secondariesBuilder_.getMessageOrBuilderList();
+           getSecondaryOrBuilderList() {
+        if (secondaryBuilder_ != null) {
+          return secondaryBuilder_.getMessageOrBuilderList();
         } else {
-          return java.util.Collections.unmodifiableList(secondaries_);
+          return java.util.Collections.unmodifiableList(secondary_);
         }
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+       * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
        */
-      public org.sonar.db.protobuf.DbIssues.Location.Builder addSecondariesBuilder() {
-        return getSecondariesFieldBuilder().addBuilder(
+      public org.sonar.db.protobuf.DbIssues.Location.Builder addSecondaryBuilder() {
+        return getSecondaryFieldBuilder().addBuilder(
             org.sonar.db.protobuf.DbIssues.Location.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+       * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
        */
-      public org.sonar.db.protobuf.DbIssues.Location.Builder addSecondariesBuilder(
+      public org.sonar.db.protobuf.DbIssues.Location.Builder addSecondaryBuilder(
           int index) {
-        return getSecondariesFieldBuilder().addBuilder(
+        return getSecondaryFieldBuilder().addBuilder(
             index, org.sonar.db.protobuf.DbIssues.Location.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.db.issues.Location secondaries = 2;</code>
+       * <code>repeated .sonarqube.db.issues.Location secondary = 2;</code>
        */
       public java.util.List<org.sonar.db.protobuf.DbIssues.Location.Builder> 
-           getSecondariesBuilderList() {
-        return getSecondariesFieldBuilder().getBuilderList();
+           getSecondaryBuilderList() {
+        return getSecondaryFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilder<
           org.sonar.db.protobuf.DbIssues.Location, org.sonar.db.protobuf.DbIssues.Location.Builder, org.sonar.db.protobuf.DbIssues.LocationOrBuilder> 
-          getSecondariesFieldBuilder() {
-        if (secondariesBuilder_ == null) {
-          secondariesBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+          getSecondaryFieldBuilder() {
+        if (secondaryBuilder_ == null) {
+          secondaryBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.sonar.db.protobuf.DbIssues.Location, org.sonar.db.protobuf.DbIssues.Location.Builder, org.sonar.db.protobuf.DbIssues.LocationOrBuilder>(
-                  secondaries_,
+                  secondary_,
                   ((bitField0_ & 0x00000002) == 0x00000002),
                   getParentForChildren(),
                   isClean());
-          secondaries_ = null;
+          secondary_ = null;
         }
-        return secondariesBuilder_;
+        return secondaryBuilder_;
       }
 
-      private java.util.List<org.sonar.db.protobuf.DbIssues.ExecutionFlow> executionFlows_ =
+      private java.util.List<org.sonar.db.protobuf.DbIssues.ExecutionFlow> executionFlow_ =
         java.util.Collections.emptyList();
-      private void ensureExecutionFlowsIsMutable() {
+      private void ensureExecutionFlowIsMutable() {
         if (!((bitField0_ & 0x00000004) == 0x00000004)) {
-          executionFlows_ = new java.util.ArrayList<org.sonar.db.protobuf.DbIssues.ExecutionFlow>(executionFlows_);
+          executionFlow_ = new java.util.ArrayList<org.sonar.db.protobuf.DbIssues.ExecutionFlow>(executionFlow_);
           bitField0_ |= 0x00000004;
          }
       }
 
       private com.google.protobuf.RepeatedFieldBuilder<
-          org.sonar.db.protobuf.DbIssues.ExecutionFlow, org.sonar.db.protobuf.DbIssues.ExecutionFlow.Builder, org.sonar.db.protobuf.DbIssues.ExecutionFlowOrBuilder> executionFlowsBuilder_;
+          org.sonar.db.protobuf.DbIssues.ExecutionFlow, org.sonar.db.protobuf.DbIssues.ExecutionFlow.Builder, org.sonar.db.protobuf.DbIssues.ExecutionFlowOrBuilder> executionFlowBuilder_;
 
       /**
-       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
        */
-      public java.util.List<org.sonar.db.protobuf.DbIssues.ExecutionFlow> getExecutionFlowsList() {
-        if (executionFlowsBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(executionFlows_);
+      public java.util.List<org.sonar.db.protobuf.DbIssues.ExecutionFlow> getExecutionFlowList() {
+        if (executionFlowBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(executionFlow_);
         } else {
-          return executionFlowsBuilder_.getMessageList();
+          return executionFlowBuilder_.getMessageList();
         }
       }
       /**
-       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
        */
-      public int getExecutionFlowsCount() {
-        if (executionFlowsBuilder_ == null) {
-          return executionFlows_.size();
+      public int getExecutionFlowCount() {
+        if (executionFlowBuilder_ == null) {
+          return executionFlow_.size();
         } else {
-          return executionFlowsBuilder_.getCount();
+          return executionFlowBuilder_.getCount();
         }
       }
       /**
-       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
        */
-      public org.sonar.db.protobuf.DbIssues.ExecutionFlow getExecutionFlows(int index) {
-        if (executionFlowsBuilder_ == null) {
-          return executionFlows_.get(index);
+      public org.sonar.db.protobuf.DbIssues.ExecutionFlow getExecutionFlow(int index) {
+        if (executionFlowBuilder_ == null) {
+          return executionFlow_.get(index);
         } else {
-          return executionFlowsBuilder_.getMessage(index);
+          return executionFlowBuilder_.getMessage(index);
         }
       }
       /**
-       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
        */
-      public Builder setExecutionFlows(
+      public Builder setExecutionFlow(
           int index, org.sonar.db.protobuf.DbIssues.ExecutionFlow value) {
-        if (executionFlowsBuilder_ == null) {
+        if (executionFlowBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureExecutionFlowsIsMutable();
-          executionFlows_.set(index, value);
+          ensureExecutionFlowIsMutable();
+          executionFlow_.set(index, value);
           onChanged();
         } else {
-          executionFlowsBuilder_.setMessage(index, value);
+          executionFlowBuilder_.setMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
        */
-      public Builder setExecutionFlows(
+      public Builder setExecutionFlow(
           int index, org.sonar.db.protobuf.DbIssues.ExecutionFlow.Builder builderForValue) {
-        if (executionFlowsBuilder_ == null) {
-          ensureExecutionFlowsIsMutable();
-          executionFlows_.set(index, builderForValue.build());
+        if (executionFlowBuilder_ == null) {
+          ensureExecutionFlowIsMutable();
+          executionFlow_.set(index, builderForValue.build());
           onChanged();
         } else {
-          executionFlowsBuilder_.setMessage(index, builderForValue.build());
+          executionFlowBuilder_.setMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
        */
-      public Builder addExecutionFlows(org.sonar.db.protobuf.DbIssues.ExecutionFlow value) {
-        if (executionFlowsBuilder_ == null) {
+      public Builder addExecutionFlow(org.sonar.db.protobuf.DbIssues.ExecutionFlow value) {
+        if (executionFlowBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureExecutionFlowsIsMutable();
-          executionFlows_.add(value);
+          ensureExecutionFlowIsMutable();
+          executionFlow_.add(value);
           onChanged();
         } else {
-          executionFlowsBuilder_.addMessage(value);
+          executionFlowBuilder_.addMessage(value);
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
        */
-      public Builder addExecutionFlows(
+      public Builder addExecutionFlow(
           int index, org.sonar.db.protobuf.DbIssues.ExecutionFlow value) {
-        if (executionFlowsBuilder_ == null) {
+        if (executionFlowBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          ensureExecutionFlowsIsMutable();
-          executionFlows_.add(index, value);
+          ensureExecutionFlowIsMutable();
+          executionFlow_.add(index, value);
           onChanged();
         } else {
-          executionFlowsBuilder_.addMessage(index, value);
+          executionFlowBuilder_.addMessage(index, value);
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
        */
-      public Builder addExecutionFlows(
+      public Builder addExecutionFlow(
           org.sonar.db.protobuf.DbIssues.ExecutionFlow.Builder builderForValue) {
-        if (executionFlowsBuilder_ == null) {
-          ensureExecutionFlowsIsMutable();
-          executionFlows_.add(builderForValue.build());
+        if (executionFlowBuilder_ == null) {
+          ensureExecutionFlowIsMutable();
+          executionFlow_.add(builderForValue.build());
           onChanged();
         } else {
-          executionFlowsBuilder_.addMessage(builderForValue.build());
+          executionFlowBuilder_.addMessage(builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
        */
-      public Builder addExecutionFlows(
+      public Builder addExecutionFlow(
           int index, org.sonar.db.protobuf.DbIssues.ExecutionFlow.Builder builderForValue) {
-        if (executionFlowsBuilder_ == null) {
-          ensureExecutionFlowsIsMutable();
-          executionFlows_.add(index, builderForValue.build());
+        if (executionFlowBuilder_ == null) {
+          ensureExecutionFlowIsMutable();
+          executionFlow_.add(index, builderForValue.build());
           onChanged();
         } else {
-          executionFlowsBuilder_.addMessage(index, builderForValue.build());
+          executionFlowBuilder_.addMessage(index, builderForValue.build());
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
        */
-      public Builder addAllExecutionFlows(
+      public Builder addAllExecutionFlow(
           java.lang.Iterable<? extends org.sonar.db.protobuf.DbIssues.ExecutionFlow> values) {
-        if (executionFlowsBuilder_ == null) {
-          ensureExecutionFlowsIsMutable();
+        if (executionFlowBuilder_ == null) {
+          ensureExecutionFlowIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, executionFlows_);
+              values, executionFlow_);
           onChanged();
         } else {
-          executionFlowsBuilder_.addAllMessages(values);
+          executionFlowBuilder_.addAllMessages(values);
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
        */
-      public Builder clearExecutionFlows() {
-        if (executionFlowsBuilder_ == null) {
-          executionFlows_ = java.util.Collections.emptyList();
+      public Builder clearExecutionFlow() {
+        if (executionFlowBuilder_ == null) {
+          executionFlow_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000004);
           onChanged();
         } else {
-          executionFlowsBuilder_.clear();
+          executionFlowBuilder_.clear();
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
        */
-      public Builder removeExecutionFlows(int index) {
-        if (executionFlowsBuilder_ == null) {
-          ensureExecutionFlowsIsMutable();
-          executionFlows_.remove(index);
+      public Builder removeExecutionFlow(int index) {
+        if (executionFlowBuilder_ == null) {
+          ensureExecutionFlowIsMutable();
+          executionFlow_.remove(index);
           onChanged();
         } else {
-          executionFlowsBuilder_.remove(index);
+          executionFlowBuilder_.remove(index);
         }
         return this;
       }
       /**
-       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
        */
-      public org.sonar.db.protobuf.DbIssues.ExecutionFlow.Builder getExecutionFlowsBuilder(
+      public org.sonar.db.protobuf.DbIssues.ExecutionFlow.Builder getExecutionFlowBuilder(
           int index) {
-        return getExecutionFlowsFieldBuilder().getBuilder(index);
+        return getExecutionFlowFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
        */
-      public org.sonar.db.protobuf.DbIssues.ExecutionFlowOrBuilder getExecutionFlowsOrBuilder(
+      public org.sonar.db.protobuf.DbIssues.ExecutionFlowOrBuilder getExecutionFlowOrBuilder(
           int index) {
-        if (executionFlowsBuilder_ == null) {
-          return executionFlows_.get(index);  } else {
-          return executionFlowsBuilder_.getMessageOrBuilder(index);
+        if (executionFlowBuilder_ == null) {
+          return executionFlow_.get(index);  } else {
+          return executionFlowBuilder_.getMessageOrBuilder(index);
         }
       }
       /**
-       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
        */
       public java.util.List<? extends org.sonar.db.protobuf.DbIssues.ExecutionFlowOrBuilder> 
-           getExecutionFlowsOrBuilderList() {
-        if (executionFlowsBuilder_ != null) {
-          return executionFlowsBuilder_.getMessageOrBuilderList();
+           getExecutionFlowOrBuilderList() {
+        if (executionFlowBuilder_ != null) {
+          return executionFlowBuilder_.getMessageOrBuilderList();
         } else {
-          return java.util.Collections.unmodifiableList(executionFlows_);
+          return java.util.Collections.unmodifiableList(executionFlow_);
         }
       }
       /**
-       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
        */
-      public org.sonar.db.protobuf.DbIssues.ExecutionFlow.Builder addExecutionFlowsBuilder() {
-        return getExecutionFlowsFieldBuilder().addBuilder(
+      public org.sonar.db.protobuf.DbIssues.ExecutionFlow.Builder addExecutionFlowBuilder() {
+        return getExecutionFlowFieldBuilder().addBuilder(
             org.sonar.db.protobuf.DbIssues.ExecutionFlow.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
        */
-      public org.sonar.db.protobuf.DbIssues.ExecutionFlow.Builder addExecutionFlowsBuilder(
+      public org.sonar.db.protobuf.DbIssues.ExecutionFlow.Builder addExecutionFlowBuilder(
           int index) {
-        return getExecutionFlowsFieldBuilder().addBuilder(
+        return getExecutionFlowFieldBuilder().addBuilder(
             index, org.sonar.db.protobuf.DbIssues.ExecutionFlow.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flows = 3;</code>
+       * <code>repeated .sonarqube.db.issues.ExecutionFlow execution_flow = 3;</code>
        */
       public java.util.List<org.sonar.db.protobuf.DbIssues.ExecutionFlow.Builder> 
-           getExecutionFlowsBuilderList() {
-        return getExecutionFlowsFieldBuilder().getBuilderList();
+           getExecutionFlowBuilderList() {
+        return getExecutionFlowFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilder<
           org.sonar.db.protobuf.DbIssues.ExecutionFlow, org.sonar.db.protobuf.DbIssues.ExecutionFlow.Builder, org.sonar.db.protobuf.DbIssues.ExecutionFlowOrBuilder> 
-          getExecutionFlowsFieldBuilder() {
-        if (executionFlowsBuilder_ == null) {
-          executionFlowsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+          getExecutionFlowFieldBuilder() {
+        if (executionFlowBuilder_ == null) {
+          executionFlowBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.sonar.db.protobuf.DbIssues.ExecutionFlow, org.sonar.db.protobuf.DbIssues.ExecutionFlow.Builder, org.sonar.db.protobuf.DbIssues.ExecutionFlowOrBuilder>(
-                  executionFlows_,
+                  executionFlow_,
                   ((bitField0_ & 0x00000004) == 0x00000004),
                   getParentForChildren(),
                   isClean());
-          executionFlows_ = null;
+          executionFlow_ = null;
         }
-        return executionFlowsBuilder_;
+        return executionFlowBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:sonarqube.db.issues.Locations)
@@ -2819,16 +2819,16 @@ public final class DbIssues {
   static {
     java.lang.String[] descriptorData = {
       "\n\017db-issues.proto\022\023sonarqube.db.issues\032\020" +
-      "db-commons.proto\"\254\001\n\tLocations\022.\n\007primar" +
-      "y\030\001 \001(\0132\035.sonarqube.db.issues.Location\0222" +
-      "\n\013secondaries\030\002 \003(\0132\035.sonarqube.db.issue" +
-      "s.Location\022;\n\017execution_flows\030\003 \003(\0132\".so" +
-      "narqube.db.issues.ExecutionFlow\"A\n\rExecu" +
-      "tionFlow\0220\n\tlocations\030\001 \003(\0132\035.sonarqube." +
-      "db.issues.Location\"b\n\010Location\022\024\n\014compon" +
-      "ent_id\030\001 \001(\t\0223\n\ntext_range\030\002 \001(\0132\037.sonar" +
-      "qube.db.commons.TextRange\022\013\n\003msg\030\003 \001(\tB\031",
-      "\n\025org.sonar.db.protobufH\001"
+      "db-commons.proto\"\251\001\n\tLocations\022.\n\007primar" +
+      "y\030\001 \001(\0132\035.sonarqube.db.issues.Location\0220" +
+      "\n\tsecondary\030\002 \003(\0132\035.sonarqube.db.issues." +
+      "Location\022:\n\016execution_flow\030\003 \003(\0132\".sonar" +
+      "qube.db.issues.ExecutionFlow\"A\n\rExecutio" +
+      "nFlow\0220\n\tlocations\030\001 \003(\0132\035.sonarqube.db." +
+      "issues.Location\"b\n\010Location\022\024\n\014component" +
+      "_id\030\001 \001(\t\0223\n\ntext_range\030\002 \001(\0132\037.sonarqub" +
+      "e.db.commons.TextRange\022\013\n\003msg\030\003 \001(\tB\031\n\025o",
+      "rg.sonar.db.protobufH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -2848,7 +2848,7 @@ public final class DbIssues {
     internal_static_sonarqube_db_issues_Locations_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_db_issues_Locations_descriptor,
-        new java.lang.String[] { "Primary", "Secondaries", "ExecutionFlows", });
+        new java.lang.String[] { "Primary", "Secondary", "ExecutionFlow", });
     internal_static_sonarqube_db_issues_ExecutionFlow_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_sonarqube_db_issues_ExecutionFlow_fieldAccessorTable = new

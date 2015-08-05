@@ -32,8 +32,8 @@ option optimize_for = SPEED;
 
 message Locations {
   optional Location primary = 1;
-  repeated Location secondaries = 2;
-  repeated ExecutionFlow execution_flows = 3;
+  repeated Location secondary = 2;
+  repeated ExecutionFlow execution_flow = 3;
 }
 
 message ExecutionFlow {
