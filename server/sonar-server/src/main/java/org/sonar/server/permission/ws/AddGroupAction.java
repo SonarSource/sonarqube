@@ -20,29 +20,40 @@
 
 package org.sonar.server.permission.ws;
 
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.permission.PermissionService;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.user.GroupDto;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.PermissionChange;
+import org.sonar.server.permission.PermissionUpdater;
 
 public class AddGroupAction implements PermissionsWsAction {
 
   public static final String ACTION = "add_group";
   public static final String PARAM_PERMISSION = "permission";
   public static final String PARAM_GROUP_NAME = "groupName";
+  public static final String PARAM_GROUP_ID = "groupId";
 
-  private final PermissionService permissionService;
+  private final PermissionUpdater permissionUpdater;
+  private final DbClient dbClient;
 
-  public AddGroupAction(PermissionService permissionService) {
-    this.permissionService = permissionService;
+  public AddGroupAction(PermissionUpdater permissionUpdater, DbClient dbClient) {
+    this.permissionUpdater = permissionUpdater;
+    this.dbClient = dbClient;
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
-      .setDescription("Add permission to a group.<br /> Requires 'Administer System' permission.")
+      .setDescription("Add permission to a group.<br /> " +
+        "The group name or group id must be provided. <br />" +
+        "Requires 'Administer System' permission.")
       .setSince("5.2")
       .setPost(true)
       .setHandler(this);
@@ -53,21 +64,55 @@ public class AddGroupAction implements PermissionsWsAction {
       .setPossibleValues(GlobalPermissions.ALL);
 
     action.createParam(PARAM_GROUP_NAME)
-      .setRequired(true)
       .setDescription("Group name or 'anyone' (whatever the case)")
       .setExampleValue("sonar-administrators");
+
+    action.createParam(PARAM_GROUP_ID)
+      .setDescription("Group ID")
+      .setExampleValue("42");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     String permission = request.mandatoryParam(PARAM_PERMISSION);
-    String groupName = request.mandatoryParam(PARAM_GROUP_NAME);
-    permissionService.addPermission(
+    String groupNameParam = request.param(PARAM_GROUP_NAME);
+    Long groupId = request.paramAsLong(PARAM_GROUP_ID);
+
+    String groupName = searchName(groupNameParam, groupId);
+
+    permissionUpdater.addPermission(
       new PermissionChange()
         .setPermission(permission)
         .setGroup(groupName)
-      );
+    );
 
     response.noContent();
+  }
+
+  private String searchName(@Nullable String groupNameParam, @Nullable Long groupId) {
+    checkParameters(groupNameParam, groupId);
+    if (groupNameParam != null) {
+      return groupNameParam;
+    }
+
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      GroupDto group = dbClient.groupDao().selectById(dbSession, groupId);
+      if (group == null) {
+        throw new NotFoundException(String.format("Group with id '%d' not found", groupId));
+      }
+
+      return group.getName();
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
+  }
+
+  private void checkParameters(@Nullable String groupName, @Nullable Long groupId) {
+    if (groupName != null ^ groupId != null) {
+      return;
+    }
+
+    throw new BadRequestException("Group name or group id must be provided, not both");
   }
 }

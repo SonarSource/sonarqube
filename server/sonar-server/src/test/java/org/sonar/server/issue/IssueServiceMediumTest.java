@@ -63,7 +63,7 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.PermissionChange;
-import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.source.index.SourceLineIndexer;
@@ -587,7 +587,7 @@ public class IssueServiceMediumTest {
     session.commit();
 
     // project can be seen by group "anyone"
-    tester.get(PermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
+    tester.get(PermissionUpdater.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
     userSessionRule.login();
 
     return project;

@@ -28,8 +28,8 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionChange;
+import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -46,13 +46,13 @@ public class AddUserActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-  private PermissionService permissionService;
+  private PermissionUpdater permissionUpdater;
 
   @Before
   public void setUp() {
-    permissionService = mock(PermissionService.class);
+    permissionUpdater = mock(PermissionUpdater.class);
     ws = new WsTester(new PermissionsWs(
-      new AddUserAction(permissionService)));
+      new AddUserAction(permissionUpdater)));
     userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 
@@ -64,7 +64,7 @@ public class AddUserActionTest {
       .execute();
 
     ArgumentCaptor<PermissionChange> permissionChangeCaptor = ArgumentCaptor.forClass(PermissionChange.class);
-    verify(permissionService).addPermission(permissionChangeCaptor.capture());
+    verify(permissionUpdater).addPermission(permissionChangeCaptor.capture());
     PermissionChange permissionChange = permissionChangeCaptor.getValue();
     assertThat(permissionChange.user()).isEqualTo("ray.bradbury");
     assertThat(permissionChange.permission()).isEqualTo(SYSTEM_ADMIN);

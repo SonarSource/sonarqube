@@ -21,17 +21,14 @@
 package org.sonar.server.permission;
 
 import java.util.List;
-import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ResourceDto;
 import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -41,14 +38,10 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.user.UserSession;
 
-/**
- * Used by ruby code <pre>Internal.permissions</pre>
- */
-@ServerSide
-public class PermissionService {
+public class PermissionUpdater {
 
   private enum Operation {
-    ADD, REMOVE;
+    ADD, REMOVE
   }
 
   private static final String OBJECT_TYPE_USER = "User";
@@ -57,54 +50,23 @@ public class PermissionService {
 
   private final DbClient dbClient;
   private final PermissionRepository permissionRepository;
-  private final PermissionFinder finder;
   private final IssueAuthorizationIndexer issueAuthorizationIndexer;
   private final UserSession userSession;
   private final ComponentFinder componentFinder;
 
-  public PermissionService(DbClient dbClient, PermissionRepository permissionRepository, PermissionFinder finder,
+  public PermissionUpdater(DbClient dbClient, PermissionRepository permissionRepository,
     IssueAuthorizationIndexer issueAuthorizationIndexer, UserSession userSession, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.permissionRepository = permissionRepository;
-    this.finder = finder;
     this.issueAuthorizationIndexer = issueAuthorizationIndexer;
     this.userSession = userSession;
     this.componentFinder = componentFinder;
   }
 
-  public List<String> globalPermissions() {
+  public static List<String> globalPermissions() {
     return GlobalPermissions.ALL;
   }
 
-  public UserWithPermissionQueryResult findUsersWithPermission(Map<String, Object> params) {
-    return finder.findUsersWithPermission(PermissionQueryParser.toQuery(params));
-  }
-
-  public UserWithPermissionQueryResult findUsersWithPermissionTemplate(Map<String, Object> params) {
-    return finder.findUsersWithPermissionTemplate(PermissionQueryParser.toQuery(params));
-  }
-
-  public GroupWithPermissionQueryResult findGroupsWithPermission(Map<String, Object> params) {
-    return finder.findGroupsWithPermission(PermissionQueryParser.toQuery(params));
-  }
-
-  /**
-   * To be used only by jruby webapp
-   */
-  public void addPermission(Map<String, Object> params) {
-    PermissionChange change = PermissionChange.buildFromParams(params);
-    DbSession session = dbClient.openSession(false);
-    try {
-      applyChange(Operation.ADD, change, session);
-    } finally {
-      dbClient.closeSession(session);
-    }
-  }
-
-  /**
-   * @deprecated since 5.2 use PermissionUpdate.addPermission instead
-   */
-  @Deprecated
   public void addPermission(PermissionChange change) {
     DbSession session = dbClient.openSession(false);
     try {
@@ -114,75 +76,12 @@ public class PermissionService {
     }
   }
 
-  /**
-   * To be used only by jruby webapp
-   */
-  public void removePermission(Map<String, Object> params) {
-    removePermission(PermissionChange.buildFromParams(params));
-  }
-
   public void removePermission(PermissionChange change) {
     DbSession session = dbClient.openSession(false);
     try {
       applyChange(Operation.REMOVE, change, session);
     } finally {
       session.close();
-    }
-  }
-
-  public void applyDefaultPermissionTemplate(final String componentKey) {
-    userSession.checkLoggedIn();
-
-    DbSession session = dbClient.openSession(false);
-    try {
-      ComponentDto component = componentFinder.getByKey(session, componentKey);
-      ResourceDto provisioned = dbClient.resourceDao().selectProvisionedProject(session, componentKey);
-      if (provisioned == null) {
-        checkProjectAdminPermission(componentKey);
-      } else {
-        userSession.checkGlobalPermission(GlobalPermissions.PROVISIONING);
-      }
-      permissionRepository.grantDefaultRoles(session, component.getId(), component.qualifier());
-      session.commit();
-    } finally {
-      session.close();
-    }
-    indexProjectPermissions();
-  }
-
-  public void applyPermissionTemplate(Map<String, Object> params) {
-    userSession.checkLoggedIn();
-    ApplyPermissionTemplateQuery query = ApplyPermissionTemplateQuery.buildFromParams(params);
-    applyPermissionTemplate(query);
-  }
-
-  void applyPermissionTemplate(ApplyPermissionTemplateQuery query) {
-    query.validate();
-
-    boolean projectsChanged = false;
-    DbSession session = dbClient.openSession(false);
-    try {
-      // If only one project is selected, check user has admin permission on it, otherwise we are in the case of a bulk change and only
-      // system
-      // admin has permission to do it
-      if (query.getSelectedComponents().size() == 1) {
-        checkProjectAdminPermission(query.getSelectedComponents().get(0));
-      } else {
-        checkProjectAdminPermission(null);
-        userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
-      }
-
-      for (String componentKey : query.getSelectedComponents()) {
-        ComponentDto component = componentFinder.getByKey(session, componentKey);
-        permissionRepository.applyPermissionTemplate(session, query.getTemplateKey(), component.getId());
-        projectsChanged = true;
-      }
-      session.commit();
-    } finally {
-      session.close();
-    }
-    if (projectsChanged) {
-      indexProjectPermissions();
     }
   }
 

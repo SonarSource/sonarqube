@@ -53,7 +53,7 @@ import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.PermissionChange;
-import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.tester.ServerTester;
@@ -663,7 +663,7 @@ public class SearchActionMediumTest {
   private void setDefaultProjectPermission(ComponentDto project) {
     // project can be seen by anyone and by code viewer
     userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    tester.get(PermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
+    tester.get(PermissionUpdater.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
     userSessionRule.login();
   }
 

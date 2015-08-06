@@ -46,8 +46,8 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionChange;
+import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.tester.ServerTester;
@@ -95,7 +95,7 @@ public class IssueCommentServiceMediumTest {
     // project can be seen by anyone
     session.commit();
     userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    tester.get(PermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
+    tester.get(PermissionUpdater.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
 
     userSessionRule.login("gandalf");
 
