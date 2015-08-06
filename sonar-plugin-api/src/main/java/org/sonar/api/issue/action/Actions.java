@@ -19,19 +19,16 @@
  */
 package org.sonar.api.issue.action;
 
-import com.google.common.annotations.Beta;
-import org.sonar.api.ExtensionPoint;
-import org.sonar.api.server.ServerSide;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.sonar.api.server.ServerSide;
 
 /**
  * @since 3.6
+ * @deprecated in 5.2. Webapp can not be customized anymore to define actions on issues.
  */
-@Beta
+@Deprecated
 @ServerSide
-@ExtensionPoint
 public class Actions {
 
   private final List<Action> actions = new ArrayList<>();
@@ -45,6 +42,5 @@ public class Actions {
   public List<Action> list() {
     return actions;
   }
-
 
 }
