@@ -236,6 +236,11 @@ public class SensorContextTester implements SensorContext {
     public void setIssues(boolean issues) {
       this.isIssues = issues;
     }
+
+    @Override
+    public boolean isPublish() {
+      return !isPreview && !isIssues;
+    }
   }
 
   private static class InMemorySensorStorage implements SensorStorage {
