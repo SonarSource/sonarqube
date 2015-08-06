@@ -29,12 +29,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class GlobalModeTest {
   @Test
-  public void testQuick() {
-    GlobalMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_QUICK);
-    assertThat(mode.isPreview()).isTrue();
-  }
-
-  @Test
   public void testPreview() {
     GlobalMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW);
     assertThat(mode.isPreview()).isTrue();

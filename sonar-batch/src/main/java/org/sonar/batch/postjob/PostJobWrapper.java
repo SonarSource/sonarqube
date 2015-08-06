@@ -39,7 +39,7 @@ public class PostJobWrapper implements org.sonar.api.batch.PostJob, CheckProject
   public PostJobWrapper(PostJob newPostJob, PostJobContext adaptor, PostJobOptimizer optimizer) {
     this.wrappedPostJob = newPostJob;
     this.optimizer = optimizer;
-    descriptor = new DefaultPostJobDescriptor();
+    this.descriptor = new DefaultPostJobDescriptor();
     newPostJob.describe(descriptor);
     this.adaptor = adaptor;
   }

@@ -69,12 +69,12 @@ public class PostJobOptimizerTest {
   }
 
   @Test
-  public void should_disabled_in_preview() {
+  public void should_disabled_in_issues_mode() {
     DefaultPostJobDescriptor descriptor = new DefaultPostJobDescriptor()
-      .disabledInPreview();
+      .disabledInIssues();
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();
 
-    when(analysisMode.isPreview()).thenReturn(true);
+    when(analysisMode.isIssues()).thenReturn(true);
 
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
   }

@@ -42,7 +42,7 @@ public class ProjectAnalysisModeTest {
 
   @Test(expected = IllegalStateException.class)
   public void fail_if_inconsistent() {
-    createMode(null, CoreProperties.ANALYSIS_MODE_PREVIEW);
+    createMode(null, CoreProperties.ANALYSIS_MODE_ISSUES);
   }
 
   @Test
@@ -65,11 +65,10 @@ public class ProjectAnalysisModeTest {
   }
 
   @Test
-  public void support_quick_mode() {
-    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_QUICK);
+  public void support_issues_mode() {
+    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_ISSUES);
 
-    assertThat(mode.isPreview()).isTrue();
-    assertThat(mode.isQuick()).isTrue();
+    assertThat(mode.isIssues()).isTrue();
   }
 
   @Test

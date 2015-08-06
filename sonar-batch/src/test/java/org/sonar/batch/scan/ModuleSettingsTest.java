@@ -102,7 +102,7 @@ public class ModuleSettingsTest {
   }
 
   @Test
-  public void should_fail_when_accessing_secured_properties_in_preview() {
+  public void should_fail_when_accessing_secured_properties_in_issues() {
     GlobalSettings batchSettings = mock(GlobalSettings.class);
     when(batchSettings.getDefinitions()).thenReturn(new PropertyDefinitions());
     when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
@@ -110,7 +110,7 @@ public class ModuleSettingsTest {
       ));
     projectRef.addSettings("struts-core", ImmutableMap.of("sonar.foo.license.secured", "bar2"));
 
-    when(mode.isPreview()).thenReturn(true);
+    when(mode.isIssues()).thenReturn(true);
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
 
@@ -120,7 +120,7 @@ public class ModuleSettingsTest {
 
     thrown.expect(MessageException.class);
     thrown
-      .expectMessage("Access to the secured property 'sonar.foo.secured' is not possible in preview mode. The SonarQube plugin which requires this property must be deactivated in preview mode.");
+      .expectMessage("Access to the secured property 'sonar.foo.secured' is not possible in issues mode. The SonarQube plugin which requires this property must be deactivated in issues mode.");
     moduleSettings.getString("sonar.foo.secured");
   }
 }

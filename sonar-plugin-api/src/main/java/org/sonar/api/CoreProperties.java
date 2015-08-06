@@ -450,7 +450,7 @@ public interface CoreProperties {
   /**
    * @since 5.2
    */
-  String ANALYSIS_MODE_QUICK = "quick";
+  String ANALYSIS_MODE_ISSUES = "issues";
 
   /**
    * @since 4.0

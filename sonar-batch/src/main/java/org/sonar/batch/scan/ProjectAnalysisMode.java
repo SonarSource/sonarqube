@@ -39,7 +39,7 @@ public class ProjectAnalysisMode implements AnalysisMode {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectAnalysisMode.class);
 
   private boolean preview;
-  private boolean quick;
+  private boolean issues;
   private boolean mediumTestMode;
 
   public ProjectAnalysisMode(BootstrapProperties globalProps, AnalysisProperties props) {
@@ -48,12 +48,12 @@ public class ProjectAnalysisMode implements AnalysisMode {
 
   @Override
   public boolean isPreview() {
-    return preview || quick;
+    return preview;
   }
 
   @Override
-  public boolean isQuick() {
-    return quick;
+  public boolean isIssues() {
+    return issues;
   }
 
   public boolean isMediumTest() {
@@ -62,11 +62,11 @@ public class ProjectAnalysisMode implements AnalysisMode {
 
   private void init(Map<String, String> globalProps, Map<String, String> analysisProps) {
     // make sure analysis is consistent with global properties
-    boolean globalPreview = isPreview(globalProps);
-    boolean analysisPreview = isPreview(analysisProps);
+    boolean globalPreview = isIssues(globalProps);
+    boolean analysisPreview = isIssues(analysisProps);
 
     if (!globalPreview && analysisPreview) {
-      throw new IllegalStateException("Inconsistent properties:  global properties doesn't enable preview mode while analysis properties enables it");
+      throw new IllegalStateException("Inconsistent properties:  global properties doesn't enable issues mode while analysis properties enables it");
     }
 
     load(globalProps, analysisProps);
@@ -80,14 +80,14 @@ public class ProjectAnalysisMode implements AnalysisMode {
       String mode = getPropertyWithFallback(analysisProps, globalProps, CoreProperties.ANALYSIS_MODE);
       validate(mode);
       preview = CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
-      quick = CoreProperties.ANALYSIS_MODE_QUICK.equals(mode);
+      issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode);
     }
     mediumTestMode = "true".equals(getPropertyWithFallback(analysisProps, globalProps, BatchMediumTester.MEDIUM_TEST_ENABLED));
 
     if (preview) {
       LOG.info("Preview mode");
-    } else if (quick) {
-      LOG.info("Quick mode");
+    } else if (issues) {
+      LOG.info("Issues mode");
     }
     if (mediumTestMode) {
       LOG.info("Medium test mode");
@@ -102,11 +102,10 @@ public class ProjectAnalysisMode implements AnalysisMode {
     return props2.get(key);
   }
 
-  private static boolean isPreview(Map<String, String> props) {
+  private static boolean isIssues(Map<String, String> props) {
     String mode = props.get(CoreProperties.ANALYSIS_MODE);
 
-    return "true".equals(props.get(CoreProperties.DRY_RUN)) || CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode) ||
-      CoreProperties.ANALYSIS_MODE_QUICK.equals(mode);
+    return CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode);
   }
 
   private void validate(String mode) {

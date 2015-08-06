@@ -47,8 +47,8 @@ public class PostJobOptimizer {
       LOG.debug("'{}' skipped because one of the required properties is missing", descriptor.name());
       return false;
     }
-    if (descriptor.isDisabledInPreview() && analysisMode.isPreview()) {
-      LOG.debug("'{}' skipped in preview mode", descriptor.name());
+    if (descriptor.isDisabledInIssues() && analysisMode.isIssues()) {
+      LOG.debug("'{}' skipped in issues mode", descriptor.name());
       return false;
     }
     return true;

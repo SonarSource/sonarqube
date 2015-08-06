@@ -35,6 +35,7 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
   private String[] ruleRepositories = new String[0];
   private String[] properties = new String[0];
   private boolean disabledInPreview = false;
+  private boolean disabledInIssues = false;
 
   public String name() {
     return name;
@@ -59,6 +60,10 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
 
   public boolean isDisabledInPreview() {
     return disabledInPreview;
+  }
+  
+  public boolean isDisabledInIssues() {
+    return disabledInIssues;
   }
 
   @Override
@@ -109,6 +114,12 @@ public class DefaultSensorDescriptor implements SensorDescriptor {
   @Override
   public DefaultSensorDescriptor disabledInPreview() {
     this.disabledInPreview = true;
+    return this;
+  }
+  
+  @Override
+  public DefaultSensorDescriptor disabledInIssues() {
+    this.disabledInIssues = true;
     return this;
   }
 

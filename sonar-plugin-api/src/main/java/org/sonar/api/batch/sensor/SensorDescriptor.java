@@ -85,5 +85,10 @@ public interface SensorDescriptor {
    * Should this sensor be disabled in preview mode. Default is to run all sensors in preview mode.
    */
   SensorDescriptor disabledInPreview();
+  
+  /**
+   * Should this sensor be disabled in issues mode. Default is to run all sensors in issues mode.
+   */
+  SensorDescriptor disabledInIssues();
 
 }

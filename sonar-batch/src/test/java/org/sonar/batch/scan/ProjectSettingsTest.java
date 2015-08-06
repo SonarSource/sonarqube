@@ -109,14 +109,14 @@ public class ProjectSettingsTest {
   public void should_fail_when_accessing_secured_properties_in_dryrun() {
     projectRef.addSettings("struts", ImmutableMap.of("sonar.foo.secured", "bar", "sonar.foo.license.secured", "bar2"));
 
-    when(mode.isPreview()).thenReturn(true);
+    when(mode.isIssues()).thenReturn(true);
 
     ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, mode);
 
     assertThat(batchSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     thrown.expect(MessageException.class);
     thrown
-      .expectMessage("Access to the secured property 'sonar.foo.secured' is not possible in preview mode. The SonarQube plugin which requires this property must be deactivated in preview mode.");
+      .expectMessage("Access to the secured property 'sonar.foo.secured' is not possible in issues mode. The SonarQube plugin which requires this property must be deactivated in issues mode.");
     batchSettings.getString("sonar.foo.secured");
   }
 

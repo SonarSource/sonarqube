@@ -66,6 +66,10 @@ public class SensorOptimizer {
       LOG.debug("'{}' skipped in preview mode", descriptor.name());
       return false;
     }
+    if (descriptor.isDisabledInIssues() && analysisMode.isIssues()) {
+      LOG.debug("'{}' skipped in issues mode", descriptor.name());
+      return false;
+    }
     return true;
   }
 

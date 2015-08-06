@@ -20,7 +20,6 @@
 package org.sonar.batch.bootstrap;
 
 import org.picocontainer.injectors.ProviderAdapter;
-
 import org.sonar.batch.bootstrap.WSLoader.LoadStrategy;
 
 import java.util.Map;
@@ -33,14 +32,13 @@ public class WSLoaderGlobalProvider extends ProviderAdapter {
 
   public WSLoader provide(BootstrapProperties props, GlobalMode mode, PersistentCache cache, ServerClient client) {
     if (wsLoader == null) {
-      wsLoader = new WSLoader(isCacheEnabled(props.properties(), mode.isPreview()), cache, client);
+      wsLoader = new WSLoader(isCacheEnabled(props.properties(), mode), cache, client);
       wsLoader.setStrategy(DEFAULT_STRATEGY);
     }
     return wsLoader;
   }
 
-  private static boolean isCacheEnabled(Map<String, String> props, boolean isPreview) {
-    String enableOffline = props.get("sonar.enableOffline");
-    return isPreview && "true".equals(enableOffline);
+  private static boolean isCacheEnabled(Map<String, String> props, GlobalMode mode) {
+    return mode.isIssues();
   }
 }

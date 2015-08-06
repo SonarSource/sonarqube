@@ -33,8 +33,6 @@ import org.sonar.home.cache.PersistentCache;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Mockito.when;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class WSLoaderProjectProviderTest {
@@ -65,17 +63,5 @@ public class WSLoaderProjectProviderTest {
     WSLoader loader = loaderProvider.provide(props, mode, cache, client);
     assertThat(loader.getStrategy()).isEqualTo(LoadStrategy.SERVER_FIRST);
     assertThat(loader.isCacheEnabled()).isEqualTo(false);
-  }
-
-  @Test
-  public void testSingleMode() {
-    when(mode.isQuick()).thenReturn(true);
-    when(mode.isPreview()).thenReturn(true);
-    propMap.put("sonar.enableOffline", "true");
-    props = new AnalysisProperties(propMap, null);
-
-    WSLoader loader = loaderProvider.provide(props, mode, cache, client);
-    assertThat(loader.getStrategy()).isEqualTo(LoadStrategy.CACHE_FIRST);
-    assertThat(loader.isCacheEnabled()).isEqualTo(true);
   }
 }

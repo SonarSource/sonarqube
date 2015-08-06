@@ -48,8 +48,8 @@ public interface PostJobDescriptor {
   PostJobDescriptor requireProperties(String... propertyKeys);
 
   /**
-   * Should this PostJob be disabled in preview mode. Default is to run all PostJobs in preview mode.
+   * Should this PostJob be disabled in issues mode. Default is to run all PostJobs in preview mode.
    */
-  PostJobDescriptor disabledInPreview();
+  PostJobDescriptor disabledInIssues();
 
 }
