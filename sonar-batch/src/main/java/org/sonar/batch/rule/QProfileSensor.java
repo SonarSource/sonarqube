@@ -48,8 +48,8 @@ public class QProfileSensor implements Sensor {
   public boolean shouldExecuteOnProject(Project project) {
     // Should be only executed on leaf modules
     return project.getModules().isEmpty()
-      // Useless in preview mode
-      && !analysisMode.isPreview();
+      // Useless in issues mode
+      && !analysisMode.isIssues();
   }
 
   @Override
@@ -61,7 +61,7 @@ public class QProfileSensor implements Sensor {
         used.add(profile);
       }
     }
-    Measure detailsMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, used.toJson());
+    Measure<?> detailsMeasure = new Measure<String>(CoreMetrics.QUALITY_PROFILES, used.toJson());
     context.saveMeasure(detailsMeasure);
   }
 

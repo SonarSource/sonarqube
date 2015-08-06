@@ -52,8 +52,8 @@ public class IndexFactory {
     boolean crossProject = false;
 
     if (settings.getBoolean(CoreProperties.CPD_CROSS_PROJECT)) {
-      if (mode.isPreview()) {
-        logger.info("Cross-project analysis disabled. Not supported in preview mode.");
+      if (mode.isIssues()) {
+        logger.info("Cross-project analysis disabled. Not supported in issues mode.");
       } else if (StringUtils.isNotBlank(settings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY))) {
         logger.info("Cross-project analysis disabled. Not supported on project branches.");
       } else if (project == null) {

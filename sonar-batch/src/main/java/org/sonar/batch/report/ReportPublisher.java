@@ -103,8 +103,8 @@ public class ReportPublisher implements Startable {
   }
 
   public void execute() {
-    // If this is a preview analysis then we should not upload reports
-    if (!analysisMode.isPreview()) {
+    // If this is a issues mode analysis then we should not upload reports
+    if (!analysisMode.isIssues()) {
       File report = prepareReport();
       if (!analysisMode.isMediumTest()) {
         sendOrDumpReport(report);
@@ -202,7 +202,7 @@ public class ReportPublisher implements Startable {
 
   @VisibleForTesting
   void logSuccess(Logger logger) {
-    if (analysisMode.isPreview() || analysisMode.isMediumTest()) {
+    if (analysisMode.isIssues() || analysisMode.isMediumTest()) {
       logger.info("ANALYSIS SUCCESSFUL");
 
     } else {

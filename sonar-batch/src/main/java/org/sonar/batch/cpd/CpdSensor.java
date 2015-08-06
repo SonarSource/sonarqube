@@ -50,7 +50,7 @@ public class CpdSensor implements Sensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor.name("CPD Sensor")
-      .disabledInPreview();
+      .disabledInIssues();
   }
 
   @VisibleForTesting

@@ -62,7 +62,7 @@ public final class ScmSensor implements Sensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor.name("SCM Sensor")
-      .disabledInPreview();
+      .disabledInIssues();
   }
 
   @Override

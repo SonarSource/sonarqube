@@ -139,7 +139,7 @@ public class SensorOptimizerTest {
   }
 
   @Test
-  public void should_disabled_in_preview() {
+  public void should_disabled_in_preview_mode() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor()
       .disabledInPreview();
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();
@@ -148,4 +148,16 @@ public class SensorOptimizerTest {
 
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
   }
+
+  @Test
+  public void should_disabled_in_issues_mode() {
+    DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor()
+      .disabledInIssues();
+    assertThat(optimizer.shouldExecute(descriptor)).isTrue();
+
+    when(analysisMode.isIssues()).thenReturn(true);
+
+    assertThat(optimizer.shouldExecute(descriptor)).isFalse();
+  }
+
 }

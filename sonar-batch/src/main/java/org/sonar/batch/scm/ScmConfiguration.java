@@ -78,7 +78,7 @@ public final class ScmConfiguration implements Startable {
 
   @Override
   public void start() {
-    if (analysisMode.isPreview()) {
+    if (analysisMode.isIssues()) {
       return;
     }
     if (isDisabled()) {

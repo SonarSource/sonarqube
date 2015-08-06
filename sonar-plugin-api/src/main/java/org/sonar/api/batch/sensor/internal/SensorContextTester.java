@@ -217,7 +217,7 @@ public class SensorContextTester implements SensorContext {
 
   public static class MockAnalysisMode implements AnalysisMode {
     private boolean isPreview = false;
-    private boolean isSingle = false;
+    private boolean isIssues = false;
 
     @Override
     public boolean isPreview() {
@@ -229,12 +229,12 @@ public class SensorContextTester implements SensorContext {
     }
 
     @Override
-    public boolean isQuick() {
-      return this.isSingle;
+    public boolean isIssues() {
+      return this.isIssues;
     }
 
-    public void setSingle(boolean single) {
-      this.isSingle = single;
+    public void setIssues(boolean issues) {
+      this.isIssues = issues;
     }
   }
 

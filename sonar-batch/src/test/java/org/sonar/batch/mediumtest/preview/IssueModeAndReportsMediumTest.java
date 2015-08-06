@@ -49,7 +49,7 @@ import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PreviewAndReportsMediumTest {
+public class IssueModeAndReportsMediumTest {
 
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -68,7 +68,7 @@ public class PreviewAndReportsMediumTest {
   }
 
   public BatchMediumTester tester = BatchMediumTester.builder()
-    .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW))
+    .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ISSUES))
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .addRules(new XooRulesDefinition())
@@ -138,7 +138,7 @@ public class PreviewAndReportsMediumTest {
 
   private File copyProject(String path) throws Exception {
     File projectDir = temp.newFolder();
-    File originalProjectDir = new File(PreviewAndReportsMediumTest.class.getResource(path).toURI());
+    File originalProjectDir = new File(IssueModeAndReportsMediumTest.class.getResource(path).toURI());
     FileUtils.copyDirectory(originalProjectDir, projectDir, FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter(".sonar")));
     return projectDir;
   }

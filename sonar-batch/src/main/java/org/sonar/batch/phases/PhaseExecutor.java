@@ -99,7 +99,7 @@ public final class PhaseExecutor {
     sensorsExecutor.execute(sensorContext);
 
     if (module.isRoot()) {
-      if (analysisMode.isPreview()) {
+      if (analysisMode.isIssues()) {
         localIssueTracking();
         issuesCallback();
       }
