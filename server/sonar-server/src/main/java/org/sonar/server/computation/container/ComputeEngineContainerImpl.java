@@ -46,6 +46,7 @@ import org.sonar.server.computation.batch.BatchReportReaderImpl;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.computation.component.TreeRootHolderImpl;
+import org.sonar.server.computation.component.Visitor;
 import org.sonar.server.computation.debt.DebtModelHolderImpl;
 import org.sonar.server.computation.event.EventRepositoryImpl;
 import org.sonar.server.computation.issue.BaseIssuesLoader;
@@ -86,6 +87,7 @@ import org.sonar.server.computation.qualitygate.QualityGateHolderImpl;
 import org.sonar.server.computation.qualitygate.QualityGateServiceImpl;
 import org.sonar.server.computation.qualityprofile.ActiveRulesHolderImpl;
 import org.sonar.server.computation.sqale.SqaleRatingSettings;
+import org.sonar.server.computation.step.ComponentVisitors;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.view.index.ViewIndex;
@@ -101,12 +103,14 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
 
   private final ReportQueue.Item item;
   private final ComputationSteps steps;
+  private final ComponentVisitors visitors;
 
   public ComputeEngineContainerImpl(ComponentContainer parent, ReportQueue.Item item) {
     super(createContainer(requireNonNull(parent)));
 
     this.item = item;
     this.steps = new ComputationSteps(this);
+    this.visitors = new ComponentVisitors(this);
 
     populateContainer(requireNonNull(item));
     startComponents();
@@ -120,8 +124,10 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
   private void populateContainer(ReportQueue.Item item) {
     add(item);
     add(steps);
+    add(visitors);
     addSingletons(componentClasses());
     addSingletons(steps.orderedStepClasses());
+    addSingletons(visitors.orderedClasses());
     populateFromModules();
   }
 
@@ -264,6 +270,11 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
 
   @Override
   public <T extends ComputationStep> T getStep(Class<T> type) {
+    return getComponentByType(type);
+  }
+
+  @Override
+  public <T extends Visitor> T getComponentVisitor(Class<T> type) {
     return getComponentByType(type);
   }
 
