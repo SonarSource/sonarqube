@@ -58,7 +58,7 @@ public class PermissionServiceMediumTest {
 
   DbClient db;
   DbSession session;
-  PermissionService service;
+  PermissionService underTest;
 
   ComponentDto project;
 
@@ -67,7 +67,7 @@ public class PermissionServiceMediumTest {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
     session = db.openSession(false);
-    service = tester.get(PermissionService.class);
+    underTest = tester.get(PermissionService.class);
 
     project = ComponentTesting.newProjectDto();
     db.componentDao().insert(session, project);
@@ -90,7 +90,7 @@ public class PermissionServiceMediumTest {
     assertThat(countIssueAuthorizationDocs()).isZero();
 
     // add permission
-    service.addPermission(params(user.getLogin(), null, project.key(), UserRole.USER));
+    underTest.addPermission(params(user.getLogin(), null, project.key(), UserRole.USER));
     session.commit();
 
     // Check db
@@ -111,9 +111,9 @@ public class PermissionServiceMediumTest {
     db.userDao().insert(session, user2);
     session.commit();
 
-    service.addPermission(params(user1.getLogin(), null, project.key(), UserRole.USER));
-    service.addPermission(params(user2.getLogin(), null, project.key(), UserRole.USER));
-    service.removePermission(params(user1.getLogin(), null, project.key(), UserRole.USER));
+    underTest.addPermission(params(user1.getLogin(), null, project.key(), UserRole.USER));
+    underTest.addPermission(params(user2.getLogin(), null, project.key(), UserRole.USER));
+    underTest.removePermission(params(user1.getLogin(), null, project.key(), UserRole.USER));
     session.commit();
 
     // Check in db
@@ -132,8 +132,8 @@ public class PermissionServiceMediumTest {
     db.userDao().insert(session, user);
     session.commit();
 
-    service.addPermission(params(user.getLogin(), null, project.key(), UserRole.USER));
-    service.removePermission(params(user.getLogin(), null, project.key(), UserRole.USER));
+    underTest.addPermission(params(user.getLogin(), null, project.key(), UserRole.USER));
+    underTest.removePermission(params(user.getLogin(), null, project.key(), UserRole.USER));
     session.commit();
 
     // Check in db
@@ -162,7 +162,7 @@ public class PermissionServiceMediumTest {
 
     // add permission
     PermissionChange change = new PermissionChange().setPermission(UserRole.USER).setGroup(group.getName()).setComponentKey(project.key());
-    service.addPermission(change);
+    underTest.addPermission(change);
     session.commit();
 
     // Check db
@@ -172,7 +172,7 @@ public class PermissionServiceMediumTest {
     assertThat(countIssueAuthorizationDocs()).isEqualTo(1);
 
     // remove permission
-    service.removePermission(change);
+    underTest.removePermission(change);
     session.commit();
     assertThat(tester.get(RoleDao.class).selectGroupPermissions(session, group.getName(), project.getId())).hasSize(0);
 

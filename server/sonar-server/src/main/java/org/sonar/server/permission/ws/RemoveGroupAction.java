@@ -26,7 +26,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.server.permission.PermissionChange;
-import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionUpdater;
 
 import static org.sonar.server.permission.ws.PermissionWsCommons.searchName;
 
@@ -37,11 +37,11 @@ public class RemoveGroupAction implements PermissionsWsAction {
   public static final String PARAM_GROUP_NAME = "groupName";
   public static final String PARAM_GROUP_ID = "groupId";
 
-  private final PermissionService permissionService;
+  private final PermissionUpdater permissionUpdater;
   private final DbClient dbClient;
 
-  public RemoveGroupAction(PermissionService permissionService, DbClient dbClient) {
-    this.permissionService = permissionService;
+  public RemoveGroupAction(PermissionUpdater permissionUpdater, DbClient dbClient) {
+    this.permissionUpdater = permissionUpdater;
     this.dbClient = dbClient;
   }
 
@@ -77,11 +77,11 @@ public class RemoveGroupAction implements PermissionsWsAction {
 
     String groupName = searchName(dbClient, groupNameParam, groupId);
 
-    permissionService.removePermission(
+    permissionUpdater.removePermission(
       new PermissionChange()
         .setPermission(permission)
         .setGroup(groupName)
-      );
+    );
 
     response.noContent();
   }

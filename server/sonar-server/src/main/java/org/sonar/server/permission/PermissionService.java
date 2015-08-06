@@ -118,9 +118,19 @@ public class PermissionService {
    * To be used only by jruby webapp
    */
   public void removePermission(Map<String, Object> params) {
-    removePermission(PermissionChange.buildFromParams(params));
+    PermissionChange change = PermissionChange.buildFromParams(params);
+    DbSession session = dbClient.openSession(false);
+    try {
+      applyChange(Operation.REMOVE, change, session);
+    } finally {
+      session.close();
+    }
   }
 
+  /**
+   * @deprecated since 5.2. Use PermissionUpdater.removePermission
+   */
+  @Deprecated
   public void removePermission(PermissionChange change) {
     DbSession session = dbClient.openSession(false);
     try {

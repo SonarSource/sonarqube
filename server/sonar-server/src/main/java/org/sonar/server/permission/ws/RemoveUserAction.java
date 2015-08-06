@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.permission.PermissionChange;
-import org.sonar.server.permission.PermissionService;
+import org.sonar.server.permission.PermissionUpdater;
 
 public class RemoveUserAction implements PermissionsWsAction {
 
@@ -33,10 +33,10 @@ public class RemoveUserAction implements PermissionsWsAction {
   public static final String PARAM_PERMISSION = "permission";
   public static final String PARAM_USER_LOGIN = "login";
 
-  private final PermissionService permissionService;
+  private final PermissionUpdater permissionUpdater;
 
-  public RemoveUserAction(PermissionService permissionService) {
-    this.permissionService = permissionService;
+  public RemoveUserAction(PermissionUpdater permissionUpdater) {
+    this.permissionUpdater = permissionUpdater;
   }
 
   @Override
@@ -62,11 +62,11 @@ public class RemoveUserAction implements PermissionsWsAction {
   public void handle(Request request, Response response) throws Exception {
     String permission = request.mandatoryParam(PARAM_PERMISSION);
     String userLogin = request.mandatoryParam(PARAM_USER_LOGIN);
-    permissionService.removePermission(
+    permissionUpdater.removePermission(
       new PermissionChange()
         .setPermission(permission)
         .setUser(userLogin)
-      );
+    );
 
     response.noContent();
   }

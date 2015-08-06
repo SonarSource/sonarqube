@@ -31,8 +31,8 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
-import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionChange;
+import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -49,13 +49,13 @@ public class RemoveGroupActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-  private PermissionService permissionService;
+  private PermissionUpdater permissionUpdater;
 
   @Before
   public void setUp() {
-    permissionService = mock(PermissionService.class);
+    permissionUpdater = mock(PermissionUpdater.class);
     ws = new WsTester(new PermissionsWs(
-      new RemoveGroupAction(permissionService, db.getDbClient())));
+      new RemoveGroupAction(permissionUpdater, db.getDbClient())));
     userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 
@@ -67,7 +67,7 @@ public class RemoveGroupActionTest {
       .execute();
 
     ArgumentCaptor<PermissionChange> permissionChangeCaptor = ArgumentCaptor.forClass(PermissionChange.class);
-    verify(permissionService).removePermission(permissionChangeCaptor.capture());
+    verify(permissionUpdater).removePermission(permissionChangeCaptor.capture());
     PermissionChange permissionChange = permissionChangeCaptor.getValue();
     assertThat(permissionChange.group()).isEqualTo("sonar-administrators");
     assertThat(permissionChange.permission()).isEqualTo(SYSTEM_ADMIN);
@@ -85,7 +85,7 @@ public class RemoveGroupActionTest {
       .execute();
 
     ArgumentCaptor<PermissionChange> permissionChangeCaptor = ArgumentCaptor.forClass(PermissionChange.class);
-    verify(permissionService).removePermission(permissionChangeCaptor.capture());
+    verify(permissionUpdater).removePermission(permissionChangeCaptor.capture());
     PermissionChange permissionChange = permissionChangeCaptor.getValue();
     assertThat(permissionChange.group()).isEqualTo("sonar-administrators");
   }
