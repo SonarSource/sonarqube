@@ -123,6 +123,15 @@ public class DumbComponent implements Component {
     return ref;
   }
 
+  @Override
+  public String toString() {
+    return "DumbComponent{" +
+      "ref=" + ref +
+      ", key='" + key + '\'' +
+      ", type=" + type +
+      '}';
+  }
+
   public static Builder builder(Type type, int ref) {
     return new Builder(type, ref);
   }

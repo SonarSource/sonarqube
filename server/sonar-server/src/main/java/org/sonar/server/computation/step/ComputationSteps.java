@@ -58,14 +58,14 @@ public class ComputationSteps {
       CommentMeasuresStep.class,
       CustomMeasuresCopyStep.class,
       DuplicationMeasuresStep.class,
-      // must be executed after the measures required for common rules (coverage, comment density, duplications)
-      IntegrateIssuesStep.class,
       LanguageDistributionMeasuresStep.class,
       UnitTestMeasuresStep.class,
       ComplexityMeasuresStep.class,
 
-      // SQALE measures depend on issues
-      SqaleMeasuresStep.class,
+      // must be executed after the measures required for common rules (coverage, comment density, duplications)
+      IntegrateIssuesStep.class,
+
+      ExecuteVisitorsStep.class,
 
       FeedMeasureComputers.class,
       ComputePluginMeasuresStep.class,

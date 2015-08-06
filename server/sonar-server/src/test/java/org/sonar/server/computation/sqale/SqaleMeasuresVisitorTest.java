@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.step;
 
+package org.sonar.server.computation.sqale;
+
+import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,14 +28,14 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.component.FileAttributes;
+import org.sonar.server.computation.component.Visitor;
+import org.sonar.server.computation.component.VisitorsCrawler;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepoEntry;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
-import org.sonar.server.computation.sqale.SqaleRatingGrid;
-import org.sonar.server.computation.sqale.SqaleRatingSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -51,7 +53,7 @@ import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 import static org.sonar.server.computation.sqale.SqaleRatingGrid.SqaleRating.A;
 import static org.sonar.server.computation.sqale.SqaleRatingGrid.SqaleRating.C;
 
-public class SqaleMeasuresStepTest {
+public class SqaleMeasuresVisitorTest {
 
   private static final String METRIC_KEY_1 = "mKey1";
   private static final String METRIC_KEY_2 = "mKey2";
@@ -59,7 +61,7 @@ public class SqaleMeasuresStepTest {
   private static final Metric METRIC_2 = new MetricImpl(2, METRIC_KEY_2, "metric2", Metric.MetricType.WORK_DUR);
   private static final String LANGUAGE_KEY_1 = "lKey1";
   private static final String LANGUAGE_KEY_2 = "lKey2";
-  private static final double[] RATING_GRID = new double[]{34, 50, 362, 900, 36258};
+  private static final double[] RATING_GRID = new double[] {34, 50, 362, 900, 36258};
   private static final long DEV_COST_LANGUAGE_1 = 33;
   private static final long DEV_COST_LANGUAGE_2 = 42;
 
@@ -67,14 +69,20 @@ public class SqaleMeasuresStepTest {
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
   @Rule
-  public MetricRepositoryRule metricRepository = new MetricRepositoryRule().add(METRIC_1).add(METRIC_2);
+  public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
+    .add(METRIC_1)
+    .add(METRIC_2)
+    .add(CoreMetrics.DEVELOPMENT_COST)
+    .add(CoreMetrics.TECHNICAL_DEBT)
+    .add(CoreMetrics.SQALE_DEBT_RATIO)
+    .add(CoreMetrics.SQALE_RATING);
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
   private SqaleRatingSettings sqaleRatingSettings = mock(SqaleRatingSettings.class);
 
-  private SqaleMeasuresStep underTest = new SqaleMeasuresStep(treeRootHolder, metricRepository, measureRepository, sqaleRatingSettings);
+  private VisitorsCrawler underTest = new VisitorsCrawler(Arrays.<Visitor>asList(new SqaleMeasuresVisitor(metricRepository, measureRepository, sqaleRatingSettings)));
 
   @Before
   public void setUp() {
@@ -84,12 +92,6 @@ public class SqaleMeasuresStepTest {
     when(sqaleRatingSettings.getSizeMetricKey(LANGUAGE_KEY_2)).thenReturn(METRIC_KEY_2);
     when(sqaleRatingSettings.getDevCost(LANGUAGE_KEY_1)).thenReturn(DEV_COST_LANGUAGE_1);
     when(sqaleRatingSettings.getDevCost(LANGUAGE_KEY_2)).thenReturn(DEV_COST_LANGUAGE_2);
-
-    // this measures are always retrieved by the step
-    metricRepository.add(CoreMetrics.DEVELOPMENT_COST);
-    metricRepository.add(CoreMetrics.TECHNICAL_DEBT);
-    metricRepository.add(CoreMetrics.SQALE_DEBT_RATIO);
-    metricRepository.add(CoreMetrics.SQALE_RATING);
   }
 
   @Test
@@ -97,13 +99,13 @@ public class SqaleMeasuresStepTest {
     DumbComponent root = DumbComponent.builder(PROJECT, 1).build();
     treeRootHolder.setRoot(root);
 
-    underTest.execute();
+    underTest.visit(root);
 
     assertThat(toEntries(measureRepository.getRawMeasures(root))).containsOnly(
       MeasureRepoEntry.entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create("0")),
       MeasureRepoEntry.entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(0d)),
       MeasureRepoEntry.entryOf(SQALE_RATING_KEY, createSqaleRatingMeasure(A))
-    );
+      );
   }
 
   private Measure createSqaleRatingMeasure(SqaleRatingGrid.SqaleRating sqaleRating) {
@@ -125,7 +127,7 @@ public class SqaleMeasuresStepTest {
    * processing a tree of a single Component of type FILE.
    */
   private void verify_computation_of_measure_for_file(long debt, long languageCost, String metricKey, String languageKey,
-                                                      SqaleRatingGrid.SqaleRating expectedRating) {
+    SqaleRatingGrid.SqaleRating expectedRating) {
     long measureValue = 10;
 
     DumbComponent fileComponent = createFileComponent(languageKey, 1);
@@ -133,7 +135,7 @@ public class SqaleMeasuresStepTest {
     measureRepository.addRawMeasure(fileComponent.getRef(), metricKey, newMeasureBuilder().create(measureValue));
     measureRepository.addRawMeasure(fileComponent.getRef(), TECHNICAL_DEBT_KEY, newMeasureBuilder().create(debt));
 
-    underTest.execute();
+    underTest.visit(fileComponent);
 
     verifyFileMeasures(fileComponent.getRef(), measureValue, debt, languageCost, expectedRating);
   }
@@ -199,7 +201,7 @@ public class SqaleMeasuresStepTest {
     long debt1 = 9999l;
     measureRepository.addRawMeasure(1, TECHNICAL_DEBT_KEY, newMeasureBuilder().create(debt1));
 
-    underTest.execute();
+    underTest.visit(root);
 
     // verify measures on files
     verifyFileMeasures(1111, measureValue1111, debt1111, DEV_COST_LANGUAGE_1, C);
@@ -245,7 +247,7 @@ public class SqaleMeasuresStepTest {
       MeasureRepoEntry.entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create(Long.toString(expectedDevCost))),
       MeasureRepoEntry.entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(expectedDebtRatio * 100.0)),
       MeasureRepoEntry.entryOf(SQALE_RATING_KEY, createSqaleRatingMeasure(expectedRating))
-    );
+      );
   }
 
 }

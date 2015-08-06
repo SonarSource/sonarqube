@@ -17,36 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.container;
 
-import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.computation.ReportQueue.Item;
+package org.sonar.server.computation.step;
+
+import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.Visitor;
-import org.sonar.server.computation.step.ComputationStep;
+import org.sonar.server.computation.component.VisitorsCrawler;
 
-/**
- * The Compute Engine container. Created for a specific parent {@link ComponentContainer} and a specific {@link Item}.
- */
-public interface ComputeEngineContainer {
-  Item getItem();
+public class ExecuteVisitorsStep implements ComputationStep {
+  private final TreeRootHolder treeRootHolder;
+  private final Iterable<Visitor> visitors;
 
-  ComponentContainer getParent();
+  public ExecuteVisitorsStep(TreeRootHolder treeRootHolder, ComponentVisitors visitors) {
+    this.treeRootHolder = treeRootHolder;
+    this.visitors = visitors.instances();
+  }
 
-  /**
-   * Process the current {@link Item}
-   */
-  void process();
+  @Override
+  public void execute() {
+    new VisitorsCrawler(visitors).visit(treeRootHolder.getRoot());
+  }
 
-  /**
-   * Clean's up resources after process has been called and has returned.
-   */
-  void cleanup();
-
-  /**
-   */
-  <T extends ComputationStep> T getStep(Class<T> type);
-
-  <T extends Visitor> T getComponentVisitor(Class<T> type);
-
-
+  @Override
+  public String getDescription() {
+    return "Execute Visitors";
+  }
 }
