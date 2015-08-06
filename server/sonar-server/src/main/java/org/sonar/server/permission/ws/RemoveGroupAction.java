@@ -24,25 +24,33 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.permission.PermissionService;
+import org.sonar.db.DbClient;
 import org.sonar.server.permission.PermissionChange;
+import org.sonar.server.permission.PermissionService;
+
+import static org.sonar.server.permission.ws.PermissionWsCommons.searchName;
 
 public class RemoveGroupAction implements PermissionsWsAction {
 
   public static final String ACTION = "remove_group";
   public static final String PARAM_PERMISSION = "permission";
   public static final String PARAM_GROUP_NAME = "groupName";
+  public static final String PARAM_GROUP_ID = "groupId";
 
   private final PermissionService permissionService;
+  private final DbClient dbClient;
 
-  public RemoveGroupAction(PermissionService permissionService) {
+  public RemoveGroupAction(PermissionService permissionService, DbClient dbClient) {
     this.permissionService = permissionService;
+    this.dbClient = dbClient;
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
-      .setDescription("Remove permission from a group.<br /> Requires 'Administer System' permission.")
+      .setDescription("Remove permission from a group.<br /> " +
+        "The group id or group name must be provided, not both.<br />" +
+        "Requires 'Administer System' permission.")
       .setSince("5.2")
       .setPost(true)
       .setHandler(this);
@@ -53,15 +61,22 @@ public class RemoveGroupAction implements PermissionsWsAction {
       .setPossibleValues(GlobalPermissions.ALL);
 
     action.createParam(PARAM_GROUP_NAME)
-      .setRequired(true)
       .setDescription("Group name or 'anyone' (whatever the case)")
       .setExampleValue("sonar-administrators");
+
+    action.createParam(PARAM_GROUP_ID)
+      .setDescription("Group ID")
+      .setExampleValue("42");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     String permission = request.mandatoryParam(PARAM_PERMISSION);
-    String groupName = request.mandatoryParam(PARAM_GROUP_NAME);
+    String groupNameParam = request.param(PARAM_GROUP_NAME);
+    Long groupId = request.paramAsLong(PARAM_GROUP_ID);
+
+    String groupName = searchName(dbClient, groupNameParam, groupId);
+
     permissionService.removePermission(
       new PermissionChange()
         .setPermission(permission)

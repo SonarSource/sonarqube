@@ -20,18 +20,15 @@
 
 package org.sonar.server.permission.ws;
 
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.user.GroupDto;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
+
+import static org.sonar.server.permission.ws.PermissionWsCommons.searchName;
 
 public class AddGroupAction implements PermissionsWsAction {
 
@@ -78,41 +75,14 @@ public class AddGroupAction implements PermissionsWsAction {
     String groupNameParam = request.param(PARAM_GROUP_NAME);
     Long groupId = request.paramAsLong(PARAM_GROUP_ID);
 
-    String groupName = searchName(groupNameParam, groupId);
+    String groupName = searchName(dbClient, groupNameParam, groupId);
 
     permissionUpdater.addPermission(
       new PermissionChange()
         .setPermission(permission)
         .setGroup(groupName)
-    );
+      );
 
     response.noContent();
-  }
-
-  private String searchName(@Nullable String groupNameParam, @Nullable Long groupId) {
-    checkParameters(groupNameParam, groupId);
-    if (groupNameParam != null) {
-      return groupNameParam;
-    }
-
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      GroupDto group = dbClient.groupDao().selectById(dbSession, groupId);
-      if (group == null) {
-        throw new NotFoundException(String.format("Group with id '%d' not found", groupId));
-      }
-
-      return group.getName();
-    } finally {
-      dbClient.closeSession(dbSession);
-    }
-  }
-
-  private void checkParameters(@Nullable String groupName, @Nullable Long groupId) {
-    if (groupName != null ^ groupId != null) {
-      return;
-    }
-
-    throw new BadRequestException("Group name or group id must be provided, not both");
   }
 }

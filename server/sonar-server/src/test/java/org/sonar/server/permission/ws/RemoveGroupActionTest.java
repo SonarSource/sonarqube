@@ -27,6 +27,9 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.GroupDto;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.PermissionChange;
@@ -52,7 +55,7 @@ public class RemoveGroupActionTest {
   public void setUp() {
     permissionService = mock(PermissionService.class);
     ws = new WsTester(new PermissionsWs(
-      new RemoveGroupAction(permissionService)));
+      new RemoveGroupAction(permissionService, db.getDbClient())));
     userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 
@@ -71,6 +74,23 @@ public class RemoveGroupActionTest {
   }
 
   @Test
+  public void remove_group_by_id() throws Exception {
+    GroupDto group = db.getDbClient().groupDao().insert(db.getSession(), new GroupDto()
+      .setName("sonar-administrators"));
+    db.getSession().commit();
+
+    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
+      .setParam(RemoveGroupAction.PARAM_GROUP_ID, group.getId().toString())
+      .setParam(RemoveGroupAction.PARAM_PERMISSION, SYSTEM_ADMIN)
+      .execute();
+
+    ArgumentCaptor<PermissionChange> permissionChangeCaptor = ArgumentCaptor.forClass(PermissionChange.class);
+    verify(permissionService).removePermission(permissionChangeCaptor.capture());
+    PermissionChange permissionChange = permissionChangeCaptor.getValue();
+    assertThat(permissionChange.group()).isEqualTo("sonar-administrators");
+  }
+
+  @Test
   public void get_request_are_not_authorized() throws Exception {
     expectedException.expect(ServerException.class);
 
@@ -82,7 +102,7 @@ public class RemoveGroupActionTest {
 
   @Test
   public void fail_when_group_name_is_missing() throws Exception {
-    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expect(BadRequestException.class);
 
     ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
       .setParam(RemoveGroupAction.PARAM_PERMISSION, SYSTEM_ADMIN)
@@ -90,11 +110,22 @@ public class RemoveGroupActionTest {
   }
 
   @Test
-  public void fail_when_permission_is_missing() throws Exception {
+  public void fail_when_permission_name_and_id_are_missing() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
 
     ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
       .setParam(RemoveGroupAction.PARAM_GROUP_NAME, "sonar-administrators")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_group_id_does_not_exist() throws Exception {
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Group with id '42' is not found");
+
+    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
+      .setParam(RemoveGroupAction.PARAM_PERMISSION, SYSTEM_ADMIN)
+      .setParam(RemoveGroupAction.PARAM_GROUP_ID, "42")
       .execute();
   }
 }
