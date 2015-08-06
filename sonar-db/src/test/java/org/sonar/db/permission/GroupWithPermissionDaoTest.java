@@ -131,10 +131,10 @@ public class GroupWithPermissionDaoTest {
     db.prepareDbUnit(getClass(), "groups_with_permissions_should_be_sorted_by_group_name.xml");
 
     List<GroupWithPermissionDto> result = underTest.selectGroups(session, PermissionQuery.builder().permission("user").build(), COMPONENT_ID);
-    int count = underTest.countGroups(session, PermissionQuery.builder().permission("user").build(), COMPONENT_ID);
+    int count = underTest.countGroups(session, "user", COMPONENT_ID);
 
     assertThat(result).hasSize(4);
-    assertThat(count).isEqualTo(4);
+    assertThat(count).isEqualTo(2);
     assertThat(result.get(0).getName()).isEqualTo("Anyone");
     assertThat(result.get(1).getName()).isEqualTo("sonar-administrators");
     assertThat(result.get(2).getName()).isEqualTo("sonar-reviewers");
