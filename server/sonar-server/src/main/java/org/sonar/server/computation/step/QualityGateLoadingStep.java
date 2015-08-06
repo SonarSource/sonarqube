@@ -26,7 +26,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.qualitygate.MutableQualityGateHolder;
@@ -34,7 +34,7 @@ import org.sonar.server.computation.qualitygate.QualityGate;
 import org.sonar.server.computation.qualitygate.QualityGateService;
 
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
-import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.ComponentCrawler.Order.PRE_ORDER;
 
 /**
  * This step retrieves the QualityGate for the current {@link ReportQueue.Item} and stores it in
@@ -60,7 +60,7 @@ public class QualityGateLoadingStep implements ComputationStep {
 
   @Override
   public void execute() {
-    new DepthTraversalTypeAwareVisitor(PROJECT, PRE_ORDER) {
+    new DepthTraversalTypeAwareCrawler(PROJECT, PRE_ORDER) {
       @Override
       public void visitProject(Component project) {
         executeForProject(project);

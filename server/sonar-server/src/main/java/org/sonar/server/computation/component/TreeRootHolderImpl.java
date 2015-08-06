@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
+import static org.sonar.server.computation.component.ComponentCrawler.Order.POST_ORDER;
 
 /**
  * Holds the reference to the root of the {@link Component} tree for the current CE run.
@@ -63,7 +63,7 @@ public class TreeRootHolderImpl implements MutableTreeRootHolder {
   }
 
   private void feedComponentsByRef() {
-    new DepthTraversalTypeAwareVisitor(Component.Type.FILE, POST_ORDER) {
+    new DepthTraversalTypeAwareCrawler(Component.Type.FILE, POST_ORDER) {
       @Override
       public void visitAny(Component component) {
         componentsByRef.put(component.getRef(), component);

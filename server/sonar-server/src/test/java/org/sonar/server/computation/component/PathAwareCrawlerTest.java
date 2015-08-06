@@ -38,10 +38,10 @@ import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
-import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
-import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.ComponentCrawler.Order.POST_ORDER;
+import static org.sonar.server.computation.component.ComponentCrawler.Order.PRE_ORDER;
 
-public class PathAwareVisitorTest {
+public class PathAwareCrawlerTest {
 
   private static final int ROOT_REF = 1;
   private static final DumbComponent SOME_TREE_ROOT = DumbComponent.builder(PROJECT, ROOT_REF)
@@ -75,7 +75,7 @@ public class PathAwareVisitorTest {
 
   @Test
   public void verify_preOrder_visit_call_when_visit_tree_with_depth_FILE() {
-    TestPathAwareVisitor underTest = new TestPathAwareVisitor(FILE, PRE_ORDER);
+    TestPathAwareCrawler underTest = new TestPathAwareCrawler(FILE, PRE_ORDER);
     underTest.visit(SOME_TREE_ROOT);
 
     Iterator<CallRecord> expected = of(
@@ -107,7 +107,7 @@ public class PathAwareVisitorTest {
 
   @Test
   public void verify_preOrder_visit_call_when_visit_tree_with_depth_DIRECTORY() {
-    TestPathAwareVisitor underTest = new TestPathAwareVisitor(DIRECTORY, PRE_ORDER);
+    TestPathAwareCrawler underTest = new TestPathAwareCrawler(DIRECTORY, PRE_ORDER);
     underTest.visit(SOME_TREE_ROOT);
 
     Iterator<CallRecord> expected = of(
@@ -131,7 +131,7 @@ public class PathAwareVisitorTest {
 
   @Test
   public void verify_preOrder_visit_call_when_visit_tree_with_depth_MODULE() {
-    TestPathAwareVisitor underTest = new TestPathAwareVisitor(MODULE, PRE_ORDER);
+    TestPathAwareCrawler underTest = new TestPathAwareCrawler(MODULE, PRE_ORDER);
     underTest.visit(SOME_TREE_ROOT);
 
     Iterator<CallRecord> expected = of(
@@ -149,7 +149,7 @@ public class PathAwareVisitorTest {
 
   @Test
   public void verify_preOrder_visit_call_when_visit_tree_with_depth_PROJECT() {
-    TestPathAwareVisitor underTest = new TestPathAwareVisitor(PROJECT, PRE_ORDER);
+    TestPathAwareCrawler underTest = new TestPathAwareCrawler(PROJECT, PRE_ORDER);
     underTest.visit(SOME_TREE_ROOT);
 
     Iterator<CallRecord> expected = of(
@@ -161,7 +161,7 @@ public class PathAwareVisitorTest {
 
   @Test
   public void verify_postOrder_visit_call_when_visit_tree_with_depth_FILE() {
-    TestPathAwareVisitor underTest = new TestPathAwareVisitor(FILE, POST_ORDER);
+    TestPathAwareCrawler underTest = new TestPathAwareCrawler(FILE, POST_ORDER);
     underTest.visit(SOME_TREE_ROOT);
 
     Iterator<CallRecord> expected = of(
@@ -193,7 +193,7 @@ public class PathAwareVisitorTest {
 
   @Test
   public void verify_postOrder_visit_call_when_visit_tree_with_depth_DIRECTORY() {
-    TestPathAwareVisitor underTest = new TestPathAwareVisitor(DIRECTORY, POST_ORDER);
+    TestPathAwareCrawler underTest = new TestPathAwareCrawler(DIRECTORY, POST_ORDER);
     underTest.visit(SOME_TREE_ROOT);
 
     Iterator<CallRecord> expected = of(
@@ -217,7 +217,7 @@ public class PathAwareVisitorTest {
 
   @Test
   public void verify_postOrder_visit_call_when_visit_tree_with_depth_MODULE() {
-    TestPathAwareVisitor underTest = new TestPathAwareVisitor(MODULE, POST_ORDER);
+    TestPathAwareCrawler underTest = new TestPathAwareCrawler(MODULE, POST_ORDER);
     underTest.visit(SOME_TREE_ROOT);
 
     Iterator<CallRecord> expected = of(
@@ -235,7 +235,7 @@ public class PathAwareVisitorTest {
 
   @Test
   public void verify_postOrder_visit_call_when_visit_tree_with_depth_PROJECT() {
-    TestPathAwareVisitor underTest = new TestPathAwareVisitor(PROJECT, POST_ORDER);
+    TestPathAwareCrawler underTest = new TestPathAwareCrawler(PROJECT, POST_ORDER);
     underTest.visit(SOME_TREE_ROOT);
 
     Iterator<CallRecord> expected = of(
@@ -255,10 +255,10 @@ public class PathAwareVisitorTest {
     return new CallRecord(method, currentRef, currentRef, parentRef, ROOT_REF, path);
   }
 
-  private static class TestPathAwareVisitor extends PathAwareVisitor<Integer> {
+  private static class TestPathAwareCrawler extends PathAwareCrawler<Integer> {
     private final List<CallRecord> callsRecords = new ArrayList<>();
 
-    public TestPathAwareVisitor(Component.Type maxDepth, ComponentVisitor.Order order) {
+    public TestPathAwareCrawler(Component.Type maxDepth, ComponentCrawler.Order order) {
       super(maxDepth, order, new SimpleStackElementFactory<Integer>() {
         @Override
         public Integer createForAny(Component component) {

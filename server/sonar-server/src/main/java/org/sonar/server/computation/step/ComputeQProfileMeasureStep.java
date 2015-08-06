@@ -26,7 +26,7 @@ import java.util.Map;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.MessageException;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.PathAwareVisitor;
+import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
@@ -36,7 +36,7 @@ import org.sonar.server.computation.qualityprofile.QPMeasureData;
 import org.sonar.server.computation.qualityprofile.QualityProfile;
 
 import static org.sonar.server.computation.component.Component.Type.MODULE;
-import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
+import static org.sonar.server.computation.component.ComponentCrawler.Order.POST_ORDER;
 
 /**
  * Aggregates quality profile on lower-level module nodes on their parent modules and project
@@ -56,14 +56,14 @@ public class ComputeQProfileMeasureStep implements ComputationStep {
   @Override
   public void execute() {
     Metric qProfilesMetric = metricRepository.getByKey(CoreMetrics.QUALITY_PROFILES_KEY);
-    new NewCoverageAggregationComponentVisitor(qProfilesMetric).visit(treeRootHolder.getRoot());
+    new NewCoverageAggregationComponentCrawler(qProfilesMetric).visit(treeRootHolder.getRoot());
   }
 
-  private class NewCoverageAggregationComponentVisitor extends PathAwareVisitor<QProfiles> {
+  private class NewCoverageAggregationComponentCrawler extends PathAwareCrawler<QProfiles> {
 
     private final Metric qProfilesMetric;
 
-    public NewCoverageAggregationComponentVisitor(Metric qProfilesMetric) {
+    public NewCoverageAggregationComponentCrawler(Metric qProfilesMetric) {
       super(MODULE, POST_ORDER, new SimpleStackElementFactory<QProfiles>() {
         @Override
         public QProfiles createForAny(Component component) {

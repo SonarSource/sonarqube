@@ -22,10 +22,10 @@ package org.sonar.server.computation.step;
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.PathAwareVisitor;
+import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.Formula;
-import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
+import org.sonar.server.computation.formula.FormulaExecutorComponentCrawler;
 import org.sonar.server.computation.formula.SumFormula;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
@@ -40,7 +40,7 @@ import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.STATEMENTS_KEY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
-import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
+import static org.sonar.server.computation.component.ComponentCrawler.Order.POST_ORDER;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
 /**
@@ -74,9 +74,9 @@ public class SizeMeasuresStep implements ComputationStep {
     Metric fileMetric = metricRepository.getByKey(CoreMetrics.FILES_KEY);
     Metric directoryMetric = metricRepository.getByKey(CoreMetrics.DIRECTORIES_KEY);
 
-    new FileAndDirectoryMeasureVisitor(directoryMetric, fileMetric)
+    new FileAndDirectoryMeasureCrawler(directoryMetric, fileMetric)
       .visit(treeRootHolder.getRoot());
-    FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
+    FormulaExecutorComponentCrawler.newBuilder(metricRepository, measureRepository)
       .buildFor(AGGREGATED_SIZE_MEASURE_FORMULAS)
       .visit(treeRootHolder.getRoot());
   }
@@ -86,11 +86,11 @@ public class SizeMeasuresStep implements ComputationStep {
     return "File and Directory measures";
   }
 
-  private class FileAndDirectoryMeasureVisitor extends PathAwareVisitor<Counter> {
+  private class FileAndDirectoryMeasureCrawler extends PathAwareCrawler<Counter> {
     private final Metric directoryMetric;
     private final Metric fileMetric;
 
-    public FileAndDirectoryMeasureVisitor(Metric directoryMetric, Metric fileMetric) {
+    public FileAndDirectoryMeasureCrawler(Metric directoryMetric, Metric fileMetric) {
       super(FILE, POST_ORDER, COUNTER_STACK_ELEMENT_FACTORY);
       this.directoryMetric = directoryMetric;
       this.fileMetric = fileMetric;
@@ -142,7 +142,7 @@ public class SizeMeasuresStep implements ComputationStep {
 
   }
 
-  private static class CounterStackElementFactory extends PathAwareVisitor.SimpleStackElementFactory<Counter> {
+  private static class CounterStackElementFactory extends PathAwareCrawler.SimpleStackElementFactory<Counter> {
     @Override
     public Counter createForAny(Component component) {
       return new Counter();

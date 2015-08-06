@@ -22,7 +22,7 @@ package org.sonar.server.computation.step;
 import com.google.common.base.Optional;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.PathAwareVisitor;
+import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
@@ -49,7 +49,7 @@ public class SqaleMeasuresStep implements ComputationStep {
 
   @Override
   public void execute() {
-    new SqaleMeasuresVisitor().visit(treeRootHolder.getRoot());
+    new SqaleMeasuresCrawler().visit(treeRootHolder.getRoot());
   }
 
   @Override
@@ -57,13 +57,13 @@ public class SqaleMeasuresStep implements ComputationStep {
     return "Compute Sqale related measures";
   }
 
-  private class SqaleMeasuresVisitor extends PathAwareVisitor<DevelopmentCost> {
+  private class SqaleMeasuresCrawler extends PathAwareCrawler<DevelopmentCost> {
     private final Metric developmentCostMetric;
     private final Metric technicalDebtMetric;
     private final Metric debtRatioMetric;
     private final Metric sqaleRatingMetric;
 
-    public SqaleMeasuresVisitor() {
+    public SqaleMeasuresCrawler() {
       super(Component.Type.FILE, Order.POST_ORDER, new SimpleStackElementFactory<DevelopmentCost>() {
         @Override
         public DevelopmentCost createForAny(Component component) {

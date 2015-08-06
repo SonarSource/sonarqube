@@ -27,7 +27,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.issue.BaseIssuesLoader;
 import org.sonar.server.computation.issue.IssueCache;
@@ -36,7 +36,7 @@ import org.sonar.server.computation.issue.IssueVisitors;
 import org.sonar.server.computation.issue.TrackerExecution;
 import org.sonar.server.util.cache.DiskCache;
 
-import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
+import static org.sonar.server.computation.component.ComponentCrawler.Order.POST_ORDER;
 
 public class IntegrateIssuesStep implements ComputationStep {
 
@@ -63,7 +63,7 @@ public class IntegrateIssuesStep implements ComputationStep {
     // all the components that had issues before this analysis
     final Set<String> unprocessedComponentUuids = Sets.newHashSet(baseIssuesLoader.loadUuidsOfComponentsWithOpenIssues());
 
-    new DepthTraversalTypeAwareVisitor(Component.Type.FILE, POST_ORDER) {
+    new DepthTraversalTypeAwareCrawler(Component.Type.FILE, POST_ORDER) {
       @Override
       public void visitAny(Component component) {
         processIssues(component);

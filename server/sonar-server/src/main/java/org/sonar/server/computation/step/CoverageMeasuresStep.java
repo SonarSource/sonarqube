@@ -22,7 +22,7 @@ package org.sonar.server.computation.step;
 import com.google.common.collect.ImmutableList;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.Formula;
-import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
+import org.sonar.server.computation.formula.FormulaExecutorComponentCrawler;
 import org.sonar.server.computation.formula.SumFormula;
 import org.sonar.server.computation.formula.coverage.LinesAndConditionsWithUncoveredFormula;
 import org.sonar.server.computation.formula.coverage.LinesAndConditionsWithUncoveredMetricKeys;
@@ -98,7 +98,7 @@ public class CoverageMeasuresStep implements ComputationStep {
 
   @Override
   public void execute() {
-    FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
+    FormulaExecutorComponentCrawler.newBuilder(metricRepository, measureRepository)
       .buildFor(COVERAGE_FORMULAS)
       .visit(treeRootHolder.getRoot());
   }

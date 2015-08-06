@@ -25,22 +25,22 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import static java.util.Objects.requireNonNull;
-import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
-import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.ComponentCrawler.Order.POST_ORDER;
+import static org.sonar.server.computation.component.ComponentCrawler.Order.PRE_ORDER;
 
 /**
  * A ComponentVisitor which provide access to a representation of the path from the root to the currently visited
  * Component. It also provides a way to have an object associated to each Component and access it and all of its
  * parent's.
- * As for {@link DepthTraversalTypeAwareVisitor}, this visitor supports max depth visit and ordering.
+ * As for {@link DepthTraversalTypeAwareCrawler}, this visitor supports max depth visit and ordering.
  */
-public abstract class PathAwareVisitor<T> implements ComponentVisitor {
+public abstract class PathAwareCrawler<T> implements ComponentCrawler {
   private final Component.Type maxDepth;
   private final Order order;
   private final StackElementFactory<T> factory;
   private final DequeBasedPath<T> stack = new DequeBasedPath<>();
 
-  public PathAwareVisitor(Component.Type maxDepth, Order order, StackElementFactory<T> factory) {
+  public PathAwareCrawler(Component.Type maxDepth, Order order, StackElementFactory<T> factory) {
     this.maxDepth = requireNonNull(maxDepth);
     this.order = requireNonNull(order);
     this.factory = requireNonNull(factory, "Factory can not be null");
@@ -254,9 +254,9 @@ public abstract class PathAwareVisitor<T> implements ComponentVisitor {
     T root();
 
     /**
-     * The path to the current Component as an Iterable of {@link PathAwareVisitor.PathElement} which starts with
-     * the {@link PathAwareVisitor.PathElement} of the current Component and ends with the
-     * {@link PathAwareVisitor.PathElement} of the root of the tree.
+     * The path to the current Component as an Iterable of {@link PathAwareCrawler.PathElement} which starts with
+     * the {@link PathAwareCrawler.PathElement} of the current Component and ends with the
+     * {@link PathAwareCrawler.PathElement} of the root of the tree.
      */
     Iterable<PathElement<T>> getCurrentPath();
   }

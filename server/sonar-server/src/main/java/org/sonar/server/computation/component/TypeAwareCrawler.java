@@ -20,9 +20,9 @@
 package org.sonar.server.computation.component;
 
 /**
- * A {@link ComponentVisitor} which can exposes methods which ensure the type of the visited Component.
+ * A {@link ComponentCrawler} which can exposes methods which ensure the type of the visited Component.
  */
-public interface TypeAwareVisitor extends ComponentVisitor {
+public interface TypeAwareCrawler extends ComponentCrawler {
   /**
    * Called when encountering a Component of type {@link Component.Type#PROJECT}
    */

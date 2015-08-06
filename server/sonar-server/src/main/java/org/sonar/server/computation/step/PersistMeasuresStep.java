@@ -33,7 +33,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
-import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.measure.BestValueOptimization;
 import org.sonar.server.computation.measure.Measure;
@@ -46,7 +46,7 @@ import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY;
-import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.ComponentCrawler.Order.PRE_ORDER;
 
 public class PersistMeasuresStep implements ComputationStep {
 
@@ -83,17 +83,17 @@ public class PersistMeasuresStep implements ComputationStep {
   public void execute() {
     DbSession dbSession = dbClient.openSession(true);
     try {
-      new MeasureVisitor(dbSession).visit(treeRootHolder.getRoot());
+      new MeasureCrawler(dbSession).visit(treeRootHolder.getRoot());
       dbSession.commit();
     } finally {
       dbSession.close();
     }
   }
 
-  private class MeasureVisitor extends DepthTraversalTypeAwareVisitor {
+  private class MeasureCrawler extends DepthTraversalTypeAwareCrawler {
     private final DbSession session;
 
-    private MeasureVisitor(DbSession session) {
+    private MeasureCrawler(DbSession session) {
       super(Component.Type.FILE, PRE_ORDER);
       this.session = session;
     }

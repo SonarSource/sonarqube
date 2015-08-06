@@ -23,17 +23,17 @@ package org.sonar.server.computation.step;
 import com.google.common.base.Function;
 import javax.annotation.Nonnull;
 import org.sonar.api.utils.System2;
-import org.sonar.db.event.EventDto;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.event.EventDto;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
-import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
-import org.sonar.db.DbClient;
 
 import static com.google.common.collect.Iterables.transform;
 
@@ -61,7 +61,7 @@ public class PersistEventsStep implements ComputationStep {
     final DbSession session = dbClient.openSession(false);
     try {
       long analysisDate = reportReader.readMetadata().getAnalysisDate();
-      new PersistEventComponentVisitor(session, analysisDate).visit(treeRootHolder.getRoot());
+      new PersistEventComponentCrawler(session, analysisDate).visit(treeRootHolder.getRoot());
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -133,11 +133,11 @@ public class PersistEventsStep implements ComputationStep {
     return "Persist component links";
   }
 
-  private class PersistEventComponentVisitor extends DepthTraversalTypeAwareVisitor {
+  private class PersistEventComponentCrawler extends DepthTraversalTypeAwareCrawler {
     private final DbSession session;
     private final long analysisDate;
 
-    public PersistEventComponentVisitor(DbSession session, long analysisDate) {
+    public PersistEventComponentCrawler(DbSession session, long analysisDate) {
       super(Component.Type.FILE, Order.PRE_ORDER);
       this.session = session;
       this.analysisDate = analysisDate;

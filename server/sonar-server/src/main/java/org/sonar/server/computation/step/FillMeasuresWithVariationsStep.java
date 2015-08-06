@@ -35,7 +35,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.PastMeasureDto;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureKey;
@@ -46,7 +46,7 @@ import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
 
-import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.ComponentCrawler.Order.PRE_ORDER;
 
 /**
  * Set variations on all numeric measures found in the repository.
@@ -85,19 +85,19 @@ public class FillMeasuresWithVariationsStep implements ComputationStep {
     DbSession dbSession = dbClient.openSession(false);
     try {
       Iterable<Metric> metrics = FluentIterable.from(metricRepository.getAll()).filter(NumericMetric.INSTANCE);
-      new VariationMeasuresVisitor(dbSession, metrics).visit(treeRootHolder.getRoot());
+      new VariationMeasuresCrawler(dbSession, metrics).visit(treeRootHolder.getRoot());
     } finally {
       dbSession.close();
     }
   }
 
-  private class VariationMeasuresVisitor extends DepthTraversalTypeAwareVisitor {
+  private class VariationMeasuresCrawler extends DepthTraversalTypeAwareCrawler {
 
     private final DbSession session;
     private final Set<Integer> metricIds;
     private final Map<String, Metric> metricByKeys;
 
-    public VariationMeasuresVisitor(DbSession session, Iterable<Metric> metrics) {
+    public VariationMeasuresCrawler(DbSession session, Iterable<Metric> metrics) {
       // measures on files are currently purged, so past measures are not available on files
       super(Component.Type.DIRECTORY, PRE_ORDER);
       this.session = session;
