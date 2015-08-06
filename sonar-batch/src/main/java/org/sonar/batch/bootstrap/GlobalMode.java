@@ -25,38 +25,45 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 
-import java.text.MessageFormat;
-
 public class GlobalMode {
   private static final Logger LOG = LoggerFactory.getLogger(GlobalMode.class);
   private boolean preview;
+  private boolean issues;
 
   public boolean isPreview() {
     return preview;
   }
 
+  public boolean isIssues() {
+    return issues;
+  }
+
+  public boolean isPublish() {
+    return !preview && !issues;
+  }
+
   public GlobalMode(BootstrapProperties props) {
-    if (props.property(CoreProperties.DRY_RUN) != null) {
-      LOG.warn(MessageFormat.format("Property {0} is deprecated. Please use {1} instead.", CoreProperties.DRY_RUN, CoreProperties.ANALYSIS_MODE));
-      preview = "true".equals(props.property(CoreProperties.DRY_RUN));
-    } else {
-      String mode = props.property(CoreProperties.ANALYSIS_MODE);
-      validate(mode);
-      preview = CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode) || CoreProperties.ANALYSIS_MODE_QUICK.equals(mode);
-    }
+    String mode = props.property(CoreProperties.ANALYSIS_MODE);
+    validate(mode);
+    preview = CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
+    issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode);
 
     if (preview) {
       LOG.info("Preview global mode");
+    } else if (issues) {
+      LOG.info("Issues global mode");
+    } else {
+      LOG.info("Publish global mode");
     }
   }
 
-  private void validate(String mode) {
+  private static void validate(String mode) {
     if (StringUtils.isEmpty(mode)) {
       return;
     }
 
-    if (!CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode) && !CoreProperties.ANALYSIS_MODE_QUICK.equals(mode) &&
-      !CoreProperties.ANALYSIS_MODE_ANALYSIS.equals(mode)) {
+    if (!CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode) && !CoreProperties.ANALYSIS_MODE_PUBLISH.equals(mode) &&
+      !CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode)) {
       throw new IllegalStateException("Invalid analysis mode: " + mode);
     }
   }

@@ -63,15 +63,15 @@ public class ProjectAnalysisModeTest {
 
     assertThat(mode.isPreview()).isTrue();
   }
-  
+
   @Test
   public void default_publish_mode() {
     ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_PREVIEW);
     assertThat(mode.isPublish()).isFalse();
-    
+
     mode = createMode(CoreProperties.ANALYSIS_MODE_ISSUES);
     assertThat(mode.isPublish()).isFalse();
-    
+
     mode = createMode(null);
 
     assertThat(mode.isPublish()).isTrue();
@@ -82,19 +82,6 @@ public class ProjectAnalysisModeTest {
     ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_ISSUES);
 
     assertThat(mode.isIssues()).isTrue();
-  }
-
-  @Test
-  public void support_deprecated_dryrun_property() {
-    Map<String, String> bootstrapMap = new HashMap<>();
-    Map<String, String> analysisMap = new HashMap<>();
-
-    analysisMap.put(CoreProperties.DRY_RUN, "true");
-    bootstrapMap.put(CoreProperties.DRY_RUN, "true");
-
-    ProjectAnalysisMode mode = new ProjectAnalysisMode(new BootstrapProperties(bootstrapMap), new AnalysisProperties(analysisMap));
-
-    assertThat(mode.isPreview()).isTrue();
   }
 
   private static ProjectAnalysisMode createMode(@Nullable String mode) {

@@ -24,7 +24,6 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.Set;
 
@@ -47,7 +46,6 @@ public class BatchPluginPredicate implements Predicate<String> {
   private static final Logger LOG = Loggers.get(BatchPluginPredicate.class);
 
   private static final String BUILDBREAKER_PLUGIN_KEY = "buildbreaker";
-  private static final String PROPERTY_IS_DEPRECATED_MSG = "Property {0} is deprecated. Please use {1} instead.";
   private static final Joiner COMMA_JOINER = Joiner.on(", ");
 
   private final Set<String> whites = newHashSet();
@@ -59,22 +57,10 @@ public class BatchPluginPredicate implements Predicate<String> {
     if (mode.isPreview()) {
       // These default values are not supported by Settings because the class CorePlugin
       // is not loaded yet.
-      if (settings.hasKey(CoreProperties.DRY_RUN_INCLUDE_PLUGINS)) {
-        LOG.warn(MessageFormat.format(PROPERTY_IS_DEPRECATED_MSG, CoreProperties.DRY_RUN_INCLUDE_PLUGINS, CoreProperties.PREVIEW_INCLUDE_PLUGINS));
-        whites.addAll(propertyValues(settings,
-          CoreProperties.DRY_RUN_INCLUDE_PLUGINS, CoreProperties.PREVIEW_INCLUDE_PLUGINS_DEFAULT_VALUE));
-      } else {
-        whites.addAll(propertyValues(settings,
-          CoreProperties.PREVIEW_INCLUDE_PLUGINS, CoreProperties.PREVIEW_INCLUDE_PLUGINS_DEFAULT_VALUE));
-      }
-      if (settings.hasKey(CoreProperties.DRY_RUN_EXCLUDE_PLUGINS)) {
-        LOG.warn(MessageFormat.format(PROPERTY_IS_DEPRECATED_MSG, CoreProperties.DRY_RUN_EXCLUDE_PLUGINS, CoreProperties.PREVIEW_EXCLUDE_PLUGINS));
-        blacks.addAll(propertyValues(settings,
-          CoreProperties.DRY_RUN_EXCLUDE_PLUGINS, CoreProperties.PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE));
-      } else {
-        blacks.addAll(propertyValues(settings,
-          CoreProperties.PREVIEW_EXCLUDE_PLUGINS, CoreProperties.PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE));
-      }
+      whites.addAll(propertyValues(settings,
+        CoreProperties.PREVIEW_INCLUDE_PLUGINS, CoreProperties.PREVIEW_INCLUDE_PLUGINS_DEFAULT_VALUE));
+      blacks.addAll(propertyValues(settings,
+        CoreProperties.PREVIEW_EXCLUDE_PLUGINS, CoreProperties.PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE));
     }
     if (!whites.isEmpty()) {
       LOG.info("Include plugins: " + COMMA_JOINER.join(whites));
@@ -87,7 +73,7 @@ public class BatchPluginPredicate implements Predicate<String> {
   @Override
   public boolean apply(@Nonnull String pluginKey) {
     if (BUILDBREAKER_PLUGIN_KEY.equals(pluginKey) && mode.isPreview()) {
-      LOG.info("Build Breaker plugin is no more supported in preview/incremental mode");
+      LOG.info("Build Breaker plugin is no more supported in preview mode");
       return false;
     }
 

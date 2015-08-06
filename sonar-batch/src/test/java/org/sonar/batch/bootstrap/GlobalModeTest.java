@@ -40,12 +40,6 @@ public class GlobalModeTest {
     assertThat(mode.isPreview()).isFalse();
   }
 
-  @Test
-  public void testDeprecatedDryRun() {
-    GlobalMode mode = createMode(CoreProperties.DRY_RUN, "true");
-    assertThat(mode.isPreview()).isTrue();
-  }
-
   private GlobalMode createMode(String key, String value) {
     Map<String, String> map = new HashMap<>();
     map.put(key, value);

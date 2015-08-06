@@ -19,7 +19,6 @@
  */
 package org.sonar.api;
 
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.FileSystem;
 
 /**
@@ -381,13 +380,6 @@ public interface CoreProperties {
   String PASSWORD = "sonar.password";
 
   /**
-   * @since 3.4
-   * @deprecated since 5.1 use {@link AnalysisMode} to check existing mode
-   */
-  @Deprecated
-  String DRY_RUN = "sonar.dryRun";
-
-  /**
    * @since 3.5
    * @deprecated since 5.2 no more task concept on batch side
    */
@@ -485,32 +477,6 @@ public interface CoreProperties {
    */
   String GLOBAL_WORKING_DIRECTORY = "sonar.globalWorking.directory";
   String GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE = ".";
-
-  /**
-   * @since 3.4
-   * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_INCLUDE_PLUGINS}
-   */
-  @Deprecated
-  String DRY_RUN_INCLUDE_PLUGINS = "sonar.dryRun.includePlugins";
-  /**
-   * @since 3.4
-   * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_INCLUDE_PLUGINS_DEFAULT_VALUE}
-   */
-  @Deprecated
-  String DRY_RUN_INCLUDE_PLUGINS_DEFAULT_VALUE = PREVIEW_INCLUDE_PLUGINS_DEFAULT_VALUE;
-
-  /**
-   * @since 3.4
-   * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_EXCLUDE_PLUGINS}
-   */
-  @Deprecated
-  String DRY_RUN_EXCLUDE_PLUGINS = "sonar.dryRun.excludePlugins";
-  /**
-   * @since 3.4
-   * @deprecated in 4.0 replaced by {@link CoreProperties#PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE}
-   */
-  @Deprecated
-  String DRY_RUN_EXCLUDE_PLUGINS_DEFAULT_VALUE = PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE;
 
   /**
    * @since 4.2
