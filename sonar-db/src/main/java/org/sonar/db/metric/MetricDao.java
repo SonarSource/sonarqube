@@ -65,6 +65,10 @@ public class MetricDao implements Dao {
     return metric;
   }
 
+  public List<MetricDto> selectAll(DbSession session) {
+    return mapper(session).selectAll();
+  }
+
   public List<MetricDto> selectEnabled(DbSession session) {
     return mapper(session).selectAllEnabled();
   }

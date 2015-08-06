@@ -83,7 +83,7 @@ public class RegisterMetrics {
 
   private void save(DbSession session, Iterable<Metric> metrics) {
     Map<String, MetricDto> basesByKey = new HashMap<>();
-    for (MetricDto base : from(dbClient.metricDao().selectEnabled(session)).toList()) {
+    for (MetricDto base : from(dbClient.metricDao().selectAll(session)).toList()) {
       basesByKey.put(base.getKey(), base);
     }
 

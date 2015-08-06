@@ -103,6 +103,24 @@ public class RegisterMetricsTest {
   }
 
   @Test
+  public void enable_disabled_metrics() {
+    dbTester.prepareDbUnit(getClass(), "enable_disabled_metric.xml");
+
+    RegisterMetrics register = new RegisterMetrics(dbClient);
+    Metric m1 = new Metric.Builder("m1", "New name", Metric.ValueType.FLOAT)
+        .setDescription("new description")
+        .setDirection(-1)
+        .setQualitative(true)
+        .setDomain("new domain")
+        .setUserManaged(false)
+        .setHidden(true)
+        .create();
+    register.register(asList(m1));
+
+    dbTester.assertDbUnit(getClass(), "enable_disabled_metric-result.xml", "metrics");
+  }
+
+  @Test
   public void insert_core_metrics() {
     dbTester.truncateTables();
 

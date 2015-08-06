@@ -36,6 +36,8 @@ public interface MetricMapper {
 
   List<MetricDto> selectByKeys(@Param("keys") List<String> keys);
 
+  List<MetricDto> selectAll();
+
   List<MetricDto> selectAllEnabled();
 
   List<MetricDto> selectAllEnabled(Map<String, Object> properties, RowBounds rowBounds);

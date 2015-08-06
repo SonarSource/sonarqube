@@ -124,6 +124,13 @@ public class MetricDaoTest {
   }
 
   @Test
+  public void find_all() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    assertThat(underTest.selectAll(session)).extracting("id").containsExactly(2, 3, 1);
+  }
+
+  @Test
   public void insert() {
     underTest.insert(session, new MetricDto()
       .setKey("coverage")

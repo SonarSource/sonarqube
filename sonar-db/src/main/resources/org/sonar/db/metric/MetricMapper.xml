@@ -30,6 +30,13 @@
     </where>
   </select>
 
+  <select id="selectAll" resultType="org.sonar.db.metric.MetricDto">
+    SELECT
+    <include refid="metricColumns"/>
+    FROM metrics m
+    ORDER BY UPPER(m.short_name), m.short_name
+  </select>
+
   <select id="selectAllEnabled" parameterType="map" resultType="org.sonar.db.metric.MetricDto">
     SELECT
     <include refid="metricColumns"/>
