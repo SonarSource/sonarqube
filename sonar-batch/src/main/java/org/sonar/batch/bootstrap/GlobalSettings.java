@@ -66,11 +66,6 @@ public class GlobalSettings extends Settings {
     addProperties(globalReferentials.globalSettings());
     addProperties(bootstrapProps.properties());
 
-    // To stay compatible with plugins that use the old property to check mode
-    if (mode.isPreview()) {
-      setProperty(CoreProperties.DRY_RUN, "true");
-    }
-
     LOG.info("Server id: " + getString(CoreProperties.SERVER_ID));
   }
 

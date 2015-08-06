@@ -106,7 +106,7 @@ public class ProjectSettingsTest {
   }
 
   @Test
-  public void should_fail_when_accessing_secured_properties_in_dryrun() {
+  public void should_fail_when_accessing_secured_properties_in_issues_mode() {
     projectRef.addSettings("struts", ImmutableMap.of("sonar.foo.secured", "bar", "sonar.foo.license.secured", "bar2"));
 
     when(mode.isIssues()).thenReturn(true);

@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.batch.mediumtest.FakePluginInstaller;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.AnalysisProperties;
@@ -26,9 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AnalysisMode;
-import org.sonar.batch.mediumtest.BatchMediumTester;
 
-import java.text.MessageFormat;
 import java.util.Map;
 
 /**
@@ -55,7 +55,7 @@ public class ProjectAnalysisMode implements AnalysisMode {
   public boolean isIssues() {
     return issues;
   }
-  
+
   @Override
   public boolean isPublish() {
     return !preview && !issues;
@@ -78,16 +78,11 @@ public class ProjectAnalysisMode implements AnalysisMode {
   }
 
   private void load(Map<String, String> globalProps, Map<String, String> analysisProps) {
-    if (getPropertyWithFallback(analysisProps, globalProps, CoreProperties.DRY_RUN) != null) {
-      LOG.warn(MessageFormat.format("Property {0} is deprecated. Please use {1} instead.", CoreProperties.DRY_RUN, CoreProperties.ANALYSIS_MODE));
-      preview = "true".equals(getPropertyWithFallback(analysisProps, globalProps, CoreProperties.DRY_RUN));
-    } else {
-      String mode = getPropertyWithFallback(analysisProps, globalProps, CoreProperties.ANALYSIS_MODE);
-      validate(mode);
-      preview = CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
-      issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode);
-    }
-    mediumTestMode = "true".equals(getPropertyWithFallback(analysisProps, globalProps, BatchMediumTester.MEDIUM_TEST_ENABLED));
+    String mode = getPropertyWithFallback(analysisProps, globalProps, CoreProperties.ANALYSIS_MODE);
+    validate(mode);
+    preview = CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
+    issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode);
+    mediumTestMode = "true".equals(getPropertyWithFallback(analysisProps, globalProps, FakePluginInstaller.MEDIUM_TEST_ENABLED));
 
     if (preview) {
       LOG.info("Preview mode");
@@ -115,14 +110,15 @@ public class ProjectAnalysisMode implements AnalysisMode {
     return CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode);
   }
 
-  private void validate(String mode) {
+  private static void validate(String mode) {
     if (StringUtils.isEmpty(mode)) {
       return;
     }
 
-    if (!CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode) && !CoreProperties.ANALYSIS_MODE_QUICK.equals(mode) &&
-      !CoreProperties.ANALYSIS_MODE_ANALYSIS.equals(mode)) {
+    if (!CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode) && !CoreProperties.ANALYSIS_MODE_PUBLISH.equals(mode) &&
+      !CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode)) {
       throw new IllegalStateException("Invalid analysis mode: " + mode);
     }
   }
 }
+
