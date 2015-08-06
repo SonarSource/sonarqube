@@ -52,3 +52,16 @@ message GroupsResponse {
   repeated Group groups = 1;
   optional sonarqube.ws.commons.Paging paging = 2;
 }
+
+message SearchGlobalPermissionsResponse {
+
+  message Permission {
+    optional string key = 1;
+    optional string name = 2;
+    optional string description = 3;
+    optional int32 usersCount = 4;
+    optional int32 groupsCount = 5;
+  }
+
+  repeated Permission globalPermissions = 1;
+}

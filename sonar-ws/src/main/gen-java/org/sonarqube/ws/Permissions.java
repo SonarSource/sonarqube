@@ -3339,6 +3339,1628 @@ public final class Permissions {
     // @@protoc_insertion_point(class_scope:sonarqube.ws.permissions.GroupsResponse)
   }
 
+  public interface SearchGlobalPermissionsResponseOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:sonarqube.ws.permissions.SearchGlobalPermissionsResponse)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+     */
+    java.util.List<org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission> 
+        getGlobalPermissionsList();
+    /**
+     * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+     */
+    org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission getGlobalPermissions(int index);
+    /**
+     * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+     */
+    int getGlobalPermissionsCount();
+    /**
+     * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+     */
+    java.util.List<? extends org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.PermissionOrBuilder> 
+        getGlobalPermissionsOrBuilderList();
+    /**
+     * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+     */
+    org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.PermissionOrBuilder getGlobalPermissionsOrBuilder(
+        int index);
+  }
+  /**
+   * Protobuf type {@code sonarqube.ws.permissions.SearchGlobalPermissionsResponse}
+   */
+  public static final class SearchGlobalPermissionsResponse extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:sonarqube.ws.permissions.SearchGlobalPermissionsResponse)
+      SearchGlobalPermissionsResponseOrBuilder {
+    // Use SearchGlobalPermissionsResponse.newBuilder() to construct.
+    private SearchGlobalPermissionsResponse(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private SearchGlobalPermissionsResponse(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final SearchGlobalPermissionsResponse defaultInstance;
+    public static SearchGlobalPermissionsResponse getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public SearchGlobalPermissionsResponse getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private SearchGlobalPermissionsResponse(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                globalPermissions_ = new java.util.ArrayList<org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              globalPermissions_.add(input.readMessage(org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission.PARSER, extensionRegistry));
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+          globalPermissions_ = java.util.Collections.unmodifiableList(globalPermissions_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_SearchGlobalPermissionsResponse_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_SearchGlobalPermissionsResponse_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.class, org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<SearchGlobalPermissionsResponse> PARSER =
+        new com.google.protobuf.AbstractParser<SearchGlobalPermissionsResponse>() {
+      public SearchGlobalPermissionsResponse parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new SearchGlobalPermissionsResponse(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<SearchGlobalPermissionsResponse> getParserForType() {
+      return PARSER;
+    }
+
+    public interface PermissionOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission)
+        com.google.protobuf.MessageOrBuilder {
+
+      /**
+       * <code>optional string key = 1;</code>
+       */
+      boolean hasKey();
+      /**
+       * <code>optional string key = 1;</code>
+       */
+      java.lang.String getKey();
+      /**
+       * <code>optional string key = 1;</code>
+       */
+      com.google.protobuf.ByteString
+          getKeyBytes();
+
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      boolean hasName();
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      java.lang.String getName();
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      com.google.protobuf.ByteString
+          getNameBytes();
+
+      /**
+       * <code>optional string description = 3;</code>
+       */
+      boolean hasDescription();
+      /**
+       * <code>optional string description = 3;</code>
+       */
+      java.lang.String getDescription();
+      /**
+       * <code>optional string description = 3;</code>
+       */
+      com.google.protobuf.ByteString
+          getDescriptionBytes();
+
+      /**
+       * <code>optional int32 usersCount = 4;</code>
+       */
+      boolean hasUsersCount();
+      /**
+       * <code>optional int32 usersCount = 4;</code>
+       */
+      int getUsersCount();
+
+      /**
+       * <code>optional int32 groupsCount = 5;</code>
+       */
+      boolean hasGroupsCount();
+      /**
+       * <code>optional int32 groupsCount = 5;</code>
+       */
+      int getGroupsCount();
+    }
+    /**
+     * Protobuf type {@code sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission}
+     */
+    public static final class Permission extends
+        com.google.protobuf.GeneratedMessage implements
+        // @@protoc_insertion_point(message_implements:sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission)
+        PermissionOrBuilder {
+      // Use Permission.newBuilder() to construct.
+      private Permission(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+        super(builder);
+        this.unknownFields = builder.getUnknownFields();
+      }
+      private Permission(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+      private static final Permission defaultInstance;
+      public static Permission getDefaultInstance() {
+        return defaultInstance;
+      }
+
+      public Permission getDefaultInstanceForType() {
+        return defaultInstance;
+      }
+
+      private final com.google.protobuf.UnknownFieldSet unknownFields;
+      @java.lang.Override
+      public final com.google.protobuf.UnknownFieldSet
+          getUnknownFields() {
+        return this.unknownFields;
+      }
+      private Permission(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        initFields();
+        int mutable_bitField0_ = 0;
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+            com.google.protobuf.UnknownFieldSet.newBuilder();
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              default: {
+                if (!parseUnknownField(input, unknownFields,
+                                       extensionRegistry, tag)) {
+                  done = true;
+                }
+                break;
+              }
+              case 10: {
+                com.google.protobuf.ByteString bs = input.readBytes();
+                bitField0_ |= 0x00000001;
+                key_ = bs;
+                break;
+              }
+              case 18: {
+                com.google.protobuf.ByteString bs = input.readBytes();
+                bitField0_ |= 0x00000002;
+                name_ = bs;
+                break;
+              }
+              case 26: {
+                com.google.protobuf.ByteString bs = input.readBytes();
+                bitField0_ |= 0x00000004;
+                description_ = bs;
+                break;
+              }
+              case 32: {
+                bitField0_ |= 0x00000008;
+                usersCount_ = input.readInt32();
+                break;
+              }
+              case 40: {
+                bitField0_ |= 0x00000010;
+                groupsCount_ = input.readInt32();
+                break;
+              }
+            }
+          }
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(this);
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(
+              e.getMessage()).setUnfinishedMessage(this);
+        } finally {
+          this.unknownFields = unknownFields.build();
+          makeExtensionsImmutable();
+        }
+      }
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_SearchGlobalPermissionsResponse_Permission_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_SearchGlobalPermissionsResponse_Permission_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission.class, org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission.Builder.class);
+      }
+
+      public static com.google.protobuf.Parser<Permission> PARSER =
+          new com.google.protobuf.AbstractParser<Permission>() {
+        public Permission parsePartialFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+          return new Permission(input, extensionRegistry);
+        }
+      };
+
+      @java.lang.Override
+      public com.google.protobuf.Parser<Permission> getParserForType() {
+        return PARSER;
+      }
+
+      private int bitField0_;
+      public static final int KEY_FIELD_NUMBER = 1;
+      private java.lang.Object key_;
+      /**
+       * <code>optional string key = 1;</code>
+       */
+      public boolean hasKey() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional string key = 1;</code>
+       */
+      public java.lang.String getKey() {
+        java.lang.Object ref = key_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            key_ = s;
+          }
+          return s;
+        }
+      }
+      /**
+       * <code>optional string key = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getKeyBytes() {
+        java.lang.Object ref = key_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          key_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      public static final int NAME_FIELD_NUMBER = 2;
+      private java.lang.Object name_;
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public boolean hasName() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public java.lang.String getName() {
+        java.lang.Object ref = name_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            name_ = s;
+          }
+          return s;
+        }
+      }
+      /**
+       * <code>optional string name = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getNameBytes() {
+        java.lang.Object ref = name_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          name_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      public static final int DESCRIPTION_FIELD_NUMBER = 3;
+      private java.lang.Object description_;
+      /**
+       * <code>optional string description = 3;</code>
+       */
+      public boolean hasDescription() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional string description = 3;</code>
+       */
+      public java.lang.String getDescription() {
+        java.lang.Object ref = description_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            description_ = s;
+          }
+          return s;
+        }
+      }
+      /**
+       * <code>optional string description = 3;</code>
+       */
+      public com.google.protobuf.ByteString
+          getDescriptionBytes() {
+        java.lang.Object ref = description_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          description_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      public static final int USERSCOUNT_FIELD_NUMBER = 4;
+      private int usersCount_;
+      /**
+       * <code>optional int32 usersCount = 4;</code>
+       */
+      public boolean hasUsersCount() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>optional int32 usersCount = 4;</code>
+       */
+      public int getUsersCount() {
+        return usersCount_;
+      }
+
+      public static final int GROUPSCOUNT_FIELD_NUMBER = 5;
+      private int groupsCount_;
+      /**
+       * <code>optional int32 groupsCount = 5;</code>
+       */
+      public boolean hasGroupsCount() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>optional int32 groupsCount = 5;</code>
+       */
+      public int getGroupsCount() {
+        return groupsCount_;
+      }
+
+      private void initFields() {
+        key_ = "";
+        name_ = "";
+        description_ = "";
+        usersCount_ = 0;
+        groupsCount_ = 0;
+      }
+      private byte memoizedIsInitialized = -1;
+      public final boolean isInitialized() {
+        byte isInitialized = memoizedIsInitialized;
+        if (isInitialized == 1) return true;
+        if (isInitialized == 0) return false;
+
+        memoizedIsInitialized = 1;
+        return true;
+      }
+
+      public void writeTo(com.google.protobuf.CodedOutputStream output)
+                          throws java.io.IOException {
+        getSerializedSize();
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          output.writeBytes(1, getKeyBytes());
+        }
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          output.writeBytes(2, getNameBytes());
+        }
+        if (((bitField0_ & 0x00000004) == 0x00000004)) {
+          output.writeBytes(3, getDescriptionBytes());
+        }
+        if (((bitField0_ & 0x00000008) == 0x00000008)) {
+          output.writeInt32(4, usersCount_);
+        }
+        if (((bitField0_ & 0x00000010) == 0x00000010)) {
+          output.writeInt32(5, groupsCount_);
+        }
+        getUnknownFields().writeTo(output);
+      }
+
+      private int memoizedSerializedSize = -1;
+      public int getSerializedSize() {
+        int size = memoizedSerializedSize;
+        if (size != -1) return size;
+
+        size = 0;
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeBytesSize(1, getKeyBytes());
+        }
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeBytesSize(2, getNameBytes());
+        }
+        if (((bitField0_ & 0x00000004) == 0x00000004)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeBytesSize(3, getDescriptionBytes());
+        }
+        if (((bitField0_ & 0x00000008) == 0x00000008)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeInt32Size(4, usersCount_);
+        }
+        if (((bitField0_ & 0x00000010) == 0x00000010)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeInt32Size(5, groupsCount_);
+        }
+        size += getUnknownFields().getSerializedSize();
+        memoizedSerializedSize = size;
+        return size;
+      }
+
+      private static final long serialVersionUID = 0L;
+      @java.lang.Override
+      protected java.lang.Object writeReplace()
+          throws java.io.ObjectStreamException {
+        return super.writeReplace();
+      }
+
+      public static org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission parseFrom(
+          com.google.protobuf.ByteString data)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+      }
+      public static org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission parseFrom(
+          com.google.protobuf.ByteString data,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+      }
+      public static org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission parseFrom(byte[] data)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+      }
+      public static org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission parseFrom(
+          byte[] data,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+      }
+      public static org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission parseFrom(java.io.InputStream input)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input);
+      }
+      public static org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission parseFrom(
+          java.io.InputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input, extensionRegistry);
+      }
+      public static org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission parseDelimitedFrom(java.io.InputStream input)
+          throws java.io.IOException {
+        return PARSER.parseDelimitedFrom(input);
+      }
+      public static org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission parseDelimitedFrom(
+          java.io.InputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return PARSER.parseDelimitedFrom(input, extensionRegistry);
+      }
+      public static org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission parseFrom(
+          com.google.protobuf.CodedInputStream input)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input);
+      }
+      public static org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission parseFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        return PARSER.parseFrom(input, extensionRegistry);
+      }
+
+      public static Builder newBuilder() { return Builder.create(); }
+      public Builder newBuilderForType() { return newBuilder(); }
+      public static Builder newBuilder(org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission prototype) {
+        return newBuilder().mergeFrom(prototype);
+      }
+      public Builder toBuilder() { return newBuilder(this); }
+
+      @java.lang.Override
+      protected Builder newBuilderForType(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        Builder builder = new Builder(parent);
+        return builder;
+      }
+      /**
+       * Protobuf type {@code sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission}
+       */
+      public static final class Builder extends
+          com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+          // @@protoc_insertion_point(builder_implements:sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission)
+          org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.PermissionOrBuilder {
+        public static final com.google.protobuf.Descriptors.Descriptor
+            getDescriptor() {
+          return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_SearchGlobalPermissionsResponse_Permission_descriptor;
+        }
+
+        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+            internalGetFieldAccessorTable() {
+          return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_SearchGlobalPermissionsResponse_Permission_fieldAccessorTable
+              .ensureFieldAccessorsInitialized(
+                  org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission.class, org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission.Builder.class);
+        }
+
+        // Construct using org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission.newBuilder()
+        private Builder() {
+          maybeForceBuilderInitialization();
+        }
+
+        private Builder(
+            com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+          super(parent);
+          maybeForceBuilderInitialization();
+        }
+        private void maybeForceBuilderInitialization() {
+          if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          }
+        }
+        private static Builder create() {
+          return new Builder();
+        }
+
+        public Builder clear() {
+          super.clear();
+          key_ = "";
+          bitField0_ = (bitField0_ & ~0x00000001);
+          name_ = "";
+          bitField0_ = (bitField0_ & ~0x00000002);
+          description_ = "";
+          bitField0_ = (bitField0_ & ~0x00000004);
+          usersCount_ = 0;
+          bitField0_ = (bitField0_ & ~0x00000008);
+          groupsCount_ = 0;
+          bitField0_ = (bitField0_ & ~0x00000010);
+          return this;
+        }
+
+        public Builder clone() {
+          return create().mergeFrom(buildPartial());
+        }
+
+        public com.google.protobuf.Descriptors.Descriptor
+            getDescriptorForType() {
+          return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_SearchGlobalPermissionsResponse_Permission_descriptor;
+        }
+
+        public org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission getDefaultInstanceForType() {
+          return org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission.getDefaultInstance();
+        }
+
+        public org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission build() {
+          org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission result = buildPartial();
+          if (!result.isInitialized()) {
+            throw newUninitializedMessageException(result);
+          }
+          return result;
+        }
+
+        public org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission buildPartial() {
+          org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission result = new org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission(this);
+          int from_bitField0_ = bitField0_;
+          int to_bitField0_ = 0;
+          if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+            to_bitField0_ |= 0x00000001;
+          }
+          result.key_ = key_;
+          if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+            to_bitField0_ |= 0x00000002;
+          }
+          result.name_ = name_;
+          if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+            to_bitField0_ |= 0x00000004;
+          }
+          result.description_ = description_;
+          if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+            to_bitField0_ |= 0x00000008;
+          }
+          result.usersCount_ = usersCount_;
+          if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+            to_bitField0_ |= 0x00000010;
+          }
+          result.groupsCount_ = groupsCount_;
+          result.bitField0_ = to_bitField0_;
+          onBuilt();
+          return result;
+        }
+
+        public Builder mergeFrom(com.google.protobuf.Message other) {
+          if (other instanceof org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission) {
+            return mergeFrom((org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission)other);
+          } else {
+            super.mergeFrom(other);
+            return this;
+          }
+        }
+
+        public Builder mergeFrom(org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission other) {
+          if (other == org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission.getDefaultInstance()) return this;
+          if (other.hasKey()) {
+            bitField0_ |= 0x00000001;
+            key_ = other.key_;
+            onChanged();
+          }
+          if (other.hasName()) {
+            bitField0_ |= 0x00000002;
+            name_ = other.name_;
+            onChanged();
+          }
+          if (other.hasDescription()) {
+            bitField0_ |= 0x00000004;
+            description_ = other.description_;
+            onChanged();
+          }
+          if (other.hasUsersCount()) {
+            setUsersCount(other.getUsersCount());
+          }
+          if (other.hasGroupsCount()) {
+            setGroupsCount(other.getGroupsCount());
+          }
+          this.mergeUnknownFields(other.getUnknownFields());
+          return this;
+        }
+
+        public final boolean isInitialized() {
+          return true;
+        }
+
+        public Builder mergeFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+          org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission parsedMessage = null;
+          try {
+            parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            parsedMessage = (org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission) e.getUnfinishedMessage();
+            throw e;
+          } finally {
+            if (parsedMessage != null) {
+              mergeFrom(parsedMessage);
+            }
+          }
+          return this;
+        }
+        private int bitField0_;
+
+        private java.lang.Object key_ = "";
+        /**
+         * <code>optional string key = 1;</code>
+         */
+        public boolean hasKey() {
+          return ((bitField0_ & 0x00000001) == 0x00000001);
+        }
+        /**
+         * <code>optional string key = 1;</code>
+         */
+        public java.lang.String getKey() {
+          java.lang.Object ref = key_;
+          if (!(ref instanceof java.lang.String)) {
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            if (bs.isValidUtf8()) {
+              key_ = s;
+            }
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string key = 1;</code>
+         */
+        public com.google.protobuf.ByteString
+            getKeyBytes() {
+          java.lang.Object ref = key_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            key_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string key = 1;</code>
+         */
+        public Builder setKey(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+          key_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string key = 1;</code>
+         */
+        public Builder clearKey() {
+          bitField0_ = (bitField0_ & ~0x00000001);
+          key_ = getDefaultInstance().getKey();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string key = 1;</code>
+         */
+        public Builder setKeyBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+          key_ = value;
+          onChanged();
+          return this;
+        }
+
+        private java.lang.Object name_ = "";
+        /**
+         * <code>optional string name = 2;</code>
+         */
+        public boolean hasName() {
+          return ((bitField0_ & 0x00000002) == 0x00000002);
+        }
+        /**
+         * <code>optional string name = 2;</code>
+         */
+        public java.lang.String getName() {
+          java.lang.Object ref = name_;
+          if (!(ref instanceof java.lang.String)) {
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            if (bs.isValidUtf8()) {
+              name_ = s;
+            }
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string name = 2;</code>
+         */
+        public com.google.protobuf.ByteString
+            getNameBytes() {
+          java.lang.Object ref = name_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            name_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string name = 2;</code>
+         */
+        public Builder setName(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+          name_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string name = 2;</code>
+         */
+        public Builder clearName() {
+          bitField0_ = (bitField0_ & ~0x00000002);
+          name_ = getDefaultInstance().getName();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string name = 2;</code>
+         */
+        public Builder setNameBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+          name_ = value;
+          onChanged();
+          return this;
+        }
+
+        private java.lang.Object description_ = "";
+        /**
+         * <code>optional string description = 3;</code>
+         */
+        public boolean hasDescription() {
+          return ((bitField0_ & 0x00000004) == 0x00000004);
+        }
+        /**
+         * <code>optional string description = 3;</code>
+         */
+        public java.lang.String getDescription() {
+          java.lang.Object ref = description_;
+          if (!(ref instanceof java.lang.String)) {
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            if (bs.isValidUtf8()) {
+              description_ = s;
+            }
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string description = 3;</code>
+         */
+        public com.google.protobuf.ByteString
+            getDescriptionBytes() {
+          java.lang.Object ref = description_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            description_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string description = 3;</code>
+         */
+        public Builder setDescription(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+          description_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string description = 3;</code>
+         */
+        public Builder clearDescription() {
+          bitField0_ = (bitField0_ & ~0x00000004);
+          description_ = getDefaultInstance().getDescription();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string description = 3;</code>
+         */
+        public Builder setDescriptionBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+          description_ = value;
+          onChanged();
+          return this;
+        }
+
+        private int usersCount_ ;
+        /**
+         * <code>optional int32 usersCount = 4;</code>
+         */
+        public boolean hasUsersCount() {
+          return ((bitField0_ & 0x00000008) == 0x00000008);
+        }
+        /**
+         * <code>optional int32 usersCount = 4;</code>
+         */
+        public int getUsersCount() {
+          return usersCount_;
+        }
+        /**
+         * <code>optional int32 usersCount = 4;</code>
+         */
+        public Builder setUsersCount(int value) {
+          bitField0_ |= 0x00000008;
+          usersCount_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional int32 usersCount = 4;</code>
+         */
+        public Builder clearUsersCount() {
+          bitField0_ = (bitField0_ & ~0x00000008);
+          usersCount_ = 0;
+          onChanged();
+          return this;
+        }
+
+        private int groupsCount_ ;
+        /**
+         * <code>optional int32 groupsCount = 5;</code>
+         */
+        public boolean hasGroupsCount() {
+          return ((bitField0_ & 0x00000010) == 0x00000010);
+        }
+        /**
+         * <code>optional int32 groupsCount = 5;</code>
+         */
+        public int getGroupsCount() {
+          return groupsCount_;
+        }
+        /**
+         * <code>optional int32 groupsCount = 5;</code>
+         */
+        public Builder setGroupsCount(int value) {
+          bitField0_ |= 0x00000010;
+          groupsCount_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional int32 groupsCount = 5;</code>
+         */
+        public Builder clearGroupsCount() {
+          bitField0_ = (bitField0_ & ~0x00000010);
+          groupsCount_ = 0;
+          onChanged();
+          return this;
+        }
+
+        // @@protoc_insertion_point(builder_scope:sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission)
+      }
+
+      static {
+        defaultInstance = new Permission(true);
+        defaultInstance.initFields();
+      }
+
+      // @@protoc_insertion_point(class_scope:sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission)
+    }
+
+    public static final int GLOBALPERMISSIONS_FIELD_NUMBER = 1;
+    private java.util.List<org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission> globalPermissions_;
+    /**
+     * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+     */
+    public java.util.List<org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission> getGlobalPermissionsList() {
+      return globalPermissions_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+     */
+    public java.util.List<? extends org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.PermissionOrBuilder> 
+        getGlobalPermissionsOrBuilderList() {
+      return globalPermissions_;
+    }
+    /**
+     * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+     */
+    public int getGlobalPermissionsCount() {
+      return globalPermissions_.size();
+    }
+    /**
+     * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+     */
+    public org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission getGlobalPermissions(int index) {
+      return globalPermissions_.get(index);
+    }
+    /**
+     * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+     */
+    public org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.PermissionOrBuilder getGlobalPermissionsOrBuilder(
+        int index) {
+      return globalPermissions_.get(index);
+    }
+
+    private void initFields() {
+      globalPermissions_ = java.util.Collections.emptyList();
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      for (int i = 0; i < globalPermissions_.size(); i++) {
+        output.writeMessage(1, globalPermissions_.get(i));
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (int i = 0; i < globalPermissions_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, globalPermissions_.get(i));
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code sonarqube.ws.permissions.SearchGlobalPermissionsResponse}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:sonarqube.ws.permissions.SearchGlobalPermissionsResponse)
+        org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponseOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_SearchGlobalPermissionsResponse_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_SearchGlobalPermissionsResponse_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.class, org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Builder.class);
+      }
+
+      // Construct using org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getGlobalPermissionsFieldBuilder();
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        if (globalPermissionsBuilder_ == null) {
+          globalPermissions_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          globalPermissionsBuilder_.clear();
+        }
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_SearchGlobalPermissionsResponse_descriptor;
+      }
+
+      public org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse getDefaultInstanceForType() {
+        return org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.getDefaultInstance();
+      }
+
+      public org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse build() {
+        org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse buildPartial() {
+        org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse result = new org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse(this);
+        int from_bitField0_ = bitField0_;
+        if (globalPermissionsBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001)) {
+            globalPermissions_ = java.util.Collections.unmodifiableList(globalPermissions_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.globalPermissions_ = globalPermissions_;
+        } else {
+          result.globalPermissions_ = globalPermissionsBuilder_.build();
+        }
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse) {
+          return mergeFrom((org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse other) {
+        if (other == org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.getDefaultInstance()) return this;
+        if (globalPermissionsBuilder_ == null) {
+          if (!other.globalPermissions_.isEmpty()) {
+            if (globalPermissions_.isEmpty()) {
+              globalPermissions_ = other.globalPermissions_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+            } else {
+              ensureGlobalPermissionsIsMutable();
+              globalPermissions_.addAll(other.globalPermissions_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.globalPermissions_.isEmpty()) {
+            if (globalPermissionsBuilder_.isEmpty()) {
+              globalPermissionsBuilder_.dispose();
+              globalPermissionsBuilder_ = null;
+              globalPermissions_ = other.globalPermissions_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              globalPermissionsBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getGlobalPermissionsFieldBuilder() : null;
+            } else {
+              globalPermissionsBuilder_.addAllMessages(other.globalPermissions_);
+            }
+          }
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.util.List<org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission> globalPermissions_ =
+        java.util.Collections.emptyList();
+      private void ensureGlobalPermissionsIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          globalPermissions_ = new java.util.ArrayList<org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission>(globalPermissions_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission, org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission.Builder, org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.PermissionOrBuilder> globalPermissionsBuilder_;
+
+      /**
+       * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission> getGlobalPermissionsList() {
+        if (globalPermissionsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(globalPermissions_);
+        } else {
+          return globalPermissionsBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+       */
+      public int getGlobalPermissionsCount() {
+        if (globalPermissionsBuilder_ == null) {
+          return globalPermissions_.size();
+        } else {
+          return globalPermissionsBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+       */
+      public org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission getGlobalPermissions(int index) {
+        if (globalPermissionsBuilder_ == null) {
+          return globalPermissions_.get(index);
+        } else {
+          return globalPermissionsBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+       */
+      public Builder setGlobalPermissions(
+          int index, org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission value) {
+        if (globalPermissionsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureGlobalPermissionsIsMutable();
+          globalPermissions_.set(index, value);
+          onChanged();
+        } else {
+          globalPermissionsBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+       */
+      public Builder setGlobalPermissions(
+          int index, org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission.Builder builderForValue) {
+        if (globalPermissionsBuilder_ == null) {
+          ensureGlobalPermissionsIsMutable();
+          globalPermissions_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          globalPermissionsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+       */
+      public Builder addGlobalPermissions(org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission value) {
+        if (globalPermissionsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureGlobalPermissionsIsMutable();
+          globalPermissions_.add(value);
+          onChanged();
+        } else {
+          globalPermissionsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+       */
+      public Builder addGlobalPermissions(
+          int index, org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission value) {
+        if (globalPermissionsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureGlobalPermissionsIsMutable();
+          globalPermissions_.add(index, value);
+          onChanged();
+        } else {
+          globalPermissionsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+       */
+      public Builder addGlobalPermissions(
+          org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission.Builder builderForValue) {
+        if (globalPermissionsBuilder_ == null) {
+          ensureGlobalPermissionsIsMutable();
+          globalPermissions_.add(builderForValue.build());
+          onChanged();
+        } else {
+          globalPermissionsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+       */
+      public Builder addGlobalPermissions(
+          int index, org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission.Builder builderForValue) {
+        if (globalPermissionsBuilder_ == null) {
+          ensureGlobalPermissionsIsMutable();
+          globalPermissions_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          globalPermissionsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+       */
+      public Builder addAllGlobalPermissions(
+          java.lang.Iterable<? extends org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission> values) {
+        if (globalPermissionsBuilder_ == null) {
+          ensureGlobalPermissionsIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, globalPermissions_);
+          onChanged();
+        } else {
+          globalPermissionsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+       */
+      public Builder clearGlobalPermissions() {
+        if (globalPermissionsBuilder_ == null) {
+          globalPermissions_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          globalPermissionsBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+       */
+      public Builder removeGlobalPermissions(int index) {
+        if (globalPermissionsBuilder_ == null) {
+          ensureGlobalPermissionsIsMutable();
+          globalPermissions_.remove(index);
+          onChanged();
+        } else {
+          globalPermissionsBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+       */
+      public org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission.Builder getGlobalPermissionsBuilder(
+          int index) {
+        return getGlobalPermissionsFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+       */
+      public org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.PermissionOrBuilder getGlobalPermissionsOrBuilder(
+          int index) {
+        if (globalPermissionsBuilder_ == null) {
+          return globalPermissions_.get(index);  } else {
+          return globalPermissionsBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+       */
+      public java.util.List<? extends org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.PermissionOrBuilder> 
+           getGlobalPermissionsOrBuilderList() {
+        if (globalPermissionsBuilder_ != null) {
+          return globalPermissionsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(globalPermissions_);
+        }
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+       */
+      public org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission.Builder addGlobalPermissionsBuilder() {
+        return getGlobalPermissionsFieldBuilder().addBuilder(
+            org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+       */
+      public org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission.Builder addGlobalPermissionsBuilder(
+          int index) {
+        return getGlobalPermissionsFieldBuilder().addBuilder(
+            index, org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .sonarqube.ws.permissions.SearchGlobalPermissionsResponse.Permission globalPermissions = 1;</code>
+       */
+      public java.util.List<org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission.Builder> 
+           getGlobalPermissionsBuilderList() {
+        return getGlobalPermissionsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
+          org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission, org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission.Builder, org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.PermissionOrBuilder> 
+          getGlobalPermissionsFieldBuilder() {
+        if (globalPermissionsBuilder_ == null) {
+          globalPermissionsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+              org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission, org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.Permission.Builder, org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse.PermissionOrBuilder>(
+                  globalPermissions_,
+                  ((bitField0_ & 0x00000001) == 0x00000001),
+                  getParentForChildren(),
+                  isClean());
+          globalPermissions_ = null;
+        }
+        return globalPermissionsBuilder_;
+      }
+
+      // @@protoc_insertion_point(builder_scope:sonarqube.ws.permissions.SearchGlobalPermissionsResponse)
+    }
+
+    static {
+      defaultInstance = new SearchGlobalPermissionsResponse(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:sonarqube.ws.permissions.SearchGlobalPermissionsResponse)
+  }
+
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_sonarqube_ws_permissions_UsersResponse_descriptor;
   private static
@@ -3359,6 +4981,16 @@ public final class Permissions {
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_sonarqube_ws_permissions_GroupsResponse_Group_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_sonarqube_ws_permissions_SearchGlobalPermissionsResponse_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_sonarqube_ws_permissions_SearchGlobalPermissionsResponse_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_sonarqube_ws_permissions_SearchGlobalPermissionsResponse_Permission_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_sonarqube_ws_permissions_SearchGlobalPermissionsResponse_Permission_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -3379,8 +5011,13 @@ public final class Permissions {
       "nse.Group\022,\n\006paging\030\002 \001(\0132\034.sonarqube.ws" +
       ".commons.Paging\032H\n\005Group\022\n\n\002id\030\001 \001(\t\022\014\n\004",
       "name\030\002 \001(\t\022\023\n\013description\030\003 \001(\t\022\020\n\010selec" +
-      "ted\030\004 \001(\010B!\n\020org.sonarqube.wsB\013Permissio" +
-      "nsH\001"
+      "ted\030\004 \001(\010\"\351\001\n\037SearchGlobalPermissionsRes" +
+      "ponse\022_\n\021globalPermissions\030\001 \003(\0132D.sonar" +
+      "qube.ws.permissions.SearchGlobalPermissi" +
+      "onsResponse.Permission\032e\n\nPermission\022\013\n\003" +
+      "key\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\023\n\013description\030\003" +
+      " \001(\t\022\022\n\nusersCount\030\004 \001(\005\022\023\n\013groupsCount\030" +
+      "\005 \001(\005B!\n\020org.sonarqube.wsB\013PermissionsH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -3419,6 +5056,18 @@ public final class Permissions {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_permissions_GroupsResponse_Group_descriptor,
         new java.lang.String[] { "Id", "Name", "Description", "Selected", });
+    internal_static_sonarqube_ws_permissions_SearchGlobalPermissionsResponse_descriptor =
+      getDescriptor().getMessageTypes().get(2);
+    internal_static_sonarqube_ws_permissions_SearchGlobalPermissionsResponse_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_sonarqube_ws_permissions_SearchGlobalPermissionsResponse_descriptor,
+        new java.lang.String[] { "GlobalPermissions", });
+    internal_static_sonarqube_ws_permissions_SearchGlobalPermissionsResponse_Permission_descriptor =
+      internal_static_sonarqube_ws_permissions_SearchGlobalPermissionsResponse_descriptor.getNestedTypes().get(0);
+    internal_static_sonarqube_ws_permissions_SearchGlobalPermissionsResponse_Permission_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_sonarqube_ws_permissions_SearchGlobalPermissionsResponse_Permission_descriptor,
+        new java.lang.String[] { "Key", "Name", "Description", "UsersCount", "GroupsCount", });
     org.sonarqube.ws.Common.getDescriptor();
   }
 

@@ -20,6 +20,7 @@
 
 package org.sonar.db.permission;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -85,8 +86,12 @@ public class PermissionDao implements Dao {
     }
   }
 
-  public int countGroups(DbSession session, PermissionQuery query, @Nullable Long componentId) {
-    Map<String, Object> parameters = groupsParameters(query, componentId);
+  public int countGroups(DbSession session, String permission, @Nullable Long componentId) {
+    Map<String, Object> parameters = new HashMap<>();
+    parameters.put("permission", permission);
+    parameters.put("anyoneGroup", DefaultGroups.ANYONE);
+    parameters.put(COMPONENT_ID_PARAMETER, componentId);
+
     return mapper(session).countGroups(parameters);
   }
 
