@@ -33,7 +33,8 @@ fi
 cd sonar-application/target/
 ls sonarqube-*/bin/$OS/sonar.sh 1> /dev/null 2>&1
 if [ "$?" != "0" ]; then
-  unzip sonarqube-*.zip
+  echo "Unzipping SQ..."
+  unzip -qq sonarqube-*.zip
 fi
 cd sonarqube-*
 
