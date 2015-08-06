@@ -217,7 +217,8 @@ public class CorePropertyDefinitions {
         .name("Period 1")
         .description("Period used to compare measures and track new issues. Values are : <ul class='bullet'><li>Number of days before " +
           "analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, for example 2010-12-25</li><li>'previous_analysis' to " +
-          "compare to previous analysis</li><li>'previous_version' to compare to the previous version in the project history</li></ul>" +
+          "compare to previous analysis</li><li>'previous_version' to compare to the previous version in the project history</li>" +
+          "<li>A version, for example '1.2' or 'BASELINE'</li></ul>" +
           "<p>When specifying a number of days or a date, the snapshot selected for comparison is " +
           " the first one available inside the corresponding time range. </p>" +
           "<p>Changing this property only takes effect after subsequent project inspections.<p/>")
@@ -247,7 +248,7 @@ public class CorePropertyDefinitions {
         .description("Period used to compare measures and track new issues. This property is specific to the project. Values are : " +
           "<ul class='bullet'><li>Number of days before analysis, for example 5.</li><li>A custom date. Format is yyyy-MM-dd, " +
           "for example 2010-12-25</li><li>'previous_analysis' to compare to previous analysis</li>" +
-          "<li>'previous_version' to compare to the previous version in the project history</li><li>A version, for example 1.2</li></ul>" +
+          "<li>'previous_version' to compare to the previous version in the project history</li><li>A version, for example '1.2' or 'BASELINE'</li></ul>" +
           "<p>When specifying a number of days or a date, the snapshot selected for comparison is the first one available inside the corresponding time range. </p>" +
           "<p>Changing this property only takes effect after subsequent project inspections.<p/>")
         .defaultValue(CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_4)
