@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.api.utils.HttpDownloader.HttpException;
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;

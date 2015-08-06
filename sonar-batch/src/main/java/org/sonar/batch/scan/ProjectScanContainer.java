@@ -19,8 +19,16 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.issue.DefaultIssueCallback;
+import org.sonar.batch.cache.ProjectSyncContainer;
 
+import org.sonar.batch.repository.user.UserRepositoryLoader;
+import org.sonar.batch.issue.tracking.DefaultServerLineHashesLoader;
+import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
+import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
+import org.sonar.batch.repository.DefaultServerIssuesLoader;
+import org.sonar.batch.repository.ProjectRepositoriesLoader;
+import org.sonar.batch.repository.ServerIssuesLoader;
+import org.sonar.batch.issue.DefaultIssueCallback;
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -118,6 +126,13 @@ public class ProjectScanContainer extends ComponentContainer {
     return env != null && "SonarRunner".equals(env.getKey());
   }
 
+  private void doProjectSync() {
+    ProjectAnalysisMode mode = getComponentByType(ProjectAnalysisMode.class);
+    if (mode.isIssues()) {
+      new ProjectSyncContainer(getParent(), props, false).execute();
+    }
+  }
+
   private void addBatchComponents() {
     add(
       props,
@@ -194,7 +209,12 @@ public class ProjectScanContainer extends ComponentContainer {
       SourcePublisher.class,
       TestExecutionAndCoveragePublisher.class,
 
-      ScanTaskObservers.class);
+      ScanTaskObservers.class,
+      UserRepositoryLoader.class);
+
+    addIfMissing(DefaultProjectRepositoriesLoader.class, ProjectRepositoriesLoader.class);
+    addIfMissing(DefaultServerIssuesLoader.class, ServerIssuesLoader.class);
+    addIfMissing(DefaultServerLineHashesLoader.class, ServerLineHashesLoader.class);
   }
 
   private void addBatchExtensions() {
@@ -230,4 +250,5 @@ public class ProjectScanContainer extends ComponentContainer {
         && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_BATCH);
     }
   }
+
 }

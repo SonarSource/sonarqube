@@ -19,18 +19,20 @@
  */
 package org.sonar.batch.repository;
 
+import org.apache.commons.io.IOUtils;
 import org.sonar.batch.bootstrap.WSLoaderResult;
-
 import com.google.common.collect.Maps;
 
+import java.io.IOException;
 import java.util.Date;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.batch.bootstrap.GlobalMode;
@@ -52,7 +54,7 @@ public class DefaultProjectRepositoriesLoaderTest {
   private DefaultProjectRepositoriesLoader loader;
   private WSLoader wsLoader;
   private GlobalMode globalMode;
-  private ProjectReactor reactor;
+  private ProjectDefinition project;
   private AnalysisProperties taskProperties;
 
   @Before
@@ -68,30 +70,43 @@ public class DefaultProjectRepositoriesLoaderTest {
   @Test
   public void passPreviewParameter() {
     addQualityProfile();
-    reactor = new ProjectReactor(ProjectDefinition.create().setKey("foo"));
-    when(globalMode.isPreview()).thenReturn(false);
-    loader.load(reactor, taskProperties);
+    project = ProjectDefinition.create().setKey("foo");
+    when(globalMode.isIssues()).thenReturn(false);
+    loader.load(project, taskProperties);
     verify(wsLoader).loadString("/batch/project?key=foo&preview=false");
 
     when(globalMode.isIssues()).thenReturn(true);
-    loader.load(reactor, taskProperties);
+    loader.load(project, taskProperties);
     verify(wsLoader).loadString("/batch/project?key=foo&preview=true");
+  }
+
+  @Test
+  public void deserializeResponse() throws IOException {
+    String resourceName = this.getClass().getSimpleName() + "/sample_response.json";
+    String response = IOUtils.toString(this.getClass().getResourceAsStream(resourceName));
+    when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult<>(response, false));
+    project = ProjectDefinition.create().setKey("foo");
+    ProjectRepositories projectRepo = loader.load(project, taskProperties);
+
+    assertThat(projectRepo.activeRules().size()).isEqualTo(221);
+    assertThat(projectRepo.fileDataByPath("my:project").size()).isEqualTo(11);
+
   }
 
   @Test
   public void passAndEncodeProjectKeyParameter() {
     addQualityProfile();
-    reactor = new ProjectReactor(ProjectDefinition.create().setKey("foo bàr"));
-    loader.load(reactor, taskProperties);
+    project = ProjectDefinition.create().setKey("foo bàr");
+    loader.load(project, taskProperties);
     verify(wsLoader).loadString("/batch/project?key=foo+b%C3%A0r&preview=false");
   }
 
   @Test
   public void passAndEncodeProfileParameter() {
     addQualityProfile();
-    reactor = new ProjectReactor(ProjectDefinition.create().setKey("foo"));
+    project = ProjectDefinition.create().setKey("foo");
     taskProperties.properties().put(ModuleQProfiles.SONAR_PROFILE_PROP, "my-profile#2");
-    loader.load(reactor, taskProperties);
+    loader.load(project, taskProperties);
     verify(wsLoader).loadString("/batch/project?key=foo&profile=my-profile%232&preview=false");
   }
 
@@ -100,10 +115,10 @@ public class DefaultProjectRepositoriesLoaderTest {
     thrown.expect(MessageException.class);
     thrown.expectMessage("No quality profiles has been found this project, you probably don't have any language plugin suitable for this analysis.");
 
-    reactor = new ProjectReactor(ProjectDefinition.create().setKey("foo"));
+    project = ProjectDefinition.create().setKey("foo");
     when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult<>(new ProjectRepositories().toJson(), true));
 
-    loader.load(reactor, taskProperties);
+    loader.load(project, taskProperties);
   }
 
   private void addQualityProfile() {

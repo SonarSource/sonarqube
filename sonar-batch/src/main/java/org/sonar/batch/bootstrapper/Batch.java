@@ -19,11 +19,16 @@
  */
 package org.sonar.batch.bootstrapper;
 
+import com.google.common.collect.ImmutableMap;
+
+import org.sonar.api.CoreProperties;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
 import org.picocontainer.annotations.Nullable;
 import org.sonar.batch.bootstrap.GlobalContainer;
 
@@ -118,6 +123,16 @@ public final class Batch {
     if (!started) {
       throw new IllegalStateException("Batch is not started. Unable to execute task.");
     }
+  }
+
+  /**
+   * @since 5.2
+   */
+  public Batch syncProject(String projectKey) {
+    checkStarted();
+    Map<String, String> props = ImmutableMap.of(CoreProperties.PROJECT_KEY_PROPERTY, projectKey);
+    bootstrapContainer.syncProject(props, true);
+    return this;
   }
 
   /**

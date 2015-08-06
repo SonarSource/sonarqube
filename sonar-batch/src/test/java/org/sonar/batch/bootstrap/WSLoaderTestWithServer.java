@@ -52,7 +52,6 @@ public class WSLoaderTestWithServer {
 
     client = new ServerClient(bootstrapProps, new EnvironmentInformation("Junit", "4"));
     cache = new PersistentCache(temp.getRoot().toPath(), 1000 * 60, new Slf4jLogger(), null);
-    loader = new WSLoader(cache, client);
   }
 
   @After
@@ -63,50 +62,41 @@ public class WSLoaderTestWithServer {
   }
 
   @Test
-  public void testServer() {
-    loader.setCacheEnabled(false);
-    loader.setStrategy(LoadStrategy.SERVER_FIRST);
-    server.setMockResponseData(RESPONSE_STRING);
-    assertThat(loader.loadString("/foo")).isEqualTo(RESPONSE_STRING);
-  }
+  public void testCacheOnly() {
+    loader = new WSLoader(LoadStrategy.SERVER_ONLY, cache, client);
+    makeRequests();
 
-  @Test
-  public void testCacheDisabled() {
-    loader.setCacheEnabled(false);
-    loader.setStrategy(LoadStrategy.CACHE_FIRST);
+    loader = new WSLoader(LoadStrategy.CACHE_ONLY, cache, client);
     makeRequests();
     assertThat(server.getNumberRequests()).isEqualTo(3);
   }
 
   @Test
-  public void testCacheEnabled() {
-    loader.setCacheEnabled(true);
-    loader.setStrategy(LoadStrategy.CACHE_FIRST);
+  public void testCacheFirst() {
+    loader = new WSLoader(LoadStrategy.CACHE_FIRST, cache, client);
     makeRequests();
     assertThat(server.getNumberRequests()).isEqualTo(1);
   }
 
   @Test
-  public void testServerStrategy() {
-    loader.setCacheEnabled(true);
-    loader.setStrategy(LoadStrategy.SERVER_FIRST);
+  public void testServerFirst() {
+    loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, client);
     makeRequests();
     assertThat(server.getNumberRequests()).isEqualTo(3);
   }
 
   @Test
   public void testCacheStrategyDisabled() {
-    loader.setCacheEnabled(false);
-    loader.setStrategy(LoadStrategy.CACHE_FIRST);
+    loader = new WSLoader(LoadStrategy.SERVER_ONLY, cache, client);
     makeRequests();
     assertThat(server.getNumberRequests()).isEqualTo(3);
   }
 
   private void makeRequests() {
     server.setMockResponseData(RESPONSE_STRING);
-    assertThat(loader.loadString("/foo")).isEqualTo(RESPONSE_STRING);
-    assertThat(loader.loadString("/foo")).isEqualTo(RESPONSE_STRING);
-    assertThat(loader.loadString("/foo")).isEqualTo(RESPONSE_STRING);
+    assertThat(loader.loadString("/foo").get()).isEqualTo(RESPONSE_STRING);
+    assertThat(loader.loadString("/foo").get()).isEqualTo(RESPONSE_STRING);
+    assertThat(loader.loadString("/foo").get()).isEqualTo(RESPONSE_STRING);
   }
 
 }

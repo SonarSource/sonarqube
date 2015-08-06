@@ -48,25 +48,19 @@ public class WSLoader {
   }
 
   public enum LoadStrategy {
-    SERVER_FIRST, CACHE_FIRST;
+    SERVER_FIRST, CACHE_FIRST, SERVER_ONLY, CACHE_ONLY;
   }
 
   private LoadStrategy loadStrategy;
-  private boolean cacheEnabled;
   private ServerStatus serverStatus;
   private ServerClient client;
   private PersistentCache cache;
 
-  public WSLoader(boolean cacheEnabled, PersistentCache cache, ServerClient client) {
-    this.cacheEnabled = cacheEnabled;
-    this.loadStrategy = CACHE_FIRST;
+  public WSLoader(LoadStrategy strategy, PersistentCache cache, ServerClient client) {
+    this.loadStrategy = strategy;
     this.serverStatus = UNKNOWN;
     this.cache = cache;
     this.client = client;
-  }
-
-  public WSLoader(PersistentCache cache, ServerClient client) {
-    this(false, cache, client);
   }
 
   @Nonnull
@@ -83,27 +77,21 @@ public class WSLoader {
 
   @Nonnull
   public WSLoaderResult<byte[]> load(String id) {
-    if (loadStrategy == CACHE_FIRST) {
-      return loadFromCacheFirst(id);
-    } else {
-      return loadFromServerFirst(id);
+    switch (loadStrategy) {
+      case CACHE_FIRST:
+        return loadFromCacheFirst(id, true);
+      case CACHE_ONLY:
+        return loadFromCacheFirst(id, false);
+      case SERVER_FIRST:
+        return loadFromServerFirst(id, true);
+      case SERVER_ONLY:
+      default:
+        return loadFromServerFirst(id, false);
     }
-  }
-
-  public void setStrategy(LoadStrategy strategy) {
-    this.loadStrategy = strategy;
   }
 
   public LoadStrategy getStrategy() {
     return this.loadStrategy;
-  }
-
-  public void setCacheEnabled(boolean enabled) {
-    this.cacheEnabled = enabled;
-  }
-
-  public boolean isCacheEnabled() {
-    return this.cacheEnabled;
   }
 
   private void switchToOffline() {
@@ -120,47 +108,47 @@ public class WSLoader {
   }
 
   private void updateCache(String id, byte[] value) {
-    if (cacheEnabled) {
-      try {
-        cache.put(client.getURI(id).toString(), value);
-      } catch (IOException e) {
-        LOG.warn("Error saving to WS cache", e);
-      }
+    try {
+      cache.put(client.getURI(id).toString(), value);
+    } catch (IOException e) {
+      LOG.warn("Error saving to WS cache", e);
     }
   }
 
   @Nonnull
-  private WSLoaderResult<byte[]> loadFromCacheFirst(String id) {
+  private WSLoaderResult<byte[]> loadFromCacheFirst(String id, boolean fallback) {
     try {
       return loadFromCache(id);
     } catch (NotAvailableException cacheNotAvailable) {
-      try {
-        return loadFromServer(id);
-      } catch (NotAvailableException serverNotAvailable) {
-        throw new IllegalStateException(FAIL_MSG, serverNotAvailable.getCause());
+      if (fallback) {
+        try {
+          return loadFromServer(id);
+        } catch (NotAvailableException serverNotAvailable) {
+          throw new IllegalStateException(FAIL_MSG, serverNotAvailable.getCause());
+        }
       }
+      throw new IllegalStateException(FAIL_MSG, cacheNotAvailable.getCause());
     }
   }
 
   @Nonnull
-  private WSLoaderResult<byte[]> loadFromServerFirst(String id) {
+  private WSLoaderResult<byte[]> loadFromServerFirst(String id, boolean fallback) {
     try {
       return loadFromServer(id);
     } catch (NotAvailableException serverNotAvailable) {
-      try {
-        return loadFromCache(id);
-      } catch (NotAvailableException cacheNotAvailable) {
-        throw new IllegalStateException(FAIL_MSG, serverNotAvailable.getCause());
+      if (fallback) {
+        try {
+          return loadFromCache(id);
+        } catch (NotAvailableException cacheNotAvailable) {
+          throw new IllegalStateException(FAIL_MSG, serverNotAvailable.getCause());
+        }
       }
+      throw new IllegalStateException(FAIL_MSG, serverNotAvailable.getCause());
     }
   }
 
   @Nonnull
   private WSLoaderResult<byte[]> loadFromCache(String id) throws NotAvailableException {
-    if (!cacheEnabled) {
-      throw new NotAvailableException("cache disabled");
-    }
-
     try {
       byte[] result = cache.get(client.getURI(id).toString(), null);
       if (result == null) {

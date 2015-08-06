@@ -40,14 +40,14 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class UserRepositoryTest {
+public class UserRepositoryLoaderTest {
   @Rule
   public final ExpectedException exception = ExpectedException.none();
 
   @Test
   public void testLoad() throws IOException {
     WSLoader wsLoader = mock(WSLoader.class);
-    UserRepository userRepo = new UserRepository(wsLoader);
+    UserRepositoryLoader userRepo = new UserRepositoryLoader(wsLoader);
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     BatchInput.User.Builder builder = BatchInput.User.newBuilder();
@@ -58,13 +58,13 @@ public class UserRepositoryTest {
     when(wsLoader.loadSource("/batch/users?logins=fmallet,sbrandhof")).thenReturn(new WSLoaderResult<>(source, true));
     when(source.openStream()).thenReturn(new ByteArrayInputStream(out.toByteArray()));
 
-    assertThat(userRepo.loadFromWs(Arrays.asList("fmallet", "sbrandhof"))).extracting("login", "name").containsOnly(tuple("fmallet", "Freddy Mallet"), tuple("sbrandhof", "Simon"));
+    assertThat(userRepo.load(Arrays.asList("fmallet", "sbrandhof"))).extracting("login", "name").containsOnly(tuple("fmallet", "Freddy Mallet"), tuple("sbrandhof", "Simon"));
   }
 
   @Test
   public void testInputStreamError() throws IOException {
     WSLoader wsLoader = mock(WSLoader.class);
-    UserRepository userRepo = new UserRepository(wsLoader);
+    UserRepositoryLoader userRepo = new UserRepositoryLoader(wsLoader);
     ByteSource source = mock(ByteSource.class);
     when(wsLoader.loadSource("/batch/users?logins=fmallet,sbrandhof")).thenReturn(new WSLoaderResult<>(source, true));
 
@@ -75,6 +75,6 @@ public class UserRepositoryTest {
     exception.expect(IllegalStateException.class);
     exception.expectMessage("Unable to get user details from server");
 
-    assertThat(userRepo.loadFromWs(Arrays.asList("fmallet", "sbrandhof"))).extracting("login", "name").containsOnly(tuple("fmallet", "Freddy Mallet"), tuple("sbrandhof", "Simon"));
+    assertThat(userRepo.load(Arrays.asList("fmallet", "sbrandhof"))).extracting("login", "name").containsOnly(tuple("fmallet", "Freddy Mallet"), tuple("sbrandhof", "Simon"));
   }
 }

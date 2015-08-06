@@ -20,9 +20,12 @@
 package org.sonar.core.platform;
 
 import com.google.common.collect.Iterables;
+
 import java.util.Collection;
 import java.util.List;
+
 import javax.annotation.Nullable;
+
 import org.picocontainer.Characteristics;
 import org.picocontainer.ComponentAdapter;
 import org.picocontainer.DefaultPicoContainer;
@@ -155,6 +158,12 @@ public class ComponentContainer {
       }
     }
     return this;
+  }
+
+  public void addIfMissing(Object object, Class<?> objectType) {
+    if (getComponentByType(objectType) == null) {
+      add(object);
+    }
   }
 
   public ComponentContainer addSingletons(Collection components) {

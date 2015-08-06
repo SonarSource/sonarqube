@@ -431,7 +431,9 @@ public interface CoreProperties {
 
   /**
    * @since 4.0
+   * @deprecated since 5.2 the default mode is publish
    */
+  @Deprecated
   String ANALYSIS_MODE_ANALYSIS = "analysis";
 
   /**
@@ -443,6 +445,8 @@ public interface CoreProperties {
    * @since 5.2
    */
   String ANALYSIS_MODE_ISSUES = "issues";
+  
+  String ANALYSIS_MODE_PUBLISH = "publish";
 
   /**
    * @since 5.2

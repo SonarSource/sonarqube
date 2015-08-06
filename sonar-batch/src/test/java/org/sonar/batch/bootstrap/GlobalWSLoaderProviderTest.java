@@ -19,26 +19,45 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.batch.bootstrap.WSLoader.LoadStrategy;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import org.sonar.batch.bootstrap.WSLoader.LoadStrategy;
+import org.junit.Test;
+import org.junit.Before;
 import org.sonar.home.cache.PersistentCache;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
-public class WSLoaderGlobalProvider extends ProviderAdapter {
-  private static final LoadStrategy DEFAULT_STRATEGY = LoadStrategy.SERVER_FIRST;
-  private WSLoader wsLoader;
+public class GlobalWSLoaderProviderTest {
+  @Mock
+  private PersistentCache cache;
 
-  public WSLoader provide(BootstrapProperties props, GlobalMode mode, PersistentCache cache, ServerClient client) {
-    if (wsLoader == null) {
-      wsLoader = new WSLoader(isCacheEnabled(props.properties(), mode), cache, client);
-      wsLoader.setStrategy(DEFAULT_STRATEGY);
-    }
-    return wsLoader;
+  @Mock
+  private ServerClient client;
+
+  @Mock
+  private GlobalMode mode;
+
+  private GlobalWSLoaderProvider loaderProvider;
+  private Map<String, String> propMap;
+  private BootstrapProperties props;
+
+  @Before
+  public void setUp() {
+    MockitoAnnotations.initMocks(this);
+    loaderProvider = new GlobalWSLoaderProvider();
   }
 
-  private static boolean isCacheEnabled(Map<String, String> props, GlobalMode mode) {
-    return mode.isIssues();
+  @Test
+  public void testDefault() {
+    propMap = new HashMap<>();
+    props = new BootstrapProperties(propMap);
+
+    WSLoader wsLoader = loaderProvider.provide(props, mode, cache, client);
+    assertThat(wsLoader.getStrategy()).isEqualTo(LoadStrategy.SERVER_ONLY);
   }
+
 }

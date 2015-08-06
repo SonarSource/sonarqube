@@ -17,23 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.scan;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.sonar.api.batch.AnalysisMode;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.sonar.batch.bootstrap.AnalysisProperties;
+import org.sonar.batch.bootstrap.ServerClient;
+import org.sonar.batch.bootstrap.WSLoader;
+import org.sonar.batch.bootstrap.WSLoader.LoadStrategy;
+import org.sonar.home.cache.PersistentCache;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.sonar.batch.bootstrap.WSLoader.LoadStrategy;
-import org.junit.Test;
-import org.junit.Before;
-import org.sonar.home.cache.PersistentCache;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-public class WSLoaderGlobalProviderTest {
+public class ProjectWSLoaderProviderTest {
   @Mock
   private PersistentCache cache;
 
@@ -41,36 +43,24 @@ public class WSLoaderGlobalProviderTest {
   private ServerClient client;
 
   @Mock
-  private GlobalMode mode;
+  private AnalysisMode mode;
 
-  private WSLoaderGlobalProvider loaderProvider;
+  private ProjectWSLoaderProvider loaderProvider;
   private Map<String, String> propMap;
-  private BootstrapProperties props;
+  private AnalysisProperties props;
 
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    loaderProvider = new WSLoaderGlobalProvider();
+    loaderProvider = new ProjectWSLoaderProvider();
+    propMap = new HashMap<>();
   }
 
   @Test
   public void testDefault() {
-    propMap = new HashMap<>();
-    props = new BootstrapProperties(propMap);
+    props = new AnalysisProperties(propMap, null);
 
-    WSLoader wsLoader = loaderProvider.provide(props, mode, cache, client);
-    assertThat(wsLoader.getStrategy()).isEqualTo(LoadStrategy.SERVER_FIRST);
-    assertThat(wsLoader.isCacheEnabled()).isEqualTo(false);
-  }
-
-  @Test
-  public void testOffline() {
-    propMap = new HashMap<>();
-    propMap.put("sonar.enableOffline", "true");
-    when(mode.isIssues()).thenReturn(true);
-    props = new BootstrapProperties(propMap);
-
-    WSLoader wsLoader = loaderProvider.provide(props, mode, cache, client);
-    assertThat(wsLoader.isCacheEnabled()).isEqualTo(true);
+    WSLoader loader = loaderProvider.provide(props, mode, cache, client);
+    assertThat(loader.getStrategy()).isEqualTo(LoadStrategy.SERVER_ONLY);
   }
 }

@@ -70,10 +70,9 @@ public class WSLoaderTest {
   }
 
   @Test
-  public void dont_retry_server() throws IOException {
-    when(client.load(anyString(), anyString(), anyBoolean(), anyInt(), anyInt())).thenThrow(new IllegalStateException());
-    WSLoader loader = new WSLoader(true, cache, client);
-    loader.setStrategy(LoadStrategy.SERVER_FIRST);
+  public void dont_retry_server_offline() throws IOException {
+    turnServerOffline();
+    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, client);
 
     assertResult(loader.loadString(ID), cacheValue, true);
     assertResult(loader.loadString(ID), cacheValue, true);
@@ -86,8 +85,7 @@ public class WSLoaderTest {
   @Test
   public void test_cache_strategy_fallback() throws IOException {
     when(cache.get(ID, null)).thenReturn(null);
-    WSLoader loader = new WSLoader(true, cache, client);
-    loader.setStrategy(LoadStrategy.CACHE_FIRST);
+    WSLoader loader = new WSLoader(LoadStrategy.CACHE_FIRST, cache, client);
 
     assertResult(loader.load(ID), serverValue.getBytes(), false);
 
@@ -98,9 +96,8 @@ public class WSLoaderTest {
 
   @Test
   public void test_server_strategy_fallback() throws IOException {
-    when(client.load(anyString(), anyString(), anyBoolean(), anyInt(), anyInt())).thenThrow(new IllegalStateException());
-    WSLoader loader = new WSLoader(true, cache, client);
-    loader.setStrategy(LoadStrategy.SERVER_FIRST);
+    turnServerOffline();
+    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, client);
 
     assertResult(loader.loadString(ID), cacheValue, true);
 
@@ -111,20 +108,16 @@ public class WSLoaderTest {
 
   @Test
   public void test_put_cache() throws IOException {
-    WSLoader loader = new WSLoader(true, cache, client);
-    loader.setStrategy(LoadStrategy.SERVER_FIRST);
+    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, client);
     loader.load(ID);
     verify(cache).put(ID, serverValue.getBytes());
   }
 
   @Test(expected = NullPointerException.class)
   public void test_throw_cache_exception_fallback() throws IOException {
-    when(client.load(anyString(), anyString(), anyBoolean(), anyInt(), anyInt())).thenThrow(new IllegalStateException());
+    turnServerOffline();
     when(cache.get(ID, null)).thenThrow(new NullPointerException());
-
-    WSLoader loader = new WSLoader(true, cache, client);
-    loader.setStrategy(LoadStrategy.SERVER_FIRST);
-
+    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, client);
     loader.load(ID);
   }
 
@@ -132,9 +125,7 @@ public class WSLoaderTest {
   public void test_throw_cache_exception() throws IOException {
     when(cache.get(ID, null)).thenThrow(new IllegalStateException());
 
-    WSLoader loader = new WSLoader(true, cache, client);
-    loader.setStrategy(LoadStrategy.CACHE_FIRST);
-
+    WSLoader loader = new WSLoader(LoadStrategy.CACHE_FIRST, cache, client);
     loader.load(ID);
   }
 
@@ -145,8 +136,7 @@ public class WSLoaderTest {
 
     when(client.load(anyString(), anyString(), anyBoolean(), anyInt(), anyInt())).thenThrow(wrapperException);
 
-    WSLoader loader = new WSLoader(true, cache, client);
-    loader.setStrategy(LoadStrategy.SERVER_FIRST);
+    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, client);
 
     try {
       loader.load(ID);
@@ -158,23 +148,8 @@ public class WSLoaderTest {
   }
 
   @Test
-  public void test_change_strategy() throws IOException {
-    WSLoader loader = new WSLoader(true, cache, client);
-    loader.setStrategy(LoadStrategy.CACHE_FIRST);
-    test_cache_strategy_fallback();
-  }
-
-  @Test
-  public void test_enable_cache() throws IOException {
-    WSLoader loader = new WSLoader(true, cache, client);
-    loader.setCacheEnabled(false);
-    test_cache_disabled();
-  }
-
-  @Test
   public void test_server_strategy() throws IOException {
-    WSLoader loader = new WSLoader(true, cache, client);
-    loader.setStrategy(LoadStrategy.SERVER_FIRST);
+    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, client);
     assertResult(loader.load(ID), serverValue.getBytes(), false);
 
     // should not fetch from cache
@@ -182,18 +157,16 @@ public class WSLoaderTest {
     verifyNoMoreInteractions(cache);
   }
 
-  @Test
-  public void test_cache_disabled() throws IOException {
-    WSLoader loader = new WSLoader(cache, client);
+  @Test(expected = IllegalStateException.class)
+  public void test_server_only() throws IOException {
+    turnServerOffline();
+    WSLoader loader = new WSLoader(LoadStrategy.SERVER_ONLY, cache, client);
     loader.load(ID);
-
-    // should not even put
-    verifyNoMoreInteractions(cache);
   }
 
   @Test
   public void test_string() {
-    WSLoader loader = new WSLoader(cache, client);
+    WSLoader loader = new WSLoader(LoadStrategy.SERVER_FIRST, cache, client);
     assertResult(loader.loadString(ID), serverValue, false);
   }
 
@@ -201,5 +174,9 @@ public class WSLoaderTest {
     assertThat(result).isNotNull();
     assertThat(result.get()).isEqualTo(expected);
     assertThat(result.isFromCache()).isEqualTo(fromCache);
+  }
+
+  private void turnServerOffline() {
+    when(client.load(anyString(), anyString(), anyBoolean(), anyInt(), anyInt())).thenThrow(new IllegalStateException());
   }
 }

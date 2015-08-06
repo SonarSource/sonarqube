@@ -19,12 +19,12 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.bootstrap.AbstractServerLoader;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 
+import org.sonar.batch.bootstrap.AbstractServerLoader;
 import org.sonar.batch.bootstrap.WSLoaderResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.batch.bootstrap.GlobalMode;
@@ -47,8 +47,8 @@ public class DefaultProjectRepositoriesLoader extends AbstractServerLoader imple
   }
 
   @Override
-  public ProjectRepositories load(ProjectReactor reactor, AnalysisProperties taskProperties) {
-    String projectKey = reactor.getRoot().getKeyWithBranch();
+  public ProjectRepositories load(ProjectDefinition projectDefinition, AnalysisProperties taskProperties) {
+    String projectKey = projectDefinition.getKeyWithBranch();
     String url = BATCH_PROJECT_URL + "?key=" + BatchUtils.encodeForUrl(projectKey);
     if (taskProperties.properties().containsKey(ModuleQProfiles.SONAR_PROFILE_PROP)) {
       LOG.warn("Ability to set quality profile from command line using '" + ModuleQProfiles.SONAR_PROFILE_PROP
@@ -57,7 +57,7 @@ public class DefaultProjectRepositoriesLoader extends AbstractServerLoader imple
     }
     url += "&preview=" + globalMode.isIssues();
     ProjectRepositories projectRepositories = ProjectRepositories.fromJson(load(url));
-    validateProjectRepositories(projectRepositories, reactor.getRoot().getKey());
+    validateProjectRepositories(projectRepositories);
     return projectRepositories;
   }
 
@@ -67,7 +67,7 @@ public class DefaultProjectRepositoriesLoader extends AbstractServerLoader imple
     return result.get();
   }
 
-  private static void validateProjectRepositories(ProjectRepositories projectRepositories, String projectKey) {
+  private static void validateProjectRepositories(ProjectRepositories projectRepositories) {
     if (projectRepositories.qProfiles().isEmpty()) {
       throw MessageException.of("No quality profiles has been found this project, you probably don't have any language plugin suitable for this analysis.");
     }

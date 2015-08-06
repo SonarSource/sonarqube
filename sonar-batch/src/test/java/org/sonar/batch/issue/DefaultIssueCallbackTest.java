@@ -28,7 +28,7 @@ import org.sonar.batch.protocol.input.BatchInput;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Mock;
 import org.sonar.api.batch.rule.Rules;
-import org.sonar.batch.repository.user.UserRepository;
+import org.sonar.batch.repository.user.UserRepositoryLoader;
 import org.sonar.batch.bootstrapper.IssueListener;
 import org.junit.Before;
 import com.google.common.collect.ImmutableList;
@@ -47,7 +47,7 @@ public class DefaultIssueCallbackTest {
   @Mock
   private IssueCache issueCache;
   @Mock
-  private UserRepository userRepository;
+  private UserRepositoryLoader userRepository;
   @Mock
   private Rules rules;
 
@@ -68,7 +68,7 @@ public class DefaultIssueCallbackTest {
     BatchInput.User.Builder userBuilder = BatchInput.User.newBuilder();
     userBuilder.setLogin("user");
     userBuilder.setName("name");
-    when(userRepository.loadFromWs(anyListOf(String.class))).thenReturn(ImmutableList.of(userBuilder.build()));
+    when(userRepository.load(anyListOf(String.class))).thenReturn(ImmutableList.of(userBuilder.build()));
 
     Rule r = mock(Rule.class);
     when(r.name()).thenReturn("rule name");
@@ -128,7 +128,7 @@ public class DefaultIssueCallbackTest {
       }
     };
 
-    when(userRepository.loadFromWs(anyListOf(String.class))).thenReturn(new LinkedList<BatchInput.User>());
+    when(userRepository.load(anyListOf(String.class))).thenReturn(new LinkedList<BatchInput.User>());
     when(rules.find(any(RuleKey.class))).thenReturn(null);
 
     DefaultIssueCallback issueCallback = new DefaultIssueCallback(issueCache, listener, userRepository, rules);

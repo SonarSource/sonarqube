@@ -19,8 +19,10 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.batch.rule.RulesLoader;
+import org.sonar.batch.scan.ProjectAnalysisMode;
 
+import org.sonar.batch.cache.ProjectSyncContainer;
+import org.sonar.batch.rule.RulesLoader;
 import org.sonar.batch.rule.DefaultRulesLoader;
 import org.sonar.batch.rule.RulesProvider;
 
@@ -33,17 +35,10 @@ import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.batch.index.CachesManager;
-import org.sonar.batch.issue.tracking.DefaultServerLineHashesLoader;
-import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
 import org.sonar.batch.platform.DefaultServer;
 import org.sonar.batch.repository.DefaultGlobalRepositoriesLoader;
-import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
-import org.sonar.batch.repository.DefaultServerIssuesLoader;
 import org.sonar.batch.repository.GlobalRepositoriesLoader;
 import org.sonar.batch.repository.GlobalRepositoriesProvider;
-import org.sonar.batch.repository.ProjectRepositoriesLoader;
-import org.sonar.batch.repository.ServerIssuesLoader;
-import org.sonar.batch.repository.user.UserRepository;
 import org.sonar.batch.scan.ProjectScanContainer;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.DefaultI18n;
@@ -99,25 +94,15 @@ public class GlobalContainer extends ComponentContainer {
       UriReader.class,
       new FileCacheProvider(),
       new PersistentCacheProvider(),
-      new WSLoaderGlobalProvider(),
+      new GlobalWSLoaderProvider(),
       System2.INSTANCE,
       DefaultI18n.class,
       Durations.class,
       RuleI18nManager.class,
-      new GlobalRepositoriesProvider(),
-      UserRepository.class);
+      new GlobalRepositoriesProvider());
     addIfMissing(BatchPluginInstaller.class, PluginInstaller.class);
     addIfMissing(DefaultRulesLoader.class, RulesLoader.class);
     addIfMissing(DefaultGlobalRepositoriesLoader.class, GlobalRepositoriesLoader.class);
-    addIfMissing(DefaultProjectRepositoriesLoader.class, ProjectRepositoriesLoader.class);
-    addIfMissing(DefaultServerIssuesLoader.class, ServerIssuesLoader.class);
-    addIfMissing(DefaultServerLineHashesLoader.class, ServerLineHashesLoader.class);
-  }
-
-  public void addIfMissing(Object object, Class<?> objectType) {
-    if (getComponentByType(objectType) == null) {
-      add(object);
-    }
   }
 
   @Override
@@ -135,6 +120,20 @@ public class GlobalContainer extends ComponentContainer {
 
   public void executeAnalysis(Map<String, String> analysisProperties, Object... components) {
     AnalysisProperties props = new AnalysisProperties(analysisProperties, this.getComponentByType(BootstrapProperties.class).property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
+    if (isIssuesMode(props)) {
+      new ProjectSyncContainer(this, props, false).execute();
+    }
     new ProjectScanContainer(this, props, components).execute();
   }
+
+  public void syncProject(Map<String, String> analysisProperties, boolean force) {
+    AnalysisProperties props = new AnalysisProperties(analysisProperties, this.getComponentByType(BootstrapProperties.class).property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
+    new ProjectSyncContainer(this, props, force).execute();
+  }
+
+  private boolean isIssuesMode(AnalysisProperties props) {
+    ProjectAnalysisMode mode = new ProjectAnalysisMode(this.getComponentByType(BootstrapProperties.class), props);
+    return mode.isIssues();
+  }
+
 }

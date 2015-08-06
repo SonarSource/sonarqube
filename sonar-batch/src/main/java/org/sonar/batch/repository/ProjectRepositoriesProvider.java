@@ -38,7 +38,7 @@ public class ProjectRepositoriesProvider extends ProviderAdapter {
   public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectReactor reactor, AnalysisProperties taskProps, AnalysisMode analysisMode) {
     if (projectReferentials == null) {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      projectReferentials = loader.load(reactor, taskProps);
+      projectReferentials = loader.load(reactor.getRoot(), taskProps);
 
       if (loader.loadedFromCache()) {
         profiler.stopInfo(LOG_MSG + " (done from cache)");

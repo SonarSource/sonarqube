@@ -19,8 +19,8 @@
  */
 package org.sonar.batch.mediumtest;
 
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
-
 import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.api.server.rule.RulesDefinition.Repository;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -43,7 +43,6 @@ import java.util.Properties;
 
 import org.sonar.api.CoreProperties;
 import org.sonar.api.SonarPlugin;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.debt.internal.DefaultDebtModel;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
@@ -196,6 +195,7 @@ public class BatchMediumTester {
       serverLineHashes.byKey.put(fileKey, lineHashes);
       return this;
     }
+
   }
 
   public void start() {
@@ -204,6 +204,10 @@ public class BatchMediumTester {
 
   public void stop() {
     batch.stop();
+  }
+
+  public void syncProject(String projectKey) {
+    batch.syncProject(projectKey);
   }
 
   private BatchMediumTester(BatchMediumTesterBuilder builder) {
@@ -341,7 +345,7 @@ public class BatchMediumTester {
     private ProjectRepositories ref = new ProjectRepositories();
 
     @Override
-    public ProjectRepositories load(ProjectReactor reactor, AnalysisProperties taskProperties) {
+    public ProjectRepositories load(ProjectDefinition projDefinition, AnalysisProperties taskProperties) {
       return ref;
     }
 

@@ -17,51 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan;
+package org.sonar.batch.cache;
 
-import org.sonar.api.batch.AnalysisMode;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.sonar.batch.bootstrap.AnalysisProperties;
+import org.picocontainer.injectors.ProviderAdapter;
+
+import org.sonar.batch.bootstrap.BootstrapProperties;
+import org.sonar.batch.bootstrap.GlobalMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.bootstrap.WSLoader;
 import org.sonar.batch.bootstrap.WSLoader.LoadStrategy;
 import org.sonar.home.cache.PersistentCache;
 
-import java.util.HashMap;
-import java.util.Map;
+public class StrategyWSLoaderProvider extends ProviderAdapter {
+  private final LoadStrategy strategy;
+  private WSLoader wsLoader;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class WSLoaderProjectProviderTest {
-  @Mock
-  private PersistentCache cache;
-
-  @Mock
-  private ServerClient client;
-
-  @Mock
-  private AnalysisMode mode;
-
-  private ProjectWSLoaderProvider loaderProvider;
-  private Map<String, String> propMap;
-  private AnalysisProperties props;
-
-  @Before
-  public void setUp() {
-    MockitoAnnotations.initMocks(this);
-    loaderProvider = new ProjectWSLoaderProvider();
-    propMap = new HashMap<>();
+  public StrategyWSLoaderProvider(LoadStrategy strategy) {
+    this.strategy = strategy;
   }
 
-  @Test
-  public void testDefault() {
-    props = new AnalysisProperties(propMap, null);
-
-    WSLoader loader = loaderProvider.provide(props, mode, cache, client);
-    assertThat(loader.getStrategy()).isEqualTo(LoadStrategy.SERVER_FIRST);
-    assertThat(loader.isCacheEnabled()).isEqualTo(false);
+  public WSLoader provide(BootstrapProperties props, GlobalMode mode, PersistentCache cache, ServerClient client) {
+    if (wsLoader == null) {
+      wsLoader = new WSLoader(strategy, cache, client);
+    }
+    return wsLoader;
   }
 }

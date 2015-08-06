@@ -17,36 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan;
+package org.sonar.batch.bootstrap;
 
 import org.picocontainer.injectors.ProviderAdapter;
-
-import java.util.Map;
-
-import org.sonar.batch.bootstrap.AnalysisProperties;
-import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.batch.bootstrap.WSLoader;
-import org.sonar.home.cache.PersistentCache;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.batch.bootstrap.WSLoader.LoadStrategy;
 
-public class ProjectWSLoaderProvider extends ProviderAdapter {
+import org.sonar.home.cache.PersistentCache;
+
+public class GlobalWSLoaderProvider extends ProviderAdapter {
+  private static final LoadStrategy DEFAULT_STRATEGY = LoadStrategy.SERVER_ONLY;
   private WSLoader wsLoader;
 
-  public WSLoader provide(AnalysisProperties props, AnalysisMode mode, PersistentCache cache, ServerClient client) {
+  public WSLoader provide(BootstrapProperties props, GlobalMode mode, PersistentCache cache, ServerClient client) {
     if (wsLoader == null) {
-      // recreate cache directory if needed for this analysis
-      cache.reconfigure();
-      wsLoader = new WSLoader(getStrategy(props.properties(), mode), cache, client);
+      wsLoader = new WSLoader(DEFAULT_STRATEGY, cache, client);
     }
     return wsLoader;
-  }
-
-  private static LoadStrategy getStrategy(Map<String, String> props, AnalysisMode mode) {
-    if (mode.isIssues()) {
-      return LoadStrategy.CACHE_ONLY;
-    }
-
-    return LoadStrategy.SERVER_ONLY;
   }
 }

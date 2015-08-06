@@ -31,21 +31,21 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.sonar.batch.repository.user.UserRepository;
+import org.sonar.batch.repository.user.UserRepositoryLoader;
 import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.core.issue.DefaultIssue;
 
 public class DefaultIssueCallback implements IssueCallback {
   private final IssueCache issues;
   private final IssueListener listener;
-  private final UserRepository userRepository;
+  private final UserRepositoryLoader userRepository;
   private final Rules rules;
 
   private Set<String> userLoginNames = new HashSet<>();
   private Map<String, String> userMap = new HashMap<>();
   private Set<RuleKey> ruleKeys = new HashSet<>();
 
-  public DefaultIssueCallback(IssueCache issues, IssueListener listener, UserRepository userRepository, Rules rules) {
+  public DefaultIssueCallback(IssueCache issues, IssueListener listener, UserRepositoryLoader userRepository, Rules rules) {
     this.issues = issues;
     this.listener = listener;
     this.userRepository = userRepository;
@@ -55,7 +55,7 @@ public class DefaultIssueCallback implements IssueCallback {
   /**
    * If no listener exists, this constructor will be used by pico.
    */
-  public DefaultIssueCallback(IssueCache issues, UserRepository userRepository, Rules rules) {
+  public DefaultIssueCallback(IssueCache issues, UserRepositoryLoader userRepository, Rules rules) {
     this(issues, null, userRepository, rules);
   }
 
@@ -104,7 +104,7 @@ public class DefaultIssueCallback implements IssueCallback {
   }
 
   private void getUsers() {
-    Collection<User> users = userRepository.loadFromWs(new ArrayList<>(userLoginNames));
+    Collection<User> users = userRepository.load(new ArrayList<>(userLoginNames));
     for (User user : users) {
       userMap.put(user.getLogin(), user.getName());
     }

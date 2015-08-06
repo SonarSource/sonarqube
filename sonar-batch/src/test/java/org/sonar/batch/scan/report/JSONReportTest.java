@@ -46,7 +46,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.input.BatchInput;
-import org.sonar.batch.repository.user.UserRepository;
+import org.sonar.batch.repository.user.UserRepositoryLoader;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.test.JsonAssert;
@@ -71,7 +71,7 @@ public class JSONReportTest {
   Rules rules = mock(Rules.class);
   Settings settings = new Settings();
   IssueCache issueCache = mock(IssueCache.class);
-  private UserRepository userRepository;
+  private UserRepositoryLoader userRepository;
 
   @Before
   public void before() throws Exception {
@@ -79,7 +79,7 @@ public class JSONReportTest {
     SIMPLE_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT+02:00"));
     when(resource.getEffectiveKey()).thenReturn("Action.java");
     when(server.getVersion()).thenReturn("3.6");
-    userRepository = mock(UserRepository.class);
+    userRepository = mock(UserRepositoryLoader.class);
     DefaultInputDir inputDir = new DefaultInputDir("struts", "src/main/java/org/apache/struts");
     DefaultInputFile inputFile = new DefaultInputFile("struts", "src/main/java/org/apache/struts/Action.java");
     inputFile.setStatus(InputFile.Status.CHANGED);
@@ -118,7 +118,7 @@ public class JSONReportTest {
     when(issueCache.all()).thenReturn(Lists.newArrayList(issue));
     BatchInput.User user1 = BatchInput.User.newBuilder().setLogin("julien").setName("Julien").build();
     BatchInput.User user2 = BatchInput.User.newBuilder().setLogin("simon").setName("Simon").build();
-    when(userRepository.loadFromWs(anyListOf(String.class))).thenReturn(Lists.newArrayList(user1, user2));
+    when(userRepository.load(anyListOf(String.class))).thenReturn(Lists.newArrayList(user1, user2));
 
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);

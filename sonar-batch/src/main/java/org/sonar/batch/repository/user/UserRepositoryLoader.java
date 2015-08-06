@@ -39,33 +39,52 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class UserRepository {
-  private static final Logger LOG = Loggers.get(UserRepository.class);
+public class UserRepositoryLoader {
+  private static final Logger LOG = Loggers.get(UserRepositoryLoader.class);
   private final WSLoader wsLoader;
 
-  public UserRepository(WSLoader wsLoader) {
+  public UserRepositoryLoader(WSLoader wsLoader) {
     this.wsLoader = wsLoader;
   }
-  
-  public Collection<BatchInput.User> loadFromWs(List<String> userLogins) {
+
+  public BatchInput.User load(String userLogin) {
+    ByteSource byteSource = loadUsers(new UserEncodingFunction().apply(userLogin));
+    return parseUser(byteSource);
+  }
+
+  public Collection<BatchInput.User> load(List<String> userLogins) {
     if (userLogins.isEmpty()) {
       return Collections.emptyList();
     }
+    ByteSource byteSource = loadUsers(Joiner.on(',').join(Lists.transform(userLogins, new UserEncodingFunction())));
+
+    return parseUsers(byteSource);
+  }
+
+  private ByteSource loadUsers(String loginsQuery) {
     Profiler profiler = Profiler.create(LOG).startDebug("Load user repository");
-    WSLoaderResult<ByteSource> result = wsLoader.loadSource("/batch/users?logins=" + Joiner.on(',').join(Lists.transform(userLogins, new UserEncodingFunction())));
+    WSLoaderResult<ByteSource> result = wsLoader.loadSource("/batch/users?logins=" + loginsQuery);
     if (result.isFromCache()) {
       profiler.stopInfo("Load user repository (done from cache)");
     } else {
       profiler.stopInfo();
     }
 
-    return parseUsers(result.get());
+    return result.get();
   }
 
   private static class UserEncodingFunction implements Function<String, String> {
     @Override
     public String apply(String input) {
       return BatchUtils.encodeForUrl(input);
+    }
+  }
+
+  private static BatchInput.User parseUser(ByteSource input) {
+    try (InputStream is = input.openStream()) {
+      return BatchInput.User.parseFrom(is);
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to get user details from server", e);
     }
   }
 

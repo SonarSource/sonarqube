@@ -74,6 +74,10 @@ public class ProjectRepositories {
     return this;
   }
 
+  public Map<String, Map<String, FileData>> fileDataByModuleAndPath() {
+    return fileDataByModuleAndPath;
+  }
+
   public Map<String, FileData> fileDataByPath(String moduleKey) {
     return fileDataByModuleAndPath.containsKey(moduleKey) ? fileDataByModuleAndPath.get(moduleKey) : Collections.<String, FileData>emptyMap();
   }

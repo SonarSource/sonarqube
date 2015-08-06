@@ -51,7 +51,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.input.BatchInput;
-import org.sonar.batch.repository.user.UserRepository;
+import org.sonar.batch.repository.user.UserRepositoryLoader;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.issue.DefaultIssue;
 
@@ -74,10 +74,10 @@ public class JSONReport implements Reporter {
   private final IssueCache issueCache;
   private final InputPathCache fileCache;
   private final Project rootModule;
-  private final UserRepository userRepository;
+  private final UserRepositoryLoader userRepository;
 
   public JSONReport(Settings settings, FileSystem fileSystem, Server server, Rules rules, IssueCache issueCache,
-    Project rootModule, InputPathCache fileCache, UserRepository userRepository) {
+    Project rootModule, InputPathCache fileCache, UserRepositoryLoader userRepository) {
     this.settings = settings;
     this.fileSystem = fileSystem;
     this.server = server;
@@ -120,7 +120,7 @@ public class JSONReport implements Reporter {
       writeJsonIssues(json, ruleKeys, userLogins);
       writeJsonComponents(json);
       writeJsonRules(json, ruleKeys);
-      Collection<BatchInput.User> users = userRepository.loadFromWs(new ArrayList<>(userLogins));
+      Collection<BatchInput.User> users = userRepository.load(new ArrayList<>(userLogins));
       writeUsers(json, users);
       json.endObject().close();
 

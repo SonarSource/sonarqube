@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.batch.mediumtest.FakePluginInstaller;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.AnalysisProperties;
@@ -26,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AnalysisMode;
-import org.sonar.batch.mediumtest.BatchMediumTester;
 
 import java.util.Map;
 
@@ -81,7 +82,7 @@ public class ProjectAnalysisMode implements AnalysisMode {
     validate(mode);
     preview = CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
     issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode);
-    mediumTestMode = "true".equals(getPropertyWithFallback(analysisProps, globalProps, BatchMediumTester.MEDIUM_TEST_ENABLED));
+    mediumTestMode = "true".equals(getPropertyWithFallback(analysisProps, globalProps, FakePluginInstaller.MEDIUM_TEST_ENABLED));
 
     if (preview) {
       LOG.info("Preview mode");
