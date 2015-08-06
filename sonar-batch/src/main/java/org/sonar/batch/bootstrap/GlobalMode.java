@@ -33,7 +33,7 @@ public class GlobalMode {
   public boolean isPreview() {
     return preview;
   }
-
+  
   public boolean isIssues() {
     return issues;
   }
