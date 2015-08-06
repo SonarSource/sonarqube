@@ -44,6 +44,7 @@ import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.Visitor;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 
@@ -107,7 +108,7 @@ public class ValidateProjectStep implements ComputationStep {
     private Component rawProject;
 
     public ValidateProjectsCrawler(DbSession session, ComponentDao componentDao, boolean preventAutomaticProjectCreation, Map<String, ComponentDto> baseModulesByKey) {
-      super(Component.Type.MODULE, Order.PRE_ORDER);
+      super(Component.Type.MODULE, Visitor.Order.PRE_ORDER);
       this.session = session;
       this.componentDao = componentDao;
 

@@ -30,7 +30,7 @@ import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.MutableTreeRootHolder;
 import org.sonar.server.computation.component.TreeRootHolder;
 
-import static org.sonar.server.computation.component.ComponentCrawler.Order.POST_ORDER;
+import static org.sonar.server.computation.component.Visitor.Order.POST_ORDER;
 
 public class TreeRootHolderRule implements TestRule, MutableTreeRootHolder {
   private Component root;

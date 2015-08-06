@@ -36,7 +36,7 @@ import org.sonar.server.computation.qualityprofile.QPMeasureData;
 import org.sonar.server.computation.qualityprofile.QualityProfile;
 
 import static org.sonar.server.computation.component.Component.Type.MODULE;
-import static org.sonar.server.computation.component.ComponentCrawler.Order.POST_ORDER;
+import static org.sonar.server.computation.component.Visitor.Order.POST_ORDER;
 
 /**
  * Aggregates quality profile on lower-level module nodes on their parent modules and project
@@ -74,7 +74,7 @@ public class ComputeQProfileMeasureStep implements ComputationStep {
     }
 
     @Override
-    protected void visitProject(Component project, Path<QProfiles> path) {
+    public void visitProject(Component project, Path<QProfiles> path) {
       addMeasure(project, path.current());
       Optional<Measure> qProfileMeasure = measureRepository.getRawMeasure(project, qProfilesMetric);
       if (!qProfileMeasure.isPresent() || QPMeasureData.fromJson(qProfileMeasure.get().getData()).getProfiles().isEmpty()) {
@@ -84,7 +84,7 @@ public class ComputeQProfileMeasureStep implements ComputationStep {
     }
 
     @Override
-    protected void visitModule(Component module, Path<QProfiles> path) {
+    public void visitModule(Component module, Path<QProfiles> path) {
       Optional<Measure> measure = measureRepository.getRawMeasure(module, qProfilesMetric);
       QProfiles qProfiles = path.current();
       if (measure.isPresent()) {

@@ -36,7 +36,7 @@ import org.sonar.server.computation.issue.IssueVisitors;
 import org.sonar.server.computation.issue.TrackerExecution;
 import org.sonar.server.util.cache.DiskCache;
 
-import static org.sonar.server.computation.component.ComponentCrawler.Order.POST_ORDER;
+import static org.sonar.server.computation.component.Visitor.Order.POST_ORDER;
 
 public class IntegrateIssuesStep implements ComputationStep {
 

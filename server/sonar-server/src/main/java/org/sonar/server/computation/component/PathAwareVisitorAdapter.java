@@ -23,34 +23,17 @@ package org.sonar.server.computation.component;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Implementation of {@link TypeAwareCrawler} that implements a depth traversal of a {@link Component} tree.
- * <p>It supports visiting traversal in either pre-order or post-order</p>
- * It supports a max depth for crawling (component strictly deeper than the specified type will be ignored).
+ * A adapter of the {@link PathAwareVisitor} to be able to visit only some component types
  */
-public abstract class DepthTraversalTypeAwareCrawler implements TypeAwareCrawler {
+public abstract class PathAwareVisitorAdapter<T> implements PathAwareVisitor<T> {
   private final Component.Type maxDepth;
-  private final Visitor.Order order;
+  private final Order order;
+  private final StackElementFactory<T> factory;
 
-  protected DepthTraversalTypeAwareCrawler(Component.Type maxDepth, Visitor.Order order) {
+  public PathAwareVisitorAdapter(Component.Type maxDepth, Order order, StackElementFactory<T> factory) {
     this.maxDepth = requireNonNull(maxDepth);
     this.order = requireNonNull(order);
-  }
-
-  @Override
-  public void visit(Component component) {
-    if (component.getType().isDeeperThan(maxDepth)) {
-      return;
-    }
-
-    if (order == Visitor.Order.PRE_ORDER) {
-      visitNode(component);
-    }
-
-    visitChildren(component);
-
-    if (order == Visitor.Order.POST_ORDER) {
-      visitNode(component);
-    }
+    this.factory = requireNonNull(factory, "Factory can not be null");
   }
 
   @Override
@@ -63,61 +46,73 @@ public abstract class DepthTraversalTypeAwareCrawler implements TypeAwareCrawler
     return order;
   }
 
-  private void visitNode(Component component) {
-    visitAny(component);
-    switch (component.getType()) {
-      case PROJECT:
-        visitProject(component);
-        break;
-      case MODULE:
-        visitModule(component);
-        break;
-      case DIRECTORY:
-        visitDirectory(component);
-        break;
-      case FILE:
-        visitFile(component);
-        break;
-      default:
-        visitUnknown(component);
+  @Override
+  public StackElementFactory<T> getFactory() {
+    return factory;
+  }
+
+  @Override
+  public void visitProject(Component project, Path<T> path) {
+    // empty implementation, meant to be override at will by subclasses
+  }
+
+  @Override
+  public void visitModule(Component module, Path<T> path) {
+    // empty implementation, meant to be override at will by subclasses
+  }
+
+  @Override
+  public void visitDirectory(Component directory, Path<T> path) {
+    // empty implementation, meant to be override at will by subclasses
+  }
+
+  @Override
+  public void visitFile(Component file, Path<T> path) {
+    // empty implementation, meant to be override at will by subclasses
+  }
+
+  @Override
+  public void visitUnknown(Component unknownComponent, Path<T> path) {
+    // empty implementation, meant to be override at will by subclasses
+  }
+
+  @Override
+  public void visitAny(Component component, Path<T> path) {
+    // empty implementation, meant to be override at will by subclasses
+  }
+
+  /**
+   * A Simple implementation which uses the same factory method for all types which can be implemented by subclasses:
+   * {@link #createForAny(Component)}.
+   */
+  public abstract static class SimpleStackElementFactory<T> implements StackElementFactory<T> {
+
+    public abstract T createForAny(Component component);
+
+    @Override
+    public T createForProject(Component project) {
+      return createForAny(project);
+    }
+
+    @Override
+    public T createForModule(Component module) {
+      return createForAny(module);
+    }
+
+    @Override
+    public T createForDirectory(Component directory) {
+      return createForAny(directory);
+    }
+
+    @Override
+    public T createForFile(Component file) {
+      return createForAny(file);
+    }
+
+    @Override
+    public T createForUnknown(Component file) {
+      return createForAny(file);
     }
   }
 
-  private void visitChildren(Component component) {
-    for (Component child : component.getChildren()) {
-      if (!child.getType().isDeeperThan(maxDepth)) {
-        visit(child);
-      }
-    }
-  }
-
-  @Override
-  public void visitProject(Component project) {
-    // empty implementation, meant to be override at will by subclasses
-  }
-
-  @Override
-  public void visitModule(Component module) {
-    // empty implementation, meant to be override at will by subclasses
-  }
-
-  @Override
-  public void visitDirectory(Component directory) {
-    // empty implementation, meant to be override at will by subclasses
-  }
-
-  @Override
-  public void visitFile(Component file) {
-    // empty implementation, meant to be override at will by subclasses
-  }
-
-  @Override
-  public void visitUnknown(Component unknownComponent) {
-    // empty implementation, meant to be override at will by subclasses
-  }
-
-  @Override
-  public void visitAny(Component component) {
-    // empty implementation, meant to be override at will by subclasses
-  }
 }

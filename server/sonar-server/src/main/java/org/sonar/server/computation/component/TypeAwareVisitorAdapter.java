@@ -23,34 +23,16 @@ package org.sonar.server.computation.component;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Implementation of {@link TypeAwareCrawler} that implements a depth traversal of a {@link Component} tree.
- * <p>It supports visiting traversal in either pre-order or post-order</p>
- * It supports a max depth for crawling (component strictly deeper than the specified type will be ignored).
+ * A adapter of the {@link TypeAwareVisitor} to be able to visit only some component types
  */
-public abstract class DepthTraversalTypeAwareCrawler implements TypeAwareCrawler {
-  private final Component.Type maxDepth;
-  private final Visitor.Order order;
+public abstract class TypeAwareVisitorAdapter implements TypeAwareVisitor {
 
-  protected DepthTraversalTypeAwareCrawler(Component.Type maxDepth, Visitor.Order order) {
+  private final Component.Type maxDepth;
+  private final Order order;
+
+  public TypeAwareVisitorAdapter(Component.Type maxDepth, Order order) {
     this.maxDepth = requireNonNull(maxDepth);
     this.order = requireNonNull(order);
-  }
-
-  @Override
-  public void visit(Component component) {
-    if (component.getType().isDeeperThan(maxDepth)) {
-      return;
-    }
-
-    if (order == Visitor.Order.PRE_ORDER) {
-      visitNode(component);
-    }
-
-    visitChildren(component);
-
-    if (order == Visitor.Order.POST_ORDER) {
-      visitNode(component);
-    }
   }
 
   @Override
@@ -63,61 +45,44 @@ public abstract class DepthTraversalTypeAwareCrawler implements TypeAwareCrawler
     return order;
   }
 
-  private void visitNode(Component component) {
-    visitAny(component);
-    switch (component.getType()) {
-      case PROJECT:
-        visitProject(component);
-        break;
-      case MODULE:
-        visitModule(component);
-        break;
-      case DIRECTORY:
-        visitDirectory(component);
-        break;
-      case FILE:
-        visitFile(component);
-        break;
-      default:
-        visitUnknown(component);
-    }
-  }
-
-  private void visitChildren(Component component) {
-    for (Component child : component.getChildren()) {
-      if (!child.getType().isDeeperThan(maxDepth)) {
-        visit(child);
-      }
-    }
-  }
-
+  /**
+   * Called when encountering a Component of type {@link Component.Type#PROJECT}
+   */
   @Override
   public void visitProject(Component project) {
     // empty implementation, meant to be override at will by subclasses
   }
 
+  /**
+   * Called when encountering a Component of type {@link Component.Type#MODULE}
+   */
   @Override
   public void visitModule(Component module) {
     // empty implementation, meant to be override at will by subclasses
   }
 
+  /**
+   * Called when encountering a Component of type {@link Component.Type#DIRECTORY}
+   */
   @Override
   public void visitDirectory(Component directory) {
     // empty implementation, meant to be override at will by subclasses
   }
 
+  /**
+   * Called when encountering a Component of type {@link Component.Type#FILE}
+   */
   @Override
   public void visitFile(Component file) {
     // empty implementation, meant to be override at will by subclasses
   }
 
+  /**
+   * Called for any component, <strong>in addition</strong> to the methods specific to each type
+   */
   @Override
-  public void visitUnknown(Component unknownComponent) {
+  public void visitAny(Component any) {
     // empty implementation, meant to be override at will by subclasses
   }
 
-  @Override
-  public void visitAny(Component component) {
-    // empty implementation, meant to be override at will by subclasses
-  }
 }

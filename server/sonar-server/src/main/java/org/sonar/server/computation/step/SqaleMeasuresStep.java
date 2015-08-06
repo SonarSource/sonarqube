@@ -24,6 +24,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.Visitor;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
@@ -64,7 +65,7 @@ public class SqaleMeasuresStep implements ComputationStep {
     private final Metric sqaleRatingMetric;
 
     public SqaleMeasuresCrawler() {
-      super(Component.Type.FILE, Order.POST_ORDER, new SimpleStackElementFactory<DevelopmentCost>() {
+      super(Component.Type.FILE, Visitor.Order.POST_ORDER, new SimpleStackElementFactory<DevelopmentCost>() {
         @Override
         public DevelopmentCost createForAny(Component component) {
           return new DevelopmentCost();
@@ -88,7 +89,7 @@ public class SqaleMeasuresStep implements ComputationStep {
     }
 
     @Override
-    protected void visitModule(Component module, Path<DevelopmentCost> path) {
+    public void visitModule(Component module, Path<DevelopmentCost> path) {
       computeAndSaveMeasures(module, path);
     }
 

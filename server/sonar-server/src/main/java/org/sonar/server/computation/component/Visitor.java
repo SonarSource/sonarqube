@@ -17,15 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.computation.component;
 
-/**
- * A {@link ComponentCrawler} which can exposes methods which ensure the type of the visited Component.
- */
-public interface TypeAwareCrawler extends ComponentCrawler, TypeAwareVisitor {
+public interface Visitor {
 
-  /**
-   * Called when encountering a Component of an unknown type
-   */
-  void visitUnknown(Component tree);
+  Order getOrder();
+
+  Component.Type getMaxDepth();
+
+  enum Order {
+    /**
+     * Each component is visited BEFORE its children. Top-down traversal of
+     * tree of components.
+     */
+    PRE_ORDER,
+
+    /**
+     * Each component is visited AFTER its children. Bottom-up traversal of
+     * tree of components.
+     */
+    POST_ORDER
+  }
 }

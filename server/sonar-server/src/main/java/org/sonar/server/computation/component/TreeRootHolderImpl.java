@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.sonar.server.computation.component.ComponentCrawler.Order.POST_ORDER;
+import static org.sonar.server.computation.component.Visitor.Order.POST_ORDER;
 
 /**
  * Holds the reference to the root of the {@link Component} tree for the current CE run.

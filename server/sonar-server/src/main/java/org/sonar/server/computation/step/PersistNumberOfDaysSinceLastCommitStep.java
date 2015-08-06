@@ -39,7 +39,7 @@ import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.source.index.SourceLineIndex;
 
 import static com.google.common.base.Objects.firstNonNull;
-import static org.sonar.server.computation.component.ComponentCrawler.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.Visitor.Order.PRE_ORDER;
 
 public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
 

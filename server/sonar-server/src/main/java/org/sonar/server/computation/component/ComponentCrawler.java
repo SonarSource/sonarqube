@@ -19,20 +19,11 @@
  */
 package org.sonar.server.computation.component;
 
+/**
+ * Allow to crawl a component tree from a given component
+ */
 public interface ComponentCrawler {
+
   void visit(Component tree);
 
-  enum Order {
-    /**
-     * Each component is visited BEFORE its children. Top-down traversal of
-     * tree of components.
-     */
-    PRE_ORDER,
-
-    /**
-     * Each component is visited AFTER its children. Bottom-up traversal of
-     * tree of components.
-     */
-    POST_ORDER
-  }
 }

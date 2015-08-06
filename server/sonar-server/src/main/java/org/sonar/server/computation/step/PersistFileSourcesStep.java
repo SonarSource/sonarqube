@@ -49,7 +49,7 @@ import org.sonar.server.computation.source.LineReader;
 import org.sonar.server.computation.source.ScmLineReader;
 import org.sonar.server.computation.source.SymbolsLineReader;
 
-import static org.sonar.server.computation.component.ComponentCrawler.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.Visitor.Order.PRE_ORDER;
 
 public class PersistFileSourcesStep implements ComputationStep {
 
