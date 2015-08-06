@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.scan;
 
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.AnalysisProperties;
@@ -28,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.batch.mediumtest.BatchMediumTester;
+
 import java.util.Map;
 
 /**
@@ -120,4 +120,3 @@ public class ProjectAnalysisMode implements AnalysisMode {
     }
   }
 }
-
