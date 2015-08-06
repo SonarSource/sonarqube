@@ -63,6 +63,19 @@ public class ProjectAnalysisModeTest {
 
     assertThat(mode.isPreview()).isTrue();
   }
+  
+  @Test
+  public void default_publish_mode() {
+    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_PREVIEW);
+    assertThat(mode.isPublish()).isFalse();
+    
+    mode = createMode(CoreProperties.ANALYSIS_MODE_ISSUES);
+    assertThat(mode.isPublish()).isFalse();
+    
+    mode = createMode(null);
+
+    assertThat(mode.isPublish()).isTrue();
+  }
 
   @Test
   public void support_issues_mode() {

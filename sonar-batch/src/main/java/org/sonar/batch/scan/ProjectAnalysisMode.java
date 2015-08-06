@@ -55,6 +55,11 @@ public class ProjectAnalysisMode implements AnalysisMode {
   public boolean isIssues() {
     return issues;
   }
+  
+  @Override
+  public boolean isPublish() {
+    return !preview && !issues;
+  }
 
   public boolean isMediumTest() {
     return mediumTestMode;
@@ -88,6 +93,8 @@ public class ProjectAnalysisMode implements AnalysisMode {
       LOG.info("Preview mode");
     } else if (issues) {
       LOG.info("Issues mode");
+    } else {
+      LOG.info("Publish mode");
     }
     if (mediumTestMode) {
       LOG.info("Medium test mode");

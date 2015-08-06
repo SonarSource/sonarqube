@@ -30,4 +30,6 @@ public interface AnalysisMode {
 
   boolean isIssues();
 
+  boolean isPublish();
+
 }
