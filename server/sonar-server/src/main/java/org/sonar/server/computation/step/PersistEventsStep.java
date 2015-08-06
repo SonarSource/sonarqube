@@ -32,6 +32,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.Visitor;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
 
@@ -138,7 +139,7 @@ public class PersistEventsStep implements ComputationStep {
     private final long analysisDate;
 
     public PersistEventComponentCrawler(DbSession session, long analysisDate) {
-      super(Component.Type.FILE, Order.PRE_ORDER);
+      super(Component.Type.FILE, Visitor.Order.PRE_ORDER);
       this.session = session;
       this.analysisDate = analysisDate;
     }

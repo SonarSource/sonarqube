@@ -38,8 +38,8 @@ import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
-import static org.sonar.server.computation.component.ComponentCrawler.Order.POST_ORDER;
-import static org.sonar.server.computation.component.ComponentCrawler.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.Visitor.Order.POST_ORDER;
+import static org.sonar.server.computation.component.Visitor.Order.PRE_ORDER;
 
 public class PathAwareCrawlerTest {
 
@@ -258,7 +258,7 @@ public class PathAwareCrawlerTest {
   private static class TestPathAwareCrawler extends PathAwareCrawler<Integer> {
     private final List<CallRecord> callsRecords = new ArrayList<>();
 
-    public TestPathAwareCrawler(Component.Type maxDepth, ComponentCrawler.Order order) {
+    public TestPathAwareCrawler(Component.Type maxDepth, Visitor.Order order) {
       super(maxDepth, order, new SimpleStackElementFactory<Integer>() {
         @Override
         public Integer createForAny(Component component) {
@@ -268,32 +268,32 @@ public class PathAwareCrawlerTest {
     }
 
     @Override
-    protected void visitProject(Component project, Path<Integer> path) {
+    public void visitProject(Component project, Path<Integer> path) {
       callsRecords.add(newCallRecord(project, path, "visitProject"));
     }
 
     @Override
-    protected void visitModule(Component module, Path<Integer> path) {
+    public void visitModule(Component module, Path<Integer> path) {
       callsRecords.add(newCallRecord(module, path, "visitModule"));
     }
 
     @Override
-    protected void visitDirectory(Component directory, Path<Integer> path) {
+    public void visitDirectory(Component directory, Path<Integer> path) {
       callsRecords.add(newCallRecord(directory, path, "visitDirectory"));
     }
 
     @Override
-    protected void visitFile(Component file, Path<Integer> path) {
+    public void visitFile(Component file, Path<Integer> path) {
       callsRecords.add(newCallRecord(file, path, "visitFile"));
     }
 
     @Override
-    protected void visitUnknown(Component unknownComponent, Path<Integer> path) {
+    public void visitUnknown(Component unknownComponent, Path<Integer> path) {
       callsRecords.add(newCallRecord(unknownComponent, path, "visitUnknown"));
     }
 
     @Override
-    protected void visitAny(Component component, Path<Integer> path) {
+    public void visitAny(Component component, Path<Integer> path) {
       callsRecords.add(newCallRecord(component, path, "visitAny"));
     }
 

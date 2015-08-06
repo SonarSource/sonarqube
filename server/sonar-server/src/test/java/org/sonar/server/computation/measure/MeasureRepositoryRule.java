@@ -33,9 +33,9 @@ import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.ComponentCrawler;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.Visitor;
 import org.sonar.server.computation.debt.Characteristic;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
@@ -386,7 +386,7 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
     private final Map<Integer, Component> componentsByRef = new HashMap<>();
 
     public TreeComponentProvider(Component root) {
-      new DepthTraversalTypeAwareCrawler(Component.Type.FILE, ComponentCrawler.Order.PRE_ORDER) {
+      new DepthTraversalTypeAwareCrawler(Component.Type.FILE, Visitor.Order.PRE_ORDER) {
         @Override
         public void visitAny(Component component) {
           checkState(!componentsByRef.containsKey(component.getRef()), "Tree contains more than one component with ref " + component.getRef());

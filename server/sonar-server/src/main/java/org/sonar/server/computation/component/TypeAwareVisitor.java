@@ -17,15 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.computation.component;
 
 /**
- * A {@link ComponentCrawler} which can exposes methods which ensure the type of the visited Component.
+ * A {@link Visitor} which can exposes methods which ensure the type of the visited Component.
  */
-public interface TypeAwareCrawler extends ComponentCrawler, TypeAwareVisitor {
+public interface TypeAwareVisitor extends Visitor {
+  /**
+   * Called when encountering a Component of type {@link Component.Type#PROJECT}
+   */
+  void visitProject(Component project);
 
   /**
-   * Called when encountering a Component of an unknown type
+   * Called when encountering a Component of type {@link Component.Type#MODULE}
    */
-  void visitUnknown(Component tree);
+  void visitModule(Component module);
+
+  /**
+   * Called when encountering a Component of type {@link Component.Type#DIRECTORY}
+   */
+  void visitDirectory(Component directory);
+
+  /**
+   * Called when encountering a Component of type {@link Component.Type#FILE}
+   */
+  void visitFile(Component file);
+
+  /**
+   * Called for any component, <strong>in addition</strong> to the methods specific to each type
+   */
+  void visitAny(Component any);
+
 }

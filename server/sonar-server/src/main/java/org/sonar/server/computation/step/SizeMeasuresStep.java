@@ -40,7 +40,7 @@ import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.STATEMENTS_KEY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
-import static org.sonar.server.computation.component.ComponentCrawler.Order.POST_ORDER;
+import static org.sonar.server.computation.component.Visitor.Order.POST_ORDER;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
 /**
@@ -97,12 +97,12 @@ public class SizeMeasuresStep implements ComputationStep {
     }
 
     @Override
-    protected void visitProject(Component project, Path<Counter> path) {
+    public void visitProject(Component project, Path<Counter> path) {
       createMeasures(project, path.current().directories, path.current().files);
     }
 
     @Override
-    protected void visitModule(Component module, Path<Counter> path) {
+    public void visitModule(Component module, Path<Counter> path) {
       createMeasures(module, path.current().directories, path.current().files);
 
       path.parent().directories += path.current().directories;
@@ -110,7 +110,7 @@ public class SizeMeasuresStep implements ComputationStep {
     }
 
     @Override
-    protected void visitDirectory(Component directory, Path<Counter> path) {
+    public void visitDirectory(Component directory, Path<Counter> path) {
       createMeasures(directory, 1, path.current().files);
 
       path.parent().directories += 1;
@@ -125,7 +125,7 @@ public class SizeMeasuresStep implements ComputationStep {
     }
 
     @Override
-    protected void visitFile(Component file, Path<Counter> path) {
+    public void visitFile(Component file, Path<Counter> path) {
       if (file.getFileAttributes().isUnitTest()) {
         return;
       }

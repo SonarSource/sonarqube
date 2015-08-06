@@ -36,7 +36,7 @@ import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 
-import static org.sonar.server.computation.component.ComponentCrawler.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.Visitor.Order.PRE_ORDER;
 
 /**
  * Persist duplications into
