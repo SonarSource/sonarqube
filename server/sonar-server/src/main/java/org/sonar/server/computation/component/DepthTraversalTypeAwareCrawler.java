@@ -23,15 +23,15 @@ package org.sonar.server.computation.component;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Implementation of {@link TypeAwareVisitor} that implements a depth traversal of a {@link Component} tree.
+ * Implementation of {@link TypeAwareCrawler} that implements a depth traversal of a {@link Component} tree.
  * <p>It supports visiting traversal in either pre-order or post-order</p>
  * It supports a max depth for crawling (component strictly deeper than the specified type will be ignored).
  */
-public abstract class DepthTraversalTypeAwareVisitor implements TypeAwareVisitor {
+public abstract class DepthTraversalTypeAwareCrawler implements TypeAwareCrawler {
   private final Component.Type maxDepth;
   private final Order order;
 
-  protected DepthTraversalTypeAwareVisitor(Component.Type maxDepth, Order order) {
+  protected DepthTraversalTypeAwareCrawler(Component.Type maxDepth, Order order) {
     this.maxDepth = requireNonNull(maxDepth);
     this.order = requireNonNull(order);
   }

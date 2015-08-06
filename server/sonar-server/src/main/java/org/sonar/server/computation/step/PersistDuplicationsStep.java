@@ -33,10 +33,10 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
-import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 
-import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.ComponentCrawler.Order.PRE_ORDER;
 
 /**
  * Persist duplications into
@@ -60,19 +60,19 @@ public class PersistDuplicationsStep implements ComputationStep {
     DbSession session = dbClient.openSession(true);
     try {
       MetricDto duplicationMetric = dbClient.metricDao().selectOrFailByKey(session, CoreMetrics.DUPLICATIONS_DATA_KEY);
-      new DuplicationVisitor(session, duplicationMetric).visit(treeRootHolder.getRoot());
+      new DuplicationCrawler(session, duplicationMetric).visit(treeRootHolder.getRoot());
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private class DuplicationVisitor extends DepthTraversalTypeAwareVisitor {
+  private class DuplicationCrawler extends DepthTraversalTypeAwareCrawler {
 
     private final DbSession session;
     private final MetricDto duplicationMetric;
 
-    private DuplicationVisitor(DbSession session, MetricDto duplicationMetric) {
+    private DuplicationCrawler(DbSession session, MetricDto duplicationMetric) {
       super(Component.Type.FILE, PRE_ORDER);
       this.session = session;
       this.duplicationMetric = duplicationMetric;

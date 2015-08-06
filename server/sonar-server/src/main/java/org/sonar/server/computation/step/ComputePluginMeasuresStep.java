@@ -21,7 +21,7 @@
 package org.sonar.server.computation.step;
 
 import org.sonar.api.ce.measure.MeasureComputer;
-import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.measure.MeasureComputersHolder;
@@ -30,7 +30,7 @@ import org.sonar.server.computation.measure.api.MeasureComputerImplementationCon
 import org.sonar.server.computation.metric.MetricRepository;
 
 import static org.sonar.server.computation.component.Component.Type.FILE;
-import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.Visitor.Order.PRE_ORDER;
 
 public class ComputePluginMeasuresStep implements ComputationStep {
 
@@ -55,7 +55,7 @@ public class ComputePluginMeasuresStep implements ComputationStep {
     new NewMetricDefinitionsVisitor().visit(treeRootHolder.getRoot());
   }
 
-  private class NewMetricDefinitionsVisitor extends DepthTraversalTypeAwareVisitor {
+  private class NewMetricDefinitionsVisitor extends DepthTraversalTypeAwareCrawler {
 
     public NewMetricDefinitionsVisitor() {
       super(FILE, PRE_ORDER);

@@ -19,7 +19,7 @@
  */
 package org.sonar.server.computation.component;
 
-public interface ComponentVisitor {
+public interface ComponentCrawler {
   void visit(Component tree);
 
   enum Order {

@@ -26,7 +26,7 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
@@ -61,7 +61,7 @@ public class QualityGateEventsStep implements ComputationStep {
 
   @Override
   public void execute() {
-    new DepthTraversalTypeAwareVisitor(Component.Type.PROJECT, DepthTraversalTypeAwareVisitor.Order.PRE_ORDER) {
+    new DepthTraversalTypeAwareCrawler(Component.Type.PROJECT, DepthTraversalTypeAwareCrawler.Order.PRE_ORDER) {
       @Override
       public void visitProject(Component project) {
         executeForProject(project);

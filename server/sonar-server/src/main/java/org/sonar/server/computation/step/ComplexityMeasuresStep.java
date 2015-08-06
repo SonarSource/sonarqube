@@ -25,7 +25,7 @@ import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.AverageFormula;
 import org.sonar.server.computation.formula.DistributionFormula;
 import org.sonar.server.computation.formula.Formula;
-import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
+import org.sonar.server.computation.formula.FormulaExecutorComponentCrawler;
 import org.sonar.server.computation.formula.SumFormula;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.MetricRepository;
@@ -85,7 +85,7 @@ public class ComplexityMeasuresStep implements ComputationStep {
 
   @Override
   public void execute() {
-    FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
+    FormulaExecutorComponentCrawler.newBuilder(metricRepository, measureRepository)
       .buildFor(FORMULAS)
       .visit(treeRootHolder.getRoot());
   }

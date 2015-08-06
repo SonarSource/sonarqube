@@ -33,7 +33,7 @@ import org.sonar.server.computation.formula.Counter;
 import org.sonar.server.computation.formula.CreateMeasureContext;
 import org.sonar.server.computation.formula.FileAggregateContext;
 import org.sonar.server.computation.formula.Formula;
-import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
+import org.sonar.server.computation.formula.FormulaExecutorComponentCrawler;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.MetricRepository;
@@ -63,7 +63,7 @@ public class LanguageDistributionMeasuresStep implements ComputationStep {
 
   @Override
   public void execute() {
-    FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
+    FormulaExecutorComponentCrawler.newBuilder(metricRepository, measureRepository)
       .buildFor(FORMULAS)
       .visit(treeRootHolder.getRoot());
   }
