@@ -27,9 +27,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.server.computation.component.Visitor;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
@@ -52,7 +52,7 @@ public class CustomMeasuresCopyStep implements ComputationStep {
 
   @Override
   public void execute() {
-    new DepthTraversalTypeAwareCrawler(Component.Type.FILE, Visitor.Order.PRE_ORDER) {
+    new DepthTraversalTypeAwareCrawler(Component.Type.FILE, ComponentVisitor.Order.PRE_ORDER) {
       @Override
       public void visitAny(Component component) {
         copy(component);

@@ -29,9 +29,9 @@ import static java.util.Objects.requireNonNull;
  */
 public abstract class DepthTraversalTypeAwareCrawler implements TypeAwareCrawler {
   private final Component.Type maxDepth;
-  private final Visitor.Order order;
+  private final ComponentVisitor.Order order;
 
-  protected DepthTraversalTypeAwareCrawler(Component.Type maxDepth, Visitor.Order order) {
+  protected DepthTraversalTypeAwareCrawler(Component.Type maxDepth, ComponentVisitor.Order order) {
     this.maxDepth = requireNonNull(maxDepth);
     this.order = requireNonNull(order);
   }
@@ -42,13 +42,13 @@ public abstract class DepthTraversalTypeAwareCrawler implements TypeAwareCrawler
       return;
     }
 
-    if (order == Visitor.Order.PRE_ORDER) {
+    if (order == ComponentVisitor.Order.PRE_ORDER) {
       visitNode(component);
     }
 
     visitChildren(component);
 
-    if (order == Visitor.Order.POST_ORDER) {
+    if (order == ComponentVisitor.Order.POST_ORDER) {
       visitNode(component);
     }
   }

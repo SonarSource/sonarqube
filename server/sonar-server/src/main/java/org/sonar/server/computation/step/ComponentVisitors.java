@@ -26,7 +26,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import java.util.List;
 import javax.annotation.Nonnull;
-import org.sonar.server.computation.component.Visitor;
+import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.container.ComputeEngineContainer;
 import org.sonar.server.computation.measure.MeasureComputersVisitor;
 import org.sonar.server.computation.sqale.SqaleMeasuresVisitor;
@@ -36,7 +36,7 @@ import org.sonar.server.computation.sqale.SqaleMeasuresVisitor;
  */
 public class ComponentVisitors {
 
-  private static final List<Class<? extends Visitor>> ORDERED_VISITOR_CLASSES = ImmutableList.of(
+  private static final List<Class<? extends ComponentVisitor>> ORDERED_VISITOR_CLASSES = ImmutableList.of(
     SqaleMeasuresVisitor.class,
 
     // Must be after all other visitors as it requires measures computed by previous visitors
@@ -44,9 +44,9 @@ public class ComponentVisitors {
   );
 
   /**
-   * List of all {@link Visitor}, ordered by execution sequence.
+   * List of all {@link ComponentVisitor}, ordered by execution sequence.
    */
-  public List<Class<? extends Visitor>> orderedClasses() {
+  public List<Class<? extends ComponentVisitor>> orderedClasses() {
     return ORDERED_VISITOR_CLASSES;
   }
 
@@ -56,13 +56,13 @@ public class ComponentVisitors {
     this.computeEngineContainer = computeEngineContainer;
   }
 
-  public Iterable<Visitor> instances() {
-    return Iterables.transform(orderedClasses(), new Function<Class<? extends Visitor>, Visitor>() {
+  public Iterable<ComponentVisitor> instances() {
+    return Iterables.transform(orderedClasses(), new Function<Class<? extends ComponentVisitor>, ComponentVisitor>() {
       @Override
-      public Visitor apply(@Nonnull Class<? extends Visitor> input) {
-        Visitor visitor = computeEngineContainer.getComponentVisitor(input);
-        Preconditions.checkState(visitor != null, String.format("Visitor not found: %s", input));
-        return visitor;
+      public ComponentVisitor apply(@Nonnull Class<? extends ComponentVisitor> input) {
+        ComponentVisitor componentVisitor = computeEngineContainer.getComponentVisitor(input);
+        Preconditions.checkState(componentVisitor != null, String.format("Visitor not found: %s", input));
+        return componentVisitor;
       }
     });
   }

@@ -20,7 +20,7 @@
 
 package org.sonar.server.computation.component;
 
-public interface Visitor {
+public interface ComponentVisitor {
 
   Order getOrder();
 

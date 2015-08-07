@@ -23,8 +23,8 @@ package org.sonar.server.computation.sqale;
 import com.google.common.base.Optional;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.PathAwareVisitorAdapter;
-import org.sonar.server.computation.component.Visitor;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
@@ -44,7 +44,7 @@ public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresV
   private final Metric sqaleRatingMetric;
 
   public SqaleMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, SqaleRatingSettings sqaleRatingSettings) {
-    super(Component.Type.FILE, Visitor.Order.POST_ORDER, new SimpleStackElementFactory<DevelopmentCost>() {
+    super(Component.Type.FILE, ComponentVisitor.Order.POST_ORDER, new SimpleStackElementFactory<DevelopmentCost>() {
       @Override
       public DevelopmentCost createForAny(Component component) {
         return new DevelopmentCost();

@@ -64,7 +64,7 @@ public class TypeAwareVisitorWrapper implements VisitorWrapper {
   }
 
   @Override
-  public Visitor.Order getOrder() {
+  public ComponentVisitor.Order getOrder() {
     return delegate.getOrder();
   }
 

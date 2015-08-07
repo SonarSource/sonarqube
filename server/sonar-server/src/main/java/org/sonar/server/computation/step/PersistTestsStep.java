@@ -49,9 +49,9 @@ import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.server.computation.component.Visitor;
 
 public class PersistTestsStep implements ComputationStep {
 
@@ -97,7 +97,7 @@ public class PersistTestsStep implements ComputationStep {
     boolean hasUnprocessedCoverageDetails = false;
 
     public TestDepthTraversalTypeAwareCrawler(DbSession session) {
-      super(Component.Type.FILE, Visitor.Order.PRE_ORDER);
+      super(Component.Type.FILE, ComponentVisitor.Order.PRE_ORDER);
       this.session = session;
       this.existingFileSourcesByUuid = new HashMap<>();
       this.projectUuid = treeRootHolder.getRoot().getUuid();

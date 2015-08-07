@@ -23,11 +23,11 @@ package org.sonar.server.computation.component;
 import java.util.NoSuchElementException;
 
 /**
- * A {@link Visitor} which provide access to a representation of the path from the root to the currently visited
+ * A {@link ComponentVisitor} which provide access to a representation of the path from the root to the currently visited
  * Component. It also provides a way to have an object associated to each Component and access it and all of its
  * parent's.
  */
-public interface PathAwareVisitor<T> extends Visitor {
+public interface PathAwareVisitor<T> extends ComponentVisitor {
 
   StackElementFactory<T> getFactory();
 

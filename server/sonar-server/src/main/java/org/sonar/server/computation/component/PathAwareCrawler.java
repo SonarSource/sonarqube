@@ -19,8 +19,8 @@
  */
 package org.sonar.server.computation.component;
 
-import static org.sonar.server.computation.component.Visitor.Order.POST_ORDER;
-import static org.sonar.server.computation.component.Visitor.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 /**
  * A {@link ComponentCrawler} which provide access to a representation of the path from the root to the currently visited
@@ -32,7 +32,7 @@ public abstract class PathAwareCrawler<T> extends PathAwareVisitorAdapter<T> imp
 
   private final DequeBasedPath<T> stack = new DequeBasedPath<>();
 
-  public PathAwareCrawler(Component.Type maxDepth, Visitor.Order order, StackElementFactory<T> factory) {
+  public PathAwareCrawler(Component.Type maxDepth, ComponentVisitor.Order order, StackElementFactory<T> factory) {
     super(maxDepth, order, factory);
   }
 

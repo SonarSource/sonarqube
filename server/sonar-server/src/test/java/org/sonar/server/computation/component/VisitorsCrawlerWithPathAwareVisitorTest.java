@@ -40,8 +40,8 @@ import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
-import static org.sonar.server.computation.component.Visitor.Order.POST_ORDER;
-import static org.sonar.server.computation.component.Visitor.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 public class VisitorsCrawlerWithPathAwareVisitorTest {
 
@@ -265,14 +265,14 @@ public class VisitorsCrawlerWithPathAwareVisitorTest {
     return new CallRecord(method, currentRef, currentRef, parentRef, ROOT_REF, path);
   }
 
-  private static VisitorsCrawler newVisitorsCrawler(Visitor visitor) {
-    return new VisitorsCrawler(Arrays.asList(visitor));
+  private static VisitorsCrawler newVisitorsCrawler(ComponentVisitor componentVisitor) {
+    return new VisitorsCrawler(Arrays.asList(componentVisitor));
   }
 
   private static class TestPathAwareVisitor extends PathAwareVisitorAdapter<Integer> {
     private final List<CallRecord> callsRecords = new ArrayList<>();
 
-    public TestPathAwareVisitor(Component.Type maxDepth, Visitor.Order order) {
+    public TestPathAwareVisitor(Component.Type maxDepth, ComponentVisitor.Order order) {
       super(maxDepth, order, new SimpleStackElementFactory<Integer>() {
         @Override
         public Integer createForAny(Component component) {

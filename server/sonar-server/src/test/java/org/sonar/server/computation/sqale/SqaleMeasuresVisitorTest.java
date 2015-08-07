@@ -26,9 +26,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
+import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.DumbComponent;
 import org.sonar.server.computation.component.FileAttributes;
-import org.sonar.server.computation.component.Visitor;
 import org.sonar.server.computation.component.VisitorsCrawler;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepoEntry;
@@ -82,7 +82,7 @@ public class SqaleMeasuresVisitorTest {
 
   private SqaleRatingSettings sqaleRatingSettings = mock(SqaleRatingSettings.class);
 
-  private VisitorsCrawler underTest = new VisitorsCrawler(Arrays.<Visitor>asList(new SqaleMeasuresVisitor(metricRepository, measureRepository, sqaleRatingSettings)));
+  private VisitorsCrawler underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new SqaleMeasuresVisitor(metricRepository, measureRepository, sqaleRatingSettings)));
 
   @Before
   public void setUp() {

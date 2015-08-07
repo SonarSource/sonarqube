@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.PathAwareCrawler;
-import org.sonar.server.computation.component.Visitor;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
@@ -59,7 +59,7 @@ public class FormulaExecutorComponentCrawler extends PathAwareCrawler<FormulaExe
   private final List<Formula> formulas;
 
   private FormulaExecutorComponentCrawler(Builder builder, List<Formula> formulas) {
-    super(Component.Type.FILE, Visitor.Order.POST_ORDER, COUNTERS_FACTORY);
+    super(Component.Type.FILE, ComponentVisitor.Order.POST_ORDER, COUNTERS_FACTORY);
     this.periodsHolder = builder.periodsHolder;
     this.measureRepository = builder.measureRepository;
     this.metricRepository = builder.metricRepository;

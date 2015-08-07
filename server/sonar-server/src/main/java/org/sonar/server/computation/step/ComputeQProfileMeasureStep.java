@@ -36,7 +36,7 @@ import org.sonar.server.computation.qualityprofile.QPMeasureData;
 import org.sonar.server.computation.qualityprofile.QualityProfile;
 
 import static org.sonar.server.computation.component.Component.Type.MODULE;
-import static org.sonar.server.computation.component.Visitor.Order.POST_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 
 /**
  * Aggregates quality profile on lower-level module nodes on their parent modules and project
