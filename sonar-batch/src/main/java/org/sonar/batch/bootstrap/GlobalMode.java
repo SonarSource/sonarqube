@@ -19,9 +19,10 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.sonar.api.CoreProperties;
 
 import java.text.MessageFormat;
@@ -40,11 +41,23 @@ public class GlobalMode {
       preview = "true".equals(props.property(CoreProperties.DRY_RUN));
     } else {
       String mode = props.property(CoreProperties.ANALYSIS_MODE);
+      validate(mode);
       preview = CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode) || CoreProperties.ANALYSIS_MODE_QUICK.equals(mode);
     }
 
     if (preview) {
       LOG.info("Preview global mode");
+    }
+  }
+
+  private void validate(String mode) {
+    if (StringUtils.isEmpty(mode)) {
+      return;
+    }
+
+    if (!CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode) && !CoreProperties.ANALYSIS_MODE_QUICK.equals(mode) &&
+      !CoreProperties.ANALYSIS_MODE_ANALYSIS.equals(mode)) {
+      throw new IllegalStateException("Invalid analysis mode: " + mode);
     }
   }
 }

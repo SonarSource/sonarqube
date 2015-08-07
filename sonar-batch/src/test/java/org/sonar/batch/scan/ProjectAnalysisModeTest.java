@@ -36,12 +36,7 @@ public class ProjectAnalysisModeTest {
 
   @Test
   public void regular_analysis_by_default() {
-    ProjectAnalysisMode mode = createMode(null);
-
-    assertThat(mode.isPreview()).isFalse();
-
-    mode = createMode(CoreProperties.ANALYSIS_MODE, "pouet");
-
+    ProjectAnalysisMode mode = createMode(null, null);
     assertThat(mode.isPreview()).isFalse();
   }
 
@@ -55,6 +50,11 @@ public class ProjectAnalysisModeTest {
     ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_ANALYSIS);
 
     assertThat(mode.isPreview()).isFalse();
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void validate_mode() {
+    createMode(CoreProperties.ANALYSIS_MODE_INCREMENTAL);
   }
 
   @Test

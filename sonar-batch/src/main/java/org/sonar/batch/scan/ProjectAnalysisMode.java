@@ -19,8 +19,8 @@
  */
 package org.sonar.batch.scan;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.batch.bootstrap.BootstrapProperties;
-
 import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +78,7 @@ public class ProjectAnalysisMode implements AnalysisMode {
       preview = "true".equals(getPropertyWithFallback(analysisProps, globalProps, CoreProperties.DRY_RUN));
     } else {
       String mode = getPropertyWithFallback(analysisProps, globalProps, CoreProperties.ANALYSIS_MODE);
+      validate(mode);
       preview = CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
       quick = CoreProperties.ANALYSIS_MODE_QUICK.equals(mode);
     }
@@ -106,5 +107,16 @@ public class ProjectAnalysisMode implements AnalysisMode {
 
     return "true".equals(props.get(CoreProperties.DRY_RUN)) || CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode) ||
       CoreProperties.ANALYSIS_MODE_QUICK.equals(mode);
+  }
+
+  private void validate(String mode) {
+    if (StringUtils.isEmpty(mode)) {
+      return;
+    }
+
+    if (!CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode) && !CoreProperties.ANALYSIS_MODE_QUICK.equals(mode) &&
+      !CoreProperties.ANALYSIS_MODE_ANALYSIS.equals(mode)) {
+      throw new IllegalStateException("Invalid analysis mode: " + mode);
+    }
   }
 }
