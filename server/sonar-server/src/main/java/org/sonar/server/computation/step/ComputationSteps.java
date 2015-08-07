@@ -65,10 +65,8 @@ public class ComputationSteps {
       // must be executed after the measures required for common rules (coverage, comment density, duplications)
       IntegrateIssuesStep.class,
 
-      ExecuteVisitorsStep.class,
-
       FeedMeasureComputers.class,
-      ComputePluginMeasuresStep.class,
+      ExecuteVisitorsStep.class,
 
       // Must be executed after computation of all measures
       FillMeasuresWithVariationsStep.class,
