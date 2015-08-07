@@ -27,6 +27,9 @@ define([
       return Backbone.ajax(this.requestOptions).done(function (r) {
         that.model.set(r);
         that.render();
+        if (that.model.get('state') === 'MIGRATION_SUCCEEDED') {
+          that.goHome();
+        }
       });
     },
 
@@ -43,6 +46,12 @@ define([
 
     onRender: function () {
       $('.page-simple').toggleClass('panel-warning', this.model.get('state') === 'MIGRATION_REQUIRED');
+    },
+
+    goHome: function () {
+      setInterval(function () {
+        window.location = baseUrl + '/';
+      }, 2500);
     },
 
     serializeData: function () {
