@@ -25,7 +25,7 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class DequeBasedPath<T> implements PathAwareVisitor.Path<T>, Iterable<PathAwareVisitor.PathElement<T>> {
+final class DequeBasedPath<T> implements PathAwareVisitor.Path<T>, Iterable<PathAwareVisitor.PathElement<T>> {
   private final Deque<PathAwareVisitor.PathElement<T>> deque = new ArrayDeque<>();
 
   @Override
