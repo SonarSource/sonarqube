@@ -22,30 +22,39 @@ package org.sonar.server.permission.ws;
 
 import com.google.common.io.Resources;
 import java.util.Locale;
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupRoleDto;
+import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserRoleDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
+import org.sonar.test.DbTests;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.permission.GlobalPermissions.PREVIEW_EXECUTION;
+import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
+import static org.sonar.core.permission.GlobalPermissions.QUALITY_PROFILE_ADMIN;
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.test.JsonAssert.assertJson;
 
+@Category(DbTests.class)
 public class SearchGlobalPermissionsActionTest {
 
   @Rule
@@ -73,24 +82,26 @@ public class SearchGlobalPermissionsActionTest {
     when(i18n.message(any(Locale.class), eq("global_permissions.provisioning.desc"), any(String.class))).thenReturn("provisioning-description");
 
     ws = new WsActionTester(new SearchGlobalPermissionsAction(db.getDbClient(), userSession, i18n));
-    userSession.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    userSession.login("login").setGlobalPermissions(SYSTEM_ADMIN);
   }
 
   @Test
   public void search() {
+    RoleDao roleDao = db.getDbClient().roleDao();
     GroupDao groupDao = db.getDbClient().groupDao();
+
     GroupDto adminGroup = groupDao.insert(db.getSession(), new GroupDto().setName("sonar-admins").setDescription("Administrators"));
     GroupDto userGroup = groupDao.insert(db.getSession(), new GroupDto().setName("sonar-users").setDescription("Users"));
-    db.getDbClient().roleDao().insertGroupRole(db.getSession(), new GroupRoleDto().setRole(GlobalPermissions.SCAN_EXECUTION).setGroupId(userGroup.getId()));
-    db.getDbClient().roleDao().insertGroupRole(db.getSession(), new GroupRoleDto().setRole(GlobalPermissions.SYSTEM_ADMIN).setGroupId(adminGroup.getId()));
-    db.getDbClient().roleDao().insertGroupRole(db.getSession(), new GroupRoleDto().setRole(GlobalPermissions.SCAN_EXECUTION));
+    roleDao.insertGroupRole(db.getSession(), newGroupRoleDto(SCAN_EXECUTION, userGroup.getId()));
+    roleDao.insertGroupRole(db.getSession(), newGroupRoleDto(SYSTEM_ADMIN, adminGroup.getId()));
+    roleDao.insertGroupRole(db.getSession(), newGroupRoleDto(SCAN_EXECUTION, null));
 
     UserDto user = db.getDbClient().userDao().insert(db.getSession(), new UserDto().setLogin("user").setName("user-name").setActive(true));
     UserDto adminUser = db.getDbClient().userDao().insert(db.getSession(), new UserDto().setLogin("admin").setName("admin-name").setActive(true));
-    db.getDbClient().roleDao().insertUserRole(db.getSession(), new UserRoleDto().setRole(GlobalPermissions.PROVISIONING).setUserId(user.getId()));
-    db.getDbClient().roleDao().insertUserRole(db.getSession(), new UserRoleDto().setRole(GlobalPermissions.QUALITY_PROFILE_ADMIN).setUserId(adminUser.getId()));
-    db.getDbClient().roleDao().insertUserRole(db.getSession(), new UserRoleDto().setRole(GlobalPermissions.PREVIEW_EXECUTION).setUserId(adminUser.getId()));
-    db.getDbClient().roleDao().insertUserRole(db.getSession(), new UserRoleDto().setRole(GlobalPermissions.PREVIEW_EXECUTION).setUserId(user.getId()));
+    roleDao.insertUserRole(db.getSession(), newUserRoleDto(PROVISIONING, user.getId()));
+    roleDao.insertUserRole(db.getSession(), newUserRoleDto(QUALITY_PROFILE_ADMIN, adminUser.getId()));
+    roleDao.insertUserRole(db.getSession(), newUserRoleDto(PREVIEW_EXECUTION, adminUser.getId()));
+    roleDao.insertUserRole(db.getSession(), newUserRoleDto(PREVIEW_EXECUTION, user.getId()));
 
     db.getSession().commit();
 
@@ -113,5 +124,20 @@ public class SearchGlobalPermissionsActionTest {
     userSession.anonymous();
 
     ws.newRequest().execute();
+  }
+
+  private static GroupRoleDto newGroupRoleDto(String role, @Nullable Long groupId) {
+    GroupRoleDto groupRole = new GroupRoleDto().setRole(role);
+    if (groupId != null) {
+      groupRole.setGroupId(groupId);
+    }
+
+    return groupRole;
+  }
+
+  private static UserRoleDto newUserRoleDto(String role, long userId) {
+    return new UserRoleDto()
+      .setRole(role)
+      .setUserId(userId);
   }
 }
