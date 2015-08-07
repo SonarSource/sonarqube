@@ -21,9 +21,9 @@
 package org.sonar.server.computation.component;
 
 /**
- * A {@link Visitor} which can exposes methods which ensure the type of the visited Component.
+ * A {@link ComponentVisitor} which can exposes methods which ensure the type of the visited Component.
  */
-public interface TypeAwareVisitor extends Visitor {
+public interface TypeAwareVisitor extends ComponentVisitor {
   /**
    * Called when encountering a Component of type {@link Component.Type#PROJECT}
    */

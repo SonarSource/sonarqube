@@ -27,7 +27,7 @@ import org.sonar.server.computation.measure.api.MeasureComputerImplementationCon
 import org.sonar.server.computation.metric.MetricRepository;
 
 import static org.sonar.server.computation.component.Component.Type.FILE;
-import static org.sonar.server.computation.component.Visitor.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 public class MeasureComputersVisitor extends TypeAwareVisitorAdapter {
 

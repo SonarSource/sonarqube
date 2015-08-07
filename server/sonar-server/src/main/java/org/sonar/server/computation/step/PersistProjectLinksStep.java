@@ -41,7 +41,7 @@ import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static org.sonar.server.computation.component.Visitor.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 /**
  * Persist project and module links

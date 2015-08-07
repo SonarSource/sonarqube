@@ -34,8 +34,8 @@ import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
-import static org.sonar.server.computation.component.Visitor.Order.POST_ORDER;
-import static org.sonar.server.computation.component.Visitor.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 public class VisitorsCrawlerTest {
 
@@ -87,7 +87,7 @@ public class VisitorsCrawlerTest {
   @Test
   public void execute_pre_visitor_before_post_visitor() throws Exception {
     InOrder inOrder = inOrder(spyPreOrderTypeAwareVisitor, spyPostOrderTypeAwareVisitor);
-    VisitorsCrawler underTest = new VisitorsCrawler(Arrays.<Visitor>asList(spyPreOrderTypeAwareVisitor, spyPostOrderTypeAwareVisitor));
+    VisitorsCrawler underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(spyPreOrderTypeAwareVisitor, spyPostOrderTypeAwareVisitor));
     underTest.visit(COMPONENT_TREE);
 
     inOrder.verify(spyPreOrderTypeAwareVisitor).visitProject(COMPONENT_TREE);
@@ -108,7 +108,7 @@ public class VisitorsCrawlerTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Only TypeAwareVisitor and PathAwareVisitor can be used");
 
-    Visitor visitor = new Visitor() {
+    ComponentVisitor componentVisitor = new ComponentVisitor() {
       @Override
       public Order getOrder() {
         return PRE_ORDER;
@@ -119,7 +119,7 @@ public class VisitorsCrawlerTest {
         return FILE;
       }
     };
-    new VisitorsCrawler(Arrays.asList(visitor));
+    new VisitorsCrawler(Arrays.asList(componentVisitor));
   }
 
   private static Component component(final Component.Type type, final int ref, final Component... children) {
@@ -128,14 +128,14 @@ public class VisitorsCrawlerTest {
 
   private static class TestTypeAwareVisitor extends TypeAwareVisitorAdapter {
 
-    public TestTypeAwareVisitor(Component.Type maxDepth, Visitor.Order order) {
+    public TestTypeAwareVisitor(Component.Type maxDepth, ComponentVisitor.Order order) {
       super(maxDepth, order);
     }
   }
 
   private static class TestPathAwareVisitor extends PathAwareVisitorAdapter<Integer> {
 
-    public TestPathAwareVisitor(Component.Type maxDepth, Visitor.Order order) {
+    public TestPathAwareVisitor(Component.Type maxDepth, ComponentVisitor.Order order) {
       super(maxDepth, order, new SimpleStackElementFactory<Integer>() {
         @Override
         public Integer createForAny(Component component) {

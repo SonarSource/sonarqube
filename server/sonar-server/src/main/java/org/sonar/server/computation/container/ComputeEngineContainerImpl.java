@@ -43,10 +43,10 @@ import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.computation.activity.ActivityManager;
 import org.sonar.server.computation.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.server.computation.batch.BatchReportReaderImpl;
+import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.computation.component.TreeRootHolderImpl;
-import org.sonar.server.computation.component.Visitor;
 import org.sonar.server.computation.debt.DebtModelHolderImpl;
 import org.sonar.server.computation.event.EventRepositoryImpl;
 import org.sonar.server.computation.issue.BaseIssuesLoader;
@@ -274,7 +274,7 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
   }
 
   @Override
-  public <T extends Visitor> T getComponentVisitor(Class<T> type) {
+  public <T extends ComponentVisitor> T getComponentVisitor(Class<T> type) {
     return getComponentByType(type);
   }
 

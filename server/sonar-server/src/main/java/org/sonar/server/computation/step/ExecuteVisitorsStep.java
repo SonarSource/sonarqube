@@ -20,13 +20,13 @@
 
 package org.sonar.server.computation.step;
 
+import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.server.computation.component.Visitor;
 import org.sonar.server.computation.component.VisitorsCrawler;
 
 public class ExecuteVisitorsStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
-  private final Iterable<Visitor> visitors;
+  private final Iterable<ComponentVisitor> visitors;
 
   public ExecuteVisitorsStep(TreeRootHolder treeRootHolder, ComponentVisitors visitors) {
     this.treeRootHolder = treeRootHolder;

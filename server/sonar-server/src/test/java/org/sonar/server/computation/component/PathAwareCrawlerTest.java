@@ -38,8 +38,8 @@ import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
-import static org.sonar.server.computation.component.Visitor.Order.POST_ORDER;
-import static org.sonar.server.computation.component.Visitor.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 public class PathAwareCrawlerTest {
 
@@ -258,7 +258,7 @@ public class PathAwareCrawlerTest {
   private static class TestPathAwareCrawler extends PathAwareCrawler<Integer> {
     private final List<CallRecord> callsRecords = new ArrayList<>();
 
-    public TestPathAwareCrawler(Component.Type maxDepth, Visitor.Order order) {
+    public TestPathAwareCrawler(Component.Type maxDepth, ComponentVisitor.Order order) {
       super(maxDepth, order, new SimpleStackElementFactory<Integer>() {
         @Override
         public Integer createForAny(Component component) {

@@ -40,7 +40,7 @@ import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.STATEMENTS_KEY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
-import static org.sonar.server.computation.component.Visitor.Order.POST_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
 /**

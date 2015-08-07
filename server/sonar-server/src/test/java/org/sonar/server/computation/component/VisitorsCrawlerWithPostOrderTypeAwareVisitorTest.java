@@ -31,7 +31,7 @@ import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
-import static org.sonar.server.computation.component.Visitor.Order.POST_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 
 public class VisitorsCrawlerWithPostOrderTypeAwareVisitorTest {
 
@@ -296,8 +296,8 @@ public class VisitorsCrawlerWithPostOrderTypeAwareVisitorTest {
     return DumbComponent.builder(type, ref).addChildren(children).build();
   }
 
-  private static VisitorsCrawler newVisitorsCrawler(Visitor visitor) {
-    return new VisitorsCrawler(Arrays.asList(visitor));
+  private static VisitorsCrawler newVisitorsCrawler(ComponentVisitor componentVisitor) {
+    return new VisitorsCrawler(Arrays.asList(componentVisitor));
   }
 
 }

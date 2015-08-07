@@ -36,7 +36,7 @@ public class VisitorsCrawler implements ComponentCrawler {
   private final List<VisitorWrapper> preOrderVisitorWrappers;
   private final List<VisitorWrapper> postOrderVisitorWrappers;
 
-  public VisitorsCrawler(Iterable<Visitor> visitors) {
+  public VisitorsCrawler(Iterable<ComponentVisitor> visitors) {
     List<VisitorWrapper> visitorWrappers = from(visitors).transform(ToVisitorWrapper.INSTANCE).toList();
     this.preOrderVisitorWrappers = from(visitorWrappers).filter(MathPreOrderVisitor.INSTANCE).toList();
     this.postOrderVisitorWrappers = from(visitorWrappers).filter(MatchPostOrderVisitor.INSTANCE).toList();
@@ -95,15 +95,15 @@ public class VisitorsCrawler implements ComponentCrawler {
     }
   }
 
-  private enum ToVisitorWrapper implements Function<Visitor, VisitorWrapper> {
+  private enum ToVisitorWrapper implements Function<ComponentVisitor, VisitorWrapper> {
     INSTANCE;
 
     @Override
-    public VisitorWrapper apply(@Nonnull Visitor visitor) {
-      if (visitor instanceof TypeAwareVisitor) {
-        return new TypeAwareVisitorWrapper((TypeAwareVisitor) visitor);
-      } else if (visitor instanceof PathAwareVisitor) {
-        return new PathAwareVisitorWrapper((PathAwareVisitor) visitor);
+    public VisitorWrapper apply(@Nonnull ComponentVisitor componentVisitor) {
+      if (componentVisitor instanceof TypeAwareVisitor) {
+        return new TypeAwareVisitorWrapper((TypeAwareVisitor) componentVisitor);
+      } else if (componentVisitor instanceof PathAwareVisitor) {
+        return new PathAwareVisitorWrapper((PathAwareVisitor) componentVisitor);
       } else {
         throw new IllegalArgumentException("Only TypeAwareVisitor and PathAwareVisitor can be used");
       }
@@ -128,7 +128,7 @@ public class VisitorsCrawler implements ComponentCrawler {
 
     @Override
     public boolean apply(@Nonnull VisitorWrapper visitorWrapper) {
-      return visitorWrapper.getOrder() == Visitor.Order.PRE_ORDER;
+      return visitorWrapper.getOrder() == ComponentVisitor.Order.PRE_ORDER;
     }
   }
 
@@ -137,7 +137,7 @@ public class VisitorsCrawler implements ComponentCrawler {
 
     @Override
     public boolean apply(@Nonnull VisitorWrapper visitorWrapper) {
-      return visitorWrapper.getOrder() == Visitor.Order.POST_ORDER;
+      return visitorWrapper.getOrder() == ComponentVisitor.Order.POST_ORDER;
     }
   }
 }
