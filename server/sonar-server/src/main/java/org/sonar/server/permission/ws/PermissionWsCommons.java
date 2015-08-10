@@ -38,6 +38,7 @@ public class PermissionWsCommons {
   public static final String PARAM_GROUP_ID = "groupId";
   public static final String PARAM_PROJECT_ID = "projectId";
   public static final String PARAM_PROJECT_KEY = "projectKey";
+  public static final String PARAM_USER_LOGIN = "login";
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
@@ -61,6 +62,24 @@ public class PermissionWsCommons {
     return group.getName();
   }
 
+  public PermissionChange buildUserPermissionChange(Request request) {
+    String permission = request.mandatoryParam(PARAM_PERMISSION);
+    String userLogin = request.mandatoryParam(PARAM_USER_LOGIN);
+
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      PermissionChange permissionChange = new PermissionChange()
+        .setPermission(permission)
+        .setUser(userLogin);
+      addProjectToPermissionChange(dbSession, permissionChange, request.param(PARAM_PROJECT_ID), request.param(PARAM_PROJECT_KEY));
+
+      return permissionChange;
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
+
+  }
+
   public PermissionChange buildGroupPermissionChange(DbSession dbSession, Request request) {
     String permission = request.mandatoryParam(PARAM_PERMISSION);
     String groupNameParam = request.param(PARAM_GROUP_NAME);
@@ -73,12 +92,16 @@ public class PermissionWsCommons {
     PermissionChange permissionChange = new PermissionChange()
       .setPermission(permission)
       .setGroup(groupName);
+    addProjectToPermissionChange(dbSession, permissionChange, projectUuid, projectKey);
+
+    return permissionChange;
+  }
+
+  private void addProjectToPermissionChange(DbSession dbSession, PermissionChange permissionChange, @Nullable String projectUuid, @Nullable String projectKey) {
     if (isProjectUuidOrProjectKeyProvided(projectUuid, projectKey)) {
       ComponentDto project = componentFinder.getProjectByUuidOrKey(dbSession, projectUuid, projectKey);
       permissionChange.setComponentKey(project.key());
     }
-
-    return permissionChange;
   }
 
   private static void checkParameters(@Nullable String groupName, @Nullable Long groupId) {
