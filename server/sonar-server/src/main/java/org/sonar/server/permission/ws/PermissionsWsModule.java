@@ -33,6 +33,7 @@ public class PermissionsWsModule extends Module {
       RemoveUserAction.class,
       UsersAction.class,
       GroupsAction.class,
-      SearchGlobalPermissionsAction.class);
+      SearchGlobalPermissionsAction.class,
+      PermissionWsCommons.class);
   }
 }

@@ -25,10 +25,9 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
-
-import static org.sonar.server.permission.ws.PermissionWsCommons.searchName;
 
 public class RemoveGroupAction implements PermissionsWsAction {
 
@@ -37,12 +36,14 @@ public class RemoveGroupAction implements PermissionsWsAction {
   public static final String PARAM_GROUP_NAME = "groupName";
   public static final String PARAM_GROUP_ID = "groupId";
 
-  private final PermissionUpdater permissionUpdater;
   private final DbClient dbClient;
+  private final PermissionWsCommons permissionWsCommons;
+  private final PermissionUpdater permissionUpdater;
 
-  public RemoveGroupAction(PermissionUpdater permissionUpdater, DbClient dbClient) {
-    this.permissionUpdater = permissionUpdater;
+  public RemoveGroupAction(DbClient dbClient, PermissionWsCommons permissionWsCommons, PermissionUpdater permissionUpdater) {
     this.dbClient = dbClient;
+    this.permissionWsCommons = permissionWsCommons;
+    this.permissionUpdater = permissionUpdater;
   }
 
   @Override
@@ -75,13 +76,18 @@ public class RemoveGroupAction implements PermissionsWsAction {
     String groupNameParam = request.param(PARAM_GROUP_NAME);
     Long groupId = request.paramAsLong(PARAM_GROUP_ID);
 
-    String groupName = searchName(dbClient, groupNameParam, groupId);
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      String groupName = permissionWsCommons.searchGroupName(dbSession, groupNameParam, groupId);
 
-    permissionUpdater.removePermission(
-      new PermissionChange()
-        .setPermission(permission)
-        .setGroup(groupName)
-    );
+      permissionUpdater.removePermission(
+        new PermissionChange()
+          .setPermission(permission)
+          .setGroup(groupName)
+        );
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
 
     response.noContent();
   }
