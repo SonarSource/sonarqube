@@ -99,7 +99,11 @@ public class SearchResponseFormat {
 
     if (data.getIssues().size() == 1) {
       Issues.Issue.Builder issueBuilder = Issues.Issue.newBuilder();
-      formatIssue(issueBuilder, data.getIssues().get(0), data);
+      IssueDto dto = data.getIssues().get(0);
+      formatIssue(issueBuilder, dto, data);
+      formatIssueActions(data, issueBuilder, dto);
+      formatIssueTransitions(data, issueBuilder, dto);
+      formatIssueComments(data, issueBuilder, dto);
       response.setIssue(issueBuilder.build());
     }
     response.addAllComponents(formatComponents(data));
