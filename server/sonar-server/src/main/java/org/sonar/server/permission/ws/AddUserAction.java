@@ -28,7 +28,7 @@ import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
 
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_ID;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_USER_LOGIN;
 
@@ -47,7 +47,9 @@ public class AddUserAction implements PermissionsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
-      .setDescription("Add permission to a user.<br /> Requires 'Administer System' permission.")
+      .setDescription("Add permission to a user.<br /> " +
+        "If the project id or project key is provided, a project permission is created.<br />" +
+        "Requires 'Administer System' permission.")
       .setSince("5.2")
       .setPost(true)
       .setHandler(this);
@@ -62,7 +64,7 @@ public class AddUserAction implements PermissionsWsAction {
       .setDescription("User login")
       .setExampleValue("g.hopper");
 
-    action.createParam(PARAM_PROJECT_ID)
+    action.createParam(PARAM_PROJECT_UUID)
       .setDescription("Project id")
       .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d");
 
