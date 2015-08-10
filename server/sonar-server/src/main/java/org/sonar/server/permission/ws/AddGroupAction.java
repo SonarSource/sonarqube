@@ -20,37 +20,33 @@
 
 package org.sonar.server.permission.ws;
 
-import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
+
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_ID;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_NAME;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_ID;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
 
 public class AddGroupAction implements PermissionsWsAction {
 
   public static final String ACTION = "add_group";
-  public static final String PARAM_PERMISSION = "permission";
-  public static final String PARAM_GROUP_NAME = "groupName";
-  public static final String PARAM_GROUP_ID = "groupId";
-  public static final String PARAM_PROJECT_ID = "projectId";
-  public static final String PARAM_PROJECT_KEY = "projectKey";
 
   private final DbClient dbClient;
   private final PermissionWsCommons permissionWsCommons;
   private final PermissionUpdater permissionUpdater;
-  private final ComponentFinder componentFinder;
 
-  public AddGroupAction(DbClient dbClient, PermissionWsCommons permissionWsCommons, PermissionUpdater permissionUpdater, ComponentFinder componentFinder) {
+  public AddGroupAction(DbClient dbClient, PermissionWsCommons permissionWsCommons, PermissionUpdater permissionUpdater) {
     this.permissionWsCommons = permissionWsCommons;
     this.permissionUpdater = permissionUpdater;
     this.dbClient = dbClient;
-    this.componentFinder = componentFinder;
   }
 
   @Override
@@ -88,37 +84,14 @@ public class AddGroupAction implements PermissionsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String permission = request.mandatoryParam(PARAM_PERMISSION);
-    String groupNameParam = request.param(PARAM_GROUP_NAME);
-    Long groupId = request.paramAsLong(PARAM_GROUP_ID);
-    String projectUuid = request.param(PARAM_PROJECT_ID);
-    String projectKey = request.param(PARAM_PROJECT_KEY);
-
     DbSession dbSession = dbClient.openSession(false);
     try {
-      String groupName = permissionWsCommons.searchGroupName(dbSession, groupNameParam, groupId);
-      PermissionChange permissionChange = permissionChange(dbSession, permission, groupName, projectUuid, projectKey);
-
+      PermissionChange permissionChange = permissionWsCommons.buildGroupPermissionChange(dbSession, request);
       permissionUpdater.addPermission(permissionChange);
     } finally {
       dbClient.closeSession(dbSession);
     }
 
     response.noContent();
-  }
-
-  private PermissionChange permissionChange(DbSession dbSession, String permission, String groupName, @Nullable String projectUuid, @Nullable String projectKey) {
-    PermissionChange permissionChange = new PermissionChange()
-      .setPermission(permission)
-      .setGroup(groupName);
-    if (isProjectUuidOrProjectKeyProvided(projectUuid, projectKey)) {
-      ComponentDto project = componentFinder.getProjectByUuidOrKey(dbSession, projectUuid, projectKey);
-      permissionChange.setComponentKey(project.key());
-    }
-    return permissionChange;
-  }
-
-  private static boolean isProjectUuidOrProjectKeyProvided(@Nullable String projectUuid, @Nullable String projectKey) {
-    return projectUuid != null || projectKey != null;
   }
 }
