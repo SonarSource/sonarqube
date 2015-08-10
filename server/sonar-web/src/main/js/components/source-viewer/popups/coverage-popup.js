@@ -38,6 +38,7 @@ define([
     },
 
     goToFile: function (e) {
+      e.stopPropagation();
       var uuid = $(e.currentTarget).data('uuid');
       if (Workspace == null) {
         Workspace = require('components/workspace/main');

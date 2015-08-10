@@ -33,6 +33,7 @@ define([
     },
 
     goToFile: function (e) {
+      e.stopPropagation();
       var uuid = $(e.currentTarget).data('uuid'),
           line = $(e.currentTarget).data('line');
       if (Workspace == null) {
