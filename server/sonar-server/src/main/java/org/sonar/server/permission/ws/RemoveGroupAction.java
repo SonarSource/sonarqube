@@ -32,7 +32,7 @@ import org.sonar.server.permission.PermissionUpdater;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_ID;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_NAME;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_ID;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
 
 public class RemoveGroupAction implements PermissionsWsAction {
@@ -72,7 +72,7 @@ public class RemoveGroupAction implements PermissionsWsAction {
       .setDescription("Group id")
       .setExampleValue("42");
 
-    action.createParam(PARAM_PROJECT_ID)
+    action.createParam(PARAM_PROJECT_UUID)
       .setDescription("Project id")
       .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d");
 

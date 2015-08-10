@@ -27,22 +27,29 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
 
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_USER_LOGIN;
+
 public class RemoveUserAction implements PermissionsWsAction {
 
   public static final String ACTION = "remove_user";
-  public static final String PARAM_PERMISSION = "permission";
-  public static final String PARAM_USER_LOGIN = "login";
 
   private final PermissionUpdater permissionUpdater;
+  private final PermissionWsCommons permissionWsCommons;
 
-  public RemoveUserAction(PermissionUpdater permissionUpdater) {
+  public RemoveUserAction(PermissionUpdater permissionUpdater, PermissionWsCommons permissionWsCommons) {
     this.permissionUpdater = permissionUpdater;
+    this.permissionWsCommons = permissionWsCommons;
   }
 
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
-      .setDescription("Remove permission from a user.<br /> Requires 'Administer System' permission.")
+      .setDescription("Remove permission from a user.<br /> " +
+        "If the project id is provided, a project permission is removed.<br />" +
+        "Requires 'Administer System' permission.")
       .setSince("5.2")
       .setPost(true)
       .setHandler(this);
@@ -56,17 +63,20 @@ public class RemoveUserAction implements PermissionsWsAction {
       .setRequired(true)
       .setDescription("User login")
       .setExampleValue("g.hopper");
+
+    action.createParam(PARAM_PROJECT_UUID)
+      .setDescription("Project id")
+      .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d");
+
+    action.createParam(PARAM_PROJECT_KEY)
+      .setDescription("Project key")
+      .setExampleValue("org.apache.hbas:hbase");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String permission = request.mandatoryParam(PARAM_PERMISSION);
-    String userLogin = request.mandatoryParam(PARAM_USER_LOGIN);
-    permissionUpdater.removePermission(
-      new PermissionChange()
-        .setPermission(permission)
-        .setUser(userLogin)
-    );
+    PermissionChange permissionChange = permissionWsCommons.buildUserPermissionChange(request);
+    permissionUpdater.removePermission(permissionChange);
 
     response.noContent();
   }
