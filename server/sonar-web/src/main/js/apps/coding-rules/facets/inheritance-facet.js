@@ -18,12 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 define([
-    './base-facet'
+    './base-facet',
+    '../templates'
 ], function (BaseFacet) {
 
   var $ = jQuery;
 
   return BaseFacet.extend({
+    template: Templates['coding-rules-inheritance-facet'],
 
     initialize: function (options) {
       this.listenTo(options.app.state, 'change:query', this.onQueryChange);
