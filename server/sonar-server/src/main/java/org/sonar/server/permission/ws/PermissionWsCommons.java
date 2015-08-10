@@ -36,7 +36,7 @@ public class PermissionWsCommons {
   public static final String PARAM_PERMISSION = "permission";
   public static final String PARAM_GROUP_NAME = "groupName";
   public static final String PARAM_GROUP_ID = "groupId";
-  public static final String PARAM_PROJECT_ID = "projectId";
+  public static final String PARAM_PROJECT_UUID = "projectId";
   public static final String PARAM_PROJECT_KEY = "projectKey";
   public static final String PARAM_USER_LOGIN = "login";
 
@@ -71,7 +71,7 @@ public class PermissionWsCommons {
       PermissionChange permissionChange = new PermissionChange()
         .setPermission(permission)
         .setUser(userLogin);
-      addProjectToPermissionChange(dbSession, permissionChange, request.param(PARAM_PROJECT_ID), request.param(PARAM_PROJECT_KEY));
+      addProjectToPermissionChange(dbSession, permissionChange, request.param(PARAM_PROJECT_UUID), request.param(PARAM_PROJECT_KEY));
 
       return permissionChange;
     } finally {
@@ -84,7 +84,7 @@ public class PermissionWsCommons {
     String permission = request.mandatoryParam(PARAM_PERMISSION);
     String groupNameParam = request.param(PARAM_GROUP_NAME);
     Long groupId = request.paramAsLong(PARAM_GROUP_ID);
-    String projectUuid = request.param(PARAM_PROJECT_ID);
+    String projectUuid = request.param(PARAM_PROJECT_UUID);
     String projectKey = request.param(PARAM_PROJECT_KEY);
 
     String groupName = searchGroupName(dbSession, groupNameParam, groupId);
