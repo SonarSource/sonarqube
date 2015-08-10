@@ -23,11 +23,15 @@ package org.sonar.server.permission.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
@@ -35,13 +39,22 @@ import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
+import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.server.component.ComponentTesting.newFileDto;
+import static org.sonar.server.component.ComponentTesting.newProjectDto;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_ID;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_NAME;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_ID;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.RemoveGroupAction.ACTION;
 
+@Category(DbTests.class)
 public class RemoveGroupActionTest {
   UserSessionRule userSession = UserSessionRule.standalone();
   WsTester ws;
@@ -50,23 +63,24 @@ public class RemoveGroupActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   private PermissionUpdater permissionUpdater;
+  private ArgumentCaptor<PermissionChange> permissionChangeCaptor = ArgumentCaptor.forClass(PermissionChange.class);
+  private DbSession dbSession = db.getSession();
 
   @Before
   public void setUp() {
     permissionUpdater = mock(PermissionUpdater.class);
     ws = new WsTester(new PermissionsWs(
-      new RemoveGroupAction(db.getDbClient(), new PermissionWsCommons(db.getDbClient()), permissionUpdater)));
+      new RemoveGroupAction(db.getDbClient(), new PermissionWsCommons(db.getDbClient(), new ComponentFinder(db.getDbClient())), permissionUpdater)));
     userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 
   @Test
   public void call_permission_service_with_right_data() throws Exception {
-    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
-      .setParam(RemoveGroupAction.PARAM_GROUP_NAME, "sonar-administrators")
-      .setParam(RemoveGroupAction.PARAM_PERMISSION, SYSTEM_ADMIN)
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, "sonar-administrators")
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
 
-    ArgumentCaptor<PermissionChange> permissionChangeCaptor = ArgumentCaptor.forClass(PermissionChange.class);
     verify(permissionUpdater).removePermission(permissionChangeCaptor.capture());
     PermissionChange permissionChange = permissionChangeCaptor.getValue();
     assertThat(permissionChange.group()).isEqualTo("sonar-administrators");
@@ -74,29 +88,83 @@ public class RemoveGroupActionTest {
   }
 
   @Test
-  public void remove_group_by_id() throws Exception {
-    GroupDto group = db.getDbClient().groupDao().insert(db.getSession(), new GroupDto()
-      .setName("sonar-administrators"));
-    db.getSession().commit();
+  public void remove_by_group_id() throws Exception {
+    GroupDto group = insertGroup("sonar-administrators");
+    commit();
 
-    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
-      .setParam(RemoveGroupAction.PARAM_GROUP_ID, group.getId().toString())
-      .setParam(RemoveGroupAction.PARAM_PERMISSION, SYSTEM_ADMIN)
+    newRequest()
+      .setParam(PARAM_GROUP_ID, group.getId().toString())
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
 
-    ArgumentCaptor<PermissionChange> permissionChangeCaptor = ArgumentCaptor.forClass(PermissionChange.class);
     verify(permissionUpdater).removePermission(permissionChangeCaptor.capture());
     PermissionChange permissionChange = permissionChangeCaptor.getValue();
     assertThat(permissionChange.group()).isEqualTo("sonar-administrators");
   }
 
   @Test
-  public void get_request_are_not_authorized() throws Exception {
+  public void remove_with_project_uuid() throws Exception {
+    insertComponent(newProjectDto("project-uuid").setKey("project-key"));
+    commit();
+
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, "sonar-administrators")
+      .setParam(PARAM_PROJECT_ID, "project-uuid")
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .execute();
+
+    verify(permissionUpdater).removePermission(permissionChangeCaptor.capture());
+    PermissionChange permissionChange = permissionChangeCaptor.getValue();
+    assertThat(permissionChange.component()).isEqualTo("project-key");
+  }
+
+  @Test
+  public void remove_with_project_key() throws Exception {
+    insertComponent(newProjectDto("project-uuid").setKey("project-key"));
+    commit();
+
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, "sonar-administrators")
+      .setParam(PARAM_PROJECT_KEY, "project-key")
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .execute();
+
+    verify(permissionUpdater).removePermission(permissionChangeCaptor.capture());
+    PermissionChange permissionChange = permissionChangeCaptor.getValue();
+    assertThat(permissionChange.component()).isEqualTo("project-key");
+  }
+
+  @Test
+  public void fail_when_project_does_not_exist() throws Exception {
+    expectedException.expect(NotFoundException.class);
+
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, "sonar-administrators")
+      .setParam(PARAM_PROJECT_ID, "unknown-project-uuid")
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .execute();
+  }
+
+  @Test
+  public void fail_when_component_is_not_a_project() throws Exception {
+    expectedException.expect(BadRequestException.class);
+    insertComponent(newFileDto(newProjectDto("project-uuid"), "file-uuid"));
+    commit();
+
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, "sonar-administrators")
+      .setParam(PARAM_PROJECT_ID, "file-uuid")
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .execute();
+  }
+
+  @Test
+  public void fail_when_get_request() throws Exception {
     expectedException.expect(ServerException.class);
 
     ws.newGetRequest(PermissionsWs.ENDPOINT, ACTION)
-      .setParam(RemoveGroupAction.PARAM_GROUP_NAME, "sonar-administrators")
-      .setParam(RemoveGroupAction.PARAM_PERMISSION, SYSTEM_ADMIN)
+      .setParam(PARAM_GROUP_NAME, "sonar-administrators")
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
   }
 
@@ -104,8 +172,8 @@ public class RemoveGroupActionTest {
   public void fail_when_group_name_is_missing() throws Exception {
     expectedException.expect(BadRequestException.class);
 
-    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
-      .setParam(RemoveGroupAction.PARAM_PERMISSION, SYSTEM_ADMIN)
+    newRequest()
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
   }
 
@@ -113,8 +181,8 @@ public class RemoveGroupActionTest {
   public void fail_when_permission_name_and_id_are_missing() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
 
-    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
-      .setParam(RemoveGroupAction.PARAM_GROUP_NAME, "sonar-administrators")
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, "sonar-administrators")
       .execute();
   }
 
@@ -123,9 +191,25 @@ public class RemoveGroupActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Group with id '42' is not found");
 
-    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
-      .setParam(RemoveGroupAction.PARAM_PERMISSION, SYSTEM_ADMIN)
-      .setParam(RemoveGroupAction.PARAM_GROUP_ID, "42")
+    newRequest()
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .setParam(PARAM_GROUP_ID, "42")
       .execute();
+  }
+
+  private WsTester.TestRequest newRequest() {
+    return ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION);
+  }
+
+  private GroupDto insertGroup(String groupName) {
+    return db.getDbClient().groupDao().insert(dbSession, new GroupDto().setName(groupName));
+  }
+
+  private void insertComponent(ComponentDto component) {
+    db.getDbClient().componentDao().insert(dbSession, component);
+  }
+
+  private void commit() {
+    dbSession.commit();
   }
 }

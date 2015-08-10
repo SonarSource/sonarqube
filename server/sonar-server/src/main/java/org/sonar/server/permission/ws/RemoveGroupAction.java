@@ -29,12 +29,15 @@ import org.sonar.db.DbSession;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
 
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_ID;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_NAME;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_ID;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
+
 public class RemoveGroupAction implements PermissionsWsAction {
 
   public static final String ACTION = "remove_group";
-  public static final String PARAM_PERMISSION = "permission";
-  public static final String PARAM_GROUP_NAME = "groupName";
-  public static final String PARAM_GROUP_ID = "groupId";
 
   private final DbClient dbClient;
   private final PermissionWsCommons permissionWsCommons;
@@ -66,25 +69,24 @@ public class RemoveGroupAction implements PermissionsWsAction {
       .setExampleValue("sonar-administrators");
 
     action.createParam(PARAM_GROUP_ID)
-      .setDescription("Group ID")
+      .setDescription("Group id")
       .setExampleValue("42");
+
+    action.createParam(PARAM_PROJECT_ID)
+      .setDescription("Project id")
+      .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d");
+
+    action.createParam(PARAM_PROJECT_KEY)
+      .setDescription("Project key")
+      .setExampleValue("org.apache.hbas:hbase");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String permission = request.mandatoryParam(PARAM_PERMISSION);
-    String groupNameParam = request.param(PARAM_GROUP_NAME);
-    Long groupId = request.paramAsLong(PARAM_GROUP_ID);
-
     DbSession dbSession = dbClient.openSession(false);
     try {
-      String groupName = permissionWsCommons.searchGroupName(dbSession, groupNameParam, groupId);
-
-      permissionUpdater.removePermission(
-        new PermissionChange()
-          .setPermission(permission)
-          .setGroup(groupName)
-        );
+      PermissionChange permissionChange = permissionWsCommons.buildGroupPermissionChange(dbSession, request);
+      permissionUpdater.removePermission(permissionChange);
     } finally {
       dbClient.closeSession(dbSession);
     }
