@@ -21,8 +21,6 @@ package org.sonar.batch.cache;
 
 import org.picocontainer.injectors.ProviderAdapter;
 
-import org.sonar.batch.bootstrap.BootstrapProperties;
-import org.sonar.batch.bootstrap.GlobalMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.bootstrap.WSLoader;
 import org.sonar.batch.bootstrap.WSLoader.LoadStrategy;
@@ -36,7 +34,7 @@ public class StrategyWSLoaderProvider extends ProviderAdapter {
     this.strategy = strategy;
   }
 
-  public WSLoader provide(BootstrapProperties props, GlobalMode mode, PersistentCache cache, ServerClient client) {
+  public WSLoader provide(PersistentCache cache, ServerClient client) {
     if (wsLoader == null) {
       wsLoader = new WSLoader(strategy, cache, client);
     }

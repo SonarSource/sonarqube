@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GlobalContainerTest {
   @Test
   public void should_add_components() {
-    GlobalContainer container = GlobalContainer.create(Collections.<String, String>emptyMap(), Collections.emptyList());
+    GlobalContainer container = GlobalContainer.create(Collections.<String, String>emptyMap(), Collections.emptyList(), false);
     container.doBeforeStart();
 
     assertThat(container.getComponentByType(Logback.class)).isNotNull();
@@ -41,7 +41,7 @@ public class GlobalContainerTest {
 
   @Test
   public void should_add_bootstrap_extensions() {
-    GlobalContainer container = GlobalContainer.create(Collections.<String, String>emptyMap(), Lists.newArrayList(Foo.class, new Bar()));
+    GlobalContainer container = GlobalContainer.create(Collections.<String, String>emptyMap(), Lists.newArrayList(Foo.class, new Bar()), false);
     container.doBeforeStart();
 
     assertThat(container.getComponentByType(Foo.class)).isNotNull();

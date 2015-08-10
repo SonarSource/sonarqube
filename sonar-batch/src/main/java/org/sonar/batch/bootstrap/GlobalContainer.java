@@ -19,8 +19,10 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.batch.scan.ProjectAnalysisMode;
+import org.sonar.batch.bootstrap.WSLoader.LoadStrategy;
 
+import org.sonar.batch.cache.StrategyWSLoaderProvider;
+import org.sonar.batch.scan.ProjectAnalysisMode;
 import org.sonar.batch.cache.ProjectSyncContainer;
 import org.sonar.batch.rule.RulesLoader;
 import org.sonar.batch.rule.DefaultRulesLoader;
@@ -53,14 +55,16 @@ import org.sonar.core.util.DefaultHttpDownloader;
 public class GlobalContainer extends ComponentContainer {
 
   private final Map<String, String> bootstrapProperties;
+  private boolean forceSync;
 
-  private GlobalContainer(Map<String, String> bootstrapProperties) {
+  private GlobalContainer(Map<String, String> bootstrapProperties, boolean forceSync) {
     super();
     this.bootstrapProperties = bootstrapProperties;
+    this.forceSync = forceSync;
   }
 
-  public static GlobalContainer create(Map<String, String> bootstrapProperties, List<?> extensions) {
-    GlobalContainer container = new GlobalContainer(bootstrapProperties);
+  public static GlobalContainer create(Map<String, String> bootstrapProperties, List<?> extensions, boolean forceSync) {
+    GlobalContainer container = new GlobalContainer(bootstrapProperties, forceSync);
     container.add(extensions);
     return container;
   }
@@ -68,6 +72,8 @@ public class GlobalContainer extends ComponentContainer {
   @Override
   protected void doBeforeStart() {
     BootstrapProperties bootstrapProps = new BootstrapProperties(bootstrapProperties);
+    StrategyWSLoaderProvider wsLoaderProvider = forceSync ? new StrategyWSLoaderProvider(LoadStrategy.SERVER_ONLY) : new StrategyWSLoaderProvider(LoadStrategy.SERVER_FIRST);
+    add(wsLoaderProvider);
     add(bootstrapProps);
     addBootstrapComponents();
   }
@@ -94,7 +100,6 @@ public class GlobalContainer extends ComponentContainer {
       UriReader.class,
       new FileCacheProvider(),
       new PersistentCacheProvider(),
-      new GlobalWSLoaderProvider(),
       System2.INSTANCE,
       DefaultI18n.class,
       Durations.class,

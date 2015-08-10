@@ -17,21 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.cache;
 
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.batch.bootstrap.WSLoader.LoadStrategy;
+public class ProjectCacheSynchronizerTest {
 
-import org.sonar.home.cache.PersistentCache;
-
-public class GlobalWSLoaderProvider extends ProviderAdapter {
-  private static final LoadStrategy DEFAULT_STRATEGY = LoadStrategy.SERVER_ONLY;
-  private WSLoader wsLoader;
-
-  public WSLoader provide(BootstrapProperties props, GlobalMode mode, PersistentCache cache, ServerClient client) {
-    if (wsLoader == null) {
-      wsLoader = new WSLoader(DEFAULT_STRATEGY, cache, client);
-    }
-    return wsLoader;
-  }
 }

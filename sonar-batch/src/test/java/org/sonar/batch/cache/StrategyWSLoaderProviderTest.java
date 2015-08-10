@@ -17,47 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.sonar.batch.bootstrap.WSLoader.LoadStrategy;
-import org.junit.Test;
+import org.sonar.batch.bootstrap.WSLoader;
 import org.junit.Before;
-import org.sonar.home.cache.PersistentCache;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.sonar.batch.bootstrap.ServerClient;
+import org.mockito.Mock;
+import org.sonar.home.cache.PersistentCache;
+import org.junit.Test;
+import org.sonar.batch.bootstrap.WSLoader.LoadStrategy;
 
-public class GlobalWSLoaderProviderTest {
+public class StrategyWSLoaderProviderTest {
   @Mock
   private PersistentCache cache;
 
   @Mock
   private ServerClient client;
 
-  @Mock
-  private GlobalMode mode;
-
-  private GlobalWSLoaderProvider loaderProvider;
-  private Map<String, String> propMap;
-  private BootstrapProperties props;
-
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    loaderProvider = new GlobalWSLoaderProvider();
   }
 
   @Test
-  public void testDefault() {
-    propMap = new HashMap<>();
-    props = new BootstrapProperties(propMap);
+  public void testStrategy() {
+    StrategyWSLoaderProvider provider = new StrategyWSLoaderProvider(LoadStrategy.CACHE_FIRST);
+    WSLoader wsLoader = provider.provide(cache, client);
 
-    WSLoader wsLoader = loaderProvider.provide(props, mode, cache, client);
-    assertThat(wsLoader.getStrategy()).isEqualTo(LoadStrategy.SERVER_ONLY);
+    assertThat(wsLoader.getStrategy()).isEqualTo(LoadStrategy.CACHE_FIRST);
   }
-
 }

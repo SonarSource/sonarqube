@@ -19,15 +19,15 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.batch.scan.ProjectAnalysisMode;
 
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.batch.bootstrap.AbstractServerLoader;
 import org.sonar.batch.bootstrap.WSLoaderResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrap.AnalysisProperties;
-import org.sonar.batch.bootstrap.GlobalMode;
 import org.sonar.batch.bootstrap.WSLoader;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.rule.ModuleQProfiles;
@@ -39,11 +39,11 @@ public class DefaultProjectRepositoriesLoader extends AbstractServerLoader imple
   private static final String BATCH_PROJECT_URL = "/batch/project";
 
   private final WSLoader wsLoader;
-  private final GlobalMode globalMode;
+  private final ProjectAnalysisMode analysisMode;
 
-  public DefaultProjectRepositoriesLoader(WSLoader wsLoader, GlobalMode globalMode) {
+  public DefaultProjectRepositoriesLoader(WSLoader wsLoader, ProjectAnalysisMode analysisMode) {
     this.wsLoader = wsLoader;
-    this.globalMode = globalMode;
+    this.analysisMode = analysisMode;
   }
 
   @Override
@@ -55,7 +55,7 @@ public class DefaultProjectRepositoriesLoader extends AbstractServerLoader imple
         + "' is deprecated and will be dropped in a future SonarQube version. Please configure quality profile used by your project on SonarQube server.");
       url += "&profile=" + BatchUtils.encodeForUrl(taskProperties.properties().get(ModuleQProfiles.SONAR_PROFILE_PROP));
     }
-    url += "&preview=" + globalMode.isIssues();
+    url += "&preview=" + analysisMode.isIssues();
     ProjectRepositories projectRepositories = ProjectRepositories.fromJson(load(url));
     validateProjectRepositories(projectRepositories);
     return projectRepositories;

@@ -33,7 +33,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import static org.sonar.batch.bootstrap.WSLoader.ServerStatus.*;
-import static org.sonar.batch.bootstrap.WSLoader.LoadStrategy.*;
 import org.sonar.home.cache.PersistentCache;
 
 public class WSLoader {

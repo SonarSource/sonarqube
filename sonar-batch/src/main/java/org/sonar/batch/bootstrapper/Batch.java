@@ -89,12 +89,16 @@ public final class Batch {
    * @since 4.4
    */
   public synchronized Batch start() {
+    return start(false);
+  }
+
+  public synchronized Batch start(boolean forceSync) {
     if (started) {
       throw new IllegalStateException("Batch is already started");
     }
 
     configureLogging();
-    bootstrapContainer = GlobalContainer.create(bootstrapProperties, components);
+    bootstrapContainer = GlobalContainer.create(bootstrapProperties, components, forceSync);
     bootstrapContainer.startComponents();
     this.started = true;
 
