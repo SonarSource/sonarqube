@@ -27,9 +27,14 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
@@ -42,6 +47,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.permission.ws.AddGroupAction.ACTION;
+import static org.sonar.server.permission.ws.AddGroupAction.PARAM_GROUP_ID;
+import static org.sonar.server.permission.ws.AddGroupAction.PARAM_GROUP_NAME;
+import static org.sonar.server.permission.ws.AddGroupAction.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.AddGroupAction.PARAM_PROJECT_ID;
+import static org.sonar.server.permission.ws.AddGroupAction.PARAM_PROJECT_KEY;
+import static org.sonar.server.permission.ws.PermissionsWs.ENDPOINT;
 
 @Category(DbTests.class)
 public class AddGroupActionTest {
@@ -52,24 +63,26 @@ public class AddGroupActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   private PermissionUpdater permissionUpdater;
+  private DbClient dbClient;
+  private ArgumentCaptor<PermissionChange> permissionChangeCaptor;
 
   @Before
   public void setUp() {
     permissionUpdater = mock(PermissionUpdater.class);
+    permissionChangeCaptor = ArgumentCaptor.forClass(PermissionChange.class);
+    dbClient = db.getDbClient();
     ws = new WsTester(new PermissionsWs(
-      new AddGroupAction(permissionUpdater, db.getDbClient())));
+      new AddGroupAction(dbClient, new PermissionWsCommons(dbClient), permissionUpdater, new ComponentFinder(dbClient))));
     userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
-
   }
 
   @Test
   public void call_permission_service_with_right_data() throws Exception {
-    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
-      .setParam(AddGroupAction.PARAM_GROUP_NAME, "sonar-administrators")
-      .setParam(AddGroupAction.PARAM_PERMISSION, SYSTEM_ADMIN)
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, "sonar-administrators")
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
 
-    ArgumentCaptor<PermissionChange> permissionChangeCaptor = ArgumentCaptor.forClass(PermissionChange.class);
     verify(permissionUpdater).addPermission(permissionChangeCaptor.capture());
     PermissionChange permissionChange = permissionChangeCaptor.getValue();
     assertThat(permissionChange.group()).isEqualTo("sonar-administrators");
@@ -77,29 +90,95 @@ public class AddGroupActionTest {
   }
 
   @Test
-  public void search_with_group_id() throws Exception {
-    GroupDto group = db.getDbClient().groupDao().insert(db.getSession(), new GroupDto()
-      .setName("sonar-administrators"));
-    db.getSession().commit();
+  public void add_with_group_id() throws Exception {
+    GroupDto group = insertGroup("sonar-administrators");
+    commit();
 
-    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
-      .setParam(AddGroupAction.PARAM_GROUP_ID, group.getId().toString())
-      .setParam(AddGroupAction.PARAM_PERMISSION, SYSTEM_ADMIN)
+    newRequest()
+      .setParam(PARAM_GROUP_ID, group.getId().toString())
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
 
-    ArgumentCaptor<PermissionChange> permissionChangeCaptor = ArgumentCaptor.forClass(PermissionChange.class);
     verify(permissionUpdater).addPermission(permissionChangeCaptor.capture());
     PermissionChange permissionChange = permissionChangeCaptor.getValue();
     assertThat(permissionChange.group()).isEqualTo("sonar-administrators");
   }
 
   @Test
+  public void add_with_project_uuid() throws Exception {
+    insertGroup("sonar-administrators");
+    insertComponent(ComponentTesting.newProjectDto("project-uuid").setKey("project-key"));
+    commit();
+
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, "sonar-administrators")
+      .setParam(PARAM_PROJECT_ID, "project-uuid")
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .execute();
+
+    verify(permissionUpdater).addPermission(permissionChangeCaptor.capture());
+    PermissionChange permissionChange = permissionChangeCaptor.getValue();
+    assertThat(permissionChange.component()).isEqualTo("project-key");
+    assertThat(permissionChange.group()).isEqualTo("sonar-administrators");
+  }
+
+  @Test
+  public void add_with_project_key() throws Exception {
+    insertGroup("sonar-administrators");
+    insertComponent(ComponentTesting.newProjectDto("project-uuid").setKey("project-key"));
+    commit();
+
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, "sonar-administrators")
+      .setParam(PARAM_PROJECT_KEY, "project-key")
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .execute();
+
+    verify(permissionUpdater).addPermission(permissionChangeCaptor.capture());
+    PermissionChange permissionChange = permissionChangeCaptor.getValue();
+    assertThat(permissionChange.component()).isEqualTo("project-key");
+    assertThat(permissionChange.group()).isEqualTo("sonar-administrators");
+  }
+
+  @Test
+  public void fail_if_project_uuid_not_found() throws Exception {
+    expectedException.expect(NotFoundException.class);
+
+    insertGroup("sonar-administrators");
+    insertComponent(ComponentTesting.newProjectDto("project-uuid").setKey("project-key"));
+    commit();
+
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, "sonar-administrators")
+      .setParam(PARAM_PROJECT_ID, "unknown-project-uuid")
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .execute();
+  }
+
+  @Test
+  public void fail_if_component_uuid_is_not_a_project() throws Exception {
+    expectedException.expect(BadRequestException.class);
+
+    insertGroup("sonar-administrators");
+    ComponentDto project = ComponentTesting.newProjectDto("project-uuid").setKey("project-key");
+    insertComponent(project);
+    insertComponent(ComponentTesting.newFileDto(project, "file-uuid"));
+    commit();
+
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, "sonar-administrators")
+      .setParam(PARAM_PROJECT_ID, "file-uuid")
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .execute();
+  }
+
+  @Test
   public void fail_when_get_request() throws Exception {
     expectedException.expect(ServerException.class);
 
-    ws.newGetRequest(PermissionsWs.ENDPOINT, ACTION)
-      .setParam(AddGroupAction.PARAM_GROUP_NAME, "sonar-administrators")
-      .setParam(AddGroupAction.PARAM_PERMISSION, SYSTEM_ADMIN)
+    ws.newGetRequest(ENDPOINT, ACTION)
+      .setParam(PARAM_GROUP_NAME, "sonar-administrators")
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
   }
 
@@ -108,8 +187,8 @@ public class AddGroupActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Group name or group id must be provided, not both");
 
-    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
-      .setParam(AddGroupAction.PARAM_PERMISSION, SYSTEM_ADMIN)
+    newRequest()
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
       .execute();
   }
 
@@ -117,8 +196,24 @@ public class AddGroupActionTest {
   public void fail_when_permission_is_missing() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
 
-    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
-      .setParam(AddGroupAction.PARAM_GROUP_NAME, "sonar-administrators")
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, "sonar-administrators")
       .execute();
+  }
+
+  private WsTester.TestRequest newRequest() {
+    return ws.newPostRequest(ENDPOINT, ACTION);
+  }
+
+  private void commit() {
+    db.getSession().commit();
+  }
+
+  private void insertComponent(ComponentDto component) {
+    dbClient.componentDao().insert(db.getSession(), component);
+  }
+
+  private GroupDto insertGroup(String name) {
+    return dbClient.groupDao().insert(db.getSession(), new GroupDto().setName(name));
   }
 }

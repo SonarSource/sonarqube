@@ -29,27 +29,24 @@ import org.sonar.server.exceptions.NotFoundException;
 
 public class PermissionWsCommons {
 
-  private PermissionWsCommons() {
-    // static stuff only
+  private final DbClient dbClient;
+
+  public PermissionWsCommons(DbClient dbClient) {
+    this.dbClient = dbClient;
   }
 
-  public static String searchName(DbClient dbClient, @Nullable String groupNameParam, @Nullable Long groupId) {
+  public String searchGroupName(DbSession dbSession, @Nullable String groupNameParam, @Nullable Long groupId) {
     checkParameters(groupNameParam, groupId);
     if (groupNameParam != null) {
       return groupNameParam;
     }
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      GroupDto group = dbClient.groupDao().selectById(dbSession, groupId);
-      if (group == null) {
-        throw new NotFoundException(String.format("Group with id '%d' is not found", groupId));
-      }
-
-      return group.getName();
-    } finally {
-      dbClient.closeSession(dbSession);
+    GroupDto group = dbClient.groupDao().selectById(dbSession, groupId);
+    if (group == null) {
+      throw new NotFoundException(String.format("Group with id '%d' is not found", groupId));
     }
+
+    return group.getName();
   }
 
   private static void checkParameters(@Nullable String groupName, @Nullable Long groupId) {

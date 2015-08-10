@@ -22,9 +22,11 @@ package org.sonar.server.component;
 
 import com.google.common.base.Optional;
 import javax.annotation.Nullable;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -54,10 +56,23 @@ public class ComponentFinder {
     return getIfPresentOrFail(dbClient.componentDao().selectByUuid(dbSession, uuid), String.format("Component id '%s' not found", uuid));
   }
 
+  public ComponentDto getProjectByUuidOrKey(DbSession dbSession, @Nullable String projectUuid, @Nullable String projectKey) {
+    ComponentDto project = getByUuidOrKey(dbSession, projectUuid, projectKey);
+    checkIsProjectOrModule(project);
+
+    return project;
+  }
+
   private static ComponentDto getIfPresentOrFail(Optional<ComponentDto> component, String errorMsg) {
     if (!component.isPresent()) {
       throw new NotFoundException(errorMsg);
     }
     return component.get();
+  }
+
+  private static void checkIsProjectOrModule(ComponentDto component) {
+    if (!Qualifiers.PROJECT.equals(component.qualifier()) && !Qualifiers.MODULE.equals(component.qualifier())) {
+      throw new BadRequestException(String.format("Component '%s' (id: %s) must be a project or a module.", component.key(), component.uuid()));
+    }
   }
 }

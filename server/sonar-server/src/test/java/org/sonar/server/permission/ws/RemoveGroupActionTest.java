@@ -55,7 +55,7 @@ public class RemoveGroupActionTest {
   public void setUp() {
     permissionUpdater = mock(PermissionUpdater.class);
     ws = new WsTester(new PermissionsWs(
-      new RemoveGroupAction(permissionUpdater, db.getDbClient())));
+      new RemoveGroupAction(db.getDbClient(), new PermissionWsCommons(db.getDbClient()), permissionUpdater)));
     userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 
