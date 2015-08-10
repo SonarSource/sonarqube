@@ -61,7 +61,7 @@
 
         <td class="source-line-code code {{#notEmpty issues}}has-issues{{/notEmpty}}" data-line-number="{{line}}">
           {{#notNull code}}
-            <pre>{{#if code}}{{{code}}}{{else}}&nbsp;{{/if}}</pre>
+            <pre>{{{codeWithIssueLocations code issueLocations}}}</pre>
           {{/notNull}}
 
           {{#notEmpty issues}}

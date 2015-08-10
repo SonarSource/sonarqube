@@ -110,5 +110,65 @@ define(function (require) {
         assert.deepEqual(stub.firstCall.args[0].data, { issue: 'issue-key', transition: 'RESOLVED' });
       });
     });
+
+    bdd.describe('#getLinearLocations', function () {
+      bdd.it('should return single line location', function () {
+        var issue = new Issue({ textRange: { startLine: 1, endLine: 1, startOffset: 0, endOffset: 10 } }),
+            locations = issue.getLinearLocations();
+        assert.equal(locations.length, 1);
+
+        assert.equal(locations[0].line, 1);
+        assert.equal(locations[0].from, 0);
+        assert.equal(locations[0].to, 10);
+      });
+
+      bdd.it('should return location not from 0', function () {
+        var issue = new Issue({ textRange: { startLine: 1, endLine: 1, startOffset: 5, endOffset: 10 } }),
+            locations = issue.getLinearLocations();
+        assert.equal(locations.length, 1);
+
+        assert.equal(locations[0].line, 1);
+        assert.equal(locations[0].from, 5);
+        assert.equal(locations[0].to, 10);
+      });
+
+      bdd.it('should return 2-lines location', function () {
+        var issue = new Issue({ textRange: { startLine: 2, endLine: 3, startOffset: 5, endOffset: 10 } }),
+            locations = issue.getLinearLocations();
+        assert.equal(locations.length, 2);
+
+        assert.equal(locations[0].line, 2);
+        assert.equal(locations[0].from, 5);
+        assert.equal(locations[0].to, 999999);
+
+        assert.equal(locations[1].line, 3);
+        assert.equal(locations[1].from, 0);
+        assert.equal(locations[1].to, 10);
+      });
+
+      bdd.it('should return 3-lines location', function () {
+        var issue = new Issue({ textRange: { startLine: 4, endLine: 6, startOffset: 5, endOffset: 10 } }),
+            locations = issue.getLinearLocations();
+        assert.equal(locations.length, 3);
+
+        assert.equal(locations[0].line, 4);
+        assert.equal(locations[0].from, 5);
+        assert.equal(locations[0].to, 999999);
+
+        assert.equal(locations[1].line, 5);
+        assert.equal(locations[1].from, 0);
+        assert.equal(locations[1].to, 999999);
+
+        assert.equal(locations[2].line, 6);
+        assert.equal(locations[2].from, 0);
+        assert.equal(locations[2].to, 10);
+      });
+
+      bdd.it('should return [] when no location', function () {
+        var issue = new Issue(),
+            locations = issue.getLinearLocations();
+        assert.equal(locations.length, 0);
+      });
+    });
   });
 });

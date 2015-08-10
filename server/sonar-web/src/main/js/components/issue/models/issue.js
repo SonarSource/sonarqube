@@ -160,6 +160,21 @@ define(function () {
         data: { issue: this.id, transition: transition }
       }, options);
       return this._action(opts);
+    },
+
+    getLinearLocations: function () {
+      var textRange = this.get('textRange');
+      if (!textRange) {
+        return [];
+      }
+      var locations = [];
+      for (var line = textRange.startLine; line <= textRange.endLine; line++) {
+        // TODO fix 999999
+        var from = line === textRange.startLine ? textRange.startOffset : 0,
+            to = line === textRange.endLine ? textRange.endOffset : 999999;
+        locations.push({ line: line, from: from, to: to });
+      }
+      return locations;
     }
   });
 

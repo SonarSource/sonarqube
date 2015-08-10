@@ -27,6 +27,8 @@ define([
       './popups/coverage-popup',
       './popups/duplication-popup',
       './popups/line-actions-popup',
+
+      './helpers/code-with-issue-locations-helper',
       './templates'
     ],
     function (Source,
@@ -313,6 +315,25 @@ define([
             };
           });
           this.model.addMeta(issuesPerLine);
+          this.addIssueLocationsMeta(issues);
+        },
+
+        addIssueLocationsMeta: function (issues) {
+          var issueLocations = [];
+          issues.forEach(function (issue) {
+            issue.getLinearLocations().forEach(function (location) {
+              var record = _.findWhere(issueLocations, { line: location.line });
+              if (record) {
+                record.issueLocations.push({ from: location.from, to: location.to });
+              } else {
+                issueLocations.push({
+                  line: location.line,
+                  issueLocations: [{ from: location.from, to: location.to }]
+                });
+              }
+            })
+          });
+          this.model.addMeta(issueLocations);
         },
 
         renderIssues: function () {
