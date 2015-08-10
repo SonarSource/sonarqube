@@ -38,6 +38,7 @@ public class ProjectAnalysisModeTest {
   public void regular_analysis_by_default() {
     ProjectAnalysisMode mode = createMode(null, null);
     assertThat(mode.isPreview()).isFalse();
+    assertThat(mode.isPublish()).isTrue();
   }
 
   @Test(expected = IllegalStateException.class)
@@ -46,10 +47,11 @@ public class ProjectAnalysisModeTest {
   }
 
   @Test
-  public void support_analysis_mode() {
-    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_ANALYSIS);
+  public void support_pulblish_mode() {
+    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_PUBLISH);
 
     assertThat(mode.isPreview()).isFalse();
+    assertThat(mode.isPublish()).isTrue();
   }
 
   @Test(expected = IllegalStateException.class)
@@ -102,3 +104,4 @@ public class ProjectAnalysisModeTest {
   }
 
 }
+
