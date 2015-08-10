@@ -27,9 +27,9 @@ class DashboardController < ApplicationController
 
   def index
     load_resource()
-    if @resource && !params[:did]
+    if @resource && @resource.display_dashboard? && !params[:did]
       overview_url = url_for({:controller => 'overview', :action => :index}) + '?id=' + url_encode(@resource.key)
-      redirect_to overview_url
+      return redirect_to overview_url
     end
     if !@resource || @resource.display_dashboard?
       redirect_if_bad_component()
