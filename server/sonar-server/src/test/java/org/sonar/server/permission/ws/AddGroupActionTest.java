@@ -47,11 +47,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.permission.ws.AddGroupAction.ACTION;
-import static org.sonar.server.permission.ws.AddGroupAction.PARAM_GROUP_ID;
-import static org.sonar.server.permission.ws.AddGroupAction.PARAM_GROUP_NAME;
-import static org.sonar.server.permission.ws.AddGroupAction.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.AddGroupAction.PARAM_PROJECT_ID;
-import static org.sonar.server.permission.ws.AddGroupAction.PARAM_PROJECT_KEY;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_ID;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_NAME;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_ID;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.PermissionsWs.ENDPOINT;
 
 @Category(DbTests.class)
@@ -72,7 +72,7 @@ public class AddGroupActionTest {
     permissionChangeCaptor = ArgumentCaptor.forClass(PermissionChange.class);
     dbClient = db.getDbClient();
     ws = new WsTester(new PermissionsWs(
-      new AddGroupAction(dbClient, new PermissionWsCommons(dbClient), permissionUpdater, new ComponentFinder(dbClient))));
+      new AddGroupAction(dbClient, new PermissionWsCommons(dbClient, new ComponentFinder(dbClient)), permissionUpdater)));
     userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 

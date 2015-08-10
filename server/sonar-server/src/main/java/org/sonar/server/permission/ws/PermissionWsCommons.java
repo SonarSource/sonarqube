@@ -21,18 +21,30 @@
 package org.sonar.server.permission.ws;
 
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Request;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.permission.PermissionChange;
 
 public class PermissionWsCommons {
 
-  private final DbClient dbClient;
+  public static final String PARAM_PERMISSION = "permission";
+  public static final String PARAM_GROUP_NAME = "groupName";
+  public static final String PARAM_GROUP_ID = "groupId";
+  public static final String PARAM_PROJECT_ID = "projectId";
+  public static final String PARAM_PROJECT_KEY = "projectKey";
 
-  public PermissionWsCommons(DbClient dbClient) {
+  private final DbClient dbClient;
+  private final ComponentFinder componentFinder;
+
+  public PermissionWsCommons(DbClient dbClient, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
+    this.componentFinder = componentFinder;
   }
 
   public String searchGroupName(DbSession dbSession, @Nullable String groupNameParam, @Nullable Long groupId) {
@@ -49,11 +61,35 @@ public class PermissionWsCommons {
     return group.getName();
   }
 
+  public PermissionChange buildGroupPermissionChange(DbSession dbSession, Request request) {
+    String permission = request.mandatoryParam(PARAM_PERMISSION);
+    String groupNameParam = request.param(PARAM_GROUP_NAME);
+    Long groupId = request.paramAsLong(PARAM_GROUP_ID);
+    String projectUuid = request.param(PARAM_PROJECT_ID);
+    String projectKey = request.param(PARAM_PROJECT_KEY);
+
+    String groupName = searchGroupName(dbSession, groupNameParam, groupId);
+
+    PermissionChange permissionChange = new PermissionChange()
+      .setPermission(permission)
+      .setGroup(groupName);
+    if (isProjectUuidOrProjectKeyProvided(projectUuid, projectKey)) {
+      ComponentDto project = componentFinder.getProjectByUuidOrKey(dbSession, projectUuid, projectKey);
+      permissionChange.setComponentKey(project.key());
+    }
+
+    return permissionChange;
+  }
+
   private static void checkParameters(@Nullable String groupName, @Nullable Long groupId) {
     if (groupName != null ^ groupId != null) {
       return;
     }
 
     throw new BadRequestException("Group name or group id must be provided, not both");
+  }
+
+  private static boolean isProjectUuidOrProjectKeyProvided(@Nullable String projectUuid, @Nullable String projectKey) {
+    return projectUuid != null || projectKey != null;
   }
 }
