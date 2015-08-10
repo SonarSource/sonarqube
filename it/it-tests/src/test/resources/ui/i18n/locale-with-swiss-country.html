@@ -15,7 +15,7 @@
   <tbody>
   <tr>
     <td>open</td>
-    <td>/sonar/dashboard/index/sample?locale=fr-CH</td>
+    <td>/sonar/overview/index?id=sample&locale=fr-CH</td>
     <td></td>
   </tr>
   <tr>
@@ -24,9 +24,9 @@
     <td>regexp:.*jan.*|.*fév.*|.*mar.*|.*avr.*|.*mai.*|.*juin.*|.*juil.*|.*août.*|.*sept.*|.*oct.*|.*nov.*|.*déc.*</td>
   </tr>
   <tr>
-    <td>assertText</td>
-    <td>m_duplicated_lines_density</td>
-    <td>0.0%</td>
+    <td>waitForText</td>
+    <td>css=.overview</td>
+    <td>*0.0%*</td>
   </tr>
   </tbody>
 </table>
