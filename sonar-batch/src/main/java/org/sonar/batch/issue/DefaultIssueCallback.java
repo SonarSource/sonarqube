@@ -19,13 +19,13 @@
  */
 package org.sonar.batch.issue;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.Rules;
 import org.sonar.batch.protocol.input.BatchInput.User;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -91,7 +91,7 @@ public class DefaultIssueCallback implements IssueCallback {
   }
 
   private void collectInfo(DefaultIssue issue) {
-    if (issue.assignee() != null) {
+    if (!StringUtils.isEmpty(issue.assignee())) {
       userLoginNames.add(issue.assignee());
     }
     if (issue.getRuleKey() != null) {
@@ -104,9 +104,11 @@ public class DefaultIssueCallback implements IssueCallback {
   }
 
   private void getUsers() {
-    Collection<User> users = userRepository.load(new ArrayList<>(userLoginNames));
-    for (User user : users) {
-      userMap.put(user.getLogin(), user.getName());
+    for (String loginName : userLoginNames) {
+      User user = userRepository.load(loginName);
+      if (user != null) {
+        userMap.put(user.getLogin(), user.getName());
+      }
     }
   }
 

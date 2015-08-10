@@ -39,7 +39,7 @@ public class DefaultServerIssuesLoader implements ServerIssuesLoader {
   }
 
   @Override
-  public boolean load(String componentKey, Function<ServerIssue, Void> consumer, boolean incremental) {
+  public boolean load(String componentKey, Function<ServerIssue, Void> consumer) {
     WSLoaderResult<ByteSource> result = wsLoader.loadSource("/batch/issues?key=" + BatchUtils.encodeForUrl(componentKey));
     parseIssues(result.get(), consumer);
     return result.isFromCache();

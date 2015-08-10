@@ -24,6 +24,6 @@ import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 
 public interface ServerIssuesLoader {
 
-  boolean load(String componentKey, Function<ServerIssue, Void> consumer, boolean incremental);
+  boolean load(String componentKey, Function<ServerIssue, Void> consumer);
 
 }

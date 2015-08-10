@@ -39,7 +39,6 @@ import java.util.List;
 
 import static org.mockito.Matchers.any;
 
-import static org.mockito.Matchers.anyListOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 
@@ -68,7 +67,7 @@ public class DefaultIssueCallbackTest {
     BatchInput.User.Builder userBuilder = BatchInput.User.newBuilder();
     userBuilder.setLogin("user");
     userBuilder.setName("name");
-    when(userRepository.load(anyListOf(String.class))).thenReturn(ImmutableList.of(userBuilder.build()));
+    when(userRepository.load("user")).thenReturn(userBuilder.build());
 
     Rule r = mock(Rule.class);
     when(r.name()).thenReturn("rule name");
@@ -128,7 +127,7 @@ public class DefaultIssueCallbackTest {
       }
     };
 
-    when(userRepository.load(anyListOf(String.class))).thenReturn(new LinkedList<BatchInput.User>());
+    when(userRepository.load(any(String.class))).thenReturn(null);
     when(rules.find(any(RuleKey.class))).thenReturn(null);
 
     DefaultIssueCallback issueCallback = new DefaultIssueCallback(issueCache, listener, userRepository, rules);

@@ -51,9 +51,9 @@ public class DefaultServerLineHashesLoader implements ServerLineHashesLoader {
       return result.get();
     } finally {
       if (result.isFromCache()) {
-        profiler.stopDebug();
-      } else {
         profiler.stopDebug("Load line hashes (done from cache)");
+      } else {
+        profiler.stopDebug();
       }
     }
   }

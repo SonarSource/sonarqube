@@ -19,17 +19,15 @@
  */
 package org.sonar.batch.repository.user;
 
-import org.sonar.batch.bootstrap.WSLoaderResult;
+import com.google.common.collect.Lists;
 
-import org.sonar.api.utils.log.Profiler;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import com.google.common.base.Joiner;
+import org.sonar.batch.bootstrap.AbstractServerLoader;
+import org.sonar.batch.bootstrap.WSLoaderResult;
 import org.sonar.batch.util.BatchUtils;
 import org.sonar.batch.bootstrap.WSLoader;
 import com.google.common.io.ByteSource;
 import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 import org.sonar.batch.protocol.input.BatchInput;
 
 import java.io.IOException;
@@ -39,8 +37,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class UserRepositoryLoader {
-  private static final Logger LOG = Loggers.get(UserRepositoryLoader.class);
+public class UserRepositoryLoader extends AbstractServerLoader {
   private final WSLoader wsLoader;
 
   public UserRepositoryLoader(WSLoader wsLoader) {
@@ -48,28 +45,25 @@ public class UserRepositoryLoader {
   }
 
   public BatchInput.User load(String userLogin) {
-    ByteSource byteSource = loadUsers(new UserEncodingFunction().apply(userLogin));
+    ByteSource byteSource = loadQuery(new UserEncodingFunction().apply(userLogin));
     return parseUser(byteSource);
   }
 
+  /**
+   * Not cache friendly. Should not be used if a cache hit is expected.
+   */
   public Collection<BatchInput.User> load(List<String> userLogins) {
     if (userLogins.isEmpty()) {
       return Collections.emptyList();
     }
-    ByteSource byteSource = loadUsers(Joiner.on(',').join(Lists.transform(userLogins, new UserEncodingFunction())));
+    ByteSource byteSource = loadQuery(Joiner.on(',').join(Lists.transform(userLogins, new UserEncodingFunction())));
 
     return parseUsers(byteSource);
   }
 
-  private ByteSource loadUsers(String loginsQuery) {
-    Profiler profiler = Profiler.create(LOG).startDebug("Load user repository");
+  private ByteSource loadQuery(String loginsQuery) {
     WSLoaderResult<ByteSource> result = wsLoader.loadSource("/batch/users?logins=" + loginsQuery);
-    if (result.isFromCache()) {
-      profiler.stopInfo("Load user repository (done from cache)");
-    } else {
-      profiler.stopInfo();
-    }
-
+    super.loadedFromCache = result.isFromCache();
     return result.get();
   }
 
@@ -82,7 +76,7 @@ public class UserRepositoryLoader {
 
   private static BatchInput.User parseUser(ByteSource input) {
     try (InputStream is = input.openStream()) {
-      return BatchInput.User.parseFrom(is);
+      return BatchInput.User.parseDelimitedFrom(is);
     } catch (IOException e) {
       throw new IllegalStateException("Unable to get user details from server", e);
     }

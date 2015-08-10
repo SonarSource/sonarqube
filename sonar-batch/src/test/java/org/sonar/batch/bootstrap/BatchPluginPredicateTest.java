@@ -70,6 +70,18 @@ public class BatchPluginPredicateTest {
   }
 
   @Test
+  public void verify_both_inclusions_and_exclusions_issues() {
+    when(mode.isIssues()).thenReturn(true);
+    settings
+      .setProperty(CoreProperties.PREVIEW_INCLUDE_PLUGINS, "checkstyle,pmd,findbugs")
+      .setProperty(CoreProperties.PREVIEW_EXCLUDE_PLUGINS, "cobertura");
+    BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
+    assertThat(predicate.apply("checkstyle")).isTrue();
+    assertThat(predicate.apply("pmd")).isTrue();
+    assertThat(predicate.apply("cobertura")).isFalse();
+  }
+
+  @Test
   public void test_exclusions_without_any_inclusions() {
     when(mode.isPreview()).thenReturn(true);
     settings.setProperty(CoreProperties.PREVIEW_EXCLUDE_PLUGINS, "checkstyle,pmd,findbugs");

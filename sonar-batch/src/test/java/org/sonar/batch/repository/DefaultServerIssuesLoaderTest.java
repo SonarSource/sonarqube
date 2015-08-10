@@ -51,7 +51,7 @@ public class DefaultServerIssuesLoaderTest {
   @Test
   public void loadFromWs() throws Exception {
     ByteSource bs = mock(ByteSource.class);
-    when(wsLoader.loadSource("/batch/issues?key=foo")).thenReturn(new WSLoaderResult(bs, true));
+    when(wsLoader.loadSource("/batch/issues?key=foo")).thenReturn(new WSLoaderResult<>(bs, true));
 
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
@@ -70,7 +70,7 @@ public class DefaultServerIssuesLoaderTest {
         result.add(input);
         return null;
       }
-    }, false);
+    });
 
     assertThat(result).extracting("key").containsExactly("ab1", "ab2");
   }
@@ -80,6 +80,6 @@ public class DefaultServerIssuesLoaderTest {
     ByteSource source = mock(ByteSource.class);
     when(source.openBufferedStream()).thenThrow(IOException.class);
     when(wsLoader.loadSource("/batch/issues?key=foo")).thenReturn(new WSLoaderResult<ByteSource>(source, true));
-    loader.load("foo", mock(Function.class), false);
+    loader.load("foo", mock(Function.class));
   }
 }

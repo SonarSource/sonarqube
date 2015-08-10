@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.mediumtest.issuesmode;
 
+import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
+
 import com.google.common.collect.ImmutableMap;
 
 import java.io.File;
@@ -80,7 +82,7 @@ public class IssueModeAndReportsMediumTest {
     .activateRule(new ActiveRule("manual", "MyManualIssue", null, "My manual issue", "MAJOR", null, null))
     .setPreviousAnalysisDate(new Date())
     // Existing issue that is still detected
-    .mockServerIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue.newBuilder().setKey("xyz")
+    .mockServerIssue(ServerIssue.newBuilder().setKey("xyz")
       .setModuleKey("sample")
       .setPath("xources/hello/HelloJava.xoo")
       .setRuleRepository("xoo")
@@ -92,7 +94,7 @@ public class IssueModeAndReportsMediumTest {
       .setStatus("OPEN")
       .build())
     // Existing issue that is no more detected (will be closed)
-    .mockServerIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue.newBuilder().setKey("resolved")
+    .mockServerIssue(ServerIssue.newBuilder().setKey("resolved")
       .setModuleKey("sample")
       .setPath("xources/hello/HelloJava.xoo")
       .setRuleRepository("xoo")
@@ -104,7 +106,7 @@ public class IssueModeAndReportsMediumTest {
       .setStatus("OPEN")
       .build())
     // Existing issue on project that is no more detected
-    .mockServerIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue.newBuilder().setKey("resolved-on-project")
+    .mockServerIssue(ServerIssue.newBuilder().setKey("resolved-on-project")
       .setModuleKey("sample")
       .setRuleRepository("xoo")
       .setRuleKey("OneIssuePerModule")
@@ -113,7 +115,7 @@ public class IssueModeAndReportsMediumTest {
       .setStatus("OPEN")
       .build())
     // Manual issue
-    .mockServerIssue(org.sonar.batch.protocol.input.BatchInput.ServerIssue.newBuilder().setKey("manual")
+    .mockServerIssue(ServerIssue.newBuilder().setKey("manual")
       .setModuleKey("sample")
       .setPath("xources/hello/HelloJava.xoo")
       .setRuleRepository("manual")
@@ -155,6 +157,7 @@ public class IssueModeAndReportsMediumTest {
     int openIssues = 0;
     int resolvedIssue = 0;
     for (Issue issue : result.trackedIssues()) {
+      System.out.println(issue.message() + " " + issue.key() + " " + issue.ruleKey());
       if (issue.isNew()) {
         newIssues++;
       } else if (issue.resolution() != null) {
@@ -239,13 +242,11 @@ public class IssueModeAndReportsMediumTest {
 
   @Test
   public void testIssueCallback() throws Exception {
-    File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
-    File tmpDir = temp.newFolder();
-    FileUtils.copyDirectory(projectDir, tmpDir);
+    File projectDir = copyProject("/mediumtest/xoo/sample");
     IssueRecorder issueListener = new IssueRecorder();
 
     TaskResult result = tester
-      .newScanTask(new File(tmpDir, "sonar-project.properties"))
+      .newScanTask(new File(projectDir, "sonar-project.properties"))
       .setIssueListener(issueListener)
       .start();
 

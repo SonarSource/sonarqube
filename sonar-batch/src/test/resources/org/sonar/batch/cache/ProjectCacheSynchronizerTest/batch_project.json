@@ -1,0 +1,164 @@
+{
+  "timestamp": 0,
+  "qprofilesByLanguage": {
+    "java": {
+      "key": "java-sonar-way-72608",
+      "name": "Sonar way",
+      "language": "java",
+      "rulesUpdatedAt": "2015-08-10T12:06:53+0200"
+    }
+  },
+  "activeRules": [
+    {
+      "repositoryKey": "common-java",
+      "ruleKey": "DuplicatedBlocks",
+      "name": "Source files should not have any duplicated blocks",
+      "severity": "MAJOR",
+      "language": "java",
+      "params": {}
+    },
+    {
+      "repositoryKey": "common-java",
+      "ruleKey": "InsufficientBranchCoverage",
+      "name": "Branches should have sufficient coverage by unit tests",
+      "severity": "MAJOR",
+      "language": "java",
+      "params": {
+        "minimumBranchCoverageRatio": "65.0"
+      }
+    },
+    {
+      "repositoryKey": "squid",
+      "ruleKey": "RightCurlyBraceStartLineCheck",
+      "name": "A close curly brace should be located at the beginning of a line",
+      "severity": "MINOR",
+      "internalKey": "RightCurlyBraceStartLineCheck",
+      "language": "java",
+      "params": {}
+    },
+    {
+      "repositoryKey": "squid",
+      "ruleKey": "UselessParenthesesCheck",
+      "name": "Useless parentheses around expressions should be removed to prevent any misunderstanding",
+      "severity": "MAJOR",
+      "internalKey": "UselessParenthesesCheck",
+      "language": "java",
+      "params": {}
+    },
+    {
+      "repositoryKey": "squid",
+      "ruleKey": "ObjectFinalizeCheck",
+      "name": "The Object.finalize() method should not be called",
+      "severity": "CRITICAL",
+      "internalKey": "ObjectFinalizeCheck",
+      "language": "java",
+      "params": {}
+    },
+    {
+      "repositoryKey": "squid",
+      "ruleKey": "ObjectFinalizeOverridenCheck",
+      "name": "The Object.finalize() method should not be overriden",
+      "severity": "CRITICAL",
+      "internalKey": "ObjectFinalizeOverridenCheck",
+      "language": "java",
+      "params": {}
+    },
+    {
+      "repositoryKey": "squid",
+      "ruleKey": "ObjectFinalizeOverridenCallsSuperFinalizeCheck",
+      "name": "super.finalize() should be called at the end of Object.finalize() implementations",
+      "severity": "BLOCKER",
+      "internalKey": "ObjectFinalizeOverridenCallsSuperFinalizeCheck",
+      "language": "java",
+      "params": {}
+    },
+    {
+      "repositoryKey": "squid",
+      "ruleKey": "ClassVariableVisibilityCheck",
+      "name": "Class variable fields should not have public accessibility",
+      "severity": "MAJOR",
+      "internalKey": "ClassVariableVisibilityCheck",
+      "language": "java",
+      "params": {}
+    },
+    {
+      "repositoryKey": "squid",
+      "ruleKey": "S2188",
+      "name": "JUnit test cases should call super methods",
+      "severity": "CRITICAL",
+      "internalKey": "S2188",
+      "language": "java",
+      "params": {}
+    },
+    {
+      "repositoryKey": "squid",
+      "ruleKey": "S2186",
+      "name": "JUnit assertions should not be used in \"run\" methods",
+      "severity": "CRITICAL",
+      "internalKey": "S2186",
+      "language": "java",
+      "params": {}
+    },
+    {
+      "repositoryKey": "squid",
+      "ruleKey": "S2187",
+      "name": "TestCases should contain tests",
+      "severity": "MAJOR",
+      "internalKey": "S2187",
+      "language": "java",
+      "params": {}
+    },
+    {
+      "repositoryKey": "squid",
+      "ruleKey": "S2391",
+      "name": "JUnit framework methods should be declared properly",
+      "severity": "CRITICAL",
+      "internalKey": "S2391",
+      "language": "java",
+      "params": {}
+    },
+    {
+      "repositoryKey": "squid",
+      "ruleKey": "S2325",
+      "name": "\"private\" methods that don\u0027t access instance data should be \"static\"",
+      "severity": "MINOR",
+      "internalKey": "S2325",
+      "language": "java",
+      "params": {}
+    },
+    {
+      "repositoryKey": "squid",
+      "ruleKey": "S1166",
+      "name": "Exception handlers should preserve the original exception",
+      "severity": "CRITICAL",
+      "internalKey": "S1166",
+      "language": "java",
+      "params": {
+        "exceptions": "java.lang.InterruptedException, java.lang.NumberFormatException, java.text.ParseException, java.net.MalformedURLException"
+      }
+    },
+    {
+      "repositoryKey": "squid",
+      "ruleKey": "S2970",
+      "name": "Assertions should be complete",
+      "severity": "CRITICAL",
+      "internalKey": "S2970",
+      "language": "java",
+      "params": {}
+    }
+    
+  ],
+  "settingsByModule": {},
+  "fileDataByModuleAndPath": {
+    "org.codehaus.sonar-plugins:sonar-scm-git-plugin": {
+      "src/test/java/org/sonar/plugins/scm/git/JGitBlameCommandTest.java": {
+        "needBlame": true
+      },
+      "src/main/java/org/sonar/plugins/scm/git/GitScmProvider.java": {
+        "hash": "90082117d0dc0f1189ab7e4990a20667",
+        "needBlame": true
+      }
+    }
+  },
+  "lastAnalysisDate": "2015-08-10T13:20:09+0200"
+}

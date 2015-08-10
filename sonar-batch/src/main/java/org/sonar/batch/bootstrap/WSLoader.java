@@ -126,7 +126,7 @@ public class WSLoader {
           throw new IllegalStateException(FAIL_MSG, serverNotAvailable.getCause());
         }
       }
-      throw new IllegalStateException(FAIL_MSG, cacheNotAvailable.getCause());
+      throw new IllegalStateException("Data is not cached", cacheNotAvailable.getCause());
     }
   }
 
@@ -142,7 +142,7 @@ public class WSLoader {
           throw new IllegalStateException(FAIL_MSG, serverNotAvailable.getCause());
         }
       }
-      throw new IllegalStateException(FAIL_MSG, serverNotAvailable.getCause());
+      throw new IllegalStateException("Server is not available", serverNotAvailable.getCause());
     }
   }
 

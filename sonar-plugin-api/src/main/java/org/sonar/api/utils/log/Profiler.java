@@ -65,6 +65,8 @@ public abstract class Profiler {
   public abstract Profiler stopDebug();
 
   public abstract Profiler stopInfo();
+  
+  public abstract Profiler stopInfo(boolean cacheUsed);
 
   public abstract Profiler stopTrace(String message);
 

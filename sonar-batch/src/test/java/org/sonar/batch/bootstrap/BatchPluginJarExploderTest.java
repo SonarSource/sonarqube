@@ -71,7 +71,7 @@ public class BatchPluginJarExploderTest {
   }
 
   File getFileFromCache(String filename) throws IOException {
-    File src = FileUtils.toFile(BatchPluginJarExploderTest.class.getResource("/org/sonar/batch/bootstrap/BatchPluginUnzipperTest/" + filename));
+    File src = FileUtils.toFile(BatchPluginJarExploderTest.class.getResource("/org/sonar/batch/bootstrap/BatchPluginJarExploderTest/" + filename));
     File destFile = new File(new File(userHome, "" + filename.hashCode()), filename);
     FileUtils.copyFile(src, destFile);
     return destFile;

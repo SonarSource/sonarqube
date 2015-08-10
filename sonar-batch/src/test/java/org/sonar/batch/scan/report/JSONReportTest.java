@@ -21,6 +21,7 @@ package org.sonar.batch.scan.report;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -28,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.TimeZone;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -50,9 +52,7 @@ import org.sonar.batch.repository.user.UserRepositoryLoader;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.test.JsonAssert;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -118,7 +118,8 @@ public class JSONReportTest {
     when(issueCache.all()).thenReturn(Lists.newArrayList(issue));
     BatchInput.User user1 = BatchInput.User.newBuilder().setLogin("julien").setName("Julien").build();
     BatchInput.User user2 = BatchInput.User.newBuilder().setLogin("simon").setName("Simon").build();
-    when(userRepository.load(anyListOf(String.class))).thenReturn(Lists.newArrayList(user1, user2));
+    when(userRepository.load("julien")).thenReturn(user1);
+    when(userRepository.load("simon")).thenReturn(user2);
 
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);

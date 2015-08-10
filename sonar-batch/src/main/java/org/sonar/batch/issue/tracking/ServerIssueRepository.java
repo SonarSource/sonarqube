@@ -40,6 +40,7 @@ import org.sonar.core.component.ComponentKeys;
 public class ServerIssueRepository {
 
   private static final Logger LOG = Loggers.get(ServerIssueRepository.class);
+  private static final String LOG_MSG = "Load server issues";
 
   private final Caches caches;
   private Cache<ServerIssue> issuesCache;
@@ -55,23 +56,15 @@ public class ServerIssueRepository {
   }
 
   public void load() {
-    Profiler profiler = Profiler.create(LOG).startInfo("Load server issues");
+    Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
     this.issuesCache = caches.createCache("previousIssues");
     caches.registerValueCoder(ServerIssue.class, new ServerIssueValueCoder());
-    boolean fromCache = previousIssuesLoader.load(reactor.getRoot().getKeyWithBranch(), new SaveIssueConsumer(), false);
-    stopDebug(profiler, "Load server issues", fromCache);
+    boolean fromCache = previousIssuesLoader.load(reactor.getRoot().getKeyWithBranch(), new SaveIssueConsumer());
+    profiler.stopInfo(fromCache);
   }
 
   public Iterable<ServerIssue> byComponent(BatchComponent component) {
     return issuesCache.values(component.batchId());
-  }
-
-  private static void stopDebug(Profiler profiler, String msg, boolean fromCache) {
-    if (fromCache) {
-      profiler.stopDebug(msg + " (done from cache)");
-    } else {
-      profiler.stopDebug(msg + " (done)");
-    }
   }
 
   private class SaveIssueConsumer implements Function<ServerIssue, Void> {

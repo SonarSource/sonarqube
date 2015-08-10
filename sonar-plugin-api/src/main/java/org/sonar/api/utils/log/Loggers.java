@@ -36,7 +36,7 @@ public abstract class Loggers {
     }
   }
 
-  public static Logger get(Class name) {
+  public static Logger get(Class<?> name) {
     return factory.newInstance(name.getName());
   }
 

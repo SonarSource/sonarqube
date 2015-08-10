@@ -446,8 +446,6 @@ public interface CoreProperties {
    */
   String ANALYSIS_MODE_ISSUES = "issues";
   
-  String ANALYSIS_MODE_PUBLISH = "publish";
-
   /**
    * @since 5.2
    */

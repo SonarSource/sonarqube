@@ -41,7 +41,7 @@ public class DefaultRulesLoaderTest {
   public void testParseServerResponse() throws IOException {
     WSLoader wsLoader = mock(WSLoader.class);
     ByteSource source = Resources.asByteSource(this.getClass().getResource("DefaultRulesLoader/response.protobuf"));
-    when(wsLoader.loadSource(anyString())).thenReturn(new WSLoaderResult(source, true));
+    when(wsLoader.loadSource(anyString())).thenReturn(new WSLoaderResult<>(source, true));
     DefaultRulesLoader loader = new DefaultRulesLoader(wsLoader);
     List<Rule> ruleList = loader.load();
     assertThat(ruleList).hasSize(318);
@@ -51,13 +51,13 @@ public class DefaultRulesLoaderTest {
   public void testLoadedFromCache() {
     WSLoader wsLoader = mock(WSLoader.class);
     ByteSource source = Resources.asByteSource(this.getClass().getResource("DefaultRulesLoader/response.protobuf"));
-    when(wsLoader.loadSource(anyString())).thenReturn(new WSLoaderResult(source, true));
+    when(wsLoader.loadSource(anyString())).thenReturn(new WSLoaderResult<>(source, true));
     DefaultRulesLoader loader = new DefaultRulesLoader(wsLoader);
     loader.load();
 
     assertThat(loader.loadedFromCache()).isTrue();
   }
-  
+
   @Test(expected = IllegalStateException.class)
   public void testGetLoadedFromCacheBefore() {
     DefaultRulesLoader loader = new DefaultRulesLoader(mock(WSLoader.class));

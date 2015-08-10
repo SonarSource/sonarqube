@@ -35,12 +35,7 @@ public class GlobalRepositoriesProvider extends ProviderAdapter {
     if (globalReferentials == null) {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
       globalReferentials = loader.load();
-
-      if (loader.loadedFromCache()) {
-        profiler.stopInfo(LOG_MSG + " (done from cache)");
-      } else {
-        profiler.stopInfo();
-      }
+      profiler.stopInfo(loader.loadedFromCache());
     }
     return globalReferentials;
   }

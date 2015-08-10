@@ -60,7 +60,6 @@ import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.repository.GlobalRepositoriesLoader;
 import org.sonar.batch.repository.ProjectRepositoriesLoader;
 import org.sonar.batch.repository.ServerIssuesLoader;
-import org.sonar.core.component.ComponentKeys;
 
 /**
  * Main utility class for writing batch medium tests.
@@ -336,7 +335,7 @@ public class BatchMediumTester {
 
     @Override
     public boolean loadedFromCache() {
-      return true;
+      return false;
     }
   }
 
@@ -385,13 +384,11 @@ public class BatchMediumTester {
     }
 
     @Override
-    public boolean load(String componentKey, Function<ServerIssue, Void> consumer, boolean incremental) {
+    public boolean load(String componentKey, Function<ServerIssue, Void> consumer) {
       for (ServerIssue serverIssue : serverIssues) {
-        if (!incremental || ComponentKeys.createEffectiveKey(serverIssue.getModuleKey(), serverIssue.hasPath() ? serverIssue.getPath() : null).equals(componentKey)) {
-          consumer.apply(serverIssue);
-        }
+        consumer.apply(serverIssue);
       }
-      return false;
+      return true;
     }
 
   }

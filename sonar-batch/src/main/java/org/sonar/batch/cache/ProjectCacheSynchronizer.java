@@ -19,11 +19,14 @@
  */
 package org.sonar.batch.cache;
 
-import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.apache.commons.lang.StringUtils;
 
-import org.sonar.batch.bootstrap.AnalysisProperties;
-import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.log.Profiler;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 import com.google.common.base.Function;
 import org.sonar.batch.protocol.input.FileData;
@@ -42,7 +45,7 @@ import org.sonar.batch.repository.ServerIssuesLoader;
 import org.sonar.batch.repository.ProjectRepositoriesLoader;
 
 public class ProjectCacheSynchronizer {
-  private static final Logger LOG = Loggers.get(ProjectCacheSynchronizer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ProjectCacheSynchronizer.class);
   private ProjectDefinition project;
   private AnalysisProperties properties;
   private ProjectRepositoriesLoader projectRepositoryLoader;
@@ -63,39 +66,62 @@ public class ProjectCacheSynchronizer {
   }
 
   public void load(boolean force) {
+    Profiler profiler = Profiler.create(Loggers.get(ProjectCacheSynchronizer.class));
     Date lastSync = cacheStatus.getSyncStatus(project.getKeyWithBranch());
 
     if (lastSync != null) {
-      LOG.debug("Found project [" + project.getKeyWithBranch() + " ] cache [" + lastSync + "]");
-
       if (!force) {
+        LOG.info("Found project [{}] cache [{}]", project.getKeyWithBranch(), lastSync);
         return;
+      } else {
+        LOG.info("Found project [{}] cache [{}], refreshing data..", project.getKeyWithBranch(), lastSync);
       }
+      cacheStatus.delete(project.getKeyWithBranch());
+    } else {
+      LOG.info("Cache for project [{}] not found, fetching data..", project.getKeyWithBranch());
     }
 
-    cacheStatus.delete(project.getKeyWithBranch());
+    profiler.startInfo("Load project repository");
     ProjectRepositories projectRepo = projectRepositoryLoader.load(project, properties);
+    profiler.stopInfo(projectRepositoryLoader.loadedFromCache());
 
     if (projectRepo.lastAnalysisDate() == null) {
+      LOG.debug("No previous analysis found");
+      LOG.info("Succesfully synchronized project cache");
       return;
     }
 
-    IssueAccumulator consumer = new IssueAccumulator();
-    issuesLoader.load(project.getKeyWithBranch(), consumer, false);
+    profiler.startInfo("Load server issues");
+    UserLoginAccumulator consumer = new UserLoginAccumulator();
+    boolean fromCache = issuesLoader.load(project.getKeyWithBranch(), consumer);
+    profiler.stopInfo(fromCache);
 
+    profiler.startInfo("Load user information (" + consumer.loginSet.size() + " users)");
     for (String login : consumer.loginSet) {
       userRepository.load(login);
     }
+    stopInfo(profiler, "Load user information", fromCache);
 
-    loadLineHashes(projectRepo.fileDataByModuleAndPath());
+    loadLineHashes(projectRepo.fileDataByModuleAndPath(), profiler);
+    
     cacheStatus.save(project.getKeyWithBranch());
+
+    LOG.info("Succesfully synchronized project cache");
   }
 
   private String getComponentKey(String moduleKey, String filePath) {
     return moduleKey + ":" + filePath;
   }
 
-  private void loadLineHashes(Map<String, Map<String, FileData>> fileDataByModuleAndPath) {
+  private void loadLineHashes(Map<String, Map<String, FileData>> fileDataByModuleAndPath, Profiler profiler) {
+    int numFiles = 0;
+
+    for (Map<String, FileData> fileDataByPath : fileDataByModuleAndPath.values()) {
+      numFiles += fileDataByPath.size();
+    }
+
+    profiler.startInfo("Load line file hashes (" + numFiles + " files)");
+
     for (Entry<String, Map<String, FileData>> e1 : fileDataByModuleAndPath.entrySet()) {
       String moduleKey = e1.getKey();
 
@@ -104,15 +130,27 @@ public class ProjectCacheSynchronizer {
         lineHashesLoader.getLineHashes(getComponentKey(moduleKey, filePath));
       }
     }
+
+    profiler.stopInfo("Load line file hashes (done)");
   }
 
-  private static class IssueAccumulator implements Function<ServerIssue, Void> {
+  private static class UserLoginAccumulator implements Function<ServerIssue, Void> {
     Set<String> loginSet = new HashSet<>();
 
     @Override
     public Void apply(ServerIssue input) {
-      loginSet.add(input.getAssigneeLogin());
+      if (!StringUtils.isEmpty(input.getAssigneeLogin())) {
+        loginSet.add(input.getAssigneeLogin());
+      }
       return null;
+    }
+  }
+
+  private static void stopInfo(Profiler profiler, String msg, boolean fromCache) {
+    if (fromCache) {
+      profiler.stopInfo(msg + " (done from cache)");
+    } else {
+      profiler.stopInfo(msg + " (done)");
     }
   }
 }

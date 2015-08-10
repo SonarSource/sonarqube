@@ -56,11 +56,7 @@ public class RulesProvider extends ProviderAdapter {
       newRule.setInternalKey(r.getInternalKey());
     }
 
-    if (ref.loadedFromCache()) {
-      profiler.stopInfo(LOG_MSG + " (done from cache)");
-    } else {
-      profiler.stopInfo();
-    }
+    profiler.stopInfo(ref.loadedFromCache());
 
     return builder.build();
   }

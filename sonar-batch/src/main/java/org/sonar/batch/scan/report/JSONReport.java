@@ -19,7 +19,10 @@
  */
 package org.sonar.batch.scan.report;
 
+import org.sonar.batch.protocol.input.BatchInput.User;
+
 import com.google.common.annotations.VisibleForTesting;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -27,9 +30,11 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,14 +52,12 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.protocol.input.BatchInput;
 import org.sonar.batch.repository.user.UserRepositoryLoader;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.issue.DefaultIssue;
-
 import static com.google.common.collect.Sets.newHashSet;
 
 @Properties({
@@ -120,12 +123,11 @@ public class JSONReport implements Reporter {
       writeJsonIssues(json, ruleKeys, userLogins);
       writeJsonComponents(json);
       writeJsonRules(json, ruleKeys);
-      Collection<BatchInput.User> users = userRepository.load(new ArrayList<>(userLogins));
-      writeUsers(json, users);
+      writeUsers(json, userLogins);
       json.endObject().close();
 
     } catch (IOException e) {
-      throw new SonarException("Unable to write JSON report", e);
+      throw new IllegalStateException("Unable to write JSON report", e);
     }
   }
 
@@ -147,10 +149,10 @@ public class JSONReport implements Reporter {
           .prop("assignee", issue.assignee())
           .prop("effortToFix", issue.effortToFix())
           .propDateTime("creationDate", issue.creationDate());
-        if (issue.reporter() != null) {
+        if (!StringUtils.isEmpty(issue.reporter())) {
           logins.add(issue.reporter());
         }
-        if (issue.assignee() != null) {
+        if (!StringUtils.isEmpty(issue.assignee())) {
           logins.add(issue.assignee());
         }
         json.endObject();
@@ -212,7 +214,15 @@ public class JSONReport implements Reporter {
     json.endArray();
   }
 
-  private static void writeUsers(JsonWriter json, Collection<BatchInput.User> users) throws IOException {
+  private void writeUsers(JsonWriter json, Collection<String> userLogins) throws IOException {
+    List<BatchInput.User> users = new LinkedList<BatchInput.User>();
+    for (String userLogin : userLogins) {
+      User user = userRepository.load(userLogin);
+      if (user != null) {
+        users.add(user);
+      }
+    }
+
     json.name("users").beginArray();
     for (BatchInput.User user : users) {
       json

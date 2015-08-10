@@ -93,4 +93,9 @@ class NullProfiler extends Profiler {
     // nothing to do
     return this;
   }
+
+  @Override
+  public Profiler stopInfo(boolean cacheUsed) {
+    return this;
+  }
 }

@@ -39,12 +39,7 @@ public class ProjectRepositoriesProvider extends ProviderAdapter {
     if (projectReferentials == null) {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
       projectReferentials = loader.load(reactor.getRoot(), taskProps);
-
-      if (loader.loadedFromCache()) {
-        profiler.stopInfo(LOG_MSG + " (done from cache)");
-      } else {
-        profiler.stopInfo();
-      }
+      profiler.stopInfo(loader.loadedFromCache());
 
       if (analysisMode.isIssues() && projectReferentials.lastAnalysisDate() == null) {
         LOG.warn("No analysis has been found on the server for this project. All issues will be marked as 'new'.");

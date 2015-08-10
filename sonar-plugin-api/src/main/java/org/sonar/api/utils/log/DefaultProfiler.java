@@ -94,24 +94,31 @@ class DefaultProfiler extends Profiler {
 
   @Override
   public Profiler stopTrace() {
-    return doStopWithoutMessage(LoggerLevel.TRACE);
+    return doStopWithoutMessage(LoggerLevel.TRACE, " (done)");
   }
 
   @Override
   public Profiler stopDebug() {
-    return doStopWithoutMessage(LoggerLevel.DEBUG);
+    return doStopWithoutMessage(LoggerLevel.DEBUG, " (done)");
   }
 
   @Override
   public Profiler stopInfo() {
-    return doStopWithoutMessage(LoggerLevel.INFO);
+    return stopInfo(false);
+  }
+  
+
+  @Override
+  public Profiler stopInfo(boolean cacheUsed) {
+    String suffix = cacheUsed ? " (done from cache)" : " (done)";
+    return doStopWithoutMessage(LoggerLevel.INFO, suffix);
   }
 
-  private Profiler doStopWithoutMessage(LoggerLevel level) {
+  private Profiler doStopWithoutMessage(LoggerLevel level, String suffix) {
     if (startMessage == null) {
       throw new IllegalStateException("Profiler#stopXXX() can't be called without any message defined in start methods");
     }
-    doStop(level, startMessage, " (done)");
+    doStop(level, startMessage, suffix);
     return this;
   }
 
