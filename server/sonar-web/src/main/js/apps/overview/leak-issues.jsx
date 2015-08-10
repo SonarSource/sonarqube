@@ -10,7 +10,7 @@ import SeverityHelper from 'components/shared/severity-helper';
 import {getPeriodDate} from './helpers/period-label';
 
 export default React.createClass({
-  render: function () {
+  render() {
     const
         newDebt = this.props.leak.newDebt,
         issues = this.props.leak.newIssues,

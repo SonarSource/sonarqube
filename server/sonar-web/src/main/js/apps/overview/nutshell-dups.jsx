@@ -5,7 +5,7 @@ import DrilldownLink from './helpers/drilldown-link';
 import Donut from './helpers/donut';
 
 export default React.createClass({
-  render: function () {
+  render() {
     const
         density = this.props.measures.duplications,
         lines = this.props.measures.duplicatedLines,

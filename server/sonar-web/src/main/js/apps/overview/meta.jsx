@@ -3,9 +3,9 @@ import ProfileLink from './helpers/profile-link';
 import GateLink from './helpers/gate-link';
 
 export default React.createClass({
-  render: function () {
+  render() {
     const
-        profiles = (this.props.component.profiles || []).map(function (profile) {
+        profiles = (this.props.component.profiles || []).map(profile => {
           return (
               <li key={profile.key}>
                 <span className="note little-spacer-right">({profile.language})</span>
@@ -13,7 +13,7 @@ export default React.createClass({
               </li>
           );
         }),
-        links = (this.props.component.links || []).map(function (link) {
+        links = (this.props.component.links || []).map(link => {
           const iconClassName = `little-spacer-right icon-color-link icon-${link.type}`;
           return (
               <li key={link.type}>

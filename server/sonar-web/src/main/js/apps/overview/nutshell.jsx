@@ -6,7 +6,7 @@ import NutshellSize from './nutshell-size';
 import NutshellDups from './nutshell-dups';
 
 export default React.createClass({
-  render: function () {
+  render() {
     const props = { measures: this.props.measures, component: this.props.component };
     return (
         <div className="overview-nutshell">

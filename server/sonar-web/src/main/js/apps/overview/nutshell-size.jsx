@@ -4,7 +4,7 @@ import Measure from './helpers/measure';
 import DrilldownLink from './helpers/drilldown-link';
 
 export default React.createClass({
-  render: function () {
+  render() {
     const
         lines = this.props.measures['lines'],
         files = this.props.measures['files'];

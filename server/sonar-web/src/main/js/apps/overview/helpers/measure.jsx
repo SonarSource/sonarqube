@@ -1,7 +1,7 @@
 import React from 'react';
 
 export default React.createClass({
-  render: function () {
+  render() {
     if (this.props.value == null || isNaN(this.props.value)) {
       return null;
     }

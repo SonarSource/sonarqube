@@ -2,7 +2,7 @@ import React from 'react';
 import GateConditions from './gate-conditions';
 
 export default React.createClass({
-  render: function () {
+  render() {
     if (!this.props.gate || !this.props.gate.level) {
       return null;
     }

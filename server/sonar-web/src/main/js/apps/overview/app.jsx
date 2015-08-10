@@ -4,10 +4,10 @@ import Main from './main';
 const $ = jQuery;
 
 export default {
-  start: function (options) {
+  start(options) {
     $('html').addClass('dashboard-page');
     window.requestMessages().done(() => {
-      var el = document.querySelector(options.el);
+      const el = document.querySelector(options.el);
       React.render(<Main
           component={options.component}
           gate={options.gate}

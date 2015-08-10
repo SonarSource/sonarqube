@@ -6,7 +6,7 @@ import DrilldownLink from './helpers/drilldown-link';
 import Donut from './helpers/donut';
 
 export default React.createClass({
-  render: function () {
+  render() {
     const
         newCoverage = parseInt(this.props.leak.newCoverage, 10),
         tests = this.props.leak.tests,

@@ -7,7 +7,7 @@ import LeakDups from './leak-dups';
 import {periodLabel} from './helpers/period-label';
 
 export default React.createClass({
-  render: function () {
+  render() {
     if (_.size(this.props.component.periods) < 3) {
       return null;
     }

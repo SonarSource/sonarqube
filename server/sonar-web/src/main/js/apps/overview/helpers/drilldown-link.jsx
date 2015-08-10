@@ -13,7 +13,7 @@ export default React.createClass({
     }
 
     const
-        query = Object.keys(params).map(function (key) {
+        query = Object.keys(params).map(key => {
           return `${key}=${encodeURIComponent(params[key])}`;
         }).join('&'),
         url = `${baseUrl}/drilldown/measures?${query}`;

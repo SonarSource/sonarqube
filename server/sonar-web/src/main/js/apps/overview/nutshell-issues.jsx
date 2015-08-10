@@ -9,7 +9,7 @@ import SeverityHelper from 'components/shared/severity-helper';
 import StatusIcon from 'components/shared/status-icon';
 
 export default React.createClass({
-  render: function () {
+  render() {
     const
         debt = this.props.measures.debt,
         rating = this.props.measures.sqaleRating,

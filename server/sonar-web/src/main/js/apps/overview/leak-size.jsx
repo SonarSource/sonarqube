@@ -4,7 +4,7 @@ import MeasureVariation from './helpers/measure-variation';
 import DrilldownLink from './helpers/drilldown-link';
 
 export default React.createClass({
-  render: function () {
+  render() {
     const
         lines = this.props.leak.lines,
         files = this.props.leak.files;
