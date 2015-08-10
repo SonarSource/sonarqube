@@ -20,33 +20,10 @@
 
 package org.sonar.server.computation.component;
 
-/**
- * A {@link ComponentVisitor} which can exposes methods which ensure the type of the visited Component.
- */
-public interface TypeAwareVisitor extends ComponentVisitor {
-  /**
-   * Called when encountering a Component of type {@link Component.Type#PROJECT}
-   */
-  void visitProject(Component project);
+public interface VisitorWrapper extends TypeAwareVisitor {
 
-  /**
-   * Called when encountering a Component of type {@link Component.Type#MODULE}
-   */
-  void visitModule(Component module);
+  void beforeComponent(Component component);
 
-  /**
-   * Called when encountering a Component of type {@link Component.Type#DIRECTORY}
-   */
-  void visitDirectory(Component directory);
-
-  /**
-   * Called when encountering a Component of type {@link Component.Type#FILE}
-   */
-  void visitFile(Component file);
-
-  /**
-   * Called for any component, <strong>in addition</strong> to the methods specific to each type
-   */
-  void visitAny(Component any);
+  void afterComponent(Component component);
 
 }

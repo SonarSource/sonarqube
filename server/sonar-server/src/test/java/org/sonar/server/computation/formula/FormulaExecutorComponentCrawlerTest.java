@@ -51,7 +51,7 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 
-public class FormulaExecutorComponentVisitorTest {
+public class FormulaExecutorComponentCrawlerTest {
   public static final DumbComponent BALANCED_COMPONENT_TREE = DumbComponent.builder(PROJECT, 1)
     .addChildren(
       DumbComponent.builder(MODULE, 11)
@@ -84,7 +84,7 @@ public class FormulaExecutorComponentVisitorTest {
   public PeriodsHolderRule periodsHolder = new PeriodsHolderRule()
     .setPeriods(new Period(2, "some mode", null, 95l, 756l), new Period(5, "some other mode", null, 756L, 956L));
 
-  FormulaExecutorComponentVisitor underTest = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
+  FormulaExecutorComponentCrawler underTest = FormulaExecutorComponentCrawler.newBuilder(metricRepository, measureRepository)
     .withVariationSupport(periodsHolder)
     .buildFor(ImmutableList.<Formula>of(new FakeFormula(), new FakeVariationFormula()));
 
@@ -117,7 +117,7 @@ public class FormulaExecutorComponentVisitorTest {
     measureRepository.addRawMeasure(1112, LINES_KEY, newMeasureBuilder().create(8));
     measureRepository.addRawMeasure(1211, LINES_KEY, newMeasureBuilder().create(2));
 
-    FormulaExecutorComponentVisitor underTest = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
+    FormulaExecutorComponentCrawler underTest = FormulaExecutorComponentCrawler.newBuilder(metricRepository, measureRepository)
       .withVariationSupport(periodsHolder)
       .buildFor(ImmutableList.<Formula>of(new FakeMultiMetricFormula()));
     underTest.visit(BALANCED_COMPONENT_TREE);

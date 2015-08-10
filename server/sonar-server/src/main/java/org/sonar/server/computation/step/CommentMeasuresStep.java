@@ -28,7 +28,7 @@ import org.sonar.server.computation.formula.Counter;
 import org.sonar.server.computation.formula.CreateMeasureContext;
 import org.sonar.server.computation.formula.FileAggregateContext;
 import org.sonar.server.computation.formula.Formula;
-import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
+import org.sonar.server.computation.formula.FormulaExecutorComponentCrawler;
 import org.sonar.server.computation.formula.SumCounter;
 import org.sonar.server.computation.formula.SumFormula;
 import org.sonar.server.computation.measure.Measure;
@@ -68,7 +68,7 @@ public class CommentMeasuresStep implements ComputationStep {
 
   @Override
   public void execute() {
-    FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
+    FormulaExecutorComponentCrawler.newBuilder(metricRepository, measureRepository)
       .buildFor(formulas)
       .visit(treeRootHolder.getRoot());
   }

@@ -31,7 +31,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.util.UtcDateUtils;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
@@ -68,7 +68,7 @@ public class QualityProfileEventsStep implements ComputationStep {
 
   @Override
   public void execute() {
-    new DepthTraversalTypeAwareVisitor(Component.Type.PROJECT, POST_ORDER) {
+    new DepthTraversalTypeAwareCrawler(Component.Type.PROJECT, POST_ORDER) {
       @Override
       public void visitProject(Component tree) {
         executeForProject(tree);

@@ -18,32 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.computation.step;
+package org.sonar.server.computation.measure;
 
 import org.sonar.api.ce.measure.MeasureComputer;
-import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
 import org.sonar.server.computation.component.ProjectSettingsRepository;
-import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.server.computation.measure.MeasureComputersHolder;
-import org.sonar.server.computation.measure.MeasureRepository;
+import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.measure.api.MeasureComputerImplementationContext;
 import org.sonar.server.computation.metric.MetricRepository;
 
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
-public class ComputePluginMeasuresStep implements ComputationStep {
+public class MeasureComputersVisitor extends TypeAwareVisitorAdapter {
 
-  private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
   private final ProjectSettingsRepository settings;
 
   private final MeasureComputersHolder measureComputersHolder;
 
-  public ComputePluginMeasuresStep(TreeRootHolder treeRootHolder, MetricRepository metricRepository, MeasureRepository measureRepository, ProjectSettingsRepository settings,
+  public MeasureComputersVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, ProjectSettingsRepository settings,
     MeasureComputersHolder measureComputersHolder) {
-    this.treeRootHolder = treeRootHolder;
+    super(FILE, PRE_ORDER);
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.settings = settings;
@@ -51,28 +47,10 @@ public class ComputePluginMeasuresStep implements ComputationStep {
   }
 
   @Override
-  public void execute() {
-    new NewMetricDefinitionsVisitor().visit(treeRootHolder.getRoot());
-  }
-
-  private class NewMetricDefinitionsVisitor extends DepthTraversalTypeAwareVisitor {
-
-    public NewMetricDefinitionsVisitor() {
-      super(FILE, PRE_ORDER);
-    }
-
-    @Override
-    public void visitAny(org.sonar.server.computation.component.Component component) {
-      for (MeasureComputer computer : measureComputersHolder.getMeasureComputers()) {
-        MeasureComputerImplementationContext measureComputerContext = new MeasureComputerImplementationContext(component, computer, settings, measureRepository, metricRepository);
-        computer.getImplementation().compute(measureComputerContext);
-      }
+  public void visitAny(org.sonar.server.computation.component.Component component) {
+    for (MeasureComputer computer : measureComputersHolder.getMeasureComputers()) {
+      MeasureComputerImplementationContext measureComputerContext = new MeasureComputerImplementationContext(component, computer, settings, measureRepository, metricRepository);
+      computer.getImplementation().compute(measureComputerContext);
     }
   }
-
-  @Override
-  public String getDescription() {
-    return "Compute measures from plugin";
-  }
-
 }

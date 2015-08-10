@@ -18,17 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.computation.step;
+package org.sonar.server.computation.measure;
 
+import java.util.Arrays;
 import java.util.Collections;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.ce.measure.Measure;
 import org.sonar.api.ce.measure.MeasureComputer;
-import org.sonar.server.computation.batch.TreeRootHolderRule;
-import org.sonar.server.computation.measure.MeasureComputersHolderImpl;
-import org.sonar.server.computation.measure.MeasureRepositoryRule;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.ComponentVisitor;
+import org.sonar.server.computation.component.VisitorsCrawler;
 import org.sonar.server.computation.measure.api.MeasureComputerImpl;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
 
@@ -47,7 +46,7 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 
-public class ComputePluginMeasuresStepTest {
+public class MeasureComputersVisitorTest {
 
   private static final String NEW_METRIC_KEY = "new_metric_key";
   private static final String NEW_METRIC_NAME = "new metric name";
@@ -62,8 +61,17 @@ public class ComputePluginMeasuresStepTest {
   private static final int FILE_1_REF = 1231;
   private static final int FILE_2_REF = 1232;
 
-  @Rule
-  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+  private static final Component ROOT = builder(PROJECT, ROOT_REF).setKey("project")
+    .addChildren(
+      builder(MODULE, MODULE_REF).setKey("module")
+        .addChildren(
+          builder(DIRECTORY, DIRECTORY_REF).setKey("directory")
+            .addChildren(
+              builder(FILE, FILE_1_REF).setKey("file1").build(),
+              builder(FILE, FILE_2_REF).setKey("file2").build()
+            ).build()
+        ).build()
+    ).build();
 
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
@@ -72,23 +80,7 @@ public class ComputePluginMeasuresStepTest {
     .add(NEW_METRIC);
 
   @Rule
-  public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
-
-  @Before
-  public void setUp() throws Exception {
-    treeRootHolder.setRoot(
-      builder(PROJECT, ROOT_REF).setKey("project")
-        .addChildren(
-          builder(MODULE, MODULE_REF).setKey("module")
-            .addChildren(
-              builder(DIRECTORY, DIRECTORY_REF).setKey("directory")
-                .addChildren(
-                  builder(FILE, FILE_1_REF).setKey("file1").build(),
-                  builder(FILE, FILE_2_REF).setKey("file2").build()
-                ).build()
-            ).build()
-        ).build());
-  }
+  public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(ROOT, metricRepository);
 
   MeasureComputersHolderImpl measureComputersHolder = new MeasureComputersHolderImpl();
 
@@ -113,8 +105,8 @@ public class ComputePluginMeasuresStepTest {
           new MeasureComputer.Implementation() {
             @Override
             public void compute(Context ctx) {
-              Measure ncloc = ctx.getMeasure(NCLOC_KEY);
-              Measure comment = ctx.getMeasure(COMMENT_LINES_KEY);
+              org.sonar.api.ce.measure.Measure ncloc = ctx.getMeasure(NCLOC_KEY);
+              org.sonar.api.ce.measure.Measure comment = ctx.getMeasure(COMMENT_LINES_KEY);
               if (ncloc != null && comment != null) {
                 ctx.addMeasure(NEW_METRIC_KEY, ncloc.getIntValue() + comment.getIntValue());
               }
@@ -123,8 +115,9 @@ public class ComputePluginMeasuresStepTest {
         )
         .build()
       ));
-    ComputationStep underTest = new ComputePluginMeasuresStep(treeRootHolder, metricRepository, measureRepository, null, measureComputersHolder);
-    underTest.execute();
+
+    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new MeasureComputersVisitor(metricRepository, measureRepository, null, measureComputersHolder)));
+    visitorsCrawler.visit(ROOT);
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).containsOnly(entryOf(NEW_METRIC_KEY, newMeasureBuilder().create(12)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_2_REF))).containsOnly(entryOf(NEW_METRIC_KEY, newMeasureBuilder().create(45)));
@@ -147,8 +140,8 @@ public class ComputePluginMeasuresStepTest {
     measureRepository.addRawMeasure(ROOT_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(7));
 
     measureComputersHolder.setMeasureComputers(Collections.<MeasureComputer>emptyList());
-    ComputationStep underTest = new ComputePluginMeasuresStep(treeRootHolder, metricRepository, measureRepository, null, measureComputersHolder);
-    underTest.execute();
+    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new MeasureComputersVisitor(metricRepository, measureRepository, null, measureComputersHolder)));
+    visitorsCrawler.visit(ROOT);
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).isEmpty();
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_2_REF))).isEmpty();

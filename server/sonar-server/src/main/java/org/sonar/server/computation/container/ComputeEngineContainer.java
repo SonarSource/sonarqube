@@ -21,6 +21,7 @@ package org.sonar.server.computation.container;
 
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.computation.ReportQueue.Item;
+import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.step.ComputationStep;
 
 /**
@@ -44,5 +45,8 @@ public interface ComputeEngineContainer {
   /**
    */
   <T extends ComputationStep> T getStep(Class<T> type);
+
+  <T extends ComponentVisitor> T getComponentVisitor(Class<T> type);
+
 
 }

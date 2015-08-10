@@ -26,16 +26,16 @@ import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.measure.MeasureDto;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
-import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.metric.MetricRepository;
-import org.sonar.db.DbClient;
 import org.sonar.server.source.index.SourceLineIndex;
 
 import static com.google.common.base.Objects.firstNonNull;
@@ -71,7 +71,7 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
 
   @Override
   public void execute() {
-    NumberOfDaysSinceLastCommitVisitor visitor = new NumberOfDaysSinceLastCommitVisitor();
+    NumberOfDaysSinceLastCommitCrawler visitor = new NumberOfDaysSinceLastCommitCrawler();
     Component project = treeRootHolder.getRoot();
     visitor.visit(project);
 
@@ -106,11 +106,11 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
     }
   }
 
-  private class NumberOfDaysSinceLastCommitVisitor extends DepthTraversalTypeAwareVisitor {
+  private class NumberOfDaysSinceLastCommitCrawler extends DepthTraversalTypeAwareCrawler {
 
     private long lastCommitTimestampFromReport = 0L;
 
-    private NumberOfDaysSinceLastCommitVisitor() {
+    private NumberOfDaysSinceLastCommitCrawler() {
       super(Component.Type.FILE, PRE_ORDER);
     }
 

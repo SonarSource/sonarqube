@@ -26,7 +26,7 @@ import java.util.Map;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.MessageException;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.PathAwareVisitor;
+import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
@@ -56,14 +56,14 @@ public class ComputeQProfileMeasureStep implements ComputationStep {
   @Override
   public void execute() {
     Metric qProfilesMetric = metricRepository.getByKey(CoreMetrics.QUALITY_PROFILES_KEY);
-    new NewCoverageAggregationComponentVisitor(qProfilesMetric).visit(treeRootHolder.getRoot());
+    new NewCoverageAggregationComponentCrawler(qProfilesMetric).visit(treeRootHolder.getRoot());
   }
 
-  private class NewCoverageAggregationComponentVisitor extends PathAwareVisitor<QProfiles> {
+  private class NewCoverageAggregationComponentCrawler extends PathAwareCrawler<QProfiles> {
 
     private final Metric qProfilesMetric;
 
-    public NewCoverageAggregationComponentVisitor(Metric qProfilesMetric) {
+    public NewCoverageAggregationComponentCrawler(Metric qProfilesMetric) {
       super(MODULE, POST_ORDER, new SimpleStackElementFactory<QProfiles>() {
         @Override
         public QProfiles createForAny(Component component) {
@@ -74,7 +74,7 @@ public class ComputeQProfileMeasureStep implements ComputationStep {
     }
 
     @Override
-    protected void visitProject(Component project, Path<QProfiles> path) {
+    public void visitProject(Component project, Path<QProfiles> path) {
       addMeasure(project, path.current());
       Optional<Measure> qProfileMeasure = measureRepository.getRawMeasure(project, qProfilesMetric);
       if (!qProfileMeasure.isPresent() || QPMeasureData.fromJson(qProfileMeasure.get().getData()).getProfiles().isEmpty()) {
@@ -84,7 +84,7 @@ public class ComputeQProfileMeasureStep implements ComputationStep {
     }
 
     @Override
-    protected void visitModule(Component module, Path<QProfiles> path) {
+    public void visitModule(Component module, Path<QProfiles> path) {
       Optional<Measure> measure = measureRepository.getRawMeasure(module, qProfilesMetric);
       QProfiles qProfiles = path.current();
       if (measure.isPresent()) {

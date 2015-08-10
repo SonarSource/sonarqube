@@ -49,7 +49,8 @@ import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.ComponentVisitor;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 
 public class PersistTestsStep implements ComputationStep {
@@ -72,7 +73,7 @@ public class PersistTestsStep implements ComputationStep {
   public void execute() {
     DbSession session = dbClient.openSession(true);
     try {
-      TestDepthTraversalTypeAwareVisitor visitor = new TestDepthTraversalTypeAwareVisitor(session);
+      TestDepthTraversalTypeAwareCrawler visitor = new TestDepthTraversalTypeAwareCrawler(session);
       visitor.visit(treeRootHolder.getRoot());
       session.commit();
       if (visitor.hasUnprocessedCoverageDetails) {
@@ -88,15 +89,15 @@ public class PersistTestsStep implements ComputationStep {
     return "Persist tests";
   }
 
-  private class TestDepthTraversalTypeAwareVisitor extends DepthTraversalTypeAwareVisitor {
+  private class TestDepthTraversalTypeAwareCrawler extends DepthTraversalTypeAwareCrawler {
     final DbSession session;
     final Map<String, FileSourceDto> existingFileSourcesByUuid;
     final String projectUuid;
     final String projectKey;
     boolean hasUnprocessedCoverageDetails = false;
 
-    public TestDepthTraversalTypeAwareVisitor(DbSession session) {
-      super(Component.Type.FILE, Order.PRE_ORDER);
+    public TestDepthTraversalTypeAwareCrawler(DbSession session) {
+      super(Component.Type.FILE, ComponentVisitor.Order.PRE_ORDER);
       this.session = session;
       this.existingFileSourcesByUuid = new HashMap<>();
       this.projectUuid = treeRootHolder.getRoot().getUuid();

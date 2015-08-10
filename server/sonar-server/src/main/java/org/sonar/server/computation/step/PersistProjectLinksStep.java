@@ -31,14 +31,14 @@ import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.db.component.ComponentLinkDto;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.db.DbClient;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
@@ -72,18 +72,18 @@ public class PersistProjectLinksStep implements ComputationStep {
   public void execute() {
     DbSession session = dbClient.openSession(false);
     try {
-      new PorjectLinkVisitor(session).visit(treeRootHolder.getRoot());
+      new PorjectLinkCrawler(session).visit(treeRootHolder.getRoot());
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private class PorjectLinkVisitor extends DepthTraversalTypeAwareVisitor {
+  private class PorjectLinkCrawler extends DepthTraversalTypeAwareCrawler {
 
     private final DbSession session;
 
-    private PorjectLinkVisitor(DbSession session) {
+    private PorjectLinkCrawler(DbSession session) {
       super(Component.Type.FILE, PRE_ORDER);
       this.session = session;
     }

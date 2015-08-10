@@ -37,7 +37,7 @@ import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.CreateMeasureContext;
 import org.sonar.server.computation.formula.FileAggregateContext;
 import org.sonar.server.computation.formula.Formula;
-import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
+import org.sonar.server.computation.formula.FormulaExecutorComponentCrawler;
 import org.sonar.server.computation.formula.counter.IntVariationValue;
 import org.sonar.server.computation.formula.coverage.LinesAndConditionsWithUncoveredMetricKeys;
 import org.sonar.server.computation.formula.coverage.LinesAndConditionsWithUncoveredVariationFormula;
@@ -74,7 +74,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
 
   @Override
   public void execute() {
-    FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
+    FormulaExecutorComponentCrawler.newBuilder(metricRepository, measureRepository)
       .withVariationSupport(periodsHolder)
       .buildFor(ImmutableList.<Formula>of(
         // UT coverage

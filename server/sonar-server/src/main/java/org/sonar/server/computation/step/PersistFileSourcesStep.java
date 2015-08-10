@@ -34,11 +34,12 @@ import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DepthTraversalTypeAwareVisitor;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.source.ComputeFileSourceData;
 import org.sonar.server.computation.source.CoverageLineReader;
@@ -47,7 +48,6 @@ import org.sonar.server.computation.source.HighlightingLineReader;
 import org.sonar.server.computation.source.LineReader;
 import org.sonar.server.computation.source.ScmLineReader;
 import org.sonar.server.computation.source.SymbolsLineReader;
-import org.sonar.db.protobuf.DbFileSources;
 
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
@@ -70,20 +70,20 @@ public class PersistFileSourcesStep implements ComputationStep {
     // Don't use batch insert for file_sources since keeping all data in memory can produce OOM for big files
     DbSession session = dbClient.openSession(false);
     try {
-      new FileSourceVisitor(session).visit(treeRootHolder.getRoot());
+      new FileSourceCrawler(session).visit(treeRootHolder.getRoot());
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private class FileSourceVisitor extends DepthTraversalTypeAwareVisitor {
+  private class FileSourceCrawler extends DepthTraversalTypeAwareCrawler {
 
     private final DbSession session;
 
     private Map<String, FileSourceDto> previousFileSourcesByUuid = new HashMap<>();
     private String projectUuid;
 
-    private FileSourceVisitor(DbSession session) {
+    private FileSourceCrawler(DbSession session) {
       super(Component.Type.FILE, PRE_ORDER);
       this.session = session;
     }

@@ -18,25 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.computation.component;
+package org.sonar.server.computation.step;
 
-public interface ComponentVisitor {
+import org.sonar.server.computation.component.ComponentVisitor;
+import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.VisitorsCrawler;
 
-  Order getOrder();
+public class ExecuteVisitorsStep implements ComputationStep {
+  private final TreeRootHolder treeRootHolder;
+  private final Iterable<ComponentVisitor> visitors;
 
-  Component.Type getMaxDepth();
+  public ExecuteVisitorsStep(TreeRootHolder treeRootHolder, ComponentVisitors visitors) {
+    this.treeRootHolder = treeRootHolder;
+    this.visitors = visitors.instances();
+  }
 
-  enum Order {
-    /**
-     * Each component is visited BEFORE its children. Top-down traversal of
-     * tree of components.
-     */
-    PRE_ORDER,
+  @Override
+  public void execute() {
+    new VisitorsCrawler(visitors).visit(treeRootHolder.getRoot());
+  }
 
-    /**
-     * Each component is visited AFTER its children. Bottom-up traversal of
-     * tree of components.
-     */
-    POST_ORDER
+  @Override
+  public String getDescription() {
+    return "Execute Visitors";
   }
 }
