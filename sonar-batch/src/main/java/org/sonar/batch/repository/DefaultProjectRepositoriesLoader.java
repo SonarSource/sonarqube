@@ -55,7 +55,7 @@ public class DefaultProjectRepositoriesLoader extends AbstractServerLoader imple
         + "' is deprecated and will be dropped in a future SonarQube version. Please configure quality profile used by your project on SonarQube server.");
       url += "&profile=" + BatchUtils.encodeForUrl(taskProperties.properties().get(ModuleQProfiles.SONAR_PROFILE_PROP));
     }
-    url += "&preview=" + globalMode.isPreview();
+    url += "&preview=" + globalMode.isIssues();
     ProjectRepositories projectRepositories = ProjectRepositories.fromJson(load(url));
     validateProjectRepositories(projectRepositories, reactor.getRoot().getKey());
     return projectRepositories;

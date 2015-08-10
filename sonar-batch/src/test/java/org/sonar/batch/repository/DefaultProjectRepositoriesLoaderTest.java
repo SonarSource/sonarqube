@@ -61,7 +61,7 @@ public class DefaultProjectRepositoriesLoaderTest {
     globalMode = mock(GlobalMode.class);
     loader = new DefaultProjectRepositoriesLoader(wsLoader, globalMode);
     loader = spy(loader);
-    when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult("{}", true));
+    when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult<>("{}", true));
     taskProperties = new AnalysisProperties(Maps.<String, String>newHashMap(), "");
   }
 
@@ -73,7 +73,7 @@ public class DefaultProjectRepositoriesLoaderTest {
     loader.load(reactor, taskProperties);
     verify(wsLoader).loadString("/batch/project?key=foo&preview=false");
 
-    when(globalMode.isPreview()).thenReturn(true);
+    when(globalMode.isIssues()).thenReturn(true);
     loader.load(reactor, taskProperties);
     verify(wsLoader).loadString("/batch/project?key=foo&preview=true");
   }
@@ -101,7 +101,7 @@ public class DefaultProjectRepositoriesLoaderTest {
     thrown.expectMessage("No quality profiles has been found this project, you probably don't have any language plugin suitable for this analysis.");
 
     reactor = new ProjectReactor(ProjectDefinition.create().setKey("foo"));
-    when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult(new ProjectRepositories().toJson(), true));
+    when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult<>(new ProjectRepositories().toJson(), true));
 
     loader.load(reactor, taskProperties);
   }
@@ -109,7 +109,7 @@ public class DefaultProjectRepositoriesLoaderTest {
   private void addQualityProfile() {
     ProjectRepositories projectRepositories = new ProjectRepositories();
     projectRepositories.addQProfile(new QProfile("key", "name", "language", new Date()));
-    when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult(projectRepositories.toJson(), true));
+    when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult<>(projectRepositories.toJson(), true));
   }
 
 }

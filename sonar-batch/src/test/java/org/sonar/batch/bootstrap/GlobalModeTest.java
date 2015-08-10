@@ -32,18 +32,38 @@ public class GlobalModeTest {
   public void testPreview() {
     GlobalMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW);
     assertThat(mode.isPreview()).isTrue();
+    assertThat(mode.isIssues()).isFalse();
+    assertThat(mode.isPublish()).isFalse();
   }
 
   @Test
   public void testOtherProperty() {
-    GlobalMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ANALYSIS);
+    GlobalMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PUBLISH);
     assertThat(mode.isPreview()).isFalse();
+    assertThat(mode.isIssues()).isFalse();
+    assertThat(mode.isPublish()).isTrue();
+  }
+
+  @Test
+  public void testDefault() {
+    GlobalMode mode = createMode(null, null);
+    assertThat(mode.isPreview()).isFalse();
+    assertThat(mode.isIssues()).isFalse();
+    assertThat(mode.isPublish()).isTrue();
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void testInvalidMode() {
+    createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ANALYSIS);
   }
 
   private GlobalMode createMode(String key, String value) {
     Map<String, String> map = new HashMap<>();
-    map.put(key, value);
+    if (key != null) {
+      map.put(key, value);
+    }
     BootstrapProperties props = new BootstrapProperties(map);
     return new GlobalMode(props);
   }
 }
+

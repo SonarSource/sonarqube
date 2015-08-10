@@ -54,7 +54,7 @@ public class BatchPluginPredicate implements Predicate<String> {
 
   public BatchPluginPredicate(Settings settings, GlobalMode mode) {
     this.mode = mode;
-    if (mode.isPreview()) {
+    if (mode.isPreview() || mode.isIssues()) {
       // These default values are not supported by Settings because the class CorePlugin
       // is not loaded yet.
       whites.addAll(propertyValues(settings,
