@@ -56,6 +56,7 @@ public class AnalysisReportDaoTest {
   @Before
   public void setUp() {
     session = db.getSession();
+    db.truncateTables();
   }
 
   @Test
