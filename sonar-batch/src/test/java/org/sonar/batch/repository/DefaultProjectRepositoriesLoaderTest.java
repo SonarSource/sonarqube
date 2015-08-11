@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.bootstrap.WSLoaderResult;
+import org.sonar.batch.scan.ProjectAnalysisMode;
 
+import org.sonar.batch.bootstrap.WSLoaderResult;
 import com.google.common.collect.Maps;
 
 import java.util.Date;
@@ -33,7 +34,6 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrap.AnalysisProperties;
-import org.sonar.batch.bootstrap.GlobalMode;
 import org.sonar.batch.bootstrap.WSLoader;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.protocol.input.QProfile;
@@ -51,15 +51,15 @@ public class DefaultProjectRepositoriesLoaderTest {
 
   private DefaultProjectRepositoriesLoader loader;
   private WSLoader wsLoader;
-  private GlobalMode globalMode;
+  private ProjectAnalysisMode analysisMode;
   private ProjectReactor reactor;
   private AnalysisProperties taskProperties;
 
   @Before
   public void prepare() {
     wsLoader = mock(WSLoader.class);
-    globalMode = mock(GlobalMode.class);
-    loader = new DefaultProjectRepositoriesLoader(wsLoader, globalMode);
+    analysisMode = mock(ProjectAnalysisMode.class);
+    loader = new DefaultProjectRepositoriesLoader(wsLoader, analysisMode);
     loader = spy(loader);
     when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult<>("{}", true));
     taskProperties = new AnalysisProperties(Maps.<String, String>newHashMap(), "");
@@ -69,11 +69,11 @@ public class DefaultProjectRepositoriesLoaderTest {
   public void passPreviewParameter() {
     addQualityProfile();
     reactor = new ProjectReactor(ProjectDefinition.create().setKey("foo"));
-    when(globalMode.isPreview()).thenReturn(false);
+    when(analysisMode.isPreview()).thenReturn(false);
     loader.load(reactor, taskProperties);
     verify(wsLoader).loadString("/batch/project?key=foo&preview=false");
 
-    when(globalMode.isIssues()).thenReturn(true);
+    when(analysisMode.isIssues()).thenReturn(true);
     loader.load(reactor, taskProperties);
     verify(wsLoader).loadString("/batch/project?key=foo&preview=true");
   }
