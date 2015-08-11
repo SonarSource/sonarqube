@@ -23,23 +23,27 @@ package org.sonar.server.permission.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
+import org.sonar.server.permission.ws.PermissionRequest.Builder;
 
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_USER_LOGIN;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createPermissionParameter;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createProjectKeyParameter;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createProjectUuidParameter;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createUserLoginParameter;
 
 public class RemoveUserAction implements PermissionsWsAction {
 
   public static final String ACTION = "remove_user";
 
+  private final DbClient dbClient;
   private final PermissionUpdater permissionUpdater;
   private final PermissionWsCommons permissionWsCommons;
 
-  public RemoveUserAction(PermissionUpdater permissionUpdater, PermissionWsCommons permissionWsCommons) {
+  public RemoveUserAction(DbClient dbClient, PermissionUpdater permissionUpdater, PermissionWsCommons permissionWsCommons) {
+    this.dbClient = dbClient;
     this.permissionUpdater = permissionUpdater;
     this.permissionWsCommons = permissionWsCommons;
   }
@@ -48,36 +52,29 @@ public class RemoveUserAction implements PermissionsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
       .setDescription("Remove permission from a user.<br /> " +
-        "If the project id is provided, a project permission is removed.<br />" +
+        "If the project id or project key is provided, a project permission is removed.<br />" +
         "Requires 'Administer System' permission.")
       .setSince("5.2")
       .setPost(true)
       .setHandler(this);
 
-    action.createParam(PARAM_PERMISSION)
-      .setDescription("Permission")
-      .setRequired(true)
-      .setPossibleValues(GlobalPermissions.ALL);
-
-    action.createParam(PARAM_USER_LOGIN)
-      .setRequired(true)
-      .setDescription("User login")
-      .setExampleValue("g.hopper");
-
-    action.createParam(PARAM_PROJECT_UUID)
-      .setDescription("Project id")
-      .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d");
-
-    action.createParam(PARAM_PROJECT_KEY)
-      .setDescription("Project key")
-      .setExampleValue("org.apache.hbas:hbase");
+    createPermissionParameter(action);
+    createUserLoginParameter(action);
+    createProjectUuidParameter(action);
+    createProjectKeyParameter(action);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    PermissionChange permissionChange = permissionWsCommons.buildUserPermissionChange(request);
-    permissionUpdater.removePermission(permissionChange);
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      PermissionRequest permissionRequest = new Builder(request).withUser().build();
+      PermissionChange permissionChange = permissionWsCommons.buildUserPermissionChange(dbSession, permissionRequest);
+      permissionUpdater.removePermission(permissionChange);
 
-    response.noContent();
+      response.noContent();
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 }

@@ -38,6 +38,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupRoleDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.PermissionFinder;
@@ -51,6 +52,7 @@ import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -156,6 +158,15 @@ public class GroupsActionTest {
   }
 
   @Test
+  public void fail_if_project_permission_without_project() {
+    expectedException.expect(BadRequestException.class);
+
+    ws.newRequest()
+      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
+      .execute();
+  }
+
+  @Test
   public void fail_if_not_logged_in() {
     expectedException.expect(UnauthorizedException.class);
     userSession.anonymous();
@@ -180,6 +191,19 @@ public class GroupsActionTest {
     expectedException.expect(IllegalArgumentException.class);
 
     ws.newRequest()
+      .execute();
+  }
+
+  @Test
+  public void fail_if_project_uuid_and_project_key_are_provided() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Project id or project key can be provided, not both.");
+    dbClient.componentDao().insert(dbSession, newProjectDto("project-uuid").setKey("project-key"));
+
+    ws.newRequest()
+      .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
+      .setParam(PARAM_PROJECT_UUID, "project-uuid")
+      .setParam(PARAM_PROJECT_KEY, "project-key")
       .execute();
   }
 

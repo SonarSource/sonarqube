@@ -23,17 +23,17 @@ package org.sonar.server.permission.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
+import org.sonar.server.permission.ws.PermissionRequest.Builder;
 
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_ID;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_NAME;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createGroupIdParameter;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createGroupNameParameter;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createPermissionParameter;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createProjectKeyParameter;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createProjectUuidParameter;
 
 public class RemoveGroupAction implements PermissionsWsAction {
 
@@ -54,38 +54,25 @@ public class RemoveGroupAction implements PermissionsWsAction {
     WebService.NewAction action = context.createAction(ACTION)
       .setDescription("Remove permission from a group.<br /> " +
         "The group id or group name must be provided, not both.<br />" +
+        "If the project id or project key is provided, a project permission is removed.<br />" +
         "Requires 'Administer System' permission.")
       .setSince("5.2")
       .setPost(true)
       .setHandler(this);
 
-    action.createParam(PARAM_PERMISSION)
-      .setDescription("Permission")
-      .setRequired(true)
-      .setPossibleValues(GlobalPermissions.ALL);
-
-    action.createParam(PARAM_GROUP_NAME)
-      .setDescription("Group name or 'anyone' (whatever the case)")
-      .setExampleValue("sonar-administrators");
-
-    action.createParam(PARAM_GROUP_ID)
-      .setDescription("Group id")
-      .setExampleValue("42");
-
-    action.createParam(PARAM_PROJECT_UUID)
-      .setDescription("Project id")
-      .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d");
-
-    action.createParam(PARAM_PROJECT_KEY)
-      .setDescription("Project key")
-      .setExampleValue("org.apache.hbas:hbase");
+    createPermissionParameter(action);
+    createGroupNameParameter(action);
+    createGroupIdParameter(action);
+    createProjectUuidParameter(action);
+    createProjectKeyParameter(action);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      PermissionChange permissionChange = permissionWsCommons.buildGroupPermissionChange(dbSession, request);
+      PermissionRequest permissionRequest = new Builder(request).withGroup().build();
+      PermissionChange permissionChange = permissionWsCommons.buildGroupPermissionChange(dbSession, permissionRequest);
       permissionUpdater.removePermission(permissionChange);
     } finally {
       dbClient.closeSession(dbSession);

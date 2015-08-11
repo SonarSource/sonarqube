@@ -28,6 +28,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -35,6 +36,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserRoleDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.PermissionFinder;
@@ -43,10 +45,12 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -69,7 +73,7 @@ public class UsersActionTest {
   public void setUp() {
     PermissionFinder permissionFinder = new PermissionFinder(dbClient);
     PermissionWsCommons permissionWsCommons = new PermissionWsCommons(dbClient, new ComponentFinder(dbClient), userSession);
-    underTest = new UsersAction(userSession, permissionFinder, permissionWsCommons);
+    underTest = new UsersAction(permissionFinder, permissionWsCommons);
     ws = new WsActionTester(underTest);
 
     userSession.login("login").setGlobalPermissions(SYSTEM_ADMIN);
@@ -109,12 +113,12 @@ public class UsersActionTest {
     dbClient.componentDao().insert(dbSession, newProjectDto("project-uuid").setKey("project-key"));
     ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, "project-uuid");
     UserDto user = insertUser(new UserDto().setLogin("project-user-login").setName("project-user-name"));
-    insertUserRole(new UserRoleDto().setRole(SCAN_EXECUTION).setUserId(user.getId()).setResourceId(project.getId()));
+    insertUserRole(new UserRoleDto().setRole(ISSUE_ADMIN).setUserId(user.getId()).setResourceId(project.getId()));
     commit();
     userSession.login().addProjectUuidPermissions(SYSTEM_ADMIN, "project-uuid");
 
     String result = ws.newRequest()
-      .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
+      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
       .setParam(PARAM_PROJECT_UUID, "project-uuid")
       .execute().getInput();
 
@@ -132,7 +136,6 @@ public class UsersActionTest {
     assertThat(result).contains("login-1")
       .doesNotContain("login-2")
       .doesNotContain("login-3");
-
   }
 
   @Test
@@ -143,6 +146,16 @@ public class UsersActionTest {
       .execute().getInput();
 
     assertThat(result).contains("login-1", "login-2", "login-3");
+  }
+
+  @Test
+  public void fail_if_project_permission_without_project() {
+    expectedException.expect(BadRequestException.class);
+
+    ws.newRequest()
+      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
+      .setParam(Param.SELECTED, SelectionMode.ALL.value())
+      .execute();
   }
 
   @Test
@@ -169,6 +182,20 @@ public class UsersActionTest {
 
     ws.newRequest()
       .setParam("permission", SYSTEM_ADMIN)
+      .execute();
+  }
+
+  @Test
+  public void fail_if_project_uuid_and_project_key_are_provided() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Project id or project key can be provided, not both.");
+    dbClient.componentDao().insert(dbSession, newProjectDto("project-uuid").setKey("project-key"));
+    commit();
+
+    ws.newRequest()
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .setParam(PARAM_PROJECT_UUID, "project-uuid")
+      .setParam(PARAM_PROJECT_KEY, "project-key")
       .execute();
   }
 

@@ -27,6 +27,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -46,12 +47,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.server.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.permission.ws.AddGroupAction.ACTION;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_ID;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_NAME;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
 import static org.sonar.server.permission.ws.PermissionsWs.ENDPOINT;
 
 @Category(DbTests.class)
@@ -107,7 +109,7 @@ public class AddGroupActionTest {
   @Test
   public void add_with_project_uuid() throws Exception {
     insertGroup("sonar-administrators");
-    insertComponent(ComponentTesting.newProjectDto("project-uuid").setKey("project-key"));
+    insertComponent(newProjectDto("project-uuid").setKey("project-key"));
     commit();
 
     newRequest()
@@ -125,7 +127,7 @@ public class AddGroupActionTest {
   @Test
   public void add_with_project_key() throws Exception {
     insertGroup("sonar-administrators");
-    insertComponent(ComponentTesting.newProjectDto("project-uuid").setKey("project-key"));
+    insertComponent(newProjectDto("project-uuid").setKey("project-key"));
     commit();
 
     newRequest()
@@ -145,7 +147,7 @@ public class AddGroupActionTest {
     expectedException.expect(NotFoundException.class);
 
     insertGroup("sonar-administrators");
-    insertComponent(ComponentTesting.newProjectDto("project-uuid").setKey("project-key"));
+    insertComponent(newProjectDto("project-uuid").setKey("project-key"));
     commit();
 
     newRequest()
@@ -156,11 +158,24 @@ public class AddGroupActionTest {
   }
 
   @Test
+  public void fail_if_project_permission_withou_project() throws Exception {
+    expectedException.expect(BadRequestException.class);
+
+    insertGroup("sonar-administrators");
+    commit();
+
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, "sonar-administrators")
+      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
+      .execute();
+  }
+
+  @Test
   public void fail_if_component_uuid_is_not_a_project() throws Exception {
     expectedException.expect(BadRequestException.class);
 
     insertGroup("sonar-administrators");
-    ComponentDto project = ComponentTesting.newProjectDto("project-uuid").setKey("project-key");
+    ComponentDto project = newProjectDto("project-uuid").setKey("project-key");
     insertComponent(project);
     insertComponent(ComponentTesting.newFileDto(project, "file-uuid"));
     commit();
@@ -198,6 +213,21 @@ public class AddGroupActionTest {
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, "sonar-administrators")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_project_uuid_and_project_key_are_provided() throws Exception {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Project id or project key can be provided, not both.");
+    insertComponent(newProjectDto("project-uuid").setKey("project-key"));
+    commit();
+
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, "sonar-administrators")
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .setParam(PARAM_PROJECT_UUID, "project-uuid")
+      .setParam(PARAM_PROJECT_KEY, "project-key")
       .execute();
   }
 

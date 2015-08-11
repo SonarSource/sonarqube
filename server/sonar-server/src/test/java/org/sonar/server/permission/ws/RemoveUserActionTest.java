@@ -27,6 +27,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -51,6 +52,7 @@ import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSIO
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_USER_LOGIN;
+import static org.sonar.server.permission.ws.PermissionsWs.ENDPOINT;
 import static org.sonar.server.permission.ws.RemoveUserAction.ACTION;
 
 @Category(DbTests.class)
@@ -72,7 +74,7 @@ public class RemoveUserActionTest {
     dbClient = db.getDbClient();
     dbSession = db.getSession();
     ws = new WsTester(new PermissionsWs(
-      new RemoveUserAction(permissionUpdater, new PermissionWsCommons(dbClient, new ComponentFinder(dbClient), userSession))));
+      new RemoveUserAction(dbClient, permissionUpdater, new PermissionWsCommons(dbClient, new ComponentFinder(dbClient), userSession))));
     userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 
@@ -126,7 +128,17 @@ public class RemoveUserActionTest {
     ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
       .setParam(PARAM_USER_LOGIN, "ray.bradbury")
       .setParam(PARAM_PROJECT_UUID, "unknown-project-uuid")
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
+      .execute();
+  }
+
+  @Test
+  public void fail_when_project_permission_without_permission() throws Exception {
+    expectedException.expect(BadRequestException.class);
+
+    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
+      .setParam(PARAM_USER_LOGIN, "ray.bradbury")
+      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
       .execute();
   }
 
@@ -167,6 +179,20 @@ public class RemoveUserActionTest {
 
     ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
       .setParam(PARAM_USER_LOGIN, "jrr.tolkien")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_project_uuid_and_project_key_are_provided() throws Exception {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Project id or project key can be provided, not both.");
+    insertComponent(newProjectDto("project-uuid").setKey("project-key"));
+
+    ws.newPostRequest(ENDPOINT, ACTION)
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .setParam(PARAM_USER_LOGIN, "ray.bradbury")
+      .setParam(PARAM_PROJECT_UUID, "project-uuid")
+      .setParam(PARAM_PROJECT_KEY, "project-key")
       .execute();
   }
 
