@@ -25,9 +25,14 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.permission.PermissionRepository;
+import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
+
+import static org.sonar.server.computation.component.Component.Type.PROJECT;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 /**
  * Apply default permissions on new projects and index issues/authorization
@@ -41,7 +46,7 @@ public class ApplyPermissionsStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
 
   public ApplyPermissionsStep(DbClient dbClient, DbIdsRepository dbIdsRepository, IssueAuthorizationIndexer indexer,
-                              PermissionRepository permissionRepository, TreeRootHolder treeRootHolder) {
+    PermissionRepository permissionRepository, TreeRootHolder treeRootHolder) {
     this.dbClient = dbClient;
     this.dbIdsRepository = dbIdsRepository;
     this.indexer = indexer;
@@ -51,9 +56,18 @@ public class ApplyPermissionsStep implements ComputationStep {
 
   @Override
   public void execute() {
+    new DepthTraversalTypeAwareCrawler(PROJECT, PRE_ORDER) {
+      @Override
+      public void visitProject(Component project) {
+        execute(project);
+      }
+    }.visit(treeRootHolder.getRoot());
+  }
+
+  private void execute(Component project) {
     DbSession session = dbClient.openSession(false);
     try {
-      long projectId = dbIdsRepository.getComponentId(treeRootHolder.getRoot());
+      long projectId = dbIdsRepository.getComponentId(project);
       if (dbClient.roleDao().countComponentPermissions(session, projectId) == 0) {
         permissionRepository.grantDefaultRoles(session, projectId, Qualifiers.PROJECT);
         session.commit();
