@@ -72,7 +72,7 @@ public class RemoveUserActionTest {
     dbClient = db.getDbClient();
     dbSession = db.getSession();
     ws = new WsTester(new PermissionsWs(
-      new RemoveUserAction(permissionUpdater, new PermissionWsCommons(dbClient, new ComponentFinder(dbClient)))));
+      new RemoveUserAction(permissionUpdater, new PermissionWsCommons(dbClient, new ComponentFinder(dbClient), userSession))));
     userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 

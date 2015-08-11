@@ -20,8 +20,13 @@
 
 package org.sonar.server.permission.ws;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.ComponentPermissions;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -30,6 +35,9 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.PermissionChange;
+import org.sonar.server.user.UserSession;
+
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 
 public class PermissionWsCommons {
 
@@ -39,13 +47,17 @@ public class PermissionWsCommons {
   public static final String PARAM_PROJECT_UUID = "projectId";
   public static final String PARAM_PROJECT_KEY = "projectKey";
   public static final String PARAM_USER_LOGIN = "login";
+  private static final String PROJECT_PERMISSIONS_ONE_LINE = Joiner.on(",").join(ComponentPermissions.ALL);
+  private static final String GLOBAL_PERMISSIONS_ONE_LINE = Joiner.on(",").join(GlobalPermissions.ALL);
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
+  private final UserSession userSession;
 
-  public PermissionWsCommons(DbClient dbClient, ComponentFinder componentFinder) {
+  public PermissionWsCommons(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
+    this.userSession = userSession;
   }
 
   public String searchGroupName(DbSession dbSession, @Nullable String groupNameParam, @Nullable Long groupId) {
@@ -112,7 +124,36 @@ public class PermissionWsCommons {
     throw new BadRequestException("Group name or group id must be provided, not both");
   }
 
-  private static boolean isProjectUuidOrProjectKeyProvided(@Nullable String projectUuid, @Nullable String projectKey) {
+  static boolean isProjectUuidOrProjectKeyProvided(@Nullable String projectUuid, @Nullable String projectKey) {
     return projectUuid != null || projectKey != null;
+  }
+
+  Optional<ComponentDto> searchProject(Request request) {
+    String projectUuid = request.param(PARAM_PROJECT_UUID);
+    String projectKey = request.param(PARAM_PROJECT_KEY);
+
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      if (isProjectUuidOrProjectKeyProvided(projectUuid, projectKey)) {
+        return Optional.of(componentFinder.getProjectByUuidOrKey(dbSession, projectUuid, projectKey));
+      }
+      return Optional.absent();
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
+  }
+
+  void checkPermissions(Optional<ComponentDto> project) {
+    userSession.checkLoggedIn();
+
+    if (userSession.hasGlobalPermission(SYSTEM_ADMIN) || projectPresentAndAdminPermissionsOnIt(project)) {
+      return;
+    }
+
+    userSession.checkGlobalPermission(SYSTEM_ADMIN);
+  }
+
+  boolean projectPresentAndAdminPermissionsOnIt(Optional<ComponentDto> project) {
+    return project.isPresent() && userSession.hasProjectPermissionByUuid(UserRole.ADMIN, project.get().projectUuid());
   }
 }
