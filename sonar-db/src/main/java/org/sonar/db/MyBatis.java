@@ -20,24 +20,15 @@
 
 package org.sonar.db;
 
-import ch.qos.logback.classic.Level;
-import com.google.common.io.Closeables;
-import java.io.InputStream;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.annotation.Nullable;
-import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.logging.LogFactory;
-import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
-import org.apache.ibatis.type.JdbcType;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.activity.ActivityDto;
 import org.sonar.db.activity.ActivityMapper;
@@ -68,7 +59,6 @@ import org.sonar.db.debt.CharacteristicDto;
 import org.sonar.db.debt.CharacteristicMapper;
 import org.sonar.db.debt.RequirementMigrationDto;
 import org.sonar.db.deprecated.WorkQueue;
-import org.sonar.db.dialect.Dialect;
 import org.sonar.db.duplication.DuplicationMapper;
 import org.sonar.db.duplication.DuplicationUnitDto;
 import org.sonar.db.event.EventDto;
@@ -87,12 +77,12 @@ import org.sonar.db.issue.IssueFilterMapper;
 import org.sonar.db.issue.IssueMapper;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.loadedtemplate.LoadedTemplateMapper;
-import org.sonar.db.measure.custom.CustomMeasureDto;
-import org.sonar.db.measure.custom.CustomMeasureMapper;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.MeasureFilterDto;
 import org.sonar.db.measure.MeasureFilterMapper;
 import org.sonar.db.measure.MeasureMapper;
+import org.sonar.db.measure.custom.CustomMeasureDto;
+import org.sonar.db.measure.custom.CustomMeasureMapper;
 import org.sonar.db.metric.MetricMapper;
 import org.sonar.db.notification.NotificationQueueDto;
 import org.sonar.db.notification.NotificationQueueMapper;
@@ -163,83 +153,70 @@ public class MyBatis {
     }
   }
 
-  private static JdbcTransactionFactory createTransactionFactory() {
-    return new JdbcTransactionFactory();
-  }
-
   public MyBatis start() {
     LogFactory.useSlf4jLogging();
 
-    Configuration conf = new Configuration();
-    conf.setEnvironment(new Environment("production", createTransactionFactory(), database.getDataSource()));
-    conf.setUseGeneratedKeys(true);
-    conf.setLazyLoadingEnabled(false);
-    conf.setJdbcTypeForNull(JdbcType.NULL);
-    Dialect dialect = database.getDialect();
-    conf.setDatabaseId(dialect.getId());
-    conf.getVariables().setProperty("_true", dialect.getTrueSqlValue());
-    conf.getVariables().setProperty("_false", dialect.getFalseSqlValue());
-    conf.getVariables().setProperty("_scrollFetchSize", String.valueOf(dialect.getScrollDefaultFetchSize()));
+    MyBatisConfBuilder confBuilder = new MyBatisConfBuilder(database);
 
-    loadAlias(conf, "ActiveDashboard", ActiveDashboardDto.class);
-    loadAlias(conf, "Author", AuthorDto.class);
-    loadAlias(conf, "Component", ComponentDto.class);
-    loadAlias(conf, "ComponentLink", ComponentLinkDto.class);
-    loadAlias(conf, "Dashboard", DashboardDto.class);
-    loadAlias(conf, "DuplicationUnit", DuplicationUnitDto.class);
-    loadAlias(conf, "Group", GroupDto.class);
-    loadAlias(conf, "GroupRole", GroupRoleDto.class);
-    loadAlias(conf, "GroupMembership", GroupMembershipDto.class);
-    loadAlias(conf, "LoadedTemplate", LoadedTemplateDto.class);
-    loadAlias(conf, "MeasureFilter", MeasureFilterDto.class);
-    loadAlias(conf, "NotificationQueue", NotificationQueueDto.class);
-    loadAlias(conf, "Property", PropertyDto.class);
-    loadAlias(conf, "PurgeableSnapshot", PurgeableSnapshotDto.class);
-    loadAlias(conf, "QualityGate", QualityGateDto.class);
-    loadAlias(conf, "QualityGateCondition", QualityGateConditionDto.class);
-    loadAlias(conf, "ProjectQgateAssociation", ProjectQgateAssociationDto.class);
-    loadAlias(conf, "Resource", ResourceDto.class);
-    loadAlias(conf, "ResourceIndex", ResourceIndexDto.class);
-    loadAlias(conf, "Rule", RuleDto.class);
-    loadAlias(conf, "RuleParam", RuleParamDto.class);
-    loadAlias(conf, "Snapshot", SnapshotDto.class);
-    loadAlias(conf, "SchemaMigration", SchemaMigrationDto.class);
-    loadAlias(conf, "User", UserDto.class);
-    loadAlias(conf, "UserRole", UserRoleDto.class);
-    loadAlias(conf, "UserGroup", UserGroupDto.class);
-    loadAlias(conf, "Widget", WidgetDto.class);
-    loadAlias(conf, "WidgetProperty", WidgetPropertyDto.class);
-    loadAlias(conf, "Measure", MeasureDto.class);
-    loadAlias(conf, "Issue", IssueDto.class);
-    loadAlias(conf, "IssueChange", IssueChangeDto.class);
-    loadAlias(conf, "IssueFilter", IssueFilterDto.class);
-    loadAlias(conf, "IssueFilterFavourite", IssueFilterFavouriteDto.class);
-    loadAlias(conf, "ActionPlanIssue", ActionPlanDto.class);
-    loadAlias(conf, "ActionPlanStats", ActionPlanStatsDto.class);
-    loadAlias(conf, "PermissionTemplate", PermissionTemplateDto.class);
-    loadAlias(conf, "PermissionTemplateUser", PermissionTemplateUserDto.class);
-    loadAlias(conf, "PermissionTemplateGroup", PermissionTemplateGroupDto.class);
-    loadAlias(conf, "Characteristic", CharacteristicDto.class);
-    loadAlias(conf, "UserWithPermission", UserWithPermissionDto.class);
-    loadAlias(conf, "GroupWithPermission", GroupWithPermissionDto.class);
-    loadAlias(conf, "QualityProfile", QualityProfileDto.class);
-    loadAlias(conf, "ActiveRule", ActiveRuleDto.class);
-    loadAlias(conf, "ActiveRuleParam", ActiveRuleParamDto.class);
-    loadAlias(conf, "RequirementMigration", RequirementMigrationDto.class);
-    loadAlias(conf, "Activity", ActivityDto.class);
-    loadAlias(conf, "AnalysisReport", AnalysisReportDto.class);
-    loadAlias(conf, "IdUuidPair", IdUuidPair.class);
-    loadAlias(conf, "FilePathWithHash", FilePathWithHashDto.class);
-    loadAlias(conf, "UuidWithProjectUuid", UuidWithProjectUuidDto.class);
-    loadAlias(conf, "Event", EventDto.class);
-    loadAlias(conf, "CustomMeasure", CustomMeasureDto.class);
+    confBuilder.loadAlias("ActiveDashboard", ActiveDashboardDto.class);
+    confBuilder.loadAlias("Author", AuthorDto.class);
+    confBuilder.loadAlias("Component", ComponentDto.class);
+    confBuilder.loadAlias("ComponentLink", ComponentLinkDto.class);
+    confBuilder.loadAlias("Dashboard", DashboardDto.class);
+    confBuilder.loadAlias("DuplicationUnit", DuplicationUnitDto.class);
+    confBuilder.loadAlias("Group", GroupDto.class);
+    confBuilder.loadAlias("GroupRole", GroupRoleDto.class);
+    confBuilder.loadAlias("GroupMembership", GroupMembershipDto.class);
+    confBuilder.loadAlias("LoadedTemplate", LoadedTemplateDto.class);
+    confBuilder.loadAlias("MeasureFilter", MeasureFilterDto.class);
+    confBuilder.loadAlias("NotificationQueue", NotificationQueueDto.class);
+    confBuilder.loadAlias("Property", PropertyDto.class);
+    confBuilder.loadAlias("PurgeableSnapshot", PurgeableSnapshotDto.class);
+    confBuilder.loadAlias("QualityGate", QualityGateDto.class);
+    confBuilder.loadAlias("QualityGateCondition", QualityGateConditionDto.class);
+    confBuilder.loadAlias("ProjectQgateAssociation", ProjectQgateAssociationDto.class);
+    confBuilder.loadAlias("Resource", ResourceDto.class);
+    confBuilder.loadAlias("ResourceIndex", ResourceIndexDto.class);
+    confBuilder.loadAlias("Rule", RuleDto.class);
+    confBuilder.loadAlias("RuleParam", RuleParamDto.class);
+    confBuilder.loadAlias("Snapshot", SnapshotDto.class);
+    confBuilder.loadAlias("SchemaMigration", SchemaMigrationDto.class);
+    confBuilder.loadAlias("User", UserDto.class);
+    confBuilder.loadAlias("UserRole", UserRoleDto.class);
+    confBuilder.loadAlias("UserGroup", UserGroupDto.class);
+    confBuilder.loadAlias("Widget", WidgetDto.class);
+    confBuilder.loadAlias("WidgetProperty", WidgetPropertyDto.class);
+    confBuilder.loadAlias("Measure", MeasureDto.class);
+    confBuilder.loadAlias("Issue", IssueDto.class);
+    confBuilder.loadAlias("IssueChange", IssueChangeDto.class);
+    confBuilder.loadAlias("IssueFilter", IssueFilterDto.class);
+    confBuilder.loadAlias("IssueFilterFavourite", IssueFilterFavouriteDto.class);
+    confBuilder.loadAlias("ActionPlanIssue", ActionPlanDto.class);
+    confBuilder.loadAlias("ActionPlanStats", ActionPlanStatsDto.class);
+    confBuilder.loadAlias("PermissionTemplate", PermissionTemplateDto.class);
+    confBuilder.loadAlias("PermissionTemplateUser", PermissionTemplateUserDto.class);
+    confBuilder.loadAlias("PermissionTemplateGroup", PermissionTemplateGroupDto.class);
+    confBuilder.loadAlias("Characteristic", CharacteristicDto.class);
+    confBuilder.loadAlias("UserWithPermission", UserWithPermissionDto.class);
+    confBuilder.loadAlias("GroupWithPermission", GroupWithPermissionDto.class);
+    confBuilder.loadAlias("QualityProfile", QualityProfileDto.class);
+    confBuilder.loadAlias("ActiveRule", ActiveRuleDto.class);
+    confBuilder.loadAlias("ActiveRuleParam", ActiveRuleParamDto.class);
+    confBuilder.loadAlias("RequirementMigration", RequirementMigrationDto.class);
+    confBuilder.loadAlias("Activity", ActivityDto.class);
+    confBuilder.loadAlias("AnalysisReport", AnalysisReportDto.class);
+    confBuilder.loadAlias("IdUuidPair", IdUuidPair.class);
+    confBuilder.loadAlias("FilePathWithHash", FilePathWithHashDto.class);
+    confBuilder.loadAlias("UuidWithProjectUuid", UuidWithProjectUuidDto.class);
+    confBuilder.loadAlias("Event", EventDto.class);
+    confBuilder.loadAlias("CustomMeasure", CustomMeasureDto.class);
 
     // AuthorizationMapper has to be loaded before IssueMapper because this last one used it
-    loadMapper(conf, "org.sonar.db.user.AuthorizationMapper");
+    confBuilder.loadMapper("org.sonar.db.user.AuthorizationMapper");
     // ResourceMapper has to be loaded before IssueMapper because this last one used it
-    loadMapper(conf, ResourceMapper.class);
+    confBuilder.loadMapper(ResourceMapper.class);
 
-    loadMapper(conf, "org.sonar.db.permission.PermissionMapper");
+    confBuilder.loadMapper("org.sonar.db.permission.PermissionMapper");
     Class<?>[] mappers = {ActivityMapper.class, ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
       DuplicationMapper.class,
       IssueMapper.class, IssueChangeMapper.class, IssueFilterMapper.class, IssueFilterFavouriteMapper.class,
@@ -256,9 +233,9 @@ public class MyBatis {
       AnalysisReportMapper.class, ComponentLinkMapper.class,
       Migration45Mapper.class, Migration50Mapper.class
     };
-    loadMappers(conf, mappers);
+    confBuilder.loadMappers(mappers);
 
-    sessionFactory = new SqlSessionFactoryBuilder().build(conf);
+    sessionFactory = new SqlSessionFactoryBuilder().build(confBuilder.build());
     return this;
   }
 
@@ -284,34 +261,6 @@ public class MyBatis {
     }
     SqlSession session = sessionFactory.openSession(ExecutorType.REUSE);
     return new DbSession(queue, session);
-  }
-
-  private void loadMappers(Configuration mybatisConf, Class<?>... mapperClasses) {
-    for (Class mapperClass : mapperClasses) {
-      loadMapper(mybatisConf, mapperClass);
-    }
-  }
-
-  private void loadMapper(Configuration configuration, Class mapperClass) {
-    loadMapper(configuration, mapperClass.getName());
-  }
-
-  private void loadMapper(Configuration configuration, String mapperName) {
-    InputStream input = null;
-    try {
-      input = getClass().getResourceAsStream("/" + mapperName.replace('.', '/') + ".xml");
-      new XMLMapperBuilder(input, configuration, mapperName, configuration.getSqlFragments()).parse();
-      configuration.addLoadedResource(mapperName);
-      ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(mapperName)).setLevel(Level.INFO);
-    } catch (Exception e) {
-      throw new IllegalArgumentException("Unable to load mapper " + mapperName, e);
-    } finally {
-      Closeables.closeQuietly(input);
-    }
-  }
-
-  private void loadAlias(Configuration conf, String alias, Class dtoClass) {
-    conf.getTypeAliasRegistry().registerAlias(alias, dtoClass);
   }
 
   /**

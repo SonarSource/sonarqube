@@ -39,7 +39,7 @@ public class DbSession implements SqlSession {
   private SqlSession session;
   private int actionCount;
 
-  DbSession(WorkQueue queue, SqlSession session) {
+  public DbSession(WorkQueue queue, SqlSession session) {
     this.actionCount = 0;
     this.session = session;
     this.queue = queue;
