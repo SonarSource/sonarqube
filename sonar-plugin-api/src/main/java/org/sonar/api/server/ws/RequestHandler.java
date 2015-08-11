@@ -29,6 +29,6 @@ import org.sonar.api.server.ServerSide;
 @ExtensionPoint
 public interface RequestHandler {
 
-  void handle(Request request, Response response) throws Exception;
+  void handle(Request wsRequest, Response wsResponse) throws Exception;
 
 }
