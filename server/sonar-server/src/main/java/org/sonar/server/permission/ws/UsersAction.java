@@ -20,34 +20,38 @@
 
 package org.sonar.server.permission.ws;
 
-import com.google.common.io.Resources;
+import com.google.common.base.Optional;
 import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.UserWithPermission;
-import org.sonar.core.util.ProtobufJsonFormat;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.permission.UserWithPermissionQueryResult;
-import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.Permissions;
+import org.sonarqube.ws.Permissions.UsersResponse;
 
 import static com.google.common.base.Objects.firstNonNull;
 import static org.sonar.server.permission.PermissionQueryParser.toMembership;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class UsersAction implements PermissionsWsAction {
 
   private final UserSession userSession;
   private final PermissionFinder permissionFinder;
+  private final PermissionWsCommons permissionWsCommons;
 
-  public UsersAction(UserSession userSession, PermissionFinder permissionFinder) {
+  public UsersAction(UserSession userSession, PermissionFinder permissionFinder, PermissionWsCommons permissionWsCommons) {
+    this.permissionWsCommons = permissionWsCommons;
     this.userSession = userSession;
     this.permissionFinder = permissionFinder;
   }
@@ -57,50 +61,49 @@ public class UsersAction implements PermissionsWsAction {
     WebService.NewAction action = context.createAction("users")
       .setSince("5.2")
       .setDescription(String.format("List permission's users.<br /> " +
+        "If the project id or project key is provided, users with project permissions are returned.<br />" +
         "If the query parameter '%s' is specified, the '%s' parameter is '%s'.",
         Param.TEXT_QUERY, Param.SELECTED, SelectionMode.ALL.value()))
       .addPagingParams(100)
       .addSearchQuery("stas", "names")
       .addSelectionModeParam()
       .setInternal(true)
-      .setResponseExample(Resources.getResource(getClass(), "users-example.json"))
+      .setResponseExample(getClass().getResource("users-example.json"))
       .setHandler(this);
 
-    action.createParam("permission")
+    action.createParam(PARAM_PERMISSION)
       .setExampleValue("scan")
       .setRequired(true)
       .setPossibleValues(GlobalPermissions.ALL);
+
+    action.createParam(PARAM_PROJECT_UUID)
+      .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d")
+      .setDescription("Project id");
+
+    action.createParam(PARAM_PROJECT_KEY)
+      .setExampleValue("org.apache.hbas:hbase")
+      .setDescription("Project key");
   }
 
   @Override
-  public void handle(Request request, Response response) throws Exception {
-    String permission = request.mandatoryParam("permission");
-    String selected = request.param(Param.SELECTED);
-    int page = request.mandatoryParamAsInt(Param.PAGE);
-    int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
-    String query = request.param(Param.TEXT_QUERY);
-    if (query != null) {
-      selected = SelectionMode.ALL.value();
-    }
+  public void handle(Request wsRequest, Response wsResponse) throws Exception {
+    int page = wsRequest.mandatoryParamAsInt(Param.PAGE);
+    int pageSize = wsRequest.mandatoryParamAsInt(Param.PAGE_SIZE);
 
-    userSession
-      .checkLoggedIn()
-      .checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    Optional<ComponentDto> project = permissionWsCommons.searchProject(wsRequest);
+    permissionWsCommons.checkPermissions(project);
+    PermissionQuery permissionQuery = buildPermissionQuery(wsRequest, project);
+    UsersResponse usersResponse = usersResponse(permissionQuery, page, pageSize);
 
-    PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
-      .permission(permission)
-      .pageIndex(page)
-      .pageSize(pageSize)
-      .membership(toMembership(firstNonNull(selected, SelectionMode.SELECTED.value())));
-    if (query != null) {
-      permissionQuery.search(query);
-    }
+    writeProtobuf(usersResponse, wsRequest, wsResponse);
+  }
 
-    UserWithPermissionQueryResult usersResult = permissionFinder.findUsersWithPermission(permissionQuery.build());
+  private UsersResponse usersResponse(PermissionQuery permissionQuery, int page, int pageSize) {
+    UserWithPermissionQueryResult usersResult = permissionFinder.findUsersWithPermission(permissionQuery);
     List<UserWithPermission> usersWithPermission = usersResult.users();
 
-    Permissions.UsersResponse.Builder userResponse = Permissions.UsersResponse.newBuilder();
-    Permissions.UsersResponse.User.Builder user = Permissions.UsersResponse.User.newBuilder();
+    UsersResponse.Builder userResponse = UsersResponse.newBuilder();
+    UsersResponse.User.Builder user = UsersResponse.User.newBuilder();
     Common.Paging.Builder paging = Common.Paging.newBuilder();
     for (UserWithPermission userWithPermission : usersWithPermission) {
       userResponse.addUsers(
@@ -118,9 +121,31 @@ public class UsersAction implements PermissionsWsAction {
         );
     }
 
-    response.stream().setMediaType(MimeTypes.JSON);
-    JsonWriter json = response.newJsonWriter();
-    ProtobufJsonFormat.write(userResponse.build(), json);
-    json.close();
+    return userResponse.build();
+  }
+
+  private static PermissionQuery buildPermissionQuery(Request request, Optional<ComponentDto> project) {
+    String permission = request.mandatoryParam(PARAM_PERMISSION);
+    String selected = request.param(Param.SELECTED);
+    int page = request.mandatoryParamAsInt(Param.PAGE);
+    int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
+    String query = request.param(Param.TEXT_QUERY);
+    if (query != null) {
+      selected = SelectionMode.ALL.value();
+    }
+
+    PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
+      .permission(permission)
+      .pageIndex(page)
+      .pageSize(pageSize)
+      .membership(toMembership(firstNonNull(selected, SelectionMode.SELECTED.value())));
+    if (query != null) {
+      permissionQuery.search(query);
+    }
+    if (project.isPresent()) {
+      permissionQuery.component(project.get().getKey());
+    }
+
+    return permissionQuery.build();
   }
 }

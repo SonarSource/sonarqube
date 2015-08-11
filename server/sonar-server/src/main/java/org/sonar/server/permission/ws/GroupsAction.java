@@ -20,33 +20,40 @@
 
 package org.sonar.server.permission.ws;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.io.Resources;
 import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.api.server.ws.WebService.SelectionMode;
+import org.sonar.core.permission.ComponentPermissions;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.GroupWithPermission;
-import org.sonar.core.util.ProtobufJsonFormat;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.server.permission.GroupWithPermissionQueryResult;
 import org.sonar.server.permission.PermissionFinder;
-import org.sonar.server.plugins.MimeTypes;
-import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Permissions;
 
 import static com.google.common.base.Objects.firstNonNull;
+import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
 import static org.sonar.server.permission.PermissionQueryParser.toMembership;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class GroupsAction implements PermissionsWsAction {
-  private final UserSession userSession;
   private final PermissionFinder permissionFinder;
+  private final PermissionWsCommons permissionWsCommons;
 
-  public GroupsAction(UserSession userSession, PermissionFinder permissionFinder) {
-    this.userSession = userSession;
+  public GroupsAction(PermissionFinder permissionFinder, PermissionWsCommons permissionWsCommons) {
     this.permissionFinder = permissionFinder;
+    this.permissionWsCommons = permissionWsCommons;
   }
 
   @Override
@@ -55,45 +62,48 @@ public class GroupsAction implements PermissionsWsAction {
       .setSince("5.2")
       .setInternal(true)
       .setDescription(String.format("List permission's groups.<br /> " +
+        "If the project id or project key is provided, groups with project permissions are returned.<br />" +
         "If the query parameter '%s' is specified, the '%s' parameter is '%s'.",
-        WebService.Param.TEXT_QUERY, WebService.Param.SELECTED, WebService.SelectionMode.ALL.value()))
+        Param.TEXT_QUERY, Param.SELECTED, SelectionMode.ALL.value()))
       .addPagingParams(100)
       .addSearchQuery("sonar", "names")
       .addSelectionModeParam()
       .setResponseExample(Resources.getResource(getClass(), "groups-example.json"))
       .setHandler(this);
 
-    action.createParam("permission")
-      .setExampleValue("scan")
+    action.createParam(PARAM_PERMISSION)
+      .setExampleValue(DASHBOARD_SHARING)
       .setRequired(true)
-      .setPossibleValues(GlobalPermissions.ALL);
+      .setPossibleValues(ImmutableSortedSet.naturalOrder()
+        .addAll(GlobalPermissions.ALL)
+        .addAll(ComponentPermissions.ALL)
+        .build());
+
+    action.createParam(PARAM_PROJECT_UUID)
+      .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d")
+      .setDescription("Project id");
+
+    action.createParam(PARAM_PROJECT_KEY)
+      .setExampleValue("org.apache.hbas:hbase")
+      .setDescription("Project key");
   }
 
   @Override
-  public void handle(Request request, Response response) throws Exception {
-    String permission = request.mandatoryParam("permission");
-    String selected = request.param(WebService.Param.SELECTED);
-    int page = request.mandatoryParamAsInt(WebService.Param.PAGE);
-    int pageSize = request.mandatoryParamAsInt(WebService.Param.PAGE_SIZE);
-    String query = request.param(WebService.Param.TEXT_QUERY);
-    if (query != null) {
-      selected = WebService.SelectionMode.ALL.value();
-    }
+  public void handle(Request wsRequest, Response wsResponse) throws Exception {
+    int page = wsRequest.mandatoryParamAsInt(Param.PAGE);
+    int pageSize = wsRequest.mandatoryParamAsInt(Param.PAGE_SIZE);
 
-    userSession
-      .checkLoggedIn()
-      .checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    Optional<ComponentDto> project = permissionWsCommons.searchProject(wsRequest);
+    permissionWsCommons.checkPermissions(project);
 
-    PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
-      .permission(permission)
-      .pageIndex(page)
-      .pageSize(pageSize)
-      .membership(toMembership(firstNonNull(selected, WebService.SelectionMode.SELECTED.value())));
-    if (query != null) {
-      permissionQuery.search(query);
-    }
+    PermissionQuery permissionQuery = buildPermissionQuery(wsRequest, project);
+    Permissions.GroupsResponse groupsResponse = groupsResponse(permissionQuery, page, pageSize);
 
-    GroupWithPermissionQueryResult groupsResult = permissionFinder.findGroupsWithPermission(permissionQuery.build());
+    writeProtobuf(groupsResponse, wsRequest, wsResponse);
+  }
+
+  private Permissions.GroupsResponse groupsResponse(PermissionQuery permissionQuery, int page, int pageSize) {
+    GroupWithPermissionQueryResult groupsResult = permissionFinder.findGroupsWithPermission(permissionQuery);
     List<GroupWithPermission> groupsWithPermission = groupsResult.groups();
 
     Permissions.GroupsResponse.Builder groupsResponse = Permissions.GroupsResponse.newBuilder();
@@ -123,9 +133,31 @@ public class GroupsAction implements PermissionsWsAction {
         .setTotal(groupsResult.total())
       );
 
-    response.stream().setMediaType(MimeTypes.JSON);
-    JsonWriter json = response.newJsonWriter();
-    ProtobufJsonFormat.write(groupsResponse.build(), json);
-    json.close();
+    return groupsResponse.build();
+  }
+
+  private static PermissionQuery buildPermissionQuery(Request wsRequest, Optional<ComponentDto> project) {
+    String permission = wsRequest.mandatoryParam("permission");
+    String selected = wsRequest.param(Param.SELECTED);
+    int page = wsRequest.mandatoryParamAsInt(Param.PAGE);
+    int pageSize = wsRequest.mandatoryParamAsInt(Param.PAGE_SIZE);
+    String query = wsRequest.param(Param.TEXT_QUERY);
+    if (query != null) {
+      selected = SelectionMode.ALL.value();
+    }
+
+    PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
+      .permission(permission)
+      .pageIndex(page)
+      .pageSize(pageSize)
+      .membership(toMembership(firstNonNull(selected, SelectionMode.SELECTED.value())));
+    if (query != null) {
+      permissionQuery.search(query);
+    }
+    if (project.isPresent()) {
+      permissionQuery.component(project.get().getKey());
+    }
+
+    return permissionQuery.build();
   }
 }

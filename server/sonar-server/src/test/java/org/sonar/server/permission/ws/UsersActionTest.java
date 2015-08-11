@@ -20,7 +20,6 @@
 
 package org.sonar.server.permission.ws;
 
-import com.google.common.io.Resources;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,12 +28,13 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserRoleDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.PermissionFinder;
@@ -43,6 +43,11 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.server.component.ComponentTesting.newProjectDto;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
 import static org.sonar.test.JsonAssert.assertJson;
 
 @Category(DbTests.class)
@@ -57,70 +62,64 @@ public class UsersActionTest {
   DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();
   WsActionTester ws;
-  PermissionFinder permissionFinder;
 
   UsersAction underTest;
 
   @Before
   public void setUp() {
-    permissionFinder = new PermissionFinder(dbClient);
-    userSession.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    underTest = new UsersAction(userSession, permissionFinder);
+    PermissionFinder permissionFinder = new PermissionFinder(dbClient);
+    PermissionWsCommons permissionWsCommons = new PermissionWsCommons(dbClient, new ComponentFinder(dbClient), userSession);
+    underTest = new UsersAction(userSession, permissionFinder, permissionWsCommons);
     ws = new WsActionTester(underTest);
 
-    UserDto user1 = dbClient.userDao().insert(dbSession, new UserDto()
-      .setActive(true)
-      .setLogin("login-1")
-      .setName("name-1"));
-    UserDto user2 = dbClient.userDao().insert(dbSession, new UserDto()
-      .setActive(true)
-      .setLogin("login-2")
-      .setName("name-2"));
-    UserDto user3 = dbClient.userDao().insert(dbSession, new UserDto()
-      .setActive(true)
-      .setLogin("login-3")
-      .setName("name-3"));
-    dbClient.roleDao().insertUserRole(dbSession, new UserRoleDto()
-      .setRole(GlobalPermissions.SCAN_EXECUTION)
-      .setUserId(user1.getId()));
-    dbClient.roleDao().insertUserRole(dbSession, new UserRoleDto()
-      .setRole(GlobalPermissions.SCAN_EXECUTION)
-      .setUserId(user2.getId()));
-    dbClient.roleDao().insertUserRole(dbSession, new UserRoleDto()
-      .setRole(GlobalPermissions.SYSTEM_ADMIN)
-      .setUserId(user3.getId()));
-    dbSession.commit();
+    userSession.login("login").setGlobalPermissions(SYSTEM_ADMIN);
+
+    UserDto user1 = insertUser(new UserDto().setLogin("login-1").setName("name-1"));
+    UserDto user2 = insertUser(new UserDto().setLogin("login-2").setName("name-2"));
+    UserDto user3 = insertUser(new UserDto().setLogin("login-3").setName("name-3"));
+    insertUserRole(new UserRoleDto().setRole(SCAN_EXECUTION).setUserId(user1.getId()));
+    insertUserRole(new UserRoleDto().setRole(SCAN_EXECUTION).setUserId(user2.getId()));
+    insertUserRole(new UserRoleDto().setRole(SYSTEM_ADMIN).setUserId(user3.getId()));
+    commit();
+  }
+
+  @Test
+  public void search_for_users_with_response_example() {
+    db.truncateTables();
+    UserDto user1 = insertUser(new UserDto().setLogin("admin").setName("Administrator"));
+    UserDto user2 = insertUser(new UserDto().setLogin("george.orwell").setName("George Orwell"));
+    insertUserRole(new UserRoleDto().setRole(SCAN_EXECUTION).setUserId(user1.getId()));
+    insertUserRole(new UserRoleDto().setRole(SCAN_EXECUTION).setUserId(user2.getId()));
+    commit();
+
+    String result = ws.newRequest().setParam("permission", "scan").execute().getInput();
+
+    assertJson(result).isSimilarTo(getClass().getResource("users-example.json"));
   }
 
   @Test
   public void search_for_users_with_one_permission() {
     String result = ws.newRequest().setParam("permission", "scan").execute().getInput();
 
-    assertJson(result).isSimilarTo(Resources.getResource(getClass(), "UsersActionTest/users.json"));
+    assertJson(result).isSimilarTo(getClass().getResource("UsersActionTest/users.json"));
   }
 
   @Test
-  public void search_for_users_with_response_example() {
-    db.truncateTables();
-    UserDto user1 = dbClient.userDao().insert(dbSession, new UserDto()
-      .setActive(true)
-      .setLogin("admin")
-      .setName("Administrator"));
-    UserDto user2 = dbClient.userDao().insert(dbSession, new UserDto()
-      .setActive(true)
-      .setLogin("george.orwell")
-      .setName("George Orwell"));
-    dbClient.roleDao().insertUserRole(dbSession, new UserRoleDto()
-      .setRole(GlobalPermissions.SCAN_EXECUTION)
-      .setUserId(user1.getId()));
-    dbClient.roleDao().insertUserRole(dbSession, new UserRoleDto()
-      .setRole(GlobalPermissions.SCAN_EXECUTION)
-      .setUserId(user2.getId()));
-    dbSession.commit();
+  public void search_for_users_with_permission_on_project() {
+    dbClient.componentDao().insert(dbSession, newProjectDto("project-uuid").setKey("project-key"));
+    ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, "project-uuid");
+    UserDto user = insertUser(new UserDto().setLogin("project-user-login").setName("project-user-name"));
+    insertUserRole(new UserRoleDto().setRole(SCAN_EXECUTION).setUserId(user.getId()).setResourceId(project.getId()));
+    commit();
+    userSession.login().addProjectUuidPermissions(SYSTEM_ADMIN, "project-uuid");
 
-    String result = ws.newRequest().setParam("permission", "scan").execute().getInput();
+    String result = ws.newRequest()
+      .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
+      .setParam(PARAM_PROJECT_UUID, "project-uuid")
+      .execute().getInput();
 
-    assertJson(result).isSimilarTo(Resources.getResource(getClass(), "users-example.json"));
+    assertThat(result).contains("project-user-login")
+      .doesNotContain("login-1");
   }
 
   @Test
@@ -159,7 +158,7 @@ public class UsersActionTest {
     userSession.login("login");
 
     ws.newRequest()
-      .setParam("permission", GlobalPermissions.SYSTEM_ADMIN)
+      .setParam("permission", SYSTEM_ADMIN)
       .execute();
   }
 
@@ -169,7 +168,22 @@ public class UsersActionTest {
     userSession.anonymous();
 
     ws.newRequest()
-      .setParam("permission", GlobalPermissions.SYSTEM_ADMIN)
+      .setParam("permission", SYSTEM_ADMIN)
       .execute();
+  }
+
+  private UserDto insertUser(UserDto userDto) {
+    UserDto user = dbClient.userDao().insert(dbSession, userDto.setActive(true));
+    commit();
+    return user;
+  }
+
+  private void insertUserRole(UserRoleDto userRoleDto) {
+    dbClient.roleDao().insertUserRole(dbSession, userRoleDto);
+    commit();
+  }
+
+  private void commit() {
+    dbSession.commit();
   }
 }

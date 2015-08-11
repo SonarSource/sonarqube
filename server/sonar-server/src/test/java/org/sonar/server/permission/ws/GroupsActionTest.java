@@ -30,12 +30,14 @@ import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupRoleDto;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.PermissionFinder;
@@ -44,6 +46,12 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
+import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
+import static org.sonar.server.component.ComponentTesting.newProjectDto;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
 import static org.sonar.test.JsonAssert.assertJson;
 
 @Category(DbTests.class)
@@ -59,7 +67,6 @@ public class GroupsActionTest {
   DbClient dbClient;
   DbSession dbSession;
   WsActionTester ws;
-  PermissionFinder permissionFinder;
 
   GroupsAction underTest;
 
@@ -67,36 +74,25 @@ public class GroupsActionTest {
   public void setUp() {
     dbClient = db.getDbClient();
     dbSession = db.getSession();
-    permissionFinder = new PermissionFinder(dbClient);
-    userSession.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    underTest = new GroupsAction(userSession, permissionFinder);
+    PermissionFinder permissionFinder = new PermissionFinder(dbClient);
+    PermissionWsCommons permissionWsCommons = new PermissionWsCommons(dbClient, new ComponentFinder(dbClient), userSession);
+    underTest = new GroupsAction(permissionFinder, permissionWsCommons);
     ws = new WsActionTester(underTest);
 
-    GroupDto group1 = dbClient.groupDao().insert(dbSession, new GroupDto()
-      .setName("group-1-name")
-      .setDescription("group-1-description"));
-    GroupDto group2 = dbClient.groupDao().insert(dbSession, new GroupDto()
-      .setName("group-2-name")
-      .setDescription("group-2-description"));
-    GroupDto group3 = dbClient.groupDao().insert(dbSession, new GroupDto()
-      .setName("group-3-name")
-      .setDescription("group-3-description"));
-    dbClient.roleDao().insertGroupRole(dbSession, new GroupRoleDto()
-      .setGroupId(group1.getId())
-      .setRole(GlobalPermissions.SCAN_EXECUTION));
-    dbClient.roleDao().insertGroupRole(dbSession, new GroupRoleDto()
-      .setGroupId(group2.getId())
-      .setRole(GlobalPermissions.SCAN_EXECUTION));
-    dbClient.roleDao().insertGroupRole(dbSession, new GroupRoleDto()
-      .setGroupId(group3.getId())
-      .setRole(GlobalPermissions.SYSTEM_ADMIN));
-    dbSession.commit();
+    userSession.login("login").setGlobalPermissions(SYSTEM_ADMIN);
+
+    GroupDto group1 = insertGroup(new GroupDto().setName("group-1-name").setDescription("group-1-description"));
+    GroupDto group2 = insertGroup(new GroupDto().setName("group-2-name").setDescription("group-2-description"));
+    GroupDto group3 = insertGroup(new GroupDto().setName("group-3-name").setDescription("group-3-description"));
+    insertGroupRole(new GroupRoleDto().setGroupId(group1.getId()).setRole(SCAN_EXECUTION));
+    insertGroupRole(new GroupRoleDto().setGroupId(group2.getId()).setRole(SCAN_EXECUTION));
+    insertGroupRole(new GroupRoleDto().setGroupId(group3.getId()).setRole(SYSTEM_ADMIN));
   }
 
   @Test
   public void search_for_groups_with_one_permission() {
     String result = ws.newRequest()
-      .setParam("permission", "scan")
+      .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
       .execute().getInput();
 
     assertJson(result).isSimilarTo(Resources.getResource(getClass(), "GroupsActionTest/groups.json"));
@@ -135,7 +131,28 @@ public class GroupsActionTest {
     assertThat(result)
       .contains("group-1", "group-2", "group-3")
       .doesNotContain(DefaultGroups.ANYONE);
+  }
 
+  @Test
+  public void search_groups_with_project_permissions() {
+    dbClient.componentDao().insert(dbSession, newProjectDto("project-uuid").setKey("project-key"));
+    ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, "project-uuid");
+    GroupDto group = insertGroup(new GroupDto().setName("project-group-name"));
+    insertGroupRole(new GroupRoleDto()
+      .setGroupId(group.getId())
+      .setRole(ISSUE_ADMIN)
+      .setResourceId(project.getId()));
+    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, "project-uuid");
+
+    String result = ws.newRequest()
+      .setParam(PARAM_PERMISSION, ISSUE_ADMIN)
+      .setParam(PARAM_PROJECT_UUID, "project-uuid")
+      .execute().getInput();
+
+    assertThat(result).contains("project-group-name")
+      .doesNotContain("group-1")
+      .doesNotContain("group-2")
+      .doesNotContain("group-3");
   }
 
   @Test
@@ -164,5 +181,21 @@ public class GroupsActionTest {
 
     ws.newRequest()
       .execute();
+  }
+
+  private GroupDto insertGroup(GroupDto group) {
+    GroupDto result = dbClient.groupDao().insert(dbSession, group);
+    commit();
+
+    return result;
+  }
+
+  private void insertGroupRole(GroupRoleDto groupRole) {
+    dbClient.roleDao().insertGroupRole(dbSession, groupRole);
+    commit();
+  }
+
+  private void commit() {
+    dbSession.commit();
   }
 }
