@@ -112,7 +112,7 @@ public class PermissionWsCommons {
     throw new BadRequestException("Group name or group id must be provided, not both");
   }
 
-  private static boolean isProjectUuidOrProjectKeyProvided(@Nullable String projectUuid, @Nullable String projectKey) {
+  static boolean isProjectUuidOrProjectKeyProvided(@Nullable String projectUuid, @Nullable String projectKey) {
     return projectUuid != null || projectKey != null;
   }
 }
