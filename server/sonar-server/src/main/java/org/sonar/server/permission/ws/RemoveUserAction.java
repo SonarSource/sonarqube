@@ -47,7 +47,7 @@ public class RemoveUserAction implements PermissionsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
       .setDescription("Remove permission from a user.<br /> " +
-        "If the project id is provided, a project permission is removed.<br />" +
+        "If the project id or project key is provided, a project permission is removed.<br />" +
         "Requires 'Administer System' permission.")
       .setSince("5.2")
       .setPost(true)

@@ -53,6 +53,7 @@ public class RemoveGroupAction implements PermissionsWsAction {
     WebService.NewAction action = context.createAction(ACTION)
       .setDescription("Remove permission from a group.<br /> " +
         "The group id or group name must be provided, not both.<br />" +
+        "If the project id or project key is provided, a project permission is removed.<br />" +
         "Requires 'Administer System' permission.")
       .setSince("5.2")
       .setPost(true)
