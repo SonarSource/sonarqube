@@ -72,7 +72,7 @@ public class UsersActionTest {
   public void setUp() {
     PermissionFinder permissionFinder = new PermissionFinder(dbClient);
     PermissionWsCommons permissionWsCommons = new PermissionWsCommons(dbClient, new ComponentFinder(dbClient), userSession);
-    underTest = new UsersAction(userSession, permissionFinder, permissionWsCommons);
+    underTest = new UsersAction(permissionFinder, permissionWsCommons);
     ws = new WsActionTester(underTest);
 
     userSession.login("login").setGlobalPermissions(SYSTEM_ADMIN);

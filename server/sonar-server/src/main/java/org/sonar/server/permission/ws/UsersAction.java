@@ -32,7 +32,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.permission.UserWithPermissionQueryResult;
-import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Permissions.UsersResponse;
 
@@ -46,13 +45,11 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class UsersAction implements PermissionsWsAction {
 
-  private final UserSession userSession;
   private final PermissionFinder permissionFinder;
   private final PermissionWsCommons permissionWsCommons;
 
-  public UsersAction(UserSession userSession, PermissionFinder permissionFinder, PermissionWsCommons permissionWsCommons) {
+  public UsersAction(PermissionFinder permissionFinder, PermissionWsCommons permissionWsCommons) {
     this.permissionWsCommons = permissionWsCommons;
-    this.userSession = userSession;
     this.permissionFinder = permissionFinder;
   }
 
