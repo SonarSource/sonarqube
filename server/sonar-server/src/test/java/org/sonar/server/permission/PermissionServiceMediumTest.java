@@ -161,7 +161,7 @@ public class PermissionServiceMediumTest {
     assertThat(tester.get(RoleDao.class).selectGroupPermissions(session, group.getName(), project.getId())).isEmpty();
 
     // add permission
-    PermissionChange change = new PermissionChange().setPermission(UserRole.USER).setGroup(group.getName()).setComponentKey(project.key());
+    PermissionChange change = new PermissionChange().setPermission(UserRole.USER).setGroupName(group.getName()).setComponentKey(project.key());
     underTest.addPermission(change);
     session.commit();
 

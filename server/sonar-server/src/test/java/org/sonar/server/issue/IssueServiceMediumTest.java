@@ -587,7 +587,7 @@ public class IssueServiceMediumTest {
     session.commit();
 
     // project can be seen by group "anyone"
-    tester.get(PermissionUpdater.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
+    tester.get(PermissionUpdater.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroupName(DefaultGroups.ANYONE).setPermission(UserRole.USER));
     userSessionRule.login();
 
     return project;
