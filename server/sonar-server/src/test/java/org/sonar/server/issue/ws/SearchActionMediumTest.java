@@ -663,7 +663,7 @@ public class SearchActionMediumTest {
   private void setDefaultProjectPermission(ComponentDto project) {
     // project can be seen by anyone and by code viewer
     userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    tester.get(PermissionUpdater.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
+    tester.get(PermissionUpdater.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroupName(DefaultGroups.ANYONE).setPermission(UserRole.USER));
     userSessionRule.login();
   }
 

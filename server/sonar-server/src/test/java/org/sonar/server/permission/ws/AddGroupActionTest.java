@@ -85,7 +85,7 @@ public class AddGroupActionTest {
 
     verify(permissionUpdater).addPermission(permissionChangeCaptor.capture());
     PermissionChange permissionChange = permissionChangeCaptor.getValue();
-    assertThat(permissionChange.group()).isEqualTo("sonar-administrators");
+    assertThat(permissionChange.groupName()).isEqualTo("sonar-administrators");
     assertThat(permissionChange.permission()).isEqualTo(SYSTEM_ADMIN);
   }
 
@@ -101,7 +101,7 @@ public class AddGroupActionTest {
 
     verify(permissionUpdater).addPermission(permissionChangeCaptor.capture());
     PermissionChange permissionChange = permissionChangeCaptor.getValue();
-    assertThat(permissionChange.group()).isEqualTo("sonar-administrators");
+    assertThat(permissionChange.groupName()).isEqualTo("sonar-administrators");
   }
 
   @Test
@@ -118,8 +118,8 @@ public class AddGroupActionTest {
 
     verify(permissionUpdater).addPermission(permissionChangeCaptor.capture());
     PermissionChange permissionChange = permissionChangeCaptor.getValue();
-    assertThat(permissionChange.component()).isEqualTo("project-key");
-    assertThat(permissionChange.group()).isEqualTo("sonar-administrators");
+    assertThat(permissionChange.componentKey()).isEqualTo("project-key");
+    assertThat(permissionChange.groupName()).isEqualTo("sonar-administrators");
   }
 
   @Test
@@ -136,8 +136,8 @@ public class AddGroupActionTest {
 
     verify(permissionUpdater).addPermission(permissionChangeCaptor.capture());
     PermissionChange permissionChange = permissionChangeCaptor.getValue();
-    assertThat(permissionChange.component()).isEqualTo("project-key");
-    assertThat(permissionChange.group()).isEqualTo("sonar-administrators");
+    assertThat(permissionChange.componentKey()).isEqualTo("project-key");
+    assertThat(permissionChange.groupName()).isEqualTo("sonar-administrators");
   }
 
   @Test

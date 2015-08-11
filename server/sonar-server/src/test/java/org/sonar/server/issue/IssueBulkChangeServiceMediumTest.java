@@ -98,7 +98,7 @@ public class IssueBulkChangeServiceMediumTest {
     // project can be seen by anyone
     session.commit();
     userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    tester.get(PermissionUpdater.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
+    tester.get(PermissionUpdater.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroupName(DefaultGroups.ANYONE).setPermission(UserRole.USER));
 
     userSession = userSessionRule.login("john")
       .addProjectPermissions(UserRole.USER, project.key());

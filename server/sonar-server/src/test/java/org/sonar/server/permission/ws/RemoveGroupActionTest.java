@@ -83,7 +83,7 @@ public class RemoveGroupActionTest {
 
     verify(permissionUpdater).removePermission(permissionChangeCaptor.capture());
     PermissionChange permissionChange = permissionChangeCaptor.getValue();
-    assertThat(permissionChange.group()).isEqualTo("sonar-administrators");
+    assertThat(permissionChange.groupName()).isEqualTo("sonar-administrators");
     assertThat(permissionChange.permission()).isEqualTo(SYSTEM_ADMIN);
   }
 
@@ -99,7 +99,7 @@ public class RemoveGroupActionTest {
 
     verify(permissionUpdater).removePermission(permissionChangeCaptor.capture());
     PermissionChange permissionChange = permissionChangeCaptor.getValue();
-    assertThat(permissionChange.group()).isEqualTo("sonar-administrators");
+    assertThat(permissionChange.groupName()).isEqualTo("sonar-administrators");
   }
 
   @Test
@@ -115,7 +115,7 @@ public class RemoveGroupActionTest {
 
     verify(permissionUpdater).removePermission(permissionChangeCaptor.capture());
     PermissionChange permissionChange = permissionChangeCaptor.getValue();
-    assertThat(permissionChange.component()).isEqualTo("project-key");
+    assertThat(permissionChange.componentKey()).isEqualTo("project-key");
   }
 
   @Test
@@ -131,7 +131,7 @@ public class RemoveGroupActionTest {
 
     verify(permissionUpdater).removePermission(permissionChangeCaptor.capture());
     PermissionChange permissionChange = permissionChangeCaptor.getValue();
-    assertThat(permissionChange.component()).isEqualTo("project-key");
+    assertThat(permissionChange.componentKey()).isEqualTo("project-key");
   }
 
   @Test

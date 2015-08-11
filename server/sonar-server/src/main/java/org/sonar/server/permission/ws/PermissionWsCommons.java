@@ -70,7 +70,7 @@ public class PermissionWsCommons {
     try {
       PermissionChange permissionChange = new PermissionChange()
         .setPermission(permission)
-        .setUser(userLogin);
+        .setUserLogin(userLogin);
       addProjectToPermissionChange(dbSession, permissionChange, request.param(PARAM_PROJECT_UUID), request.param(PARAM_PROJECT_KEY));
 
       return permissionChange;
@@ -91,7 +91,7 @@ public class PermissionWsCommons {
 
     PermissionChange permissionChange = new PermissionChange()
       .setPermission(permission)
-      .setGroup(groupName);
+      .setGroupName(groupName);
     addProjectToPermissionChange(dbSession, permissionChange, projectUuid, projectKey);
 
     return permissionChange;

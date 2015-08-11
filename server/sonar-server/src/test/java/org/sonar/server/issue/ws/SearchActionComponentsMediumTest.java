@@ -552,7 +552,7 @@ public class SearchActionComponentsMediumTest {
 
   private void setAnyoneProjectPermission(ComponentDto project, String permission) {
     userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    tester.get(PermissionUpdater.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(permission));
+    tester.get(PermissionUpdater.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroupName(DefaultGroups.ANYONE).setPermission(permission));
   }
 
   private IssueDto insertIssue(IssueDto issue) {

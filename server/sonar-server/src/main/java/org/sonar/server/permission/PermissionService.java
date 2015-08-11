@@ -200,32 +200,32 @@ public class PermissionService {
     userSession.checkLoggedIn();
     change.validate();
     boolean changed;
-    if (change.user() != null) {
+    if (change.userLogin() != null) {
       changed = applyChangeOnUser(session, operation, change);
     } else {
       changed = applyChangeOnGroup(session, operation, change);
     }
     if (changed) {
       session.commit();
-      if (change.component() != null) {
+      if (change.componentKey() != null) {
         indexProjectPermissions();
       }
     }
   }
 
   private boolean applyChangeOnGroup(DbSession session, Operation operation, PermissionChange permissionChange) {
-    Long componentId = getComponentId(session, permissionChange.component());
-    checkProjectAdminPermission(permissionChange.component());
+    Long componentId = getComponentId(session, permissionChange.componentKey());
+    checkProjectAdminPermission(permissionChange.componentKey());
 
-    List<String> existingPermissions = dbClient.roleDao().selectGroupPermissions(session, permissionChange.group(), componentId);
+    List<String> existingPermissions = dbClient.roleDao().selectGroupPermissions(session, permissionChange.groupName(), componentId);
     if (shouldSkipPermissionChange(operation, existingPermissions, permissionChange)) {
       return false;
     }
 
-    Long targetedGroup = getTargetedGroup(session, permissionChange.group());
+    Long targetedGroup = getTargetedGroup(session, permissionChange.groupName());
     String permission = permissionChange.permission();
     if (Operation.ADD == operation) {
-      checkNotAnyoneAndAdmin(permission, permissionChange.group());
+      checkNotAnyoneAndAdmin(permission, permissionChange.groupName());
       permissionRepository.insertGroupPermission(componentId, targetedGroup, permission, session);
     } else {
       checkAdminUsersExistOutsideTheRemovedGroup(session, permissionChange, targetedGroup);
@@ -242,15 +242,15 @@ public class PermissionService {
   }
 
   private boolean applyChangeOnUser(DbSession session, Operation operation, PermissionChange permissionChange) {
-    Long componentId = getComponentId(session, permissionChange.component());
-    checkProjectAdminPermission(permissionChange.component());
+    Long componentId = getComponentId(session, permissionChange.componentKey());
+    checkProjectAdminPermission(permissionChange.componentKey());
 
-    List<String> existingPermissions = dbClient.roleDao().selectUserPermissions(session, permissionChange.user(), componentId);
+    List<String> existingPermissions = dbClient.roleDao().selectUserPermissions(session, permissionChange.userLogin(), componentId);
     if (shouldSkipPermissionChange(operation, existingPermissions, permissionChange)) {
       return false;
     }
 
-    Long targetedUser = getTargetedUser(session, permissionChange.user());
+    Long targetedUser = getTargetedUser(session, permissionChange.userLogin());
     if (Operation.ADD == operation) {
       permissionRepository.insertUserPermission(componentId, targetedUser, permissionChange.permission(), session);
     } else {
