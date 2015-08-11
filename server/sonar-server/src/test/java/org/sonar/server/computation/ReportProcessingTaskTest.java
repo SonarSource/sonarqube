@@ -38,7 +38,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-public class ComputationThreadTest {
+public class ReportProcessingTaskTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -48,7 +48,7 @@ public class ComputationThreadTest {
   ReportQueue queue = mock(ReportQueue.class);
   ComponentContainer componentContainer = mock(ComponentContainer.class);
   ContainerFactory containerFactory = mock(ContainerFactory.class);
-  ComputationThread underTest = new ComputationThread(queue, componentContainer, containerFactory);
+  ReportProcessingTask underTest = new ReportProcessingTask(queue, componentContainer, containerFactory);
 
   @Test
   public void do_nothing_if_queue_empty() {

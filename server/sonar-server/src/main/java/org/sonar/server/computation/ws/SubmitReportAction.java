@@ -26,7 +26,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.computation.ComputationThreadLauncher;
+import org.sonar.server.computation.ReportProcessingScheduler;
 import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.computation.monitoring.CEQueueStatus;
 import org.sonar.server.user.UserSession;
@@ -39,11 +39,11 @@ public class SubmitReportAction implements ComputationWsAction {
   public static final String PARAM_REPORT_DATA = "report";
 
   private final ReportQueue queue;
-  private final ComputationThreadLauncher workerLauncher;
+  private final ReportProcessingScheduler workerLauncher;
   private final UserSession userSession;
   private final CEQueueStatus queueStatus;
 
-  public SubmitReportAction(ReportQueue queue, ComputationThreadLauncher workerLauncher, UserSession userSession, CEQueueStatus queueStatus) {
+  public SubmitReportAction(ReportQueue queue, ReportProcessingScheduler workerLauncher, UserSession userSession, CEQueueStatus queueStatus) {
     this.queue = queue;
     this.workerLauncher = workerLauncher;
     this.userSession = userSession;

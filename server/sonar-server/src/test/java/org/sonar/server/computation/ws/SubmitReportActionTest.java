@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.compute.AnalysisReportDto;
-import org.sonar.server.computation.ComputationThreadLauncher;
+import org.sonar.server.computation.ReportProcessingScheduler;
 import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.computation.monitoring.CEQueueStatus;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -46,7 +46,7 @@ public class SubmitReportActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  ComputationThreadLauncher workerLauncher = mock(ComputationThreadLauncher.class);
+  ReportProcessingScheduler workerLauncher = mock(ReportProcessingScheduler.class);
   CEQueueStatus queueStatus = mock(CEQueueStatus.class);
   ReportQueue queue = mock(ReportQueue.class);
   WsTester wsTester;

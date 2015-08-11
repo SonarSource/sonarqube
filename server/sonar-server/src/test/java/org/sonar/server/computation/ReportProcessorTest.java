@@ -46,7 +46,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-public class ComputationServiceTest {
+public class ReportProcessorTest {
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -58,11 +58,11 @@ public class ComputationServiceTest {
   System2 system = mock(System2.class);
   CEQueueStatus queueStatus = mock(CEQueueStatus.class);
   AnalysisReportDto dto = AnalysisReportDto.newForTests(1L).setProjectKey("P1").setUuid("U1").setStatus(Status.PENDING);
-  ComputationService underTest;
+  ReportProcessor underTest;
 
   @Before
   public void setUp() {
-    underTest = new ComputationService(new ReportQueue.Item(dto, new File("Do_not_care")), steps, activityManager, system, queueStatus);
+    underTest = new ReportProcessor(new ReportQueue.Item(dto, new File("Do_not_care")), steps, activityManager, system, queueStatus);
   }
 
   @Test

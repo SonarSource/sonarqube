@@ -35,9 +35,9 @@ import static org.sonar.db.compute.AnalysisReportDto.Status.FAILED;
 import static org.sonar.db.compute.AnalysisReportDto.Status.SUCCESS;
 
 @ServerSide
-public class ComputationService {
+public class ReportProcessor {
 
-  private static final Logger LOG = Loggers.get(ComputationService.class);
+  private static final Logger LOG = Loggers.get(ReportProcessor.class);
 
   private final ReportQueue.Item item;
   private final ComputationSteps steps;
@@ -45,7 +45,7 @@ public class ComputationService {
   private final System2 system;
   private final CEQueueStatus queueStatus;
 
-  public ComputationService(ReportQueue.Item item, ComputationSteps steps, ActivityManager activityManager, System2 system,
+  public ReportProcessor(ReportQueue.Item item, ComputationSteps steps, ActivityManager activityManager, System2 system,
     CEQueueStatus queueStatus) {
     this.item = item;
     this.steps = steps;

@@ -37,7 +37,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.Module;
-import org.sonar.server.computation.ComputationService;
+import org.sonar.server.computation.ReportProcessor;
 import org.sonar.server.computation.ComputationTempFolderProvider;
 import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.computation.activity.ActivityManager;
@@ -250,14 +250,14 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
       // views
       ViewIndex.class,
 
-      // ComputationService
-      ComputationService.class);
+      // ReportProcessor
+      ReportProcessor.class);
   }
 
   @Override
   public void process() {
     // calls the first
-    getComponentByType(ComputationService.class).process();
+    getComponentByType(ReportProcessor.class).process();
   }
 
   @Override

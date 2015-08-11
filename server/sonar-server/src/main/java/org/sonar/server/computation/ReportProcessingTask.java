@@ -28,17 +28,17 @@ import org.sonar.server.computation.container.ComputeEngineContainer;
 import org.sonar.server.computation.container.ContainerFactory;
 
 /**
- * This thread pops a report from the queue and integrate it.
+ * This Compute Engine task pops a report from the queue and integrate it.
  */
-public class ComputationThread implements Runnable {
+public class ReportProcessingTask implements ComputeEngineTask {
 
-  private static final Logger LOG = Loggers.get(ComputationThread.class);
+  private static final Logger LOG = Loggers.get(ReportProcessingTask.class);
 
   private final ReportQueue queue;
   private final ComponentContainer sqContainer;
   private final ContainerFactory containerFactory;
 
-  public ComputationThread(ReportQueue queue, ComponentContainer sqContainer, ContainerFactory containerFactory) {
+  public ReportProcessingTask(ReportQueue queue, ComponentContainer sqContainer, ContainerFactory containerFactory) {
     this.queue = queue;
     this.sqContainer = sqContainer;
     this.containerFactory = containerFactory;

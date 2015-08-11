@@ -36,10 +36,10 @@ import static java.lang.String.format;
  * Abstract implementation of StoppableExecutorService that implements the
  * stop() method and delegates all methods to the provided ExecutorService instance.
  */
-public abstract class AbstractStoppableExecutorService implements StoppableExecutorService {
-  private final ExecutorService delegate;
+public abstract class AbstractStoppableExecutorService<T extends ExecutorService> implements StoppableExecutorService {
+  protected final T delegate;
 
-  public AbstractStoppableExecutorService(ExecutorService delegate) {
+  public AbstractStoppableExecutorService(T delegate) {
     this.delegate = delegate;
   }
 
