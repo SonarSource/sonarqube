@@ -46,9 +46,9 @@ public class PermissionChangeTest {
 
     PermissionChange query = PermissionChange.buildFromParams(params);
 
-    assertThat(query.user()).isEqualTo("my_login");
-    assertThat(query.group()).isEqualTo("my_group");
-    assertThat(query.component()).isEqualTo("org.sample.Sample");
+    assertThat(query.userLogin()).isEqualTo("my_login");
+    assertThat(query.groupName()).isEqualTo("my_group");
+    assertThat(query.componentKey()).isEqualTo("org.sample.Sample");
     assertThat(query.permission()).isEqualTo(GlobalPermissions.SYSTEM_ADMIN);
   }
 

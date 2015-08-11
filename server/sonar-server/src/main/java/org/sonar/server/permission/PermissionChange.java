@@ -25,7 +25,6 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.core.permission.ComponentPermissions;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.BadRequestException;
@@ -37,18 +36,18 @@ public class PermissionChange {
   static final String PERMISSION_KEY = "permission";
   static final String COMPONENT_KEY = "component";
 
-  private String user;
-  private String group;
+  private String userLogin;
+  private String groupName;
   private String componentKey;
   private String permission;
 
-  public PermissionChange setUser(@Nullable String user) {
-    this.user = user;
+  public PermissionChange setUserLogin(@Nullable String login) {
+    this.userLogin = login;
     return this;
   }
 
-  public PermissionChange setGroup(@Nullable String group) {
-    this.group = group;
+  public PermissionChange setGroupName(@Nullable String name) {
+    this.groupName = name;
     return this;
   }
 
@@ -64,8 +63,8 @@ public class PermissionChange {
 
   public static PermissionChange buildFromParams(Map<String, Object> params) {
     return new PermissionChange()
-      .setUser((String) params.get(USER_KEY))
-      .setGroup((String) params.get(GROUP_KEY))
+      .setUserLogin((String) params.get(USER_KEY))
+      .setGroupName((String) params.get(GROUP_KEY))
       .setComponentKey((String) params.get(COMPONENT_KEY))
       .setPermission((String) params.get(PERMISSION_KEY));
   }
@@ -76,10 +75,10 @@ public class PermissionChange {
   }
 
   private void validateUserGroup() {
-    if (StringUtils.isBlank(user) && StringUtils.isBlank(group)) {
+    if (StringUtils.isBlank(userLogin) && StringUtils.isBlank(groupName)) {
       throw new BadRequestException("Missing user or group parameter");
     }
-    if (StringUtils.isNotBlank(user) && StringUtils.isNotBlank(group)) {
+    if (StringUtils.isNotBlank(userLogin) && StringUtils.isNotBlank(groupName)) {
       throw new BadRequestException("Only one of user or group parameter should be provided");
     }
   }
@@ -100,17 +99,17 @@ public class PermissionChange {
   }
 
   @CheckForNull
-  public String user() {
-    return user;
+  public String userLogin() {
+    return userLogin;
   }
 
   @CheckForNull
-  public String group() {
-    return group;
+  public String groupName() {
+    return groupName;
   }
 
   @CheckForNull
-  public String component() {
+  public String componentKey() {
     return componentKey;
   }
 
@@ -120,6 +119,11 @@ public class PermissionChange {
 
   @Override
   public String toString() {
-    return ReflectionToStringBuilder.toString(this);
+    return "PermissionChange{" +
+      "user='" + userLogin + '\'' +
+      ", group='" + groupName + '\'' +
+      ", componentKey='" + componentKey + '\'' +
+      ", permission='" + permission + '\'' +
+      '}';
   }
 }

@@ -85,7 +85,7 @@ public class AddUserActionTest {
 
     verify(permissionUpdater).addPermission(permissionChangeCaptor.capture());
     PermissionChange permissionChange = permissionChangeCaptor.getValue();
-    assertThat(permissionChange.user()).isEqualTo("ray.bradbury");
+    assertThat(permissionChange.userLogin()).isEqualTo("ray.bradbury");
     assertThat(permissionChange.permission()).isEqualTo(SYSTEM_ADMIN);
   }
 
@@ -102,7 +102,7 @@ public class AddUserActionTest {
 
     verify(permissionUpdater).addPermission(permissionChangeCaptor.capture());
     PermissionChange permissionChange = permissionChangeCaptor.getValue();
-    assertThat(permissionChange.component()).isEqualTo("project-key");
+    assertThat(permissionChange.componentKey()).isEqualTo("project-key");
   }
 
   @Test
@@ -118,7 +118,7 @@ public class AddUserActionTest {
 
     verify(permissionUpdater).addPermission(permissionChangeCaptor.capture());
     PermissionChange permissionChange = permissionChangeCaptor.getValue();
-    assertThat(permissionChange.component()).isEqualTo("project-key");
+    assertThat(permissionChange.componentKey()).isEqualTo("project-key");
   }
 
   @Test
