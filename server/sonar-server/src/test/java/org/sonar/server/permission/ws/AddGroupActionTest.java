@@ -27,6 +27,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -152,6 +153,19 @@ public class AddGroupActionTest {
       .setParam(PARAM_GROUP_NAME, "sonar-administrators")
       .setParam(PARAM_PROJECT_UUID, "unknown-project-uuid")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .execute();
+  }
+
+  @Test
+  public void fail_if_project_permission_withou_project() throws Exception {
+    expectedException.expect(BadRequestException.class);
+
+    insertGroup("sonar-administrators");
+    commit();
+
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, "sonar-administrators")
+      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
       .execute();
   }
 

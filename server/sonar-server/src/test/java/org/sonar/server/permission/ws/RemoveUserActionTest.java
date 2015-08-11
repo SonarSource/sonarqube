@@ -27,6 +27,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -126,7 +127,17 @@ public class RemoveUserActionTest {
     ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
       .setParam(PARAM_USER_LOGIN, "ray.bradbury")
       .setParam(PARAM_PROJECT_UUID, "unknown-project-uuid")
-      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
+      .execute();
+  }
+
+  @Test
+  public void fail_when_project_permission_without_permission() throws Exception {
+    expectedException.expect(BadRequestException.class);
+
+    ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION)
+      .setParam(PARAM_USER_LOGIN, "ray.bradbury")
+      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
       .execute();
   }
 

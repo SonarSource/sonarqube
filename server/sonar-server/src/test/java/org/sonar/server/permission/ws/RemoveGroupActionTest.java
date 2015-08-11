@@ -27,6 +27,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -50,8 +51,8 @@ import static org.sonar.server.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_ID;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_NAME;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
 import static org.sonar.server.permission.ws.RemoveGroupAction.ACTION;
 
 @Category(DbTests.class)
@@ -142,6 +143,16 @@ public class RemoveGroupActionTest {
       .setParam(PARAM_GROUP_NAME, "sonar-administrators")
       .setParam(PARAM_PROJECT_UUID, "unknown-project-uuid")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .execute();
+  }
+
+  @Test
+  public void fail_when_project_project_permission_without_project() throws Exception {
+    expectedException.expect(BadRequestException.class);
+
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, "sonar-administrators")
+      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
       .execute();
   }
 

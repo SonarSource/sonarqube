@@ -27,7 +27,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.UserWithPermission;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.PermissionQuery;
@@ -42,6 +41,7 @@ import static org.sonar.server.permission.PermissionQueryParser.toMembership;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createPermissionParam;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class UsersAction implements PermissionsWsAction {
@@ -71,10 +71,7 @@ public class UsersAction implements PermissionsWsAction {
       .setResponseExample(getClass().getResource("users-example.json"))
       .setHandler(this);
 
-    action.createParam(PARAM_PERMISSION)
-      .setExampleValue("scan")
-      .setRequired(true)
-      .setPossibleValues(GlobalPermissions.ALL);
+    createPermissionParam(action);
 
     action.createParam(PARAM_PROJECT_UUID)
       .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d")
@@ -91,7 +88,7 @@ public class UsersAction implements PermissionsWsAction {
     int pageSize = wsRequest.mandatoryParamAsInt(Param.PAGE_SIZE);
 
     Optional<ComponentDto> project = permissionWsCommons.searchProject(wsRequest);
-    permissionWsCommons.checkPermissions(project);
+    permissionWsCommons.checkPermissions(project, wsRequest.mandatoryParam(PARAM_PERMISSION));
     PermissionQuery permissionQuery = buildPermissionQuery(wsRequest, project);
     UsersResponse usersResponse = usersResponse(permissionQuery, page, pageSize);
 

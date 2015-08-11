@@ -38,6 +38,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupRoleDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.permission.PermissionFinder;
@@ -153,6 +154,15 @@ public class GroupsActionTest {
       .doesNotContain("group-1")
       .doesNotContain("group-2")
       .doesNotContain("group-3");
+  }
+
+  @Test
+  public void fail_if_project_permission_without_project() {
+    expectedException.expect(BadRequestException.class);
+
+    ws.newRequest()
+      .setParam(PARAM_PERMISSION, UserRole.ISSUE_ADMIN)
+      .execute();
   }
 
   @Test

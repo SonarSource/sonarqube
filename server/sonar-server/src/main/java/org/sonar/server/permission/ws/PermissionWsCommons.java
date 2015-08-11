@@ -22,8 +22,10 @@ package org.sonar.server.permission.ws;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSortedSet;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.ComponentPermissions;
 import org.sonar.core.permission.GlobalPermissions;
@@ -47,8 +49,19 @@ public class PermissionWsCommons {
   public static final String PARAM_PROJECT_UUID = "projectId";
   public static final String PARAM_PROJECT_KEY = "projectKey";
   public static final String PARAM_USER_LOGIN = "login";
-  private static final String PROJECT_PERMISSIONS_ONE_LINE = Joiner.on(",").join(ComponentPermissions.ALL);
-  private static final String GLOBAL_PERMISSIONS_ONE_LINE = Joiner.on(",").join(GlobalPermissions.ALL);
+  static final String PROJECT_PERMISSIONS_ONE_LINE = Joiner.on(", ").join(ComponentPermissions.ALL);
+  static final String GLOBAL_PERMISSIONS_ONE_LINE = Joiner.on(", ").join(GlobalPermissions.ALL);
+  private static final String PERMISSION_PARAM_DESCRIPTION = String.format("Permission" +
+    "<ul>" +
+    "<li>Possible values for global permissions: %s</li>" +
+    "<li>Possible values for project permissions %s</li>" +
+    "</ul>",
+    GLOBAL_PERMISSIONS_ONE_LINE,
+    PROJECT_PERMISSIONS_ONE_LINE);
+  private static final ImmutableSortedSet<Comparable<?>> POSSIBLE_PERMISSIONS = ImmutableSortedSet.naturalOrder()
+    .addAll(GlobalPermissions.ALL)
+    .addAll(ComponentPermissions.ALL)
+    .build();
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
@@ -110,10 +123,13 @@ public class PermissionWsCommons {
   }
 
   private void addProjectToPermissionChange(DbSession dbSession, PermissionChange permissionChange, @Nullable String projectUuid, @Nullable String projectKey) {
+    ComponentDto project = null;
     if (isProjectUuidOrProjectKeyProvided(projectUuid, projectKey)) {
-      ComponentDto project = componentFinder.getProjectByUuidOrKey(dbSession, projectUuid, projectKey);
+      project = componentFinder.getProjectByUuidOrKey(dbSession, projectUuid, projectKey);
       permissionChange.setComponentKey(project.key());
     }
+
+    checkPermissionAndProjectParameters(permissionChange.permission(), Optional.fromNullable(project));
   }
 
   private static void checkParameters(@Nullable String groupName, @Nullable Long groupId) {
@@ -143,7 +159,8 @@ public class PermissionWsCommons {
     }
   }
 
-  void checkPermissions(Optional<ComponentDto> project) {
+  void checkPermissions(Optional<ComponentDto> project, String permission) {
+    checkPermissionAndProjectParameters(permission, project);
     userSession.checkLoggedIn();
 
     if (userSession.hasGlobalPermission(SYSTEM_ADMIN) || projectPresentAndAdminPermissionsOnIt(project)) {
@@ -155,5 +172,24 @@ public class PermissionWsCommons {
 
   boolean projectPresentAndAdminPermissionsOnIt(Optional<ComponentDto> project) {
     return project.isPresent() && userSession.hasProjectPermissionByUuid(UserRole.ADMIN, project.get().projectUuid());
+  }
+
+  static void checkPermissionAndProjectParameters(String permission, Optional<ComponentDto> project) {
+    if (project.isPresent()) {
+      if (!ComponentPermissions.ALL.contains(permission)) {
+        throw new BadRequestException(String.format("Incorrect value '%s' for project permissions. Values allowed: %s.", permission, PROJECT_PERMISSIONS_ONE_LINE));
+      }
+    } else {
+      if (!GlobalPermissions.ALL.contains(permission)) {
+        throw new BadRequestException(String.format("Incorrect value '%s' for global permissions. Values allowed: %s.", permission, GLOBAL_PERMISSIONS_ONE_LINE));
+      }
+    }
+  }
+
+  static void createPermissionParam(WebService.NewAction action) {
+    action.createParam(PARAM_PERMISSION)
+      .setDescription(PERMISSION_PARAM_DESCRIPTION)
+      .setRequired(true)
+      .setPossibleValues(POSSIBLE_PERMISSIONS);
   }
 }

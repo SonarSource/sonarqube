@@ -23,14 +23,13 @@ package org.sonar.server.permission.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
 
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_USER_LOGIN;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createPermissionParam;
 
 public class AddUserAction implements PermissionsWsAction {
 
@@ -54,10 +53,7 @@ public class AddUserAction implements PermissionsWsAction {
       .setPost(true)
       .setHandler(this);
 
-    action.createParam(PARAM_PERMISSION)
-      .setDescription("Permission")
-      .setRequired(true)
-      .setPossibleValues(GlobalPermissions.ALL);
+    createPermissionParam(action);
 
     action.createParam(PARAM_USER_LOGIN)
       .setRequired(true)

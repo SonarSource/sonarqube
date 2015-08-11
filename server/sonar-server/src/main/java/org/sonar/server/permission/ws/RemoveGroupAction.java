@@ -23,7 +23,6 @@ package org.sonar.server.permission.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.permission.PermissionChange;
@@ -31,9 +30,9 @@ import org.sonar.server.permission.PermissionUpdater;
 
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_ID;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_NAME;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createPermissionParam;
 
 public class RemoveGroupAction implements PermissionsWsAction {
 
@@ -59,10 +58,7 @@ public class RemoveGroupAction implements PermissionsWsAction {
       .setPost(true)
       .setHandler(this);
 
-    action.createParam(PARAM_PERMISSION)
-      .setDescription("Permission")
-      .setRequired(true)
-      .setPossibleValues(GlobalPermissions.ALL);
+    createPermissionParam(action);
 
     action.createParam(PARAM_GROUP_NAME)
       .setDescription("Group name or 'anyone' (whatever the case)")
