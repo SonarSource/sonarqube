@@ -251,7 +251,7 @@ public class ScmMediumTest {
   }
 
   private File prepareProject() throws IOException {
-    File baseDir = temp.newFolder();
+    File baseDir = temp.getRoot();
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 

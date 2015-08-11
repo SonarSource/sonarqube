@@ -20,7 +20,17 @@
 package org.sonar.batch.index;
 
 import org.junit.After;
+
 import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import com.google.common.collect.ImmutableMap;
+import org.sonar.api.CoreProperties;
+import org.sonar.batch.bootstrap.BootstrapProperties;
+import org.sonar.batch.bootstrap.TempFolderProvider;
+
+import java.util.Map;
+
 import org.junit.ClassRule;
 import org.junit.rules.TemporaryFolder;
 
@@ -28,21 +38,24 @@ public abstract class AbstractCachesTest {
   @ClassRule
   public static TemporaryFolder temp = new TemporaryFolder();
 
-  protected static final ThreadLocal<CachesManager> cachesManagers = new ThreadLocal<CachesManager>() {
-    @Override
-    protected CachesManager initialValue() {
-      CachesManager cachesManager = CachesManagerTest.createCacheOnTemp(temp);
-      cachesManager.start();
-      return cachesManager;
-    }
-  };
-
-  protected CachesManager cachesManager;
+  protected static CachesManager cachesManager;
   protected Caches caches;
+
+  private static CachesManager createCacheOnTemp() {
+    Map<String, String> props = ImmutableMap.of(CoreProperties.WORKING_DIRECTORY, temp.getRoot().getAbsolutePath(),
+      CoreProperties.GLOBAL_WORKING_DIRECTORY, temp.getRoot().getAbsolutePath());
+
+    return new CachesManager(new TempFolderProvider().provide(new BootstrapProperties(props)));
+  }
+
+  @BeforeClass
+  public static void startClass() {
+    cachesManager = createCacheOnTemp();
+    cachesManager.start();
+  }
 
   @Before
   public void start() {
-    cachesManager = cachesManagers.get();
     caches = new Caches(cachesManager);
     caches.start();
   }
@@ -52,6 +65,13 @@ public abstract class AbstractCachesTest {
     if (caches != null) {
       caches.stop();
       caches = null;
+    }
+  }
+
+  @AfterClass
+  public static void stopClass() {
+    if (cachesManager != null) {
+      cachesManager.stop();
     }
   }
 }

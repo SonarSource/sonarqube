@@ -58,7 +58,7 @@ public class SymbolMediumTest {
   @Test
   public void computeSymbolReferencesOnTempProject() throws IOException {
 
-    File baseDir = temp.newFolder();
+    File baseDir = temp.getRoot();
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 

@@ -19,54 +19,24 @@
  */
 package org.sonar.batch.index;
 
-import org.sonar.batch.bootstrap.TempFolderProvider;
-
-import com.google.common.collect.ImmutableMap;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.sonar.api.CoreProperties;
-import org.sonar.batch.bootstrap.BootstrapProperties;
 
 import java.io.File;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CachesManagerTest {
-
-  @ClassRule
-  public static TemporaryFolder temp = new TemporaryFolder();
-
-  public static CachesManager createCacheOnTemp(TemporaryFolder temp) {
-    try {
-      BootstrapProperties bootstrapProps = new BootstrapProperties(ImmutableMap.of(CoreProperties.WORKING_DIRECTORY, temp.newFolder().getAbsolutePath()));
-      return new CachesManager(new TempFolderProvider().provide(bootstrapProps));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  CachesManager cachesMgr;
-
-  @Before
-  public void prepare() {
-    cachesMgr = createCacheOnTemp(temp);
-    cachesMgr.start();
-  }
-
+public class CachesManagerTest extends AbstractCachesTest {
   @Test
   public void should_stop_and_clean_temp_dir() {
-    File tempDir = cachesMgr.tempDir();
+    File tempDir = cachesManager.tempDir();
     assertThat(tempDir).isDirectory().exists();
-    assertThat(cachesMgr.persistit()).isNotNull();
-    assertThat(cachesMgr.persistit().isInitialized()).isTrue();
+    assertThat(cachesManager.persistit()).isNotNull();
+    assertThat(cachesManager.persistit().isInitialized()).isTrue();
 
-    cachesMgr.stop();
+    cachesManager.stop();
 
     assertThat(tempDir).doesNotExist();
-    assertThat(cachesMgr.tempDir()).isNull();
-    assertThat(cachesMgr.persistit()).isNull();
+    assertThat(cachesManager.tempDir()).isNull();
+    assertThat(cachesManager.persistit()).isNull();
   }
 }

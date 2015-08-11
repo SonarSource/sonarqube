@@ -19,21 +19,39 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.api.batch.BatchSide;
+
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.CoreProperties;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.junit.Test;
-import org.sonar.api.BatchExtension;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.core.config.Logback;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GlobalContainerTest {
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
+  private GlobalContainer createContainer(List<Object> extensions) {
+    Map<String, String> props = ImmutableMap.of(CoreProperties.WORKING_DIRECTORY, temp.getRoot().getAbsolutePath(),
+      CoreProperties.GLOBAL_WORKING_DIRECTORY, temp.getRoot().getAbsolutePath());
+
+    GlobalContainer container = GlobalContainer.create(props, extensions, false);
+    container.doBeforeStart();
+    return container;
+  }
+
   @Test
   public void should_add_components() {
-    GlobalContainer container = GlobalContainer.create(Collections.<String, String>emptyMap(), Collections.emptyList(), false);
-    container.doBeforeStart();
+    GlobalContainer container = createContainer(Collections.emptyList());
 
     assertThat(container.getComponentByType(Logback.class)).isNotNull();
     assertThat(container.getComponentByType(TempFolder.class)).isNotNull();
@@ -41,18 +59,19 @@ public class GlobalContainerTest {
 
   @Test
   public void should_add_bootstrap_extensions() {
-    GlobalContainer container = GlobalContainer.create(Collections.<String, String>emptyMap(), Lists.newArrayList(Foo.class, new Bar()), false);
-    container.doBeforeStart();
+    GlobalContainer container = createContainer(Lists.newArrayList(Foo.class, new Bar()));
 
     assertThat(container.getComponentByType(Foo.class)).isNotNull();
     assertThat(container.getComponentByType(Bar.class)).isNotNull();
   }
 
-  public static class Foo implements BatchExtension {
+  @BatchSide
+  public static class Foo {
 
   }
 
-  public static class Bar implements BatchExtension {
+  @BatchSide
+  public static class Bar {
 
   }
 

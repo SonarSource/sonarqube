@@ -56,7 +56,7 @@ public class MultilineIssuesMediumTest {
     tester.start();
 
     File projectDir = new File(MultilineIssuesMediumTest.class.getResource("/mediumtest/xoo/sample-multiline").toURI());
-    File tmpDir = temp.newFolder();
+    File tmpDir = temp.getRoot();
     FileUtils.copyDirectory(projectDir, tmpDir);
 
     result = tester

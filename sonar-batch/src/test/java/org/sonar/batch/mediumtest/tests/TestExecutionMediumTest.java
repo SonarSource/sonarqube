@@ -59,7 +59,7 @@ public class TestExecutionMediumTest {
   @Test
   public void unitTests() throws IOException {
 
-    File baseDir = temp.newFolder();
+    File baseDir = temp.getRoot();
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
     File testDir = new File(baseDir, "test");

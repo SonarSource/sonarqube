@@ -43,7 +43,6 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
-import org.sonar.batch.mediumtest.issues.IssuesMediumTest;
 import org.sonar.batch.protocol.Constants.Severity;
 import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.batch.scan.report.ConsoleReport;

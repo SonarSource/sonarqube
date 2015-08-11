@@ -68,7 +68,7 @@ public class RandomFsAccessMediumTest {
   @Test
   public void testRandomFsAccessByAbsolutePath() throws IOException {
 
-    File baseDir = temp.newFolder();
+    File baseDir = temp.getRoot();
     File srcDir = prepareBigProject(baseDir);
 
     File paths = new File(baseDir, "paths.txt");
@@ -100,8 +100,8 @@ public class RandomFsAccessMediumTest {
   @Test
   public void testRandomFsAccessByRelativePath() throws IOException {
 
-    File baseDir = temp.newFolder();
-    File srcDir = prepareBigProject(baseDir);
+    File baseDir = temp.getRoot();
+    prepareBigProject(baseDir);
 
     File paths = new File(baseDir, "paths.txt");
     int ISSUE_COUNT = 10000;

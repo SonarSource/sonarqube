@@ -19,65 +19,12 @@
  */
 package org.sonar.batch.cache;
 
-import org.sonar.batch.bootstrap.ServerClient;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Date;
 
-import org.sonar.home.cache.PersistentCache;
+public interface ProjectCacheStatus {
+  void save(String projectKey);
 
-public class ProjectCacheStatus {
-  private static final String STATUS_PREFIX = "cache-sync-status-";
-  private PersistentCache cache;
-  private ServerClient client;
+  void delete(String projectKey);
 
-  public ProjectCacheStatus(PersistentCache cache, ServerClient client) {
-    this.cache = cache;
-    this.client = client;
-  }
-
-  public void save(String projectKey) {
-    Date now = new Date();
-
-    try {
-      ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
-      try (ObjectOutputStream objOutput = new ObjectOutputStream(byteOutput)) {
-        objOutput.writeObject(now);
-      }
-      cache.put(getKey(projectKey), byteOutput.toByteArray());
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to write cache sync status", e);
-    }
-  }
-
-  public void delete(String projectKey) {
-    try {
-      cache.put(getKey(projectKey), new byte[0]);
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to delete cache sync status", e);
-    }
-  }
-
-  public Date getSyncStatus(String projectKey) {
-    try {
-      byte[] status = cache.get(getKey(projectKey), null);
-      if (status == null || status.length == 0) {
-        return null;
-      }
-      ByteArrayInputStream byteInput = new ByteArrayInputStream(status);
-      try (ObjectInputStream objInput = new ObjectInputStream(byteInput)) {
-        return (Date) objInput.readObject();
-      }
-    } catch (IOException | ClassNotFoundException e) {
-      throw new IllegalStateException("Failed to read cache sync status", e);
-    }
-  }
-
-  private String getKey(String projectKey) {
-    return STATUS_PREFIX + client.getURL() + projectKey;
-  }
+  Date getSyncStatus(String projectKey);
 }

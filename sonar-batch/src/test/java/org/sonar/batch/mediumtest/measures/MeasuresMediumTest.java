@@ -44,6 +44,9 @@ public class MeasuresMediumTest {
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  private File baseDir;
+  private File srcDir;
+
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
@@ -59,13 +62,15 @@ public class MeasuresMediumTest {
     tester.stop();
   }
 
+  @Before
+  public void setUp() {
+    baseDir = temp.getRoot();
+    srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+  }
+
   @Test
   public void computeMeasuresOnTempProject() throws IOException {
-
-    File baseDir = temp.newFolder();
-    File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
-
     File xooFile = new File(srcDir, "sample.xoo");
     File xooMeasureFile = new File(srcDir, "sample.xoo.measures");
     FileUtils.write(xooFile, "Sample xoo\ncontent");
@@ -96,11 +101,6 @@ public class MeasuresMediumTest {
 
   @Test
   public void computeLinesOnAllFiles() throws IOException {
-
-    File baseDir = temp.newFolder();
-    File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
-
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "Sample xoo\n\ncontent");
 

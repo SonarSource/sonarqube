@@ -70,7 +70,6 @@ public class CacheSyncTest {
     tester.start();
     tester.syncProject("test-project");
     
-    
   }
 
 }

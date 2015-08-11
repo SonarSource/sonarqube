@@ -64,7 +64,7 @@ public class ProjectBuilderMediumTest {
   @Test
   public void testProjectBuilder() throws IOException {
 
-    File baseDir = temp.newFolder();
+    File baseDir = temp.getRoot();
     File module1Dir = new File(baseDir, "module1");
     module1Dir.mkdir();
 
@@ -104,7 +104,7 @@ public class ProjectBuilderMediumTest {
   @Test
   public void testProjectBuilderWithBranch() throws IOException {
 
-    File baseDir = temp.newFolder();
+    File baseDir = temp.getRoot();
     File module1Dir = new File(baseDir, "module1");
     module1Dir.mkdir();
 

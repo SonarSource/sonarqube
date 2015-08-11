@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.mediumtest;
 
+import org.sonar.batch.cache.ProjectCacheStatus;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 import org.sonar.batch.bootstrapper.IssueListener;
@@ -86,6 +87,7 @@ public class BatchMediumTester {
     private final FakeServerLineHashesLoader serverLineHashes = new FakeServerLineHashesLoader();
     private final Map<String, String> bootstrapProperties = new HashMap<>();
     private final FakeRulesLoader rulesLoader = new FakeRulesLoader();
+    private final FakeProjectCacheStatus projectCacheStatus = new FakeProjectCacheStatus();
     private LogOutput logOutput = null;
 
     public BatchMediumTester build() {
@@ -220,6 +222,7 @@ public class BatchMediumTester {
         builder.serverIssues,
         builder.serverLineHashes,
         builder.rulesLoader,
+        builder.projectCacheStatus,
         new DefaultDebtModel())
       .setBootstrapProperties(builder.bootstrapProperties)
       .setLogOutput(builder.logOutput)
@@ -389,6 +392,23 @@ public class BatchMediumTester {
         consumer.apply(serverIssue);
       }
       return true;
+    }
+
+  }
+
+  private static class FakeProjectCacheStatus implements ProjectCacheStatus {
+
+    @Override
+    public void save(String projectKey) {
+    }
+
+    @Override
+    public void delete(String projectKey) {
+    }
+
+    @Override
+    public Date getSyncStatus(String projectKey) {
+      return new Date();
     }
 
   }

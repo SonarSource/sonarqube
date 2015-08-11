@@ -61,7 +61,7 @@ public class CoverageMediumTest {
   @Test
   public void unitTests() throws IOException {
 
-    File baseDir = temp.newFolder();
+    File baseDir = temp.getRoot();
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
@@ -101,7 +101,7 @@ public class CoverageMediumTest {
   @Test
   public void exclusions() throws IOException {
 
-    File baseDir = temp.newFolder();
+    File baseDir = temp.getRoot();
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 

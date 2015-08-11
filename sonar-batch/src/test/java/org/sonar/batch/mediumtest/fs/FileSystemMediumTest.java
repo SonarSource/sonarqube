@@ -61,7 +61,7 @@ public class FileSystemMediumTest {
   public void prepare() throws IOException {
     tester.start();
 
-    baseDir = temp.newFolder();
+    baseDir = temp.getRoot();
 
     builder = ImmutableMap.<String, String>builder()
       .put("sonar.task", "scan")

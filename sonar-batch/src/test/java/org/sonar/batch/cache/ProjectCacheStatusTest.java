@@ -47,7 +47,7 @@ public class ProjectCacheStatusTest {
     cache = new PersistentCache(tmp.getRoot().toPath(), Long.MAX_VALUE, mock(Logger.class), null);
     client = mock(ServerClient.class);
     when(client.getURL()).thenReturn("localhost");
-    cacheStatus = new ProjectCacheStatus(cache, client);
+    cacheStatus = new DefaultProjectCacheStatus(cache, client);
   }
 
   @Test
@@ -55,7 +55,7 @@ public class ProjectCacheStatusTest {
     cacheStatus.save(PROJ_KEY);
     assertThat(cacheStatus.getSyncStatus(PROJ_KEY)).isNotNull();
     assertThat(age(cacheStatus.getSyncStatus(PROJ_KEY))).isLessThan(2000);
-    assertThat(cacheStatus.getSyncStatus(PROJ_KEY+"1")).isNull();
+    assertThat(cacheStatus.getSyncStatus(PROJ_KEY + "1")).isNull();
   }
 
   @Test

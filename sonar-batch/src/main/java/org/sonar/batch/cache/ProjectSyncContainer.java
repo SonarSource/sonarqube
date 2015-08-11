@@ -72,10 +72,10 @@ public class ProjectSyncContainer extends ComponentContainer {
     add(new StrategyWSLoaderProvider(LoadStrategy.SERVER_FIRST),
       properties,
       ProjectAnalysisMode.class,
-      ProjectCacheStatus.class,
       ProjectCacheSynchronizer.class,
       UserRepositoryLoader.class);
 
+    addIfMissing(DefaultProjectCacheStatus.class, ProjectCacheStatus.class);
     addIfMissing(DefaultProjectRepositoriesLoader.class, ProjectRepositoriesLoader.class);
     addIfMissing(DefaultServerIssuesLoader.class, ServerIssuesLoader.class);
     addIfMissing(DefaultServerLineHashesLoader.class, ServerLineHashesLoader.class);

@@ -64,7 +64,7 @@ public class IssuesMediumTest {
   @Test
   public void testNoIssueCallbackInNonPreview() throws Exception {
     File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
-    File tmpDir = temp.newFolder();
+    File tmpDir = temp.getRoot();
     FileUtils.copyDirectory(projectDir, tmpDir);
     IssueRecorder issueListener = new IssueRecorder();
 
