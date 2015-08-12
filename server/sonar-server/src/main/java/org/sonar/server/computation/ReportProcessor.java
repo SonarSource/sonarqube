@@ -20,7 +20,6 @@
 package org.sonar.server.computation;
 
 import com.google.common.base.Throwables;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.computation.activity.ActivityManager;
@@ -31,7 +30,6 @@ import static java.lang.String.format;
 import static org.sonar.db.compute.AnalysisReportDto.Status.FAILED;
 import static org.sonar.db.compute.AnalysisReportDto.Status.SUCCESS;
 
-@ServerSide
 public class ReportProcessor {
 
   private final ComputationStepExecutor executor;
@@ -42,7 +40,7 @@ public class ReportProcessor {
     this.executor = new ComputationStepExecutor(
       Loggers.get(ReportProcessor.class),
       new BatchReportStepsExecutorListener(item, system, activityManager, queueStatus),
-        createDescription(item));
+        createDescription(item), queueStatus);
     this.steps = steps;
   }
 
@@ -59,29 +57,25 @@ public class ReportProcessor {
     private final ReportQueue.Item item;
     private final System2 system;
     private final ActivityManager activityManager;
-    private final CEQueueStatus queueStatus;
 
     private BatchReportStepsExecutorListener(ReportQueue.Item item, System2 system, ActivityManager activityManager, CEQueueStatus queueStatus) {
       this.item = item;
       this.system = system;
       this.activityManager = activityManager;
-      this.queueStatus = queueStatus;
     }
 
     @Override
     public void onStart() {
-      queueStatus.addInProgress();
+      // nothing to do on start
     }
 
     @Override
     public void onSuccess(long timing) {
-      queueStatus.addSuccess(timing);
       item.dto.setStatus(SUCCESS);
     }
 
     @Override
     public void onError(Throwable e, long timing) {
-      queueStatus.addError(timing);
       item.dto.setStatus(FAILED);
       throw Throwables.propagate(e);
     }

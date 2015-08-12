@@ -21,6 +21,7 @@ package org.sonar.server.computation;
 
 import org.sonar.api.utils.log.Logger;
 import org.sonar.core.util.logs.Profiler;
+import org.sonar.server.computation.monitoring.CEQueueStatus;
 import org.sonar.server.computation.step.ComputationStep;
 
 import static java.lang.String.format;
@@ -30,14 +31,17 @@ public final class ComputationStepExecutor {
   private final Logger logger;
   private final Listener listener;
   private final String description;
+  private final CEQueueStatus queueStatus;
 
-  public ComputationStepExecutor(Logger logger, Listener listener, String description) {
+  public ComputationStepExecutor(Logger logger, Listener listener, String description, CEQueueStatus queueStatus) {
     this.logger = requireNonNull(logger);
     this.listener = requireNonNull(listener);
     this.description = requireNonNull(description);
+    this.queueStatus = queueStatus;
   }
 
   public void execute(Iterable<ComputationStep> steps) {
+    queueStatus.addInProgress();
     listener.onStart();
     Profiler profiler = Profiler.create(logger).startDebug(description);
     long timingSum = 0L;
@@ -49,9 +53,11 @@ public final class ComputationStepExecutor {
         timingSum += stepProfiler.stopInfo(step.getDescription());
       }
       long timing = logProcessingEnd(description, profiler, timingSum);
+      queueStatus.addSuccess(timing);
       listener.onSuccess(timing);
     } catch (Throwable e) {
       long timing = logProcessingEnd(description, profiler, timingSum);
+      queueStatus.addError(timing);
       listener.onError(e, timing);
     } finally {
       listener.onEnd();
@@ -85,7 +91,7 @@ public final class ComputationStepExecutor {
     void onError(Throwable e, long timing);
 
     /**
-     * Called when all ComputationSteps have been executed, after either {@link #onSuccess(long)} or {@link #onError(Throwable, long)}.
+     * Called when all ComputationSteps have been executed, after either {@link #onSuccess(long)} or {@link #onError(Throwable, long)}
      */
     void onEnd();
   }
