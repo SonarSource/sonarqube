@@ -29,10 +29,10 @@ import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
 
 import static org.sonar.server.permission.ws.PermissionRequest.Builder.newBuilder;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_USER_LOGIN;
-import static org.sonar.server.permission.ws.PermissionWsCommons.createPermissionParam;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createPermissionParameter;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createProjectKeyParameter;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createProjectUuidParameter;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createUserLoginParameter;
 
 public class AddUserAction implements PermissionsWsAction {
 
@@ -58,20 +58,10 @@ public class AddUserAction implements PermissionsWsAction {
       .setPost(true)
       .setHandler(this);
 
-    createPermissionParam(action);
-
-    action.createParam(PARAM_USER_LOGIN)
-      .setRequired(true)
-      .setDescription("User login")
-      .setExampleValue("g.hopper");
-
-    action.createParam(PARAM_PROJECT_UUID)
-      .setDescription("Project id")
-      .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d");
-
-    action.createParam(PARAM_PROJECT_KEY)
-      .setDescription("Project key")
-      .setExampleValue("org.apache.hbas:hbase");
+    createPermissionParameter(action);
+    createUserLoginParameter(action);
+    createProjectUuidParameter(action);
+    createProjectKeyParameter(action);
   }
 
   @Override

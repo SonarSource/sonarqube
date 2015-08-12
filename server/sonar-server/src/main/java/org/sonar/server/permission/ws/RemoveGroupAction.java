@@ -29,11 +29,11 @@ import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
 
 import static org.sonar.server.permission.ws.PermissionRequest.Builder.newBuilder;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_ID;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_NAME;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
-import static org.sonar.server.permission.ws.PermissionWsCommons.createPermissionParam;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createGroupIdParameter;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createGroupNameParameter;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createPermissionParameter;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createProjectKeyParameter;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createProjectUuidParameter;
 
 public class RemoveGroupAction implements PermissionsWsAction {
 
@@ -60,23 +60,11 @@ public class RemoveGroupAction implements PermissionsWsAction {
       .setPost(true)
       .setHandler(this);
 
-    createPermissionParam(action);
-
-    action.createParam(PARAM_GROUP_NAME)
-      .setDescription("Group name or 'anyone' (whatever the case)")
-      .setExampleValue("sonar-administrators");
-
-    action.createParam(PARAM_GROUP_ID)
-      .setDescription("Group id")
-      .setExampleValue("42");
-
-    action.createParam(PARAM_PROJECT_UUID)
-      .setDescription("Project id")
-      .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d");
-
-    action.createParam(PARAM_PROJECT_KEY)
-      .setDescription("Project key")
-      .setExampleValue("org.apache.hbas:hbase");
+    createPermissionParameter(action);
+    createGroupNameParameter(action);
+    createGroupIdParameter(action);
+    createProjectUuidParameter(action);
+    createProjectKeyParameter(action);
   }
 
   @Override

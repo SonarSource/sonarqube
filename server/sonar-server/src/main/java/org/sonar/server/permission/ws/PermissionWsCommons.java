@@ -24,7 +24,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSortedSet;
 import javax.annotation.Nullable;
-import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.ComponentPermissions;
 import org.sonar.core.permission.GlobalPermissions;
@@ -138,10 +138,41 @@ public class PermissionWsCommons {
     return project.isPresent() && userSession.hasProjectPermissionByUuid(UserRole.ADMIN, project.get().projectUuid());
   }
 
-  static void createPermissionParam(WebService.NewAction action) {
+  static void createPermissionParameter(NewAction action) {
     action.createParam(PARAM_PERMISSION)
       .setDescription(PERMISSION_PARAM_DESCRIPTION)
       .setRequired(true)
       .setPossibleValues(POSSIBLE_PERMISSIONS);
+  }
+
+  static void createGroupNameParameter(NewAction action) {
+    action.createParam(PARAM_GROUP_NAME)
+      .setDescription("Group name or 'anyone' (case insensitive)")
+      .setExampleValue("sonar-administrators");
+  }
+
+  static void createGroupIdParameter(NewAction action) {
+    action.createParam(PARAM_GROUP_ID)
+      .setDescription("Group id")
+      .setExampleValue("42");
+  }
+
+  static void createProjectUuidParameter(NewAction action) {
+    action.createParam(PARAM_PROJECT_UUID)
+      .setDescription("Project id")
+      .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d");
+  }
+
+  static void createProjectKeyParameter(NewAction action) {
+    action.createParam(PARAM_PROJECT_KEY)
+      .setDescription("Project key")
+      .setExampleValue("org.apache.hbas:hbase");
+  }
+
+  static void createUserLoginParameter(NewAction action) {
+    action.createParam(PARAM_USER_LOGIN)
+      .setRequired(true)
+      .setDescription("User login")
+      .setExampleValue("g.hopper");
   }
 }

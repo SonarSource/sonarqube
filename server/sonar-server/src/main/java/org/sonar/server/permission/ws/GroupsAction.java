@@ -39,9 +39,9 @@ import org.sonarqube.ws.Permissions;
 import static com.google.common.base.Objects.firstNonNull;
 import static org.sonar.server.permission.PermissionQueryParser.toMembership;
 import static org.sonar.server.permission.ws.PermissionRequest.Builder.newBuilder;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
-import static org.sonar.server.permission.ws.PermissionWsCommons.createPermissionParam;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createPermissionParameter;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createProjectKeyParameter;
+import static org.sonar.server.permission.ws.PermissionWsCommons.createProjectUuidParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class GroupsAction implements PermissionsWsAction {
@@ -68,15 +68,9 @@ public class GroupsAction implements PermissionsWsAction {
       .setResponseExample(Resources.getResource(getClass(), "groups-example.json"))
       .setHandler(this);
 
-    createPermissionParam(action);
-
-    action.createParam(PARAM_PROJECT_UUID)
-      .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d")
-      .setDescription("Project id");
-
-    action.createParam(PARAM_PROJECT_KEY)
-      .setExampleValue("org.apache.hbas:hbase")
-      .setDescription("Project key");
+    createPermissionParameter(action);
+    createProjectUuidParameter(action);
+    createProjectKeyParameter(action);
   }
 
   @Override
