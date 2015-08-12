@@ -68,18 +68,18 @@
       "componentId": 1875,
       "project": "com.sonarsource.samples:multiple-issue-locations",
       "subProject": "com.sonarsource.samples:multiple-issue-locations",
-      "line": 11,
+      "line": 9,
       "textRange": {
-        "startLine": 11,
-        "endLine": 11,
+        "startLine": 9,
+        "endLine": 9,
         "startOffset": 6,
-        "endOffset": 11
+        "endOffset": 10
       },
       "secondaryLocations": [
         {
           "textRange": {
-            "startLine": 10,
-            "endLine": 10,
+            "startLine": 8,
+            "endLine": 8,
             "startOffset": 6,
             "endOffset": 11
           }

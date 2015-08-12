@@ -17,7 +17,8 @@ define(['intern'], function (intern) {
     suites: [
       'test/unit/application.spec',
       'test/unit/issue.spec',
-      'test/unit/overview/card.spec'
+      'test/unit/overview/card.spec',
+      'test/unit/code-with-issue-locations-helper.spec'
     ],
 
     functionalSuites: [

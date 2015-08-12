@@ -22,7 +22,8 @@ define(function () {
    * @returns {string}
    */
   function part (str, from, to, acc) {
-    return str.substr(from - acc, to - from);
+    // we do not want negative number as the first argument of `substr`
+    return from >= acc ? str.substr(from - acc, to - from) : str.substr(0, to - from);
   }
 
 
@@ -53,9 +54,10 @@ define(function () {
    * Highlight issue locations in the list of tokens
    * @param {Array} tokens
    * @param {Array} issueLocations
+   * @param {string} className
    * @returns {Array}
    */
-  function highlightIssueLocations (tokens, issueLocations) {
+  function highlightIssueLocations (tokens, issueLocations, className) {
     issueLocations.forEach(function (location) {
       var nextTokens = [],
           acc = 0;
@@ -68,8 +70,8 @@ define(function () {
           nextTokens.push({ className: token.className, text: p1 });
         }
         if (p2.length) {
-          var newClassName = token.className.indexOf('source-line-code-issue') === -1 ?
-              [token.className, 'source-line-code-issue'].join(' ') : token.className;
+          var newClassName = token.className.indexOf(className) === -1 ?
+              [token.className, className].join(' ') : token.className;
           nextTokens.push({ className: newClassName, text: p2 });
         }
         if (p3.length) {
@@ -100,20 +102,26 @@ define(function () {
    * highlight issues and generate result html
    * @param {string} code
    * @param {Array} issueLocations
+   * @param {string} [optionalClassName]
    * @returns {string}
    */
-  function doTheStuff (code, issueLocations) {
+  function doTheStuff (code, issueLocations, optionalClassName) {
     var _code = code || '&nbsp;';
     var _issueLocations = issueLocations || [];
-    return generateHTML(highlightIssueLocations(splitByTokens(_code), _issueLocations));
+    var _className = optionalClassName ? optionalClassName : 'source-line-code-issue';
+    return generateHTML(highlightIssueLocations(splitByTokens(_code), _issueLocations, _className));
   }
 
 
-  /**
-   * Handlebars helper to highlight issue locations in the source code
-   */
-  Handlebars.registerHelper('codeWithIssueLocations', function (code, issueLocations) {
-    return doTheStuff(code, issueLocations);
-  });
+  if (typeof Handlebars !== 'undefined') {
+    /**
+     * Handlebars helper to highlight issue locations in the source code
+     */
+    Handlebars.registerHelper('codeWithIssueLocations', function (code, issueLocations) {
+      return doTheStuff(code, issueLocations);
+    });
+  }
+
+  return doTheStuff;
 
 });

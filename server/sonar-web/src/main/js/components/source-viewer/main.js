@@ -39,7 +39,8 @@ define([
               SCMPopupView,
               CoveragePopupView,
               DuplicationPopupView,
-              LineActionsPopupView) {
+              LineActionsPopupView,
+              highlightLocations) {
 
       var $ = jQuery,
           HIGHLIGHTED_ROW_CLASS = 'source-line-highlighted';
@@ -47,6 +48,7 @@ define([
       return Marionette.LayoutView.extend({
         className: 'source-viewer',
         template: Templates['source-viewer'],
+        flowLocationTemplate: Templates['source-viewer-flow-location'],
 
         ISSUES_LIMIT: 3000,
         LINES_LIMIT: 1000,
@@ -84,6 +86,7 @@ define([
           }
           this.issues = new Issues();
           this.listenTo(this.issues, 'change:severity', this.onIssuesSeverityChange);
+          this.listenTo(this.issues, 'locations', this.toggleFlowLocations);
           this.issueViews = [];
           this.loadSourceBeforeThrottled = _.throttle(this.loadSourceBefore, 1000);
           this.loadSourceAfterThrottled = _.throttle(this.loadSourceAfter, 1000);
@@ -277,8 +280,8 @@ define([
                 data: {
                   componentUuids: this.model.id,
                   f: 'component,componentId,project,subProject,rule,status,resolution,author,reporter,assignee,debt,' +
-                    'line,message,severity,actionPlan,creationDate,updateDate,closeDate,tags,comments,attr,actions,' +
-                    'transitions,actionPlanName',
+                  'line,message,severity,actionPlan,creationDate,updateDate,closeDate,tags,comments,attr,actions,' +
+                  'transitions,actionPlanName',
                   additionalFields: '_all',
                   resolved: false,
                   s: 'FILE_LINE',
@@ -732,6 +735,62 @@ define([
 
         hideFilteredTooltip: function (e) {
           $(e.currentTarget).tooltip('destroy');
+        },
+
+        toggleFlowLocations: function (issue) {
+          if (this.locationsShowFor === issue) {
+            this.hideFlowLocations();
+          } else {
+            this.hideFlowLocations();
+            this.showFlowLocations(issue);
+          }
+        },
+
+        showFlowLocations: function (issue) {
+          this.locationsShowFor = issue;
+          var primaryLocation = {
+                msg: issue.get('message'),
+                textRange: issue.get('textRange')
+              },
+              _locations = [primaryLocation].concat(issue.get('secondaryLocations'));
+          _locations.forEach(this.showFlowLocation, this);
+        },
+
+        showFlowLocation: function (location) {
+          if (location && location.textRange) {
+            var line = location.textRange.startLine,
+                row = this.$('.source-line-code[data-line-number="' + line + '"]'),
+                renderedFlowLocation = this.renderFlowLocation(location);
+            row.append(renderedFlowLocation);
+            this.highlightFlowLocationInCode(location);
+          }
+        },
+
+        renderFlowLocation: function (location) {
+          location.msg = location.msg ? location.msg : ' ';
+          return this.flowLocationTemplate(location);
+        },
+
+        highlightFlowLocationInCode: function (location) {
+          for (var line = location.textRange.startLine; line <= location.textRange.endLine; line++) {
+            var row = this.$('.source-line-code[data-line-number="' + line + '"]');
+
+            // get location for the current line
+            var from = line === location.textRange.startLine ? location.textRange.startOffset : 0,
+                to = line === location.textRange.endLine ? location.textRange.endOffset : 999999,
+                _location = { from: from, to: to };
+
+            // mark issue location in the source code
+            var code = row.find('pre').html(),
+                newCode = highlightLocations(code, [_location], 'source-line-code-secondary-issue');
+            row.find('pre').html(newCode);
+          }
+        },
+
+        hideFlowLocations: function () {
+          this.locationsShowFor = null;
+          this.$('.source-viewer-flow-location').remove();
+          this.$('.source-line-code-secondary-issue').removeClass('source-line-code-secondary-issue');
         }
       });
 

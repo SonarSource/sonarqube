@@ -21,7 +21,7 @@
 @import (reference) "../variables";
 @import (reference) "ui";
 
-@lineHeight: 18px;
+@source-line-height: 18px;
 @lineWithIssuesBackground: #ffeaea;
 @duplicationColor: #f3ca8e;
 
@@ -95,18 +95,19 @@
 }
 
 .source-viewer pre {
-  height: @lineHeight;
+  height: @source-line-height;
   padding: 0;
 }
 
 .source-viewer pre,
 .source-meta {
-  line-height: @lineHeight;
+  line-height: @source-line-height;
   font-family: @monoFontFamily;
   font-size: 12px;
 }
 
 .source-line-code {
+  position: relative;
   padding: 0 10px;
 
   .issue-list {
@@ -121,6 +122,12 @@
   background-repeat: repeat-x;
   background-size: 4px;
   background-position: bottom;
+}
+
+.source-line-code-secondary-issue {
+  display: inline-block;
+  background-color: @red;
+  color: #fff !important;
 }
 
 .source-meta {
@@ -204,7 +211,7 @@
 
 .source-line-bar {
   width: 5px;
-  height: @lineHeight;
+  height: @source-line-height;
 }
 
 .source-line-with-issues {
@@ -443,4 +450,34 @@
 
 .source-viewer-test-covered-lines {
   text-align: right;
+}
+
+.source-viewer-flow-location {
+  position: absolute;
+  top: 0;
+  right: 0;
+  line-height: @source-line-height - 2px;
+  margin: 1px 0;
+  padding: 0 10px;
+  background-color: @red;
+  color: #fff;
+  font-size: 12px;
+  z-index: @issue-flow-location-z-index;
+
+  &:before {
+    @arrow-size: (@source-line-height - 2px) / 2;
+    content: " ";
+    position: absolute;
+    top: 0;
+    right: 100%;
+    display: block;
+    .square(0);
+    border-top: @arrow-size solid transparent;
+    border-bottom: @arrow-size solid transparent;
+    border-right: @arrow-size solid @red;
+  }
+}
+
+.source-viewer-flow-location + .source-viewer-flow-location {
+  z-index: @issue-flow-location-z-index - 1;
 }

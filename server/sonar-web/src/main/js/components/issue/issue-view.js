@@ -37,7 +37,8 @@ define([
         'click .js-issue-plan': 'plan',
         'click .js-issue-show-changelog': 'showChangeLog',
         'click .js-issue-rule': 'showRule',
-        'click .js-issue-edit-tags': 'editTags'
+        'click .js-issue-edit-tags': 'editTags',
+        'click .js-issue-locations': 'showLocations'
       };
     },
 
@@ -215,6 +216,10 @@ define([
         model: this.model
       });
       this.popup.render();
+    },
+
+    showLocations: function () {
+      this.model.trigger('locations', this.model);
     },
 
     serializeData: function () {

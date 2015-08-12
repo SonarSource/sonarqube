@@ -24,6 +24,7 @@ define([
       SourceViewer.prototype.onLoaded.apply(this, arguments);
       this.bindShortcuts();
       if (this.baseIssue != null) {
+        this.baseIssue.trigger('locations', this.baseIssue);
         return this.scrollToLine(this.baseIssue.get('line'));
       }
     },
@@ -83,6 +84,7 @@ define([
       var selected = this.options.app.state.get('selectedIndex'),
           selectedIssue = this.options.app.list.at(selected);
       if (selectedIssue.get('component') === this.model.get('key')) {
+        selectedIssue.trigger('locations', selectedIssue);
         return this.scrollToIssue(selectedIssue.get('key'));
       } else {
         this.unbindShortcuts();
