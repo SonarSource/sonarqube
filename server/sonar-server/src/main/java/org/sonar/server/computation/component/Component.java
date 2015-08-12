@@ -20,6 +20,7 @@
 package org.sonar.server.computation.component;
 
 import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.server.computation.step.FillComponentsStep;
 
 public interface Component {
@@ -70,6 +71,7 @@ public interface Component {
   /**
    * The project or module version as defined in the batch report.
    */
+  @CheckForNull
   String getVersion();
 
   /**
