@@ -68,9 +68,9 @@ public class QProfileSensorTest {
   }
 
   @Test
-  public void no_execution_in_preview() {
+  public void no_execution_in_issues_mode() {
     AnalysisMode analysisMode = mock(AnalysisMode.class);
-    when(analysisMode.isPreview()).thenReturn(true);
+    when(analysisMode.isIssues()).thenReturn(true);
     QProfileSensor sensor = new QProfileSensor(moduleQProfiles, fs, analysisMode);
     assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
 

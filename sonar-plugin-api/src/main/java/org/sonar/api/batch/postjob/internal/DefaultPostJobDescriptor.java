@@ -28,7 +28,7 @@ public class DefaultPostJobDescriptor implements PostJobDescriptor {
 
   private String name;
   private String[] properties = new String[0];
-  private boolean disabledInPreview = false;
+  private boolean disabledInIssues = false;
 
   public String name() {
     return name;
@@ -38,8 +38,8 @@ public class DefaultPostJobDescriptor implements PostJobDescriptor {
     return Arrays.asList(properties);
   }
 
-  public boolean isDisabledInPreview() {
-    return disabledInPreview;
+  public boolean isDisabledInIssues() {
+    return disabledInIssues;
   }
 
   @Override
@@ -60,8 +60,8 @@ public class DefaultPostJobDescriptor implements PostJobDescriptor {
   }
 
   @Override
-  public DefaultPostJobDescriptor disabledInPreview() {
-    this.disabledInPreview = true;
+  public DefaultPostJobDescriptor disabledInIssues() {
+    this.disabledInIssues = true;
     return this;
   }
 

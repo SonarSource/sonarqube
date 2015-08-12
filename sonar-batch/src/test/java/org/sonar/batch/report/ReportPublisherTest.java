@@ -62,9 +62,9 @@ public class ReportPublisherTest {
   }
 
   @Test
-  public void should_log_successful_preview_analysis() {
+  public void should_log_successful_issues_analysis() {
     Settings settings = new Settings();
-    when(mode.isPreview()).thenReturn(true);
+    when(mode.isIssues()).thenReturn(true);
     ReportPublisher job = new ReportPublisher(settings, mock(ServerClient.class), mock(Server.class), reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
 
     Logger logger = mock(Logger.class);

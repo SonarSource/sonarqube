@@ -86,16 +86,14 @@ public class CorePropertyDefinitions {
         .hidden()
         .build(),
       PropertyDefinition.builder(CoreProperties.PREVIEW_INCLUDE_PLUGINS)
-        .deprecatedKey(CoreProperties.DRY_RUN_INCLUDE_PLUGINS)
-        .name("Plugins accepted for Preview and Incremental modes")
-        .description("Comma-separated list of plugin keys. Those plugins will be used during preview or incremental analyses.")
+        .name("Plugins accepted for Preview mode")
+        .description("Comma-separated list of plugin keys. Those plugins will be used during preview analyses.")
         .category(CoreProperties.CATEGORY_GENERAL)
         .defaultValue(CoreProperties.PREVIEW_INCLUDE_PLUGINS_DEFAULT_VALUE)
         .build(),
       PropertyDefinition.builder(CoreProperties.PREVIEW_EXCLUDE_PLUGINS)
-        .deprecatedKey(CoreProperties.DRY_RUN_EXCLUDE_PLUGINS)
-        .name("Plugins excluded for Preview and Incremental modes")
-        .description("Comma-separated list of plugin keys. Those plugins will not be used during preview or incremental analyses.")
+        .name("Plugins excluded for Preview mode")
+        .description("Comma-separated list of plugin keys. Those plugins will not be used during preview analyses.")
         .category(CoreProperties.CATEGORY_GENERAL)
         .defaultValue(CoreProperties.PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE)
         .build(),

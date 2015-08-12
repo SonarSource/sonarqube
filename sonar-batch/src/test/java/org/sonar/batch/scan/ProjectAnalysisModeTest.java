@@ -38,18 +38,20 @@ public class ProjectAnalysisModeTest {
   public void regular_analysis_by_default() {
     ProjectAnalysisMode mode = createMode(null, null);
     assertThat(mode.isPreview()).isFalse();
+    assertThat(mode.isPublish()).isTrue();
   }
 
   @Test(expected = IllegalStateException.class)
   public void fail_if_inconsistent() {
-    createMode(null, CoreProperties.ANALYSIS_MODE_PREVIEW);
+    createMode(null, CoreProperties.ANALYSIS_MODE_ISSUES);
   }
 
   @Test
-  public void support_analysis_mode() {
-    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_ANALYSIS);
+  public void support_pulblish_mode() {
+    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_PUBLISH);
 
     assertThat(mode.isPreview()).isFalse();
+    assertThat(mode.isPublish()).isTrue();
   }
 
   @Test(expected = IllegalStateException.class)
@@ -65,24 +67,23 @@ public class ProjectAnalysisModeTest {
   }
 
   @Test
-  public void support_quick_mode() {
-    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_QUICK);
+  public void default_publish_mode() {
+    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_PREVIEW);
+    assertThat(mode.isPublish()).isFalse();
 
-    assertThat(mode.isPreview()).isTrue();
-    assertThat(mode.isQuick()).isTrue();
+    mode = createMode(CoreProperties.ANALYSIS_MODE_ISSUES);
+    assertThat(mode.isPublish()).isFalse();
+
+    mode = createMode(null);
+
+    assertThat(mode.isPublish()).isTrue();
   }
 
   @Test
-  public void support_deprecated_dryrun_property() {
-    Map<String, String> bootstrapMap = new HashMap<>();
-    Map<String, String> analysisMap = new HashMap<>();
+  public void support_issues_mode() {
+    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_ISSUES);
 
-    analysisMap.put(CoreProperties.DRY_RUN, "true");
-    bootstrapMap.put(CoreProperties.DRY_RUN, "true");
-
-    ProjectAnalysisMode mode = new ProjectAnalysisMode(new BootstrapProperties(bootstrapMap), new AnalysisProperties(analysisMap));
-
-    assertThat(mode.isPreview()).isTrue();
+    assertThat(mode.isIssues()).isTrue();
   }
 
   private static ProjectAnalysisMode createMode(@Nullable String mode) {
@@ -103,3 +104,4 @@ public class ProjectAnalysisModeTest {
   }
 
 }
+

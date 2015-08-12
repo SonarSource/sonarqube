@@ -79,23 +79,6 @@ public class BatchPluginPredicateTest {
     assertThat(predicate.apply("cobertura")).isTrue();
   }
 
-  /**
-   * The properties sonar.dryRun.includePlugins and sonar.dryRun.excludePlugins
-   * are deprecated. They are replaced by sonar.preview.includePlugins and
-   * sonar.preview.excludePlugins.
-   */
-  @Test
-  public void support_deprecated_dry_run_settings() {
-    when(mode.isPreview()).thenReturn(true);
-    settings
-      .setProperty(CoreProperties.DRY_RUN_INCLUDE_PLUGINS, "cockpit")
-      .setProperty(CoreProperties.DRY_RUN_EXCLUDE_PLUGINS, "views,pmd");
-    BatchPluginPredicate predicate = new BatchPluginPredicate(settings, mode);
-
-    assertThat(predicate.getWhites()).containsOnly("cockpit");
-    assertThat(predicate.getBlacks()).containsOnly("views", "pmd");
-  }
-
   @Test
   public void trim_inclusions_and_exclusions() {
     settings

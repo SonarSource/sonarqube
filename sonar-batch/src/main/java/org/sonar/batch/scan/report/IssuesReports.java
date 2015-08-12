@@ -35,7 +35,7 @@ public class IssuesReports {
   }
 
   public void execute() {
-    if (analysisMode.isPreview() || analysisMode.isMediumTest()) {
+    if (analysisMode.isIssues() || analysisMode.isMediumTest()) {
       for (Reporter reporter : reporters) {
         reporter.execute();
       }

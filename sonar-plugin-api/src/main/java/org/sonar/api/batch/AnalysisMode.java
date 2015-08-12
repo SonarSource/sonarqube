@@ -28,6 +28,8 @@ public interface AnalysisMode {
 
   boolean isPreview();
 
-  boolean isQuick();
+  boolean isIssues();
+
+  boolean isPublish();
 
 }

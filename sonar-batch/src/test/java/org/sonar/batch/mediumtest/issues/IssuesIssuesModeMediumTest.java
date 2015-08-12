@@ -40,7 +40,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class IssuesPreviewMediumTest {
+public class IssuesIssuesModeMediumTest {
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
@@ -48,7 +48,7 @@ public class IssuesPreviewMediumTest {
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .addRules(new XooRulesDefinition())
-    .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW))
+    .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ISSUES))
     .activateRule(new ActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", "OneIssuePerLine.internal", "xoo"))
     .setLastBuildDate(new Date())
     .build();
@@ -73,7 +73,7 @@ public class IssuesPreviewMediumTest {
     TaskResult result1 = testerPreview
       .newScanTask(new File(tmpDir, "sonar-project.properties"))
       .setIssueListener(issueListener)
-      .property(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW)
+      .property(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ISSUES)
       .start();
 
     assertThat(result1.trackedIssues()).hasSize(14);
@@ -83,7 +83,7 @@ public class IssuesPreviewMediumTest {
     TaskResult result2 = testerPreview
       .newScanTask(new File(tmpDir, "sonar-project.properties"))
       .setIssueListener(issueListener)
-      .property(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW)
+      .property(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ISSUES)
       .start();
 
     assertThat(result2.trackedIssues()).hasSize(28);

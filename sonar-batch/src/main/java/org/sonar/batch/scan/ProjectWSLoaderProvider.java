@@ -31,28 +31,29 @@ import org.sonar.api.batch.AnalysisMode;
 import org.sonar.batch.bootstrap.WSLoader.LoadStrategy;
 
 public class ProjectWSLoaderProvider extends ProviderAdapter {
+  private static final String OPTIMIZE_STRING_PROP = "sonar.optimizeForSpeed";
   private WSLoader wsLoader;
 
   public WSLoader provide(AnalysisProperties props, AnalysisMode mode, PersistentCache cache, ServerClient client) {
     if (wsLoader == null) {
       // recreate cache directory if needed for this analysis
       cache.reconfigure();
-      wsLoader = new WSLoader(isCacheEnabled(props.properties(), mode.isPreview()), cache, client);
-      wsLoader.setStrategy(getStrategy(mode));
+      wsLoader = new WSLoader(isCacheEnabled(props.properties(), mode), cache, client);
+      wsLoader.setStrategy(getStrategy(props.properties(), mode));
     }
     return wsLoader;
   }
 
-  private static LoadStrategy getStrategy(AnalysisMode mode) {
-    if (mode.isQuick()) {
+  private static LoadStrategy getStrategy(Map<String, String> props, AnalysisMode mode) {
+    String optimizeForSpeed = props.get(OPTIMIZE_STRING_PROP);
+    if (mode.isIssues() && "true".equals(optimizeForSpeed)) {
       return LoadStrategy.CACHE_FIRST;
     }
 
     return LoadStrategy.SERVER_FIRST;
   }
 
-  private static boolean isCacheEnabled(Map<String, String> props, boolean isPreview) {
-    String enableOffline = props.get("sonar.enableOffline");
-    return isPreview && "true".equals(enableOffline);
+  private static boolean isCacheEnabled(Map<String, String> props, AnalysisMode mode) {
+    return mode.isIssues();
   }
 }

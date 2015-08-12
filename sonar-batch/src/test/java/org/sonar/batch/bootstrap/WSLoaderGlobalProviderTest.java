@@ -67,7 +67,7 @@ public class WSLoaderGlobalProviderTest {
   public void testOffline() {
     propMap = new HashMap<>();
     propMap.put("sonar.enableOffline", "true");
-    when(mode.isPreview()).thenReturn(true);
+    when(mode.isIssues()).thenReturn(true);
     props = new BootstrapProperties(propMap);
 
     WSLoader wsLoader = loaderProvider.provide(props, mode, cache, client);

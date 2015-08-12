@@ -65,11 +65,11 @@ public class IndexFactoryTest {
   }
 
   @Test
-  public void cross_project_should_be_disabled_on_preview() {
-    when(analysisMode.isPreview()).thenReturn(true);
+  public void cross_project_should_be_disabled_on_issues_mode() {
+    when(analysisMode.isIssues()).thenReturn(true);
     settings.setProperty(CoreProperties.CPD_CROSS_PROJECT, "true");
     assertThat(factory.verifyCrossProject(project, logger)).isFalse();
-    verify(logger).info("Cross-project analysis disabled. Not supported in preview mode.");
+    verify(logger).info("Cross-project analysis disabled. Not supported in issues mode.");
   }
 
   @Test

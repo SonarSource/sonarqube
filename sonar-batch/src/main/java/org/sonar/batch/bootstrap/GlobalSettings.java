@@ -66,19 +66,14 @@ public class GlobalSettings extends Settings {
     addProperties(globalReferentials.globalSettings());
     addProperties(bootstrapProps.properties());
 
-    // To stay compatible with plugins that use the old property to check mode
-    if (mode.isPreview()) {
-      setProperty(CoreProperties.DRY_RUN, "true");
-    }
-
     LOG.info("Server id: " + getString(CoreProperties.SERVER_ID));
   }
 
   @Override
   protected void doOnGetProperties(String key) {
-    if (mode.isPreview() && key.endsWith(".secured") && !key.contains(".license")) {
+    if (mode.isIssues() && key.endsWith(".secured") && !key.contains(".license")) {
       throw MessageException.of("Access to the secured property '" + key
-        + "' is not possible in preview mode. The SonarQube plugin which requires this property must be deactivated in preview mode.");
+        + "' is not possible in issues mode. The SonarQube plugin which requires this property must be deactivated in issues mode.");
     }
   }
 }

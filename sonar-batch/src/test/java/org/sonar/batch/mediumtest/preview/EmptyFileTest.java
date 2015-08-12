@@ -19,8 +19,10 @@
  */
 package org.sonar.batch.mediumtest.preview;
 
-import org.sonar.xoo.rule.XooRulesDefinition;
+import org.apache.commons.io.filefilter.FileFilterUtils;
 
+import org.apache.commons.io.FileUtils;
+import org.sonar.xoo.rule.XooRulesDefinition;
 import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
@@ -48,7 +50,7 @@ public class EmptyFileTest {
   public LogTester logTester = new LogTester();
 
   public BatchMediumTester tester = BatchMediumTester.builder()
-    .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW))
+    .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ISSUES))
     .registerPlugin("xoo", new XooPlugin())
     .addRules(new XooRulesDefinition())
     .addDefaultQProfile("xoo", "Sonar Way")
@@ -68,7 +70,7 @@ public class EmptyFileTest {
 
   @Test
   public void testIssueTrackingWithIssueOnEmptyFile() throws Exception {
-    File projectDir = new File(EmptyFileTest.class.getResource("/mediumtest/xoo/sample-with-empty-file").toURI());
+    File projectDir = copyProject("/mediumtest/xoo/sample-with-empty-file");
 
     TaskResult result = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
@@ -76,6 +78,13 @@ public class EmptyFileTest {
       .start();
 
     assertThat(result.trackedIssues()).hasSize(11);
+  }
+
+  private File copyProject(String path) throws Exception {
+    File projectDir = temp.newFolder();
+    File originalProjectDir = new File(EmptyFileTest.class.getResource(path).toURI());
+    FileUtils.copyDirectory(originalProjectDir, projectDir, FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter(".sonar")));
+    return projectDir;
   }
 
 }
