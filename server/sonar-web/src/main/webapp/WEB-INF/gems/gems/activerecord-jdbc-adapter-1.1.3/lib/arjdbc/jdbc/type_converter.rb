@@ -44,16 +44,19 @@ module ActiveRecord
         :datetime    => [ lambda {|r| Jdbc::Types::TIMESTAMP == r['data_type'].to_i},
                           lambda {|r| r['type_name'] =~ /^datetime$/i},
                           lambda {|r| r['type_name'] =~ /^timestamp$/i},
+                          lambda {|r| r['type_name'] =~ /^datetime.+/i},
                           lambda {|r| r['type_name'] =~ /^date/i},
                           lambda {|r| r['type_name'] =~ /^integer/i}],  #Num of milliseconds for SQLite3 JDBC Driver
         :timestamp   => [ lambda {|r| Jdbc::Types::TIMESTAMP == r['data_type'].to_i},
                           lambda {|r| r['type_name'] =~ /^timestamp$/i},
-                          lambda {|r| r['type_name'] =~ /^datetime/i},
+                          lambda {|r| r['type_name'] =~ /^datetime$/i},
+                          lambda {|r| r['type_name'] =~ /^datetime.+/i},
                           lambda {|r| r['type_name'] =~ /^date/i},
                           lambda {|r| r['type_name'] =~ /^integer/i}],  #Num of milliseconds for SQLite3 JDBC Driver
         :time        => [ lambda {|r| Jdbc::Types::TIME == r['data_type'].to_i},
                           lambda {|r| r['type_name'] =~ /^time$/i},
-                          lambda {|r| r['type_name'] =~ /^datetime/i},  # For Informix
+                          lambda {|r| r['type_name'] =~ /^datetime$/i},
+                          lambda {|r| r['type_name'] =~ /^datetime.+/i},  # For Informix
                           lambda {|r| r['type_name'] =~ /^date/i},
                           lambda {|r| r['type_name'] =~ /^integer/i}],  #Num of milliseconds for SQLite3 JDBC Driver
         :date        => [ lambda {|r| Jdbc::Types::DATE == r['data_type'].to_i},
