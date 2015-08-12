@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.util.ProtobufJsonFormat;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.plugins.MimeTypes;
 
 public class WsUtils {
@@ -49,6 +50,15 @@ public class WsUtils {
       }
     } finally {
       IOUtils.closeQuietly(output);
+    }
+  }
+
+  /**
+   * @throws BadRequestException
+   */
+  public static void checkRequest(boolean expression, String errorMessage) {
+    if (!expression) {
+      throw new BadRequestException(errorMessage);
     }
   }
 }

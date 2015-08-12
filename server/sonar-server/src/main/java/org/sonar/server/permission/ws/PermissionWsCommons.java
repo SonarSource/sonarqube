@@ -20,13 +20,10 @@
 
 package org.sonar.server.permission.ws;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSortedSet;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.ComponentPermissions;
@@ -36,7 +33,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.user.UserSession;
@@ -76,7 +72,6 @@ public class PermissionWsCommons {
   }
 
   public String searchGroupName(DbSession dbSession, @Nullable String groupNameParam, @Nullable Long groupId) {
-    checkParameters(groupNameParam, groupId);
     if (groupNameParam != null) {
       return groupNameParam;
     }
@@ -89,87 +84,47 @@ public class PermissionWsCommons {
     return group.getName();
   }
 
-  public PermissionChange buildUserPermissionChange(Request request) {
-    String permission = request.mandatoryParam(PARAM_PERMISSION);
-    String userLogin = request.mandatoryParam(PARAM_USER_LOGIN);
-
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      PermissionChange permissionChange = new PermissionChange()
-        .setPermission(permission)
-        .setUserLogin(userLogin);
-      addProjectToPermissionChange(dbSession, request, permissionChange);
-
-      return permissionChange;
-    } finally {
-      dbClient.closeSession(dbSession);
-    }
-
-  }
-
-  public PermissionChange buildGroupPermissionChange(DbSession dbSession, Request request) {
-    String permission = request.mandatoryParam(PARAM_PERMISSION);
-    String groupNameParam = request.param(PARAM_GROUP_NAME);
-    Long groupId = request.paramAsLong(PARAM_GROUP_ID);
-
-    String groupName = searchGroupName(dbSession, groupNameParam, groupId);
-
+  public PermissionChange buildUserPermissionChange(DbSession dbSession, PermissionRequest request) {
     PermissionChange permissionChange = new PermissionChange()
-      .setPermission(permission)
-      .setGroupName(groupName);
-    addProjectToPermissionChange(dbSession, request, permissionChange);
+      .setPermission(request.permission())
+      .setUserLogin(request.userLogin());
+    addProjectToPermissionChange(dbSession, permissionChange, request);
 
     return permissionChange;
   }
 
-  private void addProjectToPermissionChange(DbSession dbSession, Request request, PermissionChange permissionChange) {
-    ComponentDto project = null;
-    if (isProjectUuidOrProjectKeyProvided(request)) {
-      checkProjectUuidAndProjectKeyAreNotBothProvided(request);
-      project = componentFinder.getProjectByUuidOrKey(dbSession, paramProjectUuid(request), paramProjectKey(request));
+  public PermissionChange buildGroupPermissionChange(DbSession dbSession, PermissionRequest request) {
+    String groupName = searchGroupName(dbSession, request.groupName(), request.groupId());
+
+    PermissionChange permissionChange = new PermissionChange()
+      .setPermission(request.permission())
+      .setGroupName(groupName);
+    addProjectToPermissionChange(dbSession, permissionChange, request);
+
+    return permissionChange;
+  }
+
+  private void addProjectToPermissionChange(DbSession dbSession, PermissionChange permissionChange, PermissionRequest request) {
+    if (request.hasProject()) {
+      ComponentDto project = componentFinder.getProjectByUuidOrKey(dbSession, request.projectUuid(), request.projectKey());
       permissionChange.setComponentKey(project.key());
     }
-
-    checkPermissionAndProjectParameters(permissionChange.permission(), Optional.fromNullable(project));
   }
 
-  @VisibleForTesting
-  static void checkProjectUuidAndProjectKeyAreNotBothProvided(Request request) {
-    if (paramProjectUuid(request) != null && paramProjectKey(request) != null) {
-      throw new BadRequestException("Project id or project key can be provided, not both.");
+  Optional<ComponentDto> searchProject(PermissionRequest request) {
+    if (!request.hasProject()) {
+      return Optional.absent();
     }
-  }
-
-  private static void checkParameters(@Nullable String groupName, @Nullable Long groupId) {
-    if (groupName != null ^ groupId != null) {
-      return;
-    }
-
-    throw new BadRequestException("Group name or group id must be provided, not both");
-  }
-
-  static boolean isProjectUuidOrProjectKeyProvided(Request request) {
-    return paramProjectUuid(request) != null || paramProjectKey(request) != null;
-  }
-
-  Optional<ComponentDto> searchProject(Request request) {
-    String projectUuid = paramProjectUuid(request);
-    String projectKey = paramProjectKey(request);
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      if (isProjectUuidOrProjectKeyProvided(request)) {
-        checkProjectUuidAndProjectKeyAreNotBothProvided(request);
-        return Optional.of(componentFinder.getProjectByUuidOrKey(dbSession, projectUuid, projectKey));
-      }
-      return Optional.absent();
+      return Optional.of(componentFinder.getProjectByUuidOrKey(dbSession, request.projectUuid(), request.projectKey()));
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  void checkPermissions(Optional<ComponentDto> project, String permission) {
-    checkPermissionAndProjectParameters(permission, project);
+  void checkPermissions(Optional<ComponentDto> project) {
     userSession.checkLoggedIn();
 
     if (userSession.hasGlobalPermission(SYSTEM_ADMIN) || projectPresentAndAdminPermissionsOnIt(project)) {
@@ -183,32 +138,10 @@ public class PermissionWsCommons {
     return project.isPresent() && userSession.hasProjectPermissionByUuid(UserRole.ADMIN, project.get().projectUuid());
   }
 
-  static void checkPermissionAndProjectParameters(String permission, Optional<ComponentDto> project) {
-    if (project.isPresent()) {
-      if (!ComponentPermissions.ALL.contains(permission)) {
-        throw new BadRequestException(String.format("Incorrect value '%s' for project permissions. Values allowed: %s.", permission, PROJECT_PERMISSIONS_ONE_LINE));
-      }
-    } else {
-      if (!GlobalPermissions.ALL.contains(permission)) {
-        throw new BadRequestException(String.format("Incorrect value '%s' for global permissions. Values allowed: %s.", permission, GLOBAL_PERMISSIONS_ONE_LINE));
-      }
-    }
-  }
-
   static void createPermissionParam(WebService.NewAction action) {
     action.createParam(PARAM_PERMISSION)
       .setDescription(PERMISSION_PARAM_DESCRIPTION)
       .setRequired(true)
       .setPossibleValues(POSSIBLE_PERMISSIONS);
-  }
-
-  @CheckForNull
-  private static String paramProjectUuid(Request request) {
-    return request.param(PARAM_PROJECT_UUID);
-  }
-
-  @CheckForNull
-  private static String paramProjectKey(Request request) {
-    return request.param(PARAM_PROJECT_KEY);
   }
 }

@@ -28,6 +28,7 @@ import org.sonar.db.DbSession;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
 
+import static org.sonar.server.permission.ws.PermissionRequest.Builder.newBuilder;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_ID;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_NAME;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
@@ -82,7 +83,8 @@ public class RemoveGroupAction implements PermissionsWsAction {
   public void handle(Request request, Response response) throws Exception {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      PermissionChange permissionChange = permissionWsCommons.buildGroupPermissionChange(dbSession, request);
+      PermissionRequest permissionRequest = newBuilder().withGroup().build(request);
+      PermissionChange permissionChange = permissionWsCommons.buildGroupPermissionChange(dbSession, permissionRequest);
       permissionUpdater.removePermission(permissionChange);
     } finally {
       dbClient.closeSession(dbSession);

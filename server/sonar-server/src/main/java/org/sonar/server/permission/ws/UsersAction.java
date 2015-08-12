@@ -37,7 +37,7 @@ import org.sonarqube.ws.Permissions.UsersResponse;
 
 import static com.google.common.base.Objects.firstNonNull;
 import static org.sonar.server.permission.PermissionQueryParser.toMembership;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.PermissionRequest.Builder.newBuilder;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
 import static org.sonar.server.permission.ws.PermissionWsCommons.createPermissionParam;
@@ -81,13 +81,11 @@ public class UsersAction implements PermissionsWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    int page = wsRequest.mandatoryParamAsInt(Param.PAGE);
-    int pageSize = wsRequest.mandatoryParamAsInt(Param.PAGE_SIZE);
-
-    Optional<ComponentDto> project = permissionWsCommons.searchProject(wsRequest);
-    permissionWsCommons.checkPermissions(project, wsRequest.mandatoryParam(PARAM_PERMISSION));
-    PermissionQuery permissionQuery = buildPermissionQuery(wsRequest, project);
-    UsersResponse usersResponse = usersResponse(permissionQuery, page, pageSize);
+    PermissionRequest request = newBuilder().withPagination().build(wsRequest);
+    Optional<ComponentDto> project = permissionWsCommons.searchProject(request);
+    permissionWsCommons.checkPermissions(project);
+    PermissionQuery permissionQuery = buildPermissionQuery(request, project);
+    UsersResponse usersResponse = usersResponse(permissionQuery, request.page(), request.pageSize());
 
     writeProtobuf(usersResponse, wsRequest, wsResponse);
   }
@@ -118,24 +116,13 @@ public class UsersAction implements PermissionsWsAction {
     return userResponse.build();
   }
 
-  private static PermissionQuery buildPermissionQuery(Request request, Optional<ComponentDto> project) {
-    String permission = request.mandatoryParam(PARAM_PERMISSION);
-    String selected = request.param(Param.SELECTED);
-    int page = request.mandatoryParamAsInt(Param.PAGE);
-    int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
-    String query = request.param(Param.TEXT_QUERY);
-    if (query != null) {
-      selected = SelectionMode.ALL.value();
-    }
-
+  private static PermissionQuery buildPermissionQuery(PermissionRequest request, Optional<ComponentDto> project) {
     PermissionQuery.Builder permissionQuery = PermissionQuery.builder()
-      .permission(permission)
-      .pageIndex(page)
-      .pageSize(pageSize)
-      .membership(toMembership(firstNonNull(selected, SelectionMode.SELECTED.value())));
-    if (query != null) {
-      permissionQuery.search(query);
-    }
+      .permission(request.permission())
+      .pageIndex(request.page())
+      .pageSize(request.pageSize())
+      .membership(toMembership(firstNonNull(request.selected(), SelectionMode.SELECTED.value())))
+      .search(request.query());
     if (project.isPresent()) {
       permissionQuery.component(project.get().getKey());
     }

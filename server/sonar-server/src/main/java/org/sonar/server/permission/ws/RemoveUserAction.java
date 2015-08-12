@@ -23,9 +23,12 @@ package org.sonar.server.permission.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
 
+import static org.sonar.server.permission.ws.PermissionRequest.Builder.newBuilder;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_USER_LOGIN;
@@ -35,10 +38,12 @@ public class RemoveUserAction implements PermissionsWsAction {
 
   public static final String ACTION = "remove_user";
 
+  private final DbClient dbClient;
   private final PermissionUpdater permissionUpdater;
   private final PermissionWsCommons permissionWsCommons;
 
-  public RemoveUserAction(PermissionUpdater permissionUpdater, PermissionWsCommons permissionWsCommons) {
+  public RemoveUserAction(DbClient dbClient, PermissionUpdater permissionUpdater, PermissionWsCommons permissionWsCommons) {
+    this.dbClient = dbClient;
     this.permissionUpdater = permissionUpdater;
     this.permissionWsCommons = permissionWsCommons;
   }
@@ -71,9 +76,15 @@ public class RemoveUserAction implements PermissionsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    PermissionChange permissionChange = permissionWsCommons.buildUserPermissionChange(request);
-    permissionUpdater.removePermission(permissionChange);
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      PermissionRequest permissionRequest = newBuilder().withUser().build(request);
+      PermissionChange permissionChange = permissionWsCommons.buildUserPermissionChange(dbSession, permissionRequest);
+      permissionUpdater.removePermission(permissionChange);
 
-    response.noContent();
+      response.noContent();
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 }
