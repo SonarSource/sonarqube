@@ -19,10 +19,12 @@
  */
 package org.sonar.batch.rule;
 
+import static org.mockito.Matchers.any;
+
+import org.apache.commons.lang.mutable.MutableBoolean;
+
 import com.google.common.collect.Lists;
-
 import org.sonar.api.batch.rule.Rules;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
@@ -33,7 +35,7 @@ public class RulesProviderTest {
   @Test
   public void testRuleTranslation() {
     RulesLoader loader = mock(RulesLoader.class);
-    when(loader.load()).thenReturn(Lists.newArrayList(getTestRule()));
+    when(loader.load(any(MutableBoolean.class))).thenReturn(Lists.newArrayList(getTestRule()));
 
     RulesProvider provider = new RulesProvider();
 

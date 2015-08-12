@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import org.sonar.batch.bootstrap.WSLoaderResult;
+import org.apache.commons.lang.mutable.MutableBoolean;
 
+import org.sonar.batch.bootstrap.WSLoaderResult;
 import org.sonar.batch.bootstrap.WSLoader;
 import org.junit.Before;
 import org.junit.Rule;
@@ -53,7 +54,7 @@ public class DefaultServerLineHashesLoaderTest {
 
     ServerLineHashesLoader lastSnapshots = new DefaultServerLineHashesLoader(wsLoader);
 
-    String[] hashes = lastSnapshots.getLineHashes("myproject:org/foo/Bar.c");
+    String[] hashes = lastSnapshots.getLineHashes("myproject:org/foo/Bar.c", null);
     assertThat(hashes).containsOnly("ae12", "", "43fb");
     verify(wsLoader).loadString("/api/sources/hash?key=myproject%3Aorg%2Ffoo%2FBar.c");
   }
@@ -65,7 +66,9 @@ public class DefaultServerLineHashesLoaderTest {
 
     ServerLineHashesLoader lastSnapshots = new DefaultServerLineHashesLoader(server);
 
-    String[] hashes = lastSnapshots.getLineHashes("myproject:org/foo/Foo Bar.c");
+    MutableBoolean fromCache = new MutableBoolean();
+    String[] hashes = lastSnapshots.getLineHashes("myproject:org/foo/Foo Bar.c", fromCache);
+    assertThat(fromCache.booleanValue()).isTrue();
     assertThat(hashes).containsOnly("ae12", "", "43fb");
     verify(server).loadString("/api/sources/hash?key=myproject%3Aorg%2Ffoo%2FFoo+Bar.c");
   }
@@ -78,7 +81,7 @@ public class DefaultServerLineHashesLoaderTest {
     ServerLineHashesLoader lastSnapshots = new DefaultServerLineHashesLoader(server);
 
     thrown.expect(HttpDownloader.HttpException.class);
-    lastSnapshots.getLineHashes("foo");
+    lastSnapshots.getLineHashes("foo", null);
   }
 
 }

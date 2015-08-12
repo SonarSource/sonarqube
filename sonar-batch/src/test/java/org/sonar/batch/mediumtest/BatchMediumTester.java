@@ -19,6 +19,10 @@
  */
 package org.sonar.batch.mediumtest;
 
+import org.apache.commons.lang.mutable.MutableBoolean;
+
+import javax.annotation.Nullable;
+
 import org.sonar.batch.cache.ProjectCacheStatus;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
@@ -294,13 +298,8 @@ public class BatchMediumTester {
     }
 
     @Override
-    public List<Rule> load() {
+    public List<Rule> load(@Nullable MutableBoolean fromCache) {
       return rules;
-    }
-
-    @Override
-    public boolean loadedFromCache() {
-      return false;
     }
   }
 
@@ -311,7 +310,7 @@ public class BatchMediumTester {
     private GlobalRepositories ref = new GlobalRepositories();
 
     @Override
-    public GlobalRepositories load() {
+    public GlobalRepositories load(@Nullable MutableBoolean fromCache) {
       return ref;
     }
 
@@ -336,10 +335,6 @@ public class BatchMediumTester {
       return this;
     }
 
-    @Override
-    public boolean loadedFromCache() {
-      return false;
-    }
   }
 
   private static class FakeProjectRepositoriesLoader implements ProjectRepositoriesLoader {
@@ -347,7 +342,7 @@ public class BatchMediumTester {
     private ProjectRepositories ref = new ProjectRepositories();
 
     @Override
-    public ProjectRepositories load(ProjectDefinition projDefinition, AnalysisProperties taskProperties) {
+    public ProjectRepositories load(ProjectDefinition projDefinition, AnalysisProperties taskProperties, @Nullable MutableBoolean fromCache) {
       return ref;
     }
 
@@ -372,10 +367,6 @@ public class BatchMediumTester {
       return this;
     }
 
-    @Override
-    public boolean loadedFromCache() {
-      return true;
-    }
   }
 
   private static class FakeServerIssuesLoader implements ServerIssuesLoader {
@@ -417,7 +408,7 @@ public class BatchMediumTester {
     private Map<String, String[]> byKey = new HashMap<>();
 
     @Override
-    public String[] getLineHashes(String fileKey) {
+    public String[] getLineHashes(String fileKey, @Nullable MutableBoolean fromCache) {
       if (byKey.containsKey(fileKey)) {
         return byKey.get(fileKey);
       } else {

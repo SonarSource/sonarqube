@@ -19,10 +19,14 @@
  */
 package org.sonar.batch.issue.tracking;
 
+import org.apache.commons.lang.mutable.MutableBoolean;
+
+import javax.annotation.Nullable;
+
 import org.sonar.api.batch.BatchSide;
 
 @BatchSide
 public interface ServerLineHashesLoader {
 
-  String[] getLineHashes(String fileKey);
+  String[] getLineHashes(String fileKey, @Nullable MutableBoolean fromCache);
 }

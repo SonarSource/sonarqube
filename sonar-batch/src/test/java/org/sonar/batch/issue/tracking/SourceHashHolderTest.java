@@ -83,10 +83,10 @@ public class SourceHashHolderTest {
     FileUtils.write(ioFile, source, StandardCharsets.UTF_8);
     when(file.key()).thenReturn(key);
     when(file.status()).thenReturn(InputFile.Status.CHANGED);
-    when(lastSnapshots.getLineHashes(key)).thenReturn(new String[] {md5Hex(source)});
+    when(lastSnapshots.getLineHashes(key, null)).thenReturn(new String[] {md5Hex(source)});
 
     assertThat(sourceHashHolder.getHashedReference().getHash(1)).isEqualTo(md5Hex(source));
-    verify(lastSnapshots).getLineHashes(key);
+    verify(lastSnapshots).getLineHashes(key, null);
 
     assertThat(sourceHashHolder.getHashedReference().getHash(1)).isEqualTo(md5Hex(source));
     Mockito.verifyNoMoreInteractions(lastSnapshots);

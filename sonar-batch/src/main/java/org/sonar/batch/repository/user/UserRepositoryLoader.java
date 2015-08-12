@@ -19,10 +19,11 @@
  */
 package org.sonar.batch.repository.user;
 
-import com.google.common.collect.Lists;
+import javax.annotation.Nullable;
 
+import org.apache.commons.lang.mutable.MutableBoolean;
+import com.google.common.collect.Lists;
 import com.google.common.base.Joiner;
-import org.sonar.batch.bootstrap.AbstractServerLoader;
 import org.sonar.batch.bootstrap.WSLoaderResult;
 import org.sonar.batch.util.BatchUtils;
 import org.sonar.batch.bootstrap.WSLoader;
@@ -37,7 +38,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class UserRepositoryLoader extends AbstractServerLoader {
+public class UserRepositoryLoader {
   private final WSLoader wsLoader;
 
   public UserRepositoryLoader(WSLoader wsLoader) {
@@ -45,25 +46,35 @@ public class UserRepositoryLoader extends AbstractServerLoader {
   }
 
   public BatchInput.User load(String userLogin) {
-    ByteSource byteSource = loadQuery(new UserEncodingFunction().apply(userLogin));
+    return load(userLogin, null);
+  }
+  
+  public BatchInput.User load(String userLogin, @Nullable MutableBoolean fromCache) {
+    ByteSource byteSource = loadQuery(new UserEncodingFunction().apply(userLogin), fromCache);
     return parseUser(byteSource);
   }
 
+  public Collection<BatchInput.User> load(List<String> userLogins) {
+    return load(userLogins, null);
+  }
+  
   /**
    * Not cache friendly. Should not be used if a cache hit is expected.
    */
-  public Collection<BatchInput.User> load(List<String> userLogins) {
+  public Collection<BatchInput.User> load(List<String> userLogins, @Nullable MutableBoolean fromCache) {
     if (userLogins.isEmpty()) {
       return Collections.emptyList();
     }
-    ByteSource byteSource = loadQuery(Joiner.on(',').join(Lists.transform(userLogins, new UserEncodingFunction())));
+    ByteSource byteSource = loadQuery(Joiner.on(',').join(Lists.transform(userLogins, new UserEncodingFunction())), fromCache);
 
     return parseUsers(byteSource);
   }
 
-  private ByteSource loadQuery(String loginsQuery) {
+  private ByteSource loadQuery(String loginsQuery, @Nullable MutableBoolean fromCache) {
     WSLoaderResult<ByteSource> result = wsLoader.loadSource("/batch/users?logins=" + loginsQuery);
-    super.loadedFromCache = result.isFromCache();
+    if (fromCache != null) {
+      fromCache.setValue(result.isFromCache());
+    }
     return result.get();
   }
 

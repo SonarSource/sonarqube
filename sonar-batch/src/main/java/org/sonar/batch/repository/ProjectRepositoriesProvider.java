@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.repository;
 
+import org.apache.commons.lang.mutable.MutableBoolean;
+
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
@@ -38,8 +40,9 @@ public class ProjectRepositoriesProvider extends ProviderAdapter {
   public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectReactor reactor, AnalysisProperties taskProps, AnalysisMode analysisMode) {
     if (projectReferentials == null) {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      projectReferentials = loader.load(reactor.getRoot(), taskProps);
-      profiler.stopInfo(loader.loadedFromCache());
+      MutableBoolean fromCache = new MutableBoolean();
+      projectReferentials = loader.load(reactor.getRoot(), taskProps, fromCache);
+      profiler.stopInfo(fromCache.booleanValue());
 
       if (analysisMode.isIssues() && projectReferentials.lastAnalysisDate() == null) {
         LOG.warn("No analysis has been found on the server for this project. All issues will be marked as 'new'.");

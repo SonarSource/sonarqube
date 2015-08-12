@@ -49,11 +49,11 @@ public class GlobalMode {
     issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode);
 
     if (preview) {
-      LOG.info("Preview global mode");
+      LOG.debug("Preview global mode");
     } else if (issues) {
-      LOG.info("Issues global mode");
+      LOG.debug("Issues global mode");
     } else {
-      LOG.info("Publish global mode");
+      LOG.debug("Publish global mode");
     }
   }
 

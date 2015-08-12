@@ -19,13 +19,14 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.bootstrap.AbstractServerLoader;
+import javax.annotation.Nullable;
 
+import org.apache.commons.lang.mutable.MutableBoolean;
 import org.sonar.batch.bootstrap.WSLoaderResult;
 import org.sonar.batch.bootstrap.WSLoader;
 import org.sonar.batch.protocol.input.GlobalRepositories;
 
-public class DefaultGlobalRepositoriesLoader extends AbstractServerLoader implements GlobalRepositoriesLoader {
+public class DefaultGlobalRepositoriesLoader implements GlobalRepositoriesLoader {
 
   private static final String BATCH_GLOBAL_URL = "/batch/global";
 
@@ -36,10 +37,11 @@ public class DefaultGlobalRepositoriesLoader extends AbstractServerLoader implem
   }
 
   @Override
-  public GlobalRepositories load() {
+  public GlobalRepositories load(@Nullable MutableBoolean fromCache) {
     WSLoaderResult<String> result = wsLoader.loadString(BATCH_GLOBAL_URL);
-    super.loadedFromCache = result.isFromCache();
+    if (fromCache != null) {
+      fromCache.setValue(result.isFromCache());
+    }
     return GlobalRepositories.fromJson(result.get());
   }
-
 }

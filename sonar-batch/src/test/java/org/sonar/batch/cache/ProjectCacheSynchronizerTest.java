@@ -20,6 +20,10 @@
 package org.sonar.batch.cache;
 
 import static org.mockito.Mockito.when;
+
+import org.sonar.batch.protocol.input.ProjectRepositories;
+
+import org.apache.commons.lang.mutable.MutableBoolean;
 import org.sonar.batch.issue.tracking.DefaultServerLineHashesLoader;
 import org.sonar.batch.repository.DefaultServerIssuesLoader;
 import org.sonar.batch.scan.ProjectAnalysisMode;
@@ -35,8 +39,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Matchers.anyString;
-
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import com.google.common.io.Resources;
@@ -75,6 +80,8 @@ public class ProjectCacheSynchronizerTest {
   private ServerLineHashesLoader lineHashesLoader;
   private UserRepositoryLoader userRepositoryLoader;
 
+  private ProjectCacheSynchronizer sync;
+
   @Before
   public void setUp() throws IOException {
     MockitoAnnotations.initMocks(this);
@@ -98,12 +105,13 @@ public class ProjectCacheSynchronizerTest {
     issuesLoader = new DefaultServerIssuesLoader(ws);
     lineHashesLoader = new DefaultServerLineHashesLoader(ws);
     userRepositoryLoader = new UserRepositoryLoader(ws);
+
+    sync = new ProjectCacheSynchronizer(projectReactor, projectRepositoryLoader, properties, issuesLoader, lineHashesLoader, userRepositoryLoader,
+      cacheStatus);
   }
 
   @Test
   public void testSync() {
-    ProjectCacheSynchronizer sync = new ProjectCacheSynchronizer(projectReactor, projectRepositoryLoader, properties, issuesLoader, lineHashesLoader, userRepositoryLoader,
-      cacheStatus);
     sync.load(false);
 
     verify(ws).loadString(BATCH_PROJECT);
@@ -113,6 +121,20 @@ public class ProjectCacheSynchronizerTest {
     verifyNoMoreInteractions(ws);
 
     verify(cacheStatus).save(anyString());
+  }
+
+  @Test
+  public void testSyncNoLastAnalysis() {
+    projectRepositoryLoader = mock(DefaultProjectRepositoriesLoader.class);
+    ProjectRepositories mockedProjectRepositories = mock(ProjectRepositories.class);
+    when(mockedProjectRepositories.lastAnalysisDate()).thenReturn(null);
+    when(projectRepositoryLoader.load(any(ProjectDefinition.class), any(AnalysisProperties.class), any(MutableBoolean.class))).thenReturn(mockedProjectRepositories);
+
+    sync = new ProjectCacheSynchronizer(projectReactor, projectRepositoryLoader, properties, issuesLoader, lineHashesLoader, userRepositoryLoader,
+      cacheStatus);
+    sync.load(true);
+
+    verify(cacheStatus).save("org.codehaus.sonar-plugins:sonar-scm-git-plugin");
   }
 
   @Test

@@ -19,8 +19,11 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import org.sonar.batch.bootstrap.WSLoaderResult;
+import org.apache.commons.lang.mutable.MutableBoolean;
 
+import javax.annotation.Nullable;
+
+import org.sonar.batch.bootstrap.WSLoaderResult;
 import org.sonar.batch.util.BatchUtils;
 import org.sonar.batch.bootstrap.WSLoader;
 import com.google.common.base.Splitter;
@@ -37,17 +40,20 @@ public class DefaultServerLineHashesLoader implements ServerLineHashesLoader {
   }
 
   @Override
-  public String[] getLineHashes(String fileKey) {
-    String hashesFromWs = loadHashesFromWs(fileKey);
+  public String[] getLineHashes(String fileKey, @Nullable MutableBoolean fromCache) {
+    String hashesFromWs = loadHashesFromWs(fileKey, fromCache);
     return Iterators.toArray(Splitter.on('\n').split(hashesFromWs).iterator(), String.class);
   }
 
-  private String loadHashesFromWs(String fileKey) {
+  private String loadHashesFromWs(String fileKey, @Nullable MutableBoolean fromCache) {
     Profiler profiler = Profiler.createIfDebug(Loggers.get(getClass()))
       .addContext("file", fileKey)
       .startDebug("Load line hashes");
     WSLoaderResult<String> result = wsLoader.loadString("/api/sources/hash?key=" + BatchUtils.encodeForUrl(fileKey));
     try {
+      if (fromCache != null) {
+        fromCache.setValue(result.isFromCache());
+      }
       return result.get();
     } finally {
       if (result.isFromCache()) {

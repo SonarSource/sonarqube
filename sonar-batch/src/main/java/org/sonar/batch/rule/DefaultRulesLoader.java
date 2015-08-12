@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.rule;
 
-import org.sonar.batch.bootstrap.AbstractServerLoader;
+import javax.annotation.Nullable;
 
+import org.apache.commons.lang.mutable.MutableBoolean;
 import org.sonar.batch.bootstrap.WSLoaderResult;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 import com.google.common.io.ByteSource;
@@ -32,7 +33,7 @@ import java.util.List;
 
 import org.sonar.batch.bootstrap.WSLoader;
 
-public class DefaultRulesLoader extends AbstractServerLoader implements RulesLoader {
+public class DefaultRulesLoader implements RulesLoader {
   private static final String RULES_SEARCH_URL = "/api/rules/list";
 
   private final WSLoader wsLoader;
@@ -42,10 +43,12 @@ public class DefaultRulesLoader extends AbstractServerLoader implements RulesLoa
   }
 
   @Override
-  public List<Rule> load() {
+  public List<Rule> load(@Nullable MutableBoolean fromCache) {
     WSLoaderResult<ByteSource> result = wsLoader.loadSource(RULES_SEARCH_URL);
     ListResponse list = loadFromSource(result.get());
-    super.loadedFromCache = result.isFromCache();
+    if (fromCache != null) {
+      fromCache.setValue(result.isFromCache());
+    }
     return list.getRulesList();
   }
 

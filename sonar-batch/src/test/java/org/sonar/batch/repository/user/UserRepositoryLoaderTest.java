@@ -19,8 +19,11 @@
  */
 package org.sonar.batch.repository.user;
 
-import com.google.common.collect.ImmutableMap;
+import org.junit.Before;
 
+import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang.mutable.MutableBoolean;
+import com.google.common.collect.ImmutableMap;
 import org.junit.rules.ExpectedException;
 import org.junit.Rule;
 import org.mockito.Mockito;
@@ -37,6 +40,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Map;
 
+import static org.mockito.Matchers.anyString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
@@ -46,11 +50,17 @@ public class UserRepositoryLoaderTest {
   @Rule
   public final ExpectedException exception = ExpectedException.none();
 
+  private WSLoader wsLoader;
+  private UserRepositoryLoader userRepo;
+
+  @Before
+  public void setUp() {
+    wsLoader = mock(WSLoader.class);
+    userRepo = new UserRepositoryLoader(wsLoader);
+  }
+
   @Test
   public void testLoad() throws IOException {
-    WSLoader wsLoader = mock(WSLoader.class);
-    UserRepositoryLoader userRepo = new UserRepositoryLoader(wsLoader);
-
     Map<String, String> userMap = ImmutableMap.of("fmallet", "Freddy Mallet", "sbrandhof", "Simon");
     WSLoaderResult<ByteSource> res = new WSLoaderResult<>(createUsersMock(userMap), true);
     when(wsLoader.loadSource("/batch/users?logins=fmallet,sbrandhof")).thenReturn(res);
@@ -59,10 +69,20 @@ public class UserRepositoryLoaderTest {
   }
 
   @Test
-  public void testLoadSingleUser() throws IOException {
-    WSLoader wsLoader = mock(WSLoader.class);
-    UserRepositoryLoader userRepo = new UserRepositoryLoader(wsLoader);
+  public void testFromCache() throws IOException {
+    WSLoaderResult<ByteSource> res = new WSLoaderResult<>(createUsersMock(ImmutableMap.of("fmallet", "Freddy Mallet")), true);
+    when(wsLoader.loadSource(anyString())).thenReturn(res);
+    MutableBoolean fromCache = new MutableBoolean();
+    userRepo.load("", fromCache);
+    assertThat(fromCache.booleanValue()).isTrue();
 
+    fromCache.setValue(false);
+    userRepo.load(ImmutableList.of("user"), fromCache);
+    assertThat(fromCache.booleanValue()).isTrue();
+  }
+
+  @Test
+  public void testLoadSingleUser() throws IOException {
     WSLoaderResult<ByteSource> res = new WSLoaderResult<>(createUsersMock(ImmutableMap.of("fmallet", "Freddy Mallet")), true);
     when(wsLoader.loadSource("/batch/users?logins=fmallet")).thenReturn(res);
 
@@ -83,8 +103,6 @@ public class UserRepositoryLoaderTest {
 
   @Test
   public void testInputStreamError() throws IOException {
-    WSLoader wsLoader = mock(WSLoader.class);
-    UserRepositoryLoader userRepo = new UserRepositoryLoader(wsLoader);
     ByteSource source = mock(ByteSource.class);
 
     WSLoaderResult<ByteSource> res = new WSLoaderResult<>(source, true);

@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.repository;
 
+import org.apache.commons.lang.mutable.MutableBoolean;
+
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -34,8 +36,9 @@ public class GlobalRepositoriesProvider extends ProviderAdapter {
   public GlobalRepositories provide(GlobalRepositoriesLoader loader) {
     if (globalReferentials == null) {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      globalReferentials = loader.load();
-      profiler.stopInfo(loader.loadedFromCache());
+      MutableBoolean fromCache = new MutableBoolean();
+      globalReferentials = loader.load(fromCache);
+      profiler.stopInfo(fromCache.booleanValue());
     }
     return globalReferentials;
   }

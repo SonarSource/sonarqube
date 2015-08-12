@@ -19,12 +19,14 @@
  */
 package org.sonar.batch.repository;
 
+import org.apache.commons.lang.mutable.MutableBoolean;
+
+import javax.annotation.Nullable;
+
 import org.sonar.batch.protocol.input.GlobalRepositories;
 
 public interface GlobalRepositoriesLoader {
 
-  GlobalRepositories load();
-
-  boolean loadedFromCache();
+  GlobalRepositories load(@Nullable MutableBoolean fromCache);
 
 }

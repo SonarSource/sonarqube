@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.scan.ProjectAnalysisMode;
+import org.apache.commons.lang.mutable.MutableBoolean;
 
+import org.sonar.batch.scan.ProjectAnalysisMode;
 import org.apache.commons.io.IOUtils;
 import org.sonar.batch.bootstrap.WSLoaderResult;
 import com.google.common.collect.Maps;
@@ -72,11 +73,11 @@ public class DefaultProjectRepositoriesLoaderTest {
     addQualityProfile();
     project = ProjectDefinition.create().setKey("foo");
     when(analysisMode.isIssues()).thenReturn(false);
-    loader.load(project, taskProperties);
+    loader.load(project, taskProperties, null);
     verify(wsLoader).loadString("/batch/project?key=foo&preview=false");
 
     when(analysisMode.isIssues()).thenReturn(true);
-    loader.load(project, taskProperties);
+    loader.load(project, taskProperties, null);
     verify(wsLoader).loadString("/batch/project?key=foo&preview=true");
   }
 
@@ -84,10 +85,12 @@ public class DefaultProjectRepositoriesLoaderTest {
   public void deserializeResponse() throws IOException {
     String resourceName = this.getClass().getSimpleName() + "/sample_response.json";
     String response = IOUtils.toString(this.getClass().getResourceAsStream(resourceName));
-    when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult<>(response, false));
+    when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult<>(response, true));
     project = ProjectDefinition.create().setKey("foo");
-    ProjectRepositories projectRepo = loader.load(project, taskProperties);
+    MutableBoolean fromCache = new MutableBoolean();
+    ProjectRepositories projectRepo = loader.load(project, taskProperties, fromCache);
 
+    assertThat(fromCache.booleanValue()).isTrue();
     assertThat(projectRepo.activeRules().size()).isEqualTo(221);
     assertThat(projectRepo.fileDataByPath("my:project").size()).isEqualTo(11);
 
@@ -97,7 +100,7 @@ public class DefaultProjectRepositoriesLoaderTest {
   public void passAndEncodeProjectKeyParameter() {
     addQualityProfile();
     project = ProjectDefinition.create().setKey("foo bàr");
-    loader.load(project, taskProperties);
+    loader.load(project, taskProperties, null);
     verify(wsLoader).loadString("/batch/project?key=foo+b%C3%A0r&preview=false");
   }
 
@@ -106,7 +109,7 @@ public class DefaultProjectRepositoriesLoaderTest {
     addQualityProfile();
     project = ProjectDefinition.create().setKey("foo");
     taskProperties.properties().put(ModuleQProfiles.SONAR_PROFILE_PROP, "my-profile#2");
-    loader.load(project, taskProperties);
+    loader.load(project, taskProperties, null);
     verify(wsLoader).loadString("/batch/project?key=foo&profile=my-profile%232&preview=false");
   }
 
@@ -118,7 +121,7 @@ public class DefaultProjectRepositoriesLoaderTest {
     project = ProjectDefinition.create().setKey("foo");
     when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult<>(new ProjectRepositories().toJson(), true));
 
-    loader.load(project, taskProperties);
+    loader.load(project, taskProperties, null);
   }
 
   private void addQualityProfile() {

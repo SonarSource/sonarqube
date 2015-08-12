@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.cache;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.mutable.MutableBoolean;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Loggers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,6 @@ public class ProjectCacheSynchronizer {
   }
 
   public void load(boolean force) {
-    Profiler profiler = Profiler.create(Loggers.get(ProjectCacheSynchronizer.class));
     Date lastSync = cacheStatus.getSyncStatus(project.getKeyWithBranch());
 
     if (lastSync != null) {
@@ -74,43 +74,50 @@ public class ProjectCacheSynchronizer {
         LOG.info("Found project [{}] cache [{}]", project.getKeyWithBranch(), lastSync);
         return;
       } else {
-        LOG.info("Found project [{}] cache [{}], refreshing data..", project.getKeyWithBranch(), lastSync);
+        LOG.info("-- Found project [{}] cache [{}], synchronizing data..", project.getKeyWithBranch(), lastSync);
       }
       cacheStatus.delete(project.getKeyWithBranch());
     } else {
-      LOG.info("Cache for project [{}] not found, fetching data..", project.getKeyWithBranch());
+      LOG.info("-- Cache for project [{}] not found, synchronizing data..", project.getKeyWithBranch());
     }
 
+    loadData();
+    saveStatus();
+  }
+
+  private void saveStatus() {
+    cacheStatus.save(project.getKeyWithBranch());
+    LOG.info("-- Succesfully synchronized project cache");
+  }
+
+  private static String getComponentKey(String moduleKey, String filePath) {
+    return moduleKey + ":" + filePath;
+  }
+
+  private void loadData() {
+    Profiler profiler = Profiler.create(Loggers.get(ProjectCacheSynchronizer.class));
     profiler.startInfo("Load project repository");
-    ProjectRepositories projectRepo = projectRepositoryLoader.load(project, properties);
-    profiler.stopInfo(projectRepositoryLoader.loadedFromCache());
+    MutableBoolean fromCache = new MutableBoolean();
+    ProjectRepositories projectRepo = projectRepositoryLoader.load(project, properties, fromCache);
+    profiler.stopInfo(fromCache.booleanValue());
 
     if (projectRepo.lastAnalysisDate() == null) {
       LOG.debug("No previous analysis found");
-      LOG.info("Succesfully synchronized project cache");
       return;
     }
 
     profiler.startInfo("Load server issues");
     UserLoginAccumulator consumer = new UserLoginAccumulator();
-    boolean fromCache = issuesLoader.load(project.getKeyWithBranch(), consumer);
-    profiler.stopInfo(fromCache);
+    boolean isFromCache = issuesLoader.load(project.getKeyWithBranch(), consumer);
+    profiler.stopInfo(isFromCache);
 
     profiler.startInfo("Load user information (" + consumer.loginSet.size() + " users)");
     for (String login : consumer.loginSet) {
-      userRepository.load(login);
+      userRepository.load(login, null);
     }
-    stopInfo(profiler, "Load user information", fromCache);
+    stopInfo(profiler, "Load user information", isFromCache);
 
     loadLineHashes(projectRepo.fileDataByModuleAndPath(), profiler);
-    
-    cacheStatus.save(project.getKeyWithBranch());
-
-    LOG.info("Succesfully synchronized project cache");
-  }
-
-  private String getComponentKey(String moduleKey, String filePath) {
-    return moduleKey + ":" + filePath;
   }
 
   private void loadLineHashes(Map<String, Map<String, FileData>> fileDataByModuleAndPath, Profiler profiler) {
@@ -127,7 +134,7 @@ public class ProjectCacheSynchronizer {
 
       for (Entry<String, FileData> e2 : e1.getValue().entrySet()) {
         String filePath = e2.getKey();
-        lineHashesLoader.getLineHashes(getComponentKey(moduleKey, filePath));
+        lineHashesLoader.getLineHashes(getComponentKey(moduleKey, filePath), null);
       }
     }
 

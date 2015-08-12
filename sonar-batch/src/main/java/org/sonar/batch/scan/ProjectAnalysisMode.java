@@ -83,7 +83,9 @@ public class ProjectAnalysisMode implements AnalysisMode {
     preview = CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
     issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode);
     mediumTestMode = "true".equals(getPropertyWithFallback(analysisProps, globalProps, FakePluginInstaller.MEDIUM_TEST_ENABLED));
-
+  }
+  
+  public void printMode() {
     if (preview) {
       LOG.info("Preview mode");
     } else if (issues) {

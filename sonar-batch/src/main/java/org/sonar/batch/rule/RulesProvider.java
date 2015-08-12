@@ -19,9 +19,10 @@
  */
 package org.sonar.batch.rule;
 
+import org.apache.commons.lang.mutable.MutableBoolean;
+
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-
 import org.sonar.api.utils.log.Profiler;
 
 import java.util.List;
@@ -47,7 +48,8 @@ public class RulesProvider extends ProviderAdapter {
 
   private static Rules load(RulesLoader ref) {
     Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-    List<Rule> loadedRules = ref.load();
+    MutableBoolean fromCache = new MutableBoolean();
+    List<Rule> loadedRules = ref.load(fromCache);
     RulesBuilder builder = new RulesBuilder();
 
     for (Rule r : loadedRules) {
@@ -56,7 +58,7 @@ public class RulesProvider extends ProviderAdapter {
       newRule.setInternalKey(r.getInternalKey());
     }
 
-    profiler.stopInfo(ref.loadedFromCache());
+    profiler.stopInfo(fromCache.booleanValue());
 
     return builder.build();
   }

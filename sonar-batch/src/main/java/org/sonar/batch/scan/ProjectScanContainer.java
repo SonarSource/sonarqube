@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.cache.ProjectSyncContainer;
-
 import org.sonar.batch.repository.user.UserRepositoryLoader;
 import org.sonar.batch.issue.tracking.DefaultServerLineHashesLoader;
 import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
@@ -126,13 +124,6 @@ public class ProjectScanContainer extends ComponentContainer {
     return env != null && "SonarRunner".equals(env.getKey());
   }
 
-  private void doProjectSync() {
-    ProjectAnalysisMode mode = getComponentByType(ProjectAnalysisMode.class);
-    if (mode.isIssues()) {
-      new ProjectSyncContainer(getParent(), props, false).execute();
-    }
-  }
-
   private void addBatchComponents() {
     add(
       props,
@@ -223,10 +214,12 @@ public class ProjectScanContainer extends ComponentContainer {
 
   @Override
   protected void doAfterStart() {
+    ProjectAnalysisMode analysisMode = getComponentByType(ProjectAnalysisMode.class);
+    analysisMode.printMode();
     LOG.debug("Start recursive analysis of project modules");
     DefaultProjectTree tree = getComponentByType(DefaultProjectTree.class);
     scanRecursively(tree.getRootProject());
-    if (getComponentByType(ProjectAnalysisMode.class).isMediumTest()) {
+    if (analysisMode.isMediumTest()) {
       getComponentByType(ScanTaskObservers.class).notifyEndOfScanTask();
     }
   }

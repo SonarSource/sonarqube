@@ -22,8 +22,9 @@ package org.sonar.batch.rule;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.sonar.batch.bootstrap.WSLoaderResult;
+import org.apache.commons.lang.mutable.MutableBoolean;
 
+import org.sonar.batch.bootstrap.WSLoaderResult;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Resources;
@@ -43,7 +44,7 @@ public class DefaultRulesLoaderTest {
     ByteSource source = Resources.asByteSource(this.getClass().getResource("DefaultRulesLoader/response.protobuf"));
     when(wsLoader.loadSource(anyString())).thenReturn(new WSLoaderResult<>(source, true));
     DefaultRulesLoader loader = new DefaultRulesLoader(wsLoader);
-    List<Rule> ruleList = loader.load();
+    List<Rule> ruleList = loader.load(null);
     assertThat(ruleList).hasSize(318);
   }
 
@@ -53,14 +54,10 @@ public class DefaultRulesLoaderTest {
     ByteSource source = Resources.asByteSource(this.getClass().getResource("DefaultRulesLoader/response.protobuf"));
     when(wsLoader.loadSource(anyString())).thenReturn(new WSLoaderResult<>(source, true));
     DefaultRulesLoader loader = new DefaultRulesLoader(wsLoader);
-    loader.load();
+    MutableBoolean fromCache = new MutableBoolean();
+    loader.load(fromCache);
 
-    assertThat(loader.loadedFromCache()).isTrue();
+    assertThat(fromCache.booleanValue()).isTrue();
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void testGetLoadedFromCacheBefore() {
-    DefaultRulesLoader loader = new DefaultRulesLoader(mock(WSLoader.class));
-    loader.loadedFromCache();
-  }
 }

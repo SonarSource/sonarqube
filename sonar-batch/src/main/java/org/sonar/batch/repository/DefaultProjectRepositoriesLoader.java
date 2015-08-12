@@ -19,10 +19,11 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.scan.ProjectAnalysisMode;
+import javax.annotation.Nullable;
 
+import org.apache.commons.lang.mutable.MutableBoolean;
+import org.sonar.batch.scan.ProjectAnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.batch.bootstrap.AbstractServerLoader;
 import org.sonar.batch.bootstrap.WSLoaderResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.util.BatchUtils;
 
-public class DefaultProjectRepositoriesLoader extends AbstractServerLoader implements ProjectRepositoriesLoader {
+public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoader {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultProjectRepositoriesLoader.class);
   private static final String BATCH_PROJECT_URL = "/batch/project";
@@ -47,7 +48,7 @@ public class DefaultProjectRepositoriesLoader extends AbstractServerLoader imple
   }
 
   @Override
-  public ProjectRepositories load(ProjectDefinition projectDefinition, AnalysisProperties taskProperties) {
+  public ProjectRepositories load(ProjectDefinition projectDefinition, AnalysisProperties taskProperties, @Nullable MutableBoolean fromCache) {
     String projectKey = projectDefinition.getKeyWithBranch();
     String url = BATCH_PROJECT_URL + "?key=" + BatchUtils.encodeForUrl(projectKey);
     if (taskProperties.properties().containsKey(ModuleQProfiles.SONAR_PROFILE_PROP)) {
@@ -56,15 +57,18 @@ public class DefaultProjectRepositoriesLoader extends AbstractServerLoader imple
       url += "&profile=" + BatchUtils.encodeForUrl(taskProperties.properties().get(ModuleQProfiles.SONAR_PROFILE_PROP));
     }
     url += "&preview=" + analysisMode.isIssues();
-    ProjectRepositories projectRepositories = ProjectRepositories.fromJson(load(url));
+
+    ProjectRepositories projectRepositories = load(url, fromCache);
     validateProjectRepositories(projectRepositories);
     return projectRepositories;
   }
 
-  private String load(String resource) {
+  private ProjectRepositories load(String resource, @Nullable MutableBoolean fromCache) {
     WSLoaderResult<String> result = wsLoader.loadString(resource);
-    super.loadedFromCache = result.isFromCache();
-    return result.get();
+    if(fromCache != null) {
+      fromCache.setValue(result.isFromCache());
+    }
+    return ProjectRepositories.fromJson(result.get());
   }
 
   private static void validateProjectRepositories(ProjectRepositories projectRepositories) {

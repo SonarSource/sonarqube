@@ -17,15 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.bootstrap;
+@ParametersAreNonnullByDefault
+package org.sonar.batch.cache;
 
-public class AbstractServerLoader {
-  protected Boolean loadedFromCache = null;
-
-  public boolean loadedFromCache() {
-    if (loadedFromCache == null) {
-      throw new IllegalStateException("Didn't load");
-    }
-    return loadedFromCache;
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;
