@@ -80,6 +80,15 @@ public abstract class PathAwareCrawler<T> extends PathAwareVisitorAdapter<T> imp
       case FILE:
         visitFile(component, stack);
         break;
+      case VIEW:
+        visitView(component, stack);
+        break;
+      case SUBVIEW:
+        visitSubView(component, stack);
+        break;
+      case PROJECT_VIEW:
+        visitProjectView(component, stack);
+        break;
       default:
         visitUnknown(component, stack);
     }

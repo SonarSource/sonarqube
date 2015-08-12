@@ -45,6 +45,21 @@ public interface TypeAwareVisitor extends ComponentVisitor {
   void visitFile(Component file);
 
   /**
+   * Called when encountering a Component of type {@link Component.Type#VIEW}
+   */
+  void visitView(Component view);
+
+  /**
+   * Called when encountering a Component of type {@link Component.Type#SUBVIEW}
+   */
+  void visitSubView(Component subView);
+
+  /**
+   * Called when encountering a Component of type {@link Component.Type#PROJECT_VIEW}
+   */
+  void visitProjectView(Component projectView);
+
+  /**
    * Called for any component, <strong>in addition</strong> to the methods specific to each type
    */
   void visitAny(Component any);

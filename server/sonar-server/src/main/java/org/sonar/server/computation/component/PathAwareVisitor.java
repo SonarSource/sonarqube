@@ -31,16 +31,49 @@ public interface PathAwareVisitor<T> extends ComponentVisitor {
 
   StackElementFactory<T> getFactory();
 
+  /**
+   * Called when encountering a Component of type {@link Component.Type#PROJECT}
+   */
   void visitProject(Component project, Path<T> path);
 
+  /**
+   * Called when encountering a Component of type {@link Component.Type#MODULE}
+   */
   void visitModule(Component module, Path<T> path);
 
+  /**
+   * Called when encountering a Component of type {@link Component.Type#DIRECTORY}
+   */
   void visitDirectory(Component directory, Path<T> path);
 
+  /**
+   * Called when encountering a Component of type {@link Component.Type#FILE}
+   */
   void visitFile(Component file, Path<T> path);
 
+  /**
+   * Called when encountering a Component of type {@link Component.Type#VIEW}
+   */
+  void visitView(Component view, Path<T> path);
+
+  /**
+   * Called when encountering a Component of type {@link Component.Type#SUBVIEW}
+   */
+  void visitSubView(Component subView, Path<T> path);
+
+  /**
+   * Called when encountering a Component of type {@link Component.Type#PROJECT_VIEW}
+   */
+  void visitProjectView(Component projectView, Path<T> path);
+
+  /**
+   * Called when encountering a Component which type has no visit method in this interface.
+   */
   void visitUnknown(Component unknownComponent, Path<T> path);
 
+  /**
+   * Called for any component, <strong>in addition</strong> to the methods specific to each type
+   */
   void visitAny(Component component, Path<T> path);
 
   interface StackElementFactory<T> {
@@ -51,6 +84,12 @@ public interface PathAwareVisitor<T> extends ComponentVisitor {
     T createForDirectory(Component directory);
 
     T createForFile(Component file);
+
+    T createForView(Component view);
+
+    T createForSubView(Component subView);
+
+    T createForProjectView(Component projectView);
 
     T createForUnknown(Component file);
   }

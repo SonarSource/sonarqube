@@ -72,6 +72,21 @@ public abstract class PathAwareVisitorAdapter<T> implements PathAwareVisitor<T> 
   }
 
   @Override
+  public void visitView(Component view, Path<T> path) {
+    // empty implementation, meant to be override at will by subclasses
+  }
+
+  @Override
+  public void visitSubView(Component subView, Path<T> path) {
+    // empty implementation, meant to be override at will by subclasses
+  }
+
+  @Override
+  public void visitProjectView(Component projectView, Path<T> path) {
+    // empty implementation, meant to be override at will by subclasses
+  }
+
+  @Override
   public void visitUnknown(Component unknownComponent, Path<T> path) {
     // empty implementation, meant to be override at will by subclasses
   }
@@ -107,6 +122,21 @@ public abstract class PathAwareVisitorAdapter<T> implements PathAwareVisitor<T> 
     @Override
     public T createForFile(Component file) {
       return createForAny(file);
+    }
+
+    @Override
+    public T createForView(Component view) {
+      return createForAny(view);
+    }
+
+    @Override
+    public T createForSubView(Component subView) {
+      return createForAny(subView);
+    }
+
+    @Override
+    public T createForProjectView(Component projectView) {
+      return createForAny(projectView);
     }
 
     @Override

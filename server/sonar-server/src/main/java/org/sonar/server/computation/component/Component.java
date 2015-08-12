@@ -19,12 +19,17 @@
  */
 package org.sonar.server.computation.component;
 
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import org.sonar.server.computation.step.FillComponentsStep;
 
 public interface Component {
   enum Type {
-    PROJECT(0), MODULE(1), DIRECTORY(2), FILE(3);
+    PROJECT(0), MODULE(1), DIRECTORY(2), FILE(3), VIEW(0), SUBVIEW(1), PROJECT_VIEW(2);
+
+    private static final Set<Type> REPORT_TYPES = EnumSet.of(PROJECT, MODULE, DIRECTORY, FILE);
+    private static final Set<Type> VIEWS_TYPES = EnumSet.of(VIEW, SUBVIEW, PROJECT_VIEW);
 
     private final int depth;
 
@@ -42,6 +47,14 @@ public interface Component {
 
     public boolean isHigherThan(Type otherType) {
       return this.getDepth() < otherType.getDepth();
+    }
+
+    public boolean isReportType() {
+      return REPORT_TYPES.contains(this);
+    }
+
+    public boolean isViewsType() {
+      return VIEWS_TYPES.contains(this);
     }
   }
 

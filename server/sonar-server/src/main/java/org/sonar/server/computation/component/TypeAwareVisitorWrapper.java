@@ -59,6 +59,21 @@ public class TypeAwareVisitorWrapper implements VisitorWrapper {
   }
 
   @Override
+  public void visitView(Component view) {
+    delegate.visitView(view);
+  }
+
+  @Override
+  public void visitSubView(Component subView) {
+    delegate.visitSubView(subView);
+  }
+
+  @Override
+  public void visitProjectView(Component projectView) {
+    delegate.visitProjectView(projectView);
+  }
+
+  @Override
   public void visitAny(Component component) {
     delegate.visitAny(component);
   }

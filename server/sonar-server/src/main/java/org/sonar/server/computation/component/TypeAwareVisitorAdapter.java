@@ -78,6 +78,30 @@ public abstract class TypeAwareVisitorAdapter implements TypeAwareVisitor {
   }
 
   /**
+   * Called when encountering a Component of type {@link Component.Type#VIEW}
+   */
+  @Override
+  public void visitView(Component view) {
+    // empty implementation, meant to be override at will by subclasses
+  }
+
+  /**
+   * Called when encountering a Component of type {@link Component.Type#SUBVIEW}
+   */
+  @Override
+  public void visitSubView(Component subView) {
+    // empty implementation, meant to be override at will by subclasses
+  }
+
+  /**
+   * Called when encountering a Component of type {@link Component.Type#PROJECT_VIEW}
+   */
+  @Override
+  public void visitProjectView(Component projectView) {
+    // empty implementation, meant to be override at will by subclasses
+  }
+
+  /**
    * Called for any component, <strong>in addition</strong> to the methods specific to each type
    */
   @Override

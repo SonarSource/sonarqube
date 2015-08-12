@@ -61,6 +61,21 @@ public class PathAwareVisitorWrapper<T> implements VisitorWrapper {
   }
 
   @Override
+  public void visitView(Component view) {
+    delegate.visitView(view, stack);
+  }
+
+  @Override
+  public void visitSubView(Component subView) {
+    delegate.visitSubView(subView, stack);
+  }
+
+  @Override
+  public void visitProjectView(Component projectView) {
+    delegate.visitProjectView(projectView, stack);
+  }
+
+  @Override
   public void visitAny(Component component) {
     delegate.visitAny(component, stack);
   }

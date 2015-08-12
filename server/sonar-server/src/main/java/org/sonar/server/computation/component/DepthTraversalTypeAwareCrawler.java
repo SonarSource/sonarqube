@@ -63,6 +63,15 @@ public abstract class DepthTraversalTypeAwareCrawler extends TypeAwareVisitorAda
       case FILE:
         visitFile(component);
         break;
+      case VIEW:
+        visitView(component);
+        break;
+      case SUBVIEW:
+        visitSubView(component);
+        break;
+      case PROJECT_VIEW:
+        visitProjectView(component);
+        break;
       default:
         visitUnknown(component);
     }
@@ -77,32 +86,8 @@ public abstract class DepthTraversalTypeAwareCrawler extends TypeAwareVisitorAda
   }
 
   @Override
-  public void visitProject(Component project) {
-    // empty implementation, meant to be override at will by subclasses
-  }
-
-  @Override
-  public void visitModule(Component module) {
-    // empty implementation, meant to be override at will by subclasses
-  }
-
-  @Override
-  public void visitDirectory(Component directory) {
-    // empty implementation, meant to be override at will by subclasses
-  }
-
-  @Override
-  public void visitFile(Component file) {
-    // empty implementation, meant to be override at will by subclasses
-  }
-
-  @Override
   public void visitUnknown(Component unknownComponent) {
     // empty implementation, meant to be override at will by subclasses
   }
 
-  @Override
-  public void visitAny(Component component) {
-    // empty implementation, meant to be override at will by subclasses
-  }
 }
