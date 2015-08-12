@@ -208,6 +208,21 @@ public class RemoveGroupActionTest {
       .execute();
   }
 
+  @Test
+  public void fail_when_project_uuid_and_project_key_are_provided() throws Exception {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Project id or project key can be provided, not both.");
+    insertComponent(newProjectDto("project-uuid").setKey("project-key"));
+    commit();
+
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, "sonar-administrators")
+      .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
+      .setParam(PARAM_PROJECT_UUID, "project-uuid")
+      .setParam(PARAM_PROJECT_KEY, "project-key")
+      .execute();
+  }
+
   private WsTester.TestRequest newRequest() {
     return ws.newPostRequest(PermissionsWs.ENDPOINT, ACTION);
   }

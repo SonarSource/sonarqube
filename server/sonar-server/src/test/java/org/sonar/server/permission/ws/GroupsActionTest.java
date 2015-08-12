@@ -52,6 +52,7 @@ import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -190,6 +191,19 @@ public class GroupsActionTest {
     expectedException.expect(IllegalArgumentException.class);
 
     ws.newRequest()
+      .execute();
+  }
+
+  @Test
+  public void fail_if_project_uuid_and_project_key_are_provided() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Project id or project key can be provided, not both.");
+    dbClient.componentDao().insert(dbSession, newProjectDto("project-uuid").setKey("project-key"));
+
+    ws.newRequest()
+      .setParam(PARAM_PERMISSION, SCAN_EXECUTION)
+      .setParam(PARAM_PROJECT_UUID, "project-uuid")
+      .setParam(PARAM_PROJECT_KEY, "project-key")
       .execute();
   }
 

@@ -20,9 +20,11 @@
 
 package org.sonar.server.permission.ws;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSortedSet;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
@@ -131,7 +133,8 @@ public class PermissionWsCommons {
     checkPermissionAndProjectParameters(permissionChange.permission(), Optional.fromNullable(project));
   }
 
-  private static void checkProjectUuidAndProjectKeyAreNotBothProvided(Request request) {
+  @VisibleForTesting
+  static void checkProjectUuidAndProjectKeyAreNotBothProvided(Request request) {
     if (paramProjectUuid(request) != null && paramProjectKey(request) != null) {
       throw new BadRequestException("Project id or project key can be provided, not both.");
     }
@@ -156,6 +159,7 @@ public class PermissionWsCommons {
     DbSession dbSession = dbClient.openSession(false);
     try {
       if (isProjectUuidOrProjectKeyProvided(request)) {
+        checkProjectUuidAndProjectKeyAreNotBothProvided(request);
         return Optional.of(componentFinder.getProjectByUuidOrKey(dbSession, projectUuid, projectKey));
       }
       return Optional.absent();
@@ -198,10 +202,12 @@ public class PermissionWsCommons {
       .setPossibleValues(POSSIBLE_PERMISSIONS);
   }
 
+  @CheckForNull
   private static String paramProjectUuid(Request request) {
     return request.param(PARAM_PROJECT_UUID);
   }
 
+  @CheckForNull
   private static String paramProjectKey(Request request) {
     return request.param(PARAM_PROJECT_KEY);
   }
