@@ -96,7 +96,7 @@ public class PermissionWsCommons {
       PermissionChange permissionChange = new PermissionChange()
         .setPermission(permission)
         .setUserLogin(userLogin);
-      addProjectToPermissionChange(dbSession, permissionChange, request.param(PARAM_PROJECT_UUID), request.param(PARAM_PROJECT_KEY));
+      addProjectToPermissionChange(dbSession, request, permissionChange);
 
       return permissionChange;
     } finally {
@@ -109,27 +109,32 @@ public class PermissionWsCommons {
     String permission = request.mandatoryParam(PARAM_PERMISSION);
     String groupNameParam = request.param(PARAM_GROUP_NAME);
     Long groupId = request.paramAsLong(PARAM_GROUP_ID);
-    String projectUuid = request.param(PARAM_PROJECT_UUID);
-    String projectKey = request.param(PARAM_PROJECT_KEY);
 
     String groupName = searchGroupName(dbSession, groupNameParam, groupId);
 
     PermissionChange permissionChange = new PermissionChange()
       .setPermission(permission)
       .setGroupName(groupName);
-    addProjectToPermissionChange(dbSession, permissionChange, projectUuid, projectKey);
+    addProjectToPermissionChange(dbSession, request, permissionChange);
 
     return permissionChange;
   }
 
-  private void addProjectToPermissionChange(DbSession dbSession, PermissionChange permissionChange, @Nullable String projectUuid, @Nullable String projectKey) {
+  private void addProjectToPermissionChange(DbSession dbSession, Request request, PermissionChange permissionChange) {
     ComponentDto project = null;
-    if (isProjectUuidOrProjectKeyProvided(projectUuid, projectKey)) {
-      project = componentFinder.getProjectByUuidOrKey(dbSession, projectUuid, projectKey);
+    if (isProjectUuidOrProjectKeyProvided(request)) {
+      checkProjectUuidAndProjectKeyAreNotBothProvided(request);
+      project = componentFinder.getProjectByUuidOrKey(dbSession, paramProjectUuid(request), paramProjectKey(request));
       permissionChange.setComponentKey(project.key());
     }
 
     checkPermissionAndProjectParameters(permissionChange.permission(), Optional.fromNullable(project));
+  }
+
+  private static void checkProjectUuidAndProjectKeyAreNotBothProvided(Request request) {
+    if (paramProjectUuid(request) != null && paramProjectKey(request) != null) {
+      throw new BadRequestException("Project id or project key can be provided, not both.");
+    }
   }
 
   private static void checkParameters(@Nullable String groupName, @Nullable Long groupId) {
@@ -140,17 +145,17 @@ public class PermissionWsCommons {
     throw new BadRequestException("Group name or group id must be provided, not both");
   }
 
-  static boolean isProjectUuidOrProjectKeyProvided(@Nullable String projectUuid, @Nullable String projectKey) {
-    return projectUuid != null || projectKey != null;
+  static boolean isProjectUuidOrProjectKeyProvided(Request request) {
+    return paramProjectUuid(request) != null || paramProjectKey(request) != null;
   }
 
   Optional<ComponentDto> searchProject(Request request) {
-    String projectUuid = request.param(PARAM_PROJECT_UUID);
-    String projectKey = request.param(PARAM_PROJECT_KEY);
+    String projectUuid = paramProjectUuid(request);
+    String projectKey = paramProjectKey(request);
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      if (isProjectUuidOrProjectKeyProvided(projectUuid, projectKey)) {
+      if (isProjectUuidOrProjectKeyProvided(request)) {
         return Optional.of(componentFinder.getProjectByUuidOrKey(dbSession, projectUuid, projectKey));
       }
       return Optional.absent();
@@ -191,5 +196,13 @@ public class PermissionWsCommons {
       .setDescription(PERMISSION_PARAM_DESCRIPTION)
       .setRequired(true)
       .setPossibleValues(POSSIBLE_PERMISSIONS);
+  }
+
+  private static String paramProjectUuid(Request request) {
+    return request.param(PARAM_PROJECT_UUID);
+  }
+
+  private static String paramProjectKey(Request request) {
+    return request.param(PARAM_PROJECT_KEY);
   }
 }
