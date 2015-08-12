@@ -62,7 +62,7 @@ public class ReportProcessorTest {
 
   @Before
   public void setUp() {
-    underTest = new ReportProcessor(new ReportQueue.Item(dto, new File("Do_not_care")), steps, activityManager, system, queueStatus);
+    underTest = new ReportProcessor(steps, new ReportQueue.Item(dto, new File("Do_not_care")), activityManager, system, queueStatus);
   }
 
   @Test
