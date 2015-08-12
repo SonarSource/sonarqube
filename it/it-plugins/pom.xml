@@ -27,6 +27,7 @@
 
   <properties>
     <apiVersion>${project.parent.version}</apiVersion>
+    <sq.version>${project.parent.version}</sq.version>
   </properties>
 
   <modules>
