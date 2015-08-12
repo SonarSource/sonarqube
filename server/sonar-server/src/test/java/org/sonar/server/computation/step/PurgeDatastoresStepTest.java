@@ -34,7 +34,7 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.db.DbClient;
 
@@ -68,7 +68,7 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
 
   @Test
   public void call_purge_method_of_the_purge_task() {
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("UUID-1234").setKey(PROJECT_KEY).build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("UUID-1234").setKey(PROJECT_KEY).build();
     treeRootHolder.setRoot(project);
     dbIdsRepository.setComponentId(project, 123L);
 

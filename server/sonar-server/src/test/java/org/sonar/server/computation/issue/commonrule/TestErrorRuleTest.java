@@ -28,7 +28,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.FileAttributes;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
@@ -38,13 +38,13 @@ import org.sonar.server.computation.qualityprofile.ActiveRulesHolderRule;
 import org.sonar.server.rule.CommonRuleKeys;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.computation.component.DumbComponent.DUMB_PROJECT;
+import static org.sonar.server.computation.component.ReportComponent.DUMB_PROJECT;
 
 public class TestErrorRuleTest {
 
   static RuleKey RULE_KEY = RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), CommonRuleKeys.FAILED_UNIT_TESTS);
 
-  static DumbComponent FILE = DumbComponent.builder(Component.Type.FILE, 1)
+  static ReportComponent FILE = ReportComponent.builder(Component.Type.FILE, 1)
     .setFileAttributes(new FileAttributes(true, "java"))
     .setName("FooTest.java")
     .build();

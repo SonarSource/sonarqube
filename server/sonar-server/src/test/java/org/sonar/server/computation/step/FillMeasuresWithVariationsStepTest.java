@@ -35,7 +35,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.Metric;
@@ -59,7 +59,7 @@ public class FillMeasuresWithVariationsStepTest {
 
   static final ComponentDto PROJECT_DTO = ComponentTesting.newProjectDto();
 
-  static final Component PROJECT = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_DTO.uuid()).build();
+  static final Component PROJECT = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_DTO.uuid()).build();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -116,7 +116,7 @@ public class FillMeasuresWithVariationsStepTest {
 
   @Test
   public void do_nothing_when_no_period() {
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_DTO.uuid()).build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_DTO.uuid()).build();
     treeRootHolder.setRoot(project);
     periodsHolder.setPeriods();
 
@@ -142,8 +142,8 @@ public class FillMeasuresWithVariationsStepTest {
 
     periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
 
-    Component directory = DumbComponent.builder(Component.Type.DIRECTORY, 2).setUuid(directoryDto.uuid()).build();
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_DTO.uuid()).addChildren(directory).build();
+    Component directory = ReportComponent.builder(Component.Type.DIRECTORY, 2).setUuid(directoryDto.uuid()).build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_DTO.uuid()).addChildren(directory).build();
     treeRootHolder.setRoot(project);
 
     addRawMeasure(project, ISSUES_METRIC, Measure.newMeasureBuilder().create(80, null));

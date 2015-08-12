@@ -34,7 +34,7 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
@@ -123,8 +123,8 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   }
 
   private void initProject() {
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("project-uuid").addChildren(
-      DumbComponent.builder(Component.Type.FILE, 2).setUuid("file-uuid").build())
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("project-uuid").addChildren(
+      ReportComponent.builder(Component.Type.FILE, 2).setUuid("file-uuid").build())
       .build();
     treeRootHolder.setRoot(project);
     dbIdsRepository.setSnapshotId(project, 1000);

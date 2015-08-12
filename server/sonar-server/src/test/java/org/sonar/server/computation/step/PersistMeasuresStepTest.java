@@ -35,7 +35,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.measure.MeasureVariations;
@@ -94,8 +94,8 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     projectDto = addComponent("project-key");
     fileDto = addComponent("file-key");
 
-    Component file = DumbComponent.builder(Component.Type.FILE, FILE_REF).setUuid("CDEF").setKey("MODULE_KEY:file").build();
-    Component project = DumbComponent.builder(Component.Type.PROJECT, PROJECT_REF).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(file).build();
+    Component file = ReportComponent.builder(Component.Type.FILE, FILE_REF).setUuid("CDEF").setKey("MODULE_KEY:file").build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, PROJECT_REF).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(file).build();
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, projectDto.getId());

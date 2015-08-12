@@ -44,7 +44,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
-import static org.sonar.server.computation.component.DumbComponent.builder;
+import static org.sonar.server.computation.component.ReportComponent.builder;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
 public class MeasureComputerImplementationContextTest {

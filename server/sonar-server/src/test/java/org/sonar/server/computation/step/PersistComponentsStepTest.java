@@ -39,7 +39,7 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.FileAttributes;
 import org.sonar.test.DbTests;
 
@@ -122,10 +122,10 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setLanguage("java")
       .build());
 
-    Component file = DumbComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build();
-    Component directory = DumbComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(file).build();
-    Component module = DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(directory).build();
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(module).build();
+    Component file = ReportComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build();
+    Component directory = ReportComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(file).build();
+    Component module = ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(directory).build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(module).build();
     treeRootHolder.setRoot(project);
 
     underTest.execute();
@@ -213,9 +213,9 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("pom.xml")
       .build());
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      DumbComponent.builder(Component.Type.DIRECTORY, 2).setUuid("CDEF").setKey(PROJECT_KEY + ":/").addChildren(
-        DumbComponent.builder(Component.Type.FILE, 3).setUuid("DEFG").setKey(PROJECT_KEY + ":pom.xml").build()
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
+      ReportComponent.builder(Component.Type.DIRECTORY, 2).setUuid("CDEF").setKey(PROJECT_KEY + ":/").addChildren(
+        ReportComponent.builder(Component.Type.FILE, 3).setUuid("DEFG").setKey(PROJECT_KEY + ":pom.xml").build()
       ).build()
     ).build());
 
@@ -252,9 +252,9 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setIsTest(true)
       .build());
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      DumbComponent.builder(Component.Type.DIRECTORY, 2).setUuid("CDEF").setKey(PROJECT_KEY + ":src/test/java/dir").addChildren(
-        DumbComponent.builder(Component.Type.FILE, 3).setUuid("DEFG").setKey(PROJECT_KEY + ":src/test/java/dir/FooTest.java").setFileAttributes(new FileAttributes(true, null)).build())
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
+      ReportComponent.builder(Component.Type.DIRECTORY, 2).setUuid("CDEF").setKey(PROJECT_KEY + ":src/test/java/dir").addChildren(
+        ReportComponent.builder(Component.Type.FILE, 3).setUuid("DEFG").setKey(PROJECT_KEY + ":src/test/java/dir/FooTest.java").setFileAttributes(new FileAttributes(true, null)).build())
         .build())
       .build());
 
@@ -302,10 +302,10 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(
-        DumbComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(
-          DumbComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build())
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
+      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(
+        ReportComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(
+          ReportComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build())
           .build())
         .build())
       .build());
@@ -375,11 +375,11 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir")
       .build());
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(
-        DumbComponent.builder(Component.Type.MODULE, 3).setUuid("CDEF").setKey("SUB_MODULE_1_KEY").addChildren(
-          DumbComponent.builder(Component.Type.MODULE, 4).setUuid("DEFG").setKey("SUB_MODULE_2_KEY").addChildren(
-            DumbComponent.builder(Component.Type.DIRECTORY, 5).setUuid("EFGH").setKey("SUB_MODULE_2_KEY:src/main/java/dir").build())
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
+      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(
+        ReportComponent.builder(Component.Type.MODULE, 3).setUuid("CDEF").setKey("SUB_MODULE_1_KEY").addChildren(
+          ReportComponent.builder(Component.Type.MODULE, 4).setUuid("DEFG").setKey("SUB_MODULE_2_KEY").addChildren(
+            ReportComponent.builder(Component.Type.DIRECTORY, 5).setUuid("EFGH").setKey("SUB_MODULE_2_KEY:src/main/java/dir").build())
             .build())
           .build())
         .build())
@@ -440,10 +440,10 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setName("Module B")
       .build());
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_A").addChildren(
-        DumbComponent.builder(Component.Type.MODULE, 3).setUuid("DEFG").setKey("SUB_MODULE_A").build()).build(),
-      DumbComponent.builder(Component.Type.MODULE, 4).setUuid("CDEF").setKey("MODULE_B").build())
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
+      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_A").addChildren(
+        ReportComponent.builder(Component.Type.MODULE, 3).setUuid("DEFG").setKey("SUB_MODULE_A").build()).build(),
+      ReportComponent.builder(Component.Type.MODULE, 4).setUuid("CDEF").setKey("MODULE_B").build())
       .build());
 
     underTest.execute();
@@ -508,10 +508,10 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(
-        DumbComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(
-          DumbComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build())
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
+      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(
+        ReportComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(
+          ReportComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build())
           .build())
         .build())
       .build());
@@ -582,8 +582,8 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("New path")
       .build());
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").build())
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
+      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").build())
       .build());
 
     underTest.execute();
@@ -619,8 +619,8 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setDescription("New module description")
       .build());
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").build())
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
+      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").build())
       .build());
 
     underTest.execute();
@@ -655,8 +655,8 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("New path")
       .build());
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").build())
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
+      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").build())
       .build());
 
     underTest.execute();
@@ -711,11 +711,11 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("EDCB").setKey("MODULE_A").addChildren(
-        DumbComponent.builder(Component.Type.MODULE, 3).setUuid("BCDE").setKey("MODULE_B").addChildren(
-          DumbComponent.builder(Component.Type.DIRECTORY, 4).setUuid("CDEF").setKey("MODULE_B:src/main/java/dir").addChildren(
-            DumbComponent.builder(Component.Type.FILE, 5).setUuid("DEFG").setKey("MODULE_B:src/main/java/dir/Foo.java").build())
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
+      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("EDCB").setKey("MODULE_A").addChildren(
+        ReportComponent.builder(Component.Type.MODULE, 3).setUuid("BCDE").setKey("MODULE_B").addChildren(
+          ReportComponent.builder(Component.Type.DIRECTORY, 4).setUuid("CDEF").setKey("MODULE_B:src/main/java/dir").addChildren(
+            ReportComponent.builder(Component.Type.FILE, 5).setUuid("DEFG").setKey("MODULE_B:src/main/java/dir/Foo.java").build())
             .build())
           .build())
         .build())
@@ -769,7 +769,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .addChildRef(2)
       .build());
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
     underTest.execute();
 
@@ -815,10 +815,10 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(
-        DumbComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(
-          DumbComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build())
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
+      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(
+        ReportComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(
+          ReportComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build())
           .build())
         .build())
       .build());
@@ -911,10 +911,10 @@ public class PersistComponentsStepTest extends BaseStepTest {
       .setPath("src/main/java/dir/Foo.java")
       .build());
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(
-        DumbComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(
-          DumbComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build())
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
+      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(
+        ReportComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(
+          ReportComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build())
           .build())
         .build())
       .build());

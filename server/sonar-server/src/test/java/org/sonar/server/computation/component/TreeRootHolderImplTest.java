@@ -31,7 +31,7 @@ public class TreeRootHolderImplTest {
   public ExpectedException thrown = ExpectedException.none();
 
   TreeRootHolderImpl treeRootHolder = new TreeRootHolderImpl();
-  Component project = DumbComponent.DUMB_PROJECT;
+  Component project = ReportComponent.DUMB_PROJECT;
 
   @Test
   public void setRoot_throws_NPE_if_arg_is_null() {
@@ -53,10 +53,10 @@ public class TreeRootHolderImplTest {
 
   @Test
   public void get_by_ref() {
-    Component file = DumbComponent.builder(Component.Type.FILE, 4).build();
-    Component directory = DumbComponent.builder(Component.Type.DIRECTORY, 3).addChildren(file).build();
-    Component module = DumbComponent.builder(Component.Type.MODULE, 2).addChildren(directory).build();
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).addChildren(module).build();
+    Component file = ReportComponent.builder(Component.Type.FILE, 4).build();
+    Component directory = ReportComponent.builder(Component.Type.DIRECTORY, 3).addChildren(file).build();
+    Component module = ReportComponent.builder(Component.Type.MODULE, 2).addChildren(directory).build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).addChildren(module).build();
     treeRootHolder.setRoot(project);
 
     assertThat(treeRootHolder.getComponentByRef(1)).isEqualTo(project);

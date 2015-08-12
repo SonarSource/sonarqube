@@ -38,7 +38,7 @@ import org.sonar.db.DbTester;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
 import org.sonar.test.DbTests;
@@ -83,7 +83,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
       .setAnalysisDate(DATE_FORMAT.parse("2008-11-30").getTime())
       .build());
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).setVersion("1.1").build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).setVersion("1.1").build());
 
     underTest = new FeedPeriodsStep(dbClient, settings, treeRootHolder, reportReader, periodsHolder);
   }

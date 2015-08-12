@@ -30,7 +30,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.MutableTreeRootHolderRule;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
@@ -81,9 +81,9 @@ public class CustomMeasuresCopyStepTest {
     when(metricRepository.getById(stringMetric.getId())).thenReturn(stringMetric);
 
     // components. File1 and project have custom measures, but not file2
-    Component file1 = DumbComponent.builder(Component.Type.FILE, 1).setUuid("FILE1").build();
-    Component file2 = DumbComponent.builder(Component.Type.FILE, 2).setUuid("FILE2").build();
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 3).setUuid("PROJECT1").addChildren(file1, file2).build();
+    Component file1 = ReportComponent.builder(Component.Type.FILE, 1).setUuid("FILE1").build();
+    Component file2 = ReportComponent.builder(Component.Type.FILE, 2).setUuid("FILE2").build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 3).setUuid("PROJECT1").addChildren(file1, file2).build();
     treeRootHolder.setRoot(project);
 
     underTest.execute();

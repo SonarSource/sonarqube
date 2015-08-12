@@ -31,7 +31,7 @@ public class DbIdsRepositoryTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  Component component = DumbComponent.DUMB_PROJECT;
+  Component component = ReportComponent.DUMB_PROJECT;
 
   @Test
   public void add_and_get_component_id() {
@@ -46,7 +46,7 @@ public class DbIdsRepositoryTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Component ref '" + component.getReportAttributes().getRef() + "' has no component id");
 
-    new DbIdsRepository().getComponentId(DumbComponent.DUMB_PROJECT);
+    new DbIdsRepository().getComponentId(ReportComponent.DUMB_PROJECT);
   }
 
   @Test
@@ -72,7 +72,7 @@ public class DbIdsRepositoryTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Component ref '" + component.getReportAttributes().getRef() + "' has no snapshot id");
 
-    new DbIdsRepository().getSnapshotId(DumbComponent.DUMB_PROJECT);
+    new DbIdsRepository().getSnapshotId(ReportComponent.DUMB_PROJECT);
   }
 
   @Test

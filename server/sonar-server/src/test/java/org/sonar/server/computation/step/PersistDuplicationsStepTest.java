@@ -37,7 +37,7 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -123,9 +123,9 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
 
   @Test
   public void persist_duplications_on_same_file_linked_on_a_module() {
-    Component file = DumbComponent.builder(Component.Type.FILE, 3).setUuid("CDEF").setKey("MODULE_KEY:file").build();
-    Component module = DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(file).build();
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(module).build();
+    Component file = ReportComponent.builder(Component.Type.FILE, 3).setUuid("CDEF").setKey("MODULE_KEY:file").build();
+    Component module = ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(file).build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(module).build();
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, 1);
@@ -162,9 +162,9 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
 
   @Test
   public void persist_duplications_on_same_file_linked_on_a_folder() {
-    Component file = DumbComponent.builder(Component.Type.FILE, 3).setUuid("CDEF").setKey("PROJECT_KEY:file").build();
-    Component directory = DumbComponent.builder(Component.Type.DIRECTORY, 2).setUuid("BCDE").setKey("PROJECT_KEY:dir").addChildren(file).build();
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(directory).build();
+    Component file = ReportComponent.builder(Component.Type.FILE, 3).setUuid("CDEF").setKey("PROJECT_KEY:file").build();
+    Component directory = ReportComponent.builder(Component.Type.DIRECTORY, 2).setUuid("BCDE").setKey("PROJECT_KEY:dir").addChildren(file).build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(directory).build();
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, 1);
@@ -201,10 +201,10 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
 
   @Test
   public void persist_duplications_on_same_file_linked_on_sub_folder() {
-    Component file = DumbComponent.builder(Component.Type.FILE, 10).setUuid("DEFG").setKey("PROJECT_KEY:file").build();
-    Component directory1 = DumbComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("PROJECT_KEY:dir1").addChildren(file).build();
-    Component directory2 = DumbComponent.builder(Component.Type.DIRECTORY, 2).setUuid("BCDE").setKey("PROJECT_KEY:dir2").addChildren(directory1).build();
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(directory2).build();
+    Component file = ReportComponent.builder(Component.Type.FILE, 10).setUuid("DEFG").setKey("PROJECT_KEY:file").build();
+    Component directory1 = ReportComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("PROJECT_KEY:dir1").addChildren(file).build();
+    Component directory2 = ReportComponent.builder(Component.Type.DIRECTORY, 2).setUuid("BCDE").setKey("PROJECT_KEY:dir2").addChildren(directory1).build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(directory2).build();
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, 1);
@@ -244,9 +244,9 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
   public void persist_duplications_on_different_files() {
     saveDuplicationMetric();
 
-    Component file2 = DumbComponent.builder(Component.Type.FILE, 3).setUuid("CDEF").setKey("PROJECT_KEY:file2").build();
-    Component file = DumbComponent.builder(Component.Type.FILE, 2).setUuid("BCDE").setKey("PROJECT_KEY:file").build();
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(file, file2).build();
+    Component file2 = ReportComponent.builder(Component.Type.FILE, 3).setUuid("CDEF").setKey("PROJECT_KEY:file2").build();
+    Component file = ReportComponent.builder(Component.Type.FILE, 2).setUuid("BCDE").setKey("PROJECT_KEY:file").build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(file, file2).build();
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, 1);
@@ -309,8 +309,8 @@ public class PersistDuplicationsStepTest extends BaseStepTest {
   }
 
   private void initReportWithProjectAndFile() {
-    Component file = DumbComponent.builder(Component.Type.FILE, 2).setUuid("BCDE").setKey("PROJECT_KEY:file").build();
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(file).build();
+    Component file = ReportComponent.builder(Component.Type.FILE, 2).setUuid("BCDE").setKey("PROJECT_KEY:file").build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(file).build();
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, 1);

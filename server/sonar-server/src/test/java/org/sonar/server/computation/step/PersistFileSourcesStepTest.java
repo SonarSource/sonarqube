@@ -39,7 +39,7 @@ import org.sonar.db.source.FileSourceDto.Type;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.test.DbTests;
 
@@ -115,8 +115,8 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
   @Test
   public void persist_last_line() {
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).addChildren(
-      DumbComponent.builder(Component.Type.FILE, FILE_REF).setUuid(FILE_UUID).setKey("PROJECT_KEY:file").build())
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).addChildren(
+      ReportComponent.builder(Component.Type.FILE, FILE_REF).setUuid(FILE_UUID).setKey("PROJECT_KEY:file").build())
       .build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
@@ -417,9 +417,9 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   }
 
   private void initBasicReport(int numberOfLines) {
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).addChildren(
-      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("MODULE").setKey("MODULE_KEY").addChildren(
-        DumbComponent.builder(Component.Type.FILE, FILE_REF).setUuid(FILE_UUID).setKey("MODULE_KEY:src/Foo.java").build())
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).addChildren(
+      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("MODULE").setKey("MODULE_KEY").addChildren(
+        ReportComponent.builder(Component.Type.FILE, FILE_REF).setUuid(FILE_UUID).setKey("MODULE_KEY:src/Foo.java").build())
         .build())
       .build());
 

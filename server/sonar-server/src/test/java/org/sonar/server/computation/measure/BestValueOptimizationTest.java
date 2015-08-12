@@ -22,7 +22,7 @@ package org.sonar.server.computation.measure;
 import com.google.common.base.Predicate;
 import org.junit.Test;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 
@@ -31,8 +31,8 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
 public class BestValueOptimizationTest {
 
-  private static final DumbComponent FILE_COMPONENT = DumbComponent.builder(Component.Type.FILE, 1).build();
-  private static final DumbComponent SOME_NON_FILE_COMPONENT = DumbComponent.builder(Component.Type.MODULE, 2).build();
+  private static final ReportComponent FILE_COMPONENT = ReportComponent.builder(Component.Type.FILE, 1).build();
+  private static final ReportComponent SOME_NON_FILE_COMPONENT = ReportComponent.builder(Component.Type.MODULE, 2).build();
   private static final String SOME_DATA = "some_data";
   private static final MetricImpl METRIC_BOOLEAN_FALSE = createMetric(Metric.MetricType.BOOL, 6d);
   private static final MetricImpl METRIC_BOOLEAN_TRUE = createMetric(Metric.MetricType.BOOL, 1d);

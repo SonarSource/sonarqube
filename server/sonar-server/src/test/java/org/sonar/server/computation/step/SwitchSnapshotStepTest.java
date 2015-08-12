@@ -31,7 +31,7 @@ import org.sonar.db.component.SnapshotDao;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
@@ -63,7 +63,7 @@ public class SwitchSnapshotStepTest {
   public void one_switch_with_a_snapshot_and_his_children() {
     db.prepareDbUnit(getClass(), "snapshots.xml");
 
-    Component project = DumbComponent.DUMB_PROJECT;
+    Component project = ReportComponent.DUMB_PROJECT;
     treeRootHolder.setRoot(project);
     dbIdsRepository.setSnapshotId(project, 1);
 

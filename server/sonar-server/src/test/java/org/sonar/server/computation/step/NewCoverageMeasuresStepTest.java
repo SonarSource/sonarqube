@@ -28,7 +28,7 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.FileAttributes;
 import org.sonar.server.computation.formula.coverage.LinesAndConditionsWithUncoveredMetricKeys;
 import org.sonar.server.computation.measure.Measure;
@@ -54,7 +54,7 @@ import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
-import static org.sonar.server.computation.component.DumbComponent.builder;
+import static org.sonar.server.computation.component.ReportComponent.builder;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
@@ -71,7 +71,7 @@ public class NewCoverageMeasuresStepTest {
   private static final int FILE_2_REF = 11121;
   private static final int FILE_3_REF = 11122;
 
-  private static final DumbComponent MULTIPLE_FILES_TREE = builder(PROJECT, ROOT_REF)
+  private static final ReportComponent MULTIPLE_FILES_TREE = builder(PROJECT, ROOT_REF)
     .addChildren(
       builder(MODULE, MODULE_REF)
         .addChildren(
@@ -137,7 +137,7 @@ public class NewCoverageMeasuresStepTest {
 
   private NewCoverageMeasuresStep underTest = new NewCoverageMeasuresStep(treeRootHolder, periodsHolder, reportReader,
     measureRepository, metricRepository);
-  public static final DumbComponent FILE_COMPONENT = DumbComponent.builder(Component.Type.FILE, FILE_1_REF)
+  public static final ReportComponent FILE_COMPONENT = ReportComponent.builder(Component.Type.FILE, FILE_1_REF)
     .setFileAttributes(new FileAttributes(false, null)).build();
 
   @Before
@@ -149,7 +149,7 @@ public class NewCoverageMeasuresStepTest {
 
   @Test
   public void no_measure_for_PROJECT_component() {
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, ROOT_REF).build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, ROOT_REF).build());
 
     underTest.execute();
 
@@ -158,7 +158,7 @@ public class NewCoverageMeasuresStepTest {
 
   @Test
   public void no_measure_for_MODULE_component() {
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.MODULE, MODULE_REF).build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.MODULE, MODULE_REF).build());
 
     underTest.execute();
 
@@ -167,7 +167,7 @@ public class NewCoverageMeasuresStepTest {
 
   @Test
   public void no_measure_for_DIRECTORY_component() {
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.DIRECTORY, DIRECTORY_1_REF).build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.DIRECTORY, DIRECTORY_1_REF).build());
 
     underTest.execute();
 
@@ -176,7 +176,7 @@ public class NewCoverageMeasuresStepTest {
 
   @Test
   public void no_measure_for_unit_test_FILE_component() {
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.FILE, FILE_1_REF).setFileAttributes(new FileAttributes(true, null)).build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.FILE, FILE_1_REF).setFileAttributes(new FileAttributes(true, null)).build());
 
     underTest.execute();
 
@@ -185,7 +185,7 @@ public class NewCoverageMeasuresStepTest {
 
   @Test
   public void no_measures_for_FILE_component_without_code() {
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, null)).build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, null)).build());
 
     underTest.execute();
 
@@ -239,7 +239,7 @@ public class NewCoverageMeasuresStepTest {
 
   @Test
   public void no_measures_for_FILE_component_without_CoverageData() {
-    DumbComponent fileComponent = DumbComponent.builder(Component.Type.FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, null)).build();
+    ReportComponent fileComponent = ReportComponent.builder(Component.Type.FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, null)).build();
 
     treeRootHolder.setRoot(fileComponent);
     reportReader.putChangesets(Changesets.newBuilder()

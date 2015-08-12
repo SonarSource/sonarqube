@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.ComponentVisitor;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.FileAttributes;
 import org.sonar.server.computation.component.VisitorsCrawler;
 import org.sonar.server.computation.measure.Measure;
@@ -96,7 +96,7 @@ public class SqaleMeasuresVisitorTest {
 
   @Test
   public void measures_created_for_project_are_all_zero_when_they_have_no_FILE_child() {
-    DumbComponent root = DumbComponent.builder(PROJECT, 1).build();
+    ReportComponent root = ReportComponent.builder(PROJECT, 1).build();
     treeRootHolder.setRoot(root);
 
     underTest.visit(root);
@@ -130,7 +130,7 @@ public class SqaleMeasuresVisitorTest {
     SqaleRatingGrid.SqaleRating expectedRating) {
     long measureValue = 10;
 
-    DumbComponent fileComponent = createFileComponent(languageKey, 1);
+    ReportComponent fileComponent = createFileComponent(languageKey, 1);
     treeRootHolder.setRoot(fileComponent);
     measureRepository.addRawMeasure(fileComponent.getReportAttributes().getRef(), metricKey, newMeasureBuilder().create(measureValue));
     measureRepository.addRawMeasure(fileComponent.getReportAttributes().getRef(), TECHNICAL_DEBT_KEY, newMeasureBuilder().create(debt));
@@ -142,29 +142,29 @@ public class SqaleMeasuresVisitorTest {
 
   @Test
   public void verify_aggregation_of_developmentCost_and_value_of_measures_computed_from_that() {
-    DumbComponent root = DumbComponent.builder(PROJECT, 1)
+    ReportComponent root = ReportComponent.builder(PROJECT, 1)
       .addChildren(
-        DumbComponent.builder(MODULE, 11)
+        ReportComponent.builder(MODULE, 11)
           .addChildren(
-            DumbComponent.builder(DIRECTORY, 111)
+            ReportComponent.builder(DIRECTORY, 111)
               .addChildren(
                 createFileComponent(LANGUAGE_KEY_1, 1111),
                 createFileComponent(LANGUAGE_KEY_2, 1112)
               ).build(),
-            DumbComponent.builder(DIRECTORY, 112)
+            ReportComponent.builder(DIRECTORY, 112)
               .addChildren(
                 createFileComponent(LANGUAGE_KEY_2, 1121)
               ).build()
           ).build(),
-        DumbComponent.builder(MODULE, 12)
+        ReportComponent.builder(MODULE, 12)
           .addChildren(
-            DumbComponent.builder(DIRECTORY, 121)
+            ReportComponent.builder(DIRECTORY, 121)
               .addChildren(
                 createFileComponent(LANGUAGE_KEY_1, 1211)
               ).build(),
-            DumbComponent.builder(DIRECTORY, 122).build()
+            ReportComponent.builder(DIRECTORY, 122).build()
           ).build(),
-        DumbComponent.builder(MODULE, 13).build()
+        ReportComponent.builder(MODULE, 13).build()
       ).build();
 
     treeRootHolder.setRoot(root);
@@ -229,8 +229,8 @@ public class SqaleMeasuresVisitorTest {
     verifyComponentMeasures(1, devCost1, debt1 / (double) devCost1, A);
   }
 
-  private DumbComponent createFileComponent(String languageKey1, int fileRef) {
-    return DumbComponent.builder(FILE, fileRef).setFileAttributes(new FileAttributes(false, languageKey1)).build();
+  private ReportComponent createFileComponent(String languageKey1, int fileRef) {
+    return ReportComponent.builder(FILE, fileRef).setFileAttributes(new FileAttributes(false, languageKey1)).build();
   }
 
   private void verifyNoMeasure(int componentRef) {

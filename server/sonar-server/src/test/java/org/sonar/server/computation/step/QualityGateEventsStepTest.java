@@ -27,7 +27,7 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.notifications.Notification;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
 import org.sonar.server.computation.measure.Measure;
@@ -50,8 +50,8 @@ import static org.sonar.server.computation.measure.Measure.Level.OK;
 import static org.sonar.server.computation.measure.Measure.Level.WARN;
 
 public class QualityGateEventsStepTest {
-  private static final DumbComponent PROJECT_COMPONENT = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("uuid 1").setKey("key 1")
-    .addChildren(DumbComponent.builder(Component.Type.MODULE, 2).build())
+  private static final ReportComponent PROJECT_COMPONENT = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("uuid 1").setKey("key 1")
+    .addChildren(ReportComponent.builder(Component.Type.MODULE, 2).build())
     .build();
   private static final String INVALID_ALERT_STATUS = "trololo";
   private static final String ALERT_TEXT = "alert text";

@@ -24,7 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
 
@@ -58,7 +58,7 @@ import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
-import static org.sonar.server.computation.component.DumbComponent.builder;
+import static org.sonar.server.computation.component.ReportComponent.builder;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
@@ -72,7 +72,7 @@ public class ComplexityMeasuresStepTest {
   private static final int FILE_1_REF = 11111;
   private static final int FILE_2_REF = 11121;
 
-  private static final DumbComponent MULTIPLE_FILES_TREE = builder(PROJECT, ROOT_REF)
+  private static final ReportComponent MULTIPLE_FILES_TREE = builder(PROJECT, ROOT_REF)
     .addChildren(
       builder(MODULE, MODULE_REF)
         .addChildren(

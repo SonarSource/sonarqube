@@ -39,7 +39,7 @@ import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.test.DbTests;
 
 @Category(DbTests.class)
@@ -87,7 +87,7 @@ public class ValidateProjectStepTest {
     settings.appendProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, "true");
     dbClient.componentDao().insert(dbTester.getSession(), ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY));
     dbTester.getSession().commit();
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
     underTest.execute();
   }
@@ -105,7 +105,7 @@ public class ValidateProjectStepTest {
       .build());
 
     settings.appendProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, "true");
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
     underTest.execute();
   }
@@ -120,7 +120,7 @@ public class ValidateProjectStepTest {
       .build());
 
     settings.appendProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, "false");
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
     underTest.execute();
   }
@@ -136,7 +136,7 @@ public class ValidateProjectStepTest {
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .build());
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY + ":origin/master").build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY + ":origin/master").build());
 
     underTest.execute();
   }
@@ -156,7 +156,7 @@ public class ValidateProjectStepTest {
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .build());
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY + ":bran#ch").build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY + ":bran#ch").build());
 
     underTest.execute();
   }
@@ -182,8 +182,8 @@ public class ValidateProjectStepTest {
       .setType(Constants.ComponentType.MODULE)
       .setKey("Module$Key")
       .build());
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(invalidProjectKey).addChildren(
-      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("Module$Key").build())
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(invalidProjectKey).addChildren(
+      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("Module$Key").build())
       .build());
 
     underTest.execute();
@@ -214,8 +214,8 @@ public class ValidateProjectStepTest {
     dbClient.componentDao().insert(dbTester.getSession(), project);
     dbTester.getSession().commit();
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY).build())
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
+      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY).build())
       .build());
 
     underTest.execute();
@@ -248,8 +248,8 @@ public class ValidateProjectStepTest {
     dbClient.componentDao().insert(dbTester.getSession(), module);
     dbTester.getSession().commit();
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY).build())
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
+      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY).build())
       .build());
 
     underTest.execute();
@@ -283,8 +283,8 @@ public class ValidateProjectStepTest {
     dbClient.componentDao().insert(dbTester.getSession(), module);
     dbTester.getSession().commit();
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY).build())
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
+      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY).build())
       .build());
 
     underTest.execute();
@@ -307,7 +307,7 @@ public class ValidateProjectStepTest {
     dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.createForProject(project).setCreatedAt(1420088400000L)); // 2015-01-01
     dbTester.getSession().commit();
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
     underTest.execute();
   }
@@ -334,7 +334,7 @@ public class ValidateProjectStepTest {
     dbClient.snapshotDao().insert(dbTester.getSession(), SnapshotTesting.createForProject(project).setCreatedAt(1433131200000L)); // 2015-06-01
     dbTester.getSession().commit();
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
 
     underTest.execute();
   }

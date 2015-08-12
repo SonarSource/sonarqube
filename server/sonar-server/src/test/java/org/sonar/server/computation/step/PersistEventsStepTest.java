@@ -33,7 +33,7 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
 import org.sonar.test.DbTests;
@@ -77,7 +77,7 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void nothing_to_do_when_no_events_in_report() {
     dbTester.prepareDbUnit(getClass(), "nothing_to_do_when_no_events_in_report.xml");
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)
@@ -93,8 +93,8 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void persist_report_events_with_component_children() {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    DumbComponent module = DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").build();
-    DumbComponent root = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").addChildren(module).build();
+    ReportComponent module = ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").build();
+    ReportComponent root = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").addChildren(module).build();
     treeRootHolder.setRoot(root);
 
     dbIdsRepository.setSnapshotId(root, 1000L);
@@ -120,7 +120,7 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void create_version_event() {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setVersion("1.0").build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setVersion("1.0").build();
     treeRootHolder.setRoot(project);
     dbIdsRepository.setSnapshotId(project, 1000L);
 
@@ -138,7 +138,7 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void keep_one_event_by_version() {
     dbTester.prepareDbUnit(getClass(), "keep_one_event_by_version.xml");
 
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setVersion("1.5-SNAPSHOT").build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setVersion("1.5-SNAPSHOT").build();
     treeRootHolder.setRoot(project);
     dbIdsRepository.setSnapshotId(project, 1001L);
 

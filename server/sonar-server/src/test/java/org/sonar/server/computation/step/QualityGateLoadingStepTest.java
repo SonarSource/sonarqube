@@ -27,7 +27,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.computation.qualitygate.Condition;
 import org.sonar.server.computation.qualitygate.MutableQualityGateHolderRule;
@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
 
 public class QualityGateLoadingStepTest {
   private static final String PROJECT_KEY = "project key";
-  private static final DumbComponent PROJECT_ALONE = DumbComponent.builder(Component.Type.PROJECT, 1).setKey(PROJECT_KEY).build();
+  private static final ReportComponent PROJECT_ALONE = ReportComponent.builder(Component.Type.PROJECT, 1).setKey(PROJECT_KEY).build();
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -59,7 +59,7 @@ public class QualityGateLoadingStepTest {
 
   @Test
   public void execute_sets_default_QualityGate_when_project_has_no_settings() {
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setKey(PROJECT_KEY).addChildren(DumbComponent.builder(Component.Type.FILE, 2).build()).build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setKey(PROJECT_KEY).addChildren(ReportComponent.builder(Component.Type.FILE, 2).build()).build());
     when(projectSettingsRepository.getProjectSettings(PROJECT_KEY)).thenReturn(new Settings());
 
     underTest.execute();

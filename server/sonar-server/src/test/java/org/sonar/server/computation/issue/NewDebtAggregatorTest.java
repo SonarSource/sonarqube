@@ -27,7 +27,7 @@ import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbClient;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
@@ -48,7 +48,7 @@ public class NewDebtAggregatorTest {
 
   private static final Period PERIOD = new Period(1, TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, null, 1_500_000_000L, 1000L);
 
-  Component file = DumbComponent.builder(Component.Type.FILE, 1).setUuid("FILE").build();
+  Component file = ReportComponent.builder(Component.Type.FILE, 1).setUuid("FILE").build();
 
   NewDebtCalculator calculator = mock(NewDebtCalculator.class);
 

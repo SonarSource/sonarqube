@@ -31,7 +31,7 @@ import org.junit.runners.model.Statement;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentImpl;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 
 public class ComponentTreeRule implements TestRule {
 
@@ -95,8 +95,8 @@ public class ComponentTreeRule implements TestRule {
     return newComponent(batchReportReader.readComponent(rootComponentRef), build_options);
   }
 
-  private DumbComponent newComponent(BatchReport.Component component, BUILD_OPTIONS build_options) {
-    return DumbComponent.builder(ComponentImpl.convertType(component.getType()), component.getRef())
+  private ReportComponent newComponent(BatchReport.Component component, BUILD_OPTIONS build_options) {
+    return ReportComponent.builder(ComponentImpl.convertType(component.getType()), component.getRef())
       .setUuid(build_options.uuid ? uuidOf(component.getRef()) : null)
       .setKey(build_options.key ? keyOf(component.getRef()) : null)
       .addChildren(buildChildren(component, build_options))

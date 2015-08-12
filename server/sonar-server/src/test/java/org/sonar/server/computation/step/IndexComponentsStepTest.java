@@ -27,7 +27,7 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -48,7 +48,7 @@ public class IndexComponentsStepTest extends BaseStepTest {
 
   @Test
   public void call_indexProject_of_dao() {
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("PROJECT_UUID").setKey(PROJECT_KEY).build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("PROJECT_UUID").setKey(PROJECT_KEY).build();
     dbIdsRepository.setComponentId(project, 123L);
     treeRootHolder.setRoot(project);
 

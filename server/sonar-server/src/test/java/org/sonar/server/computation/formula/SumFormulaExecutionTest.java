@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
 
@@ -37,7 +37,7 @@ import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
-import static org.sonar.server.computation.component.DumbComponent.builder;
+import static org.sonar.server.computation.component.ReportComponent.builder;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
@@ -61,7 +61,7 @@ public class SumFormulaExecutionTest {
 
   @Test
   public void add_measures() {
-    DumbComponent project = builder(PROJECT, 1)
+    ReportComponent project = builder(PROJECT, 1)
       .addChildren(
         builder(MODULE, 11)
           .addChildren(
@@ -100,7 +100,7 @@ public class SumFormulaExecutionTest {
 
   @Test
   public void not_add_measures_when_no_data_on_file() {
-    DumbComponent project = builder(PROJECT, 1)
+    ReportComponent project = builder(PROJECT, 1)
       .addChildren(
         builder(MODULE, 11)
           .addChildren(

@@ -33,7 +33,7 @@ import org.sonar.core.issue.tracking.Input;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.issue.commonrule.CommonRuleEngine;
 import org.sonar.server.rule.CommonRuleKeys;
 
@@ -44,8 +44,8 @@ import static org.mockito.Mockito.when;
 
 public class TrackerRawInputFactoryTest {
 
-  static DumbComponent PROJECT = DumbComponent.builder(Component.Type.PROJECT, 1).setKey("PROJECT_KEY_2").setUuid("PROJECT_UUID_1").build();
-  static DumbComponent FILE = DumbComponent.builder(Component.Type.FILE, 2).setKey("FILE_KEY_2").setUuid("FILE_UUID_2").build();
+  static ReportComponent PROJECT = ReportComponent.builder(Component.Type.PROJECT, 1).setKey("PROJECT_KEY_2").setUuid("PROJECT_UUID_1").build();
+  static ReportComponent FILE = ReportComponent.builder(Component.Type.FILE, 2).setKey("FILE_KEY_2").setUuid("FILE_UUID_2").build();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(PROJECT);

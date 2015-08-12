@@ -41,7 +41,7 @@ import org.sonar.server.computation.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.server.computation.batch.BatchReportReaderImpl;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.step.PersistFileSourcesStep;
 import org.sonar.server.db.DbClient;
 
@@ -110,7 +110,7 @@ public class PersistFileSourcesStepTest {
       components.add(generateFileReport(writer, fileRef));
       project.addChildRef(fileRef);
     }
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1)
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1)
       .setUuid(PROJECT_UUID)
       .setKey("PROJECT")
       .addChildren(components.toArray(new Component[components.size()]))
@@ -139,7 +139,7 @@ public class PersistFileSourcesStepTest {
     writer.writeComponentSymbols(fileRef, lineData.symbols);
     writer.writeComponentDuplications(fileRef, lineData.duplications);
 
-    return DumbComponent.builder(Component.Type.FILE, fileRef).setUuid(Uuids.create()).setKey("PROJECT:" + fileRef).build();
+    return ReportComponent.builder(Component.Type.FILE, fileRef).setUuid(Uuids.create()).setKey("PROJECT:" + fileRef).build();
   }
 
   private static class LineData {

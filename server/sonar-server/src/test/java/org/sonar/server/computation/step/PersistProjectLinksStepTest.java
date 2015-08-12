@@ -33,7 +33,7 @@ import org.sonar.db.DbTester;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,8 +76,8 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void add_links_on_project_and_module() {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").addChildren(
-      DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").build())
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").addChildren(
+      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").build())
       .build());
 
     // project and 1 module
@@ -106,7 +106,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void nothing_to_do_when_link_already_exists() {
     dbTester.prepareDbUnit(getClass(), "nothing_to_do_when_link_already_exists.xml");
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -123,8 +123,8 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void do_not_add_links_on_file() {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").addChildren(
-      DumbComponent.builder(Component.Type.FILE, 2).setUuid("BCDE").build())
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").addChildren(
+      ReportComponent.builder(Component.Type.FILE, 2).setUuid("BCDE").build())
       .build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
@@ -147,7 +147,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void update_link() {
     dbTester.prepareDbUnit(getClass(), "update_link.xml");
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -164,7 +164,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void delete_link() {
     dbTester.prepareDbUnit(getClass(), "delete_link.xml");
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -180,7 +180,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void not_delete_custom_link() {
     dbTester.prepareDbUnit(getClass(), "not_delete_custom_link.xml");
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)
@@ -196,7 +196,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
   public void fail_when_trying_to_add_same_link_type_multiple_times() {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
 
     reportReader.putComponent(BatchReport.Component.newBuilder()
       .setRef(1)

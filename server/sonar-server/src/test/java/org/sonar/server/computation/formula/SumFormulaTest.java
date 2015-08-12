@@ -26,7 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.period.PeriodsHolder;
@@ -45,9 +45,9 @@ public class SumFormulaTest {
 
   FileAggregateContext fileAggregateContext = mock(FileAggregateContext.class);
   CreateMeasureContext projectCreateMeasureContext = new DumbCreateMeasureContext(
-      DumbComponent.builder(Component.Type.PROJECT, 1).build(), mock(Metric.class), mock(PeriodsHolder.class));
+      ReportComponent.builder(Component.Type.PROJECT, 1).build(), mock(Metric.class), mock(PeriodsHolder.class));
   CreateMeasureContext fileCreateMeasureContext = new DumbCreateMeasureContext(
-      DumbComponent.builder(Component.Type.FILE, 2).build(), mock(Metric.class), mock(PeriodsHolder.class));
+      ReportComponent.builder(Component.Type.FILE, 2).build(), mock(Metric.class), mock(PeriodsHolder.class));
 
   @Test
   public void check_create_new_counter_class() {

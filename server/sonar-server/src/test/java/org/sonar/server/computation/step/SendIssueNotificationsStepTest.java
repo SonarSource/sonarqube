@@ -33,7 +33,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.RuleRepository;
 import org.sonar.server.issue.notification.IssueChangeNotification;
@@ -72,7 +72,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     NewIssuesNotificationFactory newIssuesNotificationFactory = mock(NewIssuesNotificationFactory.class, Mockito.RETURNS_DEEP_STUBS);
     underTest = new SendIssueNotificationsStep(issueCache, mock(RuleRepository.class), treeRootHolder, notifService, reportReader, newIssuesNotificationFactory);
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build());
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setRootComponentRef(1)

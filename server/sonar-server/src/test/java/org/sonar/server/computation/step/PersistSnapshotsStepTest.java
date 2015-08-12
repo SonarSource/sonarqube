@@ -40,7 +40,7 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.FileAttributes;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderRule;
@@ -115,10 +115,10 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     dbClient.componentDao().insert(dbTester.getSession(), fileDto);
     dbTester.getSession().commit();
 
-    Component file = DumbComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build();
-    Component directory = DumbComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(file).build();
-    Component module = DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").setVersion("1.1").addChildren(directory).build();
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).setVersion("1.0").addChildren(module).build();
+    Component file = ReportComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build();
+    Component directory = ReportComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(file).build();
+    Component module = ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").setVersion("1.1").addChildren(directory).build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).setVersion("1.0").addChildren(module).build();
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, projectDto.getId());
@@ -208,9 +208,9 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     dbClient.componentDao().insert(dbTester.getSession(), fileDto);
     dbTester.getSession().commit();
 
-    Component file = DumbComponent.builder(Component.Type.FILE, 3).setUuid("DEFG").setKey(PROJECT_KEY + ":src/main/java/dir/Foo.java").setFileAttributes(new FileAttributes(true, null)).build();
-    Component directory = DumbComponent.builder(Component.Type.DIRECTORY, 2).setUuid("CDEF").setKey(PROJECT_KEY + ":src/main/java/dir").addChildren(file).build();
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(directory).build();
+    Component file = ReportComponent.builder(Component.Type.FILE, 3).setUuid("DEFG").setKey(PROJECT_KEY + ":src/main/java/dir/Foo.java").setFileAttributes(new FileAttributes(true, null)).build();
+    Component directory = ReportComponent.builder(Component.Type.DIRECTORY, 2).setUuid("CDEF").setKey(PROJECT_KEY + ":src/main/java/dir").addChildren(file).build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(directory).build();
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, projectDto.getId());
@@ -236,10 +236,10 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     dbClient.componentDao().insert(dbTester.getSession(), moduleBDto);
     dbTester.getSession().commit();
 
-    Component moduleB = DumbComponent.builder(Component.Type.MODULE, 4).setUuid("DEFG").setKey("MODULE_B").build();
-    Component subModuleA = DumbComponent.builder(Component.Type.MODULE, 3).setUuid("CDEF").setKey("SUB_MODULE_A").build();
-    Component moduleA = DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_A").addChildren(subModuleA).build();
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(moduleA, moduleB).build();
+    Component moduleB = ReportComponent.builder(Component.Type.MODULE, 4).setUuid("DEFG").setKey("MODULE_B").build();
+    Component subModuleA = ReportComponent.builder(Component.Type.MODULE, 3).setUuid("CDEF").setKey("SUB_MODULE_A").build();
+    Component moduleA = ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_A").addChildren(subModuleA).build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(moduleA, moduleB).build();
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, projectDto.getId());
@@ -289,7 +289,7 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     dbTester.getSession().commit();
     periodsHolderRule.setPeriods(new Period(1, CoreProperties.TIMEMACHINE_MODE_DATE, "2015-01-01", analysisDate, 123L));
 
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build();
     treeRootHolder.setRoot(project);
     dbIdsRepository.setComponentId(project, projectDto.getId());
 
@@ -327,10 +327,10 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
 
     dbTester.getSession().commit();
 
-    Component file = DumbComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build();
-    Component directory = DumbComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(file).build();
-    Component module = DumbComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(directory).build();
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(module).build();
+    Component file = ReportComponent.builder(Component.Type.FILE, 4).setUuid("DEFG").setKey("MODULE_KEY:src/main/java/dir/Foo.java").build();
+    Component directory = ReportComponent.builder(Component.Type.DIRECTORY, 3).setUuid("CDEF").setKey("MODULE_KEY:src/main/java/dir").addChildren(file).build();
+    Component module = ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("MODULE_KEY").addChildren(directory).build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(module).build();
     treeRootHolder.setRoot(project);
 
     dbIdsRepository.setComponentId(project, projectDto.getId());
@@ -361,7 +361,7 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     dbClient.snapshotDao().insert(dbTester.getSession(), snapshotDto);
     dbTester.getSession().commit();
 
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build();
     treeRootHolder.setRoot(project);
     dbIdsRepository.setComponentId(project, projectDto.getId());
 

@@ -26,7 +26,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.debt.Characteristic;
 import org.sonar.server.computation.debt.DebtModelHolderImpl;
 import org.sonar.server.computation.debt.MutableDebtModelHolder;
@@ -61,8 +61,8 @@ public class DebtAggregatorTest {
    */
   public static final int RELIABILITY_ID = 1003;
 
-  Component file = DumbComponent.builder(Component.Type.FILE, 1).build();
-  Component project = DumbComponent.builder(Component.Type.PROJECT, 2).addChildren(file).build();
+  Component file = ReportComponent.builder(Component.Type.FILE, 1).build();
+  Component project = ReportComponent.builder(Component.Type.PROJECT, 2).addChildren(file).build();
 
   DumbRule rule = new DumbRule(RuleTesting.XOO_X1).setId(100).setSubCharacteristicId(PORTABILITY_SOFT_ID);
 

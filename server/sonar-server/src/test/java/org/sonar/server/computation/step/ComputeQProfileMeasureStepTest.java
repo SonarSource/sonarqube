@@ -30,7 +30,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
@@ -57,11 +57,11 @@ public class ComputeQProfileMeasureStepTest {
   private static final int MODULE_REF = 11;
   private static final int SUB_MODULE_REF = 111;
 
-  private static final Component MULTI_MODULE_PROJECT = DumbComponent.builder(PROJECT, PROJECT_REF).setKey(PROJECT_KEY)
+  private static final Component MULTI_MODULE_PROJECT = ReportComponent.builder(PROJECT, PROJECT_REF).setKey(PROJECT_KEY)
     .addChildren(
-      DumbComponent.builder(MODULE, MODULE_REF)
+      ReportComponent.builder(MODULE, MODULE_REF)
         .addChildren(
-          DumbComponent.builder(MODULE, SUB_MODULE_REF).build()
+          ReportComponent.builder(MODULE, SUB_MODULE_REF).build()
         )
         .build()
     ).build();
@@ -99,14 +99,14 @@ public class ComputeQProfileMeasureStepTest {
 
   @Test
   public void add_quality_profile_measure_from_multiple_modules() throws Exception {
-    DumbComponent project = DumbComponent.builder(PROJECT, PROJECT_REF)
+    ReportComponent project = ReportComponent.builder(PROJECT, PROJECT_REF)
       .addChildren(
-        DumbComponent.builder(MODULE, MODULE_REF)
+        ReportComponent.builder(MODULE, MODULE_REF)
           .addChildren(
-            DumbComponent.builder(MODULE, SUB_MODULE_REF).build()
+            ReportComponent.builder(MODULE, SUB_MODULE_REF).build()
           )
           .build(),
-        DumbComponent.builder(MODULE, 12).build()
+        ReportComponent.builder(MODULE, 12).build()
       ).build();
 
     treeRootHolder.setRoot(project);
@@ -123,7 +123,7 @@ public class ComputeQProfileMeasureStepTest {
 
   @Test
   public void nothing_to_add_when_measure_already_exists_on_project() throws Exception {
-    DumbComponent project = DumbComponent.builder(PROJECT, PROJECT_REF).build();
+    ReportComponent project = ReportComponent.builder(PROJECT, PROJECT_REF).build();
 
     treeRootHolder.setRoot(project);
 

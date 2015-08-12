@@ -24,14 +24,14 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
-import static java.util.Objects.requireNonNull;
 
 /**
- * Implementation of {@link Component} for unit tests.
+ * Implementation of {@link Component} to unit test report components.
  */
-public class DumbComponent implements Component {
+public class ReportComponent implements Component {
 
   private static final FileAttributes DEFAULT_FILE_ATTRIBUTES = new FileAttributes(false, null);
 
@@ -45,7 +45,7 @@ public class DumbComponent implements Component {
   private final FileAttributes fileAttributes;
   private final List<Component> children;
 
-  private DumbComponent(Builder builder) {
+  private ReportComponent(Builder builder) {
     this.type = builder.type;
     this.key = builder.key;
     this.name = builder.name == null ? String.valueOf(builder.key) : builder.name;
@@ -105,7 +105,7 @@ public class DumbComponent implements Component {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    DumbComponent that = (DumbComponent) o;
+    ReportComponent that = (ReportComponent) o;
     return reportAttributes.getRef() == that.reportAttributes.getRef();
   }
 
@@ -116,7 +116,7 @@ public class DumbComponent implements Component {
 
   @Override
   public String toString() {
-    return "DumbComponent{" +
+    return "ReportComponent{" +
       "ref=" + this.reportAttributes.getRef() +
       ", key='" + key + '\'' +
       ", type=" + type +
@@ -138,7 +138,7 @@ public class DumbComponent implements Component {
     private final List<Component> children = new ArrayList<>();
 
     private Builder(Type type, int ref) {
-      requireNonNull(type, "Component type must not be null");
+      checkArgument(type.isReportType(), "Component type must not be a report type");
       this.type = type;
       this.ref = ref;
     }
@@ -170,12 +170,15 @@ public class DumbComponent implements Component {
     }
 
     public Builder addChildren(Component... c) {
+      for (Component component : c) {
+        checkArgument(component.getType().isReportType());
+      }
       this.children.addAll(asList(c));
       return this;
     }
 
-    public DumbComponent build() {
-      return new DumbComponent(this);
+    public ReportComponent build() {
+      return new ReportComponent(this);
     }
   }
 }

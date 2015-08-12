@@ -64,7 +64,7 @@ import static org.sonar.api.measures.CoreMetrics.VIOLATIONS_KEY;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.MAJOR;
-import static org.sonar.server.computation.component.DumbComponent.builder;
+import static org.sonar.server.computation.component.ReportComponent.builder;
 import static org.sonar.server.computation.metric.Metric.MetricType.INT;
 
 public class IssueCounterTest {

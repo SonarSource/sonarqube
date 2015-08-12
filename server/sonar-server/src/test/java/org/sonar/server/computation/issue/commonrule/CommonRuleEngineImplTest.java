@@ -23,14 +23,14 @@ import java.util.Collection;
 import org.junit.Test;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.FileAttributes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.computation.component.DumbComponent.DUMB_PROJECT;
+import static org.sonar.server.computation.component.ReportComponent.DUMB_PROJECT;
 
 public class CommonRuleEngineImplTest {
 
@@ -40,7 +40,7 @@ public class CommonRuleEngineImplTest {
 
   @Test
   public void process_files_with_known_language() throws Exception {
-    DumbComponent file = DumbComponent.builder(Component.Type.FILE, 1)
+    ReportComponent file = ReportComponent.builder(Component.Type.FILE, 1)
       .setKey("FILE_KEY").setUuid("FILE_UUID")
       .setFileAttributes(new FileAttributes(false, "java"))
       .build();
@@ -54,7 +54,7 @@ public class CommonRuleEngineImplTest {
 
   @Test
   public void do_not_process_files_with_unknown_language() throws Exception {
-    DumbComponent file = DumbComponent.builder(Component.Type.FILE, 1)
+    ReportComponent file = ReportComponent.builder(Component.Type.FILE, 1)
       .setKey("FILE_KEY").setUuid("FILE_UUID")
       .setFileAttributes(new FileAttributes(false, null))
       .build();

@@ -31,7 +31,7 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.measure.qualitygatedetails.EvaluatedCondition;
@@ -61,7 +61,7 @@ public class QualityGateMeasuresStepTest {
   private static final MetricImpl INT_METRIC_1 = createIntMetric(1);
   private static final MetricImpl INT_METRIC_2 = createIntMetric(2);
 
-  private static final DumbComponent PROJECT_COMPONENT = DumbComponent.builder(Component.Type.PROJECT, 1).build();
+  private static final ReportComponent PROJECT_COMPONENT = ReportComponent.builder(Component.Type.PROJECT, 1).build();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
@@ -103,7 +103,7 @@ public class QualityGateMeasuresStepTest {
 
   @Test
   public void no_measure_if_tree_has_no_project() {
-    DumbComponent notAProjectComponent = DumbComponent.builder(Component.Type.MODULE, 1).build();
+    ReportComponent notAProjectComponent = ReportComponent.builder(Component.Type.MODULE, 1).build();
 
     treeRootHolder.setRoot(notAProjectComponent);
 

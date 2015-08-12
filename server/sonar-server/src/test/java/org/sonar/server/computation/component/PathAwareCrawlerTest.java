@@ -44,29 +44,29 @@ import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_
 public class PathAwareCrawlerTest {
 
   private static final int ROOT_REF = 1;
-  private static final DumbComponent SOME_TREE_ROOT = DumbComponent.builder(PROJECT, ROOT_REF)
+  private static final ReportComponent SOME_TREE_ROOT = ReportComponent.builder(PROJECT, ROOT_REF)
     .addChildren(
-      DumbComponent.builder(MODULE, 11)
+      ReportComponent.builder(MODULE, 11)
         .addChildren(
-          DumbComponent.builder(DIRECTORY, 111)
+          ReportComponent.builder(DIRECTORY, 111)
             .addChildren(
-              DumbComponent.builder(FILE, 1111).build(),
-              DumbComponent.builder(FILE, 1112).build()
+              ReportComponent.builder(FILE, 1111).build(),
+              ReportComponent.builder(FILE, 1112).build()
             )
             .build(),
-          DumbComponent.builder(DIRECTORY, 112)
+          ReportComponent.builder(DIRECTORY, 112)
             .addChildren(
-              DumbComponent.builder(FILE, 1121).build()
+              ReportComponent.builder(FILE, 1121).build()
             )
             .build())
         .build(),
-      DumbComponent.builder(MODULE, 12)
+      ReportComponent.builder(MODULE, 12)
         .addChildren(
-          DumbComponent.builder(MODULE, 121)
+          ReportComponent.builder(MODULE, 121)
             .addChildren(
-              DumbComponent.builder(DIRECTORY, 1211)
+              ReportComponent.builder(DIRECTORY, 1211)
                 .addChildren(
-                  DumbComponent.builder(FILE, 12111).build()
+                  ReportComponent.builder(FILE, 12111).build()
                 )
                 .build()
             ).build()

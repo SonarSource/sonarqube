@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.period.PeriodsHolder;
@@ -52,7 +52,7 @@ public class AverageFormulaTest {
 
   FileAggregateContext fileAggregateContext = mock(FileAggregateContext.class);
   CreateMeasureContext createMeasureContext = new DumbCreateMeasureContext(
-      DumbComponent.builder(Component.Type.PROJECT, 1).build(), mock(Metric.class), mock(PeriodsHolder.class));
+      ReportComponent.builder(Component.Type.PROJECT, 1).build(), mock(Metric.class), mock(PeriodsHolder.class));
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();

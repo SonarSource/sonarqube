@@ -21,7 +21,7 @@ package org.sonar.server.computation.event;
 
 import org.junit.Test;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -66,6 +66,6 @@ public class EventRepositoryImplTest {
   }
 
   private static Component newComponent(int i) {
-    return DumbComponent.builder(Component.Type.FILE, i).build();
+    return ReportComponent.builder(Component.Type.FILE, i).build();
   }
 }

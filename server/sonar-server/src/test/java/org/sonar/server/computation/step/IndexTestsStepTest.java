@@ -32,7 +32,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.test.db.TestTesting;
 import org.sonar.server.test.index.TestDoc;
@@ -71,7 +71,7 @@ public class IndexTestsStepTest extends BaseStepTest {
     dbTester.prepareDbUnit(getClass(), "index_source.xml");
     TestTesting.updateDataColumn(dbTester.getSession(), "FILE1_UUID", TestTesting.newRandomTests(1));
 
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey("PROJECT_KEY").build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey("PROJECT_KEY").build());
 
     step().execute();
 

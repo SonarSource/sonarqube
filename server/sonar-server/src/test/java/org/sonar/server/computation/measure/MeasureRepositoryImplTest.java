@@ -46,7 +46,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.debt.Characteristic;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
@@ -71,8 +71,8 @@ public class MeasureRepositoryImplTest {
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   private static final String FILE_COMPONENT_KEY = "file cpt key";
-  private static final DumbComponent FILE_COMPONENT = DumbComponent.builder(Component.Type.FILE, 1).setKey(FILE_COMPONENT_KEY).build();
-  private static final DumbComponent OTHER_COMPONENT = DumbComponent.builder(Component.Type.FILE, 2).setKey("some other key").build();
+  private static final ReportComponent FILE_COMPONENT = ReportComponent.builder(Component.Type.FILE, 1).setKey(FILE_COMPONENT_KEY).build();
+  private static final ReportComponent OTHER_COMPONENT = ReportComponent.builder(Component.Type.FILE, 2).setKey("some other key").build();
   private static final String METRIC_KEY_1 = "metric 1";
   private static final int METRIC_ID_1 = 1;
   private static final String METRIC_KEY_2 = "metric 2";

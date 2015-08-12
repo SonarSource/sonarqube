@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.formula.counter.IntVariationValue;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
@@ -46,25 +46,25 @@ import static org.sonar.api.measures.CoreMetrics.NEW_LINES_TO_COVER_KEY;
 import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
-import static org.sonar.server.computation.component.DumbComponent.builder;
+import static org.sonar.server.computation.component.ReportComponent.builder;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 
 public class FormulaExecutorComponentCrawlerTest {
-  public static final DumbComponent BALANCED_COMPONENT_TREE = DumbComponent.builder(PROJECT, 1)
+  public static final ReportComponent BALANCED_COMPONENT_TREE = ReportComponent.builder(PROJECT, 1)
     .addChildren(
-      DumbComponent.builder(MODULE, 11)
+      ReportComponent.builder(MODULE, 11)
         .addChildren(
-          DumbComponent.builder(DIRECTORY, 111)
+          ReportComponent.builder(DIRECTORY, 111)
             .addChildren(
               builder(Component.Type.FILE, 1111).build(),
               builder(Component.Type.FILE, 1112).build()
             ).build()
         ).build(),
-      DumbComponent.builder(MODULE, 12)
+      ReportComponent.builder(MODULE, 12)
         .addChildren(
-          DumbComponent.builder(DIRECTORY, 121)
+          ReportComponent.builder(DIRECTORY, 121)
             .addChildren(
               builder(Component.Type.FILE, 1211).build()
             ).build()
@@ -174,11 +174,11 @@ public class FormulaExecutorComponentCrawlerTest {
 
   @Test
   public void add_no_measure() throws Exception {
-    DumbComponent project = DumbComponent.builder(PROJECT, 1)
+    ReportComponent project = ReportComponent.builder(PROJECT, 1)
       .addChildren(
-        DumbComponent.builder(MODULE, 11)
+        ReportComponent.builder(MODULE, 11)
           .addChildren(
-            DumbComponent.builder(DIRECTORY, 111)
+            ReportComponent.builder(DIRECTORY, 111)
               .addChildren(
                 builder(Component.Type.FILE, 1111).build()
               ).build()
@@ -196,11 +196,11 @@ public class FormulaExecutorComponentCrawlerTest {
 
   @Test
   public void add_no_measure_when_no_file() throws Exception {
-    DumbComponent project = DumbComponent.builder(PROJECT, 1)
+    ReportComponent project = ReportComponent.builder(PROJECT, 1)
       .addChildren(
-        DumbComponent.builder(MODULE, 11)
+        ReportComponent.builder(MODULE, 11)
           .addChildren(
-            DumbComponent.builder(DIRECTORY, 111).build()
+            ReportComponent.builder(DIRECTORY, 111).build()
           ).build()
       ).build();
     treeRootHolder.setRoot(project);

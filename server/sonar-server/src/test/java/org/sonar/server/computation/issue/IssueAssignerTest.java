@@ -28,7 +28,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
@@ -45,7 +45,7 @@ public class IssueAssignerTest {
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
   ScmAccountToUser scmAccountToUser = mock(ScmAccountToUser.class);
   DefaultAssignee defaultAssignee = mock(DefaultAssignee.class);
-  Component file = DumbComponent.builder(Component.Type.FILE, 1).build();
+  Component file = ReportComponent.builder(Component.Type.FILE, 1).build();
 
   IssueAssigner underTest;
 

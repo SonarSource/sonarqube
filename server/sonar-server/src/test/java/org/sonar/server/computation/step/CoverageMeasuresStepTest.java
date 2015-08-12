@@ -29,15 +29,13 @@ import org.sonar.server.computation.formula.coverage.LinesAndConditionsWithUncov
 import org.sonar.server.computation.measure.MeasureRepoEntry;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
-import org.sonar.server.computation.period.Period;
-import org.sonar.server.computation.period.PeriodsHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
-import static org.sonar.server.computation.component.DumbComponent.builder;
+import static org.sonar.server.computation.component.ReportComponent.builder;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;

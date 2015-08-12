@@ -123,7 +123,7 @@ public class VisitorsCrawlerTest {
   }
 
   private static Component component(final Component.Type type, final int ref, final Component... children) {
-    return DumbComponent.builder(type, ref).addChildren(children).build();
+    return ReportComponent.builder(type, ref).addChildren(children).build();
   }
 
   private static class TestTypeAwareVisitor extends TypeAwareVisitorAdapter {

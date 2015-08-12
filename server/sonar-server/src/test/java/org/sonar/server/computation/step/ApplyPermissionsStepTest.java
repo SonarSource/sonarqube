@@ -43,7 +43,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexDefinition;
@@ -110,7 +110,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     dbClient.permissionTemplateDao().insertGroupPermission(permissionTemplateDto.getId(), null, UserRole.USER);
     dbSession.commit();
 
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build();
     dbIdsRepository.setComponentId(project, projectDto.getId());
     treeRootHolder.setRoot(project);
 
@@ -138,7 +138,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
 
     dbSession.commit();
 
-    Component project = DumbComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build();
     dbIdsRepository.setComponentId(project, projectDto.getId());
     treeRootHolder.setRoot(project);
 

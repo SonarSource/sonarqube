@@ -39,7 +39,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.core.util.UtcDateUtils;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DumbComponent;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
 import org.sonar.server.computation.language.LanguageRepository;
@@ -85,7 +85,7 @@ public class QualityProfileEventsStepTest {
   @Before
   public void setUp() {
     when(metricRepository.getByKey(CoreMetrics.QUALITY_PROFILES_KEY)).thenReturn(qualityProfileMetric);
-    treeRootHolder.setRoot(DumbComponent.builder(Component.Type.PROJECT, 1).setUuid("uuid").setKey("key").build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("uuid").setKey("key").build());
   }
 
   @Test
