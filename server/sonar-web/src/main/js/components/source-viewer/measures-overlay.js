@@ -31,7 +31,7 @@ define([
 
     initialize: function () {
       var that = this,
-          requests = [this.requestMeasures(), this.requestNutshellIssues()];
+          requests = [this.requestMeasures(), this.requestIssues()];
       if (this.model.get('isUnitTest')) {
         requests.push(this.requestTests());
       }
@@ -132,7 +132,7 @@ define([
       });
     },
 
-    requestNutshellIssues: function () {
+    requestIssues: function () {
       var that = this,
           url = baseUrl + '/api/issues/search',
           options = {

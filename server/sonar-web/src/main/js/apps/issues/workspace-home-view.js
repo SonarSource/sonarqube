@@ -32,7 +32,7 @@ define([
 
     initialize: function () {
       this.model = new Backbone.Model();
-      this.requestNutshellIssues();
+      this.requestIssues();
       this.requestMyIssues();
     },
 
@@ -75,7 +75,7 @@ define([
       }
     },
 
-    requestNutshellIssues: function () {
+    requestIssues: function () {
       var that = this;
       var url = baseUrl + '/api/issues/search',
           options = {

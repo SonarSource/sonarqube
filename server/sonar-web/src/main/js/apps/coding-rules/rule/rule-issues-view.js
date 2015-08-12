@@ -30,12 +30,12 @@ define([
       var that = this;
       this.total = null;
       this.projects = [];
-      this.requestNutshellIssues().done(function () {
+      this.requestIssues().done(function () {
         that.render();
       });
     },
 
-    requestNutshellIssues: function () {
+    requestIssues: function () {
       var that = this,
           url = baseUrl + '/api/issues/search',
           options = {
