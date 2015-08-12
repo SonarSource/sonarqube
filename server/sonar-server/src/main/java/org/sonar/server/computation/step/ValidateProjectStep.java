@@ -189,7 +189,7 @@ public class ValidateProjectStep implements ComputationStep {
     }
 
     private void validateBatchKey(Component rawComponent) {
-      String batchKey = reportReader.readComponent(rawComponent.getRef()).getKey();
+      String batchKey = reportReader.readComponent(rawComponent.getReportAttributes().getRef()).getKey();
       if (!ComponentKeys.isValidModuleKey(batchKey)) {
         validationMessages.add(String.format("\"%s\" is not a valid project or module key. "
           + "Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", batchKey));

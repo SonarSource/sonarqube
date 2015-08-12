@@ -59,7 +59,7 @@ public class TrackerRawInputFactoryTest {
 
   @Test
   public void load_source_hash_sequences() throws Exception {
-    reportReader.putFileSourceLines(FILE.getRef(), "line 1;", "line 2;");
+    reportReader.putFileSourceLines(FILE.getReportAttributes().getRef(), "line 1;", "line 2;");
     Input<DefaultIssue> input = underTest.create(FILE);
 
     assertThat(input.getLineHashSequence()).isNotNull();
@@ -80,7 +80,7 @@ public class TrackerRawInputFactoryTest {
 
   @Test
   public void load_issues() throws Exception {
-    reportReader.putFileSourceLines(FILE.getRef(), "line 1;", "line 2;");
+    reportReader.putFileSourceLines(FILE.getReportAttributes().getRef(), "line 1;", "line 2;");
     BatchReport.Issue reportIssue = BatchReport.Issue.newBuilder()
       .setLine(2)
       .setMsg("the message")
@@ -89,7 +89,7 @@ public class TrackerRawInputFactoryTest {
       .setSeverity(Constants.Severity.BLOCKER)
       .setEffortToFix(3.14)
       .build();
-    reportReader.putIssues(FILE.getRef(), asList(reportIssue));
+    reportReader.putIssues(FILE.getReportAttributes().getRef(), asList(reportIssue));
     Input<DefaultIssue> input = underTest.create(FILE);
 
     Collection<DefaultIssue> issues = input.getIssues();
@@ -111,14 +111,14 @@ public class TrackerRawInputFactoryTest {
 
   @Test
   public void ignore_report_issues_on_common_rules() throws Exception {
-    reportReader.putFileSourceLines(FILE.getRef(), "line 1;", "line 2;");
+    reportReader.putFileSourceLines(FILE.getReportAttributes().getRef(), "line 1;", "line 2;");
     BatchReport.Issue reportIssue = BatchReport.Issue.newBuilder()
       .setMsg("the message")
       .setRuleRepository(CommonRuleKeys.commonRepositoryForLang("java"))
       .setRuleKey("S001")
       .setSeverity(Constants.Severity.BLOCKER)
       .build();
-    reportReader.putIssues(FILE.getRef(), asList(reportIssue));
+    reportReader.putIssues(FILE.getReportAttributes().getRef(), asList(reportIssue));
 
     Input<DefaultIssue> input = underTest.create(FILE);
 
@@ -127,7 +127,7 @@ public class TrackerRawInputFactoryTest {
 
   @Test
   public void load_issues_of_compute_engine_common_rules() throws Exception {
-    reportReader.putFileSourceLines(FILE.getRef(), "line 1;", "line 2;");
+    reportReader.putFileSourceLines(FILE.getReportAttributes().getRef(), "line 1;", "line 2;");
     DefaultIssue ceIssue = new DefaultIssue()
       .setRuleKey(RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), "InsufficientCoverage"))
       .setMessage("not enough coverage")

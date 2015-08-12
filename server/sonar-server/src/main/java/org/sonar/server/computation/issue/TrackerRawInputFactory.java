@@ -69,7 +69,7 @@ public class TrackerRawInputFactory {
     protected LineHashSequence loadLineHashSequence() {
       Iterable<String> lines;
       if (component.getType() == Component.Type.FILE) {
-        lines = Lists.newArrayList(reportReader.readFileSource(component.getRef()));
+        lines = Lists.newArrayList(reportReader.readFileSource(component.getReportAttributes().getRef()));
       } else {
         lines = Collections.emptyList();
       }
@@ -83,7 +83,7 @@ public class TrackerRawInputFactory {
       for (DefaultIssue commonRuleIssue : commonRuleEngine.process(component)) {
         result.add(init(commonRuleIssue));
       }
-      try (CloseableIterator<BatchReport.Issue> reportIssues = reportReader.readComponentIssues(component.getRef())) {
+      try (CloseableIterator<BatchReport.Issue> reportIssues = reportReader.readComponentIssues(component.getReportAttributes().getRef())) {
         // optimization - do not load line hashes if there are no issues -> getLineHashSequence() is executed
         // as late as possible
         while (reportIssues.hasNext()) {
@@ -161,7 +161,7 @@ public class TrackerRawInputFactory {
 
     private DbIssues.Location convertLocation(BatchReport.IssueLocation source) {
       DbIssues.Location.Builder target = DbIssues.Location.newBuilder();
-      if (source.hasComponentRef() && source.getComponentRef() != component.getRef()) {
+      if (source.hasComponentRef() && source.getComponentRef() != component.getReportAttributes().getRef()) {
         target.setComponentId(treeRootHolder.getComponentByRef(source.getComponentRef()).getUuid());
       }
       if (source.hasMsg()) {

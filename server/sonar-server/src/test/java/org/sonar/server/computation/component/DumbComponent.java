@@ -22,7 +22,6 @@ package org.sonar.server.computation.component;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -39,21 +38,19 @@ public class DumbComponent implements Component {
   public static final Component DUMB_PROJECT = builder(Type.PROJECT, 1).setKey("PROJECT_KEY").setUuid("PROJECT_UUID").setName("Project Name").setVersion("1.0-SNAPSHOT").build();
 
   private final Type type;
-  private final int ref;
-  private final String uuid;
-  private final String key;
   private final String name;
-  private final String version;
+  private final String key;
+  private final String uuid;
+  private final ReportAttributes reportAttributes;
   private final FileAttributes fileAttributes;
   private final List<Component> children;
 
   private DumbComponent(Builder builder) {
     this.type = builder.type;
-    this.ref = builder.ref;
-    this.uuid = builder.uuid;
     this.key = builder.key;
-    this.name = builder.name;
-    this.version = builder.version;
+    this.name = builder.name == null ? String.valueOf(builder.key) : builder.name;
+    this.uuid = builder.uuid;
+    this.reportAttributes = new ReportAttributes(builder.ref, builder.version);
     this.fileAttributes = builder.fileAttributes == null ? DEFAULT_FILE_ATTRIBUTES : builder.fileAttributes;
     this.children = ImmutableList.copyOf(builder.children);
   }
@@ -66,7 +63,7 @@ public class DumbComponent implements Component {
   @Override
   public String getUuid() {
     if (uuid == null) {
-      throw new UnsupportedOperationException(String.format("Component uuid of ref '%d' has not be fed yet", ref));
+      throw new UnsupportedOperationException(String.format("Component uuid of ref '%d' has not be fed yet", this.reportAttributes.getRef()));
     }
     return uuid;
   }
@@ -74,25 +71,19 @@ public class DumbComponent implements Component {
   @Override
   public String getKey() {
     if (key == null) {
-      throw new UnsupportedOperationException(String.format("Component key of ref '%d' has not be fed yet", ref));
+      throw new UnsupportedOperationException(String.format("Component key of ref '%d' has not be fed yet", this.reportAttributes.getRef()));
     }
     return key;
   }
 
   @Override
+  public ReportAttributes getReportAttributes() {
+    return this.reportAttributes;
+  }
+
+  @Override
   public String getName() {
-    return name;
-  }
-
-  @Override
-  @CheckForNull
-  public String getVersion() {
-    return version;
-  }
-
-  @Override
-  public int getRef() {
-    return ref;
+    return this.name;
   }
 
   @Override
@@ -115,18 +106,18 @@ public class DumbComponent implements Component {
       return false;
     }
     DumbComponent that = (DumbComponent) o;
-    return ref == that.ref;
+    return reportAttributes.getRef() == that.reportAttributes.getRef();
   }
 
   @Override
   public int hashCode() {
-    return ref;
+    return this.reportAttributes.getRef();
   }
 
   @Override
   public String toString() {
     return "DumbComponent{" +
-      "ref=" + ref +
+      "ref=" + this.reportAttributes.getRef() +
       ", key='" + key + '\'' +
       ", type=" + type +
       '}';

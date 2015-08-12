@@ -116,7 +116,7 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
 
     @Override
     public void visitFile(Component component) {
-      BatchReport.Changesets scm = reportReader.readChangesets(component.getRef());
+      BatchReport.Changesets scm = reportReader.readChangesets(component.getReportAttributes().getRef());
       processScm(scm);
     }
 

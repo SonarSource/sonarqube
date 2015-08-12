@@ -288,7 +288,7 @@ public class FormulaExecutorComponentCrawlerTest {
     @Override
     public void aggregate(FileAggregateContext context) {
       // verify the context which is passed to the method
-      assertThat(context.getFile().getRef()).isIn(1111, 1112, 1211);
+      assertThat(context.getFile().getReportAttributes().getRef()).isIn(1111, 1112, 1211);
       assertThat(context.getPeriods()).isEqualTo(periodsHolder.getPeriods());
 
       Optional<Measure> measureOptional = context.getMeasure(LINES_KEY);
@@ -340,7 +340,7 @@ public class FormulaExecutorComponentCrawlerTest {
     @Override
     public void aggregate(FileAggregateContext context) {
       // verify the context which is passed to the method
-      assertThat(context.getFile().getRef()).isIn(1111, 1112, 1211);
+      assertThat(context.getFile().getReportAttributes().getRef()).isIn(1111, 1112, 1211);
       assertThat(context.getPeriods()).isEqualTo(periodsHolder.getPeriods());
 
       Optional<Measure> measureOptional = context.getMeasure(NEW_LINES_TO_COVER_KEY);

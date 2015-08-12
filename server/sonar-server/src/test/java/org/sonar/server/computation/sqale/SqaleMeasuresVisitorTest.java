@@ -132,12 +132,12 @@ public class SqaleMeasuresVisitorTest {
 
     DumbComponent fileComponent = createFileComponent(languageKey, 1);
     treeRootHolder.setRoot(fileComponent);
-    measureRepository.addRawMeasure(fileComponent.getRef(), metricKey, newMeasureBuilder().create(measureValue));
-    measureRepository.addRawMeasure(fileComponent.getRef(), TECHNICAL_DEBT_KEY, newMeasureBuilder().create(debt));
+    measureRepository.addRawMeasure(fileComponent.getReportAttributes().getRef(), metricKey, newMeasureBuilder().create(measureValue));
+    measureRepository.addRawMeasure(fileComponent.getReportAttributes().getRef(), TECHNICAL_DEBT_KEY, newMeasureBuilder().create(debt));
 
     underTest.visit(fileComponent);
 
-    verifyFileMeasures(fileComponent.getRef(), measureValue, debt, languageCost, expectedRating);
+    verifyFileMeasures(fileComponent.getReportAttributes().getRef(), measureValue, debt, languageCost, expectedRating);
   }
 
   @Test

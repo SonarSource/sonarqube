@@ -103,7 +103,7 @@ public class PersistFileSourcesStep implements ComputationStep {
 
     @Override
     public void visitFile(Component file) {
-      int fileRef = file.getRef();
+      int fileRef = file.getReportAttributes().getRef();
       BatchReport.Component component = reportReader.readComponent(fileRef);
       CloseableIterator<String> linesIterator = reportReader.readFileSource(fileRef);
       LineReaders lineReaders = new LineReaders(reportReader, fileRef);

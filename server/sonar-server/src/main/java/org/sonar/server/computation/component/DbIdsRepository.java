@@ -32,7 +32,7 @@ public class DbIdsRepository {
   private final Map<Integer, Long> snapshotIdsByRef = new HashMap<>();
 
   public DbIdsRepository setComponentId(Component component, long componentId) {
-    int ref = component.getRef();
+    int ref = component.getReportAttributes().getRef();
     Long existingComponentId = componentIdsByRef.get(ref);
     if (existingComponentId != null) {
       throw new IllegalArgumentException(String.format("Component ref '%s' has already a component id", ref));
@@ -42,7 +42,7 @@ public class DbIdsRepository {
   }
 
   public long getComponentId(Component component) {
-    int ref = component.getRef();
+    int ref = component.getReportAttributes().getRef();
     Long componentId = componentIdsByRef.get(ref);
     if (componentId == null) {
       throw new IllegalArgumentException(String.format("Component ref '%s' has no component id", ref));
@@ -51,7 +51,7 @@ public class DbIdsRepository {
   }
 
   public DbIdsRepository setSnapshotId(Component component, long snapshotId) {
-    int ref = component.getRef();
+    int ref = component.getReportAttributes().getRef();
     Long existingSnapshotId = snapshotIdsByRef.get(ref);
     if (existingSnapshotId != null) {
       throw new IllegalArgumentException(String.format("Component ref '%s' has already a snapshot id", ref));
@@ -61,7 +61,7 @@ public class DbIdsRepository {
   }
 
   public long getSnapshotId(Component component) {
-    int ref = component.getRef();
+    int ref = component.getReportAttributes().getRef();
     Long snapshotId = snapshotIdsByRef.get(ref);
     if (snapshotId == null) {
       throw new IllegalArgumentException(String.format("Component ref '%s' has no snapshot id", ref));

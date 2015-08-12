@@ -310,7 +310,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     @Override
     public void aggregate(FileAggregateContext context) {
       Component fileComponent = context.getFile();
-      BatchReport.Changesets componentScm = batchReportReader.readChangesets(fileComponent.getRef());
+      BatchReport.Changesets componentScm = batchReportReader.readChangesets(fileComponent.getReportAttributes().getRef());
       if (componentScm == null) {
         return;
       }

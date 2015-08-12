@@ -99,7 +99,7 @@ public class PersistProjectLinksStep implements ComputationStep {
     }
 
     private void processComponent(Component component) {
-      BatchReport.Component batchComponent = reportReader.readComponent(component.getRef());
+      BatchReport.Component batchComponent = reportReader.readComponent(component.getReportAttributes().getRef());
       processLinks(component.getUuid(), batchComponent.getLinkList());
     }
 

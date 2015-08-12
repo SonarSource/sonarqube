@@ -68,8 +68,8 @@ public class TestErrorRuleTest {
   @Test
   public void issue_if_errors_or_failures() throws Exception {
     activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.<String, String>emptyMap()));
-    measureRepository.addRawMeasure(FILE.getRef(), CoreMetrics.TEST_ERRORS_KEY, Measure.newMeasureBuilder().create(2));
-    measureRepository.addRawMeasure(FILE.getRef(), CoreMetrics.TEST_FAILURES_KEY, Measure.newMeasureBuilder().create(1));
+    measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.TEST_ERRORS_KEY, Measure.newMeasureBuilder().create(2));
+    measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.TEST_FAILURES_KEY, Measure.newMeasureBuilder().create(1));
 
     DefaultIssue issue = underTest.processFile(FILE, "java");
 
@@ -82,8 +82,8 @@ public class TestErrorRuleTest {
   @Test
   public void no_issues_if_zero_errors_and_failures() throws Exception {
     activeRuleHolder.put(new ActiveRule(RULE_KEY, Severity.CRITICAL, Collections.<String, String>emptyMap()));
-    measureRepository.addRawMeasure(FILE.getRef(), CoreMetrics.TEST_ERRORS_KEY, Measure.newMeasureBuilder().create(0));
-    measureRepository.addRawMeasure(FILE.getRef(), CoreMetrics.TEST_FAILURES_KEY, Measure.newMeasureBuilder().create(0));
+    measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.TEST_ERRORS_KEY, Measure.newMeasureBuilder().create(0));
+    measureRepository.addRawMeasure(FILE.getReportAttributes().getRef(), CoreMetrics.TEST_FAILURES_KEY, Measure.newMeasureBuilder().create(0));
 
     DefaultIssue issue = underTest.processFile(FILE, "java");
 

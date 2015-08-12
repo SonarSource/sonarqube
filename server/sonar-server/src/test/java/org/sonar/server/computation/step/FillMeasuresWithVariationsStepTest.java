@@ -235,6 +235,6 @@ public class FillMeasuresWithVariationsStepTest {
   }
 
   private void addRawMeasure(Component component, Metric metric, Measure measure) {
-    measureRepository.addRawMeasure(component.getRef(), metric.getKey(), measure);
+    measureRepository.addRawMeasure(component.getReportAttributes().getRef(), metric.getKey(), measure);
   }
 }

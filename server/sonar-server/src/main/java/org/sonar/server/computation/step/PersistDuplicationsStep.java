@@ -84,7 +84,7 @@ public class PersistDuplicationsStep implements ComputationStep {
     }
 
     private void visitComponent(Component component) {
-      try (CloseableIterator<BatchReport.Duplication> duplications = reportReader.readComponentDuplications(component.getRef())) {
+      try (CloseableIterator<BatchReport.Duplication> duplications = reportReader.readComponentDuplications(component.getReportAttributes().getRef())) {
         if (duplications.hasNext()) {
           saveDuplications(component, duplications);
         }

@@ -353,7 +353,7 @@ public class MeasureRepositoryImplTest {
 
     when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
 
-    reportReader.putMeasures(FILE_COMPONENT.getRef(), ImmutableList.of(
+    reportReader.putMeasures(FILE_COMPONENT.getReportAttributes().getRef(), ImmutableList.of(
       BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue(value).build()
       ));
 
@@ -372,7 +372,7 @@ public class MeasureRepositoryImplTest {
     when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
     when(reportMetricValidator.validate(METRIC_KEY_2)).thenReturn(false);
 
-    reportReader.putMeasures(FILE_COMPONENT.getRef(), ImmutableList.of(
+    reportReader.putMeasures(FILE_COMPONENT.getReportAttributes().getRef(), ImmutableList.of(
       BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("value1").build(),
       BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_2).setStringValue("value2").build()
       ));
@@ -384,7 +384,7 @@ public class MeasureRepositoryImplTest {
   @Test
   public void getRawMeasure_retrieves_added_measure_over_batch_measure() {
     when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
-    reportReader.putMeasures(FILE_COMPONENT.getRef(), ImmutableList.of(
+    reportReader.putMeasures(FILE_COMPONENT.getReportAttributes().getRef(), ImmutableList.of(
       BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build()
       ));
 
@@ -400,7 +400,7 @@ public class MeasureRepositoryImplTest {
   @Test
   public void getRawMeasure_retrieves_measure_from_batch_and_caches_it_locally_so_that_it_can_be_updated() {
     when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
-    reportReader.putMeasures(FILE_COMPONENT.getRef(), ImmutableList.of(
+    reportReader.putMeasures(FILE_COMPONENT.getReportAttributes().getRef(), ImmutableList.of(
       BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build()
       ));
 
@@ -476,7 +476,7 @@ public class MeasureRepositoryImplTest {
     when(reportMetricValidator.validate(METRIC_KEY_2)).thenReturn(true);
     BatchReport.Measure batchMeasure1 = BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build();
     BatchReport.Measure batchMeasure2 = BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_2).setStringValue("some value").build();
-    reportReader.putMeasures(FILE_COMPONENT.getRef(), ImmutableList.of(batchMeasure1, batchMeasure2));
+    reportReader.putMeasures(FILE_COMPONENT.getReportAttributes().getRef(), ImmutableList.of(batchMeasure1, batchMeasure2));
 
     Measure addedMeasure = SOME_MEASURE;
     underTest.add(FILE_COMPONENT, metric1, addedMeasure);

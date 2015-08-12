@@ -121,8 +121,8 @@ public class PersistTestsStep implements ComputationStep {
     }
 
     private void persistTestResults(Component component) {
-      Multimap<String, DbFileSources.Test.Builder> testsByName = buildDbTests(component.getRef());
-      Table<String, String, DbFileSources.Test.CoveredFile.Builder> coveredFilesByName = loadCoverageDetails(component.getRef());
+      Multimap<String, DbFileSources.Test.Builder> testsByName = buildDbTests(component.getReportAttributes().getRef());
+      Table<String, String, DbFileSources.Test.CoveredFile.Builder> coveredFilesByName = loadCoverageDetails(component.getReportAttributes().getRef());
       List<DbFileSources.Test> tests = addCoveredFilesToTests(testsByName, coveredFilesByName);
       if (checkIfThereAreUnprocessedCoverageDetails(testsByName, coveredFilesByName, component.getKey())) {
         hasUnprocessedCoverageDetails = true;
@@ -132,7 +132,7 @@ public class PersistTestsStep implements ComputationStep {
         return;
       }
 
-      String componentUuid = getUuid(component.getRef());
+      String componentUuid = getUuid(component.getReportAttributes().getRef());
       FileSourceDto existingDto = existingFileSourcesByUuid.get(componentUuid);
       long now = system.now();
       if (existingDto != null) {

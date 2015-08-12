@@ -196,7 +196,7 @@ public class NewCoverageMeasuresStepTest {
   public void verify_measure_of_condition_not_computed_if_there_is_none() {
     treeRootHolder.setRoot(FILE_COMPONENT);
     reportReader.putChangesets(Changesets.newBuilder()
-        .setComponentRef(FILE_COMPONENT.getRef())
+        .setComponentRef(FILE_COMPONENT.getReportAttributes().getRef())
         .addChangeset(Changesets.Changeset.newBuilder().build())
         .addChangeset(Changesets.Changeset.newBuilder()
           .setDate(parseDate("2007-01-15").getTime())
@@ -219,7 +219,7 @@ public class NewCoverageMeasuresStepTest {
   public void verify_no_measure_when_nothing_has_changed() {
     treeRootHolder.setRoot(FILE_COMPONENT);
     reportReader.putChangesets(BatchReport.Changesets.newBuilder()
-      .setComponentRef(FILE_COMPONENT.getRef())
+      .setComponentRef(FILE_COMPONENT.getReportAttributes().getRef())
       .addChangeset(Changesets.Changeset.newBuilder()
         .setDate(parseDate("2008-08-02").getTime())
         .build())
@@ -228,13 +228,13 @@ public class NewCoverageMeasuresStepTest {
       .addChangesetIndexByLine(0)
       .addChangesetIndexByLine(0)
       .build());
-    measureRepository.addRawMeasure(FILE_COMPONENT.getRef(), COVERAGE_LINE_HITS_DATA_KEY, newMeasureBuilder().create("2=1;3=1"));
-    measureRepository.addRawMeasure(FILE_COMPONENT.getRef(), CONDITIONS_BY_LINE_KEY, newMeasureBuilder().create("2=1"));
-    measureRepository.addRawMeasure(FILE_COMPONENT.getRef(), COVERED_CONDITIONS_BY_LINE_KEY, newMeasureBuilder().create("2=1"));
+    measureRepository.addRawMeasure(FILE_COMPONENT.getReportAttributes().getRef(), COVERAGE_LINE_HITS_DATA_KEY, newMeasureBuilder().create("2=1;3=1"));
+    measureRepository.addRawMeasure(FILE_COMPONENT.getReportAttributes().getRef(), CONDITIONS_BY_LINE_KEY, newMeasureBuilder().create("2=1"));
+    measureRepository.addRawMeasure(FILE_COMPONENT.getReportAttributes().getRef(), COVERED_CONDITIONS_BY_LINE_KEY, newMeasureBuilder().create("2=1"));
 
     underTest.execute();
 
-    assertThat(measureRepository.getAddedRawMeasures(FILE_COMPONENT.getRef())).isEmpty();
+    assertThat(measureRepository.getAddedRawMeasures(FILE_COMPONENT.getReportAttributes().getRef())).isEmpty();
   }
 
   @Test
@@ -243,7 +243,7 @@ public class NewCoverageMeasuresStepTest {
 
     treeRootHolder.setRoot(fileComponent);
     reportReader.putChangesets(Changesets.newBuilder()
-      .setComponentRef(fileComponent.getRef())
+      .setComponentRef(fileComponent.getReportAttributes().getRef())
       .addChangeset(Changesets.Changeset.newBuilder()
         .setDate(parseDate("2008-05-18").getTime())
         .build())
@@ -295,7 +295,7 @@ public class NewCoverageMeasuresStepTest {
                                                             String newLinesToCover, String newUncoveredLines, String newConditionsToCover, String newUncoveredConditions) {
     treeRootHolder.setRoot(FILE_COMPONENT);
     reportReader.putChangesets(Changesets.newBuilder()
-      .setComponentRef(FILE_COMPONENT.getRef())
+      .setComponentRef(FILE_COMPONENT.getReportAttributes().getRef())
       .addChangeset(Changesets.Changeset.newBuilder().build())
       .addChangeset(Changesets.Changeset.newBuilder()
         .setDate(parseDate("2007-01-15").getTime())
@@ -308,11 +308,11 @@ public class NewCoverageMeasuresStepTest {
       .addChangesetIndexByLine(1) // line 3
       .addChangesetIndexByLine(2) // line 4
       .build());
-    measureRepository.addRawMeasure(FILE_COMPONENT.getRef(), coverageLineHitsData, newMeasureBuilder().create("2=0;3=2;4=3"));
+    measureRepository.addRawMeasure(FILE_COMPONENT.getReportAttributes().getRef(), coverageLineHitsData, newMeasureBuilder().create("2=0;3=2;4=3"));
 
     underTest.execute();
 
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_COMPONENT.getRef()))).contains(
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_COMPONENT.getReportAttributes().getRef()))).contains(
       entryOf(newLinesToCover, createMeasure(2d, null)),
       entryOf(newUncoveredLines, createMeasure(1d, null)),
       entryOf(newConditionsToCover, createMeasure(0d, null)),
@@ -577,11 +577,11 @@ public class NewCoverageMeasuresStepTest {
 
   private void verify_computation_of_measures_for_new_conditions(MetricKeys metricKeys) {
     treeRootHolder.setRoot(FILE_COMPONENT);
-    defineChangeSetsAndMeasures(FILE_COMPONENT.getRef(), metricKeys, new MeasureValues(3, 4, 1), new MeasureValues(0, 3, 2));
+    defineChangeSetsAndMeasures(FILE_COMPONENT.getReportAttributes().getRef(), metricKeys, new MeasureValues(3, 4, 1), new MeasureValues(0, 3, 2));
 
     underTest.execute();
 
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_COMPONENT.getRef()))).contains(
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_COMPONENT.getReportAttributes().getRef()))).contains(
       entryOf(metricKeys.newLinesToCover, createMeasure(5d, 3d)),
       entryOf(metricKeys.newUncoveredLines, createMeasure(3d, 2d)),
       entryOf(metricKeys.newConditionsToCover, createMeasure(7d, 3d)),

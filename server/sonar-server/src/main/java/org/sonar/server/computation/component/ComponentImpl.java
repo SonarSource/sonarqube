@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.ImmutableList.copyOf;
@@ -33,9 +34,9 @@ import static com.google.common.collect.Iterables.filter;
 
 public class ComponentImpl implements Component {
   private final Type type;
-  private final int ref;
   private final String name;
-  private final String version;
+  @CheckForNull
+  private final ReportAttributes reportAttributes;
   @CheckForNull
   private final FileAttributes fileAttributes;
   private final List<Component> children;
@@ -45,12 +46,15 @@ public class ComponentImpl implements Component {
   private String uuid;
 
   public ComponentImpl(BatchReport.Component component, @Nullable Iterable<Component> children) {
-    this.ref = component.getRef();
     this.type = convertType(component.getType());
-    this.name = component.getName();
-    this.version = component.hasVersion() ? component.getVersion() : null;
+    this.name = checkNotNull(component.getName());
+    this.reportAttributes = createBatchAttributes(component);
     this.fileAttributes = createFileAttributes(component);
     this.children = children == null ? Collections.<Component>emptyList() : copyOf(filter(children, notNull()));
+  }
+
+  private static ReportAttributes createBatchAttributes(BatchReport.Component component) {
+    return new ReportAttributes(component.getRef(), component.hasVersion() ? component.getVersion() : null);
   }
 
   @CheckForNull
@@ -85,14 +89,9 @@ public class ComponentImpl implements Component {
   }
 
   @Override
-  public int getRef() {
-    return ref;
-  }
-
-  @Override
   public String getUuid() {
     if (uuid == null) {
-      throw new UnsupportedOperationException(String.format("Component uuid of ref '%s' has not be fed yet", getRef()));
+      throw new UnsupportedOperationException(String.format("Component uuid of ref '%s' has not be fed yet", this.reportAttributes.getRef()));
     }
     return uuid;
   }
@@ -105,25 +104,24 @@ public class ComponentImpl implements Component {
   @Override
   public String getKey() {
     if (key == null) {
-      throw new UnsupportedOperationException(String.format("Component key of ref '%s' has not be fed yet", getRef()));
+      throw new UnsupportedOperationException(String.format("Component key of ref '%s' has not be fed yet", this.reportAttributes.getRef()));
     }
     return key;
-  }
-
-  @Override
-  public String getName() {
-    return name;
-  }
-
-  @Override
-  @CheckForNull
-  public String getVersion() {
-    return version;
   }
 
   public ComponentImpl setKey(String key) {
     this.key = key;
     return this;
+  }
+
+  @Override
+  public ReportAttributes getReportAttributes() {
+    return this.reportAttributes;
+  }
+
+  @Override
+  public String getName() {
+    return this.name;
   }
 
   @Override

@@ -17,24 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.event;
+package org.sonar.server.computation.component;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import org.sonar.server.computation.component.Component;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
 import static java.util.Objects.requireNonNull;
 
-public class EventRepositoryImpl implements EventRepository {
-  private final Multimap<Integer, Event> events = HashMultimap.create();
+@Immutable
+public class ReportAttributes {
+  private final int ref;
+  private final String version;
 
-  @Override
-  public void add(Component component, Event event) {
-    events.put(component.getReportAttributes().getRef(), requireNonNull(event));
+  public ReportAttributes(int ref, @Nullable String version) {
+    this.ref = ref;
+    this.version = version;
   }
 
-  @Override
-  public Iterable<Event> getEvents(Component component) {
-    return this.events.get(component.getReportAttributes().getRef());
+  /**
+   * The component ref in the batch report.
+   */
+  public int getRef() {
+    return ref;
   }
+
+  /**
+   * The project or module version as defined in the batch report.
+   */
+  @CheckForNull
+  public String getVersion() {
+    return this.version;
+  }
+
 }

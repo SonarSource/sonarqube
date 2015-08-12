@@ -108,12 +108,12 @@ public class IssueCounter extends IssueVisitor {
   public void beforeComponent(Component component) {
     // TODO optimization no need to instantiate counter if no open issues
     currentCounters = new Counters();
-    countersByComponentRef.put(component.getRef(), currentCounters);
+    countersByComponentRef.put(component.getReportAttributes().getRef(), currentCounters);
 
     // aggregate children counters
     for (Component child : component.getChildren()) {
       // no need to keep the children in memory. They can be garbage-collected.
-      Counters childCounters = countersByComponentRef.remove(child.getRef());
+      Counters childCounters = countersByComponentRef.remove(child.getReportAttributes().getRef());
       currentCounters.add(childCounters);
     }
   }

@@ -57,12 +57,12 @@ public class DebtAggregator extends IssueVisitor {
   @Override
   public void beforeComponent(Component component) {
     currentDebt = new Debt();
-    debtsByComponentRef.put(component.getRef(), currentDebt);
+    debtsByComponentRef.put(component.getReportAttributes().getRef(), currentDebt);
 
     // aggregate children counters
     for (Component child : component.getChildren()) {
       // no need to keep the children in memory. They can be garbage-collected.
-      Debt childDebt = debtsByComponentRef.remove(child.getRef());
+      Debt childDebt = debtsByComponentRef.remove(child.getReportAttributes().getRef());
       if (childDebt != null) {
         currentDebt.add(childDebt);
       }

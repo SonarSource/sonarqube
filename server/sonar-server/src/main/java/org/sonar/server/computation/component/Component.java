@@ -20,7 +20,6 @@
 package org.sonar.server.computation.component;
 
 import java.util.List;
-import javax.annotation.CheckForNull;
 import org.sonar.server.computation.step.FillComponentsStep;
 
 public interface Component {
@@ -49,30 +48,28 @@ public interface Component {
   Type getType();
 
   /**
-   * Return the component uuid only when {@link FillComponentsStep} has been executed, otherwise it will throw an exception.
+   * Returns the component uuid only when {@link FillComponentsStep} has been executed, otherwise it will throw an exception.
    */
   String getUuid();
 
   /**
-   * Return the component key only when {@link FillComponentsStep} has been executed, otherwise it will throw an exception.
+   * Returns the component key only when {@link FillComponentsStep} has been executed, otherwise it will throw an exception.
    */
   String getKey();
 
   /**
-   * The component ref in the batch report.
+   * Returns the attributes specific to components of type {@link Type#PROJECT}, {@link Type#MODULE},
+   * {@link Type#DIRECTORY} or {@link Type#FILE}.
+   *
+   * @throws IllegalStateException when the component's type is neither {@link Type#PROJECT}, {@link Type#MODULE},
+   *         {@link Type#DIRECTORY} nor {@link Type#FILE}.
    */
-  int getRef();
+  ReportAttributes getReportAttributes();
 
   /**
-   * The component name as defined in the batch report.
+   * The component name.
    */
   String getName();
-
-  /**
-   * The project or module version as defined in the batch report.
-   */
-  @CheckForNull
-  String getVersion();
 
   /**
    * The attributes of the Component if it's type is File.

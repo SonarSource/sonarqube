@@ -457,7 +457,7 @@ public class FillComponentsStepTest extends BaseStepTest {
   }
 
   private static void feedComponentByRef(Component component, Map<Integer, Component> map) {
-    map.put(component.getRef(), component);
+    map.put(component.getReportAttributes().getRef(), component);
     for (Component child : component.getChildren()) {
       feedComponentByRef(child, map);
     }

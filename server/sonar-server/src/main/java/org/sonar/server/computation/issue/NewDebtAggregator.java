@@ -62,13 +62,13 @@ public class NewDebtAggregator extends IssueVisitor {
   @Override
   public void beforeComponent(Component component) {
     currentSum = new DebtSum();
-    sumsByComponentRef.put(component.getRef(), currentSum);
+    sumsByComponentRef.put(component.getReportAttributes().getRef(), currentSum);
     List<IssueChangeDto> changes = dbClient.issueChangeDao().selectChangelogOfNonClosedIssuesByComponent(component.getUuid());
     for (IssueChangeDto change : changes) {
       changesByIssueUuid.put(change.getIssueKey(), change);
     }
     for (Component child : component.getChildren()) {
-      DebtSum childSum = sumsByComponentRef.remove(child.getRef());
+      DebtSum childSum = sumsByComponentRef.remove(child.getReportAttributes().getRef());
       if (childSum != null) {
         currentSum.add(childSum);
       }

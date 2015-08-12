@@ -92,7 +92,7 @@ public class PersistComponentsStep implements ComputationStep {
     }
 
     public void recursivelyProcessComponent(Component component, @Nullable ComponentDto lastModule) {
-      BatchReport.Component reportComponent = reportReader.readComponent(component.getRef());
+      BatchReport.Component reportComponent = reportReader.readComponent(component.getReportAttributes().getRef());
 
       switch (component.getType()) {
         case PROJECT:
@@ -138,7 +138,7 @@ public class PersistComponentsStep implements ComputationStep {
       componentDto.setProjectUuid(componentDto.uuid());
       componentDto.setModuleUuidPath(ComponentDto.MODULE_UUID_PATH_SEP + componentDto.uuid() + ComponentDto.MODULE_UUID_PATH_SEP);
 
-      ComponentDto projectDto = persistComponent(project.getRef(), componentDto);
+      ComponentDto projectDto = persistComponent(project.getReportAttributes().getRef(), componentDto);
       addToCache(project, projectDto);
       return projectDto;
     }
@@ -161,7 +161,7 @@ public class PersistComponentsStep implements ComputationStep {
       componentDto.setModuleUuid(lastModule.uuid());
       componentDto.setModuleUuidPath(lastModule.moduleUuidPath() + componentDto.uuid() + ComponentDto.MODULE_UUID_PATH_SEP);
 
-      ComponentDto moduleDto = persistComponent(module.getRef(), componentDto);
+      ComponentDto moduleDto = persistComponent(module.getReportAttributes().getRef(), componentDto);
       addToCache(module, moduleDto);
       return moduleDto;
     }
@@ -182,7 +182,7 @@ public class PersistComponentsStep implements ComputationStep {
       componentDto.setModuleUuid(lastModule.uuid());
       componentDto.setModuleUuidPath(lastModule.moduleUuidPath());
 
-      ComponentDto directoryDto = persistComponent(directory.getRef(), componentDto);
+      ComponentDto directoryDto = persistComponent(directory.getReportAttributes().getRef(), componentDto);
       addToCache(directory, directoryDto);
       return directoryDto;
     }
@@ -206,7 +206,7 @@ public class PersistComponentsStep implements ComputationStep {
       componentDto.setModuleUuid(lastModule.uuid());
       componentDto.setModuleUuidPath(lastModule.moduleUuidPath());
 
-      ComponentDto fileDto = persistComponent(file.getRef(), componentDto);
+      ComponentDto fileDto = persistComponent(file.getReportAttributes().getRef(), componentDto);
       addToCache(file, fileDto);
     }
 

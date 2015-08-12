@@ -92,14 +92,14 @@ public class FillComponentsStep implements ComputationStep {
     BatchReport.Metadata reportMetadata = reportReader.readMetadata();
     String branch = reportMetadata.hasBranch() ? reportMetadata.getBranch() : null;
 
-    BatchReport.Component reportComponent = reportReader.readComponent(component.getRef());
+    BatchReport.Component reportComponent = reportReader.readComponent(component.getReportAttributes().getRef());
     String key = ComponentKeys.createKey(reportComponent.getKey(), branch);
     component.setKey(key);
     component.setUuid(uuidFactory.getOrCreateForKey(key));
   }
 
   private void processDirectoryAndFile(UuidFactory uuidFactory, ComponentImpl component, Component nearestModule) {
-    BatchReport.Component reportComponent = reportReader.readComponent(component.getRef());
+    BatchReport.Component reportComponent = reportReader.readComponent(component.getReportAttributes().getRef());
     // TODO fail if path is null
     String key = ComponentKeys.createEffectiveKey(nearestModule.getKey(), reportComponent.getPath());
     component.setKey(key);

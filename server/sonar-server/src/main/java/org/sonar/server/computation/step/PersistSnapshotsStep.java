@@ -88,12 +88,12 @@ public class PersistSnapshotsStep implements ComputationStep {
       switch (component.getType()) {
         case PROJECT:
           this.projectId = componentId;
-          SnapshotDto projectSnapshot = persistSnapshot(componentId, Qualifiers.PROJECT, Scopes.PROJECT, component.getVersion(), parentSnapshot, true);
+          SnapshotDto projectSnapshot = persistSnapshot(componentId, Qualifiers.PROJECT, Scopes.PROJECT, component.getReportAttributes().getVersion(), parentSnapshot, true);
           addToCache(component, projectSnapshot);
           processChildren(component, projectSnapshot);
           break;
         case MODULE:
-          SnapshotDto moduleSnapshot = persistSnapshot(componentId, Qualifiers.MODULE, Scopes.PROJECT, component.getVersion(), parentSnapshot, true);
+          SnapshotDto moduleSnapshot = persistSnapshot(componentId, Qualifiers.MODULE, Scopes.PROJECT, component.getReportAttributes().getVersion(), parentSnapshot, true);
           addToCache(component, moduleSnapshot);
           processChildren(component, moduleSnapshot);
           break;

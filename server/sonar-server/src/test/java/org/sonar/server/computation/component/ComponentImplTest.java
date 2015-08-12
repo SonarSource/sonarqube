@@ -78,7 +78,7 @@ public class ComponentImplTest {
   public void get_version_from_batch_component() {
     String version = "1.0";
     ComponentImpl component = new ComponentImpl(BatchReport.Component.newBuilder().setVersion(version).build(), EMPTY_CHILD_LIST);
-    assertThat(component.getVersion()).isEqualTo(version);
+    assertThat(component.getReportAttributes().getVersion()).isEqualTo(version);
   }
 
   @Test

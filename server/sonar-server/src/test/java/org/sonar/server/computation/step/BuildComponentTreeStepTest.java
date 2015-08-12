@@ -72,7 +72,7 @@ public class BuildComponentTreeStepTest {
       Component root = treeRootHolder.getRoot();
       assertThat(root).isNotNull();
       assertThat(root.getType()).isEqualTo(Component.Type.valueOf(componentType.name()));
-      assertThat(root.getRef()).isEqualTo(ROOT_REF);
+      assertThat(root.getReportAttributes().getRef()).isEqualTo(ROOT_REF);
       assertThat(root.getChildren()).isEmpty();
     }
   }
@@ -105,7 +105,7 @@ public class BuildComponentTreeStepTest {
 
   private void verifyComponent(Component component, Component.Type type, int componentRef, int size) {
     assertThat(component.getType()).isEqualTo(type);
-    assertThat(component.getRef()).isEqualTo(componentRef);
+    assertThat(component.getReportAttributes().getRef()).isEqualTo(componentRef);
     assertThat(component.getChildren()).hasSize(size);
   }
 

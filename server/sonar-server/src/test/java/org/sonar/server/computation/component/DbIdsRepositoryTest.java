@@ -44,7 +44,7 @@ public class DbIdsRepositoryTest {
   @Test
   public void fail_to_get_component_id_on_unknown_ref() {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Component ref '" + component.getRef() + "' has no component id");
+    thrown.expectMessage("Component ref '" + component.getReportAttributes().getRef() + "' has no component id");
 
     new DbIdsRepository().getComponentId(DumbComponent.DUMB_PROJECT);
   }
@@ -52,7 +52,7 @@ public class DbIdsRepositoryTest {
   @Test
   public void fail_if_component_id_already_set() {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Component ref '" + component.getRef() + "' has already a component id");
+    thrown.expectMessage("Component ref '" + component.getReportAttributes().getRef() + "' has already a component id");
 
     DbIdsRepository cache = new DbIdsRepository();
     cache.setComponentId(component, 10L);
@@ -70,7 +70,7 @@ public class DbIdsRepositoryTest {
   @Test
   public void fail_to_get_snapshot_id_on_unknown_ref() {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Component ref '" + component.getRef() + "' has no snapshot id");
+    thrown.expectMessage("Component ref '" + component.getReportAttributes().getRef() + "' has no snapshot id");
 
     new DbIdsRepository().getSnapshotId(DumbComponent.DUMB_PROJECT);
   }
@@ -78,7 +78,7 @@ public class DbIdsRepositoryTest {
   @Test
   public void fail_if_snapshot_id_already_set() {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Component ref '" + component.getRef() + "' has already a snapshot id");
+    thrown.expectMessage("Component ref '" + component.getReportAttributes().getRef() + "' has already a snapshot id");
 
     DbIdsRepository cache = new DbIdsRepository();
     cache.setSnapshotId(component, 10L);

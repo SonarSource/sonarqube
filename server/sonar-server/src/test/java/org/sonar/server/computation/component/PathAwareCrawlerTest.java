@@ -262,7 +262,7 @@ public class PathAwareCrawlerTest {
       super(maxDepth, order, new SimpleStackElementFactory<Integer>() {
         @Override
         public Integer createForAny(Component component) {
-          return component.getRef();
+          return component.getReportAttributes().getRef();
         }
       });
     }
@@ -298,7 +298,7 @@ public class PathAwareCrawlerTest {
     }
 
     private static CallRecord newCallRecord(Component project, Path<Integer> path, String method) {
-      return new CallRecord(method, project.getRef(), path.current(), getParent(path), path.root(),
+      return new CallRecord(method, project.getReportAttributes().getRef(), path.current(), getParent(path), path.root(),
         toValueList(path));
     }
 

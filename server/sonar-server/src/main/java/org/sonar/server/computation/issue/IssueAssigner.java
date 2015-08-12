@@ -112,14 +112,14 @@ public class IssueAssigner extends IssueVisitor {
   }
 
   private BatchReport.Changesets loadScmChangesetsFromReport(Component component) {
-    return reportReader.readChangesets(component.getRef());
+    return reportReader.readChangesets(component.getReportAttributes().getRef());
   }
 
   private BatchReport.Changesets loadScmChangesetsFromIndex(Component component) {
     List<SourceLineDoc> lines = sourceLineIndex.getLines(component.getUuid());
     Map<String, BatchReport.Changesets.Changeset> changesetByRevision = new HashMap<>();
     BatchReport.Changesets.Builder scmBuilder = BatchReport.Changesets.newBuilder()
-      .setComponentRef(component.getRef());
+      .setComponentRef(component.getReportAttributes().getRef());
     for (SourceLineDoc sourceLine : lines) {
       String scmRevision = sourceLine.scmRevision();
       if (scmRevision == null || changesetByRevision.get(scmRevision) == null) {

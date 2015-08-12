@@ -168,7 +168,7 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   @Override
   public SetMultimap<String, Measure> getRawMeasures(Component component) {
     loadBatchMeasuresForComponent(component);
-    Map<MeasureKey, Measure> rawMeasures = measures.get(component.getRef());
+    Map<MeasureKey, Measure> rawMeasures = measures.get(component.getReportAttributes().getRef());
     if (rawMeasures == null) {
       return ImmutableSetMultimap.of();
     }
@@ -181,11 +181,11 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   }
 
   private void loadBatchMeasuresForComponent(Component component) {
-    if (loadedComponents.contains(component.getRef())) {
+    if (loadedComponents.contains(component.getReportAttributes().getRef())) {
       return;
     }
 
-    try (CloseableIterator<BatchReport.Measure> readIt = reportReader.readComponentMeasures(component.getRef())) {
+    try (CloseableIterator<BatchReport.Measure> readIt = reportReader.readComponentMeasures(component.getReportAttributes().getRef())) {
       while (readIt.hasNext()) {
         BatchReport.Measure batchMeasure = readIt.next();
         String metricKey = batchMeasure.getMetricKey();
@@ -195,12 +195,12 @@ public class MeasureRepositoryImpl implements MeasureRepository {
         }
       }
     }
-    loadedComponents.add(component.getRef());
+    loadedComponents.add(component.getReportAttributes().getRef());
   }
 
   private Optional<Measure> findLocal(Component component, Metric metric,
                                       @Nullable RuleDto rule, @Nullable Characteristic characteristic) {
-    Map<MeasureKey, Measure> measuresPerMetric = measures.get(component.getRef());
+    Map<MeasureKey, Measure> measuresPerMetric = measures.get(component.getReportAttributes().getRef());
     if (measuresPerMetric == null) {
       return Optional.absent();
     }
@@ -208,7 +208,7 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   }
 
   private Optional<Measure> findLocal(Component component, Metric metric, Measure measure) {
-    Map<MeasureKey, Measure> measuresPerMetric = measures.get(component.getRef());
+    Map<MeasureKey, Measure> measuresPerMetric = measures.get(component.getReportAttributes().getRef());
     if (measuresPerMetric == null) {
       return Optional.absent();
     }
@@ -216,10 +216,10 @@ public class MeasureRepositoryImpl implements MeasureRepository {
   }
 
   private void addLocal(Component component, Metric metric, Measure measure, OverridePolicy overridePolicy) {
-    Map<MeasureKey, Measure> measuresPerMetric = measures.get(component.getRef());
+    Map<MeasureKey, Measure> measuresPerMetric = measures.get(component.getReportAttributes().getRef());
     if (measuresPerMetric == null) {
       measuresPerMetric = new HashMap<>();
-      measures.put(component.getRef(), measuresPerMetric);
+      measures.put(component.getReportAttributes().getRef(), measuresPerMetric);
     }
     MeasureKey key = new MeasureKey(metric.getKey(), measure.getRuleId(), measure.getCharacteristicId());
     if (!measuresPerMetric.containsKey(key) || overridePolicy == OverridePolicy.OVERRIDE) {

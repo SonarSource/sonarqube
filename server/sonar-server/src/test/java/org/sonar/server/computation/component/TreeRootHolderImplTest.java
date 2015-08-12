@@ -68,7 +68,7 @@ public class TreeRootHolderImplTest {
   @Test
   public void fail_to_get_by_ref_if_root_not_set() {
     thrown.expect(IllegalStateException.class);
-    treeRootHolder.getComponentByRef(project.getRef());
+    treeRootHolder.getComponentByRef(project.getReportAttributes().getRef());
   }
 
   @Test

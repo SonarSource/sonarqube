@@ -139,7 +139,7 @@ public class VisitorsCrawlerTest {
       super(maxDepth, order, new SimpleStackElementFactory<Integer>() {
         @Override
         public Integer createForAny(Component component) {
-          return component.getRef();
+          return component.getReportAttributes().getRef();
         }
       });
     }

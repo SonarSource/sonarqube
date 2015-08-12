@@ -96,7 +96,7 @@ public class FeedPeriodsStep implements ComputationStep {
     // No project on first analysis, no period
     if (projectDto.isPresent()) {
       List<Period> periods = new ArrayList<>(5);
-      PeriodResolver periodResolver = new PeriodResolver(session, projectDto.get().getId(), batchReportReader.readMetadata().getAnalysisDate(), project.getVersion(),
+      PeriodResolver periodResolver = new PeriodResolver(session, projectDto.get().getId(), batchReportReader.readMetadata().getAnalysisDate(), project.getReportAttributes().getVersion(),
         // TODO qualifier will be different for Views
         Qualifiers.PROJECT);
 

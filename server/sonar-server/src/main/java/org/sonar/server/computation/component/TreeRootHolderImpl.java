@@ -66,7 +66,7 @@ public class TreeRootHolderImpl implements MutableTreeRootHolder {
     new DepthTraversalTypeAwareCrawler(Component.Type.FILE, POST_ORDER) {
       @Override
       public void visitAny(Component component) {
-        componentsByRef.put(component.getRef(), component);
+        componentsByRef.put(component.getReportAttributes().getRef(), component);
       }
     }.visit(root);
   }
