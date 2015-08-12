@@ -20,7 +20,6 @@
 package org.sonar.batch.cache;
 
 import org.apache.commons.lang.mutable.MutableBoolean;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Loggers;
 import org.slf4j.Logger;
@@ -37,6 +36,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -47,6 +50,8 @@ import org.sonar.batch.repository.ProjectRepositoriesLoader;
 
 public class ProjectCacheSynchronizer {
   private static final Logger LOG = LoggerFactory.getLogger(ProjectCacheSynchronizer.class);
+  private static final int NUM_THREAD = 2;
+  
   private ProjectDefinition project;
   private AnalysisProperties properties;
   private ProjectRepositoriesLoader projectRepositoryLoader;
@@ -121,12 +126,12 @@ public class ProjectCacheSynchronizer {
   }
 
   private void loadLineHashes(Map<String, Map<String, FileData>> fileDataByModuleAndPath, Profiler profiler) {
+    ExecutorService executor = Executors.newFixedThreadPool(NUM_THREAD);
     int numFiles = 0;
 
     for (Map<String, FileData> fileDataByPath : fileDataByModuleAndPath.values()) {
       numFiles += fileDataByPath.size();
     }
-
     profiler.startInfo("Load line file hashes (" + numFiles + " files)");
 
     for (Entry<String, Map<String, FileData>> e1 : fileDataByModuleAndPath.entrySet()) {
@@ -134,11 +139,38 @@ public class ProjectCacheSynchronizer {
 
       for (Entry<String, FileData> e2 : e1.getValue().entrySet()) {
         String filePath = e2.getKey();
-        lineHashesLoader.getLineHashes(getComponentKey(moduleKey, filePath), null);
+        executor.submit(new LineHashLoadWorker(getComponentKey(moduleKey, filePath)));
       }
     }
 
+    executor.shutdown();
+
+    try {
+      boolean done = executor.awaitTermination(30, TimeUnit.MINUTES);
+      if (!done) {
+        executor.shutdownNow();
+        throw new IllegalStateException("Timeout while fetching line hashes");
+      }
+    } catch (InterruptedException e) {
+      executor.shutdownNow();
+      throw new IllegalStateException("Interrupted while fetching line hashes", e);
+    }
+
     profiler.stopInfo("Load line file hashes (done)");
+  }
+
+  private class LineHashLoadWorker implements Callable<Void> {
+    private String fileKey;
+
+    LineHashLoadWorker(String fileKey) {
+      this.fileKey = fileKey;
+    }
+
+    @Override
+    public Void call() throws Exception {
+      lineHashesLoader.getLineHashes(fileKey, null);
+      return null;
+    }
   }
 
   private static class UserLoginAccumulator implements Function<ServerIssue, Void> {

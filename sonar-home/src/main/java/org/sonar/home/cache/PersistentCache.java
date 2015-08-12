@@ -46,12 +46,11 @@ public class PersistentCache {
   private static final String DIGEST_ALGO = "MD5";
   private static final String LOCK_FNAME = ".lock";
 
-  private Path baseDir;
-
   // eviction strategy is to expire entries after modification once a time duration has elapsed
   private final long defaultDurationToExpireMs;
   private final Logger logger;
   private final String version;
+  private final Path baseDir;
 
   public PersistentCache(Path baseDir, long defaultDurationToExpireMs, Logger logger, String version) {
     this.baseDir = baseDir;
@@ -63,7 +62,7 @@ public class PersistentCache {
     logger.debug("cache: " + baseDir + ", default expiration time (ms): " + defaultDurationToExpireMs);
   }
 
-  public void reconfigure() {
+  public synchronized void reconfigure() {
     try {
       Files.createDirectories(baseDir);
     } catch (IOException e) {

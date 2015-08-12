@@ -50,10 +50,10 @@ public class WSLoader {
     SERVER_FIRST, CACHE_FIRST, SERVER_ONLY, CACHE_ONLY;
   }
 
-  private LoadStrategy loadStrategy;
+  private final LoadStrategy loadStrategy;
   private ServerStatus serverStatus;
-  private ServerClient client;
-  private PersistentCache cache;
+  private final ServerClient client;
+  private final PersistentCache cache;
 
   public WSLoader(LoadStrategy strategy, PersistentCache cache, ServerClient client) {
     this.loadStrategy = strategy;
