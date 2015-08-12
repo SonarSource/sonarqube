@@ -25,6 +25,6 @@ import org.sonar.server.computation.ReportQueue;
 public class ContainerFactoryImpl implements ContainerFactory {
   @Override
   public ComputeEngineContainer create(ComponentContainer parent, ReportQueue.Item item) {
-    return new ComputeEngineContainerImpl(parent, item);
+    return new ComputeEngineContainerImpl(parent, new ReportComputeEngineContainerPopulator(item));
   }
 }

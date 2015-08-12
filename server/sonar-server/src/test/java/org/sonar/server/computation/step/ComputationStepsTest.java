@@ -29,6 +29,7 @@ import org.picocontainer.ComponentAdapter;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.computation.container.ComputeEngineContainerImpl;
+import org.sonar.server.computation.container.ReportComputeEngineContainerPopulator;
 import org.sonar.server.computation.container.StepsExplorer;
 
 import static com.google.common.collect.FluentIterable.from;
@@ -41,7 +42,7 @@ public class ComputationStepsTest {
   @Test
   public void fail_if_a_step_is_not_registered_in_picocontainer() {
     try {
-      Lists.newArrayList(new ComputationSteps(mock(ComputeEngineContainerImpl.class)).instances());
+      Lists.newArrayList(new ReportComputationSteps(mock(ComputeEngineContainerImpl.class)).instances());
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessageContaining("Component not found");
@@ -50,7 +51,7 @@ public class ComputationStepsTest {
 
   @Test
   public void all_steps_from_package_step_are_present_in_container() {
-    ComputeEngineContainerImpl ceContainer = new ComputeEngineContainerImpl(new ComponentContainer(), mock(ReportQueue.Item.class));
+    ComputeEngineContainerImpl ceContainer = new ComputeEngineContainerImpl(new ComponentContainer(), new ReportComputeEngineContainerPopulator(mock(ReportQueue.Item.class)));
 
     Set<String> stepsCanonicalNames = StepsExplorer.retrieveStepPackageStepsCanonicalNames();
 

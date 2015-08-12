@@ -21,7 +21,7 @@
 package org.sonar.server.computation.step;
 
 /**
- * Implementations must be declared into {@link org.sonar.server.computation.step.ComputationSteps#orderedStepClasses()}
+ * Implementations must be declared into {@link ReportComputationSteps#orderedStepClasses()}
  */
 public interface ComputationStep {
 

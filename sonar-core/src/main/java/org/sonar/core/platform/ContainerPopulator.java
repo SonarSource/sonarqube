@@ -17,23 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.step;
+package org.sonar.core.platform;
 
-import java.util.List;
+public interface ContainerPopulator<T extends ContainerPopulator.Container> {
+  void populateContainer(T container);
 
-/**
- * Ordered list of steps classes and instances to be executed in a Compute Engine process.
- */
-public interface ComputationSteps {
-  /**
-   * List of all {@link org.sonar.server.computation.step.ComputationStep},
-   * ordered by execution sequence.
-   */
-  List<Class<? extends ComputationStep>> orderedStepClasses();
+  interface Container {
+    Container add(Object... objects);
 
-  /**
-   * List of all {@link org.sonar.server.computation.step.ComputationStep},
-   * ordered by execution sequence.
-   */
-  Iterable<ComputationStep> instances();
+    Container addSingletons(Iterable<?> components);
+
+    <T> T getComponentByType(Class<T> type);
+  }
 }

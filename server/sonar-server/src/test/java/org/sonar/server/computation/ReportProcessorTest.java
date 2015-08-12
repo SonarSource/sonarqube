@@ -36,6 +36,7 @@ import org.sonar.server.computation.activity.ActivityManager;
 import org.sonar.server.computation.monitoring.CEQueueStatus;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.ComputationSteps;
+import org.sonar.server.computation.step.ReportComputationSteps;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -53,7 +54,7 @@ public class ReportProcessorTest {
 
   ComputationStep projectStep1 = mockStep();
   ComputationStep projectStep2 = mockStep();
-  ComputationSteps steps = mock(ComputationSteps.class);
+  ComputationSteps steps = mock(ReportComputationSteps.class);
   ActivityManager activityManager = mock(ActivityManager.class);
   System2 system = mock(System2.class);
   CEQueueStatus queueStatus = mock(CEQueueStatus.class);

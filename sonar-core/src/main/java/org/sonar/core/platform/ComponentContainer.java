@@ -20,12 +20,8 @@
 package org.sonar.core.platform;
 
 import com.google.common.collect.Iterables;
-
-import java.util.Collection;
 import java.util.List;
-
 import javax.annotation.Nullable;
-
 import org.picocontainer.Characteristics;
 import org.picocontainer.ComponentAdapter;
 import org.picocontainer.DefaultPicoContainer;
@@ -41,7 +37,7 @@ import org.sonar.api.utils.log.Profiler;
 
 @BatchSide
 @ServerSide
-public class ComponentContainer {
+public class ComponentContainer implements ContainerPopulator.Container {
 
   // no need for multiple children
   ComponentContainer parent;
@@ -147,6 +143,7 @@ public class ComponentContainer {
   /**
    * @since 3.5
    */
+  @Override
   public ComponentContainer add(Object... objects) {
     for (Object object : objects) {
       if (object instanceof ComponentAdapter) {
@@ -166,7 +163,8 @@ public class ComponentContainer {
     }
   }
 
-  public ComponentContainer addSingletons(Collection components) {
+  @Override
+  public ComponentContainer addSingletons(Iterable<?> components) {
     for (Object component : components) {
       addSingleton(component);
     }
@@ -223,6 +221,7 @@ public class ComponentContainer {
     return this;
   }
 
+  @Override
   public <T> T getComponentByType(Class<T> type) {
     return pico.getComponent(type);
   }

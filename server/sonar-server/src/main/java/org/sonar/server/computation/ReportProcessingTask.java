@@ -28,7 +28,7 @@ import org.sonar.server.computation.container.ComputeEngineContainer;
 import org.sonar.server.computation.container.ContainerFactory;
 
 /**
- * This Compute Engine task pops a report from the queue and integrate it.
+ * This Compute E pops a report from the queue and integrate it.
  */
 public class ReportProcessingTask implements ComputeEngineTask {
 
@@ -59,7 +59,7 @@ public class ReportProcessingTask implements ComputeEngineTask {
 
     ComputeEngineContainer computeEngineContainer = containerFactory.create(sqContainer, item);
     try {
-      computeEngineContainer.process();
+      computeEngineContainer.getComponentByType(ReportProcessor.class).process();
     } catch (Throwable e) {
       LOG.error(String.format(
         "Failed to process analysis report %d of project %s", item.dto.getId(), item.dto.getProjectKey()), e);

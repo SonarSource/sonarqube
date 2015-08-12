@@ -60,7 +60,7 @@ public class ComponentVisitors {
     return Iterables.transform(orderedClasses(), new Function<Class<? extends ComponentVisitor>, ComponentVisitor>() {
       @Override
       public ComponentVisitor apply(@Nonnull Class<? extends ComponentVisitor> input) {
-        ComponentVisitor componentVisitor = computeEngineContainer.getComponentVisitor(input);
+        ComponentVisitor componentVisitor = computeEngineContainer.getComponentByType(input);
         Preconditions.checkState(componentVisitor != null, String.format("Visitor not found: %s", input));
         return componentVisitor;
       }

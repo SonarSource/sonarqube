@@ -20,33 +20,19 @@
 package org.sonar.server.computation.container;
 
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ContainerPopulator;
 import org.sonar.server.computation.ReportQueue.Item;
-import org.sonar.server.computation.component.ComponentVisitor;
-import org.sonar.server.computation.step.ComputationStep;
 
 /**
  * The Compute Engine container. Created for a specific parent {@link ComponentContainer} and a specific {@link Item}.
  */
-public interface ComputeEngineContainer {
-  Item getItem();
+public interface ComputeEngineContainer extends ContainerPopulator.Container {
 
   ComponentContainer getParent();
-
-  /**
-   * Process the current {@link Item}
-   */
-  void process();
 
   /**
    * Clean's up resources after process has been called and has returned.
    */
   void cleanup();
-
-  /**
-   */
-  <T extends ComputationStep> T getStep(Class<T> type);
-
-  <T extends ComponentVisitor> T getComponentVisitor(Class<T> type);
-
 
 }
