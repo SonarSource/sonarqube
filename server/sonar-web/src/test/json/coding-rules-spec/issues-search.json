@@ -2,7 +2,7 @@
   "total": 7,
   "p": 1,
   "ps": 1,
-  "projects": [
+  "components": [
     {
       "uuid": "3b22f38e-ad68-4792-9791-1435584a686c",
       "key": "org.codehaus.sonar.runner:sonar-runner",
@@ -20,7 +20,6 @@
       "longName": "SonarQube"
     }
   ],
-  "components": [],
   "issues": [],
   "rules": [],
   "users": [],

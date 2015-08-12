@@ -48,7 +48,7 @@ define([
         var projectsFacet = _.findWhere(r.facets, { property: 'projectUuids' }),
             projects = projectsFacet != null ? projectsFacet.values : [];
         projects = projects.map(function (project) {
-          var projectBase = _.findWhere(r.projects, { uuid: project.val });
+          var projectBase = _.findWhere(r.components, { uuid: project.val });
           return _.extend(project, {
             name: projectBase != null ? projectBase.longName : ''
           });
