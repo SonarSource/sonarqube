@@ -19,36 +19,13 @@
  */
 package org.sonar.server.computation.component;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+public interface ReportTreeRootHolder extends TreeRootHolder {
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class TreeRootHolderImplTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
-  TreeRootHolderImpl treeRootHolder = new TreeRootHolderImpl();
-  Component project = ReportComponent.DUMB_PROJECT;
-
-  @Test
-  public void setRoot_throws_NPE_if_arg_is_null() {
-    thrown.expect(NullPointerException.class);
-    treeRootHolder.setRoot(null);
-  }
-
-  @Test
-  public void getRoot_throws_ISE_if_root_has_not_been_set_yet() {
-    thrown.expect(IllegalStateException.class);
-    treeRootHolder.getRoot();
-  }
-
-  @Test
-  public void verify_setRoot_getRoot() {
-    treeRootHolder.setRoot(project);
-    assertThat(treeRootHolder.getRoot()).isSameAs(project);
-  }
-
+  /**
+   * Return a component by its batch reference
+   *
+   * @throws IllegalStateException if the holder is empty (ie. there is no root yet)
+   * @throws IllegalArgumentException if there's no component for the reference
+   */
+  Component getComponentByRef(int ref);
 }

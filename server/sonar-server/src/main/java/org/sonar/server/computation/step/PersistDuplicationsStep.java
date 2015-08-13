@@ -34,7 +34,7 @@ import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
-import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.ReportTreeRootHolder;
 
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
@@ -45,10 +45,10 @@ public class PersistDuplicationsStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final DbIdsRepository dbIdsRepository;
-  private final TreeRootHolder treeRootHolder;
+  private final ReportTreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
 
-  public PersistDuplicationsStep(DbClient dbClient, DbIdsRepository dbIdsRepository, TreeRootHolder treeRootHolder, BatchReportReader reportReader) {
+  public PersistDuplicationsStep(DbClient dbClient, DbIdsRepository dbIdsRepository, ReportTreeRootHolder treeRootHolder, BatchReportReader reportReader) {
     this.dbClient = dbClient;
     this.dbIdsRepository = dbIdsRepository;
     this.treeRootHolder = treeRootHolder;

@@ -37,17 +37,17 @@ import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.ReportTreeRootHolder;
 import org.sonar.server.computation.issue.commonrule.CommonRuleEngine;
 import org.sonar.server.rule.CommonRuleKeys;
 
 public class TrackerRawInputFactory {
 
-  private final TreeRootHolder treeRootHolder;
+  private final ReportTreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
   private final CommonRuleEngine commonRuleEngine;
 
-  public TrackerRawInputFactory(TreeRootHolder treeRootHolder, BatchReportReader reportReader,
+  public TrackerRawInputFactory(ReportTreeRootHolder treeRootHolder, BatchReportReader reportReader,
     CommonRuleEngine commonRuleEngine) {
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;

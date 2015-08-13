@@ -19,7 +19,8 @@
  */
 package org.sonar.server.view.bridge;
 
-import org.picocontainer.Startable;
+import org.sonar.api.platform.Server;
+import org.sonar.api.platform.ServerStartHandler;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -29,7 +30,7 @@ import org.sonar.server.views.ViewsBridge;
 /**
  * Startup task to responsible to bootstrap the Views plugin when it is installed.
  */
-public class ViewsBootstrap implements Startable {
+public class ViewsBootstrap implements ServerStartHandler {
   private static final Logger LOGGER = Loggers.get(ViewsBootstrap.class);
 
   private final ComponentContainer componentContainer;
@@ -39,7 +40,7 @@ public class ViewsBootstrap implements Startable {
   }
 
   @Override
-  public void start() {
+  public void onServerStart(Server server) {
     ViewsBridge viewsBridge = componentContainer.getComponentByType(ViewsBridge.class);
     if (viewsBridge != null) {
       Profiler profiler = Profiler.create(LOGGER).startInfo("Bootstrapping views");
@@ -48,9 +49,4 @@ public class ViewsBootstrap implements Startable {
     }
   }
 
-  @Override
-  public void stop() {
-    // this class is stopped right after it has been started as an element of PlatformLevelStartup
-    // stopping Views is handled by ViewsStopper
-  }
 }

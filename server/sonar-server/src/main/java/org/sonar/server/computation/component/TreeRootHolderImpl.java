@@ -19,11 +19,8 @@
  */
 package org.sonar.server.computation.component;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
-import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Holds the reference to the root of the {@link Component} tree for the current CE run.
@@ -31,43 +28,17 @@ import static org.sonar.server.computation.component.ComponentVisitor.Order.POST
 public class TreeRootHolderImpl implements MutableTreeRootHolder {
 
   private Component root;
-  private Map<Integer, Component> componentsByRef = new HashMap<>();
 
   @Override
   public MutableTreeRootHolder setRoot(Component newRoot) {
-    this.root = Objects.requireNonNull(newRoot);
-    feedComponentsByRef();
+    this.root = requireNonNull(newRoot);
     return this;
   }
 
   @Override
   public Component getRoot() {
-    checkRoot();
+    checkState(this.root != null, "Root has not been created yet");
     return this.root;
   }
 
-  @Override
-  public Component getComponentByRef(int ref) {
-    checkRoot();
-    Component component = componentsByRef.get(ref);
-    if (component == null) {
-      throw new IllegalArgumentException(String.format("Component '%s' hasn't been found", ref));
-    }
-    return component;
-  }
-
-  private void checkRoot() {
-    if (this.root == null) {
-      throw new IllegalStateException("Root has not been created yet");
-    }
-  }
-
-  private void feedComponentsByRef() {
-    new DepthTraversalTypeAwareCrawler(Component.Type.FILE, POST_ORDER) {
-      @Override
-      public void visitAny(Component component) {
-        componentsByRef.put(component.getReportAttributes().getRef(), component);
-      }
-    }.visit(root);
-  }
 }

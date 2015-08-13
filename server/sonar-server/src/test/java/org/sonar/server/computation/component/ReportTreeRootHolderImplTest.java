@@ -25,12 +25,12 @@ import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TreeRootHolderImplTest {
+public class ReportTreeRootHolderImplTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  TreeRootHolderImpl treeRootHolder = new TreeRootHolderImpl();
+  ReportTreeRootHolderImpl treeRootHolder = new ReportTreeRootHolderImpl();
   Component project = ReportComponent.DUMB_PROJECT;
 
   @Test
@@ -51,4 +51,30 @@ public class TreeRootHolderImplTest {
     assertThat(treeRootHolder.getRoot()).isSameAs(project);
   }
 
+  @Test
+  public void get_by_ref() {
+    Component file = ReportComponent.builder(Component.Type.FILE, 4).build();
+    Component directory = ReportComponent.builder(Component.Type.DIRECTORY, 3).addChildren(file).build();
+    Component module = ReportComponent.builder(Component.Type.MODULE, 2).addChildren(directory).build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).addChildren(module).build();
+    treeRootHolder.setRoot(project);
+
+    assertThat(treeRootHolder.getComponentByRef(1)).isEqualTo(project);
+    assertThat(treeRootHolder.getComponentByRef(2)).isEqualTo(module);
+    assertThat(treeRootHolder.getComponentByRef(3)).isEqualTo(directory);
+    assertThat(treeRootHolder.getComponentByRef(4)).isEqualTo(file);
+  }
+
+  @Test
+  public void fail_to_get_by_ref_if_root_not_set() {
+    thrown.expect(IllegalStateException.class);
+    treeRootHolder.getComponentByRef(project.getReportAttributes().getRef());
+  }
+
+  @Test
+  public void fail_to_get_by_ref_if_ref_not_found() {
+    thrown.expect(IllegalArgumentException.class);
+    treeRootHolder.setRoot(project);
+    treeRootHolder.getComponentByRef(123);
+  }
 }

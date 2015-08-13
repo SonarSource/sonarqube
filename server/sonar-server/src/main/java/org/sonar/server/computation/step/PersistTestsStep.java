@@ -51,7 +51,7 @@ import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
-import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.ReportTreeRootHolder;
 
 public class PersistTestsStep implements ComputationStep {
 
@@ -60,9 +60,9 @@ public class PersistTestsStep implements ComputationStep {
   private final DbClient dbClient;
   private final System2 system;
   private final BatchReportReader reportReader;
-  private final TreeRootHolder treeRootHolder;
+  private final ReportTreeRootHolder treeRootHolder;
 
-  public PersistTestsStep(DbClient dbClient, System2 system, BatchReportReader reportReader, TreeRootHolder treeRootHolder) {
+  public PersistTestsStep(DbClient dbClient, System2 system, BatchReportReader reportReader, ReportTreeRootHolder treeRootHolder) {
     this.dbClient = dbClient;
     this.system = system;
     this.reportReader = reportReader;

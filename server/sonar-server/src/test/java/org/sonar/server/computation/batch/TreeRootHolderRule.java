@@ -28,11 +28,12 @@ import org.junit.runners.model.Statement;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.MutableTreeRootHolder;
+import org.sonar.server.computation.component.ReportTreeRootHolder;
 import org.sonar.server.computation.component.TreeRootHolder;
 
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 
-public class TreeRootHolderRule implements TestRule, MutableTreeRootHolder {
+public class TreeRootHolderRule implements TestRule, MutableTreeRootHolder, ReportTreeRootHolder {
   private Component root;
   private Map<Integer, Component> componentsByRef = new HashMap<>();
 

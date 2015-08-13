@@ -26,12 +26,4 @@ public interface TreeRootHolder {
    * @throws IllegalStateException if the holder is empty (ie. there is no root yet)
    */
   Component getRoot();
-
-  /**
-   * Return a component by its batch reference
-   *
-   * @throws IllegalStateException if the holder is empty (ie. there is no root yet)
-   * @throws IllegalArgumentException if there's no component for the reference
-   */
-  Component getComponentByRef(int ref);
 }
