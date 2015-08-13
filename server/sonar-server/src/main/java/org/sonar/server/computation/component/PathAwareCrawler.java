@@ -100,24 +100,4 @@ public abstract class PathAwareCrawler<T> extends PathAwareVisitorAdapter<T> imp
     }
   }
 
-  public static final class PathElementImpl<T> implements PathElement<T> {
-    private final Component component;
-    private final T element;
-
-    public PathElementImpl(Component component, T element) {
-      this.component = component;
-      this.element = element;
-    }
-
-    @Override
-    public Component getComponent() {
-      return component;
-    }
-
-    @Override
-    public T getElement() {
-      return element;
-    }
-  }
-
 }
