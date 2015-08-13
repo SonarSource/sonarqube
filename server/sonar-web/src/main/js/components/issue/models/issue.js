@@ -3,6 +3,13 @@ define(function () {
   return Backbone.Model.extend({
     idAttribute: 'key',
 
+    defaults: function () {
+      return {
+        secondaryLocations: [],
+        executionFlows: []
+      }
+    },
+
     url: function () {
       return baseUrl + '/api/issues/show?key=' + this.get('key');
     },

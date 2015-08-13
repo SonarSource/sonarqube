@@ -225,7 +225,8 @@ define([
     serializeData: function () {
       var issueKey = encodeURIComponent(this.model.get('key'));
       return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
-        permalink: baseUrl + '/issues/search#issues=' + issueKey
+        permalink: baseUrl + '/issues/search#issues=' + issueKey,
+        hasSecondaryLocations: this.model.get('secondaryLocations').length || this.model.get('executionFlows').length
       });
     }
   });

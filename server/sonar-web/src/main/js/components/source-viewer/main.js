@@ -48,7 +48,7 @@ define([
       return Marionette.LayoutView.extend({
         className: 'source-viewer',
         template: Templates['source-viewer'],
-        flowLocationTemplate: Templates['source-viewer-flow-location'],
+        issueLocationTemplate: Templates['source-viewer-issue-location'],
 
         ISSUES_LIMIT: 3000,
         LINES_LIMIT: 1000,
@@ -752,7 +752,11 @@ define([
                 msg: issue.get('message'),
                 textRange: issue.get('textRange')
               },
-              _locations = [primaryLocation].concat(issue.get('secondaryLocations'));
+              secondaryLocations = issue.get('secondaryLocations'),
+              _locations = [primaryLocation].concat(secondaryLocations);
+          issue.get('executionFlows').forEach(function (flow) {
+            _locations = [].concat(_locations, flow.locations);
+          });
           _locations.forEach(this.showFlowLocation, this);
         },
 
@@ -761,14 +765,14 @@ define([
             var line = location.textRange.startLine,
                 row = this.$('.source-line-code[data-line-number="' + line + '"]'),
                 renderedFlowLocation = this.renderFlowLocation(location);
-            row.append(renderedFlowLocation);
+            row.find('.source-line-issue-locations').append(renderedFlowLocation);
             this.highlightFlowLocationInCode(location);
           }
         },
 
         renderFlowLocation: function (location) {
           location.msg = location.msg ? location.msg : ' ';
-          return this.flowLocationTemplate(location);
+          return this.issueLocationTemplate(location);
         },
 
         highlightFlowLocationInCode: function (location) {
@@ -789,7 +793,7 @@ define([
 
         hideFlowLocations: function () {
           this.locationsShowFor = null;
-          this.$('.source-viewer-flow-location').remove();
+          this.$('.source-line-issue-locations').empty();
           this.$('.source-line-code-secondary-issue').removeClass('source-line-code-secondary-issue');
         }
       });

@@ -110,10 +110,18 @@
   position: relative;
   padding: 0 10px;
 
+  pre {
+    float: left;
+  }
+
   .issue-list {
     margin-left: -10px;
     margin-right: -10px;
   }
+}
+
+.source-line-code-inner {
+  .clearfix;
 }
 
 .source-line-code-issue {
@@ -452,10 +460,8 @@
   text-align: right;
 }
 
-.source-viewer-flow-location {
-  position: absolute;
-  top: 0;
-  right: 10px;
+.source-viewer-issue-location {
+  float: left;
   height: @source-line-height - 1px;
   line-height: @source-line-height - 1px;
   padding: 0 10px;
@@ -463,9 +469,21 @@
   background-color: @red;
   color: #fff;
   font-size: 12px;
-  z-index: @issue-flow-location-z-index;
+}
+
+.source-viewer-issue-location + .source-viewer-issue-location {
+  margin-left: 10px;
 }
 
 .source-viewer-flow-location + .source-viewer-flow-location {
   z-index: @issue-flow-location-z-index - 1;
+}
+
+.source-line-issue-locations {
+  float: right;
+  padding-bottom: 1px;
+
+  &:empty {
+    display: none;
+  }
 }

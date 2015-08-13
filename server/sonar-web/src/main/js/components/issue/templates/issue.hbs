@@ -23,13 +23,13 @@
             </li>
           {{/if}}
 
-          {{#notEmpty secondaryLocations}}
+          {{#if hasSecondaryLocations}}
             <li class="issue-meta issue-meta-locations">
               <button class="button-link issue-action js-issue-locations">
                 <i class="icon-issue-flow"></i>
               </button>
             </li>
-          {{/notEmpty}}
+          {{/if}}
 
           <li class="issue-meta">
             <a class="js-issue-permalink icon-link" href="{{permalink}}" target="_blank"></a>
