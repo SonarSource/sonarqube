@@ -30,6 +30,7 @@ import java.util.Objects;
 class DefaultProfiler extends Profiler {
 
   private static final String CONTEXT_SEPARATOR = " | ";
+  private static final String DONE_SUFFIX = " (done)";
 
   private final LinkedHashMap<String, Object> context = new LinkedHashMap<>();
   private final BaseLogger logger;
@@ -94,12 +95,12 @@ class DefaultProfiler extends Profiler {
 
   @Override
   public Profiler stopTrace() {
-    return doStopWithoutMessage(LoggerLevel.TRACE, " (done)");
+    return doStopWithoutMessage(LoggerLevel.TRACE, DONE_SUFFIX);
   }
 
   @Override
   public Profiler stopDebug() {
-    return doStopWithoutMessage(LoggerLevel.DEBUG, " (done)");
+    return doStopWithoutMessage(LoggerLevel.DEBUG, DONE_SUFFIX);
   }
 
   @Override
@@ -110,7 +111,7 @@ class DefaultProfiler extends Profiler {
 
   @Override
   public Profiler stopInfo(boolean cacheUsed) {
-    String suffix = cacheUsed ? " (done from cache)" : " (done)";
+    String suffix = cacheUsed ? " (done from cache)" : DONE_SUFFIX;
     return doStopWithoutMessage(LoggerLevel.INFO, suffix);
   }
 

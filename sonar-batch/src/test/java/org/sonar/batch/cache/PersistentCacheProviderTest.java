@@ -20,9 +20,9 @@
 package org.sonar.batch.cache;
 
 import org.sonar.batch.bootstrap.GlobalProperties;
-
 import org.sonar.batch.cache.PersistentCacheProvider;
 
+import java.nio.file.Paths;
 import java.util.Collections;
 
 import org.junit.Before;
@@ -47,5 +47,11 @@ public class PersistentCacheProviderTest {
   @Test
   public void test_cache_dir() {
     assertThat(provider.provide(props).getBaseDirectory().toFile()).exists().isDirectory();
+  }
+
+  @Test
+  public void test_home() {
+    props.properties().put("sonar.userHome", "myhome");
+    assertThat(provider.provide(props).getBaseDirectory()).isEqualTo(Paths.get("myhome/ws_cache"));
   }
 }

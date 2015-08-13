@@ -19,10 +19,7 @@
  */
 package org.sonar.batch.cache;
 
-import org.sonar.api.CoreProperties;
-
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.batch.scan.ProjectReactorBuilder;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.sonar.batch.analysis.AnalysisProperties;
