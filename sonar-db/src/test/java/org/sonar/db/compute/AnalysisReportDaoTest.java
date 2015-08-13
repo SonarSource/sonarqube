@@ -25,7 +25,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -40,23 +39,18 @@ import static org.sonar.db.compute.AnalysisReportDto.Status.WORKING;
 @Category(DbTests.class)
 public class AnalysisReportDaoTest {
 
-  private static final String DEFAULT_PROJECT_KEY = "123456789-987654321";
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  static final String DEFAULT_PROJECT_KEY = "123456789-987654321";
 
   static System2 system2 = mock(System2.class);
-
   @Rule
   public DbTester db = DbTester.create(system2);
+  DbSession session;
 
-  AnalysisReportDao underTest = db.getDbClient().analysisReportDao();
-  private DbSession session;
+  AnalysisReportDao underTest = new AnalysisReportDao(system2);
 
   @Before
   public void setUp() {
     session = db.getSession();
-    db.truncateTables();
   }
 
   @Test
