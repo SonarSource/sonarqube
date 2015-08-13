@@ -27,6 +27,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * Query used to get users and groups from a permission
  */
@@ -189,7 +191,7 @@ public class PermissionQuery {
     }
 
     public PermissionQuery build() {
-      Preconditions.checkNotNull(permission, "Permission cant be null.");
+      checkNotNull(permission, "Permission cannot be null.");
       initMembership();
       initPageIndex();
       initPageSize();
