@@ -80,6 +80,6 @@ public class DefaultProjectCacheStatus implements ProjectCacheStatus {
   }
 
   private String getKey(String projectKey) {
-    return STATUS_PREFIX + client.getURL() + projectKey;
+    return STATUS_PREFIX + client.getURL() + "-" + projectKey;
   }
 }

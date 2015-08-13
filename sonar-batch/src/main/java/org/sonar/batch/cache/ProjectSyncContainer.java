@@ -19,12 +19,13 @@
  */
 package org.sonar.batch.cache;
 
-import org.sonar.batch.analysis.DefaultAnalysisMode;
+import org.sonar.api.CoreProperties;
 
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.batch.scan.ProjectReactorBuilder;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.sonar.batch.analysis.AnalysisProperties;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.repository.user.UserRepositoryLoader;
 import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
@@ -32,7 +33,6 @@ import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
 import org.sonar.batch.repository.DefaultServerIssuesLoader;
 import org.sonar.batch.repository.ProjectRepositoriesLoader;
 import org.sonar.batch.repository.ServerIssuesLoader;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.batch.issue.tracking.DefaultServerLineHashesLoader;
 import org.sonar.core.platform.ComponentContainer;
 
@@ -47,20 +47,16 @@ public class ProjectSyncContainer extends ComponentContainer {
   }
 
   @Override
-  protected void doBeforeStart() {
-    ProjectReactor projectReactor = createSimpleProjectReactor();
+  public void doBeforeStart() {
+    ProjectReactor projectReactor = createProjectReactor();
     add(projectReactor);
     addComponents();
   }
 
-  private ProjectReactor createSimpleProjectReactor() {
-    ProjectDefinition rootProjDefinition = ProjectDefinition.create();
-    String projectKey = properties.property(CoreProperties.PROJECT_KEY_PROPERTY);
-    if (StringUtils.isEmpty(projectKey)) {
-      throw new IllegalStateException("Missing mandatory property: " + CoreProperties.PROJECT_KEY_PROPERTY);
-    }
-    rootProjDefinition.setKey(projectKey);
-    return new ProjectReactor(rootProjDefinition);
+  private ProjectReactor createProjectReactor() {
+    ProjectDefinition rootProjectDefinition = ProjectDefinition.create();
+    rootProjectDefinition.setProperties(properties.properties());
+    return new ProjectReactor(rootProjectDefinition);
   }
 
   @Override
