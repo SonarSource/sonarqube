@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.component;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,6 +27,9 @@ import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
+import static org.sonar.server.computation.component.Component.Type.PROJECT_VIEW;
+import static org.sonar.server.computation.component.Component.Type.SUBVIEW;
+import static org.sonar.server.computation.component.Component.Type.VIEW;
 
 public class ComponentTest {
   @Test
@@ -84,5 +88,22 @@ public class ComponentTest {
     assertThat(Component.Type.DIRECTORY.isHigherThan(DIRECTORY)).isFalse();
     assertThat(Component.Type.MODULE.isHigherThan(MODULE)).isFalse();
     assertThat(Component.Type.PROJECT.isHigherThan(PROJECT)).isFalse();
+  }
+
+  @Test
+  public void PROJECT_MODULE_DIRECTORY_and_FILE_are_report_types_and_not_views_types() {
+    for (Component.Type type : ImmutableList.of(PROJECT, MODULE, DIRECTORY, FILE)) {
+      assertThat(type.isReportType()).isTrue();
+      assertThat(type.isViewsType()).isFalse();
+    }
+  }
+
+  @Test
+  public void VIEW_SUBVIEW_and_PROJECT_VIEW_are_views_types_and_not_report_types() {
+    for (Component.Type type : ImmutableList.of(VIEW, SUBVIEW, PROJECT_VIEW)) {
+      assertThat(type.isViewsType()).isTrue();
+      assertThat(type.isReportType()).isFalse();
+    }
+
   }
 }

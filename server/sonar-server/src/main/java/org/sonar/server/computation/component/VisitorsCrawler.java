@@ -90,6 +90,15 @@ public class VisitorsCrawler implements ComponentCrawler {
       case FILE:
         visitor.visitFile(component);
         break;
+      case VIEW:
+        visitor.visitView(component);
+        break;
+      case SUBVIEW:
+        visitor.visitSubView(component);
+        break;
+      case PROJECT_VIEW:
+        visitor.visitProjectView(component);
+        break;
       default:
         throw new IllegalStateException(String.format("Unknown type %s", component.getType().name()));
     }

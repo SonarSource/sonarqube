@@ -37,7 +37,7 @@ import static org.sonar.server.computation.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
-public class VisitorsCrawlerTest {
+public class ReportVisitorsCrawlerTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();

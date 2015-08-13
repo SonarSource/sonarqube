@@ -31,9 +31,9 @@ import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
-import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
-public class VisitorsCrawlerWithPostOrderTypeAwareVisitorTest {
+public class ReportVisitorsCrawlerWithPreOrderTypeAwareVisitorTest {
 
   private static final Component FILE_5 = component(FILE, 5);
   private static final Component FILE_6 = component(FILE, 6);
@@ -42,13 +42,13 @@ public class VisitorsCrawlerWithPostOrderTypeAwareVisitorTest {
   private static final Component MODULE_2 = component(MODULE, 2, MODULE_3);
   private static final Component COMPONENT_TREE = component(PROJECT, 1, MODULE_2);
 
-  private final TypeAwareVisitor spyProjectVisitor = spy(new TypeAwareVisitorAdapter(PROJECT, POST_ORDER) {
+  private final TypeAwareVisitor spyProjectVisitor = spy(new TypeAwareVisitorAdapter(PROJECT, PRE_ORDER) {
   });
-  private final TypeAwareVisitor spyModuleVisitor = spy(new TypeAwareVisitorAdapter(MODULE, POST_ORDER) {
+  private final TypeAwareVisitor spyModuleVisitor = spy(new TypeAwareVisitorAdapter(MODULE, PRE_ORDER) {
   });
-  private final TypeAwareVisitor spyDirectoryVisitor = spy(new TypeAwareVisitorAdapter(DIRECTORY, POST_ORDER) {
+  private final TypeAwareVisitor spyDirectoryVisitor = spy(new TypeAwareVisitorAdapter(DIRECTORY, PRE_ORDER) {
   });
-  private final TypeAwareVisitor spyFileVisitor = spy(new TypeAwareVisitorAdapter(FILE, POST_ORDER) {
+  private final TypeAwareVisitor spyFileVisitor = spy(new TypeAwareVisitorAdapter(FILE, PRE_ORDER) {
   });
   private final InOrder inOrder = inOrder(spyProjectVisitor, spyModuleVisitor, spyDirectoryVisitor, spyFileVisitor);
 
@@ -97,7 +97,6 @@ public class VisitorsCrawlerWithPostOrderTypeAwareVisitorTest {
     VisitorsCrawler underTest = newVisitorsCrawler(spyFileVisitor);
     underTest.visit(component);
 
-    inOrder.verify(spyFileVisitor).visitAny(component);
     inOrder.verify(spyFileVisitor).visitProject(component);
     inOrder.verifyNoMoreInteractions();
   }
@@ -146,7 +145,7 @@ public class VisitorsCrawlerWithPostOrderTypeAwareVisitorTest {
   }
 
   @Test
-  public void visit_file_with_depth_MODULE_does_not_call_visit_file_nor_visitAny() {
+  public void visit_file_with_depth_MODULE_does_not_call_visit_file_nor_visit_any() {
     Component component = component(FILE, 1);
     VisitorsCrawler underTest = newVisitorsCrawler(spyModuleVisitor);
     underTest.visit(component);
@@ -156,12 +155,11 @@ public class VisitorsCrawlerWithPostOrderTypeAwareVisitorTest {
   }
 
   @Test
-  public void visit_directory_with_depth_MODULE_does_not_call_visit_directory_nor_visitAny() {
+  public void visit_directory_with_depth_MODULE_does_not_call_visit_directory_not_visit_any() {
     Component component = component(DIRECTORY, 1);
     VisitorsCrawler underTest = newVisitorsCrawler(spyModuleVisitor);
     underTest.visit(component);
 
-    inOrder.verify(spyModuleVisitor, never()).visitDirectory(component);
     inOrder.verify(spyModuleVisitor, never()).visitFile(component);
     inOrder.verify(spyModuleVisitor, never()).visitAny(component);
   }
@@ -204,7 +202,6 @@ public class VisitorsCrawlerWithPostOrderTypeAwareVisitorTest {
     VisitorsCrawler underTest = newVisitorsCrawler(spyProjectVisitor);
     underTest.visit(component);
 
-    inOrder.verify(spyProjectVisitor, never()).visitDirectory(component);
     inOrder.verify(spyProjectVisitor, never()).visitFile(component);
     inOrder.verify(spyProjectVisitor, never()).visitAny(component);
   }
@@ -215,14 +212,12 @@ public class VisitorsCrawlerWithPostOrderTypeAwareVisitorTest {
     VisitorsCrawler underTest = newVisitorsCrawler(spyProjectVisitor);
     underTest.visit(component);
 
-    inOrder.verify(spyProjectVisitor, never()).visitModule(component);
-    inOrder.verify(spyProjectVisitor, never()).visitDirectory(component);
     inOrder.verify(spyProjectVisitor, never()).visitFile(component);
     inOrder.verify(spyProjectVisitor, never()).visitAny(component);
   }
 
   @Test
-  public void visit_project_with_depth_PROJECT_calls_visit_project() {
+  public void visit_project_with_depth_PROJECT_calls_visit_project_nor_visitAny() {
     Component component = component(PROJECT, 1);
     VisitorsCrawler underTest = newVisitorsCrawler(spyProjectVisitor);
     underTest.visit(component);
@@ -237,18 +232,18 @@ public class VisitorsCrawlerWithPostOrderTypeAwareVisitorTest {
     VisitorsCrawler underTest = newVisitorsCrawler(spyFileVisitor);
     underTest.visit(COMPONENT_TREE);
 
+    inOrder.verify(spyFileVisitor).visitAny(COMPONENT_TREE);
+    inOrder.verify(spyFileVisitor).visitProject(COMPONENT_TREE);
+    inOrder.verify(spyFileVisitor).visitAny(MODULE_2);
+    inOrder.verify(spyFileVisitor).visitModule(MODULE_2);
+    inOrder.verify(spyFileVisitor).visitAny(MODULE_3);
+    inOrder.verify(spyFileVisitor).visitModule(MODULE_3);
+    inOrder.verify(spyFileVisitor).visitAny(DIRECTORY_4);
+    inOrder.verify(spyFileVisitor).visitDirectory(DIRECTORY_4);
     inOrder.verify(spyFileVisitor).visitAny(FILE_5);
     inOrder.verify(spyFileVisitor).visitFile(FILE_5);
     inOrder.verify(spyFileVisitor).visitAny(FILE_6);
     inOrder.verify(spyFileVisitor).visitFile(FILE_6);
-    inOrder.verify(spyFileVisitor).visitAny(DIRECTORY_4);
-    inOrder.verify(spyFileVisitor).visitDirectory(DIRECTORY_4);
-    inOrder.verify(spyFileVisitor).visitAny(MODULE_3);
-    inOrder.verify(spyFileVisitor).visitModule(MODULE_3);
-    inOrder.verify(spyFileVisitor).visitAny(MODULE_2);
-    inOrder.verify(spyFileVisitor).visitModule(MODULE_2);
-    inOrder.verify(spyFileVisitor).visitAny(COMPONENT_TREE);
-    inOrder.verify(spyFileVisitor).visitProject(COMPONENT_TREE);
     inOrder.verifyNoMoreInteractions();
   }
 
@@ -257,15 +252,12 @@ public class VisitorsCrawlerWithPostOrderTypeAwareVisitorTest {
     VisitorsCrawler underTest = newVisitorsCrawler(spyDirectoryVisitor);
     underTest.visit(COMPONENT_TREE);
 
-    inOrder.verify(spyDirectoryVisitor).visitAny(DIRECTORY_4);
-    inOrder.verify(spyDirectoryVisitor).visitDirectory(DIRECTORY_4);
-    inOrder.verify(spyDirectoryVisitor).visitAny(MODULE_3);
-    inOrder.verify(spyDirectoryVisitor).visitModule(MODULE_3);
-    inOrder.verify(spyDirectoryVisitor).visitAny(MODULE_2);
-    inOrder.verify(spyDirectoryVisitor).visitModule(MODULE_2);
-    inOrder.verify(spyDirectoryVisitor).visitAny(COMPONENT_TREE);
     inOrder.verify(spyDirectoryVisitor).visitProject(COMPONENT_TREE);
-    inOrder.verifyNoMoreInteractions();
+    inOrder.verify(spyDirectoryVisitor).visitModule(MODULE_2);
+    inOrder.verify(spyDirectoryVisitor).visitModule(MODULE_3);
+    inOrder.verify(spyDirectoryVisitor).visitDirectory(DIRECTORY_4);
+    inOrder.verify(spyProjectVisitor, never()).visitFile(FILE_5);
+    inOrder.verify(spyProjectVisitor, never()).visitFile(FILE_6);
   }
 
   @Test
@@ -273,13 +265,13 @@ public class VisitorsCrawlerWithPostOrderTypeAwareVisitorTest {
     VisitorsCrawler underTest = newVisitorsCrawler(spyModuleVisitor);
     underTest.visit(COMPONENT_TREE);
 
-    inOrder.verify(spyModuleVisitor).visitAny(MODULE_3);
-    inOrder.verify(spyModuleVisitor).visitModule(MODULE_3);
-    inOrder.verify(spyModuleVisitor).visitAny(MODULE_2);
-    inOrder.verify(spyModuleVisitor).visitModule(MODULE_2);
     inOrder.verify(spyModuleVisitor).visitAny(COMPONENT_TREE);
     inOrder.verify(spyModuleVisitor).visitProject(COMPONENT_TREE);
-    inOrder.verifyNoMoreInteractions();
+    inOrder.verify(spyModuleVisitor).visitAny(MODULE_2);
+    inOrder.verify(spyModuleVisitor).visitModule(MODULE_2);
+    inOrder.verify(spyModuleVisitor).visitAny(MODULE_3);
+    inOrder.verify(spyModuleVisitor).visitModule(MODULE_3);
+    inOrder.verify(spyProjectVisitor, never()).visitDirectory(DIRECTORY_4);
   }
 
   @Test
@@ -289,7 +281,8 @@ public class VisitorsCrawlerWithPostOrderTypeAwareVisitorTest {
 
     inOrder.verify(spyProjectVisitor).visitAny(COMPONENT_TREE);
     inOrder.verify(spyProjectVisitor).visitProject(COMPONENT_TREE);
-    inOrder.verifyNoMoreInteractions();
+    inOrder.verify(spyProjectVisitor, never()).visitModule(MODULE_2);
+    inOrder.verify(spyProjectVisitor, never()).visitModule(MODULE_3);
   }
 
   private static Component component(final Component.Type type, final int ref, final Component... children) {
