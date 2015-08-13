@@ -69,6 +69,8 @@ public class QualityProfileTest {
   @Test
   public void verify_equals() {
     assertThat(QUALITY_PROFILE).isEqualTo(new QualityProfile(SOME_QP_KEY, SOME_QP_NAME, SOME_LANGUAGE_KEY, SOME_DATE));
+    assertThat(QUALITY_PROFILE).isEqualTo(QUALITY_PROFILE);
+    assertThat(QUALITY_PROFILE).isNotEqualTo(null);
   }
 
   @Test

@@ -163,6 +163,7 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
 
   private static class ComputeEngineComponentMonitor extends NullComponentMonitor {
 
+    @Override
     public <T> void instantiated(PicoContainer container, ComponentAdapter<T> componentAdapter,
       Constructor<T> constructor, Object instantiated, Object[] parameters, long duration) {
       LOG.trace(format(ComponentMonitorHelper.INSTANTIATED, ctorToString(constructor), duration, instantiated.getClass().getName(), parmsToString(parameters)));
