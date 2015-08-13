@@ -46,11 +46,11 @@ public class GlobalSettings extends Settings {
     "sonar.jdbc.password", JDBC_SPECIFIC_MESSAGE
     );
 
-  private final BootstrapProperties bootstrapProps;
+  private final GlobalProperties bootstrapProps;
   private final GlobalRepositories globalReferentials;
   private final GlobalMode mode;
 
-  public GlobalSettings(BootstrapProperties bootstrapProps, PropertyDefinitions propertyDefinitions,
+  public GlobalSettings(GlobalProperties bootstrapProps, PropertyDefinitions propertyDefinitions,
     GlobalRepositories globalReferentials, GlobalMode mode) {
 
     super(propertyDefinitions);

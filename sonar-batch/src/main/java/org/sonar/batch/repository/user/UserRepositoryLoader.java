@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.repository.user;
 
+import org.sonar.batch.cache.WSLoader;
+
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang.mutable.MutableBoolean;
@@ -26,7 +28,6 @@ import com.google.common.collect.Lists;
 import com.google.common.base.Joiner;
 import org.sonar.batch.bootstrap.WSLoaderResult;
 import org.sonar.batch.util.BatchUtils;
-import org.sonar.batch.bootstrap.WSLoader;
 import com.google.common.io.ByteSource;
 import com.google.common.base.Function;
 import org.sonar.batch.protocol.input.BatchInput;

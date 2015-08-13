@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.rule;
 
+import org.sonar.batch.cache.WSLoader;
+
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang.mutable.MutableBoolean;
@@ -30,8 +32,6 @@ import org.sonarqube.ws.Rules.ListResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-
-import org.sonar.batch.bootstrap.WSLoader;
 
 public class DefaultRulesLoader implements RulesLoader {
   private static final String RULES_SEARCH_URL = "/api/rules/list";

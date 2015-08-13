@@ -19,11 +19,11 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.bootstrap.WSLoaderResult;
+import org.sonar.batch.cache.WSLoader;
 
+import org.sonar.batch.bootstrap.WSLoaderResult;
 import org.sonar.batch.util.BatchUtils;
 import com.google.common.io.ByteSource;
-import org.sonar.batch.bootstrap.WSLoader;
 import com.google.common.base.Function;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 

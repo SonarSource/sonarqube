@@ -44,7 +44,7 @@ public class ServerClientTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private MockHttpServer server = null;
-  private BootstrapProperties bootstrapProps = mock(BootstrapProperties.class);
+  private GlobalProperties bootstrapProps = mock(GlobalProperties.class);
 
   @After
   public void stopServer() {
@@ -55,7 +55,7 @@ public class ServerClientTest {
 
   @Test
   public void should_remove_url_ending_slash() {
-    BootstrapProperties settings = mock(BootstrapProperties.class);
+    GlobalProperties settings = mock(GlobalProperties.class);
     when(settings.property("sonar.host.url")).thenReturn("http://localhost:8080/sonar/");
     ServerClient client = new ServerClient(settings, new EnvironmentInformation("Junit", "4"));
 

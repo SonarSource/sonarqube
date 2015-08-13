@@ -19,28 +19,25 @@
  */
 package org.sonar.batch.bootstrap;
 
-import java.util.Collections;
-import org.junit.Before;
-import static org.assertj.core.api.Assertions.assertThat;
+import com.google.common.collect.Maps;
 import org.junit.Test;
 
-public class PersistentCacheProviderTest {
-  private PersistentCacheProvider provider = null;
-  private BootstrapProperties props = null;
+import java.util.Map;
 
-  @Before
-  public void prepare() {
-    props = new BootstrapProperties(Collections.<String, String>emptyMap());
-    provider = new PersistentCacheProvider();
-  }
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
+public class GlobalPropertiesTest {
   @Test
-  public void test_singleton() {
-    assertThat(provider.provide(props)).isEqualTo(provider.provide(props));
-  }
+  public void test_copy_of_properties() {
+    Map<String, String> map = Maps.newHashMap();
+    map.put("foo", "bar");
 
-  @Test
-  public void test_cache_dir() {
-    assertThat(provider.provide(props).getBaseDirectory().toFile()).exists().isDirectory();
+    GlobalProperties wrapper = new GlobalProperties(map);
+    assertThat(wrapper.properties()).containsOnly(entry("foo", "bar"));
+    assertThat(wrapper.properties()).isNotSameAs(map);
+
+    map.put("put", "after_copy");
+    assertThat(wrapper.properties()).hasSize(1);
   }
 }

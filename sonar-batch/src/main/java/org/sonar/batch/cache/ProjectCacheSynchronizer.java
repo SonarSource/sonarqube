@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.cache;
 
+import org.sonar.batch.analysis.AnalysisProperties;
+
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Loggers;
@@ -26,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 import com.google.common.base.Function;
 import org.sonar.batch.protocol.input.FileData;

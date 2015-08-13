@@ -19,13 +19,14 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.batch.analysis.AnalysisProperties;
+
 import com.google.common.collect.Maps;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.test.TestUtils;
 
 import java.io.File;

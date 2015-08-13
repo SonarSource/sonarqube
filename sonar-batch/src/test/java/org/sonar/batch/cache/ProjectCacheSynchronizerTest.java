@@ -21,16 +21,16 @@ package org.sonar.batch.cache;
 
 import static org.mockito.Mockito.when;
 
-import org.sonar.batch.protocol.input.ProjectRepositories;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 
+import org.sonar.batch.analysis.AnalysisProperties;
+import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.sonar.batch.issue.tracking.DefaultServerLineHashesLoader;
 import org.sonar.batch.repository.DefaultServerIssuesLoader;
-import org.sonar.batch.scan.ProjectAnalysisMode;
 import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.WSLoaderResult;
-import org.sonar.batch.bootstrap.WSLoader;
 import com.google.common.io.ByteSource;
 
 import java.io.IOException;
@@ -50,7 +50,6 @@ import org.junit.Before;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Mock;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
 import org.sonar.batch.repository.ProjectRepositoriesLoader;
 import org.sonar.batch.repository.ServerIssuesLoader;
@@ -69,7 +68,7 @@ public class ProjectCacheSynchronizerTest {
   @Mock
   private ProjectCacheStatus cacheStatus;
   @Mock
-  private ProjectAnalysisMode analysisMode;
+  private DefaultAnalysisMode analysisMode;
   @Mock
   private AnalysisProperties properties;
   @Mock

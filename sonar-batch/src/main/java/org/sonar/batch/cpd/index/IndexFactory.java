@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.cpd.index;
 
-import org.sonar.batch.scan.ProjectAnalysisMode;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 
 import com.google.common.annotations.VisibleForTesting;
 
@@ -36,9 +36,9 @@ import org.sonar.api.resources.Project;
 public class IndexFactory {
 
   private final Settings settings;
-  private final ProjectAnalysisMode mode;
+  private final DefaultAnalysisMode mode;
 
-  public IndexFactory(ProjectAnalysisMode mode, Settings settings) {
+  public IndexFactory(DefaultAnalysisMode mode, Settings settings) {
     this.mode = mode;
     this.settings = settings;
   }

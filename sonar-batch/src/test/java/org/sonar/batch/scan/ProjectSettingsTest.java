@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.bootstrap.GlobalMode;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 
+import org.sonar.batch.bootstrap.GlobalMode;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Collections;
@@ -36,7 +37,7 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.batch.bootstrap.BootstrapProperties;
+import org.sonar.batch.bootstrap.GlobalProperties;
 import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.protocol.input.GlobalRepositories;
 import org.sonar.batch.protocol.input.ProjectRepositories;
@@ -56,14 +57,14 @@ public class ProjectSettingsTest {
   GlobalSettings bootstrapProps;
 
   private GlobalMode globalMode;
-  private ProjectAnalysisMode mode;
+  private DefaultAnalysisMode mode;
 
   @Before
   public void prepare() {
     projectRef = new ProjectRepositories();
     globalMode = mock(GlobalMode.class);
-    mode = mock(ProjectAnalysisMode.class);
-    bootstrapProps = new GlobalSettings(new BootstrapProperties(Collections.<String, String>emptyMap()), new PropertyDefinitions(), new GlobalRepositories(), globalMode);
+    mode = mock(DefaultAnalysisMode.class);
+    bootstrapProps = new GlobalSettings(new GlobalProperties(Collections.<String, String>emptyMap()), new PropertyDefinitions(), new GlobalRepositories(), globalMode);
   }
 
   @Test
@@ -122,7 +123,7 @@ public class ProjectSettingsTest {
 
   @Test
   public void should_log_a_warning_when_a_dropper_property_is_present() {
-    GlobalSettings settings = new GlobalSettings(new BootstrapProperties(ImmutableMap.of("sonar.qualitygate", "somevalue")), new PropertyDefinitions(), new GlobalRepositories(), globalMode);
+    GlobalSettings settings = new GlobalSettings(new GlobalProperties(ImmutableMap.of("sonar.qualitygate", "somevalue")), new PropertyDefinitions(), new GlobalRepositories(), globalMode);
     new ProjectSettings(new ProjectReactor(project), settings, new PropertyDefinitions(), projectRef, mode);
 
     assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Property 'sonar.qualitygate' is not supported any more. It will be ignored.");

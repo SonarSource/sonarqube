@@ -17,13 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan;
+package org.sonar.batch.analysis;
+
+import org.sonar.batch.analysis.DefaultAnalysisMode;
+
+import org.sonar.batch.analysis.AnalysisProperties;
 
 import javax.annotation.Nullable;
 
-import org.sonar.batch.bootstrap.BootstrapProperties;
-import org.sonar.batch.bootstrap.AnalysisProperties;
-import org.sonar.batch.scan.ProjectAnalysisMode;
+import org.sonar.batch.bootstrap.GlobalProperties;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 
@@ -32,11 +34,11 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ProjectAnalysisModeTest {
+public class DefaultAnalysisModeTest {
 
   @Test
   public void regular_analysis_by_default() {
-    ProjectAnalysisMode mode = createMode(null, null);
+    DefaultAnalysisMode mode = createMode(null, null);
     assertThat(mode.isPreview()).isFalse();
     assertThat(mode.isPublish()).isTrue();
   }
@@ -48,7 +50,7 @@ public class ProjectAnalysisModeTest {
 
   @Test
   public void support_pulblish_mode() {
-    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_PUBLISH);
+    DefaultAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_PUBLISH);
 
     assertThat(mode.isPreview()).isFalse();
     assertThat(mode.isPublish()).isTrue();
@@ -61,14 +63,14 @@ public class ProjectAnalysisModeTest {
 
   @Test
   public void support_preview_mode() {
-    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_PREVIEW);
+    DefaultAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_PREVIEW);
 
     assertThat(mode.isPreview()).isTrue();
   }
 
   @Test
   public void default_publish_mode() {
-    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_PREVIEW);
+    DefaultAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_PREVIEW);
     assertThat(mode.isPublish()).isFalse();
 
     mode = createMode(CoreProperties.ANALYSIS_MODE_ISSUES);
@@ -81,16 +83,16 @@ public class ProjectAnalysisModeTest {
 
   @Test
   public void support_issues_mode() {
-    ProjectAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_ISSUES);
+    DefaultAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_ISSUES);
 
     assertThat(mode.isIssues()).isTrue();
   }
 
-  private static ProjectAnalysisMode createMode(@Nullable String mode) {
+  private static DefaultAnalysisMode createMode(@Nullable String mode) {
     return createMode(mode, mode);
   }
 
-  private static ProjectAnalysisMode createMode(@Nullable String bootstrapMode, @Nullable String analysisMode) {
+  private static DefaultAnalysisMode createMode(@Nullable String bootstrapMode, @Nullable String analysisMode) {
     Map<String, String> bootstrapMap = new HashMap<>();
     Map<String, String> analysisMap = new HashMap<>();
 
@@ -100,7 +102,7 @@ public class ProjectAnalysisModeTest {
     if (analysisMode != null) {
       analysisMap.put(CoreProperties.ANALYSIS_MODE, analysisMode);
     }
-    return new ProjectAnalysisMode(new BootstrapProperties(bootstrapMap), new AnalysisProperties(analysisMap));
+    return new DefaultAnalysisMode(new GlobalProperties(bootstrapMap), new AnalysisProperties(analysisMap));
   }
 
 }

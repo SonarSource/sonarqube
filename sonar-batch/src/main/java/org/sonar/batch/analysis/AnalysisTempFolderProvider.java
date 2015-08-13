@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.analysis;
+
+import org.sonar.batch.bootstrap.LifecycleProviderAdapter;
 
 import org.sonar.api.utils.TempFolder;
 import org.apache.commons.lang.StringUtils;
@@ -29,7 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class ProjectTempFolderProvider extends LifecycleProviderAdapter {
+public class AnalysisTempFolderProvider extends LifecycleProviderAdapter {
   static final String TMP_NAME = ".sonartmp";
   private DefaultTempFolder projectTempFolder;
 

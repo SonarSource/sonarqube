@@ -19,8 +19,11 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.batch.analysis.AnalysisProperties;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -33,8 +36,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import org.apache.commons.io.filefilter.AndFileFilter;
 import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -47,7 +52,6 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.batch.util.BatchUtils;
 
 /**

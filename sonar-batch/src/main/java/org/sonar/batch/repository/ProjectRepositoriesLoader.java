@@ -19,11 +19,12 @@
  */
 package org.sonar.batch.repository;
 
+import org.sonar.batch.analysis.AnalysisProperties;
+
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 
 public interface ProjectRepositoriesLoader {

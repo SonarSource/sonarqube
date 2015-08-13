@@ -17,13 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan;
+package org.sonar.batch.analysis;
 
 import org.sonar.batch.mediumtest.FakePluginInstaller;
-
 import org.apache.commons.lang.StringUtils;
-import org.sonar.batch.bootstrap.BootstrapProperties;
-import org.sonar.batch.bootstrap.AnalysisProperties;
+import org.sonar.batch.bootstrap.GlobalProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -34,15 +32,15 @@ import java.util.Map;
 /**
  * @since 4.0
  */
-public class ProjectAnalysisMode implements AnalysisMode {
+public class DefaultAnalysisMode implements AnalysisMode {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ProjectAnalysisMode.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultAnalysisMode.class);
 
   private boolean preview;
   private boolean issues;
   private boolean mediumTestMode;
 
-  public ProjectAnalysisMode(BootstrapProperties globalProps, AnalysisProperties props) {
+  public DefaultAnalysisMode(GlobalProperties globalProps, AnalysisProperties props) {
     init(globalProps.properties(), props.properties());
   }
 

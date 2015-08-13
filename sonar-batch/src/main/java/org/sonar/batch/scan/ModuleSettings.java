@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.batch.analysis.DefaultAnalysisMode;
+
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -36,10 +38,10 @@ import org.sonar.batch.protocol.input.ProjectRepositories;
 public class ModuleSettings extends Settings {
 
   private final ProjectRepositories projectReferentials;
-  private ProjectAnalysisMode analysisMode;
+  private DefaultAnalysisMode analysisMode;
 
   public ModuleSettings(GlobalSettings batchSettings, ProjectDefinition moduleDefinition, ProjectRepositories projectReferentials,
-    ProjectAnalysisMode analysisMode) {
+    DefaultAnalysisMode analysisMode) {
     super(batchSettings.getDefinitions());
     this.projectReferentials = projectReferentials;
     this.analysisMode = analysisMode;

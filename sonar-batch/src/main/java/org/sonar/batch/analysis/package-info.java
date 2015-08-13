@@ -17,32 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.repository;
+@ParametersAreNonnullByDefault
+package org.sonar.batch.analysis;
 
-import org.sonar.batch.cache.WSLoader;
-
-import javax.annotation.Nullable;
-
-import org.apache.commons.lang.mutable.MutableBoolean;
-import org.sonar.batch.bootstrap.WSLoaderResult;
-import org.sonar.batch.protocol.input.GlobalRepositories;
-
-public class DefaultGlobalRepositoriesLoader implements GlobalRepositoriesLoader {
-
-  private static final String BATCH_GLOBAL_URL = "/batch/global";
-
-  private final WSLoader wsLoader;
-
-  public DefaultGlobalRepositoriesLoader(WSLoader wsLoader) {
-    this.wsLoader = wsLoader;
-  }
-
-  @Override
-  public GlobalRepositories load(@Nullable MutableBoolean fromCache) {
-    WSLoaderResult<String> result = wsLoader.loadString(BATCH_GLOBAL_URL);
-    if (fromCache != null) {
-      fromCache.setValue(result.isFromCache());
-    }
-    return GlobalRepositories.fromJson(result.get());
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

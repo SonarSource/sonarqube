@@ -46,7 +46,7 @@ import org.sonar.api.batch.events.SensorsPhaseHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TimeUtils;
-import org.sonar.batch.bootstrap.BootstrapProperties;
+import org.sonar.batch.bootstrap.GlobalProperties;
 import org.sonar.batch.events.BatchStepHandler;
 import org.sonar.batch.util.BatchUtils;
 
@@ -85,7 +85,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     println(sb.toString());
   }
 
-  public PhasesSumUpTimeProfiler(System2 system, BootstrapProperties bootstrapProps) {
+  public PhasesSumUpTimeProfiler(System2 system, GlobalProperties bootstrapProps) {
     String workingDirPath = StringUtils.defaultIfBlank(bootstrapProps.property(CoreProperties.WORKING_DIRECTORY), CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
     File workingDir = new File(workingDirPath).getAbsoluteFile();
     this.out = new File(workingDir, "profiling");

@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.report;
 
-import org.sonar.batch.scan.ProjectAnalysisMode;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,13 +37,13 @@ import static org.mockito.Mockito.when;
 
 public class ReportPublisherTest {
 
-  private ProjectAnalysisMode mode;
+  private DefaultAnalysisMode mode;
 
   private ImmutableProjectReactor reactor;
 
   @Before
   public void setUp() {
-    mode = mock(ProjectAnalysisMode.class);
+    mode = mock(DefaultAnalysisMode.class);
     reactor = mock(ImmutableProjectReactor.class);
     when(reactor.getRoot()).thenReturn(ProjectDefinition.create().setKey("struts"));
   }

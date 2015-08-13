@@ -19,17 +19,17 @@
  */
 package org.sonar.batch.scan.report;
 
-import org.sonar.batch.scan.ProjectAnalysisMode;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 
 import org.sonar.api.batch.BatchSide;
 
 @BatchSide
 public class IssuesReports {
 
-  private final ProjectAnalysisMode analysisMode;
+  private final DefaultAnalysisMode analysisMode;
   private final Reporter[] reporters;
 
-  public IssuesReports(ProjectAnalysisMode analysisMode, Reporter... reporters) {
+  public IssuesReports(DefaultAnalysisMode analysisMode, Reporter... reporters) {
     this.reporters = reporters;
     this.analysisMode = analysisMode;
   }

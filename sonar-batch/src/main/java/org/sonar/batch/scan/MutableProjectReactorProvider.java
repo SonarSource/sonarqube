@@ -19,11 +19,12 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.batch.analysis.AnalysisProperties;
+
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectBootstrapper;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.bootstrap.AnalysisProperties;
 
 import javax.annotation.Nullable;
 

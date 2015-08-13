@@ -48,7 +48,7 @@ import org.sonar.api.batch.events.SensorsPhaseHandler;
 import org.sonar.api.batch.events.SensorsPhaseHandler.SensorsPhaseEvent;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.bootstrap.BootstrapProperties;
+import org.sonar.batch.bootstrap.GlobalProperties;
 import org.sonar.batch.events.BatchStepEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,7 +68,7 @@ public class PhasesSumUpTimeProfilerTest {
     clock = new MockedSystem();
     Map<String, String> props = Maps.newHashMap();
     props.put(CoreProperties.WORKING_DIRECTORY, temp.newFolder().getAbsolutePath());
-    profiler = new PhasesSumUpTimeProfiler(clock, new BootstrapProperties(props));
+    profiler = new PhasesSumUpTimeProfiler(clock, new GlobalProperties(props));
   }
 
   @Test

@@ -42,7 +42,7 @@ public class GlobalMode {
     return !preview && !issues;
   }
 
-  public GlobalMode(BootstrapProperties props) {
+  public GlobalMode(GlobalProperties props) {
     String mode = props.property(CoreProperties.ANALYSIS_MODE);
     validate(mode);
     preview = CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);

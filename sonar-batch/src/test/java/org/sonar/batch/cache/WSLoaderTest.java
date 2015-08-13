@@ -17,10 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.cache;
 
+import org.sonar.batch.bootstrap.ServerClient;
+import org.sonar.batch.bootstrap.WSLoaderResult;
+
+import org.sonar.batch.cache.WSLoader;
+import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.hamcrest.Matchers;
-
 import org.junit.rules.ExpectedException;
 import org.junit.Rule;
 import org.sonar.api.utils.HttpDownloader;
@@ -44,7 +48,6 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyInt;
-import org.sonar.batch.bootstrap.WSLoader.LoadStrategy;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 import org.junit.Before;

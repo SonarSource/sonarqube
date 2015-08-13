@@ -17,13 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.cache;
 
 import static org.mockito.Mockito.mock;
-import org.sonar.batch.bootstrap.WSLoader.LoadStrategy;
+
+import org.sonar.batch.bootstrap.GlobalProperties;
+import org.sonar.batch.bootstrap.MockHttpServer;
+import org.sonar.batch.bootstrap.ServerClient;
+import org.sonar.batch.bootstrap.Slf4jLogger;
+
+import org.sonar.batch.cache.WSLoader;
+import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
-
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
@@ -47,7 +53,7 @@ public class WSLoaderTestWithServer {
     server = new MockHttpServer();
     server.start();
 
-    BootstrapProperties bootstrapProps = mock(BootstrapProperties.class);
+    GlobalProperties bootstrapProps = mock(GlobalProperties.class);
     when(bootstrapProps.property("sonar.host.url")).thenReturn("http://localhost:" + server.getPort());
 
     client = new ServerClient(bootstrapProps, new EnvironmentInformation("Junit", "4"));

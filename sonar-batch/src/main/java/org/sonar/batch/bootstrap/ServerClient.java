@@ -57,10 +57,10 @@ import org.sonar.core.util.DefaultHttpDownloader;
 public class ServerClient {
 
   private static final String GET = "GET";
-  private BootstrapProperties props;
+  private GlobalProperties props;
   private DefaultHttpDownloader.BaseHttpDownloader downloader;
 
-  public ServerClient(BootstrapProperties settings, EnvironmentInformation env) {
+  public ServerClient(GlobalProperties settings, EnvironmentInformation env) {
     this.props = settings;
     this.downloader = new DefaultHttpDownloader.BaseHttpDownloader(settings.properties(), env.toString());
   }

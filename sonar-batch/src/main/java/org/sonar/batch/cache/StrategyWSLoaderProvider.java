@@ -19,11 +19,10 @@
  */
 package org.sonar.batch.cache;
 
-import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.batch.cache.WSLoader.LoadStrategy;
 
+import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.batch.bootstrap.WSLoader;
-import org.sonar.batch.bootstrap.WSLoader.LoadStrategy;
 import org.sonar.home.cache.PersistentCache;
 
 public class StrategyWSLoaderProvider extends ProviderAdapter {

@@ -36,8 +36,8 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.concurrent.TimeUnit;
 
-public class TempFolderProvider extends LifecycleProviderAdapter {
-  private static final Logger LOG = Loggers.get(TempFolderProvider.class);
+public class GlobalTempFolderProvider extends LifecycleProviderAdapter {
+  private static final Logger LOG = Loggers.get(GlobalTempFolderProvider.class);
   private static final long CLEAN_MAX_AGE = TimeUnit.DAYS.toMillis(21);
 
   static final String TMP_NAME_PREFIX = ".sonartmp_";
@@ -45,15 +45,15 @@ public class TempFolderProvider extends LifecycleProviderAdapter {
   private System2 system;
   private DefaultTempFolder tempFolder;
 
-  public TempFolderProvider() {
+  public GlobalTempFolderProvider() {
     this(new System2());
   }
 
-  TempFolderProvider(System2 system) {
+  GlobalTempFolderProvider(System2 system) {
     this.system = system;
   }
 
-  public TempFolder provide(BootstrapProperties bootstrapProps) {
+  public TempFolder provide(GlobalProperties bootstrapProps) {
     if (tempFolder == null) {
 
       String workingPathName = StringUtils.defaultIfBlank(bootstrapProps.property(CoreProperties.GLOBAL_WORKING_DIRECTORY), CoreProperties.GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE);
@@ -90,7 +90,7 @@ public class TempFolderProvider extends LifecycleProviderAdapter {
     }
   }
 
-  private Path findHome(BootstrapProperties props) {
+  private Path findHome(GlobalProperties props) {
     String home = props.property("sonar.userHome");
     if (home != null) {
       return Paths.get(home);

@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.report;
 
-import org.sonar.batch.scan.ProjectAnalysisMode;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 
 import org.sonar.batch.util.BatchUtils;
 import com.github.kevinsawicki.http.HttpRequest;
@@ -60,7 +60,7 @@ public class ReportPublisher implements Startable {
   private final Server server;
   private final Settings settings;
   private final ImmutableProjectReactor projectReactor;
-  private final ProjectAnalysisMode analysisMode;
+  private final DefaultAnalysisMode analysisMode;
   private final TempFolder temp;
 
   private ReportPublisherStep[] publishers;
@@ -69,7 +69,7 @@ public class ReportPublisher implements Startable {
   private BatchReportWriter writer;
 
   public ReportPublisher(Settings settings, ServerClient serverClient, Server server,
-    ImmutableProjectReactor projectReactor, ProjectAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers) {
+    ImmutableProjectReactor projectReactor, DefaultAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers) {
     this.serverClient = serverClient;
     this.server = server;
     this.projectReactor = projectReactor;

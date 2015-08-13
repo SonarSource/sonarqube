@@ -17,27 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.cache;
 
-import com.google.common.collect.Maps;
+import org.sonar.batch.bootstrap.GlobalProperties;
+
+import org.sonar.batch.cache.PersistentCacheProvider;
+
+import java.util.Collections;
+
+import org.junit.Before;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 
-import java.util.Map;
+public class PersistentCacheProviderTest {
+  private PersistentCacheProvider provider = null;
+  private GlobalProperties props = null;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
+  @Before
+  public void prepare() {
+    props = new GlobalProperties(Collections.<String, String>emptyMap());
+    provider = new PersistentCacheProvider();
+  }
 
-public class BootstrapPropertiesTest {
   @Test
-  public void test_copy_of_properties() {
-    Map<String, String> map = Maps.newHashMap();
-    map.put("foo", "bar");
+  public void test_singleton() {
+    assertThat(provider.provide(props)).isEqualTo(provider.provide(props));
+  }
 
-    BootstrapProperties wrapper = new BootstrapProperties(map);
-    assertThat(wrapper.properties()).containsOnly(entry("foo", "bar"));
-    assertThat(wrapper.properties()).isNotSameAs(map);
-
-    map.put("put", "after_copy");
-    assertThat(wrapper.properties()).hasSize(1);
+  @Test
+  public void test_cache_dir() {
+    assertThat(provider.provide(props).getBaseDirectory().toFile()).exists().isDirectory();
   }
 }

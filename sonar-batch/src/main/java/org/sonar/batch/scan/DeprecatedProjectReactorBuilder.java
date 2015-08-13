@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.batch.analysis.AnalysisProperties;
+
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.batch.bootstrap.AnalysisProperties;
 
 import java.io.File;
 import java.io.IOException;

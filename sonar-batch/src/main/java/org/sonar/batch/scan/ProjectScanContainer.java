@@ -19,6 +19,11 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.batch.analysis.DefaultAnalysisMode;
+
+import org.sonar.batch.analysis.AnalysisWSLoaderProvider;
+import org.sonar.batch.analysis.AnalysisTempFolderProvider;
+import org.sonar.batch.analysis.AnalysisProperties;
 import org.sonar.batch.repository.user.UserRepositoryLoader;
 import org.sonar.batch.issue.tracking.DefaultServerLineHashesLoader;
 import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
@@ -41,12 +46,10 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.ProjectConfigurator;
-import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
-import org.sonar.batch.bootstrap.ProjectTempFolderProvider;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.deprecated.components.DefaultResourceCreationLock;
 import org.sonar.batch.duplication.DuplicationCache;
@@ -127,7 +130,7 @@ public class ProjectScanContainer extends ComponentContainer {
   private void addBatchComponents() {
     add(
       props,
-      ProjectAnalysisMode.class,
+      DefaultAnalysisMode.class,
       projectReactorBuilder(),
       new MutableProjectReactorProvider(getComponentByType(ProjectBootstrapper.class)),
       new ImmutableProjectReactorProvider(),
@@ -139,7 +142,7 @@ public class ProjectScanContainer extends ComponentContainer {
       ProjectExclusions.class,
       ProjectReactorValidator.class,
       new ProjectRepositoriesProvider(),
-      new ProjectWSLoaderProvider(),
+      new AnalysisWSLoaderProvider(),
       DefaultResourceCreationLock.class,
       CodeColorizers.class,
       MetricProvider.class,
@@ -151,7 +154,7 @@ public class ProjectScanContainer extends ComponentContainer {
       DefaultIssueCallback.class,
 
       // temp
-      new ProjectTempFolderProvider(),
+      new AnalysisTempFolderProvider(),
 
       // file system
       InputPathCache.class,
@@ -214,7 +217,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
   @Override
   protected void doAfterStart() {
-    ProjectAnalysisMode analysisMode = getComponentByType(ProjectAnalysisMode.class);
+    DefaultAnalysisMode analysisMode = getComponentByType(DefaultAnalysisMode.class);
     analysisMode.printMode();
     LOG.debug("Start recursive analysis of project modules");
     DefaultProjectTree tree = getComponentByType(DefaultProjectTree.class);

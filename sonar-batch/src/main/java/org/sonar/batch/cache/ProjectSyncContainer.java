@@ -19,13 +19,13 @@
  */
 package org.sonar.batch.cache;
 
-import org.sonar.batch.scan.ProjectAnalysisMode;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 
+import org.sonar.batch.cache.WSLoader.LoadStrategy;
+import org.sonar.batch.analysis.AnalysisProperties;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.batch.bootstrap.WSLoader.LoadStrategy;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.batch.repository.user.UserRepositoryLoader;
 import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
 import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
@@ -71,7 +71,7 @@ public class ProjectSyncContainer extends ComponentContainer {
   private void addComponents() {
     add(new StrategyWSLoaderProvider(LoadStrategy.SERVER_FIRST),
       properties,
-      ProjectAnalysisMode.class,
+      DefaultAnalysisMode.class,
       ProjectCacheSynchronizer.class,
       UserRepositoryLoader.class);
 

@@ -17,7 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.cache;
+
+import org.sonar.batch.bootstrap.ServerClient;
+import org.sonar.batch.bootstrap.WSLoaderResult;
 
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -32,7 +35,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-import static org.sonar.batch.bootstrap.WSLoader.ServerStatus.*;
+import static org.sonar.batch.cache.WSLoader.ServerStatus.*;
+
 import org.sonar.home.cache.PersistentCache;
 
 public class WSLoader {

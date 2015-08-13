@@ -27,9 +27,9 @@ import java.util.Map;
  * Immutable batch properties that are not specific to a task (for example
  * coming from global configuration file of sonar-runner).
  */
-public class BootstrapProperties extends UserProperties {
+public class GlobalProperties extends UserProperties {
 
-  public BootstrapProperties(Map<String, String> properties) {
+  public GlobalProperties(Map<String, String> properties) {
     super(properties, properties.get(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
   }
 

@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.cpd.index;
 
-import org.sonar.batch.scan.ProjectAnalysisMode;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,13 +38,13 @@ public class IndexFactoryTest {
   Settings settings;
   IndexFactory factory;
   Logger logger;
-  private ProjectAnalysisMode analysisMode;
+  private DefaultAnalysisMode analysisMode;
 
   @Before
   public void setUp() {
     project = new Project("foo");
     settings = new Settings();
-    analysisMode = mock(ProjectAnalysisMode.class);
+    analysisMode = mock(DefaultAnalysisMode.class);
     factory = new IndexFactory(analysisMode, settings);
     logger = mock(Logger.class);
   }

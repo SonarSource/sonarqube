@@ -41,14 +41,14 @@ public class GlobalSettingsTest {
   public LogTester logTester = new LogTester();
 
   GlobalRepositories globalRef;
-  BootstrapProperties bootstrapProps;
+  GlobalProperties bootstrapProps;
 
   private GlobalMode mode;
 
   @Before
   public void prepare() {
     globalRef = new GlobalRepositories();
-    bootstrapProps = new BootstrapProperties(Collections.<String, String>emptyMap());
+    bootstrapProps = new GlobalProperties(Collections.<String, String>emptyMap());
     mode = mock(GlobalMode.class);
   }
 

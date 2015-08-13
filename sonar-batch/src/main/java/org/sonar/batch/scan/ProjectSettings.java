@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.batch.analysis.DefaultAnalysisMode;
+
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
@@ -44,10 +46,10 @@ public class ProjectSettings extends Settings {
 
   private final GlobalSettings globalSettings;
   private final ProjectRepositories projectRepositories;
-  private final ProjectAnalysisMode mode;
+  private final DefaultAnalysisMode mode;
 
   public ProjectSettings(ProjectReactor reactor, GlobalSettings globalSettings, PropertyDefinitions propertyDefinitions,
-    ProjectRepositories projectRepositories, ProjectAnalysisMode mode) {
+    ProjectRepositories projectRepositories, DefaultAnalysisMode mode) {
     super(propertyDefinitions);
     this.mode = mode;
     getEncryption().setPathToSecretKey(globalSettings.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));

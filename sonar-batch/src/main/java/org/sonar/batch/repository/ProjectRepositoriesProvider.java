@@ -19,15 +19,15 @@
  */
 package org.sonar.batch.repository;
 
-import org.apache.commons.lang.mutable.MutableBoolean;
+import org.sonar.batch.analysis.AnalysisProperties;
 
+import org.apache.commons.lang.mutable.MutableBoolean;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 
 public class ProjectRepositoriesProvider extends ProviderAdapter {

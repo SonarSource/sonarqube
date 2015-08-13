@@ -19,10 +19,12 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.batch.bootstrap.WSLoader.LoadStrategy;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 
+import org.sonar.batch.cache.PersistentCacheProvider;
+import org.sonar.batch.cache.WSLoader.LoadStrategy;
+import org.sonar.batch.analysis.AnalysisProperties;
 import org.sonar.batch.cache.StrategyWSLoaderProvider;
-import org.sonar.batch.scan.ProjectAnalysisMode;
 import org.sonar.batch.cache.ProjectSyncContainer;
 import org.sonar.batch.rule.RulesLoader;
 import org.sonar.batch.rule.DefaultRulesLoader;
@@ -71,7 +73,7 @@ public class GlobalContainer extends ComponentContainer {
 
   @Override
   protected void doBeforeStart() {
-    BootstrapProperties bootstrapProps = new BootstrapProperties(bootstrapProperties);
+    GlobalProperties bootstrapProps = new GlobalProperties(bootstrapProperties);
     StrategyWSLoaderProvider wsLoaderProvider = forceSync ? new StrategyWSLoaderProvider(LoadStrategy.SERVER_ONLY) : new StrategyWSLoaderProvider(LoadStrategy.SERVER_FIRST);
     add(wsLoaderProvider);
     add(bootstrapProps);
@@ -95,7 +97,7 @@ public class GlobalContainer extends ComponentContainer {
       ServerClient.class,
       Logback.class,
       DefaultServer.class,
-      new TempFolderProvider(),
+      new GlobalTempFolderProvider(),
       DefaultHttpDownloader.class,
       UriReader.class,
       new FileCacheProvider(),
@@ -124,7 +126,7 @@ public class GlobalContainer extends ComponentContainer {
   }
 
   public void executeAnalysis(Map<String, String> analysisProperties, Object... components) {
-    AnalysisProperties props = new AnalysisProperties(analysisProperties, this.getComponentByType(BootstrapProperties.class).property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
+    AnalysisProperties props = new AnalysisProperties(analysisProperties, this.getComponentByType(GlobalProperties.class).property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
     if (isIssuesMode(props)) {
       new ProjectSyncContainer(this, props, false).execute();
     }
@@ -132,12 +134,12 @@ public class GlobalContainer extends ComponentContainer {
   }
 
   public void syncProject(Map<String, String> analysisProperties, boolean force) {
-    AnalysisProperties props = new AnalysisProperties(analysisProperties, this.getComponentByType(BootstrapProperties.class).property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
+    AnalysisProperties props = new AnalysisProperties(analysisProperties, this.getComponentByType(GlobalProperties.class).property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
     new ProjectSyncContainer(this, props, force).execute();
   }
 
   private boolean isIssuesMode(AnalysisProperties props) {
-    ProjectAnalysisMode mode = new ProjectAnalysisMode(this.getComponentByType(BootstrapProperties.class), props);
+    DefaultAnalysisMode mode = new DefaultAnalysisMode(this.getComponentByType(GlobalProperties.class), props);
     return mode.isIssues();
   }
 

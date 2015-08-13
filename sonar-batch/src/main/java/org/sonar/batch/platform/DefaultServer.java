@@ -21,7 +21,7 @@ package org.sonar.batch.platform;
 
 import org.apache.commons.lang.StringUtils;
 
-import org.sonar.batch.bootstrap.BootstrapProperties;
+import org.sonar.batch.bootstrap.GlobalProperties;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.CoreProperties;
@@ -39,9 +39,9 @@ import java.util.Date;
 public class DefaultServer extends Server {
 
   private Settings settings;
-  private BootstrapProperties props;
+  private GlobalProperties props;
 
-  public DefaultServer(Settings settings, BootstrapProperties props) {
+  public DefaultServer(Settings settings, GlobalProperties props) {
     this.settings = settings;
     this.props = props;
   }

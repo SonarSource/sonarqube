@@ -17,20 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan;
+package org.sonar.batch.analysis;
 
+import org.sonar.batch.cache.WSLoader;
+import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.picocontainer.injectors.ProviderAdapter;
 
 import java.util.Map;
 
-import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.batch.bootstrap.WSLoader;
 import org.sonar.home.cache.PersistentCache;
 import org.sonar.api.batch.AnalysisMode;
-import org.sonar.batch.bootstrap.WSLoader.LoadStrategy;
 
-public class ProjectWSLoaderProvider extends ProviderAdapter {
+public class AnalysisWSLoaderProvider extends ProviderAdapter {
   private WSLoader wsLoader;
 
   public WSLoader provide(AnalysisProperties props, AnalysisMode mode, PersistentCache cache, ServerClient client) {

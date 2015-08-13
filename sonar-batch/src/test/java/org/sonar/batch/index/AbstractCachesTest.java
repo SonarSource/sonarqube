@@ -26,8 +26,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import com.google.common.collect.ImmutableMap;
 import org.sonar.api.CoreProperties;
-import org.sonar.batch.bootstrap.BootstrapProperties;
-import org.sonar.batch.bootstrap.TempFolderProvider;
+import org.sonar.batch.bootstrap.GlobalProperties;
+import org.sonar.batch.bootstrap.GlobalTempFolderProvider;
 
 import java.util.Map;
 
@@ -45,7 +45,7 @@ public abstract class AbstractCachesTest {
     Map<String, String> props = ImmutableMap.of(CoreProperties.WORKING_DIRECTORY, temp.getRoot().getAbsolutePath(),
       CoreProperties.GLOBAL_WORKING_DIRECTORY, temp.getRoot().getAbsolutePath());
 
-    return new CachesManager(new TempFolderProvider().provide(new BootstrapProperties(props)));
+    return new CachesManager(new GlobalTempFolderProvider().provide(new GlobalProperties(props)));
   }
 
   @BeforeClass

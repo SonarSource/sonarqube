@@ -19,9 +19,11 @@
  */
 package org.sonar.batch.repository;
 
-import org.apache.commons.lang.mutable.MutableBoolean;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 
-import org.sonar.batch.scan.ProjectAnalysisMode;
+import org.sonar.batch.cache.WSLoader;
+import org.sonar.batch.analysis.AnalysisProperties;
+import org.apache.commons.lang.mutable.MutableBoolean;
 import org.apache.commons.io.IOUtils;
 import org.sonar.batch.bootstrap.WSLoaderResult;
 import com.google.common.collect.Maps;
@@ -36,8 +38,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.bootstrap.AnalysisProperties;
-import org.sonar.batch.bootstrap.WSLoader;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.protocol.input.QProfile;
 import org.sonar.batch.rule.ModuleQProfiles;
@@ -54,14 +54,14 @@ public class DefaultProjectRepositoriesLoaderTest {
 
   private DefaultProjectRepositoriesLoader loader;
   private WSLoader wsLoader;
-  private ProjectAnalysisMode analysisMode;
+  private DefaultAnalysisMode analysisMode;
   private ProjectDefinition project;
   private AnalysisProperties taskProperties;
 
   @Before
   public void prepare() {
     wsLoader = mock(WSLoader.class);
-    analysisMode = mock(ProjectAnalysisMode.class);
+    analysisMode = mock(DefaultAnalysisMode.class);
     loader = new DefaultProjectRepositoriesLoader(wsLoader, analysisMode);
     loader = spy(loader);
     when(wsLoader.loadString(anyString())).thenReturn(new WSLoaderResult<>("{}", true));

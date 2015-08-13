@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.analysis;
 
+import org.sonar.batch.analysis.AnalysisTempFolderProvider;
+
+import org.sonar.batch.analysis.AnalysisProperties;
 import org.sonar.api.utils.TempFolder;
-
 import org.apache.commons.io.FileUtils;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
@@ -33,17 +35,17 @@ import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ProjectTempFolderProviderTest {
+public class AnalysisTempFolderProviderTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private ProjectTempFolderProvider tempFolderProvider = new ProjectTempFolderProvider();
+  private AnalysisTempFolderProvider tempFolderProvider = new AnalysisTempFolderProvider();
 
   @Test
   public void createTempFolderWithProps() throws Exception {
     File workingDir = temp.newFolder();
-    File tmpDir = new File(workingDir, ProjectTempFolderProvider.TMP_NAME);
+    File tmpDir = new File(workingDir, AnalysisTempFolderProvider.TMP_NAME);
 
     TempFolder tempFolder = tempFolderProvider.provide(new AnalysisProperties(ImmutableMap.of(CoreProperties.WORKING_DIRECTORY, workingDir.getAbsolutePath()), ""));
     tempFolder.newDir();
@@ -55,7 +57,7 @@ public class ProjectTempFolderProviderTest {
   @Test
   public void createTempFolder() throws IOException {
     File workingDir = temp.newFolder();
-    File defaultDir = new File(new File(workingDir, CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE), ProjectTempFolderProvider.TMP_NAME);
+    File defaultDir = new File(new File(workingDir, CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE), AnalysisTempFolderProvider.TMP_NAME);
 
     try {
       TempFolder tempFolder = tempFolderProvider.provide(new AnalysisProperties(ImmutableMap.of("sonar.projectBaseDir", workingDir.getAbsolutePath()), ""));

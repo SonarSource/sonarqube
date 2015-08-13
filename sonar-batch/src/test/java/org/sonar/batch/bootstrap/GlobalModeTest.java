@@ -62,7 +62,7 @@ public class GlobalModeTest {
     if (key != null) {
       map.put(key, value);
     }
-    BootstrapProperties props = new BootstrapProperties(map);
+    GlobalProperties props = new GlobalProperties(map);
     return new GlobalMode(props);
   }
 }

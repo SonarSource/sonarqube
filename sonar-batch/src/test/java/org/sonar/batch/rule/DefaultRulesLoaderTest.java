@@ -22,8 +22,9 @@ package org.sonar.batch.rule;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.apache.commons.lang.mutable.MutableBoolean;
+import org.sonar.batch.cache.WSLoader;
 
+import org.apache.commons.lang.mutable.MutableBoolean;
 import org.sonar.batch.bootstrap.WSLoaderResult;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 import com.google.common.io.ByteSource;
@@ -34,7 +35,6 @@ import java.util.List;
 
 import static org.mockito.Matchers.anyString;
 import static org.assertj.core.api.Assertions.assertThat;
-import org.sonar.batch.bootstrap.WSLoader;
 import org.junit.Test;
 
 public class DefaultRulesLoaderTest {

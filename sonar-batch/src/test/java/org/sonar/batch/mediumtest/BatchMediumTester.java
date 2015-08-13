@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.mediumtest;
 
+import org.sonar.batch.analysis.AnalysisProperties;
+
 import org.apache.commons.lang.mutable.MutableBoolean;
 
 import javax.annotation.Nullable;
@@ -51,7 +53,6 @@ import org.sonar.api.SonarPlugin;
 import org.sonar.api.batch.debt.internal.DefaultDebtModel;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
-import org.sonar.batch.bootstrap.AnalysisProperties;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.bootstrapper.LogOutput;

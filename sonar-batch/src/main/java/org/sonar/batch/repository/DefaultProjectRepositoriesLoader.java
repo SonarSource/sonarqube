@@ -19,17 +19,19 @@
  */
 package org.sonar.batch.repository;
 
+import org.sonar.batch.analysis.DefaultAnalysisMode;
+
+import org.sonar.batch.cache.WSLoader;
+import org.sonar.batch.analysis.AnalysisProperties;
+
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang.mutable.MutableBoolean;
-import org.sonar.batch.scan.ProjectAnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.batch.bootstrap.WSLoaderResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.bootstrap.AnalysisProperties;
-import org.sonar.batch.bootstrap.WSLoader;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.util.BatchUtils;
@@ -40,9 +42,9 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
   private static final String BATCH_PROJECT_URL = "/batch/project";
 
   private final WSLoader wsLoader;
-  private final ProjectAnalysisMode analysisMode;
+  private final DefaultAnalysisMode analysisMode;
 
-  public DefaultProjectRepositoriesLoader(WSLoader wsLoader, ProjectAnalysisMode analysisMode) {
+  public DefaultProjectRepositoriesLoader(WSLoader wsLoader, DefaultAnalysisMode analysisMode) {
     this.wsLoader = wsLoader;
     this.analysisMode = analysisMode;
   }

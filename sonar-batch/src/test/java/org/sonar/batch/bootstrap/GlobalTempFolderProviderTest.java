@@ -40,17 +40,17 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-public class TempFolderProviderTest {
+public class GlobalTempFolderProviderTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private TempFolderProvider tempFolderProvider = new TempFolderProvider();
+  private GlobalTempFolderProvider tempFolderProvider = new GlobalTempFolderProvider();
 
   @Test
   public void createTempFolderProps() throws Exception {
     File workingDir = temp.newFolder();
 
-    TempFolder tempFolder = tempFolderProvider.provide(new BootstrapProperties(ImmutableMap.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, workingDir.getAbsolutePath())));
+    TempFolder tempFolder = tempFolderProvider.provide(new GlobalProperties(ImmutableMap.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, workingDir.getAbsolutePath())));
     tempFolder.newDir();
     tempFolder.newFile();
     assertThat(getCreatedTempDir(workingDir)).exists();
@@ -70,7 +70,7 @@ public class TempFolderProviderTest {
       setFileCreationDate(tmp, creationTime);
     }
 
-    tempFolderProvider.provide(new BootstrapProperties(ImmutableMap.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, workingDir.getAbsolutePath())));
+    tempFolderProvider.provide(new GlobalProperties(ImmutableMap.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, workingDir.getAbsolutePath())));
     // this also checks that all other temps were deleted
     assertThat(getCreatedTempDir(workingDir)).exists();
     
@@ -83,7 +83,7 @@ public class TempFolderProviderTest {
     File sonarHome = temp.newFolder();
     File workingDir = new File(sonarHome, CoreProperties.GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE).getAbsoluteFile();
 
-    TempFolder tempFolder = tempFolderProvider.provide(new BootstrapProperties(ImmutableMap.of("sonar.userHome", sonarHome.getAbsolutePath())));
+    TempFolder tempFolder = tempFolderProvider.provide(new GlobalProperties(ImmutableMap.of("sonar.userHome", sonarHome.getAbsolutePath())));
     tempFolder.newDir();
     tempFolder.newFile();
     assertThat(getCreatedTempDir(workingDir)).exists();
@@ -95,7 +95,7 @@ public class TempFolderProviderTest {
   @Test
   public void createTempFolderDefault() throws Exception {
     System2 system = mock(System2.class);
-    tempFolderProvider = new TempFolderProvider(system);
+    tempFolderProvider = new GlobalTempFolderProvider(system);
     File userHome = temp.newFolder();
    
     when(system.envVariable("SONAR_USER_HOME")).thenReturn(null);
@@ -105,7 +105,7 @@ public class TempFolderProviderTest {
     File defaultSonarHome = new File(userHome.getAbsolutePath(), ".sonar");
     File workingDir = new File(defaultSonarHome, CoreProperties.GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE).getAbsoluteFile();
     try {
-      TempFolder tempFolder = tempFolderProvider.provide(new BootstrapProperties(Collections.<String, String>emptyMap()));
+      TempFolder tempFolder = tempFolderProvider.provide(new GlobalProperties(Collections.<String, String>emptyMap()));
       tempFolder.newDir();
       tempFolder.newFile();
       assertThat(getCreatedTempDir(workingDir)).exists();

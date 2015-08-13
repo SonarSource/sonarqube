@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.batch.analysis.DefaultAnalysisMode;
+
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Rule;
@@ -42,12 +44,12 @@ public class ModuleSettingsTest {
   public ExpectedException thrown = ExpectedException.none();
 
   ProjectRepositories projectRef;
-  private ProjectAnalysisMode mode;
+  private DefaultAnalysisMode mode;
 
   @Before
   public void before() {
     projectRef = new ProjectRepositories();
-    mode = mock(ProjectAnalysisMode.class);
+    mode = mock(DefaultAnalysisMode.class);
   }
 
   @Test

@@ -17,7 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.cache;
+
+import org.sonar.batch.bootstrap.Slf4jLogger;
+import org.sonar.batch.bootstrap.UserProperties;
 
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -56,6 +59,7 @@ public class PersistentCacheProvider extends ProviderAdapter {
   private String getVersion() {
     InputStream is = this.getClass().getClassLoader().getResourceAsStream("sq-version.txt");
     if (is == null) {
+      LOG.warn("Failed to get SQ version");
       return null;
     }
     try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
