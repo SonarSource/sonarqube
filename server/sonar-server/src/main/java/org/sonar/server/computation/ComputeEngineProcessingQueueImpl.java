@@ -19,16 +19,19 @@
  */
 package org.sonar.server.computation;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Queues;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerStartHandler;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import static java.util.Objects.requireNonNull;
 
 public class ComputeEngineProcessingQueueImpl implements ComputeEngineProcessingQueue, ServerStartHandler {
+  private static final Logger LOG = Loggers.get(ComputeEngineProcessingQueueImpl.class);
+
   private final ComputeEngineProcessingExecutorService processingService;
   private final ConcurrentLinkedQueue<ComputeEngineTask> queue = Queues.newConcurrentLinkedQueue();
 
@@ -42,16 +45,6 @@ public class ComputeEngineProcessingQueueImpl implements ComputeEngineProcessing
     this.delayBetweenTasks = 10;
     this.delayForFirstStart = 0;
     this.timeUnit = TimeUnit.SECONDS;
-  }
-
-  @VisibleForTesting
-  ComputeEngineProcessingQueueImpl(ComputeEngineProcessingExecutorService processingExecutorService,
-    long delayForFirstStart, long delayBetweenTasks, TimeUnit timeUnit) {
-    this.processingService = processingExecutorService;
-
-    this.delayBetweenTasks = delayBetweenTasks;
-    this.delayForFirstStart = delayForFirstStart;
-    this.timeUnit = timeUnit;
   }
 
   @Override
@@ -71,7 +64,13 @@ public class ComputeEngineProcessingQueueImpl implements ComputeEngineProcessing
     public void run() {
       ComputeEngineTask task = queue.poll();
       if (task != null) {
-        task.run();
+        try {
+          task.run();
+        } catch (Throwable e) {
+          // we need to catch throwable, otherwise any task throwing an exception will cancel the scheduling of
+          // ProcessHeadOfQueueRunnable in processingService
+          LOG.error("Compute engine task failed", e);
+        }
       }
     }
   }

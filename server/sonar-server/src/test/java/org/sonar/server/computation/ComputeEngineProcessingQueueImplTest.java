@@ -100,6 +100,21 @@ public class ComputeEngineProcessingQueueImplTest {
     assertThat(nameList).containsExactly(1, 2, 3, 4);
   }
 
+  @Test
+  public void throwable_raised_by_a_ComputeEngineTask_must_be_caught() {
+    ComputeEngineProcessingExecutorServiceAdapter processingExecutorService = new SimulateFixedRateCallsProcessingExecutorService(1);
+
+    ComputeEngineProcessingQueueImpl underTest = new ComputeEngineProcessingQueueImpl(processingExecutorService);
+    underTest.addTask(new ComputeEngineTask() {
+      @Override
+      public void run() {
+        throw new RuntimeException("This should be caught by the processing queue");
+      }
+    });
+
+    underTest.onServerStart(mock(Server.class));
+  }
+
   private static class CallCounterComputeEngineTask implements ComputeEngineTask {
     int calls = 0;
 
