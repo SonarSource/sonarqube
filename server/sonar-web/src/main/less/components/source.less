@@ -455,27 +455,15 @@
 .source-viewer-flow-location {
   position: absolute;
   top: 0;
-  right: 0;
-  line-height: @source-line-height - 2px;
-  margin: 1px 0;
+  right: 10px;
+  height: @source-line-height - 1px;
+  line-height: @source-line-height - 1px;
   padding: 0 10px;
+  border-radius: 3px;
   background-color: @red;
   color: #fff;
   font-size: 12px;
   z-index: @issue-flow-location-z-index;
-
-  &:before {
-    @arrow-size: (@source-line-height - 2px) / 2;
-    content: " ";
-    position: absolute;
-    top: 0;
-    right: 100%;
-    display: block;
-    .square(0);
-    border-top: @arrow-size solid transparent;
-    border-bottom: @arrow-size solid transparent;
-    border-right: @arrow-size solid @red;
-  }
 }
 
 .source-viewer-flow-location + .source-viewer-flow-location {
