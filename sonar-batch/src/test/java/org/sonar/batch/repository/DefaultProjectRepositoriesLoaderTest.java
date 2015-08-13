@@ -19,13 +19,13 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.analysis.DefaultAnalysisMode;
+import org.sonar.batch.cache.WSLoaderResult;
 
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.cache.WSLoader;
 import org.sonar.batch.analysis.AnalysisProperties;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.apache.commons.io.IOUtils;
-import org.sonar.batch.bootstrap.WSLoaderResult;
 import com.google.common.collect.Maps;
 
 import java.io.IOException;

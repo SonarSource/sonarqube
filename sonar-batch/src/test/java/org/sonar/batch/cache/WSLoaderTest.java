@@ -20,8 +20,6 @@
 package org.sonar.batch.cache;
 
 import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.batch.bootstrap.WSLoaderResult;
-
 import org.sonar.batch.cache.WSLoader;
 import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.hamcrest.Matchers;

@@ -20,9 +20,7 @@
 package org.sonar.batch.cache;
 
 import static org.mockito.Mockito.when;
-
 import org.sonar.batch.analysis.DefaultAnalysisMode;
-
 import org.sonar.batch.analysis.AnalysisProperties;
 import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.apache.commons.lang.mutable.MutableBoolean;
@@ -30,7 +28,6 @@ import org.sonar.batch.issue.tracking.DefaultServerLineHashesLoader;
 import org.sonar.batch.repository.DefaultServerIssuesLoader;
 import org.sonar.batch.repository.DefaultProjectRepositoriesLoader;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.bootstrap.WSLoaderResult;
 import com.google.common.io.ByteSource;
 
 import java.io.IOException;

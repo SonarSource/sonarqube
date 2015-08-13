@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.repository.user;
 
-import org.sonar.batch.cache.WSLoader;
+import org.sonar.batch.cache.WSLoaderResult;
 
+import org.sonar.batch.cache.WSLoader;
 import org.junit.Before;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.mutable.MutableBoolean;
@@ -28,7 +29,6 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.rules.ExpectedException;
 import org.junit.Rule;
 import org.mockito.Mockito;
-import org.sonar.batch.bootstrap.WSLoaderResult;
 import com.google.common.io.ByteSource;
 import org.junit.Test;
 import org.sonar.batch.protocol.input.BatchInput;

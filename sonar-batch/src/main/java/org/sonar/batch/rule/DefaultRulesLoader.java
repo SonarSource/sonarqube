@@ -19,12 +19,13 @@
  */
 package org.sonar.batch.rule;
 
+import org.sonar.batch.cache.WSLoaderResult;
+
 import org.sonar.batch.cache.WSLoader;
 
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang.mutable.MutableBoolean;
-import org.sonar.batch.bootstrap.WSLoaderResult;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 import com.google.common.io.ByteSource;
 import org.sonarqube.ws.Rules.ListResponse;

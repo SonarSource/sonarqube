@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.batch.cache.WSLoader;
+import org.sonar.batch.cache.WSLoaderResult;
 
+import org.sonar.batch.cache.WSLoader;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;

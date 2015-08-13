@@ -19,10 +19,10 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import org.sonar.batch.cache.WSLoader;
+import org.sonar.batch.cache.WSLoaderResult;
 
+import org.sonar.batch.cache.WSLoader;
 import org.apache.commons.lang.mutable.MutableBoolean;
-import org.sonar.batch.bootstrap.WSLoaderResult;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

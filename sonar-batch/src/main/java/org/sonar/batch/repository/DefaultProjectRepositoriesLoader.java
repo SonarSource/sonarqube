@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.analysis.DefaultAnalysisMode;
+import org.sonar.batch.cache.WSLoaderResult;
 
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.cache.WSLoader;
 import org.sonar.batch.analysis.AnalysisProperties;
 
@@ -28,7 +29,6 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.batch.bootstrap.WSLoaderResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;

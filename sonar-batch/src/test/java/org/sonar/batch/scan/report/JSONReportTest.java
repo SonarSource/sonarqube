@@ -20,7 +20,6 @@
 package org.sonar.batch.scan.report;
 
 import com.google.common.collect.Lists;
-import com.google.common.io.Resources;
 
 import java.io.File;
 import java.io.IOException;
@@ -124,7 +123,7 @@ public class JSONReportTest {
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
 
-    JsonAssert.assertJson(writer.toString()).isSimilarTo(Resources.getResource("org/sonar/batch/scan/report/JsonReportTest/report.json"));
+    JsonAssert.assertJson(writer.toString()).isSimilarTo(this.getClass().getResource(this.getClass().getSimpleName() + "/report.json"));
   }
 
   @Test
@@ -145,8 +144,7 @@ public class JSONReportTest {
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
 
-    JsonAssert.assertJson(writer.toString()).isSimilarTo(Resources.getResource(
-      "org/sonar/batch/scan/report/JsonReportTest/report-without-resolved-issues.json"));
+    JsonAssert.assertJson(writer.toString()).isSimilarTo(this.getClass().getResource(this.getClass().getSimpleName() + "/report-without-resolved-issues.json"));
   }
 
   @Test

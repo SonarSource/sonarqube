@@ -20,8 +20,6 @@
 package org.sonar.batch.cache;
 
 import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.batch.bootstrap.WSLoaderResult;
-
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -36,7 +34,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import static org.sonar.batch.cache.WSLoader.ServerStatus.*;
-
 import org.sonar.home.cache.PersistentCache;
 
 public class WSLoader {

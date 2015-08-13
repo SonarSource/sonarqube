@@ -19,13 +19,13 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import org.sonar.batch.cache.WSLoader;
+import org.sonar.batch.cache.WSLoaderResult;
 
+import org.sonar.batch.cache.WSLoader;
 import org.apache.commons.lang.mutable.MutableBoolean;
 
 import javax.annotation.Nullable;
 
-import org.sonar.batch.bootstrap.WSLoaderResult;
 import org.sonar.batch.util.BatchUtils;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterators;
