@@ -42,14 +42,19 @@ public class ViewsComponent implements Component {
   @CheckForNull
   private final String name;
   private final List<Component> children;
+  @CheckForNull
+  private final ProjectViewAttributes projectViewAttributes;
 
-  private ViewsComponent(Type type, String key, @Nullable String uuid, @Nullable String name, List<Component> children) {
+  private ViewsComponent(Type type, String key, @Nullable String uuid, @Nullable String name,
+    List<Component> children,
+    @Nullable ProjectViewAttributes projectViewAttributes) {
     checkArgument(type.isViewsType());
     this.type = type;
     this.key = requireNonNull(key);
     this.uuid = uuid;
     this.name = name;
     this.children = ImmutableList.copyOf(children);
+    this.projectViewAttributes = projectViewAttributes;
   }
 
   public static Builder builder(Type type, String key) {
@@ -68,6 +73,8 @@ public class ViewsComponent implements Component {
     @CheckForNull
     private String name;
     private List<Component> children = new ArrayList<>();
+    @CheckForNull
+    private ProjectViewAttributes projectViewAttributes;
 
     private Builder(Type type, String key) {
       this.type = type;
@@ -84,6 +91,11 @@ public class ViewsComponent implements Component {
       return this;
     }
 
+    public Builder setProjectViewAttributes(@Nullable ProjectViewAttributes projectViewAttributes) {
+      this.projectViewAttributes = projectViewAttributes;
+      return this;
+    }
+
     public Builder addChildren(Component... c) {
       for (Component viewsComponent : c) {
         checkArgument(viewsComponent.getType().isViewsType());
@@ -93,7 +105,7 @@ public class ViewsComponent implements Component {
     }
 
     public ViewsComponent build() {
-      return new ViewsComponent(type, key, uuid, name, children);
+      return new ViewsComponent(type, key, uuid, name, children, projectViewAttributes);
     }
   }
 
@@ -113,19 +125,9 @@ public class ViewsComponent implements Component {
   }
 
   @Override
-  public ReportAttributes getReportAttributes() {
-    throw new IllegalStateException("A component of type " + type + " does not have report attributes");
-  }
-
-  @Override
   public String getName() {
     checkState(this.name != null, "No name has been set");
     return this.name;
-  }
-
-  @Override
-  public FileAttributes getFileAttributes() {
-    throw new IllegalStateException("A component of type " + type + " does not have file attributes");
   }
 
   @Override
@@ -134,14 +136,31 @@ public class ViewsComponent implements Component {
   }
 
   @Override
+  public ReportAttributes getReportAttributes() {
+    throw new IllegalStateException("A component of type " + type + " does not have report attributes");
+  }
+
+  @Override
+  public FileAttributes getFileAttributes() {
+    throw new IllegalStateException("A component of type " + type + " does not have file attributes");
+  }
+
+  @Override
+  public ProjectViewAttributes getProjectViewAttributes() {
+    checkState(this.type != Type.PROJECT_VIEW || this.projectViewAttributes != null, "A ProjectViewAttribute object should have been set");
+    return this.projectViewAttributes;
+  }
+
+  @Override
   public String toString() {
     return "ViewsComponent{" +
-        "type=" + type +
-        ", key='" + key + '\'' +
-        ", uuid='" + uuid + '\'' +
-        ", name='" + name + '\'' +
-        ", children=" + children +
-        '}';
+      "type=" + type +
+      ", key='" + key + '\'' +
+      ", uuid='" + uuid + '\'' +
+      ", name='" + name + '\'' +
+      ", children=" + children +
+      ", projectViewAttributes=" + projectViewAttributes +
+      '}';
   }
 
   @Override

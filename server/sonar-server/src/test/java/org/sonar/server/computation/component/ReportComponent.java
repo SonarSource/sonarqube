@@ -77,13 +77,18 @@ public class ReportComponent implements Component {
   }
 
   @Override
-  public ReportAttributes getReportAttributes() {
-    return this.reportAttributes;
+  public String getName() {
+    return this.name;
   }
 
   @Override
-  public String getName() {
-    return this.name;
+  public List<Component> getChildren() {
+    return children;
+  }
+
+  @Override
+  public ReportAttributes getReportAttributes() {
+    return this.reportAttributes;
   }
 
   @Override
@@ -93,8 +98,8 @@ public class ReportComponent implements Component {
   }
 
   @Override
-  public List<Component> getChildren() {
-    return children;
+  public ProjectViewAttributes getProjectViewAttributes() {
+    throw new IllegalStateException("Only component of type PROJECT_VIEW can have a ProjectViewAttributes object");
   }
 
   @Override

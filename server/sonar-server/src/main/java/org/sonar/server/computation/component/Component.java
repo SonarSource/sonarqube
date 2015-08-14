@@ -71,6 +71,13 @@ public interface Component {
   String getKey();
 
   /**
+   * The component name.
+   */
+  String getName();
+
+  List<Component> getChildren();
+
+  /**
    * Returns the attributes specific to components of type {@link Type#PROJECT}, {@link Type#MODULE},
    * {@link Type#DIRECTORY} or {@link Type#FILE}.
    *
@@ -80,17 +87,16 @@ public interface Component {
   ReportAttributes getReportAttributes();
 
   /**
-   * The component name.
-   */
-  String getName();
-
-  /**
    * The attributes of the Component if it's type is File.
    *
    * @throws IllegalStateException if the Component's type is not {@link Type#FILE}
    */
   FileAttributes getFileAttributes();
 
-  List<Component> getChildren();
-
+  /**
+   * The attributes of the Component if it's type is {@link Type#PROJECT_VIEW}.
+   *
+   * @throws IllegalStateException if the Component's type is not {@link Type#PROJECT_VIEW}
+   */
+  ProjectViewAttributes getProjectViewAttributes();
 }
