@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.measure;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.SetMultimap;
 import java.util.HashSet;
@@ -39,14 +38,10 @@ import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.computation.metric.ReportMetricValidator;
 
 import static java.util.Objects.requireNonNull;
+import static org.sonar.server.computation.component.ComponentFunctions.toReportRef;
 
 public class MeasureRepositoryImpl implements MeasureRepository {
-  private final MapBasedRawMeasureRepository<Integer> delegate = new MapBasedRawMeasureRepository<>(new Function<Component, Integer>() {
-    @Override
-    public Integer apply(Component o) {
-      return o.getReportAttributes().getRef();
-    }
-  });
+  private final MapBasedRawMeasureRepository<Integer> delegate = new MapBasedRawMeasureRepository<>(toReportRef());
   private final DbClient dbClient;
   private final BatchReportReader reportReader;
   private final BatchMeasureToMeasure batchMeasureToMeasure;
