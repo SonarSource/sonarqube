@@ -27,7 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.server.computation.batch.BatchReportReader;
+import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.component.MutableDbIdsRepository;
@@ -44,16 +44,16 @@ public class PersistSnapshotsStep implements ComputationStep {
   private final System2 system2;
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
-  private final BatchReportReader reportReader;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
   private final MutableDbIdsRepository dbIdsRepository;
   private final PeriodsHolder periodsHolder;
 
-  public PersistSnapshotsStep(System2 system2, DbClient dbClient, TreeRootHolder treeRootHolder, BatchReportReader reportReader,
+  public PersistSnapshotsStep(System2 system2, DbClient dbClient, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
     MutableDbIdsRepository dbIdsRepository, PeriodsHolder periodsHolder) {
     this.system2 = system2;
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
-    this.reportReader = reportReader;
+    this.analysisMetadataHolder = analysisMetadataHolder;
     this.dbIdsRepository = dbIdsRepository;
     this.periodsHolder = periodsHolder;
   }
@@ -63,7 +63,7 @@ public class PersistSnapshotsStep implements ComputationStep {
     DbSession session = dbClient.openSession(false);
     try {
       Component root = treeRootHolder.getRoot();
-      ProcessPersistSnapshot processPersistSnapshot = new ProcessPersistSnapshot(session, reportReader.readMetadata().getAnalysisDate());
+      ProcessPersistSnapshot processPersistSnapshot = new ProcessPersistSnapshot(session, analysisMetadataHolder.getAnalysisDate().getTime());
       processPersistSnapshot.process(root, null);
       session.commit();
     } finally {

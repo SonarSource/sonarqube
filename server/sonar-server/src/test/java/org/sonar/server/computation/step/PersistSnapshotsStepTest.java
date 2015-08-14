@@ -20,6 +20,7 @@
 
 package org.sonar.server.computation.step;
 
+import java.util.Date;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,7 +29,6 @@ import org.junit.experimental.categories.Category;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -36,7 +36,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
-import org.sonar.server.computation.batch.BatchReportReaderRule;
+import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepositoryImpl;
@@ -62,10 +62,10 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
   @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
 
   @Rule
-  public PeriodsHolderRule periodsHolderRule = new PeriodsHolderRule();
+  public PeriodsHolderRule periodsHolder = new PeriodsHolderRule();
 
   System2 system2 = mock(System2.class);
 
@@ -83,19 +83,17 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
   public void setup() {
     dbTester.truncateTables();
     analysisDate = DateUtils.parseDateQuietly("2015-06-01").getTime();
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setAnalysisDate(analysisDate)
-      .build());
+    analysisMetadataHolder.setAnalysisDate(new Date(analysisDate));
     dbIdsRepository = new DbIdsRepositoryImpl();
 
     now = DateUtils.parseDateQuietly("2015-06-02").getTime();
 
     when(system2.now()).thenReturn(now);
 
-    underTest = new PersistSnapshotsStep(system2, dbClient, treeRootHolder, reportReader, dbIdsRepository, periodsHolderRule);
+    underTest = new PersistSnapshotsStep(system2, dbClient, treeRootHolder, analysisMetadataHolder, dbIdsRepository, periodsHolder);
 
     // initialize PeriodHolder to empty by default
-    periodsHolderRule.setPeriods();
+    periodsHolder.setPeriods();
   }
 
   @Override
@@ -287,7 +285,7 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     SnapshotDto snapshotDto = SnapshotTesting.createForProject(projectDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime());
     dbClient.snapshotDao().insert(dbTester.getSession(), snapshotDto);
     dbTester.getSession().commit();
-    periodsHolderRule.setPeriods(new Period(1, CoreProperties.TIMEMACHINE_MODE_DATE, "2015-01-01", analysisDate, 123L));
+    periodsHolder.setPeriods(new Period(1, CoreProperties.TIMEMACHINE_MODE_DATE, "2015-01-01", analysisDate, 123L));
 
     Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build();
     treeRootHolder.setRoot(project);
@@ -303,7 +301,7 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
 
   @Test
   public void only_persist_snapshots_with_periods_on_project_and_module() {
-    periodsHolderRule.setPeriods(new Period(1, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, null, analysisDate, 123L));
+    periodsHolder.setPeriods(new Period(1, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS, null, analysisDate, 123L));
 
     ComponentDto projectDto = ComponentTesting.newProjectDto("ABCD").setKey(PROJECT_KEY).setName("Project");
     dbClient.componentDao().insert(dbTester.getSession(), projectDto);

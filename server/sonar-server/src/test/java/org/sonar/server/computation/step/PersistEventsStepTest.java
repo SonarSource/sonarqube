@@ -22,14 +22,14 @@ package org.sonar.server.computation.step;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
+import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbTester;
-import org.sonar.server.computation.batch.BatchReportReaderRule;
+import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepositoryImpl;
@@ -51,10 +51,12 @@ public class PersistEventsStepTest extends BaseStepTest {
   public DbTester dbTester = DbTester.create(system2);
 
   @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
+
+  private Date someDate = new Date(150000000L);
 
   DbIdsRepositoryImpl dbIdsRepository = new DbIdsRepositoryImpl();
 
@@ -64,7 +66,8 @@ public class PersistEventsStepTest extends BaseStepTest {
   @Before
   public void setup() {
     when(system2.now()).thenReturn(1225630680000L);
-    step = new PersistEventsStep(dbTester.getDbClient(), system2, treeRootHolder, reportReader, eventRepository, dbIdsRepository);
+    analysisMetadataHolder.setAnalysisDate(someDate);
+    step = new PersistEventsStep(dbTester.getDbClient(), system2, treeRootHolder, analysisMetadataHolder, eventRepository, dbIdsRepository);
     when(eventRepository.getEvents(any(Component.class))).thenReturn(Collections.<Event>emptyList());
   }
 
@@ -78,11 +81,6 @@ public class PersistEventsStepTest extends BaseStepTest {
     dbTester.prepareDbUnit(getClass(), "nothing_to_do_when_no_events_in_report.xml");
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
-
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .setAnalysisDate(150000000L)
-      .build());
 
     step.execute();
 
@@ -99,11 +97,6 @@ public class PersistEventsStepTest extends BaseStepTest {
 
     dbIdsRepository.setSnapshotId(root, 1000L);
     dbIdsRepository.setSnapshotId(module, 1001L);
-
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .setAnalysisDate(150000000L)
-      .build());
 
     Component child = root.getChildren().get(0);
 
@@ -124,11 +117,6 @@ public class PersistEventsStepTest extends BaseStepTest {
     treeRootHolder.setRoot(project);
     dbIdsRepository.setSnapshotId(project, 1000L);
 
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .setAnalysisDate(150000000L)
-      .build());
-
     step.execute();
 
     dbTester.assertDbUnit(getClass(), "add_version_event-result.xml", "events");
@@ -141,11 +129,6 @@ public class PersistEventsStepTest extends BaseStepTest {
     Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setVersion("1.5-SNAPSHOT").build();
     treeRootHolder.setRoot(project);
     dbIdsRepository.setSnapshotId(project, 1001L);
-
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setRootComponentRef(1)
-      .setAnalysisDate(150000000L)
-      .build());
 
     step.execute();
 

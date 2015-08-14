@@ -19,12 +19,18 @@
  */
 package org.sonar.server.computation.step;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.batch.protocol.Constants;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Metadata;
+import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.MutableTreeRootHolderRule;
@@ -35,6 +41,7 @@ import static org.sonar.batch.protocol.Constants.ComponentType.FILE;
 import static org.sonar.batch.protocol.Constants.ComponentType.MODULE;
 import static org.sonar.batch.protocol.Constants.ComponentType.PROJECT;
 
+@RunWith(DataProviderRunner.class)
 public class BuildComponentTreeStepTest {
   private static final int ROOT_REF = 1;
   private static final int MODULE_REF = 2;
@@ -48,12 +55,16 @@ public class BuildComponentTreeStepTest {
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
   @Rule
   public MutableTreeRootHolderRule treeRootHolder = new MutableTreeRootHolderRule();
+  @Rule
+  public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
 
-  private BuildComponentTreeStep underTest = new BuildComponentTreeStep(reportReader, treeRootHolder);
+  private Date someDate = new Date();
+
+  private BuildComponentTreeStep underTest = new BuildComponentTreeStep(reportReader, treeRootHolder, analysisMetadataHolder);
 
   @Before
   public void setUp() {
-    reportReader.setMetadata(Metadata.newBuilder().setRootComponentRef(ROOT_REF).build());
+    reportReader.setMetadata(Metadata.newBuilder().setRootComponentRef(ROOT_REF).setAnalysisDate(someDate.getTime()).build());
   }
 
   @Test(expected = NullPointerException.class)
@@ -61,20 +72,32 @@ public class BuildComponentTreeStepTest {
     underTest.execute();
   }
 
-  @Test
-  public void verify_ref_and_type() {
+  @DataProvider
+  public static Object[][] allComponentTypes() {
+    Object[][] res = new Object[Constants.ComponentType.values().length][1];
+    int i = 0;
     for (Constants.ComponentType componentType : Constants.ComponentType.values()) {
-      int componentRef = 1;
-      reportReader.putComponent(component(componentRef, componentType));
-
-      underTest.execute();
-
-      Component root = treeRootHolder.getRoot();
-      assertThat(root).isNotNull();
-      assertThat(root.getType()).isEqualTo(Component.Type.valueOf(componentType.name()));
-      assertThat(root.getReportAttributes().getRef()).isEqualTo(ROOT_REF);
-      assertThat(root.getChildren()).isEmpty();
+      res[i][0] = componentType;
+      i++;
     }
+    return res;
+  }
+
+  @Test
+  @UseDataProvider("allComponentTypes")
+  public void verify_ref_and_type(Constants.ComponentType componentType) {
+    int componentRef = 1;
+    reportReader.putComponent(component(componentRef, componentType));
+
+    underTest.execute();
+
+    Component root = treeRootHolder.getRoot();
+    assertThat(root).isNotNull();
+    assertThat(root.getType()).isEqualTo(Component.Type.valueOf(componentType.name()));
+    assertThat(root.getReportAttributes().getRef()).isEqualTo(ROOT_REF);
+    assertThat(root.getChildren()).isEmpty();
+
+    assertThat(analysisMetadataHolder.getAnalysisDate().getTime()).isEqualTo(someDate.getTime());
   }
 
   @Test
@@ -101,6 +124,8 @@ public class BuildComponentTreeStepTest {
     Component dir2 = module.getChildren().get(1);
     verifyComponent(dir2, Component.Type.DIRECTORY, DIR_REF_2, 1);
     verifyComponent(dir2.getChildren().iterator().next(), Component.Type.FILE, FILE_3_REF, 0);
+
+    assertThat(analysisMetadataHolder.getAnalysisDate().getTime()).isEqualTo(someDate.getTime());
   }
 
   private void verifyComponent(Component component, Component.Type type, int componentRef, int size) {
@@ -116,4 +141,5 @@ public class BuildComponentTreeStepTest {
     }
     return builder.build();
   }
+
 }

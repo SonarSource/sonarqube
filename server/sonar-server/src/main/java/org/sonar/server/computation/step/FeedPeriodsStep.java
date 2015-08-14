@@ -41,7 +41,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
-import org.sonar.server.computation.batch.BatchReportReader;
+import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.period.Period;
@@ -68,15 +68,15 @@ public class FeedPeriodsStep implements ComputationStep {
   private final DbClient dbClient;
   private final Settings settings;
   private final TreeRootHolder treeRootHolder;
-  private final BatchReportReader batchReportReader;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
   private final PeriodsHolderImpl periodsHolder;
 
-  public FeedPeriodsStep(DbClient dbClient, Settings settings, TreeRootHolder treeRootHolder, BatchReportReader batchReportReader,
-                         PeriodsHolderImpl periodsHolder) {
+  public FeedPeriodsStep(DbClient dbClient, Settings settings, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
+    PeriodsHolderImpl periodsHolder) {
     this.dbClient = dbClient;
     this.settings = settings;
     this.treeRootHolder = treeRootHolder;
-    this.batchReportReader = batchReportReader;
+    this.analysisMetadataHolder = analysisMetadataHolder;
     this.periodsHolder = periodsHolder;
   }
 
@@ -96,7 +96,8 @@ public class FeedPeriodsStep implements ComputationStep {
     // No project on first analysis, no period
     if (projectDto.isPresent()) {
       List<Period> periods = new ArrayList<>(5);
-      PeriodResolver periodResolver = new PeriodResolver(session, projectDto.get().getId(), batchReportReader.readMetadata().getAnalysisDate(), project.getReportAttributes().getVersion(),
+      PeriodResolver periodResolver = new PeriodResolver(session, projectDto.get().getId(), analysisMetadataHolder.getAnalysisDate().getTime(),
+        project.getReportAttributes().getVersion(),
         // TODO qualifier will be different for Views
         Qualifiers.PROJECT);
 

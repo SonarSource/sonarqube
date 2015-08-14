@@ -27,6 +27,7 @@ import org.sonar.server.computation.ComputationTempFolderProvider;
 import org.sonar.server.computation.ReportProcessor;
 import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.computation.activity.ActivityManager;
+import org.sonar.server.computation.analysis.ReportAnalysisMetadataHolder;
 import org.sonar.server.computation.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.server.computation.batch.BatchReportReaderImpl;
 import org.sonar.server.computation.component.DbIdsRepositoryImpl;
@@ -109,6 +110,7 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
         MetricModule.class,
 
         // holders
+        ReportAnalysisMetadataHolder.class,
         BatchReportDirectoryHolderImpl.class,
         ReportTreeRootHolderImpl.class,
         PeriodsHolderImpl.class,

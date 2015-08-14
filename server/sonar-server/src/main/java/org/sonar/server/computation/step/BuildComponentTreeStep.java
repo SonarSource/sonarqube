@@ -21,32 +21,38 @@ package org.sonar.server.computation.step;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import java.util.Date;
 import javax.annotation.Nonnull;
 import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentImpl;
 import org.sonar.server.computation.component.MutableTreeRootHolder;
 
 /**
- * Populates the {@link MutableTreeRootHolder} from the {@link BatchReportReader}
+ * Populates the {@link MutableTreeRootHolder} and {@link MutableAnalysisMetadataHolder} from the {@link BatchReportReader}
  */
 public class BuildComponentTreeStep implements ComputationStep {
   private final BatchReportReader reportReader;
-  private final MutableTreeRootHolder mutableTreeRootHolder;
+  private final MutableTreeRootHolder treeRootHolder;
+  private final MutableAnalysisMetadataHolder analysisMetadataHolder;
 
-  public BuildComponentTreeStep(BatchReportReader reportReader, MutableTreeRootHolder mutableTreeRootHolder) {
+  public BuildComponentTreeStep(BatchReportReader reportReader, MutableTreeRootHolder treeRootHolder, MutableAnalysisMetadataHolder analysisMetadataHolder) {
     this.reportReader = reportReader;
-    this.mutableTreeRootHolder = mutableTreeRootHolder;
+    this.treeRootHolder = treeRootHolder;
+    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   @Override
   public void execute() {
-    mutableTreeRootHolder.setRoot(buildComponentRoot());
+    BatchReport.Metadata metadata = reportReader.readMetadata();
+    treeRootHolder.setRoot(buildComponentRoot(metadata));
+    analysisMetadataHolder.setAnalysisDate(new Date(metadata.getAnalysisDate()));
   }
 
-  private Component buildComponentRoot() {
-    int rootComponentRef = reportReader.readMetadata().getRootComponentRef();
+  private Component buildComponentRoot(BatchReport.Metadata metadata) {
+    int rootComponentRef = metadata.getRootComponentRef();
     BatchReport.Component component = reportReader.readComponent(rootComponentRef);
     return new ComponentImpl(component, buildChildren(component));
   }

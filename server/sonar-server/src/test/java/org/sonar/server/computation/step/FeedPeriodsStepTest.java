@@ -32,10 +32,9 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.server.computation.batch.BatchReportReaderRule;
+import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
@@ -59,7 +58,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
   @Rule
-  public BatchReportReaderRule reportReader = new BatchReportReaderRule();
+  public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -79,13 +78,11 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
   @Before
   public void setUp() throws Exception {
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder()
-      .setAnalysisDate(DATE_FORMAT.parse("2008-11-30").getTime())
-      .build());
+    analysisMetadataHolder.setAnalysisDate(DATE_FORMAT.parse("2008-11-30"));
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).setVersion("1.1").build());
 
-    underTest = new FeedPeriodsStep(dbClient, settings, treeRootHolder, reportReader, periodsHolder);
+    underTest = new FeedPeriodsStep(dbClient, settings, treeRootHolder, analysisMetadataHolder, periodsHolder);
   }
 
   @Test
@@ -268,7 +265,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
     List<Period> periods = periodsHolder.getPeriods();
     assertThat(periods).hasSize(1);
 
-    // Analysis form  2008-11-12
+    // Analysis form 2008-11-12
     Period period = periods.get(0);
     assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
     assertThat(period.getModeParameter()).isEqualTo("1.0");

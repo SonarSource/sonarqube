@@ -27,7 +27,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.event.EventDto;
-import org.sonar.server.computation.batch.BatchReportReader;
+import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.DbIdsRepository;
@@ -42,17 +42,17 @@ public class PersistEventsStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final System2 system2;
-  private final BatchReportReader reportReader;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
   private final TreeRootHolder treeRootHolder;
   private final EventRepository eventRepository;
   private final DbIdsRepository dbIdsRepository;
 
-  public PersistEventsStep(DbClient dbClient, System2 system2, TreeRootHolder treeRootHolder, BatchReportReader reportReader,
+  public PersistEventsStep(DbClient dbClient, System2 system2, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
     EventRepository eventRepository, DbIdsRepository dbIdsRepository) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.treeRootHolder = treeRootHolder;
-    this.reportReader = reportReader;
+    this.analysisMetadataHolder = analysisMetadataHolder;
     this.eventRepository = eventRepository;
     this.dbIdsRepository = dbIdsRepository;
   }
@@ -61,7 +61,7 @@ public class PersistEventsStep implements ComputationStep {
   public void execute() {
     final DbSession session = dbClient.openSession(false);
     try {
-      long analysisDate = reportReader.readMetadata().getAnalysisDate();
+      long analysisDate = analysisMetadataHolder.getAnalysisDate().getTime();
       new PersistEventComponentCrawler(session, analysisDate).visit(treeRootHolder.getRoot());
       session.commit();
     } finally {

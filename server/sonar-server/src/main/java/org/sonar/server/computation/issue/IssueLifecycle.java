@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.issue;
 
-import java.util.Date;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.internal.Uuids;
@@ -27,7 +26,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.IssueWorkflow;
-import org.sonar.server.computation.batch.BatchReportReader;
+import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 
 /**
  * Sets the appropriate fields when an issue is :
@@ -44,11 +43,11 @@ public class IssueLifecycle {
   private final IssueUpdater updater;
   private final DebtCalculator debtCalculator;
 
-  public IssueLifecycle(BatchReportReader reportReader, IssueWorkflow workflow, IssueUpdater updater, DebtCalculator debtCalculator) {
+  public IssueLifecycle(AnalysisMetadataHolder analysisMetadataHolder, IssueWorkflow workflow, IssueUpdater updater, DebtCalculator debtCalculator) {
     this.workflow = workflow;
     this.updater = updater;
     this.debtCalculator = debtCalculator;
-    this.changeContext = IssueChangeContext.createScan(new Date(reportReader.readMetadata().getAnalysisDate()));
+    this.changeContext = IssueChangeContext.createScan(analysisMetadataHolder.getAnalysisDate());
   }
 
   public void initNewOpenIssue(DefaultIssue issue) {
