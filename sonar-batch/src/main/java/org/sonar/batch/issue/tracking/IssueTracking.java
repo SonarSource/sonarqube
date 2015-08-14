@@ -199,7 +199,7 @@ public class IssueTracking {
     }
   }
 
-  private RuleKey ruleKey(BatchReport.Issue rawIssue) {
+  private static RuleKey ruleKey(BatchReport.Issue rawIssue) {
     return RuleKey.of(rawIssue.getRuleRepository(), rawIssue.getRuleKey());
   }
 

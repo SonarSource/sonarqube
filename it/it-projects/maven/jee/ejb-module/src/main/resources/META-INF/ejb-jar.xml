@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE ejb-jar PUBLIC 
+   '-//Sun Microsystems, Inc.//DTD Enterprise JavaBeans 1.1//EN' 
+   'http://java.sun.com/j2ee/dtds/ejb-jar_1_1.dtd'>
+
+<ejb-jar>
+   <enterprise-beans>
+
+     
+   </enterprise-beans>
+   <assembly-descriptor></assembly-descriptor>
+</ejb-jar>

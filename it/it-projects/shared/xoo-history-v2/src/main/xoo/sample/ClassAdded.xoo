@@ -1,0 +1,12 @@
+package sample;
+
+public class ClassAdded {
+	
+	public ClassAdded(int i) {
+		int j = i++;
+	}
+
+	private String myMethod() {
+		return "hello";
+	}
+}

@@ -19,6 +19,8 @@
  */
 package org.sonar.xoo.rule;
 
+import org.sonar.api.batch.rule.ActiveRule;
+
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FileSystem;

@@ -19,8 +19,12 @@
  */
 package org.sonar.xoo;
 
-import org.sonar.xoo.rule.Xoo2BasicProfile;
+import org.sonar.xoo.rule.OneBlockerIssuePerFileSensor;
 
+import org.sonar.xoo.rule.HasTagSensor;
+import org.sonar.xoo.rule.OneIssuePerModuleSensor;
+import org.sonar.xoo.rule.OneIssuePerFileSensor;
+import org.sonar.xoo.rule.Xoo2BasicProfile;
 import org.sonar.api.SonarPlugin;
 import org.sonar.xoo.coverage.ItCoverageSensor;
 import org.sonar.xoo.coverage.OverallCoverageSensor;
@@ -84,6 +88,7 @@ public class XooPlugin extends SonarPlugin {
       XooTokenizer.class,
 
       // sensors
+      HasTagSensor.class,
       MeasureSensor.class,
       SyntaxHighlightingSensor.class,
       SymbolReferencesSensor.class,
@@ -91,7 +96,10 @@ public class XooPlugin extends SonarPlugin {
       RandomAccessSensor.class,
       DeprecatedResourceApiSensor.class,
 
+      OneBlockerIssuePerFileSensor.class,
       OneIssuePerLineSensor.class,
+      OneIssuePerFileSensor.class,
+      OneIssuePerModuleSensor.class,
       OneIssueOnDirPerFileSensor.class,
       CreateIssueByInternalKeySensor.class,
       MultilineIssuesSensor.class,

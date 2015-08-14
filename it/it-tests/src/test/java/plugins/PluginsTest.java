@@ -107,7 +107,7 @@ public class PluginsTest {
   @Test
   public void preview_analysis_of_project_with_all_supported_languages() {
     SonarRunner analysis = newAnalysis();
-    analysis.setProperty("sonar.analysis.mode", "preview");
+    analysis.setProperty("sonar.analysis.mode", "issues");
     analysis.setProperty("sonar.preview.excludePlugins", Joiner.on(",").join(DISABLED_PLUGINS_FOR_PREVIEW_MODE));
     BuildResult result = orchestrator.executeBuildQuietly(analysis);
     if (result.getStatus() != 0) {

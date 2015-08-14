@@ -85,7 +85,7 @@ public class ServerIssueRepository {
       return null;
     }
   }
-
+  
   public Iterable<ServerIssue> issuesOnMissingComponents() {
     return issuesCache.values(0);
   }
