@@ -39,6 +39,7 @@ import org.sonar.test.DbTests;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 
 @Category(DbTests.class)
 public class RuleDaoTest {
@@ -60,6 +61,16 @@ public class RuleDaoTest {
     Optional<RuleDto> rule = underTest.selectByKey(dbTester.getSession(), RuleKey.of("java", "S001"));
     assertThat(rule.isPresent()).isTrue();
     assertThat(rule.get().getId()).isEqualTo(1);
+  }
+
+  @Test
+  public void selectById() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    assertThat(underTest.selectById(55l, dbTester.getSession())).isAbsent();
+    Optional<RuleDto> ruleDtoOptional = underTest.selectById(1l, dbTester.getSession());
+    assertThat(ruleDtoOptional).isPresent();
+    assertThat(ruleDtoOptional.get().getId()).isEqualTo(1);
   }
 
   @Test

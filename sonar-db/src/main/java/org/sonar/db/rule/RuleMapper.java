@@ -38,7 +38,7 @@ public interface RuleMapper {
 
   List<RuleDto> selectBySubCharacteristicId(int characteristicId);
 
-  RuleDto selectById(Integer id);
+  RuleDto selectById(long id);
 
   RuleDto selectByKey(RuleKey ruleKey);
 

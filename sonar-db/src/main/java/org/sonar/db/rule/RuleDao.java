@@ -46,6 +46,15 @@ public class RuleDao implements Dao {
   }
 
   /**
+   * Retrieves a Rule by its id.
+   *
+   * Used by Views.
+   */
+  public Optional<RuleDto> selectById(long id, DbSession session) {
+    return Optional.fromNullable(mapper(session).selectById(id));
+  }
+
+  /**
    * Select rules by keys, whatever their status. Returns an empty list
    * if the list of {@code keys} is empty, without any db round trip.
    */

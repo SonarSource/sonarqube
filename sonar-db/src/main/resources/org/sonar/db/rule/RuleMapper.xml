@@ -59,7 +59,7 @@
     where r.status != 'REMOVED' and r.plugin_name != 'manual'
   </select>
 
-  <select id="selectById" parameterType="Integer" resultType="Rule">
+  <select id="selectById" parameterType="Long" resultType="Rule">
     select
     <include refid="selectColumns"/>
     from rules r WHERE r.id=#{id}
