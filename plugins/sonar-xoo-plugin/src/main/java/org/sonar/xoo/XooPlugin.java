@@ -19,6 +19,8 @@
  */
 package org.sonar.xoo;
 
+import org.sonar.xoo.rule.Xoo2BasicProfile;
+
 import org.sonar.api.SonarPlugin;
 import org.sonar.xoo.coverage.ItCoverageSensor;
 import org.sonar.xoo.coverage.OverallCoverageSensor;
@@ -63,8 +65,10 @@ public class XooPlugin extends SonarPlugin {
   public List getExtensions() {
     return Arrays.asList(
       Xoo.class,
+      Xoo2.class,
       XooRulesDefinition.class,
       XooBasicProfile.class,
+      Xoo2BasicProfile.class,
       XooEmptyProfile.class,
 
       XooFakeExporter.class,

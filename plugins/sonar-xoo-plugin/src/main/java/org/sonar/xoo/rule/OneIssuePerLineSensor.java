@@ -19,6 +19,8 @@
  */
 package org.sonar.xoo.rule;
 
+import org.sonar.xoo.Xoo2;
+
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -41,21 +43,26 @@ public class OneIssuePerLineSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .name("One Issue Per Line")
-      .onlyOnLanguages(Xoo.KEY)
-      .createIssuesForRuleRepositories(XooRulesDefinition.XOO_REPOSITORY);
+      .onlyOnLanguages(Xoo.KEY, Xoo2.KEY)
+      .createIssuesForRuleRepositories(XooRulesDefinition.XOO_REPOSITORY, XooRulesDefinition.XOO2_REPOSITORY);
   }
 
   @Override
   public void execute(SensorContext context) {
+    analyse(context, Xoo.KEY, XooRulesDefinition.XOO_REPOSITORY);
+    analyse(context, Xoo2.KEY, XooRulesDefinition.XOO2_REPOSITORY);
+  }
+
+  private void analyse(SensorContext context, String language, String repo) {
     FileSystem fs = context.fileSystem();
     FilePredicates p = fs.predicates();
-    for (InputFile file : fs.inputFiles(p.and(p.hasLanguages(Xoo.KEY), p.hasType(Type.MAIN)))) {
-      createIssues(file, context);
+    for (InputFile file : fs.inputFiles(p.and(p.hasLanguages(language), p.hasType(Type.MAIN)))) {
+      createIssues(file, context, repo);
     }
   }
 
-  private void createIssues(InputFile file, SensorContext context) {
-    RuleKey ruleKey = RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY);
+  private void createIssues(InputFile file, SensorContext context, String repo) {
+    RuleKey ruleKey = RuleKey.of(repo, RULE_KEY);
     String severity = context.settings().getString(FORCE_SEVERITY_PROPERTY);
     for (int line = 1; line <= file.lines(); line++) {
       NewIssue newIssue = context.newIssue();

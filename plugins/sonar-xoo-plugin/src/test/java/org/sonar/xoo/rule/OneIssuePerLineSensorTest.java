@@ -56,7 +56,7 @@ public class OneIssuePerLineSensorTest {
   public void testDescriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
     sensor.describe(descriptor);
-    assertThat(descriptor.ruleRepositories()).containsOnly(XooRulesDefinition.XOO_REPOSITORY);
+    assertThat(descriptor.ruleRepositories()).containsOnly(XooRulesDefinition.XOO_REPOSITORY, XooRulesDefinition.XOO2_REPOSITORY);
   }
 
   @Test

@@ -19,20 +19,25 @@
  */
 package org.sonar.xoo.rule;
 
+import org.junit.Before;
+
 import org.junit.Test;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class XooRulesDefinitionTest {
+  RulesDefinition.Context context;
+
+  @Before
+  public void setUp() {
+    XooRulesDefinition def = new XooRulesDefinition();
+    context = new RulesDefinition.Context();
+    def.define(context);
+  }
 
   @Test
   public void define_xoo_rules() {
-    XooRulesDefinition def = new XooRulesDefinition();
-    RulesDefinition.Context context = new RulesDefinition.Context();
-    def.define(context);
-
     RulesDefinition.Repository repo = context.repository("xoo");
     assertThat(repo).isNotNull();
     assertThat(repo.name()).isEqualTo("Xoo");
@@ -46,5 +51,14 @@ public class XooRulesDefinitionTest {
     assertThat(rule.debtRemediationFunction().coefficient()).isEqualTo("1min");
     assertThat(rule.debtRemediationFunction().offset()).isNull();
     assertThat(rule.effortToFixDescription()).isNotEmpty();
+  }
+
+  @Test
+  public void define_xoo2_rules() {
+    RulesDefinition.Repository repo = context.repository("xoo2");
+    assertThat(repo).isNotNull();
+    assertThat(repo.name()).isEqualTo("Xoo2");
+    assertThat(repo.language()).isEqualTo("xoo2");
+    assertThat(repo.rules()).hasSize(2);
   }
 }
