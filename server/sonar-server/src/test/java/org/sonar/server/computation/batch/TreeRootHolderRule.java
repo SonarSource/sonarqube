@@ -78,12 +78,14 @@ public class TreeRootHolderRule implements TestRule, MutableTreeRootHolder, Repo
 
   public TreeRootHolderRule setRoot(Component newRoot) {
     this.root = Objects.requireNonNull(newRoot);
-    new DepthTraversalTypeAwareCrawler(Component.Type.FILE, POST_ORDER) {
-      @Override
-      public void visitAny(Component component) {
-        componentsByRef.put(component.getReportAttributes().getRef(), component);
-      }
-    }.visit(root);
+    if (newRoot.getType().isReportType()) {
+      new DepthTraversalTypeAwareCrawler(Component.Type.FILE, POST_ORDER) {
+        @Override
+        public void visitAny(Component component) {
+          componentsByRef.put(component.getReportAttributes().getRef(), component);
+        }
+      }.visit(root);
+    }
     return this;
   }
 }

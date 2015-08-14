@@ -47,12 +47,22 @@ public class ComponentTesting {
 
   public static ComponentDto newDirectory(ComponentDto module, String uuid, String path) {
     return newChildComponent(uuid, module)
-      .setKey(!path.equals("/") ? module.getKey() + ":" + path : module.getKey() + ":/")
-      .setName(path)
-      .setLongName(path)
-      .setPath(path)
-      .setScope(Scopes.DIRECTORY)
-      .setQualifier(Qualifiers.DIRECTORY);
+        .setKey(!path.equals("/") ? module.getKey() + ":" + path : module.getKey() + ":/")
+        .setName(path)
+        .setLongName(path)
+        .setPath(path)
+        .setScope(Scopes.DIRECTORY)
+        .setQualifier(Qualifiers.DIRECTORY);
+  }
+
+  public static ComponentDto newSubView(ComponentDto viewOrSubView, String uuid, String path) {
+    return newChildComponent(uuid, viewOrSubView)
+        .setKey(!path.equals("/") ? viewOrSubView.getKey() + ":" + path : viewOrSubView.getKey() + ":/")
+        .setName(path)
+        .setLongName(path)
+        .setPath(path)
+        .setScope(Scopes.PROJECT)
+        .setQualifier(Qualifiers.SUBVIEW);
   }
 
   public static ComponentDto newDirectory(ComponentDto module, String path) {

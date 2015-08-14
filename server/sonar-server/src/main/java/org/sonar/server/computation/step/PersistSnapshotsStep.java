@@ -20,6 +20,7 @@
 
 package org.sonar.server.computation.step;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
@@ -29,8 +30,12 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.component.MutableDbIdsRepository;
+import org.sonar.server.computation.component.PathAwareCrawler;
+import org.sonar.server.computation.component.PathAwareVisitor;
+import org.sonar.server.computation.component.PathAwareVisitorAdapter;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
@@ -62,109 +67,178 @@ public class PersistSnapshotsStep implements ComputationStep {
   public void execute() {
     DbSession session = dbClient.openSession(false);
     try {
-      Component root = treeRootHolder.getRoot();
-      ProcessPersistSnapshot processPersistSnapshot = new ProcessPersistSnapshot(session, analysisMetadataHolder.getAnalysisDate().getTime());
-      processPersistSnapshot.process(root, null);
+      new PersistSnapshotsPathAwareCrawler(session, analysisMetadataHolder.getAnalysisDate().getTime(), dbIdsRepository)
+        .visit(treeRootHolder.getRoot());
       session.commit();
     } finally {
-      session.close();
+      dbClient.closeSession(session);
     }
   }
 
-  private class ProcessPersistSnapshot {
+  private class PersistSnapshotsPathAwareCrawler extends PathAwareCrawler<SnapshotDtoHolder> {
 
     private final DbSession dbSession;
     private final long analysisDate;
+    private final DbIdsRepository dbIdsRepository;
 
-    private long projectId;
+    private long rootId;
 
-    public ProcessPersistSnapshot(DbSession dbSession, long analysisDate) {
+    public PersistSnapshotsPathAwareCrawler(DbSession dbSession, long analysisDate, DbIdsRepository dbIdsRepository) {
+      super(Component.Type.FILE, Order.PRE_ORDER, SnapshotDtoHolderFactory.INSTANCE);
       this.dbSession = dbSession;
       this.analysisDate = analysisDate;
+      this.dbIdsRepository = dbIdsRepository;
     }
 
-    private void process(Component component, @Nullable SnapshotDto parentSnapshot) {
-      long componentId = dbIdsRepository.getComponentId(component);
+    @Override
+    public void visitProject(Component project, Path<SnapshotDtoHolder> path) {
+      this.rootId = dbIdsRepository.getComponentId(project);
+      SnapshotDto snapshot = createSnapshot(project, path, Qualifiers.PROJECT, Scopes.PROJECT, true, true);
+      commonForAnyVisit(project, path, snapshot);
+    }
 
-      switch (component.getType()) {
-        case PROJECT:
-          this.projectId = componentId;
-          SnapshotDto projectSnapshot = persistSnapshot(componentId, Qualifiers.PROJECT, Scopes.PROJECT, component.getReportAttributes().getVersion(), parentSnapshot, true);
-          addToCache(component, projectSnapshot);
-          processChildren(component, projectSnapshot);
-          break;
-        case MODULE:
-          SnapshotDto moduleSnapshot = persistSnapshot(componentId, Qualifiers.MODULE, Scopes.PROJECT, component.getReportAttributes().getVersion(), parentSnapshot, true);
-          addToCache(component, moduleSnapshot);
-          processChildren(component, moduleSnapshot);
-          break;
-        case DIRECTORY:
-          SnapshotDto directorySnapshot = persistSnapshot(componentId, Qualifiers.DIRECTORY, Scopes.DIRECTORY, null, parentSnapshot, false);
-          addToCache(component, directorySnapshot);
-          processChildren(component, directorySnapshot);
-          break;
-        case FILE:
-          SnapshotDto fileSnapshot = persistSnapshot(componentId, getFileQualifier(component), Scopes.FILE, null, parentSnapshot, false);
-          addToCache(component, fileSnapshot);
-          break;
-        default:
-          throw new IllegalStateException(String.format("Unsupported component type '%s'", component.getType()));
+    @Override
+    public void visitModule(Component module, Path<SnapshotDtoHolder> path) {
+      SnapshotDto snapshot = createSnapshot(module, path, Qualifiers.MODULE, Scopes.PROJECT, true, true);
+      commonForAnyVisit(module, path, snapshot);
+    }
+
+    @Override
+    public void visitDirectory(Component directory, Path<SnapshotDtoHolder> path) {
+      SnapshotDto snapshot = createSnapshot(directory, path, Qualifiers.DIRECTORY, Scopes.DIRECTORY, false, false);
+      commonForAnyVisit(directory, path, snapshot);
+    }
+
+    @Override
+    public void visitFile(Component file, Path<SnapshotDtoHolder> path) {
+      SnapshotDto snapshot = createSnapshot(file, path, getFileQualifier(file), Scopes.FILE, false, false);
+      commonForAnyVisit(file, path, snapshot);
+    }
+
+    @Override
+    public void visitView(Component view, Path<SnapshotDtoHolder> path) {
+      this.rootId = dbIdsRepository.getComponentId(view);
+      SnapshotDto snapshot = createSnapshot(view, path, Qualifiers.VIEW, Scopes.PROJECT, false, true);
+      commonForAnyVisit(view, path, snapshot);
+    }
+
+    @Override
+    public void visitSubView(Component subView, Path<SnapshotDtoHolder> path) {
+      SnapshotDto snapshot = createSnapshot(subView, path, Qualifiers.SUBVIEW, Scopes.PROJECT, false, true);
+      commonForAnyVisit(subView, path, snapshot);
+    }
+
+    @Override
+    public void visitProjectView(Component projectView, Path<SnapshotDtoHolder> path) {
+      SnapshotDto snapshot = createSnapshot(projectView, path, Qualifiers.PROJECT, Scopes.FILE, false, true);
+      commonForAnyVisit(projectView, path, snapshot);
+    }
+
+    private void commonForAnyVisit(Component project, Path<SnapshotDtoHolder> path, SnapshotDto snapshot) {
+      persist(snapshot, dbSession);
+      addToCache(project, snapshot);
+      if (path.current() != null) {
+        path.current().setSnapshotDto(snapshot);
       }
     }
 
-    private void processChildren(Component component, SnapshotDto parentSnapshot) {
-      for (Component child : component.getChildren()) {
-        process(child, parentSnapshot);
-      }
+    private SnapshotDto createSnapshot(Component component, PathAwareVisitor.Path<SnapshotDtoHolder> path,
+      String qualifier, String scope, boolean setVersion, boolean setPeriods) {
+      return PersistSnapshotsStep.this.createSnapshot(component, path, rootId, analysisDate, qualifier, scope, setVersion, setPeriods);
+    }
+  }
+
+  private SnapshotDto createSnapshot(Component component, PathAwareVisitor.Path<SnapshotDtoHolder> path,
+    long rootId, long analysisDate, String qualifier, String scope, boolean setVersion, boolean setPeriods) {
+    long componentId = dbIdsRepository.getComponentId(component);
+    SnapshotDto snapshotDto = new SnapshotDto()
+      .setRootProjectId(rootId)
+      .setVersion(setVersion ? component.getReportAttributes().getVersion() : null)
+      .setComponentId(componentId)
+      .setQualifier(qualifier)
+      .setScope(scope)
+      .setLast(false)
+      .setStatus(SnapshotDto.STATUS_UNPROCESSED)
+      .setCreatedAt(analysisDate)
+      .setBuildDate(system2.now());
+    if (setPeriods) {
+      updateSnapshotPeriods(snapshotDto);
     }
 
-    private SnapshotDto persistSnapshot(long componentId, String qualifier, String scope, @Nullable String version, @Nullable SnapshotDto parentSnapshot, boolean setPeriods) {
-      SnapshotDto snapshotDto = new SnapshotDto()
-        .setRootProjectId(projectId)
-        .setVersion(version)
-        .setComponentId(componentId)
-        .setQualifier(qualifier)
-        .setScope(scope)
-        .setLast(false)
-        .setStatus(SnapshotDto.STATUS_UNPROCESSED)
-        .setCreatedAt(analysisDate)
-        .setBuildDate(system2.now());
-      if (setPeriods) {
-        updateSnapshotPeriods(snapshotDto);
-      }
-
-      if (parentSnapshot != null) {
-        snapshotDto
-          .setParentId(parentSnapshot.getId())
-          .setRootId(parentSnapshot.getRootId() == null ? parentSnapshot.getId() : parentSnapshot.getRootId())
-          .setDepth(parentSnapshot.getDepth() + 1)
-          .setPath(parentSnapshot.getPath() + parentSnapshot.getId() + ".");
-      } else {
-        snapshotDto
-          // On Oracle, the path will be null
-          .setPath("")
-          .setDepth(0);
-      }
-      dbClient.snapshotDao().insert(dbSession, snapshotDto);
-      return snapshotDto;
+    SnapshotDto parentSnapshot = path.isRoot() ? null : path.parent().getSnapshotDto();
+    if (parentSnapshot != null) {
+      snapshotDto
+        .setParentId(parentSnapshot.getId())
+        .setRootId(parentSnapshot.getRootId() == null ? parentSnapshot.getId() : parentSnapshot.getRootId())
+        .setDepth(parentSnapshot.getDepth() + 1)
+        .setPath(parentSnapshot.getPath() + parentSnapshot.getId() + ".");
+    } else {
+      snapshotDto
+        // On Oracle, the path will be null
+        .setPath("")
+        .setDepth(0);
     }
+    return snapshotDto;
+  }
 
-    private void updateSnapshotPeriods(SnapshotDto snapshotDto) {
-      for (Period period : periodsHolder.getPeriods()) {
-        int index = period.getIndex();
-        snapshotDto.setPeriodMode(index, period.getMode());
-        snapshotDto.setPeriodParam(index, period.getModeParameter());
-        snapshotDto.setPeriodDate(index, period.getSnapshotDate());
-      }
-    }
+  private void persist(SnapshotDto snapshotDto, DbSession dbSession) {
+    dbClient.snapshotDao().insert(dbSession, snapshotDto);
+  }
 
-    private void addToCache(Component component, SnapshotDto snapshotDto) {
-      dbIdsRepository.setSnapshotId(component, snapshotDto.getId());
+  private void addToCache(Component component, SnapshotDto snapshotDto) {
+    dbIdsRepository.setSnapshotId(component, snapshotDto.getId());
+  }
+
+  private void updateSnapshotPeriods(SnapshotDto snapshotDto) {
+    for (Period period : periodsHolder.getPeriods()) {
+      int index = period.getIndex();
+      snapshotDto.setPeriodMode(index, period.getMode());
+      snapshotDto.setPeriodParam(index, period.getModeParameter());
+      snapshotDto.setPeriodDate(index, period.getSnapshotDate());
     }
   }
 
   private static String getFileQualifier(Component component) {
     return component.getFileAttributes().isUnitTest() ? Qualifiers.UNIT_TEST_FILE : Qualifiers.FILE;
+  }
+
+  private static final class SnapshotDtoHolder {
+    @CheckForNull
+    private SnapshotDto snapshotDto;
+
+    @CheckForNull
+    public SnapshotDto getSnapshotDto() {
+      return snapshotDto;
+    }
+
+    public void setSnapshotDto(@Nullable SnapshotDto snapshotDto) {
+      this.snapshotDto = snapshotDto;
+    }
+  }
+
+  /**
+   * Factory of SnapshotDtoHolder.
+   *
+   * No need to create an instance for components of type FILE and PROJECT_VIEW, since they are the leaves of their
+   * respective trees, no one will consume the value of the holder, so we save on creating useless objects.
+   */
+  private static class SnapshotDtoHolderFactory extends PathAwareVisitorAdapter.SimpleStackElementFactory<SnapshotDtoHolder> {
+    public static final SnapshotDtoHolderFactory INSTANCE = new SnapshotDtoHolderFactory();
+
+    @Override
+    public SnapshotDtoHolder createForAny(Component component) {
+      return new SnapshotDtoHolder();
+    }
+
+    @Override
+    public SnapshotDtoHolder createForFile(Component file) {
+      return null;
+    }
+
+    @Override
+    public SnapshotDtoHolder createForProjectView(Component projectView) {
+      return null;
+    }
   }
 
   @Override
