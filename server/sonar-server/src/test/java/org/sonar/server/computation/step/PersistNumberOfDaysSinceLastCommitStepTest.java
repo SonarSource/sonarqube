@@ -33,7 +33,7 @@ import org.sonar.db.DbTester;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.language.LanguageRepository;
 import org.sonar.server.computation.metric.Metric;
@@ -56,7 +56,7 @@ public class PersistNumberOfDaysSinceLastCommitStepTest extends BaseStepTest {
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
-  DbIdsRepository dbIdsRepository = new DbIdsRepository();
+  DbIdsRepositoryImpl dbIdsRepository = new DbIdsRepositoryImpl();
 
   PersistNumberOfDaysSinceLastCommitStep underTest;
 

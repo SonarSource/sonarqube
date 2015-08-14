@@ -52,7 +52,7 @@ public class ComponentFunctionsTest {
 
   @Test(expected = NullPointerException.class)
   public void toKey_if_Component_is_null() {
-    ComponentFunctions.toKey().apply(null);
+    toKey().apply(null);
   }
 
   @Test

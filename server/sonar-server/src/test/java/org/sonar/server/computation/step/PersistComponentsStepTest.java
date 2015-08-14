@@ -38,7 +38,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.FileAttributes;
 import org.sonar.test.DbTests;
@@ -64,7 +64,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
-  DbIdsRepository dbIdsRepository;
+  DbIdsRepositoryImpl dbIdsRepository;
 
   System2 system2 = mock(System2.class);
 
@@ -77,7 +77,7 @@ public class PersistComponentsStepTest extends BaseStepTest {
   @Before
   public void setup() throws Exception {
     dbTester.truncateTables();
-    dbIdsRepository = new DbIdsRepository();
+    dbIdsRepository = new DbIdsRepositoryImpl();
 
     now = DATE_FORMAT.parse("2015-06-02");
     when(system2.now()).thenReturn(now.getTime());

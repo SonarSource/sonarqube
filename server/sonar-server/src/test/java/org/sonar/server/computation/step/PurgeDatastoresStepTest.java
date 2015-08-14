@@ -33,7 +33,7 @@ import org.sonar.db.purge.IdUuidPair;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.ProjectSettingsRepository;
 import org.sonar.server.db.DbClient;
@@ -54,7 +54,7 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
-  DbIdsRepository dbIdsRepository = new DbIdsRepository();
+  DbIdsRepositoryImpl dbIdsRepository = new DbIdsRepositoryImpl();
 
   ProjectCleaner projectCleaner = mock(ProjectCleaner.class);
   ProjectSettingsRepository projectSettingsRepository = mock(ProjectSettingsRepository.class);

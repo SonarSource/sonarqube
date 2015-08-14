@@ -34,7 +34,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
@@ -78,7 +78,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
   DbClient dbClient = dbTester.getDbClient();
-  DbIdsRepository dbIdsRepository = new DbIdsRepository();
+  DbIdsRepositoryImpl dbIdsRepository = new DbIdsRepositoryImpl();
   RuleDto rule;
   ComponentDto projectDto;
   ComponentDto fileDto;

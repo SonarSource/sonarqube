@@ -39,7 +39,7 @@ import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.FileAttributes;
 import org.sonar.server.computation.period.Period;
@@ -69,7 +69,7 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
 
   System2 system2 = mock(System2.class);
 
-  DbIdsRepository dbIdsRepository;
+  DbIdsRepositoryImpl dbIdsRepository;
 
   DbClient dbClient = dbTester.getDbClient();
 
@@ -86,7 +86,7 @@ public class PersistSnapshotsStepTest extends BaseStepTest {
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()
       .setAnalysisDate(analysisDate)
       .build());
-    dbIdsRepository = new DbIdsRepository();
+    dbIdsRepository = new DbIdsRepositoryImpl();
 
     now = DateUtils.parseDateQuietly("2015-06-02").getTime();
 

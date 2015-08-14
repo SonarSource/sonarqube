@@ -39,22 +39,23 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.component.DbIdsRepositoryImpl;
+import org.sonar.server.computation.component.MutableDbIdsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
 
 /**
  * Persist components
- * Also feed the components cache {@link DbIdsRepository} with component ids
+ * Also feed the components cache {@link DbIdsRepositoryImpl} with component ids
  */
 public class PersistComponentsStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
-  private final DbIdsRepository dbIdsRepository;
+  private final MutableDbIdsRepository dbIdsRepository;
   private final System2 system2;
 
-  public PersistComponentsStep(DbClient dbClient, TreeRootHolder treeRootHolder, BatchReportReader reportReader, DbIdsRepository dbIdsRepository, System2 system2) {
+  public PersistComponentsStep(DbClient dbClient, TreeRootHolder treeRootHolder, BatchReportReader reportReader, MutableDbIdsRepository dbIdsRepository, System2 system2) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;

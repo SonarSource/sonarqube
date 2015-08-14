@@ -17,16 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.computation.component;
 
-public interface DbIdsRepository {
-  /**
-   * @throws IllegalStateException if there is no id for the specified Component
-   */
-  long getComponentId(Component component);
+import static org.sonar.server.computation.component.ComponentFunctions.toReportRef;
 
-  /**
-   * @throws IllegalStateException if there is no Snapshot id for the specified Component
-   */
-  long getSnapshotId(Component component);
+/**
+ * Cache of persisted component (component id and snapshot id) that can be used in the persistence steps
+ */
+public class DbIdsRepositoryImpl implements MutableDbIdsRepository {
+
+  private final MapBasedDbIdsRepository<Integer> delegate = new MapBasedDbIdsRepository<>(toReportRef());
+
+  @Override
+  public DbIdsRepository setComponentId(Component component, long componentId) {
+    return delegate.setComponentId(component, componentId);
+  }
+
+  @Override
+  public long getComponentId(Component component) {
+    return delegate.getComponentId(component);
+  }
+
+  @Override
+  public DbIdsRepository setSnapshotId(Component component, long snapshotId) {
+    return delegate.setSnapshotId(component, snapshotId);
+  }
+
+  @Override
+  public long getSnapshotId(Component component) {
+    return delegate.getSnapshotId(component);
+  }
 }

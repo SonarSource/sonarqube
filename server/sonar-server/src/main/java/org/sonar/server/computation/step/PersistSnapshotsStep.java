@@ -24,19 +24,20 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
-import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.component.DbIdsRepositoryImpl;
+import org.sonar.server.computation.component.MutableDbIdsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
-import org.sonar.db.DbClient;
 
 /**
  * Persist snapshots
- * Also feed the components cache {@link DbIdsRepository} with snapshot ids
+ * Also feed the components cache {@link DbIdsRepositoryImpl} with snapshot ids
  */
 public class PersistSnapshotsStep implements ComputationStep {
 
@@ -44,11 +45,11 @@ public class PersistSnapshotsStep implements ComputationStep {
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
-  private final DbIdsRepository dbIdsRepository;
+  private final MutableDbIdsRepository dbIdsRepository;
   private final PeriodsHolder periodsHolder;
 
-  public PersistSnapshotsStep(System2 system2, DbClient dbClient, TreeRootHolder treeRootHolder, BatchReportReader reportReader, DbIdsRepository dbIdsRepository,
-    PeriodsHolder periodsHolder) {
+  public PersistSnapshotsStep(System2 system2, DbClient dbClient, TreeRootHolder treeRootHolder, BatchReportReader reportReader,
+    MutableDbIdsRepository dbIdsRepository, PeriodsHolder periodsHolder) {
     this.system2 = system2;
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;

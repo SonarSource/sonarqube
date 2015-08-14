@@ -26,7 +26,7 @@ import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.component.ReportComponent;
 
 import static org.mockito.Mockito.mock;
@@ -43,7 +43,7 @@ public class IndexComponentsStepTest extends BaseStepTest {
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
 
   ResourceIndexDao resourceIndexDao = mock(ResourceIndexDao.class);
-  DbIdsRepository dbIdsRepository = new DbIdsRepository();
+  DbIdsRepositoryImpl dbIdsRepository = new DbIdsRepositoryImpl();
   IndexComponentsStep underTest = new IndexComponentsStep(resourceIndexDao, dbIdsRepository, treeRootHolder);
 
   @Test

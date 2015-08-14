@@ -32,7 +32,7 @@ import org.sonar.db.DbTester;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
@@ -56,7 +56,7 @@ public class PersistEventsStepTest extends BaseStepTest {
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
-  DbIdsRepository dbIdsRepository = new DbIdsRepository();
+  DbIdsRepositoryImpl dbIdsRepository = new DbIdsRepositoryImpl();
 
   EventRepository eventRepository = mock(EventRepository.class);
   PersistEventsStep step;

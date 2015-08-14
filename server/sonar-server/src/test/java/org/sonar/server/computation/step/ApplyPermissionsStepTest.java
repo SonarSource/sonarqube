@@ -42,7 +42,7 @@ import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
@@ -72,7 +72,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
 
   Settings settings;
 
-  DbIdsRepository dbIdsRepository;
+  DbIdsRepositoryImpl dbIdsRepository;
 
   IssueAuthorizationIndexer issueAuthorizationIndexer;
   ApplyPermissionsStep step;
@@ -89,7 +89,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     issueAuthorizationIndexer = new IssueAuthorizationIndexer(dbClient, esTester.client());
     issueAuthorizationIndexer.setEnabled(true);
 
-    dbIdsRepository = new DbIdsRepository();
+    dbIdsRepository = new DbIdsRepositoryImpl();
 
     step = new ApplyPermissionsStep(dbClient, dbIdsRepository, issueAuthorizationIndexer, new PermissionRepository(dbClient, settings), treeRootHolder);
   }

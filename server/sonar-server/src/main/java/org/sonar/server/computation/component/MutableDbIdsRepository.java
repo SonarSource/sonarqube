@@ -19,14 +19,14 @@
  */
 package org.sonar.server.computation.component;
 
-public interface DbIdsRepository {
+public interface MutableDbIdsRepository extends DbIdsRepository {
   /**
-   * @throws IllegalStateException if there is no id for the specified Component
+   * @throws IllegalStateException if the component id for the specified component has already been set
    */
-  long getComponentId(Component component);
+  DbIdsRepository setComponentId(Component component, long componentId);
 
   /**
-   * @throws IllegalStateException if there is no Snapshot id for the specified Component
+   * @throws IllegalStateException if the snapshot id for the specified component has already been set
    */
-  long getSnapshotId(Component component);
+  DbIdsRepository setSnapshotId(Component component, long snapshotId);
 }
