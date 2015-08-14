@@ -43,6 +43,14 @@ public class GlobalModeTest {
     assertThat(mode.isIssues()).isFalse();
     assertThat(mode.isPublish()).isTrue();
   }
+  
+  @Test
+  public void testIssuesMode() {
+    GlobalMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ISSUES);
+    assertThat(mode.isPreview()).isFalse();
+    assertThat(mode.isIssues()).isTrue();
+    assertThat(mode.isPublish()).isFalse();
+  }
 
   @Test
   public void testDefault() {
