@@ -30,13 +30,15 @@ public interface MeasureMapper {
 
   List<MeasureDto> selectByComponentAndMetrics(@Param("componentKey") String componentKey, @Param("metricKeys") List<String> metricKeys);
 
+  List<MeasureDto> selectBySnapshotAndMetricKeys(@Param("snapshotId") long snapshotId, @Param("metricKeys") List<String> metricKeys);
+
   @CheckForNull
   MeasureDto selectByComponentAndMetric(@Param("componentKey") String componentKey, @Param("metricKey") String metricKey);
 
+  long countByComponentAndMetric(@Param("componentKey") String componentKey, @Param("metricKey") String metricKey);
+
   List<PastMeasureDto> selectByComponentUuidAndProjectSnapshotIdAndStatusAndMetricIds(@Param("componentUuid") String componentuuid, @Param("rootSnapshotId") long rootSnapshotId,
     @Param("metricIds") List<Integer> metricIds, @Param("status") String status);
-
-  long countByComponentAndMetric(@Param("componentKey") String componentKey, @Param("metricKey") String metricKey);
 
   void insert(MeasureDto measureDto);
 

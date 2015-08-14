@@ -31,6 +31,8 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.SnapshotDto;
 
+import static com.google.common.collect.FluentIterable.from;
+
 public class MeasureDao implements Dao {
 
   public boolean existsByKey(DbSession session, String componentKey, String metricKey) {
@@ -49,6 +51,21 @@ public class MeasureDao implements Dao {
         return mapper(session).selectByComponentAndMetrics(componentKey, keys);
       }
     });
+  }
+
+  /**
+   * Selects all measures of a specific snapshot for the specified metric keys.
+   *
+   * Uses by Views.
+   */
+  public List<MeasureDto> selectBySnapshotIdAndMetricKeys(final long snapshotId, Set<String> metricKeys, final DbSession dbSession) {
+    return DatabaseUtils.executeLargeInputs(from(metricKeys).toSortedList(String.CASE_INSENSITIVE_ORDER),
+      new Function<List<String>, List<MeasureDto>>() {
+        @Override
+        public List<MeasureDto> apply(List<String> keys) {
+          return mapper(dbSession).selectBySnapshotAndMetricKeys(snapshotId, keys);
+        }
+      });
   }
 
   public List<PastMeasureDto> selectByComponentUuidAndProjectSnapshotIdAndMetricIds(final DbSession session, final String componentUuid, final long projectSnapshotId,
