@@ -38,12 +38,15 @@ import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
+import org.sonar.server.computation.component.SettingsRepository;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
 import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Category(DbTests.class)
 public class FeedPeriodsStepTest extends BaseStepTest {
@@ -53,21 +56,17 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-
   @Rule
   public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
-
   @Rule
   public LogTester logTester = new LogTester();
 
   PeriodsHolderImpl periodsHolder = new PeriodsHolderImpl();
-
   DbClient dbClient = dbTester.getDbClient();
-
   Settings settings = new Settings();
+  SettingsRepository settingsRepository = mock(SettingsRepository.class);
 
   FeedPeriodsStep underTest;
 
@@ -80,9 +79,11 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   public void setUp() throws Exception {
     analysisMetadataHolder.setAnalysisDate(DATE_FORMAT.parse("2008-11-30"));
 
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).setVersion("1.1").build());
+    ReportComponent root = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).setVersion("1.1").build();
+    treeRootHolder.setRoot(root);
+    when(settingsRepository.getSettings(root)).thenReturn(settings);
 
-    underTest = new FeedPeriodsStep(dbClient, settings, treeRootHolder, analysisMetadataHolder, periodsHolder);
+    underTest = new FeedPeriodsStep(dbClient, settingsRepository, treeRootHolder, analysisMetadataHolder, periodsHolder);
   }
 
   @Test
@@ -353,7 +354,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
     settings.setProperty("sonar.timemachine.period2", "10"); // Analysis from 2008-11-20 should be returned
     settings.setProperty("sonar.timemachine.period3", "previous_analysis"); // Analysis from 2008-11-29 should be returned
     settings.setProperty("sonar.timemachine.period4", "previous_version"); // Analysis from 2008-11-12 should be returned
-    settings.setProperty("sonar.timemachine.period5", "0.9"); // Anaylsis from 2008-11-11
+    settings.setProperty("sonar.timemachine.period5", "0.9"); // Analysis from 2008-11-11
 
     underTest.execute();
     List<Period> periods = periodsHolder.getPeriods();

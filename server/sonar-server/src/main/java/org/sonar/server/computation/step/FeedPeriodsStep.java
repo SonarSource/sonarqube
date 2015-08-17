@@ -45,6 +45,7 @@ import org.sonar.db.component.SnapshotQuery;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
+import org.sonar.server.computation.component.SettingsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
@@ -70,15 +71,15 @@ public class FeedPeriodsStep implements ComputationStep {
   private static final int NUMBER_OF_PERIODS = 5;
 
   private final DbClient dbClient;
-  private final Settings settings;
+  private final SettingsRepository settingsRepository;
   private final TreeRootHolder treeRootHolder;
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final PeriodsHolderImpl periodsHolder;
 
-  public FeedPeriodsStep(DbClient dbClient, Settings settings, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
+  public FeedPeriodsStep(DbClient dbClient, SettingsRepository settingsRepository, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
     PeriodsHolderImpl periodsHolder) {
     this.dbClient = dbClient;
-    this.settings = settings;
+    this.settingsRepository = settingsRepository;
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.periodsHolder = periodsHolder;
@@ -120,9 +121,10 @@ public class FeedPeriodsStep implements ComputationStep {
       isReportType ? projectOrView.getReportAttributes().getVersion() : null,
       isReportType ? Qualifiers.PROJECT : Qualifiers.VIEW);
 
+    Settings settings = settingsRepository.getSettings(projectOrView);
     List<Period> periods = new ArrayList<>(5);
     for (int index = 1; index <= NUMBER_OF_PERIODS; index++) {
-      Period period = periodResolver.resolve(index);
+      Period period = periodResolver.resolve(index, settings);
       // SONAR-4700 Add a past snapshot only if it exists
       if (period != null) {
         periods.add(period);
@@ -149,7 +151,7 @@ public class FeedPeriodsStep implements ComputationStep {
     }
 
     @CheckForNull
-    public Period resolve(int index) {
+    public Period resolve(int index, Settings settings) {
       String propertyValue = getPropertyValue(qualifier, settings, index);
       if (StringUtils.isBlank(propertyValue)) {
         return null;
