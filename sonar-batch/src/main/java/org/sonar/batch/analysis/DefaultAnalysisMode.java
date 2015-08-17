@@ -19,45 +19,28 @@
  */
 package org.sonar.batch.analysis;
 
+import org.sonar.batch.bootstrap.AbstractAnalysisMode;
+
 import org.sonar.batch.mediumtest.FakePluginInstaller;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.batch.bootstrap.GlobalProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AnalysisMode;
 
-import java.util.Arrays;
 import java.util.Map;
 
 /**
  * @since 4.0
  */
-public class DefaultAnalysisMode implements AnalysisMode {
+public class DefaultAnalysisMode extends AbstractAnalysisMode implements AnalysisMode {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultAnalysisMode.class);
 
-  private boolean preview;
-  private boolean issues;
   private boolean mediumTestMode;
 
   public DefaultAnalysisMode(GlobalProperties globalProps, AnalysisProperties props) {
     init(globalProps.properties(), props.properties());
-  }
-
-  @Override
-  public boolean isPreview() {
-    return preview;
-  }
-
-  @Override
-  public boolean isIssues() {
-    return issues;
-  }
-
-  @Override
-  public boolean isPublish() {
-    return !preview && !issues;
   }
 
   public boolean isMediumTest() {
@@ -79,8 +62,7 @@ public class DefaultAnalysisMode implements AnalysisMode {
   private void load(Map<String, String> globalProps, Map<String, String> analysisProps) {
     String mode = getPropertyWithFallback(analysisProps, globalProps, CoreProperties.ANALYSIS_MODE);
     validate(mode);
-    preview = CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
-    issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode);
+    issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode) || CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
     mediumTestMode = "true".equals(getPropertyWithFallback(analysisProps, globalProps, FakePluginInstaller.MEDIUM_TEST_ENABLED));
   }
 
@@ -111,13 +93,4 @@ public class DefaultAnalysisMode implements AnalysisMode {
     return CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode);
   }
 
-  private static void validate(String mode) {
-    if (StringUtils.isEmpty(mode)) {
-      return;
-    }
-
-    if (!Arrays.asList(VALID_MODES).contains(mode)) {
-      throw new IllegalStateException("Invalid analysis mode: " + mode + ". Valid modes are: " + Arrays.toString(VALID_MODES));
-    }
-  }
 }

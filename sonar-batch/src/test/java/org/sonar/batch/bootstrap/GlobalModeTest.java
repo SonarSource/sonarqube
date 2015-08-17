@@ -34,11 +34,11 @@ public class GlobalModeTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void testPreviewNotSupported() {
+  public void testModeNotSupported() {
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("[publish, issues]");
+    thrown.expectMessage("[preview, publish, issues]");
 
-    createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW);
+    createMode(CoreProperties.ANALYSIS_MODE, "invalid");
   }
 
   @Test
@@ -55,6 +55,14 @@ public class GlobalModeTest {
     assertThat(mode.isPreview()).isFalse();
     assertThat(mode.isIssues()).isTrue();
     assertThat(mode.isPublish()).isFalse();
+  }
+
+  @Test
+  public void preview_mode_fallback_issues() {
+    GlobalMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW);
+
+    assertThat(mode.isIssues()).isTrue();
+    assertThat(mode.isPreview()).isFalse();
   }
 
   @Test

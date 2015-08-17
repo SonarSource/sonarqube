@@ -19,26 +19,44 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 
+import java.util.Arrays;
+
 import org.sonar.api.batch.AnalysisMode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class GlobalMode extends AbstractAnalysisMode implements AnalysisMode {
-  private static final Logger LOG = LoggerFactory.getLogger(GlobalMode.class);
+public abstract class AbstractAnalysisMode implements AnalysisMode {
+  protected boolean preview;
+  protected boolean issues;
 
-  public GlobalMode(GlobalProperties props) {
-    String mode = props.property(CoreProperties.ANALYSIS_MODE);
-    validate(mode);
-    issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode) || CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
-    
-    if (preview) {
-      LOG.debug("Preview global mode");
-    } else if (issues) {
-      LOG.debug("Issues global mode");
-    } else {
-      LOG.debug("Publish global mode");
+  protected AbstractAnalysisMode() {
+  }
+
+  public boolean isPreview() {
+    return preview;
+  }
+
+  public boolean isIssues() {
+    return issues;
+  }
+
+  public boolean isPublish() {
+    return !preview && !issues;
+  }
+
+  protected static void validate(String mode) {
+    if (StringUtils.isEmpty(mode)) {
+      return;
+    }
+
+    if (CoreProperties.ANALYSIS_MODE_INCREMENTAL.equals(mode)) {
+      throw new IllegalStateException("Invalid analysis mode: " + mode + ". This mode was removed in SonarQube 5.2. Valid modes are: " + Arrays.toString(VALID_MODES));
+    }
+
+    if (!Arrays.asList(VALID_MODES).contains(mode)) {
+      throw new IllegalStateException("Invalid analysis mode: " + mode + ". Valid modes are: " + Arrays.toString(VALID_MODES));
     }
   }
+
 }

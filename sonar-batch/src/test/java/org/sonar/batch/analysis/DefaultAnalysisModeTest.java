@@ -61,21 +61,27 @@ public class DefaultAnalysisModeTest {
   }
 
   @Test
-  public void validate_mode() {
+  public void incremental_mode_no_longer_valid() {
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("[publish, issues]");
+    thrown.expectMessage("This mode was removed in SonarQube 5.2");
 
     createMode(CoreProperties.ANALYSIS_MODE_INCREMENTAL);
   }
 
   @Test
-  public void dont_support_preview_mode() {
+  public void invalidate_mode() {
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("[publish, issues]");
+    thrown.expectMessage("[preview, publish, issues]");
 
+    createMode("invalid");
+  }
+
+  @Test
+  public void preview_mode_fallback_issues() {
     DefaultAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_PREVIEW);
 
-    assertThat(mode.isPreview()).isTrue();
+    assertThat(mode.isIssues()).isTrue();
+    assertThat(mode.isPreview()).isFalse();
   }
 
   @Test
