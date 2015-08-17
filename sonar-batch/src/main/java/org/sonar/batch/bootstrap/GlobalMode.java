@@ -19,13 +19,15 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.apache.commons.lang.StringUtils;
+import java.util.Arrays;
 
+import org.sonar.api.batch.AnalysisMode;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 
-public class GlobalMode {
+public class GlobalMode implements AnalysisMode {
   private static final Logger LOG = LoggerFactory.getLogger(GlobalMode.class);
   private boolean preview;
   private boolean issues;
@@ -62,9 +64,8 @@ public class GlobalMode {
       return;
     }
 
-    if (!CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode) && !CoreProperties.ANALYSIS_MODE_PUBLISH.equals(mode) &&
-      !CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode)) {
-      throw new IllegalStateException("Invalid analysis mode: " + mode);
+    if (!Arrays.asList(VALID_MODES).contains(mode)) {
+      throw new IllegalStateException("Invalid analysis mode: " + mode + ". Valid modes are: " + Arrays.toString(VALID_MODES));
     }
   }
 }

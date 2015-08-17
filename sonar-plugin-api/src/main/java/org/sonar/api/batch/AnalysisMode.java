@@ -19,12 +19,15 @@
  */
 package org.sonar.api.batch;
 
+import org.sonar.api.CoreProperties;
+
 /**
  * Use this component to find the current running mode.
  * @since 5.1
  */
 @BatchSide
 public interface AnalysisMode {
+  static final String[] VALID_MODES = {CoreProperties.ANALYSIS_MODE_PUBLISH, CoreProperties.ANALYSIS_MODE_ISSUES};
 
   boolean isPreview();
 

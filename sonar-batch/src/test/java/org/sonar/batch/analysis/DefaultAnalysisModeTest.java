@@ -19,8 +19,10 @@
  */
 package org.sonar.batch.analysis;
 
-import org.sonar.batch.analysis.DefaultAnalysisMode;
+import org.junit.Rule;
 
+import org.junit.rules.ExpectedException;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.analysis.AnalysisProperties;
 
 import javax.annotation.Nullable;
@@ -35,6 +37,8 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultAnalysisModeTest {
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void regular_analysis_by_default() {
@@ -49,20 +53,26 @@ public class DefaultAnalysisModeTest {
   }
 
   @Test
-  public void support_pulblish_mode() {
+  public void support_publish_mode() {
     DefaultAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_PUBLISH);
 
     assertThat(mode.isPreview()).isFalse();
     assertThat(mode.isPublish()).isTrue();
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void validate_mode() {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("[publish, issues]");
+
     createMode(CoreProperties.ANALYSIS_MODE_INCREMENTAL);
   }
 
   @Test
-  public void support_preview_mode() {
+  public void dont_support_preview_mode() {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("[publish, issues]");
+
     DefaultAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_PREVIEW);
 
     assertThat(mode.isPreview()).isTrue();
@@ -70,14 +80,7 @@ public class DefaultAnalysisModeTest {
 
   @Test
   public void default_publish_mode() {
-    DefaultAnalysisMode mode = createMode(CoreProperties.ANALYSIS_MODE_PREVIEW);
-    assertThat(mode.isPublish()).isFalse();
-
-    mode = createMode(CoreProperties.ANALYSIS_MODE_ISSUES);
-    assertThat(mode.isPublish()).isFalse();
-
-    mode = createMode(null);
-
+    DefaultAnalysisMode mode = createMode(null);
     assertThat(mode.isPublish()).isTrue();
   }
 
@@ -106,4 +109,3 @@ public class DefaultAnalysisModeTest {
   }
 
 }
-

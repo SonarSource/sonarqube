@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.junit.Rule;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.junit.Test;
 
@@ -28,12 +30,15 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GlobalModeTest {
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   @Test
-  public void testPreview() {
-    GlobalMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW);
-    assertThat(mode.isPreview()).isTrue();
-    assertThat(mode.isIssues()).isFalse();
-    assertThat(mode.isPublish()).isFalse();
+  public void testPreviewNotSupported() {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("[publish, issues]");
+
+    createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW);
   }
 
   @Test
@@ -43,7 +48,7 @@ public class GlobalModeTest {
     assertThat(mode.isIssues()).isFalse();
     assertThat(mode.isPublish()).isTrue();
   }
-  
+
   @Test
   public void testIssuesMode() {
     GlobalMode mode = createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ISSUES);
@@ -74,4 +79,3 @@ public class GlobalModeTest {
     return new GlobalMode(props);
   }
 }
-

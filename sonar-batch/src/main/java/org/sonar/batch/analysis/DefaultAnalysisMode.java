@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AnalysisMode;
 
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -82,7 +83,7 @@ public class DefaultAnalysisMode implements AnalysisMode {
     issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode);
     mediumTestMode = "true".equals(getPropertyWithFallback(analysisProps, globalProps, FakePluginInstaller.MEDIUM_TEST_ENABLED));
   }
-  
+
   public void printMode() {
     if (preview) {
       LOG.info("Preview mode");
@@ -115,9 +116,8 @@ public class DefaultAnalysisMode implements AnalysisMode {
       return;
     }
 
-    if (!CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode) && !CoreProperties.ANALYSIS_MODE_PUBLISH.equals(mode) &&
-      !CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode)) {
-      throw new IllegalStateException("Invalid analysis mode: " + mode);
+    if (!Arrays.asList(VALID_MODES).contains(mode)) {
+      throw new IllegalStateException("Invalid analysis mode: " + mode + ". Valid modes are: " + Arrays.toString(VALID_MODES));
     }
   }
 }
