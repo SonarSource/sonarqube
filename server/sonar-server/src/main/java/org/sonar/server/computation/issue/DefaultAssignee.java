@@ -24,7 +24,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.server.computation.component.ProjectSettingsRepository;
+import org.sonar.server.computation.component.SettingsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
@@ -39,21 +39,21 @@ public class DefaultAssignee {
 
   private final TreeRootHolder treeRootHolder;
   private final UserIndex userIndex;
-  private final ProjectSettingsRepository settings;
+  private final SettingsRepository settingsRepository;
 
   private boolean loaded = false;
   private String login = null;
 
-  public DefaultAssignee(TreeRootHolder treeRootHolder, UserIndex userIndex, ProjectSettingsRepository settings) {
+  public DefaultAssignee(TreeRootHolder treeRootHolder, UserIndex userIndex, SettingsRepository settingsRepository) {
     this.treeRootHolder = treeRootHolder;
     this.userIndex = userIndex;
-    this.settings = settings;
+    this.settingsRepository = settingsRepository;
   }
 
   @CheckForNull
   public String getLogin() {
     if (!loaded) {
-      String configuredLogin = settings.getProjectSettings(treeRootHolder.getRoot().getKey()).getString(CoreProperties.DEFAULT_ISSUE_ASSIGNEE);
+      String configuredLogin = settingsRepository.getSettings(treeRootHolder.getRoot()).getString(CoreProperties.DEFAULT_ISSUE_ASSIGNEE);
       if (!Strings.isNullOrEmpty(configuredLogin) && isValidLogin(configuredLogin)) {
         this.login = configuredLogin;
       }

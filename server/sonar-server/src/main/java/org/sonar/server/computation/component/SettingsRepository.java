@@ -17,32 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.computation.component;
 
 import org.sonar.api.config.Settings;
-import org.sonar.server.properties.ProjectSettingsFactory;
 
 /**
- * Lazy loading of project settings.
- *
- * TODO Should be refactored to be able to load settings from any components.
+ * Repository of component settings.
  */
-public class ProjectSettingsRepository {
-
-  private final ProjectSettingsFactory projectSettingsFactory;
-
-  private Settings projectSettings;
-
-  public ProjectSettingsRepository(ProjectSettingsFactory projectSettingsFactory) {
-    this.projectSettingsFactory = projectSettingsFactory;
-  }
-
-  public Settings getProjectSettings(String projectKey){
-    if (projectSettings == null) {
-      projectSettings = projectSettingsFactory.newProjectSettings(projectKey);
-    }
-    return projectSettings;
-  }
-
+public interface SettingsRepository {
+  /**
+   * Returns the settings for the specified Component.
+   */
+  Settings getSettings(Component component);
 }

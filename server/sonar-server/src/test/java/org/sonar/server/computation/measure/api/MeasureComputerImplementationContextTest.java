@@ -30,7 +30,7 @@ import org.sonar.api.ce.measure.Component;
 import org.sonar.api.ce.measure.MeasureComputer;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
-import org.sonar.server.computation.component.ProjectSettingsRepository;
+import org.sonar.server.computation.component.SettingsRepository;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.Metric;
@@ -62,11 +62,13 @@ public class MeasureComputerImplementationContextTest {
   private static final String FILE_1_KEY = "fileKey";
   private static final int FILE_2_REF = 12342;
 
+  private static final org.sonar.server.computation.component.Component FILE_1 = builder(org.sonar.server.computation.component.Component.Type.FILE, FILE_1_REF).setKey(FILE_1_KEY).build();
+
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule()
     .setRoot(builder(org.sonar.server.computation.component.Component.Type.PROJECT, PROJECT_REF).setKey("project")
       .addChildren(
-        builder(org.sonar.server.computation.component.Component.Type.FILE, FILE_1_REF).setKey(FILE_1_KEY).build(),
+        FILE_1,
         builder(org.sonar.server.computation.component.Component.Type.FILE, FILE_2_REF).setKey("fileKey2").build()
       ).build());
 
@@ -82,7 +84,7 @@ public class MeasureComputerImplementationContextTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  ProjectSettingsRepository projectSettingsRepository = mock(ProjectSettingsRepository.class);
+  SettingsRepository settingsRepository = mock(SettingsRepository.class);
 
   @Test
   public void get_component() throws Exception {
@@ -94,7 +96,7 @@ public class MeasureComputerImplementationContextTest {
   public void get_string_settings() throws Exception {
     org.sonar.api.config.Settings serverSettings = new org.sonar.api.config.Settings();
     serverSettings.setProperty("prop", "value");
-    when(projectSettingsRepository.getProjectSettings(FILE_1_KEY)).thenReturn(serverSettings);
+    when(settingsRepository.getSettings(FILE_1)).thenReturn(serverSettings);
 
     MeasureComputer.Implementation.Context underTest = newContext(FILE_1_REF);
     assertThat(underTest.getSettings().getString("prop")).isEqualTo("value");
@@ -105,7 +107,7 @@ public class MeasureComputerImplementationContextTest {
   public void get_string_array_settings() throws Exception {
     org.sonar.api.config.Settings serverSettings = new org.sonar.api.config.Settings();
     serverSettings.setProperty("prop", "1,3.4,8,50");
-    when(projectSettingsRepository.getProjectSettings(FILE_1_KEY)).thenReturn(serverSettings);
+    when(settingsRepository.getSettings(FILE_1)).thenReturn(serverSettings);
 
     MeasureComputer.Implementation.Context underTest = newContext(FILE_1_REF);
     assertThat(underTest.getSettings().getStringArray("prop")).containsExactly("1", "3.4", "8", "50");
@@ -247,6 +249,6 @@ public class MeasureComputerImplementationContextTest {
         return null;
       }
     };
-    return new MeasureComputerImplementationContext(treeRootHolder.getComponentByRef(componentRef), measureComputer, projectSettingsRepository, measureRepository, metricRepository);
+    return new MeasureComputerImplementationContext(treeRootHolder.getComponentByRef(componentRef), measureComputer, settingsRepository, measureRepository, metricRepository);
   }
 }

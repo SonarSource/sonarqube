@@ -28,7 +28,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
-import org.sonar.server.computation.component.ProjectSettingsRepository;
+import org.sonar.server.computation.component.SettingsRepository;
 import org.sonar.server.computation.qualitygate.Condition;
 import org.sonar.server.computation.qualitygate.MutableQualityGateHolderRule;
 import org.sonar.server.computation.qualitygate.QualityGate;
@@ -52,23 +52,24 @@ public class QualityGateLoadingStepTest {
   @Rule
   public MutableQualityGateHolderRule mutableQualityGateHolder = new MutableQualityGateHolderRule();
 
-  private ProjectSettingsRepository projectSettingsRepository = mock(ProjectSettingsRepository.class);
+  private SettingsRepository settingsRepository = mock(SettingsRepository.class);
   private QualityGateService qualityGateService = mock(QualityGateService.class);
 
-  private QualityGateLoadingStep underTest = new QualityGateLoadingStep(treeRootHolder, projectSettingsRepository, qualityGateService, mutableQualityGateHolder);
+  private QualityGateLoadingStep underTest = new QualityGateLoadingStep(treeRootHolder, settingsRepository, qualityGateService, mutableQualityGateHolder);
 
   @Test
   public void execute_sets_default_QualityGate_when_project_has_no_settings() {
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setKey(PROJECT_KEY).addChildren(ReportComponent.builder(Component.Type.FILE, 2).build()).build());
-    when(projectSettingsRepository.getProjectSettings(PROJECT_KEY)).thenReturn(new Settings());
+    ReportComponent root = ReportComponent.builder(Component.Type.PROJECT, 1).setKey(PROJECT_KEY).addChildren(ReportComponent.builder(Component.Type.FILE, 2).build()).build();
+    treeRootHolder.setRoot(root);
+    when(settingsRepository.getSettings(root)).thenReturn(new Settings());
 
     underTest.execute();
 
     verifyNoQualityGate();
 
     // verify only project is processed
-    verify(projectSettingsRepository).getProjectSettings(PROJECT_KEY);
-    verifyNoMoreInteractions(projectSettingsRepository);
+    verify(settingsRepository).getSettings(root);
+    verifyNoMoreInteractions(settingsRepository);
   }
 
   @Test
@@ -77,7 +78,7 @@ public class QualityGateLoadingStepTest {
     expectedException.expectMessage(String.format("Unsupported value (%s) in property sonar.qualitygate", "10 sds"));
 
     treeRootHolder.setRoot(PROJECT_ALONE);
-    when(projectSettingsRepository.getProjectSettings(PROJECT_KEY)).thenReturn(new Settings().setProperty("sonar.qualitygate", "10 sds"));
+    when(settingsRepository.getSettings(PROJECT_ALONE)).thenReturn(new Settings().setProperty("sonar.qualitygate", "10 sds"));
 
     underTest.execute();
   }
@@ -85,7 +86,7 @@ public class QualityGateLoadingStepTest {
   @Test
   public void execute_sets_default_QualityGate_if_it_can_not_be_found_by_service() {
     treeRootHolder.setRoot(PROJECT_ALONE);
-    when(projectSettingsRepository.getProjectSettings(PROJECT_KEY)).thenReturn(new Settings().setProperty("sonar.qualitygate", 10));
+    when(settingsRepository.getSettings(PROJECT_ALONE)).thenReturn(new Settings().setProperty("sonar.qualitygate", 10));
     when(qualityGateService.findById(10)).thenReturn(Optional.<QualityGate>absent());
 
     underTest.execute();
@@ -98,7 +99,7 @@ public class QualityGateLoadingStepTest {
     QualityGate qualityGate = new QualityGate("name", Collections.<Condition>emptyList());
 
     treeRootHolder.setRoot(PROJECT_ALONE);
-    when(projectSettingsRepository.getProjectSettings(PROJECT_KEY)).thenReturn(new Settings().setProperty("sonar.qualitygate", 10));
+    when(settingsRepository.getSettings(PROJECT_ALONE)).thenReturn(new Settings().setProperty("sonar.qualitygate", 10));
     when(qualityGateService.findById(10)).thenReturn(Optional.of(qualityGate));
 
     underTest.execute();

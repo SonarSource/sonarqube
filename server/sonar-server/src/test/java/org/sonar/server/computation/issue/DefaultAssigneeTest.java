@@ -25,7 +25,8 @@ import org.mockito.Mockito;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
-import org.sonar.server.computation.component.ProjectSettingsRepository;
+import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.SettingsRepository;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
@@ -40,14 +41,14 @@ public class DefaultAssigneeTest {
   TreeRootHolderRule rootHolder = mock(TreeRootHolderRule.class, Mockito.RETURNS_DEEP_STUBS);
   UserIndex userIndex = mock(UserIndex.class);
   Settings settings = new Settings();
-  ProjectSettingsRepository settingsRepository = mock(ProjectSettingsRepository.class);
+  SettingsRepository settingsRepository = mock(SettingsRepository.class);
 
   DefaultAssignee underTest = new DefaultAssignee(rootHolder, userIndex, settingsRepository);
 
   @Before
   public void before() {
-    when(rootHolder.getRoot().getKey()).thenReturn(PROJECT_KEY);
-    when(settingsRepository.getProjectSettings(PROJECT_KEY)).thenReturn(settings);
+    when(rootHolder.getRoot()).thenReturn(mock(Component.class));
+    when(settingsRepository.getSettings(rootHolder.getRoot())).thenReturn(settings);
   }
 
   @Test

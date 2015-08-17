@@ -26,7 +26,7 @@ import org.sonar.db.MyBatis;
 import org.sonar.db.purge.IdUuidPair;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
-import org.sonar.server.computation.component.ProjectSettingsRepository;
+import org.sonar.server.computation.component.SettingsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.db.DbClient;
 
@@ -36,15 +36,15 @@ public class PurgeDatastoresStep implements ComputationStep {
   private final DbClient dbClient;
   private final DbIdsRepository dbIdsRepository;
   private final TreeRootHolder treeRootHolder;
-  private final ProjectSettingsRepository projectSettingsRepository;
+  private final SettingsRepository settingsRepository;
 
   public PurgeDatastoresStep(DbClient dbClient, ProjectCleaner projectCleaner, DbIdsRepository dbIdsRepository, TreeRootHolder treeRootHolder,
-    ProjectSettingsRepository projectSettingsRepository) {
+    SettingsRepository settingsRepository) {
     this.projectCleaner = projectCleaner;
     this.dbClient = dbClient;
     this.dbIdsRepository = dbIdsRepository;
     this.treeRootHolder = treeRootHolder;
-    this.projectSettingsRepository = projectSettingsRepository;
+    this.settingsRepository = settingsRepository;
   }
 
   @Override
@@ -52,7 +52,7 @@ public class PurgeDatastoresStep implements ComputationStep {
     DbSession session = dbClient.openSession(true);
     try {
       Component project = treeRootHolder.getRoot();
-      projectCleaner.purge(session, new IdUuidPair(dbIdsRepository.getComponentId(project), project.getUuid()), projectSettingsRepository.getProjectSettings(project.getKey()));
+      projectCleaner.purge(session, new IdUuidPair(dbIdsRepository.getComponentId(project), project.getUuid()), settingsRepository.getSettings(project));
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

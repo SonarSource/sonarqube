@@ -33,7 +33,7 @@ import org.sonar.api.ce.measure.Component;
 import org.sonar.api.ce.measure.Measure;
 import org.sonar.api.ce.measure.MeasureComputer;
 import org.sonar.api.ce.measure.Settings;
-import org.sonar.server.computation.component.ProjectSettingsRepository;
+import org.sonar.server.computation.component.SettingsRepository;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
@@ -44,7 +44,7 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 public class MeasureComputerImplementationContext implements MeasureComputer.Implementation.Context {
 
   private final MeasureComputer measureComputer;
-  private final ProjectSettingsRepository settings;
+  private final SettingsRepository settings;
   private final MeasureRepository measureRepository;
   private final MetricRepository metricRepository;
 
@@ -54,7 +54,7 @@ public class MeasureComputerImplementationContext implements MeasureComputer.Imp
   private final Set<String> allowedMetrics;
 
   public MeasureComputerImplementationContext(org.sonar.server.computation.component.Component component, MeasureComputer measureComputer,
-    ProjectSettingsRepository settings, MeasureRepository measureRepository, MetricRepository metricRepository) {
+    SettingsRepository settings, MeasureRepository measureRepository, MetricRepository metricRepository) {
     this.measureComputer = measureComputer;
     this.settings = settings;
     this.internalComponent = component;
@@ -103,7 +103,7 @@ public class MeasureComputerImplementationContext implements MeasureComputer.Imp
   }
 
   private org.sonar.api.config.Settings getComponentSettings(){
-    return settings.getProjectSettings(internalComponent.getKey());
+    return settings.getSettings(internalComponent);
   }
 
   @Override

@@ -21,7 +21,7 @@
 package org.sonar.server.computation.measure;
 
 import org.sonar.api.ce.measure.MeasureComputer;
-import org.sonar.server.computation.component.ProjectSettingsRepository;
+import org.sonar.server.computation.component.SettingsRepository;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.measure.api.MeasureComputerImplementationContext;
 import org.sonar.server.computation.metric.MetricRepository;
@@ -33,11 +33,11 @@ public class MeasureComputersVisitor extends TypeAwareVisitorAdapter {
 
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
-  private final ProjectSettingsRepository settings;
+  private final SettingsRepository settings;
 
   private final MeasureComputersHolder measureComputersHolder;
 
-  public MeasureComputersVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, ProjectSettingsRepository settings,
+  public MeasureComputersVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, SettingsRepository settings,
     MeasureComputersHolder measureComputersHolder) {
     super(FILE, PRE_ORDER);
     this.metricRepository = metricRepository;

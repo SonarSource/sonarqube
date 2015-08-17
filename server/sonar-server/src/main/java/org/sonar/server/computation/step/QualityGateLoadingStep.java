@@ -27,7 +27,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.computation.ReportQueue;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
-import org.sonar.server.computation.component.ProjectSettingsRepository;
+import org.sonar.server.computation.component.SettingsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.qualitygate.MutableQualityGateHolder;
 import org.sonar.server.computation.qualitygate.QualityGate;
@@ -46,14 +46,14 @@ public class QualityGateLoadingStep implements ComputationStep {
   private static final String PROPERTY_QUALITY_GATE = "sonar.qualitygate";
 
   private final TreeRootHolder treeRootHolder;
-  private final ProjectSettingsRepository projectSettingsRepository;
+  private final SettingsRepository settingsRepository;
   private final QualityGateService qualityGateService;
   private final MutableQualityGateHolder qualityGateHolder;
 
-  public QualityGateLoadingStep(TreeRootHolder treeRootHolder, ProjectSettingsRepository projectSettingsRepository,
+  public QualityGateLoadingStep(TreeRootHolder treeRootHolder, SettingsRepository settingsRepository,
     QualityGateService qualityGateService, MutableQualityGateHolder qualityGateHolder) {
     this.treeRootHolder = treeRootHolder;
-    this.projectSettingsRepository = projectSettingsRepository;
+    this.settingsRepository = settingsRepository;
     this.qualityGateService = qualityGateService;
     this.qualityGateHolder = qualityGateHolder;
   }
@@ -70,7 +70,7 @@ public class QualityGateLoadingStep implements ComputationStep {
 
   private void executeForProject(Component project) {
     String projectKey = project.getKey();
-    Settings settings = projectSettingsRepository.getProjectSettings(projectKey);
+    Settings settings = settingsRepository.getSettings(project);
     String qualityGateSetting = settings.getString(PROPERTY_QUALITY_GATE);
 
     if (qualityGateSetting == null || StringUtils.isBlank(qualityGateSetting)) {

@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -35,7 +34,7 @@ import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.component.ReportComponent;
-import org.sonar.server.computation.component.ProjectSettingsRepository;
+import org.sonar.server.computation.component.SettingsRepository;
 import org.sonar.server.db.DbClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,19 +56,15 @@ public class PurgeDatastoresStepTest extends BaseStepTest {
   DbIdsRepositoryImpl dbIdsRepository = new DbIdsRepositoryImpl();
 
   ProjectCleaner projectCleaner = mock(ProjectCleaner.class);
-  ProjectSettingsRepository projectSettingsRepository = mock(ProjectSettingsRepository.class);
+  SettingsRepository settingsRepository = mock(SettingsRepository.class);
 
-  PurgeDatastoresStep underTest = new PurgeDatastoresStep(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS), projectCleaner, dbIdsRepository, treeRootHolder, projectSettingsRepository);
-
-  @Before
-  public void setUp() {
-    when(projectSettingsRepository.getProjectSettings(PROJECT_KEY)).thenReturn(new Settings());
-  }
+  PurgeDatastoresStep underTest = new PurgeDatastoresStep(mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS), projectCleaner, dbIdsRepository, treeRootHolder, settingsRepository);
 
   @Test
   public void call_purge_method_of_the_purge_task() {
     Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("UUID-1234").setKey(PROJECT_KEY).build();
     treeRootHolder.setRoot(project);
+    when(settingsRepository.getSettings(project)).thenReturn(new Settings());
     dbIdsRepository.setComponentId(project, 123L);
 
     reportReader.setMetadata(BatchReport.Metadata.newBuilder()

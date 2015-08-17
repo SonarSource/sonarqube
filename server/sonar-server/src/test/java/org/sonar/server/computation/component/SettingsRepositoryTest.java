@@ -38,11 +38,12 @@ import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.computation.component.Component.Type.PROJECT;
 
 @Category(DbTests.class)
-public class ProjectSettingsRepositoryTest {
+public class SettingsRepositoryTest {
 
-  private static final String PROJECT_KEY = "PROJECT_KEY";
+  private static final Component ROOT = ReportComponent.builder(PROJECT, 1).setKey("ROOT").build();
 
   @Rule
   public final DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -53,7 +54,7 @@ public class ProjectSettingsRepositoryTest {
 
   Settings globalSettings;
 
-  ProjectSettingsRepository underTest;
+  SettingsRepository underTest;
 
   @Before
   public void createDao() {
@@ -61,7 +62,7 @@ public class ProjectSettingsRepositoryTest {
     globalSettings = new Settings();
     PropertiesDao propertiesDao = new PropertiesDao(dbTester.myBatis());
     session = dbClient.openSession(false);
-    underTest = new ProjectSettingsRepository(new ProjectSettingsFactory(globalSettings, propertiesDao));
+    underTest = new SettingsRepositoryImpl(new ProjectSettingsFactory(globalSettings, propertiesDao));
   }
 
   @After
@@ -73,19 +74,19 @@ public class ProjectSettingsRepositoryTest {
   public void get_project_settings_from_global_settings() {
     globalSettings.setProperty("key", "value");
 
-    Settings settings = underTest.getProjectSettings(PROJECT_KEY);
+    Settings settings = underTest.getSettings(ROOT);
 
     assertThat(settings.getString("key")).isEqualTo("value");
   }
 
   @Test
   public void get_project_settings_from_db() {
-    ComponentDto project = ComponentTesting.newProjectDto().setKey(PROJECT_KEY);
+    ComponentDto project = ComponentTesting.newProjectDto().setKey(ROOT.getKey());
     dbClient.componentDao().insert(session, project);
     dbClient.propertiesDao().insertProperty(session, new PropertyDto().setResourceId(project.getId()).setKey("key").setValue("value"));
     session.commit();
 
-    Settings settings = underTest.getProjectSettings(PROJECT_KEY);
+    Settings settings = underTest.getSettings(ROOT);
 
     assertThat(settings.getString("key")).isEqualTo("value");
   }
@@ -94,10 +95,10 @@ public class ProjectSettingsRepositoryTest {
   public void call_twice_get_project_settings() {
     globalSettings.setProperty("key", "value");
 
-    Settings settings = underTest.getProjectSettings(PROJECT_KEY);
+    Settings settings = underTest.getSettings(ROOT);
     assertThat(settings.getString("key")).isEqualTo("value");
 
-    settings = underTest.getProjectSettings(PROJECT_KEY);
+    settings = underTest.getSettings(ROOT);
     assertThat(settings.getString("key")).isEqualTo("value");
   }
 }
