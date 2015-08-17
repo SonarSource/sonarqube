@@ -2,7 +2,7 @@ define(function () {
 
   return Backbone.Model.extend({
     url: function () {
-      return '/api/issue_filters/show/' + this.id;
+      return baseUrl + '/api/issue_filters/show/' + this.id;
     },
 
     parse: function (r) {
