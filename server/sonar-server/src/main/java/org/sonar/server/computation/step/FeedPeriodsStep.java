@@ -20,6 +20,7 @@
 
 package org.sonar.server.computation.step;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
@@ -50,6 +52,8 @@ import org.sonar.server.computation.period.PeriodsHolderImpl;
 import static org.sonar.db.component.SnapshotQuery.SORT_FIELD.BY_DATE;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.ASC;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.DESC;
+import static org.sonar.server.computation.component.Component.Type.PROJECT;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 /**
  * Populates the {@link org.sonar.server.computation.period.PeriodsHolder}
@@ -82,35 +86,49 @@ public class FeedPeriodsStep implements ComputationStep {
 
   @Override
   public void execute() {
+    new DepthTraversalTypeAwareCrawler(PROJECT, PRE_ORDER) {
+      @Override
+      public void visitProject(Component project) {
+        execute(project);
+      }
+
+      @Override
+      public void visitView(Component view) {
+        execute(view);
+      }
+    }.visit(treeRootHolder.getRoot());
+  }
+
+  public void execute(Component projectOrView) {
     DbSession session = dbClient.openSession(false);
     try {
-      periodsHolder.setPeriods(buildPeriods(session));
+      periodsHolder.setPeriods(buildPeriods(projectOrView, session));
     } finally {
-      session.close();
+      dbClient.closeSession(session);
     }
   }
 
-  private List<Period> buildPeriods(DbSession session) {
-    Component project = treeRootHolder.getRoot();
-    Optional<ComponentDto> projectDto = dbClient.componentDao().selectByKey(session, project.getKey());
+  private List<Period> buildPeriods(Component projectOrView, DbSession session) {
+    Optional<ComponentDto> projectDto = dbClient.componentDao().selectByKey(session, projectOrView.getKey());
     // No project on first analysis, no period
-    if (projectDto.isPresent()) {
-      List<Period> periods = new ArrayList<>(5);
-      PeriodResolver periodResolver = new PeriodResolver(session, projectDto.get().getId(), analysisMetadataHolder.getAnalysisDate().getTime(),
-        project.getReportAttributes().getVersion(),
-        // TODO qualifier will be different for Views
-        Qualifiers.PROJECT);
-
-      for (int index = 1; index <= NUMBER_OF_PERIODS; index++) {
-        Period period = periodResolver.resolve(index);
-        // SONAR-4700 Add a past snapshot only if it exists
-        if (period != null) {
-          periods.add(period);
-        }
-      }
-      return periods;
+    if (!projectDto.isPresent()) {
+      return Collections.emptyList();
     }
-    return Collections.emptyList();
+
+    boolean isReportType = projectOrView.getType().isReportType();
+    PeriodResolver periodResolver = new PeriodResolver(session, projectDto.get().getId(), analysisMetadataHolder.getAnalysisDate().getTime(),
+      isReportType ? projectOrView.getReportAttributes().getVersion() : null,
+      isReportType ? Qualifiers.PROJECT : Qualifiers.VIEW);
+
+    List<Period> periods = new ArrayList<>(5);
+    for (int index = 1; index <= NUMBER_OF_PERIODS; index++) {
+      Period period = periodResolver.resolve(index);
+      // SONAR-4700 Add a past snapshot only if it exists
+      if (period != null) {
+        periods.add(period);
+      }
+    }
+    return periods;
   }
 
   private class PeriodResolver {
@@ -118,10 +136,11 @@ public class FeedPeriodsStep implements ComputationStep {
     private final DbSession session;
     private final long projectId;
     private final long analysisDate;
+    @CheckForNull
     private final String currentVersion;
     private final String qualifier;
 
-    public PeriodResolver(DbSession session, long projectId, long analysisDate, String currentVersion, String qualifier) {
+    public PeriodResolver(DbSession session, long projectId, long analysisDate, @Nullable String currentVersion, String qualifier) {
       this.session = session;
       this.projectId = projectId;
       this.analysisDate = analysisDate;
@@ -194,7 +213,8 @@ public class FeedPeriodsStep implements ComputationStep {
 
     @CheckForNull
     private Period findByPreviousVersion(int index) {
-      List<SnapshotDto> snapshotDtos = dbClient.snapshotDao().selectPreviousVersionSnapshots(session, projectId, currentVersion);
+      String version = Objects.firstNonNull(currentVersion, "");
+      List<SnapshotDto> snapshotDtos = dbClient.snapshotDao().selectPreviousVersionSnapshots(session, projectId, version);
       if (snapshotDtos.isEmpty()) {
         return null;
       }
