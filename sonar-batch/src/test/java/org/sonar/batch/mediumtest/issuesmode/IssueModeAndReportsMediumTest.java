@@ -104,7 +104,7 @@ public class IssueModeAndReportsMediumTest {
       .setChecksum(DigestUtils.md5Hex("dontexist"))
       .setStatus("OPEN")
       .build())
-    // Existing issue on project that is no more detected
+    // Existing issue on project that is still detected
     .mockServerIssue(ServerIssue.newBuilder().setKey("resolved-on-project")
       .setModuleKey("sample")
       .setRuleRepository("xoo")
@@ -156,7 +156,7 @@ public class IssueModeAndReportsMediumTest {
     int openIssues = 0;
     int resolvedIssue = 0;
     for (Issue issue : result.trackedIssues()) {
-      System.out.println(issue.message() + " " + issue.key() + " " + issue.ruleKey());
+      System.out.println(issue.message() + " " + issue.key() + " " + issue.ruleKey() + " " + issue.isNew() + " " + issue.resolution() + " " + issue.componentKey() + " " + issue.line());
       if (issue.isNew()) {
         newIssues++;
       } else if (issue.resolution() != null) {
@@ -165,9 +165,10 @@ public class IssueModeAndReportsMediumTest {
         openIssues++;
       }
     }
+    System.out.println("new: " + newIssues + " open: " +  openIssues + " resolved " + resolvedIssue);
     assertThat(newIssues).isEqualTo(16);
-    assertThat(openIssues).isEqualTo(2);
-    assertThat(resolvedIssue).isEqualTo(2);
+    assertThat(openIssues).isEqualTo(3);
+    assertThat(resolvedIssue).isEqualTo(1);
   }
 
   @Test
@@ -191,7 +192,7 @@ public class IssueModeAndReportsMediumTest {
       .property("sonar.xoo.enablePostJob", "true")
       .start();
 
-    assertThat(logTester.logs()).contains("Resolved issues: 2", "Open issues: 18");
+    assertThat(logTester.logs()).contains("Resolved issues: 1", "Open issues: 19");
   }
 
   private String getReportLog() {
