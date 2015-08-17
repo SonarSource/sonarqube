@@ -86,7 +86,7 @@ define([
           }
           this.issues = new Issues();
           this.listenTo(this.issues, 'change:severity', this.onIssuesSeverityChange);
-          this.listenTo(this.issues, 'locations', this.toggleFlowLocations);
+          this.listenTo(this.issues, 'locations', this.toggleIssueLocations);
           this.issueViews = [];
           this.loadSourceBeforeThrottled = _.throttle(this.loadSourceBefore, 1000);
           this.loadSourceAfterThrottled = _.throttle(this.loadSourceAfter, 1000);
@@ -737,16 +737,16 @@ define([
           $(e.currentTarget).tooltip('destroy');
         },
 
-        toggleFlowLocations: function (issue) {
+        toggleIssueLocations: function (issue) {
           if (this.locationsShowFor === issue) {
-            this.hideFlowLocations();
+            this.hideIssueLocations();
           } else {
-            this.hideFlowLocations();
-            this.showFlowLocations(issue);
+            this.hideIssueLocations();
+            this.showIssueLocations(issue);
           }
         },
 
-        showFlowLocations: function (issue) {
+        showIssueLocations: function (issue) {
           this.locationsShowFor = issue;
           var primaryLocation = {
                 msg: issue.get('message'),
@@ -757,25 +757,32 @@ define([
           issue.get('executionFlows').forEach(function (flow) {
             _locations = [].concat(_locations, flow.locations);
           });
-          _locations.forEach(this.showFlowLocation, this);
+          _locations.forEach(this.showIssueLocation, this);
         },
 
-        showFlowLocation: function (location) {
+        showIssueLocation: function (location, index) {
           if (location && location.textRange) {
             var line = location.textRange.startLine,
-                row = this.$('.source-line-code[data-line-number="' + line + '"]'),
-                renderedFlowLocation = this.renderFlowLocation(location);
-            row.find('.source-line-issue-locations').append(renderedFlowLocation);
-            this.highlightFlowLocationInCode(location);
+                row = this.$('.source-line-code[data-line-number="' + line + '"]');
+
+            if (index > 0 && _.size(location.msg)) {
+              // render location marker only for
+              // secondary locations and execution flows
+              // and only if message is not empty
+              var renderedFlowLocation = this.renderIssueLocation(location);
+              row.find('.source-line-issue-locations').append(renderedFlowLocation);
+            }
+
+            this.highlightIssueLocationInCode(location);
           }
         },
 
-        renderFlowLocation: function (location) {
+        renderIssueLocation: function (location) {
           location.msg = location.msg ? location.msg : ' ';
           return this.issueLocationTemplate(location);
         },
 
-        highlightFlowLocationInCode: function (location) {
+        highlightIssueLocationInCode: function (location) {
           for (var line = location.textRange.startLine; line <= location.textRange.endLine; line++) {
             var row = this.$('.source-line-code[data-line-number="' + line + '"]');
 
@@ -791,7 +798,7 @@ define([
           }
         },
 
-        hideFlowLocations: function () {
+        hideIssueLocations: function () {
           this.locationsShowFor = null;
           this.$('.source-line-issue-locations').empty();
           this.$('.source-line-code-secondary-issue').removeClass('source-line-code-secondary-issue');
