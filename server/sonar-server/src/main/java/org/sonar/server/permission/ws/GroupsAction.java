@@ -58,9 +58,10 @@ public class GroupsAction implements PermissionsWsAction {
     WebService.NewAction action = context.createAction("groups")
       .setSince("5.2")
       .setInternal(true)
-      .setDescription(String.format("List permission's groups.<br /> " +
-        "If the project id or project key is provided, groups with project permissions are returned.<br />" +
-        "If the query parameter '%s' is specified, the '%s' parameter is '%s'.",
+      .setDescription(String.format("Lists the groups that have been explicitly granted the specified permission. <br />" +
+        "This service defaults to global permissions, but can be limited to project permissions by providing a project id or project key. <br />" +
+        "If the query parameter '%s' is specified, the '%s' parameter is forced to '%s'. <br />" +
+        "It requires administration permissions to access.",
         Param.TEXT_QUERY, Param.SELECTED, SelectionMode.ALL.value()))
       .addPagingParams(100)
       .addSearchQuery("sonar", "names")

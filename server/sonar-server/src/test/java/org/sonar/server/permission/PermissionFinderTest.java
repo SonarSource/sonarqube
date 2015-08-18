@@ -95,7 +95,7 @@ public class PermissionFinderTest {
       underTest.findUsersWithPermission(PermissionQuery.builder().permission("user").component("Unknown").build());
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("Component 'Unknown' does not exist");
+      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("Project 'Unknown' does not exist");
     }
   }
 

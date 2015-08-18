@@ -33,6 +33,7 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.server.permission.ws.PermissionWsCommons.GLOBAL_PERMISSIONS_ONE_LINE;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_ID;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_NAME;
+import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_USER_LOGIN;
@@ -92,7 +93,7 @@ public class PermissionRequest {
     }
 
     public PermissionRequest build() {
-      _permission = request.mandatoryParam(PermissionWsCommons.PARAM_PERMISSION);
+      _permission = request.mandatoryParam(PARAM_PERMISSION);
       setUserLogin(request);
       setGroup(request);
       setProject(request);
@@ -174,15 +175,14 @@ public class PermissionRequest {
     private void checkPermissionParameter() {
       if (_hasProject) {
         if (!ComponentPermissions.ALL.contains(_permission)) {
-          throw new BadRequestException(String.format("Incorrect value '%s' for project permissions. Values allowed: %s.", _permission, PROJECT_PERMISSIONS_ONE_LINE));
+          throw new BadRequestException(String.format("Value of parameter '%s' (%s) for project permissions must be one of %s.", PARAM_PERMISSION, _permission,
+            PROJECT_PERMISSIONS_ONE_LINE));
         }
-      } else {
-        if (!GlobalPermissions.ALL.contains(_permission)) {
-          throw new BadRequestException(String.format("Incorrect value '%s' for global permissions. Values allowed: %s.", _permission, GLOBAL_PERMISSIONS_ONE_LINE));
-        }
+      } else if (!GlobalPermissions.ALL.contains(_permission)) {
+        throw new BadRequestException(String.format("Value of parameter '%s' (%s) for global permissions must be one of: %s.", PARAM_PERMISSION, _permission,
+          GLOBAL_PERMISSIONS_ONE_LINE));
       }
     }
-
   }
 
   public String permission() {

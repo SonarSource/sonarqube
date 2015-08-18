@@ -131,7 +131,7 @@ public class PermissionFinder {
     } else {
       ResourceDto resourceDto = resourceDao.selectResource(ResourceQuery.create().setKey(componentKey));
       if (resourceDto == null) {
-        throw new NotFoundException(String.format("Component '%s' does not exist", componentKey));
+        throw new NotFoundException(String.format("Project '%s' does not exist", componentKey));
       }
       return resourceDto.getId();
     }
