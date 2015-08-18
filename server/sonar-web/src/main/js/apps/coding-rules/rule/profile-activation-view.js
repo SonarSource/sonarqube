@@ -112,7 +112,7 @@ define([
         }
       }).done(function () {
         that.destroy();
-        that.trigger('profileActivated', severity, params);
+        that.trigger('profileActivated', severity, params, profileKey);
       }).fail(function (jqXHR) {
         that.enableForm();
         that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);

@@ -62,10 +62,12 @@ define([
             collection: new Backbone.Collection(othersQualityProfiles),
             app: this.options.app
           });
-      activationView.on('profileActivated', function (severity) {
+      activationView.on('profileActivated', function (severity, params, profile) {
         var activation = {
           severity: severity,
-          inherit: 'NONE'
+          inherit: 'NONE',
+          params: params,
+          qProfile: profile
         };
         that.model.set({ activation: activation });
       });

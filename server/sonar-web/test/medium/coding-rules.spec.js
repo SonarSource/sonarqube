@@ -920,5 +920,56 @@ define(function (require) {
           .checkElementExist('.coding-rules-detail-quality-profile-activate')
           .checkElementNotExist('.coding-rules-detail-quality-profile-deactivate');
     });
+
+    bdd.it('should deactivate just activated rule', function () {
+      return this.remote
+          .open()
+          .mockFromString('/api/l10n/index', '{}')
+          .mockFromFile('/api/rules/app', 'coding-rules-spec/app.json')
+          .mockFromFile('/api/rules/search', 'coding-rules-spec/search-inactive.json',
+          { data: { activation: 'false' } })
+          .mockFromFile('/api/rules/search', 'coding-rules-spec/search.json')
+          .mockFromString('/api/qualityprofiles/activate_rule', '{}',
+          {
+            data: {
+              profile_key: 'java-default-with-mojo-conventions-49307',
+              rule_key: 'common-java:FailedUnitTests'
+            }
+          })
+          .mockFromString('/api/qualityprofiles/deactivate_rule', '{}',
+          {
+            data: {
+              profile_key: 'java-default-with-mojo-conventions-49307',
+              rule_key: 'common-java:FailedUnitTests'
+            }
+          })
+          .startApp('coding-rules')
+          .checkElementExist('.coding-rule')
+          .clickElement('[data-property="qprofile"] .js-facet-toggle')
+          .checkElementExist('.js-facet[data-value="java-default-with-mojo-conventions-49307"]')
+          .clickElement('.js-facet[data-value="java-default-with-mojo-conventions-49307"]')
+
+          .clickElement('.js-facet[data-value="java-default-with-mojo-conventions-49307"] .js-inactive')
+          .checkElementNotExist('.coding-rule-activation .icon-severity-major')
+          .checkElementExist('.coding-rules-detail-quality-profile-activate')
+
+          .clickElement('.coding-rules-detail-quality-profile-activate')
+          .checkElementExist('.modal')
+          .checkElementExist('#coding-rules-quality-profile-activation-select')
+          .checkElementCount('#coding-rules-quality-profile-activation-select option', 1)
+          .checkElementExist('#coding-rules-quality-profile-activation-severity')
+          .clickElement('#coding-rules-quality-profile-activation-activate')
+          .checkElementExist('.coding-rule-activation .icon-severity-major')
+          .checkElementExist('.coding-rule-activation .icon-severity-major')
+          .checkElementNotExist('.coding-rules-detail-quality-profile-activate')
+          .checkElementExist('.coding-rules-detail-quality-profile-deactivate')
+
+          .clickElement('.coding-rules-detail-quality-profile-deactivate')
+          .clickElement('[data-confirm="yes"]')
+          .checkElementNotExist('.coding-rule-activation .icon-severity-major')
+          .checkElementNotExist('.coding-rule-activation .icon-severity-major')
+          .checkElementExist('.coding-rules-detail-quality-profile-activate')
+          .checkElementNotExist('.coding-rules-detail-quality-profile-deactivate');
+    });
   });
 });
