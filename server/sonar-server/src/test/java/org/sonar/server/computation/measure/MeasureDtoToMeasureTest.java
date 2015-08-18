@@ -167,7 +167,7 @@ public class MeasureDtoToMeasureTest {
   public void toMeasure_returns_no_value_if_dto_has_no_value_for_Int_Metric() {
     Optional<Measure> measure = underTest.toMeasure(EMPTY_MEASURE_DTO, SOME_INT_METRIC);
 
-    assertThat(measure.isPresent());
+    assertThat(measure.isPresent()).isTrue();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.NO_VALUE);
   }
 
@@ -175,7 +175,7 @@ public class MeasureDtoToMeasureTest {
   public void toMeasure_returns_int_part_of_value_in_dto_for_Int_Metric() {
     Optional<Measure> measure = underTest.toMeasure(new MeasureDto().setValue(1.5d), SOME_INT_METRIC);
 
-    assertThat(measure.isPresent());
+    assertThat(measure.isPresent()).isTrue();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.INT);
     assertThat(measure.get().getIntValue()).isEqualTo(1);
   }
@@ -186,7 +186,7 @@ public class MeasureDtoToMeasureTest {
 
     Optional<Measure> measure = underTest.toMeasure(measureDto, SOME_INT_METRIC);
 
-    assertThat(measure.isPresent());
+    assertThat(measure.isPresent()).isTrue();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.INT);
     assertThat(measure.get().getIntValue()).isEqualTo(10);
     assertThat(measure.get().getData()).isEqualTo(SOME_DATA);
@@ -198,7 +198,7 @@ public class MeasureDtoToMeasureTest {
   public void toMeasure_returns_no_value_if_dto_has_no_value_for_Long_Metric() {
     Optional<Measure> measure = underTest.toMeasure(EMPTY_MEASURE_DTO, SOME_LONG_METRIC);
 
-    assertThat(measure.isPresent());
+    assertThat(measure.isPresent()).isTrue();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.NO_VALUE);
   }
 
@@ -206,7 +206,7 @@ public class MeasureDtoToMeasureTest {
   public void toMeasure_returns_long_part_of_value_in_dto_for_Long_Metric() {
     Optional<Measure> measure = underTest.toMeasure(new MeasureDto().setValue(1.5d), SOME_LONG_METRIC);
 
-    assertThat(measure.isPresent());
+    assertThat(measure.isPresent()).isTrue();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.LONG);
     assertThat(measure.get().getLongValue()).isEqualTo(1);
   }
@@ -217,7 +217,7 @@ public class MeasureDtoToMeasureTest {
 
     Optional<Measure> measure = underTest.toMeasure(measureDto, SOME_LONG_METRIC);
 
-    assertThat(measure.isPresent());
+    assertThat(measure.isPresent()).isTrue();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.LONG);
     assertThat(measure.get().getLongValue()).isEqualTo(10);
     assertThat(measure.get().getData()).isEqualTo(SOME_DATA);
@@ -229,7 +229,7 @@ public class MeasureDtoToMeasureTest {
   public void toMeasure_returns_no_value_if_dto_has_no_value_for_Double_Metric() {
     Optional<Measure> measure = underTest.toMeasure(EMPTY_MEASURE_DTO, SOME_DOUBLE_METRIC);
 
-    assertThat(measure.isPresent());
+    assertThat(measure.isPresent()).isTrue();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.NO_VALUE);
   }
 
@@ -239,7 +239,7 @@ public class MeasureDtoToMeasureTest {
 
     Optional<Measure> measure = underTest.toMeasure(measureDto, SOME_DOUBLE_METRIC);
 
-    assertThat(measure.isPresent());
+    assertThat(measure.isPresent()).isTrue();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.DOUBLE);
     assertThat(measure.get().getDoubleValue()).isEqualTo(10.6d);
     assertThat(measure.get().getData()).isEqualTo(SOME_DATA);
@@ -251,7 +251,7 @@ public class MeasureDtoToMeasureTest {
   public void toMeasure_returns_no_value_if_dto_has_no_value_for_Boolean_metric() {
     Optional<Measure> measure = underTest.toMeasure(EMPTY_MEASURE_DTO, SOME_BOOLEAN_METRIC);
 
-    assertThat(measure.isPresent());
+    assertThat(measure.isPresent()).isTrue();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.NO_VALUE);
   }
 
@@ -259,7 +259,7 @@ public class MeasureDtoToMeasureTest {
   public void toMeasure_returns_false_value_if_dto_has_invalid_value_for_Boolean_metric() {
     Optional<Measure> measure = underTest.toMeasure(new MeasureDto().setValue(1.987d), SOME_BOOLEAN_METRIC);
 
-    assertThat(measure.isPresent());
+    assertThat(measure.isPresent()).isTrue();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.BOOLEAN);
     assertThat(measure.get().getBooleanValue()).isFalse();
   }
@@ -270,7 +270,7 @@ public class MeasureDtoToMeasureTest {
 
     Optional<Measure> measure = underTest.toMeasure(measureDto, SOME_BOOLEAN_METRIC);
 
-    assertThat(measure.isPresent());
+    assertThat(measure.isPresent()).isTrue();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.BOOLEAN);
     assertThat(measure.get().getBooleanValue()).isTrue();
     assertThat(measure.get().getData()).isEqualTo(SOME_DATA);
@@ -282,7 +282,7 @@ public class MeasureDtoToMeasureTest {
   public void toMeasure_returns_no_value_if_dto_has_no_value_for_String_Metric() {
     Optional<Measure> measure = underTest.toMeasure(EMPTY_MEASURE_DTO, SOME_STRING_METRIC);
 
-    assertThat(measure.isPresent());
+    assertThat(measure.isPresent()).isTrue();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.NO_VALUE);
   }
 
@@ -292,7 +292,7 @@ public class MeasureDtoToMeasureTest {
 
     Optional<Measure> measure = underTest.toMeasure(measureDto, SOME_STRING_METRIC);
 
-    assertThat(measure.isPresent());
+    assertThat(measure.isPresent()).isTrue();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.STRING);
     assertThat(measure.get().getStringValue()).isEqualTo(SOME_DATA);
     assertThat(measure.get().getData()).isEqualTo(SOME_DATA);

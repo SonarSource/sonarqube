@@ -278,8 +278,7 @@ public class PermissionService {
 
   private Long getTargetedUser(DbSession session, String userLogin) {
     UserDto user = dbClient.userDao().selectActiveUserByLogin(session, userLogin);
-    badRequestIfNullResult(user, OBJECT_TYPE_USER, userLogin);
-    return user.getId();
+    return badRequestIfNullResult(user, OBJECT_TYPE_USER, userLogin).getId();
   }
 
   @Nullable
@@ -288,8 +287,7 @@ public class PermissionService {
       return null;
     } else {
       GroupDto groupDto = dbClient.userDao().selectGroupByName(group, session);
-      badRequestIfNullResult(groupDto, OBJECT_TYPE_GROUP, group);
-      return groupDto.getId();
+      return badRequestIfNullResult(groupDto, OBJECT_TYPE_GROUP, group).getId();
     }
   }
 
@@ -308,7 +306,7 @@ public class PermissionService {
     }
   }
 
-  private static Object badRequestIfNullResult(@Nullable Object component, String objectType, String objectKey) {
+  private static <T> T badRequestIfNullResult(@Nullable T component, String objectType, String objectKey) {
     if (component == null) {
       throw new BadRequestException(String.format(NOT_FOUND_FORMAT, objectType, objectKey));
     }
