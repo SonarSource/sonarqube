@@ -20,16 +20,27 @@
 
 package org.sonar.db.permission;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import javax.annotation.Nullable;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.GroupRoleDto;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.user.GroupTesting.newGroupDto;
 
 @Category(DbTests.class)
 public class GroupWithPermissionDaoTest {
@@ -40,7 +51,7 @@ public class GroupWithPermissionDaoTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   DbSession session = db.getSession();
 
-  PermissionDao underTest = db.getDbClient().permissionDao();
+  PermissionDao underTest = new PermissionDao(db.myBatis());
 
   @Test
   public void select_groups_for_project_permission() {
@@ -141,4 +152,49 @@ public class GroupWithPermissionDaoTest {
     assertThat(result.get(3).getName()).isEqualTo("sonar-users");
   }
 
+  @Test
+  public void group_count_by_permission_and_component_id() {
+    GroupDto group1 = insertGroup(newGroupDto());
+    GroupDto group2 = insertGroup(newGroupDto());
+    GroupDto group3 = insertGroup(newGroupDto());
+
+    insertGroupRole(ISSUE_ADMIN, group1.getId(), 42L);
+    insertGroupRole(ADMIN, group1.getId(), 123L);
+    insertGroupRole(ADMIN, group2.getId(), 123L);
+    insertGroupRole(ADMIN, group3.getId(), 123L);
+    // anyone group
+    insertGroupRole(ADMIN, null, 123L);
+    insertGroupRole(USER, group1.getId(), 123L);
+    insertGroupRole(USER, group1.getId(), 456L);
+
+    commit();
+
+    final List<CountByProjectAndPermissionDto> result = new ArrayList<>();
+    underTest.groupsCountByComponentIdAndPermission(session, Arrays.asList(123L, 456L, 789L), new ResultHandler() {
+      @Override
+      public void handleResult(ResultContext context) {
+        result.add((CountByProjectAndPermissionDto) context.getResultObject());
+      }
+    });
+
+    assertThat(result).hasSize(3);
+    assertThat(result).extracting("permission").containsOnly(ADMIN, USER);
+    assertThat(result).extracting("componentId").containsOnly(123L, 456L);
+    assertThat(result).extracting("count").containsOnly(4, 1);
+  }
+
+  private GroupDto insertGroup(GroupDto groupDto) {
+    return db.getDbClient().groupDao().insert(session, groupDto);
+  }
+
+  private void insertGroupRole(String permission, @Nullable Long groupId, long componentId) {
+    db.getDbClient().roleDao().insertGroupRole(session, new GroupRoleDto()
+      .setRole(permission)
+      .setGroupId(groupId)
+      .setResourceId(componentId));
+  }
+
+  private void commit() {
+    session.commit();
+  }
 }

@@ -40,6 +40,45 @@
     </where>
   </sql>
 
+  <select id="usersCountByProjectIdAndPermission" parameterType="map"
+          resultType="org.sonar.db.permission.CountByProjectAndPermissionDto">
+    SELECT user_role.resource_id as componentId, user_role.role as permission, count(u.login) as count
+    FROM users u
+    INNER JOIN user_roles user_role ON user_role.user_id=u.id
+    AND user_role.resource_id in
+    <foreach collection="componentIds" open="(" close=")" item="id" separator=",">
+      #{id}
+    </foreach>
+    <where>
+      u.active = ${_true}
+    </where>
+    GROUP BY user_role.resource_id, user_role.role
+  </select>
+
+  <select id="groupsCountByProjectIdAndPermission" parameterType="map"
+          resultType="org.sonar.db.permission.CountByProjectAndPermissionDto">
+    SELECT count(name) as count, permission, componentId
+    FROM
+    (SELECT g.name as name, group_role.role as permission, group_role.resource_id as componentId
+    FROM groups g
+    INNER JOIN group_roles group_role ON group_role.group_id=g.id
+    UNION
+    -- Add Anyone group permission
+    SELECT #{anyoneGroup} as name, group_role.role as permission, group_role.resource_id as componentId
+    FROM group_roles group_role
+    <where>
+      AND group_role.group_id IS NULL
+    </where>
+    ) groups
+    <where>
+      groups.componentId in
+      <foreach collection="componentIds" open="(" close=")" item="id" separator=",">
+        #{id}
+      </foreach>
+    </where>
+    GROUP BY groups.permission, groups.componentId
+  </select>
+
   <select id="countGroups" parameterType="map" resultType="int">
     SELECT count(name)
     FROM

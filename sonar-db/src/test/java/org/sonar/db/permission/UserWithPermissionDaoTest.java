@@ -22,17 +22,27 @@ package org.sonar.db.permission;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserRoleDto;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
 @Category(DbTests.class)
 public class UserWithPermissionDaoTest {
@@ -43,7 +53,7 @@ public class UserWithPermissionDaoTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   DbSession session = dbTester.getSession();
 
-  PermissionDao underTest = dbTester.getDbClient().permissionDao();
+  PermissionDao underTest = new PermissionDao(dbTester.myBatis());
 
   @Test
   public void select_all_users_for_project_permission() {
@@ -165,8 +175,49 @@ public class UserWithPermissionDaoTest {
     assertThat(result.get(0).getName()).isEqualTo("User3");
   }
 
+  @Test
+  public void user_count_by_component_and_permission() {
+    UserDto user1 = insertUser(newUserDto());
+    UserDto user2 = insertUser(newUserDto());
+    UserDto user3 = insertUser(newUserDto());
+
+    insertUserRole(ISSUE_ADMIN, user1.getId(), 42L);
+    insertUserRole(ADMIN, user1.getId(), 123L);
+    insertUserRole(ADMIN, user2.getId(), 123L);
+    insertUserRole(ADMIN, user3.getId(), 123L);
+    insertUserRole(USER, user1.getId(), 123L);
+    insertUserRole(USER, user1.getId(), 456L);
+    commit();
+
+    final List<CountByProjectAndPermissionDto> result = new ArrayList<>();
+    underTest.usersCountByComponentIdAndPermission(dbTester.getSession(), Arrays.asList(123L, 456L, 789L), new ResultHandler() {
+      @Override
+      public void handleResult(ResultContext context) {
+        result.add((CountByProjectAndPermissionDto) context.getResultObject());
+      }
+    });
+    assertThat(result).hasSize(3);
+    assertThat(result).extracting("permission").containsOnly(ADMIN, USER);
+    assertThat(result).extracting("componentId").containsOnly(123L, 456L);
+    assertThat(result).extracting("count").containsOnly(3, 1);
+  }
+
   private List<UserWithPermissionDto> selectUsers(DbSession session, PermissionQuery query, @Nullable Long componentId) {
     return underTest.selectUsers(session, query, componentId, 0, Integer.MAX_VALUE);
   }
 
+  private UserDto insertUser(UserDto userDto) {
+    return dbTester.getDbClient().userDao().insert(dbTester.getSession(), userDto.setActive(true));
+  }
+
+  private void insertUserRole(String permission, long userId, long resourceId) {
+    dbTester.getDbClient().roleDao().insertUserRole(dbTester.getSession(), new UserRoleDto()
+      .setRole(permission)
+      .setUserId(userId)
+      .setResourceId(resourceId));
+  }
+
+  private void commit() {
+    dbTester.getSession().commit();
+  }
 }

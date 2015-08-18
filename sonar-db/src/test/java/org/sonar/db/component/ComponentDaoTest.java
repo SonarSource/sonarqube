@@ -27,15 +27,21 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.sonar.db.component.ComponentTesting.newDeveloper;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newView;
 
 @Category(DbTests.class)
 public class ComponentDaoTest {
@@ -597,5 +603,21 @@ public class ComponentDaoTest {
     db.getSession().commit();
 
     db.assertDbUnit(getClass(), "update-result.xml", "projects");
+  }
+
+  @Test
+  public void select_components_with_paging_query_and_qualifiers() {
+    DbSession session = db.getSession();
+    underTest.insert(session, newProjectDto().setName("aaaa-name"));
+    underTest.insert(session, newView());
+    underTest.insert(session, newDeveloper("project-name"));
+    for (int i = 9; i >= 1; i--) {
+      underTest.insert(session, newProjectDto().setName("project-" + i));
+    }
+
+    List<ComponentDto> result = underTest.selectComponents(session, singleton(Qualifiers.PROJECT), 1, 3, "project");
+
+    assertThat(result).hasSize(3);
+    assertThat(result).extracting("name").containsExactly("project-2", "project-3", "project-4");
   }
 }

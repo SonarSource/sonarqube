@@ -18,18 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.permission.ws;
+package org.sonar.db.user;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.util.Date;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang.math.RandomUtils.nextLong;
 
-public class PermissionsWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new PermissionsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(13);
+public class GroupTesting {
+
+  public static GroupDto newGroupDto() {
+    GroupDto group = new GroupDto()
+      .setName(randomAlphanumeric(255))
+      .setDescription(randomAlphanumeric(200));
+    group.setCreatedAt(new Date(nextLong()));
+    group.setUpdatedAt(new Date(nextLong()));
+    return group;
   }
 }

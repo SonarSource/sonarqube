@@ -172,14 +172,31 @@ public class ComponentDao implements Dao {
    * Returns all projects (Scope {@link org.sonar.api.resources.Scopes#PROJECT} and qualifier
    * {@link org.sonar.api.resources.Qualifiers#PROJECT}) which are enabled.
    *
-   * Uses by Views.
+   * Used by Views.
    */
   public List<ComponentDto> selectProjects(DbSession session) {
     return mapper(session).selectProjects();
   }
 
+  public List<ComponentDto> selectComponents(DbSession session, Collection<String> qualifiers, int offset, int limit, @Nullable String query) {
+    Map<String, Object> parameters = newHashMapWithExpectedSize(2);
+    addProjectQualifier(parameters);
+    addPartialQueryParameterIfNotNull(parameters, query);
+    addQualifiers(parameters, qualifiers);
+
+    return mapper(session).selectComponents(parameters, new RowBounds(offset, limit));
+  }
+
+  public int countRootComponents(DbSession session, Collection<String> qualifiers, @Nullable String query) {
+    Map<String, Object> parameters = newHashMapWithExpectedSize(2);
+    addPartialQueryParameterIfNotNull(parameters, query);
+    addQualifiers(parameters, qualifiers);
+
+    return mapper(session).countRootComponents(parameters);
+  }
+
   public List<ComponentDto> selectProvisionedProjects(DbSession session, int offset, int limit, @Nullable String query) {
-    Map<String, String> parameters = newHashMapWithExpectedSize(2);
+    Map<String, Object> parameters = newHashMapWithExpectedSize(2);
     addProjectQualifier(parameters);
     addPartialQueryParameterIfNotNull(parameters, query);
 
@@ -187,7 +204,7 @@ public class ComponentDao implements Dao {
   }
 
   public int countProvisionedProjects(DbSession session, @Nullable String query) {
-    Map<String, String> parameters = newHashMapWithExpectedSize(2);
+    Map<String, Object> parameters = newHashMapWithExpectedSize(2);
     addProjectQualifier(parameters);
     addPartialQueryParameterIfNotNull(parameters, query);
 
@@ -195,7 +212,7 @@ public class ComponentDao implements Dao {
   }
 
   public List<ComponentDto> selectGhostProjects(DbSession session, int offset, int limit, @Nullable String query) {
-    Map<String, String> parameters = newHashMapWithExpectedSize(2);
+    Map<String, Object> parameters = newHashMapWithExpectedSize(2);
     addProjectQualifier(parameters);
     addPartialQueryParameterIfNotNull(parameters, query);
 
@@ -203,7 +220,7 @@ public class ComponentDao implements Dao {
   }
 
   public long countGhostProjects(DbSession session, @Nullable String query) {
-    Map<String, String> parameters = newHashMapWithExpectedSize(2);
+    Map<String, Object> parameters = newHashMapWithExpectedSize(2);
     addProjectQualifier(parameters);
     addPartialQueryParameterIfNotNull(parameters, query);
 
@@ -228,14 +245,18 @@ public class ComponentDao implements Dao {
     return mapper(dbSession).selectByCustomMeasure(metricKey, metricValue);
   }
 
-  private static void addPartialQueryParameterIfNotNull(Map<String, String> parameters, @Nullable String query) {
-    if (query != null) {
-      parameters.put("query", "%" + query.toUpperCase() + "%");
+  private static void addPartialQueryParameterIfNotNull(Map<String, Object> parameters, @Nullable String keyOrNameFilter) {
+    if (keyOrNameFilter != null) {
+      parameters.put("query", "%" + keyOrNameFilter.toUpperCase() + "%");
     }
   }
 
-  private static void addProjectQualifier(Map<String, String> parameters) {
+  private static void addProjectQualifier(Map<String, Object> parameters) {
     parameters.put("qualifier", Qualifiers.PROJECT);
+  }
+
+  private static void addQualifiers(Map<String, Object> parameters, Collection<String> qualifiers) {
+    parameters.put("qualifiers", qualifiers);
   }
 
   public void insert(DbSession session, ComponentDto item) {

@@ -32,7 +32,10 @@ import org.sonar.db.DbSession;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.user.GroupMembershipQuery;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.Permissions.Permission;
 import org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse;
+
+import static org.sonarqube.ws.Permissions.Permission.newBuilder;
 
 public class SearchGlobalPermissionsAction implements PermissionsWsAction {
   private static final String PROPERTY_PREFIX = "global_permissions.";
@@ -73,12 +76,12 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
 
   private SearchGlobalPermissionsResponse.Builder response(DbSession dbSession) {
     SearchGlobalPermissionsResponse.Builder response = SearchGlobalPermissionsResponse.newBuilder();
-    SearchGlobalPermissionsResponse.Permission.Builder permission = SearchGlobalPermissionsResponse.Permission.newBuilder();
+    Permission.Builder permission = newBuilder();
 
     for (String permissionKey : GlobalPermissions.ALL) {
       PermissionQuery permissionQuery = permissionQuery(permissionKey);
 
-      response.addGlobalPermissions(
+      response.addPermissions(
         permission
           .clear()
           .setKey(permissionKey)
@@ -86,7 +89,7 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
           .setDescription(i18nDescriptionMessage(permissionKey))
           .setUsersCount(countUsers(dbSession, permissionQuery))
           .setGroupsCount(countGroups(dbSession, permissionKey))
-        );
+      );
     }
 
     return response;

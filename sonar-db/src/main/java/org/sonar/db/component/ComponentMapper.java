@@ -71,6 +71,10 @@ public interface ComponentMapper {
    */
   List<ComponentDto> selectProjects();
 
+  List<ComponentDto> selectComponents(Map<String, Object> parameters, RowBounds rowBounds);
+
+  int countRootComponents(Map<String, Object> parameters);
+
   /**
    * Return all descendant modules (including itself) from a given component uuid and scope
    */
@@ -110,13 +114,13 @@ public interface ComponentMapper {
 
   long countById(long id);
 
-  List<ComponentDto> selectProvisionedProjects(Map<String, String> parameters, RowBounds rowBounds);
+  List<ComponentDto> selectProvisionedProjects(Map<String, Object> parameters, RowBounds rowBounds);
 
-  int countProvisionedProjects(Map<String, String> parameters);
+  int countProvisionedProjects(Map<String, Object> parameters);
 
-  List<ComponentDto> selectGhostProjects(Map<String, String> parameters, RowBounds rowBounds);
+  List<ComponentDto> selectGhostProjects(Map<String, Object> parameters, RowBounds rowBounds);
 
-  long countGhostProjects(Map<String, String> parameters);
+  long countGhostProjects(Map<String, Object> parameters);
 
   void insert(ComponentDto componentDto);
 

@@ -160,7 +160,8 @@
   </select>
 
   <sql id="modulesTreeQuery">
-    INNER JOIN projects module ON module.project_uuid = p.project_uuid AND module.uuid = #{moduleUuid} AND module.scope='PRJ' AND module.enabled = ${_true}
+    INNER JOIN projects module ON module.project_uuid = p.project_uuid AND module.uuid = #{moduleUuid} AND
+    module.scope='PRJ' AND module.enabled = ${_true}
     <where>
       <if test="excludeDisabled">
         p.enabled = ${_true}
@@ -217,6 +218,44 @@
       p.enabled=${_true}
       AND p.scope='PRJ'
       AND p.qualifier='TRK'
+    </where>
+  </select>
+
+  <select id="selectComponents" resultType="Component">
+    select
+    <include refid="componentColumns"/>
+    from projects p
+    <where>
+      p.enabled=${_true}
+      AND p.qualifier in
+      <foreach collection="qualifiers" open="(" close=")" item="qualifier" separator=",">
+        #{qualifier}
+      </foreach>
+      <if test="query!=null">
+        and (
+        UPPER(p.name) like #{query}
+        or UPPER(p.kee) like #{query}
+        )
+      </if>
+    </where>
+    ORDER BY UPPER(p.name), p.name
+  </select>
+
+  <select id="countRootComponents" resultType="int">
+    select count(p.id)
+    from projects p
+    <where>
+      p.enabled=${_true}
+      AND p.qualifier in
+      <foreach collection="qualifiers" open="(" close=")" item="qualifier" separator=",">
+        #{qualifier}
+      </foreach>
+      <if test="query!=null">
+        and (
+        UPPER(p.name) like #{query}
+        or UPPER(p.kee) like #{query}
+        )
+      </if>
     </where>
   </select>
 

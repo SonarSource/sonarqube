@@ -45,6 +45,7 @@ import org.sonar.db.permission.UserWithPermissionDto;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.api.utils.Paging.forPageIndex;
 
 @ServerSide
 public class PermissionFinder {
@@ -141,7 +142,10 @@ public class PermissionFinder {
     addAnyoneGroup(dtos, query);
     List<GroupWithPermissionDto> filteredDtos = filterMembership(dtos, query);
 
-    Paging paging = Paging.create(query.pageSize(), query.pageIndex(), filteredDtos.size());
+    Paging paging = forPageIndex(query.pageIndex())
+      .withPageSize(query.pageSize())
+      .andTotal(filteredDtos.size());
+
     List<GroupWithPermission> pagedGroups = pagedGroups(filteredDtos, paging);
     return new GroupWithPermissionQueryResult(pagedGroups, filteredDtos.size());
   }

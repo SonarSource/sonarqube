@@ -18,18 +18,34 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.permission.ws;
+package org.sonar.db.permission;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+public class CountByProjectAndPermissionDto {
+  private long componentId;
+  private String permission;
+  private int count;
 
-import static org.assertj.core.api.Assertions.assertThat;
+  public long getComponentId() {
+    return componentId;
+  }
 
-public class PermissionsWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new PermissionsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(13);
+  public void setComponentId(long componentId) {
+    this.componentId = componentId;
+  }
+
+  public String getPermission() {
+    return permission;
+  }
+
+  public void setPermission(String permission) {
+    this.permission = permission;
+  }
+
+  public int getCount() {
+    return count;
+  }
+
+  public void setCount(int count) {
+    this.count = count;
   }
 }

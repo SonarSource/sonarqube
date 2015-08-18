@@ -120,6 +120,10 @@ public class ComponentTesting {
       .setQualifier(Qualifiers.VIEW);
   }
 
+  public static ComponentDto newView() {
+    return newView(Uuids.create());
+  }
+
   public static ComponentDto newProjectCopy(String uuid, ComponentDto project, ComponentDto view) {
     Preconditions.checkNotNull(project.getId(), "The project need to be persisted before creating this technical project.");
     return newChildComponent(uuid, view)

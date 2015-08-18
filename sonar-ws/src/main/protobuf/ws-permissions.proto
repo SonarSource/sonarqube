@@ -23,7 +23,9 @@ package sonarqube.ws.permissions;
 import "ws-commons.proto";
 
 option java_package = "org.sonarqube.ws";
+
 option java_outer_classname = "Permissions";
+
 option optimize_for = SPEED;
 
 // WS api/permissions/users for internal use only
@@ -53,15 +55,28 @@ message GroupsResponse {
   optional sonarqube.ws.commons.Paging paging = 2;
 }
 
-message SearchGlobalPermissionsResponse {
+message Permission {
+  optional string key = 1;
+  optional string name = 2;
+  optional string description = 3;
+  optional int32 usersCount = 4;
+  optional int32 groupsCount = 5;
+}
 
-  message Permission {
-    optional string key = 1;
-    optional string name = 2;
-    optional string description = 3;
-    optional int32 usersCount = 4;
-    optional int32 groupsCount = 5;
+message SearchGlobalPermissionsResponse {
+  repeated Permission permissions = 1;
+}
+
+message SearchProjectPermissionsResponse {
+  message Project {
+    optional string uuid = 1;
+    optional string key = 2;
+    optional string qualifier = 3;
+    optional string name = 4;
+    repeated Permission permissions = 5;
   }
 
-  repeated Permission globalPermissions = 1;
+  repeated Project projects = 1;
+  repeated Permission permissions = 2;
+  optional sonarqube.ws.commons.Paging paging = 3;
 }

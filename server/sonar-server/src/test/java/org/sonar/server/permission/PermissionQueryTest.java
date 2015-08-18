@@ -37,7 +37,7 @@ public class PermissionQueryTest {
       builder.build();
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(NullPointerException.class).hasMessage("Permission cant be null.");
+      assertThat(e).isInstanceOf(NullPointerException.class).hasMessage("Permission cannot be null.");
     }
   }
 

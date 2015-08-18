@@ -30,9 +30,31 @@ public class Paging {
   private final int total;
 
   private Paging(int pageSize, int pageIndex, int total) {
+    if (pageSize < 1) {
+      throw new IllegalArgumentException("Page size must be strictly positive. Got " + pageSize);
+    }
+    if (pageIndex < 1) {
+      throw new IllegalArgumentException("Page index must be strictly positive. Got " + pageIndex);
+    }
+    if (total < 0) {
+      throw new IllegalArgumentException("Total items must be positive. Got " + total);
+    }
+
     this.pageSize = pageSize;
     this.pageIndex = pageIndex;
     this.total = total;
+  }
+
+  @Deprecated
+  /**
+   * @deprecated since 5.2 please use the forPageIndex(...) builder method
+   */
+  public static Paging create(int pageSize, int pageIndex, int totalItems) {
+    return new Paging(pageSize, pageIndex, totalItems);
+  }
+
+  public static Builder forPageIndex(int pageIndex) {
+    return new Builder(pageIndex);
   }
 
   /**
@@ -56,7 +78,7 @@ public class Paging {
     return total;
   }
 
-  public int offset(){
+  public int offset() {
     return (pageIndex - 1) * pageSize;
   }
 
@@ -75,20 +97,25 @@ public class Paging {
    *
    * @since 4.1
    */
-  public boolean hasNextPage(){
+  public boolean hasNextPage() {
     return pageIndex() < pages();
   }
 
-  public static Paging create(int pageSize, int pageIndex, int totalItems) {
-    if (pageSize<1) {
-      throw new IllegalArgumentException("Page size must be strictly positive. Got " + pageSize);
+  public static class Builder {
+    private int pageSize;
+    private int pageIndex;
+
+    private Builder(int pageIndex) {
+      this.pageIndex = pageIndex;
     }
-    if (pageIndex<1) {
-      throw new IllegalArgumentException("Page index must be strictly positive. Got " + pageIndex);
+
+    public Builder withPageSize(int pageSize) {
+      this.pageSize = pageSize;
+      return this;
     }
-    if (totalItems<0) {
-      throw new IllegalArgumentException("Total items must be positive. Got " + totalItems);
+
+    public Paging andTotal(int total) {
+      return new Paging(pageSize, pageIndex, total);
     }
-    return new Paging(pageSize, pageIndex, totalItems);
   }
 }

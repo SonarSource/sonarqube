@@ -20,14 +20,18 @@
 
 package org.sonar.db.permission;
 
+import com.google.common.base.Function;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
@@ -93,6 +97,39 @@ public class PermissionDao implements Dao {
     parameters.put(COMPONENT_ID_PARAMETER, componentId);
 
     return mapper(session).countGroups(parameters);
+  }
+
+  /**
+   * Each row returns a CountByProjectAndPermissionDto
+   */
+  public void usersCountByComponentIdAndPermission(final DbSession dbSession, List<Long> componentIds, final ResultHandler resultHandler) {
+    final Map<String, Object> parameters = new HashMap<>();
+
+    DatabaseUtils.executeLargeInputsWithoutOutput(componentIds, new Function<List<Long>, Void>() {
+      @Override
+      public Void apply(@Nonnull List<Long> partitionedComponentIds) {
+        parameters.put("componentIds", partitionedComponentIds);
+        mapper(dbSession).usersCountByProjectIdAndPermission(parameters, resultHandler);
+        return null;
+      }
+    });
+  }
+
+  /**
+   * Each row returns a CountByProjectAndPermissionDto
+   */
+  public void groupsCountByComponentIdAndPermission(final DbSession dbSession, final List<Long> componentIds, final ResultHandler resultHandler) {
+    final Map<String, Object> parameters = new HashMap<>();
+    parameters.put("anyoneGroup", DefaultGroups.ANYONE);
+
+    DatabaseUtils.executeLargeInputsWithoutOutput(componentIds, new Function<List<Long>, Void>() {
+      @Override
+      public Void apply(@Nonnull List<Long> partitionedComponentIds) {
+        parameters.put("componentIds", partitionedComponentIds);
+        mapper(dbSession).groupsCountByProjectIdAndPermission(parameters, resultHandler);
+        return null;
+      }
+    });
   }
 
   private static Map<String, Object> groupsParameters(PermissionQuery query, @Nullable Long componentId) {
