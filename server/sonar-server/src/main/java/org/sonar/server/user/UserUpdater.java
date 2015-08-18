@@ -63,6 +63,8 @@ public class UserUpdater {
 
   private static final int LOGIN_MIN_LENGTH = 3;
   private static final int LOGIN_MAX_LENGTH = 255;
+  private static final int EMAIL_MAX_LENGTH = 100;
+  private static final int NAME_MAX_LENGTH = 200;
 
   private final NewUserNotifier newUserNotifier;
   private final Settings settings;
@@ -235,7 +237,7 @@ public class UserUpdater {
     if (!Strings.isNullOrEmpty(login)) {
       if (login.length() < LOGIN_MIN_LENGTH) {
         messages.add(Message.of(Validation.IS_TOO_SHORT_MESSAGE, LOGIN_PARAM, LOGIN_MIN_LENGTH));
-      } else if (login.length() >= LOGIN_MAX_LENGTH) {
+      } else if (login.length() > LOGIN_MAX_LENGTH) {
         messages.add(Message.of(Validation.IS_TOO_LONG_MESSAGE, LOGIN_PARAM, LOGIN_MAX_LENGTH));
       } else if (!login.matches("\\A\\w[\\w\\.\\-_@\\s]+\\z")) {
         messages.add(Message.of("user.bad_login"));
@@ -245,13 +247,13 @@ public class UserUpdater {
 
   private static void validateNameFormat(@Nullable String name, List<Message> messages) {
     checkNotEmptyParam(name, NAME_PARAM, messages);
-    if (name != null && name.length() >= 200) {
+    if (name != null && name.length() > NAME_MAX_LENGTH) {
       messages.add(Message.of(Validation.IS_TOO_LONG_MESSAGE, NAME_PARAM, 200));
     }
   }
 
   private static void validateEmailFormat(@Nullable String email, List<Message> messages) {
-    if (email != null && email.length() >= 100) {
+    if (email != null && email.length() > EMAIL_MAX_LENGTH) {
       messages.add(Message.of(Validation.IS_TOO_LONG_MESSAGE, EMAIL_PARAM, 100));
     }
   }
