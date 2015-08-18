@@ -73,7 +73,7 @@ define([
 
     unsetActivation: function (e) {
       e.stopPropagation();
-      this.options.app.state.updateFilter({ activation: 'false' });
+      this.options.app.state.updateFilter({ activation: 'false', active_severities: null });
     },
 
     getToggled: function () {
