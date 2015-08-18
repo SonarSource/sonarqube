@@ -54,17 +54,17 @@ public class PermissionRequest {
   private final String query;
 
   private PermissionRequest(Builder builder) {
-    permission = builder._permission;
-    userLogin = builder._userLogin;
-    groupId = builder._groupId;
-    groupName = builder._groupName;
-    projectUuid = builder._projectUuid;
-    projectKey = builder._projectKey;
-    hasProject = builder._hasProject;
-    page = builder._page;
-    pageSize = builder._pageSize;
-    selected = builder._selected;
-    query = builder._query;
+    permission = builder.permission;
+    userLogin = builder.userLogin;
+    groupId = builder.groupId;
+    groupName = builder.groupName;
+    projectUuid = builder.projectUuid;
+    projectKey = builder.projectKey;
+    hasProject = builder.hasProject;
+    page = builder.page;
+    pageSize = builder.pageSize;
+    selected = builder.selected;
+    query = builder.query;
   }
 
   public static class Builder {
@@ -75,25 +75,25 @@ public class PermissionRequest {
     private boolean withGroup;
     private boolean withPagination;
 
-    private String _permission;
-    private String _userLogin;
+    private String permission;
+    private String userLogin;
 
-    private Long _groupId;
-    private String _groupName;
-    private String _projectUuid;
-    private String _projectKey;
-    private boolean _hasProject;
-    private Integer _page;
-    private Integer _pageSize;
-    private String _selected;
-    private String _query;
+    private Long groupId;
+    private String groupName;
+    private String projectUuid;
+    private String projectKey;
+    private boolean hasProject;
+    private Integer page;
+    private Integer pageSize;
+    private String selected;
+    private String query;
 
     public Builder(Request request) {
       this.request = request;
     }
 
     public PermissionRequest build() {
-      _permission = request.mandatoryParam(PARAM_PERMISSION);
+      permission = request.mandatoryParam(PARAM_PERMISSION);
       setUserLogin(request);
       setGroup(request);
       setProject(request);
@@ -122,65 +122,65 @@ public class PermissionRequest {
 
     private void setQuery(Request request) {
       if (request.hasParam(TEXT_QUERY)) {
-        _query = request.param(TEXT_QUERY);
-        if (_query != null) {
-          _selected = SelectionMode.ALL.value();
+        query = request.param(TEXT_QUERY);
+        if (query != null) {
+          selected = SelectionMode.ALL.value();
         }
       }
     }
 
     private void setSelected(Request request) {
       if (request.hasParam(SELECTED)) {
-        _selected = request.mandatoryParam(SELECTED);
+        selected = request.mandatoryParam(SELECTED);
       }
     }
 
     private void setPaging(Request request) {
       if (withPagination) {
-        _page = request.mandatoryParamAsInt(PAGE);
-        _pageSize = request.mandatoryParamAsInt(PAGE_SIZE);
+        page = request.mandatoryParamAsInt(PAGE);
+        pageSize = request.mandatoryParamAsInt(PAGE_SIZE);
       }
     }
 
     private void setUserLogin(Request request) {
       if (withUser) {
-        _userLogin = request.mandatoryParam(PARAM_USER_LOGIN);
+        userLogin = request.mandatoryParam(PARAM_USER_LOGIN);
       }
     }
 
     private void setGroup(Request request) {
       if (withGroup) {
-        Long groupId = request.paramAsLong(PARAM_GROUP_ID);
-        String groupName = request.param(PARAM_GROUP_NAME);
-        checkRequest(groupId != null ^ groupName != null, "Group name or group id must be provided, not both.");
-        _groupId = groupId;
-        _groupName = groupName;
+        Long groupIdParam = request.paramAsLong(PARAM_GROUP_ID);
+        String groupNameParam = request.param(PARAM_GROUP_NAME);
+        checkRequest(groupIdParam != null ^ groupNameParam != null, "Group name or group id must be provided, not both.");
+        this.groupId = groupIdParam;
+        this.groupName = groupNameParam;
       }
     }
 
     private void setProject(Request request) {
       if (request.hasParam(PARAM_PROJECT_UUID) || request.hasParam(PARAM_PROJECT_KEY)) {
-        String projectUuid = request.param(PARAM_PROJECT_UUID);
-        String projectKey = request.param(PARAM_PROJECT_KEY);
+        String projectUuidParam = request.param(PARAM_PROJECT_UUID);
+        String projectKeyParam = request.param(PARAM_PROJECT_KEY);
 
-        if (projectUuid != null || projectKey != null) {
-          checkRequest(projectUuid != null ^ projectKey != null, "Project id or project key can be provided, not both.");
-          _projectUuid = projectUuid;
-          _projectKey = projectKey;
-          _hasProject = true;
+        if (projectUuidParam != null || projectKeyParam != null) {
+          checkRequest(projectUuidParam != null ^ projectKeyParam != null, "Project id or project key can be provided, not both.");
+          this.projectUuid = projectUuidParam;
+          this.projectKey = projectKeyParam;
+          hasProject = true;
         }
       }
     }
 
     private void checkPermissionParameter() {
-      if (_hasProject) {
-        if (!ComponentPermissions.ALL.contains(_permission)) {
+      if (hasProject) {
+        if (!ComponentPermissions.ALL.contains(permission)) {
           throw new BadRequestException(String.format("The '%s' parameter for project permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION,
-            PROJECT_PERMISSIONS_ONE_LINE, _permission));
+            PROJECT_PERMISSIONS_ONE_LINE, permission));
         }
-      } else if (!GlobalPermissions.ALL.contains(_permission)) {
+      } else if (!GlobalPermissions.ALL.contains(permission)) {
         throw new BadRequestException(String.format("The '%s' parameter for global permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION, GLOBAL_PERMISSIONS_ONE_LINE,
-          _permission
+          permission
           ));
       }
     }

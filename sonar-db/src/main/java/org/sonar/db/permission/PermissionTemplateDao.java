@@ -108,7 +108,7 @@ public class PermissionTemplateDao implements Dao {
     return mapper(session).countGroups(parameters);
   }
 
-  private Map<String, Object> groupsParamaters(PermissionQuery query, Long templateId) {
+  private static Map<String, Object> groupsParamaters(PermissionQuery query, Long templateId) {
     Map<String, Object> params = newHashMap();
     params.put(QUERY_PARAMETER, query);
     params.put(TEMPLATE_ID_PARAMETER, templateId);

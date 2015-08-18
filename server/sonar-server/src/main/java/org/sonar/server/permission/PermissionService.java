@@ -234,7 +234,7 @@ public class PermissionService {
     return true;
   }
 
-  private void checkNotAnyoneAndAdmin(String permission, String group) {
+  private static void checkNotAnyoneAndAdmin(String permission, String group) {
     if (GlobalPermissions.SYSTEM_ADMIN.equals(permission)
       && DefaultGroups.isAnyone(group)) {
       throw new BadRequestException(String.format("It is not possible to add the '%s' permission to the '%s' group.", permission, group));

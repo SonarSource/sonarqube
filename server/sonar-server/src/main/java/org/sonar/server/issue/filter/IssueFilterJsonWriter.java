@@ -48,7 +48,7 @@ public class IssueFilterJsonWriter {
       .endObject();
   }
 
-  private boolean canModifyFilter(UserSession userSession, IssueFilterDto filter) {
+  private static boolean canModifyFilter(UserSession userSession, IssueFilterDto filter) {
     return userSession.isLoggedIn() &&
       (StringUtils.equals(filter.getUserLogin(), userSession.getLogin()) || userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN));
   }
