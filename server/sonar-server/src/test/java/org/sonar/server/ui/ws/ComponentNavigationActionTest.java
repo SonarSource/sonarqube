@@ -49,7 +49,7 @@ import org.sonar.db.dashboard.ActiveDashboardDto;
 import org.sonar.db.dashboard.DashboardDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.component.ComponentTesting;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;

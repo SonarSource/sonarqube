@@ -37,7 +37,7 @@ import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserRoleDto;
-import org.sonar.server.component.ComponentTesting;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.QProfileTesting;

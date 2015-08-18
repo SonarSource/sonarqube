@@ -37,7 +37,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.RoleDao;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.component.ComponentTesting;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.issue.index.IssueIndexDefinition;

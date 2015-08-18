@@ -44,7 +44,7 @@ import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.component.ComponentTesting;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;

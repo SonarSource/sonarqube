@@ -38,7 +38,7 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
 public class ViewProxyTest {
 

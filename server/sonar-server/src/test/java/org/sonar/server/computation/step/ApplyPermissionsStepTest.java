@@ -39,7 +39,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupRoleDto;
-import org.sonar.server.component.ComponentTesting;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;

@@ -38,8 +38,8 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.server.component.ComponentTesting.newFileDto;
-import static org.sonar.server.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.test.ws.CoveredFilesAction.TEST_UUID;
 
 public class CoveredFilesActionTest {

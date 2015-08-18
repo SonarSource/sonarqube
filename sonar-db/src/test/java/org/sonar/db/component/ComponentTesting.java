@@ -18,13 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.component;
+package org.sonar.db.component;
 
 import com.google.common.base.Preconditions;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.internal.Uuids;
-import org.sonar.db.component.ComponentDto;
 
 import static org.sonar.db.component.ComponentDto.MODULE_UUID_PATH_SEP;
 

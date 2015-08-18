@@ -27,7 +27,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
 import org.sonar.db.user.AuthorizationDao;
-import org.sonar.server.component.ComponentTesting;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 
 import static com.google.common.collect.Lists.newArrayList;
