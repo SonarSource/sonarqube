@@ -30,6 +30,7 @@ import org.sonar.db.event.EventDto;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentVisitor;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
@@ -63,7 +64,7 @@ public class PersistEventsStep implements ComputationStep {
     final DbSession session = dbClient.openSession(false);
     try {
       long analysisDate = analysisMetadataHolder.getAnalysisDate().getTime();
-      new DepthTraversalTypeAwareCrawler(new PersistEventComponentCrawler(session, analysisDate))
+      new DepthTraversalTypeAwareCrawler(new PersistEventComponentVisitor(session, analysisDate))
         .visit(treeRootHolder.getRoot());
       session.commit();
     } finally {
@@ -135,12 +136,12 @@ public class PersistEventsStep implements ComputationStep {
     return "Persist component links";
   }
 
-  private class PersistEventComponentCrawler extends TypeAwareVisitorAdapter {
+  private class PersistEventComponentVisitor extends TypeAwareVisitorAdapter {
     private final DbSession session;
     private final long analysisDate;
 
-    public PersistEventComponentCrawler(DbSession session, long analysisDate) {
-      super(Component.Type.FILE, ComponentVisitor.Order.PRE_ORDER);
+    public PersistEventComponentVisitor(DbSession session, long analysisDate) {
+      super(CrawlerDepthLimit.FILE, ComponentVisitor.Order.PRE_ORDER);
       this.session = session;
       this.analysisDate = analysisDate;
     }

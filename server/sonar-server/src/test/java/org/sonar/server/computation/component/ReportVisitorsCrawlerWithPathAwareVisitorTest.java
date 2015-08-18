@@ -69,7 +69,7 @@ public class ReportVisitorsCrawlerWithPathAwareVisitorTest {
 
   @Test
   public void verify_preOrder_visit_call_when_visit_tree_with_depth_FILE() {
-    CallRecorderPathAwareVisitor visitor = new CallRecorderPathAwareVisitor(FILE, PRE_ORDER);
+    CallRecorderPathAwareVisitor visitor = new CallRecorderPathAwareVisitor(CrawlerDepthLimit.FILE, PRE_ORDER);
     VisitorsCrawler underTest = newVisitorsCrawler(visitor);
     underTest.visit(SOME_TREE_ROOT);
 
@@ -102,7 +102,7 @@ public class ReportVisitorsCrawlerWithPathAwareVisitorTest {
 
   @Test
   public void verify_preOrder_visit_call_when_visit_tree_with_depth_DIRECTORY() {
-    CallRecorderPathAwareVisitor visitor = new CallRecorderPathAwareVisitor(DIRECTORY, PRE_ORDER);
+    CallRecorderPathAwareVisitor visitor = new CallRecorderPathAwareVisitor(CrawlerDepthLimit.DIRECTORY, PRE_ORDER);
     VisitorsCrawler underTest = newVisitorsCrawler(visitor);
     underTest.visit(SOME_TREE_ROOT);
 
@@ -127,7 +127,7 @@ public class ReportVisitorsCrawlerWithPathAwareVisitorTest {
 
   @Test
   public void verify_preOrder_visit_call_when_visit_tree_with_depth_MODULE() {
-    CallRecorderPathAwareVisitor visitor = new CallRecorderPathAwareVisitor(MODULE, PRE_ORDER);
+    CallRecorderPathAwareVisitor visitor = new CallRecorderPathAwareVisitor(CrawlerDepthLimit.MODULE, PRE_ORDER);
     VisitorsCrawler underTest = newVisitorsCrawler(visitor);
     underTest.visit(SOME_TREE_ROOT);
 
@@ -146,7 +146,7 @@ public class ReportVisitorsCrawlerWithPathAwareVisitorTest {
 
   @Test
   public void verify_preOrder_visit_call_when_visit_tree_with_depth_PROJECT() {
-    CallRecorderPathAwareVisitor visitor = new CallRecorderPathAwareVisitor(PROJECT, PRE_ORDER);
+    CallRecorderPathAwareVisitor visitor = new CallRecorderPathAwareVisitor(CrawlerDepthLimit.PROJECT, PRE_ORDER);
     VisitorsCrawler underTest = newVisitorsCrawler(visitor);
     underTest.visit(SOME_TREE_ROOT);
 
@@ -159,7 +159,7 @@ public class ReportVisitorsCrawlerWithPathAwareVisitorTest {
 
   @Test
   public void verify_postOrder_visit_call_when_visit_tree_with_depth_FILE() {
-    CallRecorderPathAwareVisitor visitor = new CallRecorderPathAwareVisitor(FILE, POST_ORDER);
+    CallRecorderPathAwareVisitor visitor = new CallRecorderPathAwareVisitor(CrawlerDepthLimit.FILE, POST_ORDER);
     VisitorsCrawler underTest = newVisitorsCrawler(visitor);
     underTest.visit(SOME_TREE_ROOT);
 
@@ -192,7 +192,7 @@ public class ReportVisitorsCrawlerWithPathAwareVisitorTest {
 
   @Test
   public void verify_postOrder_visit_call_when_visit_tree_with_depth_DIRECTORY() {
-    CallRecorderPathAwareVisitor visitor = new CallRecorderPathAwareVisitor(DIRECTORY, POST_ORDER);
+    CallRecorderPathAwareVisitor visitor = new CallRecorderPathAwareVisitor(CrawlerDepthLimit.DIRECTORY, POST_ORDER);
     VisitorsCrawler underTest = newVisitorsCrawler(visitor);
     underTest.visit(SOME_TREE_ROOT);
 
@@ -217,7 +217,7 @@ public class ReportVisitorsCrawlerWithPathAwareVisitorTest {
 
   @Test
   public void verify_postOrder_visit_call_when_visit_tree_with_depth_MODULE() {
-    CallRecorderPathAwareVisitor visitor = new CallRecorderPathAwareVisitor(MODULE, POST_ORDER);
+    CallRecorderPathAwareVisitor visitor = new CallRecorderPathAwareVisitor(CrawlerDepthLimit.MODULE, POST_ORDER);
     VisitorsCrawler underTest = newVisitorsCrawler(visitor);
     underTest.visit(SOME_TREE_ROOT);
 
@@ -236,7 +236,7 @@ public class ReportVisitorsCrawlerWithPathAwareVisitorTest {
 
   @Test
   public void verify_postOrder_visit_call_when_visit_tree_with_depth_PROJECT() {
-    CallRecorderPathAwareVisitor visitor = new CallRecorderPathAwareVisitor(PROJECT, POST_ORDER);
+    CallRecorderPathAwareVisitor visitor = new CallRecorderPathAwareVisitor(CrawlerDepthLimit.PROJECT, POST_ORDER);
     VisitorsCrawler underTest = newVisitorsCrawler(visitor);
     underTest.visit(SOME_TREE_ROOT);
 

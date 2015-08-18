@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentVisitor;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.PathAwareVisitorAdapter;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
@@ -125,7 +126,7 @@ public class ExecuteVisitorsStepTest {
   private class TestTypeAwareVisitor extends TypeAwareVisitorAdapter {
 
     public TestTypeAwareVisitor() {
-      super(Component.Type.FILE, ComponentVisitor.Order.POST_ORDER);
+      super(CrawlerDepthLimit.FILE, ComponentVisitor.Order.POST_ORDER);
     }
 
     @Override
@@ -138,7 +139,7 @@ public class ExecuteVisitorsStepTest {
   private class TestPathAwareVisitor extends PathAwareVisitorAdapter<Counter> {
 
     public TestPathAwareVisitor() {
-      super(Component.Type.FILE, ComponentVisitor.Order.POST_ORDER, new SimpleStackElementFactory<Counter>() {
+      super(CrawlerDepthLimit.FILE, ComponentVisitor.Order.POST_ORDER, new SimpleStackElementFactory<Counter>() {
         @Override
         public Counter createForAny(Component component) {
           return new Counter();

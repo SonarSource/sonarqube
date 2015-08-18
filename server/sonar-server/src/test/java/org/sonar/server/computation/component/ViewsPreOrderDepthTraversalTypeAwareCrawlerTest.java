@@ -37,9 +37,9 @@ public class ViewsPreOrderDepthTraversalTypeAwareCrawlerTest {
   private static final Component SUBVIEW_2 = component(SUBVIEW, 2, SUBVIEW_3);
   private static final Component COMPONENT_TREE = component(VIEW, 1, SUBVIEW_2);
 
-  private final CallRecorderTypeAwareVisitor viewVisitor = new CallRecorderTypeAwareVisitor(VIEW, PRE_ORDER);
-  private final CallRecorderTypeAwareVisitor subViewVisitor = new CallRecorderTypeAwareVisitor(SUBVIEW, PRE_ORDER);
-  private final CallRecorderTypeAwareVisitor projectViewVisitor = new CallRecorderTypeAwareVisitor(PROJECT_VIEW, PRE_ORDER);
+  private final CallRecorderTypeAwareVisitor viewVisitor = new CallRecorderTypeAwareVisitor(CrawlerDepthLimit.VIEW, PRE_ORDER);
+  private final CallRecorderTypeAwareVisitor subViewVisitor = new CallRecorderTypeAwareVisitor(CrawlerDepthLimit.SUBVIEW, PRE_ORDER);
+  private final CallRecorderTypeAwareVisitor projectViewVisitor = new CallRecorderTypeAwareVisitor(CrawlerDepthLimit.PROJECT_VIEW, PRE_ORDER);
 
   private final DepthTraversalTypeAwareCrawler viewCrawler = new DepthTraversalTypeAwareCrawler(viewVisitor);
   private final DepthTraversalTypeAwareCrawler subViewCrawler = new DepthTraversalTypeAwareCrawler(subViewVisitor);

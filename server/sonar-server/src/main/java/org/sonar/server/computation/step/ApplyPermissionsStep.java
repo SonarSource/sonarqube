@@ -26,13 +26,13 @@ import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.permission.PermissionRepository;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 
-import static org.sonar.server.computation.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 /**
@@ -58,7 +58,7 @@ public class ApplyPermissionsStep implements ComputationStep {
   @Override
   public void execute() {
     new DepthTraversalTypeAwareCrawler(
-      new TypeAwareVisitorAdapter(PROJECT, PRE_ORDER) {
+      new TypeAwareVisitorAdapter(CrawlerDepthLimit.PROJECT, PRE_ORDER) {
         @Override
         public void visitProject(Component project) {
           execute(project);

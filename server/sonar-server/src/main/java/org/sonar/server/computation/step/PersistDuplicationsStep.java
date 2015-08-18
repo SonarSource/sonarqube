@@ -32,6 +32,7 @@ import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.ReportTreeRootHolder;
@@ -75,7 +76,7 @@ public class PersistDuplicationsStep implements ComputationStep {
     private final MetricDto duplicationMetric;
 
     private DuplicationVisitor(DbSession session, MetricDto duplicationMetric) {
-      super(Component.Type.FILE, PRE_ORDER);
+      super(CrawlerDepthLimit.FILE, PRE_ORDER);
       this.session = session;
       this.duplicationMetric = duplicationMetric;
     }

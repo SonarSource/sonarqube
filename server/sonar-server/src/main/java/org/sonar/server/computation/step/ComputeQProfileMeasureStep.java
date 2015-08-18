@@ -26,6 +26,7 @@ import java.util.Map;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.MessageException;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.PathAwareVisitorAdapter;
 import org.sonar.server.computation.component.TreeRootHolder;
@@ -36,7 +37,6 @@ import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.computation.qualityprofile.QPMeasureData;
 import org.sonar.server.computation.qualityprofile.QualityProfile;
 
-import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 
 /**
@@ -66,7 +66,7 @@ public class ComputeQProfileMeasureStep implements ComputationStep {
     private final Metric qProfilesMetric;
 
     public NewCoverageAggregationComponentCrawler(Metric qProfilesMetric) {
-      super(MODULE, POST_ORDER, new SimpleStackElementFactory<QProfiles>() {
+      super(CrawlerDepthLimit.MODULE, POST_ORDER, new SimpleStackElementFactory<QProfiles>() {
         @Override
         public QProfiles createForAny(Component component) {
           return new QProfiles();

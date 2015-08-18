@@ -40,7 +40,7 @@ public final class PathAwareCrawler<T> implements ComponentCrawler {
 
   @Override
   public void visit(Component component) {
-    if (component.getType().isDeeperThan(this.visitor.getMaxDepth())) {
+    if (!verifyDepth(component)) {
       return;
     }
 
@@ -59,9 +59,14 @@ public final class PathAwareCrawler<T> implements ComponentCrawler {
     stack.pop();
   }
 
+  private boolean verifyDepth(Component component) {
+    CrawlerDepthLimit maxDepth = this.visitor.getMaxDepth();
+    return maxDepth.isSameAs(component.getType()) || maxDepth.isDeeperThan(component.getType());
+  }
+
   private void visitChildren(Component component) {
     for (Component child : component.getChildren()) {
-      if (!child.getType().isDeeperThan(this.visitor.getMaxDepth())) {
+      if (verifyDepth(component)) {
         visit(child);
       }
     }

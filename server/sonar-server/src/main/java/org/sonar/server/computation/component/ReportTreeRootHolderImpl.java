@@ -37,7 +37,7 @@ public class ReportTreeRootHolderImpl extends TreeRootHolderImpl implements Repo
 
   private void feedComponentsByRef(Component newRoot) {
     new DepthTraversalTypeAwareCrawler(
-      new TypeAwareVisitorAdapter(Component.Type.FILE, POST_ORDER) {
+      new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, POST_ORDER) {
         @Override
         public void visitAny(Component component) {
           componentsByRef.put(component.getReportAttributes().getRef(), component);

@@ -27,16 +27,16 @@ import static java.util.Objects.requireNonNull;
  */
 public abstract class TypeAwareVisitorAdapter implements TypeAwareVisitor {
 
-  protected final Component.Type maxDepth;
+  protected final CrawlerDepthLimit maxDepth;
   protected final Order order;
 
-  public TypeAwareVisitorAdapter(Component.Type maxDepth, Order order) {
+  public TypeAwareVisitorAdapter(CrawlerDepthLimit maxDepth, Order order) {
     this.maxDepth = requireNonNull(maxDepth);
     this.order = requireNonNull(order);
   }
 
   @Override
-  public Component.Type getMaxDepth() {
+  public CrawlerDepthLimit getMaxDepth() {
     return maxDepth;
   }
 

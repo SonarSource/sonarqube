@@ -41,11 +41,11 @@ public class ViewsVisitorsCrawlerWithPreOrderTypeAwareVisitorTest {
   private static final Component SUBVIEW_2 = component(SUBVIEW, 2, SUBVIEW_3);
   private static final Component COMPONENT_TREE = component(VIEW, 1, SUBVIEW_2);
 
-  private final TypeAwareVisitor spyViewVisitor = spy(new TypeAwareVisitorAdapter(VIEW, PRE_ORDER) {
+  private final TypeAwareVisitor spyViewVisitor = spy(new TypeAwareVisitorAdapter(CrawlerDepthLimit.VIEW, PRE_ORDER) {
   });
-  private final TypeAwareVisitor spySubViewVisitor = spy(new TypeAwareVisitorAdapter(SUBVIEW, PRE_ORDER) {
+  private final TypeAwareVisitor spySubViewVisitor = spy(new TypeAwareVisitorAdapter(CrawlerDepthLimit.SUBVIEW, PRE_ORDER) {
   });
-  private final TypeAwareVisitor spyProjectViewVisitor = spy(new TypeAwareVisitorAdapter(PROJECT_VIEW, PRE_ORDER) {
+  private final TypeAwareVisitor spyProjectViewVisitor = spy(new TypeAwareVisitorAdapter(CrawlerDepthLimit.PROJECT_VIEW, PRE_ORDER) {
   });
   private final InOrder inOrder = inOrder(spyViewVisitor, spySubViewVisitor, spyProjectViewVisitor);
 

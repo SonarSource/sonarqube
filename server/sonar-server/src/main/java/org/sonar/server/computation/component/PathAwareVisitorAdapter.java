@@ -26,18 +26,18 @@ import static java.util.Objects.requireNonNull;
  * A adapter of the {@link PathAwareVisitor} to be able to visit only some component types
  */
 public abstract class PathAwareVisitorAdapter<T> implements PathAwareVisitor<T> {
-  private final Component.Type maxDepth;
+  private final CrawlerDepthLimit maxDepth;
   private final Order order;
   private final StackElementFactory<T> factory;
 
-  public PathAwareVisitorAdapter(Component.Type maxDepth, Order order, StackElementFactory<T> factory) {
+  public PathAwareVisitorAdapter(CrawlerDepthLimit maxDepth, Order order, StackElementFactory<T> factory) {
     this.maxDepth = requireNonNull(maxDepth);
     this.order = requireNonNull(order);
     this.factory = requireNonNull(factory, "Factory can not be null");
   }
 
   @Override
-  public Component.Type getMaxDepth() {
+  public CrawlerDepthLimit getMaxDepth() {
     return maxDepth;
   }
 

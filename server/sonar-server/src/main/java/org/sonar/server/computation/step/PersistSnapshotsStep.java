@@ -40,6 +40,10 @@ import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
 
+import static org.sonar.server.computation.component.Component.Type.FILE;
+import static org.sonar.server.computation.component.Component.Type.PROJECT_VIEW;
+import static org.sonar.server.computation.component.CrawlerDepthLimit.reportMaxDepth;
+
 /**
  * Persist snapshots
  * Also feed the components cache {@link DbIdsRepositoryImpl} with snapshot ids
@@ -68,7 +72,7 @@ public class PersistSnapshotsStep implements ComputationStep {
     DbSession session = dbClient.openSession(false);
     try {
       new PathAwareCrawler<>(
-        new PersistSnapshotsPathAwareCrawler(session, analysisMetadataHolder.getAnalysisDate().getTime(), dbIdsRepository))
+        new PersistSnapshotsPathAwareVisitor(session, analysisMetadataHolder.getAnalysisDate().getTime(), dbIdsRepository))
           .visit(treeRootHolder.getRoot());
       session.commit();
     } finally {
@@ -76,7 +80,7 @@ public class PersistSnapshotsStep implements ComputationStep {
     }
   }
 
-  private class PersistSnapshotsPathAwareCrawler extends PathAwareVisitorAdapter<SnapshotDtoHolder> {
+  private class PersistSnapshotsPathAwareVisitor extends PathAwareVisitorAdapter<SnapshotDtoHolder> {
 
     private final DbSession dbSession;
     private final long analysisDate;
@@ -84,8 +88,8 @@ public class PersistSnapshotsStep implements ComputationStep {
 
     private long rootId;
 
-    public PersistSnapshotsPathAwareCrawler(DbSession dbSession, long analysisDate, DbIdsRepository dbIdsRepository) {
-      super(Component.Type.FILE, Order.PRE_ORDER, SnapshotDtoHolderFactory.INSTANCE);
+    public PersistSnapshotsPathAwareVisitor(DbSession dbSession, long analysisDate, DbIdsRepository dbIdsRepository) {
+      super(reportMaxDepth(FILE).withViewsMaxDepth(PROJECT_VIEW), Order.PRE_ORDER, SnapshotDtoHolderFactory.INSTANCE);
       this.dbSession = dbSession;
       this.analysisDate = analysisDate;
       this.dbIdsRepository = dbIdsRepository;

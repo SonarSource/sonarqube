@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
@@ -44,7 +45,6 @@ import org.sonar.server.computation.qualitygate.EvaluationResultTextConverter;
 import org.sonar.server.computation.qualitygate.QualityGate;
 import org.sonar.server.computation.qualitygate.QualityGateHolder;
 
-import static org.sonar.server.computation.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 /**
@@ -79,7 +79,7 @@ public class QualityGateMeasuresStep implements ComputationStep {
   @Override
   public void execute() {
     new DepthTraversalTypeAwareCrawler(
-      new TypeAwareVisitorAdapter(PROJECT, PRE_ORDER) {
+      new TypeAwareVisitorAdapter(CrawlerDepthLimit.PROJECT, PRE_ORDER) {
         @Override
         public void visitProject(Component project) {
           executeForProject(project);

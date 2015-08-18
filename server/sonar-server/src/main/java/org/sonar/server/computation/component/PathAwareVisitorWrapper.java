@@ -86,7 +86,7 @@ public class PathAwareVisitorWrapper<T> implements VisitorWrapper {
   }
 
   @Override
-  public Component.Type getMaxDepth() {
+  public CrawlerDepthLimit getMaxDepth() {
     return delegate.getMaxDepth();
   }
 

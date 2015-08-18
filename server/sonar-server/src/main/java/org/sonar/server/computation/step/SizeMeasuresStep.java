@@ -22,6 +22,7 @@ package org.sonar.server.computation.step;
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.PathAwareVisitorAdapter;
 import org.sonar.server.computation.component.TreeRootHolder;
@@ -40,7 +41,6 @@ import static org.sonar.api.measures.CoreMetrics.GENERATED_NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.STATEMENTS_KEY;
-import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
@@ -75,7 +75,7 @@ public class SizeMeasuresStep implements ComputationStep {
     Metric fileMetric = metricRepository.getByKey(CoreMetrics.FILES_KEY);
     Metric directoryMetric = metricRepository.getByKey(CoreMetrics.DIRECTORIES_KEY);
 
-    new PathAwareCrawler<>(new FileAndDirectoryMeasureCrawler(directoryMetric, fileMetric))
+    new PathAwareCrawler<>(new FileAndDirectoryMeasureVisitor(directoryMetric, fileMetric))
       .visit(treeRootHolder.getRoot());
     new PathAwareCrawler<>(FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
       .buildFor(AGGREGATED_SIZE_MEASURE_FORMULAS))
@@ -87,12 +87,12 @@ public class SizeMeasuresStep implements ComputationStep {
     return "File and Directory measures";
   }
 
-  private class FileAndDirectoryMeasureCrawler extends PathAwareVisitorAdapter<Counter> {
+  private class FileAndDirectoryMeasureVisitor extends PathAwareVisitorAdapter<Counter> {
     private final Metric directoryMetric;
     private final Metric fileMetric;
 
-    public FileAndDirectoryMeasureCrawler(Metric directoryMetric, Metric fileMetric) {
-      super(FILE, POST_ORDER, COUNTER_STACK_ELEMENT_FACTORY);
+    public FileAndDirectoryMeasureVisitor(Metric directoryMetric, Metric fileMetric) {
+      super(CrawlerDepthLimit.FILE, POST_ORDER, COUNTER_STACK_ELEMENT_FACTORY);
       this.directoryMetric = directoryMetric;
       this.fileMetric = fileMetric;
     }

@@ -21,12 +21,12 @@
 package org.sonar.server.computation.measure;
 
 import org.sonar.api.ce.measure.MeasureComputer;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.SettingsRepository;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.measure.api.MeasureComputerImplementationContext;
 import org.sonar.server.computation.metric.MetricRepository;
 
-import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 public class MeasureComputersVisitor extends TypeAwareVisitorAdapter {
@@ -39,7 +39,7 @@ public class MeasureComputersVisitor extends TypeAwareVisitorAdapter {
 
   public MeasureComputersVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, SettingsRepository settings,
     MeasureComputersHolder measureComputersHolder) {
-    super(FILE, PRE_ORDER);
+    super(CrawlerDepthLimit.FILE, PRE_ORDER);
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.settings = settings;

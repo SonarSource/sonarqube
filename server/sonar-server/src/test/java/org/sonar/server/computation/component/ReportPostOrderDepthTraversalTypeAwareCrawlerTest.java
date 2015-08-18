@@ -38,10 +38,10 @@ public class ReportPostOrderDepthTraversalTypeAwareCrawlerTest {
   private static final Component MODULE_2 = component(MODULE, 2, MODULE_3);
   private static final Component COMPONENT_TREE = component(PROJECT, 1, MODULE_2);
 
-  private final CallRecorderTypeAwareVisitor projectVisitor = new CallRecorderTypeAwareVisitor(PROJECT, POST_ORDER);
-  private final CallRecorderTypeAwareVisitor moduleVisitor = new CallRecorderTypeAwareVisitor(MODULE, POST_ORDER);
-  private final CallRecorderTypeAwareVisitor directoryVisitor = new CallRecorderTypeAwareVisitor(DIRECTORY, POST_ORDER);
-  private final CallRecorderTypeAwareVisitor fileVisitor = new CallRecorderTypeAwareVisitor(FILE, POST_ORDER);
+  private final CallRecorderTypeAwareVisitor projectVisitor = new CallRecorderTypeAwareVisitor(CrawlerDepthLimit.PROJECT, POST_ORDER);
+  private final CallRecorderTypeAwareVisitor moduleVisitor = new CallRecorderTypeAwareVisitor(CrawlerDepthLimit.MODULE, POST_ORDER);
+  private final CallRecorderTypeAwareVisitor directoryVisitor = new CallRecorderTypeAwareVisitor(CrawlerDepthLimit.DIRECTORY, POST_ORDER);
+  private final CallRecorderTypeAwareVisitor fileVisitor = new CallRecorderTypeAwareVisitor(CrawlerDepthLimit.FILE, POST_ORDER);
   private final DepthTraversalTypeAwareCrawler projectCrawler = new DepthTraversalTypeAwareCrawler(projectVisitor);
   private final DepthTraversalTypeAwareCrawler moduleCrawler = new DepthTraversalTypeAwareCrawler(moduleVisitor);
   private final DepthTraversalTypeAwareCrawler directoryCrawler = new DepthTraversalTypeAwareCrawler(directoryVisitor);

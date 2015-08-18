@@ -36,7 +36,7 @@ public final class DepthTraversalTypeAwareCrawler implements ComponentCrawler {
 
   @Override
   public void visit(Component component) {
-    if (component.getType().isDeeperThan(this.visitor.getMaxDepth())) {
+    if (!verifyDepth(component)) {
       return;
     }
 
@@ -49,6 +49,11 @@ public final class DepthTraversalTypeAwareCrawler implements ComponentCrawler {
     if (this.visitor.getOrder() == ComponentVisitor.Order.POST_ORDER) {
       visitNode(component);
     }
+  }
+
+  private boolean verifyDepth(Component component) {
+    CrawlerDepthLimit maxDepth = this.visitor.getMaxDepth();
+    return maxDepth.isSameAs(component.getType()) || maxDepth.isDeeperThan(component.getType());
   }
 
   private void visitNode(Component component) {
@@ -82,7 +87,7 @@ public final class DepthTraversalTypeAwareCrawler implements ComponentCrawler {
 
   private void visitChildren(Component component) {
     for (Component child : component.getChildren()) {
-      if (!child.getType().isDeeperThan(this.visitor.getMaxDepth())) {
+      if (verifyDepth(child)) {
         visit(child);
       }
     }

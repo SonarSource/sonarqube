@@ -24,7 +24,7 @@ public interface ComponentVisitor {
 
   Order getOrder();
 
-  Component.Type getMaxDepth();
+  CrawlerDepthLimit getMaxDepth();
 
   enum Order {
     /**

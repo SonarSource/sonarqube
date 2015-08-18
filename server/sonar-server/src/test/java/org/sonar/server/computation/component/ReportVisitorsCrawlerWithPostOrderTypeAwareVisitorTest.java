@@ -42,13 +42,13 @@ public class ReportVisitorsCrawlerWithPostOrderTypeAwareVisitorTest {
   private static final Component MODULE_2 = component(MODULE, 2, MODULE_3);
   private static final Component COMPONENT_TREE = component(PROJECT, 1, MODULE_2);
 
-  private final TypeAwareVisitor spyProjectVisitor = spy(new TypeAwareVisitorAdapter(PROJECT, POST_ORDER) {
+  private final TypeAwareVisitor spyProjectVisitor = spy(new TypeAwareVisitorAdapter(CrawlerDepthLimit.PROJECT, POST_ORDER) {
   });
-  private final TypeAwareVisitor spyModuleVisitor = spy(new TypeAwareVisitorAdapter(MODULE, POST_ORDER) {
+  private final TypeAwareVisitor spyModuleVisitor = spy(new TypeAwareVisitorAdapter(CrawlerDepthLimit.MODULE, POST_ORDER) {
   });
-  private final TypeAwareVisitor spyDirectoryVisitor = spy(new TypeAwareVisitorAdapter(DIRECTORY, POST_ORDER) {
+  private final TypeAwareVisitor spyDirectoryVisitor = spy(new TypeAwareVisitorAdapter(CrawlerDepthLimit.DIRECTORY, POST_ORDER) {
   });
-  private final TypeAwareVisitor spyFileVisitor = spy(new TypeAwareVisitorAdapter(FILE, POST_ORDER) {
+  private final TypeAwareVisitor spyFileVisitor = spy(new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, POST_ORDER) {
   });
   private final InOrder inOrder = inOrder(spyProjectVisitor, spyModuleVisitor, spyDirectoryVisitor, spyFileVisitor);
 

@@ -32,6 +32,7 @@ import org.sonar.db.MyBatis;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
@@ -72,7 +73,7 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
 
   @Override
   public void execute() {
-    NumberOfDaysSinceLastCommitCrawler visitor = new NumberOfDaysSinceLastCommitCrawler();
+    NumberOfDaysSinceLastCommitVisitor visitor = new NumberOfDaysSinceLastCommitVisitor();
     Component project = treeRootHolder.getRoot();
     new DepthTraversalTypeAwareCrawler(visitor).visit(project);
 
@@ -107,12 +108,12 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
     }
   }
 
-  private class NumberOfDaysSinceLastCommitCrawler extends TypeAwareVisitorAdapter {
+  private class NumberOfDaysSinceLastCommitVisitor extends TypeAwareVisitorAdapter {
 
     private long lastCommitTimestampFromReport = 0L;
 
-    private NumberOfDaysSinceLastCommitCrawler() {
-      super(Component.Type.FILE, PRE_ORDER);
+    private NumberOfDaysSinceLastCommitVisitor() {
+      super(CrawlerDepthLimit.FILE, PRE_ORDER);
     }
 
     @Override

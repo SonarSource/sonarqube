@@ -37,6 +37,7 @@ import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
@@ -72,7 +73,7 @@ public class PersistProjectLinksStep implements ComputationStep {
   public void execute() {
     DbSession session = dbClient.openSession(false);
     try {
-      new DepthTraversalTypeAwareCrawler(new PorjectLinkCrawler(session))
+      new DepthTraversalTypeAwareCrawler(new ProjectLinkVisitor(session))
         .visit(treeRootHolder.getRoot());
       session.commit();
     } finally {
@@ -80,12 +81,12 @@ public class PersistProjectLinksStep implements ComputationStep {
     }
   }
 
-  private class PorjectLinkCrawler extends TypeAwareVisitorAdapter {
+  private class ProjectLinkVisitor extends TypeAwareVisitorAdapter {
 
     private final DbSession session;
 
-    private PorjectLinkCrawler(DbSession session) {
-      super(Component.Type.FILE, PRE_ORDER);
+    private ProjectLinkVisitor(DbSession session) {
+      super(CrawlerDepthLimit.FILE, PRE_ORDER);
       this.session = session;
     }
 

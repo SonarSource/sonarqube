@@ -32,6 +32,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
@@ -83,18 +84,18 @@ public class PersistMeasuresStep implements ComputationStep {
   public void execute() {
     DbSession dbSession = dbClient.openSession(true);
     try {
-      new DepthTraversalTypeAwareCrawler(new MeasureCrawler(dbSession)).visit(treeRootHolder.getRoot());
+      new DepthTraversalTypeAwareCrawler(new MeasureVisitor(dbSession)).visit(treeRootHolder.getRoot());
       dbSession.commit();
     } finally {
       dbSession.close();
     }
   }
 
-  private class MeasureCrawler extends TypeAwareVisitorAdapter {
+  private class MeasureVisitor extends TypeAwareVisitorAdapter {
     private final DbSession session;
 
-    private MeasureCrawler(DbSession session) {
-      super(Component.Type.FILE, PRE_ORDER);
+    private MeasureVisitor(DbSession session) {
+      super(CrawlerDepthLimit.FILE, PRE_ORDER);
       this.session = session;
     }
 

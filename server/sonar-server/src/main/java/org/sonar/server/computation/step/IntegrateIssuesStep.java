@@ -27,6 +27,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
@@ -65,7 +66,7 @@ public class IntegrateIssuesStep implements ComputationStep {
     final Set<String> unprocessedComponentUuids = Sets.newHashSet(baseIssuesLoader.loadUuidsOfComponentsWithOpenIssues());
 
     new DepthTraversalTypeAwareCrawler(
-      new TypeAwareVisitorAdapter(Component.Type.FILE, POST_ORDER) {
+      new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, POST_ORDER) {
         @Override
         public void visitAny(Component component) {
           processIssues(component);

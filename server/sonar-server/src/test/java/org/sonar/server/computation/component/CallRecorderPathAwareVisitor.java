@@ -31,7 +31,7 @@ import static com.google.common.collect.FluentIterable.from;
 class CallRecorderPathAwareVisitor extends PathAwareVisitorAdapter<Integer> {
   final List<PathAwareCallRecord> callsRecords = new ArrayList<>();
 
-  public CallRecorderPathAwareVisitor(Component.Type maxDepth, Order order) {
+  public CallRecorderPathAwareVisitor(CrawlerDepthLimit maxDepth, Order order) {
     super(maxDepth, order, new SimpleStackElementFactory<Integer>() {
       @Override
       public Integer createForAny(Component component) {

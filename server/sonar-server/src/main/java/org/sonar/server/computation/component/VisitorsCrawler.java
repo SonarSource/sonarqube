@@ -146,7 +146,8 @@ public class VisitorsCrawler implements ComponentCrawler {
 
     @Override
     public boolean apply(@Nonnull VisitorWrapper visitorWrapper) {
-      return !type.isDeeperThan(visitorWrapper.getMaxDepth());
+      CrawlerDepthLimit maxDepth = visitorWrapper.getMaxDepth();
+      return maxDepth.isSameAs(type) || maxDepth.isDeeperThan(type);
     }
   }
 

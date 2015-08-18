@@ -84,7 +84,7 @@ public class TypeAwareVisitorWrapper implements VisitorWrapper {
   }
 
   @Override
-  public Component.Type getMaxDepth() {
+  public CrawlerDepthLimit getMaxDepth() {
     return delegate.getMaxDepth();
   }
 

@@ -39,6 +39,7 @@ import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
@@ -71,22 +72,22 @@ public class PersistFileSourcesStep implements ComputationStep {
     // Don't use batch insert for file_sources since keeping all data in memory can produce OOM for big files
     DbSession session = dbClient.openSession(false);
     try {
-      new DepthTraversalTypeAwareCrawler(new FileSourceCrawler(session))
+      new DepthTraversalTypeAwareCrawler(new FileSourceVisitor(session))
         .visit(treeRootHolder.getRoot());
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private class FileSourceCrawler extends TypeAwareVisitorAdapter {
+  private class FileSourceVisitor extends TypeAwareVisitorAdapter {
 
     private final DbSession session;
 
     private Map<String, FileSourceDto> previousFileSourcesByUuid = new HashMap<>();
     private String projectUuid;
 
-    private FileSourceCrawler(DbSession session) {
-      super(Component.Type.FILE, PRE_ORDER);
+    private FileSourceVisitor(DbSession session) {
+      super(CrawlerDepthLimit.FILE, PRE_ORDER);
       this.session = session;
     }
 

@@ -47,9 +47,9 @@ public class ViewsVisitorsCrawlerTest {
   private static final Component SUBVIEW_2 = component(SUBVIEW, 2, SUBVIEW_3);
   private static final Component COMPONENT_TREE = component(VIEW, 1, SUBVIEW_2);
 
-  private final TypeAwareVisitor spyPreOrderTypeAwareVisitor = spy(new TestTypeAwareVisitor(PROJECT_VIEW, PRE_ORDER));
-  private final TypeAwareVisitor spyPostOrderTypeAwareVisitor = spy(new TestTypeAwareVisitor(PROJECT_VIEW, POST_ORDER));
-  private final TestPathAwareVisitor spyPathAwareVisitor = spy(new TestPathAwareVisitor(PROJECT_VIEW, POST_ORDER));
+  private final TypeAwareVisitor spyPreOrderTypeAwareVisitor = spy(new TestTypeAwareVisitor(CrawlerDepthLimit.PROJECT_VIEW, PRE_ORDER));
+  private final TypeAwareVisitor spyPostOrderTypeAwareVisitor = spy(new TestTypeAwareVisitor(CrawlerDepthLimit.PROJECT_VIEW, POST_ORDER));
+  private final TestPathAwareVisitor spyPathAwareVisitor = spy(new TestPathAwareVisitor(CrawlerDepthLimit.PROJECT_VIEW, POST_ORDER));
 
   @Test
   public void execute_each_visitor_on_each_level() throws Exception {
@@ -114,8 +114,8 @@ public class ViewsVisitorsCrawlerTest {
       }
 
       @Override
-      public Component.Type getMaxDepth() {
-        return PROJECT_VIEW;
+      public CrawlerDepthLimit getMaxDepth() {
+        return CrawlerDepthLimit.PROJECT_VIEW;
       }
     };
     new VisitorsCrawler(Arrays.asList(componentVisitor));
@@ -127,14 +127,14 @@ public class ViewsVisitorsCrawlerTest {
 
   private static class TestTypeAwareVisitor extends TypeAwareVisitorAdapter {
 
-    public TestTypeAwareVisitor(Component.Type maxDepth, Order order) {
+    public TestTypeAwareVisitor(CrawlerDepthLimit maxDepth, Order order) {
       super(maxDepth, order);
     }
   }
 
   private static class TestPathAwareVisitor extends PathAwareVisitorAdapter<Integer> {
 
-    public TestPathAwareVisitor(Component.Type maxDepth, Order order) {
+    public TestPathAwareVisitor(CrawlerDepthLimit maxDepth, Order order) {
       super(maxDepth, order, new SimpleStackElementFactory<Integer>() {
         @Override
         public Integer createForAny(Component component) {

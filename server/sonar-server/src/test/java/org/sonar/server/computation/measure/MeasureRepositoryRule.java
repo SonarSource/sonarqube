@@ -34,6 +34,7 @@ import org.junit.rules.ExternalResource;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentVisitor;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
@@ -389,7 +390,7 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
 
     public TreeComponentProvider(Component root) {
       new DepthTraversalTypeAwareCrawler(
-        new TypeAwareVisitorAdapter(Component.Type.FILE, ComponentVisitor.Order.PRE_ORDER) {
+        new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, ComponentVisitor.Order.PRE_ORDER) {
           @Override
           public void visitAny(Component component) {
             checkState(!componentsByRef.containsKey(component.getReportAttributes().getRef()),

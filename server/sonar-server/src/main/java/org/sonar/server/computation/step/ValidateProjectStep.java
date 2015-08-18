@@ -43,6 +43,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentVisitor;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
@@ -82,7 +83,7 @@ public class ValidateProjectStep implements ComputationStep {
     try {
       List<ComponentDto> baseModules = dbClient.componentDao().selectEnabledModulesFromProjectKey(session, treeRootHolder.getRoot().getKey());
       Map<String, ComponentDto> baseModulesByKey = FluentIterable.from(baseModules).uniqueIndex(ComponentDtoToKey.INSTANCE);
-      ValidateProjectsCrawler visitor = new ValidateProjectsCrawler(session, dbClient.componentDao(),
+      ValidateProjectsVisitor visitor = new ValidateProjectsVisitor(session, dbClient.componentDao(),
         settings.getBoolean(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION), baseModulesByKey);
       new DepthTraversalTypeAwareCrawler(visitor).visit(treeRootHolder.getRoot());
 
@@ -99,7 +100,7 @@ public class ValidateProjectStep implements ComputationStep {
     return "Validate project and modules keys";
   }
 
-  private class ValidateProjectsCrawler extends TypeAwareVisitorAdapter {
+  private class ValidateProjectsVisitor extends TypeAwareVisitorAdapter {
     private final DbSession session;
     private final ComponentDao componentDao;
     private final boolean preventAutomaticProjectCreation;
@@ -108,8 +109,8 @@ public class ValidateProjectStep implements ComputationStep {
 
     private Component rawProject;
 
-    public ValidateProjectsCrawler(DbSession session, ComponentDao componentDao, boolean preventAutomaticProjectCreation, Map<String, ComponentDto> baseModulesByKey) {
-      super(Component.Type.MODULE, ComponentVisitor.Order.PRE_ORDER);
+    public ValidateProjectsVisitor(DbSession session, ComponentDao componentDao, boolean preventAutomaticProjectCreation, Map<String, ComponentDto> baseModulesByKey) {
+      super(CrawlerDepthLimit.MODULE, ComponentVisitor.Order.PRE_ORDER);
       this.session = session;
       this.componentDao = componentDao;
 

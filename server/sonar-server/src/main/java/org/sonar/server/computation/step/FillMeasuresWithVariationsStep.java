@@ -35,6 +35,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.PastMeasureDto;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
@@ -86,22 +87,22 @@ public class FillMeasuresWithVariationsStep implements ComputationStep {
     DbSession dbSession = dbClient.openSession(false);
     try {
       Iterable<Metric> metrics = FluentIterable.from(metricRepository.getAll()).filter(NumericMetric.INSTANCE);
-      new DepthTraversalTypeAwareCrawler(new VariationMeasuresCrawler(dbSession, metrics))
+      new DepthTraversalTypeAwareCrawler(new VariationMeasuresVisitor(dbSession, metrics))
         .visit(treeRootHolder.getRoot());
     } finally {
       dbSession.close();
     }
   }
 
-  private class VariationMeasuresCrawler extends TypeAwareVisitorAdapter {
+  private class VariationMeasuresVisitor extends TypeAwareVisitorAdapter {
 
     private final DbSession session;
     private final Set<Integer> metricIds;
     private final Map<String, Metric> metricByKeys;
 
-    public VariationMeasuresCrawler(DbSession session, Iterable<Metric> metrics) {
+    public VariationMeasuresVisitor(DbSession session, Iterable<Metric> metrics) {
       // measures on files are currently purged, so past measures are not available on files
-      super(Component.Type.DIRECTORY, PRE_ORDER);
+      super(CrawlerDepthLimit.DIRECTORY, PRE_ORDER);
       this.session = session;
       this.metricIds = FluentIterable.from(metrics).transform(MetricDtoToMetricId.INSTANCE).toSet();
       this.metricByKeys = FluentIterable.from(metrics).uniqueIndex(MetricToKey.INSTANCE);

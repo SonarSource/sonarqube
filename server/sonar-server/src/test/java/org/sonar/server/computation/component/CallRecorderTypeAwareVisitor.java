@@ -25,7 +25,7 @@ import java.util.List;
 class CallRecorderTypeAwareVisitor extends TypeAwareVisitorAdapter {
   final List<CallRecord> callsRecords = new ArrayList<>();
 
-  public CallRecorderTypeAwareVisitor(Component.Type maxDepth, Order order) {
+  public CallRecorderTypeAwareVisitor(CrawlerDepthLimit maxDepth, Order order) {
     super(maxDepth, order);
   }
 
