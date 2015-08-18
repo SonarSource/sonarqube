@@ -29,6 +29,7 @@ import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.issue.BaseIssuesLoader;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.IssueLifecycle;
@@ -63,13 +64,14 @@ public class IntegrateIssuesStep implements ComputationStep {
     // all the components that had issues before this analysis
     final Set<String> unprocessedComponentUuids = Sets.newHashSet(baseIssuesLoader.loadUuidsOfComponentsWithOpenIssues());
 
-    new DepthTraversalTypeAwareCrawler(Component.Type.FILE, POST_ORDER) {
-      @Override
-      public void visitAny(Component component) {
-        processIssues(component);
-        unprocessedComponentUuids.remove(component.getUuid());
-      }
-    }.visit(treeRootHolder.getRoot());
+    new DepthTraversalTypeAwareCrawler(
+      new TypeAwareVisitorAdapter(Component.Type.FILE, POST_ORDER) {
+        @Override
+        public void visitAny(Component component) {
+          processIssues(component);
+          unprocessedComponentUuids.remove(component.getUuid());
+        }
+      }).visit(treeRootHolder.getRoot());
 
     closeIssuesForDeletedComponentUuids(unprocessedComponentUuids);
   }

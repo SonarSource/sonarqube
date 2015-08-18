@@ -23,9 +23,10 @@ import com.google.common.collect.ImmutableList;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.PathAwareCrawler;
+import org.sonar.server.computation.component.PathAwareVisitorAdapter;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.Formula;
-import org.sonar.server.computation.formula.FormulaExecutorComponentCrawler;
+import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
 import org.sonar.server.computation.formula.SumFormula;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
@@ -74,10 +75,10 @@ public class SizeMeasuresStep implements ComputationStep {
     Metric fileMetric = metricRepository.getByKey(CoreMetrics.FILES_KEY);
     Metric directoryMetric = metricRepository.getByKey(CoreMetrics.DIRECTORIES_KEY);
 
-    new FileAndDirectoryMeasureCrawler(directoryMetric, fileMetric)
+    new PathAwareCrawler<>(new FileAndDirectoryMeasureCrawler(directoryMetric, fileMetric))
       .visit(treeRootHolder.getRoot());
-    FormulaExecutorComponentCrawler.newBuilder(metricRepository, measureRepository)
-      .buildFor(AGGREGATED_SIZE_MEASURE_FORMULAS)
+    new PathAwareCrawler<>(FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
+      .buildFor(AGGREGATED_SIZE_MEASURE_FORMULAS))
       .visit(treeRootHolder.getRoot());
   }
 
@@ -86,7 +87,7 @@ public class SizeMeasuresStep implements ComputationStep {
     return "File and Directory measures";
   }
 
-  private class FileAndDirectoryMeasureCrawler extends PathAwareCrawler<Counter> {
+  private class FileAndDirectoryMeasureCrawler extends PathAwareVisitorAdapter<Counter> {
     private final Metric directoryMetric;
     private final Metric fileMetric;
 
@@ -142,7 +143,7 @@ public class SizeMeasuresStep implements ComputationStep {
 
   }
 
-  private static class CounterStackElementFactory extends PathAwareCrawler.SimpleStackElementFactory<Counter> {
+  private static class CounterStackElementFactory extends PathAwareVisitorAdapter.SimpleStackElementFactory<Counter> {
     @Override
     public Counter createForAny(Component component) {
       return new Counter();

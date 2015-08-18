@@ -41,6 +41,7 @@ import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.source.ComputeFileSourceData;
 import org.sonar.server.computation.source.CoverageLineReader;
 import org.sonar.server.computation.source.DuplicationLineReader;
@@ -70,13 +71,14 @@ public class PersistFileSourcesStep implements ComputationStep {
     // Don't use batch insert for file_sources since keeping all data in memory can produce OOM for big files
     DbSession session = dbClient.openSession(false);
     try {
-      new FileSourceCrawler(session).visit(treeRootHolder.getRoot());
+      new DepthTraversalTypeAwareCrawler(new FileSourceCrawler(session))
+        .visit(treeRootHolder.getRoot());
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private class FileSourceCrawler extends DepthTraversalTypeAwareCrawler {
+  private class FileSourceCrawler extends TypeAwareVisitorAdapter {
 
     private final DbSession session;
 

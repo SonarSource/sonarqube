@@ -52,6 +52,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.ReportTreeRootHolder;
+import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 
 public class PersistTestsStep implements ComputationStep {
 
@@ -74,7 +75,7 @@ public class PersistTestsStep implements ComputationStep {
     DbSession session = dbClient.openSession(true);
     try {
       TestDepthTraversalTypeAwareCrawler visitor = new TestDepthTraversalTypeAwareCrawler(session);
-      visitor.visit(treeRootHolder.getRoot());
+      new DepthTraversalTypeAwareCrawler(visitor).visit(treeRootHolder.getRoot());
       session.commit();
       if (visitor.hasUnprocessedCoverageDetails) {
         LOG.warn("Some coverage tests are not taken into account during analysis of project '{}'", visitor.getProjectKey());
@@ -89,7 +90,7 @@ public class PersistTestsStep implements ComputationStep {
     return "Persist tests";
   }
 
-  private class TestDepthTraversalTypeAwareCrawler extends DepthTraversalTypeAwareCrawler {
+  private class TestDepthTraversalTypeAwareCrawler extends TypeAwareVisitorAdapter {
     final DbSession session;
     final Map<String, FileSourceDto> existingFileSourcesByUuid;
     final String projectUuid;

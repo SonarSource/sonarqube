@@ -33,6 +33,7 @@ import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
 
@@ -62,7 +63,8 @@ public class PersistEventsStep implements ComputationStep {
     final DbSession session = dbClient.openSession(false);
     try {
       long analysisDate = analysisMetadataHolder.getAnalysisDate().getTime();
-      new PersistEventComponentCrawler(session, analysisDate).visit(treeRootHolder.getRoot());
+      new DepthTraversalTypeAwareCrawler(new PersistEventComponentCrawler(session, analysisDate))
+        .visit(treeRootHolder.getRoot());
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -97,8 +99,7 @@ public class PersistEventsStep implements ComputationStep {
       deletePreviousEventsHavingSameVersion(session, version, component);
       dbClient.eventDao().insert(session, newBaseEvent(component, analysisDate)
         .setName(version)
-        .setCategory(EventDto.CATEGORY_VERSION)
-        );
+        .setCategory(EventDto.CATEGORY_VERSION));
     }
   }
 
@@ -134,7 +135,7 @@ public class PersistEventsStep implements ComputationStep {
     return "Persist component links";
   }
 
-  private class PersistEventComponentCrawler extends DepthTraversalTypeAwareCrawler {
+  private class PersistEventComponentCrawler extends TypeAwareVisitorAdapter {
     private final DbSession session;
     private final long analysisDate;
 

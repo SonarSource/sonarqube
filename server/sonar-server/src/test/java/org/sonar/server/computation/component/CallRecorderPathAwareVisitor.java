@@ -28,10 +28,10 @@ import javax.annotation.Nonnull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.FluentIterable.from;
 
-class TestPathAwareCrawler extends PathAwareCrawler<Integer> {
-  final List<CallRecord> callsRecords = new ArrayList<>();
+class CallRecorderPathAwareVisitor extends PathAwareVisitorAdapter<Integer> {
+  final List<PathAwareCallRecord> callsRecords = new ArrayList<>();
 
-  public TestPathAwareCrawler(Component.Type maxDepth, Order order) {
+  public CallRecorderPathAwareVisitor(Component.Type maxDepth, Order order) {
     super(maxDepth, order, new SimpleStackElementFactory<Integer>() {
       @Override
       public Integer createForAny(Component component) {
@@ -90,13 +90,13 @@ class TestPathAwareCrawler extends PathAwareCrawler<Integer> {
     callsRecords.add(component.getType().isReportType() ? reportCallRecord(component, path, "visitAny") : viewsCallRecord(component, path, "visitAny"));
   }
 
-  private static CallRecord reportCallRecord(Component component, Path<Integer> path, String method) {
-    return CallRecord.reportCallRecord(method, component.getReportAttributes().getRef(), path.current(), getParent(path), path.root(),
+  private static PathAwareCallRecord reportCallRecord(Component component, Path<Integer> path, String method) {
+    return PathAwareCallRecord.reportCallRecord(method, component.getReportAttributes().getRef(), path.current(), getParent(path), path.root(),
         toValueList(path));
   }
 
-  private static CallRecord viewsCallRecord(Component component, Path<Integer> path, String method) {
-    return CallRecord.viewsCallRecord(method, component.getKey(), path.current(), getParent(path), path.root(),
+  private static PathAwareCallRecord viewsCallRecord(Component component, Path<Integer> path, String method) {
+    return PathAwareCallRecord.viewsCallRecord(method, component.getKey(), path.current(), getParent(path), path.root(),
         toValueList(path));
   }
 

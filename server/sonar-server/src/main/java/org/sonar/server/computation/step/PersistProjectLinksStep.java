@@ -39,6 +39,7 @@ import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
@@ -58,8 +59,7 @@ public class PersistProjectLinksStep implements ComputationStep {
     Constants.ComponentLinkType.SCM, ComponentLinkDto.TYPE_SOURCES,
     Constants.ComponentLinkType.SCM_DEV, ComponentLinkDto.TYPE_SOURCES_DEV,
     Constants.ComponentLinkType.CI, ComponentLinkDto.TYPE_CI,
-    Constants.ComponentLinkType.ISSUE, ComponentLinkDto.TYPE_ISSUE_TRACKER
-    );
+    Constants.ComponentLinkType.ISSUE, ComponentLinkDto.TYPE_ISSUE_TRACKER);
 
   public PersistProjectLinksStep(DbClient dbClient, I18n i18n, TreeRootHolder treeRootHolder, BatchReportReader reportReader) {
     this.dbClient = dbClient;
@@ -72,14 +72,15 @@ public class PersistProjectLinksStep implements ComputationStep {
   public void execute() {
     DbSession session = dbClient.openSession(false);
     try {
-      new PorjectLinkCrawler(session).visit(treeRootHolder.getRoot());
+      new DepthTraversalTypeAwareCrawler(new PorjectLinkCrawler(session))
+        .visit(treeRootHolder.getRoot());
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private class PorjectLinkCrawler extends DepthTraversalTypeAwareCrawler {
+  private class PorjectLinkCrawler extends TypeAwareVisitorAdapter {
 
     private final DbSession session;
 
@@ -130,8 +131,7 @@ public class PersistProjectLinksStep implements ComputationStep {
               .setComponentUuid(componentUuid)
               .setType(type)
               .setName(i18n.message(Locale.ENGLISH, "project_links." + type, null))
-              .setHref(link.getHref())
-            );
+              .setHref(link.getHref()));
         } else {
           previousLink.setHref(link.getHref());
           dbClient.componentLinkDao().update(session, previousLink);

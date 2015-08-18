@@ -29,6 +29,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.measure.QualityGateStatus;
@@ -77,12 +78,13 @@ public class QualityGateMeasuresStep implements ComputationStep {
 
   @Override
   public void execute() {
-    new DepthTraversalTypeAwareCrawler(PROJECT, PRE_ORDER) {
-      @Override
-      public void visitProject(Component project) {
-        executeForProject(project);
-      }
-    }.visit(treeRootHolder.getRoot());
+    new DepthTraversalTypeAwareCrawler(
+      new TypeAwareVisitorAdapter(PROJECT, PRE_ORDER) {
+        @Override
+        public void visitProject(Component project) {
+          executeForProject(project);
+        }
+      }).visit(treeRootHolder.getRoot());
   }
 
   private void executeForProject(Component project) {

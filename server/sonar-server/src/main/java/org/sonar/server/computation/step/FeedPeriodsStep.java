@@ -47,6 +47,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.SettingsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
 
@@ -87,17 +88,18 @@ public class FeedPeriodsStep implements ComputationStep {
 
   @Override
   public void execute() {
-    new DepthTraversalTypeAwareCrawler(PROJECT, PRE_ORDER) {
-      @Override
-      public void visitProject(Component project) {
-        execute(project);
-      }
+    new DepthTraversalTypeAwareCrawler(
+      new TypeAwareVisitorAdapter(PROJECT, PRE_ORDER) {
+        @Override
+        public void visitProject(Component project) {
+          execute(project);
+        }
 
-      @Override
-      public void visitView(Component view) {
-        execute(view);
-      }
-    }.visit(treeRootHolder.getRoot());
+        @Override
+        public void visitView(Component view) {
+          execute(view);
+        }
+      }).visit(treeRootHolder.getRoot());
   }
 
   public void execute(Component projectOrView) {

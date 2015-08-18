@@ -19,29 +19,39 @@
  */
 package org.sonar.server.computation.component;
 
+import java.util.List;
 import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-class CallRecord {
+class PathAwareCallRecord {
   private final String method;
   @CheckForNull
   private final Integer ref;
   @CheckForNull
   private final String key;
+  private final int current;
+  @CheckForNull
+  private final Integer parent;
+  private final int root;
+  private final List<Integer> path;
 
-  private CallRecord(String method, @Nullable Integer ref, @Nullable String key) {
+  private PathAwareCallRecord(String method, @Nullable Integer ref, @Nullable String key, int current, @Nullable Integer parent, int root, List<Integer> path) {
     this.method = method;
     this.ref = ref;
     this.key = key;
+    this.current = current;
+    this.parent = parent;
+    this.root = root;
+    this.path = path;
   }
 
-  public static CallRecord reportCallRecord(String method, Integer ref) {
-    return new CallRecord(method, ref, method);
+  public static PathAwareCallRecord reportCallRecord(String method, Integer ref, int current, @Nullable Integer parent, int root, List<Integer> path) {
+    return new PathAwareCallRecord(method, ref, method, current, parent, root, path);
   }
 
-  public static CallRecord viewsCallRecord(String method, String key) {
-    return new CallRecord(method, null, key);
+  public static PathAwareCallRecord viewsCallRecord(String method, String key, int current, @Nullable Integer parent, int root, List<Integer> path) {
+    return new PathAwareCallRecord(method, null, key, current, parent, root, path);
   }
 
   @Override
@@ -52,15 +62,19 @@ class CallRecord {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    CallRecord that = (CallRecord) o;
+    PathAwareCallRecord that = (PathAwareCallRecord) o;
     return Objects.equals(ref, that.ref) &&
       Objects.equals(key, that.key) &&
-      Objects.equals(method, that.method);
+      Objects.equals(current, that.current) &&
+      Objects.equals(root, that.root) &&
+      Objects.equals(method, that.method) &&
+      Objects.equals(parent, that.parent) &&
+      Objects.equals(path, that.path);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(method, ref, key);
+    return Objects.hash(method, ref, key, current, parent, root, path);
   }
 
   @Override
@@ -69,6 +83,10 @@ class CallRecord {
       "method='" + method + '\'' +
       ", ref=" + ref +
       ", key=" + key +
+      ", current=" + current +
+      ", parent=" + parent +
+      ", root=" + root +
+      ", path=" + path +
       '}';
   }
 }

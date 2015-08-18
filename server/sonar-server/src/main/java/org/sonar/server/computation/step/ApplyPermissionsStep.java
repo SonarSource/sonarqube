@@ -29,6 +29,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
@@ -56,12 +57,13 @@ public class ApplyPermissionsStep implements ComputationStep {
 
   @Override
   public void execute() {
-    new DepthTraversalTypeAwareCrawler(PROJECT, PRE_ORDER) {
-      @Override
-      public void visitProject(Component project) {
-        execute(project);
-      }
-    }.visit(treeRootHolder.getRoot());
+    new DepthTraversalTypeAwareCrawler(
+      new TypeAwareVisitorAdapter(PROJECT, PRE_ORDER) {
+        @Override
+        public void visitProject(Component project) {
+          execute(project);
+        }
+      }).visit(treeRootHolder.getRoot());
   }
 
   private void execute(Component project) {

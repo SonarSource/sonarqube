@@ -21,11 +21,12 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.collect.ImmutableList;
+import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.AverageFormula;
 import org.sonar.server.computation.formula.DistributionFormula;
 import org.sonar.server.computation.formula.Formula;
-import org.sonar.server.computation.formula.FormulaExecutorComponentCrawler;
+import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
 import org.sonar.server.computation.formula.SumFormula;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.MetricRepository;
@@ -53,14 +54,14 @@ public class ComplexityMeasuresStep implements ComputationStep {
     new SumFormula(COMPLEXITY_IN_CLASSES_KEY),
     new SumFormula(COMPLEXITY_IN_FUNCTIONS_KEY),
 
-    new DistributionFormula(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY),
+  new DistributionFormula(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY),
     new DistributionFormula(FILE_COMPLEXITY_DISTRIBUTION_KEY),
     new DistributionFormula(CLASS_COMPLEXITY_DISTRIBUTION_KEY),
 
-    AverageFormula.Builder.newBuilder().setOutputMetricKey(FILE_COMPLEXITY_KEY)
-      .setMainMetricKey(COMPLEXITY_KEY)
-      .setByMetricKey(FILES_KEY)
-      .build(),
+  AverageFormula.Builder.newBuilder().setOutputMetricKey(FILE_COMPLEXITY_KEY)
+    .setMainMetricKey(COMPLEXITY_KEY)
+    .setByMetricKey(FILES_KEY)
+    .build(),
     AverageFormula.Builder.newBuilder().setOutputMetricKey(CLASS_COMPLEXITY_KEY)
       .setMainMetricKey(COMPLEXITY_IN_CLASSES_KEY)
       .setByMetricKey(CLASSES_KEY)
@@ -70,8 +71,7 @@ public class ComplexityMeasuresStep implements ComputationStep {
       .setMainMetricKey(COMPLEXITY_IN_FUNCTIONS_KEY)
       .setByMetricKey(FUNCTIONS_KEY)
       .setFallbackMetricKey(COMPLEXITY_KEY)
-      .build()
-  );
+      .build());
 
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;
@@ -85,9 +85,9 @@ public class ComplexityMeasuresStep implements ComputationStep {
 
   @Override
   public void execute() {
-    FormulaExecutorComponentCrawler.newBuilder(metricRepository, measureRepository)
-      .buildFor(FORMULAS)
-      .visit(treeRootHolder.getRoot());
+    new PathAwareCrawler<>(
+      FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository).buildFor(FORMULAS))
+        .visit(treeRootHolder.getRoot());
   }
 
   @Override

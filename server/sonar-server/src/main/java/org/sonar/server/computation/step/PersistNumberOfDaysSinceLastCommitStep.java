@@ -35,6 +35,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.source.index.SourceLineIndex;
 
@@ -73,7 +74,7 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
   public void execute() {
     NumberOfDaysSinceLastCommitCrawler visitor = new NumberOfDaysSinceLastCommitCrawler();
     Component project = treeRootHolder.getRoot();
-    visitor.visit(project);
+    new DepthTraversalTypeAwareCrawler(visitor).visit(project);
 
     long lastCommitTimestamp = visitor.lastCommitTimestampFromReport;
     if (lastCommitTimestamp == 0L) {
@@ -106,7 +107,7 @@ public class PersistNumberOfDaysSinceLastCommitStep implements ComputationStep {
     }
   }
 
-  private class NumberOfDaysSinceLastCommitCrawler extends DepthTraversalTypeAwareCrawler {
+  private class NumberOfDaysSinceLastCommitCrawler extends TypeAwareVisitorAdapter {
 
     private long lastCommitTimestampFromReport = 0L;
 

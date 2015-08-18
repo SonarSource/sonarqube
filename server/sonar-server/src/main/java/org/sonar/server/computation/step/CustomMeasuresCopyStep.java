@@ -30,6 +30,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
@@ -52,12 +53,13 @@ public class CustomMeasuresCopyStep implements ComputationStep {
 
   @Override
   public void execute() {
-    new DepthTraversalTypeAwareCrawler(Component.Type.FILE, ComponentVisitor.Order.PRE_ORDER) {
+    new DepthTraversalTypeAwareCrawler(
+        new TypeAwareVisitorAdapter(Component.Type.FILE, ComponentVisitor.Order.PRE_ORDER) {
       @Override
       public void visitAny(Component component) {
         copy(component);
       }
-    }.visit(treeRootHolder.getRoot());
+    }).visit(treeRootHolder.getRoot());
   }
 
   private void copy(Component component) {

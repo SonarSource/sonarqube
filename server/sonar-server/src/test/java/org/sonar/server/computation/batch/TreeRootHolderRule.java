@@ -30,6 +30,7 @@ import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.MutableTreeRootHolder;
 import org.sonar.server.computation.component.ReportTreeRootHolder;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 
@@ -79,12 +80,12 @@ public class TreeRootHolderRule implements TestRule, MutableTreeRootHolder, Repo
   public TreeRootHolderRule setRoot(Component newRoot) {
     this.root = Objects.requireNonNull(newRoot);
     if (newRoot.getType().isReportType()) {
-      new DepthTraversalTypeAwareCrawler(Component.Type.FILE, POST_ORDER) {
+      new DepthTraversalTypeAwareCrawler(new TypeAwareVisitorAdapter(Component.Type.FILE, POST_ORDER) {
         @Override
         public void visitAny(Component component) {
           componentsByRef.put(component.getReportAttributes().getRef(), component);
         }
-      }.visit(root);
+      }).visit(root);
     }
     return this;
   }

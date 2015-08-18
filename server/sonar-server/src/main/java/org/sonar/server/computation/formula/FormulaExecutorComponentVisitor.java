@@ -27,7 +27,7 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentVisitor;
-import org.sonar.server.computation.component.PathAwareCrawler;
+import org.sonar.server.computation.component.PathAwareVisitorAdapter;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
@@ -37,8 +37,8 @@ import org.sonar.server.computation.period.PeriodsHolder;
 
 import static java.util.Objects.requireNonNull;
 
-public class FormulaExecutorComponentCrawler extends PathAwareCrawler<FormulaExecutorComponentCrawler.Counters> {
-  private static final PathAwareCrawler.SimpleStackElementFactory<Counters> COUNTERS_FACTORY = new PathAwareCrawler.SimpleStackElementFactory<Counters>() {
+public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<FormulaExecutorComponentVisitor.Counters> {
+  private static final SimpleStackElementFactory<Counters> COUNTERS_FACTORY = new SimpleStackElementFactory<Counters>() {
 
     @Override
     public Counters createForAny(Component component) {
@@ -58,7 +58,7 @@ public class FormulaExecutorComponentCrawler extends PathAwareCrawler<FormulaExe
   private final MeasureRepository measureRepository;
   private final List<Formula> formulas;
 
-  private FormulaExecutorComponentCrawler(Builder builder, List<Formula> formulas) {
+  private FormulaExecutorComponentVisitor(Builder builder, List<Formula> formulas) {
     super(Component.Type.FILE, ComponentVisitor.Order.POST_ORDER, COUNTERS_FACTORY);
     this.periodsHolder = builder.periodsHolder;
     this.measureRepository = builder.measureRepository;
@@ -90,32 +90,32 @@ public class FormulaExecutorComponentCrawler extends PathAwareCrawler<FormulaExe
       return this;
     }
 
-    public FormulaExecutorComponentCrawler buildFor(List<Formula> formulas) {
-      return new FormulaExecutorComponentCrawler(this, formulas);
+    public FormulaExecutorComponentVisitor buildFor(List<Formula> formulas) {
+      return new FormulaExecutorComponentVisitor(this, formulas);
     }
   }
 
   @Override
-  public void visitProject(Component project, Path<FormulaExecutorComponentCrawler.Counters> path) {
+  public void visitProject(Component project, Path<FormulaExecutorComponentVisitor.Counters> path) {
     processNotFile(project, path);
   }
 
   @Override
-  public void visitModule(Component module, Path<FormulaExecutorComponentCrawler.Counters> path) {
+  public void visitModule(Component module, Path<FormulaExecutorComponentVisitor.Counters> path) {
     processNotFile(module, path);
   }
 
   @Override
-  public void visitDirectory(Component directory, Path<FormulaExecutorComponentCrawler.Counters> path) {
+  public void visitDirectory(Component directory, Path<FormulaExecutorComponentVisitor.Counters> path) {
     processNotFile(directory, path);
   }
 
   @Override
-  public void visitFile(Component file, Path<FormulaExecutorComponentCrawler.Counters> path) {
+  public void visitFile(Component file, Path<FormulaExecutorComponentVisitor.Counters> path) {
     processFile(file, path);
   }
 
-  private void processNotFile(Component component, Path<FormulaExecutorComponentCrawler.Counters> path) {
+  private void processNotFile(Component component, Path<FormulaExecutorComponentVisitor.Counters> path) {
     for (Formula formula : formulas) {
       Counter counter = path.current().getCounter(formula);
       // If there were no file under this node, the counter won't be initialized
@@ -128,7 +128,7 @@ public class FormulaExecutorComponentCrawler extends PathAwareCrawler<FormulaExe
     }
   }
 
-  private void processFile(Component file, Path<FormulaExecutorComponentCrawler.Counters> path) {
+  private void processFile(Component file, Path<FormulaExecutorComponentVisitor.Counters> path) {
     FileAggregateContext counterContext = new FileAggregateContextImpl(file);
     for (Formula formula : formulas) {
       Counter counter = formula.createNewCounter();
@@ -148,7 +148,7 @@ public class FormulaExecutorComponentCrawler extends PathAwareCrawler<FormulaExe
     }
   }
 
-  private void aggregateToParent(Path<FormulaExecutorComponentCrawler.Counters> path, Formula formula, Counter currentCounter) {
+  private void aggregateToParent(Path<FormulaExecutorComponentVisitor.Counters> path, Formula formula, Counter currentCounter) {
     if (!path.isRoot()) {
       path.parent().aggregate(formula, currentCounter);
     }

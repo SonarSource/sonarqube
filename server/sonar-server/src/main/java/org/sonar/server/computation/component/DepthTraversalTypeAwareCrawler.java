@@ -20,74 +20,72 @@
 
 package org.sonar.server.computation.component;
 
+import static java.util.Objects.requireNonNull;
+
 /**
- * Implementation of {@link TypeAwareCrawler} that implements a depth traversal of a {@link Component} tree.
+ * Implementation of {@link ComponentCrawler} that implements a depth traversal of a {@link Component} tree.
  * <p>It supports visiting traversal in either pre-order or post-order</p>
  * It supports a max depth for crawling (component strictly deeper than the specified type will be ignored).
  */
-public abstract class DepthTraversalTypeAwareCrawler extends TypeAwareVisitorAdapter implements TypeAwareCrawler {
+public final class DepthTraversalTypeAwareCrawler implements ComponentCrawler {
+  private final TypeAwareVisitor visitor;
 
-  protected DepthTraversalTypeAwareCrawler(Component.Type maxDepth, ComponentVisitor.Order order) {
-    super(maxDepth, order);
+  public DepthTraversalTypeAwareCrawler(TypeAwareVisitor visitor) {
+    this.visitor = requireNonNull(visitor);
   }
 
   @Override
   public void visit(Component component) {
-    if (component.getType().isDeeperThan(maxDepth)) {
+    if (component.getType().isDeeperThan(this.visitor.getMaxDepth())) {
       return;
     }
 
-    if (order == ComponentVisitor.Order.PRE_ORDER) {
+    if (this.visitor.getOrder() == ComponentVisitor.Order.PRE_ORDER) {
       visitNode(component);
     }
 
     visitChildren(component);
 
-    if (order == ComponentVisitor.Order.POST_ORDER) {
+    if (this.visitor.getOrder() == ComponentVisitor.Order.POST_ORDER) {
       visitNode(component);
     }
   }
 
   private void visitNode(Component component) {
-    visitAny(component);
+    this.visitor.visitAny(component);
     switch (component.getType()) {
       case PROJECT:
-        visitProject(component);
+        this.visitor.visitProject(component);
         break;
       case MODULE:
-        visitModule(component);
+        this.visitor.visitModule(component);
         break;
       case DIRECTORY:
-        visitDirectory(component);
+        this.visitor.visitDirectory(component);
         break;
       case FILE:
-        visitFile(component);
+        this.visitor.visitFile(component);
         break;
       case VIEW:
-        visitView(component);
+        this.visitor.visitView(component);
         break;
       case SUBVIEW:
-        visitSubView(component);
+        this.visitor.visitSubView(component);
         break;
       case PROJECT_VIEW:
-        visitProjectView(component);
+        this.visitor.visitProjectView(component);
         break;
       default:
-        visitUnknown(component);
+        throw new IllegalArgumentException("Unsupported Component type " + component.getType());
     }
   }
 
   private void visitChildren(Component component) {
     for (Component child : component.getChildren()) {
-      if (!child.getType().isDeeperThan(maxDepth)) {
+      if (!child.getType().isDeeperThan(this.visitor.getMaxDepth())) {
         visit(child);
       }
     }
-  }
-
-  @Override
-  public void visitUnknown(Component unknownComponent) {
-    // empty implementation, meant to be override at will by subclasses
   }
 
 }

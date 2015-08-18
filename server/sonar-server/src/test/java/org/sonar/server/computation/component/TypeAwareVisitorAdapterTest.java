@@ -19,13 +19,15 @@
  */
 package org.sonar.server.computation.component;
 
-/**
- * A {@link ComponentCrawler} which can exposes methods which ensure the type of the visited Component.
- */
-public interface TypeAwareCrawler extends ComponentCrawler, TypeAwareVisitor {
+import org.junit.Test;
 
-  /**
-   * Called when encountering a Component of an unknown type
-   */
-  void visitUnknown(Component tree);
+import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
+
+public class TypeAwareVisitorAdapterTest {
+  @Test(expected = NullPointerException.class)
+  public void non_null_max_depth_fast_fail() {
+    new TypeAwareVisitorAdapter(null, POST_ORDER) {
+    };
+  }
+
 }

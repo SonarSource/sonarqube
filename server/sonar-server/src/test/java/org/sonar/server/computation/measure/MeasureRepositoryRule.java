@@ -36,6 +36,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.debt.Characteristic;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
@@ -100,7 +101,8 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
     checkAndInitProvidersState();
 
     InternalKey internalKey = new InternalKey(component, metric);
-    checkState(!baseMeasures.containsKey(internalKey), format("Can not add a BaseMeasure twice for a Component (ref=%s) and Metric (key=%s)", component.getReportAttributes().getRef(), metric.getKey()));
+    checkState(!baseMeasures.containsKey(internalKey),
+      format("Can not add a BaseMeasure twice for a Component (ref=%s) and Metric (key=%s)", component.getReportAttributes().getRef(), metric.getKey()));
 
     baseMeasures.put(internalKey, measure);
 
@@ -386,13 +388,15 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
     private final Map<Integer, Component> componentsByRef = new HashMap<>();
 
     public TreeComponentProvider(Component root) {
-      new DepthTraversalTypeAwareCrawler(Component.Type.FILE, ComponentVisitor.Order.PRE_ORDER) {
-        @Override
-        public void visitAny(Component component) {
-          checkState(!componentsByRef.containsKey(component.getReportAttributes().getRef()), "Tree contains more than one component with ref " + component.getReportAttributes().getRef());
-          componentsByRef.put(component.getReportAttributes().getRef(), component);
-        }
-      }.visit(root);
+      new DepthTraversalTypeAwareCrawler(
+        new TypeAwareVisitorAdapter(Component.Type.FILE, ComponentVisitor.Order.PRE_ORDER) {
+          @Override
+          public void visitAny(Component component) {
+            checkState(!componentsByRef.containsKey(component.getReportAttributes().getRef()),
+              "Tree contains more than one component with ref " + component.getReportAttributes().getRef());
+            componentsByRef.put(component.getReportAttributes().getRef(), component);
+          }
+        }).visit(root);
     }
 
     @Override

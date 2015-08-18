@@ -33,7 +33,7 @@ import static org.sonar.server.computation.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
-public class ReportPathAwareCrawlerTest {
+public class ReportPathAwareVisitorTest {
 
   private static final int ROOT_REF = 1;
   private static final ReportComponent SOME_TREE_ROOT = ReportComponent.builder(PROJECT, ROOT_REF)
@@ -67,10 +67,10 @@ public class ReportPathAwareCrawlerTest {
 
   @Test
   public void verify_preOrder_visit_call_when_visit_tree_with_depth_FILE() {
-    TestPathAwareCrawler underTest = new TestPathAwareCrawler(FILE, PRE_ORDER);
-    underTest.visit(SOME_TREE_ROOT);
+    CallRecorderPathAwareVisitor underTest = new CallRecorderPathAwareVisitor(FILE, PRE_ORDER);
+    new PathAwareCrawler<>(underTest).visit(SOME_TREE_ROOT);
 
-    Iterator<CallRecord> expected = of(
+    Iterator<PathAwareCallRecord> expected = of(
       newCallRecord("visitAny", 1, null, of(1)),
       newCallRecord("visitProject", 1, null, of(1)),
       newCallRecord("visitAny", 11, 1, of(11, 1)),
@@ -99,10 +99,10 @@ public class ReportPathAwareCrawlerTest {
 
   @Test
   public void verify_preOrder_visit_call_when_visit_tree_with_depth_DIRECTORY() {
-    TestPathAwareCrawler underTest = new TestPathAwareCrawler(DIRECTORY, PRE_ORDER);
-    underTest.visit(SOME_TREE_ROOT);
+    CallRecorderPathAwareVisitor underTest = new CallRecorderPathAwareVisitor(DIRECTORY, PRE_ORDER);
+    new PathAwareCrawler<>(underTest).visit(SOME_TREE_ROOT);
 
-    Iterator<CallRecord> expected = of(
+    Iterator<PathAwareCallRecord> expected = of(
       newCallRecord("visitAny", 1, null, of(1)),
       newCallRecord("visitProject", 1, null, of(1)),
       newCallRecord("visitAny", 11, 1, of(11, 1)),
@@ -123,10 +123,10 @@ public class ReportPathAwareCrawlerTest {
 
   @Test
   public void verify_preOrder_visit_call_when_visit_tree_with_depth_MODULE() {
-    TestPathAwareCrawler underTest = new TestPathAwareCrawler(MODULE, PRE_ORDER);
-    underTest.visit(SOME_TREE_ROOT);
+    CallRecorderPathAwareVisitor underTest = new CallRecorderPathAwareVisitor(MODULE, PRE_ORDER);
+    new PathAwareCrawler<>(underTest).visit(SOME_TREE_ROOT);
 
-    Iterator<CallRecord> expected = of(
+    Iterator<PathAwareCallRecord> expected = of(
       newCallRecord("visitAny", 1, null, of(1)),
       newCallRecord("visitProject", 1, null, of(1)),
       newCallRecord("visitAny", 11, 1, of(11, 1)),
@@ -141,10 +141,10 @@ public class ReportPathAwareCrawlerTest {
 
   @Test
   public void verify_preOrder_visit_call_when_visit_tree_with_depth_PROJECT() {
-    TestPathAwareCrawler underTest = new TestPathAwareCrawler(PROJECT, PRE_ORDER);
-    underTest.visit(SOME_TREE_ROOT);
+    CallRecorderPathAwareVisitor underTest = new CallRecorderPathAwareVisitor(PROJECT, PRE_ORDER);
+    new PathAwareCrawler<>(underTest).visit(SOME_TREE_ROOT);
 
-    Iterator<CallRecord> expected = of(
+    Iterator<PathAwareCallRecord> expected = of(
       newCallRecord("visitAny", 1, null, of(1)),
       newCallRecord("visitProject", 1, null, of(1))
       ).iterator();
@@ -153,10 +153,10 @@ public class ReportPathAwareCrawlerTest {
 
   @Test
   public void verify_postOrder_visit_call_when_visit_tree_with_depth_FILE() {
-    TestPathAwareCrawler underTest = new TestPathAwareCrawler(FILE, POST_ORDER);
-    underTest.visit(SOME_TREE_ROOT);
+    CallRecorderPathAwareVisitor underTest = new CallRecorderPathAwareVisitor(FILE, POST_ORDER);
+    new PathAwareCrawler<>(underTest).visit(SOME_TREE_ROOT);
 
-    Iterator<CallRecord> expected = of(
+    Iterator<PathAwareCallRecord> expected = of(
       newCallRecord("visitAny", 1111, 111, of(1111, 111, 11, 1)),
       newCallRecord("visitFile", 1111, 111, of(1111, 111, 11, 1)),
       newCallRecord("visitAny", 1112, 111, of(1112, 111, 11, 1)),
@@ -185,10 +185,10 @@ public class ReportPathAwareCrawlerTest {
 
   @Test
   public void verify_postOrder_visit_call_when_visit_tree_with_depth_DIRECTORY() {
-    TestPathAwareCrawler underTest = new TestPathAwareCrawler(DIRECTORY, POST_ORDER);
-    underTest.visit(SOME_TREE_ROOT);
+    CallRecorderPathAwareVisitor underTest = new CallRecorderPathAwareVisitor(DIRECTORY, POST_ORDER);
+    new PathAwareCrawler<>(underTest).visit(SOME_TREE_ROOT);
 
-    Iterator<CallRecord> expected = of(
+    Iterator<PathAwareCallRecord> expected = of(
       newCallRecord("visitAny", 111, 11, of(111, 11, 1)),
       newCallRecord("visitDirectory", 111, 11, of(111, 11, 1)),
       newCallRecord("visitAny", 112, 11, of(112, 11, 1)),
@@ -209,10 +209,10 @@ public class ReportPathAwareCrawlerTest {
 
   @Test
   public void verify_postOrder_visit_call_when_visit_tree_with_depth_MODULE() {
-    TestPathAwareCrawler underTest = new TestPathAwareCrawler(MODULE, POST_ORDER);
-    underTest.visit(SOME_TREE_ROOT);
+    CallRecorderPathAwareVisitor underTest = new CallRecorderPathAwareVisitor(MODULE, POST_ORDER);
+    new PathAwareCrawler<>(underTest).visit(SOME_TREE_ROOT);
 
-    Iterator<CallRecord> expected = of(
+    Iterator<PathAwareCallRecord> expected = of(
       newCallRecord("visitAny", 11, 1, of(11, 1)),
       newCallRecord("visitModule", 11, 1, of(11, 1)),
       newCallRecord("visitAny", 121, 12, of(121, 12, 1)),
@@ -227,25 +227,25 @@ public class ReportPathAwareCrawlerTest {
 
   @Test
   public void verify_postOrder_visit_call_when_visit_tree_with_depth_PROJECT() {
-    TestPathAwareCrawler underTest = new TestPathAwareCrawler(PROJECT, POST_ORDER);
-    underTest.visit(SOME_TREE_ROOT);
+    CallRecorderPathAwareVisitor underTest = new CallRecorderPathAwareVisitor(PROJECT, POST_ORDER);
+    new PathAwareCrawler<>(underTest).visit(SOME_TREE_ROOT);
 
-    Iterator<CallRecord> expected = of(
+    Iterator<PathAwareCallRecord> expected = of(
       newCallRecord("visitAny", 1, null, of(1)),
       newCallRecord("visitProject", 1, null, of(1))
       ).iterator();
     verifyCallRecords(expected, underTest.callsRecords.iterator());
   }
 
-  private static void verifyCallRecords(Iterator<CallRecord> expected, Iterator<CallRecord> actual) {
+  private static void verifyCallRecords(Iterator<PathAwareCallRecord> expected, Iterator<PathAwareCallRecord> actual) {
     while (expected.hasNext()) {
       assertThat(actual.next()).isEqualTo(expected.next());
     }
     assertThat(expected.hasNext()).isEqualTo(actual.hasNext());
   }
 
-  private static CallRecord newCallRecord(String method, int currentRef, @Nullable Integer parentRef, List<Integer> path) {
-    return CallRecord.reportCallRecord(method, currentRef, currentRef, parentRef, ROOT_REF, path);
+  private static PathAwareCallRecord newCallRecord(String method, int currentRef, @Nullable Integer parentRef, List<Integer> path) {
+    return PathAwareCallRecord.reportCallRecord(method, currentRef, currentRef, parentRef, ROOT_REF, path);
   }
 
 }

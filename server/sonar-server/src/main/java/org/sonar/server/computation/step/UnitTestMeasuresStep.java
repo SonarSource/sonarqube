@@ -23,12 +23,13 @@ package org.sonar.server.computation.step;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.Counter;
 import org.sonar.server.computation.formula.CreateMeasureContext;
 import org.sonar.server.computation.formula.FileAggregateContext;
 import org.sonar.server.computation.formula.Formula;
-import org.sonar.server.computation.formula.FormulaExecutorComponentCrawler;
+import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
 import org.sonar.server.computation.formula.SumCounter;
 import org.sonar.server.computation.formula.SumFormula;
 import org.sonar.server.computation.measure.Measure;
@@ -52,8 +53,7 @@ public class UnitTestMeasuresStep implements ComputationStep {
   private static final ImmutableList<Formula> FORMULAS = ImmutableList.<Formula>of(
     new SumFormula(TEST_EXECUTION_TIME_KEY),
     new SumFormula(SKIPPED_TESTS_KEY),
-    new UnitTestsFormula()
-    );
+    new UnitTestsFormula());
 
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;
@@ -67,9 +67,9 @@ public class UnitTestMeasuresStep implements ComputationStep {
 
   @Override
   public void execute() {
-    FormulaExecutorComponentCrawler.newBuilder(metricRepository, measureRepository)
-      .buildFor(FORMULAS)
-      .visit(treeRootHolder.getRoot());
+    new PathAwareCrawler<>(
+      FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository).buildFor(FORMULAS))
+        .visit(treeRootHolder.getRoot());
   }
 
   private static class UnitTestsFormula implements Formula<UnitTestsCounter> {
@@ -97,9 +97,8 @@ public class UnitTestMeasuresStep implements ComputationStep {
     }
 
     private static Optional<Measure> createMeasure(Component.Type componentType, Optional<Integer> metricValue) {
-      return (componentType.isHigherThan(Component.Type.FILE) && metricValue.isPresent()) ?
-        Optional.of(Measure.newMeasureBuilder().create(metricValue.get())) :
-        Optional.<Measure>absent();
+      return (componentType.isHigherThan(Component.Type.FILE) && metricValue.isPresent()) ? Optional.of(Measure.newMeasureBuilder().create(metricValue.get()))
+        : Optional.<Measure>absent();
     }
 
     private static Optional<Measure> createDensityMeasure(UnitTestsCounter counter) {

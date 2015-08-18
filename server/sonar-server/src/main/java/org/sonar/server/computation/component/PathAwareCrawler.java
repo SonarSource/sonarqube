@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.component;
 
+import static java.util.Objects.requireNonNull;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
@@ -28,29 +29,30 @@ import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_
  * parent's.
  * As for {@link DepthTraversalTypeAwareCrawler}, this crawler supports max depth visit and ordering.
  */
-public abstract class PathAwareCrawler<T> extends PathAwareVisitorAdapter<T> implements ComponentCrawler {
+public final class PathAwareCrawler<T> implements ComponentCrawler {
 
+  private final PathAwareVisitor<T> visitor;
   private final DequeBasedPath<T> stack = new DequeBasedPath<>();
 
-  public PathAwareCrawler(Component.Type maxDepth, ComponentVisitor.Order order, StackElementFactory<T> factory) {
-    super(maxDepth, order, factory);
+  public PathAwareCrawler(PathAwareVisitor<T> visitor) {
+    this.visitor = requireNonNull(visitor);
   }
 
   @Override
   public void visit(Component component) {
-    if (component.getType().isDeeperThan(getMaxDepth())) {
+    if (component.getType().isDeeperThan(this.visitor.getMaxDepth())) {
       return;
     }
 
     stack.add(new PathElementImpl<>(component, createForComponent(component)));
 
-    if (getOrder() == PRE_ORDER) {
+    if (this.visitor.getOrder() == PRE_ORDER) {
       visitNode(component);
     }
 
     visitChildren(component);
 
-    if (getOrder() == POST_ORDER) {
+    if (this.visitor.getOrder() == POST_ORDER) {
       visitNode(component);
     }
 
@@ -59,53 +61,59 @@ public abstract class PathAwareCrawler<T> extends PathAwareVisitorAdapter<T> imp
 
   private void visitChildren(Component component) {
     for (Component child : component.getChildren()) {
-      if (!child.getType().isDeeperThan(getMaxDepth())) {
+      if (!child.getType().isDeeperThan(this.visitor.getMaxDepth())) {
         visit(child);
       }
     }
   }
 
   private void visitNode(Component component) {
-    visitAny(component, stack);
+    this.visitor.visitAny(component, stack);
     switch (component.getType()) {
       case PROJECT:
-        visitProject(component, stack);
+        this.visitor.visitProject(component, stack);
         break;
       case MODULE:
-        visitModule(component, stack);
+        this.visitor.visitModule(component, stack);
         break;
       case DIRECTORY:
-        visitDirectory(component, stack);
+        this.visitor.visitDirectory(component, stack);
         break;
       case FILE:
-        visitFile(component, stack);
+        this.visitor.visitFile(component, stack);
         break;
       case VIEW:
-        visitView(component, stack);
+        this.visitor.visitView(component, stack);
         break;
       case SUBVIEW:
-        visitSubView(component, stack);
+        this.visitor.visitSubView(component, stack);
         break;
       case PROJECT_VIEW:
-        visitProjectView(component, stack);
+        this.visitor.visitProjectView(component, stack);
         break;
       default:
-        visitUnknown(component, stack);
+        this.visitor.visitUnknown(component, stack);
     }
   }
 
   private T createForComponent(Component component) {
     switch (component.getType()) {
       case PROJECT:
-        return getFactory().createForProject(component);
+        return this.visitor.getFactory().createForProject(component);
       case MODULE:
-        return getFactory().createForModule(component);
+        return this.visitor.getFactory().createForModule(component);
       case DIRECTORY:
-        return getFactory().createForDirectory(component);
+        return this.visitor.getFactory().createForDirectory(component);
       case FILE:
-        return getFactory().createForFile(component);
+        return this.visitor.getFactory().createForFile(component);
+      case VIEW:
+        return this.visitor.getFactory().createForView(component);
+      case SUBVIEW:
+        return this.visitor.getFactory().createForSubView(component);
+      case PROJECT_VIEW:
+        return this.visitor.getFactory().createForProjectView(component);
       default:
-        return getFactory().createForUnknown(component);
+        return this.visitor.getFactory().createForUnknown(component);
     }
   }
 

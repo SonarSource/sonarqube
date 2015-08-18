@@ -37,6 +37,7 @@ import org.sonar.db.measure.PastMeasureDto;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureKey;
 import org.sonar.server.computation.measure.MeasureRepository;
@@ -72,7 +73,7 @@ public class FillMeasuresWithVariationsStep implements ComputationStep {
   };
 
   public FillMeasuresWithVariationsStep(DbClient dbClient, TreeRootHolder treeRootHolder, PeriodsHolder periodsHolder, MetricRepository metricRepository,
-                                        MeasureRepository measureRepository) {
+    MeasureRepository measureRepository) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
     this.periodsHolder = periodsHolder;
@@ -85,13 +86,14 @@ public class FillMeasuresWithVariationsStep implements ComputationStep {
     DbSession dbSession = dbClient.openSession(false);
     try {
       Iterable<Metric> metrics = FluentIterable.from(metricRepository.getAll()).filter(NumericMetric.INSTANCE);
-      new VariationMeasuresCrawler(dbSession, metrics).visit(treeRootHolder.getRoot());
+      new DepthTraversalTypeAwareCrawler(new VariationMeasuresCrawler(dbSession, metrics))
+        .visit(treeRootHolder.getRoot());
     } finally {
       dbSession.close();
     }
   }
 
-  private class VariationMeasuresCrawler extends DepthTraversalTypeAwareCrawler {
+  private class VariationMeasuresCrawler extends TypeAwareVisitorAdapter {
 
     private final DbSession session;
     private final Set<Integer> metricIds;

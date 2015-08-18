@@ -24,12 +24,13 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.Counter;
 import org.sonar.server.computation.formula.CreateMeasureContext;
 import org.sonar.server.computation.formula.FileAggregateContext;
 import org.sonar.server.computation.formula.Formula;
-import org.sonar.server.computation.formula.FormulaExecutorComponentCrawler;
+import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
 import org.sonar.server.computation.formula.SumCounter;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
@@ -66,15 +67,14 @@ public class DuplicationMeasuresStep implements ComputationStep {
     this.formulas = ImmutableList.<Formula>of(
       new SumDuplicationFormula(DUPLICATED_BLOCKS_KEY),
       new SumDuplicationFormula(DUPLICATED_FILES_KEY),
-      new DuplicationFormula()
-      );
+      new DuplicationFormula());
   }
 
   @Override
   public void execute() {
-    FormulaExecutorComponentCrawler.newBuilder(metricRepository, measureRepository)
-      .buildFor(formulas)
-      .visit(treeRootHolder.getRoot());
+    new PathAwareCrawler<>(
+      FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository).buildFor(formulas))
+        .visit(treeRootHolder.getRoot());
   }
 
   private class DuplicationFormula implements Formula<SumDuplicationCounter> {

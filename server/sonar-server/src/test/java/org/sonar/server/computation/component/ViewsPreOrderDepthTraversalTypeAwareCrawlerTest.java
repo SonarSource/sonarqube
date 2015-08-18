@@ -21,12 +21,10 @@
 package org.sonar.server.computation.component;
 
 import org.junit.Test;
-import org.mockito.InOrder;
 
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.spy;
-import static org.sonar.server.computation.component.Component.Type.SUBVIEW;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.computation.component.Component.Type.PROJECT_VIEW;
+import static org.sonar.server.computation.component.Component.Type.SUBVIEW;
 import static org.sonar.server.computation.component.Component.Type.VIEW;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
@@ -39,169 +37,152 @@ public class ViewsPreOrderDepthTraversalTypeAwareCrawlerTest {
   private static final Component SUBVIEW_2 = component(SUBVIEW, 2, SUBVIEW_3);
   private static final Component COMPONENT_TREE = component(VIEW, 1, SUBVIEW_2);
 
-  private final DepthTraversalTypeAwareCrawler spyViewVisitor = spy(new DepthTraversalTypeAwareCrawler(VIEW, PRE_ORDER) {
-  });
-  private final DepthTraversalTypeAwareCrawler spySubViewVisitor = spy(new DepthTraversalTypeAwareCrawler(SUBVIEW, PRE_ORDER) {
-  });
-  private final DepthTraversalTypeAwareCrawler spyProjectViewVisitor = spy(new DepthTraversalTypeAwareCrawler(PROJECT_VIEW, PRE_ORDER) {
-  });
-  private final InOrder inOrder = inOrder(spyViewVisitor, spySubViewVisitor, spyProjectViewVisitor);
+  private final CallRecorderTypeAwareVisitor viewVisitor = new CallRecorderTypeAwareVisitor(VIEW, PRE_ORDER);
+  private final CallRecorderTypeAwareVisitor subViewVisitor = new CallRecorderTypeAwareVisitor(SUBVIEW, PRE_ORDER);
+  private final CallRecorderTypeAwareVisitor projectViewVisitor = new CallRecorderTypeAwareVisitor(PROJECT_VIEW, PRE_ORDER);
 
-  @Test(expected = NullPointerException.class)
-  public void non_null_max_depth_fast_fail() {
-    new DepthTraversalTypeAwareCrawler(null, PRE_ORDER) {
-    };
-  }
+  private final DepthTraversalTypeAwareCrawler viewCrawler = new DepthTraversalTypeAwareCrawler(viewVisitor);
+  private final DepthTraversalTypeAwareCrawler subViewCrawler = new DepthTraversalTypeAwareCrawler(subViewVisitor);
+  private final DepthTraversalTypeAwareCrawler projectViewCrawler = new DepthTraversalTypeAwareCrawler(projectViewVisitor);
 
   @Test(expected = NullPointerException.class)
   public void visit_null_Component_throws_NPE() {
-    spyProjectViewVisitor.visit(null);
+    projectViewCrawler.visit(null);
   }
 
   @Test
   public void visit_projectView_with_depth_PROJECT_VIEW_calls_visit_projectView() {
     Component component = component(PROJECT_VIEW, 1);
-    spyProjectViewVisitor.visit(component);
+    projectViewCrawler.visit(component);
 
-    inOrder.verify(spyProjectViewVisitor).visit(component);
-    inOrder.verify(spyProjectViewVisitor).visitAny(component);
-    inOrder.verify(spyProjectViewVisitor).visitProjectView(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(projectViewVisitor.callsRecords).containsExactly(
+        viewsCallRecord("visitAny", component),
+        viewsCallRecord("visitProjectView", component));
   }
 
   @Test
   public void visit_subView_with_depth_PROJECT_VIEW_calls_visit_subView() {
     Component component = component(SUBVIEW, 1);
-    spyProjectViewVisitor.visit(component);
+    projectViewCrawler.visit(component);
 
-    inOrder.verify(spyProjectViewVisitor).visit(component);
-    inOrder.verify(spyProjectViewVisitor).visitAny(component);
-    inOrder.verify(spyProjectViewVisitor).visitSubView(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(projectViewVisitor.callsRecords).containsExactly(
+        viewsCallRecord("visitAny", component),
+        viewsCallRecord("visitSubView", component));
   }
 
   @Test
   public void visit_view_with_depth_PROJECT_VIEW_calls_visit_view() {
     Component component = component(VIEW, 1);
-    spyProjectViewVisitor.visit(component);
+    projectViewCrawler.visit(component);
 
-    inOrder.verify(spyProjectViewVisitor).visit(component);
-    inOrder.verify(spyProjectViewVisitor).visitView(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(projectViewVisitor.callsRecords).containsExactly(
+        viewsCallRecord("visitAny", component),
+        viewsCallRecord("visitView", component));
   }
 
   @Test
   public void visit_projectView_with_depth_SUBVIEW_does_not_call_visit_projectView_nor_visitAny() {
     Component component = component(PROJECT_VIEW, 1);
-    spySubViewVisitor.visit(component);
+    subViewCrawler.visit(component);
 
-    inOrder.verify(spySubViewVisitor).visit(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(subViewVisitor.callsRecords).isEmpty();
   }
 
   @Test
   public void visit_subView_with_depth_SUBVIEW_calls_visit_subView() {
     Component component = component(SUBVIEW, 1);
-    spySubViewVisitor.visit(component);
+    subViewCrawler.visit(component);
 
-    inOrder.verify(spySubViewVisitor).visit(component);
-    inOrder.verify(spySubViewVisitor).visitAny(component);
-    inOrder.verify(spySubViewVisitor).visitSubView(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(subViewVisitor.callsRecords).containsExactly(
+        viewsCallRecord("visitAny", component),
+        viewsCallRecord("visitSubView", component));
   }
 
   @Test
   public void visit_view_with_depth_SUBVIEW_calls_visit_view() {
     Component component = component(VIEW, 1);
-    spySubViewVisitor.visit(component);
+    subViewCrawler.visit(component);
 
-    inOrder.verify(spySubViewVisitor).visit(component);
-    inOrder.verify(spySubViewVisitor).visitAny(component);
-    inOrder.verify(spySubViewVisitor).visitView(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(subViewVisitor.callsRecords).containsExactly(
+        viewsCallRecord("visitAny", component),
+        viewsCallRecord("visitView", component));
   }
 
   @Test
   public void visit_projectView_with_depth_VIEW_does_not_call_visit_projectView_nor_visitAny() {
     Component component = component(PROJECT_VIEW, 1);
-    spyViewVisitor.visit(component);
+    viewCrawler.visit(component);
 
-    inOrder.verify(spyViewVisitor).visit(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(viewVisitor.callsRecords).isEmpty();
   }
 
   @Test
   public void visit_subView_with_depth_VIEW_does_not_call_visit_subView_nor_visitAny() {
     Component component = component(SUBVIEW, 1);
-    spyViewVisitor.visit(component);
+    viewCrawler.visit(component);
 
-    inOrder.verify(spyViewVisitor).visit(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(viewVisitor.callsRecords).isEmpty();
   }
 
   @Test
   public void visit_view_with_depth_VIEW_calls_visit_view_nor_visitAny() {
     Component component = component(VIEW, 1);
-    spyViewVisitor.visit(component);
+    viewCrawler.visit(component);
 
-    inOrder.verify(spyViewVisitor).visit(component);
-    inOrder.verify(spyViewVisitor).visitAny(component);
-    inOrder.verify(spyViewVisitor).visitView(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(viewVisitor.callsRecords).containsExactly(
+        viewsCallRecord("visitAny", component),
+        viewsCallRecord("visitView", component));
   }
 
   @Test
   public void verify_visit_call_when_visit_tree_with_depth_PROJECT_VIEW() {
-    spyProjectViewVisitor.visit(COMPONENT_TREE);
+    projectViewCrawler.visit(COMPONENT_TREE);
 
-    inOrder.verify(spyProjectViewVisitor).visit(COMPONENT_TREE);
-    inOrder.verify(spyProjectViewVisitor).visitAny(COMPONENT_TREE);
-    inOrder.verify(spyProjectViewVisitor).visitView(COMPONENT_TREE);
-    inOrder.verify(spyProjectViewVisitor).visit(SUBVIEW_2);
-    inOrder.verify(spyProjectViewVisitor).visitAny(SUBVIEW_2);
-    inOrder.verify(spyProjectViewVisitor).visitSubView(SUBVIEW_2);
-    inOrder.verify(spyProjectViewVisitor).visit(SUBVIEW_3);
-    inOrder.verify(spyProjectViewVisitor).visitAny(SUBVIEW_3);
-    inOrder.verify(spyProjectViewVisitor).visitSubView(SUBVIEW_3);
-    inOrder.verify(spyProjectViewVisitor).visit(SUBVIEW_4);
-    inOrder.verify(spyProjectViewVisitor).visitAny(SUBVIEW_4);
-    inOrder.verify(spyProjectViewVisitor).visitSubView(SUBVIEW_4);
-    inOrder.verify(spyProjectViewVisitor).visit(PROJECT_VIEW_5);
-    inOrder.verify(spyProjectViewVisitor).visitAny(PROJECT_VIEW_5);
-    inOrder.verify(spyProjectViewVisitor).visitProjectView(PROJECT_VIEW_5);
-    inOrder.verify(spyProjectViewVisitor).visit(PROJECT_VIEW_6);
-    inOrder.verify(spyProjectViewVisitor).visitAny(PROJECT_VIEW_6);
-    inOrder.verify(spyProjectViewVisitor).visitProjectView(PROJECT_VIEW_6);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(projectViewVisitor.callsRecords).containsExactly(
+        viewsCallRecord("visitAny", COMPONENT_TREE),
+        viewsCallRecord("visitView", COMPONENT_TREE),
+        viewsCallRecord("visitAny", SUBVIEW_2),
+        viewsCallRecord("visitSubView", SUBVIEW_2),
+        viewsCallRecord("visitAny", SUBVIEW_3),
+        viewsCallRecord("visitSubView", SUBVIEW_3),
+        viewsCallRecord("visitAny", SUBVIEW_4),
+        viewsCallRecord("visitSubView", SUBVIEW_4),
+        viewsCallRecord("visitAny", PROJECT_VIEW_5),
+        viewsCallRecord("visitProjectView", PROJECT_VIEW_5),
+        viewsCallRecord("visitAny", PROJECT_VIEW_6),
+        viewsCallRecord("visitProjectView", PROJECT_VIEW_6));
   }
 
   @Test
   public void verify_visit_call_when_visit_tree_with_depth_SUBVIEW() {
-    spySubViewVisitor.visit(COMPONENT_TREE);
+    subViewCrawler.visit(COMPONENT_TREE);
 
-    inOrder.verify(spySubViewVisitor).visit(COMPONENT_TREE);
-    inOrder.verify(spySubViewVisitor).visitView(COMPONENT_TREE);
-    inOrder.verify(spySubViewVisitor).visit(SUBVIEW_2);
-    inOrder.verify(spySubViewVisitor).visitSubView(SUBVIEW_2);
-    inOrder.verify(spySubViewVisitor).visit(SUBVIEW_3);
-    inOrder.verify(spySubViewVisitor).visitSubView(SUBVIEW_3);
-    inOrder.verify(spySubViewVisitor).visit(SUBVIEW_4);
-    inOrder.verify(spySubViewVisitor).visitSubView(SUBVIEW_4);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(subViewVisitor.callsRecords).containsExactly(
+        viewsCallRecord("visitAny", COMPONENT_TREE),
+        viewsCallRecord("visitView", COMPONENT_TREE),
+        viewsCallRecord("visitAny", SUBVIEW_2),
+        viewsCallRecord("visitSubView", SUBVIEW_2),
+        viewsCallRecord("visitAny", SUBVIEW_3),
+        viewsCallRecord("visitSubView", SUBVIEW_3),
+        viewsCallRecord("visitAny", SUBVIEW_4),
+        viewsCallRecord("visitSubView", SUBVIEW_4));
   }
 
   @Test
   public void verify_visit_call_when_visit_tree_with_depth_VIEW() {
-    spyViewVisitor.visit(COMPONENT_TREE);
+    viewCrawler.visit(COMPONENT_TREE);
 
-    inOrder.verify(spyViewVisitor).visit(COMPONENT_TREE);
-    inOrder.verify(spyViewVisitor).visitAny(COMPONENT_TREE);
-    inOrder.verify(spyViewVisitor).visitView(COMPONENT_TREE);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(viewVisitor.callsRecords).containsExactly(
+        viewsCallRecord("visitAny", COMPONENT_TREE),
+        viewsCallRecord("visitView", COMPONENT_TREE));
   }
 
   private static Component component(final Component.Type type, final int ref, final Component... children) {
     return ViewsComponent.builder(type, ref).addChildren(children).build();
+  }
+
+  private static CallRecord viewsCallRecord(String methodName, Component component) {
+    return CallRecord.viewsCallRecord(methodName, component.getKey());
   }
 
 }

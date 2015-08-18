@@ -35,6 +35,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.ReportTreeRootHolder;
+import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
@@ -60,19 +61,20 @@ public class PersistDuplicationsStep implements ComputationStep {
     DbSession session = dbClient.openSession(true);
     try {
       MetricDto duplicationMetric = dbClient.metricDao().selectOrFailByKey(session, CoreMetrics.DUPLICATIONS_DATA_KEY);
-      new DuplicationCrawler(session, duplicationMetric).visit(treeRootHolder.getRoot());
+      new DepthTraversalTypeAwareCrawler(new DuplicationVisitor(session, duplicationMetric))
+        .visit(treeRootHolder.getRoot());
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private class DuplicationCrawler extends DepthTraversalTypeAwareCrawler {
+  private class DuplicationVisitor extends TypeAwareVisitorAdapter {
 
     private final DbSession session;
     private final MetricDto duplicationMetric;
 
-    private DuplicationCrawler(DbSession session, MetricDto duplicationMetric) {
+    private DuplicationVisitor(DbSession session, MetricDto duplicationMetric) {
       super(Component.Type.FILE, PRE_ORDER);
       this.session = session;
       this.duplicationMetric = duplicationMetric;

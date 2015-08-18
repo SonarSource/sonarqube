@@ -20,9 +20,10 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.collect.ImmutableList;
+import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.Formula;
-import org.sonar.server.computation.formula.FormulaExecutorComponentCrawler;
+import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
 import org.sonar.server.computation.formula.SumFormula;
 import org.sonar.server.computation.formula.coverage.LinesAndConditionsWithUncoveredFormula;
 import org.sonar.server.computation.formula.coverage.LinesAndConditionsWithUncoveredMetricKeys;
@@ -67,7 +68,7 @@ public class CoverageMeasuresStep implements ComputationStep {
     new BranchCoverageFormula(),
     new LineCoverageFormula(),
 
-    // integration test
+  // integration test
     new SumFormula(IT_LINES_TO_COVER_KEY),
     new SumFormula(IT_UNCOVERED_LINES_KEY),
     new SumFormula(IT_CONDITIONS_TO_COVER_KEY),
@@ -76,15 +77,14 @@ public class CoverageMeasuresStep implements ComputationStep {
     new ItBranchCoverageFormula(),
     new ItLineCoverageFormula(),
 
-    // overall test
+  // overall test
     new SumFormula(OVERALL_LINES_TO_COVER_KEY),
     new SumFormula(OVERALL_UNCOVERED_LINES_KEY),
     new SumFormula(OVERALL_CONDITIONS_TO_COVER_KEY),
     new SumFormula(OVERALL_UNCOVERED_CONDITIONS_KEY),
     new OverallCodeCoverageFormula(),
     new OverallBranchCoverageFormula(),
-    new OverallLineCoverageFormula()
-    );
+    new OverallLineCoverageFormula());
 
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;
@@ -98,9 +98,9 @@ public class CoverageMeasuresStep implements ComputationStep {
 
   @Override
   public void execute() {
-    FormulaExecutorComponentCrawler.newBuilder(metricRepository, measureRepository)
-      .buildFor(COVERAGE_FORMULAS)
-      .visit(treeRootHolder.getRoot());
+    new PathAwareCrawler<>(
+      FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository).buildFor(COVERAGE_FORMULAS))
+        .visit(treeRootHolder.getRoot());
   }
 
   private static class CodeCoverageFormula extends LinesAndConditionsWithUncoveredFormula {
@@ -108,8 +108,7 @@ public class CoverageMeasuresStep implements ComputationStep {
       super(
         new LinesAndConditionsWithUncoveredMetricKeys(
           LINES_TO_COVER_KEY, CONDITIONS_TO_COVER_KEY,
-          UNCOVERED_LINES_KEY, UNCOVERED_CONDITIONS_KEY
-        ),
+          UNCOVERED_LINES_KEY, UNCOVERED_CONDITIONS_KEY),
         COVERAGE_KEY);
     }
   }
@@ -119,8 +118,7 @@ public class CoverageMeasuresStep implements ComputationStep {
       super(
         new LinesAndConditionsWithUncoveredMetricKeys(
           IT_LINES_TO_COVER_KEY, IT_CONDITIONS_TO_COVER_KEY,
-          IT_UNCOVERED_LINES_KEY, IT_UNCOVERED_CONDITIONS_KEY
-        ),
+          IT_UNCOVERED_LINES_KEY, IT_UNCOVERED_CONDITIONS_KEY),
         IT_COVERAGE_KEY);
     }
   }
@@ -130,8 +128,7 @@ public class CoverageMeasuresStep implements ComputationStep {
       super(
         new LinesAndConditionsWithUncoveredMetricKeys(
           OVERALL_LINES_TO_COVER_KEY, OVERALL_CONDITIONS_TO_COVER_KEY,
-          OVERALL_UNCOVERED_LINES_KEY, OVERALL_UNCOVERED_CONDITIONS_KEY
-        ),
+          OVERALL_UNCOVERED_LINES_KEY, OVERALL_UNCOVERED_CONDITIONS_KEY),
         OVERALL_COVERAGE_KEY);
     }
   }
@@ -140,8 +137,7 @@ public class CoverageMeasuresStep implements ComputationStep {
     public BranchCoverageFormula() {
       super(
         new SingleWithUncoveredMetricKeys(
-          CONDITIONS_TO_COVER_KEY, UNCOVERED_CONDITIONS_KEY
-        ),
+          CONDITIONS_TO_COVER_KEY, UNCOVERED_CONDITIONS_KEY),
         BRANCH_COVERAGE_KEY);
     }
   }
@@ -150,8 +146,7 @@ public class CoverageMeasuresStep implements ComputationStep {
     public ItBranchCoverageFormula() {
       super(
         new SingleWithUncoveredMetricKeys(
-          IT_CONDITIONS_TO_COVER_KEY, IT_UNCOVERED_CONDITIONS_KEY
-        ),
+          IT_CONDITIONS_TO_COVER_KEY, IT_UNCOVERED_CONDITIONS_KEY),
         IT_BRANCH_COVERAGE_KEY);
     }
   }
@@ -184,8 +179,7 @@ public class CoverageMeasuresStep implements ComputationStep {
     public OverallLineCoverageFormula() {
       super(
         new SingleWithUncoveredMetricKeys(
-          OVERALL_LINES_TO_COVER_KEY, OVERALL_UNCOVERED_LINES_KEY
-        ),
+          OVERALL_LINES_TO_COVER_KEY, OVERALL_UNCOVERED_LINES_KEY),
         OVERALL_LINE_COVERAGE_KEY);
     }
   }

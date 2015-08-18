@@ -35,6 +35,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 import org.sonar.server.computation.measure.BestValueOptimization;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
@@ -56,8 +57,7 @@ public class PersistMeasuresStep implements ComputationStep {
   private static final List<String> NOT_TO_PERSIST_ON_FILE_METRIC_KEYS = ImmutableList.of(
     FILE_COMPLEXITY_DISTRIBUTION_KEY,
     FUNCTION_COMPLEXITY_DISTRIBUTION_KEY,
-    CLASS_COMPLEXITY_DISTRIBUTION_KEY
-    );
+    CLASS_COMPLEXITY_DISTRIBUTION_KEY);
 
   private final DbClient dbClient;
   private final MetricRepository metricRepository;
@@ -83,14 +83,14 @@ public class PersistMeasuresStep implements ComputationStep {
   public void execute() {
     DbSession dbSession = dbClient.openSession(true);
     try {
-      new MeasureCrawler(dbSession).visit(treeRootHolder.getRoot());
+      new DepthTraversalTypeAwareCrawler(new MeasureCrawler(dbSession)).visit(treeRootHolder.getRoot());
       dbSession.commit();
     } finally {
       dbSession.close();
     }
   }
 
-  private class MeasureCrawler extends DepthTraversalTypeAwareCrawler {
+  private class MeasureCrawler extends TypeAwareVisitorAdapter {
     private final DbSession session;
 
     private MeasureCrawler(DbSession session) {

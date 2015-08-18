@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
@@ -59,11 +60,11 @@ public class AverageFormulaExecutionTest {
   @Rule
   public PeriodsHolderRule periodsHolder = new PeriodsHolderRule();
 
-  FormulaExecutorComponentCrawler underTest;
+  FormulaExecutorComponentVisitor underTest;
 
   @Before
   public void setUp() throws Exception {
-    underTest = FormulaExecutorComponentCrawler.newBuilder(metricRepository, measureRepository)
+    underTest = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
       .buildFor(Lists.<Formula>newArrayList(
         AverageFormula.Builder.newBuilder()
           .setOutputMetricKey(FUNCTION_COMPLEXITY_KEY)
@@ -104,7 +105,7 @@ public class AverageFormulaExecutionTest {
     measureRepository.addRawMeasure(1211, COMPLEXITY_IN_FUNCTIONS_KEY, newMeasureBuilder().create(9));
     measureRepository.addRawMeasure(1211, FUNCTIONS_KEY, newMeasureBuilder().create(2));
 
-    underTest.visit(project);
+    new PathAwareCrawler<>(underTest).visit(project);
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(1))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(3d)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(11))).containsOnly(entryOf(FUNCTION_COMPLEXITY_KEY, newMeasureBuilder().create(2d)));
@@ -131,7 +132,7 @@ public class AverageFormulaExecutionTest {
 
     treeRootHolder.setRoot(project);
 
-    underTest.visit(project);
+    new PathAwareCrawler<>(underTest).visit(project);
 
     assertThat(measureRepository.getAddedRawMeasures(1)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(11)).isEmpty();

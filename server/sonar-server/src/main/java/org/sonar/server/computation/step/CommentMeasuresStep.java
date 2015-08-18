@@ -23,12 +23,13 @@ package org.sonar.server.computation.step;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.Counter;
 import org.sonar.server.computation.formula.CreateMeasureContext;
 import org.sonar.server.computation.formula.FileAggregateContext;
 import org.sonar.server.computation.formula.Formula;
-import org.sonar.server.computation.formula.FormulaExecutorComponentCrawler;
+import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
 import org.sonar.server.computation.formula.SumCounter;
 import org.sonar.server.computation.formula.SumFormula;
 import org.sonar.server.computation.measure.Measure;
@@ -62,15 +63,14 @@ public class CommentMeasuresStep implements ComputationStep {
     this.formulas = ImmutableList.<Formula>of(
       new SumFormula(COMMENTED_OUT_CODE_LINES_KEY),
       new DocumentationFormula(),
-      new CommentDensityFormula()
-      );
+      new CommentDensityFormula());
   }
 
   @Override
   public void execute() {
-    FormulaExecutorComponentCrawler.newBuilder(metricRepository, measureRepository)
-      .buildFor(formulas)
-      .visit(treeRootHolder.getRoot());
+    new PathAwareCrawler<>(
+      FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository).buildFor(formulas))
+        .visit(treeRootHolder.getRoot());
   }
 
   private class CommentDensityFormula implements Formula<SumCounter> {

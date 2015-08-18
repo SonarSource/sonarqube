@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.formula.counter.IntVariationValue;
 import org.sonar.server.computation.measure.Measure;
@@ -51,7 +52,7 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 
-public class FormulaExecutorComponentCrawlerTest {
+public class FormulaExecutorComponentVisitorTest {
   public static final ReportComponent BALANCED_COMPONENT_TREE = ReportComponent.builder(PROJECT, 1)
     .addChildren(
       ReportComponent.builder(MODULE, 11)
@@ -84,7 +85,7 @@ public class FormulaExecutorComponentCrawlerTest {
   public PeriodsHolderRule periodsHolder = new PeriodsHolderRule()
     .setPeriods(new Period(2, "some mode", null, 95l, 756l), new Period(5, "some other mode", null, 756L, 956L));
 
-  FormulaExecutorComponentCrawler underTest = FormulaExecutorComponentCrawler.newBuilder(metricRepository, measureRepository)
+  FormulaExecutorComponentVisitor underTest = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
     .withVariationSupport(periodsHolder)
     .buildFor(ImmutableList.<Formula>of(new FakeFormula(), new FakeVariationFormula()));
 
@@ -96,7 +97,7 @@ public class FormulaExecutorComponentCrawlerTest {
     measureRepository.addRawMeasure(1112, LINES_KEY, newMeasureBuilder().create(8));
     measureRepository.addRawMeasure(1211, LINES_KEY, newMeasureBuilder().create(2));
 
-    underTest.visit(BALANCED_COMPONENT_TREE);
+    new PathAwareCrawler<>(underTest).visit(BALANCED_COMPONENT_TREE);
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(1))).containsOnly(entryOf(NCLOC_KEY, newMeasureBuilder().create(20)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(11))).containsOnly(entryOf(NCLOC_KEY, newMeasureBuilder().create(18)));
@@ -117,10 +118,10 @@ public class FormulaExecutorComponentCrawlerTest {
     measureRepository.addRawMeasure(1112, LINES_KEY, newMeasureBuilder().create(8));
     measureRepository.addRawMeasure(1211, LINES_KEY, newMeasureBuilder().create(2));
 
-    FormulaExecutorComponentCrawler underTest = FormulaExecutorComponentCrawler.newBuilder(metricRepository, measureRepository)
+    FormulaExecutorComponentVisitor underTest = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
       .withVariationSupport(periodsHolder)
       .buildFor(ImmutableList.<Formula>of(new FakeMultiMetricFormula()));
-    underTest.visit(BALANCED_COMPONENT_TREE);
+    new PathAwareCrawler<>(underTest).visit(BALANCED_COMPONENT_TREE);
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(1))).containsOnly(
       entryOf(NEW_LINES_TO_COVER_KEY, newMeasureBuilder().create(30)),
@@ -156,7 +157,7 @@ public class FormulaExecutorComponentCrawlerTest {
     measureRepository.addRawMeasure(1112, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(8, 16));
     measureRepository.addRawMeasure(1211, NEW_LINES_TO_COVER_KEY, createMeasureWithVariation(2, 4));
 
-    underTest.visit(BALANCED_COMPONENT_TREE);
+    new PathAwareCrawler<>(underTest).visit(BALANCED_COMPONENT_TREE);
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(1))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(20, 40)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(11))).containsOnly(entryOf(NEW_IT_COVERAGE_KEY, createMeasureWithVariation(18, 36)));
@@ -186,7 +187,7 @@ public class FormulaExecutorComponentCrawlerTest {
       ).build();
     treeRootHolder.setRoot(project);
 
-    underTest.visit(project);
+    new PathAwareCrawler<>(underTest).visit(project);
 
     assertThat(measureRepository.getAddedRawMeasures(1)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(11)).isEmpty();
@@ -205,7 +206,7 @@ public class FormulaExecutorComponentCrawlerTest {
       ).build();
     treeRootHolder.setRoot(project);
 
-    underTest.visit(project);
+    new PathAwareCrawler<>(underTest).visit(project);
 
     assertThat(measureRepository.getAddedRawMeasures(1)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(11)).isEmpty();

@@ -27,6 +27,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.MessageException;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.PathAwareCrawler;
+import org.sonar.server.computation.component.PathAwareVisitorAdapter;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
@@ -56,10 +57,11 @@ public class ComputeQProfileMeasureStep implements ComputationStep {
   @Override
   public void execute() {
     Metric qProfilesMetric = metricRepository.getByKey(CoreMetrics.QUALITY_PROFILES_KEY);
-    new NewCoverageAggregationComponentCrawler(qProfilesMetric).visit(treeRootHolder.getRoot());
+    new PathAwareCrawler<>(new NewCoverageAggregationComponentCrawler(qProfilesMetric))
+      .visit(treeRootHolder.getRoot());
   }
 
-  private class NewCoverageAggregationComponentCrawler extends PathAwareCrawler<QProfiles> {
+  private class NewCoverageAggregationComponentCrawler extends PathAwareVisitorAdapter<QProfiles> {
 
     private final Metric qProfilesMetric;
 

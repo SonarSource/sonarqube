@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
@@ -51,11 +52,11 @@ public class SumFormulaExecutionTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  FormulaExecutorComponentCrawler underTest;
+  FormulaExecutorComponentVisitor underTest;
 
   @Before
   public void setUp() throws Exception {
-    underTest = FormulaExecutorComponentCrawler.newBuilder(metricRepository, measureRepository)
+    underTest = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
       .buildFor(Lists.<Formula>newArrayList(new SumFormula(LINES_KEY)));
   }
 
@@ -86,7 +87,7 @@ public class SumFormulaExecutionTest {
     measureRepository.addRawMeasure(1112, LINES_KEY, newMeasureBuilder().create(8));
     measureRepository.addRawMeasure(1211, LINES_KEY, newMeasureBuilder().create(2));
 
-    underTest.visit(project);
+    new PathAwareCrawler<>(underTest).visit(project);
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(1))).containsOnly(entryOf(LINES_KEY, newMeasureBuilder().create(20)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(11))).containsOnly(entryOf(LINES_KEY, newMeasureBuilder().create(18)));
@@ -113,7 +114,7 @@ public class SumFormulaExecutionTest {
 
     treeRootHolder.setRoot(project);
 
-    underTest.visit(project);
+    new PathAwareCrawler<>(underTest).visit(project);
 
     assertThat(measureRepository.getAddedRawMeasures(1)).isEmpty();
     assertThat(measureRepository.getAddedRawMeasures(11)).isEmpty();

@@ -45,6 +45,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
+import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 
@@ -83,7 +84,7 @@ public class ValidateProjectStep implements ComputationStep {
       Map<String, ComponentDto> baseModulesByKey = FluentIterable.from(baseModules).uniqueIndex(ComponentDtoToKey.INSTANCE);
       ValidateProjectsCrawler visitor = new ValidateProjectsCrawler(session, dbClient.componentDao(),
         settings.getBoolean(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION), baseModulesByKey);
-      visitor.visit(treeRootHolder.getRoot());
+      new DepthTraversalTypeAwareCrawler(visitor).visit(treeRootHolder.getRoot());
 
       if (!visitor.validationMessages.isEmpty()) {
         throw MessageException.of("Validation of project failed:\n  o " + MESSAGES_JOINER.join(visitor.validationMessages));
@@ -98,7 +99,7 @@ public class ValidateProjectStep implements ComputationStep {
     return "Validate project and modules keys";
   }
 
-  private class ValidateProjectsCrawler extends DepthTraversalTypeAwareCrawler {
+  private class ValidateProjectsCrawler extends TypeAwareVisitorAdapter {
     private final DbSession session;
     private final ComponentDao componentDao;
     private final boolean preventAutomaticProjectCreation;

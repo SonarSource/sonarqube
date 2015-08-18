@@ -21,10 +21,8 @@
 package org.sonar.server.computation.component;
 
 import org.junit.Test;
-import org.mockito.InOrder;
 
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.spy;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
@@ -40,258 +38,231 @@ public class ReportPreOrderDepthTraversalTypeAwareCrawlerTest {
   private static final Component MODULE_2 = component(MODULE, 2, MODULE_3);
   private static final Component COMPONENT_TREE = component(PROJECT, 1, MODULE_2);
 
-  private final DepthTraversalTypeAwareCrawler spyProjectVisitor = spy(new DepthTraversalTypeAwareCrawler(PROJECT, PRE_ORDER) {
-  });
-  private final DepthTraversalTypeAwareCrawler spyModuleVisitor = spy(new DepthTraversalTypeAwareCrawler(MODULE, PRE_ORDER) {
-  });
-  private final DepthTraversalTypeAwareCrawler spyDirectoryVisitor = spy(new DepthTraversalTypeAwareCrawler(DIRECTORY, PRE_ORDER) {
-  });
-  private final DepthTraversalTypeAwareCrawler spyFileVisitor = spy(new DepthTraversalTypeAwareCrawler(FILE, PRE_ORDER) {
-  });
-  private final InOrder inOrder = inOrder(spyProjectVisitor, spyModuleVisitor, spyDirectoryVisitor, spyFileVisitor);
+  private final CallRecorderTypeAwareVisitor projectVisitor = new CallRecorderTypeAwareVisitor(PROJECT, PRE_ORDER);
+  private final CallRecorderTypeAwareVisitor moduleVisitor = new CallRecorderTypeAwareVisitor(MODULE, PRE_ORDER);
+  private final CallRecorderTypeAwareVisitor directoryVisitor = new CallRecorderTypeAwareVisitor(DIRECTORY, PRE_ORDER);
+  private final CallRecorderTypeAwareVisitor fileVisitor = new CallRecorderTypeAwareVisitor(FILE, PRE_ORDER);
 
-  @Test(expected = NullPointerException.class)
-  public void non_null_max_depth_fast_fail() {
-    new DepthTraversalTypeAwareCrawler(null, PRE_ORDER) {
-    };
-  }
+  private final DepthTraversalTypeAwareCrawler projectCrawler = new DepthTraversalTypeAwareCrawler(projectVisitor);
+  private final DepthTraversalTypeAwareCrawler moduleCrawler = new DepthTraversalTypeAwareCrawler(moduleVisitor);
+  private final DepthTraversalTypeAwareCrawler directoryCrawler = new DepthTraversalTypeAwareCrawler(directoryVisitor);
+  private final DepthTraversalTypeAwareCrawler fileCrawler = new DepthTraversalTypeAwareCrawler(fileVisitor);
 
   @Test(expected = NullPointerException.class)
   public void visit_null_Component_throws_NPE() {
-    spyFileVisitor.visit(null);
+    fileCrawler.visit(null);
   }
 
   @Test
   public void visit_file_with_depth_FILE_calls_visit_file() {
     Component component = component(FILE, 1);
-    spyFileVisitor.visit(component);
+    fileCrawler.visit(component);
 
-    inOrder.verify(spyFileVisitor).visit(component);
-    inOrder.verify(spyFileVisitor).visitAny(component);
-    inOrder.verify(spyFileVisitor).visitFile(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(fileVisitor.callsRecords).containsExactly(
+      reportCallRecord("visitAny", component),
+      reportCallRecord("visitFile", component));
   }
 
   @Test
   public void visit_module_with_depth_FILE_calls_visit_module() {
     Component component = component(MODULE, 1);
-    spyFileVisitor.visit(component);
+    fileCrawler.visit(component);
 
-    inOrder.verify(spyFileVisitor).visit(component);
-    inOrder.verify(spyFileVisitor).visitAny(component);
-    inOrder.verify(spyFileVisitor).visitModule(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(fileVisitor.callsRecords).containsExactly(
+      reportCallRecord("visitAny", component),
+      reportCallRecord("visitModule", component));
   }
 
   @Test
   public void visit_directory_with_depth_FILE_calls_visit_directory() {
     Component component = component(DIRECTORY, 1);
-    spyFileVisitor.visit(component);
+    fileCrawler.visit(component);
 
-    inOrder.verify(spyFileVisitor).visit(component);
-    inOrder.verify(spyFileVisitor).visitAny(component);
-    inOrder.verify(spyFileVisitor).visitDirectory(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(fileVisitor.callsRecords).containsExactly(
+      reportCallRecord("visitAny", component),
+      reportCallRecord("visitDirectory", component));
   }
 
   @Test
   public void visit_project_with_depth_FILE_calls_visit_project() {
     Component component = component(PROJECT, 1);
-    spyFileVisitor.visit(component);
+    fileCrawler.visit(component);
 
-    inOrder.verify(spyFileVisitor).visit(component);
-    inOrder.verify(spyFileVisitor).visitProject(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(fileVisitor.callsRecords).containsExactly(
+      reportCallRecord("visitAny", component),
+      reportCallRecord("visitProject", component));
   }
 
   @Test
   public void visit_file_with_depth_DIRECTORY_does_not_call_visit_file_nor_visitAny() {
     Component component = component(FILE, 1);
-    spyDirectoryVisitor.visit(component);
+    directoryCrawler.visit(component);
 
-    inOrder.verify(spyDirectoryVisitor).visit(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(directoryVisitor.callsRecords).isEmpty();
   }
 
   @Test
   public void visit_directory_with_depth_DIRECTORY_calls_visit_directory() {
     Component component = component(DIRECTORY, 1);
-    spyDirectoryVisitor.visit(component);
+    directoryCrawler.visit(component);
 
-    inOrder.verify(spyDirectoryVisitor).visit(component);
-    inOrder.verify(spyDirectoryVisitor).visitAny(component);
-    inOrder.verify(spyDirectoryVisitor).visitDirectory(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(directoryVisitor.callsRecords).containsExactly(
+      reportCallRecord("visitAny", component),
+      reportCallRecord("visitDirectory", component));
   }
 
   @Test
   public void visit_module_with_depth_DIRECTORY_calls_visit_module() {
     Component component = component(MODULE, 1);
-    spyDirectoryVisitor.visit(component);
+    directoryCrawler.visit(component);
 
-    inOrder.verify(spyDirectoryVisitor).visit(component);
-    inOrder.verify(spyDirectoryVisitor).visitAny(component);
-    inOrder.verify(spyDirectoryVisitor).visitModule(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(directoryVisitor.callsRecords).containsExactly(
+      reportCallRecord("visitAny", component),
+      reportCallRecord("visitModule", component));
   }
 
   @Test
   public void visit_project_with_depth_DIRECTORY_calls_visit_project() {
     Component component = component(PROJECT, 1);
-    spyDirectoryVisitor.visit(component);
+    directoryCrawler.visit(component);
 
-    inOrder.verify(spyDirectoryVisitor).visit(component);
-    inOrder.verify(spyDirectoryVisitor).visitAny(component);
-    inOrder.verify(spyDirectoryVisitor).visitProject(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(directoryVisitor.callsRecords).containsExactly(
+      reportCallRecord("visitAny", component),
+      reportCallRecord("visitProject", component));
   }
 
   @Test
   public void visit_file_with_depth_MODULE_does_not_call_visit_file_nor_visit_any() {
     Component component = component(FILE, 1);
-    spyModuleVisitor.visit(component);
+    moduleCrawler.visit(component);
 
-    inOrder.verify(spyModuleVisitor).visit(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(moduleVisitor.callsRecords).isEmpty();
   }
 
   @Test
   public void visit_directory_with_depth_MODULE_does_not_call_visit_directory_not_visit_any() {
     Component component = component(DIRECTORY, 1);
-    spyModuleVisitor.visit(component);
+    moduleCrawler.visit(component);
 
-    inOrder.verify(spyModuleVisitor).visit(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(moduleVisitor.callsRecords).isEmpty();
   }
 
   @Test
   public void visit_module_with_depth_MODULE_calls_visit_module() {
     Component component = component(MODULE, 1);
-    spyModuleVisitor.visit(component);
+    moduleCrawler.visit(component);
 
-    inOrder.verify(spyModuleVisitor).visit(component);
-    inOrder.verify(spyModuleVisitor).visitAny(component);
-    inOrder.verify(spyModuleVisitor).visitModule(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(moduleVisitor.callsRecords).containsExactly(
+      reportCallRecord("visitAny", component),
+      reportCallRecord("visitModule", component));
   }
 
   @Test
   public void visit_project_with_depth_MODULE_calls_visit_project() {
     Component component = component(MODULE, 1);
-    spyModuleVisitor.visit(component);
+    moduleCrawler.visit(component);
 
-    inOrder.verify(spyModuleVisitor).visit(component);
-    inOrder.verify(spyModuleVisitor).visitAny(component);
-    inOrder.verify(spyModuleVisitor).visitModule(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(moduleVisitor.callsRecords).containsExactly(
+      reportCallRecord("visitAny", component),
+      reportCallRecord("visitModule", component));
   }
 
   @Test
   public void visit_file_with_depth_PROJECT_does_not_call_visit_file_nor_visitAny() {
     Component component = component(FILE, 1);
-    spyProjectVisitor.visit(component);
+    projectCrawler.visit(component);
 
-    inOrder.verify(spyProjectVisitor).visit(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(projectVisitor.callsRecords).isEmpty();
   }
 
   @Test
   public void visit_directory_with_depth_PROJECT_does_not_call_visit_directory_nor_visitAny() {
     Component component = component(DIRECTORY, 1);
-    spyProjectVisitor.visit(component);
+    projectCrawler.visit(component);
 
-    inOrder.verify(spyProjectVisitor).visit(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(projectVisitor.callsRecords).isEmpty();
   }
 
   @Test
   public void visit_module_with_depth_PROJECT_does_not_call_visit_module_nor_visitAny() {
     Component component = component(MODULE, 1);
-    spyProjectVisitor.visit(component);
+    projectCrawler.visit(component);
 
-    inOrder.verify(spyProjectVisitor).visit(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(projectVisitor.callsRecords).isEmpty();
   }
 
   @Test
   public void visit_project_with_depth_PROJECT_calls_visit_project_nor_visitAny() {
     Component component = component(PROJECT, 1);
-    spyProjectVisitor.visit(component);
+    projectCrawler.visit(component);
 
-    inOrder.verify(spyProjectVisitor).visit(component);
-    inOrder.verify(spyProjectVisitor).visitAny(component);
-    inOrder.verify(spyProjectVisitor).visitProject(component);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(projectVisitor.callsRecords).containsExactly(
+      reportCallRecord("visitAny", component),
+      reportCallRecord("visitProject", component));
   }
 
   @Test
   public void verify_visit_call_when_visit_tree_with_depth_FILE() {
-    spyFileVisitor.visit(COMPONENT_TREE);
+    fileCrawler.visit(COMPONENT_TREE);
 
-    inOrder.verify(spyFileVisitor).visit(COMPONENT_TREE);
-    inOrder.verify(spyFileVisitor).visitAny(COMPONENT_TREE);
-    inOrder.verify(spyFileVisitor).visitProject(COMPONENT_TREE);
-    inOrder.verify(spyFileVisitor).visit(MODULE_2);
-    inOrder.verify(spyFileVisitor).visitAny(MODULE_2);
-    inOrder.verify(spyFileVisitor).visitModule(MODULE_2);
-    inOrder.verify(spyFileVisitor).visit(MODULE_3);
-    inOrder.verify(spyFileVisitor).visitAny(MODULE_3);
-    inOrder.verify(spyFileVisitor).visitModule(MODULE_3);
-    inOrder.verify(spyFileVisitor).visit(DIRECTORY_4);
-    inOrder.verify(spyFileVisitor).visitAny(DIRECTORY_4);
-    inOrder.verify(spyFileVisitor).visitDirectory(DIRECTORY_4);
-    inOrder.verify(spyFileVisitor).visit(FILE_5);
-    inOrder.verify(spyFileVisitor).visitAny(FILE_5);
-    inOrder.verify(spyFileVisitor).visitFile(FILE_5);
-    inOrder.verify(spyFileVisitor).visit(FILE_6);
-    inOrder.verify(spyFileVisitor).visitAny(FILE_6);
-    inOrder.verify(spyFileVisitor).visitFile(FILE_6);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(fileVisitor.callsRecords).containsExactly(
+      reportCallRecord("visitAny", COMPONENT_TREE),
+      reportCallRecord("visitProject", COMPONENT_TREE),
+      reportCallRecord("visitAny", MODULE_2),
+      reportCallRecord("visitModule", MODULE_2),
+      reportCallRecord("visitAny", MODULE_3),
+      reportCallRecord("visitModule", MODULE_3),
+      reportCallRecord("visitAny", DIRECTORY_4),
+      reportCallRecord("visitDirectory", DIRECTORY_4),
+      reportCallRecord("visitAny", FILE_5),
+      reportCallRecord("visitFile", FILE_5),
+      reportCallRecord("visitAny", FILE_6),
+      reportCallRecord("visitFile", FILE_6));
   }
 
   @Test
   public void verify_visit_call_when_visit_tree_with_depth_DIRECTORY() {
-    spyDirectoryVisitor.visit(COMPONENT_TREE);
+    directoryCrawler.visit(COMPONENT_TREE);
 
-    inOrder.verify(spyDirectoryVisitor).visit(COMPONENT_TREE);
-    inOrder.verify(spyDirectoryVisitor).visitProject(COMPONENT_TREE);
-    inOrder.verify(spyDirectoryVisitor).visit(MODULE_2);
-    inOrder.verify(spyDirectoryVisitor).visitModule(MODULE_2);
-    inOrder.verify(spyDirectoryVisitor).visit(MODULE_3);
-    inOrder.verify(spyDirectoryVisitor).visitModule(MODULE_3);
-    inOrder.verify(spyDirectoryVisitor).visit(DIRECTORY_4);
-    inOrder.verify(spyDirectoryVisitor).visitDirectory(DIRECTORY_4);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(directoryVisitor.callsRecords).containsExactly(
+      reportCallRecord("visitAny", COMPONENT_TREE),
+      reportCallRecord("visitProject", COMPONENT_TREE),
+      reportCallRecord("visitAny", MODULE_2),
+      reportCallRecord("visitModule", MODULE_2),
+      reportCallRecord("visitAny", MODULE_3),
+      reportCallRecord("visitModule", MODULE_3),
+      reportCallRecord("visitAny", DIRECTORY_4),
+      reportCallRecord("visitDirectory", DIRECTORY_4));
   }
 
   @Test
   public void verify_visit_call_when_visit_tree_with_depth_MODULE() {
-    spyModuleVisitor.visit(COMPONENT_TREE);
+    moduleCrawler.visit(COMPONENT_TREE);
 
-    inOrder.verify(spyModuleVisitor).visit(COMPONENT_TREE);
-    inOrder.verify(spyModuleVisitor).visitAny(COMPONENT_TREE);
-    inOrder.verify(spyModuleVisitor).visitProject(COMPONENT_TREE);
-    inOrder.verify(spyModuleVisitor).visit(MODULE_2);
-    inOrder.verify(spyModuleVisitor).visitAny(MODULE_2);
-    inOrder.verify(spyModuleVisitor).visitModule(MODULE_2);
-    inOrder.verify(spyModuleVisitor).visit(MODULE_3);
-    inOrder.verify(spyModuleVisitor).visitAny(MODULE_3);
-    inOrder.verify(spyModuleVisitor).visitModule(MODULE_3);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(moduleVisitor.callsRecords).containsExactly(
+      reportCallRecord("visitAny", COMPONENT_TREE),
+      reportCallRecord("visitProject", COMPONENT_TREE),
+      reportCallRecord("visitAny", MODULE_2),
+      reportCallRecord("visitModule", MODULE_2),
+      reportCallRecord("visitAny", MODULE_3),
+      reportCallRecord("visitModule", MODULE_3));
   }
 
   @Test
   public void verify_visit_call_when_visit_tree_with_depth_PROJECT() {
-    spyProjectVisitor.visit(COMPONENT_TREE);
+    projectCrawler.visit(COMPONENT_TREE);
 
-    inOrder.verify(spyProjectVisitor).visit(COMPONENT_TREE);
-    inOrder.verify(spyProjectVisitor).visitAny(COMPONENT_TREE);
-    inOrder.verify(spyProjectVisitor).visitProject(COMPONENT_TREE);
-    inOrder.verifyNoMoreInteractions();
+    assertThat(projectVisitor.callsRecords).containsExactly(
+      reportCallRecord("visitAny", COMPONENT_TREE),
+      reportCallRecord("visitProject", COMPONENT_TREE));
   }
 
   private static Component component(final Component.Type type, final int ref, final Component... children) {
     return ReportComponent.builder(type, ref).addChildren(children).build();
+  }
+
+  private static CallRecord reportCallRecord(String methodName, Component component) {
+    return CallRecord.reportCallRecord(methodName, component.getReportAttributes().getRef());
   }
 
 }
