@@ -7,7 +7,7 @@ define(function () {
       return {
         secondaryLocations: [],
         executionFlows: []
-      }
+      };
     },
 
     url: function () {

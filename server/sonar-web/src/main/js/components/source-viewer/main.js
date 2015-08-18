@@ -334,7 +334,7 @@ define([
                   issueLocations: [{ from: location.from, to: location.to }]
                 });
               }
-            })
+            });
           });
           this.model.addMeta(issueLocations);
         },

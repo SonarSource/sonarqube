@@ -41,7 +41,7 @@ define([
       }).done(function (r) {
         that.model.set(r);
         that.render();
-      })
+      });
     },
 
     onRender: function () {
