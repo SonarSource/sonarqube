@@ -2,9 +2,11 @@
    links_size = @resource.project_links.size
 
    profiles = []
-   qprofiles_measure = @snapshot.measure(Metric::QUALITY_PROFILES)
-   if qprofiles_measure && !qprofiles_measure.data.blank?
-     profiles = JSON.parse qprofiles_measure.data
+   if @snapshot
+     qprofiles_measure = @snapshot.measure(Metric::QUALITY_PROFILES)
+     if qprofiles_measure && !qprofiles_measure.data.blank?
+       profiles = JSON.parse qprofiles_measure.data
+     end
    end
    profiles_size = profiles.size
 
@@ -20,21 +22,24 @@
    end
 %>
 
-<% m = @snapshot.measure(Metric::QUALITY_GATE_DETAILS)
-   if m && !m.data.blank?
-     details = JSON.parse m.data
-     m.alert_status = details['level']
-     raw_conditions = details['conditions']
-     conditions = []
-     missing_metric = false
-     raw_conditions.each do |condition|
-       if metric(condition['metric']).nil?
-         missing_metric = true
-       else
-         conditions << condition
+<%
+   if @snapshot
+     m = @snapshot.measure(Metric::QUALITY_GATE_DETAILS)
+     if m && !m.data.blank?
+       details = JSON.parse m.data
+       m.alert_status = details['level']
+       raw_conditions = details['conditions']
+       conditions = []
+       missing_metric = false
+       raw_conditions.each do |condition|
+         if metric(condition['metric']).nil?
+           missing_metric = true
+         else
+           conditions << condition
+         end
        end
+       alert_metric = metric(Metric::ALERT_STATUS)
      end
-     alert_metric = metric(Metric::ALERT_STATUS)
    end
 %>
 
@@ -45,9 +50,10 @@
         id: '<%= @resource.uuid %>',
         key: '<%= @resource.key %>',
         description: '<%= @resource.description %>',
+        hasSnapshot: <%= @snapshot ? true : false %>,
         periods: [
           <%
-            if @snapshot.project_snapshot.periods?
+            if @snapshot && @snapshot.project_snapshot.periods?
               (1..5).each do |index|
                 if @snapshot.period_mode(index)
           %>
@@ -114,6 +120,7 @@
       <% end %>
 
       var measures = {
+        <% if @snapshot %>
 
         // issues
         sqaleRating: '<%= @snapshot.measure('sqale_rating').value -%>',
@@ -134,10 +141,11 @@
         // size
         lines: '<%= @snapshot.measure('lines').value -%>',
         files: '<%= @snapshot.measure('files').value -%>'
+        <% end %>
       };
 
       var leak = {
-
+        <% if @snapshot %>
         // coverage
         <% if @snapshot.measure('new_overall_coverage') %>
         newCoverage: '<%= @snapshot.measure('new_overall_coverage').variation(3) -%>',
@@ -154,6 +162,7 @@
         // size
         lines: '<%= @snapshot.measure('lines').variation(3) -%>',
         files: '<%= @snapshot.measure('files').variation(3) -%>'
+        <% end %>
       };
 
       require(['apps/overview/app'], function (App) {
