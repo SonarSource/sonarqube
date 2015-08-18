@@ -20,14 +20,16 @@
 
 package org.sonar.server.computation.step;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
@@ -39,20 +41,23 @@ import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.SettingsRepository;
+import org.sonar.server.computation.component.ViewsComponent;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
 import org.sonar.test.DbTests;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Category(DbTests.class)
+@RunWith(DataProviderRunner.class)
 public class FeedPeriodsStepTest extends BaseStepTest {
 
   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-  private static final String PROJECT_KEY = "PROJECT_KEY";
+  private static final String ROOT_KEY = "ROOT_KEY";
+  private static final ReportComponent PROJECT_ROOT = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(ROOT_KEY).setVersion("1.1").build();
+  private static final ViewsComponent VIEW_ROOT = ViewsComponent.builder(Component.Type.VIEW, ROOT_KEY).setUuid("ABCD").build();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -79,15 +84,27 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   public void setUp() throws Exception {
     analysisMetadataHolder.setAnalysisDate(DATE_FORMAT.parse("2008-11-30"));
 
-    ReportComponent root = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).setVersion("1.1").build();
-    treeRootHolder.setRoot(root);
-    when(settingsRepository.getSettings(root)).thenReturn(settings);
-
     underTest = new FeedPeriodsStep(dbClient, settingsRepository, treeRootHolder, analysisMetadataHolder, periodsHolder);
   }
 
+  private void setupRoot(Component root) {
+    treeRootHolder.setRoot(root);
+    when(settingsRepository.getSettings(root)).thenReturn(settings);
+  }
+
+  @DataProvider
+  public static Object[][] projectAndViewRoots() {
+    return new Object[][] {
+      {PROJECT_ROOT},
+      {VIEW_ROOT}
+    };
+  }
+
   @Test
-  public void no_period_on_first_analysis() {
+  @UseDataProvider("projectAndViewRoots")
+  public void no_period_on_first_analysis(Component root) {
+    setupRoot(root);
+
     // No project, no snapshot
 
     underTest.execute();
@@ -95,7 +112,10 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void feed_one_period() {
+  @UseDataProvider("projectAndViewRoots")
+  public void feed_one_period(Component root) {
+    setupRoot(root);
+
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     String textDate = "2008-11-22";
@@ -113,7 +133,10 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void no_period_when_settings_match_no_analysis() {
+  @UseDataProvider("projectAndViewRoots")
+  public void no_period_when_settings_match_no_analysis(Component root) {
+    setupRoot(root);
+
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     settings.setProperty("sonar.timemachine.period1", "UNKNWOWN VERSION");
@@ -123,7 +146,10 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void no_period_when_settings_is_empty() {
+  @UseDataProvider("projectAndViewRoots")
+  public void no_period_when_settings_is_empty(Component root) {
+    setupRoot(root);
+
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     settings.setProperty("sonar.timemachine.period1", "");
@@ -133,7 +159,10 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void ignore_unprocessed_snapshots() {
+  @UseDataProvider("projectAndViewRoots")
+  public void ignore_unprocessed_snapshots(Component root) {
+    setupRoot(root);
+
     dbTester.prepareDbUnit(getClass(), "unprocessed_snapshots.xml");
 
     settings.setProperty("sonar.timemachine.period1", "100");
@@ -143,7 +172,10 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void feed_period_by_date() {
+  @UseDataProvider("projectAndViewRoots")
+  public void feed_period_by_date(Component root) {
+    setupRoot(root);
+
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     String textDate = "2008-11-22";
@@ -165,7 +197,10 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void search_by_date_return_nearest_later_analysis() {
+  @UseDataProvider("projectAndViewRoots")
+  public void search_by_date_return_nearest_later_analysis(Component root) {
+    setupRoot(root);
+
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     String date = "2008-11-24";
 
@@ -184,7 +219,10 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void no_period_by_date() {
+  @UseDataProvider("projectAndViewRoots")
+  public void no_period_by_date(Component root) {
+    setupRoot(root);
+
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     // No analysis at and after this date
@@ -195,7 +233,10 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void feed_period_by_days() {
+  @UseDataProvider("projectAndViewRoots")
+  public void feed_period_by_days(Component root) {
+    setupRoot(root);
+
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     settings.setProperty("sonar.timemachine.period1", "10");
@@ -216,7 +257,10 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void no_period_by_days() {
+  @UseDataProvider("projectAndViewRoots")
+  public void no_period_by_days(Component root) {
+    setupRoot(root);
+
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
     settings.setProperty("sonar.timemachine.period1", "0");
@@ -226,7 +270,10 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void feed_period_by_previous_analysis() {
+  @UseDataProvider("projectAndViewRoots")
+  public void feed_period_by_previous_analysis(Component root) {
+    setupRoot(root);
+
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     settings.setProperty("sonar.timemachine.period1", "previous_analysis");
@@ -247,7 +294,10 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void no_period_by_previous_analysis() {
+  @UseDataProvider("projectAndViewRoots")
+  public void no_period_by_previous_analysis(Component root) {
+    setupRoot(root);
+
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
     settings.setProperty("sonar.timemachine.period1", "previous_analysis");
@@ -257,7 +307,10 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void feed_period_by_previous_version() {
+  @UseDataProvider("projectAndViewRoots")
+  public void feed_period_by_previous_version(Component root) {
+    setupRoot(root);
+
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     settings.setProperty("sonar.timemachine.period1", "previous_version");
@@ -269,16 +322,25 @@ public class FeedPeriodsStepTest extends BaseStepTest {
     // Analysis form 2008-11-12
     Period period = periods.get(0);
     assertThat(period.getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
-    assertThat(period.getModeParameter()).isEqualTo("1.0");
-    assertThat(period.getSnapshotDate()).isEqualTo(1226494680000L);
-    assertThat(period.getSnapshotId()).isEqualTo(1001L);
+    if (root.getType().isViewsType()) {
+      assertThat(period.getModeParameter()).isEqualTo("1.1");
+      assertThat(period.getSnapshotDate()).isEqualTo(1227934800000L);
+      assertThat(period.getSnapshotId()).isEqualTo(1004L);
+    } else {
+      assertThat(period.getModeParameter()).isEqualTo("1.0");
+      assertThat(period.getSnapshotDate()).isEqualTo(1226494680000L);
+      assertThat(period.getSnapshotId()).isEqualTo(1001L);
+    }
 
     assertThat(logTester.logs()).hasSize(1);
     assertThat(logTester.logs().get(0)).startsWith("Compare to previous version (");
   }
 
   @Test
-  public void feed_period_by_previous_version_wit_previous_version_deleted() {
+  @UseDataProvider("projectAndViewRoots")
+  public void feed_period_by_previous_version_wit_previous_version_deleted(Component root) {
+    setupRoot(root);
+
     dbTester.prepareDbUnit(getClass(), "previous_version_deleted.xml");
 
     settings.setProperty("sonar.timemachine.period1", "previous_version");
@@ -296,7 +358,10 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void no_period_by_previous_version() {
+  @UseDataProvider("projectAndViewRoots")
+  public void no_period_by_previous_version(Component root) {
+    setupRoot(root);
+
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
     settings.setProperty("sonar.timemachine.period1", "previous_version");
@@ -306,7 +371,10 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void no_period_by_previous_version_when_no_event_version() {
+  @UseDataProvider("projectAndViewRoots")
+  public void no_period_by_previous_version_when_no_event_version(Component root) {
+    setupRoot(root);
+
     dbTester.prepareDbUnit(getClass(), "no_previous_version.xml");
 
     settings.setProperty("sonar.timemachine.period1", "previous_version");
@@ -316,7 +384,10 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void feed_period_by_version() {
+  @UseDataProvider("projectAndViewRoots")
+  public void feed_period_by_version(Component root) {
+    setupRoot(root);
+
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     settings.setProperty("sonar.timemachine.period1", "0.9");
@@ -337,7 +408,10 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void no_period_by_version() {
+  @UseDataProvider("projectAndViewRoots")
+  public void no_period_by_version(Component root) {
+    setupRoot(root);
+
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
     settings.setProperty("sonar.timemachine.period1", "0.8");
@@ -347,7 +421,10 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void feed_five_different_periods() {
+  @UseDataProvider("projectAndViewRoots")
+  public void feed_five_different_periods(Component root) {
+    setupRoot(root);
+
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     settings.setProperty("sonar.timemachine.period1", "2008-11-22"); // Analysis from 2008-11-22 should be returned
@@ -359,13 +436,8 @@ public class FeedPeriodsStepTest extends BaseStepTest {
     underTest.execute();
     List<Period> periods = periodsHolder.getPeriods();
 
-    List<String> periodModes = newArrayList(Iterables.transform(periods, new Function<Period, String>() {
-      @Override
-      public String apply(Period input) {
-        return input.getMode();
-      }
-    }));
-    assertThat(periodModes).containsOnly(CoreProperties.TIMEMACHINE_MODE_DATE, CoreProperties.TIMEMACHINE_MODE_DAYS, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS,
+    assertThat(periods).extracting("mode").containsExactly(
+      CoreProperties.TIMEMACHINE_MODE_DATE, CoreProperties.TIMEMACHINE_MODE_DAYS, CoreProperties.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS,
       CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION, CoreProperties.TIMEMACHINE_MODE_VERSION);
 
     assertThat(periods.get(0).getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_DATE);
@@ -382,7 +454,7 @@ public class FeedPeriodsStepTest extends BaseStepTest {
 
     assertThat(periods.get(3).getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_PREVIOUS_VERSION);
     assertThat(periods.get(3).getIndex()).isEqualTo(4);
-    assertThat(periods.get(3).getSnapshotDate()).isEqualTo(1226494680000L);
+    assertThat(periods.get(3).getSnapshotDate()).isEqualTo(root.getType().isReportType() ? 1226494680000L : 1227934800000L);
 
     assertThat(periods.get(4).getMode()).isEqualTo(CoreProperties.TIMEMACHINE_MODE_VERSION);
     assertThat(periods.get(4).getIndex()).isEqualTo(5);
@@ -390,11 +462,26 @@ public class FeedPeriodsStepTest extends BaseStepTest {
   }
 
   @Test
-  public void can_use_qualifier_in_settings() {
+  public void can_use_project_qualifier_in_settings() {
+    setupRoot(PROJECT_ROOT);
+
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     settings.setProperty("sonar.timemachine.period4.TRK", "2008-11-22");
     settings.setProperty("sonar.timemachine.period5.TRK", "previous_analysis");
+
+    underTest.execute();
+    assertThat(periodsHolder.getPeriods()).hasSize(2);
+  }
+
+  @Test
+  public void can_use_views_qualifier_in_settings() {
+    setupRoot(VIEW_ROOT);
+
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    settings.setProperty("sonar.timemachine.period4.VW", "2008-11-22");
+    settings.setProperty("sonar.timemachine.period5.VW", "previous_analysis");
 
     underTest.execute();
     assertThat(periodsHolder.getPeriods()).hasSize(2);
