@@ -22,11 +22,14 @@ package org.sonar.server.computation.component;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableMap;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
 
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.concat;
+import static java.util.Objects.requireNonNull;
 
 /**
  * This crawler make any number of {@link TypeAwareVisitor} or {@link PathAwareVisitor} defined in a list visit a component tree, component per component, in the order of the list
@@ -44,8 +47,9 @@ public class VisitorsCrawler implements ComponentCrawler {
 
   @Override
   public void visit(final Component component) {
-    List<VisitorWrapper> preOrderVisitorWrappersToExecute = from(preOrderVisitorWrappers).filter(new MatchVisitorMaxDepth(component)).toList();
-    List<VisitorWrapper> postOrderVisitorWrappersToExecute = from(postOrderVisitorWrappers).filter(new MatchVisitorMaxDepth(component)).toList();
+    MatchVisitorMaxDepth visitorMaxDepth = MatchVisitorMaxDepth.forComponent(component);
+    List<VisitorWrapper> preOrderVisitorWrappersToExecute = from(preOrderVisitorWrappers).filter(visitorMaxDepth).toList();
+    List<VisitorWrapper> postOrderVisitorWrappersToExecute = from(postOrderVisitorWrappers).filter(visitorMaxDepth).toList();
     if (preOrderVisitorWrappersToExecute.isEmpty() && postOrderVisitorWrappersToExecute.isEmpty()) {
       return;
     }
@@ -120,15 +124,29 @@ public class VisitorsCrawler implements ComponentCrawler {
   }
 
   private static class MatchVisitorMaxDepth implements Predicate<VisitorWrapper> {
-    private final Component component;
+    private static final Map<Component.Type, MatchVisitorMaxDepth> INSTANCES = buildInstances();
 
-    private MatchVisitorMaxDepth(Component component) {
-      this.component = component;
+    private static Map<Component.Type, MatchVisitorMaxDepth> buildInstances() {
+      ImmutableMap.Builder<Component.Type, MatchVisitorMaxDepth> builder = ImmutableMap.builder();
+      for (Component.Type type : Component.Type.values()) {
+        builder.put(type, new MatchVisitorMaxDepth(type));
+      }
+      return builder.build();
+    }
+
+    private final Component.Type type;
+
+    private MatchVisitorMaxDepth(Component.Type type) {
+      this.type = requireNonNull(type);
+    }
+
+    public static MatchVisitorMaxDepth forComponent(Component component) {
+      return INSTANCES.get(component.getType());
     }
 
     @Override
     public boolean apply(@Nonnull VisitorWrapper visitorWrapper) {
-      return !component.getType().isDeeperThan(visitorWrapper.getMaxDepth());
+      return !type.isDeeperThan(visitorWrapper.getMaxDepth());
     }
   }
 
