@@ -33,7 +33,7 @@ public class CommonRuleKeysTest {
 
   @Test
   public void wonderful_test_to_verify_that_this_class_is_an_helper_class() throws Exception {
-    assertThat(TestUtils.hasOnlyPrivateConstructors(CommonRuleKeys.class));
+    assertThat(TestUtils.hasOnlyPrivateConstructors(CommonRuleKeys.class)).isTrue();
 
   }
 }

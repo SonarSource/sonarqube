@@ -62,7 +62,7 @@ public class KeepOneFilterTest {
 
     List<Long> snapshotIds = snapshotIds(toDelete);
     assertThat(snapshotIds).contains(3L);
-    assertThat(snapshotIds.contains(4L));
+    assertThat(snapshotIds).contains(4L);
   }
 
   @Test
@@ -80,7 +80,7 @@ public class KeepOneFilterTest {
 
     List<Long> snapshotIds = snapshotIds(toDelete);
     assertThat(snapshotIds).contains(1L);
-    assertThat(snapshotIds.contains(4L));
+    assertThat(snapshotIds).contains(4L);
   }
 
   @Test

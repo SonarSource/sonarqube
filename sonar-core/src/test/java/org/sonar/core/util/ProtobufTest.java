@@ -41,7 +41,7 @@ public class ProtobufTest {
 
   @Test
   public void only_utils() {
-    assertThat(TestUtils.hasOnlyPrivateConstructors(Protobuf.class));
+    assertThat(TestUtils.hasOnlyPrivateConstructors(Protobuf.class)).isTrue();
   }
 
   @Test

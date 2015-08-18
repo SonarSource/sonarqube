@@ -145,7 +145,7 @@ public class FacetsMediumTest {
     assertThat(facets.getFacetKeys(FIELD_TAGS)).isEmpty();
     assertThat(facets.getFacetKeys(FIELD_CREATED_AT)).hasSize(1);
     FacetValue value = facets.getFacetValues(FIELD_CREATED_AT).iterator().next();
-    assertThat(DateUtils.parseDateTime(value.getKey()).before(new Date()));
+    assertThat(DateUtils.parseDateTime(value.getKey()).before(new Date())).isTrue();
     assertThat(value.getValue()).isEqualTo(3L);
   }
 

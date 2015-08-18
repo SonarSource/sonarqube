@@ -321,7 +321,7 @@ public class RegisterRulesMediumTest {
 
     // Verify rule has not been updated
     Rule customRuleReloaded = ruleIndex.getByKey(RuleTesting.XOO_X1);
-    assertThat(DateUtils.isSameInstant(customRuleReloaded.updatedAt(), updatedAt));
+    assertThat(DateUtils.isSameInstant(customRuleReloaded.updatedAt(), updatedAt)).isTrue();
   }
 
   @Test

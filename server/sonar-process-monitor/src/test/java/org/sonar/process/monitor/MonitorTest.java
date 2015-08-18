@@ -119,7 +119,7 @@ public class MonitorTest {
       failed = e.getMessage().equals("Can not start multiple times");
     }
     monitor.stop();
-    assertThat(failed);
+    assertThat(failed).isTrue();
   }
 
   @Test

@@ -65,7 +65,7 @@ public class EsUtilsTest {
 
   @Test
   public void util_class() {
-    assertThat(TestUtils.hasOnlyPrivateConstructors(EsUtils.class));
+    assertThat(TestUtils.hasOnlyPrivateConstructors(EsUtils.class)).isTrue();
   }
 
   @Test

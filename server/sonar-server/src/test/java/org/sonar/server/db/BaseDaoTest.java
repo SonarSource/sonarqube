@@ -84,7 +84,7 @@ public class BaseDaoTest {
     dao.insert(session, myDto);
 
     session.commit();
-    assertThat(myDto.getId());
+    assertThat(myDto.getId()).isGreaterThan(0);
 
     long t1 = System.currentTimeMillis() + 1000;
 

@@ -85,7 +85,7 @@ public class RuleDaoTest {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
     assertThat(underTest.selectByKeys(dbTester.getSession(), Collections.<RuleKey>emptyList())).isEmpty();
-    assertThat(underTest.selectByKeys(dbTester.getSession(), asList(RuleKey.of("NOT", "FOUND"))).isEmpty());
+    assertThat(underTest.selectByKeys(dbTester.getSession(), asList(RuleKey.of("NOT", "FOUND")))).isEmpty();
 
     List<RuleDto> rules = underTest.selectByKeys(dbTester.getSession(), asList(RuleKey.of("java", "S001"), RuleKey.of("java", "OTHER")));
     assertThat(rules).hasSize(1);
