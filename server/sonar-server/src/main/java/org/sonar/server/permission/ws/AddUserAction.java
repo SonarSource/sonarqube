@@ -52,8 +52,8 @@ public class AddUserAction implements PermissionsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
       .setDescription("Add permission to a user.<br /> " +
-        "If the project id or project key is provided, a project permission is created.<br />" +
-        "Requires 'Administer System' permission.")
+        "This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br />" +
+        "It requires administration permissions to access.")
       .setSince("5.2")
       .setPost(true)
       .setHandler(this);

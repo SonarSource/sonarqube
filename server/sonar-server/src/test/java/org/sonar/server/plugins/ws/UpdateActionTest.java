@@ -113,7 +113,6 @@ public class UpdateActionTest {
   @Test
   public void IAE_is_raised_when_key_param_is_not_provided() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Parameter 'key' is missing");
 
     underTest.handle(invalidRequest, response);
   }

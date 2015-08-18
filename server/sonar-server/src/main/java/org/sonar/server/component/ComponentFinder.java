@@ -57,7 +57,12 @@ public class ComponentFinder {
   }
 
   public ComponentDto getProjectByUuidOrKey(DbSession dbSession, @Nullable String projectUuid, @Nullable String projectKey) {
-    ComponentDto project = getByUuidOrKey(dbSession, projectUuid, projectKey);
+    ComponentDto project;
+    if (projectUuid != null) {
+      project = getIfPresentOrFail(dbClient.componentDao().selectByUuid(dbSession, projectUuid), String.format("Project id '%s' not found", projectUuid));
+    } else {
+      project = getIfPresentOrFail(dbClient.componentDao().selectByKey(dbSession, projectKey), String.format("Project key '%s' not found", projectKey));
+    }
     checkIsProjectOrModule(project);
 
     return project;

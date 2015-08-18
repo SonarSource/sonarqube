@@ -59,7 +59,7 @@ public abstract class Request {
   public String mandatoryParam(String key) {
     String value = param(key);
     if (value == null) {
-      throw new IllegalArgumentException(String.format("Parameter '%s' is missing", key));
+      throw new IllegalArgumentException(String.format("The '%s' parameter is missing", key));
     }
     return value;
   }
@@ -101,7 +101,7 @@ public abstract class Request {
   public List<String> mandatoryParamAsStrings(String key) {
     List<String> values = paramAsStrings(key);
     if (values == null) {
-      throw new IllegalArgumentException(String.format("Parameter '%s' is missing", key));
+      throw new IllegalArgumentException(String.format("The '%s' parameter is missing", key));
     }
     return values;
   }

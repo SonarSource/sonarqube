@@ -52,10 +52,10 @@ public class RemoveGroupAction implements PermissionsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
-      .setDescription("Remove permission from a group.<br /> " +
+      .setDescription("Remove a permission from a group.<br /> " +
+        "This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br /> " +
         "The group id or group name must be provided, not both.<br />" +
-        "If the project id or project key is provided, a project permission is removed.<br />" +
-        "Requires 'Administer System' permission.")
+        "It requires administration permissions to access.")
       .setSince("5.2")
       .setPost(true)
       .setHandler(this);

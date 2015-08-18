@@ -60,7 +60,7 @@ public class UsersAction implements PermissionsWsAction {
       .setDescription(String.format("Lists the users that have been granted the specified permission as individual users rather than through group affiliation. <br />" +
         "This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br /> " +
         "If the query parameter '%s' is specified, the '%s' parameter is forced to '%s'.<br />" +
-        "It requires administration permissions to access.<br /> ",
+        "It requires administration permissions to access.<br />",
         Param.TEXT_QUERY, Param.SELECTED, SelectionMode.ALL.value()))
       .addPagingParams(100)
       .addSearchQuery("stas", "names")

@@ -175,12 +175,13 @@ public class PermissionRequest {
     private void checkPermissionParameter() {
       if (_hasProject) {
         if (!ComponentPermissions.ALL.contains(_permission)) {
-          throw new BadRequestException(String.format("Value of parameter '%s' (%s) for project permissions must be one of %s.", PARAM_PERMISSION, _permission,
-            PROJECT_PERMISSIONS_ONE_LINE));
+          throw new BadRequestException(String.format("The '%s' parameter for project permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION,
+            PROJECT_PERMISSIONS_ONE_LINE, _permission));
         }
       } else if (!GlobalPermissions.ALL.contains(_permission)) {
-        throw new BadRequestException(String.format("Value of parameter '%s' (%s) for global permissions must be one of: %s.", PARAM_PERMISSION, _permission,
-          GLOBAL_PERMISSIONS_ONE_LINE));
+        throw new BadRequestException(String.format("The '%s' parameter for global permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION, GLOBAL_PERMISSIONS_ONE_LINE,
+          _permission
+          ));
       }
     }
   }

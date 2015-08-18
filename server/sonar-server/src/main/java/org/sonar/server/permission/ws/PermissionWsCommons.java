@@ -22,7 +22,6 @@ package org.sonar.server.permission.ws;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableSortedSet;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.web.UserRole;
@@ -56,10 +55,6 @@ public class PermissionWsCommons {
     "</ul>",
     GLOBAL_PERMISSIONS_ONE_LINE,
     PROJECT_PERMISSIONS_ONE_LINE);
-  private static final ImmutableSortedSet<Comparable<?>> POSSIBLE_PERMISSIONS = ImmutableSortedSet.naturalOrder()
-    .addAll(GlobalPermissions.ALL)
-    .addAll(ComponentPermissions.ALL)
-    .build();
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
@@ -141,8 +136,7 @@ public class PermissionWsCommons {
   static void createPermissionParameter(NewAction action) {
     action.createParam(PARAM_PERMISSION)
       .setDescription(PERMISSION_PARAM_DESCRIPTION)
-      .setRequired(true)
-      .setPossibleValues(POSSIBLE_PERMISSIONS);
+      .setRequired(true);
   }
 
   static void createGroupNameParameter(NewAction action) {

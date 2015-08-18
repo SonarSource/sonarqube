@@ -187,7 +187,7 @@ public class WebServiceEngineTest {
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "print");
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Parameter 'message' is missing\"}]}");
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"The 'message' parameter is missing\"}]}");
   }
 
   @Test

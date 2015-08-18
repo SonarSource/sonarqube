@@ -137,7 +137,7 @@ public class RequestTest {
       request.mandatoryParam("required_param");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Parameter 'required_param' is missing");
+      assertThat(e).hasMessage("The 'required_param' parameter is missing");
     }
   }
 
@@ -160,7 +160,7 @@ public class RequestTest {
     try {
       request.mandatoryParamAsStrings("a_required_string");
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Parameter 'a_required_string' is missing");
+      assertThat(e).hasMessage("The 'a_required_string' parameter is missing");
     }
 
     request.setParam("a_required_string", "foo,bar");

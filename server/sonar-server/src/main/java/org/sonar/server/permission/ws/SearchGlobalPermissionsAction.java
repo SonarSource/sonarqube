@@ -52,7 +52,7 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
   public void define(WebService.NewController context) {
     context.createAction("search_global_permissions")
       .setDescription("List global permissions. <br />" +
-        "Requires 'Administer System' permission.")
+        "It requires administration permissions to access.")
       .setResponseExample(getClass().getResource("search_global_permissions-example.json"))
       .setSince("5.2")
       .setHandler(this);
