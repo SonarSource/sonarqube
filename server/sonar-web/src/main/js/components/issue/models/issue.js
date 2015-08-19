@@ -27,6 +27,7 @@ define(function () {
         issue = this._injectRelational(issue, r.users, 'assignee', 'login');
         issue = this._injectRelational(issue, r.users, 'reporter', 'login');
         issue = this._injectRelational(issue, r.actionPlans, 'actionPlan', 'key');
+        issue = this._prepareClosed(issue);
         return issue;
       } else {
         return r;
@@ -45,6 +46,15 @@ define(function () {
             issue[newKey] = lookupValue[key];
           });
         }
+      }
+      return issue;
+    },
+
+    _prepareClosed: function (issue) {
+      if (issue.status === 'CLOSED') {
+        issue.secondaryLocations = [];
+        issue.executionFlows = [];
+        delete issue.textRange;
       }
       return issue;
     },

@@ -25,6 +25,15 @@ define([
       return issue;
     },
 
+    _prepareClosed: function (issue) {
+      if (issue.status === 'CLOSED') {
+        issue.secondaryLocations = [];
+        issue.executionFlows = [];
+        delete issue.textRange;
+      }
+      return issue;
+    },
+
     parseIssues: function (r) {
       var that = this;
       return r.issues.map(function (issue, index) {
@@ -36,6 +45,7 @@ define([
         issue = that._injectRelational(issue, r.users, 'assignee', 'login');
         issue = that._injectRelational(issue, r.users, 'reporter', 'login');
         issue = that._injectRelational(issue, r.actionPlans, 'actionPlan', 'key');
+        issue = that._prepareClosed(issue);
         return issue;
       });
     },

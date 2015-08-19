@@ -57,6 +57,24 @@ define(function (require) {
       assert.deepEqual(issue.toJSON(), example);
     });
 
+    bdd.it('should unset `textRange` of a closed issue', function () {
+      var issue = new Issue();
+      var result = issue.parse({ issue: { status: 'CLOSED', textRange: { startLine: 5 } } });
+      assert.notOk(result.textRange);
+    });
+
+    bdd.it('should unset `secondaryLocations` of a closed issue', function () {
+      var issue = new Issue();
+      var result = issue.parse({ issue: { status: 'CLOSED', secondaryLocations: [1, 2, 3] } });
+      assert.deepEqual(result.secondaryLocations, []);
+    });
+
+    bdd.it('should unset `executionFlows` of a closed issue', function () {
+      var issue = new Issue();
+      var result = issue.parse({ issue: { status: 'CLOSED', executionFlows: [1, 2, 3] } });
+      assert.deepEqual(result.executionFlows, []);
+    });
+
     bdd.describe('Actions', function () {
       var stub;
 
