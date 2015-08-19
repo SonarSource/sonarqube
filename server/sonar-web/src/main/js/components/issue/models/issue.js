@@ -28,6 +28,7 @@ define(function () {
         issue = this._injectRelational(issue, r.users, 'assignee', 'login');
         issue = this._injectRelational(issue, r.users, 'reporter', 'login');
         issue = this._injectRelational(issue, r.actionPlans, 'actionPlan', 'key');
+        issue = this._injectCommentsRelational(issue, r.users);
         issue = this._prepareClosed(issue);
         return issue;
       } else {
@@ -47,6 +48,20 @@ define(function () {
             issue[newKey] = lookupValue[key];
           });
         }
+      }
+      return issue;
+    },
+
+    _injectCommentsRelational: function (issue, users) {
+      if (issue.comments) {
+        var that = this;
+        var newComments = issue.comments.map(function (comment) {
+          var newComment = _.extend({}, comment, { author: comment.login });
+          delete newComment.login;
+          newComment = that._injectRelational(newComment, users, 'author', 'login');
+          return newComment;
+        });
+        issue = _.extend({}, issue, { comments: newComments });
       }
       return issue;
     },
