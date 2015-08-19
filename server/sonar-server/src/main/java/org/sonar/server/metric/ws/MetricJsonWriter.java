@@ -42,7 +42,7 @@ public class MetricJsonWriter {
   public static final String FIELD_CUSTOM = "custom";
   public static final Set<String> OPTIONAL_FIELDS = ImmutableSet.of(FIELD_NAME, FIELD_DESCRIPTION, FIELD_DOMAIN, FIELD_DIRECTION, FIELD_QUALITATIVE, FIELD_HIDDEN, FIELD_CUSTOM);
   public static final Set<String> MANDATORY_FIELDS = ImmutableSet.of(FIELD_ID, FIELD_KEY, FIELD_NAME, FIELD_DOMAIN, FIELD_TYPE);
-  public static final Set<String> ALL_FIELDS = Sets.union(MANDATORY_FIELDS, OPTIONAL_FIELDS);
+  public static final Set<String> ALL_FIELDS = ImmutableSet.copyOf(Sets.union(MANDATORY_FIELDS, OPTIONAL_FIELDS));
 
   private MetricJsonWriter() {
     // static stuff only for the time being
