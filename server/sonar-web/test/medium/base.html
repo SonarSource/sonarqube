@@ -65,7 +65,14 @@
     updateCenterActive: true
   };
   </script>
-  <script>requirejs.config({ baseUrl: baseUrl + '../../build/js' });</script>
+  <script>
+    requirejs.config({
+      baseUrl: baseUrl + '../../build/js',
+      paths: {
+        'react': 'libs/third-party/react-with-addons'
+      }
+    });
+  </script>
 </head>
 <body>
 <div id="content"></div>

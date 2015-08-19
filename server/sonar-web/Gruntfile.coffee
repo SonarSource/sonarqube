@@ -137,6 +137,7 @@ module.exports = (grunt) ->
           'build-app:computation'
           'build-app:custom-measures'
           'build-app:drilldown'
+          'build-app:global-permissions'
           'build-app:groups'
           'build-app:issues'
           'build-app:maintenance'
@@ -236,6 +237,9 @@ module.exports = (grunt) ->
           ]
           '<%= BUILD_PATH %>/js/apps/custom-measures/templates.js': [
             '<%= SOURCE_PATH %>/js/apps/custom-measures/templates/**/*.hbs'
+          ]
+          '<%= BUILD_PATH %>/js/apps/global-permissions/templates.js': [
+            '<%= SOURCE_PATH %>/js/apps/global-permissions/templates/**/*.hbs'
           ]
 
 

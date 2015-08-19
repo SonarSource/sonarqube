@@ -1,0 +1,46 @@
+{
+  "globalPermissions": [
+    {
+      "key": "admin",
+      "name": "Administer System",
+      "description": "Ability to perform all administration functions for the instance: global configuration and personalization of default dashboards.",
+      "usersCount": 1,
+      "groupsCount": 5
+    },
+    {
+      "key": "profileadmin",
+      "name": "Administer Quality Profiles and Gates",
+      "description": "Ability to perform any action on the quality profiles and gates.",
+      "usersCount": 1,
+      "groupsCount": 0
+    },
+    {
+      "key": "shareDashboard",
+      "name": "Share Dashboards And Filters",
+      "description": "Ability to share dashboards, issue filters and measure filters.",
+      "usersCount": 0,
+      "groupsCount": 1
+    },
+    {
+      "key": "scan",
+      "name": "Execute Analysis",
+      "description": "Ability to execute analyses, and to get all settings required to perform the analysis, even the secured ones like the scm account password, the jira account password, and so on.",
+      "usersCount": 0,
+      "groupsCount": 1
+    },
+    {
+      "key": "dryRunScan",
+      "name": "Execute Preview Analysis",
+      "description": "Ability to execute preview analysis (results are not pushed to the server). This permission does not include the ability to access secured settings such as the scm account password, the jira account password, and so on.<br/>This permission is <em>required</em> to execute preview analysis in Eclipse or via the Issues Report plugin.",
+      "usersCount": 0,
+      "groupsCount": 1
+    },
+    {
+      "key": "provisioning",
+      "name": "Provision Projects",
+      "description": "Ability to initialize project structure before first analysis.",
+      "usersCount": 0,
+      "groupsCount": 1
+    }
+  ]
+}

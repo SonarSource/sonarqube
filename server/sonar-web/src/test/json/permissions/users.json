@@ -1,0 +1,14 @@
+{
+  "users": [
+    {
+      "login": "admin",
+      "name": "Administrator",
+      "selected": true
+    }
+  ],
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 3,
+    "total": 1
+  }
+}

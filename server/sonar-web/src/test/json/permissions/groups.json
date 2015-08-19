@@ -1,0 +1,27 @@
+{
+  "groups": [
+    {
+      "id": "3",
+      "name": "1",
+      "description": "",
+      "selected": true
+    },
+    {
+      "id": "4",
+      "name": "2",
+      "description": "",
+      "selected": true
+    },
+    {
+      "id": "5",
+      "name": "3",
+      "description": "",
+      "selected": true
+    }
+  ],
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 3,
+    "total": 5
+  }
+}
