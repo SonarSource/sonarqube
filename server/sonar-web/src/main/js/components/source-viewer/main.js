@@ -770,7 +770,7 @@ define([
               // secondary locations and execution flows
               // and only if message is not empty
               var renderedFlowLocation = this.renderIssueLocation(location);
-              row.find('.source-line-issue-locations').append(renderedFlowLocation);
+              row.find('.source-line-issue-locations').prepend(renderedFlowLocation);
             }
 
             this.highlightIssueLocationInCode(location);

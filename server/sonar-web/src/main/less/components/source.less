@@ -19,6 +19,7 @@
  */
 @import (reference) "../mixins";
 @import (reference) "../variables";
+@import (reference) "../init/type";
 @import (reference) "ui";
 
 @source-line-height: 18px;
@@ -465,18 +466,17 @@
 }
 
 .source-viewer-issue-location {
-  float: left;
+  float: right;
+  max-width: 200px;
   height: @source-line-height - 1px;
   line-height: @source-line-height - 1px;
+  margin-right: 10px;
   padding: 0 10px;
   border-radius: 3px;
   background-color: @red;
   color: #fff;
   font-size: 12px;
-}
-
-.source-viewer-issue-location + .source-viewer-issue-location {
-  margin-left: 10px;
+  .text-ellipsis;
 }
 
 .source-viewer-flow-location + .source-viewer-flow-location {
@@ -485,6 +485,7 @@
 
 .source-line-issue-locations {
   float: right;
+  margin-right: -10px;
   padding-bottom: 1px;
 
   &:empty {
