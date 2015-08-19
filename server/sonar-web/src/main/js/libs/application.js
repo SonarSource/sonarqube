@@ -667,12 +667,5 @@ function closeModalWindow () {
       }
       window.location = href;
     });
-
-
-    // Define global shortcuts
-    key('s', function () {
-      jQuery('.js-search-dropdown-toggle').dropdown('toggle');
-      return false;
-    });
   });
 })();
