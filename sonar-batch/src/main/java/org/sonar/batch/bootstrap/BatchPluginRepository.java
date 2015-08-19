@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.picocontainer.Startable;
@@ -34,6 +37,7 @@ import java.util.Map;
  * Orchestrates the installation and loading of plugins
  */
 public class BatchPluginRepository implements PluginRepository, Startable {
+  private static final Logger LOG = Loggers.get(BatchPluginRepository.class);
 
   private final PluginInstaller installer;
   private final PluginLoader loader;
@@ -56,6 +60,20 @@ public class BatchPluginRepository implements PluginRepository, Startable {
       String pluginKey = entry.getKey();
       infosByKeys.put(pluginKey, new PluginInfo(pluginKey));
       pluginInstancesByKeys.put(pluginKey, entry.getValue());
+    }
+
+    logPlugins();
+  }
+
+  private void logPlugins() {
+    if (infosByKeys.isEmpty()) {
+      LOG.debug("No plugins loaded");
+    }
+    else {
+      LOG.debug("Plugins:");
+      for (PluginInfo p : infosByKeys.values()) {
+        LOG.debug("  {}-{}", p.getName(), p.getVersion());
+      }
     }
   }
 
