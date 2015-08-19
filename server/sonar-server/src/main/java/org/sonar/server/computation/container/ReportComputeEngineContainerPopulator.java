@@ -65,7 +65,6 @@ import org.sonar.server.computation.issue.commonrule.TestErrorRule;
 import org.sonar.server.computation.language.LanguageRepositoryImpl;
 import org.sonar.server.computation.measure.MeasureComputersHolderImpl;
 import org.sonar.server.computation.measure.MeasureRepositoryImpl;
-import org.sonar.server.computation.measure.newcoverage.NewCoverageMetricKeysModule;
 import org.sonar.server.computation.metric.MetricModule;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
 import org.sonar.server.computation.qualitygate.EvaluationResultTextConverterImpl;
@@ -130,9 +129,6 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
         DbIdsRepositoryImpl.class,
         QualityGateServiceImpl.class,
         EvaluationResultTextConverterImpl.class,
-
-        // new coverage measures
-        NewCoverageMetricKeysModule.class,
 
         // issues
         RuleCacheLoader.class,
