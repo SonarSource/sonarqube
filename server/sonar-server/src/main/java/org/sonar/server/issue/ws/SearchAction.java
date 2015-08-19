@@ -53,6 +53,7 @@ import org.sonarqube.ws.Issues;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.concat;
 import static java.util.Collections.singletonList;
+import static org.sonar.api.utils.Paging.forPageIndex;
 
 public class SearchAction implements IssuesWsAction {
 
@@ -67,7 +68,7 @@ public class SearchAction implements IssuesWsAction {
   private final SearchResponseFormat searchResponseFormat;
 
   public SearchAction(UserSession userSession, IssueService service, IssueQueryService issueQueryService,
-                      SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat) {
+    SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat) {
     this.userSession = userSession;
     this.service = service;
     this.issueQueryService = issueQueryService;
@@ -255,7 +256,7 @@ public class SearchAction implements IssuesWsAction {
     facets = reorderFacets(facets, options.getFacets());
 
     // FIXME allow long in Paging
-    Paging paging = Paging.create(options.getLimit(), options.getPage(), (int) result.getTotal());
+    Paging paging = forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) result.getTotal());
     Issues.Search responseBody = searchResponseFormat.formatSearch(additionalFields, data, paging, facets);
     WsUtils.writeProtobuf(responseBody, request, response);
   }

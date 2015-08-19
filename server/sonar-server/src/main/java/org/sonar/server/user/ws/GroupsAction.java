@@ -37,6 +37,8 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.api.utils.Paging.forPageIndex;
+
 public class GroupsAction implements UsersWsAction {
 
   private static final String PARAM_LOGIN = "login";
@@ -99,7 +101,7 @@ public class GroupsAction implements UsersWsAction {
         throw new NotFoundException(String.format("User with login '%s' has not been found", login));
       }
       int total = dbClient.groupMembershipDao().countGroups(session, query, user.getId());
-      Paging paging = Paging.create(pageSize, page, total);
+      Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(total);
       List<GroupMembershipDto> groups = dbClient.groupMembershipDao().selectGroups(session, query, user.getId(), paging.offset(), pageSize);
 
       JsonWriter json = response.newJsonWriter().beginObject();

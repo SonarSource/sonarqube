@@ -19,6 +19,8 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.Date;
+import java.util.Map.Entry;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.api.resources.Languages;
@@ -42,8 +44,7 @@ import org.sonar.server.qualityprofile.QProfileActivityQuery;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.search.Result;
 
-import java.util.Date;
-import java.util.Map.Entry;
+import static org.sonar.api.utils.Paging.forPageIndex;
 
 public class ChangelogAction implements QProfileWsAction {
 
@@ -108,7 +109,7 @@ public class ChangelogAction implements QProfileWsAction {
       options.setPage(page, request.mandatoryParamAsInt(Param.PAGE_SIZE));
 
       Result<QProfileActivity> result = searchActivities(query, options);
-      writeResponse(response.newJsonWriter(), result, Paging.create(options.getLimit(), page, (int) result.getTotal()));
+      writeResponse(response.newJsonWriter(), result, forPageIndex(page).withPageSize(options.getLimit()).andTotal((int) result.getTotal()));
     } finally {
       session.close();
     }

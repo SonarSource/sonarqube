@@ -32,6 +32,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.api.utils.Paging.forPageIndex;
 
 /**
  * @since 3.7
@@ -51,7 +52,7 @@ public class DefaultComponentFinder {
     if (ComponentQuery.NO_PAGINATION == query.pageSize()) {
       return new DefaultComponentQueryResult(sortedComponents).setQuery(query);
     } else {
-      Paging paging = Paging.create(query.pageSize(), query.pageIndex(), foundComponents.size());
+      Paging paging = forPageIndex(query.pageIndex()).withPageSize(query.pageSize()).andTotal(foundComponents.size());
       Collection<? extends Component> pagedComponents = pagedComponents(sortedComponents, paging);
       return new DefaultComponentQueryResult(pagedComponents).setPaging(paging).setQuery(query);
     }

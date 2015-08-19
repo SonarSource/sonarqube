@@ -30,11 +30,11 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Paging;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.issue.IssueFilterDao;
 import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.db.issue.IssueFilterFavouriteDao;
 import org.sonar.db.issue.IssueFilterFavouriteDto;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.user.AuthorizationDao;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -319,7 +319,8 @@ public class IssueFilterService {
   }
 
   private IssueFilterResult createIssueFilterResult(SearchResult<IssueDoc> issues, SearchOptions options) {
-    return new IssueFilterResult(issues.getDocs(), Paging.create(options.getLimit(), options.getPage(), (int) issues.getTotal()));
+    Paging paging = Paging.forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) issues.getTotal());
+    return new IssueFilterResult(issues.getDocs(), paging);
   }
 
   private boolean hasUserSharingPermission(String user) {

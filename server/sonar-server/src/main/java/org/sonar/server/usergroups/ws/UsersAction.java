@@ -39,6 +39,8 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.api.utils.Paging.forPageIndex;
+
 public class UsersAction implements UserGroupsWsAction {
 
   private static final String PARAM_ID = "id";
@@ -100,7 +102,7 @@ public class UsersAction implements UserGroupsWsAction {
         throw new NotFoundException(String.format("Could not find user group with id '%s'", groupId));
       }
       int total = dbClient.groupMembershipDao().countMembers(dbSession, query);
-      Paging paging = Paging.create(pageSize, page, total);
+      Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(total);
       List<UserMembershipDto> users = dbClient.groupMembershipDao().selectMembers(dbSession, query, paging.offset(), paging.pageSize());
 
       JsonWriter json = response.newJsonWriter().beginObject();

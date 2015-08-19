@@ -19,32 +19,32 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import org.sonar.api.server.ws.WebService.Param;
-
-import org.sonar.api.server.ws.WebService.SelectionMode;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
+import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.DbSession;
-import org.sonar.db.qualityprofile.ProjectQprofileAssociationDto;
 import org.sonar.core.util.NonNullInputFunction;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.ProjectQprofileAssociationDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import static org.sonar.api.utils.Paging.forPageIndex;
 
 public class ProjectsAction implements QProfileWsAction {
 
@@ -122,7 +122,7 @@ public class ProjectsAction implements QProfileWsAction {
         }
       });
 
-      Paging paging = Paging.create(pageSize, page, authorizedProjectIds.size());
+      Paging paging = forPageIndex(page).withPageSize(pageSize).andTotal(authorizedProjectIds.size());
 
       List<ProjectQprofileAssociationDto> pagedAuthorizedProjects = Lists.newArrayList(authorizedProjects);
       if (pagedAuthorizedProjects.size() <= paging.offset()) {

@@ -20,16 +20,20 @@
 
 package org.sonar.api.utils;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.sonar.api.utils.Paging.forPageIndex;
 
 public class PagingTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void test_pagination() {
-    Paging paging = Paging.create(5, 1, 20);
+    Paging paging = forPageIndex(1).withPageSize(5).andTotal(20);
 
     assertThat(paging.pageSize()).isEqualTo(5);
     assertThat(paging.pageIndex()).isEqualTo(1);
@@ -41,45 +45,39 @@ public class PagingTest {
 
   @Test
   public void test_offset() {
-    assertThat(Paging.create(5, 1, 20).offset()).isEqualTo(0);
-    assertThat(Paging.create(5, 2, 20).offset()).isEqualTo(5);
+    assertThat(forPageIndex(1).withPageSize(5).andTotal(20).offset()).isEqualTo(0);
+    assertThat(forPageIndex(2).withPageSize(5).andTotal(20).offset()).isEqualTo(5);
   }
 
   @Test
   public void test_number_of_pages() {
-    assertThat(Paging.create(5, 2, 20).pages()).isEqualTo(4);
-    assertThat(Paging.create(5, 2, 21).pages()).isEqualTo(5);
-    assertThat(Paging.create(5, 2, 25).pages()).isEqualTo(5);
-    assertThat(Paging.create(5, 2, 26).pages()).isEqualTo(6);
+    assertThat(forPageIndex(2).withPageSize(5).andTotal(20).pages()).isEqualTo(4);
+    assertThat(forPageIndex(2).withPageSize(5).andTotal(21).pages()).isEqualTo(5);
+    assertThat(forPageIndex(2).withPageSize(5).andTotal(25).pages()).isEqualTo(5);
+    assertThat(forPageIndex(2).withPageSize(5).andTotal(26).pages()).isEqualTo(6);
   }
 
   @Test
   public void page_size_should_be_strictly_positive() {
-    try {
-      Paging.create(0, 5, 5);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Page size must be strictly positive. Got 0");
-    }
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Page size must be strictly positive. Got 0");
+
+    forPageIndex(5).withPageSize(0).andTotal(5);
   }
 
   @Test
   public void page_index_should_be_strictly_positive() {
-    try {
-      Paging.create(5, 0, 5);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Page index must be strictly positive. Got 0");
-    }
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Page index must be strictly positive. Got 0");
+
+    forPageIndex(0).withPageSize(5).andTotal(5);
   }
 
   @Test
   public void total_items_should_be_positive() {
-    try {
-      Paging.create(5, 5, -1);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Total items must be positive. Got -1");
-    }
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Total items must be positive. Got -1");
+
+    forPageIndex(5).withPageSize(5).andTotal(-1);
   }
 }

@@ -20,6 +20,9 @@
 
 package org.sonar.server.activity;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.picocontainer.Startable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Paging;
@@ -30,9 +33,7 @@ import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.search.Result;
 import org.sonar.server.util.RubyUtils;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import static org.sonar.api.utils.Paging.forPageIndex;
 
 /**
  * @deprecated in 4.4 because Ruby on Rails is deprecated too !
@@ -69,7 +70,7 @@ public class RubyQProfileActivityService implements Startable {
     options.setPage(pageIndex, 50);
 
     Result<QProfileActivity> result = service.searchActivities(query, options);
-    return new QProfileActivityResult(result.getHits(), Paging.create(options.getLimit(), pageIndex, (int) result.getTotal()));
+    return new QProfileActivityResult(result.getHits(), forPageIndex(pageIndex).withPageSize(options.getLimit()).andTotal((int) result.getTotal()));
   }
 
   @Override
