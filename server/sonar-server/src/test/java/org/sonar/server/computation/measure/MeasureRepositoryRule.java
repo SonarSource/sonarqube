@@ -48,6 +48,8 @@ import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Maps.filterKeys;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.server.computation.component.Component.Type.FILE;
+import static org.sonar.server.computation.component.Component.Type.PROJECT_VIEW;
 
 /**
  * An implementation of MeasureRepository as a JUnit rule which provides add methods for raw measures and extra add
@@ -103,7 +105,7 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
 
     InternalKey internalKey = new InternalKey(component, metric);
     checkState(!baseMeasures.containsKey(internalKey),
-      format("Can not add a BaseMeasure twice for a Component (ref=%s) and Metric (key=%s)", component.getReportAttributes().getRef(), metric.getKey()));
+      format("Can not add a BaseMeasure twice for a Component (ref=%s) and Metric (key=%s)", getRef(component), metric.getKey()));
 
     baseMeasures.put(internalKey, measure);
 
@@ -229,22 +231,24 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
 
   @Override
   public void add(Component component, Metric metric, Measure measure) {
-    InternalKey internalKey = new InternalKey(component.getReportAttributes().getRef(), metric.getKey(), measure.getRuleId(), measure.getCharacteristicId());
+    String ref = getRef(component);
+    InternalKey internalKey = new InternalKey(ref, metric.getKey(), measure.getRuleId(), measure.getCharacteristicId());
     if (rawMeasures.containsKey(internalKey)) {
       throw new UnsupportedOperationException(format(
         "A measure can only be set once for Component (ref=%s), Metric (key=%s), ruleId=%s, characteristicId=%s",
-        component.getReportAttributes().getRef(), metric.getKey(), measure.getRuleId(), measure.getCharacteristicId()));
+        ref, metric.getKey(), measure.getRuleId(), measure.getCharacteristicId()));
     }
     rawMeasures.put(internalKey, measure);
   }
 
   @Override
   public void update(Component component, Metric metric, Measure measure) {
-    InternalKey internalKey = new InternalKey(component.getReportAttributes().getRef(), metric.getKey(), measure.getRuleId(), measure.getCharacteristicId());
+    String componentRef = getRef(component);
+    InternalKey internalKey = new InternalKey(componentRef, metric.getKey(), measure.getRuleId(), measure.getCharacteristicId());
     if (!rawMeasures.containsKey(internalKey)) {
       throw new UnsupportedOperationException(format(
         "A measure can only be updated if it has been added first for Component (ref=%s), Metric (key=%s), ruleId=%s, characteristicId=%s",
-        component.getReportAttributes().getRef(), metric.getKey(), measure.getRuleId(), measure.getCharacteristicId()));
+        componentRef, metric.getKey(), measure.getRuleId(), measure.getCharacteristicId()));
     }
     rawMeasures.put(internalKey, measure);
   }
@@ -262,31 +266,31 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
   private static final class InternalKey {
     private static final int DEFAULT_VALUE = -9876;
 
-    private final int componentRef;
+    private final String componentRef;
     private final String metricKey;
     private final int ruleId;
     private final int characteristicId;
 
     public InternalKey(Component component, Metric metric) {
-      this(component.getReportAttributes().getRef(), metric.getKey(), null, null);
+      this(getRef(component), metric.getKey(), null, null);
     }
 
     public InternalKey(Component component, Metric metric, @Nullable Integer ruleId, @Nullable Integer characteristicId) {
-      this(component.getReportAttributes().getRef(), metric.getKey(), ruleId, characteristicId);
+      this(getRef(component), metric.getKey(), ruleId, characteristicId);
     }
 
-    public InternalKey(int componentRef, String metricKey) {
+    public InternalKey(String componentRef, String metricKey) {
       this(componentRef, metricKey, null, null);
     }
 
-    public InternalKey(int componentRef, String metricKey, @Nullable Integer ruleId, @Nullable Integer characteristicId) {
+    public InternalKey(String componentRef, String metricKey, @Nullable Integer ruleId, @Nullable Integer characteristicId) {
       this.componentRef = componentRef;
       this.metricKey = metricKey;
       this.ruleId = ruleId == null ? DEFAULT_VALUE : ruleId;
       this.characteristicId = characteristicId == null ? DEFAULT_VALUE : characteristicId;
     }
 
-    public int getComponentRef() {
+    public String getComponentRef() {
       return componentRef;
     }
 
@@ -335,15 +339,15 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
 
   private static class HasComponentRefPredicate implements Predicate<InternalKey> {
 
-    private final Component component;
+    private final String componentRef;
 
     public HasComponentRefPredicate(Component component) {
-      this.component = component;
+      this.componentRef = getRef(component);
     }
 
     @Override
     public boolean apply(@Nonnull InternalKey input) {
-      return input.getComponentRef() == component.getReportAttributes().getRef();
+      return input.getComponentRef().equals(this.componentRef);
     }
   }
 
@@ -386,16 +390,16 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
   }
 
   private static final class TreeComponentProvider implements ComponentProvider {
-    private final Map<Integer, Component> componentsByRef = new HashMap<>();
+    private final Map<String, Component> componentsByRef = new HashMap<>();
 
     public TreeComponentProvider(Component root) {
       new DepthTraversalTypeAwareCrawler(
-        new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, ComponentVisitor.Order.PRE_ORDER) {
+        new TypeAwareVisitorAdapter(CrawlerDepthLimit.reportMaxDepth(FILE).withViewsMaxDepth(PROJECT_VIEW), ComponentVisitor.Order.PRE_ORDER) {
           @Override
           public void visitAny(Component component) {
-            checkState(!componentsByRef.containsKey(component.getReportAttributes().getRef()),
-              "Tree contains more than one component with ref " + component.getReportAttributes().getRef());
-            componentsByRef.put(component.getReportAttributes().getRef(), component);
+            String ref = getRef(component);
+            checkState(!componentsByRef.containsKey(ref), "Tree contains more than one component with ref " + ref);
+            componentsByRef.put(ref, component);
           }
         }).visit(root);
     }
@@ -412,10 +416,14 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
 
     @Override
     public Component getByRef(int componentRef) {
-      Component component = componentsByRef.get(componentRef);
+      Component component = componentsByRef.get(String.valueOf(componentRef));
       checkState(component != null, "Can not find Component for ref " + componentRef);
       return component;
     }
+  }
+
+  private static String getRef(Component component) {
+    return component.getType().isReportType() ? String.valueOf(component.getReportAttributes().getRef()) : component.getKey();
   }
 
 }

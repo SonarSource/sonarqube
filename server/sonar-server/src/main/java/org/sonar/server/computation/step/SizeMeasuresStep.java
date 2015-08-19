@@ -19,16 +19,17 @@
  */
 package org.sonar.server.computation.step;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.PathAwareVisitorAdapter;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.Formula;
 import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
 import org.sonar.server.computation.formula.SumFormula;
+import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
@@ -41,7 +42,10 @@ import static org.sonar.api.measures.CoreMetrics.GENERATED_NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.STATEMENTS_KEY;
+import static org.sonar.server.computation.component.Component.Type.FILE;
+import static org.sonar.server.computation.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
+import static org.sonar.server.computation.component.CrawlerDepthLimit.reportMaxDepth;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
 /**
@@ -92,7 +96,7 @@ public class SizeMeasuresStep implements ComputationStep {
     private final Metric fileMetric;
 
     public FileAndDirectoryMeasureVisitor(Metric directoryMetric, Metric fileMetric) {
-      super(CrawlerDepthLimit.FILE, POST_ORDER, COUNTER_STACK_ELEMENT_FACTORY);
+      super(reportMaxDepth(FILE).withViewsMaxDepth(PROJECT_VIEW), POST_ORDER, COUNTER_STACK_ELEMENT_FACTORY);
       this.directoryMetric = directoryMetric;
       this.fileMetric = fileMetric;
     }
@@ -135,6 +139,30 @@ public class SizeMeasuresStep implements ComputationStep {
       path.parent().files += 1;
     }
 
+    @Override
+    public void visitView(Component view, Path<Counter> path) {
+      createMeasures(view, path.current().directories, path.current().files);
+    }
+
+    @Override
+    public void visitSubView(Component subView, Path<Counter> path) {
+      createMeasures(subView, path.current().directories, path.current().files);
+
+      path.parent().directories += path.current().directories;
+      path.parent().files += path.current().files;
+    }
+
+    @Override
+    public void visitProjectView(Component projectView, Path<Counter> path) {
+      path.parent().directories += getIntValue(projectView, this.directoryMetric);
+      path.parent().files += getIntValue(projectView, this.fileMetric);
+    }
+
+    private int getIntValue(Component component, Metric metric) {
+      Optional<Measure> fileMeasure = measureRepository.getRawMeasure(component, metric);
+      return fileMeasure.isPresent() ? fileMeasure.get().getIntValue() : 0;
+    }
+
   }
 
   private static class Counter {
@@ -151,6 +179,11 @@ public class SizeMeasuresStep implements ComputationStep {
 
     @Override
     public Counter createForFile(Component file) {
+      return null;
+    }
+
+    @Override
+    public Counter createForProjectView(Component projectView) {
       return null;
     }
   }

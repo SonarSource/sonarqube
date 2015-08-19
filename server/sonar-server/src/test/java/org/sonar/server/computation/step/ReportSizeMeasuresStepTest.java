@@ -51,7 +51,7 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 
-public class SizeMeasuresStepTest {
+public class ReportSizeMeasuresStepTest {
 
   private static final String LANGUAGE_DOES_NOT_MATTER_HERE = null;
   private static final int ROOT_REF = 1;
