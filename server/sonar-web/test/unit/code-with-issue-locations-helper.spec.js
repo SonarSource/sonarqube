@@ -51,6 +51,12 @@ define(function (require) {
           '<span class="cppd"> * Copyright (C</span><span class="cppd x">) 200</span><span class="cppd">8-20</span><span class="cppd x">14 So</span><span class="cppd">narSource</span>');
       //   <span class="cppd"> * Copyright (C</span><span class="cppd x">) 200</span><span class="cppd">8-20</span><span class="cppd x">4 So</span><span class="cppd">narSource</span>
     });
+
+    bdd.it('should parse line with < and >', function () {
+      var code = '<span class="j">#include &lt;stdio.h&gt;</span>',
+          result = helper(code, []);
+      assert.equal(result, '<span class="j">#include &lt;stdio.h&gt;</span>');
+    });
   });
 });
 
