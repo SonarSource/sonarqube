@@ -25,12 +25,8 @@ import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.measure.Measure;
 
 import static java.util.Objects.requireNonNull;
-import static org.sonar.server.computation.component.Component.Type.FILE;
-import static org.sonar.server.computation.component.Component.Type.PROJECT_VIEW;
 
 public class SumFormula implements Formula<SumCounter> {
-  private static final CrawlerDepthLimit LIMIT = CrawlerDepthLimit.reportMaxDepth(FILE).withViewsMaxDepth(PROJECT_VIEW);
-
   private final String metricKey;
 
   public SumFormula(String metricKey) {
@@ -45,7 +41,7 @@ public class SumFormula implements Formula<SumCounter> {
   @Override
   public Optional<Measure> createMeasure(SumCounter counter, CreateMeasureContext context) {
     Optional<Integer> valueOptional = counter.getValue();
-    if (valueOptional.isPresent() && LIMIT.isDeeperThan(context.getComponent().getType())) {
+    if (valueOptional.isPresent() && CrawlerDepthLimit.LEAVES.isDeeperThan(context.getComponent().getType())) {
       return Optional.of(Measure.newMeasureBuilder().create(valueOptional.get()));
     }
     return Optional.absent();

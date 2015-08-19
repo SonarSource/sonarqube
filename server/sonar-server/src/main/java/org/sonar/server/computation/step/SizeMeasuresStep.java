@@ -23,6 +23,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.PathAwareVisitorAdapter;
 import org.sonar.server.computation.component.TreeRootHolder;
@@ -42,10 +43,7 @@ import static org.sonar.api.measures.CoreMetrics.GENERATED_NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.STATEMENTS_KEY;
-import static org.sonar.server.computation.component.Component.Type.FILE;
-import static org.sonar.server.computation.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
-import static org.sonar.server.computation.component.CrawlerDepthLimit.reportMaxDepth;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
 /**
@@ -61,8 +59,7 @@ public class SizeMeasuresStep implements ComputationStep {
     new SumFormula(FUNCTIONS_KEY),
     new SumFormula(STATEMENTS_KEY),
     new SumFormula(CLASSES_KEY),
-    new SumFormula(ACCESSORS_KEY)
-    );
+    new SumFormula(ACCESSORS_KEY));
 
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;
@@ -83,7 +80,7 @@ public class SizeMeasuresStep implements ComputationStep {
       .visit(treeRootHolder.getRoot());
     new PathAwareCrawler<>(FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
       .buildFor(AGGREGATED_SIZE_MEASURE_FORMULAS))
-      .visit(treeRootHolder.getRoot());
+        .visit(treeRootHolder.getRoot());
   }
 
   @Override
@@ -96,7 +93,7 @@ public class SizeMeasuresStep implements ComputationStep {
     private final Metric fileMetric;
 
     public FileAndDirectoryMeasureVisitor(Metric directoryMetric, Metric fileMetric) {
-      super(reportMaxDepth(FILE).withViewsMaxDepth(PROJECT_VIEW), POST_ORDER, COUNTER_STACK_ELEMENT_FACTORY);
+      super(CrawlerDepthLimit.LEAVES, POST_ORDER, COUNTER_STACK_ELEMENT_FACTORY);
       this.directoryMetric = directoryMetric;
       this.fileMetric = fileMetric;
     }

@@ -30,6 +30,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.component.MutableDbIdsRepository;
@@ -39,10 +40,6 @@ import org.sonar.server.computation.component.PathAwareVisitorAdapter;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
-
-import static org.sonar.server.computation.component.Component.Type.FILE;
-import static org.sonar.server.computation.component.Component.Type.PROJECT_VIEW;
-import static org.sonar.server.computation.component.CrawlerDepthLimit.reportMaxDepth;
 
 /**
  * Persist snapshots
@@ -89,7 +86,7 @@ public class PersistSnapshotsStep implements ComputationStep {
     private long rootId;
 
     public PersistSnapshotsPathAwareVisitor(DbSession dbSession, long analysisDate, DbIdsRepository dbIdsRepository) {
-      super(reportMaxDepth(FILE).withViewsMaxDepth(PROJECT_VIEW), Order.PRE_ORDER, SnapshotDtoHolderFactory.INSTANCE);
+      super(CrawlerDepthLimit.LEAVES, Order.PRE_ORDER, SnapshotDtoHolderFactory.INSTANCE);
       this.dbSession = dbSession;
       this.analysisDate = analysisDate;
       this.dbIdsRepository = dbIdsRepository;

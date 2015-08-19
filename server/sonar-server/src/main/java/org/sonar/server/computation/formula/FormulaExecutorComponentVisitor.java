@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentVisitor;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.PathAwareVisitorAdapter;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
@@ -36,9 +37,6 @@ import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
 
 import static java.util.Objects.requireNonNull;
-import static org.sonar.server.computation.component.Component.Type.FILE;
-import static org.sonar.server.computation.component.Component.Type.PROJECT_VIEW;
-import static org.sonar.server.computation.component.CrawlerDepthLimit.reportMaxDepth;
 
 public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<FormulaExecutorComponentVisitor.Counters> {
   private static final SimpleStackElementFactory<Counters> COUNTERS_FACTORY = new SimpleStackElementFactory<Counters>() {
@@ -68,7 +66,7 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
   private final List<Formula> formulas;
 
   private FormulaExecutorComponentVisitor(Builder builder, List<Formula> formulas) {
-    super(reportMaxDepth(FILE).withViewsMaxDepth(PROJECT_VIEW), ComponentVisitor.Order.POST_ORDER, COUNTERS_FACTORY);
+    super(CrawlerDepthLimit.LEAVES, ComponentVisitor.Order.POST_ORDER, COUNTERS_FACTORY);
     this.periodsHolder = builder.periodsHolder;
     this.measureRepository = builder.measureRepository;
     this.metricRepository = builder.metricRepository;

@@ -21,6 +21,7 @@ package org.sonar.server.computation.component;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -240,6 +241,35 @@ public class CrawlerDepthLimitTest {
   @Test
   public void PROJECT_VIEW_isDeeper_than_VIEWS_and_SUBVIEWS_views_types() {
     assertIsDeeperThanViewsType(CrawlerDepthLimit.PROJECT_VIEW, Type.VIEW, Type.SUBVIEW);
+  }
+
+  @Test
+  public void LEAVES_is_same_as_FILE_and_PROJECT_VIEW() {
+    assertThat(CrawlerDepthLimit.LEAVES.isSameAs(Type.FILE)).isTrue();
+    assertThat(CrawlerDepthLimit.LEAVES.isSameAs(Type.PROJECT_VIEW)).isTrue();
+    for (Type type : from(asList(Type.values())).filter(not(in(ImmutableSet.of(Type.FILE, Type.PROJECT_VIEW))))) {
+      assertThat(CrawlerDepthLimit.LEAVES.isSameAs(type)).isFalse();
+    }
+  }
+
+  @Test
+  public void LEAVES_isDeeper_than_PROJECT_MODULE_and_DIRECTORY_report_types() {
+    assertIsDeeperThanReportType(CrawlerDepthLimit.LEAVES, Type.PROJECT, Type.MODULE, Type.DIRECTORY);
+  }
+
+  @Test
+  public void LEAVES_isDeeper_than_VIEW_and_SUBVIEW_views_types() {
+    assertIsDeeperThanViewsType(CrawlerDepthLimit.LEAVES, Type.VIEW, Type.SUBVIEW);
+  }
+
+  @Test
+  public void LEAVES_isHigher_than_no_report_types() {
+    assertIsHigherThanReportType(CrawlerDepthLimit.LEAVES);
+  }
+
+  @Test
+  public void LEAVES_isHigher_than_no_views_types() {
+    assertIsHigherThanViewsType(CrawlerDepthLimit.LEAVES);
   }
 
   private void assertIsSameAs(CrawlerDepthLimit crawlerDepthLimit, Type expectedType) {

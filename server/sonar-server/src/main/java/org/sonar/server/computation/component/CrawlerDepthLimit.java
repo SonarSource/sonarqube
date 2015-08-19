@@ -45,6 +45,7 @@ public class CrawlerDepthLimit {
   public static final CrawlerDepthLimit VIEW = new CrawlerDepthLimit(null, Component.Type.VIEW);
   public static final CrawlerDepthLimit SUBVIEW = new CrawlerDepthLimit(null, Component.Type.SUBVIEW);
   public static final CrawlerDepthLimit PROJECT_VIEW = new CrawlerDepthLimit(null, Component.Type.PROJECT_VIEW);
+  public static final CrawlerDepthLimit LEAVES = new CrawlerDepthLimit(Component.Type.FILE, Component.Type.PROJECT_VIEW);
 
   @CheckForNull
   private final Component.Type reportMaxDepth;

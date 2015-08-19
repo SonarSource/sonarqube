@@ -48,8 +48,6 @@ import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Maps.filterKeys;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
-import static org.sonar.server.computation.component.Component.Type.FILE;
-import static org.sonar.server.computation.component.Component.Type.PROJECT_VIEW;
 
 /**
  * An implementation of MeasureRepository as a JUnit rule which provides add methods for raw measures and extra add
@@ -394,7 +392,7 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
 
     public TreeComponentProvider(Component root) {
       new DepthTraversalTypeAwareCrawler(
-        new TypeAwareVisitorAdapter(CrawlerDepthLimit.reportMaxDepth(FILE).withViewsMaxDepth(PROJECT_VIEW), ComponentVisitor.Order.PRE_ORDER) {
+        new TypeAwareVisitorAdapter(CrawlerDepthLimit.LEAVES, ComponentVisitor.Order.PRE_ORDER) {
           @Override
           public void visitAny(Component component) {
             String ref = getRef(component);
