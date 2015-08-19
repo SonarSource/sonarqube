@@ -373,7 +373,7 @@ public interface WebService extends Definable<WebService.Context> {
      * The fields must be in the <strong>plural</strong> form (ex: "names", "keys")
      */
     public NewAction addSearchQuery(String exampleValue, String... pluralFields) {
-      String actionDescription = String.format("Searches for %s containing the supplied string.", Joiner.on(" and ").join(pluralFields));
+      String actionDescription = String.format("Limit search to %s that contain the supplied string.", Joiner.on(" or ").join(pluralFields));
       createParam(Param.TEXT_QUERY)
         .setDescription(actionDescription)
         .setExampleValue(exampleValue);

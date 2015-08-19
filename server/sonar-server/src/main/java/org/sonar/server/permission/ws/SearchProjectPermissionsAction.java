@@ -68,7 +68,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
       .setResponseExample(getClass().getResource("search_project_permissions-example.json"))
       .setSince("5.2")
       .addPagingParams(25)
-      .addSearchQuery("sonarq", "names", "keys")
+      .addSearchQuery("sonarq", "project names", "project keys")
       .setHandler(this);
 
     createProjectUuidParameter(action);
