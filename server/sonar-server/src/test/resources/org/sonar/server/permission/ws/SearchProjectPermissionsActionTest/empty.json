@@ -21,5 +21,10 @@
       "name": "See Source Code",
       "description": "Ability to view the project's source code. (Users will also need \"Browse\" permission)"
     }
-  ]
+  ],
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 25,
+    "total": 0
+  }
 }

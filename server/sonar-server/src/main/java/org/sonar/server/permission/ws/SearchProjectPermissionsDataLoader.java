@@ -69,7 +69,7 @@ public class SearchProjectPermissionsDataLoader {
       List<Long> rootComponentIds = Lists.transform(rootComponents, ComponentToIdFunction.INSTANCE);
 
       data.rootComponents(rootComponents)
-        .total(countRootComponents)
+        .paging(paging(wsRequest, countRootComponents))
         .userCountByProjectIdAndPermission(userCountByRootComponentIdAndPermission(dbSession, rootComponentIds))
         .groupCountByProjectIdAndPermission(groupCountByRootComponentIdAndPermission(dbSession, rootComponentIds));
 
@@ -79,7 +79,7 @@ public class SearchProjectPermissionsDataLoader {
     }
   }
 
-  private Paging paging(Request wsRequest, int total) {
+  private static Paging paging(Request wsRequest, int total) {
     return forPageIndex(wsRequest.mandatoryParamAsInt(PAGE))
       .withPageSize(wsRequest.mandatoryParamAsInt(PAGE_SIZE))
       .andTotal(total);

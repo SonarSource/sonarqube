@@ -45,10 +45,10 @@ public class Paging {
     this.total = total;
   }
 
-  @Deprecated
   /**
    * @deprecated since 5.2 please use the forPageIndex(...) builder method
    */
+  @Deprecated
   public static Paging create(int pageSize, int pageIndex, int totalItems) {
     return new Paging(pageSize, pageIndex, totalItems);
   }

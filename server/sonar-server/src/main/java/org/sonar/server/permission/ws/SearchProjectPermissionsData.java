@@ -26,6 +26,7 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.Table;
 import java.util.List;
 import java.util.Set;
+import org.sonar.api.utils.Paging;
 import org.sonar.db.component.ComponentDto;
 
 import static com.google.common.base.Objects.firstNonNull;
@@ -35,13 +36,13 @@ import static com.google.common.collect.ImmutableTable.copyOf;
 
 public class SearchProjectPermissionsData {
   private final List<ComponentDto> rootComponents;
-  private final int total;
+  private final Paging paging;
   private final Table<Long, String, Integer> userCountByProjectIdAndPermission;
   private final Table<Long, String, Integer> groupCountByProjectIdAndPermission;
 
   private SearchProjectPermissionsData(Builder builder) {
     this.rootComponents = copyOf(builder.projects);
-    this.total = builder.total;
+    this.paging = builder.paging;
     this.userCountByProjectIdAndPermission = copyOf(builder.userCountByProjectIdAndPermission);
     this.groupCountByProjectIdAndPermission = copyOf(builder.groupCountByProjectIdAndPermission);
   }
@@ -54,8 +55,8 @@ public class SearchProjectPermissionsData {
     return rootComponents;
   }
 
-  public int total() {
-    return total;
+  public Paging paging() {
+    return paging;
   }
 
   public int userCount(long rootComponentId, String permission) {
@@ -77,7 +78,7 @@ public class SearchProjectPermissionsData {
 
   public static class Builder {
     private List<ComponentDto> projects;
-    private int total;
+    private Paging paging;
     private Table<Long, String, Integer> userCountByProjectIdAndPermission;
     private Table<Long, String, Integer> groupCountByProjectIdAndPermission;
 
@@ -98,8 +99,8 @@ public class SearchProjectPermissionsData {
       return this;
     }
 
-    public Builder total(int total) {
-      this.total = total;
+    public Builder paging(Paging paging) {
+      this.paging = paging;
       return this;
     }
 

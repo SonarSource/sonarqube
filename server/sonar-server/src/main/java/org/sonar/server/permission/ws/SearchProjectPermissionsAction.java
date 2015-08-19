@@ -24,6 +24,7 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.ComponentPermissions;
 import org.sonar.core.permission.GlobalPermissions;
@@ -31,6 +32,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Permissions.Permission;
 import org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse;
 import org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project;
@@ -146,6 +148,14 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
           .setDescription(i18nDescriptionMessage(permissionKey))
         );
     }
+
+    Paging paging = data.paging();
+    response.setPaging(
+      Common.Paging.newBuilder()
+        .setPageIndex(paging.pageIndex())
+        .setPageSize(paging.pageSize())
+        .setTotal(paging.total())
+      );
 
     return response.build();
   }

@@ -41,6 +41,7 @@ public class PermissionDao implements Dao {
 
   private static final String QUERY_PARAMETER = "query";
   private static final String COMPONENT_ID_PARAMETER = "componentId";
+  private static final String ANYONE_GROUP_PARAMETER = "anyoneGroup";
 
   private final MyBatis myBatis;
 
@@ -93,7 +94,7 @@ public class PermissionDao implements Dao {
   public int countGroups(DbSession session, String permission, @Nullable Long componentId) {
     Map<String, Object> parameters = new HashMap<>();
     parameters.put("permission", permission);
-    parameters.put("anyoneGroup", DefaultGroups.ANYONE);
+    parameters.put(ANYONE_GROUP_PARAMETER, DefaultGroups.ANYONE);
     parameters.put(COMPONENT_ID_PARAMETER, componentId);
 
     return mapper(session).countGroups(parameters);
@@ -120,7 +121,7 @@ public class PermissionDao implements Dao {
    */
   public void groupsCountByComponentIdAndPermission(final DbSession dbSession, final List<Long> componentIds, final ResultHandler resultHandler) {
     final Map<String, Object> parameters = new HashMap<>();
-    parameters.put("anyoneGroup", DefaultGroups.ANYONE);
+    parameters.put(ANYONE_GROUP_PARAMETER, DefaultGroups.ANYONE);
 
     DatabaseUtils.executeLargeInputsWithoutOutput(componentIds, new Function<List<Long>, Void>() {
       @Override
@@ -136,7 +137,7 @@ public class PermissionDao implements Dao {
     Map<String, Object> params = newHashMap();
     params.put(QUERY_PARAMETER, query);
     params.put(COMPONENT_ID_PARAMETER, componentId);
-    params.put("anyoneGroup", DefaultGroups.ANYONE);
+    params.put(ANYONE_GROUP_PARAMETER, DefaultGroups.ANYONE);
     return params;
   }
 
