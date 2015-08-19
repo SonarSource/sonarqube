@@ -1,1 +1,5 @@
-Fake
+
+class Fake {
+
+
+}

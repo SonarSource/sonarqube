@@ -1,3 +1,3 @@
-package org.sonar.runner.batch.ProjectReactorBuilderTest.simple
+package org.sonar.runner.batch.ProjectReactorBuilderTest.simple;
 
-Fake
+class Fake {}
