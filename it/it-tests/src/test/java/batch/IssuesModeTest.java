@@ -5,6 +5,8 @@
  */
 package batch;
 
+import com.sonar.orchestrator.build.BuildFailureException;
+
 import util.ItUtils;
 import com.google.common.collect.Maps;
 import com.sonar.orchestrator.Orchestrator;
@@ -26,7 +28,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import static org.junit.Assert.*;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import org.apache.commons.lang.ObjectUtils;
 import org.json.simple.JSONArray;
@@ -72,6 +73,20 @@ public class IssuesModeTest {
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
     SonarRunner runner = configureRunnerIssues("shared/xoo-sample");
     orchestrator.executeBuild(runner);
+  }
+  
+  @Test
+  public void invalidIncrementalMode() throws IOException {
+    restoreProfile("one-issue-per-line.xml");
+    orchestrator.getServer().provisionProject("sample", "xoo-sample");
+    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
+    SonarRunner runner = configureRunner("shared/xoo-sample");
+    runner.setProperty("sonar.analysis.mode", "incremental");
+    
+    thrown.expect(BuildFailureException.class);
+    BuildResult res = orchestrator.executeBuild(runner);
+    
+    assertThat(res.getLogs()).contains("Invalid analysis mode: incremental. This mode was removed in SonarQube 5.2");
   }
 
   // SONAR-5715

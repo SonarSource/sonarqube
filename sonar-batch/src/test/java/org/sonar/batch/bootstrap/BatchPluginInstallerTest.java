@@ -55,7 +55,6 @@ public class BatchPluginInstallerTest {
   public void listRemotePlugins() {
 
     WSLoader wsLoader = mock(WSLoader.class);
-    when(wsLoader.load("/deploy/plugins/index.txt")).thenReturn(new WSLoaderResult<byte[]>("checkstyle\nsqale".getBytes(), true));
     when(wsLoader.loadString("/deploy/plugins/index.txt")).thenReturn(new WSLoaderResult<String>("checkstyle\nsqale", true));
     BatchPluginInstaller installer = new BatchPluginInstaller(wsLoader, serverClient, fileCache, pluginPredicate);
 

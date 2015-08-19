@@ -20,7 +20,6 @@
 package org.sonar.batch.bootstrap;
 
 import org.sonar.batch.cache.WSLoaderResult;
-
 import org.sonar.batch.cache.WSLoader;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -99,20 +98,7 @@ public class BatchPluginInstaller implements PluginInstaller {
   File download(final RemotePlugin remote) {
     try {
       final RemotePluginFile file = remote.file();
-      return fileCache.get(file.getFilename(), file.getHash(), new FileCache.Downloader() {
-        @Override
-        public void download(String filename, File toFile) throws IOException {
-          String url = "/deploy/plugins/" + remote.getKey() + "/" + file.getFilename();
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Download {} to {}", url, toFile.getAbsolutePath());
-          } else {
-            LOG.info("Download {}", file.getFilename());
-          }
-
-          serverClient.download(url, toFile);
-        }
-      });
-
+      return fileCache.get(file.getFilename(), file.getHash(), new FileDownloader(remote.getKey()));
     } catch (Exception e) {
       throw new IllegalStateException("Fail to download plugin: " + remote.getKey(), e);
     }
@@ -140,14 +126,27 @@ public class BatchPluginInstaller implements PluginInstaller {
   private String loadPluginIndex() {
     Profiler profiler = Profiler.create(LOG).startInfo("Load plugins index");
     WSLoaderResult<String> wsResult = wsLoader.loadString(PLUGINS_INDEX_URL);
-
-    if (wsResult.isFromCache()) {
-      profiler.stopInfo("Load plugins index (done from cache)");
-    } else {
-      profiler.stopInfo();
-    }
-
+    profiler.stopInfo(wsResult.isFromCache());
     return wsResult.get();
   }
 
+  private class FileDownloader implements FileCache.Downloader {
+    private String key;
+
+    FileDownloader(String key) {
+      this.key = key;
+    }
+
+    @Override
+    public void download(String filename, File toFile) throws IOException {
+      String url = "/deploy/plugins/" + key + "/" + filename;
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Download {} to {}", url, toFile.getAbsolutePath());
+      } else {
+        LOG.info("Download {}", filename);
+      }
+
+      serverClient.download(url, toFile);
+    }
+  }
 }
