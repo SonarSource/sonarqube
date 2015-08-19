@@ -95,7 +95,7 @@ public class PersistMeasuresStep implements ComputationStep {
     private final DbSession session;
 
     private MeasureVisitor(DbSession session) {
-      super(CrawlerDepthLimit.FILE, PRE_ORDER);
+      super(CrawlerDepthLimit.LEAVES, PRE_ORDER);
       this.session = session;
     }
 
