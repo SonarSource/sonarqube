@@ -11,7 +11,7 @@ define(function () {
     },
 
     url: function () {
-      return baseUrl + '/api/issues/show?key=' + this.get('key');
+      return baseUrl + '/api/issues';
     },
 
     urlRoot: function () {
@@ -19,8 +19,9 @@ define(function () {
     },
 
     parse: function (r) {
-      if (r.issue) {
-        var issue = this._injectRelational(r.issue, r.components, 'component', 'key');
+      var issue = _.size(r.issues) > 0 ? r.issues[0] : r.issue;
+      if (issue) {
+        issue = this._injectRelational(issue, r.components, 'component', 'key');
         issue = this._injectRelational(issue, r.components, 'project', 'key');
         issue = this._injectRelational(issue, r.components, 'subProject', 'key');
         issue = this._injectRelational(issue, r.rules, 'rule', 'key');
@@ -65,8 +66,11 @@ define(function () {
       if (method === 'read') {
         _.extend(opts, {
           type: 'GET',
-          url: this.urlRoot() + '/show',
-          data: { key: model.id }
+          url: this.urlRoot() + '/search',
+          data: {
+            issues: model.id,
+            additionalFields: '_all'
+          }
         });
       }
       if (method === 'create') {
