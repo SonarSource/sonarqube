@@ -20,7 +20,6 @@ export default React.createClass({
   },
 
   renderTitle() {
-    console.log(this.props);
     return 'Groups';
   },
 

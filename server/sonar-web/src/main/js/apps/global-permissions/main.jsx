@@ -15,7 +15,7 @@ export default React.createClass({
   requestPermissions() {
     const url = `${window.baseUrl}/api/permissions/search_global_permissions`;
     $.get(url).done(r => {
-      this.setState({ permissions: r.globalPermissions });
+      this.setState({ permissions: r.permissions });
     });
   },
 
