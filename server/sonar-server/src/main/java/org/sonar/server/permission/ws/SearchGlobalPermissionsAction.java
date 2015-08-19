@@ -24,9 +24,7 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.util.ProtobufJsonFormat;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.PermissionQuery;
@@ -35,6 +33,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions.Permission;
 import org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse;
 
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Permissions.Permission.newBuilder;
 
 public class SearchGlobalPermissionsAction implements PermissionsWsAction {
@@ -67,14 +66,14 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      SearchGlobalPermissionsResponse.Builder response = response(dbSession);
-      writeResponse(wsResponse, response);
+      SearchGlobalPermissionsResponse response = buildResponse(dbSession);
+      writeProtobuf(response, wsRequest, wsResponse);
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private SearchGlobalPermissionsResponse.Builder response(DbSession dbSession) {
+  private SearchGlobalPermissionsResponse buildResponse(DbSession dbSession) {
     SearchGlobalPermissionsResponse.Builder response = SearchGlobalPermissionsResponse.newBuilder();
     Permission.Builder permission = newBuilder();
 
@@ -92,13 +91,7 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
       );
     }
 
-    return response;
-  }
-
-  private static void writeResponse(Response response, SearchGlobalPermissionsResponse.Builder searchGlobalPermissionResponse) {
-    JsonWriter json = response.newJsonWriter();
-    ProtobufJsonFormat.write(searchGlobalPermissionResponse.build(), json);
-    json.close();
+    return response.build();
   }
 
   private void checkPermissions() {
