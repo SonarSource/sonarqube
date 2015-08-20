@@ -23,14 +23,14 @@ package org.sonar.server.computation.step;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.Counter;
 import org.sonar.server.computation.formula.CreateMeasureContext;
-import org.sonar.server.computation.formula.LeafAggregateContext;
 import org.sonar.server.computation.formula.Formula;
 import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
+import org.sonar.server.computation.formula.LeafAggregateContext;
 import org.sonar.server.computation.formula.SumCounter;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
@@ -45,7 +45,6 @@ import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
-import static org.sonar.server.computation.component.Component.Type.FILE;
 
 /**
  * Computes duplication measures on files and then aggregates them on higher components.
@@ -102,7 +101,8 @@ public class DuplicationMeasuresStep implements ComputationStep {
 
     private Optional<Measure> createDuplicatedLinesMeasure(SumDuplicationCounter counter, CreateMeasureContext context) {
       int duplicatedLines = counter.value;
-      if (context.getMetric().getKey().equals(DUPLICATED_LINES_KEY) && context.getComponent().getType().isHigherThan(FILE)) {
+      if (context.getMetric().getKey().equals(DUPLICATED_LINES_KEY)
+        && CrawlerDepthLimit.LEAVES.isDeeperThan(context.getComponent().getType())) {
         return Optional.of(Measure.newMeasureBuilder().create(duplicatedLines));
       }
       return Optional.absent();
@@ -156,7 +156,7 @@ public class DuplicationMeasuresStep implements ComputationStep {
     @Override
     public Optional<Measure> createMeasure(SumDuplicationCounter counter, CreateMeasureContext context) {
       int value = counter.value;
-      if (context.getComponent().getType().isHigherThan(Component.Type.FILE)) {
+      if (CrawlerDepthLimit.LEAVES.isDeeperThan(context.getComponent().getType())) {
         return Optional.of(Measure.newMeasureBuilder().create(value));
       }
       return Optional.absent();

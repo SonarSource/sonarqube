@@ -48,7 +48,7 @@ public class ViewsComponent implements Component {
   private ViewsComponent(Type type, String key, @Nullable String uuid, @Nullable String name,
     List<Component> children,
     @Nullable ProjectViewAttributes projectViewAttributes) {
-    checkArgument(type.isViewsType());
+    checkArgument(type.isViewsType(), "Component type must be a Views type");
     this.type = type;
     this.key = requireNonNull(key);
     this.uuid = uuid;
