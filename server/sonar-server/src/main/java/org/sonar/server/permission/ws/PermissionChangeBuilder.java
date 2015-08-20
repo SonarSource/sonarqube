@@ -21,36 +21,16 @@
 package org.sonar.server.permission.ws;
 
 import com.google.common.base.Optional;
-import javax.annotation.Nullable;
-import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.user.GroupDto;
-import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.PermissionChange;
 
-public class PermissionWsCommons {
+public class PermissionChangeBuilder {
 
-  private final DbClient dbClient;
-  private final ComponentFinder componentFinder;
+  private final PermissionDependenciesFinder dependenciesFinder;
 
-  public PermissionWsCommons(DbClient dbClient, ComponentFinder componentFinder) {
-    this.dbClient = dbClient;
-    this.componentFinder = componentFinder;
-  }
-
-  String searchGroupName(DbSession dbSession, @Nullable String groupNameParam, @Nullable Long groupId) {
-    if (groupNameParam != null) {
-      return groupNameParam;
-    }
-
-    GroupDto group = dbClient.groupDao().selectById(dbSession, groupId);
-    if (group == null) {
-      throw new NotFoundException(String.format("Group with id '%d' is not found", groupId));
-    }
-
-    return group.getName();
+  public PermissionChangeBuilder(PermissionDependenciesFinder dependenciesFinder) {
+    this.dependenciesFinder = dependenciesFinder;
   }
 
   PermissionChange buildUserPermissionChange(DbSession dbSession, PermissionRequest request) {
@@ -63,7 +43,7 @@ public class PermissionWsCommons {
   }
 
   PermissionChange buildGroupPermissionChange(DbSession dbSession, PermissionRequest request) {
-    String groupName = searchGroupName(dbSession, request.groupName(), request.groupId());
+    String groupName = dependenciesFinder.getGroup(dbSession, request).getName();
 
     PermissionChange permissionChange = new PermissionChange()
       .setPermission(request.permission())
@@ -74,22 +54,9 @@ public class PermissionWsCommons {
   }
 
   private void addProjectToPermissionChange(DbSession dbSession, PermissionChange permissionChange, PermissionRequest request) {
-    if (request.hasProject()) {
-      ComponentDto project = componentFinder.getProjectByUuidOrKey(dbSession, request.projectUuid(), request.projectKey());
-      permissionChange.setComponentKey(project.key());
-    }
-  }
-
-  Optional<ComponentDto> searchProject(PermissionRequest request) {
-    if (!request.hasProject()) {
-      return Optional.absent();
-    }
-
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      return Optional.of(componentFinder.getProjectByUuidOrKey(dbSession, request.projectUuid(), request.projectKey()));
-    } finally {
-      dbClient.closeSession(dbSession);
+    Optional<ComponentDto> project = dependenciesFinder.searchProject(dbSession, request);
+    if (project.isPresent()) {
+      permissionChange.setComponentKey(project.get().key());
     }
   }
 }

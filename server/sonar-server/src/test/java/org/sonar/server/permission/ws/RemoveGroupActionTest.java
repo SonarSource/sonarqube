@@ -28,6 +28,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -48,12 +49,12 @@ import static org.mockito.Mockito.verify;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.server.permission.ws.RemoveGroupAction.ACTION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_ID;
 import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_NAME;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_UUID;
+import static org.sonar.server.permission.ws.RemoveGroupAction.ACTION;
 
 @Category(DbTests.class)
 public class RemoveGroupActionTest {
@@ -70,13 +71,18 @@ public class RemoveGroupActionTest {
   @Before
   public void setUp() {
     permissionUpdater = mock(PermissionUpdater.class);
+    DbClient dbClient = db.getDbClient();
+    ComponentFinder componentFinder = new ComponentFinder(dbClient);
     ws = new WsTester(new PermissionsWs(
-      new RemoveGroupAction(db.getDbClient(), new PermissionWsCommons(db.getDbClient(), new ComponentFinder(db.getDbClient())), permissionUpdater)));
+      new RemoveGroupAction(dbClient, new PermissionChangeBuilder(new PermissionDependenciesFinder(dbClient, componentFinder)), permissionUpdater)));
     userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 
   @Test
   public void call_permission_service_with_right_data() throws Exception {
+    insertGroup("sonar-administrators");
+    commit();
+
     newRequest()
       .setParam(PARAM_GROUP_NAME, "sonar-administrators")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
@@ -106,6 +112,7 @@ public class RemoveGroupActionTest {
   @Test
   public void remove_with_project_uuid() throws Exception {
     insertComponent(newProjectDto("project-uuid").setKey("project-key"));
+    insertGroup("sonar-administrators");
     commit();
 
     newRequest()
@@ -122,6 +129,7 @@ public class RemoveGroupActionTest {
   @Test
   public void remove_with_project_key() throws Exception {
     insertComponent(newProjectDto("project-uuid").setKey("project-key"));
+    insertGroup("sonar-administrators");
     commit();
 
     newRequest()
@@ -160,6 +168,7 @@ public class RemoveGroupActionTest {
   public void fail_when_component_is_not_a_project() throws Exception {
     expectedException.expect(BadRequestException.class);
     insertComponent(newFileDto(newProjectDto("project-uuid"), "file-uuid"));
+    insertGroup("sonar-administrators");
     commit();
 
     newRequest()

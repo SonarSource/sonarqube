@@ -40,12 +40,12 @@ public class RemoveGroupAction implements PermissionsWsAction {
   public static final String ACTION = "remove_group";
 
   private final DbClient dbClient;
-  private final PermissionWsCommons permissionWsCommons;
+  private final PermissionChangeBuilder permissionChangeBuilder;
   private final PermissionUpdater permissionUpdater;
 
-  public RemoveGroupAction(DbClient dbClient, PermissionWsCommons permissionWsCommons, PermissionUpdater permissionUpdater) {
+  public RemoveGroupAction(DbClient dbClient, PermissionChangeBuilder permissionChangeBuilder, PermissionUpdater permissionUpdater) {
     this.dbClient = dbClient;
-    this.permissionWsCommons = permissionWsCommons;
+    this.permissionChangeBuilder = permissionChangeBuilder;
     this.permissionUpdater = permissionUpdater;
   }
 
@@ -72,7 +72,7 @@ public class RemoveGroupAction implements PermissionsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       PermissionRequest permissionRequest = new Builder(request).withGroup().build();
-      PermissionChange permissionChange = permissionWsCommons.buildGroupPermissionChange(dbSession, permissionRequest);
+      PermissionChange permissionChange = permissionChangeBuilder.buildGroupPermissionChange(dbSession, permissionRequest);
       permissionUpdater.removePermission(permissionChange);
     } finally {
       dbClient.closeSession(dbSession);

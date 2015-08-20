@@ -77,8 +77,7 @@ public class GroupsActionTest {
     dbClient = db.getDbClient();
     dbSession = db.getSession();
     PermissionFinder permissionFinder = new PermissionFinder(dbClient);
-    PermissionWsCommons permissionWsCommons = new PermissionWsCommons(dbClient, new ComponentFinder(dbClient));
-    underTest = new GroupsAction(userSession, permissionFinder, permissionWsCommons);
+    underTest = new GroupsAction(dbClient, userSession, permissionFinder, new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient)));
     ws = new WsActionTester(underTest);
 
     userSession.login("login").setGlobalPermissions(SYSTEM_ADMIN);

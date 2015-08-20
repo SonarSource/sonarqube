@@ -29,6 +29,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.core.permission.GroupWithPermission;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.server.permission.GroupWithPermissionQueryResult;
@@ -47,14 +49,16 @@ import static org.sonar.server.permission.ws.Parameters.createProjectUuidParamet
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class GroupsAction implements PermissionsWsAction {
+  private final DbClient dbClient;
   private final UserSession userSession;
   private final PermissionFinder permissionFinder;
-  private final PermissionWsCommons permissionWsCommons;
+  private final PermissionDependenciesFinder dependenciesFinder;
 
-  public GroupsAction(UserSession userSession, PermissionFinder permissionFinder, PermissionWsCommons permissionWsCommons) {
+  public GroupsAction(DbClient dbClient, UserSession userSession, PermissionFinder permissionFinder, PermissionDependenciesFinder dependenciesFinder) {
+    this.dbClient = dbClient;
     this.userSession = userSession;
     this.permissionFinder = permissionFinder;
-    this.permissionWsCommons = permissionWsCommons;
+    this.dependenciesFinder = dependenciesFinder;
   }
 
   @Override
@@ -80,14 +84,19 @@ public class GroupsAction implements PermissionsWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    PermissionRequest request = new Builder(wsRequest).withPagination().build();
-    Optional<ComponentDto> project = permissionWsCommons.searchProject(request);
-    checkProjectAdminUserByComponentDto(userSession, project);
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      PermissionRequest request = new Builder(wsRequest).withPagination().build();
+      Optional<ComponentDto> project = dependenciesFinder.searchProject(dbSession, request);
+      checkProjectAdminUserByComponentDto(userSession, project);
 
-    PermissionQuery permissionQuery = buildPermissionQuery(request, project);
-    Permissions.GroupsResponse groupsResponse = groupsResponse(permissionQuery, request);
+      PermissionQuery permissionQuery = buildPermissionQuery(request, project);
+      Permissions.GroupsResponse groupsResponse = groupsResponse(permissionQuery, request);
 
-    writeProtobuf(groupsResponse, wsRequest, wsResponse);
+      writeProtobuf(groupsResponse, wsRequest, wsResponse);
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 
   private Permissions.GroupsResponse groupsResponse(PermissionQuery permissionQuery, PermissionRequest permissionRequest) {

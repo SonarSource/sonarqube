@@ -28,6 +28,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.core.permission.UserWithPermission;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.server.permission.PermissionFinder;
@@ -47,14 +49,16 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class UsersAction implements PermissionsWsAction {
 
+  private final DbClient dbClient;
   private final UserSession userSession;
   private final PermissionFinder permissionFinder;
-  private final PermissionWsCommons permissionWsCommons;
+  private final PermissionDependenciesFinder dependenciesFinder;
 
-  public UsersAction(UserSession userSession, PermissionFinder permissionFinder, PermissionWsCommons permissionWsCommons) {
+  public UsersAction(DbClient dbClient, UserSession userSession, PermissionFinder permissionFinder, PermissionDependenciesFinder dependenciesFinder) {
+    this.dbClient = dbClient;
     this.userSession = userSession;
-    this.permissionWsCommons = permissionWsCommons;
     this.permissionFinder = permissionFinder;
+    this.dependenciesFinder = dependenciesFinder;
   }
 
   @Override
@@ -80,13 +84,18 @@ public class UsersAction implements PermissionsWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    PermissionRequest request = new Builder(wsRequest).withPagination().build();
-    Optional<ComponentDto> project = permissionWsCommons.searchProject(request);
-    checkProjectAdminUserByComponentDto(userSession, project);
-    PermissionQuery permissionQuery = buildPermissionQuery(request, project);
-    UsersResponse usersResponse = usersResponse(permissionQuery, request.page(), request.pageSize());
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      PermissionRequest request = new Builder(wsRequest).withPagination().build();
+      Optional<ComponentDto> project = dependenciesFinder.searchProject(dbSession, request);
+      checkProjectAdminUserByComponentDto(userSession, project);
+      PermissionQuery permissionQuery = buildPermissionQuery(request, project);
+      UsersResponse usersResponse = usersResponse(permissionQuery, request.page(), request.pageSize());
 
-    writeProtobuf(usersResponse, wsRequest, wsResponse);
+      writeProtobuf(usersResponse, wsRequest, wsResponse);
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 
   private UsersResponse usersResponse(PermissionQuery permissionQuery, int page, int pageSize) {

@@ -40,11 +40,11 @@ public class AddGroupAction implements PermissionsWsAction {
   public static final String ACTION = "add_group";
 
   private final DbClient dbClient;
-  private final PermissionWsCommons permissionWsCommons;
+  private final PermissionChangeBuilder permissionChangeBuilder;
   private final PermissionUpdater permissionUpdater;
 
-  public AddGroupAction(DbClient dbClient, PermissionWsCommons permissionWsCommons, PermissionUpdater permissionUpdater) {
-    this.permissionWsCommons = permissionWsCommons;
+  public AddGroupAction(DbClient dbClient, PermissionChangeBuilder permissionChangeBuilder, PermissionUpdater permissionUpdater) {
+    this.permissionChangeBuilder = permissionChangeBuilder;
     this.permissionUpdater = permissionUpdater;
     this.dbClient = dbClient;
   }
@@ -72,7 +72,7 @@ public class AddGroupAction implements PermissionsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       PermissionRequest permissionRequest = new Builder(request).withGroup().build();
-      PermissionChange permissionChange = permissionWsCommons.buildGroupPermissionChange(dbSession, permissionRequest);
+      PermissionChange permissionChange = permissionChangeBuilder.buildGroupPermissionChange(dbSession, permissionRequest);
       permissionUpdater.addPermission(permissionChange);
     } finally {
       dbClient.closeSession(dbSession);

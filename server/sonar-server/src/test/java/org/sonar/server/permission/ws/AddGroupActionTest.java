@@ -49,12 +49,12 @@ import static org.mockito.Mockito.verify;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.permission.ws.AddGroupAction.ACTION;
-import static org.sonar.server.permission.ws.PermissionsWs.ENDPOINT;
 import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_ID;
 import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_NAME;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_UUID;
+import static org.sonar.server.permission.ws.PermissionsWs.ENDPOINT;
 
 @Category(DbTests.class)
 public class AddGroupActionTest {
@@ -73,13 +73,17 @@ public class AddGroupActionTest {
     permissionUpdater = mock(PermissionUpdater.class);
     permissionChangeCaptor = ArgumentCaptor.forClass(PermissionChange.class);
     dbClient = db.getDbClient();
+    ComponentFinder componentFinder = new ComponentFinder(dbClient);
     ws = new WsTester(new PermissionsWs(
-      new AddGroupAction(dbClient, new PermissionWsCommons(dbClient, new ComponentFinder(dbClient)), permissionUpdater)));
+      new AddGroupAction(dbClient, new PermissionChangeBuilder(new PermissionDependenciesFinder(dbClient, componentFinder)), permissionUpdater)));
     userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 
   @Test
   public void call_permission_service_with_right_data() throws Exception {
+    insertGroup("sonar-administrators");
+    commit();
+
     newRequest()
       .setParam(PARAM_GROUP_NAME, "sonar-administrators")
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)

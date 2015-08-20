@@ -40,12 +40,12 @@ public class AddUserAction implements PermissionsWsAction {
 
   private final DbClient dbClient;
   private final PermissionUpdater permissionUpdater;
-  private final PermissionWsCommons permissionWsCommons;
+  private final PermissionChangeBuilder permissionChangeBuilder;
 
-  public AddUserAction(DbClient dbClient, PermissionUpdater permissionUpdater, PermissionWsCommons permissionWsCommons) {
+  public AddUserAction(DbClient dbClient, PermissionUpdater permissionUpdater, PermissionChangeBuilder permissionWsCommons) {
     this.dbClient = dbClient;
     this.permissionUpdater = permissionUpdater;
-    this.permissionWsCommons = permissionWsCommons;
+    this.permissionChangeBuilder = permissionWsCommons;
   }
 
   @Override
@@ -69,7 +69,7 @@ public class AddUserAction implements PermissionsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       PermissionRequest permissionRequest = new Builder(request).withUser().build();
-      PermissionChange permissionChange = permissionWsCommons.buildUserPermissionChange(dbSession, permissionRequest);
+      PermissionChange permissionChange = permissionChangeBuilder.buildUserPermissionChange(dbSession, permissionRequest);
       permissionUpdater.addPermission(permissionChange);
 
       response.noContent();

@@ -48,12 +48,12 @@ import static org.mockito.Mockito.verify;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.server.permission.ws.PermissionsWs.ENDPOINT;
-import static org.sonar.server.permission.ws.RemoveUserAction.ACTION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_UUID;
 import static org.sonar.server.permission.ws.Parameters.PARAM_USER_LOGIN;
+import static org.sonar.server.permission.ws.PermissionsWs.ENDPOINT;
+import static org.sonar.server.permission.ws.RemoveUserAction.ACTION;
 
 @Category(DbTests.class)
 public class RemoveUserActionTest {
@@ -73,8 +73,9 @@ public class RemoveUserActionTest {
     permissionUpdater = mock(PermissionUpdater.class);
     dbClient = db.getDbClient();
     dbSession = db.getSession();
+    ComponentFinder componentFinder = new ComponentFinder(dbClient);
     ws = new WsTester(new PermissionsWs(
-      new RemoveUserAction(dbClient, permissionUpdater, new PermissionWsCommons(dbClient, new ComponentFinder(dbClient)))));
+      new RemoveUserAction(dbClient, permissionUpdater, new PermissionChangeBuilder(new PermissionDependenciesFinder(dbClient, componentFinder)))));
     userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 

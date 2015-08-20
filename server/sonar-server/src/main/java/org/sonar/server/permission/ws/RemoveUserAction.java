@@ -40,12 +40,12 @@ public class RemoveUserAction implements PermissionsWsAction {
 
   private final DbClient dbClient;
   private final PermissionUpdater permissionUpdater;
-  private final PermissionWsCommons permissionWsCommons;
+  private final PermissionChangeBuilder permissionChangeBuilder;
 
-  public RemoveUserAction(DbClient dbClient, PermissionUpdater permissionUpdater, PermissionWsCommons permissionWsCommons) {
+  public RemoveUserAction(DbClient dbClient, PermissionUpdater permissionUpdater, PermissionChangeBuilder permissionChangeBuilder) {
     this.dbClient = dbClient;
     this.permissionUpdater = permissionUpdater;
-    this.permissionWsCommons = permissionWsCommons;
+    this.permissionChangeBuilder = permissionChangeBuilder;
   }
 
   @Override
@@ -69,7 +69,7 @@ public class RemoveUserAction implements PermissionsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       PermissionRequest permissionRequest = new Builder(request).withUser().build();
-      PermissionChange permissionChange = permissionWsCommons.buildUserPermissionChange(dbSession, permissionRequest);
+      PermissionChange permissionChange = permissionChangeBuilder.buildUserPermissionChange(dbSession, permissionRequest);
       permissionUpdater.removePermission(permissionChange);
 
       response.noContent();
