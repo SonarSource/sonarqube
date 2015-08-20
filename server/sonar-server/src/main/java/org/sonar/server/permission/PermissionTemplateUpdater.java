@@ -20,10 +20,12 @@
 
 package org.sonar.server.permission;
 
+import javax.annotation.Nullable;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.ComponentPermissions;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.permission.PermissionTemplateDao;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
@@ -32,8 +34,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
-
-import javax.annotation.Nullable;
 
 abstract class PermissionTemplateUpdater {
 
@@ -44,13 +44,13 @@ abstract class PermissionTemplateUpdater {
   private final UserDao userDao;
   private final UserSession userSession;
 
-  PermissionTemplateUpdater(String templateKey, String permission, String updatedReference, PermissionTemplateDao permissionTemplateDao, UserDao userDao, UserSession userSession) {
+  PermissionTemplateUpdater(DbClient dbClient, UserSession userSession, String templateKey, String permission, String updatedReference) {
+    this.userSession = userSession;
+    this.permissionTemplateDao = dbClient.permissionTemplateDao();
+    this.userDao = dbClient.userDao();
     this.templateKey = templateKey;
     this.permission = permission;
     this.updatedReference = updatedReference;
-    this.permissionTemplateDao = permissionTemplateDao;
-    this.userDao = userDao;
-    this.userSession = userSession;
   }
 
   void executeUpdate() {

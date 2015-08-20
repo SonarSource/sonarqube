@@ -30,12 +30,11 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.permission.PermissionTemplateDao;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.UserDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
@@ -46,16 +45,14 @@ import org.sonar.server.user.UserSession;
 @ServerSide
 public class PermissionTemplateService {
 
-  private final MyBatis myBatis;
+  private final DbClient dbClient;
   private final PermissionTemplateDao permissionTemplateDao;
-  private final UserDao userDao;
   private final PermissionFinder finder;
   private final UserSession userSession;
 
-  public PermissionTemplateService(MyBatis myBatis, PermissionTemplateDao permissionTemplateDao, UserDao userDao, PermissionFinder finder, UserSession userSession) {
-    this.myBatis = myBatis;
-    this.permissionTemplateDao = permissionTemplateDao;
-    this.userDao = userDao;
+  public PermissionTemplateService(DbClient dbClient, UserSession userSession, PermissionFinder finder) {
+    this.dbClient = dbClient;
+    this.permissionTemplateDao = dbClient.permissionTemplateDao();
     this.finder = finder;
     this.userSession = userSession;
   }
@@ -112,7 +109,7 @@ public class PermissionTemplateService {
   }
 
   public void addUserPermission(String templateKey, String permission, String userLogin) {
-    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateKey, permission, userLogin, permissionTemplateDao, userDao, userSession) {
+    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(dbClient, userSession, templateKey, permission, userLogin) {
       @Override
       protected void doExecute(Long templateId, String permission) {
         Long userId = getUserId();
@@ -123,7 +120,7 @@ public class PermissionTemplateService {
   }
 
   public void removeUserPermission(String templateKey, String permission, String userLogin) {
-    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateKey, permission, userLogin, permissionTemplateDao, userDao, userSession) {
+    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(dbClient, userSession, templateKey, permission, userLogin) {
       @Override
       protected void doExecute(Long templateId, String permission) {
         Long userId = getUserId();
@@ -134,7 +131,7 @@ public class PermissionTemplateService {
   }
 
   public void addGroupPermission(String templateKey, String permission, String groupName) {
-    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateKey, permission, groupName, permissionTemplateDao, userDao, userSession) {
+    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(dbClient, userSession, templateKey, permission, groupName) {
       @Override
       protected void doExecute(Long templateId, String permission) {
         Long groupId = getGroupId();
@@ -145,7 +142,7 @@ public class PermissionTemplateService {
   }
 
   public void removeGroupPermission(String templateKey, String permission, String groupName) {
-    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(templateKey, permission, groupName, permissionTemplateDao, userDao, userSession) {
+    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(dbClient, userSession, templateKey, permission, groupName) {
       @Override
       protected void doExecute(Long templateId, String permission) {
         Long groupId = getGroupId();
@@ -157,16 +154,16 @@ public class PermissionTemplateService {
 
   public void removeGroupFromTemplates(String groupName) {
     userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
-    DbSession session = myBatis.openSession(false);
+    DbSession session = dbClient.openSession(false);
     try {
-      GroupDto group = userDao.selectGroupByName(groupName, session);
+      GroupDto group = dbClient.userDao().selectGroupByName(groupName, session);
       if (group == null) {
         throw new NotFoundException("Group does not exists : " + groupName);
       }
       permissionTemplateDao.deleteByGroup(session, group.getId());
       session.commit();
     } finally {
-      MyBatis.closeQuietly(session);
+      dbClient.closeSession(session);
     }
   }
 

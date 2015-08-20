@@ -26,8 +26,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.permission.PermissionTemplateDao;
 import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDto;
@@ -49,7 +51,9 @@ public class PermissionTemplateUpdaterTest {
   private static final UserDto DEFAULT_USER = new UserDto().setId(1L).setLogin("user").setName("user");
   private static final GroupDto DEFAULT_GROUP = new GroupDto().setId(1L).setName("group");
 
-  private UserDao userDao;
+  private DbClient dbClient = mock(DbClient.class);
+  private UserDao userDao = mock(UserDao.class);
+  private GroupDao groupDao = mock(GroupDao.class);
 
   @Rule
   public ExpectedException expected = ExpectedException.none();
@@ -57,9 +61,12 @@ public class PermissionTemplateUpdaterTest {
   @Before
   public void setUpCommonMocks() {
     userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    userDao = mock(UserDao.class);
     stub(userDao.selectActiveUserByLogin("user")).toReturn(DEFAULT_USER);
     stub(userDao.selectGroupByName("group")).toReturn(DEFAULT_GROUP);
+
+    when(dbClient.userDao()).thenReturn(userDao);
+    when(dbClient.groupDao()).thenReturn(groupDao);
+    when(dbClient.permissionTemplateDao()).thenReturn(mock(PermissionTemplateDao.class));
   }
 
   @Test
@@ -67,14 +74,15 @@ public class PermissionTemplateUpdaterTest {
 
     final PermissionTemplateDao permissionTemplateDao = mock(PermissionTemplateDao.class);
     when(permissionTemplateDao.selectTemplateByKey("my_template")).thenReturn(new PermissionTemplateDto().setId(1L));
+    when(dbClient.permissionTemplateDao()).thenReturn(permissionTemplateDao);
 
     PermissionTemplateUpdater updater =
-      new PermissionTemplateUpdater("my_template", UserRole.USER, "user", permissionTemplateDao, userDao, userSessionRule) {
-      @Override
-      void doExecute(Long templateId, String permission) {
-        permissionTemplateDao.insertUserPermission(1L, 1L, UserRole.USER);
-      }
-    };
+      new PermissionTemplateUpdater(dbClient, userSessionRule, "my_template", UserRole.USER, "user") {
+        @Override
+        void doExecute(Long templateId, String permission) {
+          permissionTemplateDao.insertUserPermission(1L, 1L, UserRole.USER);
+        }
+      };
     updater.executeUpdate();
 
     verify(permissionTemplateDao, times(1)).insertUserPermission(1L, 1L, UserRole.USER);
@@ -89,7 +97,7 @@ public class PermissionTemplateUpdaterTest {
     when(permissionTemplateDao.selectTemplateByKey("my_template")).thenReturn(null);
 
     PermissionTemplateUpdater updater =
-      new PermissionTemplateUpdater("my_template", UserRole.USER, "user", permissionTemplateDao, userDao, userSessionRule) {
+      new PermissionTemplateUpdater(dbClient, userSessionRule, "my_template", UserRole.USER, "user") {
         @Override
         void doExecute(Long templateId, String permission) {
         }
@@ -100,13 +108,13 @@ public class PermissionTemplateUpdaterTest {
   @Test
   public void should_validate_permission_reference() {
     expected.expect(BadRequestException.class);
-    expected.expectMessage("Invalid permission:");
 
     final PermissionTemplateDao permissionTemplateDao = mock(PermissionTemplateDao.class);
     when(permissionTemplateDao.selectTemplateByKey("my_template")).thenReturn(new PermissionTemplateDto().setId(1L));
+    when(dbClient.permissionTemplateDao()).thenReturn(permissionTemplateDao);
 
     PermissionTemplateUpdater updater =
-      new PermissionTemplateUpdater("my_template", "invalid", "user", permissionTemplateDao, userDao, userSessionRule) {
+      new PermissionTemplateUpdater(dbClient, userSessionRule, "my_template", "invalid", "user") {
         @Override
         void doExecute(Long templateId, String permission) {
         }
@@ -121,11 +129,11 @@ public class PermissionTemplateUpdaterTest {
 
     userSessionRule.anonymous();
 
-    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(null, null, null, null, null, userSessionRule) {
-        @Override
-        void doExecute(Long templateId, String permission) {
-        }
-      };
+    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(dbClient, userSessionRule, null, null, null) {
+      @Override
+      void doExecute(Long templateId, String permission) {
+      }
+    };
     updater.executeUpdate();
   }
 
@@ -136,7 +144,7 @@ public class PermissionTemplateUpdaterTest {
 
     userSessionRule.login("user").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
-    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(null, null, null, null, null, userSessionRule) {
+    PermissionTemplateUpdater updater = new PermissionTemplateUpdater(dbClient, userSessionRule, null, null, null) {
       @Override
       void doExecute(Long templateId, String permission) {
       }
