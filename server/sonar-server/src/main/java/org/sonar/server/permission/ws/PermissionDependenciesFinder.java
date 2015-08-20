@@ -21,14 +21,19 @@
 package org.sonar.server.permission.ws;
 
 import com.google.common.base.Optional;
+import javax.annotation.CheckForNull;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.sonar.api.security.DefaultGroups.ANYONE;
+import static org.sonar.api.security.DefaultGroups.isAnyone;
 
 public class PermissionDependenciesFinder {
   private final DbClient dbClient;
@@ -39,7 +44,22 @@ public class PermissionDependenciesFinder {
     this.componentFinder = componentFinder;
   }
 
-  GroupDto getGroup(DbSession dbSession, PermissionRequest request) {
+  /**
+   * @throws org.sonar.server.exceptions.NotFoundException if a project identifier is provided but it's not found
+   */
+  Optional<ComponentDto> searchProject(DbSession dbSession, PermissionRequest request) {
+    if (!request.hasProject()) {
+      return Optional.absent();
+    }
+
+    return Optional.of(componentFinder.getProjectByUuidOrKey(dbSession, request.projectUuid(), request.projectKey()));
+  }
+
+  String getGroupName(DbSession dbSession, PermissionRequest request) {
+    if (isAnyone(request.groupName())) {
+      return ANYONE;
+    }
+
     GroupDto group = null;
 
     Long groupId = request.groupId();
@@ -58,14 +78,35 @@ public class PermissionDependenciesFinder {
       }
     }
 
-    return checkNotNull(group);
+    return checkNotNull(group).getName();
   }
 
-  Optional<ComponentDto> searchProject(DbSession dbSession, PermissionRequest request) {
-    if (!request.hasProject()) {
-      return Optional.absent();
+  @CheckForNull
+  Long getGroupId(DbSession dbSession, String groupName) {
+    if (isAnyone(groupName)) {
+      return null;
     }
 
-    return Optional.of(componentFinder.getProjectByUuidOrKey(dbSession, request.projectUuid(), request.projectKey()));
+    GroupDto group = dbClient.groupDao().selectByKey(dbSession, groupName);
+    if (group == null) {
+      throw new NotFoundException(String.format("Group with name '%s' is not found", groupName));
+    }
+    return group.getId();
+  }
+
+  UserDto getUser(DbSession dbSession, String userLogin) {
+    UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, userLogin);
+    if (user == null) {
+      throw new NotFoundException(String.format("User with login '%s' is not found'", userLogin));
+    }
+    return user;
+  }
+
+  PermissionTemplateDto getTemplate(String templateKey) {
+    PermissionTemplateDto permissionTemplate = dbClient.permissionTemplateDao().selectTemplateByKey(templateKey);
+    if (permissionTemplate == null) {
+      throw new NotFoundException(String.format("Template with key '%s' is not found", templateKey));
+    }
+    return permissionTemplate;
   }
 }

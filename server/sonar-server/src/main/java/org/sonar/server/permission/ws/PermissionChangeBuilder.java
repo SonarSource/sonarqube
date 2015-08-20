@@ -43,7 +43,7 @@ public class PermissionChangeBuilder {
   }
 
   PermissionChange buildGroupPermissionChange(DbSession dbSession, PermissionRequest request) {
-    String groupName = dependenciesFinder.getGroup(dbSession, request).getName();
+    String groupName = dependenciesFinder.getGroupName(dbSession, request);
 
     PermissionChange permissionChange = new PermissionChange()
       .setPermission(request.permission())

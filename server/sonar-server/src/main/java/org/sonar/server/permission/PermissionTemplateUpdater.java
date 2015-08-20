@@ -33,6 +33,10 @@ import org.sonar.server.user.UserSession;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.PermissionValueValidator.validateProjectPermission;
 
+/**
+ * @deprecated since 5.2 can be removed when Ruby doesn't rely on PermissionTemplateService
+ */
+@Deprecated
 abstract class PermissionTemplateUpdater {
 
   private final String templateKey;

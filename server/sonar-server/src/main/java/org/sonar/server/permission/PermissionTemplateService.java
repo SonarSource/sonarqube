@@ -39,8 +39,8 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
 
 /**
  * Used by ruby code <pre>Internal.permission_templates</pre>
@@ -111,6 +111,10 @@ public class PermissionTemplateService {
     permissionTemplateDao.deletePermissionTemplate(templateId);
   }
 
+  /**
+   * @deprecated since 5.2 can be removed when Ruby doesn't rely on PermissionTemplateService
+   */
+  @Deprecated
   public void addUserPermission(String templateKey, String permission, String userLogin) {
     PermissionTemplateUpdater updater = new PermissionTemplateUpdater(dbClient, userSession, templateKey, permission, userLogin) {
       @Override
@@ -122,6 +126,10 @@ public class PermissionTemplateService {
     updater.executeUpdate();
   }
 
+  /**
+   * @deprecated since 5.2 can be removed when Ruby doesn't rely on PermissionTemplateService
+   */
+  @Deprecated
   public void removeUserPermission(String templateKey, String permission, String userLogin) {
     PermissionTemplateUpdater updater = new PermissionTemplateUpdater(dbClient, userSession, templateKey, permission, userLogin) {
       @Override
@@ -133,6 +141,10 @@ public class PermissionTemplateService {
     updater.executeUpdate();
   }
 
+  /**
+   * @deprecated since 5.2 can be removed when Ruby doesn't rely on PermissionTemplateService
+   */
+  @Deprecated
   public void addGroupPermission(String templateKey, String permission, String groupName) {
     PermissionTemplateUpdater updater = new PermissionTemplateUpdater(dbClient, userSession, templateKey, permission, groupName) {
       @Override
@@ -144,6 +156,10 @@ public class PermissionTemplateService {
     updater.executeUpdate();
   }
 
+  /**
+   * @deprecated since 5.2 can be removed when Ruby doesn't rely on PermissionTemplateService
+   */
+  @Deprecated
   public void removeGroupPermission(String templateKey, String permission, String groupName) {
     PermissionTemplateUpdater updater = new PermissionTemplateUpdater(dbClient, userSession, templateKey, permission, groupName) {
       @Override
