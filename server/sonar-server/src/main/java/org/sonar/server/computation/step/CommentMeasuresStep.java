@@ -22,7 +22,7 @@ package org.sonar.server.computation.step;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.Counter;
@@ -44,7 +44,6 @@ import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_API_KEY;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_DOCUMENTED_API_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_UNDOCUMENTED_API_KEY;
-import static org.sonar.server.computation.component.Component.Type.FILE;
 
 /**
  * Computes comments measures on files and then aggregates them on higher components.
@@ -94,14 +93,16 @@ public class CommentMeasuresStep implements ComputationStep {
 
     private Optional<Measure> createCommentLinesMeasure(SumCounter counter, CreateMeasureContext context) {
       Optional<Integer> commentLines = counter.getValue();
-      if (context.getMetric().getKey().equals(COMMENT_LINES_KEY) && context.getComponent().getType().isHigherThan(FILE) && commentLines.isPresent()) {
+      if (COMMENT_LINES_KEY.equals(context.getMetric().getKey())
+        && commentLines.isPresent()
+        && CrawlerDepthLimit.LEAVES.isDeeperThan(context.getComponent().getType())) {
         return Optional.of(Measure.newMeasureBuilder().create(commentLines.get()));
       }
       return Optional.absent();
     }
 
     private Optional<Measure> createCommentLinesDensityMeasure(SumCounter counter, CreateMeasureContext context) {
-      if (context.getMetric().getKey().equals(COMMENT_LINES_DENSITY_KEY)) {
+      if (COMMENT_LINES_DENSITY_KEY.equals(context.getMetric().getKey())) {
         Optional<Measure> nclocsOpt = measureRepository.getRawMeasure(context.getComponent(), nclocMetric);
         Optional<Integer> commentsOpt = counter.getValue();
         if (nclocsOpt.isPresent() && commentsOpt.isPresent()) {
@@ -138,7 +139,8 @@ public class CommentMeasuresStep implements ComputationStep {
     }
 
     private static Optional<Measure> getMeasure(CreateMeasureContext context, Optional<Integer> metricValue, String metricKey) {
-      if (context.getMetric().getKey().equals(metricKey) && metricValue.isPresent() && context.getComponent().getType().isHigherThan(Component.Type.FILE)) {
+      if (context.getMetric().getKey().equals(metricKey) && metricValue.isPresent()
+        && CrawlerDepthLimit.LEAVES.isDeeperThan(context.getComponent().getType())) {
         return Optional.of(Measure.newMeasureBuilder().create(metricValue.get()));
       }
       return Optional.absent();

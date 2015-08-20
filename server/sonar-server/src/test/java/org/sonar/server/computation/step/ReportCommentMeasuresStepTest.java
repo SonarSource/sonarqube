@@ -50,7 +50,7 @@ import static org.sonar.server.computation.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.component.ReportComponent.builder;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
-public class CommentMeasuresStepTest {
+public class ReportCommentMeasuresStepTest {
 
   private static final int ROOT_REF = 1;
   private static final int MODULE_REF = 12;
