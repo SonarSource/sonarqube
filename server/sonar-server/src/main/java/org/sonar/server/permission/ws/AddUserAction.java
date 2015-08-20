@@ -29,10 +29,10 @@ import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.permission.ws.PermissionRequest.Builder;
 
-import static org.sonar.server.permission.ws.PermissionWsCommons.createPermissionParameter;
-import static org.sonar.server.permission.ws.PermissionWsCommons.createProjectKeyParameter;
-import static org.sonar.server.permission.ws.PermissionWsCommons.createProjectUuidParameter;
-import static org.sonar.server.permission.ws.PermissionWsCommons.createUserLoginParameter;
+import static org.sonar.server.permission.ws.Parameters.createPermissionParameter;
+import static org.sonar.server.permission.ws.Parameters.createProjectKeyParameter;
+import static org.sonar.server.permission.ws.Parameters.createProjectUuidParameter;
+import static org.sonar.server.permission.ws.Parameters.createUserLoginParameter;
 
 public class AddUserAction implements PermissionsWsAction {
 

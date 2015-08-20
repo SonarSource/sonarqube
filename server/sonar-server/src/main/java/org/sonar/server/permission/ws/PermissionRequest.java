@@ -30,14 +30,14 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.SELECTED;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonar.server.permission.ws.PermissionWsCommons.GLOBAL_PERMISSIONS_ONE_LINE;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_ID;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_NAME;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_USER_LOGIN;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PROJECT_PERMISSIONS_ONE_LINE;
+import static org.sonar.server.permission.ws.Parameters.GLOBAL_PERMISSIONS_ONE_LINE;
+import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_ID;
+import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_NAME;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_UUID;
+import static org.sonar.server.permission.ws.Parameters.PARAM_USER_LOGIN;
+import static org.sonar.server.permission.ws.Parameters.PROJECT_PERMISSIONS_ONE_LINE;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class PermissionRequest {

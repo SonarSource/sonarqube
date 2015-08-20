@@ -48,12 +48,12 @@ import static org.mockito.Mockito.verify;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_USER_LOGIN;
 import static org.sonar.server.permission.ws.PermissionsWs.ENDPOINT;
 import static org.sonar.server.permission.ws.RemoveUserAction.ACTION;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_UUID;
+import static org.sonar.server.permission.ws.Parameters.PARAM_USER_LOGIN;
 
 @Category(DbTests.class)
 public class RemoveUserActionTest {

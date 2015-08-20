@@ -59,6 +59,7 @@ import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_UUID;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchProjectPermissionsActionTest {
@@ -146,7 +147,7 @@ public class SearchProjectPermissionsActionTest {
     commit();
 
     String result = ws.newRequest()
-      .setParam(PermissionWsCommons.PARAM_PROJECT_UUID, "project-uuid")
+      .setParam(PARAM_PROJECT_UUID, "project-uuid")
       .execute().getInput();
 
     assertThat(result).contains("project-uuid");

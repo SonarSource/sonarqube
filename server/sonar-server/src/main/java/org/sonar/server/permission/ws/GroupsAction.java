@@ -41,9 +41,9 @@ import org.sonarqube.ws.Permissions;
 import static com.google.common.base.Objects.firstNonNull;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentDto;
 import static org.sonar.server.permission.PermissionQueryParser.toMembership;
-import static org.sonar.server.permission.ws.PermissionWsCommons.createPermissionParameter;
-import static org.sonar.server.permission.ws.PermissionWsCommons.createProjectKeyParameter;
-import static org.sonar.server.permission.ws.PermissionWsCommons.createProjectUuidParameter;
+import static org.sonar.server.permission.ws.Parameters.createPermissionParameter;
+import static org.sonar.server.permission.ws.Parameters.createProjectKeyParameter;
+import static org.sonar.server.permission.ws.Parameters.createProjectUuidParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class GroupsAction implements PermissionsWsAction {

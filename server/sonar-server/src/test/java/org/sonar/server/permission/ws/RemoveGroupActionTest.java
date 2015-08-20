@@ -48,12 +48,12 @@ import static org.mockito.Mockito.verify;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_ID;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_NAME;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
 import static org.sonar.server.permission.ws.RemoveGroupAction.ACTION;
+import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_ID;
+import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_NAME;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_UUID;
 
 @Category(DbTests.class)
 public class RemoveGroupActionTest {

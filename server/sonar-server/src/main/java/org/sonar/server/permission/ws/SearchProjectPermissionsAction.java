@@ -35,13 +35,13 @@ import org.sonarqube.ws.Permissions.Permission;
 import org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse;
 import org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project;
 
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentUuid;
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
-import static org.sonar.server.permission.ws.PermissionWsCommons.createProjectKeyParameter;
-import static org.sonar.server.permission.ws.PermissionWsCommons.createProjectUuidParameter;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_UUID;
+import static org.sonar.server.permission.ws.Parameters.createProjectKeyParameter;
+import static org.sonar.server.permission.ws.Parameters.createProjectUuidParameter;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 

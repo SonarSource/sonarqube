@@ -31,9 +31,9 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
@@ -49,12 +49,12 @@ import static org.mockito.Mockito.verify;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.permission.ws.AddGroupAction.ACTION;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_ID;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_GROUP_NAME;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
 import static org.sonar.server.permission.ws.PermissionsWs.ENDPOINT;
+import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_ID;
+import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_NAME;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_UUID;
 
 @Category(DbTests.class)
 public class AddGroupActionTest {
