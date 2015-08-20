@@ -67,8 +67,7 @@ public class CoverageMeasuresStep implements ComputationStep {
     new CodeCoverageFormula(),
     new BranchCoverageFormula(),
     new LineCoverageFormula(),
-
-  // integration test
+    // integration test
     new SumFormula(IT_LINES_TO_COVER_KEY),
     new SumFormula(IT_UNCOVERED_LINES_KEY),
     new SumFormula(IT_CONDITIONS_TO_COVER_KEY),
@@ -76,8 +75,7 @@ public class CoverageMeasuresStep implements ComputationStep {
     new ItCoverageFormula(),
     new ItBranchCoverageFormula(),
     new ItLineCoverageFormula(),
-
-  // overall test
+    // overall test
     new SumFormula(OVERALL_LINES_TO_COVER_KEY),
     new SumFormula(OVERALL_UNCOVERED_LINES_KEY),
     new SumFormula(OVERALL_CONDITIONS_TO_COVER_KEY),

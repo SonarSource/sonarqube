@@ -28,7 +28,7 @@ import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.Counter;
 import org.sonar.server.computation.formula.CreateMeasureContext;
-import org.sonar.server.computation.formula.FileAggregateContext;
+import org.sonar.server.computation.formula.LeafAggregateContext;
 import org.sonar.server.computation.formula.Formula;
 import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
 import org.sonar.server.computation.formula.SumCounter;
@@ -187,7 +187,7 @@ public class DuplicationMeasuresStep implements ComputationStep {
     }
 
     @Override
-    public void aggregate(FileAggregateContext context) {
+    public void aggregate(LeafAggregateContext context) {
       Optional<Measure> measureOptional = context.getMeasure(metricKey);
       if (measureOptional.isPresent()) {
         value += measureOptional.get().getIntValue();

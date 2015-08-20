@@ -20,7 +20,7 @@
 package org.sonar.server.computation.formula.coverage;
 
 import com.google.common.base.Optional;
-import org.sonar.server.computation.formula.FileAggregateContext;
+import org.sonar.server.computation.formula.LeafAggregateContext;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureVariations;
 import org.sonar.server.computation.period.Period;
@@ -39,7 +39,7 @@ public final class CoverageUtils {
     return (100.0 * coveredLines) / lines;
   }
 
-  static long getLongMeasureValue(FileAggregateContext counterContext, String metricKey) {
+  static long getLongMeasureValue(LeafAggregateContext counterContext, String metricKey) {
     Measure measure = counterContext.getMeasure(metricKey).or(DEFAULT_MEASURE);
     if (measure.getValueType() == Measure.ValueType.NO_VALUE) {
       return 0L;
@@ -50,7 +50,7 @@ public final class CoverageUtils {
     return measure.getLongValue();
   }
 
-  static MeasureVariations getMeasureVariations(FileAggregateContext counterContext, String metricKey) {
+  static MeasureVariations getMeasureVariations(LeafAggregateContext counterContext, String metricKey) {
     Optional<Measure> measure = counterContext.getMeasure(metricKey);
     if (!measure.isPresent() || !measure.get().hasVariations()) {
       return DEFAULT_VARIATIONS;

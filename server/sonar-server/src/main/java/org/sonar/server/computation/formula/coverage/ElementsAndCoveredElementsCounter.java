@@ -20,7 +20,7 @@
 package org.sonar.server.computation.formula.coverage;
 
 import org.sonar.server.computation.formula.Counter;
-import org.sonar.server.computation.formula.FileAggregateContext;
+import org.sonar.server.computation.formula.LeafAggregateContext;
 
 /**
  * A counter used to create a measure which are based on a count of elements and coveredElements.
@@ -36,12 +36,12 @@ public abstract class ElementsAndCoveredElementsCounter implements Counter<Eleme
   }
 
   @Override
-  public void aggregate(FileAggregateContext context) {
-    if (context.getFile().getFileAttributes().isUnitTest()) {
+  public void aggregate(LeafAggregateContext context) {
+    if (context.getLeaf().getFileAttributes().isUnitTest()) {
       return;
     }
-    aggregateForSupportedFile(context);
+    aggregateForSupportedLeaf(context);
   }
 
-  protected abstract void aggregateForSupportedFile(FileAggregateContext counterContext);
+  protected abstract void aggregateForSupportedLeaf(LeafAggregateContext counterContext);
 }

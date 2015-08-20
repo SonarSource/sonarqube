@@ -34,7 +34,7 @@ public class SumCounterTest {
 
   private final static String METRIC_KEY = "metric";
 
-  FileAggregateContext fileAggregateContext = mock(FileAggregateContext.class);
+  LeafAggregateContext leafAggregateContext = mock(LeafAggregateContext.class);
 
   SumCounter sumCounter = new SumCounter(METRIC_KEY);
 
@@ -45,27 +45,27 @@ public class SumCounterTest {
 
   @Test
   public void aggregate_from_context() {
-    when(fileAggregateContext.getMeasure(METRIC_KEY)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(10)));
+    when(leafAggregateContext.getMeasure(METRIC_KEY)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(10)));
 
-    sumCounter.aggregate(fileAggregateContext);
+    sumCounter.aggregate(leafAggregateContext);
 
     assertThat(sumCounter.getValue().get()).isEqualTo(10);
   }
 
   @Test
   public void no_value_when_aggregate_from_context_but_no_measure() {
-    when(fileAggregateContext.getMeasure(anyString())).thenReturn(Optional.<Measure>absent());
+    when(leafAggregateContext.getMeasure(anyString())).thenReturn(Optional.<Measure>absent());
 
-    sumCounter.aggregate(fileAggregateContext);
+    sumCounter.aggregate(leafAggregateContext);
 
     assertThat(sumCounter.getValue()).isAbsent();
   }
 
   @Test
   public void aggregate_from_counter() {
-    when(fileAggregateContext.getMeasure(METRIC_KEY)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(10)));
+    when(leafAggregateContext.getMeasure(METRIC_KEY)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(10)));
     SumCounter anotherCounter = new SumCounter(METRIC_KEY);
-    anotherCounter.aggregate(fileAggregateContext);
+    anotherCounter.aggregate(leafAggregateContext);
 
     sumCounter.aggregate(anotherCounter);
 

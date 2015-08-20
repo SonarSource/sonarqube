@@ -20,7 +20,7 @@
 package org.sonar.server.computation.formula.coverage;
 
 import org.sonar.server.computation.formula.Counter;
-import org.sonar.server.computation.formula.FileAggregateContext;
+import org.sonar.server.computation.formula.LeafAggregateContext;
 import org.sonar.server.computation.formula.counter.LongVariationValue;
 
 /**
@@ -37,12 +37,12 @@ public abstract class ElementsAndCoveredElementsVariationCounter implements Coun
   }
 
   @Override
-  public void aggregate(FileAggregateContext context) {
-    if (context.getFile().getFileAttributes().isUnitTest()) {
+  public void aggregate(LeafAggregateContext context) {
+    if (context.getLeaf().getFileAttributes().isUnitTest()) {
       return;
     }
     aggregateForSupportedFile(context);
   }
 
-  protected abstract void aggregateForSupportedFile(FileAggregateContext counterContext);
+  protected abstract void aggregateForSupportedFile(LeafAggregateContext counterContext);
 }

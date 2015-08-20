@@ -27,17 +27,17 @@ import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.period.Period;
 
 /**
- * The context passing information to {@link Counter#aggregate(FileAggregateContext)}.
+ * The context passing information to {@link Counter#aggregate(LeafAggregateContext)}.
  */
-public interface FileAggregateContext {
+public interface LeafAggregateContext {
 
   /**
-   * The Component representing the currently processed File.
+   * The Component representing the currently processed leaf.
    */
-  Component getFile();
+  Component getLeaf();
 
   /**
-   * Retrieve the measure for the current File with the metric key if it exists.
+   * Retrieve the measure for the current component for the specified metric key if it exists.
    */
   Optional<Measure> getMeasure(String metricKey);
 

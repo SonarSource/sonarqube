@@ -20,7 +20,7 @@
 package org.sonar.server.computation.formula.coverage;
 
 import com.google.common.base.Optional;
-import org.sonar.server.computation.formula.FileAggregateContext;
+import org.sonar.server.computation.formula.LeafAggregateContext;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureVariations;
 import org.sonar.server.computation.period.Period;
@@ -33,7 +33,7 @@ public final class LinesAndConditionsWithUncoveredVariationCounter extends Eleme
   }
 
   @Override
-  public void aggregateForSupportedFile(FileAggregateContext counterContext) {
+  public void aggregateForSupportedFile(LeafAggregateContext counterContext) {
     Optional<Measure> newLinesMeasure = counterContext.getMeasure(metricKeys.getLines());
     if (!newLinesMeasure.isPresent() || !newLinesMeasure.get().hasVariations()) {
       return;

@@ -19,7 +19,7 @@
  */
 package org.sonar.server.computation.formula.coverage;
 
-import org.sonar.server.computation.formula.FileAggregateContext;
+import org.sonar.server.computation.formula.LeafAggregateContext;
 
 import static org.sonar.server.computation.formula.coverage.CoverageUtils.getLongMeasureValue;
 
@@ -31,7 +31,7 @@ public final class LinesAndConditionsWithUncoveredCounter extends ElementsAndCov
   }
 
   @Override
-  protected void aggregateForSupportedFile(FileAggregateContext counterContext) {
+  protected void aggregateForSupportedLeaf(LeafAggregateContext counterContext) {
     this.elements = getLongMeasureValue(counterContext, metricKeys.getLines())
       + getLongMeasureValue(counterContext, metricKeys.getConditions());
     this.coveredElements = this.elements

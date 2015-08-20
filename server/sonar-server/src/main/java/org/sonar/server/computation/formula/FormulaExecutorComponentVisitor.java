@@ -104,17 +104,17 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
 
   @Override
   public void visitProject(Component project, Path<FormulaExecutorComponentVisitor.Counters> path) {
-    processNotFile(project, path);
+    processNotLeaf(project, path);
   }
 
   @Override
   public void visitModule(Component module, Path<FormulaExecutorComponentVisitor.Counters> path) {
-    processNotFile(module, path);
+    processNotLeaf(module, path);
   }
 
   @Override
   public void visitDirectory(Component directory, Path<FormulaExecutorComponentVisitor.Counters> path) {
-    processNotFile(directory, path);
+    processNotLeaf(directory, path);
   }
 
   @Override
@@ -124,12 +124,12 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
 
   @Override
   public void visitView(Component view, Path<Counters> path) {
-    processNotFile(view, path);
+    processNotLeaf(view, path);
   }
 
   @Override
   public void visitSubView(Component subView, Path<Counters> path) {
-    processNotFile(subView, path);
+    processNotLeaf(subView, path);
   }
 
   @Override
@@ -137,7 +137,7 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
     processLeaf(projectView, path);
   }
 
-  private void processNotFile(Component component, Path<FormulaExecutorComponentVisitor.Counters> path) {
+  private void processNotLeaf(Component component, Path<FormulaExecutorComponentVisitor.Counters> path) {
     for (Formula formula : formulas) {
       Counter counter = path.current().getCounter(formula);
       // If there were no file under this node, the counter won't be initialized
@@ -151,7 +151,7 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
   }
 
   private void processLeaf(Component file, Path<FormulaExecutorComponentVisitor.Counters> path) {
-    FileAggregateContext counterContext = new FileAggregateContextImpl(file);
+    LeafAggregateContext counterContext = new LeafAggregateContextImpl(file);
     for (Formula formula : formulas) {
       Counter counter = formula.createNewCounter();
       counter.aggregate(counterContext);
@@ -176,15 +176,15 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
     }
   }
 
-  private class FileAggregateContextImpl implements FileAggregateContext {
+  private class LeafAggregateContextImpl implements LeafAggregateContext {
     private final Component file;
 
-    public FileAggregateContextImpl(Component file) {
+    public LeafAggregateContextImpl(Component file) {
       this.file = file;
     }
 
     @Override
-    public Component getFile() {
+    public Component getLeaf() {
       return file;
     }
 

@@ -43,7 +43,7 @@ public class SumFormulaTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  FileAggregateContext fileAggregateContext = mock(FileAggregateContext.class);
+  LeafAggregateContext leafAggregateContext = mock(LeafAggregateContext.class);
   CreateMeasureContext projectCreateMeasureContext = new DumbCreateMeasureContext(
       ReportComponent.builder(Component.Type.PROJECT, 1).build(), mock(Metric.class), mock(PeriodsHolder.class));
   CreateMeasureContext fileCreateMeasureContext = new DumbCreateMeasureContext(
@@ -71,7 +71,7 @@ public class SumFormulaTest {
   public void create_measure() {
     SumCounter counter = BASIC_SUM_FORMULA.createNewCounter();
     addMeasure(LINES_KEY, 10);
-    counter.aggregate(fileAggregateContext);
+    counter.aggregate(leafAggregateContext);
 
     assertThat(BASIC_SUM_FORMULA.createMeasure(counter, projectCreateMeasureContext).get().getIntValue()).isEqualTo(10);
   }
@@ -80,7 +80,7 @@ public class SumFormulaTest {
   public void create_measure_when_counter_is_aggregating_from_another_counter() {
     SumCounter anotherCounter = BASIC_SUM_FORMULA.createNewCounter();
     addMeasure(LINES_KEY, 10);
-    anotherCounter.aggregate(fileAggregateContext);
+    anotherCounter.aggregate(leafAggregateContext);
 
     SumCounter counter = BASIC_SUM_FORMULA.createNewCounter();
     counter.aggregate(anotherCounter);
@@ -92,7 +92,7 @@ public class SumFormulaTest {
   public void not_create_measure_on_file() {
     SumCounter counter = BASIC_SUM_FORMULA.createNewCounter();
     addMeasure(LINES_KEY, 10);
-    counter.aggregate(fileAggregateContext);
+    counter.aggregate(leafAggregateContext);
 
     Assertions.assertThat(BASIC_SUM_FORMULA.createMeasure(counter, fileCreateMeasureContext)).isAbsent();
   }
@@ -100,14 +100,14 @@ public class SumFormulaTest {
   @Test
   public void do_not_create_measures_when_no_values() {
     SumCounter counter = BASIC_SUM_FORMULA.createNewCounter();
-    when(fileAggregateContext.getMeasure(LINES_KEY)).thenReturn(Optional.<Measure>absent());
-    counter.aggregate(fileAggregateContext);
+    when(leafAggregateContext.getMeasure(LINES_KEY)).thenReturn(Optional.<Measure>absent());
+    counter.aggregate(leafAggregateContext);
 
     Assertions.assertThat(BASIC_SUM_FORMULA.createMeasure(counter, projectCreateMeasureContext)).isAbsent();
   }
 
   private void addMeasure(String metricKey, int value) {
-    when(fileAggregateContext.getMeasure(metricKey)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(value)));
+    when(leafAggregateContext.getMeasure(metricKey)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(value)));
   }
 
 }

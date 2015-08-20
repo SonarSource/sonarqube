@@ -28,13 +28,14 @@ import static org.sonar.server.computation.component.Component.Type;
 public interface Counter<T extends Counter<T>> {
 
   /**
-   * This method is used on not {@link Type#FILE} levels, to aggregate the value of counter from a child
+   * This method is used on not leaf levels, to aggregate the value of counter from a child
    */
   void aggregate(T counter);
 
   /**
-   * This method is called on {@link Type#FILE} levels, in order to populate the counter with one or more {@link Type#FILE} measures.
+   * This method is called on {@link Type#FILE} or {@link Type#PROJECT_VIEW} levels (aka. leaf levels), in order to
+   * populate the counter with one or more leaf measures.
    */
-  void aggregate(FileAggregateContext context);
+  void aggregate(LeafAggregateContext context);
 
 }

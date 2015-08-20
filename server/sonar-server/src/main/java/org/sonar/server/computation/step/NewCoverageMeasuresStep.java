@@ -36,7 +36,7 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.CreateMeasureContext;
-import org.sonar.server.computation.formula.FileAggregateContext;
+import org.sonar.server.computation.formula.LeafAggregateContext;
 import org.sonar.server.computation.formula.Formula;
 import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
 import org.sonar.server.computation.formula.counter.IntVariationValue;
@@ -297,8 +297,8 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     }
 
     @Override
-    public void aggregate(FileAggregateContext context) {
-      Component fileComponent = context.getFile();
+    public void aggregate(LeafAggregateContext context) {
+      Component fileComponent = context.getLeaf();
       BatchReport.Changesets componentScm = batchReportReader.readChangesets(fileComponent.getReportAttributes().getRef());
       if (componentScm == null) {
         return;

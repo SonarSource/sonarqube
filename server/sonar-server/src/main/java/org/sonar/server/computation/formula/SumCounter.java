@@ -45,7 +45,7 @@ public class SumCounter implements Counter<SumCounter> {
   }
 
   @Override
-  public void aggregate(FileAggregateContext context) {
+  public void aggregate(LeafAggregateContext context) {
     Optional<Measure> measureOptional = context.getMeasure(metricKey);
     if (measureOptional.isPresent()) {
       addValue(measureOptional.get().getIntValue());
