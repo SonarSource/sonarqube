@@ -218,20 +218,29 @@ public class PermissionTemplateDao implements Dao {
     }
   }
 
+  /**
+   * @deprecated since 5.2 use the method with dbSession instead
+   */
+  @Deprecated
   public void insertUserPermission(Long templateId, Long userId, String permission) {
+    DbSession session = myBatis.openSession(false);
+    try {
+      insertUserPermission(session, templateId, userId, permission);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void insertUserPermission(DbSession session, Long templateId, Long userId, String permission) {
     PermissionTemplateUserDto permissionTemplateUser = new PermissionTemplateUserDto()
       .setTemplateId(templateId)
       .setUserId(userId)
       .setPermission(permission)
       .setCreatedAt(now())
       .setUpdatedAt(now());
-    SqlSession session = myBatis.openSession(false);
-    try {
-      mapper(session).insertUserPermission(permissionTemplateUser);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+
+    mapper(session).insertUserPermission(permissionTemplateUser);
+    session.commit();
   }
 
   public void deleteUserPermission(Long templateId, Long userId, String permission) {

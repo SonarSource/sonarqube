@@ -35,7 +35,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
@@ -145,7 +144,7 @@ public class RemoveGroupActionTest {
 
   @Test
   public void fail_when_project_does_not_exist() throws Exception {
-    expectedException.expect(NotFoundException.class);
+    expectedException.expect(BadRequestException.class);
 
     newRequest()
       .setParam(PARAM_GROUP_NAME, "sonar-administrators")
@@ -208,7 +207,7 @@ public class RemoveGroupActionTest {
 
   @Test
   public void fail_when_group_id_does_not_exist() throws Exception {
-    expectedException.expect(NotFoundException.class);
+    expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Group with id '42' is not found");
 
     newRequest()

@@ -29,7 +29,7 @@ import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.exceptions.BadRequestException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
@@ -66,7 +66,7 @@ public class PermissionDependenciesFinder {
     if (groupId != null) {
       group = dbClient.groupDao().selectById(dbSession, groupId);
       if (group == null) {
-        throw new NotFoundException(String.format("Group with id '%d' is not found", groupId));
+        throw new BadRequestException(String.format("Group with id '%d' is not found", groupId));
       }
     }
 
@@ -74,7 +74,7 @@ public class PermissionDependenciesFinder {
     if (groupName != null) {
       group = dbClient.groupDao().selectByName(dbSession, groupName);
       if (group == null) {
-        throw new NotFoundException(String.format("Group with name '%s' is not found", groupName));
+        throw new BadRequestException(String.format("Group with name '%s' is not found", groupName));
       }
     }
 
@@ -89,7 +89,7 @@ public class PermissionDependenciesFinder {
 
     GroupDto group = dbClient.groupDao().selectByName(dbSession, groupName);
     if (group == null) {
-      throw new NotFoundException(String.format("Group with name '%s' is not found", groupName));
+      throw new BadRequestException(String.format("Group with name '%s' is not found", groupName));
     }
     return group.getId();
   }
@@ -97,7 +97,7 @@ public class PermissionDependenciesFinder {
   UserDto getUser(DbSession dbSession, String userLogin) {
     UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, userLogin);
     if (user == null) {
-      throw new NotFoundException(String.format("User with login '%s' is not found'", userLogin));
+      throw new BadRequestException(String.format("User with login '%s' is not found'", userLogin));
     }
     return user;
   }
@@ -105,7 +105,7 @@ public class PermissionDependenciesFinder {
   PermissionTemplateDto getTemplate(String templateKey) {
     PermissionTemplateDto permissionTemplate = dbClient.permissionTemplateDao().selectTemplateByKey(templateKey);
     if (permissionTemplate == null) {
-      throw new NotFoundException(String.format("Template with key '%s' is not found", templateKey));
+      throw new BadRequestException(String.format("Permission template with key '%s' is not found", templateKey));
     }
     return permissionTemplate;
   }

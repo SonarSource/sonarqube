@@ -32,6 +32,8 @@ class Parameters {
   static final String PARAM_PROJECT_UUID = "projectId";
   static final String PARAM_PROJECT_KEY = "projectKey";
   static final String PARAM_USER_LOGIN = "login";
+  static final String PARAM_TEMPLATE_KEY = "templateKey";
+
   private static final String PERMISSION_PARAM_DESCRIPTION = String.format("Permission" +
     "<ul>" +
     "<li>Possible values for global permissions: %s</li>" +
@@ -79,5 +81,12 @@ class Parameters {
       .setRequired(true)
       .setDescription("User login")
       .setExampleValue("g.hopper");
+  }
+
+  static void createTemplateKeyParameter(NewAction action) {
+    action.createParam(PARAM_TEMPLATE_KEY)
+      .setRequired(true)
+      .setDescription("Template key")
+      .setExampleValue("developer_template_20150820_170218");
   }
 }

@@ -18,26 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.permission.ws;
+package org.sonar.db.permission;
 
-import org.sonar.core.platform.Module;
+import java.util.Date;
 
-public class PermissionsWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      PermissionsWs.class,
-      AddGroupAction.class,
-      AddUserAction.class,
-      RemoveGroupAction.class,
-      RemoveUserAction.class,
-      UsersAction.class,
-      GroupsAction.class,
-      SearchGlobalPermissionsAction.class,
-      PermissionChangeBuilder.class,
-      SearchProjectPermissionsAction.class,
-      SearchProjectPermissionsDataLoader.class,
-      PermissionDependenciesFinder.class,
-      AddUserToTemplateAction.class);
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang.RandomStringUtils.randomAscii;
+import static org.apache.commons.lang.math.RandomUtils.nextLong;
+
+public class PermissionTemplateTesting {
+  public static PermissionTemplateDto newPermissionTemplateDto() {
+    return new PermissionTemplateDto()
+      .setName(randomAlphanumeric(60))
+      .setDescription(randomAscii(500))
+      .setCreatedAt(new Date(nextLong()))
+      .setUpdatedAt(new Date(nextLong()));
   }
 }
