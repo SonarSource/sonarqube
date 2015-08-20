@@ -114,7 +114,7 @@ public class PermissionTemplateUpdaterTest {
     when(dbClient.permissionTemplateDao()).thenReturn(permissionTemplateDao);
 
     PermissionTemplateUpdater updater =
-      new PermissionTemplateUpdater(dbClient, userSessionRule, "my_template", "invalid", "user") {
+      new PermissionTemplateUpdater(dbClient, userSessionRule, "my_template", "invalid_permission", "user") {
         @Override
         void doExecute(Long templateId, String permission) {
         }

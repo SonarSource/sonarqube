@@ -20,6 +20,7 @@
 
 package org.sonar.core.permission;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 
@@ -40,6 +41,7 @@ public final class GlobalPermissions {
    * All the global permissions values, ordered from {@link #SYSTEM_ADMIN} to {@link #PROVISIONING}.
    */
   public static final List<String> ALL = ImmutableList.of(SYSTEM_ADMIN, QUALITY_PROFILE_ADMIN, DASHBOARD_SHARING, SCAN_EXECUTION, PREVIEW_EXECUTION, PROVISIONING);
+  public static final String ALL_ON_ONE_LINE = Joiner.on(", ").join(GlobalPermissions.ALL);
 
   private GlobalPermissions() {
     // only static methods

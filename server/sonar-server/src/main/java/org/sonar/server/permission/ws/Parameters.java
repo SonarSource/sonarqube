@@ -20,7 +20,6 @@
 
 package org.sonar.server.permission.ws;
 
-import com.google.common.base.Joiner;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.permission.ComponentPermissions;
 import org.sonar.core.permission.GlobalPermissions;
@@ -33,15 +32,13 @@ class Parameters {
   static final String PARAM_PROJECT_UUID = "projectId";
   static final String PARAM_PROJECT_KEY = "projectKey";
   static final String PARAM_USER_LOGIN = "login";
-  static final String PROJECT_PERMISSIONS_ONE_LINE = Joiner.on(", ").join(ComponentPermissions.ALL);
-  static final String GLOBAL_PERMISSIONS_ONE_LINE = Joiner.on(", ").join(GlobalPermissions.ALL);
   private static final String PERMISSION_PARAM_DESCRIPTION = String.format("Permission" +
     "<ul>" +
     "<li>Possible values for global permissions: %s</li>" +
     "<li>Possible values for project permissions %s</li>" +
     "</ul>",
-    GLOBAL_PERMISSIONS_ONE_LINE,
-    PROJECT_PERMISSIONS_ONE_LINE);
+    GlobalPermissions.ALL_ON_ONE_LINE,
+    ComponentPermissions.ALL_ON_ONE_LINE);
 
   private Parameters() {
     // static methods only

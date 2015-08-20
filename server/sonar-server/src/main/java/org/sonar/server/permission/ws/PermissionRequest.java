@@ -22,22 +22,20 @@ package org.sonar.server.permission.ws;
 
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService.SelectionMode;
-import org.sonar.core.permission.ComponentPermissions;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.exceptions.BadRequestException;
 
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.SELECTED;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonar.server.permission.ws.Parameters.GLOBAL_PERMISSIONS_ONE_LINE;
 import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_ID;
 import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_NAME;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_UUID;
 import static org.sonar.server.permission.ws.Parameters.PARAM_USER_LOGIN;
-import static org.sonar.server.permission.ws.Parameters.PROJECT_PERMISSIONS_ONE_LINE;
+import static org.sonar.server.permission.PermissionValueValidator.validateGlobalPermission;
+import static org.sonar.server.permission.PermissionValueValidator.validateProjectPermission;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 class PermissionRequest {
@@ -174,14 +172,9 @@ class PermissionRequest {
 
     private void checkPermissionParameter() {
       if (hasProject) {
-        if (!ComponentPermissions.ALL.contains(permission)) {
-          throw new BadRequestException(String.format("The '%s' parameter for project permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION,
-            PROJECT_PERMISSIONS_ONE_LINE, permission));
-        }
+        validateProjectPermission(permission);
       } else if (!GlobalPermissions.ALL.contains(permission)) {
-        throw new BadRequestException(String.format("The '%s' parameter for global permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION, GLOBAL_PERMISSIONS_ONE_LINE,
-          permission
-          ));
+        validateGlobalPermission(permission);
       }
     }
   }

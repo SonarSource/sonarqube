@@ -21,7 +21,6 @@
 package org.sonar.server.permission;
 
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.core.permission.ComponentPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.permission.PermissionTemplateDao;
 import org.sonar.db.permission.PermissionTemplateDto;
@@ -32,6 +31,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
+import static org.sonar.server.permission.PermissionValueValidator.validateProjectPermission;
 
 abstract class PermissionTemplateUpdater {
 
@@ -54,7 +54,7 @@ abstract class PermissionTemplateUpdater {
   void executeUpdate() {
     checkGlobalAdminUser(userSession);
     Long templateId = getTemplateId(templateKey);
-    validatePermission(permission);
+    validateProjectPermission(permission);
     doExecute(templateId, permission);
   }
 
@@ -77,12 +77,6 @@ abstract class PermissionTemplateUpdater {
       throw new BadRequestException("Unknown group: " + updatedReference);
     }
     return groupDto.getId();
-  }
-
-  private void validatePermission(String permission) {
-    if (permission == null || !ComponentPermissions.ALL.contains(permission)) {
-      throw new BadRequestException("Invalid permission: " + permission);
-    }
   }
 
   private Long getTemplateId(String key) {
