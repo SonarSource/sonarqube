@@ -163,6 +163,10 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
   }
 
   private void addNewMeasure(Component component, String metricKey, Formula formula, Counter counter) {
+    // no new measure can be created by formulas for PROJECT_VIEW components, their measures are the copy
+    if (component.getType() == Component.Type.PROJECT_VIEW) {
+      return;
+    }
     Metric metric = metricRepository.getByKey(metricKey);
     Optional<Measure> measure = formula.createMeasure(counter, new CreateMeasureContextImpl(component, metric));
     if (measure.isPresent()) {
