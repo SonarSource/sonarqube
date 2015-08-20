@@ -5,12 +5,6 @@
 <div class="page">
   <header class="page-header">
     <h1 class="page-title"><%= message 'roles.page' -%></h1>
-    <p class="page-description"><%= message('roles.page.description') -%></p>
-  </header>
-
-  <%= render :partial => 'roles/tabs', :locals => {:selected_tab => 'Permission templates'} %>
-  <br/>
-  <header class="page-header">
     <div class="page-actions">
       <div class="button-group">
         <%= link_to message('permission_template.set_default_templates'), {:action => :default_templates_form, :qualifiers => @root_qualifiers},
@@ -18,6 +12,7 @@
         <%= link_to message('create'), {:action => :create_form}, :id => 'create-link-permission-template', :class => 'open-modal link-action button' %>
       </div>
     </div>
+    <p class="page-description"><%= message('roles.page.description') -%></p>
   </header>
   <table class="data width100" id="permission-templates">
     <thead>

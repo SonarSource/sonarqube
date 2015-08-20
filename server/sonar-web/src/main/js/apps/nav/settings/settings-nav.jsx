@@ -47,6 +47,7 @@ export default React.createClass({
                 {this.renderLink('/groups', window.t('user_groups.page'))}
                 {this.renderLink('/roles/global', window.t('global_permissions.page'))}
                 {this.renderLink('/roles/projects', window.t('roles.page'))}
+                {this.renderLink('/permission_templates', window.t('permission_templates'))}
               </ul>
             </li>
 

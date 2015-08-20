@@ -33,23 +33,6 @@ class RolesController < ApplicationController
   # GET /roles/projects
   def projects
     access_denied unless has_role?(:admin)
-
-    params['pageSize'] = 25
-    params['qualifiers'] ||= 'TRK'
-    @query_result = Internal.component_api.findWithUncompleteProjects(params)
-
-    @available_qualifiers = java_facade.getQualifiersWithProperty('hasRolePolicy').collect { |qualifier| [message("qualifiers.#{qualifier}"), qualifier] }.to_a.sort
-
-    # For the moment, we return projects from rails models, but it should be replaced to return java components (this will need methods on ComponentQueryResult to return roles from component)
-    @projects = Project.all(
-        :include => ['user_roles','group_roles'],
-        :conditions => ['kee in (?)', @query_result.components().to_a.collect{|component| component.key()}],
-        # Even if components are already sorted, we must sort them again as this SQL query will not keep order
-        :order => 'lower(name)'
-    )
-    @components_names = params[:names]
-    @components_keys = params[:keys]
-    @components_qualifiers = params[:qualifiers]
   end
 
   # GET /roles/edit_users[?resource=<resource>]

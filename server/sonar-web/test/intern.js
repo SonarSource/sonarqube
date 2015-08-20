@@ -31,7 +31,8 @@ define(['intern'], function (intern) {
       'test/medium/custom-measures.spec',
       'test/medium/quality-profiles.spec',
       'test/medium/source-viewer.spec',
-      'test/medium/global-permissions.spec'
+      'test/medium/global-permissions.spec',
+      'test/medium/project-permissions.spec'
     ],
 
     tunnel: tunnel,
