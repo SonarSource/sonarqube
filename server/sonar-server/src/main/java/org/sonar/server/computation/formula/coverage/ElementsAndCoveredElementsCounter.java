@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.formula.coverage;
 
+import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.formula.Counter;
 import org.sonar.server.computation.formula.LeafAggregateContext;
 
@@ -37,7 +38,8 @@ public abstract class ElementsAndCoveredElementsCounter implements Counter<Eleme
 
   @Override
   public void aggregate(LeafAggregateContext context) {
-    if (context.getLeaf().getFileAttributes().isUnitTest()) {
+    Component component = context.getLeaf();
+    if (component.getType().isReportType() && component.getFileAttributes().isUnitTest()) {
       return;
     }
     aggregateForSupportedLeaf(context);

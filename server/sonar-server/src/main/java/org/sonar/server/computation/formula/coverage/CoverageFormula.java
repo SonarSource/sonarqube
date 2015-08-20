@@ -20,6 +20,7 @@
 package org.sonar.server.computation.formula.coverage;
 
 import com.google.common.base.Optional;
+import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.formula.Counter;
 import org.sonar.server.computation.formula.CreateMeasureContext;
 import org.sonar.server.computation.formula.Formula;
@@ -36,6 +37,9 @@ public abstract class CoverageFormula<T extends ElementsAndCoveredElementsCounte
 
   @Override
   public Optional<Measure> createMeasure(T counter, CreateMeasureContext context) {
+    if (context.getComponent().getType() == Component.Type.PROJECT_VIEW) {
+      return Optional.absent();
+    }
     long elements = counter.elements;
     long coveredElements = counter.coveredElements;
     if (elements > 0L) {
