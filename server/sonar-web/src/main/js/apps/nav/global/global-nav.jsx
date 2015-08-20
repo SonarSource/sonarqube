@@ -14,6 +14,11 @@ export default React.createClass({
 
   componentDidMount() {
     this.loadGlobalNavDetails();
+    window.addEventListener('keypress', this.onKeyPress);
+  },
+
+  componentWillUnmount() {
+    window.removeEventListener('keypress', this.onKeyPress);
   },
 
   loadGlobalNavDetails() {
@@ -22,8 +27,18 @@ export default React.createClass({
     });
   },
 
+  onKeyPress(e) {
+    var tagName = e.target.tagName;
+    if (tagName !== 'INPUT' && tagName !== 'SELECT' && tagName !== 'TEXTAREA') {
+      var code = e.keyCode || e.which;
+      if (code === 63) {
+        this.openHelp();
+      }
+    }
+  },
+
   openHelp(e) {
-    e.preventDefault();
+    e && e.preventDefault();
     new ShortcutsHelpView().render();
   },
 

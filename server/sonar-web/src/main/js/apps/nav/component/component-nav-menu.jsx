@@ -1,5 +1,6 @@
 import React from 'react';
 import DashboardNameMixin from '../dashboard-name-mixin';
+import LinksMixin from '../links-mixin';
 
 const SETTINGS_URLS = [
   '/project/settings', '/project/profile', '/project/qualitygate', '/manual_measures/index',
@@ -10,20 +11,7 @@ const SETTINGS_URLS = [
 const MORE_URLS = ['/dashboards', '/dashboard', '/plugins/resource'];
 
 export default React.createClass({
-  mixins: [DashboardNameMixin],
-
-  activeLink(url) {
-    return window.location.pathname.indexOf(window.baseUrl + url) === 0 ? 'active' : null;
-  },
-
-  renderLink(url, title, highlightUrl = url) {
-    let fullUrl = window.baseUrl + url;
-    return (
-        <li key={highlightUrl} className={this.activeLink(highlightUrl)}>
-          <a href={fullUrl}>{title}</a>
-        </li>
-    );
-  },
+  mixins: [DashboardNameMixin, LinksMixin],
 
   renderOverviewLink() {
     const url = `/overview/index?id=${encodeURIComponent(this.props.component.key)}`;

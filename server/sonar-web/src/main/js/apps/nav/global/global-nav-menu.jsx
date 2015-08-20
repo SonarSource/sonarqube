@@ -1,15 +1,12 @@
 import React from 'react';
 import DashboardNameMixin from '../dashboard-name-mixin';
+import LinksMixin from '../links-mixin';
 
 export default React.createClass({
-  mixins: [DashboardNameMixin],
+  mixins: [DashboardNameMixin, LinksMixin],
 
   getDefaultProps: function () {
     return { globalDashboards: [], globalPages: [] };
-  },
-
-  activeLink(url) {
-    return window.location.pathname.indexOf(window.baseUrl + url) === 0 ? 'active' : null;
   },
 
   renderDashboardLink(dashboard) {
