@@ -17,32 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.computation.measure;
 
-import com.google.common.base.Predicates;
-import javax.annotation.CheckForNull;
 import org.sonar.api.ce.measure.MeasureComputer;
 
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.FluentIterable.from;
-import static java.util.Objects.requireNonNull;
+/**
+ * A {@link MeasureComputersHolder} which value can be set only once.
+ */
+public interface MutableMeasureComputersHolder extends MeasureComputersHolder {
 
-public class MeasureComputersHolderImpl implements MutableMeasureComputersHolder {
-
-  @CheckForNull
-  private Iterable<MeasureComputer> measureComputers;
-
-  @Override
-  public Iterable<MeasureComputer> getMeasureComputers() {
-    checkState(this.measureComputers != null, "Measure computers have not been initialized yet");
-    return measureComputers;
-  }
-
-  @Override
-  public void setMeasureComputers(Iterable<MeasureComputer> measureComputers) {
-    requireNonNull(measureComputers, "Measure computers cannot be null");
-    checkState(this.measureComputers == null, "Measure computers have already been initialized");
-    this.measureComputers = from(measureComputers).filter(Predicates.notNull()).toList();
-  }
+  /**
+   * Initializes the measure computers in the holder.
+   *
+   * @throws NullPointerException if the specified Iterable is {@code null}
+   * @throws IllegalStateException if the holder has already been initialized
+   */
+  void setMeasureComputers(Iterable<MeasureComputer> measureComputers);
 }
