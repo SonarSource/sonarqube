@@ -40,7 +40,7 @@ import static org.sonar.server.permission.ws.Parameters.PARAM_USER_LOGIN;
 import static org.sonar.server.permission.ws.Parameters.PROJECT_PERMISSIONS_ONE_LINE;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
-public class PermissionRequest {
+class PermissionRequest {
   private final String permission;
   private final String userLogin;
   private final Long groupId;
@@ -67,7 +67,7 @@ public class PermissionRequest {
     query = builder.query;
   }
 
-  public static class Builder {
+  static class Builder {
 
     private final Request request;
 
@@ -88,11 +88,11 @@ public class PermissionRequest {
     private String selected;
     private String query;
 
-    public Builder(Request request) {
+    Builder(Request request) {
       this.request = request;
     }
 
-    public PermissionRequest build() {
+    PermissionRequest build() {
       permission = request.mandatoryParam(PARAM_PERMISSION);
       setUserLogin(request);
       setGroup(request);
@@ -105,17 +105,17 @@ public class PermissionRequest {
       return new PermissionRequest(this);
     }
 
-    public Builder withUser() {
+    Builder withUser() {
       this.withUser = true;
       return this;
     }
 
-    public Builder withGroup() {
+    Builder withGroup() {
       this.withGroup = true;
       return this;
     }
 
-    public Builder withPagination() {
+    Builder withPagination() {
       this.withPagination = true;
       return this;
     }
@@ -186,47 +186,47 @@ public class PermissionRequest {
     }
   }
 
-  public String permission() {
+  String permission() {
     return permission;
   }
 
-  public String userLogin() {
+  String userLogin() {
     return userLogin;
   }
 
-  public Long groupId() {
+  Long groupId() {
     return groupId;
   }
 
-  public String groupName() {
+  String groupName() {
     return groupName;
   }
 
-  public String projectUuid() {
+  String projectUuid() {
     return projectUuid;
   }
 
-  public String projectKey() {
+  String projectKey() {
     return projectKey;
   }
 
-  public Integer page() {
+  Integer page() {
     return page;
   }
 
-  public Integer pageSize() {
+  Integer pageSize() {
     return pageSize;
   }
 
-  public String selected() {
+  String selected() {
     return selected;
   }
 
-  public String query() {
+  String query() {
     return query;
   }
 
-  public boolean hasProject() {
+  boolean hasProject() {
     return hasProject;
   }
 }

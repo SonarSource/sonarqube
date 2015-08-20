@@ -40,7 +40,7 @@ public class PermissionWsCommons {
     this.componentFinder = componentFinder;
   }
 
-  public String searchGroupName(DbSession dbSession, @Nullable String groupNameParam, @Nullable Long groupId) {
+  String searchGroupName(DbSession dbSession, @Nullable String groupNameParam, @Nullable Long groupId) {
     if (groupNameParam != null) {
       return groupNameParam;
     }
@@ -53,7 +53,7 @@ public class PermissionWsCommons {
     return group.getName();
   }
 
-  public PermissionChange buildUserPermissionChange(DbSession dbSession, PermissionRequest request) {
+  PermissionChange buildUserPermissionChange(DbSession dbSession, PermissionRequest request) {
     PermissionChange permissionChange = new PermissionChange()
       .setPermission(request.permission())
       .setUserLogin(request.userLogin());
@@ -62,7 +62,7 @@ public class PermissionWsCommons {
     return permissionChange;
   }
 
-  public PermissionChange buildGroupPermissionChange(DbSession dbSession, PermissionRequest request) {
+  PermissionChange buildGroupPermissionChange(DbSession dbSession, PermissionRequest request) {
     String groupName = searchGroupName(dbSession, request.groupName(), request.groupId());
 
     PermissionChange permissionChange = new PermissionChange()
