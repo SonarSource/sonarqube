@@ -19,20 +19,21 @@
  */
 package org.sonar.batch.analysis;
 
-import org.sonar.batch.analysis.AnalysisTempFolderProvider;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 
-import org.sonar.batch.analysis.AnalysisProperties;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.junit.Before;
+import org.sonar.batch.analysis.AnalysisTempFolderProvider;
 import org.sonar.api.utils.TempFolder;
-import org.apache.commons.io.FileUtils;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.CoreProperties;
 
 import java.io.File;
 import java.io.IOException;
 
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AnalysisTempFolderProviderTest {
@@ -40,33 +41,26 @@ public class AnalysisTempFolderProviderTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private AnalysisTempFolderProvider tempFolderProvider = new AnalysisTempFolderProvider();
+  private AnalysisTempFolderProvider tempFolderProvider;
+  private ProjectReactor projectReactor;
 
-  @Test
-  public void createTempFolderWithProps() throws Exception {
-    File workingDir = temp.newFolder();
-    File tmpDir = new File(workingDir, AnalysisTempFolderProvider.TMP_NAME);
-
-    TempFolder tempFolder = tempFolderProvider.provide(new AnalysisProperties(ImmutableMap.of(CoreProperties.WORKING_DIRECTORY, workingDir.getAbsolutePath()), ""));
-    tempFolder.newDir();
-    tempFolder.newFile();
-    assertThat(tmpDir).exists();
-    assertThat(tmpDir.list()).hasSize(2);
+  @Before
+  public void setUp() {
+    tempFolderProvider = new AnalysisTempFolderProvider();
+    projectReactor = mock(ProjectReactor.class);
+    ProjectDefinition projectDefinition = mock(ProjectDefinition.class);
+    when(projectReactor.getRoot()).thenReturn(projectDefinition);
+    when(projectDefinition.getWorkDir()).thenReturn(temp.getRoot());
   }
 
   @Test
   public void createTempFolder() throws IOException {
-    File workingDir = temp.newFolder();
-    File defaultDir = new File(new File(workingDir, CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE), AnalysisTempFolderProvider.TMP_NAME);
+    File defaultDir = new File(temp.getRoot(), AnalysisTempFolderProvider.TMP_NAME);
 
-    try {
-      TempFolder tempFolder = tempFolderProvider.provide(new AnalysisProperties(ImmutableMap.of("sonar.projectBaseDir", workingDir.getAbsolutePath()), ""));
-      tempFolder.newDir();
-      tempFolder.newFile();
-      assertThat(defaultDir).exists();
-      assertThat(defaultDir.list()).hasSize(2);
-    } finally {
-      FileUtils.deleteDirectory(defaultDir);
-    }
+    TempFolder tempFolder = tempFolderProvider.provide(projectReactor);
+    tempFolder.newDir();
+    tempFolder.newFile();
+    assertThat(defaultDir).exists();
+    assertThat(defaultDir.list()).hasSize(2);
   }
 }

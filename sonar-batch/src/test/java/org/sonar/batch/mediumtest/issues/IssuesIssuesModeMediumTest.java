@@ -86,8 +86,8 @@ public class IssuesIssuesModeMediumTest {
       .property(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ISSUES)
       .start();
 
-    assertThat(result2.trackedIssues()).hasSize(28);
-    assertThat(issueListener.issueList).hasSize(28);
+    assertThat(result2.trackedIssues()).hasSize(14);
+    assertThat(issueListener.issueList).hasSize(14);
   }
 
   private class IssueRecorder implements IssueListener {

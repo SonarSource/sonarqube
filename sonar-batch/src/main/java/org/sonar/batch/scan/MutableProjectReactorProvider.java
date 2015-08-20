@@ -19,14 +19,17 @@
  */
 package org.sonar.batch.scan;
 
+import org.apache.commons.io.FileUtils;
 import org.sonar.batch.analysis.AnalysisProperties;
-
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectBootstrapper;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.utils.SonarException;
 
 import javax.annotation.Nullable;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 public class MutableProjectReactorProvider extends ProviderAdapter {
 
@@ -49,9 +52,19 @@ public class MutableProjectReactorProvider extends ProviderAdapter {
         reactor = projectBootstrapper.bootstrap();
       }
       if (reactor == null) {
-        throw new SonarException(projectBootstrapper + " has returned null as ProjectReactor");
+        throw new IllegalStateException(projectBootstrapper + " has returned null as ProjectReactor");
       }
+      cleanDirectory(reactor.getRoot().getWorkDir());
     }
     return reactor;
+  }
+
+  private void cleanDirectory(File dir) {
+    try {
+      FileUtils.deleteDirectory(dir);
+      Files.createDirectories(dir.toPath());
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to recreate working directory: " + dir.getAbsolutePath(), e);
+    }
   }
 }

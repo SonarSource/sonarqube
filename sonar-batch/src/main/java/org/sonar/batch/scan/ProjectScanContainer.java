@@ -20,7 +20,6 @@
 package org.sonar.batch.scan;
 
 import org.sonar.batch.analysis.DefaultAnalysisMode;
-
 import org.sonar.batch.analysis.AnalysisWSLoaderProvider;
 import org.sonar.batch.analysis.AnalysisTempFolderProvider;
 import org.sonar.batch.analysis.AnalysisProperties;
@@ -51,7 +50,6 @@ import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.batch.deprecated.components.DefaultResourceCreationLock;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.BatchComponentCache;
@@ -107,6 +105,7 @@ public class ProjectScanContainer extends ComponentContainer {
       add(component);
     }
     addBatchComponents();
+    getComponentByType(ProjectLock.class).tryLock();
     addBatchExtensions();
     Settings settings = getComponentByType(Settings.class);
     if (settings != null && settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)) {
@@ -135,6 +134,7 @@ public class ProjectScanContainer extends ComponentContainer {
       new MutableProjectReactorProvider(getComponentByType(ProjectBootstrapper.class)),
       new ImmutableProjectReactorProvider(),
       ProjectBuildersExecutor.class,
+      ProjectLock.class,
       EventBus.class,
       PhasesTimeProfiler.class,
       ResourceTypes.class,
@@ -143,7 +143,6 @@ public class ProjectScanContainer extends ComponentContainer {
       ProjectReactorValidator.class,
       new ProjectRepositoriesProvider(),
       new AnalysisWSLoaderProvider(),
-      DefaultResourceCreationLock.class,
       CodeColorizers.class,
       MetricProvider.class,
       ProjectConfigurator.class,

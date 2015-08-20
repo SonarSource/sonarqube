@@ -483,7 +483,7 @@ public interface CoreProperties {
    * @since 5.2
    */
   String GLOBAL_WORKING_DIRECTORY = "sonar.globalWorking.directory";
-  String GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE = ".";
+  String GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE = "";
 
   /**
    * @since 4.2

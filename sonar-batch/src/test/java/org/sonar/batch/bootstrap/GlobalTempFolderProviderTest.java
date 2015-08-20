@@ -55,7 +55,7 @@ public class GlobalTempFolderProviderTest {
     tempFolder.newFile();
     assertThat(getCreatedTempDir(workingDir)).exists();
     assertThat(getCreatedTempDir(workingDir).list()).hasSize(2);
-    
+
     FileUtils.deleteQuietly(workingDir);
   }
 
@@ -73,7 +73,7 @@ public class GlobalTempFolderProviderTest {
     tempFolderProvider.provide(new GlobalProperties(ImmutableMap.of(CoreProperties.GLOBAL_WORKING_DIRECTORY, workingDir.getAbsolutePath())));
     // this also checks that all other temps were deleted
     assertThat(getCreatedTempDir(workingDir)).exists();
-    
+
     FileUtils.deleteQuietly(workingDir);
   }
 
@@ -88,7 +88,7 @@ public class GlobalTempFolderProviderTest {
     tempFolder.newFile();
     assertThat(getCreatedTempDir(workingDir)).exists();
     assertThat(getCreatedTempDir(workingDir).list()).hasSize(2);
-    
+
     FileUtils.deleteQuietly(sonarHome);
   }
 
@@ -97,7 +97,7 @@ public class GlobalTempFolderProviderTest {
     System2 system = mock(System2.class);
     tempFolderProvider = new GlobalTempFolderProvider(system);
     File userHome = temp.newFolder();
-   
+
     when(system.envVariable("SONAR_USER_HOME")).thenReturn(null);
     when(system.property("user.home")).thenReturn(userHome.getAbsolutePath().toString());
 
@@ -113,6 +113,19 @@ public class GlobalTempFolderProviderTest {
     } finally {
       FileUtils.deleteQuietly(workingDir);
     }
+  }
+
+  @Test
+  public void dotWorkingDir() throws IOException {
+    File sonarHome = temp.getRoot();
+    String globalWorkDir = ".";
+    GlobalProperties globalProperties = new GlobalProperties(ImmutableMap.of("sonar.userHome", sonarHome.getAbsolutePath(),
+      CoreProperties.GLOBAL_WORKING_DIRECTORY, globalWorkDir));
+
+    TempFolder tempFolder = tempFolderProvider.provide(globalProperties);
+    File newFile = tempFolder.newFile();
+    assertThat(newFile.getParentFile().getParentFile().getAbsolutePath()).isEqualTo(sonarHome.getAbsolutePath());
+    assertThat(newFile.getParentFile().getName()).startsWith(".sonartmp_");
   }
 
   private File getCreatedTempDir(File workingDir) {

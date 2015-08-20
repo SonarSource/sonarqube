@@ -19,49 +19,62 @@
  */
 package org.sonar.batch.analysis;
 
-import org.sonar.batch.bootstrap.LifecycleProviderAdapter;
-
+import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.picocontainer.PicoContainer;
+import org.picocontainer.ComponentLifecycle;
+import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.utils.TempFolder;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.internal.DefaultTempFolder;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
-public class AnalysisTempFolderProvider extends LifecycleProviderAdapter {
+public class AnalysisTempFolderProvider extends ProviderAdapter implements ComponentLifecycle<TempFolder> {
   static final String TMP_NAME = ".sonartmp";
   private DefaultTempFolder projectTempFolder;
 
-  public TempFolder provide(AnalysisProperties props) {
+  public TempFolder provide(ProjectReactor projectReactor) {
     if (projectTempFolder == null) {
-      String workingDirPath = StringUtils.defaultIfBlank(props.property(CoreProperties.WORKING_DIRECTORY), CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
-      Path workingDir = Paths.get(workingDirPath).normalize();
-
-      if (!workingDir.isAbsolute()) {
-        Path base = getBasePath(props);
-        workingDir = base.resolve(workingDir);
-      }
-
-      Path tempDir = workingDir.resolve(TMP_NAME);
+      Path workingDir = projectReactor.getRoot().getWorkDir().toPath();
+      Path tempDir = workingDir.normalize().resolve(TMP_NAME);
       try {
+        Files.deleteIfExists(tempDir);
         Files.createDirectories(tempDir);
       } catch (IOException e) {
         throw new IllegalStateException("Unable to create root temp directory " + tempDir, e);
       }
+
       projectTempFolder = new DefaultTempFolder(tempDir.toFile(), true);
-      this.instance = projectTempFolder;
     }
     return projectTempFolder;
   }
 
-  private static Path getBasePath(AnalysisProperties props) {
-    String baseDir = props.property("sonar.projectBaseDir");
-    if (baseDir == null) {
-      throw new IllegalStateException("sonar.projectBaseDir needs to be specified");
+  @Override
+  public void start(PicoContainer container) {
+    started = true;
+  }
+
+  private boolean started = false;
+
+  @Override
+  public void stop(PicoContainer container) {
+    if (projectTempFolder != null) {
+      projectTempFolder.stop();
     }
-    return Paths.get(baseDir);
+  }
+
+  @Override
+  public void dispose(PicoContainer container) {
+  }
+
+  @Override
+  public boolean componentHasLifecycle() {
+    return true;
+  }
+
+  @Override
+  public boolean isStarted() {
+    return started;
   }
 }

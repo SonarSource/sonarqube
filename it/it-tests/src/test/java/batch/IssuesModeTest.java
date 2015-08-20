@@ -295,7 +295,6 @@ public class IssuesModeTest {
     fail("Issue not found");
   }
 
-  // SONAR-4602
   @Test
   public void concurrent_issue_mode_on_existing_project() throws Exception {
     restoreProfile("one-issue-per-line.xml");
@@ -312,7 +311,7 @@ public class IssuesModeTest {
     // Install sonar-runner in advance to avoid concurrent unzip issues
     FileSystem fileSystem = orchestrator.getConfiguration().fileSystem();
     new SonarRunnerInstaller(fileSystem).install(Version.create(SonarRunner.DEFAULT_RUNNER_VERSION), fileSystem.workspace());
-    final int nThreads = 5;
+    final int nThreads = 3;
     ExecutorService executorService = Executors.newFixedThreadPool(nThreads);
     List<Callable<BuildResult>> tasks = new ArrayList<>();
     for (int i = 0; i < nThreads; i++) {
@@ -325,8 +324,20 @@ public class IssuesModeTest {
       });
     }
 
+    boolean expectedError = false;
     for (Future<BuildResult> result : executorService.invokeAll(tasks)) {
+      try {
       result.get();
+      } catch(ExecutionException e) {
+        if(e.getCause() instanceof BuildFailureException) {
+          BuildFailureException bfe = (BuildFailureException) e.getCause();
+          assertThat(bfe.getResult().getLogs()).contains("Another SonarQube analysis is already in progress for this project");
+          expectedError = true;
+        }
+      }
+    }
+    if(!expectedError) {
+      fail("At least one of the threads should have failed");
     }
   }
 

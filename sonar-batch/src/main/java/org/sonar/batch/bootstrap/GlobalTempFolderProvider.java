@@ -19,6 +19,10 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.picocontainer.ComponentLifecycle;
+
+import org.picocontainer.PicoContainer;
+import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -36,10 +40,9 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.concurrent.TimeUnit;
 
-public class GlobalTempFolderProvider extends LifecycleProviderAdapter {
+public class GlobalTempFolderProvider extends ProviderAdapter implements ComponentLifecycle<TempFolder> {
   private static final Logger LOG = Loggers.get(GlobalTempFolderProvider.class);
   private static final long CLEAN_MAX_AGE = TimeUnit.DAYS.toMillis(21);
-
   static final String TMP_NAME_PREFIX = ".sonartmp_";
 
   private System2 system;
@@ -57,10 +60,10 @@ public class GlobalTempFolderProvider extends LifecycleProviderAdapter {
     if (tempFolder == null) {
 
       String workingPathName = StringUtils.defaultIfBlank(bootstrapProps.property(CoreProperties.GLOBAL_WORKING_DIRECTORY), CoreProperties.GLOBAL_WORKING_DIRECTORY_DEFAULT_VALUE);
-      Path workingPath = Paths.get(workingPathName).normalize();
+      Path workingPath = Paths.get(workingPathName);
 
       if (!workingPath.isAbsolute()) {
-        Path home = findHome(bootstrapProps);
+        Path home = findSonarHome(bootstrapProps);
         workingPath = home.resolve(workingPath).normalize();
       }
 
@@ -71,7 +74,6 @@ public class GlobalTempFolderProvider extends LifecycleProviderAdapter {
       }
       Path tempDir = createTempFolder(workingPath);
       tempFolder = new DefaultTempFolder(tempDir.toFile(), true);
-      this.instance = tempFolder;
     }
     return tempFolder;
   }
@@ -90,20 +92,20 @@ public class GlobalTempFolderProvider extends LifecycleProviderAdapter {
     }
   }
 
-  private Path findHome(GlobalProperties props) {
+  private Path findSonarHome(GlobalProperties props) {
     String home = props.property("sonar.userHome");
     if (home != null) {
-      return Paths.get(home);
+      return Paths.get(home).toAbsolutePath();
     }
 
     home = system.envVariable("SONAR_USER_HOME");
 
     if (home != null) {
-      return Paths.get(home);
+      return Paths.get(home).toAbsolutePath();
     }
 
     home = system.property("user.home");
-    return Paths.get(home, ".sonar");
+    return Paths.get(home, ".sonar").toAbsolutePath();
   }
 
   private static void cleanTempFolders(Path path) throws IOException {
@@ -142,5 +144,33 @@ public class GlobalTempFolderProvider extends LifecycleProviderAdapter {
       long creationTime = attrs.creationTime().toMillis();
       return creationTime < threshold;
     }
+  }
+
+  @Override
+  public void start(PicoContainer container) {
+    started = true;
+  }
+
+  private boolean started = false;
+
+  @Override
+  public void stop(PicoContainer container) {
+    if (tempFolder != null) {
+      tempFolder.stop();
+    }
+  }
+
+  @Override
+  public void dispose(PicoContainer container) {
+  }
+
+  @Override
+  public boolean componentHasLifecycle() {
+    return true;
+  }
+
+  @Override
+  public boolean isStarted() {
+    return started;
   }
 }
