@@ -24,7 +24,6 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -34,9 +33,10 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.user.UserSession;
+
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
 
 public class PermissionUpdater {
 
@@ -104,7 +104,7 @@ public class PermissionUpdater {
 
   private boolean applyChangeOnGroup(DbSession session, Operation operation, PermissionChange permissionChange) {
     Long componentId = getComponentId(session, permissionChange.componentKey());
-    checkProjectAdminPermission(permissionChange.componentKey());
+    checkProjectAdminUserByComponentKey(userSession, permissionChange.componentKey());
 
     List<String> existingPermissions = dbClient.roleDao().selectGroupPermissions(session, permissionChange.groupName(), componentId);
     if (shouldSkipPermissionChange(operation, existingPermissions, permissionChange)) {
@@ -132,7 +132,7 @@ public class PermissionUpdater {
 
   private boolean applyChangeOnUser(DbSession session, Operation operation, PermissionChange permissionChange) {
     Long componentId = getComponentId(session, permissionChange.componentKey());
-    checkProjectAdminPermission(permissionChange.componentKey());
+    checkProjectAdminUserByComponentKey(userSession, permissionChange.componentKey());
 
     List<String> existingPermissions = dbClient.roleDao().selectUserPermissions(session, permissionChange.userLogin(), componentId);
     if (shouldSkipPermissionChange(operation, existingPermissions, permissionChange)) {
@@ -202,16 +202,6 @@ public class PermissionUpdater {
       throw new BadRequestException(String.format(NOT_FOUND_FORMAT, objectType, objectKey));
     }
     return component;
-  }
-
-  private void checkProjectAdminPermission(@Nullable String projectKey) {
-    if (projectKey == null) {
-      userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
-    } else {
-      if (!userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN) && !userSession.hasProjectPermission(UserRole.ADMIN, projectKey)) {
-        throw new ForbiddenException("Insufficient privileges");
-      }
-    }
   }
 
   private void indexProjectPermissions() {

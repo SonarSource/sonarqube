@@ -74,7 +74,7 @@ public class AddUserActionTest {
     dbClient = db.getDbClient();
     dbSession = db.getSession();
     ws = new WsTester(new PermissionsWs(
-      new AddUserAction(dbClient, permissionUpdater, new PermissionWsCommons(dbClient, new ComponentFinder(dbClient), userSession))));
+      new AddUserAction(dbClient, permissionUpdater, new PermissionWsCommons(dbClient, new ComponentFinder(dbClient)))));
     userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 

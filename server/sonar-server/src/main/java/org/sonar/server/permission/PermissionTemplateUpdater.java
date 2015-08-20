@@ -20,11 +20,8 @@
 
 package org.sonar.server.permission;
 
-import javax.annotation.Nullable;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.ComponentPermissions;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.permission.PermissionTemplateDao;
 import org.sonar.db.permission.PermissionTemplateDto;
@@ -32,8 +29,9 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
+
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 
 abstract class PermissionTemplateUpdater {
 
@@ -54,7 +52,7 @@ abstract class PermissionTemplateUpdater {
   }
 
   void executeUpdate() {
-    checkSystemAdminUser(userSession);
+    checkGlobalAdminUser(userSession);
     Long templateId = getTemplateId(templateKey);
     validatePermission(permission);
     doExecute(templateId, permission);
@@ -79,19 +77,6 @@ abstract class PermissionTemplateUpdater {
       throw new BadRequestException("Unknown group: " + updatedReference);
     }
     return groupDto.getId();
-  }
-
-  static void checkSystemAdminUser(UserSession userSession) {
-    checkProjectAdminUser(null, userSession);
-  }
-
-  static void checkProjectAdminUser(@Nullable String componentKey, UserSession userSession) {
-    userSession.checkLoggedIn();
-    if (componentKey == null) {
-      userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
-    } else if (!userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN) && !userSession.hasProjectPermission(UserRole.ADMIN, componentKey)) {
-      throw new ForbiddenException("Insufficient privileges");
-    }
   }
 
   private void validatePermission(String permission) {

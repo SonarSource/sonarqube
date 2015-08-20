@@ -39,6 +39,9 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
+
 /**
  * Used by ruby code <pre>Internal.permission_templates</pre>
  */
@@ -67,7 +70,7 @@ public class PermissionTemplateService {
 
   @CheckForNull
   public PermissionTemplate selectPermissionTemplate(String templateKey) {
-    PermissionTemplateUpdater.checkSystemAdminUser(userSession);
+    checkGlobalAdminUser(userSession);
     PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.selectPermissionTemplate(templateKey);
     return PermissionTemplate.create(permissionTemplateDto);
   }
@@ -77,7 +80,7 @@ public class PermissionTemplateService {
   }
 
   public List<PermissionTemplate> selectAllPermissionTemplates(@Nullable String componentKey) {
-    PermissionTemplateUpdater.checkProjectAdminUser(componentKey, userSession);
+    checkProjectAdminUserByComponentKey(userSession, componentKey);
     List<PermissionTemplate> permissionTemplates = Lists.newArrayList();
     List<PermissionTemplateDto> permissionTemplateDtos = permissionTemplateDao.selectAllPermissionTemplates();
     if (permissionTemplateDtos != null) {
@@ -89,7 +92,7 @@ public class PermissionTemplateService {
   }
 
   public PermissionTemplate createPermissionTemplate(String name, @Nullable String description, @Nullable String keyPattern) {
-    PermissionTemplateUpdater.checkSystemAdminUser(userSession);
+    checkGlobalAdminUser(userSession);
     validateTemplateName(null, name);
     validateKeyPattern(keyPattern);
     PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.insertPermissionTemplate(name, description, keyPattern);
@@ -97,14 +100,14 @@ public class PermissionTemplateService {
   }
 
   public void updatePermissionTemplate(Long templateId, String newName, @Nullable String newDescription, @Nullable String newKeyPattern) {
-    PermissionTemplateUpdater.checkSystemAdminUser(userSession);
+    checkGlobalAdminUser(userSession);
     validateTemplateName(templateId, newName);
     validateKeyPattern(newKeyPattern);
     permissionTemplateDao.updatePermissionTemplate(templateId, newName, newDescription, newKeyPattern);
   }
 
   public void deletePermissionTemplate(Long templateId) {
-    PermissionTemplateUpdater.checkSystemAdminUser(userSession);
+    checkGlobalAdminUser(userSession);
     permissionTemplateDao.deletePermissionTemplate(templateId);
   }
 

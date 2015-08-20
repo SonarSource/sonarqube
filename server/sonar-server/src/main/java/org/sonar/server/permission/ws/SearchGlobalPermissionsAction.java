@@ -33,6 +33,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions.Permission;
 import org.sonarqube.ws.Permissions.SearchGlobalPermissionsResponse;
 
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Permissions.Permission.newBuilder;
 
@@ -62,7 +63,7 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    checkPermissions();
+    checkGlobalAdminUser(userSession);
 
     DbSession dbSession = dbClient.openSession(false);
     try {
@@ -92,12 +93,6 @@ public class SearchGlobalPermissionsAction implements PermissionsWsAction {
     }
 
     return response.build();
-  }
-
-  private void checkPermissions() {
-    userSession
-      .checkLoggedIn()
-      .checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   private String i18nDescriptionMessage(String permissionKey) {

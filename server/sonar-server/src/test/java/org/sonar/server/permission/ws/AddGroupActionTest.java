@@ -74,7 +74,7 @@ public class AddGroupActionTest {
     permissionChangeCaptor = ArgumentCaptor.forClass(PermissionChange.class);
     dbClient = db.getDbClient();
     ws = new WsTester(new PermissionsWs(
-      new AddGroupAction(dbClient, new PermissionWsCommons(dbClient, new ComponentFinder(dbClient), userSession), permissionUpdater)));
+      new AddGroupAction(dbClient, new PermissionWsCommons(dbClient, new ComponentFinder(dbClient)), permissionUpdater)));
     userSession.login("admin").setGlobalPermissions(SYSTEM_ADMIN);
   }
 

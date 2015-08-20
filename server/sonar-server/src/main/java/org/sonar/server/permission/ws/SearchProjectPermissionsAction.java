@@ -25,9 +25,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Paging;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.ComponentPermissions;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -37,6 +35,9 @@ import org.sonarqube.ws.Permissions.Permission;
 import org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse;
 import org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project;
 
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentUuid;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.PermissionWsCommons.PARAM_PROJECT_UUID;
 import static org.sonar.server.permission.ws.PermissionWsCommons.createProjectKeyParameter;
@@ -92,29 +93,21 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
   private void checkRequestAndPermissions(Request wsRequest) {
     String projectUuid = wsRequest.param(PARAM_PROJECT_UUID);
     String projectKey = wsRequest.param(PARAM_PROJECT_KEY);
-    boolean isProjectUuidNonNull = projectUuid != null;
-    boolean isProjectKeyNonNull = projectKey != null;
+    boolean hasProjectUuid = projectUuid != null;
+    boolean hasProjectKey = projectKey != null;
 
-    if (isProjectUuidNonNull || isProjectKeyNonNull) {
+    if (hasProjectUuid || hasProjectKey) {
       checkRequest(projectUuid != null ^ projectKey != null, "Project id or project key can be provided, not both.");
     }
-    userSession.checkLoggedIn();
 
-    if (userSession.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN)) {
+    if (hasProjectUuid) {
+      checkProjectAdminUserByComponentUuid(userSession, projectUuid);
       return;
+    } else if (hasProjectKey) {
+      checkProjectAdminUserByComponentKey(userSession, projectKey);
+    } else {
+      checkGlobalAdminUser(userSession);
     }
-
-    if (isProjectUuidNonNull) {
-      userSession.checkProjectUuidPermission(UserRole.ADMIN, projectUuid);
-      return;
-    }
-
-    if (isProjectKeyNonNull) {
-      userSession.checkProjectPermission(UserRole.ADMIN, projectKey);
-      return;
-    }
-
-    userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   private SearchProjectPermissionsResponse buildReponse(SearchProjectPermissionsData data) {

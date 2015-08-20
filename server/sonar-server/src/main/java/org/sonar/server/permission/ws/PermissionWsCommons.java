@@ -24,7 +24,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.ComponentPermissions;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
@@ -34,9 +33,6 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.PermissionChange;
-import org.sonar.server.user.UserSession;
-
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 
 public class PermissionWsCommons {
 
@@ -58,12 +54,10 @@ public class PermissionWsCommons {
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
-  private final UserSession userSession;
 
-  public PermissionWsCommons(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession) {
+  public PermissionWsCommons(DbClient dbClient, ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
-    this.userSession = userSession;
   }
 
   public String searchGroupName(DbSession dbSession, @Nullable String groupNameParam, @Nullable Long groupId) {
@@ -117,20 +111,6 @@ public class PermissionWsCommons {
     } finally {
       dbClient.closeSession(dbSession);
     }
-  }
-
-  void checkPermissions(Optional<ComponentDto> project) {
-    userSession.checkLoggedIn();
-
-    if (userSession.hasGlobalPermission(SYSTEM_ADMIN) || projectPresentAndAdminPermissionsOnIt(project)) {
-      return;
-    }
-
-    userSession.checkGlobalPermission(SYSTEM_ADMIN);
-  }
-
-  boolean projectPresentAndAdminPermissionsOnIt(Optional<ComponentDto> project) {
-    return project.isPresent() && userSession.hasProjectPermissionByUuid(UserRole.ADMIN, project.get().projectUuid());
   }
 
   static void createPermissionParameter(NewAction action) {

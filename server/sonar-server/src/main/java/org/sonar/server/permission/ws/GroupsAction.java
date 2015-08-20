@@ -34,10 +34,12 @@ import org.sonar.db.permission.PermissionQuery;
 import org.sonar.server.permission.GroupWithPermissionQueryResult;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.permission.ws.PermissionRequest.Builder;
+import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Permissions;
 
 import static com.google.common.base.Objects.firstNonNull;
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentDto;
 import static org.sonar.server.permission.PermissionQueryParser.toMembership;
 import static org.sonar.server.permission.ws.PermissionWsCommons.createPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionWsCommons.createProjectKeyParameter;
@@ -45,10 +47,12 @@ import static org.sonar.server.permission.ws.PermissionWsCommons.createProjectUu
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class GroupsAction implements PermissionsWsAction {
+  private final UserSession userSession;
   private final PermissionFinder permissionFinder;
   private final PermissionWsCommons permissionWsCommons;
 
-  public GroupsAction(PermissionFinder permissionFinder, PermissionWsCommons permissionWsCommons) {
+  public GroupsAction(UserSession userSession, PermissionFinder permissionFinder, PermissionWsCommons permissionWsCommons) {
+    this.userSession = userSession;
     this.permissionFinder = permissionFinder;
     this.permissionWsCommons = permissionWsCommons;
   }
@@ -78,7 +82,7 @@ public class GroupsAction implements PermissionsWsAction {
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     PermissionRequest request = new Builder(wsRequest).withPagination().build();
     Optional<ComponentDto> project = permissionWsCommons.searchProject(request);
-    permissionWsCommons.checkPermissions(project);
+    checkProjectAdminUserByComponentDto(userSession, project);
 
     PermissionQuery permissionQuery = buildPermissionQuery(request, project);
     Permissions.GroupsResponse groupsResponse = groupsResponse(permissionQuery, request);
