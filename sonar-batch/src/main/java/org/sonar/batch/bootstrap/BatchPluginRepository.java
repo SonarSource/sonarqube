@@ -68,8 +68,7 @@ public class BatchPluginRepository implements PluginRepository, Startable {
   private void logPlugins() {
     if (infosByKeys.isEmpty()) {
       LOG.debug("No plugins loaded");
-    }
-    else {
+    } else {
       LOG.debug("Plugins:");
       for (PluginInfo p : infosByKeys.values()) {
         LOG.debug("  {}-{}", p.getName(), p.getVersion());

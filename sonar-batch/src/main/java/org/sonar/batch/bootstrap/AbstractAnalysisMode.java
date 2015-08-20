@@ -27,20 +27,25 @@ import java.util.Arrays;
 import org.sonar.api.batch.AnalysisMode;
 
 public abstract class AbstractAnalysisMode implements AnalysisMode {
+  protected final static String[] VALID_MODES = {CoreProperties.ANALYSIS_MODE_PREVIEW, CoreProperties.ANALYSIS_MODE_PUBLISH, CoreProperties.ANALYSIS_MODE_ISSUES};
+
   protected boolean preview;
   protected boolean issues;
 
   protected AbstractAnalysisMode() {
   }
 
+  @Override
   public boolean isPreview() {
     return preview;
   }
 
+  @Override
   public boolean isIssues() {
     return issues;
   }
 
+  @Override
   public boolean isPublish() {
     return !preview && !issues;
   }

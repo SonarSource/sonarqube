@@ -22,7 +22,6 @@ package org.sonar.batch.mediumtest.cache;
 import org.sonar.batch.protocol.input.FileData;
 
 import org.junit.Test;
-import org.junit.Rule;
 import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.sonar.api.CoreProperties;
@@ -33,12 +32,7 @@ import org.sonar.xoo.rule.XooRulesDefinition;
 
 import java.util.Date;
 
-import org.junit.rules.TemporaryFolder;
-
 public class CacheSyncTest {
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
 
   public BatchMediumTester tester;
 
@@ -56,7 +50,7 @@ public class CacheSyncTest {
     String[] hashes = new String[] {
       "line1", "line2"
     };
-    
+
     tester = BatchMediumTester.builder()
       .bootstrapProperties(ImmutableMap.of(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_ISSUES))
       .registerPlugin("xoo", new XooPlugin())
@@ -69,7 +63,7 @@ public class CacheSyncTest {
 
     tester.start();
     tester.syncProject("test-project");
-    
+
   }
 
 }

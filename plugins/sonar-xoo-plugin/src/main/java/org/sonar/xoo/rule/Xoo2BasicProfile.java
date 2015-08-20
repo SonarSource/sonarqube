@@ -29,6 +29,7 @@ import org.sonar.api.utils.ValidationMessages;
 
 public class Xoo2BasicProfile extends ProfileDefinition {
 
+  @Override
   public RulesProfile createProfile(ValidationMessages messages) {
     RulesProfile profile = RulesProfile.create("Basic", Xoo2.KEY);
 
