@@ -88,7 +88,7 @@ public class DeleteAction implements UserGroupsWsAction {
 
   private void checkNotTryingToDeleteDefaultGroup(DbSession dbSession, long groupId) {
     String defaultGroupName = settings.getString(CoreProperties.CORE_DEFAULT_GROUP);
-    GroupDto defaultGroup = dbClient.groupDao().selectOrFailByKey(dbSession, defaultGroupName);
+    GroupDto defaultGroup = dbClient.groupDao().selectOrFailByName(dbSession, defaultGroupName);
     Preconditions.checkArgument(groupId != defaultGroup.getId(),
       String.format("Default group '%s' cannot be deleted", defaultGroupName));
   }

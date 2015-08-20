@@ -286,7 +286,7 @@ public class PermissionService {
     if (DefaultGroups.isAnyone(group)) {
       return null;
     } else {
-      GroupDto groupDto = dbClient.userDao().selectGroupByName(group, session);
+      GroupDto groupDto = dbClient.groupDao().selectByName(session, group);
       return badRequestIfNullResult(groupDto, OBJECT_TYPE_GROUP, group).getId();
     }
   }

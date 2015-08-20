@@ -25,12 +25,11 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.permission.PermissionTemplateDao;
-import org.sonar.db.permission.PermissionTemplateDto;
-import org.sonar.db.loadedtemplate.LoadedTemplateDao;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
+import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.UserDao;
 import org.sonar.server.platform.PersistentSettings;
 
 public class RegisterPermissionTemplates {
@@ -40,16 +39,11 @@ public class RegisterPermissionTemplates {
 
   private static final Logger LOG = Loggers.get(RegisterPermissionTemplates.class);
 
-  private final LoadedTemplateDao loadedTemplateDao;
-  private final PermissionTemplateDao permissionTemplateDao;
-  private final UserDao userDao;
+  private final DbClient dbClient;
   private final PersistentSettings settings;
 
-  public RegisterPermissionTemplates(LoadedTemplateDao loadedTemplateDao, PermissionTemplateDao permissionTemplateDao,
-    UserDao userDao, PersistentSettings settings) {
-    this.loadedTemplateDao = loadedTemplateDao;
-    this.permissionTemplateDao = permissionTemplateDao;
-    this.userDao = userDao;
+  public RegisterPermissionTemplates(DbClient dbClient, PersistentSettings settings) {
+    this.dbClient = dbClient;
     this.settings = settings;
   }
 
@@ -74,11 +68,11 @@ public class RegisterPermissionTemplates {
   }
 
   private boolean shouldRegister() {
-    return loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE, PermissionTemplateDto.DEFAULT.getKee()) == 0;
+    return dbClient.loadedTemplateDao().countByTypeAndKey(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE, PermissionTemplateDto.DEFAULT.getKee()) == 0;
   }
 
   private void insertDefaultTemplate(String templateName) {
-    PermissionTemplateDto defaultPermissionTemplate = permissionTemplateDao
+    PermissionTemplateDto defaultPermissionTemplate = dbClient.permissionTemplateDao()
       .insertPermissionTemplate(templateName, PermissionTemplateDto.DEFAULT.getDescription(), null);
     addGroupPermission(defaultPermissionTemplate, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
     addGroupPermission(defaultPermissionTemplate, UserRole.ISSUE_ADMIN, DefaultGroups.ADMINISTRATORS);
@@ -91,20 +85,25 @@ public class RegisterPermissionTemplates {
     if (DefaultGroups.isAnyone(groupName)) {
       groupId = null;
     } else {
-      GroupDto groupDto = userDao.selectGroupByName(groupName);
-      if (groupDto != null) {
-        groupId = groupDto.getId();
-      } else {
-        LOG.error("Cannot setup default permission for group: " + groupName);
+      DbSession dbSession = dbClient.openSession(false);
+      try {
+        GroupDto groupDto = dbClient.groupDao().selectByName(dbSession, groupName);
+        if (groupDto != null) {
+          groupId = groupDto.getId();
+        } else {
+          LOG.error("Cannot setup default permission for group: " + groupName);
+        }
+      } finally {
+        dbClient.closeSession(dbSession);
       }
     }
-    permissionTemplateDao.insertGroupPermission(template.getId(), groupId, permission);
+    dbClient.permissionTemplateDao().insertGroupPermission(template.getId(), groupId, permission);
   }
 
   private void registerInitialization() {
     LoadedTemplateDto loadedTemplate = new LoadedTemplateDto(PermissionTemplateDto.DEFAULT.getKee(),
       LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE);
-    loadedTemplateDao.insert(loadedTemplate);
+    dbClient.loadedTemplateDao().insert(loadedTemplate);
   }
 
   private void setDefaultProperty(String defaultTemplate) {

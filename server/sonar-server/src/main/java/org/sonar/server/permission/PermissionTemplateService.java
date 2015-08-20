@@ -175,7 +175,7 @@ public class PermissionTemplateService {
     userSession.checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
     DbSession session = dbClient.openSession(false);
     try {
-      GroupDto group = dbClient.userDao().selectGroupByName(groupName, session);
+      GroupDto group = dbClient.groupDao().selectByName(session, groupName);
       if (group == null) {
         throw new NotFoundException("Group does not exists : " + groupName);
       }

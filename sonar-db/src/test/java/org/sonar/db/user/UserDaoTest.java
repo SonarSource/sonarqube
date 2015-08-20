@@ -19,7 +19,6 @@
  */
 package org.sonar.db.user;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -160,27 +159,6 @@ public class UserDaoTest {
 
     List<UserDto> users = underTest.selectUsers(query);
     assertThat(users).isEmpty();
-  }
-
-  @Test
-  public void selectGroupByName() {
-    db.prepareDbUnit(getClass(), "selectGroupByName.xml");
-
-    GroupDto group = underTest.selectGroupByName("sonar-users");
-    assertThat(group).isNotNull();
-    assertThat(group.getId()).isEqualTo(1L);
-    assertThat(group.getName()).isEqualTo("sonar-users");
-    assertThat(group.getDescription()).isEqualTo("Sonar Users");
-    assertThat(group.getCreatedAt()).isNotNull();
-    assertThat(group.getUpdatedAt()).isNotNull();
-  }
-
-  @Test
-  public void selectGroupByName_not_found() {
-    db.prepareDbUnit(getClass(), "selectGroupByName.xml");
-
-    GroupDto group = underTest.selectGroupByName("not-found");
-    assertThat(group).isNull();
   }
 
   @Test

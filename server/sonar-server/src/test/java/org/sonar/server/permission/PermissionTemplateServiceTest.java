@@ -36,6 +36,7 @@ import org.sonar.db.permission.PermissionTemplateDao;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.permission.PermissionTemplateGroupDto;
 import org.sonar.db.permission.PermissionTemplateUserDto;
+import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDto;
@@ -62,9 +63,10 @@ public class PermissionTemplateServiceTest {
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  
+
   PermissionTemplateDao permissionTemplateDao = mock(PermissionTemplateDao.class);
   UserDao userDao = mock(UserDao.class);
+  GroupDao groupDao = mock(GroupDao.class);
   PermissionFinder finder = mock(PermissionFinder.class);
   DbSession session = mock(DbSession.class);
 
@@ -81,6 +83,7 @@ public class PermissionTemplateServiceTest {
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.permissionTemplateDao()).thenReturn(permissionTemplateDao);
     when(dbClient.userDao()).thenReturn(userDao);
+    when(dbClient.groupDao()).thenReturn(groupDao);
     underTest = new PermissionTemplateService(dbClient, userSessionRule, finder);
   }
 
@@ -164,7 +167,7 @@ public class PermissionTemplateServiceTest {
       buildGroupPermission("admin_group", GlobalPermissions.SYSTEM_ADMIN),
       buildGroupPermission("scan_group", GlobalPermissions.SCAN_EXECUTION),
       buildGroupPermission(null, GlobalPermissions.PREVIEW_EXECUTION)
-    );
+      );
 
     PermissionTemplateDto permissionTemplateDto = new PermissionTemplateDto()
       .setId(1L)
@@ -301,7 +304,7 @@ public class PermissionTemplateServiceTest {
   @Test
   public void should_add_group_permission() {
     GroupDto groupDto = new GroupDto().setId(1L).setName("group");
-    when(userDao.selectGroupByName("group")).thenReturn(groupDto);
+    when(groupDao.selectByName(any(DbSession.class), eq("group"))).thenReturn(groupDto);
     when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
 
     underTest.addGroupPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "group");
@@ -315,7 +318,7 @@ public class PermissionTemplateServiceTest {
     expected.expectMessage("Unknown group:");
 
     when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
-    when(userDao.selectGroupByName("unknown")).thenReturn(null);
+    when(groupDao.selectByName(any(DbSession.class), eq("unknown"))).thenReturn(null);
 
     underTest.addGroupPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "unknown");
   }
@@ -323,7 +326,7 @@ public class PermissionTemplateServiceTest {
   @Test
   public void should_remove_group_permission() {
     GroupDto groupDto = new GroupDto().setId(1L).setName("group");
-    when(userDao.selectGroupByName("group")).thenReturn(groupDto);
+    when(groupDao.selectByName(any(DbSession.class), eq("group"))).thenReturn(groupDto);
     when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
 
     underTest.removeGroupPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "group");
@@ -354,7 +357,7 @@ public class PermissionTemplateServiceTest {
   @Test
   public void should_remove_group_from_templates() {
     GroupDto groupDto = new GroupDto().setId(1L).setName("group");
-    when(userDao.selectGroupByName("group", session)).thenReturn(groupDto);
+    when(groupDao.selectByName(session, "group")).thenReturn(groupDto);
 
     underTest.removeGroupFromTemplates("group");
 

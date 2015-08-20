@@ -158,32 +158,6 @@ public class UserDao implements Dao {
     }
   }
 
-  /**
-   * Search for group by name.
-   *
-   * @return the group, null if group not found
-   *
-   * TODO should be moved to GroupDao
-   */
-  @CheckForNull
-  public GroupDto selectGroupByName(String name, DbSession session) {
-    UserMapper mapper = session.getMapper(UserMapper.class);
-    return mapper.selectGroupByName(name);
-  }
-
-  /**
-   * TODO should be moved to GroupDao
-   */
-  @CheckForNull
-  public GroupDto selectGroupByName(String name) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      return selectGroupByName(name, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   @CheckForNull
   public UserDto selectByLogin(DbSession session, String login) {
     return mapper(session).selectByLogin(login);

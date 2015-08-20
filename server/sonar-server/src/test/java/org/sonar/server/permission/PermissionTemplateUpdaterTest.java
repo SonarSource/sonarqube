@@ -27,6 +27,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.permission.PermissionTemplateDao;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupDao;
@@ -38,6 +39,8 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.stub;
 import static org.mockito.Mockito.times;
@@ -62,7 +65,7 @@ public class PermissionTemplateUpdaterTest {
   public void setUpCommonMocks() {
     userSessionRule.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     stub(userDao.selectActiveUserByLogin("user")).toReturn(DEFAULT_USER);
-    stub(userDao.selectGroupByName("group")).toReturn(DEFAULT_GROUP);
+    stub(groupDao.selectByName(any(DbSession.class), eq("group"))).toReturn(DEFAULT_GROUP);
 
     when(dbClient.userDao()).thenReturn(userDao);
     when(dbClient.groupDao()).thenReturn(groupDao);

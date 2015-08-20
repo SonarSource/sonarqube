@@ -342,7 +342,7 @@ public class UserUpdater {
     }
     List<GroupDto> userGroups = dbClient.groupDao().selectByUserLogin(dbSession, userDto.getLogin());
     if (!Iterables.any(userGroups, new GroupDtoMatchKey(defaultGroup))) {
-      GroupDto groupDto = dbClient.groupDao().selectByKey(dbSession, defaultGroup);
+      GroupDto groupDto = dbClient.groupDao().selectByName(dbSession, defaultGroup);
       if (groupDto == null) {
         throw new ServerException(HttpURLConnection.HTTP_INTERNAL_ERROR,
           String.format("The default group '%s' for new users does not exist. Please update the general security settings to fix this issue.",

@@ -65,7 +65,7 @@ public class GroupUpdater {
     // There is no database constraint on column groups.name
     // because MySQL cannot create a unique index
     // on a UTF-8 VARCHAR larger than 255 characters on InnoDB
-    if (dbClient.groupDao().selectByKey(session, name) != null) {
+    if (dbClient.groupDao().selectByName(session, name) != null) {
       throw new BadRequestException(String.format("Name '%s' is already taken", name));
     }
   }

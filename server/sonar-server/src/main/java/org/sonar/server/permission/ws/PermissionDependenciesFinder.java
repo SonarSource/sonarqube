@@ -72,7 +72,7 @@ public class PermissionDependenciesFinder {
 
     String groupName = request.groupName();
     if (groupName != null) {
-      group = dbClient.groupDao().selectByKey(dbSession, groupName);
+      group = dbClient.groupDao().selectByName(dbSession, groupName);
       if (group == null) {
         throw new NotFoundException(String.format("Group with name '%s' is not found", groupName));
       }
@@ -87,7 +87,7 @@ public class PermissionDependenciesFinder {
       return null;
     }
 
-    GroupDto group = dbClient.groupDao().selectByKey(dbSession, groupName);
+    GroupDto group = dbClient.groupDao().selectByName(dbSession, groupName);
     if (group == null) {
       throw new NotFoundException(String.format("Group with name '%s' is not found", groupName));
     }

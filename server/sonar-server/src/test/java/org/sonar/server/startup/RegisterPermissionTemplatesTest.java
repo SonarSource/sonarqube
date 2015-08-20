@@ -26,16 +26,20 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.permission.PermissionTemplateDao;
-import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.loadedtemplate.LoadedTemplateDao;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
+import org.sonar.db.permission.PermissionTemplateDao;
+import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDao;
 import org.sonar.server.platform.PersistentSettings;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -48,7 +52,9 @@ public class RegisterPermissionTemplatesTest {
   private PersistentSettings settings;
   private LoadedTemplateDao loadedTemplateDao;
   private PermissionTemplateDao permissionTemplateDao;
+  private DbClient dbClient;
   private UserDao userDao;
+  private GroupDao groupDao;
 
   @Before
   public void setUp() {
@@ -56,6 +62,13 @@ public class RegisterPermissionTemplatesTest {
     loadedTemplateDao = mock(LoadedTemplateDao.class);
     permissionTemplateDao = mock(PermissionTemplateDao.class);
     userDao = mock(UserDao.class);
+    groupDao = mock(GroupDao.class);
+
+    dbClient = mock(DbClient.class);
+    when(dbClient.permissionTemplateDao()).thenReturn(permissionTemplateDao);
+    when(dbClient.loadedTemplateDao()).thenReturn(loadedTemplateDao);
+    when(dbClient.userDao()).thenReturn(userDao);
+    when(dbClient.groupDao()).thenReturn(groupDao);
   }
 
   @Test
@@ -68,10 +81,10 @@ public class RegisterPermissionTemplatesTest {
       .thenReturn(0);
     when(permissionTemplateDao.insertPermissionTemplate(PermissionTemplateDto.DEFAULT.getName(), PermissionTemplateDto.DEFAULT.getDescription(), null))
       .thenReturn(permissionTemplate);
-    when(userDao.selectGroupByName(DefaultGroups.ADMINISTRATORS)).thenReturn(new GroupDto().setId(1L));
-    when(userDao.selectGroupByName(DefaultGroups.USERS)).thenReturn(new GroupDto().setId(2L));
+    when(groupDao.selectByName(any(DbSession.class), eq(DefaultGroups.ADMINISTRATORS))).thenReturn(new GroupDto().setId(1L));
+    when(groupDao.selectByName(any(DbSession.class), eq(DefaultGroups.USERS))).thenReturn(new GroupDto().setId(2L));
 
-    RegisterPermissionTemplates initializer = new RegisterPermissionTemplates(loadedTemplateDao, permissionTemplateDao, userDao, settings);
+    RegisterPermissionTemplates initializer = new RegisterPermissionTemplates(dbClient, settings);
     initializer.start();
 
     verify(loadedTemplateDao).insert(argThat(Matches.template(expectedTemplate)));
@@ -89,7 +102,7 @@ public class RegisterPermissionTemplatesTest {
     when(loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE, PermissionTemplateDto.DEFAULT.getKee()))
       .thenReturn(1);
 
-    RegisterPermissionTemplates initializer = new RegisterPermissionTemplates(loadedTemplateDao, permissionTemplateDao, userDao, settings);
+    RegisterPermissionTemplates initializer = new RegisterPermissionTemplates(dbClient, settings);
     initializer.start();
 
     verifyZeroInteractions(permissionTemplateDao, settings);
@@ -103,7 +116,7 @@ public class RegisterPermissionTemplatesTest {
     LoadedTemplateDto expectedTemplate = new LoadedTemplateDto().setKey(PermissionTemplateDto.DEFAULT.getKee())
       .setType(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE);
 
-    RegisterPermissionTemplates initializer = new RegisterPermissionTemplates(loadedTemplateDao, permissionTemplateDao, userDao, settings);
+    RegisterPermissionTemplates initializer = new RegisterPermissionTemplates(dbClient, settings);
     initializer.start();
 
     verify(loadedTemplateDao).insert(argThat(Matches.template(expectedTemplate)));

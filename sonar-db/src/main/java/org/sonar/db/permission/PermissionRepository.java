@@ -98,7 +98,7 @@ public class PermissionRepository {
     if (DefaultGroups.isAnyone(groupName)) {
       insertGroupPermission(resourceId, (Long) null, permission, session);
     } else {
-      GroupDto group = dbClient.userDao().selectGroupByName(groupName, session);
+      GroupDto group = dbClient.groupDao().selectByName(session, groupName);
       if (group != null) {
         insertGroupPermission(resourceId, group.getId(), permission, session);
       }
@@ -118,7 +118,7 @@ public class PermissionRepository {
     if (DefaultGroups.isAnyone(groupName)) {
       deleteGroupPermission(resourceId, (Long) null, permission, session);
     } else {
-      GroupDto group = dbClient.userDao().selectGroupByName(groupName, session);
+      GroupDto group = dbClient.groupDao().selectByName(session, groupName);
       if (group != null) {
         deleteGroupPermission(resourceId, group.getId(), permission, session);
       }

@@ -62,7 +62,7 @@ public class GroupDaoTest {
   public void select_by_key() {
     dbTester.prepareDbUnit(getClass(), "select_by_key.xml");
 
-    GroupDto group = new GroupDao(system2).selectOrFailByKey(session, "sonar-users");
+    GroupDto group = new GroupDao(system2).selectOrFailByName(session, "sonar-users");
     assertThat(group).isNotNull();
     assertThat(group.getId()).isEqualTo(1L);
     assertThat(group.getName()).isEqualTo("sonar-users");

@@ -167,7 +167,7 @@ public class SearchActionTest {
   }
 
   private void insertMembers(String groupName, int count) {
-    long groupId = groupDao.selectOrFailByKey(session, groupName).getId();
+    long groupId = groupDao.selectOrFailByName(session, groupName).getId();
     for (int i = 0; i < count; i++) {
       userGroupDao.insert(session, new UserGroupDto().setGroupId(groupId).setUserId((long) i + 1));
     }

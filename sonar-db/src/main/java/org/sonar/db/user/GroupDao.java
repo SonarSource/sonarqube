@@ -40,8 +40,8 @@ public class GroupDao implements Dao {
     this.system = system;
   }
 
-  public GroupDto selectOrFailByKey(DbSession session, String key) {
-    GroupDto group = selectByKey(session, key);
+  public GroupDto selectOrFailByName(DbSession session, String key) {
+    GroupDto group = selectByName(session, key);
     if (group == null) {
       throw new RowNotFoundException(String.format("Could not find a group with name '%s'", key));
     }
@@ -49,7 +49,7 @@ public class GroupDao implements Dao {
   }
 
   @CheckForNull
-  public GroupDto selectByKey(DbSession session, String key) {
+  public GroupDto selectByName(DbSession session, String key) {
     return mapper(session).selectByKey(key);
   }
 

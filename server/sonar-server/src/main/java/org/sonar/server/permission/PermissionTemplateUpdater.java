@@ -22,10 +22,9 @@ package org.sonar.server.permission;
 
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.db.DbClient;
-import org.sonar.db.permission.PermissionTemplateDao;
+import org.sonar.db.DbSession;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
@@ -39,17 +38,15 @@ import static org.sonar.server.permission.PermissionValueValidator.validateProje
 @Deprecated
 abstract class PermissionTemplateUpdater {
 
+  private final DbClient dbClient;
+  private final UserSession userSession;
   private final String templateKey;
   private final String permission;
   private final String updatedReference;
-  private final PermissionTemplateDao permissionTemplateDao;
-  private final UserDao userDao;
-  private final UserSession userSession;
 
   PermissionTemplateUpdater(DbClient dbClient, UserSession userSession, String templateKey, String permission, String updatedReference) {
+    this.dbClient = dbClient;
     this.userSession = userSession;
-    this.permissionTemplateDao = dbClient.permissionTemplateDao();
-    this.userDao = dbClient.userDao();
     this.templateKey = templateKey;
     this.permission = permission;
     this.updatedReference = updatedReference;
@@ -65,7 +62,7 @@ abstract class PermissionTemplateUpdater {
   abstract void doExecute(Long templateId, String permission);
 
   Long getUserId() {
-    UserDto userDto = userDao.selectActiveUserByLogin(updatedReference);
+    UserDto userDto = dbClient.userDao().selectActiveUserByLogin(updatedReference);
     if (userDto == null) {
       throw new BadRequestException("Unknown user: " + updatedReference);
     }
@@ -76,15 +73,21 @@ abstract class PermissionTemplateUpdater {
     if (DefaultGroups.isAnyone(updatedReference)) {
       return null;
     }
-    GroupDto groupDto = userDao.selectGroupByName(updatedReference);
-    if (groupDto == null) {
-      throw new BadRequestException("Unknown group: " + updatedReference);
+
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      GroupDto groupDto = dbClient.groupDao().selectByName(dbSession, updatedReference);
+      if (groupDto == null) {
+        throw new BadRequestException("Unknown group: " + updatedReference);
+      }
+      return groupDto.getId();
+    } finally {
+      dbClient.closeSession(dbSession);
     }
-    return groupDto.getId();
   }
 
   private Long getTemplateId(String key) {
-    PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.selectTemplateByKey(key);
+    PermissionTemplateDto permissionTemplateDto = dbClient.permissionTemplateDao().selectTemplateByKey(key);
     if (permissionTemplateDto == null) {
       throw new BadRequestException("Unknown template: " + key);
     }
