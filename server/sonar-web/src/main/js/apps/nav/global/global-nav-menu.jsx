@@ -1,22 +1,15 @@
 import React from 'react';
+import DashboardNameMixin from '../dashboard-name-mixin';
 
 export default React.createClass({
+  mixins: [DashboardNameMixin],
+
   getDefaultProps: function () {
     return { globalDashboards: [], globalPages: [] };
   },
 
   activeLink(url) {
     return window.location.pathname.indexOf(window.baseUrl + url) === 0 ? 'active' : null;
-  },
-
-  getLocalizedDashboardName(baseName) {
-    var l10nKey = 'dashboard.' + baseName + '.name';
-    var l10nLabel = window.t(l10nKey);
-    if (l10nLabel !== l10nKey) {
-      return l10nLabel;
-    } else {
-      return baseName;
-    }
   },
 
   renderDashboardLink(dashboard) {

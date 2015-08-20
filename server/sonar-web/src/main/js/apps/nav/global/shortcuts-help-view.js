@@ -1,6 +1,6 @@
 define([
   'components/common/modals',
-  './templates'
+  '../templates'
 ], function (ModalView) {
 
   return ModalView.extend({

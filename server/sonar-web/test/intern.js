@@ -18,7 +18,8 @@ define(['intern'], function (intern) {
       'test/unit/application.spec',
       'test/unit/issue.spec',
       'test/unit/overview/card.spec',
-      'test/unit/code-with-issue-locations-helper.spec'
+      'test/unit/code-with-issue-locations-helper.spec',
+      'test/unit/nav/component/component-nav-breadcrumbs.spec'
     ],
 
     functionalSuites: [
@@ -40,7 +41,12 @@ define(['intern'], function (intern) {
 
     loaderOptions: {
       paths: {
-        'react': 'build/js/libs/third-party/react-with-addons'
+        'react': '../../build/js/libs/third-party/react-with-addons'
+      },
+      map: {
+        '*': {
+          'components/shared/qualifier-icon': '../../build/js/components/shared/qualifier-icon'
+        }
       }
     }
   };

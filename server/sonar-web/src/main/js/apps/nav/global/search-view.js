@@ -1,6 +1,6 @@
 define([
   'components/common/selectable-collection-view',
-  './templates'
+  '../templates'
 ], function (SelectableCollectionView) {
 
   var $ = jQuery,
