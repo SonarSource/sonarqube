@@ -20,7 +20,7 @@
 
 package org.sonar.server.permission;
 
-import org.sonar.core.permission.ComponentPermissions;
+import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.BadRequestException;
 
@@ -30,8 +30,8 @@ public class PermissionValueValidator {
   }
 
   public static void validateProjectPermission(String permission) {
-    if (!ComponentPermissions.ALL.contains(permission)) {
-      throw new BadRequestException(String.format("The 'permission' parameter for project permissions must be one of %s. '%s' was passed.", ComponentPermissions.ALL_ON_ONE_LINE,
+    if (!ProjectPermissions.ALL.contains(permission)) {
+      throw new BadRequestException(String.format("The 'permission' parameter for project permissions must be one of %s. '%s' was passed.", ProjectPermissions.ALL_ON_ONE_LINE,
         permission));
     }
   }

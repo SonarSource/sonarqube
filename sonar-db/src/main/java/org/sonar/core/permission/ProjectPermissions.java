@@ -29,11 +29,11 @@ import org.sonar.api.web.UserRole;
  * Holds the constants representing the various component permissions that can be assigned to users & groups
  *
  */
-public final class ComponentPermissions {
+public final class ProjectPermissions {
 
   /**
    * All the component permissions values, ordered from {@link UserRole#USER} to {@link UserRole#CODEVIEWER}.
    */
   public static final List<String> ALL = ImmutableList.of(UserRole.USER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.CODEVIEWER);
-  public static final String ALL_ON_ONE_LINE = Joiner.on(", ").join(ComponentPermissions.ALL);
+  public static final String ALL_ON_ONE_LINE = Joiner.on(", ").join(ProjectPermissions.ALL);
 }

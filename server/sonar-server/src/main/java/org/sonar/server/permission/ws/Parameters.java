@@ -20,8 +20,8 @@
 
 package org.sonar.server.permission.ws;
 
-import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.ComponentPermissions;
+import org.sonar.api.server.ws.WebService.NewAction;
+import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.core.permission.GlobalPermissions;
 
 class Parameters {
@@ -38,43 +38,43 @@ class Parameters {
     "<li>Possible values for project permissions %s</li>" +
     "</ul>",
     GlobalPermissions.ALL_ON_ONE_LINE,
-    ComponentPermissions.ALL_ON_ONE_LINE);
+    ProjectPermissions.ALL_ON_ONE_LINE);
 
   private Parameters() {
     // static methods only
   }
 
-  static void createPermissionParameter(WebService.NewAction action) {
+  static void createPermissionParameter(NewAction action) {
     action.createParam(PARAM_PERMISSION)
       .setDescription(PERMISSION_PARAM_DESCRIPTION)
       .setRequired(true);
   }
 
-  static void createGroupNameParameter(WebService.NewAction action) {
+  static void createGroupNameParameter(NewAction action) {
     action.createParam(PARAM_GROUP_NAME)
       .setDescription("Group name or 'anyone' (case insensitive)")
       .setExampleValue("sonar-administrators");
   }
 
-  static void createGroupIdParameter(WebService.NewAction action) {
+  static void createGroupIdParameter(NewAction action) {
     action.createParam(PARAM_GROUP_ID)
       .setDescription("Group id")
       .setExampleValue("42");
   }
 
-  static void createProjectUuidParameter(WebService.NewAction action) {
+  static void createProjectUuidParameter(NewAction action) {
     action.createParam(PARAM_PROJECT_UUID)
       .setDescription("Project id")
       .setExampleValue("ce4c03d6-430f-40a9-b777-ad877c00aa4d");
   }
 
-  static void createProjectKeyParameter(WebService.NewAction action) {
+  static void createProjectKeyParameter(NewAction action) {
     action.createParam(PARAM_PROJECT_KEY)
       .setDescription("Project key")
       .setExampleValue("org.apache.hbas:hbase");
   }
 
-  static void createUserLoginParameter(WebService.NewAction action) {
+  static void createUserLoginParameter(NewAction action) {
     action.createParam(PARAM_USER_LOGIN)
       .setRequired(true)
       .setDescription("User login")

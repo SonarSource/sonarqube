@@ -25,7 +25,7 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.core.permission.ComponentPermissions;
+import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.BadRequestException;
 
@@ -92,8 +92,8 @@ public class PermissionChange {
         throw new BadRequestException(String.format("Invalid global permission key %s. Valid values are %s", permission, GlobalPermissions.ALL));
       }
     } else {
-      if (!ComponentPermissions.ALL.contains(permission)) {
-        throw new BadRequestException(String.format("Invalid component permission key %s. Valid values are %s", permission, ComponentPermissions.ALL));
+      if (!ProjectPermissions.ALL.contains(permission)) {
+        throw new BadRequestException(String.format("Invalid component permission key %s. Valid values are %s", permission, ProjectPermissions.ALL));
       }
     }
   }

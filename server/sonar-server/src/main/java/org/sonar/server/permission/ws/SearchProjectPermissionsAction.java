@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Paging;
-import org.sonar.core.permission.ComponentPermissions;
+import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -132,7 +132,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
       response.addProjects(rootComponentBuilder);
     }
 
-    for (String permissionKey : ComponentPermissions.ALL) {
+    for (String permissionKey : ProjectPermissions.ALL) {
       response.addPermissions(
         permissionResponse
           .clear()

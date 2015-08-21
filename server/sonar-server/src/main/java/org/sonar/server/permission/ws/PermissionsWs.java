@@ -24,7 +24,7 @@ import com.google.common.collect.ImmutableSet;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.permission.ComponentPermissions;
+import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.core.permission.GlobalPermissions;
 
 public class PermissionsWs implements WebService {
@@ -63,7 +63,7 @@ public class PermissionsWs implements WebService {
     action.createParam("permission")
       .setDescription("Key of the permission to add")
       .setRequired(true)
-      .setPossibleValues(ImmutableSet.<String>builder().addAll(GlobalPermissions.ALL).addAll(ComponentPermissions.ALL).build())
+      .setPossibleValues(ImmutableSet.<String>builder().addAll(GlobalPermissions.ALL).addAll(ProjectPermissions.ALL).build())
       .setExampleValue("shareDashboard");
     action.createParam("user")
       .setDescription("User login. Required if group is not set")
@@ -88,7 +88,7 @@ public class PermissionsWs implements WebService {
     action.createParam("permission")
       .setDescription("Key of the permission to remove")
       .setRequired(true)
-      .setPossibleValues(ImmutableSet.<String>builder().addAll(GlobalPermissions.ALL).addAll(ComponentPermissions.ALL).build())
+      .setPossibleValues(ImmutableSet.<String>builder().addAll(GlobalPermissions.ALL).addAll(ProjectPermissions.ALL).build())
       .setExampleValue("shareDashboard");
     action.createParam("user")
       .setDescription("User login. Required if group is not set")
