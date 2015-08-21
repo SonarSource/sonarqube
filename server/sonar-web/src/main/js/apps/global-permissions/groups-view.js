@@ -24,8 +24,8 @@ define([
         extra: {
           permission: this.options.permission
         },
-        selectParameter: 'groupId',
-        selectParameterValue: 'id',
+        selectParameter: 'groupName',
+        selectParameterValue: 'name',
         parse: function (r) {
           this.more = false;
           return r.groups;
