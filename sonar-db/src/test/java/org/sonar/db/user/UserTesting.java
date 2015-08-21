@@ -20,14 +20,19 @@
 
 package org.sonar.db.user;
 
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.math.RandomUtils;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang.math.RandomUtils.nextBoolean;
+import static org.apache.commons.lang.math.RandomUtils.nextLong;
 
 public class UserTesting {
 
   public static UserDto newUserDto() {
-    return new UserDto()
-      .setActive(RandomUtils.nextBoolean())
-      .setLogin(RandomStringUtils.randomAlphanumeric(30));
+    UserDto user = new UserDto()
+      .setActive(nextBoolean())
+      .setName(randomAlphanumeric(30))
+      .setLogin(randomAlphanumeric(30));
+    user.setCreatedAt(nextLong())
+      .setUpdatedAt(nextLong());
+    return user;
   }
 }

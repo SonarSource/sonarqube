@@ -38,6 +38,7 @@ public class PermissionsWsModule extends Module {
       SearchProjectPermissionsAction.class,
       SearchProjectPermissionsDataLoader.class,
       PermissionDependenciesFinder.class,
-      AddUserToTemplateAction.class);
+      AddUserToTemplateAction.class,
+      RemoveUserFromTemplateAction.class);
   }
 }
