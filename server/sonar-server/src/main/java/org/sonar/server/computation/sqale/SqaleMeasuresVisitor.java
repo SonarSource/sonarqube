@@ -22,8 +22,9 @@ package org.sonar.server.computation.sqale;
 
 import com.google.common.base.Optional;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.PathAwareVisitorAdapter;
 import org.sonar.server.computation.measure.Measure;
@@ -31,9 +32,11 @@ import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 
+import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
 public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresVisitor.DevelopmentCost> {
+  private static final Logger LOG = Loggers.get(SqaleMeasuresVisitor.class);
 
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
@@ -45,10 +48,16 @@ public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresV
   private final Metric sqaleRatingMetric;
 
   public SqaleMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, SqaleRatingSettings sqaleRatingSettings) {
-    super(CrawlerDepthLimit.FILE, ComponentVisitor.Order.POST_ORDER, new SimpleStackElementFactory<DevelopmentCost>() {
+    super(CrawlerDepthLimit.LEAVES, POST_ORDER, new SimpleStackElementFactory<DevelopmentCost>() {
       @Override
       public DevelopmentCost createForAny(Component component) {
         return new DevelopmentCost();
+      }
+
+      /** Counter is not used at ProjectView level, saves on instantiating useless objects */
+      @Override
+      public DevelopmentCost createForProjectView(Component projectView) {
+        return null;
       }
     });
     this.metricRepository = metricRepository;
@@ -82,6 +91,28 @@ public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresV
       long developmentCosts = computeDevelopmentCost(file);
       path.current().add(developmentCosts);
       computeAndSaveMeasures(file, path);
+    }
+  }
+
+  @Override
+  public void visitView(Component view, Path<DevelopmentCost> path) {
+    computeAndSaveMeasures(view, path);
+  }
+
+  @Override
+  public void visitSubView(Component subView, Path<DevelopmentCost> path) {
+    computeAndSaveMeasures(subView, path);
+  }
+
+  @Override
+  public void visitProjectView(Component projectView, Path<DevelopmentCost> path) {
+    Optional<Measure> developmentCostMeasure = measureRepository.getRawMeasure(projectView, developmentCostMetric);
+    if (developmentCostMeasure.isPresent()) {
+      try {
+        path.parent().add(Long.valueOf(developmentCostMeasure.get().getStringValue()));
+      } catch (NumberFormatException e) {
+        LOG.trace("Failed to parse value of metric {} for component {}", developmentCostMetric.getName(), projectView.getKey());
+      }
     }
   }
 

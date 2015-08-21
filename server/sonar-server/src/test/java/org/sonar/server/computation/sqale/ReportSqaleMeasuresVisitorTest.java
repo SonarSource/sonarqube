@@ -27,11 +27,10 @@ import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.ComponentVisitor;
-import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.FileAttributes;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.VisitorsCrawler;
 import org.sonar.server.computation.measure.Measure;
-import org.sonar.server.computation.measure.MeasureRepoEntry;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
@@ -49,11 +48,12 @@ import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
+import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 import static org.sonar.server.computation.sqale.SqaleRatingGrid.SqaleRating.A;
 import static org.sonar.server.computation.sqale.SqaleRatingGrid.SqaleRating.C;
 
-public class SqaleMeasuresVisitorTest {
+public class ReportSqaleMeasuresVisitorTest {
 
   private static final String METRIC_KEY_1 = "mKey1";
   private static final String METRIC_KEY_2 = "mKey2";
@@ -67,7 +67,6 @@ public class SqaleMeasuresVisitorTest {
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(METRIC_1)
@@ -76,7 +75,6 @@ public class SqaleMeasuresVisitorTest {
     .add(CoreMetrics.TECHNICAL_DEBT)
     .add(CoreMetrics.SQALE_DEBT_RATIO)
     .add(CoreMetrics.SQALE_RATING);
-
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
@@ -101,11 +99,11 @@ public class SqaleMeasuresVisitorTest {
 
     underTest.visit(root);
 
-    assertThat(toEntries(measureRepository.getRawMeasures(root))).containsOnly(
-      MeasureRepoEntry.entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create("0")),
-      MeasureRepoEntry.entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(0d)),
-      MeasureRepoEntry.entryOf(SQALE_RATING_KEY, createSqaleRatingMeasure(A))
-      );
+    assertThat(toEntries(measureRepository.getRawMeasures(root)))
+      .containsOnly(
+        entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create("0")),
+        entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(0d)),
+        entryOf(SQALE_RATING_KEY, createSqaleRatingMeasure(A)));
   }
 
   private Measure createSqaleRatingMeasure(SqaleRatingGrid.SqaleRating sqaleRating) {
@@ -130,14 +128,15 @@ public class SqaleMeasuresVisitorTest {
     SqaleRatingGrid.SqaleRating expectedRating) {
     long measureValue = 10;
 
-    ReportComponent fileComponent = createFileComponent(languageKey, 1);
+    int componentRef = 1;
+    ReportComponent fileComponent = createFileComponent(languageKey, componentRef);
     treeRootHolder.setRoot(fileComponent);
-    measureRepository.addRawMeasure(fileComponent.getReportAttributes().getRef(), metricKey, newMeasureBuilder().create(measureValue));
-    measureRepository.addRawMeasure(fileComponent.getReportAttributes().getRef(), TECHNICAL_DEBT_KEY, newMeasureBuilder().create(debt));
+    addRawMeasure(metricKey, componentRef, measureValue);
+    addRawMeasure(TECHNICAL_DEBT_KEY, componentRef, debt);
 
     underTest.visit(fileComponent);
 
-    verifyFileMeasures(fileComponent.getReportAttributes().getRef(), measureValue, debt, languageCost, expectedRating);
+    verifyFileMeasures(componentRef, measureValue, debt, languageCost, expectedRating);
   }
 
   @Test
@@ -149,57 +148,57 @@ public class SqaleMeasuresVisitorTest {
             ReportComponent.builder(DIRECTORY, 111)
               .addChildren(
                 createFileComponent(LANGUAGE_KEY_1, 1111),
-                createFileComponent(LANGUAGE_KEY_2, 1112)
-              ).build(),
+                createFileComponent(LANGUAGE_KEY_2, 1112))
+              .build(),
             ReportComponent.builder(DIRECTORY, 112)
               .addChildren(
-                createFileComponent(LANGUAGE_KEY_2, 1121)
-              ).build()
-          ).build(),
+                createFileComponent(LANGUAGE_KEY_2, 1121))
+              .build())
+          .build(),
         ReportComponent.builder(MODULE, 12)
           .addChildren(
             ReportComponent.builder(DIRECTORY, 121)
               .addChildren(
-                createFileComponent(LANGUAGE_KEY_1, 1211)
-              ).build(),
-            ReportComponent.builder(DIRECTORY, 122).build()
-          ).build(),
-        ReportComponent.builder(MODULE, 13).build()
-      ).build();
+                createFileComponent(LANGUAGE_KEY_1, 1211))
+              .build(),
+            ReportComponent.builder(DIRECTORY, 122).build())
+          .build(),
+        ReportComponent.builder(MODULE, 13).build())
+      .build();
 
     treeRootHolder.setRoot(root);
 
     long measureValue1111 = 10;
     long debt1111 = 66000l;
-    measureRepository.addRawMeasure(1111, METRIC_KEY_1, newMeasureBuilder().create(measureValue1111));
-    measureRepository.addRawMeasure(1111, TECHNICAL_DEBT_KEY, newMeasureBuilder().create(debt1111));
+    addRawMeasure(METRIC_KEY_1, 1111, measureValue1111);
+    addRawMeasure(TECHNICAL_DEBT_KEY, 1111, debt1111);
 
     long measureValue1112 = 10;
     long debt1112 = 4200l;
-    measureRepository.addRawMeasure(1112, METRIC_KEY_2, newMeasureBuilder().create(measureValue1112));
-    measureRepository.addRawMeasure(1112, TECHNICAL_DEBT_KEY, newMeasureBuilder().create(debt1112));
+    addRawMeasure(METRIC_KEY_2, 1112, measureValue1112);
+    addRawMeasure(TECHNICAL_DEBT_KEY, 1112, debt1112);
 
     long debt111 = 96325l;
-    measureRepository.addRawMeasure(111, TECHNICAL_DEBT_KEY, newMeasureBuilder().create(debt111));
+    addRawMeasure(TECHNICAL_DEBT_KEY, 111, debt111);
 
     long measureValue1121 = 30;
     long debt1121 = 25200l;
-    measureRepository.addRawMeasure(1121, METRIC_KEY_2, newMeasureBuilder().create(measureValue1121));
-    measureRepository.addRawMeasure(1121, TECHNICAL_DEBT_KEY, newMeasureBuilder().create(debt1121));
+    addRawMeasure(METRIC_KEY_2, 1121, measureValue1121);
+    addRawMeasure(TECHNICAL_DEBT_KEY, 1121, debt1121);
 
     long debt112 = 99633l;
-    measureRepository.addRawMeasure(112, TECHNICAL_DEBT_KEY, newMeasureBuilder().create(debt112));
+    addRawMeasure(TECHNICAL_DEBT_KEY, 112, debt112);
 
     long measureValue1211 = 20;
     long debt1211 = 33000l;
-    measureRepository.addRawMeasure(1211, METRIC_KEY_1, newMeasureBuilder().create(measureValue1211));
-    measureRepository.addRawMeasure(1211, TECHNICAL_DEBT_KEY, newMeasureBuilder().create(debt1211));
+    addRawMeasure(METRIC_KEY_1, 1211, measureValue1211);
+    addRawMeasure(TECHNICAL_DEBT_KEY, 1211, debt1211);
 
     long debt121 = 7524l;
-    measureRepository.addRawMeasure(121, TECHNICAL_DEBT_KEY, newMeasureBuilder().create(debt121));
+    addRawMeasure(TECHNICAL_DEBT_KEY, 121, debt121);
 
     long debt1 = 9999l;
-    measureRepository.addRawMeasure(1, TECHNICAL_DEBT_KEY, newMeasureBuilder().create(debt1));
+    addRawMeasure(TECHNICAL_DEBT_KEY, 1, debt1);
 
     underTest.visit(root);
 
@@ -233,8 +232,8 @@ public class SqaleMeasuresVisitorTest {
     return ReportComponent.builder(FILE, fileRef).setFileAttributes(new FileAttributes(false, languageKey1)).build();
   }
 
-  private void verifyNoMeasure(int componentRef) {
-    assertThat(measureRepository.getRawMeasures(componentRef).isEmpty()).isTrue();
+  private void addRawMeasure(String metricKey, int componentRef, long value) {
+    measureRepository.addRawMeasure(componentRef, metricKey, newMeasureBuilder().create(value));
   }
 
   private void verifyFileMeasures(int componentRef, long measureValue, long debt, long languageCost, SqaleRatingGrid.SqaleRating expectedRating) {
@@ -244,10 +243,9 @@ public class SqaleMeasuresVisitorTest {
 
   private void verifyComponentMeasures(int componentRef, long expectedDevCost, double expectedDebtRatio, SqaleRatingGrid.SqaleRating expectedRating) {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).containsOnly(
-      MeasureRepoEntry.entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create(Long.toString(expectedDevCost))),
-      MeasureRepoEntry.entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(expectedDebtRatio * 100.0)),
-      MeasureRepoEntry.entryOf(SQALE_RATING_KEY, createSqaleRatingMeasure(expectedRating))
-      );
+      entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create(Long.toString(expectedDevCost))),
+      entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(expectedDebtRatio * 100.0)),
+      entryOf(SQALE_RATING_KEY, createSqaleRatingMeasure(expectedRating)));
   }
 
 }
