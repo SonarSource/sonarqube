@@ -20,7 +20,6 @@
 package org.sonar.batch.scan;
 
 import org.sonar.batch.analysis.AnalysisProperties;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 
@@ -31,11 +30,14 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -136,7 +138,7 @@ public class ProjectReactorBuilder {
     String prefix = !currentModuleId.isEmpty() ? currentModuleId + "." : "";
     // By default all properties starting with module prefix belong to current module
     for (Map.Entry<String, String> entry : allProperties.entrySet()) {
-      String key = (String) entry.getKey();
+      String key = entry.getKey();
       int prefixLength = prefix.length();
       if (key.startsWith(prefix)) {
         currentModuleProperties.put(key.substring(prefixLength), entry.getValue());
@@ -147,12 +149,29 @@ public class ProjectReactorBuilder {
     // Sort module by reverse lexicographic order to avoid issue when one module id is a prefix of another one
     Collections.sort(moduleIds);
     Collections.reverse(moduleIds);
+    
     Map<String, Map<String, String>> result = new HashMap<>();
-    for (String moduleId : moduleIds) {
-      result.putAll(extractPropertiesByModule(moduleId, currentModuleProperties));
-    }
     result.put(currentModuleId, currentModuleProperties);
+    
+    for (String moduleId : moduleIds) {
+      Map<String, Map<String, String>> subModuleProps = extractPropertiesByModule(moduleId, currentModuleProperties);
+      checkRepeatedModuleNames(result.keySet(), subModuleProps.keySet());
+      result.putAll(subModuleProps);
+    }
     return result;
+  }
+
+  private static void checkRepeatedModuleNames(Collection<String> currentModules, Collection<String> modulesToMerge) {
+    Set<String> union = new HashSet<>();
+    union.addAll(currentModules);
+    union.retainAll(modulesToMerge);
+    if (!union.isEmpty()) {
+      if(union.size() > 1) {
+      throw new IllegalStateException(String.format("Modules have the following repeated names: %s. Each module must have a unique name.", union));
+      } else {
+        throw new IllegalStateException(String.format("Two modules have the same name: %s. Each module must have a unique name.", union.iterator().next()));
+      }
+    }
   }
 
   protected ProjectDefinition defineRootProject(Map<String, String> rootProperties, @Nullable ProjectDefinition parent) {

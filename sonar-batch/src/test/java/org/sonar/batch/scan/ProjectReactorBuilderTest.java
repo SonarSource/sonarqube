@@ -77,6 +77,14 @@ public class ProjectReactorBuilderTest {
   public void shouldNotFailIfBlankSourceDirectory() {
     loadProjectDefinition("simple-project-with-blank-source-dir");
   }
+  
+  @Test
+  public void modulesRepeatedNames() {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Two modules have the same name: module1");
+    
+    loadProjectDefinition("multi-module-repeated-names");
+  }
 
   @Test
   public void shouldDefineMultiModuleProjectWithDefinitionsAllInRootProject() throws IOException {
