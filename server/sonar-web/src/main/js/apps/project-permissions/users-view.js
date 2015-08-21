@@ -1,37 +1,43 @@
 define([
   'components/common/modals',
-  'components/common/select-list',
+  'react',
+  'components/select-list/main',
+  '../../api/permissions',
   './templates'
-], function (Modal) {
+], function (Modal, React, SelectList, Permissions) {
 
   return Modal.extend({
     template: Templates['project-permissions-users'],
 
     onRender: function () {
+      var that = this;
       this._super();
-      new window.SelectList({
-        el: this.$('#project-permissions-users'),
-        width: '100%',
-        readOnly: false,
-        focusSearch: false,
-        format: function (item) {
-          return item.name + '<br><span class="note">' + item.login + '</span>';
+      var props = {
+        loadItems: function (options, callback) {
+          var data = { permission: that.options.permission, projectId: that.options.project, p: options.page, ps: 100 };
+          options.query ? _.extend(data, { q: options.query }) : _.extend(data, { selected: options.selection });
+          Permissions.getUsers(data).done(function (r) {
+            var paging = _.defaults({}, r.paging, { total: 0, pageIndex: 1 });
+            callback(r.users, paging);
+          });
         },
-        queryParam: 'q',
-        searchUrl: baseUrl + '/api/permissions/users?ps=100&permission=' + this.options.permission + '&projectId=' + this.options.project,
-        selectUrl: baseUrl + '/api/permissions/add_user',
-        deselectUrl: baseUrl + '/api/permissions/remove_user',
-        extra: {
-          permission: this.options.permission,
-          projectId: this.options.project
+        renderItem: function (user) {
+          return user.name + '<br><span class="note">' + user.login + '</span>';
         },
-        selectParameter: 'login',
-        selectParameterValue: 'login',
-        parse: function (r) {
-          this.more = false;
-          return r.users;
+        getItemKey: function (user) {
+          return user.login;
+        },
+        selectItem: function (user, callback) {
+          Permissions.grantToUser(that.options.permission, user.login, that.options.project).done(callback);
+        },
+        deselectItem: function (user, callback) {
+          Permissions.revokeFromUser(that.options.permission, user.login, that.options.project).done(callback);
         }
-      });
+      };
+      React.render(
+          React.createElement(SelectList, props),
+          this.$('#project-permissions-users')[0]
+      );
     },
 
     onDestroy: function () {

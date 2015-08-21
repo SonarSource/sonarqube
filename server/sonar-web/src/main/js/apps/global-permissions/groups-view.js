@@ -1,36 +1,43 @@
 define([
   'components/common/modals',
-  'components/common/select-list',
+  'react',
+  'components/select-list/main',
+  '../../api/permissions',
   './templates'
-], function (Modal) {
+], function (Modal, React, SelectList, Permissions) {
 
   return Modal.extend({
     template: Templates['global-permissions-groups'],
 
     onRender: function () {
+      var that = this;
       this._super();
-      new window.SelectList({
-        el: this.$('#global-permissions-groups'),
-        width: '100%',
-        readOnly: false,
-        focusSearch: false,
-        format: function (item) {
-          return item.name;
+      var props = {
+        loadItems: function (options, callback) {
+          var _data = { permission: that.options.permission, p: options.page, ps: 100 };
+          options.query ? _.extend(_data, { q: options.query }) : _.extend(_data, { selected: options.selection });
+          Permissions.getGroups(_data).done(function (r) {
+            var paging = _.defaults({}, r.paging, { total: 0, pageIndex: 1 });
+            callback(r.groups, paging);
+          });
         },
-        queryParam: 'q',
-        searchUrl: baseUrl + '/api/permissions/groups?ps=100&permission=' + this.options.permission,
-        selectUrl: baseUrl + '/api/permissions/add_group',
-        deselectUrl: baseUrl + '/api/permissions/remove_group',
-        extra: {
-          permission: this.options.permission
+        renderItem: function (group) {
+          return group.name;
         },
-        selectParameter: 'groupName',
-        selectParameterValue: 'name',
-        parse: function (r) {
-          this.more = false;
-          return r.groups;
+        getItemKey: function (group) {
+          return group.name;
+        },
+        selectItem: function (group, callback) {
+          Permissions.grantToGroup(that.options.permission, group.name).done(callback);
+        },
+        deselectItem: function (group, callback) {
+          Permissions.revokeFromGroup(that.options.permission, group.name).done(callback);
         }
-      });
+      };
+      React.render(
+          React.createElement(SelectList, props),
+          this.$('#global-permissions-groups')[0]
+      );
     },
 
     onDestroy: function () {
