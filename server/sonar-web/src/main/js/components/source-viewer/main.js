@@ -792,9 +792,10 @@ define([
                 _location = { from: from, to: to };
 
             // mark issue location in the source code
-            var code = row.find('pre').html(),
+            var codeEl = row.find('.source-line-code-inner > pre'),
+                code = codeEl.html(),
                 newCode = highlightLocations(code, [_location], 'source-line-code-secondary-issue');
-            row.find('pre').html(newCode);
+            codeEl.html(newCode);
           }
         },
 
