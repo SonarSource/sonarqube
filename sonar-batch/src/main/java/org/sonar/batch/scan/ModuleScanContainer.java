@@ -22,7 +22,6 @@ package org.sonar.batch.scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.ProjectClasspath;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.CheckFactory;
@@ -134,7 +133,6 @@ public class ModuleScanContainer extends ComponentContainer {
       DefaultModuleFileSystem.class,
       ModuleFileSystemInitializer.class,
       ProjectFileSystemAdapter.class,
-      ProjectClasspath.class,
       QProfileVerifier.class,
 
     SensorOptimizer.class,

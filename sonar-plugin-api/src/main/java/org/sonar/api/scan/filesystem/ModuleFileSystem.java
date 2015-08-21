@@ -63,14 +63,7 @@ public interface ModuleFileSystem {
   List<File> testDirs();
 
   /**
-   * Optional directories that contain the compiled sources, for example java bytecode.
-   * Note that :
-   * <ul>
-   * <li>Maven projects have only a single binary directory, which is generally ${project.basedir}/target/classes</li>
-   * <li>Binary directories can be empty</li>
-   * <li>Test binary directories are not supported yet.</li>
-   * </ul>
-   * @deprecated since 4.2 sonar.binaries will be converted to java specific property
+   * @deprecated since 4.2 - returns always empty list
    */
   List<File> binaryDirs();
 

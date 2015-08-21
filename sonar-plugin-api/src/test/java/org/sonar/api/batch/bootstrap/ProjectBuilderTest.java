@@ -43,7 +43,7 @@ public class ProjectBuilderTest {
     ProjectDefinition root = projectReactor.getRoot();
     assertThat(root.getName(), is("Name changed by plugin"));
     assertThat(root.getSubProjects().size(), is(1));
-    assertThat(root.getSubProjects().get(0).getSourceDirs(), hasItem("src"));
+    assertThat(root.getSubProjects().get(0).sources(), hasItem("src"));
   }
 
   final static class ProjectBuilderSample extends ProjectBuilder {
@@ -68,7 +68,7 @@ public class ProjectBuilderTest {
       subProject.setKey("groupId:parentProjectId");
       subProject.setVersion(root.getVersion());
       subProject.setName("Sub Project");
-      subProject.setSourceDirs("src");
+      subProject.setSources("src");
       root.addSubProject(subProject);
     }
   }

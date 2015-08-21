@@ -69,9 +69,8 @@ public class ModuleFileSystemInitializerTest {
     ProjectDefinition project = ProjectDefinition.create()
       .setBaseDir(baseDir)
       .setBuildDir(buildDir)
-      .addSourceDirs("src/main/java", "src/main/unknown")
-      .addTestDirs("src/test/java", "src/test/unknown")
-      .addBinaryDir("target/classes");
+      .addSources("src/main/java", "src/main/unknown")
+      .addTests("src/test/java", "src/test/unknown");
 
     ModuleFileSystemInitializer initializer = new ModuleFileSystemInitializer(project, mock(TempFolder.class), pathResolver);
 
@@ -81,8 +80,6 @@ public class ModuleFileSystemInitializerTest {
     assertThat(path(initializer.sources().get(0))).endsWith("src/main/java");
     assertThat(initializer.tests()).hasSize(1);
     assertThat(path(initializer.tests().get(0))).endsWith("src/test/java");
-    assertThat(initializer.binaryDirs()).hasSize(1);
-    assertThat(path(initializer.binaryDirs().get(0))).endsWith("target/classes");
   }
 
   private String path(File f) throws IOException {

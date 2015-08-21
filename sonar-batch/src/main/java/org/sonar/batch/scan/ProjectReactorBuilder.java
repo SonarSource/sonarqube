@@ -81,8 +81,6 @@ public class ProjectReactorBuilder {
    */
   private static final String PROPERTY_SOURCES = "sonar.sources";
   private static final String PROPERTY_TESTS = "sonar.tests";
-  private static final String PROPERTY_BINARIES = "sonar.binaries";
-  private static final String PROPERTY_LIBRARIES = "sonar.libraries";
 
   /**
    * Array of all mandatory properties required for a project without child.
@@ -344,22 +342,9 @@ public class ProjectReactorBuilder {
     if (!props.containsKey(PROPERTY_MODULES)) {
       // SONARPLUGINS-2285 Not an aggregator project so we can validate that paths are correct if defined
 
-      // We need to resolve patterns that may have been used in "sonar.libraries"
-      for (String pattern : getListFromProperty(props, PROPERTY_LIBRARIES)) {
-        File[] files = getLibraries(baseDir, pattern);
-        if (files == null || files.length == 0) {
-          LOG.error(MessageFormat.format(INVALID_VALUE_OF_X_FOR_Y, PROPERTY_LIBRARIES, projectId));
-          throw new IllegalStateException("No files nor directories matching '" + pattern + "' in directory " + baseDir);
-        }
-      }
-
       // Check sonar.tests
       String[] testPaths = getListFromProperty(props, PROPERTY_TESTS);
       checkExistenceOfPaths(projectId, baseDir, testPaths, PROPERTY_TESTS);
-
-      // Check sonar.binaries
-      String[] binDirs = getListFromProperty(props, PROPERTY_BINARIES);
-      checkExistenceOfDirectories(projectId, baseDir, binDirs, PROPERTY_BINARIES);
     }
   }
 
@@ -384,16 +369,6 @@ public class ProjectReactorBuilder {
     // We need to check the existence of source directories
     String[] sourcePaths = getListFromProperty(properties, PROPERTY_SOURCES);
     checkExistenceOfPaths(project.getKey(), project.getBaseDir(), sourcePaths, PROPERTY_SOURCES);
-
-    // And we need to resolve patterns that may have been used in "sonar.libraries"
-    List<String> libPaths = Lists.newArrayList();
-    for (String pattern : getListFromProperty(properties, PROPERTY_LIBRARIES)) {
-      for (File file : getLibraries(project.getBaseDir(), pattern)) {
-        libPaths.add(file.getAbsolutePath());
-      }
-    }
-    properties.remove(PROPERTY_LIBRARIES);
-    properties.put(PROPERTY_LIBRARIES, StringUtils.join(libPaths, ","));
   }
 
   @VisibleForTesting
@@ -414,8 +389,6 @@ public class ProjectReactorBuilder {
     // "aggregator" project must not have the following properties:
     properties.remove(PROPERTY_SOURCES);
     properties.remove(PROPERTY_TESTS);
-    properties.remove(PROPERTY_BINARIES);
-    properties.remove(PROPERTY_LIBRARIES);
   }
 
   @VisibleForTesting
