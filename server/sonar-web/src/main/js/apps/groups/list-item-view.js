@@ -5,6 +5,8 @@ define([
   './templates'
 ], function (UpdateView, DeleteView, UsersView) {
 
+  var $ = jQuery;
+
   return Marionette.ItemView.extend({
     tagName: 'li',
     className: 'panel panel-vertical',
@@ -37,6 +39,7 @@ define([
 
     onUsersClick: function (e) {
       e.preventDefault();
+      $('.tooltip').remove();
       this.showUsers();
     },
 
