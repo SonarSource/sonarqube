@@ -14,16 +14,22 @@ export default {
 
   renderGlobalNav(options) {
     const el = document.getElementById('global-navigation');
-    React.render(<GlobalNav {...options}/>, el);
+    if (el) {
+      React.render(<GlobalNav {...options}/>, el);
+    }
   },
 
   renderComponentNav(options) {
     const el = document.getElementById('context-navigation');
-    React.render(<ComponentNav {...options}/>, el);
+    if (el) {
+      React.render(<ComponentNav {...options}/>, el);
+    }
   },
 
   renderSettingsNav(options) {
     const el = document.getElementById('context-navigation');
-    React.render(<SettingsNav {...options}/>, el);
+    if (el) {
+      React.render(<SettingsNav {...options}/>, el);
+    }
   }
 };
