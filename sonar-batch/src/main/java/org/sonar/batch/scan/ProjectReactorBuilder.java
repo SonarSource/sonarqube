@@ -126,7 +126,7 @@ public class ProjectReactorBuilder {
     Map<String, Map<String, String>> propertiesByModuleId = extractPropertiesByModule("", taskProps.properties());
     ProjectDefinition rootProject = defineRootProject(propertiesByModuleId.get(""), null);
     rootProjectWorkDir = rootProject.getWorkDir();
-    defineChildren(rootProject, propertiesByModuleId);
+    defineChildren(rootProject, "", propertiesByModuleId);
     cleanAndCheckProjectDefinitions(rootProject);
     // Since task properties are now empty we should add root module properties
     for (Map.Entry<String, String> entry : propertiesByModuleId.get("").entrySet()) {
@@ -156,7 +156,9 @@ public class ProjectReactorBuilder {
     Collections.reverse(moduleIds);
     Map<String, Map<String, String>> result = new HashMap<>();
     for (String moduleId : moduleIds) {
-      result.putAll(extractPropertiesByModule(moduleId, currentModuleProperties));
+      for (Map.Entry<String, Map<String, String>> subModuleProps : extractPropertiesByModule(moduleId, currentModuleProperties).entrySet()) {
+        result.put(prefix + subModuleProps.getKey(), subModuleProps.getValue());
+      }
     }
     result.put(currentModuleId, currentModuleProperties);
     return result;
@@ -234,16 +236,17 @@ public class ProjectReactorBuilder {
     return new File(moduleBaseDir, customBuildDir.getPath());
   }
 
-  private void defineChildren(ProjectDefinition parentProject, Map<String, Map<String, String>> propertiesByModuleId) {
+  private void defineChildren(ProjectDefinition parentProject, String parentProjectModuleId, Map<String, Map<String, String>> propertiesByModuleId) {
+    String prefix = !parentProjectModuleId.isEmpty() ? parentProjectModuleId + "." : "";
     Map<String, String> parentProps = parentProject.properties();
     if (parentProps.containsKey(PROPERTY_MODULES)) {
       for (String moduleId : getListFromProperty(parentProps, PROPERTY_MODULES)) {
-        Map<String, String> moduleProps = propertiesByModuleId.get(moduleId);
+        Map<String, String> moduleProps = propertiesByModuleId.get(prefix + moduleId);
         ProjectDefinition childProject = loadChildProject(parentProject, moduleProps, moduleId);
         // check the uniqueness of the child key
         checkUniquenessOfChildKey(childProject, parentProject);
         // the child project may have children as well
-        defineChildren(childProject, propertiesByModuleId);
+        defineChildren(childProject, prefix + moduleId, propertiesByModuleId);
         // and finally add this child project to its parent
         parentProject.addSubProject(childProject);
       }
