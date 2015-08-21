@@ -32,7 +32,7 @@ import org.sonar.server.computation.container.ContainerFactoryImpl;
  */
 public class ReportProcessingScheduler implements ServerStartHandler {
 
-  private final ComputeEngineBatchExecutorService batchExecutorService;
+  private final ReportProcessingSchedulerExecutorService reportProcessingSchedulerExecutorService;
   private final ComputeEngineProcessingQueue processingQueue;
   private final ReportQueue queue;
   private final ComponentContainer sqContainer;
@@ -42,10 +42,10 @@ public class ReportProcessingScheduler implements ServerStartHandler {
   private final long delayForFirstStart;
   private final TimeUnit timeUnit;
 
-  public ReportProcessingScheduler(ComputeEngineBatchExecutorService batchExecutorService,
+  public ReportProcessingScheduler(ReportProcessingSchedulerExecutorService reportProcessingSchedulerExecutorService,
     ComputeEngineProcessingQueue processingQueue,
     ReportQueue queue, ComponentContainer sqContainer) {
-    this.batchExecutorService = batchExecutorService;
+    this.reportProcessingSchedulerExecutorService = reportProcessingSchedulerExecutorService;
     this.processingQueue = processingQueue;
     this.queue = queue;
     this.sqContainer = sqContainer;
@@ -57,15 +57,15 @@ public class ReportProcessingScheduler implements ServerStartHandler {
   }
 
   public void startAnalysisTaskNow() {
-    batchExecutorService.execute(new AddBatchProcessingCETaskRunnable());
+    reportProcessingSchedulerExecutorService.execute(new AddReportProcessingToCEProcessingQueue());
   }
 
   @Override
   public void onServerStart(Server server) {
-    batchExecutorService.scheduleAtFixedRate(new AddBatchProcessingCETaskRunnable(), delayForFirstStart, delayBetweenTasks, timeUnit);
+    reportProcessingSchedulerExecutorService.scheduleAtFixedRate(new AddReportProcessingToCEProcessingQueue(), delayForFirstStart, delayBetweenTasks, timeUnit);
   }
 
-  private class AddBatchProcessingCETaskRunnable implements Runnable {
+  private class AddReportProcessingToCEProcessingQueue implements Runnable {
     @Override
     public void run() {
       processingQueue.addTask(new ReportProcessingTask(queue, sqContainer, containerFactory));

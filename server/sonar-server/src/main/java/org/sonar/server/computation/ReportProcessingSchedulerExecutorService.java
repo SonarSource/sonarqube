@@ -25,5 +25,5 @@ import org.sonar.server.util.StoppableExecutorService;
 /**
  * ExecutorService responsible for adding {@link ReportProcessingTask} to {@link ReportQueue} on a regular basis.
  */
-public interface ComputeEngineBatchExecutorService extends ScheduledExecutorService, StoppableExecutorService {
+public interface ReportProcessingSchedulerExecutorService extends ScheduledExecutorService, StoppableExecutorService {
 }

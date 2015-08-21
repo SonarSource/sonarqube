@@ -26,7 +26,7 @@ public class ComputeEngineProcessingModule extends Module {
   protected void configureModule() {
     add(
       ReportProcessingScheduler.class,
-      ComputeEngineBatchExecutorServiceImpl.class,
+      ReportProcessingSchedulerExecutorServiceImpl.class,
       ComputeEngineProcessingExecutorServiceImpl.class,
       ComputeEngineProcessingQueueImpl.class);
   }

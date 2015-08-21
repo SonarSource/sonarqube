@@ -39,7 +39,7 @@ public class ReportProcessor {
     ReportQueue.Item item, ActivityManager activityManager, System2 system, CEQueueStatus queueStatus) {
     this.executor = new ComputationStepExecutor(
       Loggers.get(ReportProcessor.class),
-      new BatchReportStepsExecutorListener(item, system, activityManager, queueStatus),
+      new ReportProcessingStepsExecutorListener(item, system, activityManager, queueStatus),
         createDescription(item), queueStatus);
     this.steps = steps;
   }
@@ -53,12 +53,12 @@ public class ReportProcessor {
     return format("Analysis of project %s (report %d)", projectKey, item.dto.getId());
   }
 
-  private static class BatchReportStepsExecutorListener implements ComputationStepExecutor.Listener {
+  private static class ReportProcessingStepsExecutorListener implements ComputationStepExecutor.Listener {
     private final ReportQueue.Item item;
     private final System2 system;
     private final ActivityManager activityManager;
 
-    private BatchReportStepsExecutorListener(ReportQueue.Item item, System2 system, ActivityManager activityManager, CEQueueStatus queueStatus) {
+    private ReportProcessingStepsExecutorListener(ReportQueue.Item item, System2 system, ActivityManager activityManager, CEQueueStatus queueStatus) {
       this.item = item;
       this.system = system;
       this.activityManager = activityManager;

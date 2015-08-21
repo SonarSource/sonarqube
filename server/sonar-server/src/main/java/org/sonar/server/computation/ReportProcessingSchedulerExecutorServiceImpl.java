@@ -27,11 +27,11 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.sonar.server.util.AbstractStoppableExecutorService;
 
-public class ComputeEngineBatchExecutorServiceImpl extends AbstractStoppableExecutorService<ScheduledExecutorService>
-    implements ComputeEngineBatchExecutorService {
-  private static final String THREAD_NAME_PREFIX = "ce-batch-scheduler-";
+public class ReportProcessingSchedulerExecutorServiceImpl extends AbstractStoppableExecutorService<ScheduledExecutorService>
+    implements ReportProcessingSchedulerExecutorService {
+  private static final String THREAD_NAME_PREFIX = "ce-report-scheduler-";
 
-  public ComputeEngineBatchExecutorServiceImpl() {
+  public ReportProcessingSchedulerExecutorServiceImpl() {
     super(
         Executors.newSingleThreadScheduledExecutor(
             new ThreadFactoryBuilder()

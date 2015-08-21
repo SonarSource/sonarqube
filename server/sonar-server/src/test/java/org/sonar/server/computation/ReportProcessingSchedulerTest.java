@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 
 public class ReportProcessingSchedulerTest {
 
-  ComputeEngineBatchExecutorService batchExecutorService = mock(ComputeEngineBatchExecutorService.class);
+  ReportProcessingSchedulerExecutorService batchExecutorService = mock(ReportProcessingSchedulerExecutorService.class);
   SimpleComputeEngineProcessingQueue processingQueue = new SimpleComputeEngineProcessingQueue();
   ReportQueue queue = mock(ReportQueue.class);
   ComponentContainer componentContainer = mock(ComponentContainer.class);
