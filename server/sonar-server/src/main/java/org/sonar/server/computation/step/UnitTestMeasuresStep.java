@@ -27,11 +27,10 @@ import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.Counter;
 import org.sonar.server.computation.formula.CreateMeasureContext;
-import org.sonar.server.computation.formula.LeafAggregateContext;
 import org.sonar.server.computation.formula.Formula;
 import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
-import org.sonar.server.computation.formula.SumCounter;
-import org.sonar.server.computation.formula.SumFormula;
+import org.sonar.server.computation.formula.LeafAggregateContext;
+import org.sonar.server.computation.formula.counter.IntSumCounter;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.MetricRepository;
@@ -42,6 +41,7 @@ import static org.sonar.api.measures.CoreMetrics.TEST_ERRORS_KEY;
 import static org.sonar.api.measures.CoreMetrics.TEST_EXECUTION_TIME_KEY;
 import static org.sonar.api.measures.CoreMetrics.TEST_FAILURES_KEY;
 import static org.sonar.api.measures.CoreMetrics.TEST_SUCCESS_DENSITY_KEY;
+import static org.sonar.server.computation.formula.SumFormula.createIntSumFormula;
 
 /**
  * Computes unit test measures on files and then aggregates them on higher components.
@@ -51,8 +51,8 @@ public class UnitTestMeasuresStep implements ComputationStep {
   private static final String[] METRICS = new String[] {TESTS_KEY, TEST_ERRORS_KEY, TEST_FAILURES_KEY, TEST_SUCCESS_DENSITY_KEY};
 
   private static final ImmutableList<Formula> FORMULAS = ImmutableList.<Formula>of(
-    new SumFormula(TEST_EXECUTION_TIME_KEY),
-    new SumFormula(SKIPPED_TESTS_KEY),
+    createIntSumFormula(TEST_EXECUTION_TIME_KEY),
+    createIntSumFormula(SKIPPED_TESTS_KEY),
     new UnitTestsFormula());
 
   private final TreeRootHolder treeRootHolder;
@@ -126,9 +126,9 @@ public class UnitTestMeasuresStep implements ComputationStep {
 
   private static class UnitTestsCounter implements Counter<UnitTestsCounter> {
 
-    private final SumCounter testsCounter = new SumCounter(TESTS_KEY);
-    private final SumCounter testsErrorsCounter = new SumCounter(TEST_ERRORS_KEY);
-    private final SumCounter testsFailuresCounter = new SumCounter(TEST_FAILURES_KEY);
+    private final IntSumCounter testsCounter = new IntSumCounter(TESTS_KEY);
+    private final IntSumCounter testsErrorsCounter = new IntSumCounter(TEST_ERRORS_KEY);
+    private final IntSumCounter testsFailuresCounter = new IntSumCounter(TEST_FAILURES_KEY);
 
     @Override
     public void aggregate(UnitTestsCounter counter) {

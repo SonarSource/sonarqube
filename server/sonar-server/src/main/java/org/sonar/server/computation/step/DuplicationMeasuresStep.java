@@ -30,8 +30,8 @@ import org.sonar.server.computation.formula.Counter;
 import org.sonar.server.computation.formula.CreateMeasureContext;
 import org.sonar.server.computation.formula.Formula;
 import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
+import org.sonar.server.computation.formula.counter.IntSumCounter;
 import org.sonar.server.computation.formula.LeafAggregateContext;
-import org.sonar.server.computation.formula.SumCounter;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
@@ -169,7 +169,7 @@ public class DuplicationMeasuresStep implements ComputationStep {
   }
 
   /**
-   * This counter is almost the same as {@link SumCounter}, expect that it will aggregate a value of 0 when there's no measure on file level
+   * This counter is almost the same as {@link IntSumCounter}, expect that it will aggregate a value of 0 when there's no measure on file level
    */
   private class SumDuplicationCounter implements Counter<SumDuplicationCounter> {
 

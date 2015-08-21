@@ -24,7 +24,6 @@ import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.Formula;
 import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
-import org.sonar.server.computation.formula.SumFormula;
 import org.sonar.server.computation.formula.coverage.LinesAndConditionsWithUncoveredFormula;
 import org.sonar.server.computation.formula.coverage.LinesAndConditionsWithUncoveredMetricKeys;
 import org.sonar.server.computation.formula.coverage.SingleWithUncoveredFormula;
@@ -53,6 +52,7 @@ import static org.sonar.api.measures.CoreMetrics.OVERALL_UNCOVERED_CONDITIONS_KE
 import static org.sonar.api.measures.CoreMetrics.OVERALL_UNCOVERED_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.UNCOVERED_CONDITIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES_KEY;
+import static org.sonar.server.computation.formula.SumFormula.createIntSumFormula;
 
 /**
  * Computes coverage measures on files and then aggregates them on higher components.
@@ -60,26 +60,26 @@ import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES_KEY;
 public class CoverageMeasuresStep implements ComputationStep {
   private static final ImmutableList<Formula> COVERAGE_FORMULAS = ImmutableList.<Formula>of(
     // unit test
-    new SumFormula(LINES_TO_COVER_KEY),
-    new SumFormula(UNCOVERED_LINES_KEY),
-    new SumFormula(CONDITIONS_TO_COVER_KEY),
-    new SumFormula(UNCOVERED_CONDITIONS_KEY),
+    createIntSumFormula(LINES_TO_COVER_KEY),
+    createIntSumFormula(UNCOVERED_LINES_KEY),
+    createIntSumFormula(CONDITIONS_TO_COVER_KEY),
+    createIntSumFormula(UNCOVERED_CONDITIONS_KEY),
     new CodeCoverageFormula(),
     new BranchCoverageFormula(),
     new LineCoverageFormula(),
     // integration test
-    new SumFormula(IT_LINES_TO_COVER_KEY),
-    new SumFormula(IT_UNCOVERED_LINES_KEY),
-    new SumFormula(IT_CONDITIONS_TO_COVER_KEY),
-    new SumFormula(IT_UNCOVERED_CONDITIONS_KEY),
+    createIntSumFormula(IT_LINES_TO_COVER_KEY),
+    createIntSumFormula(IT_UNCOVERED_LINES_KEY),
+    createIntSumFormula(IT_CONDITIONS_TO_COVER_KEY),
+    createIntSumFormula(IT_UNCOVERED_CONDITIONS_KEY),
     new ItCoverageFormula(),
     new ItBranchCoverageFormula(),
     new ItLineCoverageFormula(),
     // overall test
-    new SumFormula(OVERALL_LINES_TO_COVER_KEY),
-    new SumFormula(OVERALL_UNCOVERED_LINES_KEY),
-    new SumFormula(OVERALL_CONDITIONS_TO_COVER_KEY),
-    new SumFormula(OVERALL_UNCOVERED_CONDITIONS_KEY),
+    createIntSumFormula(OVERALL_LINES_TO_COVER_KEY),
+    createIntSumFormula(OVERALL_UNCOVERED_LINES_KEY),
+    createIntSumFormula(OVERALL_CONDITIONS_TO_COVER_KEY),
+    createIntSumFormula(OVERALL_UNCOVERED_CONDITIONS_KEY),
     new OverallCodeCoverageFormula(),
     new OverallBranchCoverageFormula(),
     new OverallLineCoverageFormula());

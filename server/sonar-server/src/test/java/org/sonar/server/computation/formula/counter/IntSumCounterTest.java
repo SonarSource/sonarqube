@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.computation.formula;
+package org.sonar.server.computation.formula.counter;
 
 import com.google.common.base.Optional;
 import org.junit.Test;
+import org.sonar.server.computation.formula.LeafAggregateContext;
 import org.sonar.server.computation.measure.Measure;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,13 +31,13 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class SumCounterTest {
+public class IntSumCounterTest {
 
   private final static String METRIC_KEY = "metric";
 
   LeafAggregateContext leafAggregateContext = mock(LeafAggregateContext.class);
 
-  SumCounter sumCounter = new SumCounter(METRIC_KEY);
+  SumCounter sumCounter = new IntSumCounter(METRIC_KEY);
 
   @Test
   public void no_value_when_no_aggregation() {
@@ -64,7 +65,7 @@ public class SumCounterTest {
   @Test
   public void aggregate_from_counter() {
     when(leafAggregateContext.getMeasure(METRIC_KEY)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(10)));
-    SumCounter anotherCounter = new SumCounter(METRIC_KEY);
+    SumCounter anotherCounter = new IntSumCounter(METRIC_KEY);
     anotherCounter.aggregate(leafAggregateContext);
 
     sumCounter.aggregate(anotherCounter);
@@ -74,7 +75,7 @@ public class SumCounterTest {
 
   @Test
   public void no_value_when_aggregate_from_empty_aggregator() {
-    SumCounter anotherCounter = new SumCounter(METRIC_KEY);
+    SumCounter anotherCounter = new IntSumCounter(METRIC_KEY);
 
     sumCounter.aggregate(anotherCounter);
 

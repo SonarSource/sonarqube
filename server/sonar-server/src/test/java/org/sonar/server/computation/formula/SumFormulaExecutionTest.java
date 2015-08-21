@@ -39,6 +39,7 @@ import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.component.ReportComponent.builder;
+import static org.sonar.server.computation.formula.SumFormula.createIntSumFormula;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
@@ -57,7 +58,7 @@ public class SumFormulaExecutionTest {
   @Before
   public void setUp() throws Exception {
     underTest = FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
-      .buildFor(Lists.<Formula>newArrayList(new SumFormula(LINES_KEY)));
+      .buildFor(Lists.<Formula>newArrayList(createIntSumFormula(LINES_KEY)));
   }
 
   @Test

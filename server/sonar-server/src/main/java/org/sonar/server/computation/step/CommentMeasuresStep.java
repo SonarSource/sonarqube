@@ -30,8 +30,8 @@ import org.sonar.server.computation.formula.CreateMeasureContext;
 import org.sonar.server.computation.formula.Formula;
 import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
 import org.sonar.server.computation.formula.LeafAggregateContext;
-import org.sonar.server.computation.formula.SumCounter;
-import org.sonar.server.computation.formula.SumFormula;
+import org.sonar.server.computation.formula.counter.IntSumCounter;
+import org.sonar.server.computation.formula.counter.SumCounter;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
@@ -44,6 +44,7 @@ import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_API_KEY;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_DOCUMENTED_API_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_UNDOCUMENTED_API_KEY;
+import static org.sonar.server.computation.formula.SumFormula.createIntSumFormula;
 
 /**
  * Computes comments measures on files and then aggregates them on higher components.
@@ -60,7 +61,7 @@ public class CommentMeasuresStep implements ComputationStep {
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.formulas = ImmutableList.<Formula>of(
-      new SumFormula(COMMENTED_OUT_CODE_LINES_KEY),
+      createIntSumFormula(COMMENTED_OUT_CODE_LINES_KEY),
       new DocumentationFormula(),
       new CommentDensityFormula());
   }
@@ -72,7 +73,7 @@ public class CommentMeasuresStep implements ComputationStep {
         .visit(treeRootHolder.getRoot());
   }
 
-  private class CommentDensityFormula implements Formula<SumCounter> {
+  private class CommentDensityFormula implements Formula<IntSumCounter> {
 
     private final Metric nclocMetric;
 
@@ -81,12 +82,12 @@ public class CommentMeasuresStep implements ComputationStep {
     }
 
     @Override
-    public SumCounter createNewCounter() {
-      return new SumCounter(COMMENT_LINES_KEY);
+    public IntSumCounter createNewCounter() {
+      return new IntSumCounter(COMMENT_LINES_KEY);
     }
 
     @Override
-    public Optional<Measure> createMeasure(SumCounter counter, CreateMeasureContext context) {
+    public Optional<Measure> createMeasure(IntSumCounter counter, CreateMeasureContext context) {
       return createCommentLinesMeasure(counter, context)
         .or(createCommentLinesDensityMeasure(counter, context));
     }
@@ -172,8 +173,8 @@ public class CommentMeasuresStep implements ComputationStep {
     private final SumCounter publicUndocumentedApiCounter;
 
     public DocumentationCounter() {
-      this.publicApiCounter = new SumCounter(PUBLIC_API_KEY);
-      this.publicUndocumentedApiCounter = new SumCounter(PUBLIC_UNDOCUMENTED_API_KEY);
+      this.publicApiCounter = new IntSumCounter(PUBLIC_API_KEY);
+      this.publicUndocumentedApiCounter = new IntSumCounter(PUBLIC_UNDOCUMENTED_API_KEY);
     }
 
     @Override

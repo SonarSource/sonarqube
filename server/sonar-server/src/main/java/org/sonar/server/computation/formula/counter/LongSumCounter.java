@@ -18,27 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.computation.formula;
+package org.sonar.server.computation.formula.counter;
 
 import com.google.common.base.Optional;
+import org.sonar.server.computation.formula.LeafAggregateContext;
 import org.sonar.server.computation.measure.Measure;
 
 /**
  * Simple counter that do the sum of an integer measure
  */
-public class SumCounter implements Counter<SumCounter> {
+public class LongSumCounter implements SumCounter<Long, LongSumCounter> {
 
   private final String metricKey;
 
-  private int value = 0;
+  private long value = 0;
   private boolean initialized = false;
 
-  public SumCounter(String metricKey) {
+  public LongSumCounter(String metricKey) {
     this.metricKey = metricKey;
   }
 
   @Override
-  public void aggregate(SumCounter counter) {
+  public void aggregate(LongSumCounter counter) {
     if (counter.getValue().isPresent()) {
       addValue(counter.getValue().get());
     }
@@ -48,16 +49,17 @@ public class SumCounter implements Counter<SumCounter> {
   public void aggregate(LeafAggregateContext context) {
     Optional<Measure> measureOptional = context.getMeasure(metricKey);
     if (measureOptional.isPresent()) {
-      addValue(measureOptional.get().getIntValue());
+      addValue(measureOptional.get().getLongValue());
     }
   }
 
-  private void addValue(int newValue) {
+  private void addValue(long newValue) {
     initialized = true;
     value += newValue;
   }
 
-  public Optional<Integer> getValue() {
+  @Override
+  public Optional<Long> getValue() {
     if (initialized) {
       return Optional.of(value);
     }

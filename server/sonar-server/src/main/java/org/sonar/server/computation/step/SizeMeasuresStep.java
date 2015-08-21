@@ -21,6 +21,7 @@ package org.sonar.server.computation.step;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
@@ -29,7 +30,6 @@ import org.sonar.server.computation.component.PathAwareVisitorAdapter;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.Formula;
 import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
-import org.sonar.server.computation.formula.SumFormula;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
@@ -44,6 +44,7 @@ import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.STATEMENTS_KEY;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
+import static org.sonar.server.computation.formula.SumFormula.createIntSumFormula;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
 /**
@@ -51,15 +52,15 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
  */
 public class SizeMeasuresStep implements ComputationStep {
   private static final CounterStackElementFactory COUNTER_STACK_ELEMENT_FACTORY = new CounterStackElementFactory();
-  private static final ImmutableList<Formula> AGGREGATED_SIZE_MEASURE_FORMULAS = ImmutableList.<Formula>of(
-    new SumFormula(LINES_KEY),
-    new SumFormula(GENERATED_LINES_KEY),
-    new SumFormula(NCLOC_KEY),
-    new SumFormula(GENERATED_NCLOC_KEY),
-    new SumFormula(FUNCTIONS_KEY),
-    new SumFormula(STATEMENTS_KEY),
-    new SumFormula(CLASSES_KEY),
-    new SumFormula(ACCESSORS_KEY));
+  private static final List<Formula> AGGREGATED_SIZE_MEASURE_FORMULAS = ImmutableList.<Formula>of(
+    createIntSumFormula(LINES_KEY),
+    createIntSumFormula(GENERATED_LINES_KEY),
+    createIntSumFormula(NCLOC_KEY),
+    createIntSumFormula(GENERATED_NCLOC_KEY),
+    createIntSumFormula(FUNCTIONS_KEY),
+    createIntSumFormula(STATEMENTS_KEY),
+    createIntSumFormula(CLASSES_KEY),
+    createIntSumFormula(ACCESSORS_KEY));
 
   private final TreeRootHolder treeRootHolder;
   private final MetricRepository metricRepository;

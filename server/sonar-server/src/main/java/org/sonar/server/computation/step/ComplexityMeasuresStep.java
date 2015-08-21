@@ -27,7 +27,6 @@ import org.sonar.server.computation.formula.AverageFormula;
 import org.sonar.server.computation.formula.DistributionFormula;
 import org.sonar.server.computation.formula.Formula;
 import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
-import org.sonar.server.computation.formula.SumFormula;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.MetricRepository;
 
@@ -43,6 +42,7 @@ import static org.sonar.api.measures.CoreMetrics.FILE_COMPLEXITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.FUNCTIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY;
 import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_KEY;
+import static org.sonar.server.computation.formula.SumFormula.createIntSumFormula;
 
 /**
  * Computes complexity measures on files and then aggregates them on higher components.
@@ -50,9 +50,9 @@ import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_KEY;
 public class ComplexityMeasuresStep implements ComputationStep {
 
   private static final ImmutableList<Formula> FORMULAS = ImmutableList.<Formula>of(
-    new SumFormula(COMPLEXITY_KEY),
-    new SumFormula(COMPLEXITY_IN_CLASSES_KEY),
-    new SumFormula(COMPLEXITY_IN_FUNCTIONS_KEY),
+    createIntSumFormula(COMPLEXITY_KEY),
+    createIntSumFormula(COMPLEXITY_IN_CLASSES_KEY),
+    createIntSumFormula(COMPLEXITY_IN_FUNCTIONS_KEY),
 
   new DistributionFormula(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY),
     new DistributionFormula(FILE_COMPLEXITY_DISTRIBUTION_KEY),
