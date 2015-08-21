@@ -1,0 +1,80 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.xoo.rule;
+
+import org.sonar.api.issue.Issue;
+
+import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.issue.Issuable;
+import org.sonar.xoo.Xoo;
+import org.sonar.api.batch.fs.FilePredicates;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputFile.Type;
+import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.rule.RuleKey;
+
+public class InvalidIssueLineSensor implements Sensor {
+
+  public static final String RULE_KEY = "InvalidIssueLine";
+  public static final String FORCE_SEVERITY_PROPERTY = "sonar.oneIssuePerLine.forceSeverity";
+  private final ResourcePerspectives perspectives;
+  private static final RuleKey RULE_KEY_DEF = RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY);
+
+  public InvalidIssueLineSensor(ResourcePerspectives perspectives) {
+    this.perspectives = perspectives;
+  }
+
+  @Override
+  public void describe(SensorDescriptor descriptor) {
+    descriptor
+      .name("Invalid issue line")
+      .onlyOnLanguages(Xoo.KEY)
+      .createIssuesForRuleRepositories(XooRulesDefinition.XOO_REPOSITORY);
+  }
+
+  @Override
+  public void execute(SensorContext context) {
+    if(context.activeRules().find(RULE_KEY_DEF) == null) {
+      return;
+    }
+    
+    FileSystem fs = context.fileSystem();
+    FilePredicates p = fs.predicates();
+    for (InputFile file : fs.inputFiles(p.and(p.hasLanguages(Xoo.KEY), p.hasType(Type.MAIN)))) {
+      createIssuesOld(file, context);
+    }
+  }
+
+  private void createIssuesOld(InputFile file, SensorContext context) {
+    Issuable issuable = perspectives.as(Issuable.class, file);
+
+    Issue issue = issuable.newIssueBuilder()
+      .ruleKey(RULE_KEY_DEF)
+      .line(file.lines() + 10)
+      .message("This issue is generated on an invalid line using the old API")
+      .effortToFix(10.0)
+      .build();
+
+    issuable.addIssue(issue);
+  }
+}

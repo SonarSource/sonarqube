@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.issue;
 
+import org.sonar.batch.scan.filesystem.InputPathCache;
+
+import org.sonar.api.batch.fs.InputFile;
 import com.google.common.collect.Lists;
 import org.sonar.api.component.Component;
 import org.sonar.api.issue.Issuable;
@@ -38,12 +41,14 @@ public class DefaultIssuable implements Issuable {
   private final IssueCache cache;
   private final Component component;
   private final Project project;
+  private final InputPathCache inputPathCache;
 
-  DefaultIssuable(Component component, Project project, ModuleIssues moduleIssues, IssueCache cache) {
+  DefaultIssuable(Component component, Project project, ModuleIssues moduleIssues, IssueCache cache, InputPathCache inputPathCache) {
     this.component = component;
     this.project = project;
     this.moduleIssues = moduleIssues;
     this.cache = cache;
+    this.inputPathCache = inputPathCache;
   }
 
   @Override
@@ -53,7 +58,30 @@ public class DefaultIssuable implements Issuable {
 
   @Override
   public boolean addIssue(Issue issue) {
+    validateIssueLine(issue);
     return moduleIssues.initAndAddIssue((DefaultIssue) issue);
+  }
+
+  private void validateIssueLine(Issue issue) {
+    if (issue.line() == null) {
+      return;
+    }
+    String moduleKey = issue.projectKey();
+    String path = component.path();
+
+    InputFile file = inputPathCache.getFile(moduleKey, path);
+
+    if (issue.line() <= 0) {
+      invalidateIssue(issue, "must be > 0");
+    }
+
+    if (file != null && issue.line() > file.lines()) {
+      invalidateIssue(issue, "must be <= " + file.lines());
+    }
+  }
+
+  private void invalidateIssue(Issue issue, String msg) {
+    throw new IllegalStateException(String.format("Invalid line %s (%s) in issue for '%s' created by the rule '%s'", issue.line(), msg, issue.componentKey(), issue.ruleKey()));
   }
 
   @SuppressWarnings("unchecked")
@@ -61,7 +89,7 @@ public class DefaultIssuable implements Issuable {
   public List<Issue> resolvedIssues() {
     List<Issue> result = Lists.newArrayList();
     for (DefaultIssue issue : cache.byComponent(component.key())) {
-      if (issue.resolution()!=null) {
+      if (issue.resolution() != null) {
         result.add(issue);
       }
     }
@@ -73,7 +101,7 @@ public class DefaultIssuable implements Issuable {
   public List<Issue> issues() {
     List<Issue> result = Lists.newArrayList();
     for (DefaultIssue issue : cache.byComponent(component.key())) {
-      if (issue.resolution()==null) {
+      if (issue.resolution() == null) {
         result.add(issue);
       }
     }

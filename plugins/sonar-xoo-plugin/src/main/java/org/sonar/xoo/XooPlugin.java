@@ -64,6 +64,7 @@ public class XooPlugin extends SonarPlugin {
       ChecksSensor.class,
       RandomAccessSensor.class,
       DeprecatedResourceApiSensor.class,
+      InvalidIssueLineSensor.class,
 
       OneIssuePerLineSensor.class,
       OneIssueOnDirPerFileSensor.class,

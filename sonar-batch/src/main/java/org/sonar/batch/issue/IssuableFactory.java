@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.issue;
 
+import org.sonar.batch.scan.filesystem.InputPathCache;
+
 import org.sonar.api.component.Component;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.resources.Scopes;
@@ -37,12 +39,14 @@ public class IssuableFactory extends PerspectiveBuilder<Issuable> {
   private final ModuleIssues moduleIssues;
   private final IssueCache cache;
   private final ProjectTree projectTree;
+  private final InputPathCache inputPathCache;
 
-  public IssuableFactory(ModuleIssues moduleIssues, IssueCache cache, ProjectTree projectTree) {
+  public IssuableFactory(ModuleIssues moduleIssues, IssueCache cache, ProjectTree projectTree, InputPathCache inputPathCache) {
     super(Issuable.class);
     this.moduleIssues = moduleIssues;
     this.cache = cache;
     this.projectTree = projectTree;
+    this.inputPathCache = inputPathCache;
   }
 
   @CheckForNull
@@ -52,6 +56,6 @@ public class IssuableFactory extends PerspectiveBuilder<Issuable> {
     if (component instanceof ResourceComponent) {
       supported = Scopes.isHigherThanOrEquals(((ResourceComponent) component).scope(), Scopes.FILE);
     }
-    return supported ? new DefaultIssuable(component, projectTree.getRootProject(), moduleIssues, cache) : null;
+    return supported ? new DefaultIssuable(component, projectTree.getRootProject(), moduleIssues, cache, inputPathCache) : null;
   }
 }

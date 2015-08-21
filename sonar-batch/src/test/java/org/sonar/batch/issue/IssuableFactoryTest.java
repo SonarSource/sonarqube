@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.issue;
 
+import org.sonar.batch.scan.filesystem.InputPathCache;
+
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.component.Component;
@@ -27,7 +29,6 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.ProjectTree;
 import org.sonar.core.component.ResourceComponent;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -36,10 +37,12 @@ public class IssuableFactoryTest {
   ModuleIssues moduleIssues = mock(ModuleIssues.class);
   IssueCache cache = mock(IssueCache.class, Mockito.RETURNS_MOCKS);
   ProjectTree projectTree = mock(ProjectTree.class);
+  InputPathCache inputPathCache = mock(InputPathCache.class);
+  
 
   @Test
   public void file_should_be_issuable() throws Exception {
-    IssuableFactory factory = new IssuableFactory(moduleIssues, cache, projectTree);
+    IssuableFactory factory = new IssuableFactory(moduleIssues, cache, projectTree, inputPathCache);
     Component component = new ResourceComponent(File.create("foo/bar.c").setEffectiveKey("foo/bar.c"));
     Issuable issuable = factory.loadPerspective(Issuable.class, component);
 
@@ -50,7 +53,7 @@ public class IssuableFactoryTest {
 
   @Test
   public void project_should_be_issuable() throws Exception {
-    IssuableFactory factory = new IssuableFactory(moduleIssues, cache, projectTree);
+    IssuableFactory factory = new IssuableFactory(moduleIssues, cache, projectTree, inputPathCache);
     Component component = new ResourceComponent(new Project("Foo").setEffectiveKey("foo"));
     Issuable issuable = factory.loadPerspective(Issuable.class, component);
 

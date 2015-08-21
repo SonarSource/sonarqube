@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.issue;
 
+import com.google.common.base.Preconditions;
+import org.sonar.api.batch.fs.InputFile;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import org.sonar.api.batch.debt.DebtRemediationFunction;
