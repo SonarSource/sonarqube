@@ -162,7 +162,7 @@ export default React.createClass({
 
   renderDashboards() {
     let dashboards = (this.props.component.dashboards || []).map(d => {
-      let url = `${window.baseUrl}/dashboard?id=${encodeURIComponent(this.props.component.key)}&did=${d.key}`;
+      let url = `/dashboard?id=${encodeURIComponent(this.props.component.key)}&did=${d.key}`;
       let name = this.getLocalizedDashboardName(d.name);
       return this.renderLink(url, name);
     });
@@ -173,7 +173,7 @@ export default React.createClass({
     if (!window.SS.user) {
       return null;
     }
-    let url = `${window.baseUrl}/dashboards?resource=${encodeURIComponent(this.props.component.key)}`;
+    let url = `/dashboards?resource=${encodeURIComponent(this.props.component.key)}`;
     let name = window.t('dashboard.manage_dashboards');
     return [
       <li key="dashboard-divider" className="small-divider"></li>,
