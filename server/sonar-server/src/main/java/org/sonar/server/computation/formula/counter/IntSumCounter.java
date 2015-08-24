@@ -21,7 +21,7 @@
 package org.sonar.server.computation.formula.counter;
 
 import com.google.common.base.Optional;
-import org.sonar.server.computation.formula.LeafAggregateContext;
+import org.sonar.server.computation.formula.CounterInitializationContext;
 import org.sonar.server.computation.measure.Measure;
 
 /**
@@ -46,7 +46,7 @@ public class IntSumCounter implements SumCounter<Integer, IntSumCounter> {
   }
 
   @Override
-  public void aggregate(LeafAggregateContext context) {
+  public void initialize(CounterInitializationContext context) {
     Optional<Measure> measureOptional = context.getMeasure(metricKey);
     if (measureOptional.isPresent()) {
       addValue(measureOptional.get().getIntValue());

@@ -47,7 +47,7 @@ public class LongSumFormulaTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  LeafAggregateContext leafAggregateContext = mock(LeafAggregateContext.class);
+  CounterInitializationContext counterInitializationContext = mock(CounterInitializationContext.class);
   CreateMeasureContext projectCreateMeasureContext = new DumbCreateMeasureContext(
     ReportComponent.builder(Component.Type.PROJECT, 1).build(), mock(Metric.class), mock(PeriodsHolder.class));
   CreateMeasureContext fileCreateMeasureContext = new DumbCreateMeasureContext(
@@ -75,7 +75,7 @@ public class LongSumFormulaTest {
   public void create_measure() {
     LongSumCounter counter = LONG_SUM_FORMULA.createNewCounter();
     addMeasure(LINES_KEY, MEASURE_VALUE);
-    counter.aggregate(leafAggregateContext);
+    counter.initialize(counterInitializationContext);
 
     assertThat(LONG_SUM_FORMULA.createMeasure(counter, projectCreateMeasureContext).get().getLongValue()).isEqualTo(MEASURE_VALUE);
   }
@@ -84,7 +84,7 @@ public class LongSumFormulaTest {
   public void create_measure_when_counter_is_aggregating_from_another_counter() {
     LongSumCounter anotherCounter = LONG_SUM_FORMULA.createNewCounter();
     addMeasure(LINES_KEY, MEASURE_VALUE);
-    anotherCounter.aggregate(leafAggregateContext);
+    anotherCounter.initialize(counterInitializationContext);
 
     LongSumCounter counter = LONG_SUM_FORMULA.createNewCounter();
     counter.aggregate(anotherCounter);
@@ -96,7 +96,7 @@ public class LongSumFormulaTest {
   public void not_create_measure_on_file() {
     LongSumCounter counter = LONG_SUM_FORMULA.createNewCounter();
     addMeasure(LINES_KEY, MEASURE_VALUE);
-    counter.aggregate(leafAggregateContext);
+    counter.initialize(counterInitializationContext);
 
     Assertions.assertThat(LONG_SUM_FORMULA.createMeasure(counter, fileCreateMeasureContext)).isAbsent();
   }
@@ -104,14 +104,14 @@ public class LongSumFormulaTest {
   @Test
   public void do_not_create_measures_when_no_values() {
     LongSumCounter counter = LONG_SUM_FORMULA.createNewCounter();
-    when(leafAggregateContext.getMeasure(LINES_KEY)).thenReturn(Optional.<Measure>absent());
-    counter.aggregate(leafAggregateContext);
+    when(counterInitializationContext.getMeasure(LINES_KEY)).thenReturn(Optional.<Measure>absent());
+    counter.initialize(counterInitializationContext);
 
     Assertions.assertThat(LONG_SUM_FORMULA.createMeasure(counter, projectCreateMeasureContext)).isAbsent();
   }
 
   private void addMeasure(String metricKey, long value) {
-    when(leafAggregateContext.getMeasure(metricKey)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(value)));
+    when(counterInitializationContext.getMeasure(metricKey)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(value)));
   }
 
 }

@@ -22,7 +22,7 @@ package org.sonar.server.computation.formula.counter;
 
 import com.google.common.base.Optional;
 import org.junit.Test;
-import org.sonar.server.computation.formula.LeafAggregateContext;
+import org.sonar.server.computation.formula.CounterInitializationContext;
 import org.sonar.server.computation.measure.Measure;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +35,7 @@ public class IntSumCounterTest {
 
   private final static String METRIC_KEY = "metric";
 
-  LeafAggregateContext leafAggregateContext = mock(LeafAggregateContext.class);
+  CounterInitializationContext counterInitializationContext = mock(CounterInitializationContext.class);
 
   SumCounter sumCounter = new IntSumCounter(METRIC_KEY);
 
@@ -46,27 +46,27 @@ public class IntSumCounterTest {
 
   @Test
   public void aggregate_from_context() {
-    when(leafAggregateContext.getMeasure(METRIC_KEY)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(10)));
+    when(counterInitializationContext.getMeasure(METRIC_KEY)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(10)));
 
-    sumCounter.aggregate(leafAggregateContext);
+    sumCounter.initialize(counterInitializationContext);
 
     assertThat(sumCounter.getValue().get()).isEqualTo(10);
   }
 
   @Test
   public void no_value_when_aggregate_from_context_but_no_measure() {
-    when(leafAggregateContext.getMeasure(anyString())).thenReturn(Optional.<Measure>absent());
+    when(counterInitializationContext.getMeasure(anyString())).thenReturn(Optional.<Measure>absent());
 
-    sumCounter.aggregate(leafAggregateContext);
+    sumCounter.initialize(counterInitializationContext);
 
     assertThat(sumCounter.getValue()).isAbsent();
   }
 
   @Test
   public void aggregate_from_counter() {
-    when(leafAggregateContext.getMeasure(METRIC_KEY)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(10)));
+    when(counterInitializationContext.getMeasure(METRIC_KEY)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(10)));
     SumCounter anotherCounter = new IntSumCounter(METRIC_KEY);
-    anotherCounter.aggregate(leafAggregateContext);
+    anotherCounter.initialize(counterInitializationContext);
 
     sumCounter.aggregate(anotherCounter);
 

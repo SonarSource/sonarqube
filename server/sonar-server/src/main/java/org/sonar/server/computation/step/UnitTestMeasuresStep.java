@@ -29,7 +29,7 @@ import org.sonar.server.computation.formula.Counter;
 import org.sonar.server.computation.formula.CreateMeasureContext;
 import org.sonar.server.computation.formula.Formula;
 import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
-import org.sonar.server.computation.formula.LeafAggregateContext;
+import org.sonar.server.computation.formula.CounterInitializationContext;
 import org.sonar.server.computation.formula.counter.IntSumCounter;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
@@ -138,10 +138,10 @@ public class UnitTestMeasuresStep implements ComputationStep {
     }
 
     @Override
-    public void aggregate(LeafAggregateContext context) {
-      testsCounter.aggregate(context);
-      testsErrorsCounter.aggregate(context);
-      testsFailuresCounter.aggregate(context);
+    public void initialize(CounterInitializationContext context) {
+      testsCounter.initialize(context);
+      testsErrorsCounter.initialize(context);
+      testsFailuresCounter.initialize(context);
     }
   }
 

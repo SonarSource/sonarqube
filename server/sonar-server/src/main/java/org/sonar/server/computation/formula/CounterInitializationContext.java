@@ -27,9 +27,9 @@ import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.period.Period;
 
 /**
- * The context passing information to {@link Counter#aggregate(LeafAggregateContext)}.
+ * The context passing information to {@link Counter#initialize(CounterInitializationContext)}.
  */
-public interface LeafAggregateContext {
+public interface CounterInitializationContext {
 
   /**
    * The Component representing the currently processed leaf.

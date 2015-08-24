@@ -43,7 +43,7 @@ public class DistributionFormulaTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  LeafAggregateContext leafAggregateContext = mock(LeafAggregateContext.class);
+  CounterInitializationContext counterInitializationContext = mock(CounterInitializationContext.class);
   CreateMeasureContext projectCreateMeasureContext = new DumbCreateMeasureContext(
       ReportComponent.builder(Component.Type.PROJECT, 1).build(), mock(Metric.class), mock(PeriodsHolder.class));
   CreateMeasureContext fileCreateMeasureContext = new DumbCreateMeasureContext(
@@ -71,7 +71,7 @@ public class DistributionFormulaTest {
   public void create_measure() {
     DistributionFormula.DistributionCounter counter = BASIC_DISTRIBUTION_FORMULA.createNewCounter();
     addMeasure(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, "0=3;3=7;6=10");
-    counter.aggregate(leafAggregateContext);
+    counter.initialize(counterInitializationContext);
 
     assertThat(BASIC_DISTRIBUTION_FORMULA.createMeasure(counter, projectCreateMeasureContext).get().getData()).isEqualTo("0=3;3=7;6=10");
   }
@@ -80,7 +80,7 @@ public class DistributionFormulaTest {
   public void create_measure_when_counter_is_aggregating_from_another_counter() {
     DistributionFormula.DistributionCounter anotherCounter = BASIC_DISTRIBUTION_FORMULA.createNewCounter();
     addMeasure(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, "0=3;3=7;6=10");
-    anotherCounter.aggregate(leafAggregateContext);
+    anotherCounter.initialize(counterInitializationContext);
 
     DistributionFormula.DistributionCounter counter = BASIC_DISTRIBUTION_FORMULA.createNewCounter();
     counter.aggregate(anotherCounter);
@@ -91,8 +91,8 @@ public class DistributionFormulaTest {
   @Test
   public void create_no_measure_when_no_value() {
     DistributionFormula.DistributionCounter counter = BASIC_DISTRIBUTION_FORMULA.createNewCounter();
-    when(leafAggregateContext.getMeasure(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(Optional.<Measure>absent());
-    counter.aggregate(leafAggregateContext);
+    when(counterInitializationContext.getMeasure(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(Optional.<Measure>absent());
+    counter.initialize(counterInitializationContext);
 
     Assertions.assertThat(BASIC_DISTRIBUTION_FORMULA.createMeasure(counter, projectCreateMeasureContext)).isAbsent();
   }
@@ -101,13 +101,13 @@ public class DistributionFormulaTest {
   public void not_create_measure_when_on_file() {
     DistributionFormula.DistributionCounter counter = BASIC_DISTRIBUTION_FORMULA.createNewCounter();
     addMeasure(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, "0=3;3=7;6=10");
-    counter.aggregate(leafAggregateContext);
+    counter.initialize(counterInitializationContext);
 
     Assertions.assertThat(BASIC_DISTRIBUTION_FORMULA.createMeasure(counter, fileCreateMeasureContext)).isAbsent();
   }
 
   private void addMeasure(String metricKey, String value) {
-    when(leafAggregateContext.getMeasure(metricKey)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(value)));
+    when(counterInitializationContext.getMeasure(metricKey)).thenReturn(Optional.of(Measure.newMeasureBuilder().create(value)));
   }
 
 }

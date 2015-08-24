@@ -29,7 +29,7 @@ import org.sonar.server.computation.formula.Counter;
 import org.sonar.server.computation.formula.CreateMeasureContext;
 import org.sonar.server.computation.formula.Formula;
 import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
-import org.sonar.server.computation.formula.LeafAggregateContext;
+import org.sonar.server.computation.formula.CounterInitializationContext;
 import org.sonar.server.computation.formula.counter.IntSumCounter;
 import org.sonar.server.computation.formula.counter.SumCounter;
 import org.sonar.server.computation.measure.Measure;
@@ -184,9 +184,9 @@ public class CommentMeasuresStep implements ComputationStep {
     }
 
     @Override
-    public void aggregate(LeafAggregateContext context) {
-      publicApiCounter.aggregate(context);
-      publicUndocumentedApiCounter.aggregate(context);
+    public void initialize(CounterInitializationContext context) {
+      publicApiCounter.initialize(context);
+      publicUndocumentedApiCounter.initialize(context);
     }
 
     public Optional<Integer> getPublicApiValue() {

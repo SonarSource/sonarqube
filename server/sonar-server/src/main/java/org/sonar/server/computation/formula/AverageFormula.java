@@ -123,7 +123,7 @@ public class AverageFormula implements Formula<AverageFormula.AverageCounter> {
     }
 
     @Override
-    public void aggregate(LeafAggregateContext context) {
+    public void initialize(CounterInitializationContext context) {
       Optional<Double> mainValueOptional = getDoubleValue(context.getMeasure(mainMetric));
       if (!mainValueOptional.isPresent() && fallbackMetric != null) {
         mainValueOptional = getDoubleValue(context.getMeasure(fallbackMetric));

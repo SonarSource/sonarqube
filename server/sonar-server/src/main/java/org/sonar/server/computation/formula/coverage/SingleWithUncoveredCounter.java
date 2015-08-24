@@ -19,7 +19,7 @@
  */
 package org.sonar.server.computation.formula.coverage;
 
-import org.sonar.server.computation.formula.LeafAggregateContext;
+import org.sonar.server.computation.formula.CounterInitializationContext;
 
 import static org.sonar.server.computation.formula.coverage.CoverageUtils.getLongMeasureValue;
 
@@ -31,7 +31,7 @@ public final class SingleWithUncoveredCounter extends ElementsAndCoveredElements
   }
 
   @Override
-  protected void aggregateForSupportedLeaf(LeafAggregateContext counterContext) {
+  protected void initializeForSupportedLeaf(CounterInitializationContext counterContext) {
     this.elements = getLongMeasureValue(counterContext, metricKeys.getCovered());
     this.coveredElements = this.elements - getLongMeasureValue(counterContext, metricKeys.getUncovered());
   }

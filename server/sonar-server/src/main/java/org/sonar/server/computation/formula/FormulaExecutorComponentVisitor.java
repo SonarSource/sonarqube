@@ -151,10 +151,10 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
   }
 
   private void processLeaf(Component file, Path<FormulaExecutorComponentVisitor.Counters> path) {
-    LeafAggregateContext counterContext = new LeafAggregateContextImpl(file);
+    CounterInitializationContext counterContext = new CounterInitializationContextImpl(file);
     for (Formula formula : formulas) {
       Counter counter = formula.createNewCounter();
-      counter.aggregate(counterContext);
+      counter.initialize(counterContext);
       for (String metricKey : formula.getOutputMetricKeys()) {
         addNewMeasure(file, metricKey, formula, counter);
       }
@@ -180,10 +180,10 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
     }
   }
 
-  private class LeafAggregateContextImpl implements LeafAggregateContext {
+  private class CounterInitializationContextImpl implements CounterInitializationContext {
     private final Component file;
 
-    public LeafAggregateContextImpl(Component file) {
+    public CounterInitializationContextImpl(Component file) {
       this.file = file;
     }
 

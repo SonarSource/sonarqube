@@ -19,7 +19,7 @@
  */
 package org.sonar.server.computation.formula.coverage;
 
-import org.sonar.server.computation.formula.LeafAggregateContext;
+import org.sonar.server.computation.formula.CounterInitializationContext;
 import org.sonar.server.computation.measure.MeasureVariations;
 import org.sonar.server.computation.period.Period;
 
@@ -35,7 +35,7 @@ public final class SingleWithUncoveredVariationCounter extends ElementsAndCovere
   }
 
   @Override
-  protected void aggregateForSupportedFile(LeafAggregateContext counterContext) {
+  protected void initializeForSupportedLeaf(CounterInitializationContext counterContext) {
     MeasureVariations newConditions = getMeasureVariations(counterContext, metricKeys.getCovered());
     MeasureVariations uncoveredConditions = getMeasureVariations(counterContext, metricKeys.getUncovered());
     for (Period period : counterContext.getPeriods()) {

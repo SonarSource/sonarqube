@@ -283,7 +283,7 @@ public class ViewsFormulaExecutorComponentVisitorTest {
     }
 
     @Override
-    public void aggregate(LeafAggregateContext context) {
+    public void initialize(CounterInitializationContext context) {
       verifyLeafContext(context);
 
       Optional<Measure> measureOptional = context.getMeasure(LINES_KEY);
@@ -332,7 +332,7 @@ public class ViewsFormulaExecutorComponentVisitorTest {
     }
 
     @Override
-    public void aggregate(LeafAggregateContext context) {
+    public void initialize(CounterInitializationContext context) {
       verifyLeafContext(context);
 
       Optional<Measure> measureOptional = context.getMeasure(NEW_LINES_TO_COVER_KEY);
@@ -366,7 +366,7 @@ public class ViewsFormulaExecutorComponentVisitorTest {
             entryOf(NEW_IT_COVERAGE_KEY, newMeasureBuilder().create(valueItCoverage)));
   }
 
-  private void verifyLeafContext(LeafAggregateContext context) {
+  private void verifyLeafContext(CounterInitializationContext context) {
     assertThat(context.getLeaf().getKey()).isIn(String.valueOf(PROJECT_VIEW_1_REF), String.valueOf(PROJECT_VIEW_2_REF), String.valueOf(PROJECT_VIEW_3_REF),
       String.valueOf(PROJECT_VIEW_4_REF));
     assertThat(context.getPeriods()).isEqualTo(periodsHolder.getPeriods());

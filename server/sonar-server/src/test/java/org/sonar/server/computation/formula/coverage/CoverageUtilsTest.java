@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.ExternalResource;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.formula.LeafAggregateContext;
+import org.sonar.server.computation.formula.CounterInitializationContext;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureVariations;
 import org.sonar.server.computation.period.Period;
@@ -47,7 +47,7 @@ public class CoverageUtilsTest {
   public static final MeasureVariations DEFAULT_VARIATIONS = new MeasureVariations(0d, 0d, 0d, 0d, 0d);
 
   @Rule
-  public LeafAggregateContextRule fileAggregateContext = new LeafAggregateContextRule();
+  public CounterInitializationContextRule fileAggregateContext = new CounterInitializationContextRule();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -127,10 +127,10 @@ public class CoverageUtilsTest {
     return new Period(periodIndex, "mode" + periodIndex, null, 963L + periodIndex, 9865L + periodIndex);
   }
 
-  private static class LeafAggregateContextRule extends ExternalResource implements LeafAggregateContext {
+  private static class CounterInitializationContextRule extends ExternalResource implements CounterInitializationContext {
     private final Map<String, Measure> measures = new HashMap<>();
 
-    public LeafAggregateContextRule put(String metricKey, Measure measure) {
+    public CounterInitializationContextRule put(String metricKey, Measure measure) {
       checkNotNull(metricKey);
       checkNotNull(measure);
       checkState(!measures.containsKey(metricKey));

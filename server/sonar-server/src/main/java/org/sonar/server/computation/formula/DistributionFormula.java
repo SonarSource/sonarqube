@@ -68,7 +68,7 @@ public class DistributionFormula implements Formula<DistributionFormula.Distribu
     }
 
     @Override
-    public void aggregate(LeafAggregateContext context) {
+    public void initialize(CounterInitializationContext context) {
       Optional<Measure> measureOptional = context.getMeasure(metricKey);
       String data = measureOptional.isPresent() ? measureOptional.get().getData() : null;
       if (data != null) {

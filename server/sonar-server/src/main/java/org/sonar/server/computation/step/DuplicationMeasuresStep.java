@@ -31,7 +31,7 @@ import org.sonar.server.computation.formula.CreateMeasureContext;
 import org.sonar.server.computation.formula.Formula;
 import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
 import org.sonar.server.computation.formula.counter.IntSumCounter;
-import org.sonar.server.computation.formula.LeafAggregateContext;
+import org.sonar.server.computation.formula.CounterInitializationContext;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
@@ -187,7 +187,7 @@ public class DuplicationMeasuresStep implements ComputationStep {
     }
 
     @Override
-    public void aggregate(LeafAggregateContext context) {
+    public void initialize(CounterInitializationContext context) {
       Optional<Measure> measureOptional = context.getMeasure(metricKey);
       if (measureOptional.isPresent()) {
         value += measureOptional.get().getIntValue();

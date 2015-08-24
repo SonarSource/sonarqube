@@ -32,7 +32,7 @@ import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.Counter;
 import org.sonar.server.computation.formula.CreateMeasureContext;
-import org.sonar.server.computation.formula.LeafAggregateContext;
+import org.sonar.server.computation.formula.CounterInitializationContext;
 import org.sonar.server.computation.formula.Formula;
 import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
 import org.sonar.server.computation.measure.Measure;
@@ -115,7 +115,7 @@ public class LanguageDistributionMeasuresStep implements ComputationStep {
     }
 
     @Override
-    public void aggregate(LeafAggregateContext context) {
+    public void initialize(CounterInitializationContext context) {
       String language = context.getLeaf().getFileAttributes().getLanguageKey();
       Optional<Measure> ncloc = context.getMeasure(CoreMetrics.NCLOC_KEY);
       if (ncloc.isPresent()) {

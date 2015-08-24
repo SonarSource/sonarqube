@@ -286,7 +286,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
     }
 
     @Override
-    public void aggregate(LeafAggregateContext context) {
+    public void initialize(CounterInitializationContext context) {
       // verify the context which is passed to the method
       assertThat(context.getLeaf().getReportAttributes().getRef()).isIn(1111, 1112, 1211);
       assertThat(context.getPeriods()).isEqualTo(periodsHolder.getPeriods());
@@ -337,7 +337,7 @@ public class ReportFormulaExecutorComponentVisitorTest {
     }
 
     @Override
-    public void aggregate(LeafAggregateContext context) {
+    public void initialize(CounterInitializationContext context) {
       // verify the context which is passed to the method
       assertThat(context.getLeaf().getReportAttributes().getRef()).isIn(1111, 1112, 1211);
       assertThat(context.getPeriods()).isEqualTo(periodsHolder.getPeriods());
