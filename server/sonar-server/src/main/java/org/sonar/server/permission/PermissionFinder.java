@@ -25,10 +25,10 @@ import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Paging;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.GroupWithPermission;
 import org.sonar.core.permission.UserWithPermission;
 import org.sonar.db.DbClient;
@@ -45,6 +45,7 @@ import org.sonar.db.permission.UserWithPermissionDto;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
 import static org.sonar.api.utils.Paging.forPageIndex;
 
 @ServerSide
@@ -174,7 +175,9 @@ public class PermissionFinder {
    */
   private void addAnyoneGroup(List<GroupWithPermissionDto> groups, PermissionQuery query) {
     boolean hasAnyoneGroup = Iterables.any(groups, IsAnyoneGroup.INSTANCE);
-    if (!hasAnyoneGroup && (query.search() == null || StringUtils.containsIgnoreCase(DefaultGroups.ANYONE, query.search()))) {
+    if (!hasAnyoneGroup
+      && !GlobalPermissions.SYSTEM_ADMIN.equals(query.permission())
+      && (query.search() == null || containsIgnoreCase(DefaultGroups.ANYONE, query.search()))) {
       groups.add(0, new GroupWithPermissionDto().setName(DefaultGroups.ANYONE));
     }
   }

@@ -31,6 +31,7 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -47,6 +48,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.server.ws.WebService.Param.SELECTED;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
@@ -102,17 +104,28 @@ public class GroupsActionTest {
   @Test
   public void search_with_selection() {
     String result = ws.newRequest()
-      .setParam("permission", "scan")
-      .setParam("selected", SelectionMode.ALL.value())
+      .setParam(PARAM_PERMISSION, GlobalPermissions.SCAN_EXECUTION)
+      .setParam(SELECTED, SelectionMode.ALL.value())
       .execute().getInput();
 
     assertThat(result).containsSequence(DefaultGroups.ANYONE, "group-1", "group-2", "group-3");
   }
 
   @Test
+  public void search_with_admin_does_not_return_anyone() {
+    String result = ws.newRequest()
+      .setParam(PARAM_PERMISSION, GlobalPermissions.SYSTEM_ADMIN)
+      .setParam(SELECTED, SelectionMode.ALL.value())
+      .execute().getInput();
+
+    assertThat(result).containsSequence("group-1", "group-2", "group-3")
+      .doesNotContain(DefaultGroups.ANYONE);
+  }
+
+  @Test
   public void search_groups_with_pagination() {
     String result = ws.newRequest()
-      .setParam("permission", "scan")
+      .setParam(PARAM_PERMISSION, "scan")
       .setParam(Param.PAGE_SIZE, "1")
       .setParam(Param.PAGE, "2")
       .execute().getInput();
@@ -125,7 +138,7 @@ public class GroupsActionTest {
   @Test
   public void search_groups_with_query() {
     String result = ws.newRequest()
-      .setParam("permission", "scan")
+      .setParam(PARAM_PERMISSION, "scan")
       .setParam(Param.TEXT_QUERY, "group-")
       .execute().getInput();
 
@@ -171,7 +184,7 @@ public class GroupsActionTest {
     userSession.anonymous();
 
     ws.newRequest()
-      .setParam("permission", "scan")
+      .setParam(PARAM_PERMISSION, "scan")
       .execute();
   }
 
@@ -181,7 +194,7 @@ public class GroupsActionTest {
     userSession.login("login");
 
     ws.newRequest()
-      .setParam("permission", "scan")
+      .setParam(PARAM_PERMISSION, "scan")
       .execute();
   }
 
