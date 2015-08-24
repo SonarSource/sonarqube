@@ -230,7 +230,7 @@ public class PermissionTemplateDao implements Dao {
   }
 
   /**
-   * @deprecated since 5.2 use the method with dbSession instead
+   * @deprecated since 5.2 {@link #insertUserPermission(DbSession, Long, Long, String)}
    */
   @Deprecated
   public void insertUserPermission(Long templateId, Long userId, String permission) {
@@ -255,7 +255,7 @@ public class PermissionTemplateDao implements Dao {
   }
 
   /**
-   * @deprecated since 5.2 please use method with DbSession
+   * @deprecated since 5.2 {@link #deleteUserPermission(DbSession, Long, Long, String)}
    */
   @Deprecated
   public void deleteUserPermission(Long templateId, Long userId, String permission) {
@@ -296,18 +296,26 @@ public class PermissionTemplateDao implements Dao {
     session.commit();
   }
 
+  /**
+   * @deprecated since 5.2 use {@link #deleteGroupPermission(DbSession, Long, Long, String)}
+   */
+  @Deprecated
   public void deleteGroupPermission(Long templateId, @Nullable Long groupId, String permission) {
+    DbSession session = myBatis.openSession(false);
+    try {
+      deleteGroupPermission(session, templateId, groupId, permission);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void deleteGroupPermission(DbSession session, Long templateId, @Nullable Long groupId, String permission) {
     PermissionTemplateGroupDto permissionTemplateGroup = new PermissionTemplateGroupDto()
       .setTemplateId(templateId)
       .setPermission(permission)
       .setGroupId(groupId);
-    SqlSession session = myBatis.openSession(false);
-    try {
-      mapper(session).deleteGroupPermission(permissionTemplateGroup);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+    mapper(session).deleteGroupPermission(permissionTemplateGroup);
+    session.commit();
   }
 
   /**
