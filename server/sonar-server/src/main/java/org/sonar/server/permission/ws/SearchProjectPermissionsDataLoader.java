@@ -21,6 +21,7 @@
 package org.sonar.server.permission.ws;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
@@ -46,8 +47,6 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.permission.ws.SearchProjectPermissionsData.newBuilder;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_UUID;
 
 public class SearchProjectPermissionsDataLoader {
   private final DbClient dbClient;
@@ -91,11 +90,10 @@ public class SearchProjectPermissionsDataLoader {
 
   private List<ComponentDto> searchRootComponents(DbSession dbSession, Request wsRequest, Paging paging) {
     String query = wsRequest.param(TEXT_QUERY);
-    String projectUuid = wsRequest.param(PARAM_PROJECT_UUID);
-    String projectKey = wsRequest.param(PARAM_PROJECT_KEY);
+    Optional<WsProject> project = WsProject.fromRequest(wsRequest);
 
-    if (projectUuid != null || projectKey != null) {
-      return singletonList(componentFinder.getProjectByUuidOrKey(dbSession, projectUuid, projectKey));
+    if (project.isPresent()) {
+      return singletonList(componentFinder.getProjectByUuidOrKey(dbSession, project.get().uuid(), project.get().key()));
     }
 
     return dbClient.componentDao().selectComponents(dbSession, rootQualifiers, paging.offset(), paging.pageSize(), query);

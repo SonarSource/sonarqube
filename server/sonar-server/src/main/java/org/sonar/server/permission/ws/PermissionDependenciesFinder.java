@@ -48,11 +48,12 @@ public class PermissionDependenciesFinder {
    * @throws org.sonar.server.exceptions.NotFoundException if a project identifier is provided but it's not found
    */
   Optional<ComponentDto> searchProject(DbSession dbSession, PermissionRequest request) {
-    if (!request.hasProject()) {
+    if (!request.project().isPresent()) {
       return Optional.absent();
     }
 
-    return Optional.of(componentFinder.getProjectByUuidOrKey(dbSession, request.projectUuid(), request.projectKey()));
+    WsProject wsProject = request.project().get();
+    return Optional.of(componentFinder.getProjectByUuidOrKey(dbSession, wsProject.uuid(), wsProject.key()));
   }
 
   String getGroupName(DbSession dbSession, PermissionRequest request) {

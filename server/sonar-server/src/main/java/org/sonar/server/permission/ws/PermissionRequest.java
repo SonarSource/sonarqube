@@ -20,9 +20,9 @@
 
 package org.sonar.server.permission.ws;
 
+import com.google.common.base.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService.SelectionMode;
-import org.sonar.core.permission.GlobalPermissions;
 
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
@@ -31,18 +31,13 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.server.permission.PermissionRequestValidator.validateGlobalPermission;
 import static org.sonar.server.permission.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_UUID;
 import static org.sonar.server.permission.ws.Parameters.PARAM_USER_LOGIN;
-import static org.sonar.server.ws.WsUtils.checkRequest;
 
 class PermissionRequest {
   private final String permission;
   private final String userLogin;
   private final WsGroup group;
-  private final String projectUuid;
-  private final String projectKey;
-  private final boolean hasProject;
+  private final Optional<WsProject> project;
   private final Integer page;
   private final Integer pageSize;
   private final String selected;
@@ -52,9 +47,7 @@ class PermissionRequest {
     permission = builder.permission;
     userLogin = builder.userLogin;
     group = builder.group;
-    projectUuid = builder.projectUuid;
-    projectKey = builder.projectKey;
-    hasProject = builder.hasProject;
+    project = builder.project;
     page = builder.page;
     pageSize = builder.pageSize;
     selected = builder.selected;
@@ -73,9 +66,7 @@ class PermissionRequest {
     private String userLogin;
 
     private WsGroup group;
-    private String projectUuid;
-    private String projectKey;
-    private boolean hasProject;
+    private Optional<WsProject> project;
     private Integer page;
     private Integer pageSize;
     private String selected;
@@ -148,23 +139,13 @@ class PermissionRequest {
     }
 
     private void setProject(Request request) {
-      if (request.hasParam(PARAM_PROJECT_UUID) || request.hasParam(PARAM_PROJECT_KEY)) {
-        String projectUuidParam = request.param(PARAM_PROJECT_UUID);
-        String projectKeyParam = request.param(PARAM_PROJECT_KEY);
-
-        if (projectUuidParam != null || projectKeyParam != null) {
-          checkRequest(projectUuidParam != null ^ projectKeyParam != null, "Project id or project key can be provided, not both.");
-          this.projectUuid = projectUuidParam;
-          this.projectKey = projectKeyParam;
-          hasProject = true;
-        }
-      }
+      this.project = WsProject.fromRequest(request);
     }
 
     private void checkPermissionParameter() {
-      if (hasProject) {
+      if (project.isPresent()) {
         validateProjectPermission(permission);
-      } else if (!GlobalPermissions.ALL.contains(permission)) {
+      } else {
         validateGlobalPermission(permission);
       }
     }
@@ -182,12 +163,8 @@ class PermissionRequest {
     return group;
   }
 
-  String projectUuid() {
-    return projectUuid;
-  }
-
-  String projectKey() {
-    return projectKey;
+  Optional<WsProject> project() {
+    return project;
   }
 
   Integer page() {
@@ -204,9 +181,5 @@ class PermissionRequest {
 
   String query() {
     return query;
-  }
-
-  boolean hasProject() {
-    return hasProject;
   }
 }

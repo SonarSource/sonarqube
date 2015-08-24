@@ -20,6 +20,7 @@
 
 package org.sonar.server.permission.ws;
 
+import com.google.common.base.Optional;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -38,11 +39,8 @@ import org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentUuid;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_UUID;
 import static org.sonar.server.permission.ws.Parameters.createProjectKeyParameter;
 import static org.sonar.server.permission.ws.Parameters.createProjectUuidParameter;
-import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchProjectPermissionsAction implements PermissionsWsAction {
@@ -91,20 +89,15 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
   }
 
   private void checkRequestAndPermissions(Request wsRequest) {
-    String projectUuid = wsRequest.param(PARAM_PROJECT_UUID);
-    String projectKey = wsRequest.param(PARAM_PROJECT_KEY);
-    boolean hasProjectUuid = projectUuid != null;
-    boolean hasProjectKey = projectKey != null;
-
-    if (hasProjectUuid || hasProjectKey) {
-      checkRequest(projectUuid != null ^ projectKey != null, "Project id or project key can be provided, not both.");
-    }
+    Optional<WsProject> project = WsProject.fromRequest(wsRequest);
+    boolean hasProject = project.isPresent();
+    boolean hasProjectUuid = hasProject && project.get().uuid() != null;
+    boolean hasProjectKey = hasProject && project.get().key() != null;
 
     if (hasProjectUuid) {
-      checkProjectAdminUserByComponentUuid(userSession, projectUuid);
-      return;
+      checkProjectAdminUserByComponentUuid(userSession, project.get().uuid());
     } else if (hasProjectKey) {
-      checkProjectAdminUserByComponentKey(userSession, projectKey);
+      checkProjectAdminUserByComponentKey(userSession, project.get().key());
     } else {
       checkGlobalAdminUser(userSession);
     }
