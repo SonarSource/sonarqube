@@ -21,12 +21,8 @@ package org.sonar.server.computation.formula.counter;
 
 import com.google.common.base.Optional;
 import org.sonar.server.computation.formula.Counter;
-import org.sonar.server.computation.formula.LeafAggregateContext;
 
 public interface SumCounter<T extends Number, COUNTER extends SumCounter<T, COUNTER>> extends Counter<COUNTER> {
-  void aggregate(COUNTER counter);
-
-  void aggregate(LeafAggregateContext context);
 
   Optional<T> getValue();
 }

@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation;
+package org.sonar.server.util;
 
-import org.sonar.server.util.StoppableScheduledExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
- * The {@link java.util.concurrent.ExecutorService} responsible for running {@link ComputeEngineTask}.
+ * ScheduledExecutorService that exposes a {@code stop} method which can be invoked by Pico container to shutdown
+ * properly the service.
  */
-public interface ComputeEngineProcessingExecutorService extends StoppableScheduledExecutorService {
+public interface StoppableScheduledExecutorService extends ScheduledExecutorService, StoppableExecutorService {
+
 }
