@@ -20,6 +20,7 @@
 package org.sonar.api.batch.sensor.issue.internal;
 
 import com.google.common.base.Preconditions;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -33,7 +34,7 @@ public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
   private String message;
 
   @Override
-  public NewIssueLocation on(InputComponent component) {
+  public DefaultIssueLocation on(InputComponent component) {
     Preconditions.checkArgument(component != null, "Component can't be null");
     Preconditions.checkState(this.component == null, "on() already called");
     this.component = component;
@@ -53,9 +54,7 @@ public class DefaultIssueLocation implements NewIssueLocation, IssueLocation {
   @Override
   public DefaultIssueLocation message(String message) {
     Preconditions.checkNotNull(message, "Message can't be null");
-    Preconditions.checkArgument(message.length() <= MESSAGE_MAX_SIZE,
-      "Message of an issue can't be greater than " + MESSAGE_MAX_SIZE + ": [" + message + "] size is " + message.length());
-    this.message = message;
+    this.message = StringUtils.abbreviate(StringUtils.trim(message), MESSAGE_MAX_SIZE);
     return this;
   }
 

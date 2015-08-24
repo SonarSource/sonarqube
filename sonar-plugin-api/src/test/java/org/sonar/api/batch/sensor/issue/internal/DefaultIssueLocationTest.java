@@ -27,6 +27,8 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class DefaultIssueLocationTest {
 
   @Rule
@@ -46,18 +48,13 @@ public class DefaultIssueLocationTest {
 
   @Test
   public void prevent_too_long_messages() {
-    new DefaultIssueLocation()
+    assertThat(new DefaultIssueLocation()
       .on(inputFile)
-      .message(StringUtils.repeat("a", 4000));
+      .message(StringUtils.repeat("a", 4000)).message()).hasSize(4000);
 
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Message of an issue can't be greater than 4000: [aaa");
-    thrown.expectMessage("aaa] size is 4001");
-
-    new DefaultIssueLocation()
+    assertThat(new DefaultIssueLocation()
       .on(inputFile)
-      .message(StringUtils.repeat("a", 4001));
-
+      .message(StringUtils.repeat("a", 4001)).message()).hasSize(4000);
   }
 
 }

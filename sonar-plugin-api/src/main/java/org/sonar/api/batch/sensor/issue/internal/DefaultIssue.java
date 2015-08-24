@@ -39,6 +39,8 @@ import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
 
+import static java.lang.String.format;
+
 public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
 
   private static final class ToExecutionFlow implements Function<List<IssueLocation>, ExecutionFlow> {
@@ -77,6 +79,7 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
 
   @Override
   public DefaultIssue effortToFix(@Nullable Double effortToFix) {
+    Preconditions.checkArgument(effortToFix == null || effortToFix >= 0, format("Effort to fix must be greater than or equal 0 (got %s)", effortToFix));
     this.effortToFix = effortToFix;
     return this;
   }
