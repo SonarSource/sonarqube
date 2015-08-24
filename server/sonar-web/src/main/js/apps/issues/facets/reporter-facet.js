@@ -4,7 +4,7 @@ define([
 
   return CustomValuesFacet.extend({
     getUrl: function () {
-      return baseUrl + '/api/users/search';
+      return window.baseUrl + '/api/users/search';
     },
 
     prepareAjaxSearch: function () {

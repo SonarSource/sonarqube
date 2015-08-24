@@ -1,12 +1,13 @@
 define([
+  'backbone',
   './user'
-], function (User) {
+], function (Backbone, User) {
 
   return Backbone.Collection.extend({
     model: User,
 
     url: function () {
-      return baseUrl + '/api/users/search';
+      return window.baseUrl + '/api/users/search';
     },
 
     parse: function (r) {
@@ -19,7 +20,7 @@ define([
     fetch: function (options) {
       var d = (options && options.data) || {};
       this.q = d.q;
-      return this._super(options);
+      return Backbone.Collection.prototype.fetch.apply(this, arguments);
     },
 
     fetchMore: function () {

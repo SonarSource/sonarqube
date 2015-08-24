@@ -9,9 +9,9 @@
     if (value === '0') {
       return 0;
     }
-    daysPattern = transformPattern(t('work_duration.x_days'));
-    hoursPattern = transformPattern(t('work_duration.x_hours'));
-    minutesPattern = transformPattern(t('work_duration.x_minutes'));
+    daysPattern = transformPattern(window.t('work_duration.x_days'));
+    hoursPattern = transformPattern(window.t('work_duration.x_hours'));
+    minutesPattern = transformPattern(window.t('work_duration.x_minutes'));
     days = value.match(daysPattern);
     hours = value.match(hoursPattern);
     minutes = value.match(minutesPattern);
@@ -38,13 +38,13 @@
     minutes = value % 60;
     result = [];
     if (days > 0) {
-      result.push(t('work_duration.x_days').replace('{0}', days));
+      result.push(window.t('work_duration.x_days').replace('{0}', days));
     }
     if (hours > 0) {
-      result.push(t('work_duration.x_hours').replace('{0}', hours));
+      result.push(window.t('work_duration.x_hours').replace('{0}', hours));
     }
     if (minutes > 0) {
-      result.push(t('work_duration.x_minutes').replace('{0}', minutes));
+      result.push(window.t('work_duration.x_minutes').replace('{0}', minutes));
     }
     return result.join(' ');
   }

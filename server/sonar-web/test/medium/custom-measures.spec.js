@@ -3,14 +3,14 @@ define(function (require) {
   require('../helpers/test-page');
 
   bdd.describe('Custom Measures Page', function () {
-    var projectId = 'eb294572-a6a4-43cf-acc2-33c2fe37c02e';
+    var projectId = 'uuid';
 
     bdd.it('should show list', function () {
       return this.remote
           .open()
           .mockFromFile('/api/custom_measures/search', 'custom-measures-spec/search.json',
           { data: { projectId: projectId } })
-          .startApp('custom-measures', { projectId: projectId })
+          .startApp('custom-measures/app')
           .checkElementCount('#custom-measures-list li[data-id]', 4)
           .checkElementInclude('#custom-measures-list .js-custom-measure-value', '35')
           .checkElementInclude('#custom-measures-list .js-custom-measure-metric-name', 'Distribution')
@@ -29,7 +29,7 @@ define(function (require) {
           .open()
           .mockFromFile('/api/custom_measures/search', 'custom-measures-spec/search-big-1.json',
           { data: { projectId: projectId } })
-          .startApp('custom-measures', { projectId: projectId })
+          .startApp('custom-measures/app')
           .checkElementCount('#custom-measures-list li[data-id]', 2)
           .checkElementNotExist('[data-id="3"]')
           .clearMocks()
@@ -46,7 +46,7 @@ define(function (require) {
           .mockFromFile('/api/custom_measures/search', 'custom-measures-spec/search.json',
           { data: { projectId: projectId } })
           .mockFromFile('/api/metrics/search', 'custom-measures-spec/metrics.json', { data: { isCustom: true } })
-          .startApp('custom-measures', { projectId: projectId })
+          .startApp('custom-measures/app')
           .checkElementCount('#custom-measures-list li[data-id]', 4)
           .clickElement('#custom-measures-create')
           .checkElementExist('#create-custom-measure-form')
@@ -74,7 +74,7 @@ define(function (require) {
           .mockFromFile('/api/custom_measures/search', 'custom-measures-spec/search.json',
           { data: { projectId: projectId } })
           .mockFromFile('/api/metrics/search', 'custom-measures-spec/metrics.json', { data: { isCustom: true } })
-          .startApp('custom-measures', { projectId: projectId })
+          .startApp('custom-measures/app')
           .clickElement('#custom-measures-create')
           .checkElementExist('#create-custom-measure-form')
           .checkElementCount('#create-custom-measure-metric option', 1)
@@ -88,7 +88,7 @@ define(function (require) {
           { data: { projectId: projectId } })
           .mockFromFile('/api/metrics/search', 'custom-measures-spec/metrics-limited.json',
           { data: { isCustom: true } })
-          .startApp('custom-measures', { projectId: projectId })
+          .startApp('custom-measures/app')
           .clickElement('#custom-measures-create')
           .checkElementExist('#create-custom-measure-form')
           .checkElementNotExist('#create-custom-measure-metric')
@@ -102,7 +102,7 @@ define(function (require) {
           .mockFromFile('/api/custom_measures/search', 'custom-measures-spec/search.json',
           { data: { projectId: projectId } })
           .mockFromFile('/api/metrics/search', 'custom-measures-spec/metrics.json', { data: { isCustom: true } })
-          .startApp('custom-measures', { projectId: projectId })
+          .startApp('custom-measures/app')
           .clickElement('[data-id="5"] .js-custom-measure-update')
           .checkElementExist('#create-custom-measure-form')
           .clearMocks()
@@ -126,7 +126,7 @@ define(function (require) {
           .open()
           .mockFromFile('/api/custom_measures/search', 'custom-measures-spec/search.json',
           { data: { projectId: projectId } })
-          .startApp('custom-measures', { projectId: projectId })
+          .startApp('custom-measures/app')
           .clickElement('[data-id="5"] .js-custom-measure-delete')
           .checkElementExist('#delete-custom-measure-form', 1)
           .clearMocks()

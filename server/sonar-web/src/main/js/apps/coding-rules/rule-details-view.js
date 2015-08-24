@@ -1,23 +1,6 @@
-/*
- * SonarQube, open source software quality management tool.
- * Copyright (C) 2008-2014 SonarSource
- * mailto:contact AT sonarsource DOT com
- *
- * SonarQube is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * SonarQube is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
 define([
+      'backbone',
+      'backbone.marionette',
       './models/rules',
       './rule/rule-meta-view',
       './rule/rule-description-view',
@@ -27,9 +10,12 @@ define([
       './rule/manual-rule-creation-view',
       './rule/custom-rule-creation-view',
       './rule/rule-issues-view',
+      '../../components/common/dialogs',
       './templates'
     ],
-    function (Rules,
+    function (Backbone,
+              Marionette,
+              Rules,
               MetaView,
               DescView,
               ParamView,
@@ -37,7 +23,8 @@ define([
               CustomRulesView,
               ManualRuleCreationView,
               CustomRuleCreationView,
-              IssuesView) {
+              IssuesView,
+              confirmDialog) {
 
       var $ = jQuery;
 
@@ -163,9 +150,9 @@ define([
         deleteRule: function () {
           var that = this,
               ruleType = this.model.has('templateKey') ? 'custom' : 'manual';
-          window.confirmDialog({
-            title: t('delete'),
-            html: tp('coding_rules.delete.' + ruleType + '.confirm', this.model.get('name')),
+          confirmDialog({
+            title: window.t('delete'),
+            html: window.tp('coding_rules.delete.' + ruleType + '.confirm', this.model.get('name')),
             yesHandler: function () {
               var url = baseUrl + '/api/rules/delete',
                   options = { key: that.model.id };

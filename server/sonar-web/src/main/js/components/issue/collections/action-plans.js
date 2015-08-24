@@ -1,8 +1,10 @@
-define([], function () {
+define([
+  'backbone'
+], function (Backbone) {
 
   return Backbone.Collection.extend({
     url: function () {
-      return baseUrl + '/api/action_plans/search';
+      return window.baseUrl + '/api/action_plans/search';
     },
 
     parse: function (r) {

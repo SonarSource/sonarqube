@@ -1,11 +1,12 @@
 define([
+  'backbone.marionette',
   './layout',
   './users',
   './header-view',
   './search-view',
   './list-view',
   './list-footer-view'
-], function (Layout, Users, HeaderView, SearchView, ListView, ListFooterView) {
+], function (Marionette, Layout, Users, HeaderView, SearchView, ListView, ListFooterView) {
 
   var App = new Marionette.Application(),
       init = function (options) {
@@ -37,9 +38,7 @@ define([
       };
 
   App.on('start', function (options) {
-    window.requestMessages().done(function () {
-      init.call(App, options);
-    });
+    init.call(App, options);
   });
 
   return App;

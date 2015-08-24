@@ -1,6 +1,7 @@
 define([
+  'backbone.marionette',
   './templates'
-], function () {
+], function (Marionette) {
 
   return Marionette.ItemView.extend({
     template: Templates['provisioning-search'],
@@ -90,7 +91,7 @@ define([
           selectedCount = this.collection.where({ selected: true }).length,
           allSelected = projectsCount > 0 && projectsCount === selectedCount,
           someSelected = !allSelected && selectedCount > 0;
-      return _.extend(this._super(), {
+      return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
         selectedCount: selectedCount,
         allSelected: allSelected,
         someSelected: someSelected

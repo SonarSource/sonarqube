@@ -1,11 +1,13 @@
 define([
+  'backbone',
+  'backbone.marionette',
   './gates',
   './gates-view',
   './actions-view',
   './router',
   './layout',
   './controller'
-], function (Gates, GatesView, ActionsView, Router, Layout, Controller) {
+], function (Backbone, Marionette, Gates, GatesView, ActionsView, Router, Layout, Controller) {
 
   var $ = jQuery,
       App = new Marionette.Application();
@@ -52,7 +54,7 @@ define([
       });
 
   App.on('start', function (options) {
-    $.when(window.requestMessages(), appXHR).done(function () {
+    $.when(appXHR).done(function () {
       init.call(App, options);
     });
   });

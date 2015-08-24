@@ -4,7 +4,7 @@ define([
 
   return CustomValuesFacet.extend({
     prepareSearch: function () {
-      var url = baseUrl + '/api/issues/tags?ps=10',
+      var url = window.baseUrl + '/api/issues/tags?ps=10',
           tags = this.options.app.state.get('query').tags;
       if (tags != null) {
         url += '&tags=' + tags;
@@ -14,10 +14,10 @@ define([
         minimumInputLength: 0,
         allowClear: false,
         formatNoMatches: function () {
-          return t('select2.noMatches');
+          return window.t('select2.noMatches');
         },
         formatSearching: function () {
-          return t('select2.searching');
+          return window.t('select2.searching');
         },
         width: '100%',
         ajax: {

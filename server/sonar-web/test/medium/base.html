@@ -2,15 +2,32 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <link href="../../build/css/sonar.css" rel="stylesheet" media="all">
+  <script>
+    window.pageLang = 'en_US';
+    window.sonarVersion = 'SNAPSHOT';
+    window.baseUrl = '';
+    window.space = 'global';
+    window.component = 'key';
+
+    window.SS = {
+      hoursInDay: 8,
+      user: '',
+      userName: '',
+      userEmail: '',
+      lf: {
+        enableGravatar: false,
+        gravatarServerUrl: ''
+      },
+      updateCenterActive: true
+    };
+  </script>
+
   <script src="../../build/js/libs/translate.js"></script>
   <script src="../../build/js/libs/third-party/jquery.js"></script>
   <script src="../../build/js/libs/third-party/jquery-ui.js"></script>
   <script src="../../build/js/libs/third-party/d3.js"></script>
   <script src="../../build/js/libs/third-party/latinize.js"></script>
   <script src="../../build/js/libs/third-party/underscore.js"></script>
-  <script src="../../build/js/libs/third-party/backbone.js"></script>
-  <script src="../../build/js/libs/third-party/backbone-super.js"></script>
-  <script src="../../build/js/libs/third-party/backbone.marionette.js"></script>
   <script src="../../build/js/libs/third-party/handlebars.js"></script>
   <script src="../../build/js/libs/third-party/select2.js"></script>
   <script src="../../build/js/libs/third-party/keymaster.js"></script>
@@ -21,6 +38,7 @@
   <script src="../../build/js/libs/third-party/bootstrap/dropdown.js"></script>
   <script src="../../build/js/libs/third-party/md5.js"></script>
   <script src="../../build/js/libs/select2-jquery-ui-fix.js"></script>
+
   <script src="../../build/js/libs/widgets/base.js"></script>
   <script src="../../build/js/libs/widgets/widget.js"></script>
   <script src="../../build/js/libs/widgets/bubble-chart.js"></script>
@@ -31,48 +49,31 @@
   <script src="../../build/js/libs/widgets/word-cloud.js"></script>
   <script src="../../build/js/libs/widgets/tag-cloud.js"></script>
   <script src="../../build/js/libs/widgets/treemap.js"></script>
+
   <script src="../../build/js/libs/graphics/pie-chart.js"></script>
   <script src="../../build/js/libs/graphics/barchart.js"></script>
   <script src="../../build/js/libs/sortable.js"></script>
+
   <script src="../../build/js/libs/inputs.js"></script>
-  <script src="../../build/js/components/common/dialogs.js"></script>
-  <script src="../../build/js/components/common/processes.js"></script>
-  <script src="../../build/js/components/common/jquery-isolated-scroll.js"></script>
   <script src="../../build/js/components/common/handlebars-extensions.js"></script>
+
   <script src="../../build/js/libs/application.js"></script>
-  <script src="../../build/js/libs/csv.js"></script>
   <script src="../../build/js/libs/dashboard.js"></script>
-  <script src="../../build/js/libs/recent-history.js"></script>
-  <script src="../../build/js/libs/third-party/jquery.mockjax.js"></script>
   <script src="../../build/js/libs/third-party/require.js"></script>
-  <script>var baseUrl = '';
-  var $j = jQuery.noConflict();
-  window.suppressTranslationWarnings = true;
-  jQuery.mockjaxSettings.contentType = 'text/json';
-  jQuery.mockjaxSettings.responseTime = 50;
-  jQuery(document).ready(function () {
-    $j('.open-modal').modal();
-  });
-  window.SS = {
-    hoursInDay: 8,
-    user: '',
-    userName: '',
-    userEmail: '',
-    lf: {
-      enableGravatar: false,
-      gravatarServerUrl: ''
-    },
-    updateCenterActive: true
-  };
-  </script>
+
   <script>
-    requirejs.config({
-      baseUrl: baseUrl + '../../build/js',
-      paths: {
-        'react': 'libs/third-party/react-with-addons'
-      }
+    require(['test-main.js']);
+  </script>
+
+  <script>
+    window.suppressTranslationWarnings = true;
+
+    window.$j = window.jQuery;
+    $(function () {
+      $('.open-modal').modal();
     });
   </script>
+
 </head>
 <body>
 <div id="content"></div>

@@ -59,9 +59,6 @@ module.exports = (grunt) ->
             '<%= BUILD_PATH %>/js/libs/third-party/d3.js'
             '<%= BUILD_PATH %>/js/libs/third-party/latinize.js'
             '<%= BUILD_PATH %>/js/libs/third-party/underscore.js'
-            '<%= BUILD_PATH %>/js/libs/third-party/backbone.js'
-            '<%= BUILD_PATH %>/js/libs/third-party/backbone-super.js'
-            '<%= BUILD_PATH %>/js/libs/third-party/backbone.marionette.js'
             '<%= BUILD_PATH %>/js/libs/third-party/handlebars.js'
             '<%= BUILD_PATH %>/js/libs/third-party/select2.js'
             '<%= BUILD_PATH %>/js/libs/third-party/keymaster.js'
@@ -89,15 +86,10 @@ module.exports = (grunt) ->
             '<%= BUILD_PATH %>/js/libs/sortable.js'
 
             '<%= BUILD_PATH %>/js/libs/inputs.js'
-            '<%= BUILD_PATH %>/js/components/common/dialogs.js'
-            '<%= BUILD_PATH %>/js/components/common/processes.js'
-            '<%= BUILD_PATH %>/js/components/common/jquery-isolated-scroll.js'
             '<%= BUILD_PATH %>/js/components/common/handlebars-extensions.js'
 
             '<%= BUILD_PATH %>/js/libs/application.js'
-            '<%= BUILD_PATH %>/js/libs/csv.js'
             '<%= BUILD_PATH %>/js/libs/dashboard.js'
-            '<%= BUILD_PATH %>/js/libs/recent-history.js'
             '<%= BUILD_PATH %>/js/libs/third-party/require.js'
           ]
 
@@ -106,22 +98,35 @@ module.exports = (grunt) ->
       options:
         baseUrl: '<%= BUILD_PATH %>/js/'
         preserveLicenseComments: false
+        optimize: 'none'
         paths:
           'react': 'libs/third-party/react-with-addons'
+          'underscore': 'libs/shim/underscore-shim'
+          'jquery': 'libs/shim/jquery-shim'
+          'backbone': 'libs/third-party/backbone'
+          'backbone.marionette': 'libs/third-party/backbone.marionette'
+
+      main: options:
+        name: 'main'
+        out: '<%= ASSETS_PATH %>/js/main.js'
 
       issuesContext: options:
+        exclude: ['backbone', 'backbone.marionette']
         name: 'apps/issues/app-context'
         out: '<%= ASSETS_PATH %>/js/apps/issues/app-context.js'
 
       selectList: options:
+        exclude: ['backbone', 'backbone.marionette']
         name: 'components/common/select-list'
         out: '<%= ASSETS_PATH %>/js/components/common/select-list.js'
 
       app: options:
+        exclude: ['backbone', 'backbone.marionette']
         name: 'apps/<%= grunt.option("app") %>/app'
         out: '<%= ASSETS_PATH %>/js/apps/<%= grunt.option("app") %>/app.js'
 
       widget: options:
+        exclude: ['backbone', 'backbone.marionette']
         name: 'widgets/<%= grunt.option("widget") %>/widget'
         out: '<%= ASSETS_PATH %>/js/widgets/<%= grunt.option("widget") %>/widget.js'
 
@@ -129,13 +134,13 @@ module.exports = (grunt) ->
     concurrent:
       build:
         tasks: [
-          'uglify:build'
           # apps
           'build-app:account'
           'build-app:api-documentation'
           'build-app:coding-rules'
           'build-app:computation'
           'build-app:custom-measures'
+          'build-app:dashboard'
           'build-app:drilldown'
           'build-app:global-permissions'
           'build-app:groups'
@@ -158,6 +163,8 @@ module.exports = (grunt) ->
           # other
           'requirejs:issuesContext'
           'requirejs:selectList'
+          # main
+          'requirejs:main'
         ]
 
 
@@ -260,16 +267,17 @@ module.exports = (grunt) ->
         expand: true, cwd: '<%= SOURCE_PATH %>/js', src: ['**/*.js'], dest: '<%= BUILD_PATH %>/js'
       'assets-js':
         src: '<%= BUILD_PATH %>/js/sonar.js', dest: '<%= ASSETS_PATH %>/js/sonar.js'
+      'assets-libs-js':
+        expand: true, cwd: '<%= BUILD_PATH %>/js/libs', src: ['**/*.js'], dest: '<%= ASSETS_PATH %>/js/libs'
       'assets-all-js':
         expand: true, cwd: '<%= BUILD_PATH %>/js', src: ['**/*.js'], dest: '<%= ASSETS_PATH %>/js'
       'assets-css':
         src: '<%= BUILD_PATH %>/css/sonar.css', dest: '<%= ASSETS_PATH %>/css/sonar.css'
 
 
-    uglify:
+    uglify_parallel:
       build:
-        src: '<%= ASSETS_PATH %>/js/sonar.js'
-        dest: '<%= ASSETS_PATH %>/js/sonar.js'
+        expand: true, cwd: '<%= ASSETS_PATH %>/js', src: ['**/*.js'], dest: '<%= ASSETS_PATH %>/js'
 
 
     replace:
@@ -339,7 +347,7 @@ module.exports = (grunt) ->
       ['copy:assets-css', 'copy:assets-all-js']
 
   grunt.registerTask 'build-suffix',
-      ['copy:assets-css', 'copy:assets-js', 'concurrent:build']
+      ['copy:assets-css', 'copy:assets-js', 'copy:assets-libs-js', 'concurrent:build', 'uglify_parallel:build']
 
   grunt.registerTask 'test-suffix',
       ['intern:test', 'rename:lcov', 'replace:lcov']

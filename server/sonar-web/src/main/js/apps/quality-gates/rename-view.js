@@ -7,7 +7,7 @@ define([
 
     prepareRequest: function () {
       var that = this;
-      var url = baseUrl + '/api/qualitygates/rename',
+      var url = window.baseUrl + '/api/qualitygates/rename',
           name = this.$('#quality-gate-form-name').val(),
           options = {
             url: url,

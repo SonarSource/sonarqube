@@ -1,4 +1,6 @@
 define([
+      'backbone',
+      'backbone.marionette',
       './models/state',
       './layout',
       './models/rules',
@@ -13,7 +15,9 @@ define([
       './facets-view',
       './filters-view'
     ],
-    function (State,
+    function (Backbone,
+              Marionette,
+              State,
               Layout,
               Rules,
               Facets,
@@ -71,7 +75,7 @@ define([
       App.manualRepository = function () {
         return {
           key: 'manual',
-          name: t('coding_rules.manual_rule'),
+          name: window.t('coding_rules.manual_rule'),
           language: 'none'
         };
       };
@@ -104,7 +108,7 @@ define([
       });
 
       App.on('start', function (options) {
-        $.when(window.requestMessages(), appXHR).done(function () {
+        $.when(appXHR).done(function () {
           init.call(App, options);
         });
       });

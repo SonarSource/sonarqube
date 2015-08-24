@@ -1,27 +1,10 @@
-/*
- * SonarQube, open source software quality management tool.
- * Copyright (C) 2008-2014 SonarSource
- * mailto:contact AT sonarsource DOT com
- *
- * SonarQube is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * SonarQube is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
 define([
+  'jquery',
+  'backbone',
   './base-filters',
   './choice-filters',
   '../templates'
-], function (BaseFilters, ChoiceFilters) {
+], function ($, Backbone, BaseFilters, ChoiceFilters) {
 
   var PAGE_SIZE = 100;
 
@@ -29,30 +12,30 @@ define([
   var Suggestions = Backbone.Collection.extend({
     comparator: 'text',
 
-    initialize: function() {
+    initialize: function () {
       this.more = false;
       this.page = 0;
     },
 
 
-    parse: function(r) {
+    parse: function (r) {
       this.more = r.more;
       return r.results;
     },
 
 
-    fetch: function(options) {
+    fetch: function (options) {
       this.data = _.extend({
-            p: 1,
-            ps: PAGE_SIZE
-          }, options.data || {});
+        p: 1,
+        ps: PAGE_SIZE
+      }, options.data || {});
 
       var settings = _.extend({}, options, { data: this.data });
       return Backbone.Collection.prototype.fetch.call(this, settings);
     },
 
 
-    fetchNextPage: function(options) {
+    fetchNextPage: function (options) {
       if (this.more) {
         this.data.p += 1;
         var settings = _.extend({ remove: false }, options, { data: this.data });
@@ -64,14 +47,13 @@ define([
   });
 
 
-
   var UserSuggestions = Suggestions.extend({
 
-    url: function() {
+    url: function () {
       return baseUrl + '/api/users/search';
     },
 
-    parse: function(response) {
+    parse: function (response) {
       var parsedResponse = window.usersToSelect2(response);
       this.more = parsedResponse.more;
       this.results = parsedResponse.results;
@@ -80,31 +62,29 @@ define([
   });
 
 
-
   var ProjectSuggestions = Suggestions.extend({
 
-    url: function() {
+    url: function () {
       return baseUrl + '/api/resources/search?f=s2&q=TRK&display_key=true';
     }
 
   });
 
 
-
   var ComponentSuggestions = Suggestions.extend({
 
-    url: function() {
+    url: function () {
       return baseUrl + '/api/resources/search?f=s2&qp=supportsGlobalDashboards&display_key=true';
     },
 
-    parse: function(r) {
+    parse: function (r) {
       this.more = r.more;
 
       // If results are divided into categories
       if (r.results.length > 0 && r.results[0].children) {
         var results = [];
-        _.each(r.results, function(category) {
-          _.each(category.children, function(child) {
+        _.each(r.results, function (category) {
+          _.each(category.children, function (child) {
             child.category = category.text;
             results.push(child);
           });
@@ -118,24 +98,25 @@ define([
   });
 
 
-
   var AjaxSelectDetailsFilterView = ChoiceFilters.DetailsChoiceFilterView.extend({
     template: Templates['ajax-select-filter'],
     listTemplate: Templates['choice-filter-template'],
     searchKey: 's',
 
 
-    render: function() {
+    render: function () {
       ChoiceFilters.DetailsChoiceFilterView.prototype.render.apply(this, arguments);
 
       var that = this,
-          keyup = function(e) {
+          keyup = function (e) {
             if (e.keyCode !== 37 && e.keyCode !== 38 && e.keyCode !== 39 && e.keyCode !== 40) {
               that.search();
             }
           },
           debouncedKeyup = _.debounce(keyup, 250),
-          scroll = function() { that.scroll(); },
+          scroll = function () {
+            that.scroll();
+          },
           throttledScroll = _.throttle(scroll, 1000);
 
       this.$('.navigator-filter-search input')
@@ -149,7 +130,7 @@ define([
     },
 
 
-    search: function() {
+    search: function () {
       var that = this;
       this.query = this.$('.navigator-filter-search input').val();
       if (this.query.length > 1) {
@@ -159,11 +140,11 @@ define([
         data[this.searchKey] = this.query;
         this.options.filterView.choices.fetch({
           data: data,
-          success: function() {
-            selected.forEach(function(item) {
+          success: function () {
+            selected.forEach(function (item) {
               that.options.filterView.choices.unshift(item);
             });
-            _.each(that.model.get('choices'), function(v, k) {
+            _.each(that.model.get('choices'), function (v, k) {
               if (k[0] === '!') {
                 that.options.filterView.choices.add(new Backbone.Model({ id: k, text: v }));
               }
@@ -172,7 +153,7 @@ define([
             that.$el.removeClass('fetching');
             that.$('.navigator-filter-search').removeClass('fetching-error');
           },
-          error: function() {
+          error: function () {
             that.showSearchError();
           }
         });
@@ -183,44 +164,44 @@ define([
     },
 
 
-    showSearchError: function() {
+    showSearchError: function () {
       this.$el.removeClass('fetching');
       this.$('.navigator-filter-search').addClass('fetching-error');
     },
 
 
-    scroll: function() {
+    scroll: function () {
       var that = this,
           el = this.$('.choices'),
           scrollBottom = el.scrollTop() >= el[0].scrollHeight - el.outerHeight();
 
       if (scrollBottom) {
-        this.options.filterView.choices.fetchNextPage().done(function() {
+        this.options.filterView.choices.fetchNextPage().done(function () {
           that.updateLists();
         });
       }
     },
 
 
-    keydown: function(e) {
+    keydown: function (e) {
       if (_([38, 40, 13]).indexOf(e.keyCode) !== -1) {
         e.preventDefault();
       }
     },
 
 
-    resetChoices: function() {
+    resetChoices: function () {
       var that = this;
-      this.options.filterView.choices.reset(this.options.filterView.choices.filter(function(item) {
+      this.options.filterView.choices.reset(this.options.filterView.choices.filter(function (item) {
         return item.get('checked');
       }));
-      _.each(this.model.get('choices'), function(v, k) {
+      _.each(this.model.get('choices'), function (v, k) {
         that.options.filterView.choices.add(new Backbone.Model({ id: k, text: v }));
       });
     },
 
 
-    onShow: function() {
+    onShow: function () {
       ChoiceFilters.DetailsChoiceFilterView.prototype.onShow.apply(this, arguments);
       this.resetChoices();
       this.render();
@@ -230,37 +211,36 @@ define([
   });
 
 
-
   var AjaxSelectFilterView = ChoiceFilters.ChoiceFilterView.extend({
 
-    initialize: function(options) {
+    initialize: function (options) {
       ChoiceFilters.ChoiceFilterView.prototype.initialize.call(this, {
         detailsView: (options && options.detailsView) ? options.detailsView : AjaxSelectDetailsFilterView
       });
     },
 
 
-    isDefaultValue: function() {
+    isDefaultValue: function () {
       return this.getSelected().length === 0;
     },
 
 
-    renderInput: function() {
+    renderInput: function () {
       var value = this.model.get('value') || [],
-          input = $j('<input>')
-          .prop('name', this.model.get('property'))
-          .prop('type', 'hidden')
-          .css('display', 'none')
-          .val(value.join());
+          input = $('<input>')
+              .prop('name', this.model.get('property'))
+              .prop('type', 'hidden')
+              .css('display', 'none')
+              .val(value.join());
       input.appendTo(this.$el);
     },
 
 
-    restoreFromQuery: function(q) {
+    restoreFromQuery: function (q) {
       var param = _.findWhere(q, { key: this.model.get('property') });
 
       if (this.model.get('choices')) {
-        _.each(this.model.get('choices'), function(v, k) {
+        _.each(this.model.get('choices'), function (v, k) {
           if (k[0] === '!') {
             var x = _.findWhere(q, { key: k.substr(1) });
             if (x == null) {
@@ -284,7 +264,7 @@ define([
     },
 
 
-    restore: function(value, param) {
+    restore: function (value, param) {
       var that = this;
       if (_.isString(value)) {
         value = value.split(',');
@@ -293,10 +273,10 @@ define([
       if (this.choices && value.length > 0) {
         this.model.set({ value: value, enabled: true });
 
-        var opposite = _.filter(value, function(item) {
+        var opposite = _.filter(value, function (item) {
           return item[0] === '!';
         });
-        opposite.forEach(function(item) {
+        opposite.forEach(function (item) {
           that.choices.add(new Backbone.Model({
             id: item,
             text: that.model.get('choices')[item],
@@ -304,7 +284,7 @@ define([
           }));
         });
 
-        value = _.reject(value, function(item) {
+        value = _.reject(value, function (item) {
           return item[0] === '!';
         });
         if (_.isArray(param.text) && param.text.length === value.length) {
@@ -318,9 +298,9 @@ define([
     },
 
 
-    restoreFromText: function(value, text) {
+    restoreFromText: function (value, text) {
       var that = this;
-      _.each(value, function(v, i) {
+      _.each(value, function (v, i) {
         that.choices.add(new Backbone.Model({
           id: v,
           text: text[i],
@@ -331,25 +311,25 @@ define([
     },
 
 
-    restoreByRequests: function(value) {
+    restoreByRequests: function (value) {
       var that = this,
-          requests = _.map(value, function(v) {
+          requests = _.map(value, function (v) {
             return that.createRequest(v);
           });
 
-      $j.when.apply($j, requests).done(function () {
+      $.when.apply($, requests).done(function () {
         that.onRestore(value);
       });
     },
 
 
-    onRestore: function() {
+    onRestore: function () {
       this.detailsView.updateLists();
       this.renderBase();
     },
 
 
-    clear: function() {
+    clear: function () {
       this.model.unset('value');
       if (this.choices) {
         this.choices.reset([]);
@@ -358,15 +338,15 @@ define([
     },
 
 
-    createRequest: function() {}
+    createRequest: function () {
+    }
 
   });
 
 
-
   var ComponentFilterView = AjaxSelectFilterView.extend({
 
-    initialize: function() {
+    initialize: function () {
       AjaxSelectFilterView.prototype.initialize.call(this, {
         detailsView: AjaxSelectDetailsFilterView
       });
@@ -374,9 +354,9 @@ define([
     },
 
 
-    createRequest: function(v) {
+    createRequest: function (v) {
       var that = this;
-      return $j
+      return $
           .ajax({
             url: baseUrl + '/api/resources',
             type: 'GET',
@@ -393,10 +373,9 @@ define([
   });
 
 
-
   var ProjectFilterView = AjaxSelectFilterView.extend({
 
-    initialize: function() {
+    initialize: function () {
       BaseFilters.BaseFilterView.prototype.initialize.call(this, {
         detailsView: AjaxSelectDetailsFilterView
       });
@@ -405,9 +384,9 @@ define([
     },
 
 
-    createRequest: function(v) {
+    createRequest: function (v) {
       var that = this;
-      return $j
+      return $
           .ajax({
             url: baseUrl + '/api/resources',
             type: 'GET',
@@ -425,10 +404,9 @@ define([
   });
 
 
-
   var AssigneeFilterView = AjaxSelectFilterView.extend({
 
-    initialize: function() {
+    initialize: function () {
       BaseFilters.BaseFilterView.prototype.initialize.call(this, {
         detailsView: AjaxSelectDetailsFilterView
       });
@@ -436,9 +414,9 @@ define([
       this.choices = new UserSuggestions();
     },
 
-    createRequest: function(v) {
+    createRequest: function (v) {
       var that = this;
-      return $j
+      return $
           .ajax({
             url: baseUrl + '/api/users/search',
             type: 'GET',
@@ -456,10 +434,9 @@ define([
   });
 
 
-
   var ReporterFilterView = AjaxSelectFilterView.extend({
 
-    initialize: function() {
+    initialize: function () {
       BaseFilters.BaseFilterView.prototype.initialize.call(this, {
         detailsView: AjaxSelectDetailsFilterView
       });
@@ -469,9 +446,9 @@ define([
     },
 
 
-    createRequest: function(v) {
+    createRequest: function (v) {
       var that = this;
-      return $j
+      return $
           .ajax({
             url: baseUrl + '/api/users/search',
             type: 'GET',
@@ -487,7 +464,6 @@ define([
     }
 
   });
-
 
 
   /*

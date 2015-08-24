@@ -32,7 +32,7 @@ define([
     },
 
     getUrl: function () {
-      return baseUrl;
+      return window.baseUrl;
     },
 
     onRender: function () {
@@ -42,17 +42,17 @@ define([
 
     prepareSearch: function () {
       this.$('.js-custom-value').select2({
-        placeholder: t('search_verb'),
+        placeholder: window.t('search_verb'),
         minimumInputLength: 1,
         allowClear: false,
         formatNoMatches: function () {
-          return t('select2.noMatches');
+          return window.t('select2.noMatches');
         },
         formatSearching: function () {
-          return t('select2.searching');
+          return window.t('select2.searching');
         },
         formatInputTooShort: function () {
-          return tp('select2.tooShort', 1);
+          return window.tp('select2.tooShort', 1);
         },
         width: '100%',
         ajax: this.prepareAjaxSearch()

@@ -1,4 +1,6 @@
 define([
+  'backbone',
+  'backbone.marionette',
   './models/state',
   './layout',
   './models/issues',
@@ -10,19 +12,19 @@ define([
   './workspace-header-view',
   './facets-view',
   './helpers/format-facet-value'
-], function (State, Layout, Issues, Facets, Filters, Controller, Router, WorkspaceListView, WorkspaceHeaderView,
-             FacetsView) {
+], function (Backbone, Marionette, State, Layout, Issues, Facets, Filters, Controller, Router, WorkspaceListView,
+             WorkspaceHeaderView, FacetsView) {
 
   var $ = jQuery,
       App = new Marionette.Application(),
       init = function (options) {
-        this.config = options.config;
+        this.options = options;
         this.state = new State({
           isContext: true,
-          contextQuery: { componentUuids: options.config.resource },
-          contextComponentUuid: options.config.resource,
-          contextComponentName: options.config.resourceName,
-          contextComponentQualifier: options.config.resourceQualifier
+          contextQuery: { componentUuids: options.component.uuid },
+          contextComponentUuid: options.component.uuid,
+          contextComponentName: options.component.name,
+          contextComponentQualifier: options.component.qualifier
         });
         this.updateContextFacets();
         this.list = new Issues();
@@ -62,7 +64,7 @@ define([
       };
 
   App.getContextQuery = function () {
-    return { componentUuids: this.config.resource };
+    return { componentUuids: this.options.component.uuid };
   };
 
   App.getRestrictedFacets = function () {
@@ -81,15 +83,13 @@ define([
         facetsFromServer = this.state.get('facetsFromServer');
     return this.state.set({
       facets: facets,
-      allFacets: _.difference(allFacets, this.getRestrictedFacets()[this.config.resourceQualifier]),
-      facetsFromServer: _.difference(facetsFromServer, this.getRestrictedFacets()[this.config.resourceQualifier])
+      allFacets: _.difference(allFacets, this.getRestrictedFacets()[this.options.component.qualifier]),
+      facetsFromServer: _.difference(facetsFromServer, this.getRestrictedFacets()[this.options.component.qualifier])
     });
   };
 
   App.on('start', function (options) {
-    $.when(window.requestMessages()).done(function () {
-      init.call(App, options);
-    });
+    init.call(App, options);
   });
 
   return App;

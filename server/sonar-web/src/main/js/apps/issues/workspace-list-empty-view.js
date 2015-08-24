@@ -1,10 +1,12 @@
-define(function () {
+define([
+  'backbone.marionette'
+], function (Marionette) {
 
   return Marionette.ItemView.extend({
     className: 'search-navigator-no-results',
 
     template: function () {
-      return t('issue_filter.no_issues');
+      return window.t('issue_filter.no_issues');
     }
   });
 

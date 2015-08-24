@@ -132,11 +132,3 @@
 
   <%= render :partial => 'footer' -%>
 </div>
-
-<% content_for :extra_script do %>
-  <script>
-    require(['apps/drilldown/app'], function (App) {
-      App.start({ el: '#source-viewer' });
-    });
-  </script>
-<% end %>

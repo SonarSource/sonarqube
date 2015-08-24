@@ -18,10 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 define([
+  'jquery',
   './base-filters',
   './choice-filters',
   '../templates'
-], function (BaseFilters, ChoiceFilters) {
+], function ($, BaseFilters, ChoiceFilters) {
 
   var DetailsFavoriteFilterView = BaseFilters.DetailsFilterView.extend({
     template: Templates['favorite-details-filter'],
@@ -33,18 +34,18 @@ define([
     },
 
 
-    applyFavorite: function(e) {
-      var id = $j(e.target).data('id');
+    applyFavorite: function (e) {
+      var id = $(e.target).data('id');
       window.location = baseUrl + this.model.get('favoriteUrl') + '/' + id;
     },
 
 
-    manage: function() {
+    manage: function () {
       window.location = baseUrl + this.model.get('manageUrl');
     },
 
 
-    serializeData: function() {
+    serializeData: function () {
       var choices = this.model.get('choices'),
           choicesArray =
               _.sortBy(
@@ -61,33 +62,32 @@ define([
   });
 
 
-
   var FavoriteFilterView = ChoiceFilters.ChoiceFilterView.extend({
     template: Templates['favorite-filter'],
     className: 'navigator-filter navigator-filter-favorite',
 
 
-    initialize: function() {
+    initialize: function () {
       ChoiceFilters.ChoiceFilterView.prototype.initialize.call(this, {
         detailsView: DetailsFavoriteFilterView
       });
     },
 
 
-    renderValue: function() {
+    renderValue: function () {
       return '';
     },
 
 
-    renderInput: function() {},
+    renderInput: function () {
+    },
 
 
-    isDefaultValue: function() {
+    isDefaultValue: function () {
       return false;
     }
 
   });
-
 
 
   /*

@@ -1,7 +1,8 @@
 define([
+  'backbone.marionette',
   './create-view',
   './templates'
-], function (CreateView) {
+], function (Marionette, CreateView) {
 
   return Marionette.ItemView.extend({
     template: Templates['users-header'],

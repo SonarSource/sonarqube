@@ -1,9 +1,10 @@
 define([
+  'backbone.marionette',
   './rename-view',
   './copy-view',
   './delete-view',
   './templates'
-], function (RenameView, CopyView, DeleteView) {
+], function (Marionette, RenameView, CopyView, DeleteView) {
 
   return Marionette.ItemView.extend({
     template: Templates['quality-gate-detail-header'],

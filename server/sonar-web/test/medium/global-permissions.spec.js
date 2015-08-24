@@ -9,7 +9,7 @@ define(function (require) {
           .mockFromFile('/api/permissions/search_global_permissions', 'permissions/global-permissions.json')
           .mockFromFile('/api/permissions/users', 'permissions/users.json')
           .mockFromFile('/api/permissions/groups', 'permissions/groups.json')
-          .startApp('global-permissions')
+          .startApp('global-permissions/app')
           .checkElementExist('#global-permissions-header')
           .checkElementExist('#global-permissions-list')
           .checkElementCount('#global-permissions-list > li', 6)

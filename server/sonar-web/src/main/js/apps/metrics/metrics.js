@@ -1,12 +1,13 @@
 define([
+  'backbone',
   './metric'
-], function (Metric) {
+], function (Backbone, Metric) {
 
   return Backbone.Collection.extend({
     model: Metric,
 
     url: function () {
-      return baseUrl + '/api/metrics/search';
+      return window.baseUrl + '/api/metrics/search';
     },
 
     parse: function (r) {
@@ -20,7 +21,7 @@ define([
       var opts = _.defaults(options || {}, { data: {} });
       this.q = opts.data.q;
       opts.data.isCustom = true;
-      return this._super(opts);
+      return Backbone.Collection.prototype.fetch.call(this, opts);
     },
 
     fetchMore: function () {

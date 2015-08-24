@@ -1,6 +1,7 @@
 define([
+  'backbone.marionette',
   './templates'
-], function () {
+], function (Marionette) {
 
   return Marionette.ItemView.extend({
     className: 'list-group-item',

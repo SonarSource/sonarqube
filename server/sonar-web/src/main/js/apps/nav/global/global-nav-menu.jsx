@@ -91,7 +91,7 @@ export default React.createClass({
   },
 
   renderAdministrationLink() {
-    if (!window.SS.isUserAdmin) {
+    if (!this.props.user.isAdmin) {
       return null;
     }
     const url = `${window.baseUrl}/settings`;

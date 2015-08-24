@@ -24,7 +24,7 @@ define([
   return CustomValuesFacet.extend({
 
     getUrl: function () {
-      return baseUrl + '/api/languages/list';
+      return window.baseUrl + '/api/languages/list';
     },
 
     prepareAjaxSearch: function () {

@@ -1,6 +1,7 @@
 define([
+  'backbone',
   './filter'
-], function (Filter) {
+], function (Backbone, Filter) {
 
   return Backbone.Collection.extend({
     model: Filter

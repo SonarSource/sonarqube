@@ -1,6 +1,7 @@
 define([
+  'backbone.marionette',
   './templates'
-], function () {
+], function (Marionette) {
 
   return Marionette.ItemView.extend({
     template: Templates['update-center-search'],
@@ -77,7 +78,9 @@ define([
     },
 
     serializeData: function () {
-      return _.extend(this._super(), { state: this.options.state.toJSON() });
+      return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+        state: this.options.state.toJSON()
+      });
     }
   });
 

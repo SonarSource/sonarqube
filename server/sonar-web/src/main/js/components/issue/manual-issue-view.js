@@ -1,7 +1,8 @@
 define([
+  'backbone.marionette',
   './models/issue',
   './templates'
-], function (Issue) {
+], function (Marionette, Issue) {
 
   var $ = jQuery;
 
@@ -16,7 +17,7 @@ define([
     initialize: function () {
       var that = this;
       this.rules = [];
-      $.get(baseUrl + '/api/rules/search?repositories=manual&f=name&ps=9999999').done(function (r) {
+      $.get(window.baseUrl + '/api/rules/search?repositories=manual&f=name&ps=9999999').done(function (r) {
         that.rules = r.rules;
         that.render();
       });

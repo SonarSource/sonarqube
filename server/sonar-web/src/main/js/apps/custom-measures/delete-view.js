@@ -6,8 +6,8 @@ define([
   return ModalForm.extend({
     template: Templates['custom-measures-delete'],
 
-    onFormSubmit: function (e) {
-      this._super(e);
+    onFormSubmit: function () {
+      ModalForm.prototype.onFormSubmit.apply(this, arguments);
       this.sendRequest();
     },
 

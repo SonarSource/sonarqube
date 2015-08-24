@@ -1,9 +1,10 @@
 define([
+  'backbone.marionette',
   './conditions',
   './gate-conditions-view',
   './gate-projects-view',
   './templates'
-], function (Conditions, DetailConditionsView, ProjectsView) {
+], function (Marionette, Conditions, DetailConditionsView, ProjectsView) {
 
   return Marionette.LayoutView.extend({
     template: Templates['quality-gate-detail'],

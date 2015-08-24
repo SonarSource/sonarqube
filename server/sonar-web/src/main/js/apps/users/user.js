@@ -1,10 +1,12 @@
-define(function () {
+define([
+  'backbone'
+], function (Backbone) {
 
   return Backbone.Model.extend({
     idAttribute: 'login',
 
     urlRoot: function () {
-      return baseUrl + '/api/users';
+      return window.baseUrl + '/api/users';
     },
 
     defaults: function () {

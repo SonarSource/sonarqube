@@ -1,6 +1,18 @@
+<%
+   selected_section = nil
+   selected_section = controller.class::SECTION if defined?(controller.class::SECTION)
+   if selected_section == Navigation::SECTION_RESOURCE && !@project && !@resource
+     selected_section = Navigation::SECTION_HOME
+   end
+   component = @project
+   component = @resource unless @project || selected_section == Navigation::SECTION_HOME
+%>
+
 <!DOCTYPE html>
-<!--[if IE 9 ]> <html class="ie9"> <![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html> <!--<![endif]-->
+<!--[if IE 9 ]>
+<html class="ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->
+<html> <!--<![endif]-->
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -22,7 +34,18 @@
   <%= yield :style -%>
 
   <script>
-    var pageLang = '<%= I18n.locale.to_s.gsub(/-/, '_') -%>';
+    window.pageLang = '<%= I18n.locale.to_s.gsub(/-/, '_') -%>';
+    window.sonarVersion = '<%= sonar_version -%>';
+    window.baseUrl = '<%= ApplicationController.root_context -%>';
+    <% if selected_section == Navigation::SECTION_RESOURCE %>
+    window.space = 'component';
+    window.component = '<%= escape_javascript component.key -%>';
+    <% elsif selected_section == Navigation::SECTION_CONFIGURATION %>
+    window.space = 'settings';
+    <% else %>
+    window.space = 'global';
+    <% end %>
+
     <%# The two lines below mean that before full removal of Rails, we have to find a way to handle config properties %>
     window.SS = {
       hoursInDay: <%= configuration('sonar.technicalDebt.hoursInDay', 8) %>,
@@ -36,21 +59,21 @@
       updateCenterActive: <%= configuration('sonar.updatecenter.activate', true) %>
     };
   </script>
+
   <script src="<%= ApplicationController.root_context -%>/js/sonar.js?v=<%= sonar_version -%>"></script>
+
   <script>
-    var baseUrl = '<%= ApplicationController.root_context -%>';
-    var $j = jQuery.noConflict();
-    $j(document).ready(function () {$j('.open-modal').modal()});
-    moment.lang(window.pageLang);
-    numeral.language(window.pageLang);
-    requirejs.config({
-      baseUrl: baseUrl + '/js',
-      urlArgs: 'v=<%= sonar_version -%>',
-      paths: {
-        'react': 'libs/third-party/react-with-addons'
-      }
+    require([window.baseUrl + '/js/main.js']);
+  </script>
+
+  <script>
+    <%# we should get rid of this $j ASAP %>
+    window.$j = window.jQuery;
+    $(function () {
+      $('.open-modal').modal();
     });
   </script>
+
   <%= yield :script -%>
 </head>
 <body>

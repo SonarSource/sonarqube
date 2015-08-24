@@ -7,9 +7,6 @@
         resourceName: '<%= escape_javascript @resource.name -%>',
         periodDate: <% if @period %>'<%= escape_javascript @snapshot.period_datetime(@period) -%>'<% else %>null<% end %>
       };
-      require(['apps/issues/app-context'], function (App) {
-        App.start({ el: '#content', config: config });
-      });
     })();
   </script>
 <% end %>

@@ -1,10 +1,11 @@
 define([
+  'backbone.marionette',
   './layout',
   './metrics',
   './header-view',
   './list-view',
   './list-footer-view'
-], function (Layout, Metrics, HeaderView, ListView, ListFooterView) {
+], function (Marionette, Layout, Metrics, HeaderView, ListView, ListFooterView) {
 
   var $ = jQuery,
       App = new Marionette.Application(),
@@ -54,7 +55,7 @@ define([
   };
 
   App.on('start', function (options) {
-    $.when(window.requestMessages(), App.requestDomains(), App.requestTypes()).done(function () {
+    $.when(App.requestDomains(), App.requestTypes()).done(function () {
       init.call(App, options);
     });
   });

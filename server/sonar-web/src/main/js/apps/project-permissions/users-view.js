@@ -8,7 +8,7 @@ define([
     template: Templates['project-permissions-users'],
 
     onRender: function () {
-      this._super();
+      Modal.prototype.onRender.apply(this, arguments);
       new window.SelectList({
         el: this.$('#project-permissions-users'),
         width: '100%',
@@ -35,14 +35,17 @@ define([
     },
 
     onDestroy: function () {
-      this.options.refresh && this.options.refresh();
-      this._super();
+      if (this.options.refresh) {
+        this.options.refresh();
+      }
+      Modal.prototype.onDestroy.apply(this, arguments);
     },
 
     serializeData: function () {
       return _.extend(Modal.prototype.serializeData.apply(this, arguments), {
         projectName: this.options.projectName
       })
+
     }
   });
 

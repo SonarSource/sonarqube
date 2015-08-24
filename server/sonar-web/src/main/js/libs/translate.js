@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-(function() {
+(function () {
   window.suppressTranslationWarnings = false;
 
-  window.t = function() {
+  window.t = function () {
     if (!window.messages) {
       return window.translate.apply(this, arguments);
     }
@@ -30,12 +30,12 @@
     return window.messages[key] != null ? window.messages[key] : key;
   };
 
-  window.tp = function() {
+  window.tp = function () {
     var args = Array.prototype.slice.call(arguments, 0),
-      key = args.shift(),
-      message = window.messages[key];
+        key = args.shift(),
+        message = window.messages[key];
     if (message) {
-      args.forEach(function(p, i) {
+      args.forEach(function (p, i) {
         message = message.replace('{' + i + '}', p);
       });
     }
@@ -43,9 +43,9 @@
   };
 
 
-  window.translate = function() {
+  window.translate = function () {
     var args = Array.prototype.slice.call(arguments, 0),
-        tokens = args.reduce(function(prev, current) {
+        tokens = args.reduce(function (prev, current) {
           return prev.concat(current.split('.'));
         }, []),
         key = tokens.join('.'),
@@ -54,7 +54,7 @@
         result = '';
 
     if (found) {
-      result = tokens.reduce(function(prev, current) {
+      result = tokens.reduce(function (prev, current) {
         if (!current || !prev[current]) {
           found = false;
         }
@@ -66,7 +66,7 @@
   };
 
 
-  window.requestMessages = function() {
+  window.requestMessages = function () {
     var currentLocale = window.pageLang,
         cachedLocale = localStorage.getItem('l10n.locale');
     if (cachedLocale !== currentLocale) {
@@ -85,12 +85,12 @@
       data: params,
       dataType: 'json',
       statusCode: {
-        304: function() {
+        304: function () {
           window.messages = JSON.parse(localStorage.getItem('l10n.bundle'));
         }
       }
-    }).done(function(bundle, textStatus, jqXHR) {
-      if(bundle !== undefined) {
+    }).done(function (bundle, textStatus, jqXHR) {
+      if (bundle) {
         bundleTimestamp = new Date().toISOString();
         bundleTimestamp = bundleTimestamp.substr(0, bundleTimestamp.indexOf('.')) + '+0000';
         localStorage.setItem('l10n.timestamp', bundleTimestamp);

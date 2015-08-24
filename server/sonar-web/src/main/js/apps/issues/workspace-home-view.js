@@ -1,21 +1,23 @@
 define([
+  'backbone',
+  'backbone.marionette',
   './templates'
-], function () {
+], function (Backbone, Marionette) {
 
   var $ = jQuery;
 
   Handlebars.registerHelper('issuesHomeLink', function (property, value) {
-    return baseUrl + '/issues/search#resolved=false|createdInLast=1w|' +
+    return window.baseUrl + '/issues/search#resolved=false|createdInLast=1w|' +
         property + '=' + (encodeURIComponent(value));
   });
 
   Handlebars.registerHelper('myIssuesHomeLink', function (property, value) {
-    return baseUrl + '/issues/search#resolved=false|createdInLast=1w|assignees=__me__|' +
+    return window.baseUrl + '/issues/search#resolved=false|createdInLast=1w|assignees=__me__|' +
         property + '=' + (encodeURIComponent(value));
   });
 
   Handlebars.registerHelper('issueFilterHomeLink', function (id) {
-    return baseUrl + '/issues/search#id=' + id;
+    return window.baseUrl + '/issues/search#id=' + id;
   });
 
   return Marionette.ItemView.extend({

@@ -1,6 +1,7 @@
 define([
+  'backbone.marionette',
   './templates'
-], function () {
+], function (Marionette) {
 
   return Marionette.ItemView.extend({
     template: Templates['metrics-list-footer'],
@@ -23,7 +24,7 @@ define([
     },
 
     serializeData: function () {
-      return _.extend(this._super(), {
+      return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
         total: this.collection.total,
         count: this.collection.length,
         more: this.collection.hasMore()

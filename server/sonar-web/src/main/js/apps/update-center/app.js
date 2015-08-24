@@ -1,4 +1,6 @@
 define([
+  'backbone',
+  'backbone.marionette',
   './layout',
   './header-view',
   './search-view',
@@ -7,7 +9,7 @@ define([
   './controller',
   './router',
   './plugins'
-], function (Layout, HeaderView, SearchView, ListView, FooterView, Controller, Router, Plugins) {
+], function (Backbone, Marionette, Layout, HeaderView, SearchView, ListView, FooterView, Controller, Router, Plugins) {
 
   var App = new Marionette.Application(),
       init = function (options) {
@@ -27,7 +29,7 @@ define([
         this.controller = new Controller({ collection: this.plugins, state: this.state });
 
         // Router
-        this.router = new Router({ controller: this.controller});
+        this.router = new Router({ controller: this.controller });
 
         // Header
         this.headerView = new HeaderView({ collection: this.plugins });
@@ -54,9 +56,7 @@ define([
       };
 
   App.on('start', function (options) {
-    window.requestMessages().done(function () {
-      init.call(App, options);
-    });
+    init.call(App, options);
   });
 
   return App;

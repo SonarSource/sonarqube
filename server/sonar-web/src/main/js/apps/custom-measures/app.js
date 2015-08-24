@@ -1,10 +1,11 @@
 define([
+  'backbone.marionette',
   './layout',
   './custom-measures',
   './header-view',
   './list-view',
   './list-footer-view'
-], function (Layout, CustomMeasures, HeaderView, ListView, ListFooterView) {
+], function (Marionette, Layout, CustomMeasures, HeaderView, ListView, ListFooterView) {
 
   var App = new Marionette.Application(),
       init = function (options) {
@@ -16,13 +17,13 @@ define([
 
         // Collection
         this.customMeasures = new CustomMeasures({
-          projectId: options.projectId
+          projectId: options.component.uuid
         });
 
         // Header View
         this.headerView = new HeaderView({
           collection: this.customMeasures,
-          projectId: options.projectId
+          projectId: options.component.uuid
         });
         this.layout.headerRegion.show(this.headerView);
 
@@ -43,9 +44,7 @@ define([
       };
 
   App.on('start', function (options) {
-    window.requestMessages().done(function () {
-      init.call(App, options);
-    });
+    init.call(App, options);
   });
 
   return App;

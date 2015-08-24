@@ -28,15 +28,14 @@
           return;
         }
 
-        require(['widgets/issue-filter/widget'], function (IssueFilter) {
-          window.requestMessages().done(function () {
-            new IssueFilter({
-              el: '#<%= container_id -%>',
-              query: query,
-              distributionAxis: '<%= distribution_axis -%>',
-              displayMode: '<%= display_mode -%>'
-            });
-          });
+        window.widgets.push({
+          name: 'issue-filter',
+          options: {
+            el: '#<%= container_id -%>',
+            query: query,
+            distributionAxis: '<%= distribution_axis -%>',
+            displayMode: '<%= display_mode -%>'
+          }
         });
       })();
     </script>

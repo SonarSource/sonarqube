@@ -29,9 +29,9 @@
    * @param {string} message
    */
   window.showMessage = function (id, message) {
-    $j('#' + id + 'msg').html(message);
-    $j('#' + id).removeClass('hidden');
-    $j('#messages-panel').removeClass('hidden');
+    $('#' + id + 'msg').html(message);
+    $('#' + id).removeClass('hidden');
+    $('#messages-panel').removeClass('hidden');
   };
 
   /**
@@ -40,8 +40,8 @@
    * @returns {boolean} always false
    */
   window.hideMessage = function (id) {
-    $j('#' + id).addClass('hidden');
-    var messagePanel = $j('#messages-panel'),
+    $('#' + id).addClass('hidden');
+    var messagePanel = $('#messages-panel'),
         isEmpty = messagePanel.children('*:not(.hidden)').length === 0;
     messagePanel.toggleClass('hidden', isEmpty);
     return false;
@@ -52,7 +52,7 @@
    * @param {string} message
    */
   window.error = function (message) {
-    showMessage('error', message);
+    window.showMessage('error', message);
   };
 
   /**
@@ -60,7 +60,7 @@
    * @param {string} message
    */
   window.warning = function (message) {
-    showMessage('warning', message);
+    window.showMessage('warning', message);
   };
 
   /**
@@ -68,7 +68,7 @@
    * @param {string} message
    */
   window.info = function (message) {
-    showMessage('info', message);
+    window.showMessage('info', message);
   };
 
   /**
@@ -76,7 +76,7 @@
    * @returns {boolean} always false
    */
   window.hideError = function () {
-    return hideMessage('error');
+    return window.hideMessage('error');
   };
 
   /**
@@ -84,7 +84,7 @@
    * @returns {boolean} always false
    */
   window.hideWarning = function () {
-    return hideMessage('warning');
+    return window.hideMessage('warning');
   };
 
   /**
@@ -92,30 +92,29 @@
    * @returns {boolean} always false
    */
   window.hideInfo = function () {
-    return hideMessage('info');
+    return window.hideMessage('info');
   };
 })();
 
 
-
-function toggleFav (resourceId, elt) {
-  $j.ajax({
+window.toggleFav = function (resourceId, elt) {
+  $.ajax({
     type: 'POST', dataType: 'json', url: baseUrl + '/favourites/toggle/' + resourceId,
     success: function (data) {
-      var star = $j(elt);
+      var star = $(elt);
       star.removeClass('icon-favorite icon-not-favorite');
       star.addClass(data.css);
       star.attr('title', data.title);
     }
   });
-}
+};
 
-function dashboardParameters (urlHasSomething) {
+window.dashboardParameters = function (urlHasSomething) {
   var queryString = window.location.search;
   var parameters = [];
 
   var matchDashboard = queryString.match(/did=\d+/);
-  if (matchDashboard && $j('#is-project-dashboard').length === 1) {
+  if (matchDashboard && $('#is-project-dashboard').length === 1) {
     parameters.push(matchDashboard[0]);
   }
 
@@ -133,15 +132,15 @@ function dashboardParameters (urlHasSomething) {
     query = (urlHasSomething ? '&' : '?') + query;
   }
   return query;
-}
+};
 
-function openModalWindow (url, options) {
+window.openModalWindow = function (url, options) {
   var width = (options && options.width) || 540;
-  var $dialog = $j('#modal');
+  var $dialog = $('#modal');
   if (!$dialog.length) {
-    $dialog = $j('<div id="modal" class="ui-widget-overlay ui-front"></div>').appendTo('body');
+    $dialog = $('<div id="modal" class="ui-widget-overlay ui-front"></div>').appendTo('body');
   }
-  $j.get(url, function (html) {
+  $.get(url, function (html) {
     $dialog.removeClass('ui-widget-overlay');
     $dialog.html(html);
     $dialog
@@ -155,7 +154,7 @@ function openModalWindow (url, options) {
           resizable: false,
           title: null,
           close: function () {
-            $j('#modal').remove();
+            $('#modal').remove();
           }
         });
     $dialog.dialog('open');
@@ -163,20 +162,20 @@ function openModalWindow (url, options) {
     $dialog.removeClass('ui-widget-overlay');
   });
   return false;
-}
+};
 
-(function ($j) {
-  $j.fn.extend({
+(function ($) {
+  $.fn.extend({
     openModal: function () {
       return this.each(function () {
-        var obj = $j(this);
+        var obj = $(this);
         var url = obj.attr('modal-url') || obj.attr('href');
-        return openModalWindow(url, { 'width': obj.attr('modal-width') });
+        return window.openModalWindow(url, { 'width': obj.attr('modal-width') });
       });
     },
     modal: function () {
       return this.each(function () {
-        var obj = $j(this);
+        var obj = $(this);
         obj.unbind('click');
         var $link = obj.bind('click', function () {
           $link.openModal();
@@ -186,10 +185,10 @@ function openModalWindow (url, options) {
     },
     modalForm: function (ajax_options) {
       return this.each(function () {
-        var obj = $j(this);
+        var obj = $(this);
         obj.submit(function () {
-          $j('input[type=submit]', this).attr('disabled', 'disabled');
-          $j.ajax($j.extend({
+          $('input[type=submit]', this).attr('disabled', 'disabled');
+          $.ajax($.extend({
             type: 'POST',
             url: obj.attr('action'),
             data: obj.serialize(),
@@ -201,14 +200,14 @@ function openModalWindow (url, options) {
               var errorElt = obj.find('.modal-error');
               if (errorElt.length) {
                 // Hide all loading images
-                $j('.loading-image').addClass('hidden');
+                $('.loading-image').addClass('hidden');
                 // Re activate submit button
-                $j('input[type=submit]', obj).removeAttr('disabled');
+                $('input[type=submit]', obj).removeAttr('disabled');
                 errorElt.show();
-                errorElt.html($j('<div/>').html(xhr.responseText).text());
+                errorElt.html($('<div/>').html(xhr.responseText).text());
               } else {
                 // otherwise replace modal window by the returned text
-                $j('#modal').html(xhr.responseText);
+                $('#modal').html(xhr.responseText);
               }
             }
           }, ajax_options));
@@ -219,67 +218,63 @@ function openModalWindow (url, options) {
   });
 })(jQuery);
 
-function closeModalWindow () {
-  $j('#modal').dialog('close');
+window.closeModalWindow = function () {
+  $('#modal').dialog('close');
   return false;
-}
-
+};
 
 
 /*
  * File Path
  */
 
-(function () {
-  /**
-   * Return a collapsed path without a file name
-   * @example
-   * // returns 'src/.../js/components/navigator/app/models/'
-   * collapsedDirFromPath('src/main/js/components/navigator/app/models/state.js')
-   * @param {string} path
-   * @returns {string|null}
-   */
-  window.collapsedDirFromPath = function (path) {
-    var limit = 30;
-    if (typeof path === 'string') {
-      var tokens = _.initial(path.split('/'));
-      if (tokens.length > 2) {
-        var head = _.first(tokens),
-            tail = _.last(tokens),
-            middle = _.initial(_.rest(tokens)),
-            cut = false;
-        while (middle.join().length > limit && middle.length > 0) {
-          middle.shift();
-          cut = true;
-        }
-        var body = [].concat(head, cut ? ['...'] : [], middle, tail);
-        return body.join('/') + '/';
-      } else {
-        return tokens.join('/') + '/';
+/**
+ * Return a collapsed path without a file name
+ * @example
+ * // returns 'src/.../js/components/navigator/app/models/'
+ * collapsedDirFromPath('src/main/js/components/navigator/app/models/state.js')
+ * @param {string} path
+ * @returns {string|null}
+ */
+window.collapsedDirFromPath = function (path) {
+  var limit = 30;
+  if (typeof path === 'string') {
+    var tokens = _.initial(path.split('/'));
+    if (tokens.length > 2) {
+      var head = _.first(tokens),
+          tail = _.last(tokens),
+          middle = _.initial(_.rest(tokens)),
+          cut = false;
+      while (middle.join().length > limit && middle.length > 0) {
+        middle.shift();
+        cut = true;
       }
+      var body = [].concat(head, cut ? ['...'] : [], middle, tail);
+      return body.join('/') + '/';
     } else {
-      return null;
+      return tokens.join('/') + '/';
     }
-  };
+  } else {
+    return null;
+  }
+};
 
-  /**
-   * Return a file name for a given file path
-   * * @example
-   * // returns 'state.js'
-   * collapsedDirFromPath('src/main/js/components/navigator/app/models/state.js')
-   * @param {string} path
-   * @returns {string|null}
-   */
-  window.fileFromPath = function (path) {
-    if (typeof path === 'string') {
-      var tokens = path.split('/');
-      return _.last(tokens);
-    } else {
-      return null;
-    }
-  };
-})();
-
+/**
+ * Return a file name for a given file path
+ * * @example
+ * // returns 'state.js'
+ * collapsedDirFromPath('src/main/js/components/navigator/app/models/state.js')
+ * @param {string} path
+ * @returns {string|null}
+ */
+window.fileFromPath = function (path) {
+  if (typeof path === 'string') {
+    var tokens = path.split('/');
+    return _.last(tokens);
+  } else {
+    return null;
+  }
+};
 
 
 /*
@@ -399,15 +394,15 @@ function closeModalWindow () {
   function formatDuration (isNegative, days, hours, minutes) {
     var formatted = '';
     if (shouldDisplayDays(days)) {
-      formatted += tp('work_duration.x_days', isNegative ? -1 * days : days);
+      formatted += window.tp('work_duration.x_days', isNegative ? -1 * days : days);
     }
     if (shouldDisplayHours(days, hours)) {
       formatted = addSpaceIfNeeded(formatted);
-      formatted += tp('work_duration.x_hours', isNegative && formatted.length === 0 ? -1 * hours : hours);
+      formatted += window.tp('work_duration.x_hours', isNegative && formatted.length === 0 ? -1 * hours : hours);
     }
     if (shouldDisplayMinutes(days, hours, minutes)) {
       formatted = addSpaceIfNeeded(formatted);
-      formatted += tp('work_duration.x_minutes', isNegative && formatted.length === 0 ? -1 * minutes : minutes);
+      formatted += window.tp('work_duration.x_minutes', isNegative && formatted.length === 0 ? -1 * minutes : minutes);
     }
     return formatted;
   }
@@ -424,18 +419,18 @@ function closeModalWindow () {
     var formatted = '';
     if (shouldDisplayDays(days)) {
       var formattedDays = window.formatMeasure(isNegative ? -1 * days : days, 'SHORT_INT');
-      formatted += tp('work_duration.x_days', formattedDays);
+      formatted += window.tp('work_duration.x_days', formattedDays);
     }
     if (shouldDisplayHoursInShortFormat(days, hours)) {
       formatted = addSpaceIfNeeded(formatted);
-      formatted += tp('work_duration.x_hours', isNegative && formatted.length === 0 ? -1 * hours : hours);
+      formatted += window.tp('work_duration.x_hours', isNegative && formatted.length === 0 ? -1 * hours : hours);
     }
     if (shouldDisplayMinutesInShortFormat(days, hours, minutes)) {
       formatted = addSpaceIfNeeded(formatted);
-      formatted += tp('work_duration.x_minutes', isNegative && formatted.length === 0 ? -1 * minutes : minutes);
+      formatted += window.tp('work_duration.x_minutes', isNegative && formatted.length === 0 ? -1 * minutes : minutes);
     }
     if (shouldDisplayAbout(days, hours, minutes)) {
-      formatted = tp('work_duration.about', formatted);
+      formatted = window.tp('work_duration.about', formatted);
     }
     return formatted;
   }
@@ -561,12 +556,11 @@ function closeModalWindow () {
 })();
 
 
-
 /*
  * Users
  */
 
-(function() {
+(function () {
 
   /**
    * Convert the result of api/users/search to select2 format
@@ -574,7 +568,7 @@ function closeModalWindow () {
   window.usersToSelect2 = function (response) {
     return {
       more: false,
-      results: _.map(response.users, function(user) {
+      results: _.map(response.users, function (user) {
         return {
           id: user.login,
           text: user.name + ' (' + user.login + ')'
@@ -584,7 +578,6 @@ function closeModalWindow () {
   };
 
 })();
-
 
 
 /*

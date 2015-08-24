@@ -1,4 +1,6 @@
-define(function () {
+define([
+  'backbone.marionette'
+], function (Marionette) {
 
   return Marionette.Controller.extend({
     initialize: function (options) {

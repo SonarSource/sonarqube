@@ -1,7 +1,8 @@
 define([
+  'backbone.marionette',
   './gate-conditions-delete-view',
   './templates'
-], function (DeleteConditionView) {
+], function (Marionette, DeleteConditionView) {
 
   return Marionette.ItemView.extend({
     tagName: 'tr',
@@ -90,7 +91,7 @@ define([
       return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
         canEdit: this.options.canEdit,
         periods: this.options.periods,
-        periodText: period ? period.text : t('value'),
+        periodText: period ? period.text : window.t('value'),
         metric: this.getMetric(),
         isDiffMetric: this.isDiffMetric()
       });

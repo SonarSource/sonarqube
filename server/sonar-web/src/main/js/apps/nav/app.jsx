@@ -5,11 +5,9 @@ import SettingsNav from './settings/settings-nav';
 
 export default {
   start(options) {
-    window.requestMessages().done(() => {
-      this.renderGlobalNav(options);
-      options.space === 'component' && this.renderComponentNav(options);
-      options.space === 'settings' && this.renderSettingsNav(options);
-    });
+    this.renderGlobalNav(options);
+    options.space === 'component' && this.renderComponentNav(options);
+    options.space === 'settings' && this.renderSettingsNav(options);
   },
 
   renderGlobalNav(options) {

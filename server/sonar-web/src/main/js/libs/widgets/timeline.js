@@ -310,7 +310,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           .attr('transform', function() { return trans(x, metricY); });
     });
 
-    if (metricY  > -1) {
+    if (metricY > -1) {
       metricY += 17;
     }
 

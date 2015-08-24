@@ -1,26 +1,8 @@
-/*
- * SonarQube, open source software quality management tool.
- * Copyright (C) 2008-2014 SonarSource
- * mailto:contact AT sonarsource DOT com
- *
- * SonarQube is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * SonarQube is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
 define([
+  'jquery',
   './base-filters',
   '../templates'
-], function (BaseFilters) {
+], function ($, BaseFilters) {
 
   var DetailsMetricFilterView = BaseFilters.DetailsFilterView.extend({
     template: Templates['metric-filter'],
@@ -31,22 +13,22 @@ define([
     },
 
 
-    inputChanged: function() {
+    inputChanged: function () {
       var metric = this.$('[name=metric]').val(),
           isDifferentialMetric = metric.indexOf('new_') === 0,
           periodSelect = this.$('[name=period]'),
           period = periodSelect.val(),
           optionZero = periodSelect.children('[value="0"]'),
           value = {
-        metric: metric,
-        metricText: this.$('[name=metric] option:selected').text(),
-        period: period,
-        periodText: this.$('[name=period] option:selected').text(),
-        op: this.$('[name=op]').val(),
-        opText: this.$('[name=op] option:selected').text(),
-        val: this.$('[name=val]').val(),
-        valText: this.$('[name=val]').originalVal()
-      };
+            metric: metric,
+            metricText: this.$('[name=metric] option:selected').text(),
+            period: period,
+            periodText: this.$('[name=period] option:selected').text(),
+            op: this.$('[name=op]').val(),
+            opText: this.$('[name=op] option:selected').text(),
+            val: this.$('[name=val]').val(),
+            valText: this.$('[name=val]').originalVal()
+          };
 
       if (isDifferentialMetric) {
         optionZero.remove();
@@ -68,8 +50,8 @@ define([
     },
 
 
-    updateDataType: function(value) {
-      var metric = _.find(window.SS.metrics, function(m) {
+    updateDataType: function (value) {
+      var metric = _.find(window.SS.metrics, function (m) {
         return m.metric.name === value.metric;
       });
       if (metric) {
@@ -84,7 +66,7 @@ define([
     },
 
 
-    onRender: function() {
+    onRender: function () {
       var periodZeroLabel = this.$('[name=period]').children('[value="0"]').html();
       this.periodZeroOption = '<option value="0">' + periodZeroLabel + '</option>';
 
@@ -108,7 +90,7 @@ define([
     },
 
 
-    onShow: function() {
+    onShow: function () {
       var select = this.$('[name=metric]');
       if (this.model.get('value').metric === '') {
         select.select2('open');
@@ -120,10 +102,9 @@ define([
   });
 
 
-
   return BaseFilters.BaseFilterView.extend({
 
-    initialize: function() {
+    initialize: function () {
       BaseFilters.BaseFilterView.prototype.initialize.call(this, {
         detailsView: DetailsMetricFilterView
       });
@@ -132,7 +113,7 @@ define([
     },
 
 
-    groupMetrics: function() {
+    groupMetrics: function () {
       var metrics = _.map(this.model.get('metrics'), function (metric) {
             return metric.metric;
           }),
@@ -152,26 +133,26 @@ define([
     },
 
 
-    renderValue: function() {
+    renderValue: function () {
       return this.isDefaultValue() ?
           window.SS.phrases.notSet :
-          this.model.get('value').metricText + ' ' + this.model.get('value').opText + ' ' +
-              this.model.get('value').valText;
+      this.model.get('value').metricText + ' ' + this.model.get('value').opText + ' ' +
+      this.model.get('value').valText;
     },
 
 
-    renderInput: function() {
+    renderInput: function () {
       var that = this,
           value = this.model.get('value');
 
       if (_.isObject(value) && value.metric && value.op && (value.val != null)) {
-        _.each(['metric', 'period', 'op', 'val'], function(key) {
+        _.each(['metric', 'period', 'op', 'val'], function (key) {
           var v = value[key];
           if (key === 'period' && v === '0') {
             v = '';
           }
 
-          $j('<input>')
+          $('<input>')
               .prop('name', that.model.get('property') + '_' + key)
               .prop('type', 'hidden')
               .css('display', 'none')
@@ -182,7 +163,7 @@ define([
     },
 
 
-    isDefaultValue: function() {
+    isDefaultValue: function () {
       var value = this.model.get('value');
       if (!_.isObject(value)) {
         return true;
@@ -191,10 +172,10 @@ define([
     },
 
 
-    restoreFromQuery: function(q) {
+    restoreFromQuery: function (q) {
       var that = this,
           value = {};
-      _.each(['metric', 'period', 'op', 'val'], function(p) {
+      _.each(['metric', 'period', 'op', 'val'], function (p) {
         var property = that.model.get('property') + '_' + p,
             pValue = _.findWhere(q, { key: property });
 

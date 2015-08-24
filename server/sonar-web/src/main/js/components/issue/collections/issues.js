@@ -1,12 +1,13 @@
 define([
+  'backbone',
   '../models/issue'
-], function (Issue) {
+], function (Backbone, Issue) {
 
   return Backbone.Collection.extend({
     model: Issue,
 
     url: function () {
-      return baseUrl + '/api/issues/search';
+      return window.baseUrl + '/api/issues/search';
     },
 
     _injectRelational: function (issue, source, baseField, lookupField) {

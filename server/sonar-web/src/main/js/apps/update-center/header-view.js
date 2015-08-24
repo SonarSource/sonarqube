@@ -1,6 +1,7 @@
 define([
+  'backbone.marionette',
   './templates'
-], function () {
+], function (Marionette) {
 
   return Marionette.ItemView.extend({
     template: Templates['update-center-header'],
@@ -18,7 +19,7 @@ define([
     },
 
     serializeData: function () {
-      return _.extend(this._super(), {
+      return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
         installing: this.collection._installedCount,
         uninstalling: this.collection._uninstalledCount
       });

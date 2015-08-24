@@ -7,7 +7,7 @@ define(function (require) {
       return this.remote
           .open()
           .mockFromFile('/api/permissions/search_project_permissions', 'permissions/project-permissions.json')
-          .startApp('project-permissions')
+          .startApp('project-permissions/app')
           .checkElementExist('#project-permissions-header')
           .checkElementExist('#projects')
           .checkElementCount('#projects > thead > tr > th', 3)

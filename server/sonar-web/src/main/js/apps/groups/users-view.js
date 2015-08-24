@@ -8,7 +8,8 @@ define([
     template: Templates['groups-users'],
 
     onRender: function () {
-      this._super();
+      Modal.prototype.onRender.apply(this, arguments);
+      //noinspection Eslint
       new window.SelectList({
         el: this.$('#groups-users'),
         width: '100%',
@@ -18,9 +19,9 @@ define([
           return item.name + '<br><span class="note">' + item.login + '</span>';
         },
         queryParam: 'q',
-        searchUrl: baseUrl + '/api/usergroups/users?ps=100&id=' + this.model.id,
-        selectUrl: baseUrl + '/api/usergroups/add_user',
-        deselectUrl: baseUrl + '/api/usergroups/remove_user',
+        searchUrl: window.baseUrl + '/api/usergroups/users?ps=100&id=' + this.model.id,
+        selectUrl: window.baseUrl + '/api/usergroups/add_user',
+        deselectUrl: window.baseUrl + '/api/usergroups/remove_user',
         extra: {
           id: this.model.id
         },
@@ -35,7 +36,7 @@ define([
 
     onDestroy: function () {
       this.model.collection.refresh();
-      this._super();
+      Modal.prototype.onDestroy.apply(this, arguments);
     }
   });
 

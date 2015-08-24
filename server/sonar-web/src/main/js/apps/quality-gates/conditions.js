@@ -1,6 +1,7 @@
 define([
+  'backbone',
   './condition'
-], function (Condition) {
+], function (Backbone, Condition) {
 
   return Backbone.Collection.extend({
     model: Condition,

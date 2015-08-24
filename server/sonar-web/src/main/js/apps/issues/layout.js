@@ -1,6 +1,8 @@
 define([
+  'backbone.marionette',
+  '../../components/common/jquery-isolated-scroll',
   './templates'
-], function () {
+], function (Marionette) {
 
   var $ = jQuery;
   return Marionette.LayoutView.extend({

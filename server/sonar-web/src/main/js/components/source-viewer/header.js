@@ -18,13 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 define([
+  'backbone.marionette',
   './more-actions',
   './measures-overlay',
   './templates'
-], function (MoreActionsView, MeasuresOverlay) {
+], function (Marionette, MoreActionsView, MeasuresOverlay) {
 
   var $ = jQuery,
-      API_FAVORITE = baseUrl + '/api/favourites';
+      API_FAVORITE = window.baseUrl + '/api/favourites';
 
   return Marionette.ItemView.extend({
     template: Templates['source-viewer-header'],

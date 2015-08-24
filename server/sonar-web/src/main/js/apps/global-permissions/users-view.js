@@ -8,7 +8,7 @@ define([
     template: Templates['global-permissions-users'],
 
     onRender: function () {
-      this._super();
+      Modal.prototype.onRender.apply(this, arguments);
       new window.SelectList({
         el: this.$('#global-permissions-users'),
         width: '100%',
@@ -35,7 +35,7 @@ define([
 
     onDestroy: function () {
       this.options.refresh();
-      this._super();
+      Modal.prototype.onDestroy.apply(this, arguments);
     }
   });
 

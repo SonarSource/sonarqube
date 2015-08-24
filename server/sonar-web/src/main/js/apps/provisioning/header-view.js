@@ -1,8 +1,9 @@
 define([
+  'backbone.marionette',
   './create-view',
   './bulk-delete-view',
   './templates'
-], function (CreateView, BulkDeleteView) {
+], function (Marionette, CreateView, BulkDeleteView) {
 
   return Marionette.ItemView.extend({
     template: Templates['provisioning-header'],

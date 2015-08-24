@@ -19,7 +19,9 @@ define(['intern'], function (intern) {
       'test/unit/issue.spec',
       'test/unit/overview/card.spec',
       'test/unit/code-with-issue-locations-helper.spec',
-      'test/unit/nav/component/component-nav-breadcrumbs.spec'
+      'test/unit/nav/component/component-nav-breadcrumbs.spec',
+      'test/unit/recent-history.spec',
+      'test/unit/csv.spec'
     ],
 
     functionalSuites: [
@@ -42,7 +44,11 @@ define(['intern'], function (intern) {
 
     loaderOptions: {
       paths: {
-        'react': '../../build/js/libs/third-party/react-with-addons'
+        'react': '../../build/js/libs/third-party/react-with-addons',
+        'underscore': '../../build/js/libs/shim/underscore-shim',
+        'jquery': '../../build/js/libs/shim/jquery-shim',
+        'backbone': '../../build/js/libs/third-party/backbone',
+        'backbone.marionette': '../../build/js/libs/third-party/backbone.marionette'
       },
       map: {
         '*': {

@@ -7,9 +7,9 @@ define([
     getUrl: function () {
       var q = this.options.app.state.get('contextComponentQualifier');
       if (q === 'VW' || q === 'SVW') {
-        return baseUrl + '/api/components/search';
+        return window.baseUrl + '/api/components/search';
       } else {
-        return baseUrl + '/api/resources/search?f=s2&q=TRK&display_uuid=true';
+        return window.baseUrl + '/api/resources/search?f=s2&q=TRK&display_uuid=true';
       }
     },
 
@@ -29,13 +29,13 @@ define([
         minimumInputLength: 2,
         allowClear: false,
         formatNoMatches: function () {
-          return t('select2.noMatches');
+          return window.t('select2.noMatches');
         },
         formatSearching: function () {
-          return t('select2.searching');
+          return window.t('select2.searching');
         },
         formatInputTooShort: function () {
-          return tp('select2.tooShort', 2);
+          return window.tp('select2.tooShort', 2);
         },
         width: '100%',
         ajax: {

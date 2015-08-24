@@ -1,8 +1,9 @@
 define([
+  'backbone',
   'components/common/modal-form',
   './gate',
   './templates'
-], function (ModalForm, Gate) {
+], function (Backbone, ModalForm, Gate) {
 
   return ModalForm.extend({
     template: Templates['quality-gate-form'],

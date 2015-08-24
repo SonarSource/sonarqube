@@ -8,12 +8,12 @@ define([
   return ModalForm.extend({
     template: Templates['account-change-password'],
 
-    onFormSubmit: function (e) {
-      this._super(e);
+    onFormSubmit: function () {
+      ModalForm.prototype.onFormSubmit.apply(this, arguments);
       if (this.checkPasswords()) {
         this.sendRequest();
       } else {
-        this.showErrors([{ msg: t('user.password_doesnt_match_confirmation') }]);
+        this.showErrors([{ msg: window.t('user.password_doesnt_match_confirmation') }]);
       }
     },
 
@@ -32,7 +32,7 @@ define([
       };
       var opts = {
         type: 'POST',
-        url: baseUrl + '/api/users/change_password',
+        url: window.baseUrl + '/api/users/change_password',
         data: data,
         statusCode: {
           // do not show global error

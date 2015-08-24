@@ -1,12 +1,13 @@
 define([
+  'backbone',
   './gate'
-], function (Gate) {
+], function (Backbone, Gate) {
 
   return Backbone.Collection.extend({
     model: Gate,
 
     url: function () {
-      return baseUrl + '/api/qualitygates/list';
+      return window.baseUrl + '/api/qualitygates/list';
     },
 
     parse: function (r) {

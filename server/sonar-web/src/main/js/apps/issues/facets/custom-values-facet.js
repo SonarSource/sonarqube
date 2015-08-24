@@ -27,13 +27,13 @@ define([
         minimumInputLength: 2,
         allowClear: false,
         formatNoMatches: function () {
-          return t('select2.noMatches');
+          return window.t('select2.noMatches');
         },
         formatSearching: function () {
-          return t('select2.searching');
+          return window.t('select2.searching');
         },
         formatInputTooShort: function () {
-          return tp('select2.tooShort', 2);
+          return window.tp('select2.tooShort', 2);
         },
         width: '100%',
         ajax: this.prepareAjaxSearch()

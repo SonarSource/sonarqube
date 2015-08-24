@@ -1,8 +1,9 @@
 define([
+  'backbone',
   'components/navigator/controller',
   './component-viewer/main',
   './workspace-home-view'
-], function (Controller, ComponentViewer, HomeView) {
+], function (Backbone, Controller, ComponentViewer, HomeView) {
 
   var $ = jQuery,
       FIELDS = 'component,componentId,project,subProject,rule,status,resolution,author,reporter,assignee,debt,line,' +

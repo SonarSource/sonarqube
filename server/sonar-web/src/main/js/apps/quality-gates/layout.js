@@ -1,7 +1,9 @@
 define([
+  'backbone.marionette',
   './intro-view',
+  '../../components/common/jquery-isolated-scroll',
   './templates'
-], function (IntroView) {
+], function (Marionette, IntroView) {
 
   return Marionette.LayoutView.extend({
     template: Templates['quality-gates-layout'],

@@ -1,7 +1,9 @@
 define([
+  'backbone',
+  'backbone.marionette',
   'components/common/selectable-collection-view',
   '../templates'
-], function (SelectableCollectionView) {
+], function (Backbone, Marionette, SelectableCollectionView) {
 
   var $ = jQuery,
 
@@ -120,7 +122,7 @@ define([
         that.favorite = r.map(function (f) {
           var isFile = ['FIL', 'UTS'].indexOf(f.qualifier) !== -1;
           return {
-            url: baseUrl + '/dashboard/index?id=' + encodeURIComponent(f.key) + dashboardParameters(true),
+            url: baseUrl + '/dashboard/index?id=' + encodeURIComponent(f.key) + window.dashboardParameters(true),
             name: isFile ? window.collapsedDirFromPath(f.lname) + window.fileFromPath(f.lname) : f.name,
             icon: 'favorite'
           };
@@ -133,19 +135,20 @@ define([
       var recentHistory = JSON.parse(localStorage.getItem('sonar_recent_history')),
           history = (recentHistory || []).map(function (historyItem, index) {
             return {
-              url: baseUrl + '/dashboard/index?id=' + encodeURIComponent(historyItem.key) + dashboardParameters(true),
+              url: baseUrl + '/dashboard/index?id=' + encodeURIComponent(historyItem.key) +
+              window.dashboardParameters(true),
               name: historyItem.name,
               q: historyItem.icon,
-              extra: index === 0 ? t('browsed_recently') : null
+              extra: index === 0 ? window.t('browsed_recently') : null
             };
           }),
           favorite = _.first(this.favorite, 6).map(function (f, index) {
-            return _.extend(f, { extra: index === 0 ? t('favorite') : null });
+            return _.extend(f, { extra: index === 0 ? window.t('favorite') : null });
           }),
           qualifiers = this.model.get('qualifiers').map(function (q, index) {
             return {
               url: baseUrl + '/all_projects?qualifier=' + encodeURIComponent(q),
-              name: t('qualifiers.all', q),
+              name: window.t('qualifiers.all', q),
               extra: index === 0 ? '' : null
             };
           });
@@ -155,7 +158,7 @@ define([
     search: function (q) {
       if (q.length < 2) {
         this.resetResultsToDefault();
-        return;
+        return $.Deferred().resolve().promise();
       }
       var that = this,
           url = baseUrl + '/api/components/suggestions',
@@ -167,7 +170,7 @@ define([
             collection.push(_.extend(item, {
               q: domain.q,
               extra: index === 0 ? domain.name : null,
-              url: baseUrl + '/dashboard/index?id=' + encodeURIComponent(item.key) + dashboardParameters(true)
+              url: baseUrl + '/dashboard/index?id=' + encodeURIComponent(item.key) + window.dashboardParameters(true)
             }));
           });
         });
@@ -182,22 +185,22 @@ define([
 
     getNavigationFindings: function (q) {
       var DEFAULT_ITEMS = [
-            { name: t('issues.page'), url: baseUrl + '/issues/search' },
-            { name: t('layout.measures'), url: baseUrl + '/measures/search?qualifiers[]=TRK' },
-            { name: t('coding_rules.page'), url: baseUrl + '/coding_rules' },
-            { name: t('quality_profiles.page'), url: baseUrl + '/profiles' },
-            { name: t('quality_gates.page'), url: baseUrl + '/quality_gates' },
-            { name: t('comparison_global.page'), url: baseUrl + '/comparison' }
+            { name: window.t('issues.page'), url: baseUrl + '/issues/search' },
+            { name: window.t('layout.measures'), url: baseUrl + '/measures/search?qualifiers[]=TRK' },
+            { name: window.t('coding_rules.page'), url: baseUrl + '/coding_rules' },
+            { name: window.t('quality_profiles.page'), url: baseUrl + '/profiles' },
+            { name: window.t('quality_gates.page'), url: baseUrl + '/quality_gates' },
+            { name: window.t('comparison_global.page'), url: baseUrl + '/comparison' }
           ],
           customItems = [];
       if (window.SS.isUserAdmin) {
-        customItems.push({ name: t('layout.settings'), url: baseUrl + '/settings' });
+        customItems.push({ name: window.t('layout.settings'), url: baseUrl + '/settings' });
       }
       var findings = [].concat(DEFAULT_ITEMS, customItems).filter(function (f) {
         return f.name.match(new RegExp(q, 'i'));
       });
       if (findings.length > 0) {
-        findings[0].extra = t('navigation');
+        findings[0].extra = window.t('navigation');
       }
       return _.first(findings, 6);
     },
@@ -211,7 +214,7 @@ define([
         return f.name.match(new RegExp(q, 'i'));
       });
       if (findings.length > 0) {
-        findings[0].extra = t('dashboard.global_dashboards');
+        findings[0].extra = window.t('dashboard.global_dashboards');
       }
       return _.first(findings, 6);
     },
@@ -221,7 +224,7 @@ define([
         return f.name.match(new RegExp(q, 'i'));
       });
       if (findings.length > 0) {
-        findings[0].extra = t('favorite');
+        findings[0].extra = window.t('favorite');
       }
       return _.first(findings, 6);
     }
