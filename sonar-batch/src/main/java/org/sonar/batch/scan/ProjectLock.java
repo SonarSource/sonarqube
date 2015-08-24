@@ -69,7 +69,6 @@ public class ProjectLock implements Startable {
   public void stop() {
     if (lockFile != null) {
       try {
-        Files.delete(lockFilePath);
         lockFile.release();
         lockFile = null;
       } catch (IOException e) {
@@ -92,10 +91,18 @@ public class ProjectLock implements Startable {
         LOG.error("Error closing file", e);
       }
     }
+    
+    try {
+      Files.delete(lockFilePath);
+    } catch (IOException e) {
+      //ignore, as an error happens if another process just started to acquire the same lock
+      LOG.debug("Couldn't delete lock file: " + lockFilePath.toString(), e);
+    }
   }
 
   @Override
   public void start() {
+    // nothing to do
   }
 
 }
