@@ -26,6 +26,7 @@ public class UserWithPermission {
 
   private String login;
   private String name;
+  private String email;
   private boolean hasPermission;
 
   public String login() {
@@ -43,6 +44,15 @@ public class UserWithPermission {
 
   public UserWithPermission setName(String name) {
     this.name = name;
+    return this;
+  }
+
+  public String email() {
+    return email;
+  }
+
+  public UserWithPermission setEmail(String email) {
+    this.email = email;
     return this;
   }
 

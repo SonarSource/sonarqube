@@ -4,7 +4,7 @@
 <mapper namespace="org.sonar.db.permission.PermissionMapper">
 
   <select id="selectUsers" parameterType="map" resultType="UserWithPermission">
-    SELECT u.login as login, u.name as name, user_role.role as permission
+    SELECT u.login as login, u.name as name, u.email as email, user_role.role as permission
     <include refid="usersSelection"/>
     ORDER BY u.name
   </select>

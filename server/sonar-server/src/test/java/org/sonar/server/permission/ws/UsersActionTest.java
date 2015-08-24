@@ -49,6 +49,7 @@ import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_UUID;
@@ -78,9 +79,9 @@ public class UsersActionTest {
 
     userSession.login("login").setGlobalPermissions(SYSTEM_ADMIN);
 
-    UserDto user1 = insertUser(new UserDto().setLogin("login-1").setName("name-1"));
-    UserDto user2 = insertUser(new UserDto().setLogin("login-2").setName("name-2"));
-    UserDto user3 = insertUser(new UserDto().setLogin("login-3").setName("name-3"));
+    UserDto user1 = insertUser(new UserDto().setLogin("login-1").setName("name-1").setEmail("email-1"));
+    UserDto user2 = insertUser(new UserDto().setLogin("login-2").setName("name-2").setEmail("email-2"));
+    UserDto user3 = insertUser(new UserDto().setLogin("login-3").setName("name-3").setEmail("email-3"));
     insertUserRole(new UserRoleDto().setRole(SCAN_EXECUTION).setUserId(user1.getId()));
     insertUserRole(new UserRoleDto().setRole(SCAN_EXECUTION).setUserId(user2.getId()));
     insertUserRole(new UserRoleDto().setRole(SYSTEM_ADMIN).setUserId(user3.getId()));
@@ -90,8 +91,8 @@ public class UsersActionTest {
   @Test
   public void search_for_users_with_response_example() {
     db.truncateTables();
-    UserDto user1 = insertUser(new UserDto().setLogin("admin").setName("Administrator"));
-    UserDto user2 = insertUser(new UserDto().setLogin("george.orwell").setName("George Orwell"));
+    UserDto user1 = insertUser(new UserDto().setLogin("admin").setName("Administrator").setEmail("admin@admin.com"));
+    UserDto user2 = insertUser(new UserDto().setLogin("george.orwell").setName("George Orwell").setEmail("george.orwell@1984.net"));
     insertUserRole(new UserRoleDto().setRole(SCAN_EXECUTION).setUserId(user1.getId()));
     insertUserRole(new UserRoleDto().setRole(SCAN_EXECUTION).setUserId(user2.getId()));
     commit();
@@ -112,7 +113,7 @@ public class UsersActionTest {
   public void search_for_users_with_permission_on_project() {
     dbClient.componentDao().insert(dbSession, newProjectDto("project-uuid").setKey("project-key"));
     ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, "project-uuid");
-    UserDto user = insertUser(new UserDto().setLogin("project-user-login").setName("project-user-name"));
+    UserDto user = insertUser(newUserDto().setLogin("project-user-login").setName("project-user-name"));
     insertUserRole(new UserRoleDto().setRole(ISSUE_ADMIN).setUserId(user.getId()).setResourceId(project.getId()));
     commit();
     userSession.login().addProjectUuidPermissions(SYSTEM_ADMIN, "project-uuid");

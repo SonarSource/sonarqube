@@ -201,11 +201,25 @@ public final class Permissions {
           getNameBytes();
 
       /**
-       * <code>optional bool selected = 3;</code>
+       * <code>optional string email = 3;</code>
+       */
+      boolean hasEmail();
+      /**
+       * <code>optional string email = 3;</code>
+       */
+      java.lang.String getEmail();
+      /**
+       * <code>optional string email = 3;</code>
+       */
+      com.google.protobuf.ByteString
+          getEmailBytes();
+
+      /**
+       * <code>optional bool selected = 4;</code>
        */
       boolean hasSelected();
       /**
-       * <code>optional bool selected = 3;</code>
+       * <code>optional bool selected = 4;</code>
        */
       boolean getSelected();
     }
@@ -273,8 +287,14 @@ public final class Permissions {
                 name_ = bs;
                 break;
               }
-              case 24: {
+              case 26: {
+                com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000004;
+                email_ = bs;
+                break;
+              }
+              case 32: {
+                bitField0_ |= 0x00000008;
                 selected_ = input.readBool();
                 break;
               }
@@ -402,16 +422,58 @@ public final class Permissions {
         }
       }
 
-      public static final int SELECTED_FIELD_NUMBER = 3;
-      private boolean selected_;
+      public static final int EMAIL_FIELD_NUMBER = 3;
+      private java.lang.Object email_;
       /**
-       * <code>optional bool selected = 3;</code>
+       * <code>optional string email = 3;</code>
        */
-      public boolean hasSelected() {
+      public boolean hasEmail() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>optional bool selected = 3;</code>
+       * <code>optional string email = 3;</code>
+       */
+      public java.lang.String getEmail() {
+        java.lang.Object ref = email_;
+        if (ref instanceof java.lang.String) {
+          return (java.lang.String) ref;
+        } else {
+          com.google.protobuf.ByteString bs = 
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            email_ = s;
+          }
+          return s;
+        }
+      }
+      /**
+       * <code>optional string email = 3;</code>
+       */
+      public com.google.protobuf.ByteString
+          getEmailBytes() {
+        java.lang.Object ref = email_;
+        if (ref instanceof java.lang.String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          email_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+
+      public static final int SELECTED_FIELD_NUMBER = 4;
+      private boolean selected_;
+      /**
+       * <code>optional bool selected = 4;</code>
+       */
+      public boolean hasSelected() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>optional bool selected = 4;</code>
        */
       public boolean getSelected() {
         return selected_;
@@ -420,6 +482,7 @@ public final class Permissions {
       private void initFields() {
         login_ = "";
         name_ = "";
+        email_ = "";
         selected_ = false;
       }
       private byte memoizedIsInitialized = -1;
@@ -442,7 +505,10 @@ public final class Permissions {
           output.writeBytes(2, getNameBytes());
         }
         if (((bitField0_ & 0x00000004) == 0x00000004)) {
-          output.writeBool(3, selected_);
+          output.writeBytes(3, getEmailBytes());
+        }
+        if (((bitField0_ & 0x00000008) == 0x00000008)) {
+          output.writeBool(4, selected_);
         }
         getUnknownFields().writeTo(output);
       }
@@ -463,7 +529,11 @@ public final class Permissions {
         }
         if (((bitField0_ & 0x00000004) == 0x00000004)) {
           size += com.google.protobuf.CodedOutputStream
-            .computeBoolSize(3, selected_);
+            .computeBytesSize(3, getEmailBytes());
+        }
+        if (((bitField0_ & 0x00000008) == 0x00000008)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeBoolSize(4, selected_);
         }
         size += getUnknownFields().getSerializedSize();
         memoizedSerializedSize = size;
@@ -586,8 +656,10 @@ public final class Permissions {
           bitField0_ = (bitField0_ & ~0x00000001);
           name_ = "";
           bitField0_ = (bitField0_ & ~0x00000002);
-          selected_ = false;
+          email_ = "";
           bitField0_ = (bitField0_ & ~0x00000004);
+          selected_ = false;
+          bitField0_ = (bitField0_ & ~0x00000008);
           return this;
         }
 
@@ -627,6 +699,10 @@ public final class Permissions {
           if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
             to_bitField0_ |= 0x00000004;
           }
+          result.email_ = email_;
+          if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+            to_bitField0_ |= 0x00000008;
+          }
           result.selected_ = selected_;
           result.bitField0_ = to_bitField0_;
           onBuilt();
@@ -652,6 +728,11 @@ public final class Permissions {
           if (other.hasName()) {
             bitField0_ |= 0x00000002;
             name_ = other.name_;
+            onChanged();
+          }
+          if (other.hasEmail()) {
+            bitField0_ |= 0x00000004;
+            email_ = other.email_;
             onChanged();
           }
           if (other.hasSelected()) {
@@ -836,33 +917,109 @@ public final class Permissions {
           return this;
         }
 
-        private boolean selected_ ;
+        private java.lang.Object email_ = "";
         /**
-         * <code>optional bool selected = 3;</code>
+         * <code>optional string email = 3;</code>
          */
-        public boolean hasSelected() {
+        public boolean hasEmail() {
           return ((bitField0_ & 0x00000004) == 0x00000004);
         }
         /**
-         * <code>optional bool selected = 3;</code>
+         * <code>optional string email = 3;</code>
+         */
+        public java.lang.String getEmail() {
+          java.lang.Object ref = email_;
+          if (!(ref instanceof java.lang.String)) {
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            if (bs.isValidUtf8()) {
+              email_ = s;
+            }
+            return s;
+          } else {
+            return (java.lang.String) ref;
+          }
+        }
+        /**
+         * <code>optional string email = 3;</code>
+         */
+        public com.google.protobuf.ByteString
+            getEmailBytes() {
+          java.lang.Object ref = email_;
+          if (ref instanceof String) {
+            com.google.protobuf.ByteString b = 
+                com.google.protobuf.ByteString.copyFromUtf8(
+                    (java.lang.String) ref);
+            email_ = b;
+            return b;
+          } else {
+            return (com.google.protobuf.ByteString) ref;
+          }
+        }
+        /**
+         * <code>optional string email = 3;</code>
+         */
+        public Builder setEmail(
+            java.lang.String value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+          email_ = value;
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string email = 3;</code>
+         */
+        public Builder clearEmail() {
+          bitField0_ = (bitField0_ & ~0x00000004);
+          email_ = getDefaultInstance().getEmail();
+          onChanged();
+          return this;
+        }
+        /**
+         * <code>optional string email = 3;</code>
+         */
+        public Builder setEmailBytes(
+            com.google.protobuf.ByteString value) {
+          if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+          email_ = value;
+          onChanged();
+          return this;
+        }
+
+        private boolean selected_ ;
+        /**
+         * <code>optional bool selected = 4;</code>
+         */
+        public boolean hasSelected() {
+          return ((bitField0_ & 0x00000008) == 0x00000008);
+        }
+        /**
+         * <code>optional bool selected = 4;</code>
          */
         public boolean getSelected() {
           return selected_;
         }
         /**
-         * <code>optional bool selected = 3;</code>
+         * <code>optional bool selected = 4;</code>
          */
         public Builder setSelected(boolean value) {
-          bitField0_ |= 0x00000004;
+          bitField0_ |= 0x00000008;
           selected_ = value;
           onChanged();
           return this;
         }
         /**
-         * <code>optional bool selected = 3;</code>
+         * <code>optional bool selected = 4;</code>
          */
         public Builder clearSelected() {
-          bitField0_ = (bitField0_ & ~0x00000004);
+          bitField0_ = (bitField0_ & ~0x00000008);
           selected_ = false;
           onChanged();
           return this;
@@ -7546,31 +7703,32 @@ public final class Permissions {
   static {
     java.lang.String[] descriptorData = {
       "\n\024ws-permissions.proto\022\030sonarqube.ws.per" +
-      "missions\032\020ws-commons.proto\"\261\001\n\rUsersResp" +
+      "missions\032\020ws-commons.proto\"\300\001\n\rUsersResp" +
       "onse\022;\n\005users\030\001 \003(\0132,.sonarqube.ws.permi" +
       "ssions.UsersResponse.User\022,\n\006paging\030\002 \001(" +
-      "\0132\034.sonarqube.ws.commons.Paging\0325\n\004User\022" +
-      "\r\n\005login\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\020\n\010selected" +
-      "\030\003 \001(\010\"\310\001\n\016GroupsResponse\022>\n\006groups\030\001 \003(" +
-      "\0132..sonarqube.ws.permissions.GroupsRespo" +
-      "nse.Group\022,\n\006paging\030\002 \001(\0132\034.sonarqube.ws" +
-      ".commons.Paging\032H\n\005Group\022\n\n\002id\030\001 \001(\t\022\014\n\004",
-      "name\030\002 \001(\t\022\023\n\013description\030\003 \001(\t\022\020\n\010selec" +
-      "ted\030\004 \001(\010\"e\n\nPermission\022\013\n\003key\030\001 \001(\t\022\014\n\004" +
-      "name\030\002 \001(\t\022\023\n\013description\030\003 \001(\t\022\022\n\nusers" +
-      "Count\030\004 \001(\005\022\023\n\013groupsCount\030\005 \001(\005\"\\\n\037Sear" +
-      "chGlobalPermissionsResponse\0229\n\013permissio" +
-      "ns\030\001 \003(\0132$.sonarqube.ws.permissions.Perm" +
-      "ission\"\344\002\n SearchProjectPermissionsRespo" +
-      "nse\022T\n\010projects\030\001 \003(\0132B.sonarqube.ws.per" +
-      "missions.SearchProjectPermissionsRespons" +
-      "e.Project\0229\n\013permissions\030\002 \003(\0132$.sonarqu",
-      "be.ws.permissions.Permission\022,\n\006paging\030\003" +
-      " \001(\0132\034.sonarqube.ws.commons.Paging\032\200\001\n\007P" +
-      "roject\022\014\n\004uuid\030\001 \001(\t\022\013\n\003key\030\002 \001(\t\022\021\n\tqua" +
-      "lifier\030\003 \001(\t\022\014\n\004name\030\004 \001(\t\0229\n\013permission" +
-      "s\030\005 \003(\0132$.sonarqube.ws.permissions.Permi" +
-      "ssionB!\n\020org.sonarqube.wsB\013PermissionsH\001"
+      "\0132\034.sonarqube.ws.commons.Paging\032D\n\004User\022" +
+      "\r\n\005login\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\r\n\005email\030\003 " +
+      "\001(\t\022\020\n\010selected\030\004 \001(\010\"\310\001\n\016GroupsResponse" +
+      "\022>\n\006groups\030\001 \003(\0132..sonarqube.ws.permissi" +
+      "ons.GroupsResponse.Group\022,\n\006paging\030\002 \001(\013" +
+      "2\034.sonarqube.ws.commons.Paging\032H\n\005Group\022",
+      "\n\n\002id\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\023\n\013description" +
+      "\030\003 \001(\t\022\020\n\010selected\030\004 \001(\010\"e\n\nPermission\022\013" +
+      "\n\003key\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\023\n\013description" +
+      "\030\003 \001(\t\022\022\n\nusersCount\030\004 \001(\005\022\023\n\013groupsCoun" +
+      "t\030\005 \001(\005\"\\\n\037SearchGlobalPermissionsRespon" +
+      "se\0229\n\013permissions\030\001 \003(\0132$.sonarqube.ws.p" +
+      "ermissions.Permission\"\344\002\n SearchProjectP" +
+      "ermissionsResponse\022T\n\010projects\030\001 \003(\0132B.s" +
+      "onarqube.ws.permissions.SearchProjectPer" +
+      "missionsResponse.Project\0229\n\013permissions\030",
+      "\002 \003(\0132$.sonarqube.ws.permissions.Permiss" +
+      "ion\022,\n\006paging\030\003 \001(\0132\034.sonarqube.ws.commo" +
+      "ns.Paging\032\200\001\n\007Project\022\014\n\004uuid\030\001 \001(\t\022\013\n\003k" +
+      "ey\030\002 \001(\t\022\021\n\tqualifier\030\003 \001(\t\022\014\n\004name\030\004 \001(" +
+      "\t\0229\n\013permissions\030\005 \003(\0132$.sonarqube.ws.pe" +
+      "rmissions.PermissionB!\n\020org.sonarqube.ws" +
+      "B\013PermissionsH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -7596,7 +7754,7 @@ public final class Permissions {
     internal_static_sonarqube_ws_permissions_UsersResponse_User_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_permissions_UsersResponse_User_descriptor,
-        new java.lang.String[] { "Login", "Name", "Selected", });
+        new java.lang.String[] { "Login", "Name", "Email", "Selected", });
     internal_static_sonarqube_ws_permissions_GroupsResponse_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_sonarqube_ws_permissions_GroupsResponse_fieldAccessorTable = new

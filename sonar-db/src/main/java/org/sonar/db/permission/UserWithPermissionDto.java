@@ -28,6 +28,7 @@ public class UserWithPermissionDto {
 
   private String login;
   private String name;
+  private String email;
   private String permission;
 
   public String getLogin() {
@@ -48,6 +49,15 @@ public class UserWithPermissionDto {
     return this;
   }
 
+  public String getEmail() {
+    return email;
+  }
+
+  public UserWithPermissionDto setEmail(String email) {
+    this.email = email;
+    return this;
+  }
+
   @CheckForNull
   public String getPermission() {
     return permission;
@@ -62,6 +72,7 @@ public class UserWithPermissionDto {
     return new UserWithPermission()
       .setLogin(login)
       .setName(name)
+      .setEmail(email)
       .hasPermission(permission != null);
   }
 }

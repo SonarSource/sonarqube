@@ -40,6 +40,7 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Permissions.UsersResponse;
 
 import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.Strings.nullToEmpty;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentDto;
 import static org.sonar.server.permission.PermissionQueryParser.toMembership;
 import static org.sonar.server.permission.ws.Parameters.createPermissionParameter;
@@ -110,7 +111,8 @@ public class UsersAction implements PermissionsWsAction {
         user
           .clear()
           .setLogin(userWithPermission.login())
-          .setName(userWithPermission.name())
+          .setName(nullToEmpty(userWithPermission.name()))
+          .setEmail(nullToEmpty(userWithPermission.email()))
           .setSelected(userWithPermission.hasPermission()));
       userResponse.setPaging(
         paging
