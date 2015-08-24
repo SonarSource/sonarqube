@@ -119,6 +119,14 @@
       <if test="query.search() != null">
         AND (UPPER(groups.name) LIKE #{query.searchSql} ESCAPE '/')
       </if>
+      <choose>
+        <when test="query.membership() == 'IN'">
+          AND groups.permission IS NOT NULL
+        </when>
+        <when test="query.membership() == 'OUT'">
+          AND groups.permission IS NULL
+        </when>
+      </choose>
     </where>
     ORDER BY groups.name
   </select>
@@ -141,9 +149,20 @@
     </where>
     ) groups
     <where>
+      <if test="groupName!=null">
+        AND (UPPER(groups.name) LIKE #{groupName} ESCAPE '/')
+      </if>
       <if test="query.search() != null">
         AND (UPPER(groups.name) LIKE #{query.searchSql} ESCAPE '/')
       </if>
+      <choose>
+        <when test="query.membership() == 'IN'">
+          AND groups.permission IS NOT NULL
+        </when>
+        <when test="query.membership() == 'OUT'">
+          AND groups.permission IS NULL
+        </when>
+      </choose>
     </where>
   </select>
 

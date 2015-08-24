@@ -20,26 +20,31 @@
 
 package org.sonar.server.permission;
 
-import org.sonar.core.permission.ProjectPermissions;
+import javax.annotation.Nullable;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.core.permission.ProjectPermissions;
 
-public class PermissionValueValidator {
-  private PermissionValueValidator() {
+import static java.lang.String.format;
+import static org.sonar.api.security.DefaultGroups.isAnyone;
+import static org.sonar.server.ws.WsUtils.checkRequest;
+
+public class PermissionRequestValidator {
+  private PermissionRequestValidator() {
     // static methods only
   }
 
   public static void validateProjectPermission(String permission) {
-    if (!ProjectPermissions.ALL.contains(permission)) {
-      throw new BadRequestException(String.format("The 'permission' parameter for project permissions must be one of %s. '%s' was passed.", ProjectPermissions.ALL_ON_ONE_LINE,
-        permission));
-    }
+    checkRequest(ProjectPermissions.ALL.contains(permission),
+      format("The 'permission' parameter for project permissions must be one of %s. '%s' was passed.", ProjectPermissions.ALL_ON_ONE_LINE, permission));
   }
 
   public static void validateGlobalPermission(String permission) {
-    if (!GlobalPermissions.ALL.contains(permission)) {
-      throw new BadRequestException(String.format("The 'permission' parameter for global permissions must be one of %s. '%s' was passed.", GlobalPermissions.ALL_ON_ONE_LINE,
-        permission));
-    }
+    checkRequest(GlobalPermissions.ALL.contains(permission),
+      format("The 'permission' parameter for global permissions must be one of %s. '%s' was passed.", GlobalPermissions.ALL_ON_ONE_LINE, permission));
+  }
+
+  public static void validateNotAnyoneAndAdminPermission(String permission, @Nullable String groupName) {
+    checkRequest(!GlobalPermissions.SYSTEM_ADMIN.equals(permission) || !isAnyone(groupName),
+      String.format("It is not possible to add the '%s' permission to the '%s' group.", permission, groupName));
   }
 }

@@ -28,6 +28,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.util.ProtobufJsonFormat;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.plugins.MimeTypes;
 
 public class WsUtils {
@@ -56,9 +57,21 @@ public class WsUtils {
   /**
    * @throws BadRequestException
    */
-  public static void checkRequest(boolean expression, String errorMessage) {
+  public static void checkRequest(boolean expression, String message) {
     if (!expression) {
-      throw new BadRequestException(errorMessage);
+      throw new BadRequestException(message);
     }
+  }
+
+  /**
+   * @throws NotFoundException if the value if null
+   * @return the value
+   */
+  public static <T> T checkFound(T value, String message) {
+    if (value == null) {
+      throw new NotFoundException(message);
+    }
+
+    return value;
   }
 }

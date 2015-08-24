@@ -23,7 +23,6 @@ package org.sonar.server.permission;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -36,7 +35,9 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.api.security.DefaultGroups.isAnyone;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
+import static org.sonar.server.permission.PermissionRequestValidator.validateNotAnyoneAndAdminPermission;
 
 public class PermissionUpdater {
 
@@ -114,20 +115,13 @@ public class PermissionUpdater {
     Long targetedGroup = getTargetedGroup(session, permissionChange.groupName());
     String permission = permissionChange.permission();
     if (Operation.ADD == operation) {
-      checkNotAnyoneAndAdmin(permission, permissionChange.groupName());
+      validateNotAnyoneAndAdminPermission(permission, permissionChange.groupName());
       permissionRepository.insertGroupPermission(componentId, targetedGroup, permission, session);
     } else {
       checkAdminUsersExistOutsideTheRemovedGroup(session, permissionChange, targetedGroup);
       permissionRepository.deleteGroupPermission(componentId, targetedGroup, permission, session);
     }
     return true;
-  }
-
-  private static void checkNotAnyoneAndAdmin(String permission, String group) {
-    if (GlobalPermissions.SYSTEM_ADMIN.equals(permission)
-      && DefaultGroups.isAnyone(group)) {
-      throw new BadRequestException(String.format("It is not possible to add the '%s' permission to the '%s' group.", permission, group));
-    }
   }
 
   private boolean applyChangeOnUser(DbSession session, Operation operation, PermissionChange permissionChange) {
@@ -173,7 +167,7 @@ public class PermissionUpdater {
 
   @Nullable
   private Long getTargetedGroup(DbSession session, String group) {
-    if (DefaultGroups.isAnyone(group)) {
+    if (isAnyone(group)) {
       return null;
     } else {
       GroupDto groupDto = dbClient.groupDao().selectByName(session, group);

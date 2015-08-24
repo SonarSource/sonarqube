@@ -103,9 +103,20 @@ public class PermissionTemplateDao implements Dao {
     }
   }
 
-  public int countGroups(DbSession session, PermissionQuery query, Long templateId) {
+  public int countGroups(DbSession session, PermissionQuery query, long templateId) {
+    return countGroups(session, query, templateId, null);
+  }
+
+  private int countGroups(DbSession session, PermissionQuery query, long templateId, @Nullable String groupName) {
     Map<String, Object> parameters = groupsParamaters(query, templateId);
+    if (groupName != null) {
+      parameters.put("groupName", groupName.toUpperCase());
+    }
     return mapper(session).countGroups(parameters);
+  }
+
+  public boolean hasGroup(DbSession session, PermissionQuery query, long templateId, String groupName) {
+    return countGroups(session, query, templateId, groupName) > 0;
   }
 
   private static Map<String, Object> groupsParamaters(PermissionQuery query, Long templateId) {
@@ -266,19 +277,23 @@ public class PermissionTemplateDao implements Dao {
   }
 
   public void insertGroupPermission(Long templateId, @Nullable Long groupId, String permission) {
+    DbSession session = myBatis.openSession(false);
+    try {
+      insertGroupPermission(session, templateId, groupId, permission);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void insertGroupPermission(DbSession session, Long templateId, @Nullable Long groupId, String permission) {
     PermissionTemplateGroupDto permissionTemplateGroup = new PermissionTemplateGroupDto()
       .setTemplateId(templateId)
       .setPermission(permission)
       .setGroupId(groupId)
       .setCreatedAt(now())
       .setUpdatedAt(now());
-    SqlSession session = myBatis.openSession(false);
-    try {
-      mapper(session).insertGroupPermission(permissionTemplateGroup);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+    mapper(session).insertGroupPermission(permissionTemplateGroup);
+    session.commit();
   }
 
   public void deleteGroupPermission(Long templateId, @Nullable Long groupId, String permission) {

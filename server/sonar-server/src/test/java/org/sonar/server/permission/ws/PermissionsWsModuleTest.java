@@ -30,6 +30,6 @@ public class PermissionsWsModuleTest {
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
     new PermissionsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(16);
+    assertThat(container.size()).isEqualTo(17);
   }
 }

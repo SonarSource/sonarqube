@@ -19,6 +19,8 @@
  */
 package org.sonar.api.security;
 
+import javax.annotation.Nullable;
+
 /**
  * Name of the default user groups
  *
@@ -32,7 +34,7 @@ public final class DefaultGroups {
   public static final String ADMINISTRATORS = "sonar-administrators";
   public static final String USERS = "sonar-users";
 
-  public static boolean isAnyone(String groupName) {
+  public static boolean isAnyone(@Nullable String groupName) {
     return ANYONE.equalsIgnoreCase(groupName);
   }
 }

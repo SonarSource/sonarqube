@@ -30,7 +30,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.PermissionValueValidator.validateProjectPermission;
+import static org.sonar.server.permission.PermissionRequestValidator.validateProjectPermission;
 
 /**
  * @deprecated since 5.2 can be removed when Ruby doesn't rely on PermissionTemplateService

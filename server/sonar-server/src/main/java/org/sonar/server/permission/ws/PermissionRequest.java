@@ -34,8 +34,8 @@ import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_UUID;
 import static org.sonar.server.permission.ws.Parameters.PARAM_USER_LOGIN;
-import static org.sonar.server.permission.PermissionValueValidator.validateGlobalPermission;
-import static org.sonar.server.permission.PermissionValueValidator.validateProjectPermission;
+import static org.sonar.server.permission.PermissionRequestValidator.validateGlobalPermission;
+import static org.sonar.server.permission.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 class PermissionRequest {

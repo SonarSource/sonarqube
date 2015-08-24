@@ -31,6 +31,10 @@ import org.sonar.api.web.UserRole;
  */
 public final class ProjectPermissions {
 
+  private ProjectPermissions() {
+    // static constants only
+  }
+
   /**
    * All the component permissions values, ordered from {@link UserRole#USER} to {@link UserRole#CODEVIEWER}.
    */

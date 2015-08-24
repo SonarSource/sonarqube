@@ -30,14 +30,15 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.permission.GroupWithPermissionDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.PermissionTemplateDto;
-import org.sonar.db.permission.UserWithPermissionDto;
-import org.sonar.db.user.UserDto;
+import org.sonar.db.user.GroupDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -50,17 +51,21 @@ import org.sonar.test.DbTests;
 
 import static com.google.common.collect.FluentIterable.from;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.security.DefaultGroups.ANYONE;
+import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
-import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.db.user.GroupTesting.newGroupDto;
+import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_ID;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_KEY;
 
 @Category(DbTests.class)
-public class RemoveUserFromTemplateActionTest {
+public class AddGroupToTemplateActionTest {
 
-  private static final String USER_LOGIN = "user-login";
-  private static final String DEFAULT_PERMISSION = CODEVIEWER;
+  private static final String GROUP_NAME = "group-name";
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
@@ -71,7 +76,7 @@ public class RemoveUserFromTemplateActionTest {
   WsActionTester ws;
   DbClient dbClient;
   DbSession dbSession;
-  UserDto user;
+  GroupDto group;
   PermissionTemplateDto permissionTemplate;
 
   @Before
@@ -81,56 +86,59 @@ public class RemoveUserFromTemplateActionTest {
     userSession.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     PermissionDependenciesFinder dependenciesFinder = new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient));
-    ws = new WsActionTester(new RemoveUserFromTemplateAction(dbClient, dependenciesFinder, userSession));
+    ws = new WsActionTester(new AddGroupToTemplateAction(dbClient, dependenciesFinder, userSession));
 
-    user = insertUser(newUserDto().setLogin(USER_LOGIN));
+    group = insertGroup(newGroupDto().setName(GROUP_NAME));
     permissionTemplate = insertPermissionTemplate(newPermissionTemplateDto());
-    addUserToTemplate(user, permissionTemplate, DEFAULT_PERMISSION);
     commit();
   }
 
   @Test
-  public void remove_user_from_template() {
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), DEFAULT_PERMISSION);
+  public void add_group_to_template() {
+    newRequest(GROUP_NAME, permissionTemplate.getKee(), CODEVIEWER);
 
-    assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), DEFAULT_PERMISSION)).isEmpty();
+    assertThat(getGroupNamesInTemplateAndPermission(permissionTemplate.getId(), CODEVIEWER)).containsExactly(GROUP_NAME);
   }
 
   @Test
-  public void remove_user_from_template_twice_without_failing() {
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), DEFAULT_PERMISSION);
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), DEFAULT_PERMISSION);
+  public void add_with_group_id() {
+    ws.newRequest()
+      .setParam(PARAM_TEMPLATE_KEY, permissionTemplate.getKee())
+      .setParam(PARAM_PERMISSION, CODEVIEWER)
+      .setParam(PARAM_GROUP_ID, String.valueOf(group.getId()))
+      .execute();
 
-    assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), DEFAULT_PERMISSION)).isEmpty();
+    assertThat(getGroupNamesInTemplateAndPermission(permissionTemplate.getId(), CODEVIEWER)).containsExactly(GROUP_NAME);
   }
 
   @Test
-  public void keep_user_permission_not_removed() {
-    addUserToTemplate(user, permissionTemplate, ISSUE_ADMIN);
-    commit();
+  public void does_not_add_a_group_twice() {
+    newRequest(GROUP_NAME, permissionTemplate.getKee(), ISSUE_ADMIN);
+    newRequest(GROUP_NAME, permissionTemplate.getKee(), ISSUE_ADMIN);
 
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), DEFAULT_PERMISSION);
-
-    assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), DEFAULT_PERMISSION)).isEmpty();
-    assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), ISSUE_ADMIN)).containsExactly(user.getLogin());
+    assertThat(getGroupNamesInTemplateAndPermission(permissionTemplate.getId(), ISSUE_ADMIN)).containsExactly(GROUP_NAME);
   }
 
   @Test
-  public void keep_other_users_when_one_user_removed() {
-    UserDto newUser = insertUser(newUserDto().setLogin("new-login"));
-    addUserToTemplate(newUser, permissionTemplate, DEFAULT_PERMISSION);
-    commit();
+  public void add_anyone_group_to_template() {
+    newRequest(ANYONE, permissionTemplate.getKee(), CODEVIEWER);
 
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), DEFAULT_PERMISSION);
+    assertThat(getGroupNamesInTemplateAndPermission(permissionTemplate.getId(), CODEVIEWER)).containsExactly(ANYONE);
+  }
 
-    assertThat(getLoginsInTemplateAndPermission(permissionTemplate.getId(), DEFAULT_PERMISSION)).containsExactly("new-login");
+  @Test
+  public void fail_if_add_anyone_group_to_admin_permission() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage(String.format("It is not possible to add the '%s' permission to the '%s' group.", UserRole.ADMIN, ANYONE));
+
+    newRequest(ANYONE, permissionTemplate.getKee(), ADMIN);
   }
 
   @Test
   public void fail_if_not_a_project_permission() {
     expectedException.expect(BadRequestException.class);
 
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), GlobalPermissions.PREVIEW_EXECUTION);
+    newRequest(GROUP_NAME, permissionTemplate.getKee(), GlobalPermissions.PREVIEW_EXECUTION);
   }
 
   @Test
@@ -138,7 +146,7 @@ public class RemoveUserFromTemplateActionTest {
     expectedException.expect(ForbiddenException.class);
     userSession.setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), DEFAULT_PERMISSION);
+    newRequest(GROUP_NAME, permissionTemplate.getKee(), CODEVIEWER);
   }
 
   @Test
@@ -146,36 +154,36 @@ public class RemoveUserFromTemplateActionTest {
     expectedException.expect(UnauthorizedException.class);
     userSession.anonymous();
 
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), DEFAULT_PERMISSION);
+    newRequest(GROUP_NAME, permissionTemplate.getKee(), CODEVIEWER);
   }
 
   @Test
-  public void fail_if_user_missing() {
-    expectedException.expect(IllegalArgumentException.class);
+  public void fail_if_group_params_missing() {
+    expectedException.expect(BadRequestException.class);
 
-    newRequest(null, permissionTemplate.getKee(), DEFAULT_PERMISSION);
+    newRequest(null, permissionTemplate.getKee(), CODEVIEWER);
   }
 
   @Test
   public void fail_if_permission_missing() {
     expectedException.expect(IllegalArgumentException.class);
 
-    newRequest(USER_LOGIN, permissionTemplate.getKee(), null);
+    newRequest(GROUP_NAME, permissionTemplate.getKee(), null);
   }
 
   @Test
   public void fail_if_template_key_missing() {
     expectedException.expect(IllegalArgumentException.class);
 
-    newRequest(USER_LOGIN, null, DEFAULT_PERMISSION);
+    newRequest(GROUP_NAME, null, CODEVIEWER);
   }
 
   @Test
-  public void fail_if_user_does_not_exist() {
+  public void fail_if_group_does_not_exist() {
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("User with login 'unknown-login' is not found");
+    expectedException.expectMessage("Group with name 'unknown-group-name' is not found");
 
-    newRequest("unknown-login", permissionTemplate.getKee(), DEFAULT_PERMISSION);
+    newRequest("unknown-group-name", permissionTemplate.getKee(), CODEVIEWER);
   }
 
   @Test
@@ -183,16 +191,16 @@ public class RemoveUserFromTemplateActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Permission template with key 'unknown-key' is not found");
 
-    newRequest(USER_LOGIN, "unknown-key", DEFAULT_PERMISSION);
+    newRequest(GROUP_NAME, "unknown-key", CODEVIEWER);
   }
 
-  private void newRequest(@Nullable String userLogin, @Nullable String templateKey, @Nullable String permission) {
+  private void newRequest(@Nullable String groupName, @Nullable String templateKey, @Nullable String permission) {
     TestRequest request = ws.newRequest();
-    if (userLogin != null) {
-      request.setParam(Parameters.PARAM_USER_LOGIN, userLogin);
+    if (groupName != null) {
+      request.setParam(Parameters.PARAM_GROUP_NAME, groupName);
     }
     if (templateKey != null) {
-      request.setParam(Parameters.PARAM_TEMPLATE_KEY, templateKey);
+      request.setParam(PARAM_TEMPLATE_KEY, templateKey);
     }
     if (permission != null) {
       request.setParam(Parameters.PARAM_PERMISSION, permission);
@@ -205,33 +213,29 @@ public class RemoveUserFromTemplateActionTest {
     dbSession.commit();
   }
 
-  private UserDto insertUser(UserDto userDto) {
-    return dbClient.userDao().insert(dbSession, userDto.setActive(true));
+  private GroupDto insertGroup(GroupDto groupDto) {
+    return dbClient.groupDao().insert(dbSession, groupDto);
   }
 
   private PermissionTemplateDto insertPermissionTemplate(PermissionTemplateDto permissionTemplate) {
     return dbClient.permissionTemplateDao().insertPermissionTemplate(permissionTemplate.getName(), permissionTemplate.getDescription(), permissionTemplate.getKeyPattern());
   }
 
-  private List<String> getLoginsInTemplateAndPermission(long templateId, String permission) {
+  private List<String> getGroupNamesInTemplateAndPermission(long templateId, String permission) {
     PermissionQuery permissionQuery = PermissionQuery.builder().permission(permission).membership(IN).build();
     return from(dbClient.permissionTemplateDao()
-      .selectUsers(dbSession, permissionQuery, templateId, 0, Integer.MAX_VALUE))
-      .transform(UserWithPermissionToUserLogin.INSTANCE)
+      .selectGroups(dbSession, permissionQuery, templateId))
+      .transform(GroupWithPermissionToGroupName.INSTANCE)
       .toList();
   }
 
-  private enum UserWithPermissionToUserLogin implements Function<UserWithPermissionDto, String> {
+  private enum GroupWithPermissionToGroupName implements Function<GroupWithPermissionDto, String> {
     INSTANCE;
 
     @Override
-    public String apply(@Nonnull UserWithPermissionDto userWithPermission) {
-      return userWithPermission.getLogin();
+    public String apply(@Nonnull GroupWithPermissionDto groupWithPermission) {
+      return groupWithPermission.getName();
     }
 
-  }
-
-  private void addUserToTemplate(UserDto user, PermissionTemplateDto permissionTemplate, String permission) {
-    dbClient.permissionTemplateDao().insertUserPermission(dbSession, permissionTemplate.getId(), user.getId(), permission);
   }
 }

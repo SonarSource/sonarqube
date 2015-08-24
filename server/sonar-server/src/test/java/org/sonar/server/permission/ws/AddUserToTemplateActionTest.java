@@ -41,6 +41,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -147,7 +148,7 @@ public class AddUserToTemplateActionTest {
 
   @Test
   public void fail_if_user_does_not_exist() {
-    expectedException.expect(BadRequestException.class);
+    expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("User with login 'unknown-login' is not found");
 
     newRequest("unknown-login", permissionTemplate.getKee(), CODEVIEWER);
@@ -155,7 +156,7 @@ public class AddUserToTemplateActionTest {
 
   @Test
   public void fail_if_template_key_does_not_exist() {
-    expectedException.expect(BadRequestException.class);
+    expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Permission template with key 'unknown-key' is not found");
 
     newRequest(USER_LOGIN, "unknown-key", CODEVIEWER);
