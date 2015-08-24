@@ -22,7 +22,6 @@ package org.sonar.server.permission.ws;
 
 import com.google.common.base.Optional;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -35,7 +34,6 @@ import static java.lang.String.format;
 import static org.sonar.api.security.DefaultGroups.ANYONE;
 import static org.sonar.api.security.DefaultGroups.isAnyone;
 import static org.sonar.server.ws.WsUtils.checkFound;
-import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class PermissionDependenciesFinder {
   private final DbClient dbClient;
@@ -58,7 +56,7 @@ public class PermissionDependenciesFinder {
   }
 
   String getGroupName(DbSession dbSession, PermissionRequest request) {
-    GroupDto group = getGroup(dbSession, request.groupId(), request.groupName());
+    GroupDto group = getGroup(dbSession, request.group());
 
     return group == null ? ANYONE : group.getName();
   }
@@ -68,25 +66,27 @@ public class PermissionDependenciesFinder {
    * @return null if it's the anyone group
    */
   @CheckForNull
-  GroupDto getGroup(DbSession dbSession, @Nullable Long groupId, @Nullable String groupName) {
-    checkRequest(groupId != null ^ groupName != null, "Group name or group id must be provided, not both.");
+  GroupDto getGroup(DbSession dbSession, WsGroup group) {
+    Long groupId = group.id();
+    String groupName = group.name();
+
     if (isAnyone(groupName)) {
       return null;
     }
 
-    GroupDto group = null;
+    GroupDto groupDto = null;
 
     if (groupId != null) {
-      group = checkFound(dbClient.groupDao().selectById(dbSession, groupId),
+      groupDto = checkFound(dbClient.groupDao().selectById(dbSession, groupId),
         format("Group with id '%d' is not found", groupId));
     }
 
     if (groupName != null) {
-      group = checkFound(dbClient.groupDao().selectByName(dbSession, groupName),
+      groupDto = checkFound(dbClient.groupDao().selectByName(dbSession, groupName),
         format("Group with name '%s' is not found", groupName));
     }
 
-    return group;
+    return groupDto;
   }
 
   UserDto getUser(DbSession dbSession, String userLogin) {

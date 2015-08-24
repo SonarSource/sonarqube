@@ -36,8 +36,6 @@ import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.PermissionRequestValidator.validateNotAnyoneAndAdminPermission;
 import static org.sonar.server.permission.PermissionRequestValidator.validateProjectPermission;
-import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_ID;
-import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_NAME;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_KEY;
 import static org.sonar.server.permission.ws.Parameters.createGroupIdParameter;
@@ -79,19 +77,18 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
 
     String templateKey = wsRequest.mandatoryParam(PARAM_TEMPLATE_KEY);
     String permission = wsRequest.mandatoryParam(PARAM_PERMISSION);
-    Long groupIdParam = wsRequest.paramAsLong(PARAM_GROUP_ID);
-    String groupName = wsRequest.param(PARAM_GROUP_NAME);
+    WsGroup group = WsGroup.fromRequest(wsRequest);
 
     DbSession dbSession = dbClient.openSession(false);
     try {
       validateProjectPermission(permission);
-      validateNotAnyoneAndAdminPermission(permission, groupName);
+      validateNotAnyoneAndAdminPermission(permission, group.name());
 
       PermissionTemplateDto template = dependenciesFinder.getTemplate(templateKey);
-      GroupDto group = dependenciesFinder.getGroup(dbSession, groupIdParam, groupName);
+      GroupDto groupDto = dependenciesFinder.getGroup(dbSession, group);
 
-      if (!groupAlreadyAdded(dbSession, template.getId(), group, permission)) {
-        Long groupId = group == null ? null : group.getId();
+      if (!groupAlreadyAdded(dbSession, template.getId(), groupDto, permission)) {
+        Long groupId = groupDto == null ? null : groupDto.getId();
         dbClient.permissionTemplateDao().insertGroupPermission(dbSession, template.getId(), groupId, permission);
       }
     } finally {

@@ -28,21 +28,18 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.SELECTED;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_ID;
-import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_NAME;
+import static org.sonar.server.permission.PermissionRequestValidator.validateGlobalPermission;
+import static org.sonar.server.permission.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PROJECT_UUID;
 import static org.sonar.server.permission.ws.Parameters.PARAM_USER_LOGIN;
-import static org.sonar.server.permission.PermissionRequestValidator.validateGlobalPermission;
-import static org.sonar.server.permission.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 class PermissionRequest {
   private final String permission;
   private final String userLogin;
-  private final Long groupId;
-  private final String groupName;
+  private final WsGroup group;
   private final String projectUuid;
   private final String projectKey;
   private final boolean hasProject;
@@ -54,8 +51,7 @@ class PermissionRequest {
   private PermissionRequest(Builder builder) {
     permission = builder.permission;
     userLogin = builder.userLogin;
-    groupId = builder.groupId;
-    groupName = builder.groupName;
+    group = builder.group;
     projectUuid = builder.projectUuid;
     projectKey = builder.projectKey;
     hasProject = builder.hasProject;
@@ -76,8 +72,7 @@ class PermissionRequest {
     private String permission;
     private String userLogin;
 
-    private Long groupId;
-    private String groupName;
+    private WsGroup group;
     private String projectUuid;
     private String projectKey;
     private boolean hasProject;
@@ -148,11 +143,7 @@ class PermissionRequest {
 
     private void setGroup(Request request) {
       if (withGroup) {
-        Long groupIdParam = request.paramAsLong(PARAM_GROUP_ID);
-        String groupNameParam = request.param(PARAM_GROUP_NAME);
-        checkRequest(groupIdParam != null ^ groupNameParam != null, "Group name or group id must be provided, not both.");
-        this.groupId = groupIdParam;
-        this.groupName = groupNameParam;
+        this.group = WsGroup.fromRequest(request);
       }
     }
 
@@ -187,12 +178,8 @@ class PermissionRequest {
     return userLogin;
   }
 
-  Long groupId() {
-    return groupId;
-  }
-
-  String groupName() {
-    return groupName;
+  WsGroup group() {
+    return group;
   }
 
   String projectUuid() {
