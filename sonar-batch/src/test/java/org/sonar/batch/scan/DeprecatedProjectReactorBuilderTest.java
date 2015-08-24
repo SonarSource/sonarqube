@@ -52,11 +52,12 @@ public class DeprecatedProjectReactorBuilderTest {
     assertThat(rootProject.getVersion()).isEqualTo("1.0-SNAPSHOT");
     assertThat(rootProject.getDescription()).isEqualTo("Description of Foo Project");
     // root project must not contain some properties - even if they are defined in the root properties file
-    assertThat(rootProject.sources().contains("sources")).isFalse();
-    assertThat(rootProject.tests().contains("tests")).isFalse();
+    assertThat(rootProject.getSourceDirs().contains("sources")).isFalse();
+    assertThat(rootProject.getTestDirs().contains("tests")).isFalse();
+    assertThat(rootProject.getBinaries().contains("target/classes")).isFalse();
     // and module properties must have been cleaned
-    assertThat(rootProject.properties().get("module1.sonar.projectKey")).isNull();
-    assertThat(rootProject.properties().get("module2.sonar.projectKey")).isNull();
+    assertThat(rootProject.getProperties().getProperty("module1.sonar.projectKey")).isNull();
+    assertThat(rootProject.getProperties().getProperty("module2.sonar.projectKey")).isNull();
 
     // CHECK MODULES
     List<ProjectDefinition> modules = rootProject.getSubProjects();
@@ -70,11 +71,12 @@ public class DeprecatedProjectReactorBuilderTest {
     assertThat(module1.getVersion()).isEqualTo("1.0-SNAPSHOT");
     // Description should not be inherited from parent if not set
     assertThat(module1.getDescription()).isEqualTo("Description of Module 1");
-    assertThat(module1.sources()).contains("sources");
-    assertThat(module1.tests()).contains("tests");
+    assertThat(module1.getSourceDirs()).contains("sources");
+    assertThat(module1.getTestDirs()).contains("tests");
+    assertThat(module1.getBinaries()).contains("target/classes");
     // and module properties must have been cleaned
-    assertThat(module1.properties().get("module1.sonar.projectKey")).isNull();
-    assertThat(module1.properties().get("module2.sonar.projectKey")).isNull();
+    assertThat(module1.getProperties().getProperty("module1.sonar.projectKey")).isNull();
+    assertThat(module1.getProperties().getProperty("module2.sonar.projectKey")).isNull();
 
     // Module 2
     ProjectDefinition module2 = modules.get(1);
@@ -83,11 +85,12 @@ public class DeprecatedProjectReactorBuilderTest {
     assertThat(module2.getName()).isEqualTo("Foo Module 2");
     assertThat(module2.getVersion()).isEqualTo("1.0-SNAPSHOT");
     assertThat(module2.getDescription()).isEqualTo("Description of Module 2");
-    assertThat(module2.sources()).contains("src");
-    assertThat(module2.tests()).contains("tests");
+    assertThat(module2.getSourceDirs()).contains("src");
+    assertThat(module2.getTestDirs()).contains("tests");
+    assertThat(module2.getBinaries()).contains("target/classes");
     // and module properties must have been cleaned
-    assertThat(module2.properties().get("module1.sonar.projectKey")).isNull();
-    assertThat(module2.properties().get("module2.sonar.projectKey")).isNull();
+    assertThat(module2.getProperties().getProperty("module1.sonar.projectKey")).isNull();
+    assertThat(module2.getProperties().getProperty("module2.sonar.projectKey")).isNull();
   }
 
   @Test
@@ -100,11 +103,12 @@ public class DeprecatedProjectReactorBuilderTest {
     assertThat(rootProject.getVersion()).isEqualTo("1.0-SNAPSHOT");
     assertThat(rootProject.getDescription()).isEqualTo("Description of Foo Project");
     // root project must not contain some properties - even if they are defined in the root properties file
-    assertThat(rootProject.sources().contains("sources")).isFalse();
-    assertThat(rootProject.tests().contains("tests")).isFalse();
+    assertThat(rootProject.getSourceDirs().contains("sources")).isFalse();
+    assertThat(rootProject.getTestDirs().contains("tests")).isFalse();
+    assertThat(rootProject.getBinaries().contains("target/classes")).isFalse();
     // and module properties must have been cleaned
-    assertThat(rootProject.properties().get("module1.sonar.projectKey")).isNull();
-    assertThat(rootProject.properties().get("module2.sonar.projectKey")).isNull();
+    assertThat(rootProject.getProperties().getProperty("module1.sonar.projectKey")).isNull();
+    assertThat(rootProject.getProperties().getProperty("module2.sonar.projectKey")).isNull();
 
     // CHECK MODULES
     List<ProjectDefinition> modules = rootProject.getSubProjects();
@@ -118,11 +122,12 @@ public class DeprecatedProjectReactorBuilderTest {
     assertThat(module1.getVersion()).isEqualTo("1.0-SNAPSHOT");
     // Description should not be inherited from parent if not set
     assertThat(module1.getDescription()).isNull();
-    assertThat(module1.sources()).contains("sources");
-    assertThat(module1.tests()).contains("tests");
+    assertThat(module1.getSourceDirs()).contains("sources");
+    assertThat(module1.getTestDirs()).contains("tests");
+    assertThat(module1.getBinaries()).contains("target/classes");
     // and module properties must have been cleaned
-    assertThat(module1.properties().get("module1.sonar.projectKey")).isNull();
-    assertThat(module1.properties().get("module2.sonar.projectKey")).isNull();
+    assertThat(module1.getProperties().getProperty("module1.sonar.projectKey")).isNull();
+    assertThat(module1.getProperties().getProperty("module2.sonar.projectKey")).isNull();
 
     // Module 2
     ProjectDefinition module2 = modules.get(1);
@@ -131,11 +136,12 @@ public class DeprecatedProjectReactorBuilderTest {
     assertThat(module2.getName()).isEqualTo("Foo Module 2");
     assertThat(module2.getVersion()).isEqualTo("1.0-SNAPSHOT");
     assertThat(module2.getDescription()).isEqualTo("Description of Module 2");
-    assertThat(module2.sources()).contains("src");
-    assertThat(module2.tests()).contains("tests");
+    assertThat(module2.getSourceDirs()).contains("src");
+    assertThat(module2.getTestDirs()).contains("tests");
+    assertThat(module2.getBinaries()).contains("target/classes");
     // and module properties must have been cleaned
-    assertThat(module2.properties().get("module1.sonar.projectKey")).isNull();
-    assertThat(module2.properties().get("module2.sonar.projectKey")).isNull();
+    assertThat(module2.getProperties().getProperty("module1.sonar.projectKey")).isNull();
+    assertThat(module2.getProperties().getProperty("module2.sonar.projectKey")).isNull();
   }
 
   @Test

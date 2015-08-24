@@ -82,7 +82,7 @@ public class DefaultModuleFileSystemTest {
     DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache,
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
 
-    assertThat(fs.encoding()).isEqualTo(Charset.defaultCharset());
+    assertThat(fs.sourceCharset()).isEqualTo(Charset.defaultCharset());
     assertThat(fs.isDefaultJvmEncoding()).isTrue();
   }
 
@@ -93,7 +93,7 @@ public class DefaultModuleFileSystemTest {
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
 
     assertThat(fs.encoding()).isEqualTo(Charset.forName("Cp1124"));
-    assertThat(fs.encoding()).isEqualTo(Charset.forName("Cp1124"));
+    assertThat(fs.sourceCharset()).isEqualTo(Charset.forName("Cp1124"));
 
     // This test fails when default Java encoding is "IBM AIX Ukraine". Sorry for that.
     assertThat(fs.isDefaultJvmEncoding()).isFalse();
@@ -109,6 +109,7 @@ public class DefaultModuleFileSystemTest {
     when(initializer.baseDir()).thenReturn(basedir);
     when(initializer.buildDir()).thenReturn(buildDir);
     when(initializer.workingDir()).thenReturn(workingDir);
+    when(initializer.binaryDirs()).thenReturn(Arrays.asList(new File(basedir, "target/classes")));
     File javaSrc = new File(basedir, "src/main/java");
     javaSrc.mkdirs();
     File groovySrc = new File(basedir, "src/main/groovy");
@@ -126,7 +127,7 @@ public class DefaultModuleFileSystemTest {
     assertThat(fs.buildDir().getCanonicalPath()).isEqualTo(buildDir.getCanonicalPath());
     assertThat(fs.sourceDirs()).hasSize(2);
     assertThat(fs.testDirs()).hasSize(1);
-    assertThat(fs.binaryDirs()).hasSize(0);
+    assertThat(fs.binaryDirs()).hasSize(1);
   }
 
   @Test

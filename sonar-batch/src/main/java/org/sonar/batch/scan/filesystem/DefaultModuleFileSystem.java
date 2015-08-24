@@ -19,26 +19,19 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -53,7 +46,6 @@ import org.sonar.api.utils.MessageException;
  * @since 3.5
  */
 public class DefaultModuleFileSystem extends DefaultFileSystem implements ModuleFileSystem {
-  private static final Logger LOG = Loggers.get(DefaultModuleFileSystem.class);
 
   private final String moduleKey;
   private final FileIndexer indexer;
@@ -62,6 +54,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
   private File buildDir;
   private List<File> sourceDirsOrFiles = Lists.newArrayList();
   private List<File> testDirsOrFiles = Lists.newArrayList();
+  private List<File> binaryDirs = Lists.newArrayList();
   private ComponentIndexer componentIndexer;
   private boolean initialized;
 
@@ -76,6 +69,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     this.buildDir = initializer.buildDir();
     this.sourceDirsOrFiles = initializer.sources();
     this.testDirsOrFiles = initializer.tests();
+    this.binaryDirs = initializer.binaryDirs();
   }
 
   @VisibleForTesting
@@ -90,6 +84,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     this.buildDir = initializer.buildDir();
     this.sourceDirsOrFiles = initializer.sources();
     this.testDirsOrFiles = initializer.tests();
+    this.binaryDirs = initializer.binaryDirs();
   }
 
   public boolean isInitialized() {
@@ -136,8 +131,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
 
   @Override
   public List<File> binaryDirs() {
-    LOG.warn("ModuleFileSystem#binaryDirs() is deprecated and will always return an empty list");
-    return new LinkedList<>();
+    return binaryDirs;
   }
 
   @Override

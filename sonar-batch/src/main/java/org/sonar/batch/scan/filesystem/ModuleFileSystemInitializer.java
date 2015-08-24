@@ -42,11 +42,13 @@ public class ModuleFileSystemInitializer {
   private File buildDir;
   private List<File> sourceDirsOrFiles = Lists.newArrayList();
   private List<File> testDirsOrFiles = Lists.newArrayList();
+  private List<File> binaryDirs = Lists.newArrayList();
 
   public ModuleFileSystemInitializer(ProjectDefinition module, TempFolder tempUtils, PathResolver pathResolver) {
     baseDir = module.getBaseDir();
     buildDir = module.getBuildDir();
     initWorkingDir(module, tempUtils);
+    initBinaryDirs(module, pathResolver);
     initSources(module, pathResolver);
     initTests(module, pathResolver);
   }
@@ -82,6 +84,13 @@ public class ModuleFileSystemInitializer {
     }
   }
 
+  private void initBinaryDirs(ProjectDefinition module, PathResolver pathResolver) {
+    for (String path : module.getBinaries()) {
+      File dir = pathResolver.relativeFile(module.getBaseDir(), path);
+      binaryDirs.add(dir);
+    }
+  }
+
   File baseDir() {
     return baseDir;
   }
@@ -101,5 +110,13 @@ public class ModuleFileSystemInitializer {
 
   List<File> tests() {
     return testDirsOrFiles;
+  }
+
+  /**
+   * @deprecated since 4.5.1 use SonarQube Java specific API
+   */
+  @Deprecated
+  List<File> binaryDirs() {
+    return binaryDirs;
   }
 }

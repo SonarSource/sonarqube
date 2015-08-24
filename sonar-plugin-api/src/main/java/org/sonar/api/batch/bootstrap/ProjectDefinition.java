@@ -42,8 +42,38 @@ import org.sonar.api.CoreProperties;
 public class ProjectDefinition {
 
   public static final String SOURCES_PROPERTY = "sonar.sources";
+  /**
+   * @deprecated since 4.5 use {@link #SOURCES_PROPERTY}
+   */
+  @Deprecated
+  public static final String SOURCE_DIRS_PROPERTY = SOURCES_PROPERTY;
+  /**
+   * @deprecated since 4.5 use {@link #SOURCES_PROPERTY}
+   */
+  @Deprecated
+  public static final String SOURCE_FILES_PROPERTY = "sonar.sourceFiles";
 
   public static final String TESTS_PROPERTY = "sonar.tests";
+  /**
+   * @deprecated since 4.5 use {@link #TESTS_PROPERTY}
+   */
+  @Deprecated
+  public static final String TEST_DIRS_PROPERTY = TESTS_PROPERTY;
+  /**
+   * @deprecated since 4.5 use {@link #TESTS_PROPERTY}
+   */
+  @Deprecated
+  public static final String TEST_FILES_PROPERTY = "sonar.testFiles";
+  /**
+   * @deprecated since 4.5.1 use SonarQube Java specific API
+   */
+  @Deprecated
+  public static final String BINARIES_PROPERTY = "sonar.binaries";
+  /**
+   * @deprecated since 4.5.1 use SonarQube Java specific API
+   */
+  @Deprecated
+  public static final String LIBRARIES_PROPERTY = "sonar.libraries";
   public static final String BUILD_DIR_PROPERTY = "sonar.buildDir";
 
   private static final char SEPARATOR = ',';
@@ -227,6 +257,14 @@ public class ProjectDefinition {
   }
 
   /**
+   * @deprecated since 4.5 use {@link #sources()}
+   */
+  @Deprecated
+  public List<String> getSourceDirs() {
+    return sources();
+  }
+
+  /**
    * @param paths paths to file or directory with main sources.
    *              They can be absolute or relative to project base directory.
    */
@@ -237,6 +275,14 @@ public class ProjectDefinition {
     return this;
   }
 
+  /**
+   * @deprecated since 4.5 use {@link #addSources(String...)}
+   */
+  @Deprecated
+  public ProjectDefinition addSourceDirs(String... paths) {
+    return addSources(paths);
+  }
+
   public ProjectDefinition addSources(File... fileOrDirs) {
     for (File fileOrDir : fileOrDirs) {
       addSources(fileOrDir.getAbsolutePath());
@@ -244,14 +290,38 @@ public class ProjectDefinition {
     return this;
   }
 
+  /**
+   * @deprecated since 4.5 use {@link #addSources(File...)}
+   */
+  @Deprecated
+  public ProjectDefinition addSourceDirs(File... dirs) {
+    return addSources(dirs);
+  }
+
   public ProjectDefinition resetSources() {
     properties.remove(SOURCES_PROPERTY);
     return this;
   }
 
+  /**
+   * @deprecated since 4.5 use {@link #resetSources()}
+   */
+  @Deprecated
+  public ProjectDefinition resetSourceDirs() {
+    return resetSources();
+  }
+
   public ProjectDefinition setSources(String... paths) {
     resetSources();
     return addSources(paths);
+  }
+
+  /**
+   * @deprecated since 4.5 use {@link #setSources(String...)}
+   */
+  @Deprecated
+  public ProjectDefinition setSourceDirs(String... paths) {
+    return setSources(paths);
   }
 
   public ProjectDefinition setSources(File... filesOrDirs) {
@@ -262,9 +332,63 @@ public class ProjectDefinition {
     return this;
   }
 
+  /**
+   * @deprecated since 4.5 use {@link #setSources(File...)}
+   */
+  @Deprecated
+  public ProjectDefinition setSourceDirs(File... dirs) {
+    resetSourceDirs();
+    for (File dir : dirs) {
+      addSourceDirs(dir.getAbsolutePath());
+    }
+    return this;
+  }
+
+  /**
+   * @deprecated since 4.5 use {@link #addSources(File...)}
+   */
+  @Deprecated
+  public ProjectDefinition addSourceFiles(String... paths) {
+    // Hack for visual studio project builder that used to add baseDir first as source dir
+    List<String> sourceDirs = getSourceDirs();
+    if (sourceDirs.size() == 1 && isDirectory(sourceDirs.get(0))) {
+      resetSources();
+    }
+    return addSources(paths);
+  }
+
+  /**
+   * @deprecated since 4.5 use {@link #addSources(File...)}
+   */
+  @Deprecated
+  public ProjectDefinition addSourceFiles(File... files) {
+    // Hack for visual studio project builder that used to add baseDir first as source dir
+    List<String> sourceDirs = getSourceDirs();
+    if (sourceDirs.size() == 1 && isDirectory(sourceDirs.get(0))) {
+      resetSources();
+    }
+    return addSources(files);
+  }
+
+  /**
+   * @deprecated since 4.5 use {@link #sources()}
+   */
+  @Deprecated
+  public List<String> getSourceFiles() {
+    return sources();
+  }
+
   public List<String> tests() {
     String sources = (String) ObjectUtils.defaultIfNull(properties.get(TESTS_PROPERTY), "");
     return trim(StringUtils.split(sources, SEPARATOR));
+  }
+
+  /**
+   * @deprecated since 4.5 use {@link #tests()}
+   */
+  @Deprecated
+  public List<String> getTestDirs() {
+    return tests();
   }
 
   /**
@@ -278,6 +402,14 @@ public class ProjectDefinition {
     return this;
   }
 
+  /**
+   * @deprecated since 4.5 use {@link #addTests(String...)}
+   */
+  @Deprecated
+  public ProjectDefinition addTestDirs(String... paths) {
+    return addTests(paths);
+  }
+
   public ProjectDefinition addTests(File... fileOrDirs) {
     for (File fileOrDir : fileOrDirs) {
       addTests(fileOrDir.getAbsolutePath());
@@ -285,9 +417,25 @@ public class ProjectDefinition {
     return this;
   }
 
+  /**
+   * @deprecated since 4.5 use {@link #addTests(File...)}
+   */
+  @Deprecated
+  public ProjectDefinition addTestDirs(File... dirs) {
+    return addTests(dirs);
+  }
+
   public ProjectDefinition setTests(String... paths) {
     resetTests();
     return addTests(paths);
+  }
+
+  /**
+   * @deprecated since 4.5 use {@link #setTests(String...)}
+   */
+  @Deprecated
+  public ProjectDefinition setTestDirs(String... paths) {
+    return setTests(paths);
   }
 
   public ProjectDefinition setTests(File... fileOrDirs) {
@@ -309,6 +457,103 @@ public class ProjectDefinition {
   public ProjectDefinition resetTests() {
     properties.remove(TESTS_PROPERTY);
     return this;
+  }
+
+  /**
+   * @deprecated since 4.5 use {@link #resetTests()}
+   */
+  @Deprecated
+  public ProjectDefinition resetTestDirs() {
+    return resetTests();
+  }
+
+  /**
+   * @deprecated since 4.5 use {@link #addTests(String...)}
+   */
+  @Deprecated
+  public ProjectDefinition addTestFiles(String... paths) {
+    // Hack for visual studio project builder that used to add baseDir first as test dir
+    List<String> testDirs = getTestDirs();
+    if (testDirs.size() == 1 && isDirectory(testDirs.get(0))) {
+      resetTests();
+    }
+    return addTests(paths);
+  }
+
+  private boolean isDirectory(String relativeOrAbsoluteDir) {
+    File file = new File(relativeOrAbsoluteDir);
+    if (!file.isAbsolute()) {
+      file = new File(baseDir, relativeOrAbsoluteDir);
+    }
+    return file.isDirectory();
+  }
+
+  /**
+   * @deprecated since 4.5 use {@link #addTests(File...)}
+   */
+  @Deprecated
+  public ProjectDefinition addTestFiles(File... files) {
+    // Hack for visual studio project builder that used to add baseDir first as test dir
+    List<String> testDirs = getTestDirs();
+    if (testDirs.size() == 1 && isDirectory(testDirs.get(0))) {
+      resetTests();
+    }
+    return addTests(files);
+  }
+
+  /**
+   * @deprecated since 4.5 use {@link #tests()}
+   */
+  @Deprecated
+  public List<String> getTestFiles() {
+    return tests();
+  }
+
+  /**
+   * @deprecated since 4.5.1 use SonarQube Java specific API
+   */
+  @Deprecated
+  public List<String> getBinaries() {
+    String sources = (String) ObjectUtils.defaultIfNull(properties.get(BINARIES_PROPERTY), "");
+    return trim(StringUtils.split(sources, SEPARATOR));
+  }
+
+  /**
+   * @param path path to directory with compiled source. In case of Java this is directory with class files.
+   *             It can be absolute or relative to project directory.
+   * @deprecated since 4.5.1 use SonarQube Java specific API
+   */
+  @Deprecated
+  public ProjectDefinition addBinaryDir(String path) {
+    appendProperty(BINARIES_PROPERTY, path);
+    return this;
+  }
+
+  /**
+   * @deprecated since 4.5.1 use SonarQube Java specific API
+   */
+  @Deprecated
+  public ProjectDefinition addBinaryDir(File f) {
+    return addBinaryDir(f.getAbsolutePath());
+  }
+
+  /**
+   * @deprecated since 4.5.1 use SonarQube Java specific API
+   */
+  @Deprecated
+  public List<String> getLibraries() {
+    String sources = (String) ObjectUtils.defaultIfNull(properties.get(LIBRARIES_PROPERTY), "");
+    return trim(StringUtils.split(sources, SEPARATOR));
+  }
+
+  /**
+   * @param path path to file with third-party library. In case of Java this is path to jar file.
+   *             It can be absolute or relative to project directory.
+   * @deprecated since 4.5.1 use SonarQube Java specific API
+   */
+  @Deprecated
+  public void addLibrary(String path) {
+    appendProperty(LIBRARIES_PROPERTY, path);
   }
 
   /**
