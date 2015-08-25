@@ -53,15 +53,13 @@ public class ComplexityMeasuresStep implements ComputationStep {
     createIntSumFormula(COMPLEXITY_KEY),
     createIntSumFormula(COMPLEXITY_IN_CLASSES_KEY),
     createIntSumFormula(COMPLEXITY_IN_FUNCTIONS_KEY),
-
-  new DistributionFormula(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY),
+    new DistributionFormula(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY),
     new DistributionFormula(FILE_COMPLEXITY_DISTRIBUTION_KEY),
     new DistributionFormula(CLASS_COMPLEXITY_DISTRIBUTION_KEY),
-
-  AverageFormula.Builder.newBuilder().setOutputMetricKey(FILE_COMPLEXITY_KEY)
-    .setMainMetricKey(COMPLEXITY_KEY)
-    .setByMetricKey(FILES_KEY)
-    .build(),
+    AverageFormula.Builder.newBuilder().setOutputMetricKey(FILE_COMPLEXITY_KEY)
+      .setMainMetricKey(COMPLEXITY_KEY)
+      .setByMetricKey(FILES_KEY)
+      .build(),
     AverageFormula.Builder.newBuilder().setOutputMetricKey(CLASS_COMPLEXITY_KEY)
       .setMainMetricKey(COMPLEXITY_IN_CLASSES_KEY)
       .setByMetricKey(CLASSES_KEY)

@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
-import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
 
@@ -63,7 +62,7 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 
-public class ComplexityMeasuresStepTest {
+public class ReportComplexityMeasuresStepTest {
 
   private static final int ROOT_REF = 1;
   private static final int MODULE_REF = 11;
@@ -72,28 +71,24 @@ public class ComplexityMeasuresStepTest {
   private static final int FILE_1_REF = 11111;
   private static final int FILE_2_REF = 11121;
 
-  private static final ReportComponent MULTIPLE_FILES_TREE = builder(PROJECT, ROOT_REF)
-    .addChildren(
-      builder(MODULE, MODULE_REF)
-        .addChildren(
-          builder(MODULE, SUB_MODULE_REF)
-            .addChildren(
-              builder(DIRECTORY, DIRECTORY_REF)
-                .addChildren(
-                  builder(FILE, FILE_1_REF).build(),
-                  builder(FILE, FILE_2_REF).build()
-                ).build()
-            )
-            .build()
-        ).build()
-    ).build();
-
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
-
   @Rule
-  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(MULTIPLE_FILES_TREE);
-
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule()
+    .setRoot(builder(PROJECT, ROOT_REF)
+      .addChildren(
+        builder(MODULE, MODULE_REF)
+          .addChildren(
+            builder(MODULE, SUB_MODULE_REF)
+              .addChildren(
+                builder(DIRECTORY, DIRECTORY_REF)
+                  .addChildren(
+                    builder(FILE, FILE_1_REF).build(),
+                    builder(FILE, FILE_2_REF).build())
+                  .build())
+              .build())
+          .build())
+      .build());
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(COMPLEXITY)
@@ -107,9 +102,7 @@ public class ComplexityMeasuresStepTest {
     .add(CLASS_COMPLEXITY)
     .add(CLASSES)
     .add(FUNCTION_COMPLEXITY)
-    .add(FUNCTIONS)
-    ;
-
+    .add(FUNCTIONS);
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
@@ -130,7 +123,7 @@ public class ComplexityMeasuresStepTest {
     verify_sum_aggregation(COMPLEXITY_IN_FUNCTIONS_KEY);
   }
 
-  private void verify_sum_aggregation(String metricKey){
+  private void verify_sum_aggregation(String metricKey) {
     measureRepository.addRawMeasure(FILE_1_REF, metricKey, newMeasureBuilder().create(10));
     measureRepository.addRawMeasure(FILE_2_REF, metricKey, newMeasureBuilder().create(40));
 
@@ -161,7 +154,7 @@ public class ComplexityMeasuresStepTest {
     verify_distribution_aggregation(CLASS_COMPLEXITY_DISTRIBUTION_KEY);
   }
 
-  private void verify_distribution_aggregation(String metricKey){
+  private void verify_distribution_aggregation(String metricKey) {
     measureRepository.addRawMeasure(FILE_1_REF, metricKey, newMeasureBuilder().create("0.5=3;3.5=5;6.5=9"));
     measureRepository.addRawMeasure(FILE_2_REF, metricKey, newMeasureBuilder().create("0.5=0;3.5=2;6.5=1"));
 
@@ -202,7 +195,7 @@ public class ComplexityMeasuresStepTest {
     verify_average_compute_and_aggregation(FUNCTION_COMPLEXITY_KEY, COMPLEXITY_KEY, FUNCTIONS_KEY);
   }
 
-  private void verify_average_compute_and_aggregation(String metricKey, String mainMetric, String byMetric){
+  private void verify_average_compute_and_aggregation(String metricKey, String mainMetric, String byMetric) {
     measureRepository.addRawMeasure(FILE_1_REF, mainMetric, newMeasureBuilder().create(5));
     measureRepository.addRawMeasure(FILE_1_REF, byMetric, newMeasureBuilder().create(2));
 

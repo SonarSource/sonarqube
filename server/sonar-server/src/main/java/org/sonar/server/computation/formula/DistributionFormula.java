@@ -21,16 +21,18 @@
 package org.sonar.server.computation.formula;
 
 import com.google.common.base.Optional;
-import java.util.Objects;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.measure.Measure;
+
+import static java.util.Objects.requireNonNull;
 
 public class DistributionFormula implements Formula<DistributionFormula.DistributionCounter> {
 
   private final String metricKey;
 
   public DistributionFormula(String metricKey) {
-    this.metricKey = Objects.requireNonNull(metricKey, "Metric key cannot be null");
+    this.metricKey = requireNonNull(metricKey, "Metric key cannot be null");
   }
 
   @Override
@@ -42,7 +44,7 @@ public class DistributionFormula implements Formula<DistributionFormula.Distribu
   public Optional<Measure> createMeasure(DistributionCounter counter, CreateMeasureContext context) {
     Component.Type componentType = context.getComponent().getType();
     Optional<String> value = counter.getValue();
-    if (value.isPresent() && componentType.isHigherThan(Component.Type.FILE)) {
+    if (value.isPresent() && CrawlerDepthLimit.LEAVES.isDeeperThan(componentType)) {
       return Optional.of(Measure.newMeasureBuilder().create(value.get()));
     }
     return Optional.absent();
