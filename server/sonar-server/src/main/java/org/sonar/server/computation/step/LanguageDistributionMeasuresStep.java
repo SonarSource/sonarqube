@@ -25,14 +25,17 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.TreeMultiset;
+import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.Counter;
-import org.sonar.server.computation.formula.CreateMeasureContext;
 import org.sonar.server.computation.formula.CounterInitializationContext;
+import org.sonar.server.computation.formula.CreateMeasureContext;
 import org.sonar.server.computation.formula.Formula;
 import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
 import org.sonar.server.computation.measure.Measure;
@@ -42,6 +45,8 @@ import org.sonar.server.computation.metric.MetricRepository;
 import static com.google.common.collect.Maps.asMap;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
 import static org.sonar.api.utils.KeyValueFormat.format;
+import static org.sonar.api.utils.KeyValueFormat.newIntegerConverter;
+import static org.sonar.api.utils.KeyValueFormat.newStringConverter;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
 public class LanguageDistributionMeasuresStep implements ComputationStep {
@@ -64,9 +69,8 @@ public class LanguageDistributionMeasuresStep implements ComputationStep {
 
   @Override
   public void execute() {
-    new PathAwareCrawler<>(
-      FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository).buildFor(FORMULAS))
-        .visit(treeRootHolder.getRoot());
+    new PathAwareCrawler<>(FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository).buildFor(FORMULAS))
+      .visit(treeRootHolder.getRoot());
   }
 
   private static class LanguageDistributionFormula implements Formula<LanguageDistributionCounter> {
@@ -116,10 +120,27 @@ public class LanguageDistributionMeasuresStep implements ComputationStep {
 
     @Override
     public void initialize(CounterInitializationContext context) {
+      if (context.getLeaf().getType() == Component.Type.FILE) {
+        initializeForFile(context);
+      }
+      initializeForOtherLeaf(context);
+    }
+
+    private void initializeForFile(CounterInitializationContext context) {
       String language = context.getLeaf().getFileAttributes().getLanguageKey();
       Optional<Measure> ncloc = context.getMeasure(CoreMetrics.NCLOC_KEY);
       if (ncloc.isPresent()) {
         multiset.add(language == null ? UNKNOWN_LANGUAGE_KEY : language, ncloc.get().getIntValue());
+      }
+    }
+
+    private void initializeForOtherLeaf(CounterInitializationContext context) {
+      Optional<Measure> measure = context.getMeasure(NCLOC_LANGUAGE_DISTRIBUTION_KEY);
+      if (measure.isPresent()) {
+        Map<String, Integer> parse = KeyValueFormat.parse(measure.get().getData(), newStringConverter(), newIntegerConverter());
+        for (Map.Entry<String, Integer> entry : parse.entrySet()) {
+          multiset.add(entry.getKey(), entry.getValue());
+        }
       }
     }
   }

@@ -41,7 +41,7 @@ import static org.sonar.server.computation.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.component.ReportComponent.builder;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
-public class LanguageDistributionMeasuresStepTest {
+public class ReportLanguageDistributionMeasuresStepTest {
 
   private static final String XOO_LANGUAGE = "xoo";
   private static final String JAVA_LANGUAGE = "java";
@@ -82,11 +82,11 @@ public class LanguageDistributionMeasuresStepTest {
                       builder(FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, XOO_LANGUAGE)).build(),
                       builder(FILE, FILE_2_REF).setFileAttributes(new FileAttributes(false, XOO_LANGUAGE)).build(),
                       builder(FILE, FILE_3_REF).setFileAttributes(new FileAttributes(false, JAVA_LANGUAGE)).build(),
-                      builder(FILE, FILE_4_REF).setFileAttributes(new FileAttributes(false, null)).build()
-                    ).build()
-                ).build()
-            ).build()
-        ).build());
+                      builder(FILE, FILE_4_REF).setFileAttributes(new FileAttributes(false, null)).build())
+                    .build())
+                .build())
+            .build())
+        .build());
   }
 
   @Test
