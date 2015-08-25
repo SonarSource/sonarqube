@@ -26,8 +26,10 @@ import java.util.List;
 
 /**
  * @since 4.3
+ * @deprecated in 5.2. It will be dropped in version 6.0 (see https://jira.sonarsource.com/browse/SONAR-6393)
  */
 @ServerSide
+@Deprecated
 public interface DebtModel {
 
   /**
