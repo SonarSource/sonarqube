@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.step;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import java.util.ArrayList;
@@ -219,8 +218,10 @@ public class FeedPeriodsStep implements ComputationStep {
 
     @CheckForNull
     private Period findByPreviousVersion(int index) {
-      String version = Objects.firstNonNull(currentVersion, "");
-      List<SnapshotDto> snapshotDtos = dbClient.snapshotDao().selectPreviousVersionSnapshots(session, projectId, version);
+      if (currentVersion == null) {
+        return null;
+      }
+      List<SnapshotDto> snapshotDtos = dbClient.snapshotDao().selectPreviousVersionSnapshots(session, projectId, currentVersion);
       if (snapshotDtos.isEmpty()) {
         return null;
       }
