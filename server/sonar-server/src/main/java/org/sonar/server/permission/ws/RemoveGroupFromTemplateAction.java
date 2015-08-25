@@ -35,7 +35,7 @@ import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_KEY;
 import static org.sonar.server.permission.ws.Parameters.createGroupIdParameter;
 import static org.sonar.server.permission.ws.Parameters.createGroupNameParameter;
-import static org.sonar.server.permission.ws.Parameters.createPermissionParameter;
+import static org.sonar.server.permission.ws.Parameters.createProjectPermissionParameter;
 import static org.sonar.server.permission.ws.Parameters.createTemplateKeyParameter;
 
 public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
@@ -61,7 +61,7 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
       .setHandler(this);
 
     createTemplateKeyParameter(action);
-    createPermissionParameter(action);
+    createProjectPermissionParameter(action);
     createGroupIdParameter(action);
     createGroupNameParameter(action);
   }

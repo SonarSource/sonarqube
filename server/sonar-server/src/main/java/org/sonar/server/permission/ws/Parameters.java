@@ -21,8 +21,8 @@
 package org.sonar.server.permission.ws;
 
 import org.sonar.api.server.ws.WebService.NewAction;
-import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.permission.ProjectPermissions;
 
 class Parameters {
 
@@ -41,6 +41,11 @@ class Parameters {
     "</ul>",
     GlobalPermissions.ALL_ON_ONE_LINE,
     ProjectPermissions.ALL_ON_ONE_LINE);
+  private static final String PROJECT_PERMISSION_PARAM_DESCRIPTION = String.format("Permission" +
+    "<ul>" +
+    "<li>Possible values for project permissions %s</li>" +
+    "</ul>",
+    ProjectPermissions.ALL_ON_ONE_LINE);
 
   private Parameters() {
     // static methods only
@@ -49,6 +54,12 @@ class Parameters {
   static void createPermissionParameter(NewAction action) {
     action.createParam(PARAM_PERMISSION)
       .setDescription(PERMISSION_PARAM_DESCRIPTION)
+      .setRequired(true);
+  }
+
+  static void createProjectPermissionParameter(NewAction action) {
+    action.createParam(PARAM_PERMISSION)
+      .setDescription(PROJECT_PERMISSION_PARAM_DESCRIPTION)
       .setRequired(true);
   }
 
