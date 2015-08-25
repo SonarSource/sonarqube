@@ -25,6 +25,8 @@ import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureVariations;
 import org.sonar.server.computation.period.Period;
 
+import static org.sonar.server.computation.formula.coverage.CoverageUtils.supportedPeriods;
+
 public final class LinesAndConditionsWithUncoveredVariationCounter extends ElementsAndCoveredElementsVariationCounter {
   private final LinesAndConditionsWithUncoveredMetricKeys metricKeys;
 
@@ -43,7 +45,7 @@ public final class LinesAndConditionsWithUncoveredVariationCounter extends Eleme
     MeasureVariations newConditions = CoverageUtils.getMeasureVariations(counterContext, metricKeys.getConditions());
     MeasureVariations uncoveredLines = CoverageUtils.getMeasureVariations(counterContext, metricKeys.getUncoveredLines());
     MeasureVariations uncoveredConditions = CoverageUtils.getMeasureVariations(counterContext, metricKeys.getUncoveredConditions());
-    for (Period period : counterContext.getPeriods()) {
+    for (Period period : supportedPeriods(counterContext)) {
       if (!newLines.hasVariation(period.getIndex())) {
         continue;
       }

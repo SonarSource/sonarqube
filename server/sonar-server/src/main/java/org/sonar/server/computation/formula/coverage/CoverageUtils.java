@@ -20,11 +20,17 @@
 package org.sonar.server.computation.formula.coverage;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import java.util.List;
+import javax.annotation.Nonnull;
+import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.formula.CounterInitializationContext;
+import org.sonar.server.computation.formula.CreateMeasureContext;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureVariations;
 import org.sonar.server.computation.period.Period;
 
+import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
 public final class CoverageUtils {
@@ -63,5 +69,37 @@ public final class CoverageUtils {
       return (long) variations.getVariation(period.getIndex());
     }
     return 0L;
+  }
+
+  /**
+   * Since Periods 4 and 5 can be customized per project and/or per view/subview, aggregating values on this period
+   * will only generate garbage data which will make no sense. These Periods should be ignored when processing views/subviews.
+   */
+  static Iterable<Period> supportedPeriods(CreateMeasureContext context) {
+    return supportedPeriods(context.getComponent().getType(), context.getPeriods());
+  }
+
+  /**
+   * Since Periods 4 and 5 can be customized per project and/or per view/subview, aggregating values on this period
+   * will only generate garbage data which will make no sense. These Periods should be ignored when processing views/subviews.
+   */
+  public static Iterable<Period> supportedPeriods(CounterInitializationContext context) {
+    return supportedPeriods(context.getLeaf().getType(), context.getPeriods());
+  }
+
+  private static Iterable<Period> supportedPeriods(Component.Type type, List<Period> periods) {
+    if (type.isReportType()) {
+      return periods;
+    }
+    return from(periods).filter(ViewsSupportedPeriods.INSTANCE);
+  }
+
+  private enum ViewsSupportedPeriods implements Predicate<Period> {
+    INSTANCE;
+
+    @Override
+    public boolean apply(@Nonnull Period input) {
+      return input.getIndex() < 4;
+    }
   }
 }

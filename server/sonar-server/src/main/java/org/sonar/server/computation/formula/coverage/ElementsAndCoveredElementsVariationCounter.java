@@ -38,7 +38,7 @@ public abstract class ElementsAndCoveredElementsVariationCounter implements Coun
 
   @Override
   public void initialize(CounterInitializationContext context) {
-    if (context.getLeaf().getFileAttributes().isUnitTest()) {
+    if (context.getLeaf().getType().isReportType() && context.getLeaf().getFileAttributes().isUnitTest()) {
       return;
     }
     initializeForSupportedLeaf(context);

@@ -28,6 +28,7 @@ import org.sonar.server.computation.measure.MeasureVariations;
 import org.sonar.server.computation.period.Period;
 
 import static org.sonar.server.computation.formula.coverage.CoverageUtils.calculateCoverage;
+import static org.sonar.server.computation.formula.coverage.CoverageUtils.supportedPeriods;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
 /**
@@ -48,7 +49,7 @@ public abstract class CoverageVariationFormula<T extends ElementsAndCoveredEleme
 
   private MeasureVariations.Builder createAndPopulateBuilder(T counter, CreateMeasureContext context) {
     MeasureVariations.Builder builder = MeasureVariations.newMeasureVariationsBuilder();
-    for (Period period : context.getPeriods()) {
+    for (Period period : supportedPeriods(context)) {
       LongVariationValue elements = counter.elements.get(period);
       if (elements.isSet() && elements.getValue() > 0d) {
         LongVariationValue coveredElements = counter.coveredElements.get(period);
@@ -57,5 +58,4 @@ public abstract class CoverageVariationFormula<T extends ElementsAndCoveredEleme
     }
     return builder;
   }
-
 }

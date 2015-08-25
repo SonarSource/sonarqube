@@ -21,10 +21,12 @@ package org.sonar.server.computation.step;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.apache.commons.lang.ObjectUtils;
@@ -35,10 +37,11 @@ import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.server.computation.formula.CreateMeasureContext;
 import org.sonar.server.computation.formula.CounterInitializationContext;
+import org.sonar.server.computation.formula.CreateMeasureContext;
 import org.sonar.server.computation.formula.Formula;
 import org.sonar.server.computation.formula.FormulaExecutorComponentVisitor;
+import org.sonar.server.computation.formula.coverage.NewCoverageVariationSumFormula;
 import org.sonar.server.computation.formula.counter.IntVariationValue;
 import org.sonar.server.computation.formula.coverage.LinesAndConditionsWithUncoveredMetricKeys;
 import org.sonar.server.computation.formula.coverage.LinesAndConditionsWithUncoveredVariationFormula;
@@ -58,12 +61,32 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
  * Computes measures related to the New Coverage. These measures do not have values, only variations.
  */
 public class NewCoverageMeasuresStep implements ComputationStep {
+  private static final List<Formula> FORMULAS = ImmutableList.<Formula>of(
+    // UT coverage
+    new NewCoverageFormula()
+      ,
+    new NewBranchCoverageFormula(),
+    new NewLineCoverageFormula(),
+    // IT File coverage
+    new NewItCoverageFormula(),
+    new NewItBranchCoverageFormula(),
+    new NewItLinesCoverageFormula(),
+    // Overall coverage
+    new NewOverallCodeCoverageFormula(),
+    new NewOverallBranchCoverageFormula(),
+    new NewOverallLineCoverageFormula()
+  );
+
   private final TreeRootHolder treeRootHolder;
   private final PeriodsHolder periodsHolder;
+  @CheckForNull
   private final BatchReportReader batchReportReader;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
 
+  /**
+   * Constructor used when processing a Report (ie. a {@link BatchReportReader} instance is available in the container)
+   */
   public NewCoverageMeasuresStep(TreeRootHolder treeRootHolder, PeriodsHolder periodsHolder, BatchReportReader batchReportReader,
     MeasureRepository measureRepository, final MetricRepository metricRepository) {
     this.treeRootHolder = treeRootHolder;
@@ -73,28 +96,30 @@ public class NewCoverageMeasuresStep implements ComputationStep {
     this.measureRepository = measureRepository;
   }
 
+  /**
+   * Constructor used when processing Views (ie. no {@link BatchReportReader} instance is available in the container)
+   */
+  public NewCoverageMeasuresStep(TreeRootHolder treeRootHolder, PeriodsHolder periodsHolder,
+    MeasureRepository measureRepository, final MetricRepository metricRepository) {
+    this.treeRootHolder = treeRootHolder;
+    this.periodsHolder = periodsHolder;
+    this.batchReportReader = null;
+    this.metricRepository = metricRepository;
+    this.measureRepository = measureRepository;
+  }
+
   @Override
   public void execute() {
     new PathAwareCrawler<>(
       FormulaExecutorComponentVisitor.newBuilder(metricRepository, measureRepository)
         .withVariationSupport(periodsHolder)
-        .buildFor(ImmutableList.<Formula>of(
-          // UT coverage
-          new NewLinesAndConditionsCoverageFormula(batchReportReader),
-          new NewCoverageFormula(),
-          new NewBranchCoverageFormula(),
-          new NewLineCoverageFormula(),
-          // IT File coverage
-          new NewItLinesAndConditionsCoverageFormula(batchReportReader),
-          new NewItCoverageFormula(),
-          new NewItBranchCoverageFormula(),
-          new NewItLinesCoverageFormula(),
-          // Overall coverage
-          new NewOverallLinesAndConditionsCoverageFormula(batchReportReader),
-          new NewOverallCodeCoverageFormula(),
-          new NewOverallBranchCoverageFormula(),
-          new NewOverallLineCoverageFormula())))
-            .visit(treeRootHolder.getRoot());
+        .buildFor(
+          Iterables.concat(
+            NewLinesAndConditionsCoverageFormula.from(batchReportReader),
+            NewItLinesAndConditionsCoverageFormula.from(batchReportReader),
+            NewOverallLinesAndConditionsCoverageFormula.from(batchReportReader),
+            FORMULAS)))
+              .visit(treeRootHolder.getRoot());
   }
 
   @Override
@@ -103,13 +128,24 @@ public class NewCoverageMeasuresStep implements ComputationStep {
   }
 
   private static class NewLinesAndConditionsCoverageFormula extends NewLinesAndConditionsFormula {
-    public NewLinesAndConditionsCoverageFormula(BatchReportReader batchReportReader) {
+
+    private static final NewCoverageOutputMetricKeys OUTPUT_METRIC_KEYS = new NewCoverageOutputMetricKeys(
+      CoreMetrics.NEW_LINES_TO_COVER_KEY, CoreMetrics.NEW_UNCOVERED_LINES_KEY,
+      CoreMetrics.NEW_CONDITIONS_TO_COVER_KEY, CoreMetrics.NEW_UNCOVERED_CONDITIONS_KEY);
+    private static final Iterable<Formula<?>> VIEWS_FORMULAS = intSumFormulas(OUTPUT_METRIC_KEYS);
+
+    private NewLinesAndConditionsCoverageFormula(BatchReportReader batchReportReader) {
       super(batchReportReader,
         new NewCoverageInputMetricKeys(
           CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, CoreMetrics.CONDITIONS_BY_LINE_KEY, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY),
-        new NewCoverageOutputMetricKeys(
-          CoreMetrics.NEW_LINES_TO_COVER_KEY, CoreMetrics.NEW_UNCOVERED_LINES_KEY,
-          CoreMetrics.NEW_CONDITIONS_TO_COVER_KEY, CoreMetrics.NEW_UNCOVERED_CONDITIONS_KEY));
+        OUTPUT_METRIC_KEYS);
+    }
+
+    public static Iterable<Formula<?>> from(@Nullable BatchReportReader batchReportReader) {
+      if (batchReportReader == null) {
+        return VIEWS_FORMULAS;
+      }
+      return Collections.<Formula<?>>singleton(new NewLinesAndConditionsCoverageFormula(batchReportReader));
     }
   }
 
@@ -126,8 +162,7 @@ public class NewCoverageMeasuresStep implements ComputationStep {
   private static class NewBranchCoverageFormula extends SingleWithUncoveredVariationFormula {
     public NewBranchCoverageFormula() {
       super(
-        new SingleWithUncoveredMetricKeys(
-          CoreMetrics.NEW_CONDITIONS_TO_COVER_KEY, CoreMetrics.NEW_UNCOVERED_CONDITIONS_KEY),
+        new SingleWithUncoveredMetricKeys(CoreMetrics.NEW_CONDITIONS_TO_COVER_KEY, CoreMetrics.NEW_UNCOVERED_CONDITIONS_KEY),
         CoreMetrics.NEW_BRANCH_COVERAGE_KEY);
     }
   }
@@ -141,13 +176,24 @@ public class NewCoverageMeasuresStep implements ComputationStep {
   }
 
   private static class NewItLinesAndConditionsCoverageFormula extends NewLinesAndConditionsFormula {
-    public NewItLinesAndConditionsCoverageFormula(BatchReportReader batchReportReader) {
+
+    private static final NewCoverageOutputMetricKeys OUTPUT_METRIC_KEYS = new NewCoverageOutputMetricKeys(
+      CoreMetrics.NEW_IT_LINES_TO_COVER_KEY, CoreMetrics.NEW_IT_UNCOVERED_LINES_KEY,
+      CoreMetrics.NEW_IT_CONDITIONS_TO_COVER_KEY, CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS_KEY);
+    private static final Iterable<Formula<?>> VIEWS_FORMULAS = intSumFormulas(OUTPUT_METRIC_KEYS);
+
+    private NewItLinesAndConditionsCoverageFormula(BatchReportReader batchReportReader) {
       super(batchReportReader,
         new NewCoverageInputMetricKeys(
           CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY, CoreMetrics.IT_CONDITIONS_BY_LINE_KEY, CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY),
-        new NewCoverageOutputMetricKeys(
-          CoreMetrics.NEW_IT_LINES_TO_COVER_KEY, CoreMetrics.NEW_IT_UNCOVERED_LINES_KEY,
-          CoreMetrics.NEW_IT_CONDITIONS_TO_COVER_KEY, CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS_KEY));
+        OUTPUT_METRIC_KEYS);
+    }
+
+    public static Iterable<Formula<?>> from(@Nullable BatchReportReader batchReportReader) {
+      if (batchReportReader == null) {
+        return VIEWS_FORMULAS;
+      }
+      return Collections.<Formula<?>>singleton(new NewItLinesAndConditionsCoverageFormula(batchReportReader));
     }
   }
 
@@ -179,13 +225,24 @@ public class NewCoverageMeasuresStep implements ComputationStep {
   }
 
   private static class NewOverallLinesAndConditionsCoverageFormula extends NewLinesAndConditionsFormula {
-    public NewOverallLinesAndConditionsCoverageFormula(BatchReportReader batchReportReader) {
+
+    private static final NewCoverageOutputMetricKeys OUTPUT_METRIC_KEYS = new NewCoverageOutputMetricKeys(
+      CoreMetrics.NEW_OVERALL_LINES_TO_COVER_KEY, CoreMetrics.NEW_OVERALL_UNCOVERED_LINES_KEY,
+      CoreMetrics.NEW_OVERALL_CONDITIONS_TO_COVER_KEY, CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS_KEY);
+    private static final Iterable<Formula<?>> VIEWS_FORMULAS = intSumFormulas(OUTPUT_METRIC_KEYS);
+
+    private NewOverallLinesAndConditionsCoverageFormula(BatchReportReader batchReportReader) {
       super(batchReportReader,
         new NewCoverageInputMetricKeys(
           CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA_KEY, CoreMetrics.OVERALL_CONDITIONS_BY_LINE_KEY, CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY),
-        new NewCoverageOutputMetricKeys(
-          CoreMetrics.NEW_OVERALL_LINES_TO_COVER_KEY, CoreMetrics.NEW_OVERALL_UNCOVERED_LINES_KEY,
-          CoreMetrics.NEW_OVERALL_CONDITIONS_TO_COVER_KEY, CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS_KEY));
+        OUTPUT_METRIC_KEYS);
+    }
+
+    public static Iterable<Formula<?>> from(@Nullable BatchReportReader batchReportReader) {
+      if (batchReportReader == null) {
+        return VIEWS_FORMULAS;
+      }
+      return Collections.<Formula<?>>singleton(new NewOverallLinesAndConditionsCoverageFormula(batchReportReader));
     }
   }
 
@@ -215,6 +272,18 @@ public class NewCoverageMeasuresStep implements ComputationStep {
           CoreMetrics.NEW_OVERALL_LINES_TO_COVER_KEY, CoreMetrics.NEW_OVERALL_UNCOVERED_LINES_KEY),
         CoreMetrics.NEW_OVERALL_LINE_COVERAGE_KEY);
     }
+  }
+
+  /**
+   * Creates a List of {@link org.sonar.server.computation.formula.SumFormula.IntSumFormula} for each
+   * metric key of the specified {@link NewCoverageOutputMetricKeys} instance.
+   */
+  private static Iterable<Formula<?>> intSumFormulas(NewCoverageOutputMetricKeys outputMetricKeys) {
+    return ImmutableList.<Formula<?>>of(
+      new NewCoverageVariationSumFormula(outputMetricKeys.getNewLinesToCover()),
+      new NewCoverageVariationSumFormula(outputMetricKeys.getNewUncoveredLines()),
+      new NewCoverageVariationSumFormula(outputMetricKeys.getNewConditionsToCover()),
+      new NewCoverageVariationSumFormula(outputMetricKeys.getNewUncoveredConditions()));
   }
 
   public static class NewLinesAndConditionsFormula implements Formula<NewCoverageCounter> {

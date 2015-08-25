@@ -65,7 +65,7 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
   private final MeasureRepository measureRepository;
   private final List<Formula> formulas;
 
-  private FormulaExecutorComponentVisitor(Builder builder, List<Formula> formulas) {
+  private FormulaExecutorComponentVisitor(Builder builder, Iterable<Formula> formulas) {
     super(CrawlerDepthLimit.LEAVES, ComponentVisitor.Order.POST_ORDER, COUNTERS_FACTORY);
     this.periodsHolder = builder.periodsHolder;
     this.measureRepository = builder.measureRepository;
@@ -97,7 +97,7 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
       return this;
     }
 
-    public FormulaExecutorComponentVisitor buildFor(List<Formula> formulas) {
+    public FormulaExecutorComponentVisitor buildFor(Iterable<Formula> formulas) {
       return new FormulaExecutorComponentVisitor(this, formulas);
     }
   }

@@ -26,6 +26,7 @@ import org.sonar.server.computation.period.Period;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.computation.formula.coverage.CoverageUtils.getLongVariation;
 import static org.sonar.server.computation.formula.coverage.CoverageUtils.getMeasureVariations;
+import static org.sonar.server.computation.formula.coverage.CoverageUtils.supportedPeriods;
 
 public final class SingleWithUncoveredVariationCounter extends ElementsAndCoveredElementsVariationCounter {
   private final SingleWithUncoveredMetricKeys metricKeys;
@@ -38,7 +39,7 @@ public final class SingleWithUncoveredVariationCounter extends ElementsAndCovere
   protected void initializeForSupportedLeaf(CounterInitializationContext counterContext) {
     MeasureVariations newConditions = getMeasureVariations(counterContext, metricKeys.getCovered());
     MeasureVariations uncoveredConditions = getMeasureVariations(counterContext, metricKeys.getUncovered());
-    for (Period period : counterContext.getPeriods()) {
+    for (Period period : supportedPeriods(counterContext)) {
       long elements = getLongVariation(newConditions, period);
       this.elements.increment(period, elements);
       coveredElements.increment(period, elements - getLongVariation(uncoveredConditions, period));

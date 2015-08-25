@@ -60,7 +60,7 @@ import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 import static org.sonar.server.computation.measure.MeasureVariations.newMeasureVariationsBuilder;
 
-public class NewCoverageMeasuresStepTest {
+public class ReportNewCoverageMeasuresStepTest {
 
   private static final int ROOT_REF = 1;
   private static final int MODULE_REF = 11;
