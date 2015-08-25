@@ -41,7 +41,7 @@ import static org.sonar.server.computation.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.component.ReportComponent.builder;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
-public class LanguageDistributionMeasuresTest {
+public class LanguageDistributionMeasuresStepTest {
 
   private static final String XOO_LANGUAGE = "xoo";
   private static final String JAVA_LANGUAGE = "java";
