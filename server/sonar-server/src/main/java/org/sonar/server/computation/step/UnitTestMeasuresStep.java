@@ -23,6 +23,7 @@ package org.sonar.server.computation.step;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.PathAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.formula.Counter;
@@ -97,8 +98,10 @@ public class UnitTestMeasuresStep implements ComputationStep {
     }
 
     private static Optional<Measure> createMeasure(Component.Type componentType, Optional<Integer> metricValue) {
-      return (componentType.isHigherThan(Component.Type.FILE) && metricValue.isPresent()) ? Optional.of(Measure.newMeasureBuilder().create(metricValue.get()))
-        : Optional.<Measure>absent();
+      if (metricValue.isPresent() && CrawlerDepthLimit.LEAVES.isDeeperThan(componentType)) {
+        return Optional.of(Measure.newMeasureBuilder().create(metricValue.get()));
+      }
+      return Optional.absent();
     }
 
     private static Optional<Measure> createDensityMeasure(UnitTestsCounter counter) {

@@ -21,7 +21,6 @@
 package org.sonar.server.computation.step;
 
 import org.assertj.core.data.Offset;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
@@ -52,7 +51,7 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 
-public class UnitTestMeasuresStepTest {
+public class ReportUnitTestMeasuresStepTest {
 
   private static final Offset<Double> DEFAULT_OFFSET = Offset.offset(0.01d);
 
@@ -64,25 +63,8 @@ public class UnitTestMeasuresStepTest {
   private static final int FILE_2_REF = 12342;
 
   @Rule
-  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-
-  @Rule
-  public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
-    .add(TESTS)
-    .add(TEST_ERRORS)
-    .add(TEST_FAILURES)
-    .add(TEST_EXECUTION_TIME)
-    .add(SKIPPED_TESTS)
-    .add(TEST_SUCCESS_DENSITY);
-
-  @Rule
-  public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
-
-  ComputationStep underTest = new UnitTestMeasuresStep(treeRootHolder, metricRepository, measureRepository);
-
-  @Before
-  public void setUp() throws Exception {
-    treeRootHolder.setRoot(
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule()
+    .setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(
           builder(MODULE, MODULE_REF)
@@ -92,12 +74,23 @@ public class UnitTestMeasuresStepTest {
                   builder(DIRECTORY, DIRECTORY_REF)
                     .addChildren(
                       builder(FILE, FILE_1_REF).setFileAttributes(new FileAttributes(true, null)).build(),
-                      builder(FILE, FILE_2_REF).setFileAttributes(new FileAttributes(true, null)).build()
-                    ).build()
-                ).build()
-            ).build()
-        ).build());
-  }
+                      builder(FILE, FILE_2_REF).setFileAttributes(new FileAttributes(true, null)).build())
+                    .build())
+                .build())
+            .build())
+        .build());
+  @Rule
+  public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
+    .add(TESTS)
+    .add(TEST_ERRORS)
+    .add(TEST_FAILURES)
+    .add(TEST_EXECUTION_TIME)
+    .add(SKIPPED_TESTS)
+    .add(TEST_SUCCESS_DENSITY);
+  @Rule
+  public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
+
+  ComputationStep underTest = new UnitTestMeasuresStep(treeRootHolder, metricRepository, measureRepository);
 
   @Test
   public void aggregate_tests() {
