@@ -63,9 +63,6 @@ public class ReportComputationSteps implements ComputationSteps {
       UnitTestMeasuresStep.class,
       ComplexityMeasuresStep.class,
 
-      // must be executed after the measures required for common rules (coverage, comment density, duplications)
-      IntegrateIssuesStep.class,
-
       FeedMeasureComputers.class,
       ExecuteVisitorsStep.class,
 

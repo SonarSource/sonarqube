@@ -17,64 +17,46 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.step;
+package org.sonar.server.computation.issue;
 
-import com.google.common.collect.Sets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
-import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
-import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
-import org.sonar.server.computation.issue.BaseIssuesLoader;
-import org.sonar.server.computation.issue.IssueCache;
-import org.sonar.server.computation.issue.IssueLifecycle;
-import org.sonar.server.computation.issue.IssueVisitors;
-import org.sonar.server.computation.issue.TrackerExecution;
 import org.sonar.server.util.cache.DiskCache;
 
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 
-public class IntegrateIssuesStep implements ComputationStep {
+public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
 
-  private final TreeRootHolder treeRootHolder;
   private final TrackerExecution tracker;
   private final IssueCache issueCache;
-  private final BaseIssuesLoader baseIssuesLoader;
   private final IssueLifecycle issueLifecycle;
   private final IssueVisitors issueVisitors;
+  private final ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues;
 
-  public IntegrateIssuesStep(TreeRootHolder treeRootHolder, TrackerExecution tracker, IssueCache issueCache,
-    BaseIssuesLoader baseIssuesLoader, IssueLifecycle issueLifecycle,
-    IssueVisitors issueVisitors) {
-    this.treeRootHolder = treeRootHolder;
+  private final List<DefaultIssue> componentIssues = new ArrayList<>();
+
+  public IntegrateIssuesVisitor(TrackerExecution tracker, IssueCache issueCache, IssueLifecycle issueLifecycle, IssueVisitors issueVisitors,
+                                ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues) {
+    super(CrawlerDepthLimit.FILE, POST_ORDER);
     this.tracker = tracker;
     this.issueCache = issueCache;
-    this.baseIssuesLoader = baseIssuesLoader;
     this.issueLifecycle = issueLifecycle;
     this.issueVisitors = issueVisitors;
+    this.componentsWithUnprocessedIssues = componentsWithUnprocessedIssues;
   }
 
   @Override
-  public void execute() {
-    // all the components that had issues before this analysis
-    final Set<String> unprocessedComponentUuids = Sets.newHashSet(baseIssuesLoader.loadUuidsOfComponentsWithOpenIssues());
-
-    new DepthTraversalTypeAwareCrawler(
-      new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, POST_ORDER) {
-        @Override
-        public void visitAny(Component component) {
-          processIssues(component);
-          unprocessedComponentUuids.remove(component.getUuid());
-        }
-      }).visit(treeRootHolder.getRoot());
-
-    closeIssuesForDeletedComponentUuids(unprocessedComponentUuids);
+  public void visitAny(Component component) {
+    componentIssues.clear();
+    processIssues(component);
+    componentsWithUnprocessedIssues.remove(component.getUuid());
   }
 
   private void processIssues(Component component) {
@@ -128,29 +110,7 @@ public class IntegrateIssuesStep implements ComputationStep {
     issueLifecycle.doAutomaticTransition(issue);
     issueVisitors.onIssue(component, issue);
     cacheAppender.append(issue);
-  }
-
-  private void closeIssuesForDeletedComponentUuids(Set<String> deletedComponentUuids) {
-    DiskCache<DefaultIssue>.DiskAppender cacheAppender = issueCache.newAppender();
-    try {
-      for (String deletedComponentUuid : deletedComponentUuids) {
-        List<DefaultIssue> issues = baseIssuesLoader.loadForComponentUuid(deletedComponentUuid);
-        for (DefaultIssue issue : issues) {
-          issue.setBeingClosed(true);
-          // TODO should be renamed
-          issue.setOnDisabledRule(false);
-          issueLifecycle.doAutomaticTransition(issue);
-          cacheAppender.append(issue);
-        }
-      }
-    } finally {
-      cacheAppender.close();
-    }
-  }
-
-  @Override
-  public String getDescription() {
-    return "Integrate issues";
+    componentIssues.add(issue);
   }
 
 }

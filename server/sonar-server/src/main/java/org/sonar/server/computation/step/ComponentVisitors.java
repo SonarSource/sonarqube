@@ -28,6 +28,9 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.container.ComputeEngineContainer;
+import org.sonar.server.computation.issue.CloseIssuesOnRemovedComponentsVisitor;
+import org.sonar.server.computation.issue.IntegrateIssuesVisitor;
+import org.sonar.server.computation.issue.LoadComponentUuidsHavingOpenIssuesVisitor;
 import org.sonar.server.computation.measure.MeasureComputersVisitor;
 import org.sonar.server.computation.sqale.SqaleMeasuresVisitor;
 
@@ -37,6 +40,10 @@ import org.sonar.server.computation.sqale.SqaleMeasuresVisitor;
 public class ComponentVisitors {
 
   private static final List<Class<? extends ComponentVisitor>> ORDERED_VISITOR_CLASSES = ImmutableList.of(
+    LoadComponentUuidsHavingOpenIssuesVisitor.class,
+    IntegrateIssuesVisitor.class,
+    CloseIssuesOnRemovedComponentsVisitor.class,
+
     SqaleMeasuresVisitor.class,
 
     // Must be after all other visitors as it requires measures computed by previous visitors

@@ -36,6 +36,7 @@ import org.sonar.server.computation.component.SettingsRepositoryImpl;
 import org.sonar.server.computation.debt.DebtModelHolderImpl;
 import org.sonar.server.computation.event.EventRepositoryImpl;
 import org.sonar.server.computation.issue.BaseIssuesLoader;
+import org.sonar.server.computation.issue.ComponentsWithUnprocessedIssues;
 import org.sonar.server.computation.issue.DebtAggregator;
 import org.sonar.server.computation.issue.DebtCalculator;
 import org.sonar.server.computation.issue.DefaultAssignee;
@@ -139,6 +140,7 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
         DefaultAssignee.class,
         IssueVisitors.class,
         IssueLifecycle.class,
+        ComponentsWithUnprocessedIssues.class,
 
         // common rules
         CommonRuleEngineImpl.class,
