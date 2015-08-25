@@ -95,6 +95,9 @@ public class IntegrateIssuesVisitorTest {
   @Rule
   public RuleRepositoryRule ruleRepositoryRule = new RuleRepositoryRule();
 
+  @Rule
+  public ComponentIssuesRepositoryRule componentIssuesRepository = new ComponentIssuesRepositoryRule(treeRootHolder);
+
   ArgumentCaptor<DefaultIssue> defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
 
   BaseIssuesLoader baseIssuesLoader = new BaseIssuesLoader(treeRootHolder, dbTester.getDbClient(), ruleRepositoryRule, activeRulesHolderRule);
@@ -113,7 +116,7 @@ public class IntegrateIssuesVisitorTest {
   public void setUp() throws Exception {
     treeRootHolder.setRoot(PROJECT);
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
-    underTest = new IntegrateIssuesVisitor(tracker, issueCache, issueLifecycle, issueVisitors, componentsWithUnprocessedIssues);
+    underTest = new IntegrateIssuesVisitor(tracker, issueCache, issueLifecycle, issueVisitors, componentsWithUnprocessedIssues, componentIssuesRepository);
   }
 
   @Test
@@ -232,6 +235,44 @@ public class IntegrateIssuesVisitorTest {
     assertThat(issues).hasSize(1);
 
     assertThat(componentsWithUnprocessedIssues.getUuids()).isEmpty();
+  }
+
+  @Test
+  public void feed_component_issues_repo() throws Exception {
+    componentsWithUnprocessedIssues.setUuids(Collections.<String>emptySet());
+
+    BatchReport.Issue reportIssue = BatchReport.Issue.newBuilder()
+      .setMsg("the message")
+      .setRuleRepository("xoo")
+      .setRuleKey("S001")
+      .setSeverity(Constants.Severity.BLOCKER)
+      .build();
+    reportReader.putIssues(FILE_REF, asList(reportIssue));
+    reportReader.putFileSourceLines(FILE_REF, "line1");
+
+    underTest.visitAny(FILE);
+
+    assertThat(componentIssuesRepository.getIssues(FILE_REF)).hasSize(1);
+  }
+
+  @Test
+  public void empty_component_issues_repo_when_no_issue() throws Exception {
+    componentsWithUnprocessedIssues.setUuids(Collections.<String>emptySet());
+
+    BatchReport.Issue reportIssue = BatchReport.Issue.newBuilder()
+      .setMsg("the message")
+      .setRuleRepository("xoo")
+      .setRuleKey("S001")
+      .setSeverity(Constants.Severity.BLOCKER)
+      .build();
+    reportReader.putIssues(FILE_REF, asList(reportIssue));
+    reportReader.putFileSourceLines(FILE_REF, "line1");
+
+    underTest.visitAny(FILE);
+    assertThat(componentIssuesRepository.getIssues(FILE_REF)).hasSize(1);
+
+    underTest.visitAny(PROJECT);
+    assertThat(componentIssuesRepository.getIssues(PROJECT)).isEmpty();
   }
 
   private void addBaseIssue(RuleKey ruleKey) {

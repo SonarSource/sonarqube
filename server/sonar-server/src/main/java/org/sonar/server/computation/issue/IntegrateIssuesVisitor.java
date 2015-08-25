@@ -22,6 +22,7 @@ package org.sonar.server.computation.issue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Tracking;
@@ -38,18 +39,20 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   private final IssueCache issueCache;
   private final IssueLifecycle issueLifecycle;
   private final IssueVisitors issueVisitors;
+  private final MutableComponentIssuesRepository componentIssuesRepository;
   private final ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues;
 
-  private final List<DefaultIssue> componentIssues = new ArrayList<>();
+  private final List<Issue> componentIssues = new ArrayList<>();
 
   public IntegrateIssuesVisitor(TrackerExecution tracker, IssueCache issueCache, IssueLifecycle issueLifecycle, IssueVisitors issueVisitors,
-                                ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues) {
+                                ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues, MutableComponentIssuesRepository componentIssuesRepository) {
     super(CrawlerDepthLimit.FILE, POST_ORDER);
     this.tracker = tracker;
     this.issueCache = issueCache;
     this.issueLifecycle = issueLifecycle;
     this.issueVisitors = issueVisitors;
     this.componentsWithUnprocessedIssues = componentsWithUnprocessedIssues;
+    this.componentIssuesRepository = componentIssuesRepository;
   }
 
   @Override
@@ -57,6 +60,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     componentIssues.clear();
     processIssues(component);
     componentsWithUnprocessedIssues.remove(component.getUuid());
+    componentIssuesRepository.setIssues(component, componentIssues);
   }
 
   private void processIssues(Component component) {
