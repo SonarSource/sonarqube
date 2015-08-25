@@ -33,6 +33,9 @@ class Parameters {
   static final String PARAM_PROJECT_KEY = "projectKey";
   static final String PARAM_USER_LOGIN = "login";
   static final String PARAM_TEMPLATE_KEY = "templateKey";
+  static final String PARAM_TEMPLATE_NAME = "name";
+  static final String PARAM_TEMPLATE_DESCRIPTION = "description";
+  static final String PARAM_TEMPLATE_PATTERN = "projectPattern";
 
   private static final String PERMISSION_PARAM_DESCRIPTION = String.format("Permission" +
     "<ul>" +

@@ -81,3 +81,18 @@ message SearchProjectPermissionsResponse {
   repeated Permission permissions = 2;
   optional sonarqube.ws.commons.Paging paging = 3;
 }
+
+message PermissionTemplate {
+  optional string key = 1;
+  optional string name = 2;
+  optional string description = 3;
+  optional string projectPattern = 4;
+  // ex: 2015-08-25T16:18:48+0200
+  optional string createdAt = 5;
+  // ex: 2015-08-25T16:18:48+0200
+  optional string updatedAt = 6;
+}
+
+message CreatePermissionTemplateResponse {
+  optional PermissionTemplate permissionTemplate = 1;
+}

@@ -21,17 +21,18 @@
 package org.sonar.db.permission;
 
 import java.util.Date;
+import org.sonar.api.utils.internal.Uuids;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.RandomStringUtils.randomAscii;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
 
 public class PermissionTemplateTesting {
   public static PermissionTemplateDto newPermissionTemplateDto() {
     return new PermissionTemplateDto()
       .setName(randomAlphanumeric(60))
       .setDescription(randomAscii(500))
-      .setCreatedAt(new Date(nextLong()))
-      .setUpdatedAt(new Date(nextLong()));
+      .setKee(Uuids.create())
+      .setCreatedAt(new Date())
+      .setUpdatedAt(new Date());
   }
 }

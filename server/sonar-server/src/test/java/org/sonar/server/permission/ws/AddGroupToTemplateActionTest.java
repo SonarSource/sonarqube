@@ -218,7 +218,7 @@ public class AddGroupToTemplateActionTest {
   }
 
   private PermissionTemplateDto insertPermissionTemplate(PermissionTemplateDto permissionTemplate) {
-    return dbClient.permissionTemplateDao().insertPermissionTemplate(permissionTemplate.getName(), permissionTemplate.getDescription(), permissionTemplate.getKeyPattern());
+    return dbClient.permissionTemplateDao().insert(permissionTemplate.getName(), permissionTemplate.getDescription(), permissionTemplate.getKeyPattern());
   }
 
   private List<String> getGroupNamesInTemplateAndPermission(long templateId, String permission) {

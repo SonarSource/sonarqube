@@ -58,25 +58,11 @@ public class PermissionTemplateDaoTest {
     Date now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2013-01-02 01:04:05");
     when(system.now()).thenReturn(now.getTime());
 
-    PermissionTemplateDto permissionTemplate = underTest.insertPermissionTemplate("my template", "my description", "myregexp");
+    PermissionTemplateDto permissionTemplate = underTest.insert("my template", "my description", "myregexp");
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getId()).isEqualTo(1L);
 
-    dbTester.assertDbUnitTable(getClass(), "createPermissionTemplate-result.xml", "permission_templates", "id", "name", "kee", "description");
-  }
-
-  @Test
-  public void should_normalize_kee_on_template_creation() throws ParseException {
-    dbTester.prepareDbUnit(getClass(), "createNonAsciiPermissionTemplate.xml");
-
-    Date now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2013-01-02 01:04:05");
-    when(system.now()).thenReturn(now.getTime());
-
-    PermissionTemplateDto permissionTemplate = underTest.insertPermissionTemplate("Môü Gnô Gnèçàß", "my description", null);
-    assertThat(permissionTemplate).isNotNull();
-    assertThat(permissionTemplate.getId()).isEqualTo(1L);
-
-    dbTester.assertDbUnitTable(getClass(), "createNonAsciiPermissionTemplate-result.xml", "permission_templates", "id", "name", "kee", "description");
+    dbTester.assertDbUnitTable(getClass(), "createPermissionTemplate-result.xml", "permission_templates", "id", "name", "description");
   }
 
   @Test
@@ -92,7 +78,7 @@ public class PermissionTemplateDaoTest {
     when(myBatis.openSession(false)).thenReturn(session);
 
     underTest = new PermissionTemplateDao(myBatis, system);
-    PermissionTemplateDto permissionTemplate = underTest.insertPermissionTemplate(PermissionTemplateDto.DEFAULT.getName(), null, null);
+    PermissionTemplateDto permissionTemplate = underTest.insert(PermissionTemplateDto.DEFAULT.getName(), null, null);
 
     verify(mapper).insert(permissionTemplate);
     verify(session).commit();
@@ -164,7 +150,7 @@ public class PermissionTemplateDaoTest {
   public void should_update_permission_template() {
     dbTester.prepareDbUnit(getClass(), "updatePermissionTemplate.xml");
 
-    underTest.updatePermissionTemplate(1L, "new_name", "new_description", "new_regexp");
+    underTest.update(1L, "new_name", "new_description", "new_regexp");
 
     dbTester.assertDbUnitTable(getClass(), "updatePermissionTemplate-result.xml", "permission_templates", "id", "name", "kee", "description");
   }

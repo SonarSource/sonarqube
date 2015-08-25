@@ -21,26 +21,31 @@
 package org.sonar.server.permission;
 
 import com.google.common.collect.Lists;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.PermissionTemplateDao;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
+import static java.lang.String.format;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
+import static org.sonar.server.permission.PermissionRequestValidator.MSG_TEMPLATE_NAME_NOT_BLANK;
+import static org.sonar.server.permission.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
+import static org.sonar.server.permission.PermissionRequestValidator.validateProjectPattern;
+import static org.sonar.server.permission.PermissionRequestValidator.validateTemplateNameForUpdate;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
  * Used by ruby code <pre>Internal.permission_templates</pre>
@@ -91,19 +96,39 @@ public class PermissionTemplateService {
     return permissionTemplates;
   }
 
-  public PermissionTemplate createPermissionTemplate(String name, @Nullable String description, @Nullable String keyPattern) {
-    checkGlobalAdminUser(userSession);
-    validateTemplateName(null, name);
-    validateKeyPattern(keyPattern);
-    PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.insertPermissionTemplate(name, description, keyPattern);
-    return PermissionTemplate.create(permissionTemplateDto);
+  public PermissionTemplate createPermissionTemplate(String name, @Nullable String description, @Nullable String projectKeyPattern) {
+    DbSession dbSession = dbClient.openSession(false);
+
+    try {
+      checkGlobalAdminUser(userSession);
+      validateTemplateNameForCreation(dbSession, name);
+      validateProjectPattern(projectKeyPattern);
+      Date now = new Date(System2.INSTANCE.now());
+      PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.insert(dbSession, new PermissionTemplateDto()
+        .setKee(Uuids.create())
+        .setName(name)
+        .setKeyPattern(projectKeyPattern)
+        .setDescription(description)
+        .setCreatedAt(now)
+        .setUpdatedAt(now));
+      dbSession.commit();
+      return PermissionTemplate.create(permissionTemplateDto);
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 
-  public void updatePermissionTemplate(Long templateId, String newName, @Nullable String newDescription, @Nullable String newKeyPattern) {
-    checkGlobalAdminUser(userSession);
-    validateTemplateName(templateId, newName);
-    validateKeyPattern(newKeyPattern);
-    permissionTemplateDao.updatePermissionTemplate(templateId, newName, newDescription, newKeyPattern);
+  public void updatePermissionTemplate(Long templateId, String newName, @Nullable String newDescription, @Nullable String projectPattern) {
+    DbSession dbSession = dbClient.openSession(false);
+
+    try {
+      checkGlobalAdminUser(userSession);
+      validateTemplateNameForUpdate(dbSession, dbClient, newName, templateId);
+      validateProjectPattern(projectPattern);
+      permissionTemplateDao.update(templateId, newName, newDescription, projectPattern);
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 
   public void deletePermissionTemplate(Long templateId) {
@@ -186,32 +211,14 @@ public class PermissionTemplateService {
     }
   }
 
-  private void validateTemplateName(@Nullable Long templateId, String templateName) {
-    if (StringUtils.isEmpty(templateName)) {
-      String errorMsg = "Name can't be blank";
-      throw new BadRequestException(errorMsg);
-    }
-    List<PermissionTemplateDto> existingTemplates = permissionTemplateDao.selectAllPermissionTemplates();
-    if (existingTemplates != null) {
-      for (PermissionTemplateDto existingTemplate : existingTemplates) {
-        if ((templateId == null || !existingTemplate.getId().equals(templateId)) && (existingTemplate.getName().equals(templateName))) {
-          String errorMsg = "A template with that name already exists";
-          throw new BadRequestException(errorMsg);
-        }
-      }
-    }
-  }
+  /**
+   * @deprecated since 5.2
+   */
+  @Deprecated
+  private void validateTemplateNameForCreation(DbSession dbSession, String templateName) {
+    checkRequest(!templateName.isEmpty(), MSG_TEMPLATE_NAME_NOT_BLANK);
 
-  private static void validateKeyPattern(@Nullable String keyPattern) {
-    if (StringUtils.isEmpty(keyPattern)) {
-      return;
-    }
-    try {
-      Pattern.compile(keyPattern);
-    } catch (PatternSyntaxException e) {
-      String errorMsg = "Invalid pattern: " + keyPattern + ". Should be a valid Java regular expression.";
-      throw new BadRequestException(errorMsg);
-    }
+    PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao().selectByName(dbSession, templateName);
+    checkRequest(permissionTemplateWithSameName == null, format(MSG_TEMPLATE_WITH_SAME_NAME, templateName));
   }
-
 }

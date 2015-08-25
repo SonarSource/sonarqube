@@ -44,6 +44,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -108,7 +109,7 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void should_create_permission_template() {
-    when(permissionTemplateDao.insertPermissionTemplate(DEFAULT_KEY, DEFAULT_DESC, DEFAULT_PATTERN)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.insert(any(DbSession.class), any(PermissionTemplateDto.class))).thenReturn(DEFAULT_TEMPLATE);
 
     PermissionTemplate permissionTemplate = underTest.createPermissionTemplate(DEFAULT_KEY, DEFAULT_DESC, DEFAULT_PATTERN);
 
@@ -121,9 +122,9 @@ public class PermissionTemplateServiceTest {
   @Test
   public void should_enforce_unique_template_name() {
     expected.expect(BadRequestException.class);
-    expected.expectMessage("A template with that name already exists");
+    expected.expectMessage("A template with the name 'my_template' already exists (case insensitive).");
 
-    when(permissionTemplateDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(DEFAULT_TEMPLATE));
+    when(permissionTemplateDao.selectByName(any(DbSession.class), anyString())).thenReturn(DEFAULT_TEMPLATE);
 
     underTest.createPermissionTemplate(DEFAULT_KEY, DEFAULT_DESC, null);
   }
@@ -131,7 +132,7 @@ public class PermissionTemplateServiceTest {
   @Test
   public void should_reject_empty_name_on_creation() {
     expected.expect(BadRequestException.class);
-    expected.expectMessage("Name can't be blank");
+    expected.expectMessage("The template name must not be blank");
 
     underTest.createPermissionTemplate("", DEFAULT_DESC, null);
   }
@@ -139,7 +140,7 @@ public class PermissionTemplateServiceTest {
   @Test
   public void should_reject_invalid_key_pattern_on_creation() {
     expected.expect(BadRequestException.class);
-    expected.expectMessage("Invalid pattern: [azerty. Should be a valid Java regular expression.");
+    expected.expectMessage("The 'projectPattern' parameter must be a valid Java regular expression. '[azerty' was passed");
 
     underTest.createPermissionTemplate(DEFAULT_KEY, DEFAULT_DESC, "[azerty");
   }
@@ -227,27 +228,25 @@ public class PermissionTemplateServiceTest {
 
     underTest.updatePermissionTemplate(1L, "new_name", "new_description", null);
 
-    verify(permissionTemplateDao).updatePermissionTemplate(1L, "new_name", "new_description", null);
+    verify(permissionTemplateDao).update(1L, "new_name", "new_description", null);
   }
 
   @Test
   public void should_validate_template_name_on_update_if_applicable() {
     expected.expect(BadRequestException.class);
-    expected.expectMessage("A template with that name already exists");
+    expected.expectMessage("A template with the name 'template2' already exists (case insensitive).");
 
-    PermissionTemplateDto template1 =
-      new PermissionTemplateDto().setId(1L).setName("template1").setDescription("template1");
     PermissionTemplateDto template2 =
       new PermissionTemplateDto().setId(2L).setName("template2").setDescription("template2");
-    when(permissionTemplateDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1, template2));
+    when(permissionTemplateDao.selectByName(any(DbSession.class), eq("template2"))).thenReturn(template2);
 
-    underTest.updatePermissionTemplate(1L, "template2", "template1", null);
+    underTest.updatePermissionTemplate(1L, "template2", "template2", null);
   }
 
   @Test
   public void should_validate_template_key_pattern_on_update_if_applicable() {
     expected.expect(BadRequestException.class);
-    expected.expectMessage("Invalid pattern: [azerty. Should be a valid Java regular expression.");
+    expected.expectMessage("The 'projectPattern' parameter must be a valid Java regular expression. '[azerty' was passed");
 
     PermissionTemplateDto template1 = new PermissionTemplateDto().setId(1L).setName("template1").setDescription("template1");
     when(permissionTemplateDao.selectAllPermissionTemplates()).thenReturn(Lists.newArrayList(template1));
@@ -265,7 +264,7 @@ public class PermissionTemplateServiceTest {
 
     underTest.updatePermissionTemplate(1L, "template1", "new_description", null);
 
-    verify(permissionTemplateDao).updatePermissionTemplate(1L, "template1", "new_description", null);
+    verify(permissionTemplateDao).update(1L, "template1", "new_description", null);
   }
 
   @Test

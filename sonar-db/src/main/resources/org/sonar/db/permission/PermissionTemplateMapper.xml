@@ -166,15 +166,28 @@
     </where>
   </select>
 
+  <sql id="templateColumns">
+    id, name, kee, description, key_pattern AS keyPattern, created_at AS createdAt, updated_at AS updatedAt
+  </sql>
+
   <select id="selectByKey" parameterType="String" resultType="PermissionTemplate">
-    SELECT id, name, kee, description, key_pattern AS keyPattern, created_at AS createdAt, updated_at AS updatedAt
+    SELECT
+    <include refid="templateColumns"/>
     FROM permission_templates
     WHERE kee = #{kee}
   </select>
 
   <select id="selectAllPermissionTemplates" resultType="PermissionTemplate">
-    SELECT id, name, kee, description, key_pattern AS keyPattern, created_at AS createdAt, updated_at AS updatedAt
+    SELECT
+    <include refid="templateColumns"/>
     FROM permission_templates
+  </select>
+
+  <select id="selectByName" parameterType="String" resultType="PermissionTemplate">
+    SELECT
+    <include refid="templateColumns"/>
+    FROM permission_templates
+    WHERE UPPER(name) LIKE #{templateName} ESCAPE '/'
   </select>
 
   <select id="selectTemplateUsersPermissions" parameterType="String" resultMap="fullPermissionsTemplateResult">

@@ -20,15 +20,25 @@
 
 package org.sonar.server.permission;
 
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import javax.annotation.Nullable;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.ProjectPermissions;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.server.exceptions.BadRequestException;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static org.sonar.api.security.DefaultGroups.isAnyone;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class PermissionRequestValidator {
+  public static final String MSG_TEMPLATE_WITH_SAME_NAME = "A template with the name '%s' already exists (case insensitive).";
+  public static final String MSG_TEMPLATE_NAME_NOT_BLANK = "The template name must not be blank";
+
   private PermissionRequestValidator() {
     // static methods only
   }
@@ -45,6 +55,26 @@ public class PermissionRequestValidator {
 
   public static void validateNotAnyoneAndAdminPermission(String permission, @Nullable String groupName) {
     checkRequest(!GlobalPermissions.SYSTEM_ADMIN.equals(permission) || !isAnyone(groupName),
-      String.format("It is not possible to add the '%s' permission to the '%s' group.", permission, groupName));
+      format("It is not possible to add the '%s' permission to the '%s' group.", permission, groupName));
+  }
+
+  public static void validateProjectPattern(@Nullable String projectPattern) {
+    if (isNullOrEmpty(projectPattern)) {
+      return;
+    }
+
+    try {
+      Pattern.compile(projectPattern);
+    } catch (PatternSyntaxException e) {
+      throw new BadRequestException(format("The 'projectPattern' parameter must be a valid Java regular expression. '%s' was passed", projectPattern));
+    }
+  }
+
+  public static void validateTemplateNameForUpdate(DbSession dbSession, DbClient dbClient, String templateName, long templateId) {
+    checkRequest(!templateName.isEmpty(), MSG_TEMPLATE_NAME_NOT_BLANK);
+
+    PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao().selectByName(dbSession, templateName);
+    checkRequest(permissionTemplateWithSameName == null || permissionTemplateWithSameName.getId() == templateId,
+      format(MSG_TEMPLATE_WITH_SAME_NAME, templateName));
   }
 }

@@ -21,17 +21,16 @@
 package org.sonar.db.permission;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.text.Normalizer;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.Uuids;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -181,22 +180,33 @@ public class PermissionTemplateDao implements Dao {
     }
   }
 
-  public PermissionTemplateDto insertPermissionTemplate(String templateName, @Nullable String description, @Nullable String keyPattern) {
+  /**
+   * @deprecated since 5.2 use {@link #insert(DbSession, PermissionTemplateDto)}
+   */
+  @Deprecated
+  public PermissionTemplateDto insert(String templateName, @Nullable String description, @Nullable String projectPattern) {
     Date creationDate = now();
+
     PermissionTemplateDto permissionTemplate = new PermissionTemplateDto()
       .setName(templateName)
-      .setKee(generateTemplateKee(templateName, creationDate))
+      .setKee(generateTemplateKey(templateName))
       .setDescription(description)
-      .setKeyPattern(keyPattern)
+      .setKeyPattern(projectPattern)
       .setCreatedAt(creationDate)
       .setUpdatedAt(creationDate);
-    SqlSession session = myBatis.openSession(false);
+
+    DbSession session = myBatis.openSession(false);
     try {
-      mapper(session).insert(permissionTemplate);
-      session.commit();
+      return insert(session, permissionTemplate);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public PermissionTemplateDto insert(DbSession session, PermissionTemplateDto permissionTemplate) {
+    mapper(session).insert(permissionTemplate);
+    session.commit();
+
     return permissionTemplate;
   }
 
@@ -213,20 +223,29 @@ public class PermissionTemplateDao implements Dao {
     }
   }
 
-  public void updatePermissionTemplate(Long templateId, String templateName, @Nullable String description, @Nullable String keyPattern) {
+  /**
+   * @deprecated since 5.2 use {@link #update(DbSession, PermissionTemplateDto)}
+   */
+  @Deprecated
+  public void update(Long templateId, String templateName, @Nullable String description, @Nullable String projectPattern) {
     PermissionTemplateDto permissionTemplate = new PermissionTemplateDto()
       .setId(templateId)
       .setName(templateName)
       .setDescription(description)
-      .setKeyPattern(keyPattern)
+      .setKeyPattern(projectPattern)
       .setUpdatedAt(now());
-    SqlSession session = myBatis.openSession(false);
+
+    DbSession session = myBatis.openSession(false);
     try {
-      mapper(session).update(permissionTemplate);
-      session.commit();
+      update(session, permissionTemplate);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public void update(DbSession session, PermissionTemplateDto permissionTemplate) {
+    mapper(session).update(permissionTemplate);
+    session.commit();
   }
 
   /**
@@ -334,6 +353,11 @@ public class PermissionTemplateDao implements Dao {
     return templateWithPermissions;
   }
 
+  public PermissionTemplateDto selectByName(DbSession dbSession, String templateName) {
+    char wildcard = '%';
+    return mapper(dbSession).selectByName(wildcard + templateName.toUpperCase() + wildcard);
+  }
+
   /**
    * Remove a group from all templates (used when removing a group)
    */
@@ -341,12 +365,12 @@ public class PermissionTemplateDao implements Dao {
     session.getMapper(PermissionTemplateMapper.class).deleteByGroupId(groupId);
   }
 
-  private String generateTemplateKee(String name, Date timeStamp) {
+  private String generateTemplateKey(String name) {
     if (PermissionTemplateDto.DEFAULT.getName().equals(name)) {
       return PermissionTemplateDto.DEFAULT.getKee();
     }
-    String normalizedName = Normalizer.normalize(name, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "").replace(" ", "_");
-    return normalizedName.toLowerCase() + "_" + DateFormatUtils.format(timeStamp, "yyyyMMdd_HHmmss");
+
+    return Uuids.create();
   }
 
   private Date now() {

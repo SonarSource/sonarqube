@@ -105,7 +105,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     dbClient.componentDao().insert(dbSession, projectDto);
 
     // Create a permission template containing browse permission for anonymous group
-    PermissionTemplateDto permissionTemplateDto = dbClient.permissionTemplateDao().insertPermissionTemplate("Default", null, null);
+    PermissionTemplateDto permissionTemplateDto = dbClient.permissionTemplateDao().insert("Default", null, null);
     settings.setProperty("sonar.permission.template.default", permissionTemplateDto.getKee());
     dbClient.permissionTemplateDao().insertGroupPermission(permissionTemplateDto.getId(), null, UserRole.USER);
     dbSession.commit();

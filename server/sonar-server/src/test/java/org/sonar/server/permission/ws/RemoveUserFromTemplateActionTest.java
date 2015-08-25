@@ -210,7 +210,7 @@ public class RemoveUserFromTemplateActionTest {
   }
 
   private PermissionTemplateDto insertPermissionTemplate(PermissionTemplateDto permissionTemplate) {
-    return dbClient.permissionTemplateDao().insertPermissionTemplate(permissionTemplate.getName(), permissionTemplate.getDescription(), permissionTemplate.getKeyPattern());
+    return dbClient.permissionTemplateDao().insert(permissionTemplate.getName(), permissionTemplate.getDescription(), permissionTemplate.getKeyPattern());
   }
 
   private List<String> getLoginsInTemplateAndPermission(long templateId, String permission) {
