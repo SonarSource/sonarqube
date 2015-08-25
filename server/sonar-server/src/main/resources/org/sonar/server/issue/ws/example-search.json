@@ -43,6 +43,9 @@
         "unconfirm",
         "resolve",
         "falsepositive"
+      ],
+      "actions": [
+        "comment"
       ]
     }
   ],
