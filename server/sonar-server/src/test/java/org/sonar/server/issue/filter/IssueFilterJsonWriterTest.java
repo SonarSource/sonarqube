@@ -34,8 +34,6 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class IssueFilterJsonWriterTest {
 
-  IssueFilterJsonWriter writer = new IssueFilterJsonWriter();
-
   @Test
   public void write_filter() {
     test(new AnonymousMockUserSession(),
@@ -47,7 +45,7 @@ public class IssueFilterJsonWriterTest {
         .setUserLogin("simon")
         .setData("severity=BLOCKER"),
       "{\"filter\":{\n" +
-        "      \"id\":13,\n" +
+        "      \"id\":\"13\",\n" +
         "        \"name\":\"Blocker issues\",\n" +
         "        \"description\":\"All Blocker Issues\",\n" +
         "        \"shared\":true,\n" +
@@ -68,7 +66,7 @@ public class IssueFilterJsonWriterTest {
         .setUserLogin("simon")
         .setData("severity=BLOCKER"),
       "{\"filter\":{\n" +
-        "      \"id\":13,\n" +
+        "      \"id\":\"13\",\n" +
         "        \"name\":\"Blocker issues\",\n" +
         "        \"description\":\"All Blocker Issues\",\n" +
         "        \"shared\":true,\n" +
@@ -90,7 +88,7 @@ public class IssueFilterJsonWriterTest {
         .setUserLogin("julien")
         .setData("severity=BLOCKER"),
       "{\"filter\":{\n" +
-        "      \"id\":13,\n" +
+        "      \"id\":\"13\",\n" +
         "        \"name\":\"Blocker issues\",\n" +
         "        \"description\":\"All Blocker Issues\",\n" +
         "        \"shared\":true,\n" +
@@ -104,7 +102,9 @@ public class IssueFilterJsonWriterTest {
     StringWriter output = new StringWriter();
     JsonWriter jsonWriter = JsonWriter.of(output);
     jsonWriter.beginObject();
-    writer.writeWithName(jsonWriter, filter, userSession);
+
+    IssueFilterJsonWriter.writeWithName(jsonWriter, filter, userSession);
+
     jsonWriter.endObject();
     assertJson(output.toString()).isSimilarTo(expected);
   }

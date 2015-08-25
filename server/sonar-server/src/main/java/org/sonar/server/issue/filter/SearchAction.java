@@ -20,27 +20,32 @@
 
 package org.sonar.server.issue.filter;
 
+import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.io.Resources;
+import com.google.common.collect.Maps;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nonnull;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.issue.IssueFilterDao;
 import org.sonar.db.issue.IssueFilterDto;
+import org.sonar.db.issue.IssueFilterFavouriteDto;
 import org.sonar.server.user.UserSession;
 
 public class SearchAction implements IssueFilterWsAction {
 
-  private final IssueFilterService service;
-  private final IssueFilterJsonWriter issueFilterJsonWriter;
+  private final DbClient dbClient;
   private final UserSession userSession;
 
-  public SearchAction(IssueFilterService service, IssueFilterJsonWriter issueFilterJsonWriter, UserSession userSession) {
-    this.service = service;
-    this.issueFilterJsonWriter = issueFilterJsonWriter;
+  public SearchAction(DbClient dbClient, UserSession userSession) {
+    this.dbClient = dbClient;
     this.userSession = userSession;
   }
 
@@ -48,33 +53,59 @@ public class SearchAction implements IssueFilterWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("search");
     action
-      .setDescription("Get the list of favorite issue filters.")
-      .setInternal(false)
+      .setDescription("List of current user issue filters and shared issue filters.")
       .setHandler(this)
       .setSince("5.2")
-      .setResponseExample(Resources.getResource(this.getClass(), "example-search.json"));
+      .setResponseExample(getClass().getResource("search-example.json"));
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    userSession.checkLoggedIn();
+
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      Set<IssueFilterDto> issueFilters = searchIssueFilters(dbSession);
+      Map<Long, IssueFilterFavouriteDto> userFavouritesByFilterId = searchUserFavouritesByFilterId(dbSession);
+      writeResponse(response, issueFilters, userFavouritesByFilterId);
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
+  }
+
+  private void writeResponse(Response response, Set<IssueFilterDto> issueFilters, Map<Long, IssueFilterFavouriteDto> userFavouritesByFilterId) {
     JsonWriter json = response.newJsonWriter();
     json.beginObject();
-
-    // Favorite filters, if logged in
-    if (userSession.isLoggedIn()) {
-      List<IssueFilterDto> filters = service.findFavoriteFilters(userSession);
-      List<IssueFilterDto> sharedFiltersWithoutUserFilters = service.findSharedFiltersWithoutUserFilters(userSession);
-      filters.addAll(sharedFiltersWithoutUserFilters);
-      ImmutableSortedSet<IssueFilterDto> allUniqueIssueFilters = FluentIterable.from(filters).toSortedSet(IssueFilterDtoIdComparator.INSTANCE);
-      json.name("issueFilters").beginArray();
-      for (IssueFilterDto favorite : allUniqueIssueFilters) {
-        issueFilterJsonWriter.write(json, favorite, userSession);
-      }
-      json.endArray();
+    json.name("issueFilters").beginArray();
+    for (IssueFilterDto issueFilter : issueFilters) {
+      IssueFilterJsonWriter.write(json, new IssueFilterWithFavourite(issueFilter, isFavourite(issueFilter, userFavouritesByFilterId)), userSession);
     }
+    json.endArray();
 
     json.endObject();
     json.close();
+  }
+
+  private static boolean isFavourite(IssueFilterDto issueFilter, Map<Long, IssueFilterFavouriteDto> userFavouritesByFilterId) {
+    return userFavouritesByFilterId.get(issueFilter.getId()) != null;
+  }
+
+  /**
+   * @return all the current user issue filters and all the shared filters
+   */
+  private Set<IssueFilterDto> searchIssueFilters(DbSession dbSession) {
+    IssueFilterDao issueFilterDao = dbClient.issueFilterDao();
+
+    List<IssueFilterDto> filters = issueFilterDao.selectByUser(dbSession, userSession.getLogin());
+    List<IssueFilterDto> sharedFilters = issueFilterDao.selectSharedFilters(dbSession);
+    filters.addAll(sharedFilters);
+
+    return FluentIterable.from(filters).toSortedSet(IssueFilterDtoIdComparator.INSTANCE);
+  }
+
+  private Map<Long, IssueFilterFavouriteDto> searchUserFavouritesByFilterId(DbSession dbSession) {
+    List<IssueFilterFavouriteDto> favouriteFilters = dbClient.issueFilterFavouriteDao().selectByUser(dbSession, userSession.getLogin());
+    return Maps.uniqueIndex(favouriteFilters, IssueFilterFavouriteDToIssueFilterId.INSTANCE);
   }
 
   private enum IssueFilterDtoIdComparator implements Comparator<IssueFilterDto> {
@@ -83,6 +114,15 @@ public class SearchAction implements IssueFilterWsAction {
     @Override
     public int compare(IssueFilterDto o1, IssueFilterDto o2) {
       return o1.getId().intValue() - o2.getId().intValue();
+    }
+  }
+
+  private enum IssueFilterFavouriteDToIssueFilterId implements Function<IssueFilterFavouriteDto, Long> {
+    INSTANCE;
+
+    @Override
+    public Long apply(@Nonnull IssueFilterFavouriteDto filterFavourite) {
+      return filterFavourite.getIssueFilterId();
     }
   }
 }

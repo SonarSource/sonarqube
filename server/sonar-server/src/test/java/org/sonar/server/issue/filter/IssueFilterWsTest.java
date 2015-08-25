@@ -22,39 +22,36 @@ package org.sonar.server.issue.filter;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbClient;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
-@RunWith(MockitoJUnitRunner.class)
 public class IssueFilterWsTest {
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
-  @Mock
-  IssueFilterService service;
-
-  @Mock
-  IssueFilterJsonWriter issueFilterJsonWriter;
-
-  IssueFilterWs ws;
-
-  WsTester tester;
+  IssueFilterWs underTest;
+  WsTester ws;
 
   @Before
   public void setUp() {
-    ws = new IssueFilterWs(new AppAction(service, issueFilterJsonWriter, userSessionRule), new ShowAction(service, issueFilterJsonWriter, userSessionRule), new SearchAction(service, issueFilterJsonWriter, userSessionRule), new FavoritesAction(service, userSessionRule));
-    tester = new WsTester(ws);
+    IssueFilterService service = mock(IssueFilterService.class);
+    DbClient dbClient = mock(DbClient.class);
+    underTest = new IssueFilterWs(
+      new AppAction(service, userSession),
+      new ShowAction(service, userSession),
+      new SearchAction(dbClient, userSession),
+      new FavoritesAction(service, userSession));
+    ws = new WsTester(underTest);
   }
 
   @Test
   public void define_ws() {
-    WebService.Controller controller = tester.controller("api/issue_filters");
+    WebService.Controller controller = ws.controller("api/issue_filters");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("4.2");
@@ -71,6 +68,10 @@ public class IssueFilterWsTest {
     WebService.Action favorites = controller.action("favorites");
     assertThat(favorites).isNotNull();
     assertThat(favorites.params()).isEmpty();
+
+    WebService.Action search = controller.action("search");
+    assertThat(search).isNotNull();
+    assertThat(search.params()).isEmpty();
   }
 
 }

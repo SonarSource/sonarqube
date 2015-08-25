@@ -42,28 +42,25 @@ public class AppActionTest {
   @Mock
   IssueFilterService service;
 
-  IssueFilterJsonWriter writer = new IssueFilterJsonWriter();
-
-  AppAction action;
-
-  WsTester tester;
+  AppAction underTest;
+  WsTester ws;
 
   @Before
   public void setUp() {
-    action = new AppAction(service, writer, userSessionRule);
-    tester = new WsTester(new IssueFilterWs(action, mock(ShowAction.class), mock(SearchAction.class), mock(FavoritesAction.class)));
+    underTest = new AppAction(service, userSessionRule);
+    ws = new WsTester(new IssueFilterWs(underTest, mock(ShowAction.class), mock(SearchAction.class), mock(FavoritesAction.class)));
   }
 
   @Test
   public void anonymous_app() throws Exception {
     userSessionRule.anonymous();
-    tester.newGetRequest("api/issue_filters", "app").execute().assertJson(getClass(), "anonymous_page.json");
+    ws.newGetRequest("api/issue_filters", "app").execute().assertJson(getClass(), "anonymous_page.json");
   }
 
   @Test
   public void logged_in_app() throws Exception {
     userSessionRule.login("eric").setUserId(123);
-    tester.newGetRequest("api/issue_filters", "app").execute()
+    ws.newGetRequest("api/issue_filters", "app").execute()
       .assertJson(getClass(), "logged_in_page.json");
   }
 
@@ -74,7 +71,7 @@ public class AppActionTest {
       new IssueFilterDto().setId(6L).setName("My issues"),
       new IssueFilterDto().setId(13L).setName("Blocker issues")
     ));
-    tester.newGetRequest("api/issue_filters", "app").execute()
+    ws.newGetRequest("api/issue_filters", "app").execute()
       .assertJson(getClass(), "logged_in_page_with_favorites.json");
   }
 
@@ -85,7 +82,7 @@ public class AppActionTest {
       new IssueFilterDto().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUserLogin("eric")
     );
 
-    tester.newGetRequest("api/issue_filters", "app").setParam("id", "13").execute()
+    ws.newGetRequest("api/issue_filters", "app").setParam("id", "13").execute()
       .assertJson(getClass(), "logged_in_page_with_selected_filter.json");
   }
 
@@ -97,7 +94,7 @@ public class AppActionTest {
       new IssueFilterDto().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUserLogin("simon").setShared(true)
     );
 
-    tester.newGetRequest("api/issue_filters", "app").setParam("id", "13").execute()
+    ws.newGetRequest("api/issue_filters", "app").setParam("id", "13").execute()
       .assertJson(getClass(), "selected_filter_can_not_be_modified.json");
   }
 

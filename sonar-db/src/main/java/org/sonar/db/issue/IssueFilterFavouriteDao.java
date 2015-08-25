@@ -23,6 +23,7 @@ package org.sonar.db.issue;
 import java.util.List;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
 public class IssueFilterFavouriteDao implements Dao {
@@ -51,14 +52,22 @@ public class IssueFilterFavouriteDao implements Dao {
     }
   }
 
+  /**
+   * @deprecated since 5.2 use {@link #insert(DbSession, IssueFilterFavouriteDto)}
+   */
+  @Deprecated
   public void insert(IssueFilterFavouriteDto filter) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
-      mapper(session).insert(filter);
-      session.commit();
+      insert(session, filter);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public void insert(DbSession session, IssueFilterFavouriteDto filter) {
+    mapper(session).insert(filter);
+    session.commit();
   }
 
   public void delete(long id) {
@@ -83,5 +92,9 @@ public class IssueFilterFavouriteDao implements Dao {
 
   private IssueFilterFavouriteMapper mapper(SqlSession session) {
     return session.getMapper(IssueFilterFavouriteMapper.class);
+  }
+
+  public List<IssueFilterFavouriteDto> selectByUser(DbSession dbSession, String login) {
+    return mapper(dbSession).selectByUser(login);
   }
 }

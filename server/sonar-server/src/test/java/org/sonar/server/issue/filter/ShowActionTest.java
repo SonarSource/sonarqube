@@ -44,15 +44,13 @@ public class ShowActionTest {
   @Mock
   IssueFilterService service;
 
-  IssueFilterJsonWriter writer = new IssueFilterJsonWriter();
-
   ShowAction action;
 
   WsTester tester;
 
   @Before
   public void setUp() {
-    action = new ShowAction(service, writer, userSessionRule);
+    action = new ShowAction(service, userSessionRule);
     tester = new WsTester(new IssueFilterWs(mock(AppAction.class), action, mock(SearchAction.class), mock(FavoritesAction.class)));
   }
 

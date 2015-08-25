@@ -31,6 +31,7 @@ import javax.annotation.Nonnull;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Paging;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.issue.IssueFilterDao;
 import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.db.issue.IssueFilterFavouriteDao;
@@ -58,13 +59,11 @@ public class IssueFilterService {
   private final AuthorizationDao authorizationDao;
   private final IssueFilterSerializer serializer;
 
-  public IssueFilterService(IssueFilterDao filterDao, IssueFilterFavouriteDao favouriteDao,
-    IssueIndex issueIndex, AuthorizationDao authorizationDao,
-    IssueFilterSerializer serializer) {
-    this.filterDao = filterDao;
-    this.favouriteDao = favouriteDao;
+  public IssueFilterService(DbClient dbClient, IssueIndex issueIndex, IssueFilterSerializer serializer) {
+    this.filterDao = dbClient.issueFilterDao();
+    this.favouriteDao = dbClient.issueFilterFavouriteDao();
+    this.authorizationDao = dbClient.authorizationDao();
     this.issueIndex = issueIndex;
-    this.authorizationDao = authorizationDao;
     this.serializer = serializer;
   }
 

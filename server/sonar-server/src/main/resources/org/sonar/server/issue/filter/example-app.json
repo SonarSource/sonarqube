@@ -2,7 +2,7 @@
   "canManageFilters": true,
   "canBulkChange": true,
   "filter": {
-    "id": 8,
+    "id": "8",
     "name": "My Issues To Fix",
     "description": "",
     "user": "john.snow",
@@ -12,11 +12,11 @@
   },
   "favorites": [
     {
-      "id": 8,
+      "id": "8",
       "name": "My Issues To Fix"
     },
     {
-      "id": 22,
+      "id": "22",
       "name": "SonarQube Issues"
     }
   ]

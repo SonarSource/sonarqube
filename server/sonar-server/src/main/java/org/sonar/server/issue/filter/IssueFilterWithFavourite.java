@@ -17,27 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.issue;
 
-import java.util.List;
-import javax.annotation.CheckForNull;
-import org.apache.ibatis.annotations.Param;
+package org.sonar.server.issue.filter;
 
-/**
- * @since 3.7
- */
-public interface IssueFilterFavouriteMapper {
+import javax.annotation.Nullable;
+import org.sonar.db.issue.IssueFilterDto;
 
-  @CheckForNull
-  IssueFilterFavouriteDto selectById(long id);
+public class IssueFilterWithFavourite {
+  private final IssueFilterDto issueFilter;
+  private final Boolean isFavourite;
 
-  List<IssueFilterFavouriteDto> selectByFilterId(@Param("filterId") long filterId);
+  public IssueFilterWithFavourite(IssueFilterDto issueFilter, Boolean isFavourite) {
+    this.issueFilter = issueFilter;
+    this.isFavourite = isFavourite;
+  }
 
-  List<IssueFilterFavouriteDto> selectByUser(String login);
+  public IssueFilterDto issueFilter() {
+    return issueFilter;
+  }
 
-  void insert(IssueFilterFavouriteDto filterFavourite);
-
-  void delete(long id);
-
-  void deleteByFilterId(long filterId);
+  @Nullable
+  public Boolean isFavourite() {
+    return isFavourite;
+  }
 }

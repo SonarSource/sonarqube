@@ -28,15 +28,15 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.server.issue.filter.IssueFilterJsonWriter.writeWithName;
+
 public class ShowAction implements IssueFilterWsAction {
 
   private final IssueFilterService service;
-  private final IssueFilterJsonWriter issueFilterJsonWriter;
   private final UserSession userSession;
 
-  public ShowAction(IssueFilterService service, IssueFilterJsonWriter issueFilterJsonWriter, UserSession userSession) {
+  public ShowAction(IssueFilterService service, UserSession userSession) {
     this.service = service;
-    this.issueFilterJsonWriter = issueFilterJsonWriter;
     this.userSession = userSession;
   }
 
@@ -59,7 +59,7 @@ public class ShowAction implements IssueFilterWsAction {
 
     JsonWriter json = response.newJsonWriter();
     json.beginObject();
-    issueFilterJsonWriter.writeWithName(json, filter, userSession);
+    writeWithName(json, filter, userSession);
     json.endObject();
     json.close();
   }

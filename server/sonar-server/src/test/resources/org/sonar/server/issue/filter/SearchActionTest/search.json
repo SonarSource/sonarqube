@@ -1,0 +1,36 @@
+{
+  "issueFilters": [
+    {
+      "name": "My Unresolved Issues",
+      "shared": true,
+      "query": "resolved=false|assignees=__me__",
+      "user": "[SonarQube]",
+      "canModify": false,
+      "favourite": true
+    },
+    {
+      "name": "False Positive and Won't Fix Issues",
+      "shared": true,
+      "query": "resolutions=FALSE-POSITIVE,WONTFIX",
+      "user": "[SonarQube]",
+      "canModify": false,
+      "favourite": false
+    },
+    {
+      "name": "Unresolved Issues",
+      "shared": true,
+      "query": "resolved=false",
+      "user": "grace.hopper",
+      "canModify": true,
+      "favourite": false
+    },
+    {
+      "name": "My Custom Filter",
+      "shared": false,
+      "query": "resolved=false|statuses=OPEN,REOPENED|assignees=__me__",
+      "user": "grace.hopper",
+      "canModify": true,
+      "favourite": true
+    }
+  ]
+}

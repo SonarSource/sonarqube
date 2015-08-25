@@ -21,31 +21,41 @@
 package org.sonar.server.issue.filter;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.server.user.UserSession;
 
-@ServerSide
-public class IssueFilterJsonWriter {
+import static com.google.common.base.Objects.firstNonNull;
 
-  void writeWithName(JsonWriter json, IssueFilterDto filter, UserSession userSession) {
-    json.name("filter");
-    write(json, filter, userSession);
+class IssueFilterJsonWriter {
+
+  private static final String DEFAULT_LOGIN = "[SonarQube]";
+
+  private IssueFilterJsonWriter() {
+    // static methods only
   }
 
-  void write(JsonWriter json, IssueFilterDto filter, UserSession userSession) {
+  static void writeWithName(JsonWriter json, IssueFilterDto filter, UserSession userSession) {
+    json.name("filter");
+    write(json, new IssueFilterWithFavourite(filter, null), userSession);
+  }
+
+  static void write(JsonWriter json, IssueFilterWithFavourite issueFilterWithFavourite, UserSession userSession) {
+    IssueFilterDto issueFilter = issueFilterWithFavourite.issueFilter();
     json
       .beginObject()
-      .prop("id", filter.getId())
-      .prop("name", filter.getName())
-      .prop("description", filter.getDescription())
-      .prop("user", filter.getUserLogin())
-      .prop("shared", filter.isShared())
-      .prop("query", filter.getData())
-      .prop("canModify", canModifyFilter(userSession, filter))
-      .endObject();
+      .prop("id", String.valueOf(issueFilter.getId()))
+      .prop("name", issueFilter.getName())
+      .prop("description", issueFilter.getDescription())
+      .prop("user", firstNonNull(issueFilter.getUserLogin(), DEFAULT_LOGIN))
+      .prop("shared", issueFilter.isShared())
+      .prop("query", issueFilter.getData())
+      .prop("canModify", canModifyFilter(userSession, issueFilter));
+    if (issueFilterWithFavourite.isFavourite() != null) {
+      json.prop("favourite", issueFilterWithFavourite.isFavourite());
+    }
+    json.endObject();
   }
 
   private static boolean canModifyFilter(UserSession userSession, IssueFilterDto filter) {

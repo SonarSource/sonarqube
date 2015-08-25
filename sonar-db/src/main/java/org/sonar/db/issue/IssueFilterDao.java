@@ -24,6 +24,7 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
+import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
 public class IssueFilterDao implements Dao {
@@ -45,13 +46,21 @@ public class IssueFilterDao implements Dao {
     }
   }
 
+  /**
+   * @deprecated since 5.2 use {@link #selectByUser(DbSession, String)}
+   */
+  @Deprecated
   public List<IssueFilterDto> selectByUser(String user) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
-      return mapper(session).selectByUser(user);
+      return selectByUser(session, user);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public List<IssueFilterDto> selectByUser(DbSession session, String user) {
+    return mapper(session).selectByUser(user);
   }
 
   public List<IssueFilterDto> selectFavoriteFiltersByUser(String user) {
@@ -72,27 +81,45 @@ public class IssueFilterDao implements Dao {
     }
   }
 
+  /**
+   * @deprecated since 5.2 use {@link #selectSharedFilters(DbSession)}
+   */
+  @Deprecated
   public List<IssueFilterDto> selectSharedFilters() {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
-      return mapper(session).selectSharedFilters();
+      return selectSharedFilters(session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
+  public List<IssueFilterDto> selectSharedFilters(DbSession session) {
+    return mapper(session).selectSharedFilters();
+  }
+
+  /**
+   * @deprecated since 5.2 use {@link #insert(DbSession, IssueFilterDto)}
+   */
+  @Deprecated
   public void insert(IssueFilterDto filter) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
-      mapper(session).insert(filter);
-      session.commit();
+      insert(session, filter);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public IssueFilterDto insert(DbSession session, IssueFilterDto filter) {
+    mapper(session).insert(filter);
+    session.commit();
+
+    return filter;
   }
 
   public void update(IssueFilterDto filter) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       mapper(session).update(filter);
       session.commit();
@@ -102,7 +129,7 @@ public class IssueFilterDao implements Dao {
   }
 
   public void delete(long id) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       mapper(session).delete(id);
       session.commit();

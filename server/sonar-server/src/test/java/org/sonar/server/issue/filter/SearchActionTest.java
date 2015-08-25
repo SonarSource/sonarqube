@@ -23,72 +23,110 @@ package org.sonar.server.issue.filter;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.db.issue.IssueFilterDto;
+import org.sonar.db.issue.IssueFilterFavouriteDto;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
+import org.sonar.test.DbTests;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 
+@Category(DbTests.class)
 public class SearchActionTest {
-  static final String EMPTY_JSON = "{}";
   static final String EMPTY_ISSUE_FILTERS_JSON = "{" +
     "    \"issueFilters\": []" +
     "}";
 
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public DbTester db = DbTester.create(System2.INSTANCE);
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-  IssueFilterService service = mock(IssueFilterService.class);
-  IssueFilterJsonWriter writer = new IssueFilterJsonWriter();
-  WsTester ws;
+  WsActionTester ws;
+  DbClient dbClient;
+  DbSession dbSession;
 
   @Before
   public void setUp() {
-    ws = new WsTester(new IssueFilterWs(new SearchAction(service, writer, userSessionRule)));
+    dbClient = db.getDbClient();
+    dbSession = db.getSession();
+    userSession.login();
+
+    ws = new WsActionTester(new SearchAction(dbClient, userSession));
   }
 
   @Test
-  public void anonymous_app() throws Exception {
-    userSessionRule.anonymous();
-    WsTester.Result result = ws.newGetRequest("api/issue_filters", "search").execute();
+  public void empty_response() throws Exception {
+    TestResponse result = newRequest();
 
-    assertJson(result.outputAsString()).isSimilarTo(EMPTY_JSON);
+    assertJson(result.getInput()).isSimilarTo(EMPTY_ISSUE_FILTERS_JSON);
   }
 
   @Test
-  public void logged_in_app() throws Exception {
-    userSessionRule.login("eric").setUserId(123);
-    WsTester.Result result = ws.newGetRequest("api/issue_filters", "search").execute();
+  public void issue_filter_with_all_cases() {
+    userSession.login("grace.hopper");
+    IssueFilterDto myUnresolvedIssues = insertIssueFilter(new IssueFilterDto()
+      .setName("My Unresolved Issues")
+      .setShared(true)
+      .setData("resolved=false|assignees=__me__"));
+    IssueFilterDto falsePositiveAndWontFixIssues = insertIssueFilter(new IssueFilterDto()
+      .setName("False Positive and Won't Fix Issues")
+      .setShared(true)
+      .setData("resolutions=FALSE-POSITIVE,WONTFIX"));
+    IssueFilterDto unresolvedIssues = insertIssueFilter(new IssueFilterDto()
+      .setName("Unresolved Issues")
+      .setShared(true)
+      .setUserLogin("grace.hopper")
+      .setData("resolved=false"));
+    IssueFilterDto myCustomFilter = insertIssueFilter(new IssueFilterDto()
+      .setName("My Custom Filter")
+      .setShared(false)
+      .setUserLogin("grace.hopper")
+      .setData("resolved=false|statuses=OPEN,REOPENED|assignees=__me__"));
+    linkFilterToUser(myUnresolvedIssues.getId(), "grace.hopper");
+    linkFilterToUser(myCustomFilter.getId(), "grace.hopper");
+    linkFilterToUser(falsePositiveAndWontFixIssues.getId(), "another-login");
+    linkFilterToUser(unresolvedIssues.getId(), "yet-another-login");
+    commit();
 
-    assertJson(result.outputAsString()).isSimilarTo(EMPTY_ISSUE_FILTERS_JSON);
+    TestResponse result = newRequest();
+
+    assertJson(result.getInput()).isSimilarTo(getClass().getResource("SearchActionTest/search.json"));
   }
 
   @Test
-  public void logged_in_app_with_all_issue_filters() throws Exception {
-    userSessionRule.login("eric").setUserId(123);
-    when(service.findFavoriteFilters(userSessionRule)).thenReturn(newArrayList(
-      new IssueFilterDto()
-        .setId(3L)
-        .setName("My Unresolved Issues")
-        .setShared(true)
-        .setData("resolved=false|assignees=__me__"),
-      new IssueFilterDto()
-        .setId(2L)
-        .setName("False Positive and Won't Fix Issues")
-        .setShared(false)
-        .setData("resolutions=FALSE-POSITIVE,WONTFIX")
-      ));
-    when(service.findSharedFiltersWithoutUserFilters(userSessionRule)).thenReturn(newArrayList(
-      new IssueFilterDto()
-        .setId(2L)
-        .setName("False Positive and Won't Fix Issues")
-        .setShared(false)
-        .setData("resolutions=FALSE-POSITIVE,WONTFIX")
-      ));
-    ws.newGetRequest("api/issue_filters", "search").execute()
-      .assertJson(getClass(), "logged_in_page_with_favorites.json");
+  public void fail_if_anonymous() throws Exception {
+    userSession.anonymous();
+    expectedException.expect(UnauthorizedException.class);
+
+    newRequest();
+  }
+
+  private TestResponse newRequest() {
+    return ws.newRequest().execute();
+  }
+
+  private void linkFilterToUser(long filterId, String userLogin) {
+    dbClient.issueFilterFavouriteDao().insert(dbSession, new IssueFilterFavouriteDto()
+      .setIssueFilterId(filterId)
+      .setUserLogin(userLogin));
+  }
+
+  private IssueFilterDto insertIssueFilter(IssueFilterDto issueFilter) {
+    return dbClient.issueFilterDao().insert(dbSession, issueFilter);
+  }
+
+  private void commit() {
+    dbSession.commit();
   }
 }

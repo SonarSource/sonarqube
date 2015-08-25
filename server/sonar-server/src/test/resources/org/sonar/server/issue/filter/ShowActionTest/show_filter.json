@@ -1,6 +1,6 @@
 {
   "filter": {
-    "id": 13,
+    "id": "13",
     "name": "Blocker issues",
     "description": "All Blocker Issues",
     "shared": true,

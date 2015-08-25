@@ -1,6 +1,6 @@
 {
   "filter": {
-    "id": 1,
+    "id": "1",
     "name": "My Filter",
     "user": "admin",
     "shared": true,
