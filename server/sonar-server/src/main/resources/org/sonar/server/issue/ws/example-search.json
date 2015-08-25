@@ -1,7 +1,9 @@
 {
-  "total": 206,
-  "p": 1,
-  "ps": 5,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 1
+  },
   "issues": [
     {
       "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
@@ -13,24 +15,30 @@
       "severity": "MINOR",
       "message": "'3' is a magic number.",
       "line": 530,
+      "textRange": {
+        "startLine": 81,
+        "endLine": 81,
+        "startOffset": 0,
+        "endOffset": 134
+      },
       "author": "Developer 1",
       "debt": "2h1min",
       "creationDate": "2013-05-13T17:55:39+0200",
       "updateDate": "2013-05-13T17:55:39+0200",
+      "tags": ["bug"],
       "comments": [
         {
           "key": "7d7c56f5-7b5a-41b9-87f8-36fa70caa5ba",
           "login": "john.smith",
-          "userName": "John Smith",
-          "htmlText": "foooooo",
-          "updatable": true,
+          "htmlText": "Must be &quot;final&quot;!",
+          "markdown": "Must be \"final\"!",
+          "updatable": false,
           "createdAt": "2013-05-13T18:08:34+0200"
         }
       ],
       "attr": {
         "jira-issue-key": "SONAR-1234"
       },
-      "actions": ["link-to-jira"],
       "transitions": [
         "unconfirm",
         "resolve",
@@ -40,15 +48,16 @@
   ],
   "components": [
     {
-      "key": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
-      "qualifier": "CLA",
-      "name": "HttpRequest",
-      "longName": "com.github.kevinsawicki.http.HttpRequest"
-    }
-  ],
-  "projects": [
+      "key": "com.github.kevinsawicki:http-request:src/main/java/com/github/kevinsawicki/http/HttpRequest.java",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "HttpRequest.java",
+      "longName": "src/main/java/com/github/kevinsawicki/http/HttpRequest.java",
+      "path": "src/main/java/com/github/kevinsawicki/http/HttpRequest.java"
+    },
     {
       "key": "com.github.kevinsawicki:http-request",
+      "enabled": true,
       "qualifier": "TRK",
       "name": "http-request",
       "longName": "http-request"
@@ -58,8 +67,9 @@
     {
       "key": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
       "name": "Magic Number",
-      "desc": "Checks for magic numbers.",
-      "status": "READY"
+      "status": "READY",
+      "lang": "java",
+      "langName": "Java"
     }
   ],
   "users": [
