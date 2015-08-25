@@ -14,6 +14,7 @@ export default React.createClass({
     new GroupsView({
       permission: permission,
       project: this.props.project.uuid,
+      projectName: this.props.project.name,
       refresh: this.props.refresh
     }).render();
   },
@@ -23,6 +24,7 @@ export default React.createClass({
     new UsersView({
       permission: permission,
       project: this.props.project.uuid,
+      projectName: this.props.project.name,
       refresh: this.props.refresh
     }).render();
   },

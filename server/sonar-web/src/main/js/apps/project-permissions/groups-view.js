@@ -1,48 +1,48 @@
 define([
   'components/common/modals',
-  'react',
-  'components/select-list/main',
-  '../../api/permissions',
+  'components/common/select-list',
   './templates'
-], function (Modal, React, SelectList, Permissions) {
+], function (Modal) {
 
   return Modal.extend({
     template: Templates['project-permissions-groups'],
 
     onRender: function () {
-      var that = this;
       this._super();
-      var props = {
-        loadItems: function (options, callback) {
-          var _data = { permission: that.options.permission, projectId: that.options.project, p: options.page, ps: 100 };
-          options.query ? _.extend(_data, { q: options.query }) : _.extend(_data, { selected: options.selection });
-          Permissions.getGroups(_data).done(function (r) {
-            var paging = _.defaults({}, r.paging, { total: 0, pageIndex: 1 });
-            callback(r.groups, paging);
-          });
+      new window.SelectList({
+        el: this.$('#project-permissions-groups'),
+        width: '100%',
+        readOnly: false,
+        focusSearch: false,
+        format: function (item) {
+          return item.name;
         },
-        renderItem: function (group) {
-          return group.name;
+        queryParam: 'q',
+        searchUrl: baseUrl + '/api/permissions/groups?ps=100&permission=' + this.options.permission + '&projectId=' + this.options.project,
+        selectUrl: baseUrl + '/api/permissions/add_group',
+        deselectUrl: baseUrl + '/api/permissions/remove_group',
+        extra: {
+          permission: this.options.permission,
+          projectId: this.options.project
         },
-        getItemKey: function (group) {
-          return group.name;
-        },
-        selectItem: function (group, callback) {
-          Permissions.grantToGroup(that.options.permission, group.name, that.options.project).done(callback);
-        },
-        deselectItem: function (group, callback) {
-          Permissions.revokeFromGroup(that.options.permission, group.name, that.options.project).done(callback);
+        selectParameter: 'groupName',
+        selectParameterValue: 'name',
+        parse: function (r) {
+          this.more = false;
+          return r.groups;
         }
-      };
-      React.render(
-          React.createElement(SelectList, props),
-          this.$('#project-permissions-groups')[0]
-      );
+      });
     },
 
     onDestroy: function () {
       this.options.refresh && this.options.refresh();
       this._super();
+    },
+
+    serializeData: function () {
+      return _.extend(Modal.prototype.serializeData.apply(this, arguments), {
+        projectName: this.options.projectName
+      })
     }
   });
 

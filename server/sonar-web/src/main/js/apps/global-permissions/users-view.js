@@ -1,43 +1,36 @@
 define([
   'components/common/modals',
-  'react',
-  'components/select-list/main',
-  '../../api/permissions',
+  'components/common/select-list',
   './templates'
-], function (Modal, React, SelectList, Permissions) {
+], function (Modal) {
 
   return Modal.extend({
     template: Templates['global-permissions-users'],
 
     onRender: function () {
-      var that = this;
       this._super();
-      var props = {
-        loadItems: function (options, callback) {
-          var data = { permission: that.options.permission, p: options.page, ps: 100 };
-          options.query ? _.extend(data, { q: options.query }) : _.extend(data, { selected: options.selection });
-          Permissions.getUsers(data).done(function (r) {
-            var paging = _.defaults({}, r.paging, { total: 0, pageIndex: 1 });
-            callback(r.users, paging);
-          });
+      new window.SelectList({
+        el: this.$('#global-permissions-users'),
+        width: '100%',
+        readOnly: false,
+        focusSearch: false,
+        format: function (item) {
+          return item.name + '<br><span class="note">' + item.login + '</span>';
         },
-        renderItem: function (user) {
-          return user.name + '<br><span class="note">' + user.login + '</span>';
+        queryParam: 'q',
+        searchUrl: baseUrl + '/api/permissions/users?ps=100&permission=' + this.options.permission,
+        selectUrl: baseUrl + '/api/permissions/add_user',
+        deselectUrl: baseUrl + '/api/permissions/remove_user',
+        extra: {
+          permission: this.options.permission
         },
-        getItemKey: function (user) {
-          return user.login;
-        },
-        selectItem: function (user, callback) {
-          Permissions.grantToUser(that.options.permission, user.login).done(callback);
-        },
-        deselectItem: function (user, callback) {
-          Permissions.revokeFromUser(that.options.permission, user.login).done(callback);
+        selectParameter: 'login',
+        selectParameterValue: 'login',
+        parse: function (r) {
+          this.more = false;
+          return r.users;
         }
-      };
-      React.render(
-          React.createElement(SelectList, props),
-          this.$('#global-permissions-users')[0]
-      );
+      });
     },
 
     onDestroy: function () {
