@@ -207,7 +207,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dto.get("snapshotId")).isEqualTo(INTERMEDIATE_1_SNAPSHOT_ID);
     assertThat(dto.get("componentId")).isEqualTo(intermediate1Dto.getId());
     assertThat(dto.get("metricId")).isEqualTo((long) intMetricId);
-    assertThat(dto.get("value")).isEqualTo(12d);
+    assertValue(dto, 12d);
     assertThat(dto.get("textValue")).isNull();
     assertThat(dto.get("severity")).isNull();
 
@@ -215,7 +215,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dto.get("snapshotId")).isEqualTo(INTERMEDIATE_2_SNAPSHOT_ID);
     assertThat(dto.get("componentId")).isEqualTo(intermediate2Dto.getId());
     assertThat(dto.get("metricId")).isEqualTo((long) longMetricId);
-    assertThat(dto.get("value")).isEqualTo(9635d);
+    assertValue(dto, 9635d);
     assertThat(dto.get("textValue")).isNull();
     assertThat(dto.get("severity")).isNull();
 
@@ -223,9 +223,22 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dto.get("snapshotId")).isEqualTo(LEAF_SNAPSHOT_ID);
     assertThat(dto.get("componentId")).isEqualTo(leafDto.getId());
     assertThat(dto.get("metricId")).isEqualTo((long) doubleMetricId);
-    assertThat(dto.get("value")).isEqualTo(123.1d);
+    assertValue(dto, 123.1d);
     assertThat(dto.get("textValue")).isNull();
     assertThat(dto.get("severity")).isNull();
+  }
+
+  /**
+   * Horrible trick to support oracle retuning number as BigDecimal and DbTester#select converting BigDecimal with no
+   * scale to Long instead of Double when all other DBs will return a Double anyway.
+   */
+  private static void assertValue(Map<String, Object> dto, double expected) {
+    Object actual = dto.get("value");
+    if (expected % 1 == 0d && actual instanceof Long) {
+      assertThat(actual).isEqualTo((long) expected);
+    } else {
+      assertThat(actual).isEqualTo(expected);
+    }
   }
 
   @Test
