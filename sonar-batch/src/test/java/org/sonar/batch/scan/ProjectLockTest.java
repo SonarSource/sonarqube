@@ -20,12 +20,13 @@
 package org.sonar.batch.scan;
 
 import org.junit.rules.ExpectedException;
-
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -45,12 +46,16 @@ public class ProjectLockTest {
 
   @Before
   public void setUp() {
+    lock = setUpTest(tempFolder.getRoot());
+  }
+  
+  private ProjectLock setUpTest(File file) {
     ProjectReactor projectReactor = mock(ProjectReactor.class);
     ProjectDefinition projectDefinition = mock(ProjectDefinition.class);
     when(projectReactor.getRoot()).thenReturn(projectDefinition);
-    when(projectDefinition.getBaseDir()).thenReturn(tempFolder.getRoot());
+    when(projectDefinition.getBaseDir()).thenReturn(file);
 
-    lock = new ProjectLock(projectReactor);
+    return new ProjectLock(projectReactor);
   }
 
   @Test
@@ -77,6 +82,20 @@ public class ProjectLockTest {
     lock.tryLock();
     lock.stop();
     lock.tryLock();
+    lock.stop();
+  }
+  
+  @Test
+  public void errorLock() {
+    lock = setUpTest(Paths.get("path", "that", "wont", "exist", "ever").toFile());
+    exception.expect(IllegalStateException.class);
+    exception.expectMessage("Failed to create project lock in");
+    lock.tryLock();
+  }
+  
+  @Test
+  public void errorDeleteLock() {
+    lock = setUpTest(Paths.get("path", "that", "wont", "exist", "ever").toFile());
     lock.stop();
   }
 

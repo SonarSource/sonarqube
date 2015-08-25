@@ -162,6 +162,7 @@ public class GlobalTempFolderProvider extends ProviderAdapter implements Compone
 
   @Override
   public void dispose(PicoContainer container) {
+  //nothing to do
   }
 
   @Override

@@ -59,7 +59,7 @@ public class MutableProjectReactorProvider extends ProviderAdapter {
     return reactor;
   }
 
-  private void cleanDirectory(File dir) {
+  private static void cleanDirectory(File dir) {
     try {
       FileUtils.deleteDirectory(dir);
       Files.createDirectories(dir.toPath());

@@ -66,6 +66,7 @@ public class AnalysisTempFolderProvider extends ProviderAdapter implements Compo
 
   @Override
   public void dispose(PicoContainer container) {
+    //nothing to do
   }
 
   @Override

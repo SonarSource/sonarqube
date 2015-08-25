@@ -116,22 +116,20 @@ public class ProjectDefinition {
     return baseDir;
   }
 
-  public ProjectDefinition setWorkDir(@Nullable File workDir) {
+  public ProjectDefinition setWorkDir(File workDir) {
     this.workDir = workDir;
     return this;
   }
 
-  @CheckForNull
   public File getWorkDir() {
     return workDir;
   }
 
-  public ProjectDefinition setBuildDir(@Nullable File d) {
+  public ProjectDefinition setBuildDir( File d) {
     this.buildDir = d;
     return this;
   }
 
-  @CheckForNull
   public File getBuildDir() {
     return buildDir;
   }

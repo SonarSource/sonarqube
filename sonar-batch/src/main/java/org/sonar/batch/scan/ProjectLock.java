@@ -53,19 +53,20 @@ public class ProjectLock implements Startable {
       lockFile = lockChannel.tryLock(0, 1024, false);
 
       if (lockFile == null) {
-        failAlreadyInProgress();
+        failAlreadyInProgress(null);
       }
     } catch (OverlappingFileLockException e) {
-      failAlreadyInProgress();
+      failAlreadyInProgress(e);
     } catch (IOException e) {
       throw new IllegalStateException("Failed to create project lock in " + lockFilePath.toString(), e);
     }
   }
   
-  private static void failAlreadyInProgress() {
-    throw new IllegalStateException("Another SonarQube analysis is already in progress for this project");
+  private static void failAlreadyInProgress(Exception e) {
+    throw new IllegalStateException("Another SonarQube analysis is already in progress for this project", e);
   }
 
+  @Override
   public void stop() {
     if (lockFile != null) {
       try {

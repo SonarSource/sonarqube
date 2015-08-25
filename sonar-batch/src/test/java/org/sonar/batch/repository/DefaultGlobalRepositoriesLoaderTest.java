@@ -57,6 +57,18 @@ public class DefaultGlobalRepositoriesLoaderTest {
     verify(wsLoader).loadString(BATCH_GLOBAL_URL);
     verifyNoMoreInteractions(wsLoader);
   }
+  
+  @Test
+  public void testFromServer() {
+    result = new WSLoaderResult<>(new GlobalRepositories().toJson(), false);
+    when(wsLoader.loadString(BATCH_GLOBAL_URL)).thenReturn(result);
+    MutableBoolean fromCache = new MutableBoolean();
+    globalRepositoryLoader.load(fromCache);
+
+    assertThat(fromCache.booleanValue()).isFalse();
+    verify(wsLoader).loadString(BATCH_GLOBAL_URL);
+    verifyNoMoreInteractions(wsLoader);
+  }
 
   public void testWithoutArg() {
     globalRepositoryLoader.load(null);

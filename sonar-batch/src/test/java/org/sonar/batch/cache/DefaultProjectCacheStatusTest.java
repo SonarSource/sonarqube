@@ -23,8 +23,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.sonar.home.cache.PersistentCacheLoader;
+
+import org.junit.internal.runners.statements.ExpectException;
+import org.junit.rules.ExpectedException;
+
+import java.io.IOException;
 import java.util.Date;
 
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.any;
 import org.junit.Test;
 import org.sonar.home.cache.Logger;
 import org.junit.rules.TemporaryFolder;
@@ -33,10 +42,13 @@ import org.junit.Before;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.home.cache.PersistentCache;
 
-public class ProjectCacheStatusTest {
+public class DefaultProjectCacheStatusTest {
   private static final String PROJ_KEY = "project1";
   @Rule
   public TemporaryFolder tmp = new TemporaryFolder();
+  
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
 
   ProjectCacheStatus cacheStatus;
   PersistentCache cache;
@@ -50,6 +62,39 @@ public class ProjectCacheStatusTest {
     cacheStatus = new DefaultProjectCacheStatus(cache, client);
   }
 
+  @Test
+  public void errorDelete() throws IOException {
+    cache = mock(PersistentCache.class);
+    doThrow(IOException.class).when(cache).put(anyString(), any(byte[].class));
+    cacheStatus = new DefaultProjectCacheStatus(cache, client);
+
+    exception.expect(IllegalStateException.class);
+    exception.expectMessage("Failed to delete cache sync status");
+    cacheStatus.delete(PROJ_KEY);
+  }
+  
+  @Test
+  public void errorSave() throws IOException {
+    cache = mock(PersistentCache.class);
+    doThrow(IOException.class).when(cache).put(anyString(), any(byte[].class));
+    cacheStatus = new DefaultProjectCacheStatus(cache, client);
+
+    exception.expect(IllegalStateException.class);
+    exception.expectMessage("Failed to write cache sync status");
+    cacheStatus.save(PROJ_KEY);
+  }
+  
+  @Test
+  public void errorStatus() throws IOException {
+    cache = mock(PersistentCache.class);
+    doThrow(IOException.class).when(cache).get(anyString(), any(PersistentCacheLoader.class));
+    cacheStatus = new DefaultProjectCacheStatus(cache, client);
+
+    exception.expect(IllegalStateException.class);
+    exception.expectMessage("Failed to read cache sync status");
+    cacheStatus.getSyncStatus(PROJ_KEY);
+  }
+  
   @Test
   public void testSave() {
     cacheStatus.save(PROJ_KEY);
