@@ -55,7 +55,7 @@ public class PluginLoader {
    * Defines the base keys (defined by {@link #basePluginKey(PluginInfo, Map)}) of the plugins which are allowed to
    * run a full server extensions.
    */
-  private static final Set<String> SYSTEM_EXTENSION_PLUGINS_BASE_KEYS = ImmutableSet.of("views");
+  private static final Set<String> PRIVILEGED_PLUGINS_BASE_KEYS = ImmutableSet.of("views");
 
   public static final Version COMPATIBILITY_MODE_MAX_VERSION = Version.create("5.2");
 
@@ -68,8 +68,8 @@ public class PluginLoader {
   }
 
   public Map<String, Plugin> load(Map<String, PluginInfo> infoByKeys) {
-    Collection<PluginClassloaderDef> defs = defineClassloaders(infoByKeys);
-    Map<PluginClassloaderDef, ClassLoader> classloaders = classloaderFactory.create(defs);
+    Collection<PluginClassLoaderDef> defs = defineClassloaders(infoByKeys);
+    Map<PluginClassLoaderDef, ClassLoader> classloaders = classloaderFactory.create(defs);
     return instantiatePluginClasses(classloaders);
   }
 
@@ -78,14 +78,14 @@ public class PluginLoader {
    * different than number of plugins.
    */
   @VisibleForTesting
-  Collection<PluginClassloaderDef> defineClassloaders(Map<String, PluginInfo> infoByKeys) {
-    Map<String, PluginClassloaderDef> classloadersByBasePlugin = new HashMap<>();
+  Collection<PluginClassLoaderDef> defineClassloaders(Map<String, PluginInfo> infoByKeys) {
+    Map<String, PluginClassLoaderDef> classloadersByBasePlugin = new HashMap<>();
 
     for (PluginInfo info : infoByKeys.values()) {
       String baseKey = basePluginKey(info, infoByKeys);
-      PluginClassloaderDef def = classloadersByBasePlugin.get(baseKey);
+      PluginClassLoaderDef def = classloadersByBasePlugin.get(baseKey);
       if (def == null) {
-        def = new PluginClassloaderDef(baseKey);
+        def = new PluginClassLoaderDef(baseKey);
         classloadersByBasePlugin.put(baseKey, def);
       }
       ExplodedPlugin explodedPlugin = jarExploder.explode(info);
@@ -104,7 +104,7 @@ public class PluginLoader {
         Version minSqVersion = info.getMinimalSqVersion();
         boolean compatibilityMode = minSqVersion != null && minSqVersion.compareToIgnoreQualifier(COMPATIBILITY_MODE_MAX_VERSION) < 0;
         def.setCompatibilityMode(compatibilityMode);
-        def.setServerExtension(isServerExtension(baseKey));
+        def.setPrivileged(isPrivileged(baseKey));
         if (compatibilityMode) {
           Loggers.get(getClass()).debug("API compatibility mode is enabled on plugin {} [{}] " +
             "(built with API lower than {})",
@@ -115,8 +115,8 @@ public class PluginLoader {
     return classloadersByBasePlugin.values();
   }
 
-  private static boolean isServerExtension(String basePluginKey) {
-    return SYSTEM_EXTENSION_PLUGINS_BASE_KEYS.contains(basePluginKey);
+  private static boolean isPrivileged(String basePluginKey) {
+    return PRIVILEGED_PLUGINS_BASE_KEYS.contains(basePluginKey);
   }
 
   /**
@@ -126,11 +126,11 @@ public class PluginLoader {
    * @throws IllegalStateException if at least one plugin can't be correctly loaded
    */
   @VisibleForTesting
-  Map<String, Plugin> instantiatePluginClasses(Map<PluginClassloaderDef, ClassLoader> classloaders) {
+  Map<String, Plugin> instantiatePluginClasses(Map<PluginClassLoaderDef, ClassLoader> classloaders) {
     // instantiate plugins
     Map<String, Plugin> instancesByPluginKey = new HashMap<>();
-    for (Map.Entry<PluginClassloaderDef, ClassLoader> entry : classloaders.entrySet()) {
-      PluginClassloaderDef def = entry.getKey();
+    for (Map.Entry<PluginClassLoaderDef, ClassLoader> entry : classloaders.entrySet()) {
+      PluginClassLoaderDef def = entry.getKey();
       ClassLoader classLoader = entry.getValue();
 
       // the same classloader can be used by multiple plugins
@@ -154,7 +154,7 @@ public class PluginLoader {
   public void unload(Collection<Plugin> plugins) {
     for (Plugin plugin : plugins) {
       ClassLoader classLoader = plugin.getClass().getClassLoader();
-      if (classLoader instanceof Closeable && classLoader != classloaderFactory.baseClassloader()) {
+      if (classLoader instanceof Closeable && classLoader != classloaderFactory.baseClassLoader()) {
         try {
           ((Closeable) classLoader).close();
         } catch (Exception e) {

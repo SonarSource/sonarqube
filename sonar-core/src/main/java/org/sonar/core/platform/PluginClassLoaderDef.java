@@ -31,9 +31,9 @@ import javax.annotation.Nullable;
 import org.sonar.classloader.Mask;
 
 /**
- * Temporary information about the classloader to be created for a plugin (or a group of plugins).
+ * Temporary information about the classLoader to be created for a plugin (or a group of plugins).
  */
-class PluginClassloaderDef {
+class PluginClassLoaderDef {
 
   private final String basePluginKey;
   private final Map<String, String> mainClassesByPluginKey = new HashMap<>();
@@ -46,9 +46,9 @@ class PluginClassloaderDef {
    */
   private boolean compatibilityMode = false;
 
-  private boolean serverExtension = false;
+  private boolean privileged = false;
 
-  PluginClassloaderDef(String basePluginKey) {
+  PluginClassLoaderDef(String basePluginKey) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(basePluginKey));
     this.basePluginKey = basePluginKey;
   }
@@ -95,12 +95,12 @@ class PluginClassloaderDef {
     this.compatibilityMode = b;
   }
 
-  boolean isServerExtension() {
-    return serverExtension;
+  boolean isPrivileged() {
+    return privileged;
   }
 
-  void setServerExtension(boolean serverExtension) {
-    this.serverExtension = serverExtension;
+  void setPrivileged(boolean privileged) {
+    this.privileged = privileged;
   }
 
   @Override
@@ -111,7 +111,7 @@ class PluginClassloaderDef {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    PluginClassloaderDef that = (PluginClassloaderDef) o;
+    PluginClassLoaderDef that = (PluginClassLoaderDef) o;
     return basePluginKey.equals(that.basePluginKey);
   }
 

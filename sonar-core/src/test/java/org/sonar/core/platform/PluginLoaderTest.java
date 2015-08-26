@@ -49,7 +49,7 @@ public class PluginLoaderTest {
 
   @Test
   public void instantiate_plugin_entry_point() {
-    PluginClassloaderDef def = new PluginClassloaderDef("fake");
+    PluginClassLoaderDef def = new PluginClassLoaderDef("fake");
     def.addMainClass("fake", FakePlugin.class.getName());
 
     Map<String, Plugin> instances = loader.instantiatePluginClasses(ImmutableMap.of(def, getClass().getClassLoader()));
@@ -59,7 +59,7 @@ public class PluginLoaderTest {
 
   @Test
   public void plugin_entry_point_must_be_no_arg_public() {
-    PluginClassloaderDef def = new PluginClassloaderDef("fake");
+    PluginClassLoaderDef def = new PluginClassLoaderDef("fake");
     def.addMainClass("fake", IncorrectPlugin.class.getName());
 
     try {
@@ -78,10 +78,10 @@ public class PluginLoaderTest {
       .setMainClass("org.foo.FooPlugin")
       .setMinimalSqVersion(Version.create("5.2"));
 
-    Collection<PluginClassloaderDef> defs = loader.defineClassloaders(ImmutableMap.of("foo", info));
+    Collection<PluginClassLoaderDef> defs = loader.defineClassloaders(ImmutableMap.of("foo", info));
 
     assertThat(defs).hasSize(1);
-    PluginClassloaderDef def = defs.iterator().next();
+    PluginClassLoaderDef def = defs.iterator().next();
     assertThat(def.getBasePluginKey()).isEqualTo("foo");
     assertThat(def.isSelfFirstStrategy()).isFalse();
     assertThat(def.getFiles()).containsOnly(jarFile);
@@ -100,7 +100,7 @@ public class PluginLoaderTest {
       .setMainClass("org.foo.FooPlugin")
       .setMinimalSqVersion(Version.create("4.5.2"));
 
-    Collection<PluginClassloaderDef> defs = loader.defineClassloaders(ImmutableMap.of("foo", info));
+    Collection<PluginClassLoaderDef> defs = loader.defineClassloaders(ImmutableMap.of("foo", info));
     assertThat(defs.iterator().next().isCompatibilityMode()).isTrue();
   }
 
@@ -132,11 +132,11 @@ public class PluginLoaderTest {
       .setBasePlugin("foo")
       .setUseChildFirstClassLoader(true);
 
-    Collection<PluginClassloaderDef> defs = loader.defineClassloaders(ImmutableMap.of(
+    Collection<PluginClassLoaderDef> defs = loader.defineClassloaders(ImmutableMap.of(
       base.getKey(), base, extension1.getKey(), extension1, extension2.getKey(), extension2));
 
     assertThat(defs).hasSize(1);
-    PluginClassloaderDef def = defs.iterator().next();
+    PluginClassLoaderDef def = defs.iterator().next();
     assertThat(def.getBasePluginKey()).isEqualTo("foo");
     assertThat(def.isSelfFirstStrategy()).isFalse();
     assertThat(def.getFiles()).containsOnly(baseJarFile, extensionJar1, extensionJar2);
@@ -151,9 +151,9 @@ public class PluginLoaderTest {
   public void plugin_is_recognised_as_server_extension_if_key_is_views_and_extends_no_other_plugin_and_runs_in_compatibility_mode() throws IOException {
     PluginInfo views = create52PluginInfo("views");
 
-    Collection<PluginClassloaderDef> defs = loader.defineClassloaders(ImmutableMap.of("views", views));
+    Collection<PluginClassLoaderDef> defs = loader.defineClassloaders(ImmutableMap.of("views", views));
 
-    assertThat(defs.iterator().next().isServerExtension()).isTrue();
+    assertThat(defs.iterator().next().isPrivileged()).isTrue();
   }
 
   @Test
@@ -162,7 +162,7 @@ public class PluginLoaderTest {
     PluginInfo views = create52PluginInfo("views")
         .setBasePlugin("foo");
 
-    Collection<PluginClassloaderDef> defs = loader.defineClassloaders(ImmutableMap.of("foo", foo, "views", views));
+    Collection<PluginClassLoaderDef> defs = loader.defineClassloaders(ImmutableMap.of("foo", foo, "views", views));
 
     assertThat(defs).extracting("compatibilityMode").containsOnly(false, false);
   }

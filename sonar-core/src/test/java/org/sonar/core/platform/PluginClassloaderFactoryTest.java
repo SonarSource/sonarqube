@@ -44,8 +44,8 @@ public class PluginClassloaderFactoryTest {
 
   @Test
   public void create_isolated_classloader() {
-    PluginClassloaderDef def = basePluginDef();
-    Map<PluginClassloaderDef, ClassLoader> map = factory.create(asList(def));
+    PluginClassLoaderDef def = basePluginDef();
+    Map<PluginClassLoaderDef, ClassLoader> map = factory.create(asList(def));
 
     assertThat(map).containsOnlyKeys(def);
     ClassLoader classLoader = map.get(def);
@@ -62,7 +62,7 @@ public class PluginClassloaderFactoryTest {
 
   @Test
   public void create_classloader_compatible_with_with_old_api_dependencies() {
-    PluginClassloaderDef def = basePluginDef();
+    PluginClassLoaderDef def = basePluginDef();
     def.setCompatibilityMode(true);
     ClassLoader classLoader = factory.create(asList(def)).get(def);
 
@@ -76,9 +76,9 @@ public class PluginClassloaderFactoryTest {
 
   @Test
   public void classloader_exports_resources_to_other_classloaders() {
-    PluginClassloaderDef baseDef = basePluginDef();
-    PluginClassloaderDef dependentDef = dependentPluginDef();
-    Map<PluginClassloaderDef, ClassLoader> map = factory.create(asList(baseDef, dependentDef));
+    PluginClassLoaderDef baseDef = basePluginDef();
+    PluginClassLoaderDef dependentDef = dependentPluginDef();
+    Map<PluginClassLoaderDef, ClassLoader> map = factory.create(asList(baseDef, dependentDef));
     ClassLoader baseClassloader = map.get(baseDef);
     ClassLoader dependentClassloader = map.get(dependentDef);
 
@@ -92,16 +92,16 @@ public class PluginClassloaderFactoryTest {
     assertThat(canLoadClass(baseClassloader, BASE_PLUGIN_CLASSNAME)).isTrue();
   }
 
-  private static PluginClassloaderDef basePluginDef() {
-    PluginClassloaderDef def = new PluginClassloaderDef(BASE_PLUGIN_KEY);
+  private static PluginClassLoaderDef basePluginDef() {
+    PluginClassLoaderDef def = new PluginClassLoaderDef(BASE_PLUGIN_KEY);
     def.addMainClass(BASE_PLUGIN_KEY, BASE_PLUGIN_CLASSNAME);
     def.getExportMask().addInclusion("org/sonar/plugins/base/api/");
     def.addFiles(asList(fakePluginJar("base-plugin/target/base-plugin-0.1-SNAPSHOT.jar")));
     return def;
   }
 
-  private static PluginClassloaderDef dependentPluginDef() {
-    PluginClassloaderDef def = new PluginClassloaderDef(DEPENDENT_PLUGIN_KEY);
+  private static PluginClassLoaderDef dependentPluginDef() {
+    PluginClassLoaderDef def = new PluginClassLoaderDef(DEPENDENT_PLUGIN_KEY);
     def.addMainClass(DEPENDENT_PLUGIN_KEY, DEPENDENT_PLUGIN_CLASSNAME);
     def.getExportMask().addInclusion("org/sonar/plugins/dependent/api/");
     def.addFiles(asList(fakePluginJar("dependent-plugin/target/dependent-plugin-0.1-SNAPSHOT.jar")));

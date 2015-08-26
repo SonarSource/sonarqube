@@ -62,14 +62,20 @@ public class PluginClassloaderFactory {
   /**
    * Creates as many classloaders as requested by the input parameter.
    */
-  public Map<PluginClassloaderDef, ClassLoader> create(Collection<PluginClassloaderDef> defs) {
-    ClassloaderBuilder builder = new ClassloaderBuilder();
-    builder.newClassloader(API_CLASSLOADER_KEY, baseClassloader());
+  public Map<PluginClassLoaderDef, ClassLoader> create(Collection<PluginClassLoaderDef> defs) {
+    ClassLoader baseClassLoader = baseClassLoader();
 
-    for (PluginClassloaderDef def : defs) {
-      builder.setMask(API_CLASSLOADER_KEY, def.isServerExtension() ? new Mask() : apiMask());
+    ClassloaderBuilder builder = new ClassloaderBuilder();
+    builder.newClassloader(API_CLASSLOADER_KEY, baseClassLoader);
+    builder.setMask(API_CLASSLOADER_KEY, apiMask());
+
+    for (PluginClassLoaderDef def : defs) {
       builder.newClassloader(def.getBasePluginKey());
-      builder.setParent(def.getBasePluginKey(), API_CLASSLOADER_KEY, new Mask());
+      if (def.isPrivileged()) {
+        builder.setParent(def.getBasePluginKey(), baseClassLoader, new Mask());
+      } else {
+        builder.setParent(def.getBasePluginKey(), API_CLASSLOADER_KEY, new Mask());
+      }
       builder.setLoadingOrder(def.getBasePluginKey(), def.isSelfFirstStrategy() ? SELF_FIRST : PARENT_FIRST);
       for (File jar : def.getFiles()) {
         builder.addURL(def.getBasePluginKey(), fileToUrl(jar));
@@ -86,10 +92,10 @@ public class PluginClassloaderFactory {
   /**
    * A plugin can export some resources to other plugins
    */
-  private void exportResources(PluginClassloaderDef def, ClassloaderBuilder builder, Collection<PluginClassloaderDef> allPlugins) {
+  private void exportResources(PluginClassLoaderDef def, ClassloaderBuilder builder, Collection<PluginClassLoaderDef> allPlugins) {
     // export the resources to all other plugins
     builder.setExportMask(def.getBasePluginKey(), def.getExportMask());
-    for (PluginClassloaderDef other : allPlugins) {
+    for (PluginClassLoaderDef other : allPlugins) {
       if (!other.getBasePluginKey().equals(def.getBasePluginKey())) {
         builder.addSibling(def.getBasePluginKey(), other.getBasePluginKey(), new Mask());
       }
@@ -99,10 +105,10 @@ public class PluginClassloaderFactory {
   /**
    * Builds classloaders and verifies that all of them are correctly defined
    */
-  private Map<PluginClassloaderDef, ClassLoader> build(Collection<PluginClassloaderDef> defs, ClassloaderBuilder builder) {
-    Map<PluginClassloaderDef, ClassLoader> result = new HashMap<>();
+  private Map<PluginClassLoaderDef, ClassLoader> build(Collection<PluginClassLoaderDef> defs, ClassloaderBuilder builder) {
+    Map<PluginClassLoaderDef, ClassLoader> result = new HashMap<>();
     Map<String, ClassLoader> classloadersByBasePluginKey = builder.build();
-    for (PluginClassloaderDef def : defs) {
+    for (PluginClassLoaderDef def : defs) {
       ClassLoader classloader = classloadersByBasePluginKey.get(def.getBasePluginKey());
       if (classloader == null) {
         throw new IllegalStateException(String.format("Fail to create classloader for plugin [%s]", def.getBasePluginKey()));
@@ -112,7 +118,7 @@ public class PluginClassloaderFactory {
     return result;
   }
 
-  ClassLoader baseClassloader() {
+  ClassLoader baseClassLoader() {
     return getClass().getClassLoader();
   }
 
