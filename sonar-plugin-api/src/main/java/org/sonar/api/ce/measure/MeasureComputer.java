@@ -20,6 +20,7 @@
 
 package org.sonar.api.ce.measure;
 
+import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 
@@ -141,6 +142,11 @@ public interface MeasureComputer {
        * @throws UnsupportedOperationException if a measure for the specified metric already exists for the current component
        */
       void addMeasure(String metric, String value);
+
+      /**
+       * Return list of issues of current component.
+       */
+      List<? extends Issue> getIssues();
 
     }
   }

@@ -18,20 +18,35 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.computation.issue;
+package org.sonar.api.ce.measure;
 
-import java.util.List;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.server.computation.component.Component;
+import javax.annotation.CheckForNull;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.Duration;
 
-public interface MutableComponentIssuesRepository extends ComponentIssuesRepository {
+public interface Issue {
+
+  String key();
+
+  RuleKey ruleKey();
 
   /**
-   * Add issues of the component.
-   *    *
-   * @throws NullPointerException if {@code component} is {@code null}
-   * @throws NullPointerException if {@code issues} is {@code null}
+   * Available list of status can be found in {@link org.sonar.api.issue.Issue#STATUSES}
    */
-  void setIssues(Component component, List<DefaultIssue> issues);
+  String status();
+
+  /**
+   * Available list of resolutions can be found in {@link org.sonar.api.issue.Issue#RESOLUTIONS}
+   */
+  @CheckForNull
+  String resolution();
+
+  /**
+   * See constants in {@link org.sonar.api.rule.Severity}.
+   */
+  String severity();
+
+  @CheckForNull
+  Duration debt();
 
 }

@@ -21,7 +21,9 @@
 package org.sonar.server.computation.measure.api;
 
 import com.google.common.base.Optional;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,8 +31,12 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.ce.measure.Component;
 import org.sonar.api.ce.measure.MeasureComputer;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.Duration;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.SettingsRepository;
+import org.sonar.server.computation.issue.ComponentIssuesRepositoryRule;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.Metric;
@@ -62,7 +68,9 @@ public class MeasureComputerImplementationContextTest {
   private static final String FILE_1_KEY = "fileKey";
   private static final int FILE_2_REF = 12342;
 
-  private static final org.sonar.server.computation.component.Component FILE_1 = builder(org.sonar.server.computation.component.Component.Type.FILE, FILE_1_REF).setKey(FILE_1_KEY).build();
+  private static final org.sonar.server.computation.component.Component FILE_1 = builder(org.sonar.server.computation.component.Component.Type.FILE, FILE_1_REF)
+    .setKey(FILE_1_KEY)
+    .build();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule()
@@ -78,11 +86,13 @@ public class MeasureComputerImplementationContextTest {
     .add(new MetricImpl(2, INT_METRIC_KEY, "int metric", Metric.MetricType.INT))
     .add(new MetricImpl(3, DOUBLE_METRIC_KEY, "double metric", Metric.MetricType.FLOAT))
     .add(new MetricImpl(4, LONG_METRIC_KEY, "long metric", Metric.MetricType.MILLISEC))
-    .add(new MetricImpl(5, STRING_METRIC_KEY, "string metric", Metric.MetricType.STRING))
-    ;
+    .add(new MetricImpl(5, STRING_METRIC_KEY, "string metric", Metric.MetricType.STRING));
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
+
+  @Rule
+  public ComponentIssuesRepositoryRule componentIssuesRepository = new ComponentIssuesRepositoryRule(treeRootHolder);
 
   SettingsRepository settingsRepository = mock(SettingsRepository.class);
 
@@ -173,7 +183,7 @@ public class MeasureComputerImplementationContextTest {
     MeasureComputer.Implementation.Context underTest = newContext(PROJECT_REF, of(NCLOC_KEY), of(INT_METRIC_KEY));
     underTest.addMeasure(INT_METRIC_KEY, 10);
 
-    Optional<Measure> measure =  measureRepository.getAddedRawMeasure(PROJECT_REF, INT_METRIC_KEY);
+    Optional<Measure> measure = measureRepository.getAddedRawMeasure(PROJECT_REF, INT_METRIC_KEY);
     assertThat(measure).isPresent();
     assertThat(measure.get().getIntValue()).isEqualTo(10);
   }
@@ -183,7 +193,7 @@ public class MeasureComputerImplementationContextTest {
     MeasureComputer.Implementation.Context underTest = newContext(PROJECT_REF, of(NCLOC_KEY), of(DOUBLE_METRIC_KEY));
     underTest.addMeasure(DOUBLE_METRIC_KEY, 10d);
 
-    Optional<Measure> measure =  measureRepository.getAddedRawMeasure(PROJECT_REF, DOUBLE_METRIC_KEY);
+    Optional<Measure> measure = measureRepository.getAddedRawMeasure(PROJECT_REF, DOUBLE_METRIC_KEY);
     assertThat(measure).isPresent();
     assertThat(measure.get().getDoubleValue()).isEqualTo(10d);
   }
@@ -193,7 +203,7 @@ public class MeasureComputerImplementationContextTest {
     MeasureComputer.Implementation.Context underTest = newContext(PROJECT_REF, of(NCLOC_KEY), of(LONG_METRIC_KEY));
     underTest.addMeasure(LONG_METRIC_KEY, 10L);
 
-    Optional<Measure> measure =  measureRepository.getAddedRawMeasure(PROJECT_REF, LONG_METRIC_KEY);
+    Optional<Measure> measure = measureRepository.getAddedRawMeasure(PROJECT_REF, LONG_METRIC_KEY);
     assertThat(measure).isPresent();
     assertThat(measure.get().getLongValue()).isEqualTo(10L);
   }
@@ -203,7 +213,7 @@ public class MeasureComputerImplementationContextTest {
     MeasureComputer.Implementation.Context underTest = newContext(PROJECT_REF, of(NCLOC_KEY), of(STRING_METRIC_KEY));
     underTest.addMeasure(STRING_METRIC_KEY, "data");
 
-    Optional<Measure> measure =  measureRepository.getAddedRawMeasure(PROJECT_REF, STRING_METRIC_KEY);
+    Optional<Measure> measure = measureRepository.getAddedRawMeasure(PROJECT_REF, STRING_METRIC_KEY);
     assertThat(measure).isPresent();
     assertThat(measure.get().getStringValue()).isEqualTo("data");
   }
@@ -228,11 +238,42 @@ public class MeasureComputerImplementationContextTest {
     underTest.addMeasure(INT_METRIC_KEY, 10);
   }
 
+  @Test
+  public void get_issues() throws Exception {
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("KEY")
+      .setRuleKey(RuleKey.of("xoo", "S01"))
+      .setSeverity("MAJOR")
+      .setStatus("CLOSED")
+      .setResolution("FIXED")
+      .setDebt(Duration.create(10l));
+
+    MeasureComputer.Implementation.Context underTest = newContext(PROJECT_REF, Arrays.asList(issue));
+
+    assertThat(underTest.getIssues()).hasSize(1);
+    org.sonar.api.ce.measure.Issue result = underTest.getIssues().get(0);
+    assertThat(result.key()).isEqualTo("KEY");
+    assertThat(result.ruleKey()).isEqualTo(RuleKey.of("xoo", "S01"));
+    assertThat(result.severity()).isEqualTo("MAJOR");
+    assertThat(result.status()).isEqualTo("CLOSED");
+    assertThat(result.resolution()).isEqualTo("FIXED");
+    assertThat(result.debt()).isEqualTo(Duration.create(10l));
+  }
+
   private MeasureComputer.Implementation.Context newContext(int componentRef) {
     return newContext(componentRef, Collections.<String>emptySet(), Collections.<String>emptySet());
   }
 
+  private MeasureComputer.Implementation.Context newContext(int componentRef, List<DefaultIssue> issues) {
+    return newContext(componentRef, Collections.<String>emptySet(), Collections.<String>emptySet(), issues);
+  }
+
   private MeasureComputer.Implementation.Context newContext(int componentRef, final Set<String> inputMetrics, final Set<String> outputMetrics) {
+    return newContext(componentRef, inputMetrics, outputMetrics, Collections.<DefaultIssue>emptyList());
+  }
+
+  private MeasureComputer.Implementation.Context newContext(int componentRef, final Set<String> inputMetrics, final Set<String> outputMetrics, List<DefaultIssue> issues) {
+    componentIssuesRepository.setIssues(componentRef, issues);
     MeasureComputer measureComputer = new MeasureComputer() {
       @Override
       public Set<String> getInputMetrics() {
@@ -249,6 +290,7 @@ public class MeasureComputerImplementationContextTest {
         return null;
       }
     };
-    return new MeasureComputerImplementationContext(treeRootHolder.getComponentByRef(componentRef), measureComputer, settingsRepository, measureRepository, metricRepository);
+    return new MeasureComputerImplementationContext(treeRootHolder.getComponentByRef(componentRef), measureComputer,
+      settingsRepository, measureRepository, metricRepository, componentIssuesRepository);
   }
 }

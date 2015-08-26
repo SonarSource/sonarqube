@@ -25,14 +25,17 @@ import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.ce.measure.MeasureComputer;
+import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.VisitorsCrawler;
+import org.sonar.server.computation.issue.ComponentIssuesRepository;
 import org.sonar.server.computation.measure.api.MeasureComputerImpl;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
@@ -74,6 +77,9 @@ public class MeasureComputersVisitorTest {
     ).build();
 
   @Rule
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(ROOT);
+
+  @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
     .add(NCLOC)
     .add(COMMENT_LINES)
@@ -81,6 +87,8 @@ public class MeasureComputersVisitorTest {
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(ROOT, metricRepository);
+
+  ComponentIssuesRepository componentIssuesRepository = mock(ComponentIssuesRepository.class);
 
   MeasureComputersHolderImpl measureComputersHolder = new MeasureComputersHolderImpl();
 
@@ -116,7 +124,7 @@ public class MeasureComputersVisitorTest {
         .build()
       ));
 
-    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new MeasureComputersVisitor(metricRepository, measureRepository, null, measureComputersHolder)));
+    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new MeasureComputersVisitor(metricRepository, measureRepository, null, measureComputersHolder, componentIssuesRepository)));
     visitorsCrawler.visit(ROOT);
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).containsOnly(entryOf(NEW_METRIC_KEY, newMeasureBuilder().create(12)));
@@ -140,7 +148,7 @@ public class MeasureComputersVisitorTest {
     measureRepository.addRawMeasure(ROOT_REF, COMMENT_LINES_KEY, newMeasureBuilder().create(7));
 
     measureComputersHolder.setMeasureComputers(Collections.<MeasureComputer>emptyList());
-    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new MeasureComputersVisitor(metricRepository, measureRepository, null, measureComputersHolder)));
+    VisitorsCrawler visitorsCrawler = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new MeasureComputersVisitor(metricRepository, measureRepository, null, measureComputersHolder, componentIssuesRepository)));
     visitorsCrawler.visit(ROOT);
 
     assertThat(toEntries(measureRepository.getAddedRawMeasures(FILE_1_REF))).isEmpty();

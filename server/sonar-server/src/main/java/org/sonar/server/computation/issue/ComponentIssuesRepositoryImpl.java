@@ -22,7 +22,7 @@ package org.sonar.server.computation.issue;
 
 import java.util.List;
 import javax.annotation.CheckForNull;
-import org.sonar.api.issue.Issue;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.component.Component;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -32,19 +32,19 @@ import static java.util.Objects.requireNonNull;
 public class ComponentIssuesRepositoryImpl implements MutableComponentIssuesRepository {
 
   @CheckForNull
-  private List<Issue> issues;
+  private List<DefaultIssue> issues;
 
   @CheckForNull
   private Component component;
 
   @Override
-  public void setIssues(Component component, List<Issue> issues) {
+  public void setIssues(Component component, List<DefaultIssue> issues) {
     this.issues = requireNonNull(issues, "issues cannot be null");
     this.component = requireNonNull(component, "component cannot be null");
   }
 
   @Override
-  public List<Issue> getIssues(Component component) {
+  public List<DefaultIssue> getIssues(Component component) {
     checkState(this.component != null && this.issues != null, "Issues have not been initialized");
     checkArgument(component.equals(this.component),
       String.format("Only issues from component '%s' are available, but wanted component is '%s'.",

@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.component.Component;
 
@@ -39,7 +38,7 @@ public class ComponentIssuesRepositoryImplTest {
   static final Component FILE_1 = builder(Component.Type.FILE, 1).build();
   static final Component FILE_2 = builder(Component.Type.FILE, 2).build();
 
-  static final Issue DUMB_ISSUE = new DefaultIssue().setKey("ISSUE");
+  static final DefaultIssue DUMB_ISSUE = new DefaultIssue().setKey("ISSUE");
 
   ComponentIssuesRepositoryImpl sut = new ComponentIssuesRepositoryImpl();
 
@@ -52,7 +51,7 @@ public class ComponentIssuesRepositoryImplTest {
 
   @Test
   public void set_empty_issues() throws Exception {
-    sut.setIssues(FILE_1, Collections.<Issue>emptyList());
+    sut.setIssues(FILE_1, Collections.<DefaultIssue>emptyList());
 
     assertThat(sut.getIssues(FILE_1)).isEmpty();
   }

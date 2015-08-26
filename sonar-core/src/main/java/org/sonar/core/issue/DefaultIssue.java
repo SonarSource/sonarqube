@@ -51,12 +51,7 @@ import org.sonar.core.issue.tracking.Trackable;
 
 import static java.lang.String.format;
 
-/**
- * PLUGINS MUST NOT BE USED THIS CLASS, EXCEPT FOR UNIT TESTING.
- *
- * @since 3.6
- */
-public class DefaultIssue implements Issue, Trackable {
+public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.Issue {
 
   private String key;
 

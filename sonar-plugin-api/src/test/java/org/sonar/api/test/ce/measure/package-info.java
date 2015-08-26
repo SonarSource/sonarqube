@@ -18,20 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.computation.issue;
+@ParametersAreNonnullByDefault
+package org.sonar.api.test.ce.measure;
 
-import java.util.List;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.server.computation.component.Component;
-
-public interface MutableComponentIssuesRepository extends ComponentIssuesRepository {
-
-  /**
-   * Add issues of the component.
-   *    *
-   * @throws NullPointerException if {@code component} is {@code null}
-   * @throws NullPointerException if {@code issues} is {@code null}
-   */
-  void setIssues(Component component, List<DefaultIssue> issues);
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

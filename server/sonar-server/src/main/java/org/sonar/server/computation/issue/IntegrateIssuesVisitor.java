@@ -22,7 +22,6 @@ package org.sonar.server.computation.issue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Tracking;
@@ -42,7 +41,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   private final MutableComponentIssuesRepository componentIssuesRepository;
   private final ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues;
 
-  private final List<Issue> componentIssues = new ArrayList<>();
+  private final List<DefaultIssue> componentIssues = new ArrayList<>();
 
   public IntegrateIssuesVisitor(TrackerExecution tracker, IssueCache issueCache, IssueLifecycle issueLifecycle, IssueVisitors issueVisitors,
                                 ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues, MutableComponentIssuesRepository componentIssuesRepository) {

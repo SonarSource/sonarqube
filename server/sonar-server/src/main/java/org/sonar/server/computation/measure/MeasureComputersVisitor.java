@@ -24,6 +24,7 @@ import org.sonar.api.ce.measure.MeasureComputer;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.SettingsRepository;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
+import org.sonar.server.computation.issue.ComponentIssuesRepository;
 import org.sonar.server.computation.measure.api.MeasureComputerImplementationContext;
 import org.sonar.server.computation.metric.MetricRepository;
 
@@ -36,20 +37,23 @@ public class MeasureComputersVisitor extends TypeAwareVisitorAdapter {
   private final SettingsRepository settings;
 
   private final MeasureComputersHolder measureComputersHolder;
+  private final ComponentIssuesRepository componentIssuesRepository;
 
   public MeasureComputersVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, SettingsRepository settings,
-    MeasureComputersHolder measureComputersHolder) {
+    MeasureComputersHolder measureComputersHolder, ComponentIssuesRepository componentIssuesRepository) {
     super(CrawlerDepthLimit.FILE, PRE_ORDER);
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.settings = settings;
     this.measureComputersHolder = measureComputersHolder;
+    this.componentIssuesRepository = componentIssuesRepository;
   }
 
   @Override
   public void visitAny(org.sonar.server.computation.component.Component component) {
     for (MeasureComputer computer : measureComputersHolder.getMeasureComputers()) {
-      MeasureComputerImplementationContext measureComputerContext = new MeasureComputerImplementationContext(component, computer, settings, measureRepository, metricRepository);
+      MeasureComputerImplementationContext measureComputerContext = new MeasureComputerImplementationContext(component, computer,
+        settings, measureRepository, metricRepository, componentIssuesRepository);
       computer.getImplementation().compute(measureComputerContext);
     }
   }

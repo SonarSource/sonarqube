@@ -25,15 +25,19 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.measure.Component;
+import org.sonar.api.ce.measure.Issue;
 import org.sonar.api.ce.measure.Measure;
 import org.sonar.api.ce.measure.MeasureComputer;
 import org.sonar.api.ce.measure.Settings;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.component.SettingsRepository;
+import org.sonar.server.computation.issue.ComponentIssuesRepository;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
@@ -50,17 +54,19 @@ public class MeasureComputerImplementationContext implements MeasureComputer.Imp
 
   private final org.sonar.server.computation.component.Component internalComponent;
   private final Component component;
+  private final List<DefaultIssue> componentIssues;
 
   private final Set<String> allowedMetrics;
 
   public MeasureComputerImplementationContext(org.sonar.server.computation.component.Component component, MeasureComputer measureComputer,
-    SettingsRepository settings, MeasureRepository measureRepository, MetricRepository metricRepository) {
+    SettingsRepository settings, MeasureRepository measureRepository, MetricRepository metricRepository, ComponentIssuesRepository componentIssuesRepository) {
     this.measureComputer = measureComputer;
     this.settings = settings;
     this.internalComponent = component;
     this.measureRepository = measureRepository;
     this.metricRepository = metricRepository;
     this.component = newComponent(component);
+    this.componentIssues = componentIssuesRepository.getIssues(component);
     this.allowedMetrics = allowedMetric(measureComputer);
   }
 
@@ -70,11 +76,10 @@ public class MeasureComputerImplementationContext implements MeasureComputer.Imp
       Component.Type.valueOf(component.getType().name()),
       component.getType() == org.sonar.server.computation.component.Component.Type.FILE ?
         new ComponentImpl.FileAttributesImpl(component.getFileAttributes().getLanguageKey(), component.getFileAttributes().isUnitTest()) :
-        null
-    );
+        null);
   }
 
-  private static Set<String> allowedMetric(MeasureComputer measureComputer){
+  private static Set<String> allowedMetric(MeasureComputer measureComputer) {
     Set<String> allowedMetrics = new HashSet<>();
     allowedMetrics.addAll(measureComputer.getInputMetrics());
     allowedMetrics.addAll(measureComputer.getOutputMetrics());
@@ -102,7 +107,7 @@ public class MeasureComputerImplementationContext implements MeasureComputer.Imp
     };
   }
 
-  private org.sonar.api.config.Settings getComponentSettings(){
+  private org.sonar.api.config.Settings getComponentSettings() {
     return settings.getSettings(internalComponent);
   }
 
@@ -165,6 +170,11 @@ public class MeasureComputerImplementationContext implements MeasureComputer.Imp
     }
   }
 
+  @Override
+  public List<? extends Issue> getIssues() {
+    return componentIssues;
+  }
+
   private class ComponentToMeasure implements Function<org.sonar.server.computation.component.Component, Optional<org.sonar.server.computation.measure.Measure>> {
 
     private final Metric metric;
@@ -173,7 +183,6 @@ public class MeasureComputerImplementationContext implements MeasureComputer.Imp
       this.metric = metric;
     }
 
-    @Nullable
     @Override
     public Optional<org.sonar.server.computation.measure.Measure> apply(@Nonnull org.sonar.server.computation.component.Component input) {
       return measureRepository.getRawMeasure(input, metric);
@@ -189,4 +198,5 @@ public class MeasureComputerImplementationContext implements MeasureComputer.Imp
       return input.isPresent() ? new MeasureImpl(input.get()) : null;
     }
   }
+
 }

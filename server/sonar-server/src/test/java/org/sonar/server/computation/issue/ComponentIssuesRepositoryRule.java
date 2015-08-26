@@ -23,7 +23,7 @@ package org.sonar.server.computation.issue;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.junit.rules.ExternalResource;
-import org.sonar.api.issue.Issue;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportTreeRootHolder;
 
@@ -37,7 +37,7 @@ public class ComponentIssuesRepositoryRule extends ExternalResource implements M
   private final ReportTreeRootHolder reportTreeRootHolder;
 
   @CheckForNull
-  private List<Issue> issues;
+  private List<DefaultIssue> issues;
 
   @CheckForNull
   private Component component;
@@ -47,12 +47,12 @@ public class ComponentIssuesRepositoryRule extends ExternalResource implements M
   }
 
   @Override
-  public void setIssues(Component component, List<Issue> issues) {
+  public void setIssues(Component component, List<DefaultIssue> issues) {
     checkNotNull(component, "component cannot be null");
     setIssues(component.getReportAttributes().getRef(), issues);
   }
 
-  public void setIssues(int componentRef, List<Issue> issues) {
+  public void setIssues(int componentRef, List<DefaultIssue> issues) {
     this.issues = requireNonNull(issues, "issues cannot be null");
     Component component = reportTreeRootHolder.getComponentByRef(componentRef);
     checkArgument(component != null, String.format("Component '%s' does not exists in the report ", componentRef));
@@ -60,12 +60,12 @@ public class ComponentIssuesRepositoryRule extends ExternalResource implements M
   }
 
   @Override
-  public List<Issue> getIssues(Component component) {
+  public List<DefaultIssue> getIssues(Component component) {
     checkNotNull(component, "component cannot be null");
     return getIssues(component.getReportAttributes().getRef());
   }
 
-  public List<Issue> getIssues(int componentRef) {
+  public List<DefaultIssue> getIssues(int componentRef) {
     checkState(this.component != null && this.issues != null, "Issues have not been initialized");
     Component component = reportTreeRootHolder.getComponentByRef(componentRef);
     checkArgument(component != null, String.format("Component '%s' does not exists in the report ", componentRef));

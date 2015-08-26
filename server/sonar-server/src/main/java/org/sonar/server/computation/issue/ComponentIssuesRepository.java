@@ -22,7 +22,7 @@ package org.sonar.server.computation.issue;
 
 import java.util.List;
 import org.sonar.api.ce.measure.MeasureComputer;
-import org.sonar.api.issue.Issue;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.component.Component;
 
 /**
@@ -40,6 +40,6 @@ public interface ComponentIssuesRepository {
    * @throws IllegalStateException if no issues have been set
    * @throws IllegalArgumentException if the component is not the component that contains current issues.
    */
-  List<Issue> getIssues(Component component);
+  List<DefaultIssue> getIssues(Component component);
 
 }

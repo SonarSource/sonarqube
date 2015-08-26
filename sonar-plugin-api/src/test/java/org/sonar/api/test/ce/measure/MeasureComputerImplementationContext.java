@@ -22,6 +22,7 @@ package org.sonar.api.test.ce.measure;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.ce.measure.Component;
+import org.sonar.api.ce.measure.Issue;
 import org.sonar.api.ce.measure.Measure;
 import org.sonar.api.ce.measure.MeasureComputer;
 import org.sonar.api.ce.measure.Settings;
@@ -43,6 +45,7 @@ public class MeasureComputerImplementationContext implements MeasureComputer.Imp
 
   private Map<String, Measure> componentMeasureByMetricKey = new HashMap<>();
   private Multimap<String, Measure> childrenComponentMeasureByMetricKey = ArrayListMultimap.create();
+  private List<Issue> issues = new ArrayList<>();
 
   public MeasureComputerImplementationContext(Component component, Settings settings, MeasureComputer measureComputer) {
     this.measureComputer = measureComputer;
@@ -135,6 +138,15 @@ public class MeasureComputerImplementationContext implements MeasureComputer.Imp
     for (String value : values) {
       childrenComponentMeasureByMetricKey.put(metricKey,MeasureImpl.createMeasure(value));
     }
+  }
+
+  @Override
+  public List<Issue> getIssues() {
+    return issues;
+  }
+
+  public void setIssues(List<Issue> issues){
+    this.issues = issues;
   }
 
   private void validateInputMetric(String metric) {
