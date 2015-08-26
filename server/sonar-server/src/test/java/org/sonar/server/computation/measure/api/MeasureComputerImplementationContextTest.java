@@ -221,7 +221,7 @@ public class MeasureComputerImplementationContextTest {
   @Test
   public void fail_with_IAE_when_add_measure_is_called_on_metric_not_in_output_list() throws Exception {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Only metrics in [int_metric_key] can be used to add measures");
+    thrown.expectMessage("Only metrics in [int_metric_key] can be used to add measures. Metric 'double_metric_key' is not allowed.");
 
     MeasureComputer.Implementation.Context underTest = newContext(PROJECT_REF, of(NCLOC_KEY), of(INT_METRIC_KEY));
     underTest.addMeasure(DOUBLE_METRIC_KEY, 10);

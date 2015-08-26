@@ -164,7 +164,8 @@ public class MeasureComputerImplementationContext implements MeasureComputer.Imp
   }
 
   private void validateAddMeasure(Metric metric) {
-    checkArgument(measureComputer.getOutputMetrics().contains(metric.getKey()), "Only metrics in %s can be used to add measures", measureComputer.getOutputMetrics());
+    checkArgument(measureComputer.getOutputMetrics().contains(metric.getKey()), "Only metrics in %s can be used to add measures. Metric '%s' is not allowed.",
+      measureComputer.getOutputMetrics(), metric.getKey());
     if (measureRepository.getRawMeasure(internalComponent, metric).isPresent()) {
       throw new UnsupportedOperationException(String.format("A measure on metric '%s' already exists on component '%s'", metric.getKey(), internalComponent.getKey()));
     }

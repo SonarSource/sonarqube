@@ -157,7 +157,8 @@ public class MeasureComputerImplementationContext implements MeasureComputer.Imp
   }
 
   private void validateAddMeasure(String metricKey) {
-    checkArgument(measureComputer.getOutputMetrics().contains(metricKey), "Only metrics in %s can be used to add measures", measureComputer.getOutputMetrics());
+    checkArgument(measureComputer.getOutputMetrics().contains(metricKey), "Only metrics in %s can be used to add measures. Metric '%s' is not allowed.",
+      measureComputer.getOutputMetrics(), metricKey);
     if (componentMeasureByMetricKey.get(metricKey) != null) {
       throw new UnsupportedOperationException(String.format("A measure on metric '%s' already exists", metricKey));
     }
