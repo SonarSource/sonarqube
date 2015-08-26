@@ -218,7 +218,7 @@ public class RemoveGroupFromTemplateActionTest {
   }
 
   private PermissionTemplateDto insertPermissionTemplate(PermissionTemplateDto permissionTemplate) {
-    return dbClient.permissionTemplateDao().insert(permissionTemplate.getName(), permissionTemplate.getDescription(), permissionTemplate.getKeyPattern());
+    return dbClient.permissionTemplateDao().insert(dbSession, permissionTemplate);
   }
 
   private void addGroupToPermissionTemplate(long permissionTemplateId, @Nullable Long groupId, String permission) {

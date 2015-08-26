@@ -30,7 +30,9 @@ public class PermissionTemplateDto {
   public static final PermissionTemplateDto DEFAULT = new PermissionTemplateDto()
     .setName("Default template")
     .setKee("default_template")
-    .setDescription("This permission template will be used as default when no other permission configuration is available");
+    .setDescription("This permission template will be used as default when no other permission configuration is available")
+    .setCreatedAt(new Date())
+    .setUpdatedAt(new Date());
 
   private Long id;
   private String name;

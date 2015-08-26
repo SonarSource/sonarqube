@@ -59,8 +59,8 @@ import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTem
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.server.permission.ws.Parameters.PARAM_GROUP_ID;
-import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_LONG_TEMPLATE_KEY;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
 
 @Category(DbTests.class)
 public class AddGroupToTemplateActionTest {
@@ -218,7 +218,7 @@ public class AddGroupToTemplateActionTest {
   }
 
   private PermissionTemplateDto insertPermissionTemplate(PermissionTemplateDto permissionTemplate) {
-    return dbClient.permissionTemplateDao().insert(permissionTemplate.getName(), permissionTemplate.getDescription(), permissionTemplate.getKeyPattern());
+    return dbClient.permissionTemplateDao().insert(dbSession, permissionTemplate);
   }
 
   private List<String> getGroupNamesInTemplateAndPermission(long templateId, String permission) {

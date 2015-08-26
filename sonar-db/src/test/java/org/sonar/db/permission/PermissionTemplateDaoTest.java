@@ -38,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
 
 @Category(DbTests.class)
 public class PermissionTemplateDaoTest {
@@ -58,7 +59,10 @@ public class PermissionTemplateDaoTest {
     Date now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2013-01-02 01:04:05");
     when(system.now()).thenReturn(now.getTime());
 
-    PermissionTemplateDto permissionTemplate = underTest.insert("my template", "my description", "myregexp");
+    PermissionTemplateDto permissionTemplate = underTest.insert(dbTester.getSession(), newPermissionTemplateDto()
+      .setName("my template")
+      .setDescription("my description")
+      .setKeyPattern("myregexp"));
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getId()).isEqualTo(1L);
 
@@ -78,7 +82,7 @@ public class PermissionTemplateDaoTest {
     when(myBatis.openSession(false)).thenReturn(session);
 
     underTest = new PermissionTemplateDao(myBatis, system);
-    PermissionTemplateDto permissionTemplate = underTest.insert(PermissionTemplateDto.DEFAULT.getName(), null, null);
+    PermissionTemplateDto permissionTemplate = underTest.insert(session, PermissionTemplateDto.DEFAULT);
 
     verify(mapper).insert(permissionTemplate);
     verify(session).commit();

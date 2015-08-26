@@ -36,10 +36,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupRoleDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepositoryImpl;
@@ -50,6 +50,7 @@ import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
 
 @Category(DbTests.class)
 public class ApplyPermissionsStepTest extends BaseStepTest {
@@ -105,7 +106,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
     dbClient.componentDao().insert(dbSession, projectDto);
 
     // Create a permission template containing browse permission for anonymous group
-    PermissionTemplateDto permissionTemplateDto = dbClient.permissionTemplateDao().insert("Default", null, null);
+    PermissionTemplateDto permissionTemplateDto = dbClient.permissionTemplateDao().insert(dbSession, newPermissionTemplateDto().setName("Default"));
     settings.setProperty("sonar.permission.template.default", permissionTemplateDto.getKee());
     dbClient.permissionTemplateDao().insertGroupPermission(permissionTemplateDto.getId(), null, UserRole.USER);
     dbSession.commit();

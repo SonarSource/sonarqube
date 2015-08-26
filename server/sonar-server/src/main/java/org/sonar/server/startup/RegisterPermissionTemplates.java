@@ -55,7 +55,7 @@ public class RegisterPermissionTemplates {
         String projectsPermissionsKey = settings.getString(DEFAULT_PROJECTS_TEMPLATE_PROPERTY);
         setDefaultProperty(projectsPermissionsKey);
       } else {
-        insertDefaultTemplate(PermissionTemplateDto.DEFAULT.getName());
+        insertDefaultTemplate();
         setDefaultProperty(PermissionTemplateDto.DEFAULT.getKee());
       }
       registerInitialization();
@@ -71,13 +71,18 @@ public class RegisterPermissionTemplates {
     return dbClient.loadedTemplateDao().countByTypeAndKey(LoadedTemplateDto.PERMISSION_TEMPLATE_TYPE, PermissionTemplateDto.DEFAULT.getKee()) == 0;
   }
 
-  private void insertDefaultTemplate(String templateName) {
-    PermissionTemplateDto defaultPermissionTemplate = dbClient.permissionTemplateDao()
-      .insert(templateName, PermissionTemplateDto.DEFAULT.getDescription(), null);
-    addGroupPermission(defaultPermissionTemplate, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
-    addGroupPermission(defaultPermissionTemplate, UserRole.ISSUE_ADMIN, DefaultGroups.ADMINISTRATORS);
-    addGroupPermission(defaultPermissionTemplate, UserRole.USER, DefaultGroups.ANYONE);
-    addGroupPermission(defaultPermissionTemplate, UserRole.CODEVIEWER, DefaultGroups.ANYONE);
+  private void insertDefaultTemplate() {
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      PermissionTemplateDto defaultPermissionTemplate =
+        dbClient.permissionTemplateDao().insert(dbSession, PermissionTemplateDto.DEFAULT);
+      addGroupPermission(defaultPermissionTemplate, UserRole.ADMIN, DefaultGroups.ADMINISTRATORS);
+      addGroupPermission(defaultPermissionTemplate, UserRole.ISSUE_ADMIN, DefaultGroups.ADMINISTRATORS);
+      addGroupPermission(defaultPermissionTemplate, UserRole.USER, DefaultGroups.ANYONE);
+      addGroupPermission(defaultPermissionTemplate, UserRole.CODEVIEWER, DefaultGroups.ANYONE);
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 
   private void addGroupPermission(PermissionTemplateDto template, String permission, String groupName) {

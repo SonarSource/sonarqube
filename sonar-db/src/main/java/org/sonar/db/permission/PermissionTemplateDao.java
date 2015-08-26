@@ -30,7 +30,6 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.internal.Uuids;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -89,7 +88,7 @@ public class PermissionTemplateDao implements Dao {
    * @return a non paginated list of groups.
    */
   public List<GroupWithPermissionDto> selectGroups(DbSession session, PermissionQuery query, Long templateId) {
-    Map<String, Object> params = groupsParamaters(query, templateId);
+    Map<String, Object> params = groupsParameters(query, templateId);
     return mapper(session).selectGroups(params);
   }
 
@@ -107,7 +106,7 @@ public class PermissionTemplateDao implements Dao {
   }
 
   private int countGroups(DbSession session, PermissionQuery query, long templateId, @Nullable String groupName) {
-    Map<String, Object> parameters = groupsParamaters(query, templateId);
+    Map<String, Object> parameters = groupsParameters(query, templateId);
     if (groupName != null) {
       parameters.put("groupName", groupName.toUpperCase());
     }
@@ -118,7 +117,7 @@ public class PermissionTemplateDao implements Dao {
     return countGroups(session, query, templateId, groupName) > 0;
   }
 
-  private static Map<String, Object> groupsParamaters(PermissionQuery query, Long templateId) {
+  private static Map<String, Object> groupsParameters(PermissionQuery query, Long templateId) {
     Map<String, Object> params = newHashMap();
     params.put(QUERY_PARAMETER, query);
     params.put(TEMPLATE_ID_PARAMETER, templateId);
@@ -175,29 +174,6 @@ public class PermissionTemplateDao implements Dao {
     DbSession session = myBatis.openSession(false);
     try {
       return selectAllPermissionTemplates(session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  /**
-   * @deprecated since 5.2 use {@link #insert(DbSession, PermissionTemplateDto)}
-   */
-  @Deprecated
-  public PermissionTemplateDto insert(String templateName, @Nullable String description, @Nullable String projectPattern) {
-    Date creationDate = now();
-
-    PermissionTemplateDto permissionTemplate = new PermissionTemplateDto()
-      .setName(templateName)
-      .setKee(generateTemplateKey(templateName))
-      .setDescription(description)
-      .setKeyPattern(projectPattern)
-      .setCreatedAt(creationDate)
-      .setUpdatedAt(creationDate);
-
-    DbSession session = myBatis.openSession(false);
-    try {
-      return insert(session, permissionTemplate);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -365,14 +341,6 @@ public class PermissionTemplateDao implements Dao {
    */
   public void deleteByGroup(SqlSession session, Long groupId) {
     session.getMapper(PermissionTemplateMapper.class).deleteByGroupId(groupId);
-  }
-
-  private String generateTemplateKey(String name) {
-    if (PermissionTemplateDto.DEFAULT.getName().equals(name)) {
-      return PermissionTemplateDto.DEFAULT.getKee();
-    }
-
-    return Uuids.create();
   }
 
   private Date now() {
