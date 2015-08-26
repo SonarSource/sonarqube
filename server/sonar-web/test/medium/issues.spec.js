@@ -7,13 +7,15 @@ define(function (require) {
       bdd.it('should show list of saved searches', function () {
         return this.remote
             .open()
-            .mockFromString('/api/l10n/index', '{}')
             .mockFromFile('/api/issue_filters/app', 'issues-spec/app.json')
+            .mockFromFile('/api/issue_filters/search', 'issues-spec/issue-filters.json')
             .mockFromFile('/api/issues/search', 'issues-spec/search.json')
             .startApp('issues/app')
-            .checkElementCount('.js-filter', 2)
-            .checkElementCount('.js-filter[data-id="31"]', 1)
-            .checkElementCount('.js-filter[data-id="32"]', 1);
+            .clickElement('.js-new-search')
+            .checkElementCount('.js-filter', 3)
+            .checkElementCount('.js-filter[data-id="1"]', 1)
+            .checkElementCount('.js-filter[data-id="2"]', 1)
+            .checkElementCount('.js-filter[data-id="3"]', 1);
       });
 
       bdd.it('should load a saved search', function () {
@@ -21,17 +23,16 @@ define(function (require) {
             .open()
             .mockFromString('/api/l10n/index', '{}')
             .mockFromFile('/api/issue_filters/app', 'issues-spec/app.json')
+            .mockFromFile('/api/issue_filters/search', 'issues-spec/issue-filters.json')
             .mockFromFile('/api/issues/search', 'issues-spec/search.json')
-            .mockFromFile('/api/issue_filters/show/31', 'issues-spec/filter.json')
             .startApp('issues/app')
+            .clickElement('.js-new-search')
             .clickElement('.search-navigator-filters-show-list')
-            .clickElement('.js-filter[data-id="31"]')
+            .clickElement('.js-filter[data-id="2"]')
             .checkElementCount('.js-filter-copy', 1)
             .checkElementCount('.js-filter-edit', 1)
-            .checkElementInclude('.issues-filters-name', 'Critical and Blocker Issues')
-            .checkElementCount('.js-facet.active[data-value="BLOCKER"]', 1)
-            .checkElementCount('.js-facet.active[data-value="CRITICAL"]', 1)
-            .checkElementCount('.js-facet.active[data-unresolved]', 1);
+            .checkElementInclude('.issues-filters-name', 'False Positive and Won\'t Fix Issues')
+            .checkElementCount('.js-facet.active[data-value="FALSE-POSITIVE"]', 1);
       });
 
       bdd.it('should load a saved search and then resets it by new search', function () {
@@ -39,22 +40,19 @@ define(function (require) {
             .open()
             .mockFromString('/api/l10n/index', '{}')
             .mockFromFile('/api/issue_filters/app', 'issues-spec/app.json')
+            .mockFromFile('/api/issue_filters/search', 'issues-spec/issue-filters.json')
             .mockFromFile('/api/issues/search', 'issues-spec/search.json')
-            .mockFromFile('/api/issue_filters/show/31', 'issues-spec/filter.json')
             .startApp('issues/app')
+            .clickElement('.js-new-search')
             .clickElement('.search-navigator-filters-show-list')
-            .clickElement('.js-filter[data-id="31"]')
+            .clickElement('.js-filter[data-id="2"]')
             .checkElementCount('.js-filter-copy', 1)
             .checkElementCount('.js-filter-edit', 1)
-            .checkElementInclude('.issues-filters-name', 'Critical and Blocker Issues')
-            .checkElementCount('.js-facet.active[data-value="BLOCKER"]', 1)
-            .checkElementCount('.js-facet.active[data-value="CRITICAL"]', 1)
-            .checkElementCount('.js-facet.active[data-unresolved]', 1)
+            .checkElementInclude('.issues-filters-name', 'False Positive and Won\'t Fix Issues')
+            .checkElementCount('.js-facet.active[data-value="FALSE-POSITIVE"]', 1)
             .clickElement('.js-new-search')
-            .checkElementCount('.js-facet[data-value="BLOCKER"]:not(.active)', 1)
-            .checkElementCount('.js-facet[data-value="CRITICAL"]:not(.active)', 1)
-            .checkElementCount('.js-facet.active[data-unresolved]', 1)
-            .checkElementNotInclude('.issues-filters-name', 'Critical and Blocker Issues');
+            .checkElementCount('.js-facet[data-value="FALSE-POSITIVE"]:not(.active)', 1)
+            .checkElementNotInclude('.issues-filters-name', 'False Positive and Won\'t Fix Issues');
       });
     });
 
@@ -63,6 +61,7 @@ define(function (require) {
           .open()
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/issue_filters/app', 'issues-spec/app.json')
+          .mockFromFile('/api/issue_filters/search', 'issues-spec/issue-filters.json')
           .mockFromFile('/api/issues/search', 'issues-spec/search.json')
           .startApp('issues/app')
           .clickElement('.js-new-search')
@@ -102,6 +101,7 @@ define(function (require) {
           .open()
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/issue_filters/app', 'issues-spec/app.json')
+          .mockFromFile('/api/issue_filters/search', 'issues-spec/issue-filters.json')
           .mockFromFile('/api/issues/search', 'issues-spec/search.json')
           .startApp('issues/app')
           .clickElement('.js-new-search')
@@ -120,6 +120,7 @@ define(function (require) {
           .open()
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/issue_filters/app', 'issues-spec/app.json')
+          .mockFromFile('/api/issue_filters/search', 'issues-spec/issue-filters.json')
           .mockFromFile('/api/issues/search', 'issues-spec/search.json')
           .startApp('issues/app')
           .clickElement('.js-new-search')
@@ -144,6 +145,7 @@ define(function (require) {
           .open()
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/issue_filters/app', 'issues-spec/app.json')
+          .mockFromFile('/api/issue_filters/search', 'issues-spec/issue-filters.json')
           .mockFromFile('/api/issues/search', 'issues-spec/search.json')
           .mockFromString('/issues/bulk_change_form*',
           '<div id="bulk-change-form">bulk change form</div>', { contentType: 'text/plain' })
@@ -163,6 +165,7 @@ define(function (require) {
           .open()
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/issue_filters/app', 'issues-spec/app.json')
+          .mockFromFile('/api/issue_filters/search', 'issues-spec/issue-filters.json')
           .mockFromFile('/api/issues/search', 'issues-spec/search.json')
           .mockFromString('/issues/bulk_change_form*',
           '<div id="bulk-change-form">bulk change form</div>', { contentType: 'text/plain' })
@@ -193,6 +196,7 @@ define(function (require) {
           .open()
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/issue_filters/app', 'issues-spec/app.json')
+          .mockFromFile('/api/issue_filters/search', 'issues-spec/issue-filters.json')
           .mockFromFile('/api/issues/search', 'issues-spec/search-filter-similar-issues.json')
           .startApp('issues/app')
           .clickElement('.js-new-search')
@@ -224,6 +228,7 @@ define(function (require) {
           .open('#issues=' + issueKey)
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/issue_filters/app', 'issues-page-should-open-issue-permalink/app.json')
+          .mockFromFile('/api/issue_filters/search', 'issues-spec/issue-filters.json')
           //.mockFromString('/api/issues/search', '{}', { data: { issues: issueKey, p: 2 } })
           .mockFromFile('/api/issues/search', 'issues-page-should-open-issue-permalink/search.json', { data: { issues: issueKey } })
           .mockFromFile('/api/components/app', 'issues-page-should-open-issue-permalink/components-app.json')
@@ -240,6 +245,7 @@ define(function (require) {
           .open()
           .mockFromString('/api/l10n/index', '{}')
           .mockFromFile('/api/issue_filters/app', 'issues-spec/app.json')
+          .mockFromFile('/api/issue_filters/search', 'issues-spec/issue-filters.json')
           .mockFromFile('/api/issues/search', 'issues-spec/search-rules-facet.json', { data: { facets: 'rules' } })
           .mockFromFile('/api/issues/search', 'issues-spec/search.json')
           .startApp('issues/app')

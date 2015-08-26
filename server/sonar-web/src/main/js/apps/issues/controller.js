@@ -7,8 +7,8 @@ define([
 
   var $ = jQuery,
       FIELDS = 'component,componentId,project,subProject,rule,status,resolution,author,reporter,assignee,debt,line,' +
-        'message,severity,actionPlan,creationDate,updateDate,closeDate,tags,comments,attr,actions,transitions,' +
-        'actionPlanName',
+          'message,severity,actionPlan,creationDate,updateDate,closeDate,tags,comments,attr,actions,transitions,' +
+          'actionPlanName',
       FACET_DATA_FIELDS = ['components', 'users', 'rules', 'actionPlans', 'languages'];
 
   return Controller.extend({
@@ -90,13 +90,14 @@ define([
 
     fetchFilters: function () {
       var that = this;
-      return $.get(baseUrl + '/api/issue_filters/app', function (r) {
-        that.options.app.state.set({
-          canBulkChange: r.canBulkChange,
-          canManageFilters: r.canManageFilters
-        });
-        return that.options.app.filters.reset(r.favorites);
-      });
+      return $.when(
+          that.options.app.filters.fetch(),
+          $.get(baseUrl + '/api/issue_filters/app', function (r) {
+            that.options.app.state.set({
+              canBulkChange: r.canBulkChange,
+              canManageFilters: r.canManageFilters
+            });
+          }));
     },
 
     _mergeCollections: function (a, b) {

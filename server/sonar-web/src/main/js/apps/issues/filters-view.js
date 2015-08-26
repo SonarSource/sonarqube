@@ -51,9 +51,8 @@ define([
       var that = this;
       var id = $(e.currentTarget).data('id'),
           filter = this.collection.get(id);
-      return filter.fetch().done(function () {
-        return that.options.app.controller.applyFilter(filter);
-      });
+      return that.options.app.controller.applyFilter(filter);
+
     },
 
     saveAs: function () {

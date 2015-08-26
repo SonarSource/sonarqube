@@ -1,0 +1,31 @@
+{
+  "issueFilters": [
+    {
+      "id": "1",
+      "name": "Unresolved Issues",
+      "user": "[SonarQube]",
+      "shared": true,
+      "query": "resolved=false",
+      "canModify": true,
+      "favourite": false
+    },
+    {
+      "id": "2",
+      "name": "False Positive and Won't Fix Issues",
+      "user": "[SonarQube]",
+      "shared": true,
+      "query": "resolutions=FALSE-POSITIVE,WONTFIX",
+      "canModify": true,
+      "favourite": false
+    },
+    {
+      "id": "3",
+      "name": "My Unresolved Issues",
+      "user": "[SonarQube]",
+      "shared": true,
+      "query": "resolved=false|assignees=__me__",
+      "canModify": true,
+      "favourite": false
+    }
+  ]
+}

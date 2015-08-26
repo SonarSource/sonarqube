@@ -15,7 +15,7 @@ const APP_URL_MAPPING = {
   'dashboard': 'dashboard/app',
   'drilldown': 'drilldown/app',
   'groups': 'groups/app',
-  'issues': 'issues/app',
+  'issues/search': 'issues/app',
   'maintenance': { name: 'maintenance/app', options: { setup: false } },
   'markdown': 'markdown/app',
   'measures': 'measures/app',
