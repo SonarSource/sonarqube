@@ -46,32 +46,34 @@ public class PermissionTemplateDaoTest {
   System2 system = mock(System2.class);
 
   @Rule
-  public DbTester dbTester = DbTester.create(system);
+  public DbTester db = DbTester.create(system);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  PermissionTemplateDao underTest = dbTester.getDbClient().permissionTemplateDao();
+  DbSession session = db.getSession();
+
+  PermissionTemplateDao underTest = new PermissionTemplateDao(db.myBatis(), system);
 
   @Test
   public void should_create_permission_template() throws ParseException {
-    dbTester.prepareDbUnit(getClass(), "createPermissionTemplate.xml");
+    db.prepareDbUnit(getClass(), "createPermissionTemplate.xml");
 
     Date now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2013-01-02 01:04:05");
     when(system.now()).thenReturn(now.getTime());
 
-    PermissionTemplateDto permissionTemplate = underTest.insert(dbTester.getSession(), newPermissionTemplateDto()
+    PermissionTemplateDto permissionTemplate = underTest.insert(db.getSession(), newPermissionTemplateDto()
       .setName("my template")
       .setDescription("my description")
       .setKeyPattern("myregexp"));
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getId()).isEqualTo(1L);
 
-    dbTester.assertDbUnitTable(getClass(), "createPermissionTemplate-result.xml", "permission_templates", "id", "name", "description");
+    db.assertDbUnitTable(getClass(), "createPermissionTemplate-result.xml", "permission_templates", "id", "name", "description");
   }
 
   @Test
   public void should_skip_key_normalization_on_default_template() {
-    dbTester.truncateTables();
+    db.truncateTables();
 
     PermissionTemplateMapper mapper = mock(PermissionTemplateMapper.class);
 
@@ -92,7 +94,7 @@ public class PermissionTemplateDaoTest {
 
   @Test
   public void should_select_permission_template() {
-    dbTester.prepareDbUnit(getClass(), "selectPermissionTemplate.xml");
+    db.prepareDbUnit(getClass(), "selectPermissionTemplate.xml");
 
     PermissionTemplateDto permissionTemplate = underTest.selectPermissionTemplate("my_template_20130102_030405");
 
@@ -113,7 +115,7 @@ public class PermissionTemplateDaoTest {
 
   @Test
   public void should_select_empty_permission_template() {
-    dbTester.prepareDbUnit(getClass(), "selectEmptyPermissionTemplate.xml");
+    db.prepareDbUnit(getClass(), "selectEmptyPermissionTemplate.xml");
 
     PermissionTemplateDto permissionTemplate = underTest.selectPermissionTemplate("my_template_20130102_030405");
 
@@ -126,7 +128,7 @@ public class PermissionTemplateDaoTest {
 
   @Test
   public void should_select_permission_template_by_key() {
-    dbTester.prepareDbUnit(getClass(), "selectPermissionTemplate.xml");
+    db.prepareDbUnit(getClass(), "selectPermissionTemplate.xml");
 
     PermissionTemplateDto permissionTemplate = underTest.selectByKey("my_template_20130102_030405");
 
@@ -139,7 +141,7 @@ public class PermissionTemplateDaoTest {
 
   @Test
   public void should_select_all_permission_templates() {
-    dbTester.prepareDbUnit(getClass(), "selectAllPermissionTemplates.xml");
+    db.prepareDbUnit(getClass(), "selectAllPermissionTemplates.xml");
 
     List<PermissionTemplateDto> permissionTemplates = underTest.selectAllPermissionTemplates();
 
@@ -152,16 +154,16 @@ public class PermissionTemplateDaoTest {
 
   @Test
   public void should_update_permission_template() {
-    dbTester.prepareDbUnit(getClass(), "updatePermissionTemplate.xml");
+    db.prepareDbUnit(getClass(), "updatePermissionTemplate.xml");
 
     underTest.update(1L, "new_name", "new_description", "new_regexp");
 
-    dbTester.assertDbUnitTable(getClass(), "updatePermissionTemplate-result.xml", "permission_templates", "id", "name", "kee", "description");
+    db.assertDbUnitTable(getClass(), "updatePermissionTemplate-result.xml", "permission_templates", "id", "name", "kee", "description");
   }
 
   @Test
   public void should_delete_permission_template() {
-    dbTester.prepareDbUnit(getClass(), "deletePermissionTemplate.xml");
+    db.prepareDbUnit(getClass(), "deletePermissionTemplate.xml");
 
     underTest.deletePermissionTemplate(1L);
 
@@ -169,8 +171,19 @@ public class PermissionTemplateDaoTest {
   }
 
   @Test
+  public void delete_by_key() {
+    String templateKey = "permission-template-key";
+    underTest.insert(session, newPermissionTemplateDto().setKee(templateKey));
+    assertThat(underTest.selectByKey(session, templateKey)).isNotNull();
+
+    underTest.deleteByKey(session, templateKey);
+
+    assertThat(underTest.selectByKey(session, templateKey)).isNull();
+  }
+
+  @Test
   public void should_add_user_permission_to_template() {
-    dbTester.prepareDbUnit(getClass(), "addUserPermissionToTemplate.xml");
+    db.prepareDbUnit(getClass(), "addUserPermissionToTemplate.xml");
 
     underTest.insertUserPermission(1L, 1L, "new_permission");
 
@@ -179,7 +192,7 @@ public class PermissionTemplateDaoTest {
 
   @Test
   public void should_remove_user_permission_from_template() {
-    dbTester.prepareDbUnit(getClass(), "removeUserPermissionFromTemplate.xml");
+    db.prepareDbUnit(getClass(), "removeUserPermissionFromTemplate.xml");
 
     underTest.deleteUserPermission(1L, 2L, "permission_to_remove");
 
@@ -188,7 +201,7 @@ public class PermissionTemplateDaoTest {
 
   @Test
   public void should_add_group_permission_to_template() {
-    dbTester.prepareDbUnit(getClass(), "addGroupPermissionToTemplate.xml");
+    db.prepareDbUnit(getClass(), "addGroupPermissionToTemplate.xml");
 
     underTest.insertGroupPermission(1L, 1L, "new_permission");
 
@@ -197,7 +210,7 @@ public class PermissionTemplateDaoTest {
 
   @Test
   public void should_remove_group_permission_from_template() {
-    dbTester.prepareDbUnit(getClass(), "removeGroupPermissionFromTemplate.xml");
+    db.prepareDbUnit(getClass(), "removeGroupPermissionFromTemplate.xml");
 
     underTest.deleteGroupPermission(1L, 2L, "permission_to_remove");
 
@@ -206,17 +219,17 @@ public class PermissionTemplateDaoTest {
 
   @Test
   public void remove_by_group() {
-    dbTester.prepareDbUnit(getClass(), "remove_by_group.xml");
+    db.prepareDbUnit(getClass(), "remove_by_group.xml");
 
-    underTest.deleteByGroup(dbTester.getSession(), 2L);
-    dbTester.getSession().commit();
+    underTest.deleteByGroup(db.getSession(), 2L);
+    db.getSession().commit();
 
-    dbTester.assertDbUnitTable(getClass(), "remove_by_group-result.xml", "permission_templates", "id", "name", "kee", "description");
+    db.assertDbUnitTable(getClass(), "remove_by_group-result.xml", "permission_templates", "id", "name", "kee", "description");
   }
 
   @Test
   public void should_add_group_permission_with_null_name() {
-    dbTester.prepareDbUnit(getClass(), "addNullGroupPermissionToTemplate.xml");
+    db.prepareDbUnit(getClass(), "addNullGroupPermissionToTemplate.xml");
 
     underTest.insertGroupPermission(1L, null, "new_permission");
 
@@ -225,7 +238,7 @@ public class PermissionTemplateDaoTest {
 
   @Test
   public void should_remove_group_permission_with_null_name() {
-    dbTester.prepareDbUnit(getClass(), "removeNullGroupPermissionFromTemplate.xml");
+    db.prepareDbUnit(getClass(), "removeNullGroupPermissionFromTemplate.xml");
 
     underTest.deleteGroupPermission(1L, null, "permission_to_remove");
 
@@ -234,33 +247,33 @@ public class PermissionTemplateDaoTest {
 
   @Test
   public void should_retrieve_permission_template() {
-    dbTester.truncateTables();
+    db.truncateTables();
 
     PermissionTemplateDto permissionTemplateDto = new PermissionTemplateDto().setName("Test template").setKee("test_template");
     PermissionTemplateDto templateWithPermissions = new PermissionTemplateDto().setKee("test_template");
     underTest = mock(PermissionTemplateDao.class);
-    when(underTest.selectByKey(dbTester.getSession(), "test_template")).thenReturn(permissionTemplateDto);
-    when(underTest.selectPermissionTemplate(dbTester.getSession(), "test_template")).thenReturn(templateWithPermissions);
-    when(underTest.selectPermissionTemplateWithPermissions(dbTester.getSession(), "test_template")).thenCallRealMethod();
+    when(underTest.selectByKey(db.getSession(), "test_template")).thenReturn(permissionTemplateDto);
+    when(underTest.selectPermissionTemplate(db.getSession(), "test_template")).thenReturn(templateWithPermissions);
+    when(underTest.selectPermissionTemplateWithPermissions(db.getSession(), "test_template")).thenCallRealMethod();
 
-    PermissionTemplateDto permissionTemplate = underTest.selectPermissionTemplateWithPermissions(dbTester.getSession(), "test_template");
+    PermissionTemplateDto permissionTemplate = underTest.selectPermissionTemplateWithPermissions(db.getSession(), "test_template");
 
     assertThat(permissionTemplate).isSameAs(templateWithPermissions);
   }
 
   @Test
   public void should_fail_on_unmatched_template() {
-    dbTester.truncateTables();
+    db.truncateTables();
 
     expectedException.expect(IllegalArgumentException.class);
 
-    underTest.selectPermissionTemplateWithPermissions(dbTester.getSession(), "unmatched");
+    underTest.selectPermissionTemplateWithPermissions(db.getSession(), "unmatched");
   }
 
   private void checkTemplateTables(String fileName) {
-    dbTester.assertDbUnitTable(getClass(), fileName, "permission_templates", "id", "name", "description");
-    dbTester.assertDbUnitTable(getClass(), fileName, "perm_templates_users", "id", "template_id", "user_id", "permission_reference");
-    dbTester.assertDbUnitTable(getClass(), fileName, "perm_templates_groups", "id", "template_id", "group_id", "permission_reference");
+    db.assertDbUnitTable(getClass(), fileName, "permission_templates", "id", "name", "description");
+    db.assertDbUnitTable(getClass(), fileName, "perm_templates_users", "id", "template_id", "user_id", "permission_reference");
+    db.assertDbUnitTable(getClass(), fileName, "perm_templates_groups", "id", "template_id", "group_id", "permission_reference");
   }
 
 }

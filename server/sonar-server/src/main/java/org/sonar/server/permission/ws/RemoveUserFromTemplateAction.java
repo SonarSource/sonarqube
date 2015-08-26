@@ -35,7 +35,7 @@ import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_LONG_TEMPLATE_KEY;
 import static org.sonar.server.permission.ws.Parameters.PARAM_USER_LOGIN;
 import static org.sonar.server.permission.ws.Parameters.createProjectPermissionParameter;
-import static org.sonar.server.permission.ws.Parameters.createTemplateKeyParameter;
+import static org.sonar.server.permission.ws.Parameters.createTemplateKeyParameterToAddRemoveUserOrGroup;
 import static org.sonar.server.permission.ws.Parameters.createUserLoginParameter;
 
 public class RemoveUserFromTemplateAction implements PermissionsWsAction {
@@ -59,7 +59,7 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
         "It requires administration permissions to access.")
       .setHandler(this);
 
-    createTemplateKeyParameter(action);
+    createTemplateKeyParameterToAddRemoveUserOrGroup(action);
     createProjectPermissionParameter(action);
     createUserLoginParameter(action);
   }

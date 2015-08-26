@@ -19,6 +19,11 @@
     WHERE id = #{templateId}
   </delete>
 
+  <delete id="deleteByKey" parameterType="string">
+    DELETE FROM permission_templates
+    WHERE kee = #{key}
+  </delete>
+
   <delete id="deleteUsersPermissions" parameterType="long">
     DELETE FROM perm_templates_users
     WHERE template_id = #{templateId}

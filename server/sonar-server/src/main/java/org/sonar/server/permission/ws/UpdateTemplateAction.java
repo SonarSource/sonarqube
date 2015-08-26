@@ -44,6 +44,7 @@ import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_KEY;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_PATTERN;
 import static org.sonar.server.permission.ws.Parameters.createTemplateDescriptionParameter;
+import static org.sonar.server.permission.ws.Parameters.createTemplateKeyParameter;
 import static org.sonar.server.permission.ws.Parameters.createTemplateProjectKeyPatternParameter;
 import static org.sonar.server.permission.ws.PermissionTemplateDtoToPermissionTemplateResponse.toPermissionTemplateResponse;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -72,10 +73,7 @@ public class UpdateTemplateAction implements PermissionsWsAction {
       .setPost(true)
       .setHandler(this);
 
-    action.createParam(PARAM_TEMPLATE_KEY)
-      .setRequired(true)
-      .setDescription("Key")
-      .setExampleValue("af8cb8cc-1e78-4c4e-8c00-ee8e814009a5");
+    createTemplateKeyParameter(action);
 
     action.createParam(PARAM_TEMPLATE_NAME)
       .setDescription("Name")

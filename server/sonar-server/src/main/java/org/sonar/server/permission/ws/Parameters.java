@@ -98,7 +98,7 @@ class Parameters {
       .setExampleValue("g.hopper");
   }
 
-  static void createTemplateKeyParameter(NewAction action) {
+  static void createTemplateKeyParameterToAddRemoveUserOrGroup(NewAction action) {
     action.createParam(PARAM_LONG_TEMPLATE_KEY)
       .setRequired(true)
       .setDescription("Template key")
@@ -115,5 +115,12 @@ class Parameters {
     action.createParam(PARAM_TEMPLATE_DESCRIPTION)
       .setDescription("Description")
       .setExampleValue("Permissions for all projects related to the financial service");
+  }
+
+  static void createTemplateKeyParameter(NewAction action) {
+    action.createParam(PARAM_TEMPLATE_KEY)
+      .setRequired(true)
+      .setDescription("Key")
+      .setExampleValue("af8cb8cc-1e78-4c4e-8c00-ee8e814009a5");
   }
 }

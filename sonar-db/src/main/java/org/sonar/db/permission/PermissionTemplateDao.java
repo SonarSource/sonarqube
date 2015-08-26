@@ -186,6 +186,10 @@ public class PermissionTemplateDao implements Dao {
     return permissionTemplate;
   }
 
+  public void deleteByKey(DbSession dbSession, String key) {
+    mapper(dbSession).deleteByKey(key);
+  }
+
   public void deletePermissionTemplate(Long templateId) {
     SqlSession session = myBatis.openSession(false);
     try {

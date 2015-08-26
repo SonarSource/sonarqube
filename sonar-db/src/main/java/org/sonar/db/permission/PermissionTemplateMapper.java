@@ -64,4 +64,6 @@ public interface PermissionTemplateMapper {
   int countUsers(Map<String, Object> params);
 
   int countGroups(Map<String, Object> parameters);
+
+  void deleteByKey(String key);
 }

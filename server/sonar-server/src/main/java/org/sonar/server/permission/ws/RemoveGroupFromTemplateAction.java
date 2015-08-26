@@ -36,7 +36,7 @@ import static org.sonar.server.permission.ws.Parameters.PARAM_LONG_TEMPLATE_KEY;
 import static org.sonar.server.permission.ws.Parameters.createGroupIdParameter;
 import static org.sonar.server.permission.ws.Parameters.createGroupNameParameter;
 import static org.sonar.server.permission.ws.Parameters.createProjectPermissionParameter;
-import static org.sonar.server.permission.ws.Parameters.createTemplateKeyParameter;
+import static org.sonar.server.permission.ws.Parameters.createTemplateKeyParameterToAddRemoveUserOrGroup;
 
 public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
@@ -60,7 +60,7 @@ public class RemoveGroupFromTemplateAction implements PermissionsWsAction {
         "It requires administration permissions to access.")
       .setHandler(this);
 
-    createTemplateKeyParameter(action);
+    createTemplateKeyParameterToAddRemoveUserOrGroup(action);
     createProjectPermissionParameter(action);
     createGroupIdParameter(action);
     createGroupNameParameter(action);
