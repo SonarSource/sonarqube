@@ -116,7 +116,10 @@ define([
           .done(function () {
             that.model.set('selected', !selected);
           })
-          .fail(showError)
+          .fail(function () {
+            that.render();
+            showError();
+          })
           .always(function () {
             that.$el.removeClass('progress');
           });
