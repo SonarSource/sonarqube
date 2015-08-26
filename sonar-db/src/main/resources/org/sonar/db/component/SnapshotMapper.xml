@@ -35,6 +35,11 @@
     s.period5_date as period5Date
   </sql>
 
+  <sql id="viewsSnapshotColumns">
+    s.id,
+    s.created_at as createdAt
+  </sql>
+
   <select id="selectByKey" parameterType="Long" resultType="Snapshot">
     SELECT
     <include refid="snapshotColumns"/>
@@ -110,6 +115,29 @@
     from snapshots s
     where s.scope = #{scope}
     AND (s.id = #{snapshot} or s.root_snapshot_id = #{snapshot})
+  </select>
+
+  <select id="selectSnapshotBefore" resultType="ViewsSnapshot">
+    SELECT
+    <include refid="viewsSnapshotColumns"/>
+    FROM snapshots s
+    <where>
+      and s.project_id = #{componentId}
+      and s.status = 'P'
+      and s.created_at &lt; #{date}
+    </where>
+    order by created_at desc
+  </select>
+
+  <select id="selectLatestSnapshot" resultType="ViewsSnapshot">
+    SELECT
+    <include refid="viewsSnapshotColumns"/>
+    FROM snapshots s
+    <where>
+      and s.project_id = #{componentId}
+      and s.status = 'P'
+      and s.islast = ${_true}
+    </where>
   </select>
 
   <sql id="insertColumns">

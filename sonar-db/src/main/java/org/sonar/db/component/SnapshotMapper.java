@@ -45,4 +45,8 @@ public interface SnapshotMapper {
 
   int updateSnapshotAndChildrenLastFlag(@Param(value = "root") Long rootId, @Param(value = "pathRootId") Long pathRootId,
     @Param(value = "path") String path, @Param(value = "isLast") boolean isLast);
+  
+  List<ViewsSnapshotDto> selectSnapshotBefore(@Param("componentId") long componentId, @Param("date") long date);
+
+  ViewsSnapshotDto selectLatestSnapshot(@Param("componentId") long componentId);
 }

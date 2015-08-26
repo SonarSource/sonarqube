@@ -31,6 +31,8 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
+import static com.google.common.collect.FluentIterable.from;
+
 public class SnapshotDao implements Dao {
 
   @CheckForNull
@@ -100,6 +102,18 @@ public class SnapshotDao implements Dao {
 
   public void insert(DbSession session, SnapshotDto item, SnapshotDto... others) {
     insert(session, Lists.asList(item, others));
+  }
+
+  @CheckForNull
+  public ViewsSnapshotDto selectSnapshotBefore(long componentId, long date, DbSession dbSession) {
+    return from(mapper(dbSession).selectSnapshotBefore(componentId, date))
+        .first()
+        .orNull();
+  }
+
+  @CheckForNull
+  public ViewsSnapshotDto selectLatestSnapshot(long componentId, DbSession dbSession) {
+    return mapper(dbSession).selectLatestSnapshot(componentId);
   }
 
   private SnapshotMapper mapper(DbSession session) {

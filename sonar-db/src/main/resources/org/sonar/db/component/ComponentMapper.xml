@@ -24,6 +24,17 @@
     p.created_at as createdAt
   </sql>
 
+  <sql id="viewsComponentColumns">
+    p.id,
+    p.name,
+    p.uuid as uuid,
+    p.kee as kee,
+    p.qualifier as qualifier,
+    p.scope as scope,
+    P.copy_resource_id as copyResourceId,
+    p.module_uuid as moduleUuid
+  </sql>
+
   <sql id="authorizedComponentColumns">
     p.id,
     p.uuid as uuid,
@@ -383,5 +394,29 @@
     authorization_updated_at=#{authorizationUpdatedAt,jdbcType=BIGINT}
     WHERE uuid=#{uuid}
   </insert>
+
+  <select id="selectRootViews" resultType="ViewsComponent">
+    SELECT
+    <include refid="viewsComponentColumns"/>
+    FROM projects p
+    <where>
+      p.scope = 'PRJ'
+      and p.qualifier = 'VW'
+    </where>
+  </select>
+
+  <select id="selectViewTree" resultType="ViewsComponent" parameterType="String">
+    select
+    <include refid="viewsComponentColumns"/>
+    from projects p
+    <where>
+      project_uuid = #{rootViewUuid}
+      and p.uuid != #{rootViewUuid}
+      and p.scope in ('PRJ', 'FIL')
+      and p.qualifier in ('VW', 'SVW', 'TRK')
+      and p.enabled = ${_true}
+    </where>
+    order by module_uuid_path;
+  </select>
 
 </mapper>
