@@ -22,7 +22,6 @@ package org.sonar.server.computation.step;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +47,9 @@ import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
 
+import static com.google.common.collect.FluentIterable.from;
+import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
+import static org.sonar.server.computation.component.Component.Type.SUBVIEW;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
 /**
@@ -86,11 +88,11 @@ public class FillMeasuresWithVariationsStep implements ComputationStep {
   public void execute() {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      Iterable<Metric> metrics = FluentIterable.from(metricRepository.getAll()).filter(NumericMetric.INSTANCE);
+      List<Metric> metrics = from(metricRepository.getAll()).filter(NumericMetric.INSTANCE).toList();
       new DepthTraversalTypeAwareCrawler(new VariationMeasuresVisitor(dbSession, metrics))
         .visit(treeRootHolder.getRoot());
     } finally {
-      dbSession.close();
+      dbClient.closeSession(dbSession);
     }
   }
 
@@ -102,10 +104,10 @@ public class FillMeasuresWithVariationsStep implements ComputationStep {
 
     public VariationMeasuresVisitor(DbSession session, Iterable<Metric> metrics) {
       // measures on files are currently purged, so past measures are not available on files
-      super(CrawlerDepthLimit.DIRECTORY, PRE_ORDER);
+      super(CrawlerDepthLimit.reportMaxDepth(DIRECTORY).withViewsMaxDepth(SUBVIEW), PRE_ORDER);
       this.session = session;
-      this.metricIds = FluentIterable.from(metrics).transform(MetricDtoToMetricId.INSTANCE).toSet();
-      this.metricByKeys = FluentIterable.from(metrics).uniqueIndex(MetricToKey.INSTANCE);
+      this.metricIds = from(metrics).transform(MetricDtoToMetricId.INSTANCE).toSet();
+      this.metricByKeys = from(metrics).uniqueIndex(MetricToKey.INSTANCE);
     }
 
     @Override
@@ -117,8 +119,8 @@ public class FillMeasuresWithVariationsStep implements ComputationStep {
     private MeasuresWithVariationRepository computeMeasuresWithVariations(Component component) {
       MeasuresWithVariationRepository measuresWithVariationRepository = new MeasuresWithVariationRepository();
       for (Period period : periodsHolder.getPeriods()) {
-        List<PastMeasureDto> pastMeasures = dbClient.measureDao().selectByComponentUuidAndProjectSnapshotIdAndMetricIds(session, component.getUuid(), period.getSnapshotId(),
-          metricIds);
+        List<PastMeasureDto> pastMeasures = dbClient.measureDao()
+          .selectByComponentUuidAndProjectSnapshotIdAndMetricIds(session, component.getUuid(), period.getSnapshotId(), metricIds);
         setVariationMeasures(component, pastMeasures, period.getIndex(), measuresWithVariationRepository);
       }
       return measuresWithVariationRepository;
@@ -140,7 +142,7 @@ public class FillMeasuresWithVariationsStep implements ComputationStep {
     }
 
     private void setVariationMeasures(Component component, List<PastMeasureDto> pastMeasures, int period, MeasuresWithVariationRepository measuresWithVariationRepository) {
-      Map<MeasureKey, PastMeasureDto> pastMeasuresByMeasureKey = FluentIterable.from(pastMeasures).uniqueIndex(pastMeasureToMeasureKey);
+      Map<MeasureKey, PastMeasureDto> pastMeasuresByMeasureKey = from(pastMeasures).uniqueIndex(pastMeasureToMeasureKey);
       for (Map.Entry<String, Measure> entry : measureRepository.getRawMeasures(component).entries()) {
         String metricKey = entry.getKey();
         Measure measure = entry.getValue();

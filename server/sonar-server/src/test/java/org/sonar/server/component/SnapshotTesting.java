@@ -41,7 +41,12 @@ public class SnapshotTesting {
 
   public static SnapshotDto createForProject(ComponentDto project) {
     return createBasicSnapshot(project, project.getId())
-      .setPath("");
+        .setPath("");
+  }
+
+  public static SnapshotDto createForView(ComponentDto view) {
+    return createBasicSnapshot(view, view.getId())
+        .setPath("");
   }
 
   private static SnapshotDto createBasicSnapshot(ComponentDto component, Long rootProjectId) {

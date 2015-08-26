@@ -50,7 +50,7 @@ import static org.sonar.server.component.SnapshotTesting.createForComponent;
 import static org.sonar.server.component.SnapshotTesting.createForProject;
 
 @Category(DbTests.class)
-public class FillMeasuresWithVariationsStepTest {
+public class ReportFillMeasuresWithVariationsStepTest {
 
   static final Metric ISSUES_METRIC = new MetricImpl(1, "violations", "violations", Metric.MetricType.INT);
   static final Metric DEBT_METRIC = new MetricImpl(2, "sqale_index", "sqale_index", Metric.MetricType.WORK_DUR);
