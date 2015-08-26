@@ -1,9 +1,12 @@
+import _ from 'underscore';
 import React from 'react';
 import Permissions from './permissions';
 import PermissionsFooter from './permissions-footer';
 import Search from './search';
 
 let $ = jQuery;
+
+const PERMISSIONS_ORDER = ['user', 'codeviewer', 'issueadmin', 'admin'];
 
 export default React.createClass({
   getInitialState() {
@@ -12,6 +15,10 @@ export default React.createClass({
 
   componentDidMount() {
     this.requestPermissions();
+  },
+
+  sortPermissions(permissions) {
+    return _.sortBy(permissions, p => PERMISSIONS_ORDER.indexOf(p.key));
   },
 
   mergePermissionsToProjects(projects, basePermissions) {
@@ -29,13 +36,14 @@ export default React.createClass({
     let url = `${window.baseUrl}/api/permissions/search_project_permissions`;
     let data = { p: page, q: query };
     $.get(url, data).done(r => {
-      let projects = this.mergePermissionsToProjects(r.projects, r.permissions);
+      let permissions = this.sortPermissions(r.permissions);
+      let projects = this.mergePermissionsToProjects(r.projects, permissions);
       if (page > 1) {
         projects = [].concat(this.state.projects, projects);
       }
       this.setState({
         projects: projects,
-        permissions: r.permissions,
+        permissions: permissions,
         total: r.paging.total,
         page: r.paging.pageIndex,
         query: query
