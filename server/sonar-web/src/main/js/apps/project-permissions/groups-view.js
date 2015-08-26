@@ -4,6 +4,10 @@ define([
   './templates'
 ], function (Modal) {
 
+  function getSearchUrl(permission, project) {
+    return baseUrl + '/api/permissions/groups?ps=100&permission=' + permission + '&projectId=' + project;
+  }
+
   return Modal.extend({
     template: Templates['project-permissions-groups'],
 
@@ -18,7 +22,7 @@ define([
           return item.name;
         },
         queryParam: 'q',
-        searchUrl: baseUrl + '/api/permissions/groups?ps=100&permission=' + this.options.permission + '&projectId=' + this.options.project,
+        searchUrl: getSearchUrl(this.options.permission, this.options.project),
         selectUrl: baseUrl + '/api/permissions/add_group',
         deselectUrl: baseUrl + '/api/permissions/remove_group',
         extra: {
@@ -44,7 +48,7 @@ define([
     serializeData: function () {
       return _.extend(Modal.prototype.serializeData.apply(this, arguments), {
         projectName: this.options.projectName
-      })
+      });
     }
   });
 

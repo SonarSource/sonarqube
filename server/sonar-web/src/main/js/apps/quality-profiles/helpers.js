@@ -41,9 +41,11 @@
 
   Handlebars.registerHelper('parameterChangelog', function (value, parameter) {
     if (parameter) {
-      return new Handlebars.SafeString(window.tp('quality_profiles.parameter_set_to_x', value, parameter));
+      return new Handlebars.SafeString(
+          window.tp('quality_profiles.parameter_set_to_x', value, parameter));
     } else {
-      return new Handlebars.SafeString(window.tp('quality_profiles.changelog.parameter_reset_to_default_value_x', parameter));
+      return new Handlebars.SafeString(
+          window.tp('quality_profiles.changelog.parameter_reset_to_default_value_x', parameter));
     }
   });
 

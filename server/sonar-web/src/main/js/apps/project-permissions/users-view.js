@@ -4,6 +4,10 @@ define([
   './templates'
 ], function (Modal) {
 
+  function getSearchUrl(permission, project) {
+    return baseUrl + '/api/permissions/users?ps=100&permission=' + permission + '&projectId=' + project;
+  }
+
   return Modal.extend({
     template: Templates['project-permissions-users'],
 
@@ -18,7 +22,7 @@ define([
           return item.name + '<br><span class="note">' + item.login + '</span>';
         },
         queryParam: 'q',
-        searchUrl: baseUrl + '/api/permissions/users?ps=100&permission=' + this.options.permission + '&projectId=' + this.options.project,
+        searchUrl: getSearchUrl(this.options.permission, this.options.project),
         selectUrl: baseUrl + '/api/permissions/add_user',
         deselectUrl: baseUrl + '/api/permissions/remove_user',
         extra: {
@@ -44,8 +48,7 @@ define([
     serializeData: function () {
       return _.extend(Modal.prototype.serializeData.apply(this, arguments), {
         projectName: this.options.projectName
-      })
-
+      });
     }
   });
 

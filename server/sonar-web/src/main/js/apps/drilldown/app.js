@@ -5,7 +5,7 @@ define([
 
   var $ = jQuery,
       App = new Marionette.Application(),
-      init = function (options) {
+      init = function () {
         App.addRegions({ viewerRegion: '#source-viewer' });
         $('.js-drilldown-link').on('click', function (e) {
           e.preventDefault();
@@ -23,8 +23,8 @@ define([
         });
       };
 
-  App.on('start', function (options) {
-    init.call(App, options);
+  App.on('start', function () {
+    init.call(App);
   });
 
   return App;
