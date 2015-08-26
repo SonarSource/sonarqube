@@ -9422,6 +9422,514 @@ public final class Permissions {
     // @@protoc_insertion_point(class_scope:sonarqube.ws.permissions.CreatePermissionTemplateResponse)
   }
 
+  public interface UpdatePermissionTemplateResponseOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:sonarqube.ws.permissions.UpdatePermissionTemplateResponse)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>optional .sonarqube.ws.permissions.PermissionTemplate permissionTemplate = 1;</code>
+     */
+    boolean hasPermissionTemplate();
+    /**
+     * <code>optional .sonarqube.ws.permissions.PermissionTemplate permissionTemplate = 1;</code>
+     */
+    org.sonarqube.ws.Permissions.PermissionTemplate getPermissionTemplate();
+    /**
+     * <code>optional .sonarqube.ws.permissions.PermissionTemplate permissionTemplate = 1;</code>
+     */
+    org.sonarqube.ws.Permissions.PermissionTemplateOrBuilder getPermissionTemplateOrBuilder();
+  }
+  /**
+   * Protobuf type {@code sonarqube.ws.permissions.UpdatePermissionTemplateResponse}
+   */
+  public static final class UpdatePermissionTemplateResponse extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:sonarqube.ws.permissions.UpdatePermissionTemplateResponse)
+      UpdatePermissionTemplateResponseOrBuilder {
+    // Use UpdatePermissionTemplateResponse.newBuilder() to construct.
+    private UpdatePermissionTemplateResponse(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private UpdatePermissionTemplateResponse(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final UpdatePermissionTemplateResponse defaultInstance;
+    public static UpdatePermissionTemplateResponse getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public UpdatePermissionTemplateResponse getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private UpdatePermissionTemplateResponse(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              org.sonarqube.ws.Permissions.PermissionTemplate.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                subBuilder = permissionTemplate_.toBuilder();
+              }
+              permissionTemplate_ = input.readMessage(org.sonarqube.ws.Permissions.PermissionTemplate.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(permissionTemplate_);
+                permissionTemplate_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000001;
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_UpdatePermissionTemplateResponse_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_UpdatePermissionTemplateResponse_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse.class, org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<UpdatePermissionTemplateResponse> PARSER =
+        new com.google.protobuf.AbstractParser<UpdatePermissionTemplateResponse>() {
+      public UpdatePermissionTemplateResponse parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new UpdatePermissionTemplateResponse(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<UpdatePermissionTemplateResponse> getParserForType() {
+      return PARSER;
+    }
+
+    private int bitField0_;
+    public static final int PERMISSIONTEMPLATE_FIELD_NUMBER = 1;
+    private org.sonarqube.ws.Permissions.PermissionTemplate permissionTemplate_;
+    /**
+     * <code>optional .sonarqube.ws.permissions.PermissionTemplate permissionTemplate = 1;</code>
+     */
+    public boolean hasPermissionTemplate() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional .sonarqube.ws.permissions.PermissionTemplate permissionTemplate = 1;</code>
+     */
+    public org.sonarqube.ws.Permissions.PermissionTemplate getPermissionTemplate() {
+      return permissionTemplate_;
+    }
+    /**
+     * <code>optional .sonarqube.ws.permissions.PermissionTemplate permissionTemplate = 1;</code>
+     */
+    public org.sonarqube.ws.Permissions.PermissionTemplateOrBuilder getPermissionTemplateOrBuilder() {
+      return permissionTemplate_;
+    }
+
+    private void initFields() {
+      permissionTemplate_ = org.sonarqube.ws.Permissions.PermissionTemplate.getDefaultInstance();
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeMessage(1, permissionTemplate_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, permissionTemplate_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code sonarqube.ws.permissions.UpdatePermissionTemplateResponse}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:sonarqube.ws.permissions.UpdatePermissionTemplateResponse)
+        org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponseOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_UpdatePermissionTemplateResponse_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_UpdatePermissionTemplateResponse_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse.class, org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse.Builder.class);
+      }
+
+      // Construct using org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getPermissionTemplateFieldBuilder();
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        if (permissionTemplateBuilder_ == null) {
+          permissionTemplate_ = org.sonarqube.ws.Permissions.PermissionTemplate.getDefaultInstance();
+        } else {
+          permissionTemplateBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return org.sonarqube.ws.Permissions.internal_static_sonarqube_ws_permissions_UpdatePermissionTemplateResponse_descriptor;
+      }
+
+      public org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse getDefaultInstanceForType() {
+        return org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse.getDefaultInstance();
+      }
+
+      public org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse build() {
+        org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse buildPartial() {
+        org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse result = new org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        if (permissionTemplateBuilder_ == null) {
+          result.permissionTemplate_ = permissionTemplate_;
+        } else {
+          result.permissionTemplate_ = permissionTemplateBuilder_.build();
+        }
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse) {
+          return mergeFrom((org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse other) {
+        if (other == org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse.getDefaultInstance()) return this;
+        if (other.hasPermissionTemplate()) {
+          mergePermissionTemplate(other.getPermissionTemplate());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private org.sonarqube.ws.Permissions.PermissionTemplate permissionTemplate_ = org.sonarqube.ws.Permissions.PermissionTemplate.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonarqube.ws.Permissions.PermissionTemplate, org.sonarqube.ws.Permissions.PermissionTemplate.Builder, org.sonarqube.ws.Permissions.PermissionTemplateOrBuilder> permissionTemplateBuilder_;
+      /**
+       * <code>optional .sonarqube.ws.permissions.PermissionTemplate permissionTemplate = 1;</code>
+       */
+      public boolean hasPermissionTemplate() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional .sonarqube.ws.permissions.PermissionTemplate permissionTemplate = 1;</code>
+       */
+      public org.sonarqube.ws.Permissions.PermissionTemplate getPermissionTemplate() {
+        if (permissionTemplateBuilder_ == null) {
+          return permissionTemplate_;
+        } else {
+          return permissionTemplateBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .sonarqube.ws.permissions.PermissionTemplate permissionTemplate = 1;</code>
+       */
+      public Builder setPermissionTemplate(org.sonarqube.ws.Permissions.PermissionTemplate value) {
+        if (permissionTemplateBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          permissionTemplate_ = value;
+          onChanged();
+        } else {
+          permissionTemplateBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.permissions.PermissionTemplate permissionTemplate = 1;</code>
+       */
+      public Builder setPermissionTemplate(
+          org.sonarqube.ws.Permissions.PermissionTemplate.Builder builderForValue) {
+        if (permissionTemplateBuilder_ == null) {
+          permissionTemplate_ = builderForValue.build();
+          onChanged();
+        } else {
+          permissionTemplateBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.permissions.PermissionTemplate permissionTemplate = 1;</code>
+       */
+      public Builder mergePermissionTemplate(org.sonarqube.ws.Permissions.PermissionTemplate value) {
+        if (permissionTemplateBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001) &&
+              permissionTemplate_ != org.sonarqube.ws.Permissions.PermissionTemplate.getDefaultInstance()) {
+            permissionTemplate_ =
+              org.sonarqube.ws.Permissions.PermissionTemplate.newBuilder(permissionTemplate_).mergeFrom(value).buildPartial();
+          } else {
+            permissionTemplate_ = value;
+          }
+          onChanged();
+        } else {
+          permissionTemplateBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.permissions.PermissionTemplate permissionTemplate = 1;</code>
+       */
+      public Builder clearPermissionTemplate() {
+        if (permissionTemplateBuilder_ == null) {
+          permissionTemplate_ = org.sonarqube.ws.Permissions.PermissionTemplate.getDefaultInstance();
+          onChanged();
+        } else {
+          permissionTemplateBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.permissions.PermissionTemplate permissionTemplate = 1;</code>
+       */
+      public org.sonarqube.ws.Permissions.PermissionTemplate.Builder getPermissionTemplateBuilder() {
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return getPermissionTemplateFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .sonarqube.ws.permissions.PermissionTemplate permissionTemplate = 1;</code>
+       */
+      public org.sonarqube.ws.Permissions.PermissionTemplateOrBuilder getPermissionTemplateOrBuilder() {
+        if (permissionTemplateBuilder_ != null) {
+          return permissionTemplateBuilder_.getMessageOrBuilder();
+        } else {
+          return permissionTemplate_;
+        }
+      }
+      /**
+       * <code>optional .sonarqube.ws.permissions.PermissionTemplate permissionTemplate = 1;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonarqube.ws.Permissions.PermissionTemplate, org.sonarqube.ws.Permissions.PermissionTemplate.Builder, org.sonarqube.ws.Permissions.PermissionTemplateOrBuilder> 
+          getPermissionTemplateFieldBuilder() {
+        if (permissionTemplateBuilder_ == null) {
+          permissionTemplateBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              org.sonarqube.ws.Permissions.PermissionTemplate, org.sonarqube.ws.Permissions.PermissionTemplate.Builder, org.sonarqube.ws.Permissions.PermissionTemplateOrBuilder>(
+                  getPermissionTemplate(),
+                  getParentForChildren(),
+                  isClean());
+          permissionTemplate_ = null;
+        }
+        return permissionTemplateBuilder_;
+      }
+
+      // @@protoc_insertion_point(builder_scope:sonarqube.ws.permissions.UpdatePermissionTemplateResponse)
+    }
+
+    static {
+      defaultInstance = new UpdatePermissionTemplateResponse(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:sonarqube.ws.permissions.UpdatePermissionTemplateResponse)
+  }
+
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_sonarqube_ws_permissions_UsersResponse_descriptor;
   private static
@@ -9472,6 +9980,11 @@ public final class Permissions {
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_sonarqube_ws_permissions_CreatePermissionTemplateResponse_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_sonarqube_ws_permissions_UpdatePermissionTemplateResponse_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_sonarqube_ws_permissions_UpdatePermissionTemplateResponse_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -9512,8 +10025,11 @@ public final class Permissions {
       "reatedAt\030\005 \001(\t\022\021\n\tupdatedAt\030\006 \001(\t\"l\n Cre" +
       "atePermissionTemplateResponse\022H\n\022permiss",
       "ionTemplate\030\001 \001(\0132,.sonarqube.ws.permiss" +
-      "ions.PermissionTemplateB!\n\020org.sonarqube" +
-      ".wsB\013PermissionsH\001"
+      "ions.PermissionTemplate\"l\n UpdatePermiss" +
+      "ionTemplateResponse\022H\n\022permissionTemplat" +
+      "e\030\001 \001(\0132,.sonarqube.ws.permissions.Permi" +
+      "ssionTemplateB!\n\020org.sonarqube.wsB\013Permi" +
+      "ssionsH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -9587,6 +10103,12 @@ public final class Permissions {
     internal_static_sonarqube_ws_permissions_CreatePermissionTemplateResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_permissions_CreatePermissionTemplateResponse_descriptor,
+        new java.lang.String[] { "PermissionTemplate", });
+    internal_static_sonarqube_ws_permissions_UpdatePermissionTemplateResponse_descriptor =
+      getDescriptor().getMessageTypes().get(7);
+    internal_static_sonarqube_ws_permissions_UpdatePermissionTemplateResponse_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_sonarqube_ws_permissions_UpdatePermissionTemplateResponse_descriptor,
         new java.lang.String[] { "PermissionTemplate", });
     org.sonarqube.ws.Common.getDescriptor();
   }

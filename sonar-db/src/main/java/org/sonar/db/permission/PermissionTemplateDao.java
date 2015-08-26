@@ -127,15 +127,15 @@ public class PermissionTemplateDao implements Dao {
   }
 
   @CheckForNull
-  public PermissionTemplateDto selectTemplateByKey(DbSession session, String templateKey) {
+  public PermissionTemplateDto selectByKey(DbSession session, String templateKey) {
     return mapper(session).selectByKey(templateKey);
   }
 
   @CheckForNull
-  public PermissionTemplateDto selectTemplateByKey(String templateKey) {
+  public PermissionTemplateDto selectByKey(String templateKey) {
     DbSession session = myBatis.openSession(false);
     try {
-      return selectTemplateByKey(session, templateKey);
+      return selectByKey(session, templateKey);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -243,9 +243,11 @@ public class PermissionTemplateDao implements Dao {
     }
   }
 
-  public void update(DbSession session, PermissionTemplateDto permissionTemplate) {
+  public PermissionTemplateDto update(DbSession session, PermissionTemplateDto permissionTemplate) {
     mapper(session).update(permissionTemplate);
     session.commit();
+
+    return permissionTemplate;
   }
 
   /**
@@ -342,7 +344,7 @@ public class PermissionTemplateDao implements Dao {
    */
   @VisibleForTesting
   PermissionTemplateDto selectPermissionTemplateWithPermissions(DbSession session, String templateKey) {
-    PermissionTemplateDto permissionTemplateDto = selectTemplateByKey(session, templateKey);
+    PermissionTemplateDto permissionTemplateDto = selectByKey(session, templateKey);
     if (permissionTemplateDto == null) {
       throw new IllegalArgumentException("Could not retrieve permission template with key " + templateKey);
     }

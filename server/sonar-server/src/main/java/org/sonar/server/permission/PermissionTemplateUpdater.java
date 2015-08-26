@@ -87,7 +87,7 @@ abstract class PermissionTemplateUpdater {
   }
 
   private Long getTemplateId(String key) {
-    PermissionTemplateDto permissionTemplateDto = dbClient.permissionTemplateDao().selectTemplateByKey(key);
+    PermissionTemplateDto permissionTemplateDto = dbClient.permissionTemplateDao().selectByKey(key);
     if (permissionTemplateDto == null) {
       throw new BadRequestException("Unknown template: " + key);
     }

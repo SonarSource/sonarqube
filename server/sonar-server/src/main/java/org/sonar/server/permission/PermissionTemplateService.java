@@ -44,7 +44,6 @@ import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjec
 import static org.sonar.server.permission.PermissionRequestValidator.MSG_TEMPLATE_NAME_NOT_BLANK;
 import static org.sonar.server.permission.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
 import static org.sonar.server.permission.PermissionRequestValidator.validateProjectPattern;
-import static org.sonar.server.permission.PermissionRequestValidator.validateTemplateNameForUpdate;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
@@ -123,7 +122,7 @@ public class PermissionTemplateService {
 
     try {
       checkGlobalAdminUser(userSession);
-      validateTemplateNameForUpdate(dbSession, dbClient, newName, templateId);
+      validateTemplateNameForUpdate(dbSession, newName, templateId);
       validateProjectPattern(projectPattern);
       permissionTemplateDao.update(templateId, newName, newDescription, projectPattern);
     } finally {
@@ -220,5 +219,17 @@ public class PermissionTemplateService {
 
     PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao().selectByName(dbSession, templateName);
     checkRequest(permissionTemplateWithSameName == null, format(MSG_TEMPLATE_WITH_SAME_NAME, templateName));
+  }
+
+  /**
+   * @deprecated since 5.2
+   */
+  @Deprecated
+  private void validateTemplateNameForUpdate(DbSession dbSession, String templateName, long templateId) {
+    checkRequest(!templateName.isEmpty(), MSG_TEMPLATE_NAME_NOT_BLANK);
+
+    PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao().selectByName(dbSession, templateName);
+    checkRequest(permissionTemplateWithSameName == null || permissionTemplateWithSameName.getId() == templateId,
+      format(MSG_TEMPLATE_WITH_SAME_NAME, templateName));
   }
 }

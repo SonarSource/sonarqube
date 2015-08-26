@@ -147,7 +147,7 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void should_delete_permission_template() {
-    when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
 
     underTest.deletePermissionTemplate(1L);
 
@@ -271,7 +271,7 @@ public class PermissionTemplateServiceTest {
   public void should_add_user_permission() {
     UserDto userDto = new UserDto().setId(1L).setLogin("user").setName("user");
     when(userDao.selectActiveUserByLogin("user")).thenReturn(userDto);
-    when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
 
     underTest.addUserPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "user");
 
@@ -283,7 +283,7 @@ public class PermissionTemplateServiceTest {
     expected.expect(BadRequestException.class);
     expected.expectMessage("Unknown user:");
 
-    when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
     when(userDao.selectActiveUserByLogin("unknown")).thenReturn(null);
 
     underTest.addUserPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "unknown");
@@ -293,7 +293,7 @@ public class PermissionTemplateServiceTest {
   public void should_remove_user_permission() {
     UserDto userDto = new UserDto().setId(1L).setLogin("user").setName("user");
     when(userDao.selectActiveUserByLogin("user")).thenReturn(userDto);
-    when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
 
     underTest.removeUserPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "user");
 
@@ -304,7 +304,7 @@ public class PermissionTemplateServiceTest {
   public void should_add_group_permission() {
     GroupDto groupDto = new GroupDto().setId(1L).setName("group");
     when(groupDao.selectByName(any(DbSession.class), eq("group"))).thenReturn(groupDto);
-    when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
 
     underTest.addGroupPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "group");
 
@@ -316,7 +316,7 @@ public class PermissionTemplateServiceTest {
     expected.expect(BadRequestException.class);
     expected.expectMessage("Unknown group:");
 
-    when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
     when(groupDao.selectByName(any(DbSession.class), eq("unknown"))).thenReturn(null);
 
     underTest.addGroupPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "unknown");
@@ -326,7 +326,7 @@ public class PermissionTemplateServiceTest {
   public void should_remove_group_permission() {
     GroupDto groupDto = new GroupDto().setId(1L).setName("group");
     when(groupDao.selectByName(any(DbSession.class), eq("group"))).thenReturn(groupDto);
-    when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
 
     underTest.removeGroupPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "group");
 
@@ -335,7 +335,7 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void should_add_permission_to_anyone_group() {
-    when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
 
     underTest.addGroupPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "Anyone");
 
@@ -345,7 +345,7 @@ public class PermissionTemplateServiceTest {
 
   @Test
   public void should_remove_permission_from_anyone_group() {
-    when(permissionTemplateDao.selectTemplateByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
+    when(permissionTemplateDao.selectByKey(DEFAULT_KEY)).thenReturn(DEFAULT_TEMPLATE);
 
     underTest.removeGroupPermission(DEFAULT_KEY, DEFAULT_PERMISSION, "Anyone");
 

@@ -96,3 +96,7 @@ message PermissionTemplate {
 message CreatePermissionTemplateResponse {
   optional PermissionTemplate permissionTemplate = 1;
 }
+
+message UpdatePermissionTemplateResponse {
+  optional PermissionTemplate permissionTemplate = 1;
+}

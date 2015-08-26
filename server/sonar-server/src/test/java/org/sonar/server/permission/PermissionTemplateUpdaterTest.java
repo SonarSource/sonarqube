@@ -76,7 +76,7 @@ public class PermissionTemplateUpdaterTest {
   public void should_execute_on_valid_parameters() {
 
     final PermissionTemplateDao permissionTemplateDao = mock(PermissionTemplateDao.class);
-    when(permissionTemplateDao.selectTemplateByKey("my_template")).thenReturn(new PermissionTemplateDto().setId(1L));
+    when(permissionTemplateDao.selectByKey("my_template")).thenReturn(new PermissionTemplateDto().setId(1L));
     when(dbClient.permissionTemplateDao()).thenReturn(permissionTemplateDao);
 
     PermissionTemplateUpdater updater =
@@ -97,7 +97,7 @@ public class PermissionTemplateUpdaterTest {
     expected.expectMessage("Unknown template:");
 
     final PermissionTemplateDao permissionTemplateDao = mock(PermissionTemplateDao.class);
-    when(permissionTemplateDao.selectTemplateByKey("my_template")).thenReturn(null);
+    when(permissionTemplateDao.selectByKey("my_template")).thenReturn(null);
 
     PermissionTemplateUpdater updater =
       new PermissionTemplateUpdater(dbClient, userSessionRule, "my_template", UserRole.USER, "user") {
@@ -113,7 +113,7 @@ public class PermissionTemplateUpdaterTest {
     expected.expect(BadRequestException.class);
 
     final PermissionTemplateDao permissionTemplateDao = mock(PermissionTemplateDao.class);
-    when(permissionTemplateDao.selectTemplateByKey("my_template")).thenReturn(new PermissionTemplateDto().setId(1L));
+    when(permissionTemplateDao.selectByKey("my_template")).thenReturn(new PermissionTemplateDto().setId(1L));
     when(dbClient.permissionTemplateDao()).thenReturn(permissionTemplateDao);
 
     PermissionTemplateUpdater updater =

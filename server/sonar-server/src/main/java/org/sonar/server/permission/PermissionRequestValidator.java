@@ -25,9 +25,6 @@ import java.util.regex.PatternSyntaxException;
 import javax.annotation.Nullable;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.ProjectPermissions;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.server.exceptions.BadRequestException;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -68,13 +65,5 @@ public class PermissionRequestValidator {
     } catch (PatternSyntaxException e) {
       throw new BadRequestException(format("The 'projectPattern' parameter must be a valid Java regular expression. '%s' was passed", projectPattern));
     }
-  }
-
-  public static void validateTemplateNameForUpdate(DbSession dbSession, DbClient dbClient, String templateName, long templateId) {
-    checkRequest(!templateName.isEmpty(), MSG_TEMPLATE_NAME_NOT_BLANK);
-
-    PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao().selectByName(dbSession, templateName);
-    checkRequest(permissionTemplateWithSameName == null || permissionTemplateWithSameName.getId() == templateId,
-      format(MSG_TEMPLATE_WITH_SAME_NAME, templateName));
   }
 }

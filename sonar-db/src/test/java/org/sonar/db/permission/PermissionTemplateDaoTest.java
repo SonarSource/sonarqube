@@ -124,7 +124,7 @@ public class PermissionTemplateDaoTest {
   public void should_select_permission_template_by_key() {
     dbTester.prepareDbUnit(getClass(), "selectPermissionTemplate.xml");
 
-    PermissionTemplateDto permissionTemplate = underTest.selectTemplateByKey("my_template_20130102_030405");
+    PermissionTemplateDto permissionTemplate = underTest.selectByKey("my_template_20130102_030405");
 
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getId()).isEqualTo(1L);
@@ -235,7 +235,7 @@ public class PermissionTemplateDaoTest {
     PermissionTemplateDto permissionTemplateDto = new PermissionTemplateDto().setName("Test template").setKee("test_template");
     PermissionTemplateDto templateWithPermissions = new PermissionTemplateDto().setKee("test_template");
     underTest = mock(PermissionTemplateDao.class);
-    when(underTest.selectTemplateByKey(dbTester.getSession(), "test_template")).thenReturn(permissionTemplateDto);
+    when(underTest.selectByKey(dbTester.getSession(), "test_template")).thenReturn(permissionTemplateDto);
     when(underTest.selectPermissionTemplate(dbTester.getSession(), "test_template")).thenReturn(templateWithPermissions);
     when(underTest.selectPermissionTemplateWithPermissions(dbTester.getSession(), "test_template")).thenCallRealMethod();
 

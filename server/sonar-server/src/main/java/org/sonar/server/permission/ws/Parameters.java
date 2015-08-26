@@ -32,7 +32,8 @@ class Parameters {
   static final String PARAM_PROJECT_UUID = "projectId";
   static final String PARAM_PROJECT_KEY = "projectKey";
   static final String PARAM_USER_LOGIN = "login";
-  static final String PARAM_TEMPLATE_KEY = "templateKey";
+  static final String PARAM_LONG_TEMPLATE_KEY = "templateKey";
+  static final String PARAM_TEMPLATE_KEY = "key";
   static final String PARAM_TEMPLATE_NAME = "name";
   static final String PARAM_TEMPLATE_DESCRIPTION = "description";
   static final String PARAM_TEMPLATE_PATTERN = "projectPattern";
@@ -98,9 +99,21 @@ class Parameters {
   }
 
   static void createTemplateKeyParameter(NewAction action) {
-    action.createParam(PARAM_TEMPLATE_KEY)
+    action.createParam(PARAM_LONG_TEMPLATE_KEY)
       .setRequired(true)
       .setDescription("Template key")
       .setExampleValue("developer_template_20150820_170218");
+  }
+
+  static void createTemplateProjectKeyPatternParameter(NewAction action) {
+    action.createParam(PARAM_TEMPLATE_PATTERN)
+      .setDescription("Project key pattern. Must be a valid Java regular expression")
+      .setExampleValue(".*\\.finance\\..*");
+  }
+
+  static void createTemplateDescriptionParameter(NewAction action) {
+    action.createParam(PARAM_TEMPLATE_DESCRIPTION)
+      .setDescription("Description")
+      .setExampleValue("Permissions for all projects related to the financial service");
   }
 }

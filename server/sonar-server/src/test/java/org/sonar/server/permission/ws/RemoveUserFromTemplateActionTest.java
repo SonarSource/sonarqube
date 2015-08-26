@@ -192,7 +192,7 @@ public class RemoveUserFromTemplateActionTest {
       request.setParam(Parameters.PARAM_USER_LOGIN, userLogin);
     }
     if (templateKey != null) {
-      request.setParam(Parameters.PARAM_TEMPLATE_KEY, templateKey);
+      request.setParam(Parameters.PARAM_LONG_TEMPLATE_KEY, templateKey);
     }
     if (permission != null) {
       request.setParam(Parameters.PARAM_PERMISSION, permission);

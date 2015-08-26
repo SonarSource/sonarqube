@@ -32,7 +32,7 @@ import org.sonar.server.user.UserSession;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_KEY;
+import static org.sonar.server.permission.ws.Parameters.PARAM_LONG_TEMPLATE_KEY;
 import static org.sonar.server.permission.ws.Parameters.PARAM_USER_LOGIN;
 import static org.sonar.server.permission.ws.Parameters.createProjectPermissionParameter;
 import static org.sonar.server.permission.ws.Parameters.createTemplateKeyParameter;
@@ -68,14 +68,14 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     checkGlobalAdminUser(userSession);
 
-    String templateKey = wsRequest.mandatoryParam(PARAM_TEMPLATE_KEY);
+    String templateKey = wsRequest.mandatoryParam(PARAM_LONG_TEMPLATE_KEY);
     String permission = wsRequest.mandatoryParam(PARAM_PERMISSION);
     String userLogin = wsRequest.mandatoryParam(PARAM_USER_LOGIN);
 
     DbSession dbSession = dbClient.openSession(false);
     try {
       validateProjectPermission(permission);
-      PermissionTemplateDto template = dependenciesFinder.getTemplate(templateKey);
+      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, templateKey);
       UserDto user = dependenciesFinder.getUser(dbSession, userLogin);
 
       dbClient.permissionTemplateDao().deleteUserPermission(dbSession, template.getId(), user.getId(), permission);

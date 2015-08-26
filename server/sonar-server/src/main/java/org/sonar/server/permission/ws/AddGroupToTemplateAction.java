@@ -37,7 +37,7 @@ import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobal
 import static org.sonar.server.permission.PermissionRequestValidator.validateNotAnyoneAndAdminPermission;
 import static org.sonar.server.permission.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_KEY;
+import static org.sonar.server.permission.ws.Parameters.PARAM_LONG_TEMPLATE_KEY;
 import static org.sonar.server.permission.ws.Parameters.createGroupIdParameter;
 import static org.sonar.server.permission.ws.Parameters.createGroupNameParameter;
 import static org.sonar.server.permission.ws.Parameters.createProjectPermissionParameter;
@@ -75,7 +75,7 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     checkGlobalAdminUser(userSession);
 
-    String templateKey = wsRequest.mandatoryParam(PARAM_TEMPLATE_KEY);
+    String templateKey = wsRequest.mandatoryParam(PARAM_LONG_TEMPLATE_KEY);
     String permission = wsRequest.mandatoryParam(PARAM_PERMISSION);
     WsGroup group = WsGroup.fromRequest(wsRequest);
 
@@ -84,7 +84,7 @@ public class AddGroupToTemplateAction implements PermissionsWsAction {
       validateProjectPermission(permission);
       validateNotAnyoneAndAdminPermission(permission, group.name());
 
-      PermissionTemplateDto template = dependenciesFinder.getTemplate(templateKey);
+      PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, templateKey);
       GroupDto groupDto = dependenciesFinder.getGroup(dbSession, group);
 
       if (!groupAlreadyAdded(dbSession, template.getId(), groupDto, permission)) {

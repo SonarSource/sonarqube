@@ -31,7 +31,6 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions;
 import org.sonarqube.ws.Permissions.PermissionTemplate;
 
-import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.PermissionRequestValidator.MSG_TEMPLATE_NAME_NOT_BLANK;
 import static org.sonar.server.permission.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
@@ -39,7 +38,10 @@ import static org.sonar.server.permission.PermissionRequestValidator.validatePro
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_DESCRIPTION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_PATTERN;
+import static org.sonar.server.permission.ws.Parameters.createTemplateDescriptionParameter;
+import static org.sonar.server.permission.ws.Parameters.createTemplateProjectKeyPatternParameter;
 import static org.sonar.server.permission.ws.PermissionTemplateDtoBuilder.create;
+import static org.sonar.server.permission.ws.PermissionTemplateDtoToPermissionTemplateResponse.toPermissionTemplateResponse;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -69,13 +71,8 @@ public class CreateTemplateAction implements PermissionsWsAction {
       .setDescription("Name")
       .setExampleValue("Financial Service Permissions");
 
-    action.createParam(PARAM_TEMPLATE_PATTERN)
-      .setDescription("Project key pattern. Must be a valid Java regular expression")
-      .setExampleValue(".*\\.finance\\..*");
-
-    action.createParam(PARAM_TEMPLATE_DESCRIPTION)
-      .setDescription("Description")
-      .setExampleValue("Permissions for all projects related to the financial service");
+    createTemplateProjectKeyPatternParameter(action);
+    createTemplateDescriptionParameter(action);
   }
 
   @Override
@@ -117,18 +114,8 @@ public class CreateTemplateAction implements PermissionsWsAction {
     return template;
   }
 
-  private Permissions.CreatePermissionTemplateResponse buildResponse(PermissionTemplateDto permissionTemplate) {
-    PermissionTemplate.Builder permissionTemplateBuilder = PermissionTemplate.newBuilder()
-      .setKey(permissionTemplate.getKee())
-      .setName(permissionTemplate.getName())
-      .setCreatedAt(formatDateTime(permissionTemplate.getCreatedAt()))
-      .setUpdatedAt(formatDateTime(permissionTemplate.getUpdatedAt()));
-    if (permissionTemplate.getDescription() != null) {
-      permissionTemplateBuilder.setDescription(permissionTemplate.getDescription());
-    }
-    if (permissionTemplate.getKeyPattern() != null) {
-      permissionTemplateBuilder.setProjectPattern(permissionTemplate.getKeyPattern());
-    }
+  private Permissions.CreatePermissionTemplateResponse buildResponse(PermissionTemplateDto permissionTemplateDto) {
+    PermissionTemplate permissionTemplateBuilder = toPermissionTemplateResponse(permissionTemplateDto);
     return Permissions.CreatePermissionTemplateResponse.newBuilder().setPermissionTemplate(permissionTemplateBuilder).build();
   }
 }

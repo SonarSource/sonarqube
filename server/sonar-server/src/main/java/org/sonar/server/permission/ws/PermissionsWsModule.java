@@ -42,6 +42,7 @@ public class PermissionsWsModule extends Module {
       RemoveUserFromTemplateAction.class,
       AddGroupToTemplateAction.class,
       RemoveGroupFromTemplateAction.class,
-      CreateTemplateAction.class);
+      CreateTemplateAction.class,
+      UpdateTemplateAction.class);
   }
 }
