@@ -2,10 +2,6 @@
   "name": "SonarQube",
   "version": "0.0.1",
   "devDependencies": {
-    "chai": "^3.2.0",
-    "eslint": "^1.2.1",
-    "eslint-plugin-bdd": "^1.1.0",
-    "eslint-plugin-mocha": "^0.5.1",
     "grunt": "0.4.5",
     "grunt-babel": "5.0.1",
     "grunt-cli": "0.1.13",
@@ -22,9 +18,6 @@
     "grunt-uglify-parallel": "0.0.1",
     "intern": "^3.0.0-rc.1",
     "jit-grunt": "0.9.1",
-    "jquery": "^2.1.4",
-    "jsdom": "^3.1.1",
-    "mocha-eslint": "^1.0.0",
     "sinon": "^1.15.4",
     "time-grunt": "1.2.1"
   },
@@ -34,7 +27,6 @@
     "build-test": "./node_modules/.bin/grunt build-test",
     "build-coverage": "./node_modules/.bin/grunt build-coverage",
     "test": "./node_modules/.bin/grunt test",
-    "mocha": "./node_modules/.bin/mocha --compilers js:babel/register --require tests/testdom tests/**/*-test.js",
     "coverage": "./node_modules/.bin/grunt coverage"
   }
 }
