@@ -21,14 +21,20 @@
 package org.sonar.server.computation.step;
 
 import org.sonar.core.computation.dbcleaner.ProjectCleaner;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.purge.IdUuidPair;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.SettingsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.db.DbClient;
+import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
+
+import static org.sonar.server.computation.component.Component.Type.PROJECT;
+import static org.sonar.server.computation.component.Component.Type.VIEW;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.CrawlerDepthLimit.reportMaxDepth;
 
 public class PurgeDatastoresStep implements ComputationStep {
 
@@ -49,13 +55,27 @@ public class PurgeDatastoresStep implements ComputationStep {
 
   @Override
   public void execute() {
+    new DepthTraversalTypeAwareCrawler(
+      new TypeAwareVisitorAdapter(reportMaxDepth(PROJECT).withViewsMaxDepth(VIEW), PRE_ORDER) {
+        @Override
+        public void visitProject(Component project) {
+          execute(project);
+        }
+
+        @Override
+        public void visitView(Component view) {
+          execute(view);
+        }
+      }).visit(treeRootHolder.getRoot());
+  }
+
+  private void execute(Component root) {
     DbSession session = dbClient.openSession(true);
     try {
-      Component project = treeRootHolder.getRoot();
-      projectCleaner.purge(session, new IdUuidPair(dbIdsRepository.getComponentId(project), project.getUuid()), settingsRepository.getSettings(project));
+      projectCleaner.purge(session, new IdUuidPair(dbIdsRepository.getComponentId(root), root.getUuid()), settingsRepository.getSettings(root));
       session.commit();
     } finally {
-      MyBatis.closeQuietly(session);
+      dbClient.closeSession(session);
     }
   }
 
