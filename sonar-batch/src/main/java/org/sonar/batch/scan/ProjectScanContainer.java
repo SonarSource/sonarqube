@@ -34,7 +34,6 @@ import org.sonar.batch.issue.DefaultIssueCallback;
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.bootstrap.ProjectBootstrapper;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
@@ -131,7 +130,7 @@ public class ProjectScanContainer extends ComponentContainer {
       props,
       DefaultAnalysisMode.class,
       projectReactorBuilder(),
-      new MutableProjectReactorProvider(getComponentByType(ProjectBootstrapper.class)),
+      new MutableProjectReactorProvider(),
       new ImmutableProjectReactorProvider(),
       ProjectBuildersExecutor.class,
       ProjectLock.class,

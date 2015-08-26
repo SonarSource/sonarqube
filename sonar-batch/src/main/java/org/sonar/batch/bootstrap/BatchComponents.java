@@ -42,7 +42,7 @@ public class BatchComponents {
     // only static stuff
   }
 
-  public static Collection<Object> all(GlobalMode analysisMode) {
+  public static Collection<Object> all() {
     List<Object> components = Lists.newArrayList(
       DefaultResourceTypes.get(),
       // SCM

@@ -22,38 +22,18 @@ package org.sonar.batch.scan;
 import org.apache.commons.io.FileUtils;
 import org.sonar.batch.analysis.AnalysisProperties;
 import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.batch.bootstrap.ProjectBootstrapper;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-
-import javax.annotation.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
 public class MutableProjectReactorProvider extends ProviderAdapter {
-
-  private final ProjectBootstrapper projectBootstrapper;
   private ProjectReactor reactor = null;
-
-  public MutableProjectReactorProvider(@Nullable ProjectBootstrapper projectBootstrapper) {
-    this.projectBootstrapper = projectBootstrapper;
-  }
 
   public ProjectReactor provide(ProjectReactorBuilder builder, AnalysisProperties settings) {
     if (reactor == null) {
-      // Look for a deprecated custom ProjectBootstrapper for old versions of SQ Runner
-      if (projectBootstrapper == null
-        // Starting from Maven plugin 2.3 then only DefaultProjectBootstrapper should be used.
-        || "true".equals(settings.property("sonar.mojoUseRunner"))) {
-        // Use default SonarRunner project bootstrapper
-        reactor = builder.execute();
-      } else {
-        reactor = projectBootstrapper.bootstrap();
-      }
-      if (reactor == null) {
-        throw new IllegalStateException(projectBootstrapper + " has returned null as ProjectReactor");
-      }
+      reactor = builder.execute();
       cleanDirectory(reactor.getRoot().getWorkDir());
     }
     return reactor;

@@ -34,18 +34,16 @@ public class ExtensionInstaller {
 
   private final PluginRepository pluginRepository;
   private final EnvironmentInformation env;
-  private final GlobalMode globalMode;
 
-  public ExtensionInstaller(PluginRepository pluginRepository, EnvironmentInformation env, GlobalMode globalMode) {
+  public ExtensionInstaller(PluginRepository pluginRepository, EnvironmentInformation env) {
     this.pluginRepository = pluginRepository;
     this.env = env;
-    this.globalMode = globalMode;
   }
 
   public ExtensionInstaller install(ComponentContainer container, ExtensionMatcher matcher) {
 
     // core components
-    for (Object o : BatchComponents.all(globalMode)) {
+    for (Object o : BatchComponents.all()) {
       doInstall(container, matcher, null, o);
     }
 
