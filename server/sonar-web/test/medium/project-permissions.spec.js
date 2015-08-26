@@ -13,10 +13,10 @@ define(function (require) {
           .checkElementCount('#projects > thead > tr > th', 3)
           .checkElementCount('#projects > tbody > tr', 2)
           .checkElementInclude('#projects > tbody > tr:first-child td:nth-child(1)', 'My Project')
-          .checkElementInclude('#projects > tbody > tr:first-child td:nth-child(2)', '1')
-          .checkElementInclude('#projects > tbody > tr:first-child td:nth-child(2)', '2')
-          .checkElementInclude('#projects > tbody > tr:first-child td:nth-child(3)', '3')
-          .checkElementInclude('#projects > tbody > tr:first-child td:nth-child(3)', '4');
+          .checkElementInclude('#projects > tbody > tr:first-child td:nth-child(2)', '3')
+          .checkElementInclude('#projects > tbody > tr:first-child td:nth-child(2)', '4')
+          .checkElementInclude('#projects > tbody > tr:first-child td:nth-child(3)', '1')
+          .checkElementInclude('#projects > tbody > tr:first-child td:nth-child(3)', '2');
     });
   });
 });
