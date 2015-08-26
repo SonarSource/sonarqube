@@ -48,24 +48,29 @@ public interface MeasureComputer {
   interface MeasureComputerBuilder {
 
     /**
-     * @throws IllegalStateException if there's not at least one input metrics
-     */
+     * Input metrics can be empty (for instance when only issues are needed)
+     * @throws NullPointerException if inputMetrics is null
+     * @throws NullPointerException if the metrics contains a {@code null}
+     * */
     MeasureComputerBuilder setInputMetrics(String... inputMetrics);
 
     /**
-     * @throws IllegalStateException if there's not at least one output metrics
+     * @throws IllegalArgumentException if there's not at least one output metrics
+     * @throws NullPointerException if the metrics contains a {@code null}
      */
     MeasureComputerBuilder setOutputMetrics(String... outMetrics);
 
     /**
-     * @throws IllegalStateException if there's no implementation
+     * @throws NullPointerException if there's no implementation
      */
     MeasureComputerBuilder setImplementation(Implementation impl);
 
     /**
-     * @throws IllegalStateException if there's not at least one input metrics
-     * @throws IllegalStateException if there's not at least one output metrics
-     * @throws IllegalStateException if there's no implementation
+     * @throws NullPointerException if inputMetrics is null
+     * @throws NullPointerException if inputs metrics contains a {@code null}
+     * @throws IllegalArgumentException if there's not at least one output metrics
+     * @throws NullPointerException if outputs metrics contains a {@code null}
+     * @throws NullPointerException if there's no implementation
      */
     MeasureComputer build();
   }

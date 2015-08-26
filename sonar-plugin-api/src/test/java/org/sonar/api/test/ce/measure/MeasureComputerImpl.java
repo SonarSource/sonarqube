@@ -22,9 +22,11 @@ package org.sonar.api.test.ce.measure;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.ce.measure.MeasureComputer;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
 public class MeasureComputerImpl implements MeasureComputer {
 
@@ -64,49 +66,56 @@ public class MeasureComputerImpl implements MeasureComputer {
 
   public static class MeasureComputerBuilderImpl implements MeasureComputerBuilder {
 
-    private String[] inputMetricKeys;
+    private String[] inputMetricKeys = new String[] {};
     private String[] outputMetrics;
     private Implementation measureComputerImplementation;
 
     @Override
     public MeasureComputerBuilder setInputMetrics(String... inputMetrics) {
-      this.inputMetricKeys = inputMetrics;
-      checkInputMetricKeys();
+      this.inputMetricKeys = validateInputMetricKeys(inputMetrics);
       return this;
     }
 
     @Override
     public MeasureComputerBuilder setOutputMetrics(String... outputMetrics) {
-      this.outputMetrics = outputMetrics;
-      checkOutputMetricKeys();
+      this.outputMetrics = validateOutputMetricKeys(outputMetrics);
       return this;
     }
 
     @Override
     public MeasureComputerBuilder setImplementation(Implementation impl) {
-      this.measureComputerImplementation = impl;
-      checkImplementation();
+      this.measureComputerImplementation = validateImplementation(impl);
       return this;
     }
 
     @Override
     public MeasureComputer build() {
-      checkInputMetricKeys();
-      checkOutputMetricKeys();
-      checkImplementation();
+      validateInputMetricKeys(this.inputMetricKeys);
+      validateOutputMetricKeys(this.outputMetrics);
+      validateImplementation(this.measureComputerImplementation);
       return new MeasureComputerImpl(this);
     }
 
-    private void checkInputMetricKeys(){
-      checkArgument(this.inputMetricKeys != null && inputMetricKeys.length > 0, "At least one input metrics must be defined");
+    private static String[] validateInputMetricKeys(@Nullable String[] inputMetrics) {
+      requireNonNull(inputMetrics, "Input metrics cannot be null");
+      checkNotNull(inputMetrics);
+      return inputMetrics;
     }
 
-    private void checkOutputMetricKeys(){
-      checkArgument(this.outputMetrics != null && outputMetrics.length > 0, "At least one output metrics must be defined");
+    private static String[] validateOutputMetricKeys(@Nullable String[] outputMetrics) {
+      checkArgument(outputMetrics != null && outputMetrics.length > 0, "At least one output metric must be defined");
+      checkNotNull(outputMetrics);
+      return outputMetrics;
     }
 
-    private void checkImplementation(){
-      checkArgument(this.measureComputerImplementation != null, "The implementation is missing");
+    private static Implementation validateImplementation(Implementation impl) {
+      return requireNonNull(impl, "The implementation is missing");
+    }
+  }
+
+  private static void checkNotNull(String[] metrics){
+    for (String metric : metrics) {
+      requireNonNull(metric, "Null metric is not allowed");
     }
   }
 }

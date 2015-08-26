@@ -75,20 +75,30 @@ public class MeasureComputerImplTest {
   }
 
   @Test
-  public void fail_with_IAE_when_no_input_metrics() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("At least one input metric must be defined");
-
-    new MeasureComputerImpl.MeasureComputerBuilderImpl()
+  public void input_metrics_can_be_empty() throws Exception {
+    MeasureComputer measureComputer = new MeasureComputerImpl.MeasureComputerBuilderImpl()
+      .setInputMetrics()
       .setOutputMetrics("comment_density_1", "comment_density_2")
       .setImplementation(DEFAULT_MEASURE_COMPUTER_IMPLEMENTATION)
       .build();
+
+    assertThat(measureComputer.getInputMetrics()).isEmpty();
   }
 
   @Test
-  public void fail_with_IAE_when_null_input_metrics() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("At least one input metric must be defined");
+  public void input_metrics_is_empty_when_not_set() throws Exception {
+    MeasureComputer measureComputer = new MeasureComputerImpl.MeasureComputerBuilderImpl()
+      .setOutputMetrics("comment_density_1", "comment_density_2")
+      .setImplementation(DEFAULT_MEASURE_COMPUTER_IMPLEMENTATION)
+      .build();
+
+    assertThat(measureComputer.getInputMetrics()).isEmpty();
+  }
+
+  @Test
+  public void fail_with_NPE_when_null_input_metrics() throws Exception {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("Input metrics cannot be null");
 
     new MeasureComputerImpl.MeasureComputerBuilderImpl()
       .setInputMetrics(null)
@@ -97,12 +107,12 @@ public class MeasureComputerImplTest {
   }
 
   @Test
-  public void fail_with_IAE_with_empty_input_metrics() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("At least one input metric must be defined");
+  public void fail_with_NPE_when_one_input_metric_is_null() throws Exception {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("Null metric is not allowed");
 
     new MeasureComputerImpl.MeasureComputerBuilderImpl()
-      .setInputMetrics()
+      .setInputMetrics("ncloc", null)
       .setOutputMetrics("comment_density_1", "comment_density_2")
       .setImplementation(DEFAULT_MEASURE_COMPUTER_IMPLEMENTATION);
   }
@@ -130,6 +140,17 @@ public class MeasureComputerImplTest {
   }
 
   @Test
+  public void fail_with_NPE_when_one_output_metric_is_null() throws Exception {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("Null metric is not allowed");
+
+    new MeasureComputerImpl.MeasureComputerBuilderImpl()
+      .setInputMetrics("ncloc", "comment")
+      .setOutputMetrics("comment_density_1", null)
+      .setImplementation(DEFAULT_MEASURE_COMPUTER_IMPLEMENTATION);
+  }
+
+  @Test
   public void fail_with_IAE_with_empty_output_metrics() throws Exception {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("At least one output metric must be defined");
@@ -142,7 +163,7 @@ public class MeasureComputerImplTest {
 
   @Test
   public void fail_with_IAE_when_no_implementation() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
+    thrown.expect(NullPointerException.class);
     thrown.expectMessage("The implementation is missing");
 
     new MeasureComputerImpl.MeasureComputerBuilderImpl()
@@ -153,7 +174,7 @@ public class MeasureComputerImplTest {
 
   @Test
   public void fail_with_IAE_when_null_implementation() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
+    thrown.expect(NullPointerException.class);
     thrown.expectMessage("The implementation is missing");
 
     new MeasureComputerImpl.MeasureComputerBuilderImpl()
