@@ -1,6 +1,6 @@
 require.config({
   baseUrl: window.baseUrl + '/js',
-  urlArgs: 'v=' + window.sonarVersion,
+  urlArgs: 'v=' + window.sonar.version,
   paths: {
     'react': 'libs/third-party/react-with-addons',
     'underscore': 'libs/shim/underscore-shim',
@@ -15,8 +15,8 @@ require([
   './components/common/processes'
 ], function (App) {
   new App({
-    space: window.space,
-    componentKey: window.component,
+    space: window.sonar.space,
+    componentKey: window.sonar.component,
     lang: window.pageLang
   }).start();
 });

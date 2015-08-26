@@ -6,6 +6,13 @@
    end
    component = @project
    component = @resource unless @project || selected_section == Navigation::SECTION_HOME
+
+   space = 'global'
+   if selected_section == Navigation::SECTION_RESOURCE
+     space = 'component'
+   elsif selected_section == Navigation::SECTION_CONFIGURATION
+     space = 'settings'
+   end
 %>
 
 <!DOCTYPE html>
@@ -35,28 +42,26 @@
 
   <script>
     window.pageLang = '<%= I18n.locale.to_s.gsub(/-/, '_') -%>';
-    window.sonarVersion = '<%= sonar_version -%>';
     window.baseUrl = '<%= ApplicationController.root_context -%>';
-    <% if selected_section == Navigation::SECTION_RESOURCE %>
-    window.space = 'component';
-    window.component = '<%= escape_javascript component.key -%>';
-    <% elsif selected_section == Navigation::SECTION_CONFIGURATION %>
-    window.space = 'settings';
-    <% else %>
-    window.space = 'global';
-    <% end %>
 
-    <%# The two lines below mean that before full removal of Rails, we have to find a way to handle config properties %>
+    window.sonar = {};
+    window.sonar.version = '<%= escape_javascript sonar_version -%>';
+    window.sonar.space = '<%= escape_javascript space -%>';
+    <% if component -%>
+    window.sonar.component = '<%= escape_javascript component.key -%>';
+    <% end %>
+    window.sonar.properties = {
+      'sonar.technicalDebt.hoursInDay': <%= escape_javascript configuration('sonar.technicalDebt.hoursInDay', 8) %>,
+      'sonar.lf.enableGravatar': <%= escape_javascript configuration('sonar.lf.enableGravatar', true) %>,
+      'sonar.lf.gravatarServerUrl': '<%= escape_javascript configuration('sonar.lf.gravatarServerUrl') %>',
+      'sonar.updatecenter.activate': <%= escape_javascript configuration('sonar.updatecenter.activate', true) %>
+    };
+
     window.SS = {
-      hoursInDay: <%= configuration('sonar.technicalDebt.hoursInDay', 8) %>,
       user: '<%= current_user.login if current_user -%>',
       userName: '<%= current_user.name if current_user -%>',
       userEmail: '<%= current_user.email if current_user -%>',
-      lf: {
-        enableGravatar: <%= configuration('sonar.lf.enableGravatar', true) %>,
-        gravatarServerUrl: '<%= configuration('sonar.lf.gravatarServerUrl') %>'
-      },
-      updateCenterActive: <%= configuration('sonar.updatecenter.activate', true) %>
+      isUserAdmin: <%= current_user && is_admin? ? 'true' : 'false' -%>
     };
   </script>
 

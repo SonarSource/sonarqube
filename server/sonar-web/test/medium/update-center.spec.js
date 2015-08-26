@@ -97,7 +97,7 @@ define(function (require) {
           .mockFromFile('/api/plugins/updates', 'update-center-spec/updates.json')
           .mockFromFile('/api/plugins/pending', 'update-center-spec/pending.json')
           .execute(function () {
-            window.SS.updateCenterActive = false;
+            window.sonar.properties['sonar.updatecenter.activate'] = false;
           })
           .startApp('update-center/app')
           .checkElementExist('.js-plugin-name')

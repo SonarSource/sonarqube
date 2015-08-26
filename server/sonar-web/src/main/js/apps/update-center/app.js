@@ -15,7 +15,7 @@ define([
       init = function (options) {
         // State
         this.state = new Backbone.Model({
-          updateCenterActive: window.SS.updateCenterActive
+          updateCenterActive: window.sonar.properties['sonar.updatecenter.activate']
         });
 
         // Layout

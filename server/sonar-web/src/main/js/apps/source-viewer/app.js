@@ -20,6 +20,7 @@ define([
       };
 
   App.on('start', function (options) {
+    console.log(options);
     if (options.component) {
       init.call(App, options);
     }

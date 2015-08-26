@@ -567,14 +567,14 @@
   });
 
   Handlebars.registerHelper('ifShowAvatars', function (options) {
-    var cond = window.SS && window.SS.lf && window.SS.lf.enableGravatar;
+    var cond = window.sonar.properties['sonar.lf.enableGravatar'];
     return cond ? options.fn(this) : options.inverse(this);
   });
 
   Handlebars.registerHelper('avatarHelper', function (email, size) {
     // double the size for high pixel density screens
     var emailHash = window.md5((email || '').trim()),
-        url = ('' + window.SS.lf.gravatarServerUrl)
+        url = ('' + window.sonar.properties['sonar.lf.gravatarServerUrl'])
             .replace('{EMAIL_MD5}', emailHash)
             .replace('{SIZE}', size * 2);
     return new Handlebars.SafeString(

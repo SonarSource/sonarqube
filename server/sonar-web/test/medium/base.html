@@ -4,21 +4,25 @@
   <link href="../../build/css/sonar.css" rel="stylesheet" media="all">
   <script>
     window.pageLang = 'en_US';
-    window.sonarVersion = 'SNAPSHOT';
     window.baseUrl = '';
-    window.space = 'global';
-    window.component = 'key';
+
+    window.sonar = {};
+    window.sonar.version = 'SNAPSHOT';
+    window.sonar.space = 'global';
+    window.sonar.component = 'key';
+
+    window.sonar.properties = {
+      'sonar.technicalDebt.hoursInDay': 8,
+      'sonar.lf.enableGravatar': true,
+      'sonar.lf.gravatarServerUrl': 'http://example.com/avatar/{EMAIL_MD5}.jpg?s={SIZE}&d=identicon',
+      'sonar.updatecenter.activate': true
+    };
 
     window.SS = {
-      hoursInDay: 8,
-      user: '',
-      userName: '',
+      user: 'admin',
+      userName: 'Administrator',
       userEmail: '',
-      lf: {
-        enableGravatar: false,
-        gravatarServerUrl: ''
-      },
-      updateCenterActive: true
+      isUserAdmin: true
     };
   </script>
 

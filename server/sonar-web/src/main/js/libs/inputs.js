@@ -21,7 +21,7 @@
     if (!value) {
       return value;
     } else {
-      return (days * window.SS.hoursInDay + hours) * 60 + minutes;
+      return (days * window.sonar.properties['sonar.technicalDebt.hoursInDay'] + hours) * 60 + minutes;
     }
   }
 
@@ -33,8 +33,8 @@
     if (!/^\d+$/.test(value)) {
       return value;
     }
-    days = Math.floor(value / (window.SS.hoursInDay * 60));
-    hours = Math.floor((value - days * window.SS.hoursInDay * 60) / 60);
+    days = Math.floor(value / (window.sonar.properties['sonar.technicalDebt.hoursInDay'] * 60));
+    hours = Math.floor((value - days * window.sonar.properties['sonar.technicalDebt.hoursInDay'] * 60) / 60);
     minutes = value % 60;
     result = [];
     if (days > 0) {

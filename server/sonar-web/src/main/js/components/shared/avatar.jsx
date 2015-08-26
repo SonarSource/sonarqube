@@ -7,12 +7,12 @@ export default React.createClass({
   },
 
   render() {
-    const shouldShowAvatar = window.SS && window.SS.lf && window.SS.lf.enableGravatar;
+    const shouldShowAvatar = window.sonar.properties['sonar.lf.enableGravatar'];
     if (!shouldShowAvatar) {
       return null;
     }
     const emailHash = window.md5(this.props.email || '').trim();
-    const url = ('' + window.SS.lf.gravatarServerUrl)
+    const url = ('' + window.sonar.properties['sonar.lf.gravatarServerUrl'])
             .replace('{EMAIL_MD5}', emailHash)
             .replace('{SIZE}', this.props.size * 2);
     return <img className="rounded" src={url} width={this.props.size} height={this.props.size} alt={this.props.email}/>;

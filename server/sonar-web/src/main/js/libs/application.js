@@ -444,7 +444,7 @@ window.fileFromPath = function (path) {
     if (value === 0) {
       return '0';
     }
-    var hoursInDay = window.SS.hoursInDay || 8,
+    var hoursInDay = window.sonar.properties['sonar.technicalDebt.hoursInDay'],
         isNegative = value < 0,
         absValue = Math.abs(value);
     var days = Math.floor(absValue / hoursInDay / 60);
@@ -464,7 +464,7 @@ window.fileFromPath = function (path) {
     if (value === 0) {
       return '0';
     }
-    var hoursInDay = window.SS.hoursInDay || 8,
+    var hoursInDay = window.sonar.properties['sonar.technicalDebt.hoursInDay'],
         isNegative = value < 0,
         absValue = Math.abs(value);
     var days = Math.floor(absValue / hoursInDay / 60);
