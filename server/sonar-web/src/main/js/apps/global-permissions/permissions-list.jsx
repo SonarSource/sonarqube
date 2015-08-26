@@ -8,7 +8,7 @@ export default React.createClass({
 
   renderPermissions() {
     return this.props.permissions.map(permission => {
-      return <Permission key={permission.key} permission={permission}/>
+      return <Permission key={permission.key} permission={permission} project={this.props.project}/>;
     });
   },
 

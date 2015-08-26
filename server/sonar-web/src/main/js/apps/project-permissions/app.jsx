@@ -1,11 +1,14 @@
 import React from 'react';
 import Main from './main';
-
-const $ = jQuery;
+import MainComponent from './main-component';
 
 export default {
   start(options) {
     var el = document.querySelector(options.el);
-    React.render(<Main/>, el);
+    if (options.component) {
+      React.render(<MainComponent component={options.component}/>, el);
+    } else {
+      React.render(<Main/>, el);
+    }
   }
 };

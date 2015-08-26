@@ -23,13 +23,19 @@ export default React.createClass({
 
   requestUsers() {
     const url = `${window.baseUrl}/api/permissions/users`;
-    const data = { permission: this.props.permission.key, ps: MAX_ITEMS };
+    let data = { permission: this.props.permission.key, ps: MAX_ITEMS };
+    if (this.props.project) {
+      data.projectId = this.props.project;
+    }
     $.get(url, data).done(r => this.setState({ users: r.users, totalUsers: r.paging && r.paging.total }));
   },
 
   requestGroups() {
     const url = `${window.baseUrl}/api/permissions/groups`;
-    const data = { permission: this.props.permission.key, ps: MAX_ITEMS };
+    let data = { permission: this.props.permission.key, ps: MAX_ITEMS };
+    if (this.props.project) {
+      data.projectId = this.props.project;
+    }
     $.get(url, data).done(r => this.setState({ groups: r.groups, totalGroups: r.paging && r.paging.total }));
   },
 
@@ -40,11 +46,13 @@ export default React.createClass({
           <p className="spacer-top" dangerouslySetInnerHTML={{ __html: this.props.permission.description }}/>
           <ul className="list-inline spacer-top">
             <PermissionUsers permission={this.props.permission}
+                             project={this.props.project}
                              max={MAX_ITEMS}
                              items={this.state.users}
                              total={this.state.totalUsers || this.props.permission.usersCount}
                              refresh={this.requestUsers}/>
             <PermissionGroups permission={this.props.permission}
+                              project={this.props.project}
                               max={MAX_ITEMS}
                               items={this.state.groups}
                               total={this.state.totalGroups || this.props.permission.groupsCount}

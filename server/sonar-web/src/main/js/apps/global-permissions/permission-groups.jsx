@@ -27,6 +27,7 @@ export default React.createClass({
     e.preventDefault();
     new GroupsView({
       permission: this.props.permission.key,
+      project: this.props.project,
       refresh: this.props.refresh
     }).render();
   }

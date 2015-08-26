@@ -23,7 +23,7 @@ const APP_URL_MAPPING = {
   'overview': 'overview/app',
   'permission_templates': 'select-list/app',
   'profiles': 'quality-profiles/app',
-  'project_roles': 'select-list/app',
+  'project_roles': 'project-permissions/app',
   'provisioning': 'provisioning/app',
   'quality_gates': 'quality-gates/app',
   'roles/global': 'global-permissions/app',

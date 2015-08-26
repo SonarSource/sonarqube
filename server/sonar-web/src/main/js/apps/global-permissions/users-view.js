@@ -4,6 +4,22 @@ define([
   './templates'
 ], function (Modal) {
 
+  function getSearchUrl (permission, project) {
+    var url = baseUrl + '/api/permissions/users?ps=100&permission=' + permission;
+    if (project) {
+      url = url + '&projectId=' + project;
+    }
+    return url;
+  }
+
+  function getExtra (permission, project) {
+    var extra = { permission: permission };
+    if (project) {
+      extra.projectId = project;
+    }
+    return extra;
+  }
+
   return Modal.extend({
     template: Templates['global-permissions-users'],
 
@@ -18,12 +34,10 @@ define([
           return item.name + '<br><span class="note">' + item.login + '</span>';
         },
         queryParam: 'q',
-        searchUrl: baseUrl + '/api/permissions/users?ps=100&permission=' + this.options.permission,
+        searchUrl: getSearchUrl(this.options.permission, this.options.project),
         selectUrl: baseUrl + '/api/permissions/add_user',
         deselectUrl: baseUrl + '/api/permissions/remove_user',
-        extra: {
-          permission: this.options.permission
-        },
+        extra: getExtra(this.options.permission, this.options.project),
         selectParameter: 'login',
         selectParameterValue: 'login',
         parse: function (r) {

@@ -16,7 +16,7 @@ define(function (require) {
           .checkElementInclude('#global-permissions-list > li h3', 'Administer System')
           .checkElementInclude('#global-permissions-list > li p', 'Ability to perform all administration')
           .checkElementInclude('#global-permissions-list > li ul > li:first-child', 'Administrator')
-          .checkElementInclude('#global-permissions-list > li ul > li:last-child', '1')
+          .checkElementInclude('#global-permissions-list > li ul > li:last-child', '1');
     });
   });
 });

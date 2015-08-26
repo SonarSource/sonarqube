@@ -28,6 +28,7 @@ export default React.createClass({
     e.preventDefault();
     new UsersView({
       permission: this.props.permission.key,
+      project: this.props.project,
       refresh: this.props.refresh
     }).render();
   }

@@ -4,6 +4,22 @@ define([
   './templates'
 ], function (Modal) {
 
+  function getSearchUrl(permission, project) {
+    var url = baseUrl + '/api/permissions/groups?ps=100&permission=' + permission;
+    if (project) {
+      url = url + '&projectId=' + project;
+    }
+    return url;
+  }
+
+  function getExtra (permission, project) {
+    var extra = { permission: permission };
+    if (project) {
+      extra.projectId = project;
+    }
+    return extra;
+  }
+
   return Modal.extend({
     template: Templates['global-permissions-groups'],
 
@@ -18,12 +34,10 @@ define([
           return item.name;
         },
         queryParam: 'q',
-        searchUrl: baseUrl + '/api/permissions/groups?ps=100&permission=' + this.options.permission,
+        searchUrl: getSearchUrl(this.options.permission, this.options.project),
         selectUrl: baseUrl + '/api/permissions/add_group',
         deselectUrl: baseUrl + '/api/permissions/remove_group',
-        extra: {
-          permission: this.options.permission
-        },
+        extra: getExtra(this.options.permission, this.options.project),
         selectParameter: 'groupName',
         selectParameterValue: 'name',
         parse: function (r) {

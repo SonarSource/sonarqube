@@ -22,11 +22,9 @@ class ProjectRolesController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
 
-  # GET /project_roles/@project
   def index
-    @project=Project.by_key(params[:id])
+    @project = Project.by_key(params[:id])
     access_denied unless is_admin?(@project)
-    @snapshot=@project.last_snapshot
   end
 
 end
