@@ -159,8 +159,7 @@ define(function (require) {
     return new this.constructor(this, function () {
       return this.parent
           .execute(function (app, options) {
-            var opts = options || {};
-            opts.urlRoot = '/test/medium/base.html';
+            var opts = _.extend({}, options, { urlRoot: '/test/medium/base.html' });
             window.App.startApp({ name: app, options: opts });
           }, [app, options])
           .sleep(1000);

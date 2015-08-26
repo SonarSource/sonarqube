@@ -11,6 +11,7 @@ define(function (require) {
             .mockFromFile('/api/issue_filters/search', 'issues-spec/issue-filters.json')
             .mockFromFile('/api/issues/search', 'issues-spec/search.json')
             .startApp('issues/app')
+            .sleep(2000)
             .clickElement('.js-new-search')
             .checkElementCount('.js-filter', 3)
             .checkElementCount('.js-filter[data-id="1"]', 1)
