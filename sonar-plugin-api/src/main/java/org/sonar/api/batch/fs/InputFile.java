@@ -115,31 +115,39 @@ public interface InputFile extends InputPath {
   boolean isEmpty();
 
   /**
-   * Return a {@link TextPointer} in the given file.
+   * Returns a {@link TextPointer} in the given file.
    * @param line Line of the pointer. Start at 1.
    * @param lineOffset Offset in the line. Start at 0.
    * @throw {@link IllegalArgumentException} if line or offset is not valid for the given file.
+   * @since 5.2
    */
   TextPointer newPointer(int line, int lineOffset);
 
   /**
-   * Return a {@link TextRange} in the given file.
+   * Returns a {@link TextRange} in the given file.
    * @param start start pointer
    * @param end end pointer
    * @throw {@link IllegalArgumentException} if start or stop pointers are not valid for the given file.
+   * @since 5.2
    */
   TextRange newRange(TextPointer start, TextPointer end);
 
   /**
-   * Return a {@link TextRange} in the given file.
+   * Returns a {@link TextRange} in the given file.
+   * <ul>
+   * <li><code>newRange(1, 0, 1, 1)</code> selects the first character at line 1</li>
+   * <li><code>newRange(1, 0, 1, 10)</code> selects the 10 first characters at line 1</li>
+   * </ul>
    * @throw {@link IllegalArgumentException} if start or stop positions are not valid for the given file.
+   * @since 5.2
    */
   TextRange newRange(int startLine, int startLineOffset, int endLine, int endLineOffset);
 
   /**
-   * Return a {@link TextRange} in the given file that select the full line.
+   * Returns a {@link TextRange} in the given file that select the full line.
    * @param line Start at 1.
    * @throw {@link IllegalArgumentException} if line is not valid for the given file.
+   * @since 5.2
    */
   TextRange selectLine(int line);
 }

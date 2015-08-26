@@ -101,9 +101,10 @@ public interface Issuable extends Perspective {
 
     /**
      * @since 5.2
-     * Register an execution flow for this issue.
+     * Register an execution flow for this issue. An execution flow is an ordered list of issue locations that help to understand the issue.
+     * It is usually the path leading to the primary location. Several execution flows can be registered.
      */
-    IssueBuilder addExecutionFlow(NewIssueLocation... flow);
+    IssueBuilder addExecutionFlow(Iterable<NewIssueLocation> flowLocations);
 
     /**
      * Overrides the severity declared in Quality profile. Do not execute in standard use-cases.

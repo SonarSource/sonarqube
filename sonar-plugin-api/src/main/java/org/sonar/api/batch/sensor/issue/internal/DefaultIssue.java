@@ -25,7 +25,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,11 +106,6 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
   public DefaultIssue addLocation(NewIssueLocation location) {
     locations.add((DefaultIssueLocation) location);
     return this;
-  }
-
-  @Override
-  public DefaultIssue addExecutionFlow(NewIssueLocation... locations) {
-    return addExecutionFlow(Arrays.asList(locations));
   }
 
   @Override

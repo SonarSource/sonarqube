@@ -50,38 +50,33 @@ public interface NewIssue {
   NewIssue overrideSeverity(@Nullable Severity severity);
 
   /**
+   * Primary location for this issue.
    * @since 5.2
-   * Primary for this issue.
    */
   NewIssue at(NewIssueLocation primaryLocation);
 
   /**
-   * @since 5.2
    * Register an additional location for this issue.
+   * @since 5.2
    */
   NewIssue addLocation(NewIssueLocation location);
 
   /**
+   * Register an execution flow for this issue. An execution flow is an ordered list of issue locations that help to understand the issue.
+   * It is usually the path leading to the primary location. Several execution flows can be registered.
    * @since 5.2
-   * Register an execution flow for this issue.
    */
-  NewIssue addExecutionFlow(NewIssueLocation... locations);
+  NewIssue addExecutionFlow(Iterable<NewIssueLocation> flowLocations);
 
   /**
-   * @since 5.2
-   * Register an execution flow for this issue.
-   */
-  NewIssue addExecutionFlow(Iterable<NewIssueLocation> locations);
-
-  /**
-   * @since 5.2
    * Create a new location for this issue. First registered location is considered as primary location.
+   * @since 5.2
    */
   NewIssueLocation newLocation();
 
   /**
-   * @since 5.2
    * Attach a new attribute to the issue. Not used by SQ but can be reused later for integration needs (for example it is returned by WS).
+   * @since 5.2
    */
   NewIssue addAttribute(String key, String value);
 

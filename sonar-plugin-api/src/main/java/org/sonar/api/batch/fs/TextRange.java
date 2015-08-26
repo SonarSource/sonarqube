@@ -20,7 +20,14 @@
 package org.sonar.api.batch.fs;
 
 /**
- * Represents a text range in an {@link InputFile}
+ * Represents a text range in an {@link InputFile}. 
+ * 
+ * A range is delimited by two {@link TextPointer}. 
+ * <ul>
+ * <li><code>TextRange(TextPointer(1, 0), TextPointer(1, 1))</code> represents the first character at line 1</li>
+ * <li><code>TextRange(TextPointer(1, 0), TextPointer(1, 10))</code> represents the 10 first characters at line 1</li>
+ * </ul>
+ * @see InputFile#newRange(int, int, int, int)
  *
  * @since 5.2
  */

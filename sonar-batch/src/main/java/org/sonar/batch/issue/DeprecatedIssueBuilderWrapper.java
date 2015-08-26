@@ -90,8 +90,8 @@ public class DeprecatedIssueBuilderWrapper implements Issuable.IssueBuilder {
   }
 
   @Override
-  public IssueBuilder addExecutionFlow(NewIssueLocation... flow) {
-    newIssue.addExecutionFlow(flow);
+  public IssueBuilder addExecutionFlow(Iterable<NewIssueLocation> flowLocations) {
+    newIssue.addExecutionFlow(flowLocations);
     return this;
   }
 
