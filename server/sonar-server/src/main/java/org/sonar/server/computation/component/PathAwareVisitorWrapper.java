@@ -105,4 +105,8 @@ public class PathAwareVisitorWrapper<T> implements VisitorWrapper {
     }
   }
 
+  @Override
+  public String toString() {
+    return delegate.toString();
+  }
 }

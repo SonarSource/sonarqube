@@ -139,4 +139,16 @@ public class ComponentImpl implements Component {
   public ProjectViewAttributes getProjectViewAttributes() {
     throw new IllegalStateException("Only component of type PROJECT_VIEW have a FileAttributes object");
   }
+
+  @Override
+  public String toString() {
+    return "ComponentImpl{" +
+      "key='" + key + '\'' +
+      ", type=" + type +
+      ", uuid='" + uuid + '\'' +
+      ", fileAttributes=" + fileAttributes +
+      ", name='" + name + '\'' +
+      ", reportAttributes=" + reportAttributes +
+      '}';
+  }
 }

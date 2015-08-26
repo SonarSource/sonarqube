@@ -21,6 +21,8 @@
 package org.sonar.server.computation.measure;
 
 import org.sonar.api.ce.measure.MeasureComputer;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.SettingsRepository;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
@@ -28,9 +30,11 @@ import org.sonar.server.computation.issue.ComponentIssuesRepository;
 import org.sonar.server.computation.measure.api.MeasureComputerImplementationContext;
 import org.sonar.server.computation.metric.MetricRepository;
 
-import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
+import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 
 public class MeasureComputersVisitor extends TypeAwareVisitorAdapter {
+
+  private static final Logger LOGGER = Loggers.get(MeasureComputersVisitor.class);
 
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
@@ -41,7 +45,7 @@ public class MeasureComputersVisitor extends TypeAwareVisitorAdapter {
 
   public MeasureComputersVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, SettingsRepository settings,
     MeasureComputersHolder measureComputersHolder, ComponentIssuesRepository componentIssuesRepository) {
-    super(CrawlerDepthLimit.FILE, PRE_ORDER);
+    super(CrawlerDepthLimit.FILE, POST_ORDER);
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.settings = settings;
@@ -52,6 +56,7 @@ public class MeasureComputersVisitor extends TypeAwareVisitorAdapter {
   @Override
   public void visitAny(org.sonar.server.computation.component.Component component) {
     for (MeasureComputer computer : measureComputersHolder.getMeasureComputers()) {
+      LOGGER.trace("Measure computer '{}' is computing component {}", computer.getImplementation(), component);
       MeasureComputerImplementationContext measureComputerContext = new MeasureComputerImplementationContext(component, computer,
         settings, measureRepository, metricRepository, componentIssuesRepository);
       computer.getImplementation().compute(measureComputerContext);

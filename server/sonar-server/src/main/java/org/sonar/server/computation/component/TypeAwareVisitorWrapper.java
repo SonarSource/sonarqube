@@ -88,4 +88,8 @@ public class TypeAwareVisitorWrapper implements VisitorWrapper {
     return delegate.getMaxDepth();
   }
 
+  @Override
+  public String toString() {
+    return delegate.toString();
+  }
 }

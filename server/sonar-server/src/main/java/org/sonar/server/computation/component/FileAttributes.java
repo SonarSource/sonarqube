@@ -44,4 +44,12 @@ public class FileAttributes {
   public String getLanguageKey() {
     return languageKey;
   }
+
+  @Override
+  public String toString() {
+    return "FileAttributes{" +
+      "languageKey='" + languageKey + '\'' +
+      ", unitTest=" + unitTest +
+      '}';
+  }
 }

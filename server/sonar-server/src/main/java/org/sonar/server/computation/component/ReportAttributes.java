@@ -23,8 +23,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
-import static java.util.Objects.requireNonNull;
-
 @Immutable
 public class ReportAttributes {
   private final int ref;
@@ -50,4 +48,11 @@ public class ReportAttributes {
     return this.version;
   }
 
+  @Override
+  public String toString() {
+    return "ReportAttributes{" +
+      "ref=" + ref +
+      ", version='" + version + '\'' +
+      '}';
+  }
 }

@@ -26,6 +26,8 @@ import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.concat;
@@ -35,6 +37,8 @@ import static java.util.Objects.requireNonNull;
  * This crawler make any number of {@link TypeAwareVisitor} or {@link PathAwareVisitor} defined in a list visit a component tree, component per component, in the order of the list
  */
 public class VisitorsCrawler implements ComponentCrawler {
+
+  private static final Logger LOGGER = Loggers.get(VisitorsCrawler.class);
 
   private final List<VisitorWrapper> preOrderVisitorWrappers;
   private final List<VisitorWrapper> postOrderVisitorWrappers;
@@ -80,6 +84,7 @@ public class VisitorsCrawler implements ComponentCrawler {
   }
 
   private void visitNode(Component component, VisitorWrapper visitor) {
+    LOGGER.trace("Visitor '{}' is currently visiting component {}", visitor, component);
     visitor.visitAny(component);
     switch (component.getType()) {
       case PROJECT:
