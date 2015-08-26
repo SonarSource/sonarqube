@@ -19,10 +19,7 @@ export default React.createClass({
       // it's important to keep the order of the project permissions the same as the order of base permissions
       let permissions = basePermissions.map(basePermission => {
         let projectPermission = _.findWhere(project.permissions, { key: basePermission.key });
-        if (!projectPermission) {
-          throw new Error(`Project "${project.name} [${project.key}]" doesn't have permission "${basePermission.key}"`);
-        }
-        return _.extend({}, basePermission, projectPermission);
+        return _.extend({ usersCount: 0, groupsCount: 0 }, basePermission, projectPermission);
       });
       return _.extend({}, project, { permissions: permissions });
     });
