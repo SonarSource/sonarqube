@@ -96,7 +96,7 @@ public class PermissionTemplateDaoTest {
   public void should_select_permission_template() {
     db.prepareDbUnit(getClass(), "selectPermissionTemplate.xml");
 
-    PermissionTemplateDto permissionTemplate = underTest.selectPermissionTemplate("my_template_20130102_030405");
+    PermissionTemplateDto permissionTemplate = underTest.selectByKeyWithUserAndGroupPermissions("my_template_20130102_030405");
 
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getName()).isEqualTo("my template");
@@ -117,7 +117,7 @@ public class PermissionTemplateDaoTest {
   public void should_select_empty_permission_template() {
     db.prepareDbUnit(getClass(), "selectEmptyPermissionTemplate.xml");
 
-    PermissionTemplateDto permissionTemplate = underTest.selectPermissionTemplate("my_template_20130102_030405");
+    PermissionTemplateDto permissionTemplate = underTest.selectByKeyWithUserAndGroupPermissions("my_template_20130102_030405");
 
     assertThat(permissionTemplate).isNotNull();
     assertThat(permissionTemplate.getName()).isEqualTo("my template");
@@ -165,7 +165,7 @@ public class PermissionTemplateDaoTest {
   public void should_delete_permission_template() {
     db.prepareDbUnit(getClass(), "deletePermissionTemplate.xml");
 
-    underTest.deletePermissionTemplate(1L);
+    underTest.deleteById(1L);
 
     checkTemplateTables("deletePermissionTemplate-result.xml");
   }
@@ -253,7 +253,7 @@ public class PermissionTemplateDaoTest {
     PermissionTemplateDto templateWithPermissions = new PermissionTemplateDto().setKee("test_template");
     underTest = mock(PermissionTemplateDao.class);
     when(underTest.selectByKey(db.getSession(), "test_template")).thenReturn(permissionTemplateDto);
-    when(underTest.selectPermissionTemplate(db.getSession(), "test_template")).thenReturn(templateWithPermissions);
+    when(underTest.selectByKeyWithUserAndGroupPermissions(db.getSession(), "test_template")).thenReturn(templateWithPermissions);
     when(underTest.selectPermissionTemplateWithPermissions(db.getSession(), "test_template")).thenCallRealMethod();
 
     PermissionTemplateDto permissionTemplate = underTest.selectPermissionTemplateWithPermissions(db.getSession(), "test_template");

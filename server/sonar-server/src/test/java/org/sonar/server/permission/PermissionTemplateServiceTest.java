@@ -151,7 +151,7 @@ public class PermissionTemplateServiceTest {
 
     underTest.deletePermissionTemplate(1L);
 
-    verify(permissionTemplateDao, times(1)).deletePermissionTemplate(1L);
+    verify(permissionTemplateDao, times(1)).deleteById(1L);
   }
 
   @Test
@@ -177,7 +177,7 @@ public class PermissionTemplateServiceTest {
       .setUsersPermissions(usersPermissions)
       .setGroupsByPermission(groupsPermissions);
 
-    when(permissionTemplateDao.selectPermissionTemplate("my template")).thenReturn(permissionTemplateDto);
+    when(permissionTemplateDao.selectByKeyWithUserAndGroupPermissions("my template")).thenReturn(permissionTemplateDto);
 
     PermissionTemplate permissionTemplate = underTest.selectPermissionTemplate("my template");
 

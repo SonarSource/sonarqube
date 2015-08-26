@@ -141,7 +141,7 @@ public class PermissionTemplateDao implements Dao {
   }
 
   @CheckForNull
-  public PermissionTemplateDto selectPermissionTemplate(DbSession session, String templateKey) {
+  public PermissionTemplateDto selectByKeyWithUserAndGroupPermissions(DbSession session, String templateKey) {
     PermissionTemplateDto permissionTemplate = null;
     PermissionTemplateMapper mapper = mapper(session);
     permissionTemplate = mapper.selectByKey(templateKey);
@@ -157,10 +157,10 @@ public class PermissionTemplateDao implements Dao {
   }
 
   @CheckForNull
-  public PermissionTemplateDto selectPermissionTemplate(String templateKey) {
+  public PermissionTemplateDto selectByKeyWithUserAndGroupPermissions(String templateKey) {
     DbSession session = myBatis.openSession(false);
     try {
-      return selectPermissionTemplate(session, templateKey);
+      return selectByKeyWithUserAndGroupPermissions(session, templateKey);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -190,7 +190,7 @@ public class PermissionTemplateDao implements Dao {
     mapper(dbSession).deleteByKey(key);
   }
 
-  public void deletePermissionTemplate(Long templateId) {
+  public void deleteById(Long templateId) {
     SqlSession session = myBatis.openSession(false);
     try {
       PermissionTemplateMapper mapper = mapper(session);
@@ -328,7 +328,7 @@ public class PermissionTemplateDao implements Dao {
     if (permissionTemplateDto == null) {
       throw new IllegalArgumentException("Could not retrieve permission template with key " + templateKey);
     }
-    PermissionTemplateDto templateWithPermissions = selectPermissionTemplate(session, permissionTemplateDto.getKee());
+    PermissionTemplateDto templateWithPermissions = selectByKeyWithUserAndGroupPermissions(session, permissionTemplateDto.getKee());
     if (templateWithPermissions == null) {
       throw new IllegalArgumentException("Could not retrieve permissions for template with key " + templateKey);
     }
