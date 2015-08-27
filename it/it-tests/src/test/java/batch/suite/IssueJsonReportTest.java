@@ -192,7 +192,7 @@ public class IssueJsonReportTest {
 
   private static String sanitize(String s) {
     // sanitize issue uuid keys
-    s = s.replaceAll("\\w\\w\\w\\w\\w\\w\\w\\w\\-\\w\\w\\w\\w\\-\\w\\w\\w\\w\\-\\w\\w\\w\\w\\-\\w\\w\\w\\w\\w\\w\\w\\w\\w\\w\\w\\w", "abcde");
+    s = s.replaceAll("\"[a-zA-Z_0-9\\-]{20}\"", "<ISSUE_KEY>");
 
     // sanitize sonar version. Note that "-SILVER-SNAPSHOT" is used by Goldeneye jobs
     s = s.replaceAll("\\d\\.\\d(.\\d)?(\\-.*)?\\-SNAPSHOT", "<SONAR_VERSION>");
