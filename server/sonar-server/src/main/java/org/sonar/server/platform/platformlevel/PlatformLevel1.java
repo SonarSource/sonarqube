@@ -75,7 +75,7 @@ public class PlatformLevel1 extends PlatformLevel {
       ServerSettings.class,
       ServerImpl.class,
       Logback.class,
-      UuidFactoryImpl.class,
+      UuidFactoryImpl.INSTANCE,
       EmbeddedDatabaseFactory.class,
       DefaultDatabase.class,
       DatabaseChecker.class,

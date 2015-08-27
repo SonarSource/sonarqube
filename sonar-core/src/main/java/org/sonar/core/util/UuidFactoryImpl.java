@@ -34,7 +34,7 @@ public class UuidFactoryImpl implements UuidFactory {
    * Should be removed as long {@link Uuids} is not used anymore. {@code UuidFactoryImpl}
    * should be built by picocontainer through a public constructor.
    * */
-  public static UuidFactory INSTANCE = new UuidFactoryImpl();
+  public static final UuidFactory INSTANCE = new UuidFactoryImpl();
 
   // We only use bottom 3 bytes for the sequence number. Paranoia: init with random int so that if JVM/OS/machine goes down, clock slips
   // backwards, and JVM comes back up, we are less likely to be on the same sequenceNumber at the same time:

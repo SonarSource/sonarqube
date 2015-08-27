@@ -108,7 +108,7 @@ public class GlobalContainer extends ComponentContainer {
       Durations.class,
       RuleI18nManager.class,
       new GlobalRepositoriesProvider(),
-      UuidFactoryImpl.class);
+      UuidFactoryImpl.INSTANCE);
     addIfMissing(BatchPluginInstaller.class, PluginInstaller.class);
     addIfMissing(DefaultRulesLoader.class, RulesLoader.class);
     addIfMissing(DefaultGlobalRepositoriesLoader.class, GlobalRepositoriesLoader.class);
