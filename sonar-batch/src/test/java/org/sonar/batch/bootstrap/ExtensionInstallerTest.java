@@ -62,7 +62,7 @@ public class ExtensionInstallerTest {
     when(pluginRepository.getPluginInstance("foo")).thenReturn(newPluginInstance(Foo.class, Bar.class));
 
     ComponentContainer container = new ComponentContainer();
-    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), mode);
+    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"));
     installer.install(container, new FooMatcher());
 
     assertThat(container.getComponentByType(Foo.class)).isNotNull();
@@ -74,7 +74,7 @@ public class ExtensionInstallerTest {
     when(pluginRepository.getPluginInfos()).thenReturn(Arrays.asList(new PluginInfo("foo")));
     when(pluginRepository.getPluginInstance("foo")).thenReturn(newPluginInstance(new FooProvider(), new BarProvider()));
     ComponentContainer container = new ComponentContainer();
-    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), mode);
+    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"));
 
     installer.install(container, new FooMatcher());
 
@@ -87,7 +87,7 @@ public class ExtensionInstallerTest {
     when(pluginRepository.getPluginInfos()).thenReturn(Arrays.asList(new PluginInfo("foo")));
     when(pluginRepository.getPluginInstance("foo")).thenReturn(newPluginInstance(new FooBarProvider()));
     ComponentContainer container = new ComponentContainer();
-    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), mode);
+    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"));
 
     installer.install(container, new TrueMatcher());
 
@@ -100,7 +100,7 @@ public class ExtensionInstallerTest {
     when(pluginRepository.getPluginInfos()).thenReturn(Arrays.asList(new PluginInfo("foo")));
     when(pluginRepository.getPluginInstance("foo")).thenReturn(newPluginInstance(Foo.class, MavenExtension.class, AntExtension.class, new BarProvider()));
     ComponentContainer container = new ComponentContainer();
-    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"), mode);
+    ExtensionInstaller installer = new ExtensionInstaller(pluginRepository, new EnvironmentInformation("ant", "1.7"));
 
     installer.install(container, new TrueMatcher());
 

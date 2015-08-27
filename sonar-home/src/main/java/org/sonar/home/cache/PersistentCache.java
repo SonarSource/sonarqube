@@ -76,7 +76,9 @@ public class PersistentCache {
 
   @CheckForNull
   public synchronized String getString(@Nonnull String obj, @Nullable final PersistentCacheLoader<String> valueLoader) throws IOException {
-    byte[] cached = get(obj, new ValueLoaderDecoder(valueLoader));
+    ValueLoaderDecoder decoder = valueLoader != null ? new ValueLoaderDecoder(valueLoader) : null;
+    
+    byte[] cached = get(obj, decoder);
 
     if (cached == null) {
       return null;

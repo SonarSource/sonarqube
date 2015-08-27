@@ -20,7 +20,6 @@
 package org.sonar.home.cache;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -53,6 +52,12 @@ public class PersistentCacheTest {
   @Test
   public void testNullLoader() throws Exception {
     assertThat(cache.get(URI, null)).isNull();
+    assertCacheHit(false);
+  }
+  
+  @Test
+  public void testNullLoaderString() throws Exception {
+    assertThat(cache.getString(URI, null)).isNull();
     assertCacheHit(false);
   }
 
