@@ -13,7 +13,7 @@ export default React.createClass({
     e.preventDefault();
     new GroupsView({
       permission: permission,
-      project: this.props.project.uuid,
+      project: this.props.project.id,
       projectName: this.props.project.name,
       refresh: this.props.refresh
     }).render();
@@ -23,7 +23,7 @@ export default React.createClass({
     e.preventDefault();
     new UsersView({
       permission: permission,
-      project: this.props.project.uuid,
+      project: this.props.project.id,
       projectName: this.props.project.name,
       refresh: this.props.refresh
     }).render();

@@ -11,7 +11,7 @@ export default React.createClass({
 
   render() {
     let projects = this.props.projects.map(p => {
-      return <Project key={p.uuid} project={p} refresh={this.props.refresh}/>
+      return <Project key={p.id} project={p} refresh={this.props.refresh}/>
     });
     return (
         <table id="projects" className="data zebra">

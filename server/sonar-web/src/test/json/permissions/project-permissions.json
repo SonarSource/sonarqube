@@ -1,7 +1,7 @@
 {
   "projects": [
     {
-      "uuid": "10c394cc-c37c-4cf0-97b9-360165c47270",
+      "id": "10c394cc-c37c-4cf0-97b9-360165c47270",
       "key": "my-project",
       "name": "My Project",
       "permissions": [
@@ -18,7 +18,7 @@
       ]
     },
     {
-      "uuid": "5d2408c9-b5c6-4426-8ee8-05be930a5f62",
+      "id": "5d2408c9-b5c6-4426-8ee8-05be930a5f62",
       "key": "another-project",
       "name": "Another Project",
       "permissions": [
