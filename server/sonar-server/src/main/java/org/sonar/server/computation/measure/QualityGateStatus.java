@@ -60,6 +60,23 @@ public final class QualityGateStatus {
   }
 
   @Override
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    QualityGateStatus that = (QualityGateStatus) o;
+    return status == that.status && java.util.Objects.equals(text, that.text);
+  }
+
+  @Override
+  public int hashCode() {
+    return java.util.Objects.hash(status, text);
+  }
+
+  @Override
   public String toString() {
     return Objects.toStringHelper(this)
         .add("status", status)
