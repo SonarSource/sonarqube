@@ -146,6 +146,7 @@ public class PermissionUpdater {
 
   private void checkOtherAdminUsersExist(DbSession session, PermissionChange permissionChange) {
     if (GlobalPermissions.SYSTEM_ADMIN.equals(permissionChange.permission())
+      && permissionChange.componentKey() == null
       && dbClient.roleDao().countUserPermissions(session, permissionChange.permission(), null) <= 1) {
       throw new BadRequestException(String.format("Last user with '%s' permission. Permission cannot be removed.", GlobalPermissions.SYSTEM_ADMIN));
     }
@@ -154,6 +155,7 @@ public class PermissionUpdater {
   private void checkAdminUsersExistOutsideTheRemovedGroup(DbSession session, PermissionChange permissionChange, @Nullable Long groupIdToExclude) {
     if (GlobalPermissions.SYSTEM_ADMIN.equals(permissionChange.permission())
       && groupIdToExclude != null
+      && permissionChange.componentKey() == null
       && dbClient.roleDao().countUserPermissions(session, permissionChange.permission(), groupIdToExclude) <= 0) {
       throw new BadRequestException(String.format("Last group with '%s' permission. Permission cannot be removed.", GlobalPermissions.SYSTEM_ADMIN));
     }
