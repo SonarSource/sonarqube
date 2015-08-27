@@ -47,7 +47,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_DESCRIPTION;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_KEY;
+import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_PATTERN;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -163,9 +163,17 @@ public class UpdateTemplateActionTest {
   }
 
   @Test
+  public void fail_if_name_has_just_whitespaces() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("The template name must not be blank");
+
+    newRequest(templateDto.getKee(), "  \r\n", null, null);
+  }
+
+  @Test
   public void fail_if_regexp_if_not_valid() {
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("The 'projectPattern' parameter must be a valid Java regular expression. '[azerty' was passed");
+    expectedException.expectMessage("The 'projectKeyPattern' parameter must be a valid Java regular expression. '[azerty' was passed");
 
     newRequest(templateDto.getKee(), "Finance", null, "[azerty");
   }
@@ -207,7 +215,7 @@ public class UpdateTemplateActionTest {
   private TestResponse newRequest(@Nullable String key, @Nullable String name, @Nullable String description, @Nullable String projectPattern) {
     TestRequest request = ws.newRequest();
     if (key != null) {
-      request.setParam(PARAM_TEMPLATE_KEY, key);
+      request.setParam(PARAM_TEMPLATE_ID, key);
     }
     if (name != null) {
       request.setParam(PARAM_TEMPLATE_NAME, name);

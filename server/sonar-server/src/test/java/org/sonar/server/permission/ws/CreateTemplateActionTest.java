@@ -119,7 +119,7 @@ public class CreateTemplateActionTest {
   @Test
   public void fail_if_regexp_if_not_valid() {
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("The 'projectPattern' parameter must be a valid Java regular expression. '[azerty' was passed");
+    expectedException.expectMessage("The 'projectKeyPattern' parameter must be a valid Java regular expression. '[azerty' was passed");
 
     newRequest("Finance", null, "[azerty");
   }

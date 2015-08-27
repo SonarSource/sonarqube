@@ -32,7 +32,7 @@ import org.sonar.server.user.UserSession;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
-import static org.sonar.server.permission.ws.Parameters.PARAM_LONG_TEMPLATE_KEY;
+import static org.sonar.server.permission.ws.Parameters.PARAM_LONG_TEMPLATE_ID;
 import static org.sonar.server.permission.ws.Parameters.PARAM_USER_LOGIN;
 import static org.sonar.server.permission.ws.Parameters.createProjectPermissionParameter;
 import static org.sonar.server.permission.ws.Parameters.createTemplateKeyParameterToAddRemoveUserOrGroup;
@@ -68,7 +68,7 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     checkGlobalAdminUser(userSession);
 
-    String templateKey = wsRequest.mandatoryParam(PARAM_LONG_TEMPLATE_KEY);
+    String templateKey = wsRequest.mandatoryParam(PARAM_LONG_TEMPLATE_ID);
     String permission = wsRequest.mandatoryParam(PARAM_PERMISSION);
     String userLogin = wsRequest.mandatoryParam(PARAM_USER_LOGIN);
 

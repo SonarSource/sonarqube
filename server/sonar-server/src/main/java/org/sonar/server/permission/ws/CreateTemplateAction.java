@@ -32,14 +32,14 @@ import org.sonarqube.ws.Permissions;
 import org.sonarqube.ws.Permissions.PermissionTemplate;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_NAME_NOT_BLANK;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPattern;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_DESCRIPTION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_PATTERN;
 import static org.sonar.server.permission.ws.Parameters.createTemplateDescriptionParameter;
 import static org.sonar.server.permission.ws.Parameters.createTemplateProjectKeyPatternParameter;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPattern;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.validateTemplateNameFormat;
 import static org.sonar.server.permission.ws.PermissionTemplateDtoBuilder.create;
 import static org.sonar.server.permission.ws.PermissionTemplateDtoToPermissionTemplateResponse.toPermissionTemplateResponse;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -96,12 +96,12 @@ public class CreateTemplateAction implements PermissionsWsAction {
     }
   }
 
-  private void validateTemplateNameForCreation(DbSession dbSession, String templateName) {
-    checkRequest(!templateName.isEmpty(), MSG_TEMPLATE_NAME_NOT_BLANK);
+  private void validateTemplateNameForCreation(DbSession dbSession, String name) {
+    validateTemplateNameFormat(name);
 
-    PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao().selectByName(dbSession, templateName);
+    PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao().selectByName(dbSession, name);
     checkRequest(permissionTemplateWithSameName == null, String.format
-      (MSG_TEMPLATE_WITH_SAME_NAME, templateName));
+      (MSG_TEMPLATE_WITH_SAME_NAME, name));
   }
 
   private PermissionTemplateDto insertTemplate(DbSession dbSession, String name, String description, String projectPattern) {

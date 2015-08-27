@@ -28,7 +28,7 @@ import org.sonar.db.DbSession;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_KEY;
+import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
 import static org.sonar.server.permission.ws.Parameters.createTemplateKeyParameter;
 
 public class DeleteTemplateAction implements PermissionsWsAction {
@@ -55,7 +55,7 @@ public class DeleteTemplateAction implements PermissionsWsAction {
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     checkGlobalAdminUser(userSession);
-    String key = wsRequest.mandatoryParam(PARAM_TEMPLATE_KEY);
+    String key = wsRequest.mandatoryParam(PARAM_TEMPLATE_ID);
 
     DbSession dbSession = dbClient.openSession(false);
     try {

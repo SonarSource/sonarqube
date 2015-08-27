@@ -20,6 +20,7 @@
 
 package org.sonar.server.permission.ws;
 
+import com.google.common.base.CharMatcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.annotation.Nullable;
@@ -55,6 +56,11 @@ public class PermissionRequestValidator {
   public static void validateNotAnyoneAndAdminPermission(String permission, @Nullable String groupName) {
     checkRequest(!GlobalPermissions.SYSTEM_ADMIN.equals(permission) || !isAnyone(groupName),
       format("It is not possible to add the '%s' permission to the '%s' group.", permission, groupName));
+  }
+
+  public static void validateTemplateNameFormat(String name) {
+    String nameWithoutWhitespaces = CharMatcher.WHITESPACE.removeFrom(name);
+    checkRequest(!nameWithoutWhitespaces.isEmpty(), MSG_TEMPLATE_NAME_NOT_BLANK);
   }
 
   public static void validateProjectPattern(@Nullable String projectPattern) {

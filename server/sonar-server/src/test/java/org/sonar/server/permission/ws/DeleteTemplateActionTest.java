@@ -40,7 +40,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_KEY;
+import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
 
 public class DeleteTemplateActionTest {
 
@@ -114,7 +114,7 @@ public class DeleteTemplateActionTest {
   private TestResponse newRequest(@Nullable String key) {
     TestRequest request = ws.newRequest();
     if (key != null) {
-      request.setParam(PARAM_TEMPLATE_KEY, key);
+      request.setParam(PARAM_TEMPLATE_ID, key);
     }
 
     TestResponse result = executeRequest(request);

@@ -32,11 +32,12 @@ class Parameters {
   static final String PARAM_PROJECT_UUID = "projectId";
   static final String PARAM_PROJECT_KEY = "projectKey";
   static final String PARAM_USER_LOGIN = "login";
-  static final String PARAM_LONG_TEMPLATE_KEY = "templateKey";
-  static final String PARAM_TEMPLATE_KEY = "key";
+  static final String PARAM_LONG_TEMPLATE_ID = "templateId";
+
+  static final String PARAM_TEMPLATE_ID = "id";
   static final String PARAM_TEMPLATE_NAME = "name";
   static final String PARAM_TEMPLATE_DESCRIPTION = "description";
-  static final String PARAM_TEMPLATE_PATTERN = "projectPattern";
+  static final String PARAM_TEMPLATE_PATTERN = "projectKeyPattern";
 
   private static final String PERMISSION_PARAM_DESCRIPTION = String.format("Permission" +
     "<ul>" +
@@ -99,7 +100,7 @@ class Parameters {
   }
 
   static void createTemplateKeyParameterToAddRemoveUserOrGroup(NewAction action) {
-    action.createParam(PARAM_LONG_TEMPLATE_KEY)
+    action.createParam(PARAM_LONG_TEMPLATE_ID)
       .setRequired(true)
       .setDescription("Template key")
       .setExampleValue("developer_template_20150820_170218");
@@ -118,7 +119,7 @@ class Parameters {
   }
 
   static void createTemplateKeyParameter(NewAction action) {
-    action.createParam(PARAM_TEMPLATE_KEY)
+    action.createParam(PARAM_TEMPLATE_ID)
       .setRequired(true)
       .setDescription("Key")
       .setExampleValue("af8cb8cc-1e78-4c4e-8c00-ee8e814009a5");

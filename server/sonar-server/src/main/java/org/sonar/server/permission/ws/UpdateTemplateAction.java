@@ -36,16 +36,16 @@ import org.sonarqube.ws.Permissions.UpdatePermissionTemplateResponse;
 import static com.google.common.base.Objects.firstNonNull;
 import static java.lang.String.format;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_NAME_NOT_BLANK;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
-import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPattern;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_DESCRIPTION;
-import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_KEY;
+import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_ID;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_PATTERN;
 import static org.sonar.server.permission.ws.Parameters.createTemplateDescriptionParameter;
 import static org.sonar.server.permission.ws.Parameters.createTemplateKeyParameter;
 import static org.sonar.server.permission.ws.Parameters.createTemplateProjectKeyPatternParameter;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPattern;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.validateTemplateNameFormat;
 import static org.sonar.server.permission.ws.PermissionTemplateDtoToPermissionTemplateResponse.toPermissionTemplateResponse;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -87,7 +87,7 @@ public class UpdateTemplateAction implements PermissionsWsAction {
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     checkGlobalAdminUser(userSession);
 
-    String key = wsRequest.mandatoryParam(PARAM_TEMPLATE_KEY);
+    String key = wsRequest.mandatoryParam(PARAM_TEMPLATE_ID);
     String nameParam = wsRequest.param(PARAM_TEMPLATE_NAME);
     String descriptionParam = wsRequest.param(PARAM_TEMPLATE_DESCRIPTION);
     String projectPatternParam = wsRequest.param(PARAM_TEMPLATE_PATTERN);
@@ -130,11 +130,11 @@ public class UpdateTemplateAction implements PermissionsWsAction {
     return UpdatePermissionTemplateResponse.newBuilder().setPermissionTemplate(permissionTemplateBuilder).build();
   }
 
-  private void validateTemplateNameForUpdate(DbSession dbSession, String templateName, long templateId) {
-    checkRequest(!templateName.isEmpty(), MSG_TEMPLATE_NAME_NOT_BLANK);
+  private void validateTemplateNameForUpdate(DbSession dbSession, String name, long id) {
+    validateTemplateNameFormat(name);
 
-    PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao().selectByName(dbSession, templateName);
-    checkRequest(permissionTemplateWithSameName == null || permissionTemplateWithSameName.getId() == templateId,
-      format(MSG_TEMPLATE_WITH_SAME_NAME, templateName));
+    PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao().selectByName(dbSession, name);
+    checkRequest(permissionTemplateWithSameName == null || permissionTemplateWithSameName.getId() == id,
+      format(MSG_TEMPLATE_WITH_SAME_NAME, name));
   }
 }
