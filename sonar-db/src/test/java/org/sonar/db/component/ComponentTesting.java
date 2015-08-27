@@ -23,7 +23,7 @@ package org.sonar.db.component;
 import com.google.common.base.Preconditions;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
-import org.sonar.api.utils.internal.Uuids;
+import org.sonar.core.util.Uuids;
 
 import static org.sonar.db.component.ComponentDto.MODULE_UUID_PATH_SEP;
 

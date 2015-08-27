@@ -17,23 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.utils.internal;
+package org.sonar.core.util;
 
-import java.util.UUID;
-
-/**
- * @since 5.0
- */
-public class Uuids {
-
-  private Uuids() {
-    // only static fields
-  }
+public interface UuidFactory {
 
   /**
-   * Create a universally unique identifier. Underlying algorithm can change over SQ versions.
+   * Create a universally unique identifier. Underlying algorithm, so format and max length,
+   * can vary over SonarQube versions. Format is URL-safe, it does not contain - and + characters
+   * but only letters, digits, dash (-) and underscore (_).
    */
-  public static String create() {
-    return UUID.randomUUID().toString();
-  }
+  String create();
+
 }

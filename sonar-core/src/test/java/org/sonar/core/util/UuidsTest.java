@@ -17,22 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.core.util;
 
-package org.sonar.db.permission;
+import com.google.common.collect.Sets;
+import org.junit.Test;
+import org.sonar.test.TestUtils;
 
-import java.util.Date;
-import org.sonar.core.util.Uuids;
+import java.util.Set;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.RandomStringUtils.randomAscii;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class PermissionTemplateTesting {
-  public static PermissionTemplateDto newPermissionTemplateDto() {
-    return new PermissionTemplateDto()
-      .setName(randomAlphanumeric(60))
-      .setDescription(randomAscii(500))
-      .setKee(Uuids.create())
-      .setCreatedAt(new Date())
-      .setUpdatedAt(new Date());
+public class UuidsTest {
+
+  @Test
+  public void create_unique() {
+    Set<String> all = Sets.newHashSet();
+    for (int i = 0; i < 50; i++) {
+      String uuid = Uuids.create();
+      assertThat(uuid).isNotEmpty();
+      all.add(uuid);
+    }
+    assertThat(all).hasSize(50);
+  }
+
+  @Test
+  public void constructor_is_private() {
+    TestUtils.hasOnlyPrivateConstructors(Uuids.class);
   }
 }

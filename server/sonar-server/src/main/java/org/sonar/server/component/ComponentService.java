@@ -37,7 +37,7 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.internal.Uuids;
+import org.sonar.core.util.Uuids;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.permission.GlobalPermissions;

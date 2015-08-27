@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.internal.Uuids;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDao;

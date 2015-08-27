@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.resources.Scopes;
-import org.sonar.api.utils.internal.Uuids;
+import org.sonar.core.util.Uuids;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.ProgressLogger;

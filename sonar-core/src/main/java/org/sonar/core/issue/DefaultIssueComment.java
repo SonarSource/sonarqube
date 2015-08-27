@@ -24,7 +24,7 @@ import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.IssueComment;
-import org.sonar.api.utils.internal.Uuids;
+import org.sonar.core.util.Uuids;
 
 /**
  * PLUGINS MUST NOT BE USED THIS CLASS, EXCEPT FOR UNIT TESTING.

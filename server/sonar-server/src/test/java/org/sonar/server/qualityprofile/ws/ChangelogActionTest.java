@@ -33,7 +33,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.internal.Uuids;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleKey;

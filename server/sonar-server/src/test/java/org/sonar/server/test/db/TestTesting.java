@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
-import org.sonar.api.utils.internal.Uuids;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;

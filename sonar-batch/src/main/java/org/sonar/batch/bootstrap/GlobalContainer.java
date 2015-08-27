@@ -53,6 +53,7 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.util.DefaultHttpDownloader;
+import org.sonar.core.util.UuidFactoryImpl;
 
 public class GlobalContainer extends ComponentContainer {
 
@@ -106,7 +107,8 @@ public class GlobalContainer extends ComponentContainer {
       DefaultI18n.class,
       Durations.class,
       RuleI18nManager.class,
-      new GlobalRepositoriesProvider());
+      new GlobalRepositoriesProvider(),
+      UuidFactoryImpl.class);
     addIfMissing(BatchPluginInstaller.class, PluginInstaller.class);
     addIfMissing(DefaultRulesLoader.class, RulesLoader.class);
     addIfMissing(DefaultGlobalRepositoriesLoader.class, GlobalRepositoriesLoader.class);

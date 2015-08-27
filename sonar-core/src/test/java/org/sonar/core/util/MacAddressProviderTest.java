@@ -17,22 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.core.util;
 
-package org.sonar.db.permission;
+import org.junit.Test;
 
-import java.util.Date;
-import org.sonar.core.util.Uuids;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.RandomStringUtils.randomAscii;
+public class MacAddressProviderTest {
 
-public class PermissionTemplateTesting {
-  public static PermissionTemplateDto newPermissionTemplateDto() {
-    return new PermissionTemplateDto()
-      .setName(randomAlphanumeric(60))
-      .setDescription(randomAscii(500))
-      .setKee(Uuids.create())
-      .setCreatedAt(new Date())
-      .setUpdatedAt(new Date());
+  @Test
+  public void getSecureMungedAddress() throws Exception {
+    byte[] address = MacAddressProvider.getSecureMungedAddress();
+    assertThat(address).isNotEmpty();
+    assertThat(address).hasSize(6);
+  }
+
+  @Test
+  public void constructDummyMulticastAddress() {
+    byte[] address = MacAddressProvider.constructDummyMulticastAddress();
+    assertThat(address).isNotEmpty();
+    assertThat(address).hasSize(6);
   }
 }

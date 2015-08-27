@@ -17,31 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.utils.internal;
+package org.sonar.core.util;
 
 import com.google.common.collect.Sets;
-import org.junit.Test;
-import org.sonar.test.TestUtils;
-
 import java.util.Set;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UuidsTest {
+public class UuidFactoryImplTest {
+
+  UuidFactory underTest = UuidFactoryImpl.INSTANCE;
 
   @Test
   public void create_unique() {
     Set<String> all = Sets.newHashSet();
     for (int i = 0; i < 50; i++) {
-      String uuid = Uuids.create();
+      String uuid = underTest.create();
       assertThat(uuid).isNotEmpty();
+      // not in the specification, but still to be sure that there's an upper-bound.
+      assertThat(uuid.length()).isLessThanOrEqualTo(20);
+
+      // URL-safe
+      assertThat(uuid).doesNotContain("/").doesNotContain("+").doesNotContain("=").doesNotContain("&");
+
       all.add(uuid);
     }
     assertThat(all).hasSize(50);
-  }
-
-  @Test
-  public void constructor_is_private() {
-    TestUtils.hasOnlyPrivateConstructors(Uuids.class);
   }
 }

@@ -28,7 +28,7 @@ import javax.annotation.CheckForNull;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.internal.Uuids;
+import org.sonar.core.util.Uuids;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;

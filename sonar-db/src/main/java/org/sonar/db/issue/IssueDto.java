@@ -37,7 +37,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.utils.internal.Uuids;
+import org.sonar.core.util.Uuids;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbIssues;

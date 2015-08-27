@@ -23,7 +23,7 @@ package org.sonar.server.computation.step;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.sonar.api.utils.internal.Uuids;
+import org.sonar.core.util.Uuids;
 import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.DbClient;

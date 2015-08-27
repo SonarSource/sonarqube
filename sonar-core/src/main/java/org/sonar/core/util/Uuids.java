@@ -17,22 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.core.util;
 
-package org.sonar.db.permission;
+public class Uuids {
 
-import java.util.Date;
-import org.sonar.core.util.Uuids;
+  private Uuids() {
+    // only static fields
+  }
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.RandomStringUtils.randomAscii;
-
-public class PermissionTemplateTesting {
-  public static PermissionTemplateDto newPermissionTemplateDto() {
-    return new PermissionTemplateDto()
-      .setName(randomAlphanumeric(60))
-      .setDescription(randomAscii(500))
-      .setKee(Uuids.create())
-      .setCreatedAt(new Date())
-      .setUpdatedAt(new Date());
+  /**
+   * Create a universally unique identifier. It's recommended to use the non-static way
+   * through {@link UuidFactory} which is available in IoC container.
+   * @see UuidFactory#create()
+   */
+  public static String create() {
+    return UuidFactoryImpl.INSTANCE.create();
   }
 }
