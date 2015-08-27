@@ -21,7 +21,7 @@ package org.sonar.server.computation.issue;
 
 import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.utils.internal.Uuids;
+import org.sonar.core.util.Uuids;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;

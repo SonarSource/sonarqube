@@ -24,7 +24,7 @@ import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.ActionPlan;
-import org.sonar.api.utils.internal.Uuids;
+import org.sonar.core.util.Uuids;
 
 public class DefaultActionPlan implements ActionPlan {
 

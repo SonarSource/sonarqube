@@ -3,7 +3,7 @@
     "version": "<SONAR_VERSION>",
     "issues": [
         {
-            "key": "040a1d39-472b-4cfa-a75d-0547dd21b3c4",
+            "key": "<ISSUE_KEY>",
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
             "line": 4,
             "message": "This issue is generated on each line",
@@ -14,7 +14,7 @@
             "creationDate": "2013-05-01T00:00:00+0200"
         },
         {
-            "key": "0934e722-8456-465d-bb85-adbcd632d3df",
+            "key": "<ISSUE_KEY>",
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
             "line": 7,
             "message": "This issue is generated on each line",
@@ -25,7 +25,7 @@
             "creationDate": "2013-05-01T00:00:00+0200"
         },
         {
-            "key": "3992207a-f3a3-4c3c-a369-28a893e17c60",
+            "key": "<ISSUE_KEY>",
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
             "line": 6,
             "message": "This issue is generated on each line",
@@ -36,7 +36,7 @@
             "creationDate": "2013-05-01T00:00:00+0200"
         },
         {
-            "key": "4b38f729-17f3-4628-b5e1-f6795a6c49c7",
+            "key": "<ISSUE_KEY>",
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
             "line": 1,
             "message": "This issue is generated on each line",
@@ -47,7 +47,7 @@
             "creationDate": "2013-05-01T00:00:00+0200"
         },
         {
-            "key": "50541707-ab11-469d-9ace-b4753ffb84b8",
+            "key": "<ISSUE_KEY>",
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
             "line": 8,
             "message": "This issue is generated on each line",
@@ -58,7 +58,7 @@
             "creationDate": "2013-05-01T00:00:00+0200"
         },
         {
-            "key": "88ddda56-ae14-4121-9dbd-fefc5cc8c86b",
+            "key": "<ISSUE_KEY>",
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
             "line": 15,
             "message": "This issue is generated on each line",
@@ -69,7 +69,7 @@
             "creationDate": "2013-05-01T00:00:00+0200"
         },
         {
-            "key": "a246f099-c97f-4c7e-b1f4-cc3389f3dced",
+            "key": "<ISSUE_KEY>",
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
             "line": 14,
             "message": "This issue is generated on each line",
@@ -80,7 +80,7 @@
             "creationDate": "2013-05-01T00:00:00+0200"
         },
         {
-            "key": "aa2f4b1d-724d-4e2d-85cd-39a86006e2e9",
+            "key": "<ISSUE_KEY>",
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
             "line": 10,
             "message": "This issue is generated on each line",
@@ -91,7 +91,7 @@
             "creationDate": "2013-05-01T00:00:00+0200"
         },
         {
-            "key": "ac908fcc-e533-4229-9a04-3a89d13537e4",
+            "key": "<ISSUE_KEY>",
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
             "line": 3,
             "message": "This issue is generated on each line",
@@ -102,7 +102,7 @@
             "creationDate": "2013-05-01T00:00:00+0200"
         },
         {
-            "key": "c4604a54-5df8-4db7-8670-df6e4932246b",
+            "key": "<ISSUE_KEY>",
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
             "line": 2,
             "message": "This issue is generated on each line",
@@ -113,7 +113,7 @@
             "creationDate": "2013-05-01T00:00:00+0200"
         },
         {
-            "key": "c99f57ec-98e4-464c-8fa5-adbb27a3a81c",
+            "key": "<ISSUE_KEY>",
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
             "line": 16,
             "message": "This issue is generated on each line",
@@ -124,7 +124,7 @@
             "creationDate": "2013-05-01T00:00:00+0200"
         },
         {
-            "key": "d491b9c4-9217-4285-aabd-44d079b1d46a",
+            "key": "<ISSUE_KEY>",
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
             "line": 9,
             "message": "This issue is generated on each line",
@@ -135,7 +135,7 @@
             "creationDate": "2013-05-01T00:00:00+0200"
         },
         {
-            "key": "d4ae59a5-1ece-4735-8142-ac884bdad17a",
+            "key": "<ISSUE_KEY>",
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
             "line": 5,
             "message": "This issue is generated on each line",
@@ -146,7 +146,7 @@
             "creationDate": "2013-05-01T00:00:00+0200"
         },
         {
-            "key": "d832eb5d-5ff1-4095-b9bc-c5b948e74d5f",
+            "key": "<ISSUE_KEY>",
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
             "line": 12,
             "message": "This issue is generated on each line",
@@ -157,7 +157,7 @@
             "creationDate": "2013-05-01T00:00:00+0200"
         },
         {
-            "key": "e4e76304-7920-4a2f-8deb-fe5a7f21d085",
+            "key": "<ISSUE_KEY>",
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
             "line": 13,
             "message": "This issue is generated on each line",
@@ -168,7 +168,7 @@
             "creationDate": "2013-05-01T00:00:00+0200"
         },
         {
-            "key": "fb923e8f-c336-49c0-8884-4529ff8af6e4",
+            "key": "<ISSUE_KEY>",
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
             "line": 11,
             "message": "This issue is generated on each line",

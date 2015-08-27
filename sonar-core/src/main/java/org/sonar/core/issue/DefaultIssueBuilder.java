@@ -28,7 +28,7 @@ import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issuable.IssueBuilder;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.internal.Uuids;
+import org.sonar.core.util.Uuids;
 
 public class DefaultIssueBuilder implements Issuable.IssueBuilder {
 

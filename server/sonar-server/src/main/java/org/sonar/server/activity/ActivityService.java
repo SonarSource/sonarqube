@@ -20,7 +20,7 @@
 package org.sonar.server.activity;
 
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.utils.internal.Uuids;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.activity.ActivityDto;
 import org.sonar.server.activity.index.ActivityIndexer;
 import org.sonar.db.DbClient;

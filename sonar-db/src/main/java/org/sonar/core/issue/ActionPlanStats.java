@@ -22,7 +22,7 @@ package org.sonar.core.issue;
 
 import java.util.Date;
 import org.sonar.api.issue.ActionPlan;
-import org.sonar.api.utils.internal.Uuids;
+import org.sonar.core.util.Uuids;
 
 public class ActionPlanStats extends DefaultActionPlan {
 

@@ -17,13 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.utils.internal;
+package org.sonar.core.util;
 
-import java.util.UUID;
-
-/**
- * @since 5.0
- */
 public class Uuids {
 
   private Uuids() {
@@ -31,9 +26,11 @@ public class Uuids {
   }
 
   /**
-   * Create a universally unique identifier. Underlying algorithm can change over SQ versions.
+   * Create a universally unique identifier. It's recommended to use the non-static way
+   * through {@link UuidFactory} which is available in IoC container.
+   * @see UuidFactory#create()
    */
   public static String create() {
-    return UUID.randomUUID().toString();
+    return UuidFactoryImpl.INSTANCE.create();
   }
 }

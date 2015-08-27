@@ -25,6 +25,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.config.Logback;
+import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DaoModule;
 import org.sonar.db.DatabaseChecker;
 import org.sonar.db.DefaultDatabase;
@@ -74,6 +75,7 @@ public class PlatformLevel1 extends PlatformLevel {
       ServerSettings.class,
       ServerImpl.class,
       Logback.class,
+      UuidFactoryImpl.INSTANCE,
       EmbeddedDatabaseFactory.class,
       DefaultDatabase.class,
       DatabaseChecker.class,

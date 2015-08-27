@@ -2,7 +2,7 @@
     "version": "<SONAR_VERSION>",
     "issues": [
         {
-            "key": "05652201-6f89-4f07-ba03-1df08eae0d55",
+            "key": "<ISSUE_KEY>",
             "component": "sample:src/main/xoo/sample/Sample.xoo",
             "line": 6,
             "message": "This issue is generated on each line",
@@ -13,7 +13,7 @@
             "creationDate": "2013-05-02T00:00:00+0200"
         },
         {
-            "key": "0746cf8f-0b67-4da8-82fc-36a6717c1f81",
+            "key": "<ISSUE_KEY>",
             "component": "sample:src/main/xoo/sample/Sample.xoo",
             "line": 5,
             "message": "This issue is generated on each line",
@@ -24,7 +24,7 @@
             "creationDate": "2013-05-02T00:00:00+0200"
         },
         {
-            "key": "0e9c20e2-567b-4c7a-b1e7-b9e5648dbfc5",
+            "key": "<ISSUE_KEY>",
             "component": "sample:src/main/xoo/sample/Sample.xoo",
             "line": 13,
             "message": "This issue is generated on each line",
@@ -35,7 +35,7 @@
             "creationDate": "2013-05-02T00:00:00+0200"
         },
         {
-            "key": "107fb325-ddda-43c6-9fde-1e7250571ef8",
+            "key": "<ISSUE_KEY>",
             "component": "sample:src/main/xoo/sample/Sample.xoo",
             "line": 1,
             "message": "This issue is generated on each line",
@@ -46,7 +46,7 @@
             "creationDate": "2013-05-02T00:00:00+0200"
         },
         {
-            "key": "226c71cf-0a86-43af-8281-6df0308eac92",
+            "key": "<ISSUE_KEY>",
             "component": "sample:src/main/xoo/sample/Sample.xoo",
             "line": 3,
             "message": "This issue is generated on each line",
@@ -57,7 +57,7 @@
             "creationDate": "2013-05-02T00:00:00+0200"
         },
         {
-            "key": "55c9705c-6509-48c6-9773-0437ab60be42",
+            "key": "<ISSUE_KEY>",
             "component": "sample:src/main/xoo/sample/Sample.xoo",
             "line": 4,
             "message": "This issue is generated on each line",
@@ -68,7 +68,7 @@
             "creationDate": "2013-05-02T00:00:00+0200"
         },
         {
-            "key": "5d653e95-16e2-4ee7-aac5-91ab8c3aebd6",
+            "key": "<ISSUE_KEY>",
             "component": "sample:src/main/xoo/sample/Sample.xoo",
             "line": 12,
             "message": "This issue is generated on each line",
@@ -79,7 +79,7 @@
             "creationDate": "2013-05-02T00:00:00+0200"
         },
         {
-            "key": "86056a4b-1813-4a10-937f-082e3f810152",
+            "key": "<ISSUE_KEY>",
             "component": "sample:src/main/xoo/sample/Sample.xoo",
             "line": 10,
             "message": "This issue is generated on each line",
@@ -90,7 +90,7 @@
             "creationDate": "2013-05-02T00:00:00+0200"
         },
         {
-            "key": "906f38ad-ada7-4088-80fe-3fc3b8532ad6",
+            "key": "<ISSUE_KEY>",
             "component": "sample:src/main/xoo/sample/Sample.xoo",
             "line": 2,
             "message": "This issue is generated on each line",
@@ -101,7 +101,7 @@
             "creationDate": "2013-05-02T00:00:00+0200"
         },
         {
-            "key": "9328fb3c-6fab-489f-a8ad-eb8277dd7bf7",
+            "key": "<ISSUE_KEY>",
             "component": "sample:src/main/xoo/sample/Sample.xoo",
             "line": 9,
             "message": "This issue is generated on each line",
@@ -112,7 +112,7 @@
             "creationDate": "2013-05-02T00:00:00+0200"
         },
         {
-            "key": "9980ca57-dfc4-431c-9a45-7ee9d397078a",
+            "key": "<ISSUE_KEY>",
             "component": "sample:src/main/xoo/sample/Sample.xoo",
             "line": 11,
             "message": "This issue is generated on each line",
@@ -123,7 +123,7 @@
             "creationDate": "2013-05-02T00:00:00+0200"
         },
         {
-            "key": "ccf5a264-bbe0-4459-97dc-acc0e323c4bb",
+            "key": "<ISSUE_KEY>",
             "component": "sample:src/main/xoo/sample/Sample.xoo",
             "line": 7,
             "message": "This issue is generated on each line",
@@ -134,7 +134,7 @@
             "creationDate": "2013-05-02T00:00:00+0200"
         },
         {
-            "key": "ead82961-2724-4d85-b2af-f810206b0ab1",
+            "key": "<ISSUE_KEY>",
             "component": "sample:src/main/xoo/sample/Sample.xoo",
             "line": 8,
             "message": "This issue is generated on each line",

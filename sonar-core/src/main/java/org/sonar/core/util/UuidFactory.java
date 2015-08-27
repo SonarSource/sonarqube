@@ -17,22 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.core.util;
 
-package org.sonar.db.permission;
+public interface UuidFactory {
 
-import java.util.Date;
-import org.sonar.core.util.Uuids;
+  /**
+   * Create a universally unique identifier. Underlying algorithm, so format and max length,
+   * can vary over SonarQube versions.
+   * <p/>
+   * UUID is a base64 ASCII encoded string and is URL-safe. It does not contain - and + characters
+   * but only letters, digits, dash (-) and underscore (_). Length can vary but does
+   * not exceed 40 characters (arbitrary value).
+   */
+  String create();
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.RandomStringUtils.randomAscii;
-
-public class PermissionTemplateTesting {
-  public static PermissionTemplateDto newPermissionTemplateDto() {
-    return new PermissionTemplateDto()
-      .setName(randomAlphanumeric(60))
-      .setDescription(randomAscii(500))
-      .setKee(Uuids.create())
-      .setCreatedAt(new Date())
-      .setUpdatedAt(new Date());
-  }
 }

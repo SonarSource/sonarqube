@@ -22,7 +22,7 @@ package org.sonar.server.permission.ws;
 
 import java.util.Date;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.internal.Uuids;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.permission.PermissionTemplateDto;
 
 class PermissionTemplateDtoBuilder {
