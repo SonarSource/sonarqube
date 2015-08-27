@@ -13,41 +13,41 @@ public final class Permissions {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+     * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+     */
+    boolean hasPaging();
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+     */
+    org.sonarqube.ws.Common.Paging getPaging();
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+     */
+    org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder();
+
+    /**
+     * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
      */
     java.util.List<org.sonarqube.ws.Permissions.UsersResponse.User> 
         getUsersList();
     /**
-     * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
      */
     org.sonarqube.ws.Permissions.UsersResponse.User getUsers(int index);
     /**
-     * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
      */
     int getUsersCount();
     /**
-     * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
      */
     java.util.List<? extends org.sonarqube.ws.Permissions.UsersResponse.UserOrBuilder> 
         getUsersOrBuilderList();
     /**
-     * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
      */
     org.sonarqube.ws.Permissions.UsersResponse.UserOrBuilder getUsersOrBuilder(
         int index);
-
-    /**
-     * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-     */
-    boolean hasPaging();
-    /**
-     * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-     */
-    org.sonarqube.ws.Common.Paging getPaging();
-    /**
-     * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-     */
-    org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder();
   }
   /**
    * Protobuf type {@code sonarqube.ws.permissions.UsersResponse}
@@ -106,14 +106,6 @@ public final class Permissions {
               break;
             }
             case 10: {
-              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-                users_ = new java.util.ArrayList<org.sonarqube.ws.Permissions.UsersResponse.User>();
-                mutable_bitField0_ |= 0x00000001;
-              }
-              users_.add(input.readMessage(org.sonarqube.ws.Permissions.UsersResponse.User.PARSER, extensionRegistry));
-              break;
-            }
-            case 18: {
               org.sonarqube.ws.Common.Paging.Builder subBuilder = null;
               if (((bitField0_ & 0x00000001) == 0x00000001)) {
                 subBuilder = paging_.toBuilder();
@@ -126,6 +118,14 @@ public final class Permissions {
               bitField0_ |= 0x00000001;
               break;
             }
+            case 18: {
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                users_ = new java.util.ArrayList<org.sonarqube.ws.Permissions.UsersResponse.User>();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              users_.add(input.readMessage(org.sonarqube.ws.Permissions.UsersResponse.User.PARSER, extensionRegistry));
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -134,7 +134,7 @@ public final class Permissions {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
           users_ = java.util.Collections.unmodifiableList(users_);
         }
         this.unknownFields = unknownFields.build();
@@ -1037,65 +1037,65 @@ public final class Permissions {
     }
 
     private int bitField0_;
-    public static final int USERS_FIELD_NUMBER = 1;
+    public static final int PAGING_FIELD_NUMBER = 1;
+    private org.sonarqube.ws.Common.Paging paging_;
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+     */
+    public boolean hasPaging() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+     */
+    public org.sonarqube.ws.Common.Paging getPaging() {
+      return paging_;
+    }
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+     */
+    public org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder() {
+      return paging_;
+    }
+
+    public static final int USERS_FIELD_NUMBER = 2;
     private java.util.List<org.sonarqube.ws.Permissions.UsersResponse.User> users_;
     /**
-     * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
      */
     public java.util.List<org.sonarqube.ws.Permissions.UsersResponse.User> getUsersList() {
       return users_;
     }
     /**
-     * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
      */
     public java.util.List<? extends org.sonarqube.ws.Permissions.UsersResponse.UserOrBuilder> 
         getUsersOrBuilderList() {
       return users_;
     }
     /**
-     * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
      */
     public int getUsersCount() {
       return users_.size();
     }
     /**
-     * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
      */
     public org.sonarqube.ws.Permissions.UsersResponse.User getUsers(int index) {
       return users_.get(index);
     }
     /**
-     * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
      */
     public org.sonarqube.ws.Permissions.UsersResponse.UserOrBuilder getUsersOrBuilder(
         int index) {
       return users_.get(index);
     }
 
-    public static final int PAGING_FIELD_NUMBER = 2;
-    private org.sonarqube.ws.Common.Paging paging_;
-    /**
-     * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-     */
-    public boolean hasPaging() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-     */
-    public org.sonarqube.ws.Common.Paging getPaging() {
-      return paging_;
-    }
-    /**
-     * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-     */
-    public org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder() {
-      return paging_;
-    }
-
     private void initFields() {
-      users_ = java.util.Collections.emptyList();
       paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
+      users_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1110,11 +1110,11 @@ public final class Permissions {
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      for (int i = 0; i < users_.size(); i++) {
-        output.writeMessage(1, users_.get(i));
-      }
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeMessage(2, paging_);
+        output.writeMessage(1, paging_);
+      }
+      for (int i = 0; i < users_.size(); i++) {
+        output.writeMessage(2, users_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -1125,13 +1125,13 @@ public final class Permissions {
       if (size != -1) return size;
 
       size = 0;
-      for (int i = 0; i < users_.size(); i++) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1, users_.get(i));
-      }
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, paging_);
+          .computeMessageSize(1, paging_);
+      }
+      for (int i = 0; i < users_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, users_.get(i));
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1246,8 +1246,8 @@ public final class Permissions {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-          getUsersFieldBuilder();
           getPagingFieldBuilder();
+          getUsersFieldBuilder();
         }
       }
       private static Builder create() {
@@ -1256,18 +1256,18 @@ public final class Permissions {
 
       public Builder clear() {
         super.clear();
-        if (usersBuilder_ == null) {
-          users_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
-        } else {
-          usersBuilder_.clear();
-        }
         if (pagingBuilder_ == null) {
           paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
         } else {
           pagingBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000002);
+        bitField0_ = (bitField0_ & ~0x00000001);
+        if (usersBuilder_ == null) {
+          users_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000002);
+        } else {
+          usersBuilder_.clear();
+        }
         return this;
       }
 
@@ -1296,22 +1296,22 @@ public final class Permissions {
         org.sonarqube.ws.Permissions.UsersResponse result = new org.sonarqube.ws.Permissions.UsersResponse(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
-        if (usersBuilder_ == null) {
-          if (((bitField0_ & 0x00000001) == 0x00000001)) {
-            users_ = java.util.Collections.unmodifiableList(users_);
-            bitField0_ = (bitField0_ & ~0x00000001);
-          }
-          result.users_ = users_;
-        } else {
-          result.users_ = usersBuilder_.build();
-        }
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
           to_bitField0_ |= 0x00000001;
         }
         if (pagingBuilder_ == null) {
           result.paging_ = paging_;
         } else {
           result.paging_ = pagingBuilder_.build();
+        }
+        if (usersBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) == 0x00000002)) {
+            users_ = java.util.Collections.unmodifiableList(users_);
+            bitField0_ = (bitField0_ & ~0x00000002);
+          }
+          result.users_ = users_;
+        } else {
+          result.users_ = usersBuilder_.build();
         }
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -1329,11 +1329,14 @@ public final class Permissions {
 
       public Builder mergeFrom(org.sonarqube.ws.Permissions.UsersResponse other) {
         if (other == org.sonarqube.ws.Permissions.UsersResponse.getDefaultInstance()) return this;
+        if (other.hasPaging()) {
+          mergePaging(other.getPaging());
+        }
         if (usersBuilder_ == null) {
           if (!other.users_.isEmpty()) {
             if (users_.isEmpty()) {
               users_ = other.users_;
-              bitField0_ = (bitField0_ & ~0x00000001);
+              bitField0_ = (bitField0_ & ~0x00000002);
             } else {
               ensureUsersIsMutable();
               users_.addAll(other.users_);
@@ -1346,7 +1349,7 @@ public final class Permissions {
               usersBuilder_.dispose();
               usersBuilder_ = null;
               users_ = other.users_;
-              bitField0_ = (bitField0_ & ~0x00000001);
+              bitField0_ = (bitField0_ & ~0x00000002);
               usersBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getUsersFieldBuilder() : null;
@@ -1354,9 +1357,6 @@ public final class Permissions {
               usersBuilder_.addAllMessages(other.users_);
             }
           }
-        }
-        if (other.hasPaging()) {
-          mergePaging(other.getPaging());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -1385,12 +1385,128 @@ public final class Permissions {
       }
       private int bitField0_;
 
+      private org.sonarqube.ws.Common.Paging paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder> pagingBuilder_;
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public boolean hasPaging() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public org.sonarqube.ws.Common.Paging getPaging() {
+        if (pagingBuilder_ == null) {
+          return paging_;
+        } else {
+          return pagingBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public Builder setPaging(org.sonarqube.ws.Common.Paging value) {
+        if (pagingBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          paging_ = value;
+          onChanged();
+        } else {
+          pagingBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public Builder setPaging(
+          org.sonarqube.ws.Common.Paging.Builder builderForValue) {
+        if (pagingBuilder_ == null) {
+          paging_ = builderForValue.build();
+          onChanged();
+        } else {
+          pagingBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public Builder mergePaging(org.sonarqube.ws.Common.Paging value) {
+        if (pagingBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001) &&
+              paging_ != org.sonarqube.ws.Common.Paging.getDefaultInstance()) {
+            paging_ =
+              org.sonarqube.ws.Common.Paging.newBuilder(paging_).mergeFrom(value).buildPartial();
+          } else {
+            paging_ = value;
+          }
+          onChanged();
+        } else {
+          pagingBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public Builder clearPaging() {
+        if (pagingBuilder_ == null) {
+          paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
+          onChanged();
+        } else {
+          pagingBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public org.sonarqube.ws.Common.Paging.Builder getPagingBuilder() {
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return getPagingFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder() {
+        if (pagingBuilder_ != null) {
+          return pagingBuilder_.getMessageOrBuilder();
+        } else {
+          return paging_;
+        }
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder> 
+          getPagingFieldBuilder() {
+        if (pagingBuilder_ == null) {
+          pagingBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder>(
+                  getPaging(),
+                  getParentForChildren(),
+                  isClean());
+          paging_ = null;
+        }
+        return pagingBuilder_;
+      }
+
       private java.util.List<org.sonarqube.ws.Permissions.UsersResponse.User> users_ =
         java.util.Collections.emptyList();
       private void ensureUsersIsMutable() {
-        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
           users_ = new java.util.ArrayList<org.sonarqube.ws.Permissions.UsersResponse.User>(users_);
-          bitField0_ |= 0x00000001;
+          bitField0_ |= 0x00000002;
          }
       }
 
@@ -1398,7 +1514,7 @@ public final class Permissions {
           org.sonarqube.ws.Permissions.UsersResponse.User, org.sonarqube.ws.Permissions.UsersResponse.User.Builder, org.sonarqube.ws.Permissions.UsersResponse.UserOrBuilder> usersBuilder_;
 
       /**
-       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
        */
       public java.util.List<org.sonarqube.ws.Permissions.UsersResponse.User> getUsersList() {
         if (usersBuilder_ == null) {
@@ -1408,7 +1524,7 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
        */
       public int getUsersCount() {
         if (usersBuilder_ == null) {
@@ -1418,7 +1534,7 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
        */
       public org.sonarqube.ws.Permissions.UsersResponse.User getUsers(int index) {
         if (usersBuilder_ == null) {
@@ -1428,7 +1544,7 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
        */
       public Builder setUsers(
           int index, org.sonarqube.ws.Permissions.UsersResponse.User value) {
@@ -1445,7 +1561,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
        */
       public Builder setUsers(
           int index, org.sonarqube.ws.Permissions.UsersResponse.User.Builder builderForValue) {
@@ -1459,7 +1575,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
        */
       public Builder addUsers(org.sonarqube.ws.Permissions.UsersResponse.User value) {
         if (usersBuilder_ == null) {
@@ -1475,7 +1591,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
        */
       public Builder addUsers(
           int index, org.sonarqube.ws.Permissions.UsersResponse.User value) {
@@ -1492,7 +1608,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
        */
       public Builder addUsers(
           org.sonarqube.ws.Permissions.UsersResponse.User.Builder builderForValue) {
@@ -1506,7 +1622,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
        */
       public Builder addUsers(
           int index, org.sonarqube.ws.Permissions.UsersResponse.User.Builder builderForValue) {
@@ -1520,7 +1636,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
        */
       public Builder addAllUsers(
           java.lang.Iterable<? extends org.sonarqube.ws.Permissions.UsersResponse.User> values) {
@@ -1535,12 +1651,12 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
        */
       public Builder clearUsers() {
         if (usersBuilder_ == null) {
           users_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
+          bitField0_ = (bitField0_ & ~0x00000002);
           onChanged();
         } else {
           usersBuilder_.clear();
@@ -1548,7 +1664,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
        */
       public Builder removeUsers(int index) {
         if (usersBuilder_ == null) {
@@ -1561,14 +1677,14 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
        */
       public org.sonarqube.ws.Permissions.UsersResponse.User.Builder getUsersBuilder(
           int index) {
         return getUsersFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
        */
       public org.sonarqube.ws.Permissions.UsersResponse.UserOrBuilder getUsersOrBuilder(
           int index) {
@@ -1578,7 +1694,7 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
        */
       public java.util.List<? extends org.sonarqube.ws.Permissions.UsersResponse.UserOrBuilder> 
            getUsersOrBuilderList() {
@@ -1589,14 +1705,14 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
        */
       public org.sonarqube.ws.Permissions.UsersResponse.User.Builder addUsersBuilder() {
         return getUsersFieldBuilder().addBuilder(
             org.sonarqube.ws.Permissions.UsersResponse.User.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
        */
       public org.sonarqube.ws.Permissions.UsersResponse.User.Builder addUsersBuilder(
           int index) {
@@ -1604,7 +1720,7 @@ public final class Permissions {
             index, org.sonarqube.ws.Permissions.UsersResponse.User.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.UsersResponse.User users = 2;</code>
        */
       public java.util.List<org.sonarqube.ws.Permissions.UsersResponse.User.Builder> 
            getUsersBuilderList() {
@@ -1617,128 +1733,12 @@ public final class Permissions {
           usersBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.sonarqube.ws.Permissions.UsersResponse.User, org.sonarqube.ws.Permissions.UsersResponse.User.Builder, org.sonarqube.ws.Permissions.UsersResponse.UserOrBuilder>(
                   users_,
-                  ((bitField0_ & 0x00000001) == 0x00000001),
+                  ((bitField0_ & 0x00000002) == 0x00000002),
                   getParentForChildren(),
                   isClean());
           users_ = null;
         }
         return usersBuilder_;
-      }
-
-      private org.sonarqube.ws.Common.Paging paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
-      private com.google.protobuf.SingleFieldBuilder<
-          org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder> pagingBuilder_;
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-       */
-      public boolean hasPaging() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-       */
-      public org.sonarqube.ws.Common.Paging getPaging() {
-        if (pagingBuilder_ == null) {
-          return paging_;
-        } else {
-          return pagingBuilder_.getMessage();
-        }
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-       */
-      public Builder setPaging(org.sonarqube.ws.Common.Paging value) {
-        if (pagingBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          paging_ = value;
-          onChanged();
-        } else {
-          pagingBuilder_.setMessage(value);
-        }
-        bitField0_ |= 0x00000002;
-        return this;
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-       */
-      public Builder setPaging(
-          org.sonarqube.ws.Common.Paging.Builder builderForValue) {
-        if (pagingBuilder_ == null) {
-          paging_ = builderForValue.build();
-          onChanged();
-        } else {
-          pagingBuilder_.setMessage(builderForValue.build());
-        }
-        bitField0_ |= 0x00000002;
-        return this;
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-       */
-      public Builder mergePaging(org.sonarqube.ws.Common.Paging value) {
-        if (pagingBuilder_ == null) {
-          if (((bitField0_ & 0x00000002) == 0x00000002) &&
-              paging_ != org.sonarqube.ws.Common.Paging.getDefaultInstance()) {
-            paging_ =
-              org.sonarqube.ws.Common.Paging.newBuilder(paging_).mergeFrom(value).buildPartial();
-          } else {
-            paging_ = value;
-          }
-          onChanged();
-        } else {
-          pagingBuilder_.mergeFrom(value);
-        }
-        bitField0_ |= 0x00000002;
-        return this;
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-       */
-      public Builder clearPaging() {
-        if (pagingBuilder_ == null) {
-          paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
-          onChanged();
-        } else {
-          pagingBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00000002);
-        return this;
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-       */
-      public org.sonarqube.ws.Common.Paging.Builder getPagingBuilder() {
-        bitField0_ |= 0x00000002;
-        onChanged();
-        return getPagingFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-       */
-      public org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder() {
-        if (pagingBuilder_ != null) {
-          return pagingBuilder_.getMessageOrBuilder();
-        } else {
-          return paging_;
-        }
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilder<
-          org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder> 
-          getPagingFieldBuilder() {
-        if (pagingBuilder_ == null) {
-          pagingBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder>(
-                  getPaging(),
-                  getParentForChildren(),
-                  isClean());
-          paging_ = null;
-        }
-        return pagingBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:sonarqube.ws.permissions.UsersResponse)
@@ -1757,41 +1757,41 @@ public final class Permissions {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+     * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+     */
+    boolean hasPaging();
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+     */
+    org.sonarqube.ws.Common.Paging getPaging();
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+     */
+    org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder();
+
+    /**
+     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
      */
     java.util.List<org.sonarqube.ws.Permissions.GroupsResponse.Group> 
         getGroupsList();
     /**
-     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
      */
     org.sonarqube.ws.Permissions.GroupsResponse.Group getGroups(int index);
     /**
-     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
      */
     int getGroupsCount();
     /**
-     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
      */
     java.util.List<? extends org.sonarqube.ws.Permissions.GroupsResponse.GroupOrBuilder> 
         getGroupsOrBuilderList();
     /**
-     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
      */
     org.sonarqube.ws.Permissions.GroupsResponse.GroupOrBuilder getGroupsOrBuilder(
         int index);
-
-    /**
-     * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-     */
-    boolean hasPaging();
-    /**
-     * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-     */
-    org.sonarqube.ws.Common.Paging getPaging();
-    /**
-     * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-     */
-    org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder();
   }
   /**
    * Protobuf type {@code sonarqube.ws.permissions.GroupsResponse}
@@ -1850,14 +1850,6 @@ public final class Permissions {
               break;
             }
             case 10: {
-              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-                groups_ = new java.util.ArrayList<org.sonarqube.ws.Permissions.GroupsResponse.Group>();
-                mutable_bitField0_ |= 0x00000001;
-              }
-              groups_.add(input.readMessage(org.sonarqube.ws.Permissions.GroupsResponse.Group.PARSER, extensionRegistry));
-              break;
-            }
-            case 18: {
               org.sonarqube.ws.Common.Paging.Builder subBuilder = null;
               if (((bitField0_ & 0x00000001) == 0x00000001)) {
                 subBuilder = paging_.toBuilder();
@@ -1870,6 +1862,14 @@ public final class Permissions {
               bitField0_ |= 0x00000001;
               break;
             }
+            case 18: {
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                groups_ = new java.util.ArrayList<org.sonarqube.ws.Permissions.GroupsResponse.Group>();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              groups_.add(input.readMessage(org.sonarqube.ws.Permissions.GroupsResponse.Group.PARSER, extensionRegistry));
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -1878,7 +1878,7 @@ public final class Permissions {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
           groups_ = java.util.Collections.unmodifiableList(groups_);
         }
         this.unknownFields = unknownFields.build();
@@ -2781,65 +2781,65 @@ public final class Permissions {
     }
 
     private int bitField0_;
-    public static final int GROUPS_FIELD_NUMBER = 1;
+    public static final int PAGING_FIELD_NUMBER = 1;
+    private org.sonarqube.ws.Common.Paging paging_;
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+     */
+    public boolean hasPaging() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+     */
+    public org.sonarqube.ws.Common.Paging getPaging() {
+      return paging_;
+    }
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+     */
+    public org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder() {
+      return paging_;
+    }
+
+    public static final int GROUPS_FIELD_NUMBER = 2;
     private java.util.List<org.sonarqube.ws.Permissions.GroupsResponse.Group> groups_;
     /**
-     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
      */
     public java.util.List<org.sonarqube.ws.Permissions.GroupsResponse.Group> getGroupsList() {
       return groups_;
     }
     /**
-     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
      */
     public java.util.List<? extends org.sonarqube.ws.Permissions.GroupsResponse.GroupOrBuilder> 
         getGroupsOrBuilderList() {
       return groups_;
     }
     /**
-     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
      */
     public int getGroupsCount() {
       return groups_.size();
     }
     /**
-     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
      */
     public org.sonarqube.ws.Permissions.GroupsResponse.Group getGroups(int index) {
       return groups_.get(index);
     }
     /**
-     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
      */
     public org.sonarqube.ws.Permissions.GroupsResponse.GroupOrBuilder getGroupsOrBuilder(
         int index) {
       return groups_.get(index);
     }
 
-    public static final int PAGING_FIELD_NUMBER = 2;
-    private org.sonarqube.ws.Common.Paging paging_;
-    /**
-     * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-     */
-    public boolean hasPaging() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-     */
-    public org.sonarqube.ws.Common.Paging getPaging() {
-      return paging_;
-    }
-    /**
-     * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-     */
-    public org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder() {
-      return paging_;
-    }
-
     private void initFields() {
-      groups_ = java.util.Collections.emptyList();
       paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
+      groups_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -2854,11 +2854,11 @@ public final class Permissions {
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
-      for (int i = 0; i < groups_.size(); i++) {
-        output.writeMessage(1, groups_.get(i));
-      }
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeMessage(2, paging_);
+        output.writeMessage(1, paging_);
+      }
+      for (int i = 0; i < groups_.size(); i++) {
+        output.writeMessage(2, groups_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -2869,13 +2869,13 @@ public final class Permissions {
       if (size != -1) return size;
 
       size = 0;
-      for (int i = 0; i < groups_.size(); i++) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1, groups_.get(i));
-      }
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, paging_);
+          .computeMessageSize(1, paging_);
+      }
+      for (int i = 0; i < groups_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, groups_.get(i));
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -2990,8 +2990,8 @@ public final class Permissions {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-          getGroupsFieldBuilder();
           getPagingFieldBuilder();
+          getGroupsFieldBuilder();
         }
       }
       private static Builder create() {
@@ -3000,18 +3000,18 @@ public final class Permissions {
 
       public Builder clear() {
         super.clear();
-        if (groupsBuilder_ == null) {
-          groups_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
-        } else {
-          groupsBuilder_.clear();
-        }
         if (pagingBuilder_ == null) {
           paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
         } else {
           pagingBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000002);
+        bitField0_ = (bitField0_ & ~0x00000001);
+        if (groupsBuilder_ == null) {
+          groups_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000002);
+        } else {
+          groupsBuilder_.clear();
+        }
         return this;
       }
 
@@ -3040,22 +3040,22 @@ public final class Permissions {
         org.sonarqube.ws.Permissions.GroupsResponse result = new org.sonarqube.ws.Permissions.GroupsResponse(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
-        if (groupsBuilder_ == null) {
-          if (((bitField0_ & 0x00000001) == 0x00000001)) {
-            groups_ = java.util.Collections.unmodifiableList(groups_);
-            bitField0_ = (bitField0_ & ~0x00000001);
-          }
-          result.groups_ = groups_;
-        } else {
-          result.groups_ = groupsBuilder_.build();
-        }
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
           to_bitField0_ |= 0x00000001;
         }
         if (pagingBuilder_ == null) {
           result.paging_ = paging_;
         } else {
           result.paging_ = pagingBuilder_.build();
+        }
+        if (groupsBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) == 0x00000002)) {
+            groups_ = java.util.Collections.unmodifiableList(groups_);
+            bitField0_ = (bitField0_ & ~0x00000002);
+          }
+          result.groups_ = groups_;
+        } else {
+          result.groups_ = groupsBuilder_.build();
         }
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -3073,11 +3073,14 @@ public final class Permissions {
 
       public Builder mergeFrom(org.sonarqube.ws.Permissions.GroupsResponse other) {
         if (other == org.sonarqube.ws.Permissions.GroupsResponse.getDefaultInstance()) return this;
+        if (other.hasPaging()) {
+          mergePaging(other.getPaging());
+        }
         if (groupsBuilder_ == null) {
           if (!other.groups_.isEmpty()) {
             if (groups_.isEmpty()) {
               groups_ = other.groups_;
-              bitField0_ = (bitField0_ & ~0x00000001);
+              bitField0_ = (bitField0_ & ~0x00000002);
             } else {
               ensureGroupsIsMutable();
               groups_.addAll(other.groups_);
@@ -3090,7 +3093,7 @@ public final class Permissions {
               groupsBuilder_.dispose();
               groupsBuilder_ = null;
               groups_ = other.groups_;
-              bitField0_ = (bitField0_ & ~0x00000001);
+              bitField0_ = (bitField0_ & ~0x00000002);
               groupsBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getGroupsFieldBuilder() : null;
@@ -3098,9 +3101,6 @@ public final class Permissions {
               groupsBuilder_.addAllMessages(other.groups_);
             }
           }
-        }
-        if (other.hasPaging()) {
-          mergePaging(other.getPaging());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -3129,12 +3129,128 @@ public final class Permissions {
       }
       private int bitField0_;
 
+      private org.sonarqube.ws.Common.Paging paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder> pagingBuilder_;
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public boolean hasPaging() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public org.sonarqube.ws.Common.Paging getPaging() {
+        if (pagingBuilder_ == null) {
+          return paging_;
+        } else {
+          return pagingBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public Builder setPaging(org.sonarqube.ws.Common.Paging value) {
+        if (pagingBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          paging_ = value;
+          onChanged();
+        } else {
+          pagingBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public Builder setPaging(
+          org.sonarqube.ws.Common.Paging.Builder builderForValue) {
+        if (pagingBuilder_ == null) {
+          paging_ = builderForValue.build();
+          onChanged();
+        } else {
+          pagingBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public Builder mergePaging(org.sonarqube.ws.Common.Paging value) {
+        if (pagingBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001) &&
+              paging_ != org.sonarqube.ws.Common.Paging.getDefaultInstance()) {
+            paging_ =
+              org.sonarqube.ws.Common.Paging.newBuilder(paging_).mergeFrom(value).buildPartial();
+          } else {
+            paging_ = value;
+          }
+          onChanged();
+        } else {
+          pagingBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public Builder clearPaging() {
+        if (pagingBuilder_ == null) {
+          paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
+          onChanged();
+        } else {
+          pagingBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public org.sonarqube.ws.Common.Paging.Builder getPagingBuilder() {
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return getPagingFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder() {
+        if (pagingBuilder_ != null) {
+          return pagingBuilder_.getMessageOrBuilder();
+        } else {
+          return paging_;
+        }
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder> 
+          getPagingFieldBuilder() {
+        if (pagingBuilder_ == null) {
+          pagingBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder>(
+                  getPaging(),
+                  getParentForChildren(),
+                  isClean());
+          paging_ = null;
+        }
+        return pagingBuilder_;
+      }
+
       private java.util.List<org.sonarqube.ws.Permissions.GroupsResponse.Group> groups_ =
         java.util.Collections.emptyList();
       private void ensureGroupsIsMutable() {
-        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
           groups_ = new java.util.ArrayList<org.sonarqube.ws.Permissions.GroupsResponse.Group>(groups_);
-          bitField0_ |= 0x00000001;
+          bitField0_ |= 0x00000002;
          }
       }
 
@@ -3142,7 +3258,7 @@ public final class Permissions {
           org.sonarqube.ws.Permissions.GroupsResponse.Group, org.sonarqube.ws.Permissions.GroupsResponse.Group.Builder, org.sonarqube.ws.Permissions.GroupsResponse.GroupOrBuilder> groupsBuilder_;
 
       /**
-       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
        */
       public java.util.List<org.sonarqube.ws.Permissions.GroupsResponse.Group> getGroupsList() {
         if (groupsBuilder_ == null) {
@@ -3152,7 +3268,7 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
        */
       public int getGroupsCount() {
         if (groupsBuilder_ == null) {
@@ -3162,7 +3278,7 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
        */
       public org.sonarqube.ws.Permissions.GroupsResponse.Group getGroups(int index) {
         if (groupsBuilder_ == null) {
@@ -3172,7 +3288,7 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
        */
       public Builder setGroups(
           int index, org.sonarqube.ws.Permissions.GroupsResponse.Group value) {
@@ -3189,7 +3305,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
        */
       public Builder setGroups(
           int index, org.sonarqube.ws.Permissions.GroupsResponse.Group.Builder builderForValue) {
@@ -3203,7 +3319,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
        */
       public Builder addGroups(org.sonarqube.ws.Permissions.GroupsResponse.Group value) {
         if (groupsBuilder_ == null) {
@@ -3219,7 +3335,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
        */
       public Builder addGroups(
           int index, org.sonarqube.ws.Permissions.GroupsResponse.Group value) {
@@ -3236,7 +3352,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
        */
       public Builder addGroups(
           org.sonarqube.ws.Permissions.GroupsResponse.Group.Builder builderForValue) {
@@ -3250,7 +3366,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
        */
       public Builder addGroups(
           int index, org.sonarqube.ws.Permissions.GroupsResponse.Group.Builder builderForValue) {
@@ -3264,7 +3380,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
        */
       public Builder addAllGroups(
           java.lang.Iterable<? extends org.sonarqube.ws.Permissions.GroupsResponse.Group> values) {
@@ -3279,12 +3395,12 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
        */
       public Builder clearGroups() {
         if (groupsBuilder_ == null) {
           groups_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
+          bitField0_ = (bitField0_ & ~0x00000002);
           onChanged();
         } else {
           groupsBuilder_.clear();
@@ -3292,7 +3408,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
        */
       public Builder removeGroups(int index) {
         if (groupsBuilder_ == null) {
@@ -3305,14 +3421,14 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
        */
       public org.sonarqube.ws.Permissions.GroupsResponse.Group.Builder getGroupsBuilder(
           int index) {
         return getGroupsFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
        */
       public org.sonarqube.ws.Permissions.GroupsResponse.GroupOrBuilder getGroupsOrBuilder(
           int index) {
@@ -3322,7 +3438,7 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
        */
       public java.util.List<? extends org.sonarqube.ws.Permissions.GroupsResponse.GroupOrBuilder> 
            getGroupsOrBuilderList() {
@@ -3333,14 +3449,14 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
        */
       public org.sonarqube.ws.Permissions.GroupsResponse.Group.Builder addGroupsBuilder() {
         return getGroupsFieldBuilder().addBuilder(
             org.sonarqube.ws.Permissions.GroupsResponse.Group.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
        */
       public org.sonarqube.ws.Permissions.GroupsResponse.Group.Builder addGroupsBuilder(
           int index) {
@@ -3348,7 +3464,7 @@ public final class Permissions {
             index, org.sonarqube.ws.Permissions.GroupsResponse.Group.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.GroupsResponse.Group groups = 2;</code>
        */
       public java.util.List<org.sonarqube.ws.Permissions.GroupsResponse.Group.Builder> 
            getGroupsBuilderList() {
@@ -3361,128 +3477,12 @@ public final class Permissions {
           groupsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.sonarqube.ws.Permissions.GroupsResponse.Group, org.sonarqube.ws.Permissions.GroupsResponse.Group.Builder, org.sonarqube.ws.Permissions.GroupsResponse.GroupOrBuilder>(
                   groups_,
-                  ((bitField0_ & 0x00000001) == 0x00000001),
+                  ((bitField0_ & 0x00000002) == 0x00000002),
                   getParentForChildren(),
                   isClean());
           groups_ = null;
         }
         return groupsBuilder_;
-      }
-
-      private org.sonarqube.ws.Common.Paging paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
-      private com.google.protobuf.SingleFieldBuilder<
-          org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder> pagingBuilder_;
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-       */
-      public boolean hasPaging() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-       */
-      public org.sonarqube.ws.Common.Paging getPaging() {
-        if (pagingBuilder_ == null) {
-          return paging_;
-        } else {
-          return pagingBuilder_.getMessage();
-        }
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-       */
-      public Builder setPaging(org.sonarqube.ws.Common.Paging value) {
-        if (pagingBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          paging_ = value;
-          onChanged();
-        } else {
-          pagingBuilder_.setMessage(value);
-        }
-        bitField0_ |= 0x00000002;
-        return this;
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-       */
-      public Builder setPaging(
-          org.sonarqube.ws.Common.Paging.Builder builderForValue) {
-        if (pagingBuilder_ == null) {
-          paging_ = builderForValue.build();
-          onChanged();
-        } else {
-          pagingBuilder_.setMessage(builderForValue.build());
-        }
-        bitField0_ |= 0x00000002;
-        return this;
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-       */
-      public Builder mergePaging(org.sonarqube.ws.Common.Paging value) {
-        if (pagingBuilder_ == null) {
-          if (((bitField0_ & 0x00000002) == 0x00000002) &&
-              paging_ != org.sonarqube.ws.Common.Paging.getDefaultInstance()) {
-            paging_ =
-              org.sonarqube.ws.Common.Paging.newBuilder(paging_).mergeFrom(value).buildPartial();
-          } else {
-            paging_ = value;
-          }
-          onChanged();
-        } else {
-          pagingBuilder_.mergeFrom(value);
-        }
-        bitField0_ |= 0x00000002;
-        return this;
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-       */
-      public Builder clearPaging() {
-        if (pagingBuilder_ == null) {
-          paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
-          onChanged();
-        } else {
-          pagingBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00000002);
-        return this;
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-       */
-      public org.sonarqube.ws.Common.Paging.Builder getPagingBuilder() {
-        bitField0_ |= 0x00000002;
-        onChanged();
-        return getPagingFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-       */
-      public org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder() {
-        if (pagingBuilder_ != null) {
-          return pagingBuilder_.getMessageOrBuilder();
-        } else {
-          return paging_;
-        }
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 2;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilder<
-          org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder> 
-          getPagingFieldBuilder() {
-        if (pagingBuilder_ == null) {
-          pagingBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder>(
-                  getPaging(),
-                  getParentForChildren(),
-                  isClean());
-          paging_ = null;
-        }
-        return pagingBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:sonarqube.ws.permissions.GroupsResponse)
@@ -5123,65 +5123,65 @@ public final class Permissions {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+     * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+     */
+    boolean hasPaging();
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+     */
+    org.sonarqube.ws.Common.Paging getPaging();
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+     */
+    org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder();
+
+    /**
+     * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
      */
     java.util.List<org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project> 
         getProjectsList();
     /**
-     * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
      */
     org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project getProjects(int index);
     /**
-     * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
      */
     int getProjectsCount();
     /**
-     * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
      */
     java.util.List<? extends org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.ProjectOrBuilder> 
         getProjectsOrBuilderList();
     /**
-     * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
      */
     org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.ProjectOrBuilder getProjectsOrBuilder(
         int index);
 
     /**
-     * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+     * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
      */
     java.util.List<org.sonarqube.ws.Permissions.Permission> 
         getPermissionsList();
     /**
-     * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+     * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
      */
     org.sonarqube.ws.Permissions.Permission getPermissions(int index);
     /**
-     * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+     * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
      */
     int getPermissionsCount();
     /**
-     * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+     * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
      */
     java.util.List<? extends org.sonarqube.ws.Permissions.PermissionOrBuilder> 
         getPermissionsOrBuilderList();
     /**
-     * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+     * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
      */
     org.sonarqube.ws.Permissions.PermissionOrBuilder getPermissionsOrBuilder(
         int index);
-
-    /**
-     * <code>optional .sonarqube.ws.commons.Paging paging = 3;</code>
-     */
-    boolean hasPaging();
-    /**
-     * <code>optional .sonarqube.ws.commons.Paging paging = 3;</code>
-     */
-    org.sonarqube.ws.Common.Paging getPaging();
-    /**
-     * <code>optional .sonarqube.ws.commons.Paging paging = 3;</code>
-     */
-    org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder();
   }
   /**
    * Protobuf type {@code sonarqube.ws.permissions.SearchProjectPermissionsResponse}
@@ -5236,22 +5236,6 @@ public final class Permissions {
               break;
             }
             case 10: {
-              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
-                projects_ = new java.util.ArrayList<org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project>();
-                mutable_bitField0_ |= 0x00000001;
-              }
-              projects_.add(input.readMessage(org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project.PARSER, extensionRegistry));
-              break;
-            }
-            case 18: {
-              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                permissions_ = new java.util.ArrayList<org.sonarqube.ws.Permissions.Permission>();
-                mutable_bitField0_ |= 0x00000002;
-              }
-              permissions_.add(input.readMessage(org.sonarqube.ws.Permissions.Permission.PARSER, extensionRegistry));
-              break;
-            }
-            case 26: {
               org.sonarqube.ws.Common.Paging.Builder subBuilder = null;
               if (((bitField0_ & 0x00000001) == 0x00000001)) {
                 subBuilder = paging_.toBuilder();
@@ -5264,6 +5248,22 @@ public final class Permissions {
               bitField0_ |= 0x00000001;
               break;
             }
+            case 18: {
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                projects_ = new java.util.ArrayList<org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project>();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              projects_.add(input.readMessage(org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project.PARSER, extensionRegistry));
+              break;
+            }
+            case 26: {
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+                permissions_ = new java.util.ArrayList<org.sonarqube.ws.Permissions.Permission>();
+                mutable_bitField0_ |= 0x00000004;
+              }
+              permissions_.add(input.readMessage(org.sonarqube.ws.Permissions.Permission.PARSER, extensionRegistry));
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -5272,10 +5272,10 @@ public final class Permissions {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
           projects_ = java.util.Collections.unmodifiableList(projects_);
         }
-        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
           permissions_ = java.util.Collections.unmodifiableList(permissions_);
         }
         this.unknownFields = unknownFields.build();
@@ -6617,101 +6617,101 @@ public final class Permissions {
     }
 
     private int bitField0_;
-    public static final int PROJECTS_FIELD_NUMBER = 1;
+    public static final int PAGING_FIELD_NUMBER = 1;
+    private org.sonarqube.ws.Common.Paging paging_;
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+     */
+    public boolean hasPaging() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+     */
+    public org.sonarqube.ws.Common.Paging getPaging() {
+      return paging_;
+    }
+    /**
+     * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+     */
+    public org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder() {
+      return paging_;
+    }
+
+    public static final int PROJECTS_FIELD_NUMBER = 2;
     private java.util.List<org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project> projects_;
     /**
-     * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
      */
     public java.util.List<org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project> getProjectsList() {
       return projects_;
     }
     /**
-     * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
      */
     public java.util.List<? extends org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.ProjectOrBuilder> 
         getProjectsOrBuilderList() {
       return projects_;
     }
     /**
-     * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
      */
     public int getProjectsCount() {
       return projects_.size();
     }
     /**
-     * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
      */
     public org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project getProjects(int index) {
       return projects_.get(index);
     }
     /**
-     * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+     * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
      */
     public org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.ProjectOrBuilder getProjectsOrBuilder(
         int index) {
       return projects_.get(index);
     }
 
-    public static final int PERMISSIONS_FIELD_NUMBER = 2;
+    public static final int PERMISSIONS_FIELD_NUMBER = 3;
     private java.util.List<org.sonarqube.ws.Permissions.Permission> permissions_;
     /**
-     * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+     * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
      */
     public java.util.List<org.sonarqube.ws.Permissions.Permission> getPermissionsList() {
       return permissions_;
     }
     /**
-     * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+     * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
      */
     public java.util.List<? extends org.sonarqube.ws.Permissions.PermissionOrBuilder> 
         getPermissionsOrBuilderList() {
       return permissions_;
     }
     /**
-     * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+     * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
      */
     public int getPermissionsCount() {
       return permissions_.size();
     }
     /**
-     * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+     * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
      */
     public org.sonarqube.ws.Permissions.Permission getPermissions(int index) {
       return permissions_.get(index);
     }
     /**
-     * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+     * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
      */
     public org.sonarqube.ws.Permissions.PermissionOrBuilder getPermissionsOrBuilder(
         int index) {
       return permissions_.get(index);
     }
 
-    public static final int PAGING_FIELD_NUMBER = 3;
-    private org.sonarqube.ws.Common.Paging paging_;
-    /**
-     * <code>optional .sonarqube.ws.commons.Paging paging = 3;</code>
-     */
-    public boolean hasPaging() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <code>optional .sonarqube.ws.commons.Paging paging = 3;</code>
-     */
-    public org.sonarqube.ws.Common.Paging getPaging() {
-      return paging_;
-    }
-    /**
-     * <code>optional .sonarqube.ws.commons.Paging paging = 3;</code>
-     */
-    public org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder() {
-      return paging_;
-    }
-
     private void initFields() {
+      paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
       projects_ = java.util.Collections.emptyList();
       permissions_ = java.util.Collections.emptyList();
-      paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -6726,14 +6726,14 @@ public final class Permissions {
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeMessage(1, paging_);
+      }
       for (int i = 0; i < projects_.size(); i++) {
-        output.writeMessage(1, projects_.get(i));
+        output.writeMessage(2, projects_.get(i));
       }
       for (int i = 0; i < permissions_.size(); i++) {
-        output.writeMessage(2, permissions_.get(i));
-      }
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeMessage(3, paging_);
+        output.writeMessage(3, permissions_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -6744,17 +6744,17 @@ public final class Permissions {
       if (size != -1) return size;
 
       size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, paging_);
+      }
       for (int i = 0; i < projects_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(1, projects_.get(i));
+          .computeMessageSize(2, projects_.get(i));
       }
       for (int i = 0; i < permissions_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, permissions_.get(i));
-      }
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(3, paging_);
+          .computeMessageSize(3, permissions_.get(i));
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -6865,9 +6865,9 @@ public final class Permissions {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getPagingFieldBuilder();
           getProjectsFieldBuilder();
           getPermissionsFieldBuilder();
-          getPagingFieldBuilder();
         }
       }
       private static Builder create() {
@@ -6876,24 +6876,24 @@ public final class Permissions {
 
       public Builder clear() {
         super.clear();
-        if (projectsBuilder_ == null) {
-          projects_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
-        } else {
-          projectsBuilder_.clear();
-        }
-        if (permissionsBuilder_ == null) {
-          permissions_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000002);
-        } else {
-          permissionsBuilder_.clear();
-        }
         if (pagingBuilder_ == null) {
           paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
         } else {
           pagingBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000004);
+        bitField0_ = (bitField0_ & ~0x00000001);
+        if (projectsBuilder_ == null) {
+          projects_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000002);
+        } else {
+          projectsBuilder_.clear();
+        }
+        if (permissionsBuilder_ == null) {
+          permissions_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000004);
+        } else {
+          permissionsBuilder_.clear();
+        }
         return this;
       }
 
@@ -6922,31 +6922,31 @@ public final class Permissions {
         org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse result = new org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
-        if (projectsBuilder_ == null) {
-          if (((bitField0_ & 0x00000001) == 0x00000001)) {
-            projects_ = java.util.Collections.unmodifiableList(projects_);
-            bitField0_ = (bitField0_ & ~0x00000001);
-          }
-          result.projects_ = projects_;
-        } else {
-          result.projects_ = projectsBuilder_.build();
-        }
-        if (permissionsBuilder_ == null) {
-          if (((bitField0_ & 0x00000002) == 0x00000002)) {
-            permissions_ = java.util.Collections.unmodifiableList(permissions_);
-            bitField0_ = (bitField0_ & ~0x00000002);
-          }
-          result.permissions_ = permissions_;
-        } else {
-          result.permissions_ = permissionsBuilder_.build();
-        }
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
           to_bitField0_ |= 0x00000001;
         }
         if (pagingBuilder_ == null) {
           result.paging_ = paging_;
         } else {
           result.paging_ = pagingBuilder_.build();
+        }
+        if (projectsBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) == 0x00000002)) {
+            projects_ = java.util.Collections.unmodifiableList(projects_);
+            bitField0_ = (bitField0_ & ~0x00000002);
+          }
+          result.projects_ = projects_;
+        } else {
+          result.projects_ = projectsBuilder_.build();
+        }
+        if (permissionsBuilder_ == null) {
+          if (((bitField0_ & 0x00000004) == 0x00000004)) {
+            permissions_ = java.util.Collections.unmodifiableList(permissions_);
+            bitField0_ = (bitField0_ & ~0x00000004);
+          }
+          result.permissions_ = permissions_;
+        } else {
+          result.permissions_ = permissionsBuilder_.build();
         }
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -6964,11 +6964,14 @@ public final class Permissions {
 
       public Builder mergeFrom(org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse other) {
         if (other == org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.getDefaultInstance()) return this;
+        if (other.hasPaging()) {
+          mergePaging(other.getPaging());
+        }
         if (projectsBuilder_ == null) {
           if (!other.projects_.isEmpty()) {
             if (projects_.isEmpty()) {
               projects_ = other.projects_;
-              bitField0_ = (bitField0_ & ~0x00000001);
+              bitField0_ = (bitField0_ & ~0x00000002);
             } else {
               ensureProjectsIsMutable();
               projects_.addAll(other.projects_);
@@ -6981,7 +6984,7 @@ public final class Permissions {
               projectsBuilder_.dispose();
               projectsBuilder_ = null;
               projects_ = other.projects_;
-              bitField0_ = (bitField0_ & ~0x00000001);
+              bitField0_ = (bitField0_ & ~0x00000002);
               projectsBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getProjectsFieldBuilder() : null;
@@ -6994,7 +6997,7 @@ public final class Permissions {
           if (!other.permissions_.isEmpty()) {
             if (permissions_.isEmpty()) {
               permissions_ = other.permissions_;
-              bitField0_ = (bitField0_ & ~0x00000002);
+              bitField0_ = (bitField0_ & ~0x00000004);
             } else {
               ensurePermissionsIsMutable();
               permissions_.addAll(other.permissions_);
@@ -7007,7 +7010,7 @@ public final class Permissions {
               permissionsBuilder_.dispose();
               permissionsBuilder_ = null;
               permissions_ = other.permissions_;
-              bitField0_ = (bitField0_ & ~0x00000002);
+              bitField0_ = (bitField0_ & ~0x00000004);
               permissionsBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getPermissionsFieldBuilder() : null;
@@ -7015,9 +7018,6 @@ public final class Permissions {
               permissionsBuilder_.addAllMessages(other.permissions_);
             }
           }
-        }
-        if (other.hasPaging()) {
-          mergePaging(other.getPaging());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -7046,12 +7046,128 @@ public final class Permissions {
       }
       private int bitField0_;
 
+      private org.sonarqube.ws.Common.Paging paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder> pagingBuilder_;
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public boolean hasPaging() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public org.sonarqube.ws.Common.Paging getPaging() {
+        if (pagingBuilder_ == null) {
+          return paging_;
+        } else {
+          return pagingBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public Builder setPaging(org.sonarqube.ws.Common.Paging value) {
+        if (pagingBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          paging_ = value;
+          onChanged();
+        } else {
+          pagingBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public Builder setPaging(
+          org.sonarqube.ws.Common.Paging.Builder builderForValue) {
+        if (pagingBuilder_ == null) {
+          paging_ = builderForValue.build();
+          onChanged();
+        } else {
+          pagingBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public Builder mergePaging(org.sonarqube.ws.Common.Paging value) {
+        if (pagingBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001) &&
+              paging_ != org.sonarqube.ws.Common.Paging.getDefaultInstance()) {
+            paging_ =
+              org.sonarqube.ws.Common.Paging.newBuilder(paging_).mergeFrom(value).buildPartial();
+          } else {
+            paging_ = value;
+          }
+          onChanged();
+        } else {
+          pagingBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public Builder clearPaging() {
+        if (pagingBuilder_ == null) {
+          paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
+          onChanged();
+        } else {
+          pagingBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public org.sonarqube.ws.Common.Paging.Builder getPagingBuilder() {
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return getPagingFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      public org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder() {
+        if (pagingBuilder_ != null) {
+          return pagingBuilder_.getMessageOrBuilder();
+        } else {
+          return paging_;
+        }
+      }
+      /**
+       * <code>optional .sonarqube.ws.commons.Paging paging = 1;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder> 
+          getPagingFieldBuilder() {
+        if (pagingBuilder_ == null) {
+          pagingBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder>(
+                  getPaging(),
+                  getParentForChildren(),
+                  isClean());
+          paging_ = null;
+        }
+        return pagingBuilder_;
+      }
+
       private java.util.List<org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project> projects_ =
         java.util.Collections.emptyList();
       private void ensureProjectsIsMutable() {
-        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
           projects_ = new java.util.ArrayList<org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project>(projects_);
-          bitField0_ |= 0x00000001;
+          bitField0_ |= 0x00000002;
          }
       }
 
@@ -7059,7 +7175,7 @@ public final class Permissions {
           org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project, org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project.Builder, org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.ProjectOrBuilder> projectsBuilder_;
 
       /**
-       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
        */
       public java.util.List<org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project> getProjectsList() {
         if (projectsBuilder_ == null) {
@@ -7069,7 +7185,7 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
        */
       public int getProjectsCount() {
         if (projectsBuilder_ == null) {
@@ -7079,7 +7195,7 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
        */
       public org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project getProjects(int index) {
         if (projectsBuilder_ == null) {
@@ -7089,7 +7205,7 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
        */
       public Builder setProjects(
           int index, org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project value) {
@@ -7106,7 +7222,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
        */
       public Builder setProjects(
           int index, org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project.Builder builderForValue) {
@@ -7120,7 +7236,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
        */
       public Builder addProjects(org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project value) {
         if (projectsBuilder_ == null) {
@@ -7136,7 +7252,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
        */
       public Builder addProjects(
           int index, org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project value) {
@@ -7153,7 +7269,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
        */
       public Builder addProjects(
           org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project.Builder builderForValue) {
@@ -7167,7 +7283,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
        */
       public Builder addProjects(
           int index, org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project.Builder builderForValue) {
@@ -7181,7 +7297,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
        */
       public Builder addAllProjects(
           java.lang.Iterable<? extends org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project> values) {
@@ -7196,12 +7312,12 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
        */
       public Builder clearProjects() {
         if (projectsBuilder_ == null) {
           projects_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
+          bitField0_ = (bitField0_ & ~0x00000002);
           onChanged();
         } else {
           projectsBuilder_.clear();
@@ -7209,7 +7325,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
        */
       public Builder removeProjects(int index) {
         if (projectsBuilder_ == null) {
@@ -7222,14 +7338,14 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
        */
       public org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project.Builder getProjectsBuilder(
           int index) {
         return getProjectsFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
        */
       public org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.ProjectOrBuilder getProjectsOrBuilder(
           int index) {
@@ -7239,7 +7355,7 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
        */
       public java.util.List<? extends org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.ProjectOrBuilder> 
            getProjectsOrBuilderList() {
@@ -7250,14 +7366,14 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
        */
       public org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project.Builder addProjectsBuilder() {
         return getProjectsFieldBuilder().addBuilder(
             org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
        */
       public org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project.Builder addProjectsBuilder(
           int index) {
@@ -7265,7 +7381,7 @@ public final class Permissions {
             index, org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 1;</code>
+       * <code>repeated .sonarqube.ws.permissions.SearchProjectPermissionsResponse.Project projects = 2;</code>
        */
       public java.util.List<org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project.Builder> 
            getProjectsBuilderList() {
@@ -7278,7 +7394,7 @@ public final class Permissions {
           projectsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project, org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.Project.Builder, org.sonarqube.ws.Permissions.SearchProjectPermissionsResponse.ProjectOrBuilder>(
                   projects_,
-                  ((bitField0_ & 0x00000001) == 0x00000001),
+                  ((bitField0_ & 0x00000002) == 0x00000002),
                   getParentForChildren(),
                   isClean());
           projects_ = null;
@@ -7289,9 +7405,9 @@ public final class Permissions {
       private java.util.List<org.sonarqube.ws.Permissions.Permission> permissions_ =
         java.util.Collections.emptyList();
       private void ensurePermissionsIsMutable() {
-        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+        if (!((bitField0_ & 0x00000004) == 0x00000004)) {
           permissions_ = new java.util.ArrayList<org.sonarqube.ws.Permissions.Permission>(permissions_);
-          bitField0_ |= 0x00000002;
+          bitField0_ |= 0x00000004;
          }
       }
 
@@ -7299,7 +7415,7 @@ public final class Permissions {
           org.sonarqube.ws.Permissions.Permission, org.sonarqube.ws.Permissions.Permission.Builder, org.sonarqube.ws.Permissions.PermissionOrBuilder> permissionsBuilder_;
 
       /**
-       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
        */
       public java.util.List<org.sonarqube.ws.Permissions.Permission> getPermissionsList() {
         if (permissionsBuilder_ == null) {
@@ -7309,7 +7425,7 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
        */
       public int getPermissionsCount() {
         if (permissionsBuilder_ == null) {
@@ -7319,7 +7435,7 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
        */
       public org.sonarqube.ws.Permissions.Permission getPermissions(int index) {
         if (permissionsBuilder_ == null) {
@@ -7329,7 +7445,7 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
        */
       public Builder setPermissions(
           int index, org.sonarqube.ws.Permissions.Permission value) {
@@ -7346,7 +7462,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
        */
       public Builder setPermissions(
           int index, org.sonarqube.ws.Permissions.Permission.Builder builderForValue) {
@@ -7360,7 +7476,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
        */
       public Builder addPermissions(org.sonarqube.ws.Permissions.Permission value) {
         if (permissionsBuilder_ == null) {
@@ -7376,7 +7492,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
        */
       public Builder addPermissions(
           int index, org.sonarqube.ws.Permissions.Permission value) {
@@ -7393,7 +7509,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
        */
       public Builder addPermissions(
           org.sonarqube.ws.Permissions.Permission.Builder builderForValue) {
@@ -7407,7 +7523,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
        */
       public Builder addPermissions(
           int index, org.sonarqube.ws.Permissions.Permission.Builder builderForValue) {
@@ -7421,7 +7537,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
        */
       public Builder addAllPermissions(
           java.lang.Iterable<? extends org.sonarqube.ws.Permissions.Permission> values) {
@@ -7436,12 +7552,12 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
        */
       public Builder clearPermissions() {
         if (permissionsBuilder_ == null) {
           permissions_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000002);
+          bitField0_ = (bitField0_ & ~0x00000004);
           onChanged();
         } else {
           permissionsBuilder_.clear();
@@ -7449,7 +7565,7 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
        */
       public Builder removePermissions(int index) {
         if (permissionsBuilder_ == null) {
@@ -7462,14 +7578,14 @@ public final class Permissions {
         return this;
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
        */
       public org.sonarqube.ws.Permissions.Permission.Builder getPermissionsBuilder(
           int index) {
         return getPermissionsFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
        */
       public org.sonarqube.ws.Permissions.PermissionOrBuilder getPermissionsOrBuilder(
           int index) {
@@ -7479,7 +7595,7 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
        */
       public java.util.List<? extends org.sonarqube.ws.Permissions.PermissionOrBuilder> 
            getPermissionsOrBuilderList() {
@@ -7490,14 +7606,14 @@ public final class Permissions {
         }
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
        */
       public org.sonarqube.ws.Permissions.Permission.Builder addPermissionsBuilder() {
         return getPermissionsFieldBuilder().addBuilder(
             org.sonarqube.ws.Permissions.Permission.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
        */
       public org.sonarqube.ws.Permissions.Permission.Builder addPermissionsBuilder(
           int index) {
@@ -7505,7 +7621,7 @@ public final class Permissions {
             index, org.sonarqube.ws.Permissions.Permission.getDefaultInstance());
       }
       /**
-       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 2;</code>
+       * <code>repeated .sonarqube.ws.permissions.Permission permissions = 3;</code>
        */
       public java.util.List<org.sonarqube.ws.Permissions.Permission.Builder> 
            getPermissionsBuilderList() {
@@ -7518,128 +7634,12 @@ public final class Permissions {
           permissionsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.sonarqube.ws.Permissions.Permission, org.sonarqube.ws.Permissions.Permission.Builder, org.sonarqube.ws.Permissions.PermissionOrBuilder>(
                   permissions_,
-                  ((bitField0_ & 0x00000002) == 0x00000002),
+                  ((bitField0_ & 0x00000004) == 0x00000004),
                   getParentForChildren(),
                   isClean());
           permissions_ = null;
         }
         return permissionsBuilder_;
-      }
-
-      private org.sonarqube.ws.Common.Paging paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
-      private com.google.protobuf.SingleFieldBuilder<
-          org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder> pagingBuilder_;
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 3;</code>
-       */
-      public boolean hasPaging() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 3;</code>
-       */
-      public org.sonarqube.ws.Common.Paging getPaging() {
-        if (pagingBuilder_ == null) {
-          return paging_;
-        } else {
-          return pagingBuilder_.getMessage();
-        }
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 3;</code>
-       */
-      public Builder setPaging(org.sonarqube.ws.Common.Paging value) {
-        if (pagingBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          paging_ = value;
-          onChanged();
-        } else {
-          pagingBuilder_.setMessage(value);
-        }
-        bitField0_ |= 0x00000004;
-        return this;
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 3;</code>
-       */
-      public Builder setPaging(
-          org.sonarqube.ws.Common.Paging.Builder builderForValue) {
-        if (pagingBuilder_ == null) {
-          paging_ = builderForValue.build();
-          onChanged();
-        } else {
-          pagingBuilder_.setMessage(builderForValue.build());
-        }
-        bitField0_ |= 0x00000004;
-        return this;
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 3;</code>
-       */
-      public Builder mergePaging(org.sonarqube.ws.Common.Paging value) {
-        if (pagingBuilder_ == null) {
-          if (((bitField0_ & 0x00000004) == 0x00000004) &&
-              paging_ != org.sonarqube.ws.Common.Paging.getDefaultInstance()) {
-            paging_ =
-              org.sonarqube.ws.Common.Paging.newBuilder(paging_).mergeFrom(value).buildPartial();
-          } else {
-            paging_ = value;
-          }
-          onChanged();
-        } else {
-          pagingBuilder_.mergeFrom(value);
-        }
-        bitField0_ |= 0x00000004;
-        return this;
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 3;</code>
-       */
-      public Builder clearPaging() {
-        if (pagingBuilder_ == null) {
-          paging_ = org.sonarqube.ws.Common.Paging.getDefaultInstance();
-          onChanged();
-        } else {
-          pagingBuilder_.clear();
-        }
-        bitField0_ = (bitField0_ & ~0x00000004);
-        return this;
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 3;</code>
-       */
-      public org.sonarqube.ws.Common.Paging.Builder getPagingBuilder() {
-        bitField0_ |= 0x00000004;
-        onChanged();
-        return getPagingFieldBuilder().getBuilder();
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 3;</code>
-       */
-      public org.sonarqube.ws.Common.PagingOrBuilder getPagingOrBuilder() {
-        if (pagingBuilder_ != null) {
-          return pagingBuilder_.getMessageOrBuilder();
-        } else {
-          return paging_;
-        }
-      }
-      /**
-       * <code>optional .sonarqube.ws.commons.Paging paging = 3;</code>
-       */
-      private com.google.protobuf.SingleFieldBuilder<
-          org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder> 
-          getPagingFieldBuilder() {
-        if (pagingBuilder_ == null) {
-          pagingBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              org.sonarqube.ws.Common.Paging, org.sonarqube.ws.Common.Paging.Builder, org.sonarqube.ws.Common.PagingOrBuilder>(
-                  getPaging(),
-                  getParentForChildren(),
-                  isClean());
-          paging_ = null;
-        }
-        return pagingBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:sonarqube.ws.permissions.SearchProjectPermissionsResponse)
@@ -7715,28 +7715,52 @@ public final class Permissions {
 
     /**
      * <code>optional string createdAt = 5;</code>
+     *
+     * <pre>
+     * ex: 2015-08-25T16:18:48+0200
+     * </pre>
      */
     boolean hasCreatedAt();
     /**
      * <code>optional string createdAt = 5;</code>
+     *
+     * <pre>
+     * ex: 2015-08-25T16:18:48+0200
+     * </pre>
      */
     java.lang.String getCreatedAt();
     /**
      * <code>optional string createdAt = 5;</code>
+     *
+     * <pre>
+     * ex: 2015-08-25T16:18:48+0200
+     * </pre>
      */
     com.google.protobuf.ByteString
         getCreatedAtBytes();
 
     /**
      * <code>optional string updatedAt = 6;</code>
+     *
+     * <pre>
+     * ex: 2015-08-25T16:18:48+0200
+     * </pre>
      */
     boolean hasUpdatedAt();
     /**
      * <code>optional string updatedAt = 6;</code>
+     *
+     * <pre>
+     * ex: 2015-08-25T16:18:48+0200
+     * </pre>
      */
     java.lang.String getUpdatedAt();
     /**
      * <code>optional string updatedAt = 6;</code>
+     *
+     * <pre>
+     * ex: 2015-08-25T16:18:48+0200
+     * </pre>
      */
     com.google.protobuf.ByteString
         getUpdatedAtBytes();
@@ -8041,12 +8065,20 @@ public final class Permissions {
     private java.lang.Object createdAt_;
     /**
      * <code>optional string createdAt = 5;</code>
+     *
+     * <pre>
+     * ex: 2015-08-25T16:18:48+0200
+     * </pre>
      */
     public boolean hasCreatedAt() {
       return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
      * <code>optional string createdAt = 5;</code>
+     *
+     * <pre>
+     * ex: 2015-08-25T16:18:48+0200
+     * </pre>
      */
     public java.lang.String getCreatedAt() {
       java.lang.Object ref = createdAt_;
@@ -8064,6 +8096,10 @@ public final class Permissions {
     }
     /**
      * <code>optional string createdAt = 5;</code>
+     *
+     * <pre>
+     * ex: 2015-08-25T16:18:48+0200
+     * </pre>
      */
     public com.google.protobuf.ByteString
         getCreatedAtBytes() {
@@ -8083,12 +8119,20 @@ public final class Permissions {
     private java.lang.Object updatedAt_;
     /**
      * <code>optional string updatedAt = 6;</code>
+     *
+     * <pre>
+     * ex: 2015-08-25T16:18:48+0200
+     * </pre>
      */
     public boolean hasUpdatedAt() {
       return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     /**
      * <code>optional string updatedAt = 6;</code>
+     *
+     * <pre>
+     * ex: 2015-08-25T16:18:48+0200
+     * </pre>
      */
     public java.lang.String getUpdatedAt() {
       java.lang.Object ref = updatedAt_;
@@ -8106,6 +8150,10 @@ public final class Permissions {
     }
     /**
      * <code>optional string updatedAt = 6;</code>
+     *
+     * <pre>
+     * ex: 2015-08-25T16:18:48+0200
+     * </pre>
      */
     public com.google.protobuf.ByteString
         getUpdatedAtBytes() {
@@ -8754,12 +8802,20 @@ public final class Permissions {
       private java.lang.Object createdAt_ = "";
       /**
        * <code>optional string createdAt = 5;</code>
+       *
+       * <pre>
+       * ex: 2015-08-25T16:18:48+0200
+       * </pre>
        */
       public boolean hasCreatedAt() {
         return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
        * <code>optional string createdAt = 5;</code>
+       *
+       * <pre>
+       * ex: 2015-08-25T16:18:48+0200
+       * </pre>
        */
       public java.lang.String getCreatedAt() {
         java.lang.Object ref = createdAt_;
@@ -8777,6 +8833,10 @@ public final class Permissions {
       }
       /**
        * <code>optional string createdAt = 5;</code>
+       *
+       * <pre>
+       * ex: 2015-08-25T16:18:48+0200
+       * </pre>
        */
       public com.google.protobuf.ByteString
           getCreatedAtBytes() {
@@ -8793,6 +8853,10 @@ public final class Permissions {
       }
       /**
        * <code>optional string createdAt = 5;</code>
+       *
+       * <pre>
+       * ex: 2015-08-25T16:18:48+0200
+       * </pre>
        */
       public Builder setCreatedAt(
           java.lang.String value) {
@@ -8806,6 +8870,10 @@ public final class Permissions {
       }
       /**
        * <code>optional string createdAt = 5;</code>
+       *
+       * <pre>
+       * ex: 2015-08-25T16:18:48+0200
+       * </pre>
        */
       public Builder clearCreatedAt() {
         bitField0_ = (bitField0_ & ~0x00000010);
@@ -8815,6 +8883,10 @@ public final class Permissions {
       }
       /**
        * <code>optional string createdAt = 5;</code>
+       *
+       * <pre>
+       * ex: 2015-08-25T16:18:48+0200
+       * </pre>
        */
       public Builder setCreatedAtBytes(
           com.google.protobuf.ByteString value) {
@@ -8830,12 +8902,20 @@ public final class Permissions {
       private java.lang.Object updatedAt_ = "";
       /**
        * <code>optional string updatedAt = 6;</code>
+       *
+       * <pre>
+       * ex: 2015-08-25T16:18:48+0200
+       * </pre>
        */
       public boolean hasUpdatedAt() {
         return ((bitField0_ & 0x00000020) == 0x00000020);
       }
       /**
        * <code>optional string updatedAt = 6;</code>
+       *
+       * <pre>
+       * ex: 2015-08-25T16:18:48+0200
+       * </pre>
        */
       public java.lang.String getUpdatedAt() {
         java.lang.Object ref = updatedAt_;
@@ -8853,6 +8933,10 @@ public final class Permissions {
       }
       /**
        * <code>optional string updatedAt = 6;</code>
+       *
+       * <pre>
+       * ex: 2015-08-25T16:18:48+0200
+       * </pre>
        */
       public com.google.protobuf.ByteString
           getUpdatedAtBytes() {
@@ -8869,6 +8953,10 @@ public final class Permissions {
       }
       /**
        * <code>optional string updatedAt = 6;</code>
+       *
+       * <pre>
+       * ex: 2015-08-25T16:18:48+0200
+       * </pre>
        */
       public Builder setUpdatedAt(
           java.lang.String value) {
@@ -8882,6 +8970,10 @@ public final class Permissions {
       }
       /**
        * <code>optional string updatedAt = 6;</code>
+       *
+       * <pre>
+       * ex: 2015-08-25T16:18:48+0200
+       * </pre>
        */
       public Builder clearUpdatedAt() {
         bitField0_ = (bitField0_ & ~0x00000020);
@@ -8891,6 +8983,10 @@ public final class Permissions {
       }
       /**
        * <code>optional string updatedAt = 6;</code>
+       *
+       * <pre>
+       * ex: 2015-08-25T16:18:48+0200
+       * </pre>
        */
       public Builder setUpdatedAtBytes(
           com.google.protobuf.ByteString value) {
@@ -9996,14 +10092,14 @@ public final class Permissions {
     java.lang.String[] descriptorData = {
       "\n\024ws-permissions.proto\022\030sonarqube.ws.per" +
       "missions\032\020ws-commons.proto\"\300\001\n\rUsersResp" +
-      "onse\022;\n\005users\030\001 \003(\0132,.sonarqube.ws.permi" +
-      "ssions.UsersResponse.User\022,\n\006paging\030\002 \001(" +
-      "\0132\034.sonarqube.ws.commons.Paging\032D\n\004User\022" +
+      "onse\022,\n\006paging\030\001 \001(\0132\034.sonarqube.ws.comm" +
+      "ons.Paging\022;\n\005users\030\002 \003(\0132,.sonarqube.ws" +
+      ".permissions.UsersResponse.User\032D\n\004User\022" +
       "\r\n\005login\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\r\n\005email\030\003 " +
       "\001(\t\022\020\n\010selected\030\004 \001(\010\"\310\001\n\016GroupsResponse" +
-      "\022>\n\006groups\030\001 \003(\0132..sonarqube.ws.permissi" +
-      "ons.GroupsResponse.Group\022,\n\006paging\030\002 \001(\013" +
-      "2\034.sonarqube.ws.commons.Paging\032H\n\005Group\022",
+      "\022,\n\006paging\030\001 \001(\0132\034.sonarqube.ws.commons." +
+      "Paging\022>\n\006groups\030\002 \003(\0132..sonarqube.ws.pe" +
+      "rmissions.GroupsResponse.Group\032H\n\005Group\022",
       "\n\n\002id\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\023\n\013description" +
       "\030\003 \001(\t\022\020\n\010selected\030\004 \001(\010\"e\n\nPermission\022\013" +
       "\n\003key\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\023\n\013description" +
@@ -10011,12 +10107,12 @@ public final class Permissions {
       "t\030\005 \001(\005\"\\\n\037SearchGlobalPermissionsRespon" +
       "se\0229\n\013permissions\030\001 \003(\0132$.sonarqube.ws.p" +
       "ermissions.Permission\"\344\002\n SearchProjectP" +
-      "ermissionsResponse\022T\n\010projects\030\001 \003(\0132B.s" +
-      "onarqube.ws.permissions.SearchProjectPer" +
-      "missionsResponse.Project\0229\n\013permissions\030",
-      "\002 \003(\0132$.sonarqube.ws.permissions.Permiss" +
-      "ion\022,\n\006paging\030\003 \001(\0132\034.sonarqube.ws.commo" +
-      "ns.Paging\032\200\001\n\007Project\022\014\n\004uuid\030\001 \001(\t\022\013\n\003k" +
+      "ermissionsResponse\022,\n\006paging\030\001 \001(\0132\034.son" +
+      "arqube.ws.commons.Paging\022T\n\010projects\030\002 \003" +
+      "(\0132B.sonarqube.ws.permissions.SearchProj",
+      "ectPermissionsResponse.Project\0229\n\013permis" +
+      "sions\030\003 \003(\0132$.sonarqube.ws.permissions.P" +
+      "ermission\032\200\001\n\007Project\022\014\n\004uuid\030\001 \001(\t\022\013\n\003k" +
       "ey\030\002 \001(\t\022\021\n\tqualifier\030\003 \001(\t\022\014\n\004name\030\004 \001(" +
       "\t\0229\n\013permissions\030\005 \003(\0132$.sonarqube.ws.pe" +
       "rmissions.Permission\"\202\001\n\022PermissionTempl" +
@@ -10049,7 +10145,7 @@ public final class Permissions {
     internal_static_sonarqube_ws_permissions_UsersResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_permissions_UsersResponse_descriptor,
-        new java.lang.String[] { "Users", "Paging", });
+        new java.lang.String[] { "Paging", "Users", });
     internal_static_sonarqube_ws_permissions_UsersResponse_User_descriptor =
       internal_static_sonarqube_ws_permissions_UsersResponse_descriptor.getNestedTypes().get(0);
     internal_static_sonarqube_ws_permissions_UsersResponse_User_fieldAccessorTable = new
@@ -10061,7 +10157,7 @@ public final class Permissions {
     internal_static_sonarqube_ws_permissions_GroupsResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_permissions_GroupsResponse_descriptor,
-        new java.lang.String[] { "Groups", "Paging", });
+        new java.lang.String[] { "Paging", "Groups", });
     internal_static_sonarqube_ws_permissions_GroupsResponse_Group_descriptor =
       internal_static_sonarqube_ws_permissions_GroupsResponse_descriptor.getNestedTypes().get(0);
     internal_static_sonarqube_ws_permissions_GroupsResponse_Group_fieldAccessorTable = new
@@ -10085,7 +10181,7 @@ public final class Permissions {
     internal_static_sonarqube_ws_permissions_SearchProjectPermissionsResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_sonarqube_ws_permissions_SearchProjectPermissionsResponse_descriptor,
-        new java.lang.String[] { "Projects", "Permissions", "Paging", });
+        new java.lang.String[] { "Paging", "Projects", "Permissions", });
     internal_static_sonarqube_ws_permissions_SearchProjectPermissionsResponse_Project_descriptor =
       internal_static_sonarqube_ws_permissions_SearchProjectPermissionsResponse_descriptor.getNestedTypes().get(0);
     internal_static_sonarqube_ws_permissions_SearchProjectPermissionsResponse_Project_fieldAccessorTable = new

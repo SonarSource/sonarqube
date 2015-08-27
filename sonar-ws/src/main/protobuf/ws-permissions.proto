@@ -38,8 +38,8 @@ message UsersResponse {
     optional bool selected = 4;
   }
 
-  repeated User users = 1;
-  optional sonarqube.ws.commons.Paging paging = 2;
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated User users = 2;
 }
 
 // WS api/permissions/groups for internal use only
@@ -52,8 +52,8 @@ message GroupsResponse {
     optional bool selected = 4;
   }
 
-  repeated Group groups = 1;
-  optional sonarqube.ws.commons.Paging paging = 2;
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated Group groups = 2;
 }
 
 message Permission {
@@ -77,9 +77,9 @@ message SearchProjectPermissionsResponse {
     repeated Permission permissions = 5;
   }
 
-  repeated Project projects = 1;
-  repeated Permission permissions = 2;
-  optional sonarqube.ws.commons.Paging paging = 3;
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated Project projects = 2;
+  repeated Permission permissions = 3;
 }
 
 message PermissionTemplate {
