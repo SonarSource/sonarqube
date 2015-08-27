@@ -7,7 +7,7 @@
       "query": "resolved=false|assignees=__me__",
       "user": "[SonarQube]",
       "canModify": false,
-      "favourite": true
+      "favorite": true
     },
     {
       "id": "2",
@@ -16,7 +16,7 @@
       "query": "resolutions=FALSE-POSITIVE,WONTFIX",
       "user": "[SonarQube]",
       "canModify": false,
-      "favourite": false
+      "favorite": false
     },
     {
       "id": "12",
@@ -25,7 +25,7 @@
       "query": "resolved=false",
       "user": "grace.hopper",
       "canModify": true,
-      "favourite": false
+      "favorite": false
     },
     {
       "id": "54",
@@ -34,7 +34,7 @@
       "query": "resolved=false|statuses=OPEN,REOPENED|assignees=__me__",
       "user": "grace.hopper",
       "canModify": true,
-      "favourite": true
+      "favorite": true
     }
   ]
 }

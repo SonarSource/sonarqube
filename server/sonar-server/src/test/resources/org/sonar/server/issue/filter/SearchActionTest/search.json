@@ -6,7 +6,7 @@
       "query": "resolved=false|assignees=__me__",
       "user": "[SonarQube]",
       "canModify": false,
-      "favourite": true
+      "favorite": true
     },
     {
       "name": "False Positive and Won't Fix Issues",
@@ -14,7 +14,7 @@
       "query": "resolutions=FALSE-POSITIVE,WONTFIX",
       "user": "[SonarQube]",
       "canModify": false,
-      "favourite": false
+      "favorite": false
     },
     {
       "name": "Unresolved Issues",
@@ -22,7 +22,7 @@
       "query": "resolved=false",
       "user": "grace.hopper",
       "canModify": true,
-      "favourite": false
+      "favorite": false
     },
     {
       "name": "My Custom Filter",
@@ -30,7 +30,7 @@
       "query": "resolved=false|statuses=OPEN,REOPENED|assignees=__me__",
       "user": "grace.hopper",
       "canModify": true,
-      "favourite": true
+      "favorite": true
     }
   ]
 }

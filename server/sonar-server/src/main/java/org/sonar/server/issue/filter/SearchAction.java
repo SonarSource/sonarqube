@@ -78,7 +78,7 @@ public class SearchAction implements IssueFilterWsAction {
     json.beginObject();
     json.name("issueFilters").beginArray();
     for (IssueFilterDto issueFilter : issueFilters) {
-      IssueFilterJsonWriter.write(json, new IssueFilterWithFavourite(issueFilter, isFavourite(issueFilter, userFavouritesByFilterId)), userSession);
+      IssueFilterJsonWriter.write(json, new IssueFilterWithFavorite(issueFilter, isFavourite(issueFilter, userFavouritesByFilterId)), userSession);
     }
     json.endArray();
 

@@ -38,11 +38,11 @@ class IssueFilterJsonWriter {
 
   static void writeWithName(JsonWriter json, IssueFilterDto filter, UserSession userSession) {
     json.name("filter");
-    write(json, new IssueFilterWithFavourite(filter, null), userSession);
+    write(json, new IssueFilterWithFavorite(filter, null), userSession);
   }
 
-  static void write(JsonWriter json, IssueFilterWithFavourite issueFilterWithFavourite, UserSession userSession) {
-    IssueFilterDto issueFilter = issueFilterWithFavourite.issueFilter();
+  static void write(JsonWriter json, IssueFilterWithFavorite issueFilterWithFavorite, UserSession userSession) {
+    IssueFilterDto issueFilter = issueFilterWithFavorite.issueFilter();
     json
       .beginObject()
       .prop("id", String.valueOf(issueFilter.getId()))
@@ -52,8 +52,8 @@ class IssueFilterJsonWriter {
       .prop("shared", issueFilter.isShared())
       .prop("query", issueFilter.getData())
       .prop("canModify", canModifyFilter(userSession, issueFilter));
-    if (issueFilterWithFavourite.isFavourite() != null) {
-      json.prop("favourite", issueFilterWithFavourite.isFavourite());
+    if (issueFilterWithFavorite.isFavorite() != null) {
+      json.prop("favorite", issueFilterWithFavorite.isFavorite());
     }
     json.endObject();
   }

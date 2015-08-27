@@ -23,11 +23,11 @@ package org.sonar.server.issue.filter;
 import javax.annotation.Nullable;
 import org.sonar.db.issue.IssueFilterDto;
 
-public class IssueFilterWithFavourite {
+public class IssueFilterWithFavorite {
   private final IssueFilterDto issueFilter;
   private final Boolean isFavourite;
 
-  public IssueFilterWithFavourite(IssueFilterDto issueFilter, Boolean isFavourite) {
+  public IssueFilterWithFavorite(IssueFilterDto issueFilter, Boolean isFavourite) {
     this.issueFilter = issueFilter;
     this.isFavourite = isFavourite;
   }
@@ -37,7 +37,7 @@ public class IssueFilterWithFavourite {
   }
 
   @Nullable
-  public Boolean isFavourite() {
+  public Boolean isFavorite() {
     return isFavourite;
   }
 }
