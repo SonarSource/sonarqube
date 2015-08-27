@@ -114,7 +114,7 @@ public class CreateTemplateAction implements PermissionsWsAction {
     return template;
   }
 
-  private Permissions.CreatePermissionTemplateResponse buildResponse(PermissionTemplateDto permissionTemplateDto) {
+  private static Permissions.CreatePermissionTemplateResponse buildResponse(PermissionTemplateDto permissionTemplateDto) {
     PermissionTemplate permissionTemplateBuilder = toPermissionTemplateResponse(permissionTemplateDto);
     return Permissions.CreatePermissionTemplateResponse.newBuilder().setPermissionTemplate(permissionTemplateBuilder).build();
   }

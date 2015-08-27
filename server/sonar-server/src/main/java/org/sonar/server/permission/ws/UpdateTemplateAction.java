@@ -125,7 +125,7 @@ public class UpdateTemplateAction implements PermissionsWsAction {
     return dbClient.permissionTemplateDao().update(dbSession, templateToUpdate);
   }
 
-  private UpdatePermissionTemplateResponse buildResponse(PermissionTemplateDto permissionTemplate) {
+  private static UpdatePermissionTemplateResponse buildResponse(PermissionTemplateDto permissionTemplate) {
     PermissionTemplate permissionTemplateBuilder = toPermissionTemplateResponse(permissionTemplate);
     return UpdatePermissionTemplateResponse.newBuilder().setPermissionTemplate(permissionTemplateBuilder).build();
   }
