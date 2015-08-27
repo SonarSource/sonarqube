@@ -71,7 +71,7 @@ public class BatchPluginRepository implements PluginRepository, Startable {
     } else {
       LOG.debug("Plugins:");
       for (PluginInfo p : infosByKeys.values()) {
-        LOG.debug("  {}-{}", p.getName(), p.getVersion());
+        LOG.debug("  * {} {} ({})", p.getName(), p.getVersion(), p.getKey());
       }
     }
   }
