@@ -19,34 +19,37 @@
  */
 package org.sonar.test;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.ThreadSafe;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.ThreadSafe;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import static java.util.Collections.synchronizedSet;
 
 @ThreadSafe
 class JsonComparison {
 
   private boolean strictTimezone = false;
   private boolean strictArrayOrder = false;
+  private Set<String> ignoredFields = synchronizedSet(new HashSet<String>());
 
   boolean isStrictTimezone() {
     return strictTimezone;
   }
 
-  JsonComparison setStrictTimezone(boolean b) {
-    this.strictTimezone = b;
+  JsonComparison withTimezone() {
+    this.strictTimezone = true;
     return this;
   }
 
@@ -54,8 +57,13 @@ class JsonComparison {
     return strictArrayOrder;
   }
 
-  JsonComparison setStrictArrayOrder(boolean b) {
-    this.strictArrayOrder = b;
+  JsonComparison withStrictArrayOrder() {
+    this.strictArrayOrder = true;
+    return this;
+  }
+
+  JsonComparison setIgnoredFields(String... ignoredFields) {
+    Collections.addAll(this.ignoredFields, ignoredFields);
     return this;
   }
 
@@ -177,6 +185,9 @@ class JsonComparison {
     // each key-value of expected map must exist in actual map
     for (Map.Entry<Object, Object> expectedEntry : (Set<Map.Entry<Object, Object>>) expectedMap.entrySet()) {
       Object key = expectedEntry.getKey();
+      if (shouldIgnoreField(key)) {
+        continue;
+      }
       if (!actualMap.containsKey(key)) {
         return false;
       }
@@ -185,6 +196,10 @@ class JsonComparison {
       }
     }
     return true;
+  }
+
+  private boolean shouldIgnoreField(Object key) {
+    return key instanceof String && ignoredFields.contains((String) key);
   }
 
   @CheckForNull

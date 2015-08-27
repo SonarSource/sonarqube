@@ -137,7 +137,7 @@ public class JsonComparisonTest {
 
   @Test
   public void strict_timezone() {
-    assertThat(new JsonComparison().setStrictTimezone(true).isStrictTimezone()).isTrue();
+    assertThat(new JsonComparison().withTimezone().isStrictTimezone()).isTrue();
 
     // same instant, same timezone
     assertThat(isSimilar_strict_timezone("{\"foo\": \"2010-05-18T15:50:45+0100\"}", "{\"foo\": \"2010-05-18T15:50:45+0100\"}")).isTrue();
@@ -169,10 +169,10 @@ public class JsonComparisonTest {
   }
 
   private boolean isSimilar_strict_timezone(String expected, String actual) {
-    return new JsonComparison().setStrictTimezone(true).areSimilar(expected, actual);
+    return new JsonComparison().withTimezone().areSimilar(expected, actual);
   }
 
   private boolean isSimilar_strict_array_order(String expected, String actual) {
-    return new JsonComparison().setStrictArrayOrder(true).areSimilar(expected, actual);
+    return new JsonComparison().withStrictArrayOrder().areSimilar(expected, actual);
   }
 }

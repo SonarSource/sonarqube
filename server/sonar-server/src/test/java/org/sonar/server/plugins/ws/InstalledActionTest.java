@@ -81,7 +81,7 @@ public class InstalledActionTest {
   public void empty_array_is_returned_when_there_is_not_plugin_installed() throws Exception {
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
+    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
   }
 
   @Test
@@ -90,7 +90,7 @@ public class InstalledActionTest {
 
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
+    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
   }
 
   @Test
@@ -169,7 +169,7 @@ public class InstalledActionTest {
 
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(
+    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(
       "{" +
         "  \"plugins\":" +
         "  [" +
@@ -193,7 +193,7 @@ public class InstalledActionTest {
 
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(
+    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(
       "{" +
         "  \"plugins\":" +
         "  [" +

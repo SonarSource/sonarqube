@@ -48,7 +48,7 @@ public class PluginWSCommonsTest {
     underTest.writePluginInfo(jsonWriter, gitPluginInfo(), null);
 
     jsonWriter.close();
-    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo("{" +
+    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo("{" +
       "  \"key\": \"scmgit\"," +
       "  \"name\": \"Git\"," +
       "  \"description\": \"Git SCM Provider.\"," +
@@ -66,7 +66,7 @@ public class PluginWSCommonsTest {
     underTest.writePluginInfo(jsonWriter, gitPluginInfo(), "cat_1");
 
     jsonWriter.close();
-    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo("{" +
+    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo("{" +
       "  \"key\": \"scmgit\"," +
       "  \"name\": \"Git\"," +
       "  \"description\": \"Git SCM Provider.\"," +
@@ -127,7 +127,7 @@ public class PluginWSCommonsTest {
     jsonWriter.endObject();
 
     jsonWriter.close();
-    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo("{" +
+    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo("{" +
       "  \"release\": {" +
       "     \"version\": \"1.0\"," +
       "     \"date\": \"2015-04-16\"," +
@@ -144,7 +144,7 @@ public class PluginWSCommonsTest {
     jsonWriter.endObject();
 
     jsonWriter.close();
-    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo("{" +
+    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo("{" +
       "  \"artifact\": {" +
       "     \"name\": \"file.jar\"," +
       "     \"url\": \"http://toto.com/file.jar\"" +

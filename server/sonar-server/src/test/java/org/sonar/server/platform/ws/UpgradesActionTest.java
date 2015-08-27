@@ -85,7 +85,7 @@ public class UpgradesActionTest {
   public void empty_array_is_returned_when_there_is_no_upgrade_available() throws Exception {
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(JSON_EMPTY_UPGRADE_LIST);
+    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_UPGRADE_LIST);
   }
 
   @Test
@@ -94,7 +94,7 @@ public class UpgradesActionTest {
 
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(JSON_EMPTY_UPGRADE_LIST);
+    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_UPGRADE_LIST);
   }
 
   @Test
@@ -104,7 +104,7 @@ public class UpgradesActionTest {
 
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).setStrictArrayOrder(true)
+    assertJson(response.outputAsString()).withStrictArrayOrder()
       .isSimilarTo(getClass().getResource("example-upgrades_plugins.json"));
   }
 

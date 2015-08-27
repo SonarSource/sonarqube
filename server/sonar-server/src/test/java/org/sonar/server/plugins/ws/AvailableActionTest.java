@@ -80,7 +80,7 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
   public void empty_array_is_returned_when_there_is_no_plugin_available() throws Exception {
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
+    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
   }
 
   @Test
@@ -89,7 +89,7 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
 
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
+    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
   }
 
   @Test

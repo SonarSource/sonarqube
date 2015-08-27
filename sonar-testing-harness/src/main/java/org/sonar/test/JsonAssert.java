@@ -22,12 +22,11 @@ package org.sonar.test;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import org.apache.commons.io.IOUtils;
-import org.junit.ComparisonFailure;
-
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import org.apache.commons.io.IOUtils;
+import org.junit.ComparisonFailure;
 
 /**
  * Assertion to compare JSON documents. Comparison is not strict:
@@ -37,10 +36,10 @@ import java.nio.charset.StandardCharsets;
  *   <li>objects can contain more elements than expected, for example <code>{"one":1, "two":2}</code>
  *   matches <code>{"one":1}</code></li>
  *   <li>order of elements in arrays <code>[]</code> is not verified by default, for example <code>[1, 2]</code>
- *   matches <code>[2, 1]</code>. This mode can be disabled with {@link #setStrictArrayOrder(boolean)}</li>
+ *   matches <code>[2, 1]</code>. This mode can be disabled with {@link #withStrictArrayOrder()}</li>
  *   <li>timezones in datetime values are not strictly verified, for example <code>{"foo": "2015-01-01T13:00:00+2000"}</code>
  *   matches <code>{"foo": "2015-01-01T10:00:00-1000"}</code>. This feature can be disabled with
- *   {@link #setStrictTimezone(boolean)}
+ *   {@link #withStrictTimezone()}
  *   </li>
  * </ul>
  *
@@ -68,13 +67,18 @@ public class JsonAssert {
     this.actualJson = actualJson;
   }
 
-  public JsonAssert setStrictTimezone(boolean b) {
-    comparison.setStrictTimezone(b);
+  public JsonAssert withStrictTimezone() {
+    comparison.withTimezone();
     return this;
   }
 
-  public JsonAssert setStrictArrayOrder(boolean b) {
-    comparison.setStrictArrayOrder(b);
+  public JsonAssert withStrictArrayOrder() {
+    comparison.withStrictArrayOrder();
+    return this;
+  }
+
+  public JsonAssert ignoreFields(String... ignoredFields) {
+    comparison.setIgnoredFields(ignoredFields);
     return this;
   }
 

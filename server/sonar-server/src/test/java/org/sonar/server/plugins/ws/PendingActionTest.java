@@ -72,7 +72,7 @@ public class PendingActionTest {
   public void empty_arrays_are_returned_when_there_nothing_pending() throws Exception {
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(
+    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(
       "{" +
         "  \"installing\": []," +
         "  \"removing\": []" +
@@ -86,7 +86,7 @@ public class PendingActionTest {
 
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(
+    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(
       "{" +
         "  \"installing\": []," +
         "  \"removing\": []" +
@@ -169,7 +169,7 @@ public class PendingActionTest {
 
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(
+    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(
       "{" +
         "  \"installing\": " +
         "  [" +
@@ -201,7 +201,7 @@ public class PendingActionTest {
 
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).setStrictArrayOrder(true).isSimilarTo(
+    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(
       "{" +
         "  \"installing\": []," +
         "  \"removing\": " +
