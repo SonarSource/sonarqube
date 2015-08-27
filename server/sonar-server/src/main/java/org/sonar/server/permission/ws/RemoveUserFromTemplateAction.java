@@ -30,7 +30,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.PermissionRequestValidator.validateProjectPermission;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_LONG_TEMPLATE_KEY;
 import static org.sonar.server.permission.ws.Parameters.PARAM_USER_LOGIN;

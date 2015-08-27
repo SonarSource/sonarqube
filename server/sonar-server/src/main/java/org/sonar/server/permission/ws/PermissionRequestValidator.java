@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.permission;
+package org.sonar.server.permission.ws;
 
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -30,6 +30,8 @@ import org.sonar.server.exceptions.BadRequestException;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static org.sonar.api.security.DefaultGroups.isAnyone;
+import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
+import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_PATTERN;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class PermissionRequestValidator {
@@ -42,12 +44,12 @@ public class PermissionRequestValidator {
 
   public static void validateProjectPermission(String permission) {
     checkRequest(ProjectPermissions.ALL.contains(permission),
-      format("The 'permission' parameter for project permissions must be one of %s. '%s' was passed.", ProjectPermissions.ALL_ON_ONE_LINE, permission));
+      format("The '%s' parameter for project permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION, ProjectPermissions.ALL_ON_ONE_LINE, permission));
   }
 
   public static void validateGlobalPermission(String permission) {
     checkRequest(GlobalPermissions.ALL.contains(permission),
-      format("The 'permission' parameter for global permissions must be one of %s. '%s' was passed.", GlobalPermissions.ALL_ON_ONE_LINE, permission));
+      format("The '%s' parameter for global permissions must be one of %s. '%s' was passed.", PARAM_PERMISSION, GlobalPermissions.ALL_ON_ONE_LINE, permission));
   }
 
   public static void validateNotAnyoneAndAdminPermission(String permission, @Nullable String groupName) {
@@ -63,7 +65,7 @@ public class PermissionRequestValidator {
     try {
       Pattern.compile(projectPattern);
     } catch (PatternSyntaxException e) {
-      throw new BadRequestException(format("The 'projectPattern' parameter must be a valid Java regular expression. '%s' was passed", projectPattern));
+      throw new BadRequestException(format("The '%s' parameter must be a valid Java regular expression. '%s' was passed", PARAM_TEMPLATE_PATTERN, projectPattern));
     }
   }
 }

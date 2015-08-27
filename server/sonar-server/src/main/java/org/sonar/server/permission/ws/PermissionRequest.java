@@ -28,8 +28,8 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.SELECTED;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonar.server.permission.PermissionRequestValidator.validateGlobalPermission;
-import static org.sonar.server.permission.PermissionRequestValidator.validateProjectPermission;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.validateGlobalPermission;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.Parameters.PARAM_PERMISSION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_USER_LOGIN;
 

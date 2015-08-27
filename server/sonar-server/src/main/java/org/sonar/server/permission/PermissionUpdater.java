@@ -37,7 +37,7 @@ import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.security.DefaultGroups.isAnyone;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentKey;
-import static org.sonar.server.permission.PermissionRequestValidator.validateNotAnyoneAndAdminPermission;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.validateNotAnyoneAndAdminPermission;
 
 public class PermissionUpdater {
 

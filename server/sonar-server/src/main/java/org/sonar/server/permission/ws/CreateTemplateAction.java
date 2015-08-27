@@ -32,9 +32,9 @@ import org.sonarqube.ws.Permissions;
 import org.sonarqube.ws.Permissions.PermissionTemplate;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.PermissionRequestValidator.MSG_TEMPLATE_NAME_NOT_BLANK;
-import static org.sonar.server.permission.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
-import static org.sonar.server.permission.PermissionRequestValidator.validateProjectPattern;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_NAME_NOT_BLANK;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
+import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPattern;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_DESCRIPTION;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_NAME;
 import static org.sonar.server.permission.ws.Parameters.PARAM_TEMPLATE_PATTERN;
