@@ -21,6 +21,7 @@
 package org.sonar.server.computation.formula;
 
 import com.google.common.base.Optional;
+import org.sonar.api.ce.measure.RangeDistributionBuilder;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.measure.Measure;
@@ -81,7 +82,7 @@ public class DistributionFormula implements Formula<DistributionFormula.Distribu
 
     public Optional<String> getValue() {
       if (initialized) {
-        return distribution.build();
+        return Optional.fromNullable(distribution.build());
       }
       return Optional.absent();
     }

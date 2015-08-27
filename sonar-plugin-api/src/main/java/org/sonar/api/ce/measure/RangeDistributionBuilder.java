@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.computation.formula;
+package org.sonar.api.ce.measure;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.TreeMultiset;
 import java.util.Arrays;
@@ -29,6 +28,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import javax.annotation.CheckForNull;
 import org.sonar.api.utils.KeyValueFormat;
 
 /**
@@ -45,16 +45,51 @@ public class RangeDistributionBuilder {
   private Number[] bottomLimits;
   private boolean isValid = true;
 
+  public RangeDistributionBuilder() {
+    // Nothing to be done here, bottom limits will be automatically calculated when adding the first value
+  }
+
+  /**
+   * RangeDistributionBuilder for a defined range
+   * Each entry is initialized at zero
+   *
+   * @param bottomLimits the bottom limits of ranges to be used
+   */
+  public RangeDistributionBuilder(Number[] bottomLimits) {
+    init(bottomLimits);
+  }
+
+  /**
+   * Increments an entry by 1
+   *
+   * @param value the value to use to pick the entry to increment
+   */
+  public RangeDistributionBuilder add(Number value) {
+    return add(value, 1);
+  }
+
+  /**
+   * Increments an entry
+   *
+   * @param value the value to use to pick the entry to increment
+   * @param count the number by which to increment
+   */
+  public RangeDistributionBuilder add(Number value, int count) {
+    if (greaterOrEqualsThan(value, bottomLimits[0])) {
+      addValue(value, count);
+      isEmpty = false;
+    }
+    return this;
+  }
+
   /**
    * Adds an existing Distribution to the current one.
    * It will create the entries if they don't exist.
    * Can be used to add the values of children resources for example
    * <p/>
-   * Since 2.2, the distribution returned will be invalidated in case the
-   * measure given does not use the same bottom limits
+   * The returned distribution will be invalidated in case the given value does not use the same bottom limits
    *
    * @param data the data to add to the current one
-   * @return the current object
    */
   public RangeDistributionBuilder add(String data) {
     Map<Double, Double> map = KeyValueFormat.parse(data, KeyValueFormat.newDoubleConverter(), KeyValueFormat.newDoubleConverter());
@@ -141,11 +176,12 @@ public class RangeDistributionBuilder {
    *
    * @return the built measure
    */
-  public Optional<String> build() {
+  @CheckForNull
+  public String build() {
     if (isValid) {
-      return Optional.of(KeyValueFormat.format(toMap()));
+      return KeyValueFormat.format(toMap());
     }
-    return Optional.absent();
+    return null;
   }
 
   private Map<Number, Integer> toMap() {
@@ -153,8 +189,7 @@ public class RangeDistributionBuilder {
       return Collections.emptyMap();
     }
     Map<Number, Integer> map = new TreeMap<>();
-    for (int i = 0; i < bottomLimits.length; i++) {
-      Number value = bottomLimits[i];
+    for (Number value : bottomLimits) {
       map.put(value, distributionSet.count(value));
     }
     return map;

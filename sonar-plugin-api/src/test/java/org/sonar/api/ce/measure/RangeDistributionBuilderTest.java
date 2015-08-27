@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.computation.formula;
+package org.sonar.api.ce.measure;
 
 import org.junit.Test;
 
@@ -27,56 +27,103 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RangeDistributionBuilderTest {
 
   @Test
+  public void work_on_an_limits_array_copy() {
+    Integer[] limits = new Integer[] {4, 2, 0};
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(limits);
+    builder.add(3.2).add(2.0).add(6.2).build();
+
+    assertThat(limits[0]).isEqualTo(4);
+    assertThat(limits[1]).isEqualTo(2);
+    assertThat(limits[2]).isEqualTo(0);
+  }
+
+  @Test
   public void build_integer_distribution() {
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(new Integer[] {0, 2, 4});
+    String data = builder
+      .add(3.2)
+      .add(2.0)
+      .add(6.2)
+      .build();
+
+    assertThat(data).isEqualTo("0=0;2=2;4=1");
+  }
+
+  @Test
+  public void build_double_distribution() {
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(new Double[] {0.0, 2.0, 4.0});
+    String data = builder
+      .add(3.2)
+      .add(2.0)
+      .add(6.2)
+      .build();
+
+    assertThat(data).isEqualTo("0=0;2=2;4=1");
+  }
+
+  @Test
+  public void value_lesser_than_minimum_is_ignored() {
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(new Integer[] {0, 2, 4});
+    String data = builder
+      .add(3.2)
+      .add(2.0)
+      .add(-3.0)
+      .build();
+
+    assertThat(data).isEqualTo("0=0;2=2;4=0");
+  }
+
+  @Test
+  public void add_existing_integer_distribution() {
     RangeDistributionBuilder builder = new RangeDistributionBuilder();
     String data = builder
       .add("0=0;2=2;4=1")
       .add("0=1;2=2;4=2")
-      .build().get();
+      .build();
 
     assertThat(data).isEqualTo("0=1;2=4;4=3");
   }
 
   @Test
-  public void build_double_distribution() {
+  public void add_existing_double_distribution() {
     RangeDistributionBuilder builder = new RangeDistributionBuilder();
     String data = builder
       .add("0.5=0;1.9=2;4.5=1")
       .add("0.5=1;1.9=3;4.5=1")
-      .build().get();
+      .build();
 
     assertThat(data).isEqualTo("0.5=1;1.9=5;4.5=2");
   }
 
   @Test
-  public void add_distribution_measure_with_identical_limits() {
+  public void add_distribution_with_identical_limits() {
     RangeDistributionBuilder builder = new RangeDistributionBuilder();
     String data = builder
       .add("0=1;2=0")
       .add("0=3;2=5")
-      .build().get();
+      .build();
 
     assertThat(data).isEqualTo("0=4;2=5");
   }
 
   @Test
-  public void add_distribution_measure_with_different_int_limits() {
+  public void add_distribution_with_different_int_limits() {
     RangeDistributionBuilder builder = new RangeDistributionBuilder();
 
     assertThat(builder
       .add("0=1")
       .add("0=3;2=5")
-      .build().isPresent()).isFalse();
+      .build()).isNull();
   }
 
   @Test
-  public void add_distribution_measure_with_different_double_limits() {
+  public void add_distribution_with_different_double_limits() {
     RangeDistributionBuilder builder = new RangeDistributionBuilder();
 
     assertThat(builder
       .add("0.0=3;3.0=5")
       .add("0.0=3;3.0=5;6.0=9")
-      .build().isPresent()).isFalse();
+      .build()).isNull();
   }
 
   @Test
@@ -85,7 +132,7 @@ public class RangeDistributionBuilderTest {
     String data = builder
       .add("0.5=3;3.5=5;6.5=9")
       .add("0.5=0;3.5=2;6.5=1")
-      .build().get();
+      .build();
 
     assertThat(data).isEqualTo("0.5=3;3.5=7;6.5=10");
   }
@@ -96,23 +143,30 @@ public class RangeDistributionBuilderTest {
     String data = builder
       .add("0=3;3=5;6=9")
       .add("0=0;3=2;6=1")
-      .build().get();
+      .build();
 
     assertThat(data).isEqualTo("0=3;3=7;6=10");
   }
 
+
   @Test
-  public void return_empty_string_when_empty_data() {
+  public void is_empty_is_true_when_no_data() {
     RangeDistributionBuilder builder = new RangeDistributionBuilder();
 
     assertThat(builder.isEmpty()).isTrue();
-    assertThat(builder.build().get()).isEmpty();
+  }
+
+  @Test
+  public void is_empty_is_true_when_no_data_on_distribution_with_limits() {
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(new Integer[] {4, 2, 0});
+
+    assertThat(builder.isEmpty()).isTrue();
   }
 
   @Test
   public void aggregate_empty_distribution() {
     RangeDistributionBuilder builder = new RangeDistributionBuilder();
-    String distribution = builder.build().get();
+    String distribution = builder.build();
     assertThat(distribution).isEmpty();
   }
 

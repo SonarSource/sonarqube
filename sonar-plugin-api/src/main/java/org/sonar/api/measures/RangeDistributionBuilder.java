@@ -19,6 +19,11 @@
  */
 package org.sonar.api.measures;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nullable;
 import org.apache.commons.collections.SortedBag;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.collections.bag.TransformedSortedBag;
@@ -27,13 +32,6 @@ import org.apache.commons.lang.NumberUtils;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.SonarException;
 
-import javax.annotation.Nullable;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * Utility to build a distribution based on defined ranges
  * <p/>
@@ -41,7 +39,9 @@ import java.util.Set;
  * with pre-defined ranges of complexity.</p>
  *
  * @since 1.10
+ * @deprecated since 5.2 use {@link org.sonar.api.ce.measure.RangeDistributionBuilder instead}
  */
+@Deprecated
 public class RangeDistributionBuilder implements MeasureBuilder {
 
   private Metric<String> metric;
