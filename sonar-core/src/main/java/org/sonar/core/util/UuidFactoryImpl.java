@@ -28,13 +28,13 @@ import org.apache.commons.codec.binary.Base64;
  * used the day {@code UuidFactoryImpl} is moved outside module sonar-core.
  * See https://github.com/elastic/elasticsearch/blob/master/core/src/main/java/org/elasticsearch/common/TimeBasedUUIDGenerator.java
  */
-public class UuidFactoryImpl implements UuidFactory {
+public enum UuidFactoryImpl implements UuidFactory {
 
   /**
    * Should be removed as long {@link Uuids} is not used anymore. {@code UuidFactoryImpl}
    * should be built by picocontainer through a public constructor.
-   * */
-  public static final UuidFactory INSTANCE = new UuidFactoryImpl();
+   */
+  INSTANCE;
 
   // We only use bottom 3 bytes for the sequence number. Paranoia: init with random int so that if JVM/OS/machine goes down, clock slips
   // backwards, and JVM comes back up, we are less likely to be on the same sequenceNumber at the same time:
