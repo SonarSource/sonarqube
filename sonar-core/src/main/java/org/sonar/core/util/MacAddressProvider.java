@@ -47,7 +47,8 @@ class MacAddressProvider {
     }
     for (byte b : address) {
       if (b != 0x00) {
-        return true; // If any of the bytes are non zero assume a good address
+        // If any of the bytes are non zero assume a good address
+        return true;
       }
     }
     return false;
@@ -99,9 +100,7 @@ class MacAddressProvider {
   static byte[] constructDummyMulticastAddress() {
     byte[] dummy = new byte[BYTE_SIZE];
     new SecureRandom().nextBytes(dummy);
-    /*
-     * Set the broadcast bit to indicate this is not a _real_ mac address
-     */
+    // Set the broadcast bit to indicate this is not a _real_ mac address
     dummy[0] |= (byte) 0x01;
     return dummy;
   }
