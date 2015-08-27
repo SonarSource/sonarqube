@@ -48,7 +48,7 @@ WEB)
   ;;
 
 PRANALYSIS)
-  if [ -n "$SONAR_GITHUB_OAUTH" ] && [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then
+  if [ -n "$SONAR_GITHUB_OAUTH" ] && [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
     echo "Start pullrequest analysis"
     mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent verify sonar:sonar -B -e -V -Dmaven.test.failure.ignore=true -Dclirr=true \
      -Dsonar.analysis.mode=incremental \
@@ -63,8 +63,12 @@ PRANALYSIS)
   ;;
 
 ITS)
-  prepareIts
-  mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory=$IT_CATEGORY -Dmaven.test.redirectTestOutputToFile=false -e
+  if [ "$IT_CATEGORY" == "plugins" ] && [ "$TRAVIS_PULL_REQUEST" == "true" ]; then
+    echo "Ignore this job since it needs access to private test licenses."
+  else
+  	prepareIts
+  	mvn install -Pit,dev -DskipTests -Dsonar.runtimeVersion=DEV -Dcategory=$IT_CATEGORY -Dmaven.test.redirectTestOutputToFile=false -e
+  fi
   ;;
 
 esac

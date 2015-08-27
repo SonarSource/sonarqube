@@ -1,9 +1,8 @@
 language: java
 sudo: false
 install: true
-
-jdk:
-  - oraclejdk7
+jdk: oraclejdk7
+script: ./travis.sh
 
 env:
   - JOB=H2
@@ -21,9 +20,6 @@ env:
 
 matrix:
   fast_finish: true
-
-script:
-  - ./travis.sh
 
 cache:
   directories:
